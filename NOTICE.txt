@@ -1,0 +1,27 @@
+Jaeksoft SearchLib Community
+Copyright 2008 Emmanuel Keller / Jaeksoft
+http://www.jaeksoft.com
+
+Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+ 
+Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License
+along with Jaeksoft SearchLib Community.
+If not, see <http://www.gnu.org/licenses/>.
+
+----------------------------------------
+ 
+This product includes software developed by
+- The Apache Software Foundation (http://www.apache.org/).
+- The JBoss Community (http://www.jboss.org/).
+- Sun Microsystems, Inc. (http://www.sun.com/).
+- JTidy (http://jtidy.sourceforge.net).
+- Knallgrau New Media Solutions (http://sourceforge.net/projects/textcat/).
+
