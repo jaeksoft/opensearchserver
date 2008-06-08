@@ -1,0 +1,74 @@
+<!--   
+	License Agreement for Jaeksoft SearchLib Community
+	
+	Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+	
+	http://www.jaeksoft.com
+	
+	This file is part of Jaeksoft SearchLib Community.
+	
+	Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+	modify it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	
+	Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License
+	along with Jaeksoft SearchLib Community. 
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<project name="SearchLib" default="dist" basedir=".">
+	<property name="src" location="src/java" />
+	<property name="lib" location="lib" />
+	<property name="build" location="ant-build" />
+	<property name="build-release" location="${build}/release" />
+	<property name="build-debug" location="${build}/debug" />
+	<property name="dist" location="dist" />
+
+	<target name="init">
+		<mkdir dir="${build}" />
+		<mkdir dir="${build-release}" />
+		<mkdir dir="${build-debug}" />
+	</target>
+
+	<target name="compile-release" depends="init" description="compile the source ">
+		<javac debug="false" optimize="true" srcdir="${src}" destdir="${build-release}">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="compile-debug" depends="init" description="compile the source ">
+		<javac debug="true" optimize="false" srcdir="${src}" destdir="${build-debug}">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="dist-release" depends="compile-release">
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/searchlib-community.jar" basedir="${build-release}" />
+	</target>
+
+	<target name="dist-debug" depends="compile-debug">
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/searchlib-community-debug.jar" basedir="${build-debug}" />
+	</target>
+
+	<target name="dist" depends="dist-release,dist-debug" />
+
+	<target name="clean" description="clean up">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+</project>
