@@ -24,9 +24,13 @@
 
 package com.jaeksoft.searchlib.crawler.filter;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.regex.Pattern;
+
 import javax.faces.event.ValueChangeEvent;
 
-public class PrefixItem {
+public class PatternUrlItem {
 
 	public enum Status {
 		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(
@@ -44,22 +48,19 @@ public class PrefixItem {
 		}
 	}
 
-	private String prefix;
 	private Status status;
+
 	private boolean selected;
 
-	public PrefixItem() {
+	protected String sPattern;
+
+	private Pattern pattern;
+
+	public PatternUrlItem() {
 		status = Status.UNDEFINED;
-		prefix = null;
 		selected = false;
-	}
-
-	public String getPrefix() {
-		return prefix;
-	}
-
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
+		sPattern = null;
+		pattern = null;
 	}
 
 	public Status getStatus() {
@@ -80,6 +81,27 @@ public class PrefixItem {
 
 	void toggleSelected(ValueChangeEvent event) {
 		selected = !selected;
+	}
+
+	protected boolean match(String sUrl) {
+		if (pattern == null)
+			return sUrl.equals(sPattern);
+		return pattern.matcher(sUrl).matches();
+	}
+
+	public void setPattern(String s) {
+		sPattern = s.trim();
+		if (!sPattern.contains("*"))
+			return;
+		pattern = Pattern.compile(sPattern.replace("*", ".*"));
+	}
+
+	public URL extractUrl(boolean removeWildcard) throws MalformedURLException {
+		return new URL(removeWildcard ? sPattern.replace("*", "") : sPattern);
+	}
+
+	public String getPattern() {
+		return sPattern;
 	}
 
 }

@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.pojojdbc.Database;
 import com.jaeksoft.pojojdbc.Transaction;
-import com.jaeksoft.searchlib.crawler.filter.PrefixUrlFilter;
+import com.jaeksoft.searchlib.crawler.filter.PatternUrlFilter;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.crawler.spider.ParserSelector;
 import com.jaeksoft.searchlib.index.IndexAbstract;
@@ -61,7 +61,7 @@ public abstract class Config implements XmlInfo {
 
 	private RequestList requests = null;
 
-	private PrefixUrlFilter prefixUrlFilter = null;
+	private PatternUrlFilter patternUrlFilter = null;
 
 	private RobotsTxtCache robotsTxtCache = null;
 
@@ -83,6 +83,8 @@ public abstract class Config implements XmlInfo {
 		requests = RequestList.fromXmlConfig(this, xpp, xpp
 				.getNode("/configuration/requests"));
 
+		index = getIndex(homeDir, createIndexIfNotExists);
+
 		// Database info
 		Node node = xpp.getNode("/configuration/database");
 		if (node != null) {
@@ -98,9 +100,11 @@ public abstract class Config implements XmlInfo {
 		}
 
 		if (urlDatabase != null) {
-			prefixUrlFilter = new PrefixUrlFilter(this);
+			patternUrlFilter = new PatternUrlFilter(this);
 			robotsTxtCache = new RobotsTxtCache();
 		}
+
+		// Parser info
 		node = xpp.getNode("/configuration/parserSelector");
 		if (node != null)
 			parserSelector = ParserSelector.fromXmlConfig(xpp, node);
@@ -137,8 +141,8 @@ public abstract class Config implements XmlInfo {
 		return requests.get(requestName).clone();
 	}
 
-	public PrefixUrlFilter getPrefixUrlFilter() {
-		return prefixUrlFilter;
+	public PatternUrlFilter getPatternUrlFilter() {
+		return patternUrlFilter;
 	}
 
 	public RobotsTxtCache getRobotsTxtCache() {
@@ -155,7 +159,7 @@ public abstract class Config implements XmlInfo {
 			transaction = urlDatabase.getNewTransaction(false, ";create=true");
 
 			transaction
-					.update("CREATE TABLE prefixurl(url VARCHAR(2048), PRIMARY KEY(url))");
+					.update("CREATE TABLE pattern(pattern VARCHAR(2048), PRIMARY KEY(pattern))");
 			transaction
 					.update("CREATE TABLE url(url VARCHAR(2048), host VARCHAR(2048), "
 							+ "status SMALLINT, when TIMESTAMP, retry SMALLINT, indexed TIMESTAMP, "

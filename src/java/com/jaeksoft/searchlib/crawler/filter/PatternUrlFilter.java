@@ -37,37 +37,37 @@ import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
 
-public class PrefixUrlFilter {
+public class PatternUrlFilter {
 
-	private Hashtable<String, ArrayList<PrefixUrl>> prefixUrlList = null;
+	private Hashtable<String, ArrayList<PatternUrlItem>> patternUrlMap = null;
 
 	private Config config;
 
-	public PrefixUrlFilter(Config config) {
-		prefixUrlList = null;
+	public PatternUrlFilter(Config config) {
+		patternUrlMap = null;
 		this.config = config;
 		updateCache();
 	}
 
-	public void addPrefixList(List<PrefixItem> prefixList) {
+	public void addList(List<PatternUrlItem> patternList) {
 		Transaction transaction = null;
 		try {
 			transaction = config.getDatabaseTransaction();
 			Query query = transaction
-					.prepare("INSERT INTO prefixurl(url) VALUES (?)");
-			Iterator<PrefixItem> it = prefixList.iterator();
+					.prepare("INSERT INTO pattern(pattern) VALUES (?)");
+			Iterator<PatternUrlItem> it = patternList.iterator();
 			while (it.hasNext()) {
-				PrefixItem item = it.next();
-				if (item.getStatus() != PrefixItem.Status.UNDEFINED)
+				PatternUrlItem item = it.next();
+				if (item.getStatus() != PatternUrlItem.Status.UNDEFINED)
 					continue;
 				try {
-					query.getStatement().setString(1, item.getPrefix());
+					query.getStatement().setString(1, item.getPattern());
 					query.update();
-					item.setStatus(PrefixItem.Status.INJECTED);
+					item.setStatus(PatternUrlItem.Status.INJECTED);
 				} catch (SQLException e) {
 					// Duplicate Key
 					if ("23505".equals(e.getSQLState()))
-						item.setStatus(PrefixItem.Status.ALREADY);
+						item.setStatus(PatternUrlItem.Status.ALREADY);
 					else
 						throw e;
 				}
@@ -82,13 +82,13 @@ public class PrefixUrlFilter {
 		}
 	}
 
-	public void delPrefix(PrefixItem item) {
+	public void delPattern(PatternUrlItem item) {
 		Transaction transaction = null;
 		try {
 			transaction = config.getDatabaseTransaction();
 			Query query = transaction
-					.prepare("DELETE FROM prefixurl WHERE url=?");
-			query.getStatement().setString(1, item.getPrefix());
+					.prepare("DELETE FROM pattern WHERE pattern=?");
+			query.getStatement().setString(1, item.getPattern());
 			query.update();
 			transaction.commit();
 			updateCache();
@@ -105,30 +105,30 @@ public class PrefixUrlFilter {
 		Transaction transaction = null;
 		try {
 			transaction = config.getDatabaseTransaction();
-			Hashtable<String, ArrayList<PrefixUrl>> newPrefixUrlList = new Hashtable<String, ArrayList<PrefixUrl>>();
-			Query query = transaction.prepare("SELECT url FROM prefixurl");
-			List<PrefixUrl> result = (List<PrefixUrl>) query
-					.getResultList(PrefixUrl.class);
-			for (PrefixUrl prefixUrl : result) {
-				if (prefixUrl.getUrl() == null)
+			Hashtable<String, ArrayList<PatternUrlItem>> newPatternMap = new Hashtable<String, ArrayList<PatternUrlItem>>();
+			Query query = transaction.prepare("SELECT pattern FROM pattern");
+			List<PatternUrlItem> result = (List<PatternUrlItem>) query
+					.getResultList(PatternUrlItem.class);
+			for (PatternUrlItem patternUrl : result) {
+				if (patternUrl.getPattern() == null)
 					continue;
-				if (prefixUrl.getUrl().length() == 0)
+				if (patternUrl.getPattern().length() == 0)
 					continue;
 				try {
-					URL url = prefixUrl.normalize();
-					ArrayList<PrefixUrl> prefixList = newPrefixUrlList.get(url
-							.getHost());
-					if (prefixList == null) {
-						prefixList = new ArrayList<PrefixUrl>();
-						newPrefixUrlList.put(url.getHost(), prefixList);
+					URL url = patternUrl.extractUrl(true);
+					ArrayList<PatternUrlItem> patternList = newPatternMap
+							.get(url.getHost());
+					if (patternList == null) {
+						patternList = new ArrayList<PatternUrlItem>();
+						newPatternMap.put(url.getHost(), patternList);
 					}
-					prefixList.add(prefixUrl);
+					patternList.add(patternUrl);
 				} catch (MalformedURLException e) {
 					continue;
 				}
 			}
 			synchronized (this) {
-				prefixUrlList = newPrefixUrlList;
+				patternUrlMap = newPatternMap;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -138,20 +138,18 @@ public class PrefixUrlFilter {
 		}
 	}
 
-	public PrefixUrl findPrefixUrl(URL url) {
-		ArrayList<PrefixUrl> prefixList = null;
+	public PatternUrlItem findPatternUrl(URL url) {
+		ArrayList<PatternUrlItem> patternList = null;
 		synchronized (this) {
-			prefixList = prefixUrlList.get(url.getHost());
+			patternList = patternUrlMap.get(url.getHost());
 		}
-		if (prefixList == null)
+		if (patternList == null)
 			return null;
-		synchronized (prefixList) {
+		synchronized (patternList) {
 			String sUrl = url.toExternalForm();
-			int lUrl = sUrl.length();
-			for (PrefixUrl prefixUrl : prefixList)
-				if (prefixUrl.lUrl <= lUrl)
-					if (prefixUrl.startsWith(sUrl, lUrl))
-						return prefixUrl;
+			for (PatternUrlItem patternItem : patternList)
+				if (patternItem.match(sUrl))
+					return patternItem;
 			return null;
 		}
 	}
@@ -160,7 +158,7 @@ public class PrefixUrlFilter {
 		Transaction transaction = null;
 		try {
 			transaction = config.getDatabaseTransaction();
-			Query query = transaction.prepare("SELECT count(*) FROM prefixurl");
+			Query query = transaction.prepare("SELECT count(*) FROM pattern");
 			ResultSet rs = query.getResultSet();
 			if (rs.next())
 				return rs.getInt(1);
@@ -174,12 +172,12 @@ public class PrefixUrlFilter {
 		}
 	}
 
-	public Query getPrefix(Transaction transaction, String like, boolean asc)
+	public Query getPattern(Transaction transaction, String like, boolean asc)
 			throws SQLException {
-		String sql = "SELECT url AS prefix FROM prefixurl";
+		String sql = "SELECT pattern FROM pattern";
 		if (like != null)
-			sql += " WHERE url LIKE ? ";
-		sql += " ORDER BY url";
+			sql += " WHERE pattern LIKE ? ";
+		sql += " ORDER BY pattern";
 		if (!asc)
 			sql += " DESC";
 		Query query = transaction.prepare(sql);

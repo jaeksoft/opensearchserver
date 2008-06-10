@@ -32,13 +32,13 @@ import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.PartialList;
 
-public class PrefixList extends PartialList<PrefixItem> {
+public class PatternUrlList extends PartialList<PatternUrlItem> {
 
 	private Config config;
 	private String like;
 	private boolean asc;
 
-	public PrefixList(Config config, int rows, String like, boolean asc) {
+	public PatternUrlList(Config config, int rows, String like, boolean asc) {
 		super(rows);
 		this.config = config;
 		this.like = like;
@@ -53,13 +53,13 @@ public class PrefixList extends PartialList<PrefixItem> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected List<PrefixItem> getResultList(Query query) throws Exception {
-		return (List<PrefixItem>) query.getResultList(PrefixItem.class);
+	protected List<PatternUrlItem> getResultList(Query query) throws Exception {
+		return (List<PatternUrlItem>) query.getResultList(PatternUrlItem.class);
 	}
 
 	@Override
 	protected Query getQuery(Transaction transaction) throws SQLException {
-		return config.getPrefixUrlFilter().getPrefix(transaction, like, asc);
+		return config.getPatternUrlFilter().getPattern(transaction, like, asc);
 	}
 
 }

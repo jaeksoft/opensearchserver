@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.crawler.urldb;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.jaeksoft.searchlib.crawler.filter.PatternUrlItem;
+
 public class InjectUrlItem {
 
 	public enum Status {
@@ -50,11 +52,26 @@ public class InjectUrlItem {
 	private URL url;
 	private Status status;
 
-	public InjectUrlItem(String u) {
+	private InjectUrlItem() {
 		status = Status.UNDEFINED;
+		badUrl = null;
+	}
+
+	protected InjectUrlItem(PatternUrlItem patternUrl) {
+		this();
+		try {
+			url = patternUrl.extractUrl(true);
+		} catch (MalformedURLException e) {
+			status = Status.MALFORMATED;
+			badUrl = patternUrl.getPattern();
+			url = null;
+		}
+	}
+
+	public InjectUrlItem(String u) {
+		this();
 		try {
 			url = new URL(u);
-			badUrl = null;
 		} catch (MalformedURLException e) {
 			status = Status.MALFORMATED;
 			badUrl = u;

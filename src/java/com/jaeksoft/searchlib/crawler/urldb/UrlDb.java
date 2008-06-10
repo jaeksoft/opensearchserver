@@ -36,7 +36,8 @@ import java.util.List;
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.filter.PrefixUrlFilter;
+import com.jaeksoft.searchlib.crawler.filter.PatternUrlFilter;
+import com.jaeksoft.searchlib.crawler.filter.PatternUrlItem;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.Link;
 import com.jaeksoft.searchlib.crawler.spider.LinkList;
@@ -180,10 +181,10 @@ public class UrlDb {
 	}
 
 	private void discoverLinks(Transaction transaction, LinkList links,
-			PrefixUrlFilter prefixFilter) throws SQLException {
+			PatternUrlFilter patternFilter) throws SQLException {
 		for (Link link : links.values())
 			if (link.getFollow())
-				if (prefixFilter.findPrefixUrl(link.getUrl()) != null)
+				if (patternFilter.findPatternUrl(link.getUrl()) != null)
 					insertOrUpdate(transaction, link.getUrl(), 0,
 							UrlStatus.UN_FETCHED, true);
 	}
@@ -229,9 +230,9 @@ public class UrlDb {
 			insertOrUpdate(transaction, crawl.getUrl(), 0, urlStatus, false);
 			Parser parser = crawl.getParser();
 			if (parser != null && urlStatus == UrlStatus.FETCHED) {
-				PrefixUrlFilter prefixFilter = config.getPrefixUrlFilter();
-				discoverLinks(transaction, parser.getInlinks(), prefixFilter);
-				discoverLinks(transaction, parser.getOutlinks(), prefixFilter);
+				PatternUrlFilter patternFilter = config.getPatternUrlFilter();
+				discoverLinks(transaction, parser.getInlinks(), patternFilter);
+				discoverLinks(transaction, parser.getOutlinks(), patternFilter);
 			}
 			transaction.commit();
 		} catch (SQLException e) {
@@ -269,6 +270,17 @@ public class UrlDb {
 			if (transaction != null)
 				transaction.close();
 		}
+	}
+
+	public void injectPrefix(List<PatternUrlItem> patternList) {
+		Iterator<PatternUrlItem> it = patternList.iterator();
+		List<InjectUrlItem> urlList = new ArrayList<InjectUrlItem>();
+		while (it.hasNext()) {
+			PatternUrlItem item = it.next();
+			if (item.getStatus() == PatternUrlItem.Status.INJECTED)
+				urlList.add(new InjectUrlItem(item));
+		}
+		inject(urlList);
 	}
 
 	@SuppressWarnings("unchecked")

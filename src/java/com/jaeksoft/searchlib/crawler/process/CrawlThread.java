@@ -32,7 +32,7 @@ import java.util.ArrayList;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.filter.PrefixUrlFilter;
+import com.jaeksoft.searchlib.crawler.filter.PatternUrlFilter;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.urldb.UrlDb;
 import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
@@ -133,9 +133,9 @@ public class CrawlThread implements Runnable {
 			currentUrlItem = urlItem;
 		}
 		URL url = urlItem.getURL();
-		PrefixUrlFilter prefixFilter = config.getPrefixUrlFilter();
+		PatternUrlFilter patternFilter = config.getPatternUrlFilter();
 		if (url != null)
-			if (prefixFilter.findPrefixUrl(url) == null)
+			if (patternFilter.findPatternUrl(url) == null)
 				url = null;
 		if (url == null) {
 			crawlMaster.deleteBadUrl(urlItem.getUrl());
