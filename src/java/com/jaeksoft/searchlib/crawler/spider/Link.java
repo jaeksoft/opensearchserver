@@ -87,7 +87,7 @@ public class Link implements XmlInfo {
 			String sUrl = currentURL.toExternalForm();
 			int i = sUrl.lastIndexOf('/');
 			if (i != -1 && i != (sUrl.indexOf("://") + 2))
-				uri = sUrl.substring(0, i) + uri;
+				uri = sUrl.substring(0, i + 1) + uri;
 			else
 				uri = sUrl + "/" + uri;
 		}
