@@ -36,6 +36,7 @@ import java.util.List;
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.urldb.InjectUrlItem;
 
 public class PatternUrlFilter {
 
@@ -184,6 +185,18 @@ public class PatternUrlFilter {
 		if (like != null)
 			query.getStatement().setString(1, "%" + like + "%");
 		return query;
+	}
+
+	public void injectUrl(List<InjectUrlItem> urlListItems) {
+		Iterator<InjectUrlItem> it = urlListItems.iterator();
+		List<PatternUrlItem> patternList = new ArrayList<PatternUrlItem>();
+		while (it.hasNext()) {
+			InjectUrlItem item = it.next();
+			if (findPatternUrl(item.getURL()) != null)
+				continue;
+			patternList.add(new PatternUrlItem(item.getURL()));
+		}
+		addList(patternList);
 	}
 
 }

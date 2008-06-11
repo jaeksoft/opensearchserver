@@ -63,6 +63,11 @@ public class PatternUrlItem {
 		pattern = null;
 	}
 
+	public PatternUrlItem(URL url) {
+		this();
+		setPattern(url.toExternalForm());
+	}
+
 	public Status getStatus() {
 		return status;
 	}
