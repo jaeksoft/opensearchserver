@@ -31,7 +31,7 @@ import java.util.List;
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.urldb.UrlDb.Field;
+import com.jaeksoft.searchlib.crawler.urldb.UrlManager.Field;
 import com.jaeksoft.searchlib.util.PartialList;
 
 public class UrlList extends PartialList<UrlItem> {
@@ -68,7 +68,7 @@ public class UrlList extends PartialList<UrlItem> {
 
 	@Override
 	protected Query getQuery(Transaction transaction) throws SQLException {
-		return new UrlDb(config).getUrl(transaction, like, host, status,
+		return config.getUrlManager().getUrl(transaction, like, host, status,
 				startDate, endDate, orderBy, asc);
 	}
 

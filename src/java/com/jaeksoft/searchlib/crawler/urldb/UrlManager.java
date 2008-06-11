@@ -36,14 +36,14 @@ import java.util.List;
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.filter.PatternUrlFilter;
 import com.jaeksoft.searchlib.crawler.filter.PatternUrlItem;
+import com.jaeksoft.searchlib.crawler.filter.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.Link;
 import com.jaeksoft.searchlib.crawler.spider.LinkList;
 import com.jaeksoft.searchlib.crawler.spider.Parser;
 
-public class UrlDb {
+public class UrlManager {
 
 	public enum Field {
 
@@ -63,7 +63,7 @@ public class UrlDb {
 
 	private Config config;
 
-	public UrlDb(Config config) {
+	public UrlManager(Config config) {
 		this.config = config;
 	}
 
@@ -180,11 +180,12 @@ public class UrlDb {
 		}
 	}
 
-	private void discoverLinks(Transaction transaction, LinkList links,
-			PatternUrlFilter patternFilter) throws SQLException {
+	private void discoverLinks(Transaction transaction, LinkList links)
+			throws SQLException {
+		PatternUrlManager patternManager = config.getPatternUrlManager();
 		for (Link link : links.values())
 			if (link.getFollow())
-				if (patternFilter.findPatternUrl(link.getUrl()) != null)
+				if (patternManager.findPatternUrl(link.getUrl()) != null)
 					insertOrUpdate(transaction, link.getUrl(), 0,
 							UrlStatus.UN_FETCHED, true);
 	}
@@ -230,9 +231,8 @@ public class UrlDb {
 			insertOrUpdate(transaction, crawl.getUrl(), 0, urlStatus, false);
 			Parser parser = crawl.getParser();
 			if (parser != null && urlStatus == UrlStatus.FETCHED) {
-				PatternUrlFilter patternFilter = config.getPatternUrlFilter();
-				discoverLinks(transaction, parser.getInlinks(), patternFilter);
-				discoverLinks(transaction, parser.getOutlinks(), patternFilter);
+				discoverLinks(transaction, parser.getInlinks());
+				discoverLinks(transaction, parser.getOutlinks());
 			}
 			transaction.commit();
 		} catch (SQLException e) {

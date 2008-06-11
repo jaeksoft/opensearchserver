@@ -31,10 +31,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.filter.PatternUrlFilter;
+import com.jaeksoft.searchlib.crawler.filter.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
-import com.jaeksoft.searchlib.crawler.urldb.UrlDb;
 import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
 
 public class CrawlThread implements Runnable {
@@ -69,7 +67,7 @@ public class CrawlThread implements Runnable {
 
 	}
 
-	public CrawlThread(Client client, CrawlMaster crawlMaster) {
+	protected CrawlThread(Client client, CrawlMaster crawlMaster) {
 		this.client = client;
 		this.crawlMaster = crawlMaster;
 		this.thread = new Thread(this);
@@ -88,13 +86,14 @@ public class CrawlThread implements Runnable {
 	public void run() {
 		setStatus(Status.RUNNING);
 		try {
+			String userAgent = client.getPropertyManager().getUserAgent();
 			ArrayList<UrlItem> urlList = null;
 			loop: while ((urlList = crawlMaster.getNextUrlList()) != null) {
 				setCurrentUrlList(urlList);
 				for (UrlItem urlItem : urlList) {
 					if (getAbort())
 						break loop;
-					crawl(client, urlItem);
+					crawl(userAgent, urlItem);
 					crawlMaster.sleepInterval();
 				}
 				client.reload();
@@ -128,14 +127,14 @@ public class CrawlThread implements Runnable {
 		}
 	}
 
-	private void crawl(Config config, UrlItem urlItem) {
+	private void crawl(String userAgent, UrlItem urlItem) {
 		synchronized (this) {
 			currentUrlItem = urlItem;
 		}
 		URL url = urlItem.getURL();
-		PatternUrlFilter patternFilter = config.getPatternUrlFilter();
+		PatternUrlManager patternManager = client.getPatternUrlManager();
 		if (url != null)
-			if (patternFilter.findPatternUrl(url) == null)
+			if (patternManager.findPatternUrl(url) == null)
 				url = null;
 		if (url == null) {
 			crawlMaster.deleteBadUrl(urlItem.getUrl());
@@ -144,14 +143,14 @@ public class CrawlThread implements Runnable {
 		}
 		incFetchedCount();
 		try {
-			Crawl crawl = new Crawl(config, crawlMaster.getUserAgent(), url);
+			Crawl crawl = new Crawl(client, userAgent, url);
 			Crawl.Status crawlStatus = crawl.getStatus();
 			if (crawlStatus == Crawl.Status.CRAWLED) {
 				client.updateDocument(crawl.getDocument());
 				incIndexedCount();
 			} else if (crawlStatus == Crawl.Status.NOPARSER)
 				incIgnoredCount();
-			new UrlDb(client).update(crawl);
+			client.getUrlManager().update(crawl);
 		} catch (Crawl.CrawlException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

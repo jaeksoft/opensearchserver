@@ -33,6 +33,7 @@
 		<mkdir dir="${build}" />
 		<mkdir dir="${build-release}" />
 		<mkdir dir="${build-debug}" />
+		<copy failonerror="false" file="../Pojodbc/dist/pojodbc.jar" todir="${lib}" />
 	</target>
 
 	<target name="compile-release" depends="init" description="compile the source ">

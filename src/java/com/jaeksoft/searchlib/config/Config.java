@@ -41,9 +41,11 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.pojojdbc.Database;
 import com.jaeksoft.pojojdbc.Transaction;
-import com.jaeksoft.searchlib.crawler.filter.PatternUrlFilter;
+import com.jaeksoft.searchlib.crawler.filter.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.property.PropertyManager;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.crawler.spider.ParserSelector;
+import com.jaeksoft.searchlib.crawler.urldb.UrlManager;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexLocal;
 import com.jaeksoft.searchlib.request.Request;
@@ -61,13 +63,13 @@ public abstract class Config implements XmlInfo {
 
 	private RequestList requests = null;
 
-	private PatternUrlFilter patternUrlFilter = null;
+	private PatternUrlManager patternUrlManager = null;
 
 	private RobotsTxtCache robotsTxtCache = null;
 
 	private ParserSelector parserSelector = null;
 
-	private Database urlDatabase = null;
+	private Database crawlDatabase = null;
 
 	protected XPathParser xpp = null;
 
@@ -95,12 +97,12 @@ public abstract class Config implements XmlInfo {
 				if (homeDir != null)
 					databaseUrl = databaseUrl.replace("${root}", homeDir
 							.getAbsolutePath());
-				urlDatabase = new Database(databaseDriver, databaseUrl);
+				crawlDatabase = new Database(databaseDriver, databaseUrl);
 			}
 		}
 
-		if (urlDatabase != null) {
-			patternUrlFilter = new PatternUrlFilter(this);
+		if (crawlDatabase != null) {
+			patternUrlManager = new PatternUrlManager(this);
 			robotsTxtCache = new RobotsTxtCache();
 		}
 
@@ -141,8 +143,8 @@ public abstract class Config implements XmlInfo {
 		return requests.get(requestName).clone();
 	}
 
-	public PatternUrlFilter getPatternUrlFilter() {
-		return patternUrlFilter;
+	public PatternUrlManager getPatternUrlManager() {
+		return patternUrlManager;
 	}
 
 	public RobotsTxtCache getRobotsTxtCache() {
@@ -153,13 +155,16 @@ public abstract class Config implements XmlInfo {
 		return parserSelector;
 	}
 
-	private void createDatabase() throws SQLException {
+	private void createCrawlDatabase() throws SQLException {
 		Transaction transaction = null;
 		try {
-			transaction = urlDatabase.getNewTransaction(false, ";create=true");
+			transaction = crawlDatabase
+					.getNewTransaction(false, ";create=true");
 
 			transaction
 					.update("CREATE TABLE pattern(pattern VARCHAR(2048), PRIMARY KEY(pattern))");
+			transaction
+					.update("CREATE TABLE property(name VARCHAR(128), value VARCHAR(2048), PRIMARY KEY(name))");
 			transaction
 					.update("CREATE TABLE url(url VARCHAR(2048), host VARCHAR(2048), "
 							+ "status SMALLINT, when TIMESTAMP, retry SMALLINT, indexed TIMESTAMP, "
@@ -180,13 +185,36 @@ public abstract class Config implements XmlInfo {
 
 	public Transaction getDatabaseTransaction() throws SQLException {
 		try {
-			return urlDatabase.getNewTransaction(false);
+			return crawlDatabase.getNewTransaction(false);
 		} catch (SQLException e) {
 			if (e.getMessage().endsWith("not found.")
 					&& e.getMessage().startsWith("Database"))
-				createDatabase();
+				createCrawlDatabase();
 		}
-		return urlDatabase.getNewTransaction(false);
+		return crawlDatabase.getNewTransaction(false);
+	}
+
+	private UrlManager urlManager;
+
+	public UrlManager getUrlManager() {
+		synchronized (this) {
+			if (urlManager != null)
+				return urlManager;
+			urlManager = new UrlManager(this);
+			return urlManager;
+		}
+	}
+
+	private PropertyManager propertyManager;
+
+	public PropertyManager getPropertyManager() {
+		synchronized (this) {
+			if (propertyManager != null)
+				return propertyManager;
+			propertyManager = new PropertyManager(this);
+			return propertyManager;
+		}
+
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {

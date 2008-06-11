@@ -30,23 +30,16 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.crawler.property.PropertyManager;
 import com.jaeksoft.searchlib.crawler.urldb.HostCountItem;
-import com.jaeksoft.searchlib.crawler.urldb.UrlDb;
 import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
 
 public class CrawlMaster {
 
-	private String userAgent;
-	private int maxUrl;
-	private long delayBetweenAccesses;
-	private int maxUrlPerHost;
-	private int fetchInterval;
 	private ArrayList<CrawlThread> crawlThreads;
 
 	private ArrayList<HostCountItem> hostList;
 	private Iterator<HostCountItem> hostIterator;
-
-	private UrlDb urlDb;
 
 	private boolean abort;
 
@@ -54,37 +47,25 @@ public class CrawlMaster {
 
 	public CrawlMaster(Client client) {
 		this.client = client;
-		userAgent = null;
-		maxUrl = 0;
-		delayBetweenAccesses = 0;
-		maxUrlPerHost = 0;
-		fetchInterval = 0;
 		crawlThreads = null;
 		hostList = null;
 		hostIterator = null;
-		urlDb = null;
 		abort = false;
 	}
 
-	public void start(String userAgent, int maxUrl, int threadNumber,
-			int delayBetweenAccesses, int maxUrlPerHost, int fetchInterval)
-			throws SQLException {
+	public void start() throws SQLException {
 		synchronized (this) {
 			if (isRunning())
 				return;
 			this.abort = false;
-			this.userAgent = userAgent;
-			this.maxUrl = maxUrl;
-			this.delayBetweenAccesses = delayBetweenAccesses;
-			this.maxUrlPerHost = maxUrlPerHost;
-			this.fetchInterval = fetchInterval;
-
-			this.urlDb = new UrlDb(client);
-			hostList = (ArrayList<HostCountItem>) urlDb.getHostToFetch(
-					fetchInterval, maxUrl);
+			PropertyManager propertyManager = client.getPropertyManager();
+			hostList = (ArrayList<HostCountItem>) client.getUrlManager()
+					.getHostToFetch(propertyManager.getFetchInterval(),
+							propertyManager.getMaxUrlPerSession());
 			if (hostList != null)
 				hostIterator = hostList.iterator();
 			crawlThreads = new ArrayList<CrawlThread>();
+			int threadNumber = propertyManager.getMaxThreadNumber();
 			while (--threadNumber >= 0)
 				crawlThreads.add(new CrawlThread(client, this));
 		}
@@ -96,26 +77,26 @@ public class CrawlMaster {
 				return null;
 			if (!hostIterator.hasNext())
 				return null;
+			PropertyManager propertyManager = client.getPropertyManager();
 			HostCountItem host = hostIterator.next();
-			int limit = maxUrl - getFetchedCount();
+			int limit = propertyManager.getMaxUrlPerSession()
+					- getFetchedCount();
 			if (limit < 0)
 				return null;
+			int maxUrlPerHost = propertyManager.getMaxUrlPerHost();
 			if (limit > maxUrlPerHost)
 				limit = maxUrlPerHost;
-			return urlDb.getUrlToFetch(host, fetchInterval, limit);
+			return client.getUrlManager().getUrlToFetch(host,
+					propertyManager.getFetchInterval(), limit);
 		}
 	}
 
 	protected void deleteBadUrl(String sUrl) {
 		try {
-			urlDb.delete(sUrl);
+			client.getUrlManager().delete(sUrl);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
-
-	protected String getUserAgent() {
-		return this.userAgent;
 	}
 
 	public int getFetchedCount() {
@@ -141,6 +122,8 @@ public class CrawlMaster {
 	}
 
 	protected void sleepInterval() {
+		int delayBetweenAccesses = client.getPropertyManager()
+				.getDelayBetweenAccesses();
 		if (delayBetweenAccesses == 0)
 			return;
 		try {

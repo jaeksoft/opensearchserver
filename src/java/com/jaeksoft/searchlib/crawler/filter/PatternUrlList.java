@@ -59,7 +59,7 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 
 	@Override
 	protected Query getQuery(Transaction transaction) throws SQLException {
-		return config.getPatternUrlFilter().getPattern(transaction, like, asc);
+		return config.getPatternUrlManager().getPattern(transaction, like, asc);
 	}
 
 }

@@ -38,13 +38,13 @@ import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.urldb.InjectUrlItem;
 
-public class PatternUrlFilter {
+public class PatternUrlManager {
 
 	private Hashtable<String, ArrayList<PatternUrlItem>> patternUrlMap = null;
 
 	private Config config;
 
-	public PatternUrlFilter(Config config) {
+	public PatternUrlManager(Config config) {
 		patternUrlMap = null;
 		this.config = config;
 		updateCache();
