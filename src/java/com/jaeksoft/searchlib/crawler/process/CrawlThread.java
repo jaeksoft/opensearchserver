@@ -30,61 +30,54 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.crawler.filter.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
+import com.jaeksoft.searchlib.util.DaemonThread;
 
-public class CrawlThread implements Runnable {
+public class CrawlThread extends DaemonThread {
+
+	final private static Logger logger = Logger.getLogger(CrawlThread.class);
 
 	private Client client;
 	private CrawlMaster crawlMaster;
-	private Thread thread;
 	private long fetchedCount;
 	private long deletedCount;
 	private long indexedCount;
 	private long ignoredCount;
 	private UrlItem currentUrlItem;
 	private ArrayList<UrlItem> currentUrlList;
-	private boolean bAbort;
-	private String error;
-	private Status status;
-
-	public enum Status {
-
-		NOTSTARTED("Not started"), RUNNING("Running"), ABORTING("Aborting"), ERROR(
-				"Error"), FINISHED("Finished"), ABORTED("Aborted");
-
-		private String name;
-
-		private Status(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-	}
 
 	protected CrawlThread(Client client, CrawlMaster crawlMaster) {
+		super(false, 0);
 		this.client = client;
 		this.crawlMaster = crawlMaster;
-		this.thread = new Thread(this);
-		this.thread.start();
 		this.fetchedCount = 0;
 		this.deletedCount = 0;
 		this.indexedCount = 0;
 		this.ignoredCount = 0;
 		this.currentUrlItem = null;
 		this.currentUrlList = null;
-		this.bAbort = false;
-		this.error = null;
-		this.status = Status.NOTSTARTED;
+		start();
 	}
 
-	public void run() {
-		setStatus(Status.RUNNING);
+	private void sleepInterval() {
+		int delayBetweenAccesses = client.getPropertyManager()
+				.getDelayBetweenAccesses();
+		if (delayBetweenAccesses == 0)
+			return;
+		try {
+			Thread.sleep(delayBetweenAccesses * 1000);
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public void runner() throws Exception {
 		try {
 			String userAgent = client.getPropertyManager().getUserAgent();
 			ArrayList<UrlItem> urlList = null;
@@ -94,30 +87,14 @@ public class CrawlThread implements Runnable {
 					if (getAbort())
 						break loop;
 					crawl(userAgent, urlItem);
-					crawlMaster.sleepInterval();
+					sleepInterval();
 				}
 				client.reload();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			setError(e);
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		evaluateFinalStatus();
-		thread = null;
-	}
-
-	private void evaluateFinalStatus() {
-		synchronized (this) {
-			if (getError() != null) {
-				setStatus(Status.ERROR);
-				return;
-			}
-			if (status == Status.ABORTING) {
-				setStatus(Status.ABORTED);
-				return;
-			}
-			setStatus(Status.FINISHED);
+			setError(e);
 		}
 	}
 
@@ -155,13 +132,13 @@ public class CrawlThread implements Runnable {
 			e.printStackTrace();
 		} catch (IOException e) {
 			abort();
-			setError(e.getMessage());
+			setError(e);
 		} catch (SQLException e) {
 			abort();
-			setError(e.getMessage());
+			setError(e);
 		} catch (NoSuchAlgorithmException e) {
 			abort();
-			setError(e.getMessage());
+			setError(e);
 		}
 	}
 
@@ -227,54 +204,4 @@ public class CrawlThread implements Runnable {
 		}
 	}
 
-	protected boolean isRunning() {
-		synchronized (this) {
-			if (thread == null)
-				return false;
-			return thread.isAlive();
-		}
-	}
-
-	protected void abort() {
-		synchronized (this) {
-			if (status == Status.RUNNING)
-				setStatus(Status.ABORTING);
-			bAbort = true;
-		}
-	}
-
-	public boolean getAbort() {
-		synchronized (this) {
-			return bAbort;
-		}
-	}
-
-	private void setError(String error) {
-		synchronized (this) {
-			setStatus(Status.ERROR);
-			this.error = error;
-		}
-	}
-
-	public String getError() {
-		synchronized (this) {
-			return error;
-		}
-	}
-
-	private void setStatus(Status status) {
-		synchronized (this) {
-			if (this.status == Status.ERROR)
-				return;
-			this.status = status;
-		}
-	}
-
-	public String getStatusName() {
-		synchronized (this) {
-			if (status == Status.ERROR)
-				return status.name + " " + error;
-			return status.name;
-		}
-	}
 }

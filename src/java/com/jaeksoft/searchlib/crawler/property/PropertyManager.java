@@ -64,7 +64,8 @@ public class PropertyManager {
 		Query query = transaction.prepare("UPDATE property "
 				+ "SET value=? WHERE name=?");
 		PreparedStatement st = query.getStatement();
-		st.setString(1, property.getName());
+		st.setString(1, property.getValue());
+		st.setString(2, property.getName());
 		query.update();
 	}
 
@@ -106,7 +107,7 @@ public class PropertyManager {
 					.getResultList(PropertyItem.class);
 			if (propertyList == null || propertyList.size() == 0)
 				return null;
-			return propertyList.get(0).getName();
+			return propertyList.get(0).getValue();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -134,7 +135,8 @@ public class PropertyManager {
 		Transaction transaction = null;
 		try {
 			transaction = config.getDatabaseTransaction();
-			insertOrUpdate(transaction, property, true);
+			insertOrUpdate(transaction, property, false);
+			transaction.commit();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -143,74 +145,133 @@ public class PropertyManager {
 		}
 	}
 
+	private Boolean crawlEnabled = null;
+
 	public boolean isCrawlEnabled() {
-		return getPropertyBoolean(Property.CRAWL_ENABLED);
+		if (crawlEnabled == null)
+			crawlEnabled = getPropertyBoolean(Property.CRAWL_ENABLED);
+		return crawlEnabled;
 	}
 
+	public void setCrawlEnabled(boolean b) {
+		if (crawlEnabled != null)
+			if (crawlEnabled.booleanValue() == b)
+				return;
+		crawlEnabled = b;
+		setProperty(new PropertyItem(Property.CRAWL_ENABLED.name, crawlEnabled));
+	}
+
+	private Integer fetchInterval = null;
+
 	public int getFetchInterval() {
-		Integer v = getPropertyInteger(Property.FETCH_INTERVAL);
-		if (v == null)
-			return 30;
-		return v;
+		if (fetchInterval == null)
+			fetchInterval = getPropertyInteger(Property.FETCH_INTERVAL);
+		if (fetchInterval == null)
+			fetchInterval = 30;
+		return fetchInterval;
 	}
 
 	public void setFetchInterval(int v) {
-		setProperty(new PropertyItem(Property.FETCH_INTERVAL.name, v));
+		if (fetchInterval != null)
+			if (fetchInterval.intValue() == v)
+				return;
+		fetchInterval = v;
+		setProperty(new PropertyItem(Property.FETCH_INTERVAL.name,
+				fetchInterval));
 	}
 
+	private Integer maxUrlPerSession = null;
+
 	public int getMaxUrlPerSession() {
-		Integer v = getPropertyInteger(Property.MAX_URL_PER_SESSION);
-		if (v == null)
-			return 10000;
-		return v;
+		if (maxUrlPerSession == null)
+			maxUrlPerSession = getPropertyInteger(Property.MAX_URL_PER_SESSION);
+		if (maxUrlPerSession == null)
+			maxUrlPerSession = 10000;
+		return maxUrlPerSession;
 	}
 
 	public void setMaxUrlPerSession(int v) {
-		setProperty(new PropertyItem(Property.MAX_URL_PER_SESSION.name, v));
+		if (maxUrlPerSession != null)
+			if (maxUrlPerSession.intValue() == v)
+				return;
+		maxUrlPerSession = v;
+		setProperty(new PropertyItem(Property.MAX_URL_PER_SESSION.name,
+				maxUrlPerSession));
 	}
 
+	private Integer maxUrlPerHost = null;
+
 	public int getMaxUrlPerHost() {
-		Integer v = getPropertyInteger(Property.MAX_URL_PER_HOST);
-		if (v == null)
-			return 1000;
-		return v;
+		if (maxUrlPerHost == null)
+			maxUrlPerHost = getPropertyInteger(Property.MAX_URL_PER_HOST);
+		if (maxUrlPerHost == null)
+			maxUrlPerHost = 1000;
+		return maxUrlPerHost;
 	}
 
 	public void setMaxUrlPerHost(int v) {
-		setProperty(new PropertyItem(Property.MAX_URL_PER_HOST.name, v));
+		if (maxUrlPerHost != null)
+			if (maxUrlPerHost.intValue() == v)
+				return;
+		maxUrlPerHost = v;
+		setProperty(new PropertyItem(Property.MAX_URL_PER_HOST.name,
+				maxUrlPerHost));
 	}
 
+	private Integer delayBetweenAccesses = null;
+
 	public int getDelayBetweenAccesses() {
-		Integer v = getPropertyInteger(Property.DELAY_BETWEEN_ACCESSES);
-		if (v == null)
-			return 10;
-		return v;
+		if (delayBetweenAccesses == null)
+			delayBetweenAccesses = getPropertyInteger(Property.DELAY_BETWEEN_ACCESSES);
+		if (delayBetweenAccesses == null)
+			delayBetweenAccesses = 10;
+		return delayBetweenAccesses;
 	}
 
 	public void setDelayBetweenAccesses(int v) {
-		setProperty(new PropertyItem(Property.DELAY_BETWEEN_ACCESSES.name, v));
+		if (delayBetweenAccesses != null)
+			if (delayBetweenAccesses.intValue() == v)
+				return;
+		delayBetweenAccesses = v;
+		setProperty(new PropertyItem(Property.DELAY_BETWEEN_ACCESSES.name,
+				delayBetweenAccesses));
 	}
 
+	private String userAgent = null;
+
 	public String getUserAgent() {
-		String v = getPropertyString(Property.USER_AGENT);
-		if (v == null || v.trim().length() == 0)
-			return "JaeksoftWebSearchBot";
-		return v;
+		if (userAgent == null)
+			userAgent = getPropertyString(Property.USER_AGENT);
+		if (userAgent == null || userAgent.trim().length() == 0)
+			userAgent = "JaeksoftWebSearchBot";
+		return userAgent;
 	}
 
 	public void setUserAgent(String v) {
-		setProperty(new PropertyItem(Property.USER_AGENT.name, v));
+		if (userAgent != null)
+			if (userAgent.equals(v))
+				return;
+		userAgent = v;
+		setProperty(new PropertyItem(Property.USER_AGENT.name, userAgent));
 	}
 
+	private Integer maxThreadNumber = null;
+
 	public int getMaxThreadNumber() {
-		Integer v = getPropertyInteger(Property.MAX_THREAD_NUMBER);
-		if (v == null)
-			return 10;
-		return v;
+		if (maxThreadNumber == null)
+			maxThreadNumber = getPropertyInteger(Property.MAX_THREAD_NUMBER);
+		if (maxThreadNumber == null)
+			maxThreadNumber = 10;
+		return maxThreadNumber;
 	}
 
 	public void setMaxThreadNumber(int v) {
-		setProperty(new PropertyItem(Property.MAX_THREAD_NUMBER.name, v));
+		if (maxThreadNumber != null)
+			if (maxThreadNumber.equals(v))
+				return;
+		maxThreadNumber = v;
+		setProperty(new PropertyItem(Property.MAX_THREAD_NUMBER.name,
+				maxThreadNumber));
 	}
 
 }

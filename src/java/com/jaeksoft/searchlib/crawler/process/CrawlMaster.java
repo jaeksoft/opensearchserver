@@ -33,42 +33,42 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.crawler.property.PropertyManager;
 import com.jaeksoft.searchlib.crawler.urldb.HostCountItem;
 import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
+import com.jaeksoft.searchlib.util.DaemonThread;
 
-public class CrawlMaster {
+public class CrawlMaster extends DaemonThread {
 
 	private ArrayList<CrawlThread> crawlThreads;
 
 	private ArrayList<HostCountItem> hostList;
 	private Iterator<HostCountItem> hostIterator;
 
-	private boolean abort;
-
 	private Client client;
 
 	public CrawlMaster(Client client) {
+		super(true, 1000);
 		this.client = client;
 		crawlThreads = null;
 		hostList = null;
 		hostIterator = null;
-		abort = false;
+		start();
 	}
 
-	public void start() throws SQLException {
-		synchronized (this) {
-			if (isRunning())
-				return;
-			this.abort = false;
-			PropertyManager propertyManager = client.getPropertyManager();
-			hostList = (ArrayList<HostCountItem>) client.getUrlManager()
-					.getHostToFetch(propertyManager.getFetchInterval(),
-							propertyManager.getMaxUrlPerSession());
-			if (hostList != null)
-				hostIterator = hostList.iterator();
-			crawlThreads = new ArrayList<CrawlThread>();
-			int threadNumber = propertyManager.getMaxThreadNumber();
-			while (--threadNumber >= 0)
-				crawlThreads.add(new CrawlThread(client, this));
+	@Override
+	public void runner() throws Exception {
+		PropertyManager propertyManager = client.getPropertyManager();
+		if (!propertyManager.isCrawlEnabled()) {
+			DaemonThread.sleep(1000);
+			return;
 		}
+		hostList = (ArrayList<HostCountItem>) client.getUrlManager()
+				.getHostToFetch(propertyManager.getFetchInterval(),
+						propertyManager.getMaxUrlPerSession());
+		if (hostList != null)
+			hostIterator = hostList.iterator();
+		crawlThreads = new ArrayList<CrawlThread>();
+		int threadNumber = propertyManager.getMaxThreadNumber();
+		while (--threadNumber >= 0)
+			crawlThreads.add(new CrawlThread(client, this));
 	}
 
 	protected ArrayList<UrlItem> getNextUrlList() throws SQLException {
@@ -110,7 +110,7 @@ public class CrawlMaster {
 		}
 	}
 
-	public boolean isRunning() {
+	public boolean isChildRunning() {
 		synchronized (this) {
 			if (crawlThreads == null)
 				return false;
@@ -121,31 +121,11 @@ public class CrawlMaster {
 		}
 	}
 
-	protected void sleepInterval() {
-		int delayBetweenAccesses = client.getPropertyManager()
-				.getDelayBetweenAccesses();
-		if (delayBetweenAccesses == 0)
-			return;
-		try {
-			Thread.sleep(delayBetweenAccesses * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
+	@Override
 	public void abort() {
 		synchronized (this) {
-			abort = true;
 			for (CrawlThread crawlThread : crawlThreads)
 				crawlThread.abort();
-		}
-	}
-
-	public boolean getAbort() {
-		synchronized (this) {
-			if (!isRunning())
-				abort = false;
-			return abort;
 		}
 	}
 

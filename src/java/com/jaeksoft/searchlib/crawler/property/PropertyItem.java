@@ -41,8 +41,11 @@ public class PropertyItem {
 	}
 
 	public PropertyItem(String name, Integer value) {
-		this.name = name;
-		this.value = value.toString();
+		this(name, value.toString());
+	}
+
+	public PropertyItem(String name, Boolean value) {
+		this(name, value ? "1" : "0");
 	}
 
 	public String getName() {
