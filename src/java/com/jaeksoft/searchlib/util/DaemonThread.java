@@ -142,7 +142,7 @@ public abstract class DaemonThread implements Runnable {
 
 	final public void run() {
 		abort = false;
-		while (perpetual && !abort) {
+		do {
 			setStatus(Status.RUNNING);
 			try {
 				runner();
@@ -150,8 +150,9 @@ public abstract class DaemonThread implements Runnable {
 				setError(e.getMessage());
 				logger.error(e.getMessage(), e);
 			}
-			sleep(sleepInterval);
-		}
+			if (perpetual)
+				sleep(sleepInterval);
+		} while (perpetual && !abort);
 		evaluateFinalStatus();
 	}
 
