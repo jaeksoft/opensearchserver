@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.process;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -35,6 +36,9 @@ import org.apache.log4j.Logger;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.crawler.filter.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
+import com.jaeksoft.searchlib.crawler.urldb.FetchStatus;
+import com.jaeksoft.searchlib.crawler.urldb.IndexStatus;
+import com.jaeksoft.searchlib.crawler.urldb.ParserStatus;
 import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
 import com.jaeksoft.searchlib.util.DaemonThread;
 
@@ -108,7 +112,13 @@ public class CrawlThread extends DaemonThread {
 		synchronized (this) {
 			currentUrlItem = urlItem;
 		}
-		URL url = urlItem.getURL();
+		URL url;
+		try {
+			url = urlItem.getURL();
+		} catch (MalformedURLException e) {
+			logger.warn(urlItem.getUrl() + " " + e.getMessage());
+			return;
+		}
 		PatternUrlManager patternManager = client.getPatternUrlManager();
 		if (url != null)
 			if (patternManager.findPatternUrl(url) == null)
@@ -120,12 +130,14 @@ public class CrawlThread extends DaemonThread {
 		}
 		incFetchedCount();
 		try {
-			Crawl crawl = new Crawl(client, userAgent, url);
-			Crawl.Status crawlStatus = crawl.getStatus();
-			if (crawlStatus == Crawl.Status.CRAWLED) {
+			Crawl crawl = new Crawl(client, userAgent, urlItem);
+			if (urlItem.getFetchStatus() == FetchStatus.FETCHED
+					&& urlItem.getParserStatus() == ParserStatus.PARSED
+					&& urlItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 				client.updateDocument(crawl.getDocument());
+				urlItem.setIndexStatus(IndexStatus.INDEXED);
 				incIndexedCount();
-			} else if (crawlStatus == Crawl.Status.NOPARSER)
+			} else
 				incIgnoredCount();
 			client.getUrlManager().update(crawl);
 		} catch (Crawl.CrawlException e) {

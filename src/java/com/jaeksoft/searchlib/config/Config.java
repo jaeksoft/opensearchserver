@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.config;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashSet;
 
@@ -158,8 +159,8 @@ public abstract class Config implements XmlInfo {
 	private void createCrawlDatabase() throws SQLException {
 		Transaction transaction = null;
 		try {
-			transaction = crawlDatabase
-					.getNewTransaction(false, ";create=true");
+			transaction = crawlDatabase.getNewTransaction(false,
+					Connection.TRANSACTION_READ_UNCOMMITTED, ";create=true");
 
 			transaction
 					.update("CREATE TABLE pattern(pattern VARCHAR(2048), PRIMARY KEY(pattern))");
@@ -167,10 +168,16 @@ public abstract class Config implements XmlInfo {
 					.update("CREATE TABLE property(name VARCHAR(128), value VARCHAR(2048), PRIMARY KEY(name))");
 			transaction
 					.update("CREATE TABLE url(url VARCHAR(2048), host VARCHAR(2048), "
-							+ "status SMALLINT, when TIMESTAMP, retry SMALLINT, indexed TIMESTAMP, "
+							+ "fetchStatus SMALLINT, parserStatus SMALLINT, indexStatus SMALLINT, "
+							+ "when TIMESTAMP, retry SMALLINT, indexed TIMESTAMP, "
 							+ "PRIMARY KEY (url))");
 			transaction.update("CREATE INDEX url_host ON url(host)");
-			transaction.update("CREATE INDEX url_status ON url(status)");
+			transaction
+					.update("CREATE INDEX url_fetch_status ON url(fetchStatus)");
+			transaction
+					.update("CREATE INDEX url_parser_status ON url(parserStatus)");
+			transaction
+					.update("CREATE INDEX url_index_status ON url(indexStatus)");
 			transaction.update("CREATE INDEX url_when ON url(when)");
 			transaction.update("CREATE INDEX url_retry ON url(retry)");
 			transaction.update("CREATE INDEX url_indexed ON url(indexed)");
@@ -183,15 +190,18 @@ public abstract class Config implements XmlInfo {
 		}
 	}
 
-	public Transaction getDatabaseTransaction() throws SQLException {
+	public Transaction getDatabaseTransaction(boolean autoCommit)
+			throws SQLException {
 		try {
-			return crawlDatabase.getNewTransaction(false);
+			return crawlDatabase.getNewTransaction(autoCommit,
+					Connection.TRANSACTION_READ_UNCOMMITTED);
 		} catch (SQLException e) {
 			if (e.getMessage().endsWith("not found.")
 					&& e.getMessage().startsWith("Database"))
 				createCrawlDatabase();
+			return crawlDatabase.getNewTransaction(autoCommit,
+					Connection.TRANSACTION_READ_UNCOMMITTED);
 		}
-		return crawlDatabase.getNewTransaction(false);
 	}
 
 	private UrlManager urlManager;

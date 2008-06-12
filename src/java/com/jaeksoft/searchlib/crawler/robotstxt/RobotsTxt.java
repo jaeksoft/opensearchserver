@@ -99,7 +99,7 @@ public class RobotsTxt implements XmlInfo {
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
 		String cl = getClass().getCanonicalName();
 		long size = (disallowList != null) ? disallowList.size() : 0;
-		writer.println("<robotsTxt url=\"" + crawl.getUrl()
+		writer.println("<robotsTxt url=\"" + crawl.getUrlItem().getUrl()
 				+ "\" httpResponseCode=\"" + crawl.getHttpResponseCode()
 				+ "\" expiration=\""
 				+ DateFormat.getInstance().format(expiredTime)

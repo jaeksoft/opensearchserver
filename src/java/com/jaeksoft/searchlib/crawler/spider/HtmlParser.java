@@ -34,6 +34,7 @@ import java.util.Locale;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 import org.knallgrau.utils.textcat.TextCategorizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -41,12 +42,16 @@ import org.w3c.dom.NodeList;
 import org.w3c.tidy.Configuration;
 import org.w3c.tidy.Tidy;
 
+import com.jaeksoft.searchlib.crawler.urldb.IndexStatus;
+import com.jaeksoft.searchlib.crawler.urldb.ParserStatus;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class HtmlParser implements Parser {
+
+	final private static Logger logger = Logger.getLogger(HtmlParser.class);
 
 	private String title;
 	private String textContent;
@@ -170,7 +175,7 @@ public class HtmlParser implements Parser {
 			if (nodes != null) {
 				outlinks = new LinkList();
 				inlinks = new LinkList();
-				URL currentURL = crawl.getUrl();
+				URL currentURL = crawl.getUrlItem().getURL();
 				for (int i = 0; i < nodes.getLength(); i++) {
 					Node node = nodes.item(i);
 					String href = XPathParser.getAttributeString(node, "href");
@@ -232,10 +237,14 @@ public class HtmlParser implements Parser {
 				String textcat = textCategorizer.categorize(textContent, 1000);
 				lang = Lang.findLocaleDescription(textcat);
 			}
+			if (!metaRobotsIndex)
+				crawl.getUrlItem().setIndexStatus(IndexStatus.META_NOINDEX);
+			crawl.getUrlItem().setParserStatus(ParserStatus.PARSED);
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
+			crawl.getUrlItem().setParserStatus(ParserStatus.PARSER_ERROR);
+			crawl.setError(e.getMessage());
 		}
-
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {

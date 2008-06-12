@@ -39,20 +39,25 @@ public class UrlList extends PartialList<UrlItem> {
 	private Config config;
 	private String like;
 	private String host;
-	private UrlStatus status;
+	private FetchStatus fetchStatus;
+	private ParserStatus parserStatus;
+	private IndexStatus indexStatus;
 	private Date startDate;
 	private Date endDate;
 	private Field orderBy;
 	private boolean asc;
 
 	public UrlList(Config config, int rows, String like, String host,
-			UrlStatus status, Date startDate, Date endDate, Field orderBy,
-			boolean asc) {
+			FetchStatus fetchStatus, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			Field orderBy, boolean asc) {
 		super(rows);
 		this.config = config;
 		this.like = like;
 		this.host = host;
-		this.status = status;
+		this.fetchStatus = fetchStatus;
+		this.parserStatus = parserStatus;
+		this.indexStatus = indexStatus;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.orderBy = orderBy;
@@ -68,13 +73,14 @@ public class UrlList extends PartialList<UrlItem> {
 
 	@Override
 	protected Query getQuery(Transaction transaction) throws SQLException {
-		return config.getUrlManager().getUrl(transaction, like, host, status,
-				startDate, endDate, orderBy, asc);
+		return config.getUrlManager().getUrl(transaction, like, host,
+				fetchStatus, parserStatus, indexStatus, startDate, endDate,
+				orderBy, asc);
 	}
 
 	@Override
 	protected Transaction getDatabaseTransaction() throws SQLException {
-		return config.getDatabaseTransaction();
+		return config.getDatabaseTransaction(true);
 	}
 
 }

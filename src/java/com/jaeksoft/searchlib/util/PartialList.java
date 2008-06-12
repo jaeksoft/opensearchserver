@@ -28,10 +28,14 @@ import java.sql.SQLException;
 import java.util.AbstractList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 
 public abstract class PartialList<T> extends AbstractList<T> {
+
+	final private static Logger logger = Logger.getLogger(PartialList.class);
 
 	protected int size;
 	protected List<T> partialList;
@@ -74,7 +78,7 @@ public abstract class PartialList<T> extends AbstractList<T> {
 				partialList = getResultList(query);
 				size = query.getResultCount();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 				partialList = null;
 				size = 0;
 			} catch (Exception e) {

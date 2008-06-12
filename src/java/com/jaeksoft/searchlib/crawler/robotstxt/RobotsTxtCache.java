@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.ParserSelector;
+import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class RobotsTxtCache implements XmlInfo {
@@ -85,15 +86,16 @@ public class RobotsTxtCache implements XmlInfo {
 	 */
 	public RobotsTxt getRobotsTxt(String userAgent, URL url,
 			boolean reloadRobotsTxt) throws MalformedURLException {
-		URL robotsUrl = RobotsTxt.getRobotsUrl(url);
-		String robotsKey = robotsUrl.toString();
+		UrlItem urlItem = new UrlItem();
+		urlItem.setUrl(RobotsTxt.getRobotsUrl(url).toExternalForm());
+		String robotsKey = urlItem.getUrl();
 		synchronized (robotsTxtList) {
 			checkExpiration(System.currentTimeMillis());
 			if (reloadRobotsTxt)
 				robotsTxtList.remove(robotsKey);
 			RobotsTxt robotsTxt = robotsTxtList.get(robotsKey);
 			if (robotsTxt == null) {
-				Crawl crawl = new Crawl(robotsUrl, userAgent, parserSelector);
+				Crawl crawl = new Crawl(urlItem, userAgent, parserSelector);
 				robotsTxt = new RobotsTxt(crawl);
 				robotsTxtList.put(robotsKey, robotsTxt);
 			}

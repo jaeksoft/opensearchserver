@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.urldb;
 
-import java.net.URL;
+import java.net.MalformedURLException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
@@ -45,9 +47,12 @@ import com.jaeksoft.searchlib.crawler.spider.Parser;
 
 public class UrlManager {
 
+	final private static Logger logger = Logger.getLogger(UrlManager.class);
+
 	public enum Field {
 
-		URL("url"), WHEN("when"), RETRY("retry"), STATUS("status"), HOST("host");
+		URL("url"), WHEN("when"), RETRY("retry"), FETCHSTATUS("fetchStatus"), PARSERSTATUS(
+				"parserStatus"), INDEXSTATUS("indexStatus"), HOST("host");
 
 		private String name;
 
@@ -69,8 +74,9 @@ public class UrlManager {
 
 	@SuppressWarnings("unchecked")
 	public Query getUrl(Transaction transaction, String like, String host,
-			UrlStatus status, Date startDate, Date endDate, Field orderBy,
-			boolean asc) throws SQLException {
+			FetchStatus fetchStatus, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			Field orderBy, boolean asc) throws SQLException {
 		// Build the where clause
 		String where = null;
 
@@ -85,12 +91,28 @@ public class UrlManager {
 			where += "host=?";
 		}
 
-		if (status != null) {
+		if (fetchStatus != null && fetchStatus != FetchStatus.ALL) {
 			if (where != null)
 				where += " AND ";
 			else
 				where = "";
-			where += "status=?";
+			where += "fetchStatus=?";
+		}
+
+		if (parserStatus != null && parserStatus != ParserStatus.ALL) {
+			if (where != null)
+				where += " AND ";
+			else
+				where = "";
+			where += "parserStatus=?";
+		}
+
+		if (indexStatus != null && indexStatus != IndexStatus.ALL) {
+			if (where != null)
+				where += " AND ";
+			else
+				where = "";
+			where += "indexStatus=?";
 		}
 
 		if (startDate != null) {
@@ -117,7 +139,10 @@ public class UrlManager {
 		// Build statement
 		if (orderBy == null)
 			orderBy = Field.URL;
-		String sql = "SELECT url,host,when,retry,status FROM url " + where
+		String sql = "SELECT url,host,when,retry,"
+				+ "fetchStatus as fetchStatusInt,"
+				+ "parserStatus as parserStatusInt,"
+				+ "indexStatus as indexStatusInt" + " FROM url " + where
 				+ " ORDER BY " + orderBy;
 		if (!asc)
 			sql += " DESC";
@@ -129,8 +154,12 @@ public class UrlManager {
 			stmt.setString(i++, "%" + like + "%");
 		if (host != null && host.length() > 0)
 			stmt.setString(i++, host);
-		if (status != null)
-			stmt.setInt(i++, status.getValue());
+		if (fetchStatus != null)
+			stmt.setInt(i++, fetchStatus.value);
+		if (parserStatus != null)
+			stmt.setInt(i++, parserStatus.value);
+		if (indexStatus != null)
+			stmt.setInt(i++, indexStatus.value);
 		if (startDate != null)
 			stmt.setDate(i++, new java.sql.Date(startDate.getTime()));
 		if (endDate != null)
@@ -138,42 +167,49 @@ public class UrlManager {
 		return query;
 	}
 
-	private void update(Transaction transaction, URL url, int retry,
-			UrlStatus status) throws SQLException {
-		Query query = transaction.prepare("UPDATE url "
-				+ "SET host=?,retry=?,status=?,when=CURRENT_TIMESTAMP "
-				+ "WHERE url=?");
+	private void update(Transaction transaction, UrlItem urlItem)
+			throws SQLException, MalformedURLException {
+		Query query = transaction
+				.prepare("UPDATE url "
+						+ "SET host=?,retry=?,fetchStatus=?,parserStatus=?,indexStatus=?,"
+						+ "when=CURRENT_TIMESTAMP WHERE url=?");
 		PreparedStatement st = query.getStatement();
-		st.setString(1, url.getHost());
-		st.setInt(2, retry);
-		st.setInt(3, status.getValue());
-		st.setString(4, url.toExternalForm());
+		st.setString(1, urlItem.getURL().getHost());
+		st.setInt(2, urlItem.getRetry());
+		st.setInt(3, urlItem.getFetchStatus().value);
+		st.setInt(4, urlItem.getParserStatus().value);
+		st.setInt(5, urlItem.getIndexStatus().value);
+		st.setString(6, urlItem.getUrl());
 		query.update();
 	}
 
-	private void insert(Transaction transaction, URL url, int retry,
-			UrlStatus status) throws SQLException {
-		Query query = transaction.prepare("INSERT INTO "
-				+ "url(url,host,retry,status,when) "
-				+ "VALUES (?,?,?,?,CURRENT_TIMESTAMP)");
+	private void insert(Transaction transaction, UrlItem urlItem)
+			throws SQLException, MalformedURLException {
+		Query query = transaction
+				.prepare("INSERT INTO "
+						+ "url(url,host,retry,fetchStatus,parserStatus,indexStatus,when) "
+						+ "VALUES (?,?,?,?,?,?,CURRENT_TIMESTAMP)");
 		PreparedStatement st = query.getStatement();
-		st.setString(1, url.toExternalForm());
-		st.setString(2, url.getHost());
-		st.setInt(3, retry);
-		st.setInt(4, status.getValue());
+		st.setString(1, urlItem.getUrl());
+		st.setString(2, urlItem.getURL().getHost());
+		st.setInt(3, urlItem.getRetry());
+		st.setInt(4, urlItem.getFetchStatus().value);
+		st.setInt(5, urlItem.getParserStatus().value);
+		st.setInt(6, urlItem.getIndexStatus().value);
 		query.update();
 	}
 
-	private void insertOrUpdate(Transaction transaction, URL url, int retry,
-			UrlStatus status, boolean bIgnoreDuplicate) throws SQLException {
+	private void insertOrUpdate(Transaction transaction, UrlItem urlItem,
+			boolean bIgnoreDuplicate) throws SQLException,
+			MalformedURLException {
 		try {
-			insert(transaction, url, retry, status);
+			insert(transaction, urlItem);
 		} catch (SQLException e) {
 			// Duplicate Key
 			if ("23505".equals(e.getSQLState())) {
 				if (bIgnoreDuplicate)
 					return;
-				update(transaction, url, retry, status);
+				update(transaction, urlItem);
 				return;
 			}
 			throw e;
@@ -185,9 +221,15 @@ public class UrlManager {
 		PatternUrlManager patternManager = config.getPatternUrlManager();
 		for (Link link : links.values())
 			if (link.getFollow())
-				if (patternManager.findPatternUrl(link.getUrl()) != null)
-					insertOrUpdate(transaction, link.getUrl(), 0,
-							UrlStatus.UN_FETCHED, true);
+				if (patternManager.findPatternUrl(link.getUrl()) != null) {
+					UrlItem urlItem = new UrlItem();
+					urlItem.setUrl(link.getUrl().toExternalForm());
+					try {
+						insertOrUpdate(transaction, urlItem, true);
+					} catch (MalformedURLException e) {
+						logger.warn(link.getUrl() + " " + e.getMessage(), e);
+					}
+				}
 	}
 
 	private void deleteUrl(Transaction transaction, String sUrl)
@@ -198,61 +240,56 @@ public class UrlManager {
 	}
 
 	public void delete(String sUrl) throws SQLException {
-		Transaction transaction = config.getDatabaseTransaction();
+		Transaction transaction = config.getDatabaseTransaction(false);
 		try {
 			deleteUrl(transaction, sUrl);
 			transaction.commit();
 		} catch (SQLException e) {
 			throw e;
 		} finally {
-			transaction.close();
+			if (transaction != null)
+				transaction.close();
 		}
 	}
 
-	public void update(Crawl crawl) throws SQLException {
-		if (crawl == null)
-			return;
-		UrlStatus urlStatus = UrlStatus.UN_FETCHED;
-		Crawl.Status crawlStatus = crawl.getStatus();
-		if (crawlStatus == Crawl.Status.CRAWLED)
-			urlStatus = UrlStatus.FETCHED;
-		else if (crawlStatus == Crawl.Status.NOPARSER)
-			urlStatus = UrlStatus.NOPARSER;
-		else if (crawlStatus == Crawl.Status.REDIR_PERM)
-			urlStatus = UrlStatus.REDIR_PERM;
-		else if (crawlStatus == Crawl.Status.REDIR_TEMP)
-			urlStatus = UrlStatus.REDIR_TEMP;
-		else if (crawlStatus == Crawl.Status.HTTP_GONE)
-			urlStatus = UrlStatus.GONE;
-		else if (crawlStatus == Crawl.Status.HTTP_ERROR)
-			urlStatus = UrlStatus.ERROR;
-		Transaction transaction = config.getDatabaseTransaction();
+	public void update(Crawl crawl) throws SQLException, MalformedURLException {
+		UrlItem urlItem = crawl.getUrlItem();
+		Transaction transaction = config.getDatabaseTransaction(false);
 		try {
-			insertOrUpdate(transaction, crawl.getUrl(), 0, urlStatus, false);
+			insertOrUpdate(transaction, urlItem, false);
 			Parser parser = crawl.getParser();
-			if (parser != null && urlStatus == UrlStatus.FETCHED) {
+			if (parser != null && urlItem.isStatusFull()) {
 				discoverLinks(transaction, parser.getInlinks());
 				discoverLinks(transaction, parser.getOutlinks());
 			}
 			transaction.commit();
 		} catch (SQLException e) {
 			throw e;
+		} catch (MalformedURLException e) {
+			throw e;
 		} finally {
-			transaction.close();
+			if (transaction != null)
+				transaction.close();
 		}
 	}
 
 	public void inject(List<InjectUrlItem> list) {
 		Transaction transaction = null;
 		try {
-			transaction = config.getDatabaseTransaction();
+			transaction = config.getDatabaseTransaction(false);
 			Iterator<InjectUrlItem> it = list.iterator();
 			while (it.hasNext()) {
 				InjectUrlItem item = it.next();
 				if (item.getStatus() != InjectUrlItem.Status.UNDEFINED)
 					continue;
 				try {
-					insert(transaction, item.getURL(), 0, UrlStatus.UN_FETCHED);
+					UrlItem urlItem = new UrlItem();
+					urlItem.setUrl(item.getUrl());
+					try {
+						insert(transaction, urlItem);
+					} catch (MalformedURLException e) {
+						logger.warn(item.getUrl() + " " + e.getMessage(), e);
+					}
 					item.setStatus(InjectUrlItem.Status.INJECTED);
 				} catch (SQLException e) {
 					if ("23505".equals(e.getSQLState()))
@@ -265,7 +302,7 @@ public class UrlManager {
 			}
 			transaction.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
@@ -288,11 +325,12 @@ public class UrlManager {
 			throws SQLException {
 		Transaction transaction = null;
 		try {
-			transaction = config.getDatabaseTransaction();
+			transaction = config.getDatabaseTransaction(true);
 			Query query = transaction
 					.prepare("SELECT host,count(*) as count FROM url "
-							+ "WHERE status=? OR when<? " + "GROUP BY host");
-			query.getStatement().setInt(1, UrlStatus.UN_FETCHED.getValue());
+							+ "WHERE fetchStatus=? OR when<? "
+							+ "GROUP BY host");
+			query.getStatement().setInt(1, FetchStatus.UN_FETCHED.value);
 			query.getStatement()
 					.setTimestamp(2, getNewTimestamp(fetchInterval));
 			query.setMaxResults(limit);
@@ -314,14 +352,16 @@ public class UrlManager {
 	@SuppressWarnings("unchecked")
 	public ArrayList<UrlItem> getUrlToFetch(HostCountItem host,
 			int fetchInterval, int limit) throws SQLException {
-		Transaction transaction = config.getDatabaseTransaction();
+		Transaction transaction = config.getDatabaseTransaction(true);
 		try {
-			Query query = transaction
-					.prepare("SELECT url,host,when,retry,status FROM url "
-							+ "WHERE host=? AND " + "(status=? OR when<?)"
-							+ "ORDER BY when ASC");
+			Query query = transaction.prepare("SELECT url,host,when,retry,"
+					+ "fetchStatus as fetchStatusInt,"
+					+ "parserStatus as parserStatusInt,"
+					+ "indexStatus as indexStatusInt"
+					+ " FROM url WHERE host=? AND "
+					+ "(fetchStatus=? OR when<?)" + "ORDER BY when ASC");
 			query.getStatement().setString(1, host.host);
-			query.getStatement().setInt(2, UrlStatus.UN_FETCHED.getValue());
+			query.getStatement().setInt(2, FetchStatus.UN_FETCHED.value);
 			query.getStatement()
 					.setTimestamp(3, getNewTimestamp(fetchInterval));
 			query.setMaxResults(limit);
@@ -329,7 +369,8 @@ public class UrlManager {
 		} catch (SQLException e) {
 			throw e;
 		} finally {
-			transaction.close();
+			if (transaction != null)
+				transaction.close();
 		}
 
 	}

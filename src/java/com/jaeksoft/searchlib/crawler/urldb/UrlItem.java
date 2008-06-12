@@ -37,18 +37,24 @@ public class UrlItem implements Serializable {
 	private static final long serialVersionUID = -4043010587042224473L;
 
 	private String url;
+	private URL cachedUrl;
 	private String host;
 	private Timestamp when;
 	private int retry;
-	private UrlStatus status;
+	private FetchStatus fetchStatus;
+	private ParserStatus parserStatus;
+	private IndexStatus indexStatus;
 	private int count;
 
 	public UrlItem() {
 		url = null;
+		cachedUrl = null;
 		host = null;
 		when = null;
 		retry = 0;
-		status = null;
+		fetchStatus = null;
+		parserStatus = null;
+		indexStatus = null;
 		count = 0;
 	}
 
@@ -60,29 +66,52 @@ public class UrlItem implements Serializable {
 		this.host = host;
 	}
 
-	public int getStatus() {
-		if (status == null)
-			return 0;
-		return status.getValue();
+	public FetchStatus getFetchStatus() {
+		if (fetchStatus == null)
+			return FetchStatus.UN_FETCHED;
+		return fetchStatus;
 	}
 
-	public void setStatus(int status) {
-		this.status = UrlStatus.findByValue(status);
+	public void setParserStatus(ParserStatus status) {
+		this.parserStatus = status;
 	}
 
-	public String getStatusName() {
-		if (status == null)
-			return null;
-		return status.getName();
+	public void setParserStatusInt(int v) {
+		this.parserStatus = ParserStatus.find(v);
 	}
 
-	public URL getURL() {
-		try {
-			return new URL(url);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			return null;
-		}
+	public ParserStatus getParserStatus() {
+		if (parserStatus == null)
+			return ParserStatus.NOT_PARSED;
+		return parserStatus;
+	}
+
+	public void setIndexStatus(IndexStatus status) {
+		this.indexStatus = status;
+	}
+
+	public void setIndexStatusInt(int v) {
+		this.indexStatus = IndexStatus.find(v);
+	}
+
+	public IndexStatus getIndexStatus() {
+		if (indexStatus == null)
+			return IndexStatus.NOT_INDEXED;
+		return indexStatus;
+	}
+
+	public void setFetchStatus(FetchStatus status) {
+		this.fetchStatus = status;
+	}
+
+	public void setFetchStatusInt(int v) {
+		this.fetchStatus = FetchStatus.find(v);
+	}
+
+	public URL getURL() throws MalformedURLException {
+		if (cachedUrl == null)
+			cachedUrl = new URL(url);
+		return cachedUrl;
 	}
 
 	public String getUrl() {
@@ -91,6 +120,7 @@ public class UrlItem implements Serializable {
 
 	public void setUrl(String url) {
 		this.url = url;
+		cachedUrl = null;
 	}
 
 	public Timestamp getWhen() {
@@ -111,6 +141,12 @@ public class UrlItem implements Serializable {
 
 	public String getCount() {
 		return Integer.toString(count);
+	}
+
+	public boolean isStatusFull() {
+		return fetchStatus == FetchStatus.FETCHED
+				&& parserStatus == ParserStatus.PARSED
+				&& indexStatus == IndexStatus.INDEXED;
 	}
 
 }

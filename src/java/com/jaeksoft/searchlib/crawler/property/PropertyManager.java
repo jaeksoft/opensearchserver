@@ -99,7 +99,7 @@ public class PropertyManager {
 	private String getPropertyString(Property prop) {
 		Transaction transaction = null;
 		try {
-			transaction = config.getDatabaseTransaction();
+			transaction = config.getDatabaseTransaction(true);
 			Query query = transaction.prepare("SELECT value FROM property "
 					+ "WHERE name=?");
 			query.getStatement().setString(1, prop.name);
@@ -134,7 +134,7 @@ public class PropertyManager {
 	private void setProperty(PropertyItem property) {
 		Transaction transaction = null;
 		try {
-			transaction = config.getDatabaseTransaction();
+			transaction = config.getDatabaseTransaction(false);
 			insertOrUpdate(transaction, property, false);
 			transaction.commit();
 		} catch (SQLException e) {

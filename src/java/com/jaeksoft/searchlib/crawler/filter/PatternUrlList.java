@@ -48,7 +48,7 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 
 	@Override
 	protected Transaction getDatabaseTransaction() throws SQLException {
-		return config.getDatabaseTransaction();
+		return config.getDatabaseTransaction(true);
 	}
 
 	@SuppressWarnings("unchecked")

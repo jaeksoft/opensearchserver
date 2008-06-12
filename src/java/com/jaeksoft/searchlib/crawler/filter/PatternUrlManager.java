@@ -33,12 +33,17 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.urldb.InjectUrlItem;
 
 public class PatternUrlManager {
+
+	final private static Logger logger = Logger
+			.getLogger(PatternUrlManager.class);
 
 	private Hashtable<String, ArrayList<PatternUrlItem>> patternUrlMap = null;
 
@@ -53,7 +58,7 @@ public class PatternUrlManager {
 	public void addList(List<PatternUrlItem> patternList) {
 		Transaction transaction = null;
 		try {
-			transaction = config.getDatabaseTransaction();
+			transaction = config.getDatabaseTransaction(false);
 			Query query = transaction
 					.prepare("INSERT INTO pattern(pattern) VALUES (?)");
 			Iterator<PatternUrlItem> it = patternList.iterator();
@@ -76,7 +81,7 @@ public class PatternUrlManager {
 			transaction.commit();
 			updateCache();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
@@ -86,7 +91,7 @@ public class PatternUrlManager {
 	public void delPattern(PatternUrlItem item) {
 		Transaction transaction = null;
 		try {
-			transaction = config.getDatabaseTransaction();
+			transaction = config.getDatabaseTransaction(false);
 			Query query = transaction
 					.prepare("DELETE FROM pattern WHERE pattern=?");
 			query.getStatement().setString(1, item.getPattern());
@@ -94,7 +99,7 @@ public class PatternUrlManager {
 			transaction.commit();
 			updateCache();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
@@ -105,7 +110,7 @@ public class PatternUrlManager {
 	private void updateCache() {
 		Transaction transaction = null;
 		try {
-			transaction = config.getDatabaseTransaction();
+			transaction = config.getDatabaseTransaction(false);
 			Hashtable<String, ArrayList<PatternUrlItem>> newPatternMap = new Hashtable<String, ArrayList<PatternUrlItem>>();
 			Query query = transaction.prepare("SELECT pattern FROM pattern");
 			List<PatternUrlItem> result = (List<PatternUrlItem>) query
@@ -125,6 +130,7 @@ public class PatternUrlManager {
 					}
 					patternList.add(patternUrl);
 				} catch (MalformedURLException e) {
+					logger.info(e.getMessage(), e);
 					continue;
 				}
 			}
@@ -132,7 +138,7 @@ public class PatternUrlManager {
 				patternUrlMap = newPatternMap;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
@@ -158,14 +164,14 @@ public class PatternUrlManager {
 	public int getSize() {
 		Transaction transaction = null;
 		try {
-			transaction = config.getDatabaseTransaction();
+			transaction = config.getDatabaseTransaction(true);
 			Query query = transaction.prepare("SELECT count(*) FROM pattern");
 			ResultSet rs = query.getResultSet();
 			if (rs.next())
 				return rs.getInt(1);
 			return 0;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			return 0;
 		} finally {
 			if (transaction != null)

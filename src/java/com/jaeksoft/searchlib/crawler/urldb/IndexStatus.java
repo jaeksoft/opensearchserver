@@ -24,46 +24,28 @@
 
 package com.jaeksoft.searchlib.crawler.urldb;
 
-public enum UrlStatus {
-	UN_FETCHED(0, "Unfetched"), FETCHED(1, "Fetched"), GONE(2, "Gone"), REDIR_TEMP(
-			3, "Temporary redirect"), REDIR_PERM(4, "Permanent redirect"), ERROR(
-			5, "Error"), IGNORED(6, "Ignored"), NOPARSER(7, "No parser");
+public enum IndexStatus {
 
-	private int value;
+	NOT_INDEXED(0, "Not indexed"), INDEXED(1, "Indexed"), META_NOINDEX(2,
+			"Meta No Index"), INDEX_ERROR(3, "Index error"), ALL(99, "All");
 
-	private String name;
+	public int value;
 
-	private UrlStatus(int v, String name) {
-		this.value = v;
+	public String name;
+
+	private IndexStatus(int value, String name) {
+		this.value = value;
 		this.name = name;
 	}
 
-	public int getValue() {
-		return this.value;
-	}
-
-	public String getValueString() {
-		return Integer.toString(value);
-	}
-
-	public String getName() {
+	@Override
+	public String toString() {
 		return name;
 	}
 
-	public static UrlStatus findByValue(String value) {
-		return findByValue(Integer.parseInt(value));
-	}
-
-	public static UrlStatus findByValue(int value) {
-		for (UrlStatus status : values())
-			if (status.value == value)
-				return status;
-		return null;
-	}
-
-	public static UrlStatus findByName(String name) {
-		for (UrlStatus status : values())
-			if (status.name.equals(name))
+	public static IndexStatus find(int v) {
+		for (IndexStatus status : values())
+			if (status.value == v)
 				return status;
 		return null;
 	}

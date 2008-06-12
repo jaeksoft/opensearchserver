@@ -22,23 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.spider;
+package com.jaeksoft.searchlib.crawler.urldb;
 
-import java.io.IOException;
-import java.io.InputStream;
+public enum ParserStatus {
 
-import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.util.XmlInfo;
+	NOT_PARSED(0, "Not parsed"), PARSED(1, "Parsed"), NOPARSER(1, "No parser"), PARSER_ERROR(
+			2, "Parser Error"), ALL(99, "All");
 
-public interface Parser extends XmlInfo {
+	public int value;
 
-	public void parseContent(Crawl crawl, InputStream inputStream)
-			throws IOException;
+	public String name;
 
-	public IndexDocument getDocument();
+	private ParserStatus(int value, String name) {
+		this.value = value;
+		this.name = name;
+	}
 
-	public LinkList getInlinks();
+	@Override
+	public String toString() {
+		return name;
+	}
 
-	public LinkList getOutlinks();
+	public static ParserStatus find(int v) {
+		for (ParserStatus status : values())
+			if (status.value == v)
+				return status;
+		return null;
+	}
 
 }

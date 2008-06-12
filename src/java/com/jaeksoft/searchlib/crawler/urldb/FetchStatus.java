@@ -22,23 +22,33 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.spider;
+package com.jaeksoft.searchlib.crawler.urldb;
 
-import java.io.IOException;
-import java.io.InputStream;
+public enum FetchStatus {
 
-import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.util.XmlInfo;
+	UN_FETCHED(0, "Unfetched"), FETCHED(1, "Fetched"), GONE(2, "Gone"), REDIR_TEMP(
+			3, "Temporary redirect"), REDIR_PERM(4, "Permanent redirect"), ERROR(
+			5, "Error"), HTTP_ERROR(6, "HTTP Error"), ALL(99, "All");
 
-public interface Parser extends XmlInfo {
+	public int value;
 
-	public void parseContent(Crawl crawl, InputStream inputStream)
-			throws IOException;
+	public String name;
 
-	public IndexDocument getDocument();
+	private FetchStatus(int value, String name) {
+		this.value = value;
+		this.name = name;
+	}
 
-	public LinkList getInlinks();
+	@Override
+	public String toString() {
+		return name;
+	}
 
-	public LinkList getOutlinks();
+	public static FetchStatus find(int v) {
+		for (FetchStatus status : values())
+			if (status.value == v)
+				return status;
+		return null;
+	}
 
 }

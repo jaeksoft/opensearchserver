@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashSet;
 
 import javax.mail.internet.ContentType;
@@ -42,16 +41,15 @@ import org.apache.log4j.Logger;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
+import com.jaeksoft.searchlib.crawler.urldb.FetchStatus;
+import com.jaeksoft.searchlib.crawler.urldb.ParserStatus;
+import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Crawl implements XmlInfo {
 
 	final private static Logger logger = Logger.getLogger(Crawl.class);
-
-	public enum Status {
-		CRAWLED, NOPARSER, REDIR_PERM, REDIR_TEMP, HTTP_GONE, HTTP_ERROR, ERROR;
-	}
 
 	public class CrawlException extends Exception {
 
@@ -65,7 +63,7 @@ public class Crawl implements XmlInfo {
 		}
 	}
 
-	private URL url;
+	private UrlItem urlItem;
 	private String userAgent;
 	private int httpResponseCode;
 	private ContentType contentType;
@@ -74,11 +72,11 @@ public class Crawl implements XmlInfo {
 	private ParserSelector parserSelector;
 	private Parser parser;
 	private IndexDocument document;
-	private Status status;
 	private String error;
 
-	private void start(URL url, String userAgent, ParserSelector parserSelector) {
-		this.url = url;
+	private void start(UrlItem urlItem, String userAgent,
+			ParserSelector parserSelector) {
+		this.urlItem = urlItem;
 		this.userAgent = userAgent.toLowerCase();
 		this.httpResponseCode = 0;
 		this.contentType = null;
@@ -87,24 +85,24 @@ public class Crawl implements XmlInfo {
 		this.parser = null;
 		this.parserSelector = parserSelector;
 		this.document = null;
-		this.status = null;
 		this.error = null;
 		download();
 	}
 
-	public Crawl(Config config, String userAgent, URL url)
+	public Crawl(Config config, String userAgent, UrlItem urlItem)
 			throws CrawlException, MalformedURLException {
 		RobotsTxtCache robotsTxtCache = config.getRobotsTxtCache();
-		RobotsTxt robotsTxt = robotsTxtCache
-				.getRobotsTxt(userAgent, url, false);
-		if (!robotsTxt.isAllowed(url, userAgent))
+		RobotsTxt robotsTxt = robotsTxtCache.getRobotsTxt(userAgent, urlItem
+				.getURL(), false);
+		if (!robotsTxt.isAllowed(urlItem.getURL(), userAgent))
 			throw new CrawlException("Refused by robots.txt - "
-					+ robotsTxt.getCrawl().getUrl());
-		start(url, userAgent, config.getParserSelector());
+					+ robotsTxt.getCrawl().getUrlItem().getURL());
+		start(urlItem, userAgent, config.getParserSelector());
 	}
 
-	public Crawl(URL url, String userAgent, ParserSelector parserSelector) {
-		start(url, userAgent, parserSelector);
+	public Crawl(UrlItem urlItem, String userAgent,
+			ParserSelector parserSelector) {
+		start(urlItem, userAgent, parserSelector);
 	}
 
 	private void parseContent(InputStream inputStream) {
@@ -112,26 +110,26 @@ public class Crawl implements XmlInfo {
 			return;
 		Parser parser;
 		try {
-			parser = parserSelector.getParser(contentType.getBaseType(), url);
+			parser = parserSelector.getParser(contentType.getBaseType(),
+					urlItem.getURL());
 			if (parser == null) {
-				status = Status.NOPARSER;
+				urlItem.setParserStatus(ParserStatus.NOPARSER);
 				return;
 			}
 			parser.parseContent(this, inputStream);
-			status = Status.CRAWLED;
 			this.parser = parser;
 		} catch (InstantiationException e) {
-			logger.info(e + " (" + url + ")");
-			setStatusError(Status.ERROR, e.getMessage());
+			logger.info(e + " (" + urlItem.getUrl() + ")");
+			setError(e.getMessage());
 		} catch (IllegalAccessException e) {
-			logger.info(e + " (" + url + ")");
-			setStatusError(Status.ERROR, e.getMessage());
+			logger.info(e + " (" + urlItem.getUrl() + ")");
+			setError(e.getMessage());
 		} catch (ClassNotFoundException e) {
-			logger.info(e + " (" + url + ")");
-			setStatusError(Status.ERROR, e.getMessage());
+			logger.info(e + " (" + urlItem.getUrl() + ")");
+			setError(e.getMessage());
 		} catch (IOException e) {
-			logger.info(e + " (" + url + ")");
-			setStatusError(Status.ERROR, e.getMessage());
+			logger.info(e + " (" + urlItem.getUrl() + ")");
+			setError(e.getMessage());
 		}
 	}
 
@@ -145,7 +143,7 @@ public class Crawl implements XmlInfo {
 			HttpURLConnection huc = null;
 			InputStream is = null;
 			try {
-				huc = (HttpURLConnection) this.url.openConnection();
+				huc = (HttpURLConnection) urlItem.getURL().openConnection();
 				if (userAgent != null)
 					huc.addRequestProperty("User-agent", userAgent);
 				huc.setConnectTimeout(60000);
@@ -160,24 +158,27 @@ public class Crawl implements XmlInfo {
 					if (code.startsWith("2")) {
 						parseContent(is);
 					} else if ("301".equals(code)) {
-						status = Status.REDIR_PERM;
+						urlItem.setFetchStatus(FetchStatus.REDIR_PERM);
 					} else if (code.startsWith("3")) {
-						status = Status.REDIR_TEMP;
+						urlItem.setFetchStatus(FetchStatus.REDIR_TEMP);
 					} else if (code.startsWith("4")) {
-						status = Status.HTTP_GONE;
+						urlItem.setFetchStatus(FetchStatus.GONE);
 					} else if (code.startsWith("5")) {
-						status = Status.HTTP_ERROR;
+						urlItem.setFetchStatus(FetchStatus.HTTP_ERROR);
 					}
 			} catch (FileNotFoundException e) {
-				logger.info("FileNotFound: " + url);
+				logger.info("FileNotFound: " + urlItem.getUrl());
 				httpResponseCode = 404;
-				setStatusError(Status.HTTP_GONE, "FileNotFound: " + url);
+				urlItem.setFetchStatus(FetchStatus.GONE);
+				setError("FileNotFound: " + urlItem.getUrl());
 			} catch (IOException e) {
-				logger.warn(e.toString() + " (" + url + ")");
-				setStatusError(Status.ERROR, e.getMessage());
+				logger.warn(e.toString() + " (" + urlItem.getUrl() + ")");
+				urlItem.setFetchStatus(FetchStatus.ERROR);
+				setError(e.getMessage());
 			} catch (ParseException e) {
-				logger.warn(e.toString() + " (" + url + ")");
-				setStatusError(Status.ERROR, e.getMessage());
+				logger.warn(e.toString() + " (" + urlItem.getUrl() + ")");
+				urlItem.setFetchStatus(FetchStatus.ERROR);
+				setError(e.getMessage());
 			}
 			try {
 				if (is != null)
@@ -190,17 +191,12 @@ public class Crawl implements XmlInfo {
 		}
 	}
 
-	private void setStatusError(Status status, String error) {
-		this.status = status;
+	protected void setError(String error) {
 		this.error = error;
 	}
 
 	public String getUserAgent() {
 		return userAgent;
-	}
-
-	public URL getUrl() {
-		return url;
 	}
 
 	public ContentType getContentType() {
@@ -227,8 +223,8 @@ public class Crawl implements XmlInfo {
 		return error;
 	}
 
-	public Status getStatus() {
-		return status;
+	public UrlItem getUrlItem() {
+		return urlItem;
 	}
 
 	public IndexDocument getDocument() {
@@ -237,7 +233,9 @@ public class Crawl implements XmlInfo {
 		if (parser == null)
 			return null;
 		document = parser.getDocument();
-		String sUrl = url.toExternalForm();
+		if (document == null)
+			return null;
+		String sUrl = urlItem.getUrl();
 		document.add("url", sUrl);
 		document.add("url_key", sUrl);
 		return document;
@@ -245,7 +243,7 @@ public class Crawl implements XmlInfo {
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
 		writer.print("<crawl url=\""
-				+ StringEscapeUtils.escapeXml(url.toExternalForm())
+				+ StringEscapeUtils.escapeXml(urlItem.getUrl())
 				+ "\" httpResponseCode=\"" + httpResponseCode
 				+ "\" contentLength=\"" + contentLength + "\" contentType=\""
 				+ contentType + "\" contentEncoding=\"" + contentEncoding
