@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.urldb;
 
+
 public enum ParserStatus {
 
 	NOT_PARSED(0, "Not parsed"), PARSED(1, "Parsed"), NOPARSER(1, "No parser"), PARSER_ERROR(

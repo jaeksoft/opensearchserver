@@ -80,6 +80,13 @@ public class UrlManager {
 		// Build the where clause
 		String where = null;
 
+		if (fetchStatus == FetchStatus.ALL)
+			fetchStatus = null;
+		if (parserStatus == ParserStatus.ALL)
+			parserStatus = null;
+		if (indexStatus == IndexStatus.ALL)
+			indexStatus = null;
+
 		if (like != null && like.length() > 0)
 			where = "url LIKE ? ";
 
@@ -91,7 +98,7 @@ public class UrlManager {
 			where += "host=?";
 		}
 
-		if (fetchStatus != null && fetchStatus != FetchStatus.ALL) {
+		if (fetchStatus != null) {
 			if (where != null)
 				where += " AND ";
 			else
@@ -99,7 +106,7 @@ public class UrlManager {
 			where += "fetchStatus=?";
 		}
 
-		if (parserStatus != null && parserStatus != ParserStatus.ALL) {
+		if (parserStatus != null) {
 			if (where != null)
 				where += " AND ";
 			else
@@ -107,7 +114,7 @@ public class UrlManager {
 			where += "parserStatus=?";
 		}
 
-		if (indexStatus != null && indexStatus != IndexStatus.ALL) {
+		if (indexStatus != null) {
 			if (where != null)
 				where += " AND ";
 			else

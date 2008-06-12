@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.urldb;
 
+
 public enum IndexStatus {
 
 	NOT_INDEXED(0, "Not indexed"), INDEXED(1, "Indexed"), META_NOINDEX(2,
