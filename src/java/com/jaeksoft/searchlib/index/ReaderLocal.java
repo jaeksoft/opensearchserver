@@ -331,6 +331,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	public boolean sameIndex(ReaderInterface reader) {
 		if (reader == this)
 			return true;
+		if (reader == null)
+			return true;
 		return reader.sameIndex(this);
 	}
 

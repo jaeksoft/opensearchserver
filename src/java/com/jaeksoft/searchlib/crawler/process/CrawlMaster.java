@@ -69,6 +69,7 @@ public class CrawlMaster extends DaemonThread {
 		int threadNumber = propertyManager.getMaxThreadNumber();
 		while (--threadNumber >= 0)
 			crawlThreads.add(new CrawlThread(client, this));
+		waitForChild();
 	}
 
 	protected ArrayList<UrlItem> getNextUrlList() throws SQLException {
@@ -110,7 +111,7 @@ public class CrawlMaster extends DaemonThread {
 		}
 	}
 
-	public boolean isChildRunning() {
+	private boolean isChildRunning() {
 		synchronized (this) {
 			if (crawlThreads == null)
 				return false;
@@ -119,6 +120,11 @@ public class CrawlMaster extends DaemonThread {
 					return true;
 			return false;
 		}
+	}
+
+	private void waitForChild() {
+		while (isChildRunning())
+			sleep(500);
 	}
 
 	@Override

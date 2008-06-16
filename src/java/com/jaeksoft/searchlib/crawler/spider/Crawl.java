@@ -154,6 +154,7 @@ public class Crawl implements XmlInfo {
 				contentEncoding = huc.getContentEncoding();
 				contentLength = huc.getContentLength();
 				String code = Integer.toString(httpResponseCode);
+				urlItem.setFetchStatus(FetchStatus.FETCHED);
 				if (httpResponseCode == 200)
 					if (code.startsWith("2")) {
 						parseContent(is);

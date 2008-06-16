@@ -82,6 +82,7 @@ public class CrawlThread extends DaemonThread {
 
 	@Override
 	public void runner() throws Exception {
+		logger.info("CrawlThread " + this + " starts");
 		try {
 			String userAgent = client.getPropertyManager().getUserAgent();
 			ArrayList<UrlItem> urlList = null;
@@ -100,6 +101,7 @@ public class CrawlThread extends DaemonThread {
 		} catch (IOException e) {
 			setError(e);
 		}
+		logger.info("CrawlThread " + this + " ends");
 	}
 
 	private void setCurrentUrlList(ArrayList<UrlItem> urlList) {
