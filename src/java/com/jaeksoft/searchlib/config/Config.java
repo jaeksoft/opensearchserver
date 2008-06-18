@@ -32,6 +32,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 
 import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -47,11 +48,21 @@ import com.jaeksoft.searchlib.crawler.property.PropertyManager;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.crawler.spider.ParserSelector;
 import com.jaeksoft.searchlib.crawler.urldb.UrlManager;
+import com.jaeksoft.searchlib.filter.Filter;
+import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexLocal;
+import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderJsp;
+import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.request.RequestList;
+import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.schema.SortField;
 import com.jaeksoft.searchlib.util.Context;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
@@ -140,8 +151,86 @@ public abstract class Config implements XmlInfo {
 		return this.index;
 	}
 
-	public Request getNewRequest(String requestName) throws ParseException {
-		return requests.get(requestName).clone();
+	public Request getNewRequest(String requestName, HttpServletRequest request)
+			throws ParseException {
+		Request req = requests.get(requestName).clone();
+
+		if (request == null)
+			return req;
+
+		String p;
+
+		if ((p = request.getParameter("query")) != null)
+			req.setQueryString(p);
+
+		if ((p = request.getParameter("start")) != null)
+			req.setStart(Integer.parseInt(p));
+
+		if ((p = request.getParameter("rows")) != null)
+			req.setRows(Integer.parseInt(p));
+
+		if ((p = request.getParameter("lang")) != null)
+			req.setLang(p);
+
+		if ((p = request.getParameter("collapse.field")) != null) {
+			req.setCollapseField(getSchema().getFieldList().get(p));
+			req.setCollapseActive(true);
+		}
+
+		if ((p = request.getParameter("collapse.max")) != null)
+			req.setCollapseMax(Integer.parseInt(p));
+
+		if ((p = request.getParameter("forceLocal")) != null)
+			req.setForceLocal(true);
+
+		if ((p = request.getParameter("delete")) != null)
+			req.setDelete(true);
+
+		String[] values;
+
+		if ((values = request.getParameterValues("fq")) != null) {
+			FilterList fl = req.getFilterList();
+			for (String value : values)
+				if (value != null)
+					if (value.trim().length() > 0)
+						fl.add(value, Filter.Source.REQUEST);
+		}
+
+		if ((values = request.getParameterValues("hl")) != null) {
+			FieldList<HighlightField> highlightFields = req
+					.getHighlightFieldList();
+			for (String value : values)
+				highlightFields.add(new HighlightField(getSchema()
+						.getFieldList().get(value)));
+		}
+
+		if ((values = request.getParameterValues("fl")) != null) {
+			FieldList<FieldValue> returnFields = req.getReturnFieldList();
+			for (String value : values)
+				returnFields.add(getSchema().getFieldList().get(value));
+		}
+		if ((values = request.getParameterValues("sort")) != null) {
+			FieldList<SortField> sortFields = req.getSortFieldList();
+			for (String value : values)
+				sortFields.add(SortField.newSortField(value));
+		}
+		return req;
+	}
+
+	public Render getRender(HttpServletRequest request, Result<?> result) {
+
+		Render render = null;
+
+		String p;
+		if ((p = request.getParameter("render")) != null) {
+			if ("jsp".equals(p))
+				render = new RenderJsp(request.getParameter("jsp"), result);
+		}
+
+		if (render == null)
+			render = new RenderXml(result);
+
+		return render;
 	}
 
 	public PatternUrlManager getPatternUrlManager() {
