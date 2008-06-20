@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.util.Context;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Client extends Config implements XmlInfo {
@@ -69,5 +70,21 @@ public class Client extends Config implements XmlInfo {
 
 	public Result<?> search(Request request) throws IOException {
 		return getIndex().search(request);
+	}
+
+	private static volatile Client INSTANCE;
+
+	public static Client getWebAppInstance() throws XPathExpressionException,
+			DOMException, NamingException, ParserConfigurationException,
+			SAXException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		if (INSTANCE == null) {
+			synchronized (Client.class) {
+				if (INSTANCE == null)
+					INSTANCE = new Client(new File((String) Context
+							.get("JaeksoftSearchServer/configfile")));
+			}
+		}
+		return INSTANCE;
 	}
 }

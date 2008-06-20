@@ -22,19 +22,30 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
+package com.jaeksoft.searchlib.web;
 
-import org.w3c.dom.Node;
+import javax.servlet.http.HttpServletRequest;
 
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
+import com.jaeksoft.searchlib.Client;
 
-public abstract class IndexAbstract extends NameFilter implements
-		ReaderInterface, WriterInterface, XmlInfo {
+public class OptimizeServlet extends AbstractServlet {
 
-	protected IndexAbstract(Node node) {
-		super(XPathParser.getAttributeString(node, "name"));
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -369063857059673597L;
+
+	@Override
+	protected void doRequest(ServletTransaction transaction)
+			throws ServletException {
+		try {
+			Client client = Client.getWebAppInstance();
+			HttpServletRequest request = transaction.getServletRequest();
+			String index = request.getParameter("index");
+			client.getIndex().optimize(index, true);
+		} catch (Exception e) {
+			throw new ServletException(e);
+		}
 	}
 
-	public abstract IndexAbstract get(String name);
 }

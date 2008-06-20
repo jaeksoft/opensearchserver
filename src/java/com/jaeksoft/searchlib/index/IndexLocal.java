@@ -120,4 +120,9 @@ public class IndexLocal extends IndexAbstract {
 		return null;
 	}
 
+	@Override
+	public IndexLocal get(String name) {
+		return this;
+	}
+
 }
