@@ -65,10 +65,12 @@ public class CrawlMaster extends DaemonThread {
 						propertyManager.getMaxUrlPerSession());
 		if (hostList != null)
 			hostIterator = hostList.iterator();
-		crawlThreads = new ArrayList<CrawlThread>();
-		int threadNumber = propertyManager.getMaxThreadNumber();
-		while (--threadNumber >= 0)
-			crawlThreads.add(new CrawlThread(client, this));
+		synchronized (this) {
+			crawlThreads = new ArrayList<CrawlThread>();
+			int threadNumber = propertyManager.getMaxThreadNumber();
+			while (--threadNumber >= 0)
+				crawlThreads.add(new CrawlThread(client, this));
+		}
 		waitForChild();
 	}
 
