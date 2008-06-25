@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
 
@@ -54,7 +55,7 @@ public class HtmlParser implements Parser {
 	final private static Logger logger = Logger.getLogger(HtmlParser.class);
 
 	private String title;
-	private String textContent;
+	private ArrayList<String> textBlock;
 	private String metaKeywords;
 	private String metaDescription;
 	private Locale lang;
@@ -64,16 +65,45 @@ public class HtmlParser implements Parser {
 	private LinkList outlinks;
 	private LinkList inlinks;
 
+	private static HashSet<String> sentenceTagSet = null;
+
 	public HtmlParser() {
 		super();
 		title = null;
-		textContent = null;
+		textBlock = null;
 		metaKeywords = null;
 		metaDescription = null;
 		outlinks = null;
 		inlinks = null;
 		metaRobotsIndex = true;
 		metaRobotsFollow = true;
+		if (sentenceTagSet == null) {
+			sentenceTagSet = new HashSet<String>();
+			sentenceTagSet.add("p");
+			sentenceTagSet.add("td");
+			sentenceTagSet.add("div");
+			sentenceTagSet.add("h1");
+			sentenceTagSet.add("h2");
+			sentenceTagSet.add("h3");
+			sentenceTagSet.add("h4");
+			sentenceTagSet.add("h5");
+			sentenceTagSet.add("h6");
+			sentenceTagSet.add("hr");
+			sentenceTagSet.add("li");
+			sentenceTagSet.add("option");
+			sentenceTagSet.add("pre");
+			sentenceTagSet.add("select");
+			sentenceTagSet.add("table");
+			sentenceTagSet.add("tbody");
+			sentenceTagSet.add("td");
+			sentenceTagSet.add("textarea");
+			sentenceTagSet.add("tfoot");
+			sentenceTagSet.add("thead");
+			sentenceTagSet.add("th");
+			sentenceTagSet.add("title");
+			sentenceTagSet.add("tr");
+			sentenceTagSet.add("ul");
+		}
 	}
 
 	private static String getMetaContent(XPathParser xpp, String query)
@@ -89,12 +119,16 @@ public class HtmlParser implements Parser {
 		return StringEscapeUtils.unescapeHtml(mc);
 	}
 
-	private static void getTextContent(StringBuffer sb, Node node) {
+	private static void getTextContent(ArrayList<String> textBlock,
+			StringBuffer sb, Node node) {
 		if (node.getNodeType() == Node.COMMENT_NODE)
 			return;
-		if ("script".equalsIgnoreCase(node.getNodeName()))
+		String nodeName = node.getNodeName();
+		if ("script".equalsIgnoreCase(nodeName))
 			return;
-		if ("style".equalsIgnoreCase(node.getNodeName()))
+		if ("style".equalsIgnoreCase(nodeName))
+			return;
+		if ("title".equalsIgnoreCase(nodeName))
 			return;
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			String text = node.getNodeValue();
@@ -110,14 +144,28 @@ public class HtmlParser implements Parser {
 			}
 		}
 		NodeList children = node.getChildNodes();
-		if (children != null) {
-			int len = children.getLength();
-			for (int i = 0; i < len; i++)
-				getTextContent(sb, children.item(i));
+		if (children == null)
+			return;
+		int len = children.getLength();
+		for (int i = 0; i < len; i++)
+			getTextContent(textBlock, sb, children.item(i));
+		if (sb.length() > 0 && sb.charAt(sb.length() - 1) != '.'
+				&& sentenceTagSet.contains(nodeName.toLowerCase())) {
+			addBlock(textBlock, sb);
 		}
 	}
 
 	private static TextCategorizer textCategorizer = new TextCategorizer();
+
+	private static void addBlock(ArrayList<String> textBlock, StringBuffer sb) {
+		String text = sb.toString().trim();
+		sb.setLength(0);
+		if (text.length() == 0)
+			return;
+		String[] frags = text.split("\\. ");
+		for (String frag : frags)
+			textBlock.add(frag);
+	}
 
 	public void parseContent(Crawl crawl, InputStream inputStream)
 			throws IOException {
@@ -207,8 +255,9 @@ public class HtmlParser implements Parser {
 			Node node = xpp.getNode("/html/body");
 			if (node != null) {
 				StringBuffer sb = new StringBuffer();
-				getTextContent(sb, node);
-				textContent = sb.toString();
+				textBlock = new ArrayList<String>();
+				getTextContent(textBlock, sb, node);
+				addBlock(textBlock, sb);
 			}
 
 			// Identification de la langue:
@@ -232,9 +281,16 @@ public class HtmlParser implements Parser {
 						.findLocaleISO639(getMetaContent(xpp,
 								"/html/head/meta[translate(@name,'DC.LANGUAGE', 'dc.language')='dc.language']"));
 			}
-			if (lang == null && textContent != null) {
+			if (lang == null && textBlock != null) {
 				langMethod = "ngram recognition";
-				String textcat = textCategorizer.categorize(textContent, 1000);
+				StringBuffer sb = new StringBuffer();
+				for (String s : textBlock) {
+					sb.append(s);
+					if (sb.length() > 1000)
+						break;
+				}
+				String textcat = textCategorizer
+						.categorize(sb.toString(), 1000);
 				lang = Lang.findLocaleDescription(textcat);
 			}
 			if (!metaRobotsIndex)
@@ -264,9 +320,9 @@ public class HtmlParser implements Parser {
 				+ "\" follow=\"" + metaRobotsFollow + "\" />");
 		writer.println("<lang method=\"" + langMethod + "\">"
 				+ lang.getLanguage() + "</lang>");
-		if (textContent != null)
-			writer.println("<textContent lenth=\"" + textContent.length()
-					+ "\">" + StringEscapeUtils.escapeXml(textContent)
+		if (textBlock != null)
+			writer.println("<textContent lenth=\"" + textBlock.size() + "\">"
+					+ StringEscapeUtils.escapeXml(textBlock.toString())
 					+ "</textContent>");
 		if (inlinks != null) {
 			writer.println("<inlinks num=\"" + inlinks.size() + "\">");
@@ -293,8 +349,10 @@ public class HtmlParser implements Parser {
 			document.add("meta_description", metaDescription);
 		if (metaKeywords != null)
 			document.add("meta_keywords", metaKeywords);
-		if (textContent != null)
-			document.add("content", textContent);
+		if (textBlock != null)
+			for (String s : textBlock)
+				if (s != null)
+					document.add("content", s);
 		if (outlinks != null) {
 			FieldContent fieldContent = new FieldContent("outlink");
 			outlinks.populate(fieldContent);

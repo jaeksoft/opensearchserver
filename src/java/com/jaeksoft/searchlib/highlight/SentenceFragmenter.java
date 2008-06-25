@@ -36,8 +36,8 @@ public class SentenceFragmenter extends Fragmenter {
 	private int currentFragmentSize;
 	private boolean bNextIsNew;
 
-	public SentenceFragmenter(int fragmentNumber, int maxSize, String separator) {
-		super(fragmentNumber, maxSize, separator);
+	public SentenceFragmenter(int fragmentNumber, String separator) {
+		super(fragmentNumber, separator);
 	}
 
 	private SentenceFragmenter(SentenceFragmenter fragmenter) {

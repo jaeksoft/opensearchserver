@@ -46,15 +46,17 @@ public class HighlightField extends FieldValue {
 	private Fragmenter fragmenter;
 	private String tag;
 	private int maxDocBytes;
+	private int maxSize;
 
-	public HighlightField(Field field, String tag, int maxDocBytes) {
+	public HighlightField(Field field, String tag, int maxDocBytes, int maxSize) {
 		super(field.getName());
 		this.tag = tag;
 		this.maxDocBytes = maxDocBytes;
+		this.maxSize = maxSize;
 	}
 
 	public HighlightField(Field field) {
-		this(field, "em", 0);
+		this(field, "em", 0, 0);
 	}
 
 	public HighlightField(HighlightField field) {
@@ -62,6 +64,7 @@ public class HighlightField extends FieldValue {
 		fragmenter = field.fragmenter;
 		tag = field.tag;
 		maxDocBytes = field.maxDocBytes;
+		maxSize = field.maxSize;
 	}
 
 	@Override
@@ -96,11 +99,11 @@ public class HighlightField extends FieldValue {
 		if (tag == null)
 			tag = "em";
 		int maxDocBytes = XPathParser.getAttributeValue(node, "maxDocBytes");
+		int maxSize = XPathParser.getAttributeValue(node, "maxSize");
+		if (maxSize == 0)
+			maxSize = 100;
 		HighlightField field = new HighlightField(source.get(fieldName), tag,
-				maxDocBytes);
-		int fragmentSize = XPathParser.getAttributeValue(node, "maxSize");
-		if (fragmentSize == 0)
-			fragmentSize = 100;
+				maxDocBytes, maxSize);
 		int fragmentNumber = XPathParser.getAttributeValue(node,
 				"maxFragmentNumber");
 		if (fragmentNumber == 0)
@@ -111,35 +114,68 @@ public class HighlightField extends FieldValue {
 		if (fragmentSeparator == null)
 			fragmentSeparator = "...";
 		field.setFragmenter(new SentenceFragmenter(fragmentNumber,
-				fragmentSize, fragmentSeparator));
+				fragmentSeparator));
 		target.add(field);
 	}
 
-	private String getSnippet(Request request, String content)
+	private String[] getFragments(Request request, String content)
 			throws IOException {
-		long t = System.currentTimeMillis();
 		Highlighter highlighter = new Highlighter(getNewFormater(),
 				new DefaultEncoder(), new QueryScorer(request
 						.getHighlightQuery()));
 		if (maxDocBytes > 0)
 			highlighter.setMaxDocBytesToAnalyze(maxDocBytes);
 		Fragmenter frgmtr = fragmenter.newFragmenter();
-		String[] frags = highlighter.getBestFragments(request.getConfig()
-				.getSchema().getHighlightPerFieldAnalyzer(request.getLang()),
-				name, content, frgmtr.getFragmentNumber());
-		String snippet = frgmtr.getSnippet(frags);
-		if (snippet == null)
-			snippet = fragmenter.format(content, fragmenter.getMaxSize())
-					+ fragmenter.getSeparator();
-		t = System.currentTimeMillis() - t;
-		return snippet;
+		highlighter.setTextFragmenter(frgmtr);
+		return highlighter.getBestFragments(request.getConfig().getSchema()
+				.getHighlightPerFieldAnalyzer(request.getLang()), name,
+				content, frgmtr.getFragmentNumber());
+	}
+
+	private static String getSnippet(String[] frags, int maxSize,
+			String separator) {
+		StringBuffer sb = new StringBuffer();
+		for (String frag : frags)
+			if (frag != null) {
+				if (sb.length() + frag.length() + 1 > maxSize)
+					break;
+				if (sb.length() > 0)
+					sb.append(separator);
+				sb.append(frag);
+			}
+		sb.trimToSize();
+		return sb.length() == 0 ? null : sb.toString();
+	}
+
+	private static String getSnippet(ArrayList<String> frags, int maxSize,
+			String separator) {
+		String[] a = new String[frags.size()];
+		return getSnippet(frags.toArray(a), maxSize, separator);
 	}
 
 	public void setSnippets(Request request, ArrayList<String> values)
 			throws IOException {
 		if (values == null)
 			return;
-		for (String value : values)
-			addValue(getSnippet(request, value));
+		ArrayList<String> snippets = new ArrayList<String>();
+		StringBuffer valueContent = new StringBuffer();
+		for (String value : values) {
+			if (value.length() + valueContent.length() <= maxSize) {
+				if (valueContent.length() > 0)
+					valueContent.append(". ");
+				valueContent.append(value);
+			}
+			String[] frags = getFragments(request, value);
+			if (frags != null) {
+				String snippet = getSnippet(frags, maxSize, " ");
+				if (snippet != null)
+					snippets.add(snippet);
+			}
+		}
+		String snippet = getSnippet(snippets, maxSize, fragmenter
+				.getSeparator());
+		if (snippet == null)
+			snippet = valueContent.toString().trim();
+		addValue(snippet);
 	}
 }

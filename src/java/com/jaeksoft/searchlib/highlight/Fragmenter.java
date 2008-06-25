@@ -24,29 +24,30 @@
 
 package com.jaeksoft.searchlib.highlight;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
-
-import org.apache.lucene.analysis.Token;
-import org.apache.lucene.analysis.WhitespaceTokenizer;
 
 public abstract class Fragmenter implements
 		org.apache.lucene.search.highlight.Fragmenter, Serializable {
 
 	private int fragmentNumber;
 	private String separator;
-	private int maxSize;
 
-	public Fragmenter(int fragmentNumber, int maxSize, String separator) {
+	/**
+	 * 
+	 * @param fragmentNumber
+	 * @param separator
+	 */
+	public Fragmenter(int fragmentNumber, String separator) {
 		this.fragmentNumber = fragmentNumber;
-		this.maxSize = maxSize;
 		this.separator = separator;
 	}
 
+	/**
+	 * 
+	 * @param fragmenter
+	 */
 	protected Fragmenter(Fragmenter fragmenter) {
 		this.fragmentNumber = fragmenter.fragmentNumber;
-		this.maxSize = fragmenter.maxSize;
 		this.separator = fragmenter.separator;
 	}
 
@@ -56,51 +57,8 @@ public abstract class Fragmenter implements
 		return this.fragmentNumber;
 	}
 
-	public int getMaxSize() {
-		return this.maxSize;
-	}
-
 	public String getSeparator() {
 		return this.separator;
 	}
 
-	public String format(String textFragment, int spaceLeft) throws IOException {
-		if (textFragment.length() < spaceLeft)
-			return textFragment;
-		WhitespaceTokenizer wt = new WhitespaceTokenizer(new StringReader(
-				textFragment));
-		Token token;
-		StringBuffer frag = new StringBuffer();
-		int l = 0;
-		while ((token = wt.next()) != null) {
-			int termLength = token.termLength();
-			l += termLength;
-			if (l > spaceLeft)
-				break;
-			if (l != termLength)
-				frag.append(" ");
-			frag.append(token.termBuffer(), 0, termLength);
-		}
-		return frag.toString();
-	}
-
-	public String getSnippet(String[] fragments) throws IOException {
-		if (fragments == null || fragments.length == 0)
-			return null;
-		int spaceLeft = this.maxSize;
-		String hl = null;
-		for (String fragment : fragments) {
-			if (fragment == null)
-				continue;
-			String fr = this.format(fragment, spaceLeft);
-			if (hl == null)
-				hl = fr;
-			else
-				hl += this.separator + fr;
-			if (fr.length() != fragment.length())
-				break;
-			spaceLeft -= fr.length();
-		}
-		return hl;
-	}
 }
