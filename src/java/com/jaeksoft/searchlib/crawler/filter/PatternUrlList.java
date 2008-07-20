@@ -27,10 +27,10 @@ package com.jaeksoft.searchlib.crawler.filter;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.jaeksoft.pojojdbc.PartialList;
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.util.PartialList;
 
 public class PatternUrlList extends PartialList<PatternUrlItem> {
 

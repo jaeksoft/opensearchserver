@@ -28,11 +28,11 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import com.jaeksoft.pojojdbc.PartialList;
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.urldb.UrlManager.Field;
-import com.jaeksoft.searchlib.util.PartialList;
 
 public class UrlList extends PartialList<UrlItem> {
 

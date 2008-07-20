@@ -41,8 +41,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.pojojdbc.Database;
 import com.jaeksoft.pojojdbc.Transaction;
+import com.jaeksoft.pojojdbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.crawler.filter.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.property.PropertyManager;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
@@ -81,7 +81,7 @@ public abstract class Config implements XmlInfo {
 
 	private ParserSelector parserSelector = null;
 
-	private Database crawlDatabase = null;
+	private JDBCConnection crawlDatabase = null;
 
 	protected XPathParser xpp = null;
 
@@ -109,7 +109,7 @@ public abstract class Config implements XmlInfo {
 				if (homeDir != null)
 					databaseUrl = databaseUrl.replace("${root}", homeDir
 							.getAbsolutePath());
-				crawlDatabase = new Database(databaseDriver, databaseUrl);
+				crawlDatabase = new JDBCConnection(databaseDriver, databaseUrl);
 			}
 		}
 
