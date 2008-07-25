@@ -72,7 +72,6 @@ public class UrlManager {
 		this.config = config;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Query getUrl(Transaction transaction, String like, String host,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
