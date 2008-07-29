@@ -33,6 +33,7 @@ import org.apache.lucene.index.CorruptIndexException;
 
 import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.request.Request;
@@ -147,11 +148,11 @@ public class RenderXml implements Render {
 			throw new Exception("BAD CONTENT SIZE " + count.length + "/"
 					+ terms.length);
 		}
-		writer
-				.println("\t\t<field name=\"" + facet.getFacetFieldName()
-						+ "\">");
+		FacetField facetField = facet.getFacetField();
+		writer.println("\t\t<field name=\"" + facetField.getName() + "\">");
+		int minCount = facetField.getMinCount();
 		for (int i = 0; i < count.length; i++) {
-			if (count[i] > 0 && terms[i] != null) {
+			if (count[i] >= minCount && terms[i] != null) {
 				writer.println("\t\t\t<facet name=\"" + terms[i] + "\">"
 						+ count[i] + "</facet>");
 			}

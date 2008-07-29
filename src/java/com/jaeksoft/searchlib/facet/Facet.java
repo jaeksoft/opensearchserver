@@ -26,13 +26,16 @@ package com.jaeksoft.searchlib.facet;
 
 import java.io.Serializable;
 
-import com.jaeksoft.searchlib.schema.Field;
-
 public abstract class Facet implements Serializable {
 
-	transient protected Field facetField;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-	public Facet(Field facetField) {
+	protected FacetField facetField;
+
+	public Facet(FacetField facetField) {
 		this.facetField = facetField;
 	}
 
@@ -40,13 +43,12 @@ public abstract class Facet implements Serializable {
 
 	public abstract int[] getCount();
 
-	public String getFacetFieldName() {
-		return this.facetField.getName();
+	public FacetField getFacetField() {
+		return this.facetField;
 	}
 
 	@Override
 	public String toString() {
-
 		String s = this.getClass().getName() + "@" + this.hashCode();
 		String[] terms = this.getTerms();
 		int[] count = this.getCount();

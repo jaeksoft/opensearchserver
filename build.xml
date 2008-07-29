@@ -23,23 +23,29 @@
 -->
 <project name="SearchLib" default="dist" basedir=".">
 	<property name="src" location="src/java" />
+	<property name="web" location="WebContent" />
 	<property name="lib" location="lib" />
+	<property name="wlib" location="${web}/WEB-INF/lib" />
 	<property name="build" location="ant-build" />
 	<property name="build-release" location="${build}/release" />
 	<property name="build-debug" location="${build}/debug" />
 	<property name="dist" location="dist" />
+	<property name="name-release" value="searchlib-community" />
+	<property name="name-debug" value="searchlib-community-debug" />
 
 	<target name="init">
 		<mkdir dir="${build}" />
 		<mkdir dir="${build-release}" />
 		<mkdir dir="${build-debug}" />
-		<copy failonerror="false" file="../Pojodbc/dist/pojodbc.jar" todir="${lib}" />
 	</target>
 
 	<target name="compile-release" depends="init" description="compile the source ">
 		<javac debug="false" optimize="true" srcdir="${src}" destdir="${build-release}">
 			<classpath>
 				<fileset dir="${lib}">
+					<include name="**.jar" />
+				</fileset>
+				<fileset dir="${wlib}">
 					<include name="**.jar" />
 				</fileset>
 			</classpath>
@@ -52,21 +58,40 @@
 				<fileset dir="${lib}">
 					<include name="**.jar" />
 				</fileset>
+				<fileset dir="${wlib}">
+					<include name="**.jar" />
+				</fileset>
 			</classpath>
 		</javac>
 	</target>
 
-	<target name="dist-release" depends="compile-release">
+	<target name="dist-jar-release" depends="compile-release">
 		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/searchlib-community.jar" basedir="${build-release}" />
+		<jar jarfile="${dist}/${name-release}.jar" basedir="${build-release}" />
 	</target>
 
-	<target name="dist-debug" depends="compile-debug">
+	<target name="dist-war-release" depends="dist-jar-release">
 		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/searchlib-community-debug.jar" basedir="${build-debug}" />
+		<war destfile="${dist}/${name-release}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
+			<lib file="${lib}/pojodbc.jar" />
+			<lib file="${dist}/${name-release}.jar" />
+		</war>
 	</target>
 
-	<target name="dist" depends="dist-release,dist-debug" />
+	<target name="dist-jar-debug" depends="compile-debug">
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/${name-debug}.jar" basedir="${build-debug}" />
+	</target>
+
+	<target name="dist-war-debug" depends="dist-jar-debug">
+		<mkdir dir="${dist}" />
+		<war destfile="${dist}/${name-debug}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
+			<lib file="${lib}/pojodbc.jar" />
+			<lib file="${dist}/${name-debug}.jar" />
+		</war>
+	</target>
+
+	<target name="dist" depends="dist-war-release,dist-war-debug" />
 
 	<target name="clean" description="clean up">
 		<delete dir="${build}" />

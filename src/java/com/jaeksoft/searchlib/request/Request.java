@@ -36,6 +36,7 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.highlight.HighlightField;
@@ -59,7 +60,7 @@ public abstract class Request implements XmlInfo {
 	private FieldList<HighlightField> highlightFieldList;
 	private FieldList<FieldValue> returnFieldList;
 	private FieldList<FieldValue> documentFieldList;
-	private FieldList<Field> facetFieldList;
+	private FieldList<FacetField> facetFieldList;
 	private FieldList<SortField> sortFieldList;
 	private Field collapseField;
 	private int collapseMax;
@@ -95,7 +96,7 @@ public abstract class Request implements XmlInfo {
 		if (request.documentFieldList != null)
 			this.documentFieldList = new FieldList<FieldValue>(
 					request.documentFieldList);
-		this.facetFieldList = new FieldList<Field>(request.facetFieldList);
+		this.facetFieldList = new FieldList<FacetField>(request.facetFieldList);
 		this.collapseField = request.collapseField;
 		this.collapseMax = request.collapseMax;
 		this.collapseActive = request.collapseActive;
@@ -130,7 +131,7 @@ public abstract class Request implements XmlInfo {
 		this.returnFieldList = new FieldList<FieldValue>();
 		this.sortFieldList = new FieldList<SortField>();
 		this.documentFieldList = null;
-		this.facetFieldList = new FieldList<Field>();
+		this.facetFieldList = new FieldList<FacetField>();
 		this.collapseField = null;
 		this.collapseMax = 2;
 		this.collapseActive = false;
@@ -232,7 +233,7 @@ public abstract class Request implements XmlInfo {
 		return this.sortFieldList;
 	}
 
-	public FieldList<Field> getFacetFieldList() {
+	public FieldList<FacetField> getFacetFieldList() {
 		return this.facetFieldList;
 	}
 

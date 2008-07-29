@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<display-name>SearchServer</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+	<servlet>
+		<servlet-name>Index</servlet-name>
+		<servlet-class> com.jaeksoft.searchlib.web.IndexServlet 
+		</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Optimize</servlet-name>
+		<servlet-class> com.jaeksoft.searchlib.web.OptimizeServlet 
+		</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Search</servlet-name>
+		<servlet-class> com.jaeksoft.searchlib.web.SearchServlet 
+		</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Document</servlet-name>
+		<servlet-class> com.jaeksoft.searchlib.web.DocumentServlet 
+		</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Stats</servlet-name>
+		<servlet-class> com.jaeksoft.searchlib.web.StatServlet 
+		</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Index</servlet-name>
+		<url-pattern>/index</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Optimize</servlet-name>
+		<url-pattern>/optimize</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Search</servlet-name>
+		<url-pattern>/select</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Document</servlet-name>
+		<url-pattern>/document</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Stats</servlet-name>
+		<url-pattern>/stats</url-pattern>
+	</servlet-mapping>
+</web-app>

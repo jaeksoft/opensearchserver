@@ -28,11 +28,11 @@ import java.io.IOException;
 
 import com.jaeksoft.searchlib.collapse.CollapseSearch;
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetSearch;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.schema.Field;
 
 public class ResultSearch extends Result<CollapseSearch> {
 
@@ -52,7 +52,7 @@ public class ResultSearch extends Result<CollapseSearch> {
 		super(request);
 		this.reader = reader;
 		this.docs = reader.searchDocSet(request);
-		for (Field facetField : request.getFacetFieldList())
+		for (FacetField facetField : request.getFacetFieldList())
 			this.facetList.add(new FacetSearch(this, facetField));
 		if (request.getCollapseField() != null) {
 			this.collapse = new CollapseSearch(this);

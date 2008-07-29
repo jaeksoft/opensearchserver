@@ -30,7 +30,6 @@ import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultSearch;
-import com.jaeksoft.searchlib.schema.Field;
 
 public class FacetSearch extends Facet {
 
@@ -38,31 +37,24 @@ public class FacetSearch extends Facet {
 	 * 
 	 */
 	private static final long serialVersionUID = 8151598793687762592L;
-	private String fieldName;
 	transient private String[] terms;
 	private int[] count;
 
-	public FacetSearch(ResultSearch result, Field facetField)
+	public FacetSearch(ResultSearch result, FacetField facetField)
 			throws IOException {
 		super(facetField);
-		this.fieldName = facetField.getName();
-		StringIndex si = result.getReader().getStringIndex(fieldName);
+		StringIndex si = result.getReader()
+				.getStringIndex(facetField.getName());
 		this.terms = si.lookup;
 		int[] order = si.order;
 		this.count = new int[this.terms.length];
-		for (int id : result.getUnsortedDocFound()) {
+		for (int id : result.getUnsortedDocFound())
 			this.count[order[id]]++;
-		}
 	}
 
 	public void setReader(ReaderLocal reader) throws IOException {
-		StringIndex si = reader.getStringIndex(this.fieldName);
+		StringIndex si = reader.getStringIndex(facetField.getName());
 		this.terms = si.lookup;
-	}
-
-	@Override
-	public String getFacetFieldName() {
-		return this.fieldName;
 	}
 
 	@Override

@@ -31,7 +31,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashSet;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -63,7 +62,6 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SortField;
-import com.jaeksoft.searchlib.util.Context;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
@@ -133,16 +131,6 @@ public abstract class Config implements XmlInfo {
 
 	}
 
-	protected Config(File homeDir, String envPath,
-			boolean createIndexIfNotExists) throws NamingException,
-			ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, DOMException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-		this(homeDir,
-				new File((String) Context.get("java:comp/env/" + envPath)),
-				createIndexIfNotExists);
-	}
-
 	public Schema getSchema() {
 		return this.schema;
 	}
@@ -153,6 +141,7 @@ public abstract class Config implements XmlInfo {
 
 	public Request getNewRequest(String requestName, HttpServletRequest request)
 			throws ParseException {
+
 		Request req = requests.get(requestName).clone();
 
 		if (request == null)
@@ -161,6 +150,8 @@ public abstract class Config implements XmlInfo {
 		String p;
 
 		if ((p = request.getParameter("query")) != null)
+			req.setQueryString(p);
+		else if ((p = request.getParameter("q")) != null)
 			req.setQueryString(p);
 
 		if ((p = request.getParameter("start")) != null)

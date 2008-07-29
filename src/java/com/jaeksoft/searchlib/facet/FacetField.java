@@ -24,46 +24,43 @@
 
 package com.jaeksoft.searchlib.facet;
 
-import java.io.Serializable;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.HashMap;
+import org.w3c.dom.Node;
 
-public class FacetList extends AbstractList<Facet> implements Serializable {
+import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.XPathParser;
+
+public class FacetField extends Field {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2891562911711846847L;
+	private static final long serialVersionUID = -941940505054128025L;
 
-	private ArrayList<Facet> facetList;
-	private HashMap<String, Facet> facetMap;
+	private int minCount;
 
-	public FacetList() {
-		this.facetMap = new HashMap<String, Facet>();
-		this.facetList = new ArrayList<Facet>();
+	protected FacetField(String name, int minCount) {
+		super(name);
+		this.minCount = minCount;
 	}
 
 	@Override
-	public boolean add(Facet facet) {
-		if (!this.facetList.add(facet))
-			return false;
-		this.facetMap.put(facet.facetField.getName(), facet);
-		return true;
+	public Object clone() {
+		return new FacetField(name, minCount);
 	}
 
-	@Override
-	public Facet get(int index) {
-		return this.facetList.get(index);
+	public int getMinCount() {
+		return minCount;
 	}
 
-	@Override
-	public int size() {
-		return this.facetList.size();
-	}
-
-	public Facet getByField(FacetField field) {
-		return facetMap.get(field.getName());
+	public static void copyFacetFields(Node node,
+			FieldList<SchemaField> source, FieldList<FacetField> target) {
+		String fieldName = XPathParser.getAttributeString(node, "name");
+		int minCount = XPathParser.getAttributeValue(node, "minCount");
+		FacetField facetField = new FacetField(source.get(fieldName).getName(),
+				minCount);
+		target.add(facetField);
 	}
 
 }

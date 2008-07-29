@@ -44,19 +44,27 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Client extends Config implements XmlInfo {
 
-	public Client(File configfile) throws XPathExpressionException,
-			DOMException, NamingException, ParserConfigurationException,
-			SAXException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-		super(null, configfile, false);
-	}
-
 	public Client(File homeDir, File configfile, boolean createIndexIfNotExists)
 			throws XPathExpressionException, DOMException,
 			ParserConfigurationException, SAXException, IOException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super(homeDir, configfile, createIndexIfNotExists);
+	}
+
+	public Client(File configfile, boolean createIndexIfNotExists)
+			throws XPathExpressionException, DOMException, NamingException,
+			ParserConfigurationException, SAXException, IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		this(null, configfile, createIndexIfNotExists);
+	}
+
+	protected Client(File configfile) throws NamingException,
+			ParserConfigurationException, SAXException, IOException,
+			XPathExpressionException, DOMException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		this(configfile, false);
 	}
 
 	public void updateDocument(IndexDocument document)
@@ -80,9 +88,10 @@ public class Client extends Config implements XmlInfo {
 			IllegalAccessException, ClassNotFoundException {
 		if (INSTANCE == null) {
 			synchronized (Client.class) {
+				String contextPath = "java:comp/env/JaeksoftSearchServer/configfile";
 				if (INSTANCE == null)
 					INSTANCE = new Client(new File((String) Context
-							.get("JaeksoftSearchServer/configfile")));
+							.get(contextPath)));
 			}
 		}
 		return INSTANCE;

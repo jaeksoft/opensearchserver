@@ -32,6 +32,11 @@ import com.jaeksoft.searchlib.result.Result;
 
 public abstract class Collapse<T extends Result<?>> implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected int[] collapseCount;
 	protected int[] collapsedDoc;
 	private int collapsedDocCount;

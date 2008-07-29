@@ -33,8 +33,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.highlight.HighlightField;
-import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -107,8 +107,8 @@ public class TemplateRequest extends Request {
 	}
 
 	/**
-	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
-	 * config XML.
+	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le
+	 * fichier de config XML.
 	 * 
 	 * @param config
 	 * @param xpp
@@ -143,10 +143,10 @@ public class TemplateRequest extends Request {
 			HighlightField.copyHighlightFields(nodes.item(i), fieldList,
 					highlightFields);
 
-		FieldList<Field> facetFields = templateRequest.getFacetFieldList();
-		Field.filterCopy(fieldList, xpp.getNodeString(node, "facetFields"),
-				facetFields);
-
+		FieldList<FacetField> facetFields = templateRequest.getFacetFieldList();
+		nodes = xpp.getNodeList(node, "facetFields/facetField");
+		for (int i = 0; i < nodes.getLength(); i++)
+			FacetField.copyFacetFields(nodes.item(i), fieldList, facetFields);
 		return templateRequest;
 	}
 

@@ -36,6 +36,11 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class Result<T extends Collapse<?>> implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	transient protected Request request;
 	protected DocumentResult documentResult;
 	protected FacetList facetList;

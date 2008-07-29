@@ -29,6 +29,11 @@ import java.io.Serializable;
 public abstract class Fragmenter implements
 		org.apache.lucene.search.highlight.Fragmenter, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private int fragmentNumber;
 	private String separator;
 
