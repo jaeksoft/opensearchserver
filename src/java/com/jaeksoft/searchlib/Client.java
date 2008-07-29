@@ -60,11 +60,11 @@ public class Client extends Config implements XmlInfo {
 		this(null, configfile, createIndexIfNotExists);
 	}
 
-	protected Client(File configfile) throws NamingException,
-			ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, DOMException, InstantiationException,
+	public Client(File configfile) throws XPathExpressionException,
+			DOMException, NamingException, ParserConfigurationException,
+			SAXException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		this(configfile, false);
+		this(null, configfile, false);
 	}
 
 	public void updateDocument(IndexDocument document)
@@ -91,7 +91,7 @@ public class Client extends Config implements XmlInfo {
 				String contextPath = "java:comp/env/JaeksoftSearchServer/configfile";
 				if (INSTANCE == null)
 					INSTANCE = new Client(new File((String) Context
-							.get(contextPath)));
+							.get(contextPath)), true);
 			}
 		}
 		return INSTANCE;
