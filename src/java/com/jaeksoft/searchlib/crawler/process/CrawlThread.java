@@ -69,16 +69,17 @@ public class CrawlThread extends DaemonThread {
 	}
 
 	private void sleepInterval() {
+		int delayBetweenAccesses = 0;
 		synchronized (this) {
-			int delayBetweenAccesses = client.getPropertyManager()
+			delayBetweenAccesses = client.getPropertyManager()
 					.getDelayBetweenAccesses();
 			if (delayBetweenAccesses == 0)
 				return;
-			try {
-				Thread.sleep(delayBetweenAccesses * 1000);
-			} catch (InterruptedException e) {
-				logger.error(e.getMessage(), e);
-			}
+		}
+		try {
+			Thread.sleep(delayBetweenAccesses * 1000);
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 
