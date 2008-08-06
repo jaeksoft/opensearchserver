@@ -179,15 +179,21 @@ public class PatternUrlManager {
 		}
 	}
 
-	public Query getPattern(Transaction transaction, String like, boolean asc)
-			throws SQLException {
-		String sql = "SELECT pattern FROM pattern";
+	public Query getPattern(Transaction transaction, boolean onlySize,
+			String like, boolean asc) throws SQLException {
+		StringBuffer sql = new StringBuffer();
+		if (onlySize)
+			sql.append("SELECT count(*) FROM pattern");
+		else
+			sql.append("SELECT pattern FROM pattern");
 		if (like != null)
-			sql += " WHERE pattern LIKE ? ";
-		sql += " ORDER BY pattern";
-		if (!asc)
-			sql += " DESC";
-		Query query = transaction.prepare(sql);
+			sql.append(" WHERE pattern LIKE ? ");
+		if (!onlySize) {
+			sql.append(" ORDER BY pattern");
+			if (!asc)
+				sql.append(" DESC");
+		}
+		Query query = transaction.prepare(sql.toString());
 		if (like != null)
 			query.getStatement().setString(1, "%" + like + "%");
 		return query;

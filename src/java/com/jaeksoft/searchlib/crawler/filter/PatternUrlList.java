@@ -58,8 +58,15 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 	}
 
 	@Override
-	protected Query getQuery(Transaction transaction) throws SQLException {
-		return config.getPatternUrlManager().getPattern(transaction, like, asc);
+	protected Query getQueryData(Transaction transaction) throws SQLException {
+		return config.getPatternUrlManager().getPattern(transaction, false,
+				like, asc);
+	}
+
+	@Override
+	protected Query getQuerySize(Transaction transaction) throws SQLException {
+		return config.getPatternUrlManager().getPattern(transaction, true,
+				like, asc);
 	}
 
 }

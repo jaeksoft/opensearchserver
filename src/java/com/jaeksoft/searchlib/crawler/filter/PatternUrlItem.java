@@ -30,7 +30,9 @@ import java.util.regex.Pattern;
 
 import javax.faces.event.ValueChangeEvent;
 
-public class PatternUrlItem {
+import com.jaeksoft.pojojdbc.PartialListItem;
+
+public class PatternUrlItem extends PartialListItem {
 
 	public enum Status {
 		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(

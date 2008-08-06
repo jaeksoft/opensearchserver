@@ -72,12 +72,57 @@ public class UrlManager {
 		this.config = config;
 	}
 
-	public Query getUrl(Transaction transaction, String like, String host,
+	private String getUrlWhereClause(String like, String host,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, boolean asc) throws SQLException {
-		// Build the where clause
-		String where = null;
+			IndexStatus indexStatus, Date startDate, Date endDate) {
+
+		StringBuffer where = new StringBuffer();
+
+		if (like != null && like.length() > 0)
+			where.append("url LIKE ?");
+
+		if (host != null && host.length() > 0) {
+			if (where.length() > 0)
+				where.append(" AND ");
+			where.append("host=?");
+		}
+
+		if (fetchStatus != null) {
+			if (where.length() > 0)
+				where.append(" AND ");
+			where.append("fetchStatus=?");
+		}
+
+		if (parserStatus != null) {
+			if (where.length() > 0)
+				where.append(" AND ");
+			where.append("parserStatus=?");
+		}
+
+		if (indexStatus != null) {
+			if (where.length() > 0)
+				where.append(" AND ");
+			where.append("indexStatus=?");
+		}
+
+		if (startDate != null) {
+			if (where.length() > 0)
+				where.append(" AND ");
+			where.append("when>=?");
+		}
+
+		if (endDate != null) {
+			if (where.length() > 0)
+				where.append(" AND ");
+			where.append("when<?");
+		}
+		return where.toString();
+	}
+
+	public Query getUrl(Transaction transaction, boolean onlyCount,
+			String like, String host, FetchStatus fetchStatus,
+			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
+			Date endDate, Field orderBy, boolean asc) throws SQLException {
 
 		if (fetchStatus == FetchStatus.ALL)
 			fetchStatus = null;
@@ -86,74 +131,39 @@ public class UrlManager {
 		if (indexStatus == IndexStatus.ALL)
 			indexStatus = null;
 
-		if (like != null && like.length() > 0)
-			where = "url LIKE ? ";
+		if (orderBy == null)
+			orderBy = Field.HOST;
 
-		if (host != null && host.length() > 0) {
-			if (where != null)
-				where += " AND ";
-			else
-				where = "";
-			where += "host=?";
-		}
-
-		if (fetchStatus != null) {
-			if (where != null)
-				where += " AND ";
-			else
-				where = "";
-			where += "fetchStatus=?";
-		}
-
-		if (parserStatus != null) {
-			if (where != null)
-				where += " AND ";
-			else
-				where = "";
-			where += "parserStatus=?";
-		}
-
-		if (indexStatus != null) {
-			if (where != null)
-				where += " AND ";
-			else
-				where = "";
-			where += "indexStatus=?";
-		}
-
-		if (startDate != null) {
-			if (where != null)
-				where += " AND ";
-			else
-				where = "";
-			where += "when>=?";
-		}
-
-		if (endDate != null) {
-			if (where != null)
-				where += " AND ";
-			else
-				where = "";
-			where += "when<?";
-		}
-
-		if (where == null)
-			where = "";
+		String select;
+		if (onlyCount)
+			select = "SELECT count(*)";
 		else
-			where = "WHERE " + where;
+			select = "SELECT url,host,when,retry,"
+					+ "fetchStatus as fetchStatusInt,"
+					+ "parserStatus as parserStatusInt,"
+					+ "indexStatus as indexStatusInt";
 
 		// Build statement
-		if (orderBy == null)
-			orderBy = Field.URL;
-		String sql = "SELECT url,host,when,retry,"
-				+ "fetchStatus as fetchStatusInt,"
-				+ "parserStatus as parserStatusInt,"
-				+ "indexStatus as indexStatusInt" + " FROM url " + where
-				+ " ORDER BY " + orderBy;
-		if (!asc)
-			sql += " DESC";
+		StringBuffer sql = new StringBuffer();
+		sql.append(select);
+		sql.append(" FROM url ");
 
-		Query query = transaction.prepare(sql);
+		// Build the where clause
+		String where = getUrlWhereClause(like, host, fetchStatus, parserStatus,
+				indexStatus, startDate, endDate);
+		if (where.length() > 0) {
+			sql.append("WHERE ");
+			sql.append(where);
+		}
+
+		if (!onlyCount) {
+			sql.append(" ORDER BY ");
+			sql.append(orderBy);
+			if (!asc)
+				sql.append(" DESC");
+		}
+
+		Query query = transaction.prepare(sql.toString());
 		PreparedStatement stmt = query.getStatement();
 		int i = 1;
 		if (like != null && like.length() > 0)

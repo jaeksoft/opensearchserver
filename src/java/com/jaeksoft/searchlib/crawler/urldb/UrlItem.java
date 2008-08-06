@@ -29,7 +29,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Timestamp;
 
-public class UrlItem implements Serializable {
+import com.jaeksoft.pojojdbc.PartialListItem;
+
+public class UrlItem extends PartialListItem implements Serializable {
 
 	/**
 	 * 

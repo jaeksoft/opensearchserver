@@ -72,8 +72,15 @@ public class UrlList extends PartialList<UrlItem> {
 	}
 
 	@Override
-	protected Query getQuery(Transaction transaction) throws SQLException {
-		return config.getUrlManager().getUrl(transaction, like, host,
+	protected Query getQueryData(Transaction transaction) throws SQLException {
+		return config.getUrlManager().getUrl(transaction, false, like, host,
+				fetchStatus, parserStatus, indexStatus, startDate, endDate,
+				orderBy, asc);
+	}
+
+	@Override
+	protected Query getQuerySize(Transaction transaction) throws SQLException {
+		return config.getUrlManager().getUrl(transaction, true, like, host,
 				fetchStatus, parserStatus, indexStatus, startDate, endDate,
 				orderBy, asc);
 	}
