@@ -48,6 +48,8 @@ public class CrawlThread extends DaemonThread {
 
 	private Client client;
 	private CrawlMaster crawlMaster;
+	private long resetTime;
+	private float fetchRate;
 	private long fetchedCount;
 	private long deletedCount;
 	private long indexedCount;
@@ -67,10 +69,12 @@ public class CrawlThread extends DaemonThread {
 
 	private void resetStatistics() {
 		synchronized (this) {
-			this.fetchedCount = 0;
-			this.deletedCount = 0;
-			this.indexedCount = 0;
-			this.ignoredCount = 0;
+			fetchedCount = 0;
+			deletedCount = 0;
+			indexedCount = 0;
+			ignoredCount = 0;
+			fetchRate = 0;
+			resetTime = System.currentTimeMillis();
 		}
 	}
 
@@ -175,6 +179,8 @@ public class CrawlThread extends DaemonThread {
 	private void incFetchedCount() {
 		synchronized (this) {
 			fetchedCount++;
+			fetchRate = (float) fetchedCount
+					/ ((float) (System.currentTimeMillis() - resetTime) / 60000);
 		}
 	}
 
@@ -200,6 +206,13 @@ public class CrawlThread extends DaemonThread {
 		synchronized (this) {
 			return fetchedCount;
 		}
+	}
+
+	public double getFetchRate() {
+		synchronized (this) {
+			return fetchRate;
+		}
+
 	}
 
 	public long getDeletedCount() {

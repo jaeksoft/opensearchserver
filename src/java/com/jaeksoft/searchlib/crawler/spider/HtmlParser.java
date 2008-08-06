@@ -235,7 +235,8 @@ public class HtmlParser implements Parser {
 					Link link = null;
 					if (href != null)
 						if (!href.startsWith("javascript:"))
-							link = Link.getLink(currentURL, href, follow);
+							link = Link
+									.getLink(currentURL, href, follow, false);
 					if (link != null) {
 						LinkList links = null;
 						if (link.getType() == Link.Type.INLINK)

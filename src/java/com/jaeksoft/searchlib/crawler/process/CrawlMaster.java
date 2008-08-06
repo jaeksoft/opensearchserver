@@ -113,6 +113,17 @@ public class CrawlMaster extends DaemonThread {
 		}
 	}
 
+	public float getFetchRate() {
+		synchronized (this) {
+			if (crawlThreads == null)
+				return 0;
+			float rate = 0;
+			for (CrawlThread crawlThread : crawlThreads)
+				rate += crawlThread.getFetchRate();
+			return rate;
+		}
+	}
+
 	private boolean isChildRunning() {
 		synchronized (this) {
 			if (crawlThreads == null)

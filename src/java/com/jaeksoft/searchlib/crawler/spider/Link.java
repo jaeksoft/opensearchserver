@@ -77,7 +77,8 @@ public class Link implements XmlInfo {
 				+ StringEscapeUtils.escapeXml(url.toExternalForm()) + "\" />");
 	}
 
-	public static Link getLink(URL currentURL, String uri, boolean follow) {
+	public static Link getLink(URL currentURL, String uri, boolean follow,
+			boolean allowRefAnchor) {
 
 		if (uri.startsWith("/"))
 			uri = currentURL.getProtocol() + "://" + currentURL.getHost()
@@ -90,6 +91,13 @@ public class Link implements XmlInfo {
 				uri = sUrl.substring(0, i + 1) + uri;
 			else
 				uri = sUrl + "/" + uri;
+		}
+
+		// Do we have to remove anchor ?
+		if (!allowRefAnchor) {
+			int p = uri.indexOf('#');
+			if (p != -1)
+				uri = uri.substring(0, p);
 		}
 
 		try {
