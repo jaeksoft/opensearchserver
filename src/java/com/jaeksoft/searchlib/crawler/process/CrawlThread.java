@@ -59,13 +59,19 @@ public class CrawlThread extends DaemonThread {
 		super(false, 0);
 		this.client = client;
 		this.crawlMaster = crawlMaster;
-		this.fetchedCount = 0;
-		this.deletedCount = 0;
-		this.indexedCount = 0;
-		this.ignoredCount = 0;
 		this.currentUrlItem = null;
 		this.currentUrlList = null;
+		resetStatistics();
 		start();
+	}
+
+	private void resetStatistics() {
+		synchronized (this) {
+			this.fetchedCount = 0;
+			this.deletedCount = 0;
+			this.indexedCount = 0;
+			this.ignoredCount = 0;
+		}
 	}
 
 	private void sleepInterval() {
@@ -90,6 +96,7 @@ public class CrawlThread extends DaemonThread {
 			String userAgent = client.getPropertyManager().getUserAgent();
 			ArrayList<UrlItem> urlList = null;
 			loop: while ((urlList = crawlMaster.getNextUrlList()) != null) {
+				resetStatistics();
 				setCurrentUrlList(urlList);
 				for (UrlItem urlItem : urlList) {
 					if (getAbort())
