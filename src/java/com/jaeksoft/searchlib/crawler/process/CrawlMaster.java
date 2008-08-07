@@ -30,9 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.crawler.property.PropertyManager;
-import com.jaeksoft.searchlib.crawler.urldb.HostCountItem;
-import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabase;
+import com.jaeksoft.searchlib.crawler.database.property.PropertyManager;
+import com.jaeksoft.searchlib.crawler.database.url.HostCountItem;
+import com.jaeksoft.searchlib.crawler.database.url.UrlItem;
 import com.jaeksoft.searchlib.util.DaemonThread;
 
 public class CrawlMaster extends DaemonThread {
@@ -43,10 +44,12 @@ public class CrawlMaster extends DaemonThread {
 	private Iterator<HostCountItem> hostIterator;
 
 	private Client client;
+	private CrawlDatabase database;
 
 	public CrawlMaster(Client client) {
 		super(true, 1000);
 		this.client = client;
+		database = client.getCrawlDatabase();
 		crawlThreads = null;
 		hostList = null;
 		hostIterator = null;
@@ -55,12 +58,12 @@ public class CrawlMaster extends DaemonThread {
 
 	@Override
 	public void runner() throws Exception {
-		PropertyManager propertyManager = client.getPropertyManager();
+		PropertyManager propertyManager = database.getPropertyManager();
 		if (!propertyManager.isCrawlEnabled()) {
 			DaemonThread.sleep(1000);
 			return;
 		}
-		hostList = (ArrayList<HostCountItem>) client.getUrlManager()
+		hostList = (ArrayList<HostCountItem>) database.getUrlManager()
 				.getHostToFetch(propertyManager.getFetchInterval(),
 						propertyManager.getMaxUrlPerSession());
 		if (hostList != null)
@@ -74,13 +77,13 @@ public class CrawlMaster extends DaemonThread {
 		waitForChild();
 	}
 
-	protected ArrayList<UrlItem> getNextUrlList() throws SQLException {
+	protected List<UrlItem> getNextUrlList() throws SQLException {
 		synchronized (this) {
 			if (hostIterator == null)
 				return null;
 			if (!hostIterator.hasNext())
 				return null;
-			PropertyManager propertyManager = client.getPropertyManager();
+			PropertyManager propertyManager = database.getPropertyManager();
 			HostCountItem host = hostIterator.next();
 			int limit = propertyManager.getMaxUrlPerSession()
 					- getFetchedCount();
@@ -89,14 +92,14 @@ public class CrawlMaster extends DaemonThread {
 			int maxUrlPerHost = propertyManager.getMaxUrlPerHost();
 			if (limit > maxUrlPerHost)
 				limit = maxUrlPerHost;
-			return client.getUrlManager().getUrlToFetch(host,
+			return database.getUrlManager().getUrlToFetch(host,
 					propertyManager.getFetchInterval(), limit);
 		}
 	}
 
 	protected void deleteBadUrl(String sUrl) {
 		try {
-			client.getUrlManager().delete(sUrl);
+			database.getUrlManager().delete(sUrl);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

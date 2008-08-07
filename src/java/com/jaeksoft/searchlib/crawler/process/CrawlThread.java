@@ -29,17 +29,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.crawler.filter.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabase;
+import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.database.url.FetchStatus;
+import com.jaeksoft.searchlib.crawler.database.url.IndexStatus;
+import com.jaeksoft.searchlib.crawler.database.url.ParserStatus;
+import com.jaeksoft.searchlib.crawler.database.url.UrlItem;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
-import com.jaeksoft.searchlib.crawler.urldb.FetchStatus;
-import com.jaeksoft.searchlib.crawler.urldb.IndexStatus;
-import com.jaeksoft.searchlib.crawler.urldb.ParserStatus;
-import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
 import com.jaeksoft.searchlib.util.DaemonThread;
 
 public class CrawlThread extends DaemonThread {
@@ -47,6 +48,7 @@ public class CrawlThread extends DaemonThread {
 	final private static Logger logger = Logger.getLogger(CrawlThread.class);
 
 	private Client client;
+	private CrawlDatabase database;
 	private CrawlMaster crawlMaster;
 	private long resetTime;
 	private float fetchRate;
@@ -55,11 +57,12 @@ public class CrawlThread extends DaemonThread {
 	private long indexedCount;
 	private long ignoredCount;
 	private UrlItem currentUrlItem;
-	private ArrayList<UrlItem> currentUrlList;
+	private List<UrlItem> currentUrlList;
 
 	protected CrawlThread(Client client, CrawlMaster crawlMaster) {
 		super(false, 0);
 		this.client = client;
+		this.database = client.getCrawlDatabase();
 		this.crawlMaster = crawlMaster;
 		this.currentUrlItem = null;
 		this.currentUrlList = null;
@@ -81,7 +84,7 @@ public class CrawlThread extends DaemonThread {
 	private void sleepInterval() {
 		int delayBetweenAccesses = 0;
 		synchronized (this) {
-			delayBetweenAccesses = client.getPropertyManager()
+			delayBetweenAccesses = database.getPropertyManager()
 					.getDelayBetweenAccesses();
 			if (delayBetweenAccesses == 0)
 				return;
@@ -97,8 +100,8 @@ public class CrawlThread extends DaemonThread {
 	public void runner() throws Exception {
 		logger.info("CrawlThread " + this + " starts");
 		try {
-			String userAgent = client.getPropertyManager().getUserAgent();
-			ArrayList<UrlItem> urlList = null;
+			String userAgent = database.getPropertyManager().getUserAgent();
+			List<UrlItem> urlList = null;
 			loop: while ((urlList = crawlMaster.getNextUrlList()) != null) {
 				resetStatistics();
 				setCurrentUrlList(urlList);
@@ -118,7 +121,7 @@ public class CrawlThread extends DaemonThread {
 		logger.info("CrawlThread " + this + " ends");
 	}
 
-	private void setCurrentUrlList(ArrayList<UrlItem> urlList) {
+	private void setCurrentUrlList(List<UrlItem> urlList) {
 		synchronized (this) {
 			currentUrlList = urlList;
 		}
@@ -135,7 +138,7 @@ public class CrawlThread extends DaemonThread {
 			logger.warn(urlItem.getUrl() + " " + e.getMessage());
 			return;
 		}
-		PatternUrlManager patternManager = client.getPatternUrlManager();
+		PatternUrlManager patternManager = database.getPatternUrlManager();
 		if (url != null)
 			if (patternManager.findPatternUrl(url) == null)
 				url = null;
@@ -155,7 +158,7 @@ public class CrawlThread extends DaemonThread {
 				incIndexedCount();
 			} else
 				incIgnoredCount();
-			client.getUrlManager().update(crawl);
+			database.getUrlManager().update(crawl);
 		} catch (Crawl.CrawlException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

@@ -43,8 +43,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.tidy.Configuration;
 import org.w3c.tidy.Tidy;
 
-import com.jaeksoft.searchlib.crawler.urldb.IndexStatus;
-import com.jaeksoft.searchlib.crawler.urldb.ParserStatus;
+import com.jaeksoft.searchlib.crawler.database.url.IndexStatus;
+import com.jaeksoft.searchlib.crawler.database.url.ParserStatus;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.Lang;

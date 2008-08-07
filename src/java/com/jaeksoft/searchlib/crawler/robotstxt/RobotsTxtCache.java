@@ -33,9 +33,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import com.jaeksoft.searchlib.crawler.database.url.UrlItem;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.ParserSelector;
-import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class RobotsTxtCache implements XmlInfo {

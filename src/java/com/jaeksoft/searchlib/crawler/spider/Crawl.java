@@ -39,11 +39,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.database.url.FetchStatus;
+import com.jaeksoft.searchlib.crawler.database.url.ParserStatus;
+import com.jaeksoft.searchlib.crawler.database.url.UrlItem;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
-import com.jaeksoft.searchlib.crawler.urldb.FetchStatus;
-import com.jaeksoft.searchlib.crawler.urldb.ParserStatus;
-import com.jaeksoft.searchlib.crawler.urldb.UrlItem;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.XmlInfo;
 

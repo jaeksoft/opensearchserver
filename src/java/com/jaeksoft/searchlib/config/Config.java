@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.config;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,13 +38,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.pojojdbc.Transaction;
-import com.jaeksoft.pojojdbc.connection.JDBCConnection;
-import com.jaeksoft.searchlib.crawler.filter.PatternUrlManager;
-import com.jaeksoft.searchlib.crawler.property.PropertyManager;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabase;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.crawler.spider.ParserSelector;
-import com.jaeksoft.searchlib.crawler.urldb.UrlManager;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.highlight.HighlightField;
@@ -73,13 +67,11 @@ public abstract class Config implements XmlInfo {
 
 	private RequestList requests = null;
 
-	private PatternUrlManager patternUrlManager = null;
-
 	private RobotsTxtCache robotsTxtCache = null;
 
 	private ParserSelector parserSelector = null;
 
-	private JDBCConnection crawlDatabase = null;
+	private CrawlDatabase crawlDatabase = null;
 
 	protected XPathParser xpp = null;
 
@@ -100,20 +92,9 @@ public abstract class Config implements XmlInfo {
 		// Database info
 		Node node = xpp.getNode("/configuration/database");
 		if (node != null) {
-			String databaseDriver = XPathParser.getAttributeString(node,
-					"driver");
-			String databaseUrl = XPathParser.getAttributeString(node, "url");
-			if (databaseDriver != null && databaseUrl != null) {
-				if (homeDir != null)
-					databaseUrl = databaseUrl.replace("${root}", homeDir
-							.getAbsolutePath());
-				crawlDatabase = new JDBCConnection(databaseDriver, databaseUrl);
-			}
-		}
-
-		if (crawlDatabase != null) {
-			patternUrlManager = new PatternUrlManager(this);
-			robotsTxtCache = new RobotsTxtCache();
+			crawlDatabase = CrawlDatabase.fromXmlConfig(node, homeDir);
+			if (crawlDatabase != null)
+				robotsTxtCache = new RobotsTxtCache();
 		}
 
 		// Parser info
@@ -224,8 +205,8 @@ public abstract class Config implements XmlInfo {
 		return render;
 	}
 
-	public PatternUrlManager getPatternUrlManager() {
-		return patternUrlManager;
+	public CrawlDatabase getCrawlDatabase() {
+		return crawlDatabase;
 	}
 
 	public RobotsTxtCache getRobotsTxtCache() {
@@ -234,77 +215,6 @@ public abstract class Config implements XmlInfo {
 
 	public ParserSelector getParserSelector() {
 		return parserSelector;
-	}
-
-	private void createCrawlDatabase() throws SQLException {
-		Transaction transaction = null;
-		try {
-			transaction = crawlDatabase.getNewTransaction(false,
-					Connection.TRANSACTION_READ_UNCOMMITTED, ";create=true");
-
-			transaction
-					.update("CREATE TABLE pattern(pattern VARCHAR(2048), PRIMARY KEY(pattern))");
-			transaction
-					.update("CREATE TABLE property(name VARCHAR(128), value VARCHAR(2048), PRIMARY KEY(name))");
-			transaction
-					.update("CREATE TABLE url(url VARCHAR(2048), host VARCHAR(2048), "
-							+ "fetchStatus SMALLINT, parserStatus SMALLINT, indexStatus SMALLINT, "
-							+ "when TIMESTAMP, retry SMALLINT, indexed TIMESTAMP, "
-							+ "PRIMARY KEY (url))");
-			transaction.update("CREATE INDEX url_host ON url(host)");
-			transaction
-					.update("CREATE INDEX url_fetch_status ON url(fetchStatus)");
-			transaction
-					.update("CREATE INDEX url_parser_status ON url(parserStatus)");
-			transaction
-					.update("CREATE INDEX url_index_status ON url(indexStatus)");
-			transaction.update("CREATE INDEX url_when ON url(when)");
-			transaction.update("CREATE INDEX url_retry ON url(retry)");
-			transaction.update("CREATE INDEX url_indexed ON url(indexed)");
-			transaction.commit();
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			if (transaction != null)
-				transaction.close();
-		}
-	}
-
-	public Transaction getDatabaseTransaction(boolean autoCommit)
-			throws SQLException {
-		try {
-			return crawlDatabase.getNewTransaction(autoCommit,
-					Connection.TRANSACTION_READ_UNCOMMITTED);
-		} catch (SQLException e) {
-			if (e.getMessage().endsWith("not found.")
-					&& e.getMessage().startsWith("Database"))
-				createCrawlDatabase();
-			return crawlDatabase.getNewTransaction(autoCommit,
-					Connection.TRANSACTION_READ_UNCOMMITTED);
-		}
-	}
-
-	private UrlManager urlManager;
-
-	public UrlManager getUrlManager() {
-		synchronized (this) {
-			if (urlManager != null)
-				return urlManager;
-			urlManager = new UrlManager(this);
-			return urlManager;
-		}
-	}
-
-	private PropertyManager propertyManager;
-
-	public PropertyManager getPropertyManager() {
-		synchronized (this) {
-			if (propertyManager != null)
-				return propertyManager;
-			propertyManager = new PropertyManager(this);
-			return propertyManager;
-		}
-
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
