@@ -48,6 +48,7 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 
 	public PatternUrlManagerJdbc(CrawlDatabaseJdbc database) {
 		this.database = database;
+		updateCache();
 	}
 
 	public void addList(List<PatternUrlItem> patternList) {
