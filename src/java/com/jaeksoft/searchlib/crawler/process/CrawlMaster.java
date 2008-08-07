@@ -78,11 +78,13 @@ public class CrawlMaster extends DaemonThread {
 	}
 
 	protected List<UrlItem> getNextUrlList() throws SQLException {
-		synchronized (this) {
-			if (hostIterator == null)
-				return null;
-			if (!hostIterator.hasNext())
-				return null;
+		synchronized (hostIterator) {
+			synchronized (this) {
+				if (hostIterator == null)
+					return null;
+				if (!hostIterator.hasNext())
+					return null;
+			}
 			PropertyManager propertyManager = database.getPropertyManager();
 			HostCountItem host = hostIterator.next();
 			int limit = propertyManager.getMaxUrlPerSession()
@@ -146,6 +148,8 @@ public class CrawlMaster extends DaemonThread {
 	@Override
 	public void abort() {
 		synchronized (this) {
+			if (crawlThreads == null)
+				return;
 			for (CrawlThread crawlThread : crawlThreads)
 				crawlThread.abort();
 		}
