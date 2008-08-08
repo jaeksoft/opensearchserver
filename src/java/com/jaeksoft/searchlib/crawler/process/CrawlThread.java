@@ -28,13 +28,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabase;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.database.url.FetchStatus;
 import com.jaeksoft.searchlib.crawler.database.url.IndexStatus;
@@ -81,7 +81,7 @@ public class CrawlThread extends DaemonThread {
 		}
 	}
 
-	private void sleepInterval() {
+	private void sleepInterval() throws CrawlDatabaseException {
 		int delayBetweenAccesses = 0;
 		synchronized (this) {
 			delayBetweenAccesses = database.getPropertyManager()
@@ -113,7 +113,7 @@ public class CrawlThread extends DaemonThread {
 				}
 				client.reload();
 			}
-		} catch (SQLException e) {
+		} catch (CrawlDatabaseException e) {
 			setError(e);
 		} catch (IOException e) {
 			setError(e);
@@ -138,17 +138,17 @@ public class CrawlThread extends DaemonThread {
 			logger.warn(urlItem.getUrl() + " " + e.getMessage());
 			return;
 		}
-		PatternUrlManager patternManager = database.getPatternUrlManager();
-		if (url != null)
-			if (patternManager.findPatternUrl(url) == null)
-				url = null;
-		if (url == null) {
-			crawlMaster.deleteBadUrl(urlItem.getUrl());
-			incDeletedCount();
-			return;
-		}
-		incFetchedCount();
 		try {
+			PatternUrlManager patternManager = database.getPatternUrlManager();
+			if (url != null)
+				if (patternManager.findPatternUrl(url) == null)
+					url = null;
+			if (url == null) {
+				crawlMaster.deleteBadUrl(urlItem.getUrl());
+				incDeletedCount();
+				return;
+			}
+			incFetchedCount();
 			Crawl crawl = new Crawl(client, userAgent, urlItem);
 			if (urlItem.getFetchStatus() == FetchStatus.FETCHED
 					&& urlItem.getParserStatus() == ParserStatus.PARSED
@@ -164,7 +164,7 @@ public class CrawlThread extends DaemonThread {
 		} catch (IOException e) {
 			abort();
 			setError(e);
-		} catch (SQLException e) {
+		} catch (CrawlDatabaseException e) {
 			abort();
 			setError(e);
 		} catch (NoSuchAlgorithmException e) {

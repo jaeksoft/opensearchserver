@@ -29,11 +29,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.DOMException;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -45,25 +40,16 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 public class Client extends Config implements XmlInfo {
 
 	public Client(File homeDir, File configfile, boolean createIndexIfNotExists)
-			throws XPathExpressionException, DOMException,
-			ParserConfigurationException, SAXException, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws SearchLibException {
 		super(homeDir, configfile, createIndexIfNotExists);
 	}
 
 	public Client(File configfile, boolean createIndexIfNotExists)
-			throws XPathExpressionException, DOMException, NamingException,
-			ParserConfigurationException, SAXException, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws SearchLibException {
 		this(null, configfile, createIndexIfNotExists);
 	}
 
-	public Client(File configfile) throws XPathExpressionException,
-			DOMException, NamingException, ParserConfigurationException,
-			SAXException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	public Client(File configfile) throws SearchLibException {
 		this(null, configfile, false);
 	}
 
@@ -82,10 +68,8 @@ public class Client extends Config implements XmlInfo {
 
 	private static volatile Client INSTANCE;
 
-	public static Client getWebAppInstance() throws XPathExpressionException,
-			DOMException, NamingException, ParserConfigurationException,
-			SAXException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	public static Client getWebAppInstance() throws SearchLibException,
+			NamingException {
 		if (INSTANCE == null) {
 			synchronized (Client.class) {
 				String contextPath = "java:comp/env/JaeksoftSearchServer/configfile";

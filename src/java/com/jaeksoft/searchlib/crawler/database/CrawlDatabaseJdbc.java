@@ -1,3 +1,27 @@
+/**   
+ * License Agreement for Jaeksoft SearchLib Community
+ *
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.jaeksoft.com
+ * 
+ * This file is part of Jaeksoft SearchLib Community.
+ *
+ * Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft SearchLib Community. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
 package com.jaeksoft.searchlib.crawler.database;
 
 import java.sql.Connection;
@@ -19,8 +43,14 @@ public class CrawlDatabaseJdbc extends CrawlDatabase {
 
 	private PropertyManagerJdbc propertyManager = null;
 
-	protected CrawlDatabaseJdbc(String databaseDriver, String databaseUrl) {
-		database = new JDBCConnection(databaseDriver, databaseUrl);
+	protected CrawlDatabaseJdbc(String databaseDriver, String databaseUrl)
+			throws CrawlDatabaseException {
+		try {
+			database = new JDBCConnection(databaseDriver, databaseUrl);
+			getTransaction(true).close();
+		} catch (SQLException e) {
+			throw new CrawlDatabaseException(e);
+		}
 	}
 
 	public Transaction getTransaction(boolean autoCommit) throws SQLException {
@@ -70,7 +100,7 @@ public class CrawlDatabaseJdbc extends CrawlDatabase {
 		}
 	}
 
-	public UrlManagerJdbc getUrlManager() {
+	public UrlManagerJdbc getUrlManager() throws CrawlDatabaseException {
 		synchronized (this) {
 			if (urlManager != null)
 				return urlManager;
@@ -79,7 +109,8 @@ public class CrawlDatabaseJdbc extends CrawlDatabase {
 		}
 	}
 
-	public PatternUrlManagerJdbc getPatternUrlManager() {
+	public PatternUrlManagerJdbc getPatternUrlManager()
+			throws CrawlDatabaseException {
 		synchronized (this) {
 			if (patternUrlManager != null)
 				return patternUrlManager;
@@ -88,7 +119,8 @@ public class CrawlDatabaseJdbc extends CrawlDatabase {
 		}
 	}
 
-	public PropertyManagerJdbc getPropertyManager() {
+	public PropertyManagerJdbc getPropertyManager()
+			throws CrawlDatabaseException {
 		synchronized (this) {
 			if (propertyManager != null)
 				return propertyManager;

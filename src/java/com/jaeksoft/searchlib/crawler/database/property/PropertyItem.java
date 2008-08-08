@@ -35,6 +35,11 @@ public class PropertyItem {
 		value = null;
 	}
 
+	public PropertyItem(String name) {
+		this.name = name;
+		value = null;
+	}
+
 	public PropertyItem(String name, String value) {
 		this.name = name;
 		this.value = value;

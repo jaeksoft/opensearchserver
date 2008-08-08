@@ -30,6 +30,7 @@ import java.util.List;
 
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseJdbc;
 
 public class PropertyManagerJdbc extends PropertyManager {
@@ -77,7 +78,8 @@ public class PropertyManagerJdbc extends PropertyManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected String getPropertyString(Property prop) {
+	protected String getPropertyString(Property prop)
+			throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(true);
@@ -90,26 +92,11 @@ public class PropertyManagerJdbc extends PropertyManager {
 				return null;
 			return propertyList.get(0).getValue();
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new CrawlDatabaseException(e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
 		}
-	}
-
-	protected boolean getPropertyBoolean(Property prop) {
-		String v = getPropertyString(prop);
-		if (v == null)
-			return false;
-		return "1".equals(v) || "true".equalsIgnoreCase(v)
-				|| "yes".equalsIgnoreCase(v);
-	}
-
-	protected Integer getPropertyInteger(Property prop) {
-		String v = getPropertyString(prop);
-		if (v == null)
-			return null;
-		return Integer.parseInt(v);
 	}
 
 	protected void setProperty(PropertyItem property) {

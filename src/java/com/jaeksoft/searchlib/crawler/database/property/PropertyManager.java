@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.crawler.database.property;
 
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
+
 public abstract class PropertyManager {
 
 	protected enum Property {
@@ -49,23 +51,38 @@ public abstract class PropertyManager {
 		}
 	}
 
-	protected abstract String getPropertyString(Property prop);
+	protected abstract String getPropertyString(Property prop)
+			throws CrawlDatabaseException;
 
-	protected abstract boolean getPropertyBoolean(Property prop);
+	protected abstract void setProperty(PropertyItem property)
+			throws CrawlDatabaseException;
 
-	protected abstract Integer getPropertyInteger(Property prop);
+	protected boolean getPropertyBoolean(Property prop)
+			throws CrawlDatabaseException {
+		String v = getPropertyString(prop);
+		if (v == null)
+			return false;
+		return "1".equals(v) || "true".equalsIgnoreCase(v)
+				|| "yes".equalsIgnoreCase(v);
+	}
 
-	protected abstract void setProperty(PropertyItem property);
+	protected Integer getPropertyInteger(Property prop)
+			throws CrawlDatabaseException {
+		String v = getPropertyString(prop);
+		if (v == null)
+			return null;
+		return Integer.parseInt(v);
+	}
 
 	private Boolean crawlEnabled = null;
 
-	public boolean isCrawlEnabled() {
+	public boolean isCrawlEnabled() throws CrawlDatabaseException {
 		if (crawlEnabled == null)
 			crawlEnabled = getPropertyBoolean(Property.CRAWL_ENABLED);
 		return crawlEnabled;
 	}
 
-	public void setCrawlEnabled(boolean b) {
+	public void setCrawlEnabled(boolean b) throws CrawlDatabaseException {
 		if (crawlEnabled != null)
 			if (crawlEnabled.booleanValue() == b)
 				return;
@@ -75,7 +92,7 @@ public abstract class PropertyManager {
 
 	private Integer fetchInterval = null;
 
-	public int getFetchInterval() {
+	public int getFetchInterval() throws CrawlDatabaseException {
 		if (fetchInterval == null)
 			fetchInterval = getPropertyInteger(Property.FETCH_INTERVAL);
 		if (fetchInterval == null)
@@ -83,7 +100,7 @@ public abstract class PropertyManager {
 		return fetchInterval;
 	}
 
-	public void setFetchInterval(int v) {
+	public void setFetchInterval(int v) throws CrawlDatabaseException {
 		if (fetchInterval != null)
 			if (fetchInterval.intValue() == v)
 				return;
@@ -94,7 +111,7 @@ public abstract class PropertyManager {
 
 	private Integer maxUrlPerSession = null;
 
-	public int getMaxUrlPerSession() {
+	public int getMaxUrlPerSession() throws CrawlDatabaseException {
 		if (maxUrlPerSession == null)
 			maxUrlPerSession = getPropertyInteger(Property.MAX_URL_PER_SESSION);
 		if (maxUrlPerSession == null)
@@ -102,7 +119,7 @@ public abstract class PropertyManager {
 		return maxUrlPerSession;
 	}
 
-	public void setMaxUrlPerSession(int v) {
+	public void setMaxUrlPerSession(int v) throws CrawlDatabaseException {
 		if (maxUrlPerSession != null)
 			if (maxUrlPerSession.intValue() == v)
 				return;
@@ -113,7 +130,7 @@ public abstract class PropertyManager {
 
 	private Integer maxUrlPerHost = null;
 
-	public int getMaxUrlPerHost() {
+	public int getMaxUrlPerHost() throws CrawlDatabaseException {
 		if (maxUrlPerHost == null)
 			maxUrlPerHost = getPropertyInteger(Property.MAX_URL_PER_HOST);
 		if (maxUrlPerHost == null)
@@ -121,7 +138,7 @@ public abstract class PropertyManager {
 		return maxUrlPerHost;
 	}
 
-	public void setMaxUrlPerHost(int v) {
+	public void setMaxUrlPerHost(int v) throws CrawlDatabaseException {
 		if (maxUrlPerHost != null)
 			if (maxUrlPerHost.intValue() == v)
 				return;
@@ -132,7 +149,7 @@ public abstract class PropertyManager {
 
 	private Integer delayBetweenAccesses = null;
 
-	public int getDelayBetweenAccesses() {
+	public int getDelayBetweenAccesses() throws CrawlDatabaseException {
 		if (delayBetweenAccesses == null)
 			delayBetweenAccesses = getPropertyInteger(Property.DELAY_BETWEEN_ACCESSES);
 		if (delayBetweenAccesses == null)
@@ -140,7 +157,7 @@ public abstract class PropertyManager {
 		return delayBetweenAccesses;
 	}
 
-	public void setDelayBetweenAccesses(int v) {
+	public void setDelayBetweenAccesses(int v) throws CrawlDatabaseException {
 		if (delayBetweenAccesses != null)
 			if (delayBetweenAccesses.intValue() == v)
 				return;
@@ -151,7 +168,7 @@ public abstract class PropertyManager {
 
 	private String userAgent = null;
 
-	public String getUserAgent() {
+	public String getUserAgent() throws CrawlDatabaseException {
 		if (userAgent == null)
 			userAgent = getPropertyString(Property.USER_AGENT);
 		if (userAgent == null || userAgent.trim().length() == 0)
@@ -159,7 +176,7 @@ public abstract class PropertyManager {
 		return userAgent;
 	}
 
-	public void setUserAgent(String v) {
+	public void setUserAgent(String v) throws CrawlDatabaseException {
 		if (userAgent != null)
 			if (userAgent.equals(v))
 				return;
@@ -169,7 +186,7 @@ public abstract class PropertyManager {
 
 	private Integer maxThreadNumber = null;
 
-	public int getMaxThreadNumber() {
+	public int getMaxThreadNumber() throws CrawlDatabaseException {
 		if (maxThreadNumber == null)
 			maxThreadNumber = getPropertyInteger(Property.MAX_THREAD_NUMBER);
 		if (maxThreadNumber == null)
@@ -177,7 +194,7 @@ public abstract class PropertyManager {
 		return maxThreadNumber;
 	}
 
-	public void setMaxThreadNumber(int v) {
+	public void setMaxThreadNumber(int v) throws CrawlDatabaseException {
 		if (maxThreadNumber != null)
 			if (maxThreadNumber.equals(v))
 				return;

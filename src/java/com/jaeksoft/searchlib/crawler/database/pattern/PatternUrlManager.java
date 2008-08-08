@@ -30,17 +30,20 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.url.InjectUrlItem;
 
 public abstract class PatternUrlManager {
 
 	protected Hashtable<String, ArrayList<PatternUrlItem>> patternUrlMap = null;
 
-	public abstract void addList(List<PatternUrlItem> patternList);
+	public abstract void addList(List<PatternUrlItem> patternList)
+			throws CrawlDatabaseException;
 
-	public abstract void delPattern(PatternUrlItem item);
+	public abstract void delPattern(PatternUrlItem item)
+			throws CrawlDatabaseException;
 
-	protected abstract void updateCache();
+	protected abstract void updateCache() throws CrawlDatabaseException;
 
 	public PatternUrlItem findPatternUrl(URL url) {
 		ArrayList<PatternUrlItem> patternList = null;
@@ -58,9 +61,8 @@ public abstract class PatternUrlManager {
 		}
 	}
 
-	public abstract int getSize();
-
-	public void injectUrl(List<InjectUrlItem> urlListItems) {
+	public void injectUrl(List<InjectUrlItem> urlListItems)
+			throws CrawlDatabaseException {
 		Iterator<InjectUrlItem> it = urlListItems.iterator();
 		List<PatternUrlItem> patternList = new ArrayList<PatternUrlItem>();
 		while (it.hasNext()) {
@@ -71,4 +73,8 @@ public abstract class PatternUrlManager {
 		}
 		addList(patternList);
 	}
+
+	public abstract List<PatternUrlItem> getPatterns(String like, boolean asc,
+			int start, int rows, PatternUrlList urlList)
+			throws CrawlDatabaseException;
 }

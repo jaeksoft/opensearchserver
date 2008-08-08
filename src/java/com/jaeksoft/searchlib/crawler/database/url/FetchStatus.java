@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.database.url;
 
-
 public enum FetchStatus {
 
 	UN_FETCHED(0, "Unfetched"), FETCHED(1, "Fetched"), GONE(2, "Gone"), REDIR_TEMP(

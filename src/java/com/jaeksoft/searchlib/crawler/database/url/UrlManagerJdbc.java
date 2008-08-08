@@ -38,8 +38,8 @@ import org.apache.log4j.Logger;
 
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseJdbc;
-import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlItem;
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.Link;
@@ -103,7 +103,7 @@ public class UrlManagerJdbc extends UrlManager {
 		return where.toString();
 	}
 
-	public Query getUrl(Transaction transaction, String like, String host,
+	private Query getUrls(Transaction transaction, String like, String host,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
 			Field orderBy, boolean asc) throws SQLException {
@@ -212,7 +212,7 @@ public class UrlManagerJdbc extends UrlManager {
 	}
 
 	private void discoverLinks(Transaction transaction, LinkList links)
-			throws SQLException {
+			throws CrawlDatabaseException, SQLException {
 		PatternUrlManager patternManager = database.getPatternUrlManager();
 		for (Link link : links.values())
 			if (link.getFollow())
@@ -234,23 +234,26 @@ public class UrlManagerJdbc extends UrlManager {
 		query.update();
 	}
 
-	public void delete(String sUrl) throws SQLException {
-		Transaction transaction = database.getTransaction(false);
+	public void delete(String sUrl) throws CrawlDatabaseException {
+		Transaction transaction = null;
 		try {
+			transaction = database.getTransaction(false);
 			deleteUrl(transaction, sUrl);
 			transaction.commit();
 		} catch (SQLException e) {
-			throw e;
+			throw new CrawlDatabaseException(e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
 		}
 	}
 
-	public void update(Crawl crawl) throws SQLException, MalformedURLException {
+	public void update(Crawl crawl) throws MalformedURLException,
+			CrawlDatabaseException {
 		UrlItem urlItem = crawl.getUrlItem();
-		Transaction transaction = database.getTransaction(false);
+		Transaction transaction = null;
 		try {
+			transaction = database.getTransaction(false);
 			insertOrUpdate(transaction, urlItem, false);
 			Parser parser = crawl.getParser();
 			if (parser != null && urlItem.isStatusFull()) {
@@ -259,7 +262,7 @@ public class UrlManagerJdbc extends UrlManager {
 			}
 			transaction.commit();
 		} catch (SQLException e) {
-			throw e;
+			throw new CrawlDatabaseException(e);
 		} catch (MalformedURLException e) {
 			throw e;
 		} finally {
@@ -268,7 +271,7 @@ public class UrlManagerJdbc extends UrlManager {
 		}
 	}
 
-	public void inject(List<InjectUrlItem> list) {
+	public void inject(List<InjectUrlItem> list) throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(false);
@@ -297,27 +300,16 @@ public class UrlManagerJdbc extends UrlManager {
 			}
 			transaction.commit();
 		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
+			throw new CrawlDatabaseException(e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
 		}
 	}
 
-	public void injectPrefix(List<PatternUrlItem> patternList) {
-		Iterator<PatternUrlItem> it = patternList.iterator();
-		List<InjectUrlItem> urlList = new ArrayList<InjectUrlItem>();
-		while (it.hasNext()) {
-			PatternUrlItem item = it.next();
-			if (item.getStatus() == PatternUrlItem.Status.INJECTED)
-				urlList.add(new InjectUrlItem(item));
-		}
-		inject(urlList);
-	}
-
 	@SuppressWarnings("unchecked")
 	public List<HostCountItem> getHostToFetch(int fetchInterval, int limit)
-			throws SQLException {
+			throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(true);
@@ -332,7 +324,7 @@ public class UrlManagerJdbc extends UrlManager {
 			return (List<HostCountItem>) query
 					.getResultList(HostCountItem.class);
 		} catch (SQLException e) {
-			throw e;
+			throw new CrawlDatabaseException(e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
@@ -346,9 +338,10 @@ public class UrlManagerJdbc extends UrlManager {
 
 	@SuppressWarnings("unchecked")
 	public List<UrlItem> getUrlToFetch(HostCountItem host, int fetchInterval,
-			int limit) throws SQLException {
-		Transaction transaction = database.getTransaction(true);
+			int limit) throws CrawlDatabaseException {
+		Transaction transaction = null;
 		try {
+			transaction = database.getTransaction(true);
 			Query query = transaction.prepare("SELECT url,host,when,retry,"
 					+ "fetchStatus as fetchStatusInt,"
 					+ "parserStatus as parserStatusInt,"
@@ -362,11 +355,37 @@ public class UrlManagerJdbc extends UrlManager {
 			query.setMaxResults(limit);
 			return (ArrayList<UrlItem>) query.getResultList(UrlItem.class);
 		} catch (SQLException e) {
-			throw e;
+			throw new CrawlDatabaseException(e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
 		}
 
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UrlItem> getUrls(String like, String host,
+			FetchStatus fetchStatus, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			Field orderBy, boolean asc, int start, int rows, UrlList urlList)
+			throws CrawlDatabaseException {
+		Transaction transaction = null;
+		try {
+			transaction = database.getTransaction(true);
+			Query query = getUrls(transaction, like, host, fetchStatus,
+					parserStatus, indexStatus, startDate, endDate, orderBy, asc);
+			query.setFirstResult(start);
+			query.setMaxResults(rows);
+			List<UrlItem> results = (List<UrlItem>) query
+					.getResultList(UrlItem.class);
+			urlList.setSize(query.getResultCount());
+			return results;
+		} catch (SQLException e) {
+			throw new CrawlDatabaseException(e);
+		} finally {
+			if (transaction != null)
+				transaction.close();
+		}
 	}
 }

@@ -30,14 +30,12 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabase;
 import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.crawler.spider.ParserSelector;
@@ -76,31 +74,33 @@ public abstract class Config implements XmlInfo {
 	protected XPathParser xpp = null;
 
 	protected Config(File homeDir, File configFile,
-			boolean createIndexIfNotExists)
-			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, DOMException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-		xpp = new XPathParser(configFile);
+			boolean createIndexIfNotExists) throws SearchLibException {
 
-		schema = Schema
-				.fromXmlConfig(xpp.getNode("/configuration/schema"), xpp);
-		requests = RequestList.fromXmlConfig(this, xpp, xpp
-				.getNode("/configuration/requests"));
+		try {
+			xpp = new XPathParser(configFile);
 
-		index = getIndex(homeDir, createIndexIfNotExists);
+			schema = Schema.fromXmlConfig(xpp.getNode("/configuration/schema"),
+					xpp);
+			requests = RequestList.fromXmlConfig(this, xpp, xpp
+					.getNode("/configuration/requests"));
 
-		// Database info
-		Node node = xpp.getNode("/configuration/database");
-		if (node != null) {
-			crawlDatabase = CrawlDatabase.fromXmlConfig(node, homeDir);
-			if (crawlDatabase != null)
-				robotsTxtCache = new RobotsTxtCache();
+			index = getIndex(homeDir, createIndexIfNotExists);
+
+			// Database info
+			Node node = xpp.getNode("/configuration/database");
+			if (node != null) {
+				crawlDatabase = CrawlDatabase.fromXmlConfig(node, homeDir);
+				if (crawlDatabase != null)
+					robotsTxtCache = new RobotsTxtCache();
+			}
+
+			// Parser info
+			node = xpp.getNode("/configuration/parserSelector");
+			if (node != null)
+				parserSelector = ParserSelector.fromXmlConfig(xpp, node);
+		} catch (Exception e) {
+			throw new SearchLibException(e);
 		}
-
-		// Parser info
-		node = xpp.getNode("/configuration/parserSelector");
-		if (node != null)
-			parserSelector = ParserSelector.fromXmlConfig(xpp, node);
 	}
 
 	protected IndexAbstract getIndex(File homeDir,

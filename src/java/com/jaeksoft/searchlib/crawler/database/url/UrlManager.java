@@ -25,9 +25,12 @@
 package com.jaeksoft.searchlib.crawler.database.url;
 
 import java.net.MalformedURLException;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlItem;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 
@@ -50,18 +53,35 @@ public abstract class UrlManager {
 		}
 	}
 
-	public abstract void delete(String sUrl) throws SQLException;
+	public void injectPrefix(List<PatternUrlItem> patternList)
+			throws CrawlDatabaseException {
+		Iterator<PatternUrlItem> it = patternList.iterator();
+		List<InjectUrlItem> urlList = new ArrayList<InjectUrlItem>();
+		while (it.hasNext()) {
+			PatternUrlItem item = it.next();
+			if (item.getStatus() == PatternUrlItem.Status.INJECTED)
+				urlList.add(new InjectUrlItem(item));
+		}
+		inject(urlList);
+	}
 
-	public abstract void update(Crawl crawl) throws SQLException,
-			MalformedURLException;
+	public abstract void delete(String sUrl) throws CrawlDatabaseException;
 
-	public abstract void inject(List<InjectUrlItem> list);
+	public abstract void update(Crawl crawl) throws MalformedURLException,
+			CrawlDatabaseException;
 
-	public abstract void injectPrefix(List<PatternUrlItem> patternList);
+	public abstract void inject(List<InjectUrlItem> list)
+			throws CrawlDatabaseException;
 
 	public abstract List<HostCountItem> getHostToFetch(int fetchInterval,
-			int limit) throws SQLException;
+			int limit) throws CrawlDatabaseException;
 
 	public abstract List<UrlItem> getUrlToFetch(HostCountItem host,
-			int fetchInterval, int limit) throws SQLException;
+			int fetchInterval, int limit) throws CrawlDatabaseException;
+
+	public abstract List<UrlItem> getUrls(String like, String host,
+			FetchStatus fetchStatus, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			Field orderBy, boolean asc, int start, int rows, UrlList urlList)
+			throws CrawlDatabaseException;
 }

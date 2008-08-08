@@ -24,19 +24,16 @@
 
 package com.jaeksoft.searchlib.crawler.database.url;
 
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import com.jaeksoft.pojojdbc.PartialList;
-import com.jaeksoft.pojojdbc.Query;
-import com.jaeksoft.pojojdbc.Transaction;
-import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseJdbc;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.url.UrlManager.Field;
+import com.jaeksoft.searchlib.util.PartialList;
 
 public class UrlList extends PartialList<UrlItem> {
 
-	private CrawlDatabaseJdbc database;
+	private UrlManager urlManager;
 	private String like;
 	private String host;
 	private FetchStatus fetchStatus;
@@ -47,12 +44,12 @@ public class UrlList extends PartialList<UrlItem> {
 	private Field orderBy;
 	private boolean asc;
 
-	public UrlList(CrawlDatabaseJdbc database, int rows, String like,
-			String host, FetchStatus fetchStatus, ParserStatus parserStatus,
+	public UrlList(UrlManager urlManager, int rows, String like, String host,
+			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
 			Field orderBy, boolean asc) {
 		super(rows);
-		this.database = database;
+		this.urlManager = urlManager;
 		this.like = like;
 		this.host = host;
 		this.fetchStatus = fetchStatus;
@@ -62,24 +59,18 @@ public class UrlList extends PartialList<UrlItem> {
 		this.endDate = endDate;
 		this.orderBy = orderBy;
 		this.asc = asc;
-		update(0);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	protected List<UrlItem> getResultList(Query query) throws Exception {
-		return (List<UrlItem>) query.getResultList(UrlItem.class);
-	}
-
-	protected Query getQuery(Transaction transaction) throws SQLException {
-		return database.getUrlManager().getUrl(transaction, like, host,
-				fetchStatus, parserStatus, indexStatus, startDate, endDate,
-				orderBy, asc);
+		get(0);
 	}
 
 	@Override
-	protected Transaction getDatabaseTransaction() throws SQLException {
-		return database.getTransaction(true);
+	protected List<UrlItem> update(int start, int rows) {
+		try {
+			return urlManager.getUrls(like, host, fetchStatus, parserStatus,
+					indexStatus, startDate, endDate, orderBy, asc, start, rows,
+					this);
+		} catch (CrawlDatabaseException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

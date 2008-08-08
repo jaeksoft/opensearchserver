@@ -24,13 +24,13 @@
 
 package com.jaeksoft.searchlib.crawler.process;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabase;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.property.PropertyManager;
 import com.jaeksoft.searchlib.crawler.database.url.HostCountItem;
 import com.jaeksoft.searchlib.crawler.database.url.UrlItem;
@@ -77,7 +77,7 @@ public class CrawlMaster extends DaemonThread {
 		waitForChild();
 	}
 
-	protected List<UrlItem> getNextUrlList() throws SQLException {
+	protected List<UrlItem> getNextUrlList() throws CrawlDatabaseException {
 		synchronized (hostIterator) {
 			synchronized (this) {
 				if (hostIterator == null)
@@ -99,12 +99,8 @@ public class CrawlMaster extends DaemonThread {
 		}
 	}
 
-	protected void deleteBadUrl(String sUrl) {
-		try {
-			database.getUrlManager().delete(sUrl);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	protected void deleteBadUrl(String sUrl) throws CrawlDatabaseException {
+		database.getUrlManager().delete(sUrl);
 	}
 
 	public int getFetchedCount() {

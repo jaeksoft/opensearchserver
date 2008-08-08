@@ -22,35 +22,31 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.database.pattern;
+package com.jaeksoft.searchlib.crawler.database;
 
-import java.util.List;
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 
-import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
-import com.jaeksoft.searchlib.util.PartialList;
+import com.sleepycat.je.DatabaseException;
 
-public class PatternUrlList extends PartialList<PatternUrlItem> {
+public class CrawlDatabaseException extends Exception {
 
-	private PatternUrlManager patternUrlManager;
-	private String like;
-	private boolean asc;
+	private static final long serialVersionUID = 1L;
 
-	public PatternUrlList(PatternUrlManager patternUrlManager, int windowRows,
-			String like, boolean asc) {
-		super(windowRows);
-		this.patternUrlManager = patternUrlManager;
-		this.like = like;
-		this.asc = asc;
-		get(0);
+	public CrawlDatabaseException(DatabaseException e) {
+		super(e);
 	}
 
-	@Override
-	protected List<PatternUrlItem> update(int start, int rows) {
-		try {
-			return patternUrlManager.getPatterns(like, asc, start, rows, this);
-		} catch (CrawlDatabaseException e) {
-			throw new RuntimeException(e);
-		}
+	public CrawlDatabaseException(SQLException e) {
+		super(e);
+	}
+
+	public CrawlDatabaseException(IllegalArgumentException e) {
+		super(e);
+	}
+
+	public CrawlDatabaseException(UnsupportedEncodingException e) {
+		super(e);
 	}
 
 }

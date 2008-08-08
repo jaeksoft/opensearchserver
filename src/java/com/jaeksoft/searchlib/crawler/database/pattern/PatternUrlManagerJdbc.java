@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 
 import com.jaeksoft.pojojdbc.Query;
 import com.jaeksoft.pojojdbc.Transaction;
+import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseJdbc;
 
 public class PatternUrlManagerJdbc extends PatternUrlManager {
@@ -46,12 +47,14 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 	final private static Logger logger = Logger
 			.getLogger(PatternUrlManagerJdbc.class);
 
-	public PatternUrlManagerJdbc(CrawlDatabaseJdbc database) {
+	public PatternUrlManagerJdbc(CrawlDatabaseJdbc database)
+			throws CrawlDatabaseException {
 		this.database = database;
 		updateCache();
 	}
 
-	public void addList(List<PatternUrlItem> patternList) {
+	public void addList(List<PatternUrlItem> patternList)
+			throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(false);
@@ -77,14 +80,15 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 			transaction.commit();
 			updateCache();
 		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
+			throw new CrawlDatabaseException(e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
 		}
 	}
 
-	public void delPattern(PatternUrlItem item) {
+	@Override
+	public void delPattern(PatternUrlItem item) throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(false);
@@ -95,7 +99,7 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 			transaction.commit();
 			updateCache();
 		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
+			throw new CrawlDatabaseException(e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
@@ -103,7 +107,7 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void updateCache() {
+	protected void updateCache() throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(false);
@@ -134,32 +138,14 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 				patternUrlMap = newPatternMap;
 			}
 		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
+			throw new CrawlDatabaseException(e);
 		} finally {
 			if (transaction != null)
 				transaction.close();
 		}
 	}
 
-	public int getSize() {
-		Transaction transaction = null;
-		try {
-			transaction = database.getTransaction(true);
-			Query query = transaction.prepare("SELECT count(*) FROM pattern");
-			ResultSet rs = query.getResultSet();
-			if (rs.next())
-				return rs.getInt(1);
-			return 0;
-		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
-			return 0;
-		} finally {
-			if (transaction != null)
-				transaction.close();
-		}
-	}
-
-	public Query getPattern(Transaction transaction, String like, boolean asc)
+	private Query getPatterns(Transaction transaction, String like, boolean asc)
 			throws SQLException {
 		StringBuffer sql = new StringBuffer();
 		sql.append("SELECT pattern FROM pattern");
@@ -173,6 +159,28 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 		if (like != null)
 			query.getStatement().setString(1, "%" + like + "%");
 		return query;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<PatternUrlItem> getPatterns(String like, boolean asc,
+			int start, int rows, PatternUrlList urlList)
+			throws CrawlDatabaseException {
+		Transaction transaction = null;
+		try {
+			transaction = database.getTransaction(true);
+			Query query = getPatterns(transaction, like, asc);
+			query.setFirstResult(start);
+			query.setMaxResults(rows);
+			List<PatternUrlItem> results = (List<PatternUrlItem>) query
+					.getResultList(PatternUrlItem.class);
+			urlList.setSize(query.getResultCount());
+			return results;
+		} catch (SQLException e) {
+			throw new CrawlDatabaseException(e);
+		} finally {
+			if (transaction != null)
+				transaction.close();
+		}
 	}
 
 }
