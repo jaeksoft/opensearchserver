@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.crawler.database.pattern;
 
+import java.util.HashSet;
+import java.util.Iterator;
+
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.util.PartialList;
 
@@ -32,6 +35,7 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 	private PatternUrlManager patternUrlManager;
 	private String like;
 	private boolean asc;
+	private HashSet<String> selection;
 
 	public PatternUrlList(PatternUrlManager patternUrlManager, int windowRows,
 			String like, boolean asc) {
@@ -39,6 +43,7 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 		this.patternUrlManager = patternUrlManager;
 		this.like = like;
 		this.asc = asc;
+		selection = new HashSet<String>();
 		update(0);
 	}
 
@@ -46,9 +51,45 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 	protected void update(int start) {
 		try {
 			patternUrlManager.getPatterns(like, asc, start, windowRows, this);
+			Iterator<PatternUrlItem> it = iterator();
+			while (it.hasNext())
+				it.next().setPatternUrlList(this);
 		} catch (CrawlDatabaseException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	protected void addSelection(PatternUrlItem item) {
+		synchronized (selection) {
+			selection.add(item.getPattern());
+		}
+	}
+
+	protected void removeSelection(PatternUrlItem item) {
+		synchronized (selection) {
+			selection.remove(item.getPattern());
+		}
+	}
+
+	public int getSelectionCount() {
+		synchronized (selection) {
+			return selection.size();
+		}
+	}
+
+	protected boolean isSelected(PatternUrlItem item) {
+		synchronized (selection) {
+			return selection.contains(item.getPattern());
+		}
+	}
+
+	public void deleteSelection(PatternUrlManager patternManager)
+			throws CrawlDatabaseException {
+		synchronized (selection) {
+			Iterator<String> it = selection.iterator();
+			while (it.hasNext())
+				patternManager.delPattern(new PatternUrlItem(it.next()));
+			selection.clear();
+		}
+	}
 }

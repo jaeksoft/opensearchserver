@@ -50,22 +50,27 @@ public class PatternUrlItem {
 
 	private Status status;
 
-	private boolean selected;
-
 	protected String sPattern;
 
 	private Pattern pattern;
 
+	private PatternUrlList patternList;
+
 	public PatternUrlItem() {
 		status = Status.UNDEFINED;
-		selected = false;
 		sPattern = null;
 		pattern = null;
+		patternList = null;
 	}
 
 	public PatternUrlItem(URL url) {
 		this();
 		setPattern(url.toExternalForm());
+	}
+
+	public PatternUrlItem(String sPattern) {
+		this();
+		setPattern(sPattern);
 	}
 
 	public Status getStatus() {
@@ -77,15 +82,18 @@ public class PatternUrlItem {
 	}
 
 	public void setSelected(boolean v) {
-		selected = v;
+		if (v)
+			patternList.addSelection(this);
+		else
+			patternList.removeSelection(this);
 	}
 
 	public boolean isSelected() {
-		return selected;
+		return patternList.isSelected(this);
 	}
 
 	void toggleSelected(ValueChangeEvent event) {
-		selected = !selected;
+		setSelected(!isSelected());
 	}
 
 	public boolean match(String sUrl) {
@@ -107,6 +115,10 @@ public class PatternUrlItem {
 
 	public String getPattern() {
 		return sPattern;
+	}
+
+	public void setPatternUrlList(PatternUrlList patternList) {
+		this.patternList = patternList;
 	}
 
 }
