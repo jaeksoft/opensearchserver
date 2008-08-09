@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.crawler.database.url;
 
 import java.util.Date;
-import java.util.List;
 
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.url.UrlManager.Field;
@@ -59,15 +58,15 @@ public class UrlList extends PartialList<UrlItem> {
 		this.endDate = endDate;
 		this.orderBy = orderBy;
 		this.asc = asc;
-		get(0);
+		update(0);
 	}
 
 	@Override
-	protected List<UrlItem> update(int start, int rows) {
+	protected void update(int start) {
 		try {
-			return urlManager.getUrls(like, host, fetchStatus, parserStatus,
-					indexStatus, startDate, endDate, orderBy, asc, start, rows,
-					this);
+			urlManager.getUrls(like, host, fetchStatus, parserStatus,
+					indexStatus, startDate, endDate, orderBy, asc, start,
+					windowRows, this);
 		} catch (CrawlDatabaseException e) {
 			throw new RuntimeException(e);
 		}

@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.database.pattern;
 
-import java.util.List;
-
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.util.PartialList;
 
@@ -41,13 +39,13 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 		this.patternUrlManager = patternUrlManager;
 		this.like = like;
 		this.asc = asc;
-		get(0);
+		update(0);
 	}
 
 	@Override
-	protected List<PatternUrlItem> update(int start, int rows) {
+	protected void update(int start) {
 		try {
-			return patternUrlManager.getPatterns(like, asc, start, rows, this);
+			patternUrlManager.getPatterns(like, asc, start, windowRows, this);
 		} catch (CrawlDatabaseException e) {
 			throw new RuntimeException(e);
 		}

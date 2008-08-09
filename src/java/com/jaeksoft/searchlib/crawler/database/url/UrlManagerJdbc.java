@@ -379,7 +379,7 @@ public class UrlManagerJdbc extends UrlManager {
 			query.setMaxResults(rows);
 			List<UrlItem> results = (List<UrlItem>) query
 					.getResultList(UrlItem.class);
-			urlList.setSize(query.getResultCount());
+			urlList.setNewList(results, query.getResultCount());
 			return results;
 		} catch (SQLException e) {
 			throw new CrawlDatabaseException(e);

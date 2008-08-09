@@ -173,7 +173,7 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 			query.setMaxResults(rows);
 			List<PatternUrlItem> results = (List<PatternUrlItem>) query
 					.getResultList(PatternUrlItem.class);
-			urlList.setSize(query.getResultCount());
+			urlList.setNewList(results, query.getResultCount());
 			return results;
 		} catch (SQLException e) {
 			throw new CrawlDatabaseException(e);

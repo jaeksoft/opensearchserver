@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.util;
 
 import java.util.AbstractList;
+import java.util.Iterator;
 import java.util.List;
 
 public abstract class PartialList<T> extends AbstractList<T> {
@@ -43,22 +44,33 @@ public abstract class PartialList<T> extends AbstractList<T> {
 
 	@Override
 	public T get(int index) {
-		if (index < currentStart || index >= currentStart + windowRows) {
-			partialList = update(index, windowRows);
-			currentStart = index;
+		synchronized (this) {
+			if (index < currentStart || index >= currentStart + windowRows) {
+				update(index);
+				currentStart = index;
+			}
+			return partialList.get(index - currentStart);
 		}
-		return partialList.get(index - currentStart);
 	}
 
-	public void setSize(int size) {
-		this.size = size;
+	public void setNewList(List<T> list, int size) {
+		synchronized (this) {
+			this.size = size;
+			this.partialList = list;
+		}
 	}
 
 	@Override
 	public int size() {
-		return size;
+		synchronized (this) {
+			return size;
+		}
 	}
 
-	protected abstract List<T> update(int start, int rows);
+	public Iterator<T> iterator() {
+		return partialList.iterator();
+	}
+
+	protected abstract void update(int start);
 
 }
