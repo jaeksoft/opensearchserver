@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseBdb;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
-import com.sleepycat.bind.tuple.TupleBinding;
+import com.jaeksoft.searchlib.util.BdbUtil;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 import com.sleepycat.je.Cursor;
@@ -54,7 +54,7 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 	final private static Logger logger = Logger
 			.getLogger(PatternUrlManagerBdb.class);
 
-	public class PatternUrlTupleBinding extends TupleBinding<PatternUrlItem> {
+	public class PatternUrlTupleBinding extends BdbUtil<PatternUrlItem> {
 
 		@Override
 		public PatternUrlItem entryToObject(TupleInput input) {
@@ -69,28 +69,13 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 			output.writeString(patternUrlItem.getPattern());
 		}
 
-		protected void setKey(String pattern, DatabaseEntry key)
-				throws UnsupportedEncodingException {
-			key.setData(pattern.getBytes("UTF-8"));
-		}
-
-		protected String getKey(DatabaseEntry key)
-				throws UnsupportedEncodingException {
-			return new String(key.getData(), "UTF-8");
-		}
-
-		protected DatabaseEntry getKey(PatternUrlItem patternUrlItem)
+		public DatabaseEntry getKey(PatternUrlItem patternUrlItem)
 				throws UnsupportedEncodingException {
 			DatabaseEntry key = new DatabaseEntry();
 			setKey(patternUrlItem.getPattern(), key);
 			return key;
 		}
 
-		protected DatabaseEntry getData(PatternUrlItem patternUrlItem) {
-			DatabaseEntry data = new DatabaseEntry();
-			objectToEntry(patternUrlItem, data);
-			return data;
-		}
 	}
 
 	private CrawlDatabaseBdb crawlDatabase;
@@ -201,76 +186,9 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 		}
 	}
 
-	private int getPatterns(Cursor cursor, String like, int start, int rows,
-			List<PatternUrlItem> list) throws DatabaseException,
-			UnsupportedEncodingException {
-
-		DatabaseEntry key = new DatabaseEntry();
-		DatabaseEntry data = new DatabaseEntry();
-
-		tupleBinding.setKey(like, key);
-		if (cursor.getSearchKeyRange(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-			return 0;
-
-		int size = 0;
-
-		while (start-- > 0) {
-			if (!tupleBinding.getKey(key).startsWith(like))
-				return size;
-			size++;
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-				return size;
-		}
-
-		while (rows-- > 0) {
-			if (!tupleBinding.getKey(key).startsWith(like))
-				return size;
-			size++;
-			list.add(tupleBinding.entryToObject(data));
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-				return size;
-		}
-
-		while (tupleBinding.getKey(key).startsWith(like)) {
-			size++;
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-				return size;
-		}
-
-		return size;
-	}
-
-	private int getPatterns(Cursor cursor, int start, int rows,
-			List<PatternUrlItem> list) throws DatabaseException {
-
-		DatabaseEntry key = new DatabaseEntry();
-		DatabaseEntry data = new DatabaseEntry();
-
-		int size = 0;
-
-		while (start-- > 0) {
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-				break;
-			size++;
-		}
-
-		while (rows-- > 0) {
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-				break;
-			list.add(tupleBinding.entryToObject(data));
-			size++;
-		}
-
-		while (cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS)
-			size++;
-		return size;
-
-	}
-
 	@Override
-	public List<PatternUrlItem> getPatterns(String like, boolean asc,
-			int start, int rows, PatternUrlList urlList)
-			throws CrawlDatabaseException {
+	public List<PatternUrlItem> getPatterns(String like, int start, int rows,
+			PatternUrlList urlList) throws CrawlDatabaseException {
 		Transaction txn = null;
 		Cursor cursor = null;
 		try {
@@ -279,12 +197,11 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 
 			List<PatternUrlItem> list = new ArrayList<PatternUrlItem>();
 			if (like == null || like.length() == 0)
-				urlList
-						.setNewList(list,
-								getPatterns(cursor, start, rows, list));
+				urlList.setNewList(list, tupleBinding.getLimit(cursor, start,
+						rows, list));
 			else
-				urlList.setNewList(list, getPatterns(cursor, like, start, rows,
-						list));
+				urlList.setNewList(list, tupleBinding.getStartsWith(cursor,
+						like, start, rows, list));
 
 			return list;
 		} catch (DatabaseException e) {

@@ -33,6 +33,10 @@ public class CrawlDatabaseException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
+	public CrawlDatabaseException(String msg) {
+		super(msg);
+	}
+
 	public CrawlDatabaseException(DatabaseException e) {
 		super(e);
 	}

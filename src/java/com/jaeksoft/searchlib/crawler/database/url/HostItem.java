@@ -24,14 +24,16 @@
 
 package com.jaeksoft.searchlib.crawler.database.url;
 
-public class HostCountItem {
+public class HostItem {
 
 	public String host;
-	public int count;
 
-	public HostCountItem() {
+	public HostItem() {
 		host = null;
-		count = 0;
+	}
+
+	public HostItem(String host) {
+		setHost(host);
 	}
 
 	public String getHost() {
@@ -42,11 +44,4 @@ public class HostCountItem {
 		this.host = host;
 	}
 
-	public int getCount() {
-		return count;
-	}
-
-	public void setCount(int count) {
-		this.count = count;
-	}
 }

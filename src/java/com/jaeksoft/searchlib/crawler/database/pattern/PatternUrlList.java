@@ -34,15 +34,13 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 
 	private PatternUrlManager patternUrlManager;
 	private String like;
-	private boolean asc;
 	private HashSet<String> selection;
 
 	public PatternUrlList(PatternUrlManager patternUrlManager, int windowRows,
-			String like, boolean asc) {
+			String like) {
 		super(windowRows);
 		this.patternUrlManager = patternUrlManager;
 		this.like = like;
-		this.asc = asc;
 		selection = new HashSet<String>();
 		update(0);
 	}
@@ -50,7 +48,7 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 	@Override
 	protected void update(int start) {
 		try {
-			patternUrlManager.getPatterns(like, asc, start, windowRows, this);
+			patternUrlManager.getPatterns(like, start, windowRows, this);
 			Iterator<PatternUrlItem> it = iterator();
 			while (it.hasNext())
 				it.next().setPatternUrlList(this);

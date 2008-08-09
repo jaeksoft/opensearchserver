@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabase;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.property.PropertyManager;
-import com.jaeksoft.searchlib.crawler.database.url.HostCountItem;
+import com.jaeksoft.searchlib.crawler.database.url.HostItem;
 import com.jaeksoft.searchlib.crawler.database.url.UrlItem;
 import com.jaeksoft.searchlib.util.DaemonThread;
 
@@ -40,8 +40,8 @@ public class CrawlMaster extends DaemonThread {
 
 	private ArrayList<CrawlThread> crawlThreads;
 
-	private ArrayList<HostCountItem> hostList;
-	private Iterator<HostCountItem> hostIterator;
+	private ArrayList<HostItem> hostList;
+	private Iterator<HostItem> hostIterator;
 
 	private Client client;
 	private CrawlDatabase database;
@@ -63,7 +63,7 @@ public class CrawlMaster extends DaemonThread {
 			DaemonThread.sleep(1000);
 			return;
 		}
-		hostList = (ArrayList<HostCountItem>) database.getUrlManager()
+		hostList = (ArrayList<HostItem>) database.getUrlManager()
 				.getHostToFetch(propertyManager.getFetchInterval(),
 						propertyManager.getMaxUrlPerSession());
 		if (hostList != null)
@@ -86,7 +86,7 @@ public class CrawlMaster extends DaemonThread {
 					return null;
 			}
 			PropertyManager propertyManager = database.getPropertyManager();
-			HostCountItem host = hostIterator.next();
+			HostItem host = hostIterator.next();
 			int limit = propertyManager.getMaxUrlPerSession()
 					- getFetchedCount();
 			if (limit < 0)

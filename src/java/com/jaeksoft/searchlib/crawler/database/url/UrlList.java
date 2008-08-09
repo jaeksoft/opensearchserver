@@ -41,13 +41,11 @@ public class UrlList extends PartialList<UrlItem> {
 	private Date startDate;
 	private Date endDate;
 	private Field orderBy;
-	private boolean asc;
 
-	public UrlList(UrlManager urlManager, int rows, String like, String host,
-			FetchStatus fetchStatus, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, boolean asc) {
-		super(rows);
+	public UrlList(UrlManager urlManager, int windowRows, String like,
+			String host, FetchStatus fetchStatus, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startDate, Date endDate, Field orderBy) {
+		super(windowRows);
 		this.urlManager = urlManager;
 		this.like = like;
 		this.host = host;
@@ -57,7 +55,6 @@ public class UrlList extends PartialList<UrlItem> {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.orderBy = orderBy;
-		this.asc = asc;
 		update(0);
 	}
 
@@ -65,7 +62,7 @@ public class UrlList extends PartialList<UrlItem> {
 	protected void update(int start) {
 		try {
 			urlManager.getUrls(like, host, fetchStatus, parserStatus,
-					indexStatus, startDate, endDate, orderBy, asc, start,
+					indexStatus, startDate, endDate, orderBy, start,
 					windowRows, this);
 		} catch (CrawlDatabaseException e) {
 			throw new RuntimeException(e);

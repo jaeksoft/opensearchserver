@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -308,21 +307,18 @@ public class UrlManagerJdbc extends UrlManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<HostCountItem> getHostToFetch(int fetchInterval, int limit)
+	public List<HostItem> getHostToFetch(int fetchInterval, int limit)
 			throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(true);
-			Query query = transaction
-					.prepare("SELECT host,count(*) as count FROM url "
-							+ "WHERE fetchStatus=? OR when<? "
-							+ "GROUP BY host");
+			Query query = transaction.prepare("SELECT host FROM url "
+					+ "WHERE fetchStatus=? OR when<? " + "GROUP BY host");
 			query.getStatement().setInt(1, FetchStatus.UN_FETCHED.value);
 			query.getStatement()
 					.setTimestamp(2, getNewTimestamp(fetchInterval));
 			query.setMaxResults(limit);
-			return (List<HostCountItem>) query
-					.getResultList(HostCountItem.class);
+			return (List<HostItem>) query.getResultList(HostItem.class);
 		} catch (SQLException e) {
 			throw new CrawlDatabaseException(e);
 		} finally {
@@ -331,13 +327,8 @@ public class UrlManagerJdbc extends UrlManager {
 		}
 	}
 
-	private Timestamp getNewTimestamp(long fetchInterval) {
-		long t = System.currentTimeMillis() - fetchInterval * 1000 * 86400;
-		return new Timestamp(t);
-	}
-
 	@SuppressWarnings("unchecked")
-	public List<UrlItem> getUrlToFetch(HostCountItem host, int fetchInterval,
+	public List<UrlItem> getUrlToFetch(HostItem host, int fetchInterval,
 			int limit) throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
@@ -368,13 +359,14 @@ public class UrlManagerJdbc extends UrlManager {
 	public List<UrlItem> getUrls(String like, String host,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, boolean asc, int start, int rows, UrlList urlList)
+			Field orderBy, int start, int rows, UrlList urlList)
 			throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(true);
 			Query query = getUrls(transaction, like, host, fetchStatus,
-					parserStatus, indexStatus, startDate, endDate, orderBy, asc);
+					parserStatus, indexStatus, startDate, endDate, orderBy,
+					true);
 			query.setFirstResult(start);
 			query.setMaxResults(rows);
 			List<UrlItem> results = (List<UrlItem>) query

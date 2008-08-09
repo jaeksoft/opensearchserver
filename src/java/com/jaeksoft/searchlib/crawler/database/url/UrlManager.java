@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.database.url;
 
 import java.net.MalformedURLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -73,15 +74,20 @@ public abstract class UrlManager {
 	public abstract void inject(List<InjectUrlItem> list)
 			throws CrawlDatabaseException;
 
-	public abstract List<HostCountItem> getHostToFetch(int fetchInterval,
-			int limit) throws CrawlDatabaseException;
+	protected Timestamp getNewTimestamp(long fetchInterval) {
+		long t = System.currentTimeMillis() - fetchInterval * 1000 * 86400;
+		return new Timestamp(t);
+	}
 
-	public abstract List<UrlItem> getUrlToFetch(HostCountItem host,
+	public abstract List<HostItem> getHostToFetch(int fetchInterval, int limit)
+			throws CrawlDatabaseException;
+
+	public abstract List<UrlItem> getUrlToFetch(HostItem host,
 			int fetchInterval, int limit) throws CrawlDatabaseException;
 
 	public abstract List<UrlItem> getUrls(String like, String host,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, boolean asc, int start, int rows, UrlList urlList)
+			Field orderBy, int start, int rows, UrlList urlList)
 			throws CrawlDatabaseException;
 }
