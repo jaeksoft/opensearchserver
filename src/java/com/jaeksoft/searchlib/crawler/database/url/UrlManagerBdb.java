@@ -245,22 +245,30 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			DatabaseEntry data = new DatabaseEntry();
 			LongBinding.longToEntry(timestamp, key);
 
-			if (cursor.getSearchKeyRange(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			OperationStatus os = cursor.getSearchKeyRange(key, data,
+					LockMode.DEFAULT);
+
+			if (os == OperationStatus.NOTFOUND) {
+				if (cursor.getPrevNoDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+					return;
+			} else if (os != OperationStatus.SUCCESS)
 				return;
 
 			// Find the first valid result by descending secondary key
 			while (LongBinding.entryToLong(key) > timestamp) {
 				if (cursor.getPrevDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-					return;
+					if (cursor.getPrev(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+						return;
 			}
 
 			// Iterate valid results by descending secondary key
 			UnfetchedHostToFetchFilter filter = new UnfetchedHostToFetchFilter(
 					hostSet, limit);
-			do {
-				if (!filter.addHost(tupleBinding.entryToObject(data)))
-					return;
-			} while (cursor.getPrevDup(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS);
+			while (filter.addHost(tupleBinding.entryToObject(data))) {
+				if (cursor.getPrevDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+					if (cursor.getPrev(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+						return;
+			}
 
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
