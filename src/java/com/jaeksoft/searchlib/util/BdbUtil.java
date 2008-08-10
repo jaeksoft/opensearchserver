@@ -1,7 +1,6 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Comparator;
 import java.util.List;
 
 import com.sleepycat.bind.tuple.TupleBinding;
@@ -129,8 +128,25 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		return size;
 	}
 
+	public interface BdbFilter<T> {
+		public boolean accept(T object);
+	}
+
+	public void getFilter(JoinCursor cursor, BdbFilter<T> filter)
+			throws DatabaseException {
+
+		DatabaseEntry key = new DatabaseEntry();
+		DatabaseEntry data = new DatabaseEntry();
+
+		while (cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+			T object = entryToObject(data);
+			if (!filter.accept(object))
+				break;
+		}
+	}
+
 	public void getFilter(JoinCursor cursor, List<T> list, int limit,
-			Comparator<T> comparator) throws DatabaseException {
+			BdbFilter<T> filter) throws DatabaseException {
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
@@ -139,8 +155,8 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
 				return;
 			T object = entryToObject(data);
-			if (comparator.compare(object, null) == 0)
-				break;
+			if (!filter.accept(object))
+				continue;
 			list.add(object);
 			limit--;
 		}

@@ -66,6 +66,10 @@ public class UrlItem implements Serializable {
 		this.host = host;
 	}
 
+	public void checkHost() throws MalformedURLException {
+		setHost(getURL().getHost());
+	}
+
 	public FetchStatus getFetchStatus() {
 		if (fetchStatus == null)
 			return FetchStatus.UN_FETCHED;
@@ -129,6 +133,10 @@ public class UrlItem implements Serializable {
 
 	public void setWhen(Timestamp ts) {
 		when = ts;
+	}
+
+	public void setWhenNow() {
+		setWhen(new Timestamp(System.currentTimeMillis()));
 	}
 
 	public int getRetry() {

@@ -105,37 +105,65 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 	@Override
 	public void addList(List<PatternUrlItem> patternList)
 			throws CrawlDatabaseException {
-		Iterator<PatternUrlItem> it = patternList.iterator();
-		while (it.hasNext()) {
-			PatternUrlItem item = it.next();
-			if (item.getStatus() != PatternUrlItem.Status.UNDEFINED)
-				continue;
-			try {
-				OperationStatus result = patternDb.putNoOverwrite(null,
-						tupleBinding.getKey(item), tupleBinding.getData(item));
-				if (result == OperationStatus.SUCCESS)
-					item.setStatus(PatternUrlItem.Status.INJECTED);
-				else if (result == OperationStatus.KEYEXIST)
-					item.setStatus(PatternUrlItem.Status.ALREADY);
-			} catch (IllegalArgumentException e) {
-				item.setStatus(PatternUrlItem.Status.ERROR);
-			} catch (UnsupportedEncodingException e) {
-				item.setStatus(PatternUrlItem.Status.ERROR);
-			} catch (DatabaseException e) {
-				throw new CrawlDatabaseException(e);
+		Transaction txn = null;
+		try {
+			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			Iterator<PatternUrlItem> it = patternList.iterator();
+			while (it.hasNext()) {
+				PatternUrlItem item = it.next();
+				if (item.getStatus() != PatternUrlItem.Status.UNDEFINED)
+					continue;
+				try {
+					OperationStatus result = patternDb.putNoOverwrite(txn,
+							tupleBinding.getKey(item), tupleBinding
+									.getData(item));
+					if (result == OperationStatus.SUCCESS)
+						item.setStatus(PatternUrlItem.Status.INJECTED);
+					else if (result == OperationStatus.KEYEXIST)
+						item.setStatus(PatternUrlItem.Status.ALREADY);
+				} catch (IllegalArgumentException e) {
+					item.setStatus(PatternUrlItem.Status.ERROR);
+				} catch (UnsupportedEncodingException e) {
+					item.setStatus(PatternUrlItem.Status.ERROR);
+				} catch (DatabaseException e) {
+					throw new CrawlDatabaseException(e);
+				}
 			}
+			txn.commit();
+			txn = null;
+			updateCache();
+		} catch (DatabaseException e) {
+			throw new CrawlDatabaseException(e);
+		} finally {
+			if (txn != null)
+				try {
+					txn.abort();
+				} catch (DatabaseException e) {
+					e.printStackTrace();
+				}
 		}
-
 	}
 
 	@Override
 	public void delPattern(PatternUrlItem item) throws CrawlDatabaseException {
+		Transaction txn = null;
 		try {
-			patternDb.delete(null, tupleBinding.getKey(item));
+			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			patternDb.delete(txn, tupleBinding.getKey(item));
+			txn.commit();
+			txn = null;
+			updateCache();
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
 		} catch (UnsupportedEncodingException e) {
 			throw new CrawlDatabaseException(e);
+		} finally {
+			if (txn != null)
+				try {
+					txn.abort();
+				} catch (DatabaseException e) {
+					e.printStackTrace();
+				}
 		}
 	}
 

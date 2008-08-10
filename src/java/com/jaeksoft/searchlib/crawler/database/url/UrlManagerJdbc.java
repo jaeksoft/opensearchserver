@@ -178,14 +178,14 @@ public class UrlManagerJdbc extends UrlManager {
 	}
 
 	private void insert(Transaction transaction, UrlItem urlItem)
-			throws SQLException, MalformedURLException {
+			throws SQLException {
 		Query query = transaction
 				.prepare("INSERT INTO "
 						+ "url(url,host,retry,fetchStatus,parserStatus,indexStatus,when) "
 						+ "VALUES (?,?,?,?,?,?,CURRENT_TIMESTAMP)");
 		PreparedStatement st = query.getStatement();
 		st.setString(1, urlItem.getUrl());
-		st.setString(2, urlItem.getURL().getHost());
+		st.setString(2, urlItem.getHost());
 		st.setInt(3, urlItem.getRetry());
 		st.setInt(4, urlItem.getFetchStatus().value);
 		st.setInt(5, urlItem.getParserStatus().value);
@@ -282,11 +282,8 @@ public class UrlManagerJdbc extends UrlManager {
 				try {
 					UrlItem urlItem = new UrlItem();
 					urlItem.setUrl(item.getUrl());
-					try {
-						insert(transaction, urlItem);
-					} catch (MalformedURLException e) {
-						logger.warn(item.getUrl() + " " + e.getMessage(), e);
-					}
+					urlItem.checkHost();
+					insert(transaction, urlItem);
 					item.setStatus(InjectUrlItem.Status.INJECTED);
 				} catch (SQLException e) {
 					if ("23505".equals(e.getSQLState()))
@@ -295,6 +292,8 @@ public class UrlManagerJdbc extends UrlManager {
 						e.printStackTrace();
 						item.setStatus(InjectUrlItem.Status.ERROR);
 					}
+				} catch (MalformedURLException e) {
+					item.setStatus(InjectUrlItem.Status.MALFORMATED);
 				}
 			}
 			transaction.commit();

@@ -38,6 +38,7 @@ import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import com.sleepycat.je.Transaction;
 
 public class PropertyManagerBdb extends PropertyManager {
 
@@ -95,8 +96,10 @@ public class PropertyManagerBdb extends PropertyManager {
 	protected String getPropertyString(Property prop)
 			throws CrawlDatabaseException {
 		DatabaseEntry data = new DatabaseEntry();
+		Transaction txn = null;
 		try {
-			if (propertyDb.get(null, tupleBinding.getKey(new PropertyItem(prop
+			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			if (propertyDb.get(txn, tupleBinding.getKey(new PropertyItem(prop
 					.getName())), data, LockMode.DEFAULT) == OperationStatus.SUCCESS)
 				return tupleBinding.entryToObject(data).getValue();
 			return null;
@@ -104,18 +107,37 @@ public class PropertyManagerBdb extends PropertyManager {
 			throw new CrawlDatabaseException(e);
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
+		} finally {
+			if (txn != null)
+				try {
+					txn.abort();
+				} catch (DatabaseException e) {
+					e.printStackTrace();
+				}
 		}
 	}
 
 	@Override
 	protected void setProperty(PropertyItem prop) throws CrawlDatabaseException {
+		Transaction txn = null;
 		try {
-			propertyDb.put(null, tupleBinding.getKey(prop), tupleBinding
+			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+
+			propertyDb.put(txn, tupleBinding.getKey(prop), tupleBinding
 					.getData(prop));
+			txn.commit();
+			txn = null;
 		} catch (UnsupportedEncodingException e) {
 			throw new CrawlDatabaseException(e);
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
+		} finally {
+			if (txn != null)
+				try {
+					txn.abort();
+				} catch (DatabaseException e) {
+					e.printStackTrace();
+				}
 		}
 
 	}

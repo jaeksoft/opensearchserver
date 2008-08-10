@@ -36,9 +36,9 @@ public class BdbJoin {
 			SecondaryDatabase secDb) throws DatabaseException {
 		DatabaseEntry data = new DatabaseEntry();
 		SecondaryCursor cursor = secDb.openSecondaryCursor(txn, null);
+		cursorList.add(cursor);
 		if (cursor.getSearchKey(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
 			return false;
-		cursorList.add(cursor);
 		return true;
 	}
 
