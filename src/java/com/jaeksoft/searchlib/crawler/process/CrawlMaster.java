@@ -41,19 +41,22 @@ public class CrawlMaster extends DaemonThread {
 	private ArrayList<CrawlThread> crawlThreads;
 
 	private ArrayList<HostItem> hostList;
+	private long hostFetchTimer;
 	private Iterator<HostItem> hostIterator;
 
 	private Client client;
 	private CrawlDatabase database;
 
-	public CrawlMaster(Client client) {
+	public CrawlMaster(Client client) throws CrawlDatabaseException {
 		super(true, 1000);
 		this.client = client;
 		database = client.getCrawlDatabase();
 		crawlThreads = null;
 		hostList = null;
 		hostIterator = null;
-		start();
+		hostFetchTimer = 0;
+		if (database.getPropertyManager().isCrawlEnabled())
+			start();
 	}
 
 	@Override
@@ -63,9 +66,11 @@ public class CrawlMaster extends DaemonThread {
 			DaemonThread.sleep(1000);
 			return;
 		}
+		hostFetchTimer = System.currentTimeMillis();
 		hostList = (ArrayList<HostItem>) database.getUrlManager()
 				.getHostToFetch(propertyManager.getFetchInterval(),
 						propertyManager.getMaxUrlPerSession());
+		hostFetchTimer = System.currentTimeMillis() - hostFetchTimer;
 		if (hostList != null)
 			hostIterator = hostList.iterator();
 		synchronized (this) {
@@ -148,12 +153,27 @@ public class CrawlMaster extends DaemonThread {
 				return;
 			for (CrawlThread crawlThread : crawlThreads)
 				crawlThread.abort();
+			super.abort();
 		}
 	}
 
 	public List<CrawlThread> getCrawlThreads() {
 		synchronized (this) {
 			return crawlThreads;
+		}
+	}
+
+	public int getHostCount() {
+		synchronized (this) {
+			if (hostList == null)
+				return 0;
+			return hostList.size();
+		}
+	}
+
+	public float getHostFetchTimer() {
+		synchronized (this) {
+			return (float) hostFetchTimer / 1000;
 		}
 	}
 

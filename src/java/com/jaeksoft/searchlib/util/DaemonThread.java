@@ -62,10 +62,15 @@ public abstract class DaemonThread implements Runnable {
 		this.sleepInterval = sleepInterval;
 	}
 
-	protected void start() {
-		thread = new Thread(this);
-		thread.setDaemon(true);
-		thread.start();
+	public boolean start() {
+		synchronized (this) {
+			if (isRunning())
+				return false;
+			thread = new Thread(this);
+			thread.setDaemon(true);
+			thread.start();
+			return true;
+		}
 	}
 
 	public boolean isRunning() {

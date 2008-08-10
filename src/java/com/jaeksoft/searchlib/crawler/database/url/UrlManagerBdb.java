@@ -284,7 +284,8 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			txn = crawlDatabase.getEnv().beginTransaction(null, null);
 
 			getUnfetchedHostToFetch(txn, limit, hostSet);
-			getExpiredHostToFetch(txn, fetchInterval, limit, hostSet);
+			getExpiredHostToFetch(txn,
+					getNewTimestamp(fetchInterval).getTime(), limit, hostSet);
 
 			List<HostItem> hostList = new ArrayList<HostItem>();
 			Iterator<String> it = hostSet.iterator();
