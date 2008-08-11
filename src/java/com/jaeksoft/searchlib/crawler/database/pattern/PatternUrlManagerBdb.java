@@ -45,7 +45,6 @@ import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
-import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
@@ -107,7 +106,7 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 			throws CrawlDatabaseException {
 		Transaction txn = null;
 		try {
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 			Iterator<PatternUrlItem> it = patternList.iterator();
 			while (it.hasNext()) {
 				PatternUrlItem item = it.next();
@@ -148,7 +147,7 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 	public void delPattern(PatternUrlItem item) throws CrawlDatabaseException {
 		Transaction txn = null;
 		try {
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 			patternDb.delete(txn, tupleBinding.getKey(item));
 			txn.commit();
 			txn = null;
@@ -173,11 +172,11 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 		Cursor cursor = null;
 		try {
 			Hashtable<String, ArrayList<PatternUrlItem>> newPatternMap = new Hashtable<String, ArrayList<PatternUrlItem>>();
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
-			cursor = patternDb.openCursor(txn, null);
+			txn = crawlDatabase.beginTransaction();
+			cursor = patternDb.openCursor(txn, crawlDatabase.getCursorConfig());
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
-			while (cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+			while (cursor.getNext(key, data, null) == OperationStatus.SUCCESS) {
 				PatternUrlItem item = tupleBinding.entryToObject(data);
 				try {
 					URL url = item.extractUrl(true);
@@ -220,13 +219,13 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 		Transaction txn = null;
 		Cursor cursor = null;
 		try {
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
-			cursor = patternDb.openCursor(txn, null);
+			txn = crawlDatabase.beginTransaction();
+			cursor = patternDb.openCursor(txn, crawlDatabase.getCursorConfig());
 
 			List<PatternUrlItem> list = new ArrayList<PatternUrlItem>();
 			if (like == null || like.length() == 0)
 				urlList.setNewList(list, tupleBinding.getLimit(cursor, start,
-						rows, list));
+						rows, list, null));
 			else
 				urlList.setNewList(list, tupleBinding.getStartsWith(cursor,
 						like, start, rows, list));

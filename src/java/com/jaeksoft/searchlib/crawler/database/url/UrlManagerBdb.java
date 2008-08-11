@@ -58,7 +58,6 @@ import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
-import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.SecondaryConfig;
 import com.sleepycat.je.SecondaryCursor;
@@ -163,7 +162,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		Transaction txn = null;
 		try {
 			tupleBinding.setKey(url, key);
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 			urlDb.delete(txn, key);
 			txn.commit();
 			txn = null;
@@ -226,10 +225,11 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 
 			DatabaseEntry key = new DatabaseEntry();
 			IntegerBinding.intToEntry(FetchStatus.UN_FETCHED.value, key);
-			if (!join.add(txn, key, urlFetchStatusDb))
+			if (!join.add(txn, crawlDatabase.getCursorConfig(), key,
+					urlFetchStatusDb))
 				return;
 
-			tupleBinding.getFilter(join.getJoinCursor(urlDb), filter);
+			tupleBinding.getFilter(join.getJoinCursor(urlDb), filter, null);
 
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
@@ -249,32 +249,32 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		SecondaryCursor cursor = null;
 		try {
 
-			cursor = urlWhenDb.openSecondaryCursor(txn, null);
+			cursor = urlWhenDb.openSecondaryCursor(txn, crawlDatabase
+					.getCursorConfig());
 
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
 			LongBinding.longToEntry(timestamp, key);
 
-			OperationStatus os = cursor.getSearchKeyRange(key, data,
-					LockMode.DEFAULT);
+			OperationStatus os = cursor.getSearchKeyRange(key, data, null);
 
 			if (os == OperationStatus.NOTFOUND) {
-				if (cursor.getPrevNoDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+				if (cursor.getPrevNoDup(key, data, null) != OperationStatus.SUCCESS)
 					return;
 			} else if (os != OperationStatus.SUCCESS)
 				return;
 
 			// Find the first valid result by descending secondary key
 			while (LongBinding.entryToLong(key) > timestamp) {
-				if (cursor.getPrevDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-					if (cursor.getPrev(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+				if (cursor.getPrevDup(key, data, null) != OperationStatus.SUCCESS)
+					if (cursor.getPrev(key, data, null) != OperationStatus.SUCCESS)
 						return;
 				stats.incEvaluatedCount();
 			}
 
 			while (filter.addHost(tupleBinding.entryToObject(data))) {
-				if (cursor.getPrevDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
-					if (cursor.getPrev(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+				if (cursor.getPrevDup(key, data, null) != OperationStatus.SUCCESS)
+					if (cursor.getPrev(key, data, null) != OperationStatus.SUCCESS)
 						return;
 			}
 
@@ -298,7 +298,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		Transaction txn = null;
 		try {
 			HashSet<String> hostSet = new HashSet<String>();
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 
 			HostToFetchFilter filter = new HostToFetchFilter(hostSet, hostList,
 					limit, stats);
@@ -338,15 +338,15 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		}
 
 		try {
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 			join = new BdbJoin();
 			List<UrlItem> list = new ArrayList<UrlItem>();
 			DatabaseEntry key = new DatabaseEntry();
 			StringBinding.stringToEntry(host.getHost(), key);
-			if (!join.add(txn, key, urlHostDb))
+			if (!join.add(txn, crawlDatabase.getCursorConfig(), key, urlHostDb))
 				return list;
 			tupleBinding.getFilter(join.getJoinCursor(urlDb), list, limit,
-					new Filter());
+					new Filter(), null);
 			return list;
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
@@ -370,7 +370,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	public void inject(List<InjectUrlItem> list) throws CrawlDatabaseException {
 		Transaction txn = null;
 		try {
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 			Iterator<InjectUrlItem> it = list.iterator();
 			while (it.hasNext()) {
 				InjectUrlItem item = it.next();
@@ -489,30 +489,34 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			if (host.length() > 0) {
 				DatabaseEntry key = new DatabaseEntry();
 				StringBinding.stringToEntry(host, key);
-				if (!join.add(txn, key, urlHostDb))
+				if (!join.add(txn, crawlDatabase.getCursorConfig(), key,
+						urlHostDb))
 					return 0;
 			}
 			if (fetchStatus != FetchStatus.ALL) {
 				DatabaseEntry key = new DatabaseEntry();
 				IntegerBinding.intToEntry(fetchStatus.value, key);
-				if (!join.add(txn, key, urlFetchStatusDb))
+				if (!join.add(txn, crawlDatabase.getCursorConfig(), key,
+						urlFetchStatusDb))
 					return 0;
 			}
 			if (parserStatus != ParserStatus.ALL) {
 				DatabaseEntry key = new DatabaseEntry();
 				IntegerBinding.intToEntry(parserStatus.value, key);
-				if (!join.add(txn, key, urlParserStatusDb))
+				if (!join.add(txn, crawlDatabase.getCursorConfig(), key,
+						urlParserStatusDb))
 					return 0;
 			}
 			if (indexStatus != IndexStatus.ALL) {
 				DatabaseEntry key = new DatabaseEntry();
 				IntegerBinding.intToEntry(indexStatus.value, key);
-				if (!join.add(txn, key, urlIndexStatusDb))
+				if (!join.add(txn, crawlDatabase.getCursorConfig(), key,
+						urlIndexStatusDb))
 					return 0;
 			}
 
 			return tupleBinding.getLimit(join.getJoinCursor(urlDb), start,
-					rows, list);
+					rows, list, null);
 
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
@@ -551,7 +555,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		Transaction txn = null;
 		Cursor cursor = null;
 		try {
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 
 			List<UrlItem> list = new ArrayList<UrlItem>();
 
@@ -560,9 +564,9 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 					&& parserStatus == ParserStatus.ALL
 					&& indexStatus == IndexStatus.ALL && startDate == null
 					&& endDate == null) {
-				cursor = urlDb.openCursor(txn, null);
+				cursor = urlDb.openCursor(txn, crawlDatabase.getCursorConfig());
 				urlList.setNewList(list, tupleBinding.getLimit(cursor, start,
-						rows, list));
+						rows, list, null));
 			} else {
 				urlList.setNewList(list, getUrls(txn, host, fetchStatus,
 						parserStatus, indexStatus, startDate, endDate, start,

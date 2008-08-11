@@ -44,7 +44,7 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		DatabaseEntry data = new DatabaseEntry();
 
 		setKey(pattern, key);
-		if (cursor.getSearchKeyRange(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+		if (cursor.getSearchKeyRange(key, data, null) != OperationStatus.SUCCESS)
 			return 0;
 
 		int size = 0;
@@ -53,7 +53,7 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 			if (!startsWith(key, pattern))
 				return size;
 			size++;
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			if (cursor.getNext(key, data, null) != OperationStatus.SUCCESS)
 				return size;
 		}
 
@@ -62,21 +62,21 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 				return size;
 			size++;
 			list.add(entryToObject(data));
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			if (cursor.getNext(key, data, null) != OperationStatus.SUCCESS)
 				return size;
 		}
 
 		while (startsWith(key, pattern)) {
 			size++;
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			if (cursor.getNext(key, data, null) != OperationStatus.SUCCESS)
 				return size;
 		}
 
 		return size;
 	}
 
-	public int getLimit(Cursor cursor, int start, int rows, List<T> list)
-			throws DatabaseException {
+	public int getLimit(Cursor cursor, int start, int rows, List<T> list,
+			LockMode lockMode) throws DatabaseException {
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
@@ -84,26 +84,26 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		int size = 0;
 
 		while (start-- > 0) {
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
 				return size;
 			size++;
 		}
 
 		while (rows-- > 0) {
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
 				return size;
 			list.add(entryToObject(data));
 			size++;
 		}
 
-		while (cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS)
+		while (cursor.getNext(key, data, lockMode) == OperationStatus.SUCCESS)
 			size++;
 		return size;
 
 	}
 
-	public int getLimit(JoinCursor cursor, int start, int rows, List<T> list)
-			throws DatabaseException {
+	public int getLimit(JoinCursor cursor, int start, int rows, List<T> list,
+			LockMode lockMode) throws DatabaseException {
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
@@ -111,19 +111,19 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		int size = 0;
 
 		while (start-- > 0) {
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
 				return size;
 			size++;
 		}
 
 		while (rows-- > 0) {
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
 				return size;
 			list.add(entryToObject(data));
 			size++;
 		}
 
-		while (cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS)
+		while (cursor.getNext(key, data, lockMode) == OperationStatus.SUCCESS)
 			size++;
 		return size;
 	}
@@ -132,13 +132,13 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		public boolean accept(T object);
 	}
 
-	public void getFilter(JoinCursor cursor, BdbFilter<T> filter)
-			throws DatabaseException {
+	public void getFilter(JoinCursor cursor, BdbFilter<T> filter,
+			LockMode lockMode) throws DatabaseException {
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 
-		while (cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+		while (cursor.getNext(key, data, lockMode) == OperationStatus.SUCCESS) {
 			T object = entryToObject(data);
 			if (!filter.accept(object))
 				break;
@@ -146,13 +146,13 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 	}
 
 	public void getFilter(JoinCursor cursor, List<T> list, long limit,
-			BdbFilter<T> filter) throws DatabaseException {
+			BdbFilter<T> filter, LockMode lockMode) throws DatabaseException {
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 
 		while (limit > 0) {
-			if (cursor.getNext(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
 				return;
 			T object = entryToObject(data);
 			if (!filter.accept(object))

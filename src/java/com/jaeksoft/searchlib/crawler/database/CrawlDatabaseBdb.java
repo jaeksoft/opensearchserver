@@ -29,9 +29,12 @@ import java.io.File;
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlManagerBdb;
 import com.jaeksoft.searchlib.crawler.database.property.PropertyManagerBdb;
 import com.jaeksoft.searchlib.crawler.database.url.UrlManagerBdb;
+import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
+import com.sleepycat.je.Transaction;
+import com.sleepycat.je.TransactionConfig;
 
 public class CrawlDatabaseBdb extends CrawlDatabase {
 
@@ -61,6 +64,22 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 
 	public Environment getEnv() {
 		return dbEnv;
+	}
+
+	public Transaction beginTransaction() throws DatabaseException {
+		return dbEnv.beginTransaction(null, getTransactionConfig());
+	}
+
+	public TransactionConfig getTransactionConfig() {
+		TransactionConfig config = new TransactionConfig();
+		config.setReadCommitted(true);
+		return config;
+	}
+
+	public CursorConfig getCursorConfig() {
+		CursorConfig config = new CursorConfig();
+		config.setReadCommitted(true);
+		return config;
 	}
 
 	private void close() {

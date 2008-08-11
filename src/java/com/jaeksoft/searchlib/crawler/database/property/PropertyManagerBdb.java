@@ -36,7 +36,6 @@ import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
-import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
@@ -98,9 +97,9 @@ public class PropertyManagerBdb extends PropertyManager {
 		DatabaseEntry data = new DatabaseEntry();
 		Transaction txn = null;
 		try {
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 			if (propertyDb.get(txn, tupleBinding.getKey(new PropertyItem(prop
-					.getName())), data, LockMode.DEFAULT) == OperationStatus.SUCCESS)
+					.getName())), data, null) == OperationStatus.SUCCESS)
 				return tupleBinding.entryToObject(data).getValue();
 			return null;
 		} catch (UnsupportedEncodingException e) {
@@ -121,7 +120,7 @@ public class PropertyManagerBdb extends PropertyManager {
 	protected void setProperty(PropertyItem prop) throws CrawlDatabaseException {
 		Transaction txn = null;
 		try {
-			txn = crawlDatabase.getEnv().beginTransaction(null, null);
+			txn = crawlDatabase.beginTransaction();
 
 			propertyDb.put(txn, tupleBinding.getKey(prop), tupleBinding
 					.getData(prop));

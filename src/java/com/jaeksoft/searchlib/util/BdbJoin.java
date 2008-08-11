@@ -2,11 +2,11 @@ package com.jaeksoft.searchlib.util;
 
 import java.util.ArrayList;
 
+import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.JoinCursor;
-import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.SecondaryCursor;
 import com.sleepycat.je.SecondaryDatabase;
@@ -32,12 +32,12 @@ public class BdbJoin {
 		}
 	}
 
-	public boolean add(Transaction txn, DatabaseEntry key,
+	public boolean add(Transaction txn, CursorConfig config, DatabaseEntry key,
 			SecondaryDatabase secDb) throws DatabaseException {
 		DatabaseEntry data = new DatabaseEntry();
-		SecondaryCursor cursor = secDb.openSecondaryCursor(txn, null);
+		SecondaryCursor cursor = secDb.openSecondaryCursor(txn, config);
 		cursorList.add(cursor);
-		if (cursor.getSearchKey(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
+		if (cursor.getSearchKey(key, data, null) != OperationStatus.SUCCESS)
 			return false;
 		return true;
 	}
