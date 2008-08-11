@@ -33,6 +33,7 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlItem;
+import com.jaeksoft.searchlib.crawler.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 
 public abstract class UrlManager {
@@ -79,8 +80,8 @@ public abstract class UrlManager {
 		return new Timestamp(t);
 	}
 
-	public abstract List<HostItem> getHostToFetch(int fetchInterval, int limit)
-			throws CrawlDatabaseException;
+	public abstract List<HostItem> getHostToFetch(int fetchInterval, int limit,
+			CrawlStatistics stats) throws CrawlDatabaseException;
 
 	public abstract List<UrlItem> getUrlToFetch(HostItem host,
 			int fetchInterval, long limit) throws CrawlDatabaseException;

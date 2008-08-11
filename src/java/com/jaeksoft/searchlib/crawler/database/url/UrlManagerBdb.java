@@ -39,6 +39,7 @@ import org.apache.log4j.Logger;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseBdb;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.Link;
 import com.jaeksoft.searchlib.crawler.spider.LinkList;
@@ -180,17 +181,21 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		}
 	}
 
-	private class UnfetchedHostToFetchFilter implements BdbFilter<UrlItem> {
+	private class HostToFetchFilter implements BdbFilter<UrlItem> {
 
 		private Set<String> hostSet;
 		private int max;
+		private CrawlStatistics stats;
 
-		public UnfetchedHostToFetchFilter(Set<String> hostSet, int max) {
+		public HostToFetchFilter(Set<String> hostSet, int max,
+				CrawlStatistics stats) {
 			this.hostSet = hostSet;
 			this.max = max;
+			this.stats = stats;
 		}
 
 		public boolean accept(UrlItem item) {
+			stats.incEvaluatedCount();
 			if (item.getFetchStatus() != FetchStatus.UN_FETCHED)
 				return true;
 			return addHost(item);
@@ -201,13 +206,15 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			if (hostSet.contains(host))
 				return true;
 			hostSet.add(host);
+			stats.incHostCount();
 			return hostSet.size() < max;
 		}
 
 	}
 
 	private void getUnfetchedHostToFetch(Transaction txn, int limit,
-			HashSet<String> hostSet) throws CrawlDatabaseException {
+			HashSet<String> hostSet, CrawlStatistics stats)
+			throws CrawlDatabaseException {
 
 		BdbJoin join = null;
 		try {
@@ -218,8 +225,8 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			if (!join.add(txn, key, urlFetchStatusDb))
 				return;
 
-			UnfetchedHostToFetchFilter filter = new UnfetchedHostToFetchFilter(
-					hostSet, limit);
+			HostToFetchFilter filter = new HostToFetchFilter(hostSet, limit,
+					stats);
 			tupleBinding.getFilter(join.getJoinCursor(urlDb), filter);
 
 		} catch (DatabaseException e) {
@@ -235,7 +242,8 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	}
 
 	private void getExpiredHostToFetch(Transaction txn, long timestamp,
-			int limit, HashSet<String> hostSet) throws CrawlDatabaseException {
+			int limit, HashSet<String> hostSet, CrawlStatistics stats)
+			throws CrawlDatabaseException {
 		SecondaryCursor cursor = null;
 		try {
 
@@ -259,11 +267,12 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 				if (cursor.getPrevDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
 					if (cursor.getPrev(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
 						return;
+				stats.incEvaluatedCount();
 			}
 
 			// Iterate valid results by descending secondary key
-			UnfetchedHostToFetchFilter filter = new UnfetchedHostToFetchFilter(
-					hostSet, limit);
+			HostToFetchFilter filter = new HostToFetchFilter(hostSet, limit,
+					stats);
 			while (filter.addHost(tupleBinding.entryToObject(data))) {
 				if (cursor.getPrevDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
 					if (cursor.getPrev(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
@@ -284,16 +293,17 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	}
 
 	@Override
-	public List<HostItem> getHostToFetch(int fetchInterval, int limit)
-			throws CrawlDatabaseException {
+	public List<HostItem> getHostToFetch(int fetchInterval, int limit,
+			CrawlStatistics stats) throws CrawlDatabaseException {
 		Transaction txn = null;
 		try {
 			HashSet<String> hostSet = new HashSet<String>();
 			txn = crawlDatabase.getEnv().beginTransaction(null, null);
 
-			getUnfetchedHostToFetch(txn, limit, hostSet);
+			getUnfetchedHostToFetch(txn, limit, hostSet, stats);
 			getExpiredHostToFetch(txn,
-					getNewTimestamp(fetchInterval).getTime(), limit, hostSet);
+					getNewTimestamp(fetchInterval).getTime(), limit, hostSet,
+					stats);
 
 			List<HostItem> hostList = new ArrayList<HostItem>();
 			Iterator<String> it = hostSet.iterator();

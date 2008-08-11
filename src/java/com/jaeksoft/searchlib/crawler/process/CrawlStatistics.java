@@ -11,6 +11,7 @@ public class CrawlStatistics {
 	private long indexedCount;
 	private long ignoredCount;
 	private long hostCount;
+	private long evaluatedCount;
 	private long extractionTime;
 	private long urlCount;
 
@@ -33,6 +34,7 @@ public class CrawlStatistics {
 			ignoredCount = 0;
 			fetchRate = 0;
 			hostCount = 0;
+			evaluatedCount = 0;
 			extractionTime = 0;
 			urlCount = 0;
 		}
@@ -70,11 +72,27 @@ public class CrawlStatistics {
 		}
 	}
 
-	protected void addHostCount(long hostCount) {
+	public void addHostCount(long hostCount) {
 		synchronized (this) {
 			this.hostCount += hostCount;
 			if (parent != null)
 				parent.addHostCount(hostCount);
+		}
+	}
+
+	public void incHostCount() {
+		synchronized (this) {
+			hostCount++;
+			if (parent != null)
+				parent.incHostCount();
+		}
+	}
+
+	public void incEvaluatedCount() {
+		synchronized (this) {
+			evaluatedCount++;
+			if (parent != null)
+				parent.incEvaluatedCount();
 		}
 	}
 
@@ -122,6 +140,10 @@ public class CrawlStatistics {
 		return hostCount;
 	}
 
+	public long getEvaluatedCount() {
+		return evaluatedCount;
+	}
+
 	public float getExtractionTime() {
 		return (float) extractionTime / 1000;
 	}
@@ -129,4 +151,5 @@ public class CrawlStatistics {
 	public long getUrlCount() {
 		return urlCount;
 	}
+
 }

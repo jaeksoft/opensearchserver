@@ -40,6 +40,7 @@ import com.jaeksoft.pojojdbc.Transaction;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseJdbc;
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.Link;
 import com.jaeksoft.searchlib.crawler.spider.LinkList;
@@ -306,8 +307,8 @@ public class UrlManagerJdbc extends UrlManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<HostItem> getHostToFetch(int fetchInterval, int limit)
-			throws CrawlDatabaseException {
+	public List<HostItem> getHostToFetch(int fetchInterval, int limit,
+			CrawlStatistics stats) throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(true);
@@ -317,6 +318,7 @@ public class UrlManagerJdbc extends UrlManager {
 			query.getStatement()
 					.setTimestamp(2, getNewTimestamp(fetchInterval));
 			query.setMaxResults(limit);
+			stats.addHostCount(query.getResultCount());
 			return (List<HostItem>) query.getResultList(HostItem.class);
 		} catch (SQLException e) {
 			throw new CrawlDatabaseException(e);

@@ -81,7 +81,7 @@ public class CrawlMaster extends DaemonThread {
 		long t = System.currentTimeMillis();
 		hostList = (ArrayList<HostItem>) database.getUrlManager()
 				.getHostToFetch(propertyManager.getFetchInterval(),
-						propertyManager.getMaxUrlPerSession());
+						propertyManager.getMaxUrlPerSession(), sessionStats);
 		sessionStats.addExtractionTime(System.currentTimeMillis() - t);
 		sessionStats.addHostCount(hostList.size());
 		if (hostList != null)
