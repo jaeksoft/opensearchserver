@@ -50,14 +50,9 @@ public class CrawlThread extends DaemonThread {
 	private Client client;
 	private CrawlDatabase database;
 	private CrawlMaster crawlMaster;
-	private long resetTime;
-	private float fetchRate;
-	private long fetchedCount;
-	private long deletedCount;
-	private long indexedCount;
-	private long ignoredCount;
 	private UrlItem currentUrlItem;
-	private List<UrlItem> currentUrlList;
+	private CrawlStatistics currentStats;
+	private CrawlStatistics sessionStats;
 
 	protected CrawlThread(Client client, CrawlMaster crawlMaster) {
 		super(false, 0);
@@ -65,20 +60,10 @@ public class CrawlThread extends DaemonThread {
 		this.database = client.getCrawlDatabase();
 		this.crawlMaster = crawlMaster;
 		this.currentUrlItem = null;
-		this.currentUrlList = null;
-		resetStatistics();
+		sessionStats = new CrawlStatistics("Session", crawlMaster
+				.getSessionStatistics());
+		currentStats = new CrawlStatistics("Current", sessionStats);
 		start();
-	}
-
-	private void resetStatistics() {
-		synchronized (this) {
-			fetchedCount = 0;
-			deletedCount = 0;
-			indexedCount = 0;
-			ignoredCount = 0;
-			fetchRate = 0;
-			resetTime = System.currentTimeMillis();
-		}
 	}
 
 	private void sleepInterval() throws CrawlDatabaseException {
@@ -99,12 +84,13 @@ public class CrawlThread extends DaemonThread {
 	@Override
 	public void runner() throws Exception {
 		logger.info("CrawlThread " + this + " starts");
+		sessionStats.reset();
 		try {
 			String userAgent = database.getPropertyManager().getUserAgent();
 			List<UrlItem> urlList = null;
 			loop: while ((urlList = crawlMaster.getNextUrlList()) != null) {
-				resetStatistics();
-				setCurrentUrlList(urlList);
+				currentStats.reset();
+				currentStats.addUrlCount(urlList.size());
 				for (UrlItem urlItem : urlList) {
 					if (getAbort())
 						break loop;
@@ -119,12 +105,6 @@ public class CrawlThread extends DaemonThread {
 			setError(e);
 		}
 		logger.info("CrawlThread " + this + " ends");
-	}
-
-	private void setCurrentUrlList(List<UrlItem> urlList) {
-		synchronized (this) {
-			currentUrlList = urlList;
-		}
 	}
 
 	private void crawl(String userAgent, UrlItem urlItem) {
@@ -145,19 +125,19 @@ public class CrawlThread extends DaemonThread {
 					url = null;
 			if (url == null) {
 				crawlMaster.deleteBadUrl(urlItem.getUrl());
-				incDeletedCount();
+				currentStats.incDeletedCount();
 				return;
 			}
-			incFetchedCount();
+			currentStats.incFetchedCount();
 			Crawl crawl = new Crawl(client, userAgent, urlItem);
 			if (urlItem.getFetchStatus() == FetchStatus.FETCHED
 					&& urlItem.getParserStatus() == ParserStatus.PARSED
 					&& urlItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 				client.updateDocument(crawl.getDocument());
 				urlItem.setIndexStatus(IndexStatus.INDEXED);
-				incIndexedCount();
+				currentStats.incIndexedCount();
 			} else
-				incIgnoredCount();
+				currentStats.incIgnoredCount();
 			database.getUrlManager().update(crawl);
 		} catch (Crawl.CrawlException e) {
 			e.printStackTrace();
@@ -173,75 +153,18 @@ public class CrawlThread extends DaemonThread {
 		}
 	}
 
-	private void incDeletedCount() {
-		synchronized (this) {
-			deletedCount++;
-		}
-	}
-
-	private void incFetchedCount() {
-		synchronized (this) {
-			fetchedCount++;
-			fetchRate = (float) fetchedCount
-					/ ((float) (System.currentTimeMillis() - resetTime) / 60000);
-		}
-	}
-
-	private void incIndexedCount() {
-		synchronized (this) {
-			indexedCount++;
-		}
-	}
-
-	private void incIgnoredCount() {
-		synchronized (this) {
-			ignoredCount++;
-		}
-	}
-
 	public UrlItem getCurrentUrlItem() {
 		synchronized (this) {
 			return currentUrlItem;
 		}
 	}
 
-	public long getFetchedCount() {
-		synchronized (this) {
-			return fetchedCount;
-		}
+	public CrawlStatistics getSessionStatistics() {
+		return sessionStats;
 	}
 
-	public double getFetchRate() {
-		synchronized (this) {
-			return fetchRate;
-		}
-
-	}
-
-	public long getDeletedCount() {
-		synchronized (this) {
-			return deletedCount;
-		}
-	}
-
-	public long getIndexedCount() {
-		synchronized (this) {
-			return indexedCount;
-		}
-	}
-
-	public long getIgnoredCount() {
-		synchronized (this) {
-			return ignoredCount;
-		}
-	}
-
-	public long getUrlListSize() {
-		synchronized (this) {
-			if (currentUrlList == null)
-				return 0;
-			return currentUrlList.size();
-		}
+	public CrawlStatistics getCurrentStatistics() {
+		return currentStats;
 	}
 
 }

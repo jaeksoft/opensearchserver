@@ -83,7 +83,7 @@ public abstract class UrlManager {
 			throws CrawlDatabaseException;
 
 	public abstract List<UrlItem> getUrlToFetch(HostItem host,
-			int fetchInterval, int limit) throws CrawlDatabaseException;
+			int fetchInterval, long limit) throws CrawlDatabaseException;
 
 	public abstract List<UrlItem> getUrls(String like, String host,
 			FetchStatus fetchStatus, ParserStatus parserStatus,

@@ -145,7 +145,7 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		}
 	}
 
-	public void getFilter(JoinCursor cursor, List<T> list, int limit,
+	public void getFilter(JoinCursor cursor, List<T> list, long limit,
 			BdbFilter<T> filter) throws DatabaseException {
 
 		DatabaseEntry key = new DatabaseEntry();

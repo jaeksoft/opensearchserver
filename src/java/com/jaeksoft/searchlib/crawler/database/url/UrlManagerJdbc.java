@@ -328,7 +328,7 @@ public class UrlManagerJdbc extends UrlManager {
 
 	@SuppressWarnings("unchecked")
 	public List<UrlItem> getUrlToFetch(HostItem host, int fetchInterval,
-			int limit) throws CrawlDatabaseException {
+			long limit) throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(true);
@@ -342,7 +342,7 @@ public class UrlManagerJdbc extends UrlManager {
 			query.getStatement().setInt(2, FetchStatus.UN_FETCHED.value);
 			query.getStatement()
 					.setTimestamp(3, getNewTimestamp(fetchInterval));
-			query.setMaxResults(limit);
+			query.setMaxResults((int) limit);
 			return (ArrayList<UrlItem>) query.getResultList(UrlItem.class);
 		} catch (SQLException e) {
 			throw new CrawlDatabaseException(e);

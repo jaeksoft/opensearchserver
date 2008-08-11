@@ -41,13 +41,15 @@ public class CrawlMaster extends DaemonThread {
 	private ArrayList<CrawlThread> crawlThreads;
 
 	private ArrayList<HostItem> hostList;
-	private long hostFetchTimer;
 	private Iterator<HostItem> hostIterator;
 
 	private Client client;
 	private CrawlDatabase database;
 
-	private float fetchRate;
+	private CrawlStatistics sessionStats;
+	private CrawlStatistics overallStats;
+
+	private List<CrawlStatistics> statistics;
 
 	public CrawlMaster(Client client) throws CrawlDatabaseException {
 		super(true, 1000);
@@ -56,24 +58,32 @@ public class CrawlMaster extends DaemonThread {
 		crawlThreads = null;
 		hostList = null;
 		hostIterator = null;
-		hostFetchTimer = 0;
-		fetchRate = 0;
+		overallStats = new CrawlStatistics("Overall");
+		sessionStats = new CrawlStatistics("Current session", overallStats);
+		statistics = new ArrayList<CrawlStatistics>();
+		statistics.add(overallStats);
+		statistics.add(sessionStats);
 		if (database.getPropertyManager().isCrawlEnabled())
 			start();
 	}
 
+	public boolean start() {
+		if (isRunning())
+			return false;
+		overallStats.reset();
+		return super.start();
+	}
+
 	@Override
 	public void runner() throws Exception {
+		sessionStats.reset();
 		PropertyManager propertyManager = database.getPropertyManager();
-		if (!propertyManager.isCrawlEnabled()) {
-			DaemonThread.sleep(1000);
-			return;
-		}
-		hostFetchTimer = System.currentTimeMillis();
+		long t = System.currentTimeMillis();
 		hostList = (ArrayList<HostItem>) database.getUrlManager()
 				.getHostToFetch(propertyManager.getFetchInterval(),
 						propertyManager.getMaxUrlPerSession());
-		hostFetchTimer = System.currentTimeMillis() - hostFetchTimer;
+		sessionStats.addExtractionTime(System.currentTimeMillis() - t);
+		sessionStats.addHostCount(hostList.size());
 		if (hostList != null)
 			hostIterator = hostList.iterator();
 		synchronized (this) {
@@ -95,8 +105,8 @@ public class CrawlMaster extends DaemonThread {
 			}
 			PropertyManager propertyManager = database.getPropertyManager();
 			HostItem host = hostIterator.next();
-			int limit = propertyManager.getMaxUrlPerSession()
-					- getFetchedCount();
+			long limit = propertyManager.getMaxUrlPerSession()
+					- sessionStats.getFetchedCount();
 			if (limit < 0)
 				return null;
 			int maxUrlPerHost = propertyManager.getMaxUrlPerHost();
@@ -111,23 +121,12 @@ public class CrawlMaster extends DaemonThread {
 		database.getUrlManager().delete(sUrl);
 	}
 
-	public int getFetchedCount() {
-		synchronized (this) {
-			if (crawlThreads == null)
-				return 0;
-			int r = 0;
-			for (CrawlThread crawlThread : crawlThreads)
-				r += crawlThread.getFetchedCount();
-			fetchRate = (float) r
-					/ ((float) (System.currentTimeMillis() - getStartTime()) / 60000);
-			return r;
-		}
+	public CrawlStatistics getSessionStatistics() {
+		return sessionStats;
 	}
 
-	public float getFetchRate() {
-		synchronized (this) {
-			return fetchRate;
-		}
+	public List<CrawlStatistics> getStatistics() {
+		return statistics;
 	}
 
 	private boolean isChildRunning() {
@@ -160,20 +159,6 @@ public class CrawlMaster extends DaemonThread {
 	public List<CrawlThread> getCrawlThreads() {
 		synchronized (this) {
 			return crawlThreads;
-		}
-	}
-
-	public int getHostCount() {
-		synchronized (this) {
-			if (hostList == null)
-				return 0;
-			return hostList.size();
-		}
-	}
-
-	public float getHostFetchTimer() {
-		synchronized (this) {
-			return (float) hostFetchTimer / 1000;
 		}
 	}
 

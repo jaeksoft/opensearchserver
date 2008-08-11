@@ -314,7 +314,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 
 	@Override
 	public List<UrlItem> getUrlToFetch(HostItem host, int fetchInterval,
-			int limit) throws CrawlDatabaseException {
+			long limit) throws CrawlDatabaseException {
 		Transaction txn = null;
 		BdbJoin join = null;
 
