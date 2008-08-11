@@ -72,13 +72,13 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 
 	public TransactionConfig getTransactionConfig() {
 		TransactionConfig config = new TransactionConfig();
-		config.setReadCommitted(true);
+		config.setReadUncommitted(true);
 		return config;
 	}
 
 	public CursorConfig getCursorConfig() {
 		CursorConfig config = new CursorConfig();
-		config.setReadCommitted(true);
+		config.setReadUncommitted(true);
 		return config;
 	}
 
