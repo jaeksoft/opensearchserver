@@ -51,9 +51,9 @@ public abstract class DaemonThread implements Runnable {
 	private boolean abort;
 	private String error;
 	private boolean perpetual;
-	private long sleepInterval;
+	private int sleepInterval;
 
-	protected DaemonThread(boolean perpetual, long sleepInterval) {
+	protected DaemonThread(boolean perpetual, int sleepInterval) {
 		reset();
 		this.perpetual = perpetual;
 		this.sleepInterval = sleepInterval;
@@ -161,16 +161,17 @@ public abstract class DaemonThread implements Runnable {
 				logger.error(e.getMessage(), e);
 			}
 			if (perpetual)
-				sleep(sleepInterval);
+				sleepSec(sleepInterval);
 		} while (perpetual && !abort);
 		evaluateFinalStatus();
 	}
 
-	protected static void sleep(long ms) {
-		if (ms == 0)
+	protected void sleepSec(int sec) {
+		if (sec == 0)
 			return;
 		try {
-			Thread.sleep(ms);
+			while (!abort && sec-- > 0)
+				Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			logger.error(e);
 		}

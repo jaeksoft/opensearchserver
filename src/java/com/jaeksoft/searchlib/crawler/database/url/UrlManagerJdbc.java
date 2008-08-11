@@ -307,8 +307,9 @@ public class UrlManagerJdbc extends UrlManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<HostItem> getHostToFetch(int fetchInterval, int limit,
-			CrawlStatistics stats) throws CrawlDatabaseException {
+	public void getHostToFetch(int fetchInterval, int limit,
+			CrawlStatistics stats, List<HostItem> hostList)
+			throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
 			transaction = database.getTransaction(true);
@@ -319,7 +320,9 @@ public class UrlManagerJdbc extends UrlManager {
 					.setTimestamp(2, getNewTimestamp(fetchInterval));
 			query.setMaxResults(limit);
 			stats.addHostCount(query.getResultCount());
-			return (List<HostItem>) query.getResultList(HostItem.class);
+			List<HostItem> list = (List<HostItem>) query
+					.getResultList(HostItem.class);
+			hostList.addAll(list);
 		} catch (SQLException e) {
 			throw new CrawlDatabaseException(e);
 		} finally {

@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.crawler.process;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
@@ -41,7 +40,6 @@ public class CrawlMaster extends DaemonThread {
 	private ArrayList<CrawlThread> crawlThreads;
 
 	private ArrayList<HostItem> hostList;
-	private Iterator<HostItem> hostIterator;
 
 	private Client client;
 	private CrawlDatabase database;
@@ -51,13 +49,14 @@ public class CrawlMaster extends DaemonThread {
 
 	private List<CrawlStatistics> statistics;
 
+	private boolean extractionInProgress;
+
 	public CrawlMaster(Client client) throws CrawlDatabaseException {
-		super(true, 1000);
+		super(true, 10);
 		this.client = client;
 		database = client.getCrawlDatabase();
 		crawlThreads = null;
-		hostList = null;
-		hostIterator = null;
+		hostList = new ArrayList<HostItem>();
 		overallStats = new CrawlStatistics("Overall");
 		sessionStats = new CrawlStatistics("Current session", overallStats);
 		statistics = new ArrayList<CrawlStatistics>();
@@ -76,45 +75,59 @@ public class CrawlMaster extends DaemonThread {
 
 	@Override
 	public void runner() throws Exception {
-		sessionStats.reset();
 		PropertyManager propertyManager = database.getPropertyManager();
-		long t = System.currentTimeMillis();
-		hostList = (ArrayList<HostItem>) database.getUrlManager()
-				.getHostToFetch(propertyManager.getFetchInterval(),
-						propertyManager.getMaxUrlPerSession(), sessionStats);
-		sessionStats.addExtractionTime(System.currentTimeMillis() - t);
-		sessionStats.addHostCount(hostList.size());
-		if (hostList != null)
-			hostIterator = hostList.iterator();
 		synchronized (this) {
+			sessionStats.reset();
+			hostList.clear();
+			extractionInProgress = true;
 			crawlThreads = new ArrayList<CrawlThread>();
 			int threadNumber = propertyManager.getMaxThreadNumber();
 			while (--threadNumber >= 0)
 				crawlThreads.add(new CrawlThread(client, this));
 		}
+		extractHostList();
 		waitForChild();
 	}
 
-	protected List<UrlItem> getNextUrlList() throws CrawlDatabaseException {
-		synchronized (hostIterator) {
-			synchronized (this) {
-				if (hostIterator == null)
-					return null;
-				if (!hostIterator.hasNext())
-					return null;
-			}
-			PropertyManager propertyManager = database.getPropertyManager();
-			HostItem host = hostIterator.next();
-			long limit = propertyManager.getMaxUrlPerSession()
-					- sessionStats.getFetchedCount();
-			if (limit < 0)
-				return null;
-			int maxUrlPerHost = propertyManager.getMaxUrlPerHost();
-			if (limit > maxUrlPerHost)
-				limit = maxUrlPerHost;
-			return database.getUrlManager().getUrlToFetch(host,
-					propertyManager.getFetchInterval(), limit);
+	private void extractHostList() throws CrawlDatabaseException {
+		PropertyManager propertyManager = database.getPropertyManager();
+		long t = System.currentTimeMillis();
+		database.getUrlManager().getHostToFetch(
+				propertyManager.getFetchInterval(),
+				propertyManager.getMaxUrlPerSession(), sessionStats, hostList);
+		sessionStats.addExtractionTime(System.currentTimeMillis() - t);
+		synchronized (this) {
+			extractionInProgress = false;
 		}
+	}
+
+	protected boolean isMoreHost() {
+		synchronized (hostList) {
+			if (hostList.size() == 0)
+				return extractionInProgress;
+			return true;
+		}
+	}
+
+	protected List<UrlItem> getNextUrlList() throws CrawlDatabaseException {
+		HostItem host = null;
+		synchronized (hostList) {
+			if (hostList.size() == 0)
+				return null;
+			host = hostList.get(0);
+			hostList.remove(0);
+		}
+
+		PropertyManager propertyManager = database.getPropertyManager();
+		long limit = propertyManager.getMaxUrlPerSession()
+				- sessionStats.getFetchedCount();
+		if (limit < 0)
+			return null;
+		int maxUrlPerHost = propertyManager.getMaxUrlPerHost();
+		if (limit > maxUrlPerHost)
+			limit = maxUrlPerHost;
+		return database.getUrlManager().getUrlToFetch(host,
+				propertyManager.getFetchInterval(), limit);
 	}
 
 	protected void deleteBadUrl(String sUrl) throws CrawlDatabaseException {
@@ -142,7 +155,7 @@ public class CrawlMaster extends DaemonThread {
 
 	private void waitForChild() {
 		while (isChildRunning())
-			sleep(500);
+			sleepSec(1);
 	}
 
 	@Override

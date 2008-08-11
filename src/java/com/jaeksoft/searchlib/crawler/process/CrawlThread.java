@@ -74,11 +74,7 @@ public class CrawlThread extends DaemonThread {
 			if (delayBetweenAccesses == 0)
 				return;
 		}
-		try {
-			Thread.sleep(delayBetweenAccesses * 1000);
-		} catch (InterruptedException e) {
-			logger.error(e.getMessage(), e);
-		}
+		sleepSec(delayBetweenAccesses);
 	}
 
 	@Override
@@ -88,7 +84,12 @@ public class CrawlThread extends DaemonThread {
 		try {
 			String userAgent = database.getPropertyManager().getUserAgent();
 			List<UrlItem> urlList = null;
-			loop: while ((urlList = crawlMaster.getNextUrlList()) != null) {
+			loop: while (crawlMaster.isMoreHost()) {
+				urlList = crawlMaster.getNextUrlList();
+				if (urlList == null) {
+					sleepSec(10);
+					continue;
+				}
 				currentStats.reset();
 				currentStats.addUrlCount(urlList.size());
 				for (UrlItem urlItem : urlList) {

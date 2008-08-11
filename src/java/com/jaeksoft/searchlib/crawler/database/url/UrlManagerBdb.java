@@ -184,12 +184,14 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	private class HostToFetchFilter implements BdbFilter<UrlItem> {
 
 		private Set<String> hostSet;
+		private List<HostItem> hostList;
 		private int max;
 		private CrawlStatistics stats;
 
-		public HostToFetchFilter(Set<String> hostSet, int max,
-				CrawlStatistics stats) {
+		public HostToFetchFilter(Set<String> hostSet, List<HostItem> hostList,
+				int max, CrawlStatistics stats) {
 			this.hostSet = hostSet;
+			this.hostList = hostList;
 			this.max = max;
 			this.stats = stats;
 		}
@@ -206,15 +208,17 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			if (hostSet.contains(host))
 				return true;
 			hostSet.add(host);
+			synchronized (hostList) {
+				hostList.add(new HostItem(host));
+			}
 			stats.incHostCount();
 			return hostSet.size() < max;
 		}
 
 	}
 
-	private void getUnfetchedHostToFetch(Transaction txn, int limit,
-			HashSet<String> hostSet, CrawlStatistics stats)
-			throws CrawlDatabaseException {
+	private void getUnfetchedHostToFetch(Transaction txn,
+			HostToFetchFilter filter) throws CrawlDatabaseException {
 
 		BdbJoin join = null;
 		try {
@@ -225,8 +229,6 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			if (!join.add(txn, key, urlFetchStatusDb))
 				return;
 
-			HostToFetchFilter filter = new HostToFetchFilter(hostSet, limit,
-					stats);
 			tupleBinding.getFilter(join.getJoinCursor(urlDb), filter);
 
 		} catch (DatabaseException e) {
@@ -242,7 +244,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	}
 
 	private void getExpiredHostToFetch(Transaction txn, long timestamp,
-			int limit, HashSet<String> hostSet, CrawlStatistics stats)
+			HostToFetchFilter filter, CrawlStatistics stats)
 			throws CrawlDatabaseException {
 		SecondaryCursor cursor = null;
 		try {
@@ -270,9 +272,6 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 				stats.incEvaluatedCount();
 			}
 
-			// Iterate valid results by descending secondary key
-			HostToFetchFilter filter = new HostToFetchFilter(hostSet, limit,
-					stats);
 			while (filter.addHost(tupleBinding.entryToObject(data))) {
 				if (cursor.getPrevDup(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
 					if (cursor.getPrev(key, data, LockMode.DEFAULT) != OperationStatus.SUCCESS)
@@ -293,23 +292,20 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	}
 
 	@Override
-	public List<HostItem> getHostToFetch(int fetchInterval, int limit,
-			CrawlStatistics stats) throws CrawlDatabaseException {
+	public void getHostToFetch(int fetchInterval, int limit,
+			CrawlStatistics stats, List<HostItem> hostList)
+			throws CrawlDatabaseException {
 		Transaction txn = null;
 		try {
 			HashSet<String> hostSet = new HashSet<String>();
 			txn = crawlDatabase.getEnv().beginTransaction(null, null);
 
-			getUnfetchedHostToFetch(txn, limit, hostSet, stats);
+			HostToFetchFilter filter = new HostToFetchFilter(hostSet, hostList,
+					limit, stats);
+			getUnfetchedHostToFetch(txn, filter);
 			getExpiredHostToFetch(txn,
-					getNewTimestamp(fetchInterval).getTime(), limit, hostSet,
-					stats);
+					getNewTimestamp(fetchInterval).getTime(), filter, stats);
 
-			List<HostItem> hostList = new ArrayList<HostItem>();
-			Iterator<String> it = hostSet.iterator();
-			while (it.hasNext())
-				hostList.add(new HostItem(it.next()));
-			return hostList;
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
 		} finally {

@@ -80,8 +80,9 @@ public abstract class UrlManager {
 		return new Timestamp(t);
 	}
 
-	public abstract List<HostItem> getHostToFetch(int fetchInterval, int limit,
-			CrawlStatistics stats) throws CrawlDatabaseException;
+	public abstract void getHostToFetch(int fetchInterval, int limit,
+			CrawlStatistics stats, List<HostItem> hostList)
+			throws CrawlDatabaseException;
 
 	public abstract List<UrlItem> getUrlToFetch(HostItem host,
 			int fetchInterval, long limit) throws CrawlDatabaseException;
