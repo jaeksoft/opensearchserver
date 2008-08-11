@@ -47,6 +47,8 @@ public class CrawlMaster extends DaemonThread {
 	private Client client;
 	private CrawlDatabase database;
 
+	private float fetchRate;
+
 	public CrawlMaster(Client client) throws CrawlDatabaseException {
 		super(true, 1000);
 		this.client = client;
@@ -55,6 +57,7 @@ public class CrawlMaster extends DaemonThread {
 		hostList = null;
 		hostIterator = null;
 		hostFetchTimer = 0;
+		fetchRate = 0;
 		if (database.getPropertyManager().isCrawlEnabled())
 			start();
 	}
@@ -115,18 +118,15 @@ public class CrawlMaster extends DaemonThread {
 			int r = 0;
 			for (CrawlThread crawlThread : crawlThreads)
 				r += crawlThread.getFetchedCount();
+			fetchRate = (float) r
+					/ ((float) (System.currentTimeMillis() - getStartTime()) / 60000);
 			return r;
 		}
 	}
 
 	public float getFetchRate() {
 		synchronized (this) {
-			if (crawlThreads == null)
-				return 0;
-			float rate = 0;
-			for (CrawlThread crawlThread : crawlThreads)
-				rate += crawlThread.getFetchRate();
-			return rate;
+			return fetchRate;
 		}
 	}
 

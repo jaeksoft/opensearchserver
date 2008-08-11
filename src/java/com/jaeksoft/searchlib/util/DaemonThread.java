@@ -52,6 +52,7 @@ public abstract class DaemonThread implements Runnable {
 	private String error;
 	private boolean perpetual;
 	private long sleepInterval;
+	private long startTime;
 
 	protected DaemonThread(boolean perpetual, long sleepInterval) {
 		status = Status.NOTSTARTED;
@@ -64,6 +65,7 @@ public abstract class DaemonThread implements Runnable {
 
 	public boolean start() {
 		synchronized (this) {
+			startTime = System.currentTimeMillis();
 			if (isRunning())
 				return false;
 			thread = new Thread(this);
@@ -169,5 +171,9 @@ public abstract class DaemonThread implements Runnable {
 		} catch (InterruptedException e) {
 			logger.error(e);
 		}
+	}
+
+	public long getStartTime() {
+		return startTime;
 	}
 }
