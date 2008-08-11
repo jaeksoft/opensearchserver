@@ -50,6 +50,8 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 			EnvironmentConfig envConfig = new EnvironmentConfig();
 			envConfig.setAllowCreate(true);
 			envConfig.setTransactional(true);
+			envConfig.setTxnTimeout(60 * 1000 * 1000);
+			envConfig.setLockTimeout(60 * 1000 * 1000);
 			dbEnv = new Environment(location, envConfig);
 		} catch (DatabaseException e) {
 			close();
