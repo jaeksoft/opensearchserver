@@ -3,6 +3,7 @@ package com.jaeksoft.searchlib.util;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import com.jaeksoft.searchlib.util.BdbCursor.BdbEntry;
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
@@ -41,9 +42,11 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 			UnsupportedEncodingException {
 
 		DatabaseEntry key = new DatabaseEntry();
-		DatabaseEntry data = new DatabaseEntry();
-
 		setKey(pattern, key);
+
+		DatabaseEntry data = new DatabaseEntry();
+		data.setPartial(0, 0, true);
+
 		if (cursor.getSearchKeyRange(key, data, null) != OperationStatus.SUCCESS)
 			return 0;
 
@@ -57,6 +60,7 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 				return size;
 		}
 
+		data = new DatabaseEntry();
 		while (rows-- > 0) {
 			if (!startsWith(key, pattern))
 				return size;
@@ -66,6 +70,7 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 				return size;
 		}
 
+		data.setPartial(0, 0, true);
 		while (startsWith(key, pattern)) {
 			size++;
 			if (cursor.getNext(key, data, null) != OperationStatus.SUCCESS)
@@ -75,57 +80,37 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		return size;
 	}
 
-	public int getLimit(Cursor cursor, int start, int rows, List<T> list,
-			LockMode lockMode) throws DatabaseException {
+	private class ListAdd implements BdbEntry {
 
-		DatabaseEntry key = new DatabaseEntry();
-		DatabaseEntry data = new DatabaseEntry();
+		public List<T> list;
 
-		int size = 0;
-
-		while (start-- > 0) {
-			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
-				return size;
-			size++;
+		public ListAdd(List<T> list) {
+			this.list = list;
 		}
 
-		while (rows-- > 0) {
-			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
-				return size;
+		public void entry(DatabaseEntry data) {
 			list.add(entryToObject(data));
-			size++;
 		}
-
-		while (cursor.getNext(key, data, lockMode) == OperationStatus.SUCCESS)
-			size++;
-		return size;
-
 	}
 
-	public int getLimit(JoinCursor cursor, int start, int rows, List<T> list,
+	public long getLimit(Cursor cursor, int start, int rows, List<T> list,
 			LockMode lockMode) throws DatabaseException {
 
-		DatabaseEntry key = new DatabaseEntry();
-		DatabaseEntry data = new DatabaseEntry();
+		long size = BdbCursor.forward(cursor, start, lockMode);
 
-		int size = 0;
+		size += BdbCursor.getRows(cursor, rows, lockMode, new ListAdd(list));
 
-		while (start-- > 0) {
-			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
-				return size;
-			size++;
-		}
+		return size + BdbCursor.countLeft(cursor, lockMode);
+	}
 
-		while (rows-- > 0) {
-			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
-				return size;
-			list.add(entryToObject(data));
-			size++;
-		}
+	public long getLimit(JoinCursor cursor, long start, long rows,
+			List<T> list, LockMode lockMode) throws DatabaseException {
 
-		while (cursor.getNext(key, data, lockMode) == OperationStatus.SUCCESS)
-			size++;
-		return size;
+		long size = BdbCursor.forward(cursor, start, lockMode);
+
+		size += BdbCursor.getRows(cursor, rows, lockMode, new ListAdd(list));
+
+		return size + BdbCursor.countLeft(cursor, lockMode);
 	}
 
 	public interface BdbFilter<T> {

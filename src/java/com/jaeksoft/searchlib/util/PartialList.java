@@ -53,9 +53,9 @@ public abstract class PartialList<T> extends AbstractList<T> {
 		}
 	}
 
-	public void setNewList(List<T> list, int size) {
+	public void setNewList(List<T> list, long size) {
 		synchronized (this) {
-			this.size = size;
+			this.size = (int) size;
 			this.partialList = list;
 		}
 	}

@@ -265,6 +265,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 				return;
 
 			// Find the first valid result by descending secondary key
+			data.setPartial(0, 0, true);
 			while (LongBinding.entryToLong(key) > timestamp) {
 				if (cursor.getPrevDup(key, data, null) != OperationStatus.SUCCESS)
 					if (cursor.getPrev(key, data, null) != OperationStatus.SUCCESS)
@@ -272,6 +273,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 				stats.incEvaluatedCount();
 			}
 
+			data = new DatabaseEntry();
 			while (filter.addHost(tupleBinding.entryToObject(data))) {
 				if (cursor.getPrevDup(key, data, null) != OperationStatus.SUCCESS)
 					if (cursor.getPrev(key, data, null) != OperationStatus.SUCCESS)
@@ -295,6 +297,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	public void getHostToFetch(int fetchInterval, int limit,
 			CrawlStatistics stats, List<HostItem> hostList)
 			throws CrawlDatabaseException {
+
 		Transaction txn = null;
 		try {
 			HashSet<String> hostSet = new HashSet<String>();
@@ -475,7 +478,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		return true;
 	}
 
-	private int getUrls(Transaction txn, String host, FetchStatus fetchStatus,
+	private long getUrls(Transaction txn, String host, FetchStatus fetchStatus,
 			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
 			Date endDate, int start, int rows, List<UrlItem> list)
 			throws CrawlDatabaseException {
