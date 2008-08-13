@@ -26,15 +26,15 @@ package com.jaeksoft.searchlib.crawler.database;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlManagerBdb;
 import com.jaeksoft.searchlib.crawler.database.property.PropertyManagerBdb;
 import com.jaeksoft.searchlib.crawler.database.url.UrlManagerBdb;
-import com.sleepycat.je.CursorConfig;
+import com.jaeksoft.searchlib.util.Timer;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
-import com.sleepycat.je.Transaction;
-import com.sleepycat.je.TransactionConfig;
 
 public class CrawlDatabaseBdb extends CrawlDatabase {
 
@@ -46,14 +46,15 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 
 	private PropertyManagerBdb propertyManager = null;
 
+	final private static Logger logger = Logger
+			.getLogger(CrawlDatabaseBdb.class);
+
 	protected CrawlDatabaseBdb(File location) throws CrawlDatabaseException {
 		try {
 			if (!location.exists())
 				location.mkdir();
 			EnvironmentConfig envConfig = new EnvironmentConfig();
 			envConfig.setAllowCreate(true);
-			envConfig.setTransactional(true);
-			envConfig.setTxnTimeout(60 * 1000 * 1000);
 			envConfig.setLockTimeout(60 * 1000 * 1000);
 			dbEnv = new Environment(location, envConfig);
 		} catch (DatabaseException e) {
@@ -64,22 +65,6 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 
 	public Environment getEnv() {
 		return dbEnv;
-	}
-
-	public Transaction beginTransaction() throws DatabaseException {
-		return dbEnv.beginTransaction(null, getTransactionConfig());
-	}
-
-	public TransactionConfig getTransactionConfig() {
-		TransactionConfig config = new TransactionConfig();
-		config.setReadUncommitted(true);
-		return config;
-	}
-
-	public CursorConfig getCursorConfig() {
-		CursorConfig config = new CursorConfig();
-		config.setReadUncommitted(true);
-		return config;
 	}
 
 	private void close() {
@@ -109,7 +94,6 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 		}
 		try {
 			if (dbEnv != null) {
-				dbEnv.cleanLog();
 				dbEnv.close();
 				dbEnv = null;
 			}
@@ -148,4 +132,19 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 
 	}
 
+	public void flush() throws CrawlDatabaseException {
+		try {
+			Timer timer = null;
+			if (logger.isInfoEnabled())
+				timer = new Timer("flush");
+			dbEnv.sync();
+			int count = 0;
+			while (dbEnv.cleanLog() > 0)
+				count++;
+			if (timer != null)
+				logger.info(timer + " (" + count + ")");
+		} catch (DatabaseException e) {
+			throw new CrawlDatabaseException(e);
+		}
+	}
 }

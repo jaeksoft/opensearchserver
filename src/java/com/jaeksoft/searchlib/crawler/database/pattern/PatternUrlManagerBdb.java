@@ -47,7 +47,6 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
-import com.sleepycat.je.Transaction;
 
 public class PatternUrlManagerBdb extends PatternUrlManager {
 
@@ -87,7 +86,6 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 		crawlDatabase = database;
 		DatabaseConfig dbConfig = new DatabaseConfig();
 		dbConfig.setAllowCreate(true);
-		dbConfig.setTransactional(true);
 		Environment dbEnv = crawlDatabase.getEnv();
 		try {
 			patternDb = dbEnv.openDatabase(null, "pattern", dbConfig);
@@ -105,76 +103,48 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 	@Override
 	public void addList(List<PatternUrlItem> patternList)
 			throws CrawlDatabaseException {
-		Transaction txn = null;
-		try {
-			txn = crawlDatabase.beginTransaction();
-			Iterator<PatternUrlItem> it = patternList.iterator();
-			while (it.hasNext()) {
-				PatternUrlItem item = it.next();
-				if (item.getStatus() != PatternUrlItem.Status.UNDEFINED)
-					continue;
-				try {
-					OperationStatus result = patternDb.putNoOverwrite(txn,
-							tupleBinding.getKey(item), tupleBinding
-									.getData(item));
-					if (result == OperationStatus.SUCCESS)
-						item.setStatus(PatternUrlItem.Status.INJECTED);
-					else if (result == OperationStatus.KEYEXIST)
-						item.setStatus(PatternUrlItem.Status.ALREADY);
-				} catch (IllegalArgumentException e) {
-					item.setStatus(PatternUrlItem.Status.ERROR);
-				} catch (UnsupportedEncodingException e) {
-					item.setStatus(PatternUrlItem.Status.ERROR);
-				} catch (DatabaseException e) {
-					throw new CrawlDatabaseException(e);
-				}
+		Iterator<PatternUrlItem> it = patternList.iterator();
+		while (it.hasNext()) {
+			PatternUrlItem item = it.next();
+			if (item.getStatus() != PatternUrlItem.Status.UNDEFINED)
+				continue;
+			try {
+				OperationStatus result = patternDb.putNoOverwrite(null,
+						tupleBinding.getKey(item), tupleBinding.getData(item));
+				if (result == OperationStatus.SUCCESS)
+					item.setStatus(PatternUrlItem.Status.INJECTED);
+				else if (result == OperationStatus.KEYEXIST)
+					item.setStatus(PatternUrlItem.Status.ALREADY);
+			} catch (IllegalArgumentException e) {
+				item.setStatus(PatternUrlItem.Status.ERROR);
+			} catch (UnsupportedEncodingException e) {
+				item.setStatus(PatternUrlItem.Status.ERROR);
+			} catch (DatabaseException e) {
+				throw new CrawlDatabaseException(e);
 			}
-			txn.commit();
-			txn = null;
-			updateCache();
-		} catch (DatabaseException e) {
-			throw new CrawlDatabaseException(e);
-		} finally {
-			if (txn != null)
-				try {
-					txn.abort();
-				} catch (DatabaseException e) {
-					e.printStackTrace();
-				}
 		}
+		crawlDatabase.flush();
+		updateCache();
 	}
 
 	@Override
 	public void delPattern(PatternUrlItem item) throws CrawlDatabaseException {
-		Transaction txn = null;
 		try {
-			txn = crawlDatabase.beginTransaction();
-			patternDb.delete(txn, tupleBinding.getKey(item));
-			txn.commit();
-			txn = null;
+			patternDb.delete(null, tupleBinding.getKey(item));
 			updateCache();
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
 		} catch (UnsupportedEncodingException e) {
 			throw new CrawlDatabaseException(e);
-		} finally {
-			if (txn != null)
-				try {
-					txn.abort();
-				} catch (DatabaseException e) {
-					e.printStackTrace();
-				}
 		}
 	}
 
 	@Override
 	protected void updateCache() throws CrawlDatabaseException {
-		Transaction txn = null;
 		Cursor cursor = null;
 		try {
 			Hashtable<String, ArrayList<PatternUrlItem>> newPatternMap = new Hashtable<String, ArrayList<PatternUrlItem>>();
-			txn = crawlDatabase.beginTransaction();
-			cursor = patternDb.openCursor(txn, crawlDatabase.getCursorConfig());
+			cursor = patternDb.openCursor(null, null);
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
 			while (cursor.getNext(key, data, null) == OperationStatus.SUCCESS) {
@@ -205,23 +175,15 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 			}
-			try {
-				if (txn != null)
-					txn.abort();
-			} catch (DatabaseException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
 	@Override
 	public List<PatternUrlItem> getPatterns(String like, int start, int rows,
 			PatternUrlList urlList) throws CrawlDatabaseException {
-		Transaction txn = null;
 		Cursor cursor = null;
 		try {
-			txn = crawlDatabase.beginTransaction();
-			cursor = patternDb.openCursor(txn, crawlDatabase.getCursorConfig());
+			cursor = patternDb.openCursor(null, null);
 
 			List<PatternUrlItem> list = new ArrayList<PatternUrlItem>();
 			if (like == null || like.length() == 0)
@@ -240,12 +202,6 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 			try {
 				if (cursor != null)
 					cursor.close();
-			} catch (DatabaseException e) {
-				e.printStackTrace();
-			}
-			try {
-				if (txn != null)
-					txn.abort();
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 			}

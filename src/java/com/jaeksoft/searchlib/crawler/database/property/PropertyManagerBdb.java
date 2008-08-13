@@ -37,7 +37,6 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
-import com.sleepycat.je.Transaction;
 
 public class PropertyManagerBdb extends PropertyManager {
 
@@ -77,7 +76,6 @@ public class PropertyManagerBdb extends PropertyManager {
 		crawlDatabase = database;
 		DatabaseConfig dbConfig = new DatabaseConfig();
 		dbConfig.setAllowCreate(true);
-		dbConfig.setTransactional(true);
 		Environment dbEnv = crawlDatabase.getEnv();
 		try {
 			propertyDb = dbEnv.openDatabase(null, "property", dbConfig);
@@ -95,10 +93,8 @@ public class PropertyManagerBdb extends PropertyManager {
 	protected String getPropertyString(Property prop)
 			throws CrawlDatabaseException {
 		DatabaseEntry data = new DatabaseEntry();
-		Transaction txn = null;
 		try {
-			txn = crawlDatabase.beginTransaction();
-			if (propertyDb.get(txn, tupleBinding.getKey(new PropertyItem(prop
+			if (propertyDb.get(null, tupleBinding.getKey(new PropertyItem(prop
 					.getName())), data, null) == OperationStatus.SUCCESS)
 				return tupleBinding.entryToObject(data).getValue();
 			return null;
@@ -106,39 +102,20 @@ public class PropertyManagerBdb extends PropertyManager {
 			throw new CrawlDatabaseException(e);
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
-		} finally {
-			if (txn != null)
-				try {
-					txn.abort();
-				} catch (DatabaseException e) {
-					e.printStackTrace();
-				}
 		}
 	}
 
 	@Override
 	protected void setProperty(PropertyItem prop) throws CrawlDatabaseException {
-		Transaction txn = null;
 		try {
-			txn = crawlDatabase.beginTransaction();
-
-			propertyDb.put(txn, tupleBinding.getKey(prop), tupleBinding
+			propertyDb.put(null, tupleBinding.getKey(prop), tupleBinding
 					.getData(prop));
-			txn.commit();
-			txn = null;
+			crawlDatabase.flush();
 		} catch (UnsupportedEncodingException e) {
 			throw new CrawlDatabaseException(e);
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
-		} finally {
-			if (txn != null)
-				try {
-					txn.abort();
-				} catch (DatabaseException e) {
-					e.printStackTrace();
-				}
 		}
-
 	}
 
 }
