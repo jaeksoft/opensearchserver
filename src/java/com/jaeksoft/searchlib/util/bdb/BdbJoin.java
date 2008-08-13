@@ -1,4 +1,4 @@
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.util.bdb;
 
 import java.util.ArrayList;
 
@@ -48,6 +48,6 @@ public class BdbJoin {
 		joinCursor = db.join(cursorList.toArray(new SecondaryCursor[cursorList
 				.size()]), null);
 		return joinCursor;
-
 	}
+
 }

@@ -44,9 +44,11 @@ import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.Link;
 import com.jaeksoft.searchlib.crawler.spider.LinkList;
 import com.jaeksoft.searchlib.crawler.spider.Parser;
-import com.jaeksoft.searchlib.util.BdbJoin;
-import com.jaeksoft.searchlib.util.BdbUtil;
-import com.jaeksoft.searchlib.util.BdbUtil.BdbFilter;
+import com.jaeksoft.searchlib.util.bdb.BdbJoin;
+import com.jaeksoft.searchlib.util.bdb.BdbUtil;
+import com.jaeksoft.searchlib.util.bdb.JointCursor;
+import com.jaeksoft.searchlib.util.bdb.UniqueCursor;
+import com.jaeksoft.searchlib.util.bdb.BdbUtil.BdbFilter;
 import com.sleepycat.bind.tuple.IntegerBinding;
 import com.sleepycat.bind.tuple.LongBinding;
 import com.sleepycat.bind.tuple.StringBinding;
@@ -254,6 +256,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
+			data.setPartial(0, 0, true);
 			LongBinding.longToEntry(timestamp, key);
 
 			OperationStatus os = cursor.getSearchKeyRange(key, data, null);
@@ -265,7 +268,6 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 				return;
 
 			// Find the first valid result by descending secondary key
-			data.setPartial(0, 0, true);
 			while (LongBinding.entryToLong(key) > timestamp) {
 				if (cursor.getPrevDup(key, data, null) != OperationStatus.SUCCESS)
 					if (cursor.getPrev(key, data, null) != OperationStatus.SUCCESS)
@@ -518,8 +520,8 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 					return 0;
 			}
 
-			return tupleBinding.getLimit(join.getJoinCursor(urlDb), start,
-					rows, list, null);
+			return tupleBinding.getLimit(new JointCursor(join
+					.getJoinCursor(urlDb)), start, rows, list, null);
 
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
@@ -568,8 +570,8 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 					&& indexStatus == IndexStatus.ALL && startDate == null
 					&& endDate == null) {
 				cursor = urlDb.openCursor(txn, crawlDatabase.getCursorConfig());
-				urlList.setNewList(list, tupleBinding.getLimit(cursor, start,
-						rows, list, null));
+				urlList.setNewList(list, tupleBinding.getLimit(
+						new UniqueCursor(cursor), start, rows, list, null));
 			} else {
 				urlList.setNewList(list, getUrls(txn, host, fetchStatus,
 						parserStatus, indexStatus, startDate, endDate, start,

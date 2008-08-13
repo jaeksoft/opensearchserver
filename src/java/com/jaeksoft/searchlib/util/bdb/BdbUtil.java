@@ -1,9 +1,9 @@
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.util.bdb;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import com.jaeksoft.searchlib.util.BdbCursor.BdbEntry;
+import com.jaeksoft.searchlib.util.bdb.AbstractCursor.BdbEntry;
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
@@ -93,24 +93,14 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		}
 	}
 
-	public long getLimit(Cursor cursor, int start, int rows, List<T> list,
-			LockMode lockMode) throws DatabaseException {
-
-		long size = BdbCursor.forward(cursor, start, lockMode);
-
-		size += BdbCursor.getRows(cursor, rows, lockMode, new ListAdd(list));
-
-		return size + BdbCursor.countLeft(cursor, lockMode);
-	}
-
-	public long getLimit(JoinCursor cursor, long start, long rows,
+	public long getLimit(AbstractCursor cursor, int start, int rows,
 			List<T> list, LockMode lockMode) throws DatabaseException {
 
-		long size = BdbCursor.forward(cursor, start, lockMode);
+		long size = cursor.forward(start, lockMode);
 
-		size += BdbCursor.getRows(cursor, rows, lockMode, new ListAdd(list));
+		size += cursor.getRows(rows, lockMode, new ListAdd(list));
 
-		return size + BdbCursor.countLeft(cursor, lockMode);
+		return size + cursor.countLeft(lockMode);
 	}
 
 	public interface BdbFilter<T> {
@@ -146,4 +136,5 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 			limit--;
 		}
 	}
+
 }
