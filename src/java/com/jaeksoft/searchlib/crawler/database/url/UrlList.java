@@ -55,11 +55,11 @@ public class UrlList extends PartialDataModel<UrlItem> {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.orderBy = orderBy;
-		update(0);
+		populate(0);
 	}
 
 	@Override
-	protected void update(int start) {
+	protected void update(long start) {
 		try {
 			urlManager.getUrls(like, host, fetchStatus, parserStatus,
 					indexStatus, startDate, endDate, orderBy, start,

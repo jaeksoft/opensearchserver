@@ -52,7 +52,7 @@ public abstract class AbstractCursor {
 	public abstract void getRows(long rows, LockMode lockMode)
 			throws DatabaseException;
 
-	public void getLimit(int start, int rows, LockMode lockMode)
+	public void getLimit(long start, long rows, LockMode lockMode)
 			throws DatabaseException {
 
 		forward(start, lockMode);

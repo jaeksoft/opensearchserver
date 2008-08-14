@@ -90,6 +90,6 @@ public abstract class UrlManager {
 	public abstract void getUrls(String like, String host,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, int start, int rows, UrlList urlList)
+			Field orderBy, long start, long rows, UrlList urlList)
 			throws CrawlDatabaseException;
 }

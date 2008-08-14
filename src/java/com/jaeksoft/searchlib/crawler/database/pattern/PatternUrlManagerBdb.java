@@ -178,7 +178,7 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 	}
 
 	@Override
-	public void getPatterns(String like, int start, int rows,
+	public void getPatterns(String like, long start, long rows,
 			PatternUrlList patternUrlList) throws CrawlDatabaseException {
 		Cursor cursor = null;
 		try {

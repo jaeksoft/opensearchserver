@@ -28,23 +28,28 @@ import java.util.Iterator;
 
 import javax.faces.model.DataModel;
 
-public abstract class PartialDataModel<T> extends DataModel {
+public abstract class PartialDataModel<T> extends DataModel implements Runnable {
 
 	protected PartialList<T> list;
-	protected int currentStart;
-	protected int currentIndex;
+	protected long currentStart;
+	protected long currentIndex;
 	protected int windowRows;
 	protected Object data;
 
+	private Thread thread;
+
 	public PartialDataModel(int windowRows) {
 		this.windowRows = windowRows;
-		this.currentStart = 0;
+		this.currentStart = -1;
 		this.list = new PartialList<T>(windowRows);
 		this.currentIndex = -1;
+		this.thread = null;
 	}
 
-	private boolean needUpdate(int index) {
-		return index < currentStart || index >= currentStart + windowRows;
+	private boolean needUpdate(long index) {
+		synchronized (this) {
+			return index < currentStart || index >= currentStart + windowRows;
+		}
 	}
 
 	public Iterator<T> iterator() {
@@ -53,7 +58,7 @@ public abstract class PartialDataModel<T> extends DataModel {
 		}
 	}
 
-	protected abstract void update(int start);
+	protected abstract void update(long start);
 
 	@Override
 	public int getRowCount() {
@@ -65,7 +70,7 @@ public abstract class PartialDataModel<T> extends DataModel {
 	@Override
 	public Object getRowData() {
 		synchronized (this) {
-			if (currentIndex == -1)
+			if (currentIndex == -1 || currentStart == -1)
 				return null;
 			return list.get(currentIndex - currentStart);
 		}
@@ -74,7 +79,7 @@ public abstract class PartialDataModel<T> extends DataModel {
 	@Override
 	public int getRowIndex() {
 		synchronized (this) {
-			return currentIndex;
+			return (int) currentIndex;
 		}
 	}
 
@@ -88,7 +93,14 @@ public abstract class PartialDataModel<T> extends DataModel {
 	@Override
 	public boolean isRowAvailable() {
 		synchronized (this) {
-			return !needUpdate(currentIndex);
+			if (needUpdate(currentIndex))
+				return false;
+			long realIndex = currentIndex - currentStart;
+			if (realIndex < 0)
+				return false;
+			if (realIndex >= list.size)
+				return false;
+			return true;
 		}
 	}
 
@@ -98,12 +110,9 @@ public abstract class PartialDataModel<T> extends DataModel {
 			currentIndex = index;
 			if (index == -1)
 				return;
-			if (needUpdate(index)) {
-				currentStart = index;
-				update(index);
-			}
+			if (needUpdate(index))
+				populate(index);
 		}
-
 	}
 
 	@Override
@@ -117,6 +126,29 @@ public abstract class PartialDataModel<T> extends DataModel {
 		synchronized (this) {
 			return list;
 		}
+	}
+
+	public boolean isRunning() {
+		synchronized (this) {
+			if (thread == null)
+				return false;
+			return thread.isAlive();
+		}
+	}
+
+	public void populate(long index) {
+		synchronized (this) {
+			if (index == currentStart)
+				return;
+			list.reset();
+			currentStart = index;
+			thread = new Thread(this);
+			thread.start();
+		}
+	}
+
+	public void run() {
+		update(currentStart);
 	}
 
 }

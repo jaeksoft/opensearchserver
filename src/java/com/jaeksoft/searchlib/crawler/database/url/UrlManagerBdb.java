@@ -441,8 +441,8 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 
 	private void getUrls(Transaction txn, String host, FetchStatus fetchStatus,
 			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
-			Date endDate, int start, int rows, PartialList<UrlItem> partialList)
-			throws CrawlDatabaseException {
+			Date endDate, long start, long rows,
+			PartialList<UrlItem> partialList) throws CrawlDatabaseException {
 
 		BdbJoin join = null;
 
@@ -493,7 +493,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	@Override
 	public void getUrls(String like, String host, FetchStatus fetchStatus,
 			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
-			Date endDate, Field orderBy, int start, int rows, UrlList urlList)
+			Date endDate, Field orderBy, long start, long rows, UrlList urlList)
 			throws CrawlDatabaseException {
 
 		if (like == null)

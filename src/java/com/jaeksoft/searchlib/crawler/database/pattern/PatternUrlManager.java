@@ -74,6 +74,6 @@ public abstract class PatternUrlManager {
 		addList(patternList);
 	}
 
-	public abstract void getPatterns(String like, int start, int rows,
+	public abstract void getPatterns(String like, long start, long rows,
 			PatternUrlList patternUrlList) throws CrawlDatabaseException;
 }

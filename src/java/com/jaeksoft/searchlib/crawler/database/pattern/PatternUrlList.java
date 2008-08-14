@@ -42,11 +42,11 @@ public class PatternUrlList extends PartialDataModel<PatternUrlItem> {
 		this.patternUrlManager = patternUrlManager;
 		this.like = like;
 		selection = new HashSet<String>();
-		update(0);
+		populate(0);
 	}
 
 	@Override
-	protected void update(int start) {
+	protected void update(long start) {
 		try {
 			patternUrlManager.getPatterns(like, start, windowRows, this);
 			Iterator<PatternUrlItem> it = iterator();

@@ -62,8 +62,8 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		return data;
 	}
 
-	public void getStartsWith(Cursor cursor, String pattern, int start,
-			int rows, PartialList<T> list) throws DatabaseException,
+	public void getStartsWith(Cursor cursor, String pattern, long start,
+			long rows, PartialList<T> list) throws DatabaseException,
 			UnsupportedEncodingException {
 
 		DatabaseEntry key = new DatabaseEntry();
