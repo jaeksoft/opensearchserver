@@ -28,9 +28,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
-import com.jaeksoft.searchlib.util.PartialList;
+import com.jaeksoft.searchlib.util.PartialDataModel;
 
-public class PatternUrlList extends PartialList<PatternUrlItem> {
+public class PatternUrlList extends PartialDataModel<PatternUrlItem> {
 
 	private PatternUrlManager patternUrlManager;
 	private String like;
@@ -90,4 +90,5 @@ public class PatternUrlList extends PartialList<PatternUrlItem> {
 			selection.clear();
 		}
 	}
+
 }

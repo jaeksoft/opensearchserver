@@ -360,10 +360,9 @@ public class UrlManagerJdbc extends UrlManager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UrlItem> getUrls(String like, String host,
-			FetchStatus fetchStatus, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, int start, int rows, UrlList urlList)
+	public void getUrls(String like, String host, FetchStatus fetchStatus,
+			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
+			Date endDate, Field orderBy, int start, int rows, UrlList urlList)
 			throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
@@ -375,8 +374,7 @@ public class UrlManagerJdbc extends UrlManager {
 			query.setMaxResults(rows);
 			List<UrlItem> results = (List<UrlItem>) query
 					.getResultList(UrlItem.class);
-			urlList.setNewList(results, query.getResultCount());
-			return results;
+			urlList.getPartialList().set(results, query.getResultCount());
 		} catch (SQLException e) {
 			throw new CrawlDatabaseException(e);
 		} finally {

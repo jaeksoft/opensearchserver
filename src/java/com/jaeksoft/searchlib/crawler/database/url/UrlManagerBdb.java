@@ -44,10 +44,9 @@ import com.jaeksoft.searchlib.crawler.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.spider.Link;
 import com.jaeksoft.searchlib.crawler.spider.LinkList;
 import com.jaeksoft.searchlib.crawler.spider.Parser;
+import com.jaeksoft.searchlib.util.PartialList;
 import com.jaeksoft.searchlib.util.bdb.BdbJoin;
 import com.jaeksoft.searchlib.util.bdb.BdbUtil;
-import com.jaeksoft.searchlib.util.bdb.JointCursor;
-import com.jaeksoft.searchlib.util.bdb.UniqueCursor;
 import com.jaeksoft.searchlib.util.bdb.BdbUtil.BdbFilter;
 import com.sleepycat.bind.tuple.IntegerBinding;
 import com.sleepycat.bind.tuple.LongBinding;
@@ -440,9 +439,9 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		return true;
 	}
 
-	private long getUrls(Transaction txn, String host, FetchStatus fetchStatus,
+	private void getUrls(Transaction txn, String host, FetchStatus fetchStatus,
 			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
-			Date endDate, int start, int rows, List<UrlItem> list)
+			Date endDate, int start, int rows, PartialList<UrlItem> partialList)
 			throws CrawlDatabaseException {
 
 		BdbJoin join = null;
@@ -455,29 +454,29 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 				DatabaseEntry key = new DatabaseEntry();
 				StringBinding.stringToEntry(host, key);
 				if (!join.add(null, null, key, urlHostDb))
-					return 0;
+					return;
 			}
 			if (fetchStatus != FetchStatus.ALL) {
 				DatabaseEntry key = new DatabaseEntry();
 				IntegerBinding.intToEntry(fetchStatus.value, key);
 				if (!join.add(null, null, key, urlFetchStatusDb))
-					return 0;
+					return;
 			}
 			if (parserStatus != ParserStatus.ALL) {
 				DatabaseEntry key = new DatabaseEntry();
 				IntegerBinding.intToEntry(parserStatus.value, key);
 				if (!join.add(null, null, key, urlParserStatusDb))
-					return 0;
+					return;
 			}
 			if (indexStatus != IndexStatus.ALL) {
 				DatabaseEntry key = new DatabaseEntry();
 				IntegerBinding.intToEntry(indexStatus.value, key);
 				if (!join.add(null, null, key, urlIndexStatusDb))
-					return 0;
+					return;
 			}
 
-			return tupleBinding.getLimit(new JointCursor(join
-					.getJoinCursor(urlDb)), start, rows, list, null);
+			tupleBinding.getCursor(join.getJoinCursor(urlDb), partialList)
+					.getLimit(start, rows, null);
 
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
@@ -492,10 +491,9 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 	}
 
 	@Override
-	public List<UrlItem> getUrls(String like, String host,
-			FetchStatus fetchStatus, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, int start, int rows, UrlList urlList)
+	public void getUrls(String like, String host, FetchStatus fetchStatus,
+			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
+			Date endDate, Field orderBy, int start, int rows, UrlList urlList)
 			throws CrawlDatabaseException {
 
 		if (like == null)
@@ -516,22 +514,19 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		Cursor cursor = null;
 		try {
 
-			List<UrlItem> list = new ArrayList<UrlItem>();
-
+			PartialList<UrlItem> partialList = urlList.getPartialList();
 			if (like.length() == 0 && host.length() == 0
 					&& fetchStatus == FetchStatus.ALL
 					&& parserStatus == ParserStatus.ALL
 					&& indexStatus == IndexStatus.ALL && startDate == null
 					&& endDate == null) {
 				cursor = urlDb.openCursor(null, null);
-				urlList.setNewList(list, tupleBinding.getLimit(
-						new UniqueCursor(cursor), start, rows, list, null));
+				tupleBinding.getCursor(cursor, partialList).getLimit(start,
+						rows, null);
 			} else {
-				urlList.setNewList(list, getUrls(null, host, fetchStatus,
-						parserStatus, indexStatus, startDate, endDate, start,
-						rows, list));
+				getUrls(null, host, fetchStatus, parserStatus, indexStatus,
+						startDate, endDate, start, rows, partialList);
 			}
-
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
 		} finally {
@@ -542,6 +537,5 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 				logger.warn(e);
 			}
 		}
-		return null;
 	}
 }

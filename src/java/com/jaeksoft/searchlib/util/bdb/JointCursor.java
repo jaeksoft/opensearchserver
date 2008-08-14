@@ -1,3 +1,27 @@
+/**   
+ * License Agreement for Jaeksoft SearchLib Community
+ *
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.jaeksoft.com
+ * 
+ * This file is part of Jaeksoft SearchLib Community.
+ *
+ * Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft SearchLib Community. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
 package com.jaeksoft.searchlib.util.bdb;
 
 import org.apache.log4j.Logger;
@@ -15,12 +39,12 @@ public class JointCursor extends AbstractCursor {
 
 	private JoinCursor cursor;
 
-	public JointCursor(JoinCursor cursor) {
-		super();
+	protected JointCursor(BdbList<?> bdbList, JoinCursor cursor) {
+		super(bdbList);
 		this.cursor = cursor;
 	}
 
-	public long countLeft(LockMode lockMode) throws DatabaseException {
+	public void countLeft(LockMode lockMode) throws DatabaseException {
 
 		Timer timer = null;
 		if (logger.isInfoEnabled())
@@ -28,18 +52,15 @@ public class JointCursor extends AbstractCursor {
 
 		DatabaseEntry key = new DatabaseEntry();
 		key.setPartial(0, 0, true);
-		long count = 0;
 		while (!abort
 				&& cursor.getNext(key, lockMode) == OperationStatus.SUCCESS)
-			count++;
+			list.size++;
 
 		if (timer != null)
-			logger.info(timer + " (" + count + ")");
-
-		return count;
+			logger.info(timer + " (" + list.size + ")");
 	}
 
-	public long forward(long offset, LockMode lockMode)
+	public void forward(long offset, LockMode lockMode)
 			throws DatabaseException {
 
 		Timer timer = null;
@@ -48,21 +69,17 @@ public class JointCursor extends AbstractCursor {
 
 		DatabaseEntry key = new DatabaseEntry();
 		key.setPartial(0, 0, true);
-		long forward = 0;
 		while (!abort && offset-- > 0) {
 			if (cursor.getNext(key, lockMode) != OperationStatus.SUCCESS)
-				return forward;
-			forward++;
+				break;
+			list.size++;
 		}
 
 		if (timer != null)
-			logger.info(timer + " (" + forward + ")");
-
-		return forward;
+			logger.info(timer + " (" + list.size + ")");
 	}
 
-	public long getRows(long rows, LockMode lockMode, BdbEntry entry)
-			throws DatabaseException {
+	public void getRows(long rows, LockMode lockMode) throws DatabaseException {
 
 		Timer timer = null;
 		if (logger.isInfoEnabled())
@@ -70,18 +87,16 @@ public class JointCursor extends AbstractCursor {
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
-		int size = 0;
 		while (!abort && rows-- > 0) {
 			if (cursor.getNext(key, data, lockMode) != OperationStatus.SUCCESS)
-				return size;
+				break;
 			entry.entry(data);
-			size++;
+			list.size++;
 		}
 
 		if (timer != null)
-			logger.info(timer + " (" + size + ")");
+			logger.info(timer + " (" + list.size + ")");
 
-		return size;
 	}
 
 }

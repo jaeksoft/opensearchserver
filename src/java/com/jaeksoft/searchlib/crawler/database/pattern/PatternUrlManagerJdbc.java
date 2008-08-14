@@ -162,7 +162,7 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<PatternUrlItem> getPatterns(String like, int start, int rows,
+	public void getPatterns(String like, int start, int rows,
 			PatternUrlList urlList) throws CrawlDatabaseException {
 		Transaction transaction = null;
 		try {
@@ -172,8 +172,7 @@ public class PatternUrlManagerJdbc extends PatternUrlManager {
 			query.setMaxResults(rows);
 			List<PatternUrlItem> results = (List<PatternUrlItem>) query
 					.getResultList(PatternUrlItem.class);
-			urlList.setNewList(results, query.getResultCount());
-			return results;
+			urlList.getPartialList().set(results, query.getResultCount());
 		} catch (SQLException e) {
 			throw new CrawlDatabaseException(e);
 		} finally {

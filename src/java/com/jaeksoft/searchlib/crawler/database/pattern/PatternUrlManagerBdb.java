@@ -37,7 +37,6 @@ import org.apache.log4j.Logger;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseBdb;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.util.bdb.BdbUtil;
-import com.jaeksoft.searchlib.util.bdb.UniqueCursor;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 import com.sleepycat.je.Cursor;
@@ -179,21 +178,18 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 	}
 
 	@Override
-	public List<PatternUrlItem> getPatterns(String like, int start, int rows,
-			PatternUrlList urlList) throws CrawlDatabaseException {
+	public void getPatterns(String like, int start, int rows,
+			PatternUrlList patternUrlList) throws CrawlDatabaseException {
 		Cursor cursor = null;
 		try {
 			cursor = patternDb.openCursor(null, null);
 
-			List<PatternUrlItem> list = new ArrayList<PatternUrlItem>();
-			if (like == null || like.length() == 0)
-				urlList.setNewList(list, tupleBinding.getLimit(
-						new UniqueCursor(cursor), start, rows, list, null));
-			else
-				urlList.setNewList(list, tupleBinding.getStartsWith(cursor,
-						like, start, rows, list));
-
-			return list;
+			if (like == null || like.length() == 0) {
+				tupleBinding.getCursor(cursor, patternUrlList.getPartialList())
+						.getLimit(start, rows, null);
+			} else
+				tupleBinding.getStartsWith(cursor, like, start, rows,
+						patternUrlList.getPartialList());
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
 		} catch (UnsupportedEncodingException e) {

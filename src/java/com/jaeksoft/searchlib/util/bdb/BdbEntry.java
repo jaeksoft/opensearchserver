@@ -22,57 +22,10 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.util.bdb;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.sleepycat.je.DatabaseEntry;
 
-public class PartialList<T> {
-
-	protected List<T> list;
-
-	public long size;
-
-	public PartialList(int initialSize) {
-		this.list = new ArrayList<T>(initialSize);
-		reset();
-	}
-
-	public void reset() {
-		list.clear();
-		size = 0;
-	}
-
-	public Iterator<T> iterator() {
-		synchronized (this) {
-			return list.iterator();
-		}
-	}
-
-	public long getSize() {
-		synchronized (this) {
-			return size;
-		}
-	}
-
-	public T get(long index) {
-		synchronized (this) {
-			return list.get((int) index);
-		}
-	}
-
-	public void add(T element) {
-		synchronized (this) {
-			list.add(element);
-		}
-	}
-
-	public void set(List<T> list, long size) {
-		synchronized (this) {
-			this.size = size;
-			this.list = list;
-		}
-	}
-
+public interface BdbEntry {
+	void entry(DatabaseEntry data);
 }

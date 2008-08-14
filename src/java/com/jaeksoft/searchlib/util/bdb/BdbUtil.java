@@ -1,9 +1,33 @@
+/**   
+ * License Agreement for Jaeksoft SearchLib Community
+ *
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.jaeksoft.com
+ * 
+ * This file is part of Jaeksoft SearchLib Community.
+ *
+ * Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft SearchLib Community. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
 package com.jaeksoft.searchlib.util.bdb;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import com.jaeksoft.searchlib.util.bdb.AbstractCursor.BdbEntry;
+import com.jaeksoft.searchlib.util.PartialList;
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
@@ -11,6 +35,7 @@ import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.JoinCursor;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import com.sleepycat.je.SecondaryCursor;
 
 public abstract class BdbUtil<T> extends TupleBinding<T> {
 
@@ -37,8 +62,8 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		return data;
 	}
 
-	public int getStartsWith(Cursor cursor, String pattern, int start,
-			int rows, List<T> list) throws DatabaseException,
+	public void getStartsWith(Cursor cursor, String pattern, int start,
+			int rows, PartialList<T> list) throws DatabaseException,
 			UnsupportedEncodingException {
 
 		DatabaseEntry key = new DatabaseEntry();
@@ -48,59 +73,32 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		data.setPartial(0, 0, true);
 
 		if (cursor.getSearchKeyRange(key, data, null) != OperationStatus.SUCCESS)
-			return 0;
-
-		int size = 0;
+			return;
 
 		while (start-- > 0) {
 			if (!startsWith(key, pattern))
-				return size;
-			size++;
+				return;
+			list.size++;
 			if (cursor.getNext(key, data, null) != OperationStatus.SUCCESS)
-				return size;
+				return;
 		}
 
 		data = new DatabaseEntry();
 		while (rows-- > 0) {
 			if (!startsWith(key, pattern))
-				return size;
-			size++;
+				return;
+			list.size++;
 			list.add(entryToObject(data));
 			if (cursor.getNext(key, data, null) != OperationStatus.SUCCESS)
-				return size;
+				return;
 		}
 
 		data.setPartial(0, 0, true);
 		while (startsWith(key, pattern)) {
-			size++;
+			list.size++;
 			if (cursor.getNext(key, data, null) != OperationStatus.SUCCESS)
-				return size;
+				return;
 		}
-
-		return size;
-	}
-
-	private class ListAdd implements BdbEntry {
-
-		public List<T> list;
-
-		public ListAdd(List<T> list) {
-			this.list = list;
-		}
-
-		public void entry(DatabaseEntry data) {
-			list.add(entryToObject(data));
-		}
-	}
-
-	public long getLimit(AbstractCursor cursor, int start, int rows,
-			List<T> list, LockMode lockMode) throws DatabaseException {
-
-		long size = cursor.forward(start, lockMode);
-
-		size += cursor.getRows(rows, lockMode, new ListAdd(list));
-
-		return size + cursor.countLeft(lockMode);
 	}
 
 	public interface BdbFilter<T> {
@@ -135,6 +133,25 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 			list.add(object);
 			limit--;
 		}
+	}
+
+	private BdbList<T> getNewBdbList(PartialList<T> partialList) {
+		partialList.reset();
+		return new BdbList<T>(this, partialList);
+	}
+
+	public JointCursor getCursor(JoinCursor joinCursor,
+			PartialList<T> partialList) {
+		return new JointCursor(getNewBdbList(partialList), joinCursor);
+	}
+
+	public UniqueCursor getCursor(Cursor cursor, PartialList<T> partialList) {
+		return new UniqueCursor(getNewBdbList(partialList), cursor);
+	}
+
+	public NonUniqueCursor getCursor(SecondaryCursor cursor,
+			PartialList<T> partialList) {
+		return new NonUniqueCursor(getNewBdbList(partialList), cursor);
 	}
 
 }

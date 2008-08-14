@@ -28,9 +28,9 @@ import java.util.Date;
 
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.jaeksoft.searchlib.crawler.database.url.UrlManager.Field;
-import com.jaeksoft.searchlib.util.PartialList;
+import com.jaeksoft.searchlib.util.PartialDataModel;
 
-public class UrlList extends PartialList<UrlItem> {
+public class UrlList extends PartialDataModel<UrlItem> {
 
 	private UrlManager urlManager;
 	private String like;
