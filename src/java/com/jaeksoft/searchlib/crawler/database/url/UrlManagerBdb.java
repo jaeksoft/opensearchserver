@@ -148,10 +148,62 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		return dbEnv.openSecondaryDatabase(null, name, urlDb, secConfig);
 	}
 
-	public void close() throws DatabaseException {
-		if (urlDb != null) {
-			urlDb.close();
-			urlDb = null;
+	public void close() {
+		try {
+			if (urlHostDb != null) {
+				urlHostDb.close();
+				urlHostDb = null;
+			}
+		} catch (DatabaseException e) {
+			logger.warn(e);
+		}
+		try {
+			if (urlFetchStatusDb != null) {
+				urlFetchStatusDb.close();
+				urlFetchStatusDb = null;
+			}
+		} catch (DatabaseException e) {
+			logger.warn(e);
+		}
+		try {
+			if (urlParserStatusDb != null) {
+				urlParserStatusDb.close();
+				urlParserStatusDb = null;
+			}
+		} catch (DatabaseException e) {
+			logger.warn(e);
+		}
+		try {
+			if (urlIndexStatusDb != null) {
+				urlIndexStatusDb.close();
+				urlIndexStatusDb = null;
+			}
+		} catch (DatabaseException e) {
+			logger.warn(e);
+		}
+		try {
+			if (urlWhenDb != null) {
+				urlWhenDb.close();
+				urlWhenDb = null;
+			}
+		} catch (DatabaseException e) {
+			logger.warn(e);
+		}
+		try {
+			if (urlRetryDb != null) {
+				urlRetryDb.close();
+				urlRetryDb = null;
+			}
+		} catch (DatabaseException e) {
+			logger.warn(e);
+		}
+		try {
+			if (urlDb != null) {
+				urlDb.close();
+				urlDb = null;
+			}
+		} catch (DatabaseException e) {
+			logger.warn(e);
 		}
 	}
 

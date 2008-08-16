@@ -68,29 +68,17 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 
 	public void close() {
 		logger.info("Closing database");
-		try {
-			if (urlManager != null) {
-				urlManager.close();
-				urlManager = null;
-			}
-		} catch (DatabaseException e) {
-			logger.warn(e);
+		if (urlManager != null) {
+			urlManager.close();
+			urlManager = null;
 		}
-		try {
-			if (patternUrlManager != null) {
-				patternUrlManager.close();
-				patternUrlManager = null;
-			}
-		} catch (DatabaseException e) {
-			logger.warn(e);
+		if (patternUrlManager != null) {
+			patternUrlManager.close();
+			patternUrlManager = null;
 		}
-		try {
-			if (propertyManager != null) {
-				propertyManager.close();
-				propertyManager = null;
-			}
-		} catch (DatabaseException e) {
-			logger.warn(e);
+		if (propertyManager != null) {
+			propertyManager.close();
+			propertyManager = null;
 		}
 		try {
 			if (dbEnv != null) {

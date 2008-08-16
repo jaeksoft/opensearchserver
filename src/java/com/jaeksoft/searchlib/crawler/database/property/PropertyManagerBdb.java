@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.crawler.database.property;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.log4j.Logger;
+
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseBdb;
 import com.jaeksoft.searchlib.crawler.database.CrawlDatabaseException;
 import com.sleepycat.bind.tuple.TupleBinding;
@@ -39,6 +41,9 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
 
 public class PropertyManagerBdb extends PropertyManager {
+
+	final private static Logger logger = Logger
+			.getLogger(PropertyManagerBdb.class);
 
 	public class PropertyTupleBinding extends TupleBinding<PropertyItem> {
 
@@ -85,8 +90,13 @@ public class PropertyManagerBdb extends PropertyManager {
 		tupleBinding = new PropertyTupleBinding();
 	}
 
-	public void close() throws DatabaseException {
-		propertyDb.close();
+	public void close() {
+		try {
+			propertyDb.close();
+		} catch (DatabaseException e) {
+			logger.warn(e);
+		}
+		super.close();
 	}
 
 	@Override

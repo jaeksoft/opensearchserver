@@ -95,8 +95,12 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 		updateCache();
 	}
 
-	public void close() throws DatabaseException {
-		patternDb.close();
+	public void close() {
+		try {
+			patternDb.close();
+		} catch (DatabaseException e) {
+			logger.warn(e);
+		}
 	}
 
 	@Override

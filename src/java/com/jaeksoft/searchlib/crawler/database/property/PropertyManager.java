@@ -203,4 +203,6 @@ public abstract class PropertyManager {
 				maxThreadNumber));
 	}
 
+	public void close() {
+	}
 }

@@ -65,7 +65,6 @@ public abstract class CrawlDatabase {
 			throws CrawlDatabaseException;
 
 	public void close() {
-
 	}
 
 }
