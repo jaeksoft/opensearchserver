@@ -94,6 +94,12 @@ public abstract class DaemonThread implements Runnable {
 		}
 	}
 
+	public boolean isAborting() {
+		synchronized (this) {
+			return abort && isRunning();
+		}
+	}
+
 	public boolean getAbort() {
 		synchronized (this) {
 			return abort;
