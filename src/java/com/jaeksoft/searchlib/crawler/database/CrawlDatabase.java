@@ -64,4 +64,8 @@ public abstract class CrawlDatabase {
 	public abstract PropertyManager getPropertyManager()
 			throws CrawlDatabaseException;
 
+	public void close() {
+
+	}
+
 }

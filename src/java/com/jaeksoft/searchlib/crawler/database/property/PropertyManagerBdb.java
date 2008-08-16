@@ -110,7 +110,6 @@ public class PropertyManagerBdb extends PropertyManager {
 		try {
 			propertyDb.put(null, tupleBinding.getKey(prop), tupleBinding
 					.getData(prop));
-			crawlDatabase.flush();
 		} catch (UnsupportedEncodingException e) {
 			throw new CrawlDatabaseException(e);
 		} catch (DatabaseException e) {

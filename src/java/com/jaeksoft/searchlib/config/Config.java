@@ -112,6 +112,15 @@ public abstract class Config implements XmlInfo {
 
 	}
 
+	public void close() {
+		synchronized (this) {
+			if (crawlDatabase != null) {
+				crawlDatabase.close();
+				crawlDatabase = null;
+			}
+		}
+	}
+
 	public Schema getSchema() {
 		return this.schema;
 	}

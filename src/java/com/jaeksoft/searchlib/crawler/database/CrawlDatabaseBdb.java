@@ -31,7 +31,6 @@ import org.apache.log4j.Logger;
 import com.jaeksoft.searchlib.crawler.database.pattern.PatternUrlManagerBdb;
 import com.jaeksoft.searchlib.crawler.database.property.PropertyManagerBdb;
 import com.jaeksoft.searchlib.crawler.database.url.UrlManagerBdb;
-import com.jaeksoft.searchlib.util.Timer;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
@@ -67,14 +66,15 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 		return dbEnv;
 	}
 
-	private void close() {
+	public void close() {
+		logger.info("Closing database");
 		try {
 			if (urlManager != null) {
 				urlManager.close();
 				urlManager = null;
 			}
 		} catch (DatabaseException e) {
-			e.printStackTrace();
+			logger.warn(e);
 		}
 		try {
 			if (patternUrlManager != null) {
@@ -82,7 +82,7 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 				patternUrlManager = null;
 			}
 		} catch (DatabaseException e) {
-			e.printStackTrace();
+			logger.warn(e);
 		}
 		try {
 			if (propertyManager != null) {
@@ -90,7 +90,7 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 				propertyManager = null;
 			}
 		} catch (DatabaseException e) {
-			e.printStackTrace();
+			logger.warn(e);
 		}
 		try {
 			if (dbEnv != null) {
@@ -98,8 +98,9 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 				dbEnv = null;
 			}
 		} catch (DatabaseException e) {
-			e.printStackTrace();
+			logger.warn(e);
 		}
+		logger.info("Database closed");
 	}
 
 	public UrlManagerBdb getUrlManager() throws CrawlDatabaseException {
@@ -132,19 +133,4 @@ public class CrawlDatabaseBdb extends CrawlDatabase {
 
 	}
 
-	public void flush() throws CrawlDatabaseException {
-		try {
-			Timer timer = null;
-			if (logger.isInfoEnabled())
-				timer = new Timer("flush");
-			dbEnv.sync();
-			int count = 0;
-			while (dbEnv.cleanLog() > 0)
-				count++;
-			if (timer != null)
-				logger.info(timer + " (" + count + ")");
-		} catch (DatabaseException e) {
-			throw new CrawlDatabaseException(e);
-		}
-	}
 }

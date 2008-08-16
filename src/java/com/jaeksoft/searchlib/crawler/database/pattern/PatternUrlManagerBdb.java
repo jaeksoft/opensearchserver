@@ -122,7 +122,6 @@ public class PatternUrlManagerBdb extends PatternUrlManager {
 				throw new CrawlDatabaseException(e);
 			}
 		}
-		crawlDatabase.flush();
 		updateCache();
 	}
 

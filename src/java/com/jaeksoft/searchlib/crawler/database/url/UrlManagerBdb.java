@@ -204,8 +204,8 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 
 	}
 
-	private void getUnfetchedHostToFetch(Transaction txn,
-			HostToFetchFilter filter) throws CrawlDatabaseException {
+	private void getUnfetchedHostToFetch(HostToFetchFilter filter)
+			throws CrawlDatabaseException {
 
 		BdbJoin join = null;
 		try {
@@ -213,7 +213,7 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 
 			DatabaseEntry key = new DatabaseEntry();
 			IntegerBinding.intToEntry(FetchStatus.UN_FETCHED.value, key);
-			if (!join.add(txn, null, key, urlFetchStatusDb))
+			if (!join.add(null, null, key, urlFetchStatusDb))
 				return;
 
 			tupleBinding.getFilter(join.getJoinCursor(urlDb), filter, null);
@@ -230,13 +230,13 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 		}
 	}
 
-	private void getExpiredHostToFetch(Transaction txn, long timestamp,
+	private void getExpiredHostToFetch(long timestamp,
 			HostToFetchFilter filter, CrawlStatistics stats)
 			throws CrawlDatabaseException {
 		SecondaryCursor cursor = null;
 		try {
 
-			cursor = urlWhenDb.openSecondaryCursor(txn, null);
+			cursor = urlWhenDb.openSecondaryCursor(null, null);
 
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
@@ -288,9 +288,9 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 
 		HostToFetchFilter filter = new HostToFetchFilter(hostSet, hostList,
 				limit, stats);
-		getUnfetchedHostToFetch(null, filter);
-		getExpiredHostToFetch(null, getNewTimestamp(fetchInterval).getTime(),
-				filter, stats);
+		getUnfetchedHostToFetch(filter);
+		getExpiredHostToFetch(getNewTimestamp(fetchInterval).getTime(), filter,
+				stats);
 	}
 
 	@Override
@@ -365,8 +365,6 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			}
 		} catch (DatabaseException e) {
 			throw new CrawlDatabaseException(e);
-		} finally {
-			crawlDatabase.flush();
 		}
 	}
 
@@ -391,7 +389,6 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 				}
 			}
 		}
-		crawlDatabase.flush();
 	}
 
 	@Override
@@ -402,7 +399,6 @@ public class UrlManagerBdb extends UrlManager implements SecondaryKeyCreator {
 			urlItem.setWhenNow();
 			urlDb.put(null, tupleBinding.getKey(urlItem), tupleBinding
 					.getData(urlItem));
-			crawlDatabase.flush();
 			Parser parser = crawl.getParser();
 			if (parser != null && urlItem.isStatusFull()) {
 				discoverLinks(parser.getInlinks());
