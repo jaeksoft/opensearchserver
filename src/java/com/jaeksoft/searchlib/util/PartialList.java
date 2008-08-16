@@ -56,6 +56,12 @@ public class PartialList<T> {
 		}
 	}
 
+	public long getRealSize() {
+		synchronized (this) {
+			return list.size();
+		}
+	}
+
 	public T get(long index) {
 		synchronized (this) {
 			return list.get((int) index);

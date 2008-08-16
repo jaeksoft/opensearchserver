@@ -84,6 +84,7 @@ public abstract class BdbUtil<T> extends TupleBinding<T> {
 		}
 
 		data = new DatabaseEntry();
+		cursor.getCurrent(key, data, null);
 		while (rows-- > 0) {
 			if (!startsWith(key, pattern))
 				return;

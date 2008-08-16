@@ -80,14 +80,21 @@ public class Link implements XmlInfo {
 	public static Link getLink(URL currentURL, String uri, boolean follow,
 			boolean allowRefAnchor) {
 
+		// Relative URI starting with slash
 		if (uri.startsWith("/"))
 			uri = currentURL.getProtocol() + "://" + currentURL.getHost()
 					+ (currentURL.getPort() == -1 ? "" : currentURL.getPort())
 					+ uri;
+		// Relative URI not starting with slash
 		else if (!uri.contains("://")) {
 			String sUrl = currentURL.toExternalForm();
-			int i = sUrl.lastIndexOf('/');
-			if (i != -1 && i != (sUrl.indexOf("://") + 2))
+			// Removing all parameters for current url
+			int i = sUrl.indexOf('?');
+			if (i != -1)
+				sUrl = sUrl.substring(0, i);
+			// Searching the last slash
+			i = sUrl.lastIndexOf('/');
+			if (i != -1)
 				uri = sUrl.substring(0, i + 1) + uri;
 			else
 				uri = sUrl + "/" + uri;

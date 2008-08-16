@@ -98,7 +98,7 @@ public abstract class PartialDataModel<T> extends DataModel implements Runnable 
 			long realIndex = currentIndex - currentStart;
 			if (realIndex < 0)
 				return false;
-			if (realIndex >= list.size)
+			if (realIndex >= list.getRealSize())
 				return false;
 			return true;
 		}
