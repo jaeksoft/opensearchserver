@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,12 +35,6 @@ public class Full {
 	public void open() throws SearchLibException {
 		assertTrue(configFile.exists());
 		client = getClient(false);
-	}
-
-	@After
-	public void close() {
-		if (client != null)
-			client.close();
 	}
 
 	@Test
