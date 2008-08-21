@@ -37,33 +37,37 @@ public class FacetSearch extends Facet {
 	 * 
 	 */
 	private static final long serialVersionUID = 8151598793687762592L;
-	transient private String[] terms;
-	private int[] count;
 
-	public FacetSearch(ResultSearch result, FacetField facetField)
+	transient protected StringIndex stringIndex;
+	protected int[] count;
+
+	protected FacetSearch(FacetField facetField) {
+		super(facetField);
+		stringIndex = null;
+		count = null;
+	}
+
+	protected FacetSearch(ResultSearch result, FacetField facetField)
 			throws IOException {
 		super(facetField);
-		StringIndex si = result.getReader()
-				.getStringIndex(facetField.getName());
-		this.terms = si.lookup;
-		int[] order = si.order;
-		this.count = new int[this.terms.length];
+		setReader(result.getReader());
+		int[] order = stringIndex.order;
+		this.count = new int[stringIndex.lookup.length];
 		for (int id : result.getUnsortedDocFound())
 			this.count[order[id]]++;
 	}
 
 	public void setReader(ReaderLocal reader) throws IOException {
-		StringIndex si = reader.getStringIndex(facetField.getName());
-		this.terms = si.lookup;
+		stringIndex = reader.getStringIndex(facetField.getName());
 	}
 
 	@Override
 	public String[] getTerms() {
-		return this.terms;
+		return stringIndex.lookup;
 	}
 
 	@Override
 	public int[] getCount() {
-		return this.count;
+		return count;
 	}
 }

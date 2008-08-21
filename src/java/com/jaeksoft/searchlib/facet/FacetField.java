@@ -24,8 +24,11 @@
 
 package com.jaeksoft.searchlib.facet;
 
+import java.io.IOException;
+
 import org.w3c.dom.Node;
 
+import com.jaeksoft.searchlib.result.ResultSearch;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -40,27 +43,38 @@ public class FacetField extends Field {
 
 	private int minCount;
 
-	protected FacetField(String name, int minCount) {
+	private boolean multivalued;
+
+	protected FacetField(String name, int minCount, boolean multivalued) {
 		super(name);
 		this.minCount = minCount;
+		this.multivalued = multivalued;
 	}
 
 	@Override
 	public Object clone() {
-		return new FacetField(name, minCount);
+		return new FacetField(name, minCount, multivalued);
 	}
 
 	public int getMinCount() {
 		return minCount;
 	}
 
+	public Facet getFacetInstance(ResultSearch result) throws IOException {
+		if (multivalued)
+			return new FacetMultivalued(result, this);
+		else
+			return new FacetSearch(result, this);
+	}
+
 	public static void copyFacetFields(Node node,
 			FieldList<SchemaField> source, FieldList<FacetField> target) {
 		String fieldName = XPathParser.getAttributeString(node, "name");
 		int minCount = XPathParser.getAttributeValue(node, "minCount");
+		boolean multivalued = "yes".equals(XPathParser.getAttributeString(node,
+				"multivalued"));
 		FacetField facetField = new FacetField(source.get(fieldName).getName(),
-				minCount);
+				minCount, multivalued);
 		target.add(facetField);
 	}
-
 }
