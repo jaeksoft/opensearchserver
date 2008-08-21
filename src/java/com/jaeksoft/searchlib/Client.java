@@ -80,4 +80,8 @@ public class Client extends Config implements XmlInfo {
 		}
 		return INSTANCE;
 	}
+
+	public class Test {
+
+	}
 }
