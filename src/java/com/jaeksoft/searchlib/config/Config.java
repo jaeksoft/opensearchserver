@@ -129,10 +129,14 @@ public abstract class Config implements XmlInfo {
 		return this.index;
 	}
 
+	public Request getNewRequest(String requestName) {
+		return requests.get(requestName).clone();
+	}
+
 	public Request getNewRequest(String requestName, HttpServletRequest request)
 			throws ParseException {
 
-		Request req = requests.get(requestName).clone();
+		Request req = getNewRequest(requestName);
 
 		if (request == null)
 			return req;
