@@ -33,12 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.database.CrawlDatabase;
-import com.jaeksoft.searchlib.crawler.robotstxt.RobotsTxtCache;
-import com.jaeksoft.searchlib.crawler.spider.ParserSelector;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.highlight.HighlightField;
@@ -65,12 +61,6 @@ public abstract class Config implements XmlInfo {
 
 	private RequestList requests = null;
 
-	private RobotsTxtCache robotsTxtCache = null;
-
-	private ParserSelector parserSelector = null;
-
-	private CrawlDatabase crawlDatabase = null;
-
 	protected XPathParser xpp = null;
 
 	protected Config(File homeDir, File configFile,
@@ -86,18 +76,6 @@ public abstract class Config implements XmlInfo {
 
 			index = getIndex(homeDir, createIndexIfNotExists);
 
-			// Database info
-			Node node = xpp.getNode("/configuration/database");
-			if (node != null) {
-				crawlDatabase = CrawlDatabase.fromXmlConfig(node, homeDir);
-				if (crawlDatabase != null)
-					robotsTxtCache = new RobotsTxtCache();
-			}
-
-			// Parser info
-			node = xpp.getNode("/configuration/parserSelector");
-			if (node != null)
-				parserSelector = ParserSelector.fromXmlConfig(xpp, node);
 		} catch (Exception e) {
 			throw new SearchLibException(e);
 		}
@@ -110,15 +88,6 @@ public abstract class Config implements XmlInfo {
 				.getNode("/configuration/indices/index"),
 				createIndexIfNotExists);
 
-	}
-
-	public void close() {
-		synchronized (this) {
-			if (crawlDatabase != null) {
-				crawlDatabase.close();
-				crawlDatabase = null;
-			}
-		}
 	}
 
 	public Schema getSchema() {
@@ -216,18 +185,6 @@ public abstract class Config implements XmlInfo {
 			render = new RenderXml(result);
 
 		return render;
-	}
-
-	public CrawlDatabase getCrawlDatabase() {
-		return crawlDatabase;
-	}
-
-	public RobotsTxtCache getRobotsTxtCache() {
-		return robotsTxtCache;
-	}
-
-	public ParserSelector getParserSelector() {
-		return parserSelector;
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
