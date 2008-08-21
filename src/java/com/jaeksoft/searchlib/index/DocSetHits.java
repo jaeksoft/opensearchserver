@@ -121,6 +121,13 @@ public class DocSetHits implements XmlInfo, Serializable {
 		}
 	}
 
+	public boolean contains(int docId) {
+		for (int id : collectedDocs)
+			if (id == docId)
+				return true;
+		return false;
+	}
+
 	public int getDocId(int pos) {
 		synchronized (this) {
 			return this.sortFetchDocs[pos];

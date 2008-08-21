@@ -37,6 +37,8 @@ import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.StaleReaderException;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.HitCollector;
@@ -106,6 +108,10 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	public long getVersion() {
 		return indexReader.getVersion();
+	}
+
+	public TermDocs getTermDocs(String field, String term) throws IOException {
+		return indexReader.termDocs(new Term(field, term));
 	}
 
 	public void close() {
@@ -221,7 +227,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		if (indexName == null || path == null)
 			return null;
 
-		String rootPath = homeDir == null ? "" : homeDir.getAbsolutePath();
+		String rootPath = homeDir == null ? System.getProperty("user.dir")
+				: homeDir.getAbsolutePath();
 		rootPath = path.replace("${root}", rootPath);
 		File rootDir = new File(rootPath);
 		if (!rootDir.exists() && createIfNotExists)

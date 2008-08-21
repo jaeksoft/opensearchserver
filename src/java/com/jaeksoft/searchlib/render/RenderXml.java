@@ -153,8 +153,10 @@ public class RenderXml implements Render {
 		int minCount = facetField.getMinCount();
 		for (int i = 0; i < count.length; i++) {
 			if (count[i] >= minCount && terms[i] != null) {
-				writer.println("\t\t\t<facet name=\"" + terms[i] + "\">"
-						+ count[i] + "</facet>");
+				writer.println("\t\t\t<facet name=\""
+						+ StringEscapeUtils.escapeJava(StringEscapeUtils
+								.escapeXml(terms[i])) + "\">" + count[i]
+						+ "</facet>");
 			}
 		}
 		writer.println("\t\t</field>");
@@ -172,11 +174,16 @@ public class RenderXml implements Render {
 		writer.println("</faceting>");
 	}
 
-	public void render(ServletTransaction servletTransaction) throws Exception {
-		writer = servletTransaction.getWriter("UTF-8");
+	public void render(PrintWriter writer) throws Exception {
+		this.writer = writer;
 		renderPrefix();
 		renderDocuments();
 		renderFacets();
 		renderSuffix();
+
+	}
+
+	public void render(ServletTransaction servletTransaction) throws Exception {
+		render(servletTransaction.getWriter("UTF-8"));
 	}
 }

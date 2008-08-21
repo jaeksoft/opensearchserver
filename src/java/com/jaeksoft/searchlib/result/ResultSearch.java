@@ -53,7 +53,7 @@ public class ResultSearch extends Result<CollapseSearch> {
 		this.reader = reader;
 		this.docs = reader.searchDocSet(request);
 		for (FacetField facetField : request.getFacetFieldList())
-			this.facetList.add(new FacetSearch(this, facetField));
+			this.facetList.add(facetField.getFacetInstance(this));
 		if (request.getCollapseField() != null) {
 			this.collapse = new CollapseSearch(this);
 			if (this.docs.getDocNumFound() > 0 && request.getCollapseActive())
