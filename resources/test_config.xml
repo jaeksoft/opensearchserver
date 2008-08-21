@@ -1,0 +1,56 @@
+<configuration>
+	<indices>
+		<index name="index" searchCache="128" filterCache="128"
+			documentCache="32" path="${root}/temp/index" />
+	</indices>
+	<schema>
+		<analyzers>
+			<analyzer name="StandardAnalyzer" lang="fr"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="en"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="SnowballEnglishFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="fr"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="FrenchStemFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="de"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballGermanFilter" />
+			</analyzer>
+		</analyzers>
+		<fields default="text1" unique="id">
+			<field name="id" indexed="yes" stored="yes" />
+			<field name="text1" indexed="yes" stored="yes" analyzer="StandardAnalyzer"
+				termVector="positions_offsets" />
+			<field name="text2" indexed="yes" stored="compress" analyzer="TextAnalyzer"
+				termVector="positions_offsets" />
+			<field name="facet1" indexed="yes" stored="yes" />
+			<field name="facet2" indexed="yes" stored="yes" />
+		</fields>
+	</schema>
+	<requests>
+		<request name="search" defaultOperator="and" phraseSlop="2"
+			start="0" rows="50" lang="fr">
+			<query>text1:($$) OR text2:($$)</query>
+			<returnFields> text1,text2,facet1,facet2</returnFields>
+			<highlighting>
+				<field tag="em" name="text1" maxFragmentNumber="1" maxSize="500" />
+				<field tag="em" name="text2" maxFragmentNumber="1" maxSize="4000" />
+			</highlighting>
+			<facetFields>
+				<facetField minCount="0" name="facet1" />
+				<facetField mincount="1" name="facet2" multivalued="yes" />
+			</facetFields>
+		</request>
+	</requests>
+</configuration>
