@@ -34,6 +34,15 @@ import com.jaeksoft.searchlib.schema.Schema;
 
 public interface WriterInterface {
 
+	public void deleteDocuments(String indexName, Schema schema,
+			String uniqueField, boolean bForceLocal)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException;
+
+	public void deleteDocuments(Schema schema, String uniqueField,
+			boolean bForceLocal) throws CorruptIndexException,
+			LockObtainFailedException, IOException;
+
 	public void updateDocument(Schema schema, IndexDocument document,
 			boolean bForceLocal) throws NoSuchAlgorithmException, IOException;
 

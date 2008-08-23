@@ -41,6 +41,8 @@ public interface ReaderInterface {
 
 	public void reload(String indexName, boolean deleteOld) throws IOException;
 
+	public int getDocFreq(String field, String term) throws IOException;
+
 	public Result<?> search(Request request) throws IOException;
 
 	public String getName();

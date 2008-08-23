@@ -27,6 +27,9 @@ package com.jaeksoft.searchlib.index;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.store.LockObtainFailedException;
+
 import com.jaeksoft.searchlib.schema.Schema;
 
 public abstract class WriterAbstract extends NameFilter implements
@@ -47,6 +50,15 @@ public abstract class WriterAbstract extends NameFilter implements
 		if (!acceptName(indexName))
 			return;
 		updateDocument(schema, document, forceLocal);
+	}
+
+	public void deleteDocuments(String indexName, Schema schema,
+			String uniqueField, boolean bForceLocal)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
+		if (!acceptName(indexName))
+			return;
+		deleteDocuments(schema, uniqueField, bForceLocal);
 	}
 
 }

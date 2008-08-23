@@ -71,6 +71,21 @@ public class IndexLocal extends IndexAbstract {
 			writerLocal.optimize(indexName, forceLocal);
 	}
 
+	public void deleteDocuments(Schema schema, String uniqueField,
+			boolean bForceLocal) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
+		if (writerLocal != null)
+			writerLocal.deleteDocuments(schema, uniqueField, bForceLocal);
+	}
+
+	public void deleteDocuments(String indexName, Schema schema,
+			String uniqueField, boolean bForceLocal)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
+		if (writerLocal != null)
+			writerLocal.deleteDocuments(schema, uniqueField, bForceLocal);
+	}
+
 	public void updateDocument(Schema schema, IndexDocument document,
 			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
 		if (writerLocal != null)
@@ -123,6 +138,12 @@ public class IndexLocal extends IndexAbstract {
 	@Override
 	public IndexLocal get(String name) {
 		return this;
+	}
+
+	public int getDocFreq(String field, String term) throws IOException {
+		if (readerLocal != null)
+			return readerLocal.getDocFreq(field, term);
+		return 0;
 	}
 
 }

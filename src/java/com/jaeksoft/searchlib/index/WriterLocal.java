@@ -129,6 +129,7 @@ public class WriterLocal extends WriterAbstract {
 		synchronized (this) {
 			open();
 			indexWriter.addDocument(document);
+			close();
 		}
 	}
 
@@ -173,11 +174,14 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public void deleteDocuments(Term term) throws CorruptIndexException,
+	public void deleteDocuments(Schema schema, String uniqueField,
+			boolean bForceLocal) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
 		synchronized (this) {
 			open();
-			indexWriter.deleteDocuments(term);
+			indexWriter.deleteDocuments(new Term(schema.getFieldList()
+					.getUniqueField().getName(), uniqueField));
+			close();
 		}
 	}
 

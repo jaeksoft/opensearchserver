@@ -63,6 +63,7 @@ import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.ResultSearch;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SortField;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class ReaderLocal extends NameFilter implements ReaderInterface {
@@ -112,6 +113,15 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	public TermDocs getTermDocs(String field, String term) throws IOException {
 		return indexReader.termDocs(new Term(field, term));
+	}
+
+	public int getDocFreq(String field, String term) throws IOException {
+		TermDocs termDocs = getTermDocs(field, term);
+		int r = 0;
+		while (termDocs.next())
+			if (!indexReader.isDeleted(termDocs.doc()))
+				r++;
+		return r;
 	}
 
 	public void close() {
@@ -170,6 +180,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			CorruptIndexException, LockObtainFailedException, IOException {
 		synchronized (indexReader) {
 			indexReader.deleteDocument(docNum);
+			flush();
 		}
 	}
 
@@ -227,10 +238,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		if (indexName == null || path == null)
 			return null;
 
-		String rootPath = homeDir == null ? System.getProperty("user.dir")
-				: homeDir.getAbsolutePath();
-		rootPath = path.replace("${root}", rootPath);
-		File rootDir = new File(rootPath);
+		File rootDir = new File(FileUtils.locatePath(homeDir, path));
 		if (!rootDir.exists() && createIfNotExists)
 			rootDir.mkdirs();
 		ReaderLocal reader = ReaderLocal.getMostRecent(indexName, rootDir,

@@ -30,6 +30,9 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.naming.NamingException;
 
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.store.LockObtainFailedException;
+
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.Request;
@@ -56,6 +59,18 @@ public class Client extends Config implements XmlInfo {
 	public void updateDocument(IndexDocument document)
 			throws NoSuchAlgorithmException, IOException {
 		getIndex().updateDocument(getSchema(), document, false);
+	}
+
+	public void deleteDocuments(String uniqueField)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
+		getIndex().deleteDocuments(getSchema(), uniqueField, false);
+	}
+
+	public int getDocFreq(String uniqueField) throws IOException {
+		return getIndex().getDocFreq(
+				getSchema().getFieldList().getUniqueField().getName(),
+				uniqueField);
 	}
 
 	public void reload() throws IOException {
