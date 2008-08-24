@@ -47,6 +47,18 @@ public abstract class Facet implements Serializable {
 		return this.facetField;
 	}
 
+	public int getTermCount() {
+		return getTerms().length;
+	}
+
+	public String getTerm(int i) {
+		return getTerms()[i];
+	}
+
+	public int getCount(int i) {
+		return getCount()[i];
+	}
+
 	@Override
 	public String toString() {
 		String s = this.getClass().getName() + "@" + this.hashCode();
