@@ -160,27 +160,6 @@ public abstract class Request implements XmlInfo {
 		}
 	}
 
-	protected void parse(String q) throws ParseException {
-		synchronized (this) {
-			if (queryParser == null) {
-				queryParser = getNewQueryParser();
-				setQueryParser(this, queryParser);
-			}
-			synchronized (queryParser) {
-				query = queryParser.parse(q);
-			}
-			if (highlightFieldList.size() == 0)
-				return;
-			if (highlightQueryParser == null) {
-				highlightQueryParser = getNewHighlightQueryParser();
-				setQueryParser(this, highlightQueryParser);
-			}
-			synchronized (highlightQueryParser) {
-				highlightQuery = highlightQueryParser.parse(q);
-			}
-		}
-	}
-
 	public Config getConfig() {
 		return this.config;
 	}
@@ -197,8 +176,28 @@ public abstract class Request implements XmlInfo {
 		this.reader = reader;
 	}
 
-	public Query getQuery() {
-		return query;
+	public Query getQuery() throws ParseException {
+		synchronized (this) {
+			if (query != null)
+				return query;
+			if (queryParser == null) {
+				queryParser = getNewQueryParser();
+				setQueryParser(this, queryParser);
+			}
+			synchronized (queryParser) {
+				query = queryParser.parse(queryString);
+			}
+			if (highlightFieldList.size() == 0)
+				return query;
+			if (highlightQueryParser == null) {
+				highlightQueryParser = getNewHighlightQueryParser();
+				setQueryParser(this, highlightQueryParser);
+			}
+			synchronized (highlightQueryParser) {
+				highlightQuery = highlightQueryParser.parse(queryString);
+			}
+			return query;
+		}
 	}
 
 	public Query getHighlightQuery() {
@@ -209,8 +208,15 @@ public abstract class Request implements XmlInfo {
 		return queryString;
 	}
 
-	public void setQueryString(String q) throws ParseException {
+	protected void setQueryStringNotEscaped(String q) {
 		queryString = q;
+	}
+
+	public void setQueryString(String q) throws ParseException {
+		synchronized (this) {
+			queryString = q;
+			query = null;
+		}
 	}
 
 	public Request getSourceRequest() {
@@ -384,5 +390,13 @@ public abstract class Request implements XmlInfo {
 
 	public boolean getCollapseActive() {
 		return this.collapseActive;
+	}
+
+	public static String escapeQuery(String query) {
+		String[] escapedString = { "\\", "+", "-", "&&", "||", "!", "(", ")",
+				"{", "}", "[", "]", "^", "\"", "~", "*", "?", ":" };
+		for (String s : escapedString)
+			query = query.replace(s, "\\" + s);
+		return query;
 	}
 }

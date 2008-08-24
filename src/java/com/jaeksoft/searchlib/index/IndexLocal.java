@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
 
@@ -115,7 +116,7 @@ public class IndexLocal extends IndexAbstract {
 		}
 	}
 
-	public Result<?> search(Request request) throws IOException {
+	public Result<?> search(Request request) throws IOException, ParseException {
 		if (request.getForceLocal() || readerLocal != null)
 			return readerLocal.search(request);
 		return null;

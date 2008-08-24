@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 
+import org.apache.lucene.queryParser.ParseException;
+
 import com.jaeksoft.searchlib.collapse.CollapseSearch;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -47,8 +49,10 @@ public class ResultSearch extends Result<CollapseSearch> {
 	 * @param searcher
 	 * @param request
 	 * @throws IOException
+	 * @throws ParseException
 	 */
-	public ResultSearch(ReaderLocal reader, Request request) throws IOException {
+	public ResultSearch(ReaderLocal reader, Request request)
+			throws IOException, ParseException {
 		super(request);
 		this.reader = reader;
 		this.docs = reader.searchDocSet(request);

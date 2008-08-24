@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.Facet;
@@ -53,7 +54,7 @@ public class RenderXml implements Render {
 		this.request = result.getRequest();
 	}
 
-	private void renderPrefix() {
+	private void renderPrefix() throws ParseException {
 		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		writer.println("<response>");
 		writer.println("<header>");

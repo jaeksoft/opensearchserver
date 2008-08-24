@@ -39,6 +39,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.HitCollector;
@@ -164,7 +165,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public ResultSearch search(Request request) throws IOException {
+	public ResultSearch search(Request request) throws IOException,
+			ParseException {
 		return new ResultSearch(this, request);
 	}
 
@@ -283,7 +285,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public DocSetHits searchDocSet(Request request) throws IOException {
+	public DocSetHits searchDocSet(Request request) throws IOException,
+			ParseException {
 		StringBuffer cacheDshKey = new StringBuffer(request.getQuery()
 				.toString());
 		FilterHits filter = null;

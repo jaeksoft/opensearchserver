@@ -101,9 +101,8 @@ public class TemplateRequest extends Request {
 
 	@Override
 	public void setQueryString(String q) throws ParseException {
-		super.setQueryString(q);
-		super.parse(this.getSourceRequest().getQueryString().replace("$$", q)
-				.replace("\"\"", "\""));
+		setQueryStringNotEscaped(getSourceRequest().getQueryString().replace(
+				"$$", q));
 	}
 
 	/**
@@ -120,6 +119,7 @@ public class TemplateRequest extends Request {
 		if (node == null)
 			return null;
 		String name = XPathParser.getAttributeString(node, "name");
+		Node queryNode = xpp.getNode(node, "query");
 		TemplateRequest templateRequest = new TemplateRequest(config, name,
 				false, XPathParser.getAttributeValue(node, "phraseSlop"),
 				("and".equals(XPathParser.getAttributeString(node,
@@ -127,8 +127,8 @@ public class TemplateRequest extends Request {
 						: QueryParser.OR_OPERATOR, XPathParser
 						.getAttributeValue(node, "start"), XPathParser
 						.getAttributeValue(node, "rows"), XPathParser
-						.getAttributeString(node, "lang"), xpp.getNodeString(
-						node, "query"), false, false);
+						.getAttributeString(node, "lang"), xpp
+						.getNodeString(queryNode), false, false);
 
 		FieldList<FieldValue> returnFields = templateRequest
 				.getReturnFieldList();

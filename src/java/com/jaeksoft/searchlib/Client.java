@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.naming.NamingException;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.config.Config;
@@ -77,7 +78,7 @@ public class Client extends Config implements XmlInfo {
 		getIndex().reload(null, true);
 	}
 
-	public Result<?> search(Request request) throws IOException {
+	public Result<?> search(Request request) throws IOException, ParseException {
 		return getIndex().search(request);
 	}
 

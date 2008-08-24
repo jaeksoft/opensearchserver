@@ -77,6 +77,17 @@ public class IndexDocument implements Serializable, XmlInfo {
 		fields.put(fieldContent.getField(), fieldContent);
 	}
 
+	public void set(String field, String value) {
+		FieldContent fc = fields.get(field);
+		if (fc != null)
+			fc.clear();
+		add(field, value);
+	}
+
+	public void set(String field, Object value) {
+		set(field, value.toString());
+	}
+
 	public String getLang() {
 		return lang;
 	}

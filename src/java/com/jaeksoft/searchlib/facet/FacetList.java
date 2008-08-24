@@ -62,8 +62,8 @@ public class FacetList extends AbstractList<Facet> implements Serializable {
 		return this.facetList.size();
 	}
 
-	public Facet getByField(FacetField field) {
-		return facetMap.get(field.getName());
+	public Facet getByField(String fieldName) {
+		return facetMap.get(fieldName);
 	}
 
 }
