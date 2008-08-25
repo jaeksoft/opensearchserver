@@ -31,6 +31,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
@@ -77,11 +80,16 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	private FilterCache filterCache;
 	private DocumentCache documentCache;
 
+	private final ReadWriteLock rwl = new ReentrantReadWriteLock();
+	private final Lock r = rwl.readLock();
+	private final Lock w = rwl.writeLock();
+
 	private File rootDir;
 
 	private ReaderLocal(String name, File rootDir, File dataDir)
 			throws IOException {
 		super(name);
+
 		this.rootDir = rootDir;
 
 		this.indexDirectory = new IndexDirectory(name, dataDir);
@@ -94,74 +102,108 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	private void init(ReaderLocal r) {
-		synchronized (this) {
+		w.lock();
+		try {
 			this.rootDir = r.rootDir;
 			this.indexDirectory = r.indexDirectory;
 			this.indexSearcher = r.indexSearcher;
 			this.indexReader = r.indexReader;
+		} finally {
+			w.unlock();
 		}
 	}
 
 	private void initCache(int searchCache, int filterCache, int documentCache) {
-		this.searchCache = new SearchCache(searchCache);
-		this.filterCache = new FilterCache(filterCache);
-		this.documentCache = new DocumentCache(documentCache);
+		w.lock();
+		try {
+			this.searchCache = new SearchCache(searchCache);
+			this.filterCache = new FilterCache(filterCache);
+			this.documentCache = new DocumentCache(documentCache);
+		} finally {
+			w.unlock();
+		}
 	}
 
 	public long getVersion() {
-		return indexReader.getVersion();
+		r.lock();
+		try {
+			return indexReader.getVersion();
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public TermDocs getTermDocs(String field, String term) throws IOException {
-		return indexReader.termDocs(new Term(field, term));
+		r.lock();
+		try {
+			return indexReader.termDocs(new Term(field, term));
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public int getDocFreq(String field, String term) throws IOException {
-		TermDocs termDocs = getTermDocs(field, term);
-		int r = 0;
-		while (termDocs.next())
-			if (!indexReader.isDeleted(termDocs.doc()))
-				r++;
-		return r;
+		r.lock();
+		try {
+			TermDocs termDocs = getTermDocs(field, term);
+			int r = 0;
+			while (termDocs.next())
+				if (!indexReader.isDeleted(termDocs.doc()))
+					r++;
+			return r;
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void close() {
-		synchronized (this) {
-			try {
-				if (indexReader != null) {
-					indexReader.close();
-					indexReader = null;
-				}
-				if (indexSearcher != null) {
-					indexSearcher.close();
-					indexSearcher = null;
-				}
-				if (indexDirectory != null) {
-					indexDirectory.close();
-					indexDirectory = null;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+		w.lock();
+		try {
+			if (indexReader != null) {
+				indexReader.close();
+				indexReader = null;
 			}
+			if (indexSearcher != null) {
+				indexSearcher.close();
+				indexSearcher = null;
+			}
+			if (indexDirectory != null) {
+				indexDirectory.close();
+				indexDirectory = null;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			w.unlock();
 		}
 	}
 
 	public int maxDoc() throws IOException {
-		return indexSearcher.maxDoc();
+		r.lock();
+		try {
+			return indexSearcher.maxDoc();
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public Hits search(Query query, Filter filter, Sort sort)
 			throws IOException {
-		if (sort == null) {
-			if (filter == null)
-				return indexSearcher.search(query);
-			else
-				return indexSearcher.search(query, filter);
-		} else {
-			if (filter == null)
-				return indexSearcher.search(query, sort);
-			else
-				return indexSearcher.search(query, filter, sort);
+		r.lock();
+		try {
+			if (sort == null) {
+				if (filter == null)
+					return indexSearcher.search(query);
+				else
+					return indexSearcher.search(query, filter);
+			} else {
+				if (filter == null)
+					return indexSearcher.search(query, sort);
+				else
+					return indexSearcher.search(query, filter, sort);
+			}
+		} finally {
+			r.unlock();
 		}
 	}
 
@@ -172,34 +214,55 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	public void search(Query query, Filter filter, HitCollector collector)
 			throws IOException {
-		if (filter == null)
-			indexSearcher.search(query, collector);
-		else
-			indexSearcher.search(query, filter, collector);
+		r.lock();
+		try {
+			if (filter == null)
+				indexSearcher.search(query, collector);
+			else
+				indexSearcher.search(query, filter, collector);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void deleteDocument(int docNum) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException {
-		synchronized (indexReader) {
+		r.lock();
+		try {
 			indexReader.deleteDocument(docNum);
 			flush();
+		} finally {
+			r.unlock();
 		}
 	}
 
 	public Document document(int docId, FieldSelector selector)
 			throws CorruptIndexException, IOException {
-		synchronized (indexReader) {
+		r.lock();
+		try {
 			return indexReader.document(docId, selector);
+		} finally {
+			r.unlock();
 		}
 	}
 
 	public StringIndex getStringIndex(String fieldName) throws IOException {
-		return FieldCache.DEFAULT.getStringIndex(indexReader, fieldName);
+		r.lock();
+		try {
+			return FieldCache.DEFAULT.getStringIndex(indexReader, fieldName);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
-		writer.println("<index name=\"" + indexDirectory.getName()
-				+ "\" path=\"" + indexDirectory.getDirectory() + "\"/>");
+		r.lock();
+		try {
+			writer.println("<index name=\"" + indexDirectory.getName()
+					+ "\" path=\"" + indexDirectory.getDirectory() + "\"/>");
+		} finally {
+			r.unlock();
+		}
 	}
 
 	private static ReaderLocal getMostRecent(String name, File rootDir,
@@ -264,8 +327,11 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	public Directory getDirectory() {
-		synchronized (this) {
+		r.lock();
+		try {
 			return indexDirectory.getDirectory();
+		} finally {
+			r.unlock();
 		}
 	}
 
@@ -276,93 +342,124 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 				deleteOld);
 		if (newReader.getVersion() <= getVersion())
 			return;
-		synchronized (this) {
+		w.lock();
+		try {
 			close();
 			init(newReader);
 			searchCache.clear();
 			filterCache.clear();
 			documentCache.clear();
+		} finally {
+			w.unlock();
 		}
 	}
 
 	public DocSetHits searchDocSet(Request request) throws IOException,
 			ParseException {
-		StringBuffer cacheDshKey = new StringBuffer(request.getQuery()
-				.toString());
-		FilterHits filter = null;
-		FilterList filterList = request.getFilterList();
-		if (filterList.size() > 0) {
-			String cacheFilterKey = FilterHits.toCacheKey(filterList);
-			filter = filterCache.getAndPromote(cacheFilterKey);
-			if (filter == null) {
-				filter = new FilterHits(this, filterList);
-				filterCache.put(cacheFilterKey, filter);
+		r.lock();
+		try {
+			StringBuffer cacheDshKey = new StringBuffer(request.getQuery()
+					.toString());
+			FilterHits filter = null;
+			FilterList filterList = request.getFilterList();
+			if (filterList.size() > 0) {
+				String cacheFilterKey = FilterHits.toCacheKey(filterList);
+				filter = filterCache.getAndPromote(cacheFilterKey);
+				if (filter == null) {
+					filter = new FilterHits(this, filterList);
+					filterCache.put(cacheFilterKey, filter);
+				}
+				cacheDshKey.append('|');
+				cacheDshKey.append(cacheFilterKey);
 			}
-			cacheDshKey.append('|');
-			cacheDshKey.append(cacheFilterKey);
+			Sort sort = null;
+			FieldList<SortField> sortFieldList = request.getSortFieldList();
+			if (sortFieldList.size() > 0) {
+				sort = SortField.getLuceneSort(sortFieldList);
+				cacheDshKey.append("_");
+				cacheDshKey.append(SortField.getSortKey(sortFieldList));
+			}
+			String cacheDshKeyStr = cacheDshKey.toString();
+			DocSetHits dsh = searchCache.getAndPromote(cacheDshKeyStr);
+			if (dsh == null) {
+				dsh = new DocSetHits(this, request.getQuery(), filter, sort,
+						request.isDelete());
+				searchCache.put(cacheDshKeyStr, dsh);
+			}
+			return dsh;
+		} finally {
+			r.unlock();
 		}
-		Sort sort = null;
-		FieldList<SortField> sortFieldList = request.getSortFieldList();
-		if (sortFieldList.size() > 0) {
-			sort = SortField.getLuceneSort(sortFieldList);
-			cacheDshKey.append("_");
-			cacheDshKey.append(SortField.getSortKey(sortFieldList));
-		}
-		String cacheDshKeyStr = cacheDshKey.toString();
-		DocSetHits dsh = searchCache.getAndPromote(cacheDshKeyStr);
-		if (dsh == null) {
-			dsh = new DocSetHits(this, request.getQuery(), filter, sort,
-					request.isDelete());
-			searchCache.put(cacheDshKeyStr, dsh);
-		}
-		return dsh;
 	}
 
 	private DocumentRequestItem document(int docId, Request request)
 			throws CorruptIndexException, IOException {
-		DocumentCacheItem doc = null;
-		String key = DocumentCache.getKey(request.getName(), getName(), docId);
-		if (key != null) {
-			doc = documentCache.getAndPromote(key);
-			if (doc != null)
-				new DocumentRequestItem(request, doc);
-		}
+		r.lock();
+		try {
+			DocumentCacheItem doc = null;
+			String key = DocumentCache.getKey(request.getName(), getName(),
+					docId);
+			if (key != null) {
+				doc = documentCache.getAndPromote(key);
+				if (doc != null)
+					new DocumentRequestItem(request, doc);
+			}
 
-		Document document = document(docId, request.getDocumentFieldList());
-		doc = new DocumentCacheItem(key, request, document);
-		if (key != null)
-			documentCache.put(key, doc);
-		return new DocumentRequestItem(request, doc);
+			Document document = document(docId, request.getDocumentFieldList());
+			doc = new DocumentCacheItem(key, request, document);
+			if (key != null)
+				documentCache.put(key, doc);
+			return new DocumentRequestItem(request, doc);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public DocumentResult documents(Request request)
 			throws CorruptIndexException, IOException {
-		ArrayList<Integer> docIds = request.getDocIds();
-		if (docIds == null)
-			return null;
-		DocumentResult documentResult = new DocumentResult();
-		for (int docId : docIds)
-			documentResult.add(document(docId, request));
-		return documentResult;
+		r.lock();
+		try {
+			ArrayList<Integer> docIds = request.getDocIds();
+			if (docIds == null)
+				return null;
+			DocumentResult documentResult = new DocumentResult();
+			for (int docId : docIds)
+				documentResult.add(document(docId, request));
+			return documentResult;
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public boolean sameIndex(ReaderInterface reader) {
-		if (reader == this)
-			return true;
-		if (reader == null)
-			return true;
-		return reader.sameIndex(this);
+		r.lock();
+		try {
+			if (reader == this)
+				return true;
+			if (reader == null)
+				return true;
+			return reader.sameIndex(this);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void flush() throws IOException {
-		synchronized (indexReader) {
+		r.lock();
+		try {
 			indexReader.flush();
+		} finally {
+			r.unlock();
 		}
-
 	}
 
 	public IndexStatistics getStatistics() {
-		return new IndexStatistics(indexReader);
+		r.lock();
+		try {
+			return new IndexStatistics(indexReader);
+		} finally {
+			r.unlock();
+		}
 	}
 
 }
