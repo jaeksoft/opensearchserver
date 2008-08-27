@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
@@ -46,6 +47,8 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public class WriterLocal extends WriterAbstract {
 
+	private ReentrantLock l = new ReentrantLock();
+
 	private IndexWriter indexWriter;
 
 	private Directory directory;
@@ -57,14 +60,20 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	protected void setDirectory(Directory directory) {
-		synchronized (this) {
-			close();
+		l.lock();
+		try {
 			this.directory = directory;
+			close();
+		} finally {
+			l.unlock();
 		}
 	}
 
-	public void close() {
-		synchronized (this) {
+	private void close() {
+		l.lock();
+		try {
+			if (l.getQueueLength() > 0)
+				return;
 			if (indexWriter != null) {
 				try {
 					indexWriter.close();
@@ -77,15 +86,20 @@ public class WriterLocal extends WriterAbstract {
 					indexWriter = null;
 				}
 			}
+		} finally {
+			l.unlock();
 		}
 	}
 
 	private void open() throws CorruptIndexException,
 			LockObtainFailedException, IOException {
-		synchronized (this) {
+		l.lock();
+		try {
 			if (indexWriter != null)
 				return;
 			indexWriter = openIndexWriter(directory, false);
+		} finally {
+			l.unlock();
 		}
 	}
 
@@ -126,18 +140,22 @@ public class WriterLocal extends WriterAbstract {
 
 	public void addDocument(Document document) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
-		synchronized (this) {
+		l.lock();
+		try {
 			open();
 			indexWriter.addDocument(document);
 			close();
+		} finally {
+			l.unlock();
 		}
 	}
 
 	public void updateDocument(Schema schema, IndexDocument document,
 			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
-		if (!acceptDocument(document))
-			return;
-		synchronized (this) {
+		l.lock();
+		try {
+			if (!acceptDocument(document))
+				return;
 			open();
 			String field = schema.getFieldList().getUniqueField().getName();
 			Document doc = getLuceneDocument(schema, document);
@@ -146,6 +164,8 @@ public class WriterLocal extends WriterAbstract {
 					.getQueryPerFieldAnalyzer(document.getLang());
 			indexWriter.updateDocument(updateTerm, doc, pfa);
 			close();
+		} finally {
+			l.unlock();
 		}
 	}
 
@@ -165,23 +185,29 @@ public class WriterLocal extends WriterAbstract {
 	public void optimize(String indexName, boolean forceLocal)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
-		if (!acceptName(indexName))
-			return;
-		synchronized (this) {
+		l.lock();
+		try {
+			if (!acceptName(indexName))
+				return;
 			open();
 			indexWriter.optimize();
 			close();
+		} finally {
+			l.unlock();
 		}
 	}
 
 	public void deleteDocuments(Schema schema, String uniqueField,
 			boolean bForceLocal) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
-		synchronized (this) {
+		l.lock();
+		try {
 			open();
 			indexWriter.deleteDocuments(new Term(schema.getFieldList()
 					.getUniqueField().getName(), uniqueField));
 			close();
+		} finally {
+			l.unlock();
 		}
 	}
 

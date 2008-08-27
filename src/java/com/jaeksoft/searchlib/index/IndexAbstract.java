@@ -24,6 +24,10 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -31,6 +35,10 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 
 public abstract class IndexAbstract extends NameFilter implements
 		ReaderInterface, WriterInterface, XmlInfo {
+
+	protected final ReadWriteLock rwl = new ReentrantReadWriteLock();
+	protected final Lock r = rwl.readLock();
+	protected final Lock w = rwl.writeLock();
 
 	protected IndexAbstract(Node node) {
 		super(XPathParser.getAttributeString(node, "name"));

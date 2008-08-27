@@ -59,81 +59,135 @@ public class IndexLocal extends IndexAbstract {
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
-		if (readerLocal != null)
-			readerLocal.xmlInfo(writer, classDetail);
-		if (writerLocal != null)
-			writerLocal.xmlInfo(writer, classDetail);
+		r.lock();
+		try {
+			if (readerLocal != null)
+				readerLocal.xmlInfo(writer, classDetail);
+			if (writerLocal != null)
+				writerLocal.xmlInfo(writer, classDetail);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void optimize(String indexName, boolean forceLocal)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
-		if (writerLocal != null)
-			writerLocal.optimize(indexName, forceLocal);
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.optimize(indexName, forceLocal);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void deleteDocuments(Schema schema, String uniqueField,
 			boolean bForceLocal) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
-		if (writerLocal != null)
-			writerLocal.deleteDocuments(schema, uniqueField, bForceLocal);
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.deleteDocuments(schema, uniqueField, bForceLocal);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
 			String uniqueField, boolean bForceLocal)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
-		if (writerLocal != null)
-			writerLocal.deleteDocuments(schema, uniqueField, bForceLocal);
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.deleteDocuments(schema, uniqueField, bForceLocal);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void updateDocument(Schema schema, IndexDocument document,
 			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
-		if (writerLocal != null)
-			writerLocal.updateDocument(schema, document, forceLocal);
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.updateDocument(schema, document, forceLocal);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void updateDocument(String indexName, Schema schema,
 			IndexDocument document, boolean forceLocal)
 			throws NoSuchAlgorithmException, IOException {
-		if (writerLocal != null)
-			writerLocal.updateDocument(indexName, schema, document, forceLocal);
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.updateDocument(indexName, schema, document,
+						forceLocal);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public DocumentResult documents(Request request)
 			throws CorruptIndexException, IOException {
-		if (request.getForceLocal() && readerLocal != null)
-			return readerLocal.documents(request);
-		return null;
+		r.lock();
+		try {
+			if (request.getForceLocal() && readerLocal != null)
+				return readerLocal.documents(request);
+			return null;
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public void reload(String indexName, boolean deleteOld) throws IOException {
-		synchronized (this) {
+		w.lock();
+		try {
 			if (readerLocal != null)
 				readerLocal.reload(indexName, deleteOld);
 			if (writerLocal != null && readerLocal != null)
 				writerLocal.setDirectory(readerLocal.getDirectory());
+		} finally {
+			w.unlock();
 		}
 	}
 
 	public Result<?> search(Request request) throws IOException, ParseException {
-		if (request.getForceLocal() || readerLocal != null)
-			return readerLocal.search(request);
-		return null;
+		r.lock();
+		try {
+			if (request.getForceLocal() || readerLocal != null)
+				return readerLocal.search(request);
+			return null;
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public boolean sameIndex(ReaderInterface reader) {
-		if (reader == this)
-			return true;
-		if (reader == this.readerLocal)
-			return true;
-		return false;
+		r.lock();
+		try {
+			if (reader == this)
+				return true;
+			if (reader == this.readerLocal)
+				return true;
+			return false;
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public IndexStatistics getStatistics() {
-		if (readerLocal != null)
-			return readerLocal.getStatistics();
-		return null;
+		r.lock();
+		try {
+			if (readerLocal != null)
+				return readerLocal.getStatistics();
+			return null;
+		} finally {
+			r.unlock();
+		}
 	}
 
 	@Override
@@ -142,9 +196,14 @@ public class IndexLocal extends IndexAbstract {
 	}
 
 	public int getDocFreq(String field, String term) throws IOException {
-		if (readerLocal != null)
-			return readerLocal.getDocFreq(field, term);
-		return 0;
+		r.lock();
+		try {
+			if (readerLocal != null)
+				return readerLocal.getDocFreq(field, term);
+			return 0;
+		} finally {
+			r.unlock();
+		}
 	}
 
 }
