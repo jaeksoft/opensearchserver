@@ -30,6 +30,8 @@ import java.util.HashSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.queryParser.ParseException;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -51,9 +53,12 @@ public class RequestList extends HashMap<String, Request> implements XmlInfo {
 	 * @param document
 	 * @param xPath
 	 * @throws XPathExpressionException
+	 * @throws ParseException
+	 * @throws DOMException
 	 */
 	public static RequestList fromXmlConfig(Config config, XPathParser xpp,
-			Node parentNode) throws XPathExpressionException {
+			Node parentNode) throws XPathExpressionException, DOMException,
+			ParseException {
 		RequestList requestList = new RequestList();
 		if (parentNode == null)
 			return requestList;

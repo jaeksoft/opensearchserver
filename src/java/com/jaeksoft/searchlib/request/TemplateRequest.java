@@ -29,11 +29,14 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -113,9 +116,12 @@ public class TemplateRequest extends Request {
 	 * @param xpp
 	 * @param parentNode
 	 * @throws XPathExpressionException
+	 * @throws ParseException
+	 * @throws DOMException
 	 */
 	public static TemplateRequest fromXmlConfig(Config config, XPathParser xpp,
-			Node node) throws XPathExpressionException {
+			Node node) throws XPathExpressionException, DOMException,
+			ParseException {
 		if (node == null)
 			return null;
 		String name = XPathParser.getAttributeString(node, "name");
@@ -147,6 +153,11 @@ public class TemplateRequest extends Request {
 		nodes = xpp.getNodeList(node, "facetFields/facetField");
 		for (int i = 0; i < nodes.getLength(); i++)
 			FacetField.copyFacetFields(nodes.item(i), fieldList, facetFields);
+
+		FilterList filterList = templateRequest.getFilterList();
+		nodes = xpp.getNodeList(node, "filters/filter");
+		for (int i = 0; i < nodes.getLength(); i++)
+			filterList.add(node.getTextContent(), Source.CONFIGXML);
 		return templateRequest;
 	}
 
