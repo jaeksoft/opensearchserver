@@ -44,12 +44,17 @@ public class IndexDocument implements Serializable, XmlInfo {
 	private String lang;
 
 	public IndexDocument() {
-		this(null);
+		fields = new HashMap<String, FieldContent>();
+		this.lang = null;
+	}
+
+	public IndexDocument(String lang) {
+		this();
+		this.lang = lang;
 	}
 
 	public IndexDocument(Locale lang) {
-		fields = new HashMap<String, FieldContent>();
-		this.lang = null;
+		this();
 		if (lang != null)
 			this.lang = lang.getLanguage();
 	}
