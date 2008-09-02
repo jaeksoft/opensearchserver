@@ -172,15 +172,19 @@ public abstract class DaemonThread implements Runnable {
 		evaluateFinalStatus();
 	}
 
-	protected void sleepSec(int sec) {
-		if (sec == 0)
-			return;
+	protected void sleepMs(long ms) {
 		try {
-			while (!abort && sec-- > 0)
-				Thread.sleep(1000);
+			Thread.sleep(ms);
 		} catch (InterruptedException e) {
 			logger.error(e);
 		}
+	}
+
+	protected void sleepSec(int sec) {
+		if (sec == 0)
+			return;
+		while (!abort && sec-- > 0)
+			sleepMs(1000);
 	}
 
 }
