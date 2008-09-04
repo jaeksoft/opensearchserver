@@ -239,6 +239,10 @@ public abstract class Request implements XmlInfo {
 		return this.sortFieldList;
 	}
 
+	public void addSort(SortField sortField) {
+		sortFieldList.add(sortField);
+	}
+
 	public FieldList<FacetField> getFacetFieldList() {
 		return this.facetFieldList;
 	}
