@@ -190,7 +190,7 @@ public class WriterLocal extends WriterAbstract {
 			if (!acceptName(indexName))
 				return;
 			open();
-			indexWriter.optimize();
+			indexWriter.optimize(true);
 			close();
 		} finally {
 			l.unlock();
