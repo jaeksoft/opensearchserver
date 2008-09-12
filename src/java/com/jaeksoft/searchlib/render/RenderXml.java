@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.function.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentRequestItem;
@@ -54,7 +55,7 @@ public class RenderXml implements Render {
 		this.request = result.getRequest();
 	}
 
-	private void renderPrefix() throws ParseException {
+	private void renderPrefix() throws ParseException, SyntaxError {
 		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		writer.println("<response>");
 		writer.println("<header>");

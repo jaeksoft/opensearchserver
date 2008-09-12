@@ -22,34 +22,27 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
+package com.jaeksoft.searchlib.function.token;
 
-import java.io.IOException;
+public abstract class Token {
 
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
+	public int size;
 
-import com.jaeksoft.searchlib.function.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
-import com.jaeksoft.searchlib.result.Result;
+	protected Token(char[] chars, int pos) {
+		StringBuffer token = new StringBuffer();
+		size = 0;
+		while (pos < chars.length) {
+			char ch = chars[pos++];
+			if (!charIsValid(ch))
+				break;
+			token.append(ch);
+			size++;
+		}
+		set(token);
+	}
 
-public interface ReaderInterface {
+	protected abstract boolean charIsValid(char ch);
 
-	public abstract boolean sameIndex(ReaderInterface reader);
-
-	public abstract DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException;
-
-	public void reload(String indexName, boolean deleteOld) throws IOException;
-
-	public int getDocFreq(String field, String term) throws IOException;
-
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError;
-
-	public String getName();
-
-	public IndexStatistics getStatistics();
+	protected abstract void set(StringBuffer token);
 
 }

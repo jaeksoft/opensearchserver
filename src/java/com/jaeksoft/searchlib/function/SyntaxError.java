@@ -22,34 +22,26 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
+package com.jaeksoft.searchlib.function;
 
-import java.io.IOException;
+public class SyntaxError extends Exception {
 
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2568978873606720931L;
 
-import com.jaeksoft.searchlib.function.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
-import com.jaeksoft.searchlib.result.Result;
+	private int pos;
 
-public interface ReaderInterface {
+	private String msg;
 
-	public abstract boolean sameIndex(ReaderInterface reader);
+	public SyntaxError(String msg, int pos) {
+		super(msg);
+		this.msg = msg;
+		this.pos = pos;
+	}
 
-	public abstract DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException;
-
-	public void reload(String indexName, boolean deleteOld) throws IOException;
-
-	public int getDocFreq(String field, String term) throws IOException;
-
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError;
-
-	public String getName();
-
-	public IndexStatistics getStatistics();
-
+	protected String showError(String exp) {
+		return msg + " " + exp.substring(0, pos);
+	}
 }

@@ -39,6 +39,8 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.function.ScoreFunctionQuery;
+import com.jaeksoft.searchlib.function.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.schema.Field;
@@ -69,6 +71,7 @@ public abstract class Request implements XmlInfo {
 	private int rows;
 	private String lang;
 	private String queryString;
+	private String scoreFunction;
 	private Query query;
 	private Query highlightQuery;
 	private transient Config config;
@@ -110,14 +113,15 @@ public abstract class Request implements XmlInfo {
 		if (request.docIds != null)
 			this.docIds = new ArrayList<Integer>(request.docIds);
 		this.queryString = request.queryString;
+		this.scoreFunction = request.scoreFunction;
 		this.forceLocal = request.forceLocal;
 		this.reader = request.reader;
 	}
 
 	public Request(Config config, String name, boolean allowLeadingWildcard,
 			int phraseSlop, QueryParser.Operator defaultOperator, int start,
-			int rows, String lang, String queryString, boolean forceLocal,
-			boolean delete) {
+			int rows, String lang, String queryString, String scoreFunction,
+			boolean forceLocal, boolean delete) {
 		this.sourceRequest = null;
 		this.config = config;
 		this.name = name;
@@ -141,6 +145,7 @@ public abstract class Request implements XmlInfo {
 		this.query = null;
 		this.docIds = null;
 		this.queryString = queryString;
+		this.scoreFunction = scoreFunction;
 		this.forceLocal = forceLocal;
 		this.reader = null;
 	}
@@ -176,7 +181,7 @@ public abstract class Request implements XmlInfo {
 		this.reader = reader;
 	}
 
-	public Query getQuery() throws ParseException {
+	public Query getQuery() throws ParseException, SyntaxError {
 		synchronized (this) {
 			if (query != null)
 				return query;
@@ -186,6 +191,8 @@ public abstract class Request implements XmlInfo {
 			}
 			synchronized (queryParser) {
 				query = queryParser.parse(queryString);
+				if (scoreFunction != null)
+					query = new ScoreFunctionQuery(query, scoreFunction);
 			}
 			if (highlightFieldList.size() == 0)
 				return query;

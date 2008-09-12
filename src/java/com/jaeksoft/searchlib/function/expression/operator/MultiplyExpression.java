@@ -22,34 +22,20 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
+package com.jaeksoft.searchlib.function.expression.operator;
 
-import java.io.IOException;
+public class MultiplyExpression extends OperatorExpression {
 
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
+	public MultiplyExpression(int pos) {
+		super(pos);
+	}
 
-import com.jaeksoft.searchlib.function.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
-import com.jaeksoft.searchlib.result.Result;
+	@Override
+	public float newValue(float value1, float value2) {
+		return value1 * value2;
+	}
 
-public interface ReaderInterface {
-
-	public abstract boolean sameIndex(ReaderInterface reader);
-
-	public abstract DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException;
-
-	public void reload(String indexName, boolean deleteOld) throws IOException;
-
-	public int getDocFreq(String field, String term) throws IOException;
-
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError;
-
-	public String getName();
-
-	public IndexStatistics getStatistics();
-
+	public String toString() {
+		return "*";
+	}
 }

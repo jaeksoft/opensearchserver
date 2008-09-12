@@ -35,6 +35,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.function.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.Result;
@@ -78,7 +79,8 @@ public class Client extends Config implements XmlInfo {
 		getIndex().reload(null, true);
 	}
 
-	public Result<?> search(Request request) throws IOException, ParseException {
+	public Result<?> search(Request request) throws IOException,
+			ParseException, SyntaxError {
 		return getIndex().search(request);
 	}
 

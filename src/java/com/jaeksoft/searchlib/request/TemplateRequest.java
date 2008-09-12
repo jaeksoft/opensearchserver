@@ -62,9 +62,11 @@ public class TemplateRequest extends Request {
 	public TemplateRequest(Config config, String name,
 			boolean allowLeadingWildcard, int phraseSlop,
 			Operator defaultOperator, int start, int rows, String lang,
-			String queryString, boolean forceLocal, boolean delete) {
+			String queryString, String scoreFunction, boolean forceLocal,
+			boolean delete) {
 		super(config, name, allowLeadingWildcard, phraseSlop, defaultOperator,
-				start, rows, lang, queryString, forceLocal, delete);
+				start, rows, lang, queryString, scoreFunction, forceLocal,
+				delete);
 	}
 
 	/**
@@ -109,8 +111,8 @@ public class TemplateRequest extends Request {
 	}
 
 	/**
-	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le
-	 * fichier de config XML.
+	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
+	 * config XML.
 	 * 
 	 * @param config
 	 * @param xpp
@@ -125,7 +127,6 @@ public class TemplateRequest extends Request {
 		if (node == null)
 			return null;
 		String name = XPathParser.getAttributeString(node, "name");
-		Node queryNode = xpp.getNode(node, "query");
 		TemplateRequest templateRequest = new TemplateRequest(config, name,
 				false, XPathParser.getAttributeValue(node, "phraseSlop"),
 				("and".equals(XPathParser.getAttributeString(node,
@@ -133,8 +134,9 @@ public class TemplateRequest extends Request {
 						: QueryParser.OR_OPERATOR, XPathParser
 						.getAttributeValue(node, "start"), XPathParser
 						.getAttributeValue(node, "rows"), XPathParser
-						.getAttributeString(node, "lang"), xpp
-						.getNodeString(queryNode), false, false);
+						.getAttributeString(node, "lang"), xpp.getNodeString(
+						node, "query"), xpp
+						.getNodeString(node, "scoreFunction"), false, false);
 
 		FieldList<FieldValue> returnFields = templateRequest
 				.getReturnFieldList();
@@ -160,5 +162,4 @@ public class TemplateRequest extends Request {
 			filterList.add(node.getTextContent(), Source.CONFIGXML);
 		return templateRequest;
 	}
-
 }

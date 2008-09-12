@@ -60,6 +60,7 @@ import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.function.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentCacheItem;
 import com.jaeksoft.searchlib.result.DocumentRequestItem;
@@ -208,7 +209,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	public ResultSearch search(Request request) throws IOException,
-			ParseException {
+			ParseException, SyntaxError {
 		return new ResultSearch(this, request);
 	}
 
@@ -355,7 +356,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	public DocSetHits searchDocSet(Request request) throws IOException,
-			ParseException {
+			ParseException, SyntaxError {
 		r.lock();
 		try {
 			StringBuffer cacheDshKey = new StringBuffer(request.getQuery()

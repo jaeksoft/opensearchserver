@@ -22,34 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
+package com.jaeksoft.searchlib.function.expression;
 
-import java.io.IOException;
+import com.jaeksoft.searchlib.function.token.QuoteToken;
 
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
+public class VariableExpression extends Expression {
 
-import com.jaeksoft.searchlib.function.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
-import com.jaeksoft.searchlib.result.Result;
+	private String var;
 
-public interface ReaderInterface {
+	protected VariableExpression(char[] chars, int pos) {
+		QuoteToken token = new QuoteToken(chars, pos);
+		var = token.word;
+		nextPos = pos + token.size + 2;
+	}
 
-	public abstract boolean sameIndex(ReaderInterface reader);
+	@Override
+	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-	public abstract DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException;
-
-	public void reload(String indexName, boolean deleteOld) throws IOException;
-
-	public int getDocFreq(String field, String term) throws IOException;
-
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError;
-
-	public String getName();
-
-	public IndexStatistics getStatistics();
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append('"');
+		sb.append(var);
+		sb.append('"');
+		return sb.toString();
+	}
 
 }

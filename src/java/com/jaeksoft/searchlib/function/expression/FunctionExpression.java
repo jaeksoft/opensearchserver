@@ -22,34 +22,37 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
-
-import java.io.IOException;
-
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
+package com.jaeksoft.searchlib.function.expression;
 
 import com.jaeksoft.searchlib.function.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.function.token.LetterOrDigitToken;
 
-public interface ReaderInterface {
+public class FunctionExpression extends Expression {
 
-	public abstract boolean sameIndex(ReaderInterface reader);
+	private GroupExpression groupExpression;
 
-	public abstract DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException;
+	private String func;
 
-	public void reload(String indexName, boolean deleteOld) throws IOException;
+	protected FunctionExpression(char[] chars, int pos) throws SyntaxError {
+		LetterOrDigitToken token = new LetterOrDigitToken(chars, pos);
+		func = token.word;
+		pos += token.size;
+		Expression exp = Expression.nextExpression(chars, pos);
+		if (!(exp instanceof GroupExpression))
+			throw new SyntaxError("Parenthesis missing", pos);
+		groupExpression = (GroupExpression) exp;
+		nextPos = exp.nextPos;
+	}
 
-	public int getDocFreq(String field, String term) throws IOException;
+	@Override
+	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError;
-
-	public String getName();
-
-	public IndexStatistics getStatistics();
-
+	public String toString() {
+		StringBuffer sb = new StringBuffer(func);
+		sb.append(groupExpression);
+		return sb.toString();
+	}
 }
