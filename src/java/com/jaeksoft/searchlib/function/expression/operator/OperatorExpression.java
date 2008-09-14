@@ -34,14 +34,13 @@ public abstract class OperatorExpression extends Expression {
 	}
 
 	@Override
-	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
+	protected float getValue(float subQueryScore, float valSrcScore) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	protected float getValue(int docId, float subQueryScore,
-			float[] valSrcScores) {
+	protected float getValue(float subQueryScore, float[] valSrcScores) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

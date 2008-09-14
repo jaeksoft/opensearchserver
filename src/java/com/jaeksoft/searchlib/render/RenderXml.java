@@ -60,7 +60,7 @@ public class RenderXml implements Render {
 		writer.println("<response>");
 		writer.println("<header>");
 		writer.println("\t<status>0</status>");
-		writer.println("\t<query>" + request.getQuery() + "</query>");
+		writer.println("\t<query>" + request.getQueryParsed() + "</query>");
 		writer.println("</header>");
 	}
 

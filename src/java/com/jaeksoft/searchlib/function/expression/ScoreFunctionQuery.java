@@ -57,13 +57,14 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 		this.expression = expression;
 	}
 
-	public float customScore(int docId, float subQueryScore, float valSrcScore) {
-		return expression.getValue(docId, subQueryScore, valSrcScore);
+	@Override
+	public float customScore(int doc, float subQueryScore, float valSrcScore) {
+		return expression.getValue(subQueryScore, valSrcScore);
 	}
 
-	public float customScore(int docId, float subQueryScore,
-			float[] valSrcScores) {
-		return expression.getValue(docId, subQueryScore, valSrcScores);
+	@Override
+	public float customScore(int doc, float subQueryScore, float[] valSrcScores) {
+		return expression.getValue(subQueryScore, valSrcScores);
 	}
 
 	public String toString() {

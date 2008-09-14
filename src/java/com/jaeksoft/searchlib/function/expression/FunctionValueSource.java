@@ -59,7 +59,7 @@ public class FunctionValueSource {
 		else if ("short".equalsIgnoreCase(func))
 			valueSource = new ShortFieldSource(field);
 		if (valueSource == null)
-			throw new SyntaxError("Unknown function", 0);
+			throw new SyntaxError("Unknown function");
 
 	}
 

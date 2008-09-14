@@ -31,6 +31,7 @@ import com.jaeksoft.searchlib.function.expression.operator.MinusExpression;
 import com.jaeksoft.searchlib.function.expression.operator.MultiplyExpression;
 import com.jaeksoft.searchlib.function.expression.operator.OperatorExpression;
 import com.jaeksoft.searchlib.function.expression.operator.PlusExpression;
+import com.jaeksoft.searchlib.function.token.LetterOrDigitToken;
 
 public class GroupExpression extends Expression {
 
@@ -61,7 +62,7 @@ public class GroupExpression extends Expression {
 		if (Character.isDigit(ch))
 			return new FloatExpression(chars, pos);
 		if (Character.isLetter(ch))
-			return new FunctionExpression(root, chars, pos);
+			return nextLetterExpression(chars, pos);
 		if (ch == '+')
 			return new PlusExpression(pos);
 		if (ch == '*')
@@ -72,33 +73,41 @@ public class GroupExpression extends Expression {
 			return new MinusExpression(pos);
 		if (ch == ')')
 			return null;
-		throw new SyntaxError("Syntax error", pos);
+		throw new SyntaxError("Syntax error", chars, pos);
+	}
+
+	private Expression nextLetterExpression(char[] chars, int pos)
+			throws SyntaxError {
+		LetterOrDigitToken token = new LetterOrDigitToken(chars, pos);
+		if ("score".equalsIgnoreCase(token.word))
+			return new ScoreExpression(root, pos);
+		return new FunctionExpression(root, chars, pos);
+
 	}
 
 	@Override
-	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
+	protected float getValue(float subQueryScore, float valSrcScore) {
 		float value = 0;
 		OperatorExpression operator = new PlusExpression(0);
 		for (Expression expression : expressions) {
 			if (expression instanceof OperatorExpression)
 				operator = (OperatorExpression) expression;
 			else {
-				value = operator.newValue(value, expression.getValue(docId,
+				value = operator.newValue(value, expression.getValue(
 						subQueryScore, valSrcScore));
 			}
 		}
 		return value;
 	}
 
-	protected float getValue(int docId, float subQueryScore,
-			float[] valSrcScores) {
+	protected float getValue(float subQueryScore, float[] valSrcScores) {
 		float value = 0;
 		OperatorExpression operator = new PlusExpression(0);
 		for (Expression expression : expressions) {
 			if (expression instanceof OperatorExpression)
 				operator = (OperatorExpression) expression;
 			else {
-				value = operator.newValue(value, expression.getValue(docId,
+				value = operator.newValue(value, expression.getValue(
 						subQueryScore, valSrcScores));
 			}
 		}

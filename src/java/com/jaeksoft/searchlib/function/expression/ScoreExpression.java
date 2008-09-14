@@ -24,22 +24,22 @@
 
 package com.jaeksoft.searchlib.function.expression;
 
-public abstract class Expression {
+public class ScoreExpression extends Expression {
 
-	protected RootExpression root;
-
-	protected int nextPos;
-
-	protected Expression(RootExpression root) {
-		if (root == null && this instanceof RootExpression)
-			this.root = (RootExpression) this;
-		else
-			this.root = root;
-		this.nextPos = 0;
+	protected ScoreExpression(RootExpression root, int pos) {
+		super(root);
+		nextPos = pos + 5;
 	}
 
-	protected abstract float getValue(float subQueryScore, float valSrcScore);
+	@Override
+	protected float getValue(float subQueryScore, float valSrcScore) {
+		return subQueryScore;
+	}
 
-	protected abstract float getValue(float subQueryScore, float[] valSrcScores);
+	@Override
+	protected float getValue(float subQueryScore, float[] valSrcScores) {
+		// TODO Auto-generated method stub
+		return subQueryScore;
+	}
 
 }

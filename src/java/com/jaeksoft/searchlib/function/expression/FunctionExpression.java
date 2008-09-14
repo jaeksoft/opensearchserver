@@ -37,30 +37,30 @@ public class FunctionExpression extends Expression {
 		String func = token.word;
 		pos += token.size;
 		if (pos >= chars.length)
-			throw new SyntaxError("Parenthesis missing", pos);
+			throw new SyntaxError("Parenthesis missing", chars, pos);
 		if (chars[pos++] != '(')
-			throw new SyntaxError("Parenthesis missing", pos);
+			throw new SyntaxError("Parenthesis missing", chars, pos);
 		token = new LetterOrDigitToken(chars, pos);
 		String field = token.word;
 		functionValueSource = root.functionValueSource(func, field);
 		pos += token.size;
 		if (pos >= chars.length)
-			throw new SyntaxError("Parenthesis missing", pos);
-		if (chars[pos++] != ')')
-			throw new SyntaxError("Parenthesis missing", pos);
+			throw new SyntaxError("Parenthesis missing", chars, pos);
+		if (chars[pos] != ')')
+			throw new SyntaxError("Parenthesis missing", chars, pos);
+		pos++;
 		nextPos = pos;
 	}
 
 	@Override
-	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
-		// TODO Auto-generated method stub
-		return 0;
+	protected float getValue(float subQueryScore, float valSrcScore) {
+		return valSrcScore;
 	}
 
-	protected float getValue(int docId, float subQueryScore,
-			float[] valSrcScores) {
-		// TODO Auto-generated method stub
-		return 0;
+	protected float getValue(float subQueryScore, float[] valSrcScores) {
+		if (valSrcScores.length == 0)
+			return 0;
+		return valSrcScores[functionValueSource.pos];
 	}
 
 	public String toString() {

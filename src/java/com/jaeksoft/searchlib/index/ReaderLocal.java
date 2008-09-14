@@ -359,8 +359,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			ParseException, SyntaxError {
 		r.lock();
 		try {
-			StringBuffer cacheDshKey = new StringBuffer(request.getQuery()
-					.toString());
+			StringBuffer cacheDshKey = new StringBuffer(request
+					.getQueryParsed());
 			FilterHits filter = null;
 			FilterList filterList = request.getFilterList();
 			if (filterList.size() > 0) {

@@ -31,17 +31,15 @@ public class SyntaxError extends Exception {
 	 */
 	private static final long serialVersionUID = 2568978873606720931L;
 
-	private int pos;
-
-	private String msg;
-
-	public SyntaxError(String msg, int pos) {
-		super(msg);
-		this.msg = msg;
-		this.pos = pos;
+	public SyntaxError(String msg, String exp, int pos) {
+		super(msg + ": " + exp.substring(0, pos));
 	}
 
-	protected String showError(String exp) {
-		return msg + " " + exp.substring(0, pos);
+	public SyntaxError(String msg, char[] exp, int pos) {
+		this(msg, new String(exp), pos);
+	}
+
+	public SyntaxError(String msg) {
+		super(msg);
 	}
 }

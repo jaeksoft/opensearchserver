@@ -26,9 +26,13 @@ package com.jaeksoft.searchlib.function.expression;
 
 import java.util.ArrayList;
 
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.function.ValueSourceQuery;
+
 public class RootExpression extends GroupExpression {
 
-	protected ArrayList<FunctionValueSource> functionValueSources = null;
+	protected ArrayList<FunctionValueSource> functionValueSources;
 
 	protected RootExpression(char[] chars, int pos) throws SyntaxError {
 		super(null, chars, pos);
@@ -46,4 +50,45 @@ public class RootExpression extends GroupExpression {
 		functionValueSources.add(fvs);
 		return fvs;
 	}
+
+	private ValueSourceQuery getValueSourceQuery() {
+		return new ValueSourceQuery(functionValueSources.get(0).valueSource);
+	}
+
+	private ValueSourceQuery[] getValueSourceQueries() {
+		ValueSourceQuery[] vsq = new ValueSourceQuery[functionValueSources
+				.size()];
+		return functionValueSources.toArray(vsq);
+	}
+
+	protected ScoreFunctionQuery getQuery(Query subQuery) throws SyntaxError {
+		if (functionValueSources == null)
+			return new ScoreFunctionQuery(subQuery, this);
+		switch (functionValueSources.size()) {
+		case 0:
+			return new ScoreFunctionQuery(subQuery, this);
+		case 1:
+			return new ScoreFunctionQuery(subQuery, getValueSourceQuery(), this);
+		default:
+			return new ScoreFunctionQuery(subQuery, getValueSourceQueries(),
+					this);
+		}
+
+	}
+
+	static public ScoreFunctionQuery getQuery(Query subQuery, String exp)
+			throws SyntaxError {
+		exp = exp.trim().replaceAll("\\s+", "");
+		return new RootExpression(exp.toCharArray(), 0).getQuery(subQuery);
+	}
+
+	public static void main(String[] argv) {
+		String exp = " 10000 / ( 1 * rord(creationDate) + 10000 ) ";
+		try {
+			System.out.println(getQuery(new BooleanQuery(), exp));
+		} catch (SyntaxError e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
 }

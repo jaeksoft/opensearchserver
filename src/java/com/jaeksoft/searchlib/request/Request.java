@@ -39,7 +39,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
-import com.jaeksoft.searchlib.function.expression.Expression;
+import com.jaeksoft.searchlib.function.expression.RootExpression;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.ReaderInterface;
@@ -73,6 +73,7 @@ public abstract class Request implements XmlInfo {
 	private String queryString;
 	private String scoreFunction;
 	private Query query;
+	private String queryParsed;
 	private Query highlightQuery;
 	private transient Config config;
 	private boolean forceLocal;
@@ -116,6 +117,7 @@ public abstract class Request implements XmlInfo {
 		this.scoreFunction = request.scoreFunction;
 		this.forceLocal = request.forceLocal;
 		this.reader = request.reader;
+		this.queryParsed = null;
 	}
 
 	public Request(Config config, String name, boolean allowLeadingWildcard,
@@ -145,9 +147,13 @@ public abstract class Request implements XmlInfo {
 		this.query = null;
 		this.docIds = null;
 		this.queryString = queryString;
+		if (scoreFunction != null)
+			if (scoreFunction.trim().length() == 0)
+				scoreFunction = null;
 		this.scoreFunction = scoreFunction;
 		this.forceLocal = forceLocal;
 		this.reader = null;
+		this.queryParsed = null;
 	}
 
 	@Override
@@ -191,8 +197,9 @@ public abstract class Request implements XmlInfo {
 			}
 			synchronized (queryParser) {
 				query = queryParser.parse(queryString);
+				queryParsed = query.toString();
 				if (scoreFunction != null)
-					query = Expression.getQuery(query, scoreFunction);
+					query = RootExpression.getQuery(query, scoreFunction);
 			}
 			if (highlightFieldList.size() == 0)
 				return query;
@@ -213,6 +220,11 @@ public abstract class Request implements XmlInfo {
 
 	public String getQueryString() {
 		return queryString;
+	}
+
+	public String getQueryParsed() throws ParseException, SyntaxError {
+		getQuery();
+		return queryParsed;
 	}
 
 	protected void setQueryStringNotEscaped(String q) {

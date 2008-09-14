@@ -37,12 +37,11 @@ public class FloatExpression extends Expression {
 		value = token.value;
 	}
 
-	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
+	protected float getValue(float subQueryScore, float valSrcScore) {
 		return value;
 	}
 
-	protected float getValue(int docId, float subQueryScore,
-			float[] valSrcScores) {
+	protected float getValue(float subQueryScore, float[] valSrcScores) {
 		return value;
 	}
 
