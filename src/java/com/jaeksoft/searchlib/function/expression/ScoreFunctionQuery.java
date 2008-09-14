@@ -22,13 +22,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.function;
+package com.jaeksoft.searchlib.function.expression;
 
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.CustomScoreQuery;
-
-import com.jaeksoft.searchlib.function.expression.GroupExpression;
+import org.apache.lucene.search.function.ValueSourceQuery;
 
 public class ScoreFunctionQuery extends CustomScoreQuery {
 
@@ -37,35 +35,39 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 	 */
 	private static final long serialVersionUID = -3408889704609057463L;
 
-	private GroupExpression expression;
+	private Expression expression;
 
-	public ScoreFunctionQuery(Query subQuery, String scoreFunction)
+	protected ScoreFunctionQuery(Query subQuery, Expression expression)
 			throws SyntaxError {
 		super(subQuery);
-		// Remove all white-spaces
-		scoreFunction = scoreFunction.trim().replaceAll("\\s+", "");
+		this.expression = expression;
+	}
 
-		int pos = 0;
+	protected ScoreFunctionQuery(Query subQuery,
+			ValueSourceQuery valueSourceQuery, Expression expression)
+			throws SyntaxError {
+		super(subQuery, valueSourceQuery);
+		this.expression = expression;
+	}
 
-		char[] chars = scoreFunction.toCharArray();
-
-		expression = new GroupExpression(chars, pos);
+	protected ScoreFunctionQuery(Query subQuery,
+			ValueSourceQuery[] valueSourceQueries, Expression expression)
+			throws SyntaxError {
+		super(subQuery, valueSourceQueries);
+		this.expression = expression;
 	}
 
 	public float customScore(int docId, float subQueryScore, float valSrcScore) {
 		return expression.getValue(docId, subQueryScore, valSrcScore);
 	}
 
+	public float customScore(int docId, float subQueryScore,
+			float[] valSrcScores) {
+		return expression.getValue(docId, subQueryScore, valSrcScores);
+	}
+
 	public String toString() {
 		return expression.toString();
 	}
 
-	public static void main(String[] argv) {
-		String exp = " 10000 / ( 1 * rord( \"creationDate\") + 10000 ) ";
-		try {
-			System.out.println(new ScoreFunctionQuery(new BooleanQuery(), exp));
-		} catch (SyntaxError e) {
-			System.err.println(e.showError(exp));
-		}
-	}
 }

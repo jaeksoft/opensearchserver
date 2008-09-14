@@ -24,30 +24,24 @@
 
 package com.jaeksoft.searchlib.function.expression;
 
-import com.jaeksoft.searchlib.function.token.QuoteToken;
+public class SyntaxError extends Exception {
 
-public class VariableExpression extends Expression {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2568978873606720931L;
 
-	private String var;
+	private int pos;
 
-	protected VariableExpression(char[] chars, int pos) {
-		QuoteToken token = new QuoteToken(chars, pos);
-		var = token.word;
-		nextPos = pos + token.size + 2;
+	private String msg;
+
+	public SyntaxError(String msg, int pos) {
+		super(msg);
+		this.msg = msg;
+		this.pos = pos;
 	}
 
-	@Override
-	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
-		// TODO Auto-generated method stub
-		return 0;
+	protected String showError(String exp) {
+		return msg + " " + exp.substring(0, pos);
 	}
-
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append('"');
-		sb.append(var);
-		sb.append('"');
-		return sb.toString();
-	}
-
 }

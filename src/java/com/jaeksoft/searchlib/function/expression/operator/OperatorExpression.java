@@ -29,11 +29,19 @@ import com.jaeksoft.searchlib.function.expression.Expression;
 public abstract class OperatorExpression extends Expression {
 
 	protected OperatorExpression(int pos) {
+		super(null);
 		nextPos = ++pos;
 	}
 
 	@Override
 	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected float getValue(int docId, float subQueryScore,
+			float[] valSrcScores) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

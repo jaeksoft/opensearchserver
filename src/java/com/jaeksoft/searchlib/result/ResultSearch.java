@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.collapse.CollapseSearch;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetSearch;
-import com.jaeksoft.searchlib.function.SyntaxError;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;

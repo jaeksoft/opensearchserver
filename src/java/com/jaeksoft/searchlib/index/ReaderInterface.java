@@ -29,7 +29,7 @@ import java.io.IOException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
-import com.jaeksoft.searchlib.function.SyntaxError;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.Result;

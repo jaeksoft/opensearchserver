@@ -39,8 +39,8 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
-import com.jaeksoft.searchlib.function.ScoreFunctionQuery;
-import com.jaeksoft.searchlib.function.SyntaxError;
+import com.jaeksoft.searchlib.function.expression.Expression;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.schema.Field;
@@ -192,7 +192,7 @@ public abstract class Request implements XmlInfo {
 			synchronized (queryParser) {
 				query = queryParser.parse(queryString);
 				if (scoreFunction != null)
-					query = new ScoreFunctionQuery(query, scoreFunction);
+					query = Expression.getQuery(query, scoreFunction);
 			}
 			if (highlightFieldList.size() == 0)
 				return query;

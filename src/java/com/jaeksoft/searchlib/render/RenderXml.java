@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetList;
-import com.jaeksoft.searchlib.function.SyntaxError;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentRequestItem;

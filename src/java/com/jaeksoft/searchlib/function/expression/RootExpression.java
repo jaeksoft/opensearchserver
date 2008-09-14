@@ -22,26 +22,28 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.function;
+package com.jaeksoft.searchlib.function.expression;
 
-public class SyntaxError extends Exception {
+import java.util.ArrayList;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2568978873606720931L;
+public class RootExpression extends GroupExpression {
 
-	private int pos;
+	protected ArrayList<FunctionValueSource> functionValueSources = null;
 
-	private String msg;
-
-	public SyntaxError(String msg, int pos) {
-		super(msg);
-		this.msg = msg;
-		this.pos = pos;
+	protected RootExpression(char[] chars, int pos) throws SyntaxError {
+		super(null, chars, pos);
 	}
 
-	protected String showError(String exp) {
-		return msg + " " + exp.substring(0, pos);
+	public FunctionValueSource functionValueSource(String func, String field)
+			throws SyntaxError {
+		if (functionValueSources == null)
+			functionValueSources = new ArrayList<FunctionValueSource>();
+		FunctionValueSource fvs = new FunctionValueSource(func, field,
+				functionValueSources.size());
+		for (FunctionValueSource functionValueSource : functionValueSources)
+			if (functionValueSource.equals(fvs))
+				return functionValueSource;
+		functionValueSources.add(fvs);
+		return fvs;
 	}
 }

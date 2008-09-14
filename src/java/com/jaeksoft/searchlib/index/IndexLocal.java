@@ -35,7 +35,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
 
-import com.jaeksoft.searchlib.function.SyntaxError;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.Result;

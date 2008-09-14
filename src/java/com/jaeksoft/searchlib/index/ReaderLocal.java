@@ -60,7 +60,7 @@ import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.filter.FilterList;
-import com.jaeksoft.searchlib.function.SyntaxError;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentCacheItem;
 import com.jaeksoft.searchlib.result.DocumentRequestItem;

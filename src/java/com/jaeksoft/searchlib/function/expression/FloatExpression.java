@@ -31,12 +31,18 @@ public class FloatExpression extends Expression {
 	private float value;
 
 	protected FloatExpression(char[] chars, int pos) {
+		super(null);
 		FloatToken token = new FloatToken(chars, pos);
 		nextPos = pos + token.size;
 		value = token.value;
 	}
 
 	protected float getValue(int docId, float subQueryScore, float valSrcScore) {
+		return value;
+	}
+
+	protected float getValue(int docId, float subQueryScore,
+			float[] valSrcScores) {
 		return value;
 	}
 

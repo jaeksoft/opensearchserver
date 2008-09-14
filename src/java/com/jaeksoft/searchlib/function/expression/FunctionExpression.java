@@ -24,24 +24,31 @@
 
 package com.jaeksoft.searchlib.function.expression;
 
-import com.jaeksoft.searchlib.function.SyntaxError;
 import com.jaeksoft.searchlib.function.token.LetterOrDigitToken;
 
 public class FunctionExpression extends Expression {
 
-	private GroupExpression groupExpression;
+	private FunctionValueSource functionValueSource;
 
-	private String func;
-
-	protected FunctionExpression(char[] chars, int pos) throws SyntaxError {
+	protected FunctionExpression(RootExpression root, char[] chars, int pos)
+			throws SyntaxError {
+		super(root);
 		LetterOrDigitToken token = new LetterOrDigitToken(chars, pos);
-		func = token.word;
+		String func = token.word;
 		pos += token.size;
-		Expression exp = Expression.nextExpression(chars, pos);
-		if (!(exp instanceof GroupExpression))
+		if (pos >= chars.length)
 			throw new SyntaxError("Parenthesis missing", pos);
-		groupExpression = (GroupExpression) exp;
-		nextPos = exp.nextPos;
+		if (chars[pos++] != '(')
+			throw new SyntaxError("Parenthesis missing", pos);
+		token = new LetterOrDigitToken(chars, pos);
+		String field = token.word;
+		functionValueSource = root.functionValueSource(func, field);
+		pos += token.size;
+		if (pos >= chars.length)
+			throw new SyntaxError("Parenthesis missing", pos);
+		if (chars[pos++] != ')')
+			throw new SyntaxError("Parenthesis missing", pos);
+		nextPos = pos;
 	}
 
 	@Override
@@ -50,9 +57,13 @@ public class FunctionExpression extends Expression {
 		return 0;
 	}
 
+	protected float getValue(int docId, float subQueryScore,
+			float[] valSrcScores) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 	public String toString() {
-		StringBuffer sb = new StringBuffer(func);
-		sb.append(groupExpression);
-		return sb.toString();
+		return functionValueSource.toString();
 	}
 }

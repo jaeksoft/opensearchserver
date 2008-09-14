@@ -24,46 +24,43 @@
 
 package com.jaeksoft.searchlib.function.expression;
 
-import com.jaeksoft.searchlib.function.SyntaxError;
-import com.jaeksoft.searchlib.function.expression.operator.DivideExpression;
-import com.jaeksoft.searchlib.function.expression.operator.MinusExpression;
-import com.jaeksoft.searchlib.function.expression.operator.MultiplyExpression;
-import com.jaeksoft.searchlib.function.expression.operator.PlusExpression;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
 
 public abstract class Expression {
 
+	protected RootExpression root;
+
 	protected int nextPos;
 
-	protected Expression() {
+	protected Expression(RootExpression root) {
+		if (root == null && this instanceof RootExpression)
+			this.root = (RootExpression) this;
+		else
+			this.root = root;
 		this.nextPos = 0;
 	}
 
 	protected abstract float getValue(int docId, float subQueryScore,
 			float valSrcScore);
 
-	static protected Expression nextExpression(char[] chars, int pos)
+	protected abstract float getValue(int docId, float subQueryScore,
+			float[] valSrcScores);
+
+	static public ScoreFunctionQuery getQuery(Query subQuery, String exp)
 			throws SyntaxError {
-		if (pos >= chars.length)
-			return null;
-		char ch = chars[pos];
-		if (ch == '(')
-			return new GroupExpression(chars, pos + 1);
-		if (Character.isDigit(ch))
-			return new FloatExpression(chars, pos);
-		if (Character.isLetter(ch))
-			return new FunctionExpression(chars, pos);
-		if (ch == '"')
-			return new VariableExpression(chars, pos + 1);
-		if (ch == '+')
-			return new PlusExpression(pos);
-		if (ch == '*')
-			return new MultiplyExpression(pos);
-		if (ch == '/')
-			return new DivideExpression(pos);
-		if (ch == '-')
-			return new MinusExpression(pos);
-		if (ch == ')')
-			return null;
-		throw new SyntaxError("Syntax error", pos);
+		exp = exp.trim().replaceAll("\\s+", "");
+		Expression expression = new RootExpression(exp.toCharArray(), 0);
+		return new ScoreFunctionQuery(subQuery, expression);
 	}
+
+	public static void main(String[] argv) {
+		String exp = " 10000 / ( 1 * rord(creationDate) + 10000 ) ";
+		try {
+			System.out.println(getQuery(new BooleanQuery(), exp));
+		} catch (SyntaxError e) {
+			System.err.println(e.showError(exp));
+		}
+	}
+
 }
