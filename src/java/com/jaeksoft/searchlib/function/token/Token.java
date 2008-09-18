@@ -28,7 +28,10 @@ public abstract class Token {
 
 	public int size;
 
-	protected Token(char[] chars, int pos) {
+	private char[] additionalChars;
+
+	protected Token(char[] chars, int pos, char[] additionalChars) {
+		this.additionalChars = additionalChars;
 		StringBuffer token = new StringBuffer();
 		size = 0;
 		while (pos < chars.length) {
@@ -41,7 +44,14 @@ public abstract class Token {
 		set(token);
 	}
 
-	protected abstract boolean charIsValid(char ch);
+	protected boolean charIsValid(char ch) {
+		if (additionalChars == null)
+			return false;
+		for (char c : additionalChars)
+			if (c == ch)
+				return true;
+		return false;
+	}
 
 	protected abstract void set(StringBuffer token);
 

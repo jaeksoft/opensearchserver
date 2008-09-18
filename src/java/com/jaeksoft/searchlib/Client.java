@@ -75,8 +75,8 @@ public class Client extends Config implements XmlInfo {
 				uniqueField);
 	}
 
-	public void reload() throws IOException {
-		getIndex().reload(null, true);
+	public void reload(boolean deleteOld) throws IOException {
+		getIndex().reload(null, deleteOld);
 	}
 
 	public Result<?> search(Request request) throws IOException,

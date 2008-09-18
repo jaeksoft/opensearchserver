@@ -73,8 +73,6 @@
 	<target name="dist-war-release" depends="dist-jar-release">
 		<mkdir dir="${dist}" />
 		<war destfile="${dist}/${name-release}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
-			<lib file="${lib}/pojodbc.jar" />
-			<lib file="${lib}/je-3.3.62.jar" />
 			<lib file="${dist}/${name-release}.jar" />
 		</war>
 	</target>
@@ -87,8 +85,6 @@
 	<target name="dist-war-debug" depends="dist-jar-debug">
 		<mkdir dir="${dist}" />
 		<war destfile="${dist}/${name-debug}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
-			<lib file="${lib}/pojodbc.jar" />
-			<lib file="${lib}/je-3.3.62.jar" />
 			<lib file="${dist}/${name-debug}.jar" />
 		</war>
 	</target>

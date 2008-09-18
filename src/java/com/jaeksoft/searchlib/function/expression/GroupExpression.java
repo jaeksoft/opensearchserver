@@ -78,7 +78,7 @@ public class GroupExpression extends Expression {
 
 	private Expression nextLetterExpression(char[] chars, int pos)
 			throws SyntaxError {
-		LetterOrDigitToken token = new LetterOrDigitToken(chars, pos);
+		LetterOrDigitToken token = new LetterOrDigitToken(chars, pos, null);
 		if ("score".equalsIgnoreCase(token.word))
 			return new ScoreExpression(root, pos);
 		return new FunctionExpression(root, chars, pos);

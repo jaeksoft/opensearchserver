@@ -24,17 +24,19 @@
 
 package com.jaeksoft.searchlib.function.token;
 
-public class FloatToken extends Token {
+public class DigitToken extends Token {
 
 	public float value;
 
-	public FloatToken(char[] chars, int pos) {
-		super(chars, pos);
+	public DigitToken(char[] chars, int pos, char[] additionalChars) {
+		super(chars, pos, additionalChars);
 	}
 
 	@Override
 	protected boolean charIsValid(char ch) {
-		return Character.isDigit(ch) || ch == '.';
+		if (super.charIsValid(ch))
+			return true;
+		return Character.isDigit(ch);
 	}
 
 	protected void set(StringBuffer token) {

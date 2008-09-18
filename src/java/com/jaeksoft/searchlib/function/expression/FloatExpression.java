@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.function.expression;
 
-import com.jaeksoft.searchlib.function.token.FloatToken;
+import com.jaeksoft.searchlib.function.token.DigitToken;
 
 public class FloatExpression extends Expression {
 
@@ -32,7 +32,8 @@ public class FloatExpression extends Expression {
 
 	protected FloatExpression(char[] chars, int pos) {
 		super(null);
-		FloatToken token = new FloatToken(chars, pos);
+		char[] addchars = { '.' };
+		DigitToken token = new DigitToken(chars, pos, addchars);
 		nextPos = pos + token.size;
 		value = token.value;
 	}

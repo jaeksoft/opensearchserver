@@ -28,11 +28,13 @@ public class QuoteToken extends Token {
 
 	public String word;
 
-	public QuoteToken(char[] chars, int pos) {
-		super(chars, pos);
+	public QuoteToken(char[] chars, int pos, char[] additionalChars) {
+		super(chars, pos, additionalChars);
 	}
 
 	protected boolean charIsValid(char ch) {
+		if (super.charIsValid(ch))
+			return true;
 		return ch != '"';
 	}
 

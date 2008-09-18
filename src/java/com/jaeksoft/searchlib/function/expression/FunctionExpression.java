@@ -33,14 +33,15 @@ public class FunctionExpression extends Expression {
 	protected FunctionExpression(RootExpression root, char[] chars, int pos)
 			throws SyntaxError {
 		super(root);
-		LetterOrDigitToken token = new LetterOrDigitToken(chars, pos);
+		char[] addchars = { '.', '_', '-' };
+		LetterOrDigitToken token = new LetterOrDigitToken(chars, pos, addchars);
 		String func = token.word;
 		pos += token.size;
 		if (pos >= chars.length)
 			throw new SyntaxError("Parenthesis missing", chars, pos);
 		if (chars[pos++] != '(')
 			throw new SyntaxError("Parenthesis missing", chars, pos);
-		token = new LetterOrDigitToken(chars, pos);
+		token = new LetterOrDigitToken(chars, pos, addchars);
 		String field = token.word;
 		functionValueSource = root.functionValueSource(func, field);
 		pos += token.size;

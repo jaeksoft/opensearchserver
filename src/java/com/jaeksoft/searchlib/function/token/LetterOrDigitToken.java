@@ -28,12 +28,14 @@ public class LetterOrDigitToken extends Token {
 
 	public String word;
 
-	public LetterOrDigitToken(char[] chars, int pos) {
-		super(chars, pos);
+	public LetterOrDigitToken(char[] chars, int pos, char[] additionalChars) {
+		super(chars, pos, additionalChars);
 	}
 
 	protected boolean charIsValid(char ch) {
-		return Character.isLetterOrDigit(ch);
+		if (super.charIsValid(ch))
+			return true;
+		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '-';
 	}
 
 	protected void set(StringBuffer token) {
