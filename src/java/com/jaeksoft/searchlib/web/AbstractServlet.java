@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
 public abstract class AbstractServlet extends HttpServlet {
 
@@ -46,11 +47,11 @@ public abstract class AbstractServlet extends HttpServlet {
 	protected abstract void doRequest(ServletTransaction transaction)
 			throws ServletException;
 
-	private void doRequest(HttpServletRequest request,
+	final private void doRequest(HttpServletRequest request, Method method,
 			HttpServletResponse response) {
 
 		ServletTransaction transaction = new ServletTransaction(this, request,
-				response);
+				method, response);
 
 		String p;
 		if ((p = request.getParameter("log")) != null)
@@ -78,19 +79,19 @@ public abstract class AbstractServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) {
-		doRequest(request, response);
+		doRequest(request, Method.POST, response);
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) {
-		doRequest(request, response);
+		doRequest(request, Method.GET, response);
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest request,
 			HttpServletResponse response) {
-		doRequest(request, response);
+		doRequest(request, Method.PUT, response);
 	}
 
 }

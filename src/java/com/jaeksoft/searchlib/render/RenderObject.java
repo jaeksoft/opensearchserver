@@ -1,0 +1,73 @@
+/**   
+ * License Agreement for Jaeksoft SearchLib Community
+ *
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.jaeksoft.com
+ * 
+ * This file is part of Jaeksoft SearchLib Community.
+ *
+ * Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft SearchLib Community. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+package com.jaeksoft.searchlib.render;
+
+import java.io.IOException;
+import java.io.Serializable;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.lucene.index.CorruptIndexException;
+
+import com.jaeksoft.searchlib.remote.StreamWriteObject;
+import com.jaeksoft.searchlib.web.ServletTransaction;
+
+public class RenderObject implements Render {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2688584347178074332L;
+
+	private Serializable object;
+
+	public RenderObject(Serializable object) throws CorruptIndexException,
+			IOException {
+		this.object = object;
+	}
+
+	public void render(ServletTransaction servletTransaction) throws Exception {
+
+		HttpServletResponse response = servletTransaction.getServletResponse();
+		response.setContentType("application/x-java-serialized-object");
+		response.setHeader("Content-Encoding", "gzip");
+		StreamWriteObject writeObject = null;
+		IOException err = null;
+		try {
+			writeObject = new StreamWriteObject(servletTransaction
+					.getOutputStream());
+			writeObject.write(object);
+			writeObject.close(true);
+		} catch (IOException e) {
+			err = e;
+		} finally {
+			if (writeObject != null)
+				writeObject.close(false);
+			if (err != null)
+				throw err;
+		}
+	}
+
+}

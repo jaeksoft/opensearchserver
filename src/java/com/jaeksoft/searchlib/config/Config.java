@@ -33,12 +33,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.ParseException;
+import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.IndexAbstract;
+import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.index.IndexLocal;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
@@ -84,9 +86,19 @@ public abstract class Config implements XmlInfo {
 	protected IndexAbstract getIndex(File homeDir,
 			boolean createIndexIfNotExists) throws XPathExpressionException,
 			IOException {
-		return new IndexLocal(homeDir, xpp, xpp
-				.getNode("/configuration/indices/index"),
-				createIndexIfNotExists);
+		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
+		switch (nodeList.getLength()) {
+		case 0:
+			return null;
+		case 1:
+			return new IndexLocal(homeDir, xpp, xpp
+					.getNode("/configuration/indices/index"),
+					createIndexIfNotExists);
+		default:
+			return new IndexGroup(homeDir, xpp, xpp
+					.getNode("/configuration/indices/index"),
+					createIndexIfNotExists);
+		}
 
 	}
 

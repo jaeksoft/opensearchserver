@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -35,6 +36,10 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ServletTransaction {
 
+	public enum Method {
+		PUT, POST, GET, HEAD;
+	}
+
 	private String info;
 
 	private AbstractServlet servlet;
@@ -45,15 +50,22 @@ public class ServletTransaction {
 
 	private PrintWriter writer;
 
+	private BufferedReader reader;
+
 	private OutputStream out;
 
+	private Method method;
+
 	public ServletTransaction(AbstractServlet servlet,
-			HttpServletRequest request, HttpServletResponse response) {
+			HttpServletRequest request, Method method,
+			HttpServletResponse response) {
 		info = "";
+		this.method = method;
 		this.servlet = servlet;
 		this.response = response;
 		this.request = request;
 		writer = null;
+		reader = null;
 		out = null;
 	}
 
@@ -65,12 +77,23 @@ public class ServletTransaction {
 		return this.info;
 	}
 
+	public Method getMethod() {
+		return method;
+	}
+
 	public HttpServletRequest getServletRequest() {
 		return this.request;
 	}
 
 	public HttpServletResponse getServletResponse() {
 		return this.response;
+	}
+
+	public BufferedReader getReader() throws IOException {
+		if (reader != null)
+			return reader;
+		reader = request.getReader();
+		return reader;
 	}
 
 	public PrintWriter getWriter(String encoding) throws IOException {

@@ -27,18 +27,13 @@ package com.jaeksoft.searchlib.web;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.render.Render;
-import com.jaeksoft.searchlib.render.RenderJsp;
+import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.render.RenderObject;
-import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.DocumentResult;
 
-public class SearchServlet extends AbstractServlet {
+public class DocumentServlet extends AbstractServlet {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2241064786260022955L;
 
 	@Override
@@ -46,27 +41,38 @@ public class SearchServlet extends AbstractServlet {
 			throws ServletException {
 
 		try {
+			Client client = Client.getWebAppInstance();
 
 			HttpServletRequest request = servletTransaction.getServletRequest();
-			Client client = Client.getWebAppInstance();
-			Request req = client.getNewRequest(request.getParameter("qt"),
-					request);
+			Request req = client
+					.getNewRequest(request.getParameter("qt"), null);
 
-			Result<?> result = client.getIndex().search(req);
+			ReaderInterface reader = null;
 
-			Render render = null;
 			String p;
-			if ((p = request.getParameter("render")) != null) {
-				if ("jsp".equals(p))
-					render = new RenderJsp(request.getParameter("jsp"), result);
-				else if ("object".equals(p))
-					render = new RenderObject(result);
+
+			if ((p = request.getParameter("search")) != null) {
+				reader = client.getIndex().get(p);
+				req.setReader(reader);
 			}
 
-			if (render == null)
-				render = new RenderXml(result);
+			if ((p = request.getParameter("q")) != null)
+				req.setQueryString(p);
 
-			render.render(servletTransaction);
+			if ((p = request.getParameter("lang")) != null)
+				req.setLang(p);
+
+			if ((p = request.getParameter("forceLocal")) != null)
+				req.setForceLocal(true);
+
+			String[] docIds = request.getParameterValues("docId");
+			if (docIds != null)
+				for (String docId : docIds)
+					req.addDocId(reader, Integer.parseInt(docId));
+
+			DocumentResult result = client.getIndex().documents(req);
+
+			new RenderObject(result).render(servletTransaction);
 
 			servletTransaction.setInfo(req.getUrlQueryString());
 
