@@ -71,9 +71,16 @@ public class SortField extends Field {
 		org.apache.lucene.search.SortField[] sortFields = new org.apache.lucene.search.SortField[sortFieldList
 				.size()];
 		int i = 0;
-		for (SortField field : sortFieldList)
-			sortFields[i++] = new org.apache.lucene.search.SortField(
-					field.name, field.desc);
+		for (SortField field : sortFieldList) {
+			org.apache.lucene.search.SortField sf;
+			if (field.name.equals("score"))
+				sf = new org.apache.lucene.search.SortField(field.name,
+						org.apache.lucene.search.SortField.SCORE, field.desc);
+			else
+				sf = new org.apache.lucene.search.SortField(field.name,
+						field.desc);
+			sortFields[i++] = sf;
+		}
 		return new Sort(sortFields);
 	}
 

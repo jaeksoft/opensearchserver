@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SortField;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class TemplateRequest extends Request {
@@ -160,6 +161,12 @@ public class TemplateRequest extends Request {
 		nodes = xpp.getNodeList(node, "filters/filter");
 		for (int i = 0; i < nodes.getLength(); i++)
 			filterList.add(nodes.item(i).getTextContent(), Source.CONFIGXML);
+
+		FieldList<SortField> sortFields = templateRequest.getSortFieldList();
+		nodes = xpp.getNodeList(node, "sort/field");
+		for (int i = 0; i < nodes.getLength(); i++)
+			sortFields.add(SortField.newSortField(nodes.item(i)
+					.getTextContent()));
 		return templateRequest;
 	}
 }

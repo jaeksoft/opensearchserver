@@ -33,13 +33,15 @@ public class ScoreExpression extends Expression {
 
 	@Override
 	protected float getValue(float subQueryScore, float valSrcScore) {
-		return subQueryScore;
+		return subQueryScore * valSrcScore;
 	}
 
 	@Override
 	protected float getValue(float subQueryScore, float[] valSrcScores) {
-		// TODO Auto-generated method stub
-		return subQueryScore;
+		float v = subQueryScore;
+		for (float f : valSrcScores)
+			v *= f;
+		return v;
 	}
 
 }

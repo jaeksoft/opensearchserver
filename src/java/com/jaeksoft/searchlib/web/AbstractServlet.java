@@ -41,7 +41,7 @@ public abstract class AbstractServlet extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	final private static Logger log = Logger.getLogger(AbstractServlet.class
+	final private static Logger logger = Logger.getLogger(AbstractServlet.class
 			.getCanonicalName());
 
 	protected abstract void doRequest(ServletTransaction transaction)
@@ -55,14 +55,14 @@ public abstract class AbstractServlet extends HttpServlet {
 
 		String p;
 		if ((p = request.getParameter("log")) != null)
-			log.setLevel(Level.parse(p.toUpperCase()));
+			logger.setLevel(Level.parse(p.toUpperCase()));
 
 		Timer timer = new Timer();
 
 		try {
 			doRequest(transaction);
 			timer.end();
-			log.info(this.getClass().getSimpleName()
+			logger.info(this.getClass().getSimpleName()
 					+ (transaction.getInfo() == null ? "" : " "
 							+ transaction.getInfo()) + " " + timer.duration());
 		} catch (Exception e) {
@@ -72,7 +72,7 @@ public abstract class AbstractServlet extends HttpServlet {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			log.severe(e.getMessage());
+			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 

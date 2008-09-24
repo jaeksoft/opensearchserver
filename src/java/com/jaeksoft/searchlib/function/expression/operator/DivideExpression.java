@@ -32,7 +32,7 @@ public class DivideExpression extends OperatorExpression {
 
 	@Override
 	public float newValue(float value1, float value2) {
-		return value1 / value2;
+		return (float) value1 / value2;
 	}
 
 	public String toString() {

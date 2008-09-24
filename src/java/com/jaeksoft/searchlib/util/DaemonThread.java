@@ -24,11 +24,13 @@
 
 package com.jaeksoft.searchlib.util;
 
-import org.apache.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class DaemonThread implements Runnable {
 
-	final private static Logger logger = Logger.getLogger(DaemonThread.class);
+	final private static Logger logger = Logger.getLogger(DaemonThread.class
+			.getCanonicalName());
 
 	public enum Status {
 
@@ -164,7 +166,7 @@ public abstract class DaemonThread implements Runnable {
 				runner();
 			} catch (Exception e) {
 				setError(e.getMessage());
-				logger.error(e.getMessage(), e);
+				logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 			if (perpetual)
 				sleepSec(sleepInterval);
@@ -176,7 +178,7 @@ public abstract class DaemonThread implements Runnable {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
-			logger.error(e);
+			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 

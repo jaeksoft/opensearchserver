@@ -132,7 +132,6 @@ public class ResultGroup extends Result<CollapseGroup> {
 
 			if (result.getMaxScore() > this.maxScore)
 				this.maxScore = result.getMaxScore();
-
 			return r;
 		}
 	}
