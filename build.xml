@@ -40,7 +40,7 @@
 	</target>
 
 	<target name="compile-release" depends="init" description="compile the source ">
-		<javac debug="false" optimize="true" srcdir="${src}" destdir="${build-release}">
+		<javac debug="false" compiler="modern" optimize="true" srcdir="${src}" destdir="${build-release}">
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**.jar" />
@@ -53,7 +53,7 @@
 	</target>
 
 	<target name="compile-debug" depends="init" description="compile the source ">
-		<javac debug="true" optimize="false" srcdir="${src}" destdir="${build-debug}">
+		<javac debug="true" compiler="modern" optimize="false" srcdir="${src}" destdir="${build-debug}">
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**.jar" />
