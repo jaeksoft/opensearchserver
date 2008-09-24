@@ -64,10 +64,10 @@ public class TemplateRequest extends Request {
 			boolean allowLeadingWildcard, int phraseSlop,
 			Operator defaultOperator, int start, int rows, String lang,
 			String queryString, String scoreFunction, boolean forceLocal,
-			boolean delete) {
+			boolean delete, boolean withDocuments) {
 		super(config, name, allowLeadingWildcard, phraseSlop, defaultOperator,
 				start, rows, lang, queryString, scoreFunction, forceLocal,
-				delete);
+				delete, withDocuments);
 	}
 
 	/**
@@ -137,7 +137,8 @@ public class TemplateRequest extends Request {
 						.getAttributeValue(node, "rows"), XPathParser
 						.getAttributeString(node, "lang"), xpp.getNodeString(
 						node, "query"), xpp
-						.getNodeString(node, "scoreFunction"), false, false);
+						.getNodeString(node, "scoreFunction"), false, false,
+				false);
 
 		FieldList<FieldValue> returnFields = templateRequest
 				.getReturnFieldList();

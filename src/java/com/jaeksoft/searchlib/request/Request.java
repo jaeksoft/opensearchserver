@@ -80,6 +80,7 @@ public abstract class Request implements XmlInfo {
 	private ArrayList<Integer> docIds;
 	private transient ReaderInterface reader;
 	private boolean delete;
+	private boolean withDocuments;
 
 	protected Request(Request request) {
 		this.sourceRequest = request;
@@ -105,6 +106,7 @@ public abstract class Request implements XmlInfo {
 		this.collapseMax = request.collapseMax;
 		this.collapseActive = request.collapseActive;
 		this.delete = request.delete;
+		this.withDocuments = request.withDocuments;
 		this.start = request.start;
 		this.rows = request.rows;
 		this.lang = request.lang;
@@ -123,7 +125,7 @@ public abstract class Request implements XmlInfo {
 	public Request(Config config, String name, boolean allowLeadingWildcard,
 			int phraseSlop, QueryParser.Operator defaultOperator, int start,
 			int rows, String lang, String queryString, String scoreFunction,
-			boolean forceLocal, boolean delete) {
+			boolean forceLocal, boolean delete, boolean withDocuments) {
 		this.sourceRequest = null;
 		this.config = config;
 		this.name = name;
@@ -152,6 +154,8 @@ public abstract class Request implements XmlInfo {
 				scoreFunction = null;
 		this.scoreFunction = scoreFunction;
 		this.forceLocal = forceLocal;
+		this.delete = delete;
+		this.withDocuments = withDocuments;
 		this.reader = null;
 		this.queryParsed = null;
 	}
@@ -298,6 +302,14 @@ public abstract class Request implements XmlInfo {
 		this.delete = delete;
 	}
 
+	public boolean isWithDocument() {
+		return this.withDocuments;
+	}
+
+	public void setWithDocument(boolean withDocuments) {
+		this.withDocuments = withDocuments;
+	}
+
 	public int getRows() {
 		return this.rows;
 	}
@@ -360,6 +372,8 @@ public abstract class Request implements XmlInfo {
 		}
 		if (this.delete)
 			sb.append("&delete");
+		if (this.withDocuments)
+			sb.append("&withDocs");
 		if (docIds != null) {
 			for (int docId : docIds) {
 				sb.append("&docId=");

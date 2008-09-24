@@ -210,7 +210,10 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	public ResultSearch search(Request request) throws IOException,
 			ParseException, SyntaxError {
-		return new ResultSearch(this, request);
+		ResultSearch result = new ResultSearch(this, request);
+		if (request.isWithDocument())
+			result.documents();
+		return result;
 	}
 
 	public void search(Query query, Filter filter, HitCollector collector)

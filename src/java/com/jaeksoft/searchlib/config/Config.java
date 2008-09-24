@@ -152,6 +152,9 @@ public abstract class Config implements XmlInfo {
 		if ((p = request.getParameter("delete")) != null)
 			req.setDelete(true);
 
+		if ((p = request.getParameter("withDocs")) != null)
+			req.setWithDocument(true);
+
 		String[] values;
 
 		if ((values = request.getParameterValues("fq")) != null) {
