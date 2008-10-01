@@ -40,7 +40,6 @@ import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SortField;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -79,24 +78,6 @@ public class TemplateRequest extends Request {
 		super(req);
 	}
 
-	@Override
-	protected QueryParser getNewQueryParser() {
-		synchronized (this) {
-			Schema schema = this.getConfig().getSchema();
-			return new QueryParser(schema.getFieldList().getDefaultField()
-					.getName(), schema.getQueryPerFieldAnalyzer(getLang()));
-		}
-	}
-
-	@Override
-	protected QueryParser getNewHighlightQueryParser() {
-		synchronized (this) {
-			Schema schema = this.getConfig().getSchema();
-			return new QueryParser(schema.getFieldList().getDefaultField()
-					.getName(), schema.getHighlightPerFieldAnalyzer(getLang()));
-		}
-	}
-
 	/**
 	 * Retourne un nouvel objet clon�.
 	 */
@@ -106,7 +87,7 @@ public class TemplateRequest extends Request {
 	}
 
 	@Override
-	public void setQueryString(String q) throws ParseException {
+	public void setQueryString(String q) {
 		setQueryStringNotEscaped(getSourceRequest().getQueryString().replace(
 				"$$", q));
 	}

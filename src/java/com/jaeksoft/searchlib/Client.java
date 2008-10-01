@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import javax.naming.NamingException;
 
@@ -61,6 +62,11 @@ public class Client extends Config implements XmlInfo {
 	public void updateDocument(IndexDocument document)
 			throws NoSuchAlgorithmException, IOException {
 		getIndex().updateDocument(getSchema(), document, false);
+	}
+
+	public void updateDocuments(List<? extends IndexDocument> documents)
+			throws NoSuchAlgorithmException, IOException {
+		getIndex().updateDocuments(getSchema(), documents, false);
 	}
 
 	public void deleteDocuments(String uniqueField)

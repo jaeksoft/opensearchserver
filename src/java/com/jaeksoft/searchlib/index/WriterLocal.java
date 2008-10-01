@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
@@ -150,23 +151,43 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
+	private void updateDocument(Schema schema, IndexDocument document)
+			throws CorruptIndexException, IOException, NoSuchAlgorithmException {
+		if (!acceptDocument(document))
+			return;
+		String field = schema.getFieldList().getUniqueField().getName();
+		Document doc = getLuceneDocument(schema, document);
+		Term updateTerm = new Term(field, doc.get(field));
+		PerFieldAnalyzerWrapper pfa = schema.getQueryPerFieldAnalyzer(document
+				.getLang());
+		indexWriter.updateDocument(updateTerm, doc, pfa);
+	}
+
 	public void updateDocument(Schema schema, IndexDocument document,
 			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
 		l.lock();
 		try {
-			if (!acceptDocument(document))
-				return;
 			open();
-			String field = schema.getFieldList().getUniqueField().getName();
-			Document doc = getLuceneDocument(schema, document);
-			Term updateTerm = new Term(field, doc.get(field));
-			PerFieldAnalyzerWrapper pfa = schema
-					.getQueryPerFieldAnalyzer(document.getLang());
-			indexWriter.updateDocument(updateTerm, doc, pfa);
+			updateDocument(schema, document);
 			close();
 		} finally {
 			l.unlock();
 		}
+	}
+
+	public void updateDocuments(Schema schema,
+			List<? extends IndexDocument> documents, boolean bForceLocal)
+			throws NoSuchAlgorithmException, IOException {
+		l.lock();
+		try {
+			open();
+			for (IndexDocument document : documents)
+				updateDocument(schema, document);
+			close();
+		} finally {
+			l.unlock();
+		}
+
 	}
 
 	private static Document getLuceneDocument(Schema schema,

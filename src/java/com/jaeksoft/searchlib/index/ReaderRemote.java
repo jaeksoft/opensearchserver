@@ -63,8 +63,8 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 	}
 
 	public void reload(String indexName, boolean deleteOld) throws IOException {
-		String u = remote.getUrl() + "stats?reload="
-				+ URLEncoder.encode(remote.getName(), "UTF-8") + "&forceLocal";
+		String u = remote.getUrl("stats?reload="
+				+ URLEncoder.encode(remote.getName(), "UTF-8") + "&forceLocal");
 		if (deleteOld)
 			u += "&deleteOld";
 		HttpURLConnection huc = (HttpURLConnection) new URL(u).openConnection();
@@ -80,9 +80,9 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 
 	private URL getRemoteSearchUrl(Request req)
 			throws UnsupportedEncodingException, MalformedURLException {
-		String baseUrl = remote.getUrl() + "/select?search="
+		String baseUrl = remote.getUrl("/select?search="
 				+ URLEncoder.encode(remote.getName(), "UTF-8")
-				+ "&render=object&forceLocal";
+				+ "&render=object&forceLocal");
 		baseUrl += "&" + req.getUrlQueryString();
 		return new URL(baseUrl);
 	}
@@ -114,9 +114,9 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 
 	private URL getRemoteDocumentUrl(Request req)
 			throws UnsupportedEncodingException, MalformedURLException {
-		String baseUrl = remote.getUrl() + "/document?search="
+		String baseUrl = remote.getUrl("/document?search="
 				+ URLEncoder.encode(remote.getName(), "UTF-8")
-				+ "&render=object&forceLocal";
+				+ "&render=object&forceLocal");
 		baseUrl += "&" + req.getUrlQueryString();
 		return new URL(baseUrl);
 	}

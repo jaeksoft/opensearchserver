@@ -59,6 +59,12 @@ public class FieldContent implements Serializable, XmlInfo {
 		values.clear();
 	}
 
+	public String getValue(int pos) {
+		if (values == null)
+			return null;
+		return values.get(pos);
+	}
+
 	public ArrayList<String> getValues() {
 		return values;
 	}

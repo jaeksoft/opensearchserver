@@ -82,6 +82,13 @@ public class LRUCache<K, V> {
 		}
 	}
 
+	public void expire(K key) {
+		synchronized (this) {
+			evictions++;
+			map.remove(key);
+		}
+	}
+
 	public V put(K key, V value) {
 		synchronized (this) {
 			inserts++;

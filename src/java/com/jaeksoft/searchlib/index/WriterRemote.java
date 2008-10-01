@@ -32,12 +32,14 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.List;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.remote.Remote;
+import com.jaeksoft.searchlib.remote.UrlRead;
 import com.jaeksoft.searchlib.remote.UrlWriteObject;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.Md5Spliter;
@@ -71,11 +73,10 @@ public class WriterRemote extends WriterAbstract {
 		return md5spliter.acceptAnyKey(fieldContent.getValues());
 	}
 
-	private URL getUrl() throws UnsupportedEncodingException,
-			MalformedURLException {
-		String url = remote.getUrl() + "index?index="
-				+ URLEncoder.encode(remote.getName(), "UTF-8")
-				+ "&render=object&forceLocal";
+	private URL getCommandUrl(String command)
+			throws UnsupportedEncodingException, MalformedURLException {
+		String url = remote.getUrl(command + "?index="
+				+ URLEncoder.encode(remote.getName(), "UTF-8") + "&forceLocal");
 		return new URL(url);
 	}
 
@@ -88,7 +89,20 @@ public class WriterRemote extends WriterAbstract {
 			IOException {
 		if (forceLocal)
 			return;
-		// TODO Auto-generated method stub
+		UrlRead urlRead = null;
+		try {
+			String url = getCommandUrl("optimize").toExternalForm();
+			urlRead = new UrlRead(url);
+			if (urlRead.getResponseCode() != 200)
+				throw new IOException(url + " returns "
+						+ urlRead.getResponseMessage() + "("
+						+ urlRead.getResponseCode() + ")");
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (urlRead != null)
+				urlRead.close();
+		}
 	}
 
 	public void updateDocument(Schema schema, IndexDocument document,
@@ -100,7 +114,30 @@ public class WriterRemote extends WriterAbstract {
 		IOException err = null;
 		UrlWriteObject writeObject = null;
 		try {
-			writeObject = new UrlWriteObject(getUrl(), document);
+			writeObject = new UrlWriteObject(getCommandUrl("index"), document);
+			if (writeObject.getResponseCode() != 200)
+				throw new IOException(writeObject.getResponseCode() + " "
+						+ writeObject.getResponseMessage() + ")");
+		} catch (IOException e) {
+			e.printStackTrace();
+			err = e;
+		} finally {
+			if (writeObject != null)
+				writeObject.close();
+			if (err != null)
+				throw err;
+		}
+	}
+
+	public void updateDocuments(Schema schema,
+			List<? extends IndexDocument> documents, boolean forceLocal)
+			throws NoSuchAlgorithmException, IOException {
+		if (forceLocal)
+			return;
+		IOException err = null;
+		UrlWriteObject writeObject = null;
+		try {
+			writeObject = new UrlWriteObject(getCommandUrl("index"), documents);
 			if (writeObject.getResponseCode() != 200)
 				throw new IOException(writeObject.getResponseCode() + " "
 						+ writeObject.getResponseMessage() + ")");
@@ -118,7 +155,23 @@ public class WriterRemote extends WriterAbstract {
 	public void deleteDocuments(Schema schema, String uniqueField,
 			boolean forceLocal) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
-		// TODO Auto-generated method stub
+		if (forceLocal)
+			return;
+		UrlRead urlRead = null;
+		try {
+			String url = getCommandUrl("delete").toExternalForm();
+			url += "&uniq=" + URLEncoder.encode(uniqueField, "UTF-8");
+			urlRead = new UrlRead(url);
+			if (urlRead.getResponseCode() != 200)
+				throw new IOException(url + " returns "
+						+ urlRead.getResponseMessage() + "("
+						+ urlRead.getResponseCode() + ")");
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (urlRead != null)
+				urlRead.close();
+		}
 	}
 
 	public static WriterRemote fromXmlConfig(String indexName, XPathParser xpp,

@@ -88,8 +88,6 @@ public class DocSetHits implements XmlInfo, Serializable {
 		this.hits = reader.search(query, filter, sort);
 		this.collectedDocs = new int[this.hits.length()];
 		reader.search(query, filter, hc);
-		if (delete)
-			reader.flush();
 	}
 
 	public void getHits(int rows) throws IOException {

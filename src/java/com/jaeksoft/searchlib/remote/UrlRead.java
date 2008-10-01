@@ -25,26 +25,35 @@
 package com.jaeksoft.searchlib.remote;
 
 import java.io.IOException;
-import java.net.URL;
 
-public class UrlReadObject extends UrlRead {
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.methods.GetMethod;
 
-	private StreamReadObject sro;
+public class UrlRead {
 
-	public UrlReadObject(URL url) throws IOException {
-		super(url.toExternalForm());
-		sro = new StreamReadObject(getMethod.getResponseBodyAsStream());
+	protected GetMethod getMethod = null;
+
+	public UrlRead(String url) throws HttpException, IOException {
+		HttpClient httpClient = new HttpClient();
+		getMethod = new GetMethod(url);
+		getMethod.addRequestHeader("Connection", "close");
+		httpClient.executeMethod(getMethod);
 	}
 
-	public Object read() throws IOException, ClassNotFoundException {
-		return sro.read();
+	public int getResponseCode() throws IOException {
+		return getMethod.getStatusCode();
+	}
+
+	public String getResponseMessage() throws IOException {
+		return getMethod.getStatusText();
 	}
 
 	public void close() {
-		if (sro != null) {
-			sro.close();
-			sro = null;
+		if (getMethod != null) {
+			getMethod.releaseConnection();
+			getMethod = null;
 		}
-		super.close();
 	}
+
 }

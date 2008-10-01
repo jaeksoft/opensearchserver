@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.List;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
@@ -155,6 +156,40 @@ public class IndexLocal extends IndexAbstract {
 				return;
 			if (writerRemote != null)
 				writerRemote.updateDocument(indexName, schema, document,
+						forceLocal);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void updateDocuments(Schema schema,
+			List<? extends IndexDocument> documents, boolean forceLocal)
+			throws NoSuchAlgorithmException, IOException {
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.updateDocuments(schema, documents, forceLocal);
+			if (forceLocal)
+				return;
+			if (writerRemote != null)
+				writerRemote.updateDocuments(schema, documents, forceLocal);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void updateDocuments(String indexName, Schema schema,
+			List<? extends IndexDocument> documents, boolean forceLocal)
+			throws NoSuchAlgorithmException, IOException {
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.updateDocuments(indexName, schema, documents,
+						forceLocal);
+			if (forceLocal)
+				return;
+			if (writerRemote != null)
+				writerRemote.updateDocuments(indexName, schema, documents,
 						forceLocal);
 		} finally {
 			r.unlock();

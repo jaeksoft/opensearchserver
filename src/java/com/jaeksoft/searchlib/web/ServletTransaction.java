@@ -26,11 +26,12 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.HashSet;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,7 +53,9 @@ public class ServletTransaction {
 
 	private BufferedReader reader;
 
-	private OutputStream out;
+	private ServletOutputStream out;
+
+	private ServletInputStream in;
 
 	private Method method;
 
@@ -67,6 +70,7 @@ public class ServletTransaction {
 		writer = null;
 		reader = null;
 		out = null;
+		in = null;
 	}
 
 	public void setInfo(String info) {
@@ -90,10 +94,21 @@ public class ServletTransaction {
 	}
 
 	public BufferedReader getReader() throws IOException {
+		if (in != null)
+			throw new IOException("InputStream delivered before");
 		if (reader != null)
 			return reader;
 		reader = request.getReader();
 		return reader;
+	}
+
+	public ServletInputStream getInputStream() throws IOException {
+		if (reader != null)
+			throw new IOException("Reader delivered before");
+		if (in != null)
+			return in;
+		in = request.getInputStream();
+		return in;
 	}
 
 	public PrintWriter getWriter(String encoding) throws IOException {
@@ -106,7 +121,7 @@ public class ServletTransaction {
 		return writer;
 	}
 
-	public OutputStream getOutputStream() throws IOException {
+	public ServletOutputStream getOutputStream() throws IOException {
 		if (writer != null)
 			throw new IOException("Writer delivered before");
 		if (out != null)

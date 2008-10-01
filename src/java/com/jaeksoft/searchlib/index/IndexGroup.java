@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -121,6 +122,22 @@ public class IndexGroup extends IndexAbstract {
 			return;
 		index.updateDocument(schema, document, forceLocal);
 
+	}
+
+	public void updateDocuments(Schema schema,
+			List<? extends IndexDocument> documents, boolean forceLocal)
+			throws NoSuchAlgorithmException, IOException {
+		for (IndexAbstract index : getIndices())
+			index.updateDocuments(schema, documents, forceLocal);
+	}
+
+	public void updateDocuments(String indexName, Schema schema,
+			List<? extends IndexDocument> documents, boolean forceLocal)
+			throws NoSuchAlgorithmException, IOException {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return;
+		index.updateDocuments(indexName, schema, documents, forceLocal);
 	}
 
 	public void deleteDocuments(Schema schema, String uniqueField,

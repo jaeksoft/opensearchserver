@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -48,6 +49,14 @@ public interface WriterInterface {
 
 	public void updateDocument(String indexName, Schema schema,
 			IndexDocument document, boolean bForceLocal)
+			throws NoSuchAlgorithmException, IOException;
+
+	public void updateDocuments(Schema schema,
+			List<? extends IndexDocument> documents, boolean bForceLocal)
+			throws NoSuchAlgorithmException, IOException;
+
+	public void updateDocuments(String indexName, Schema schema,
+			List<? extends IndexDocument> documents, boolean bForceLocal)
 			throws NoSuchAlgorithmException, IOException;
 
 	public void optimize(String indexName, boolean bForceLocal)

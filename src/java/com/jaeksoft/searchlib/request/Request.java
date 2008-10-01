@@ -30,9 +30,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.config.Config;
@@ -46,10 +48,11 @@ import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SortField;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public abstract class Request implements XmlInfo {
+public class Request implements XmlInfo {
 
 	private Request sourceRequest;
 	private String name;
@@ -77,15 +80,48 @@ public abstract class Request implements XmlInfo {
 	private Query highlightQuery;
 	private transient Config config;
 	private boolean forceLocal;
-	private ArrayList<Integer> docIds;
+	private List<Integer> docIds;
 	private transient ReaderInterface reader;
 	private boolean delete;
 	private boolean withDocuments;
 
+	public Request(Config config) {
+		this.sourceRequest = null;
+		this.config = config;
+		this.name = null;
+		this.filterList = new FilterList(this.config);
+		this.queryParser = null;
+		this.highlightQueryParser = null;
+		this.allowLeadingWildcard = false;
+		this.phraseSlop = 10;
+		this.defaultOperator = Operator.OR;
+		this.highlightFieldList = new FieldList<HighlightField>();
+		this.returnFieldList = new FieldList<FieldValue>();
+		this.sortFieldList = new FieldList<SortField>();
+		this.documentFieldList = null;
+		this.facetFieldList = new FieldList<FacetField>();
+		this.collapseField = null;
+		this.collapseMax = 2;
+		this.collapseActive = false;
+		this.start = 0;
+		this.rows = 10;
+		this.lang = null;
+		this.query = null;
+		this.docIds = null;
+		this.queryString = null;
+		this.scoreFunction = null;
+		this.forceLocal = false;
+		this.delete = false;
+		this.withDocuments = false;
+		this.reader = null;
+		this.queryParsed = null;
+		this.highlightQuery = null;
+	}
+
 	protected Request(Request request) {
+		this(request.config);
 		this.sourceRequest = request;
 		this.name = request.name;
-		this.config = request.config;
 		this.filterList = new FilterList(request.filterList);
 		this.queryParser = null;
 		this.highlightQueryParser = null;
@@ -122,32 +158,18 @@ public abstract class Request implements XmlInfo {
 		this.queryParsed = null;
 	}
 
-	public Request(Config config, String name, boolean allowLeadingWildcard,
+	protected Request(Config config, String name, boolean allowLeadingWildcard,
 			int phraseSlop, QueryParser.Operator defaultOperator, int start,
 			int rows, String lang, String queryString, String scoreFunction,
 			boolean forceLocal, boolean delete, boolean withDocuments) {
-		this.sourceRequest = null;
-		this.config = config;
+		this(config);
 		this.name = name;
-		this.filterList = new FilterList(this.config);
-		this.queryParser = null;
-		this.highlightQueryParser = null;
 		this.allowLeadingWildcard = allowLeadingWildcard;
 		this.phraseSlop = phraseSlop;
 		this.defaultOperator = defaultOperator;
-		this.highlightFieldList = new FieldList<HighlightField>();
-		this.returnFieldList = new FieldList<FieldValue>();
-		this.sortFieldList = new FieldList<SortField>();
-		this.documentFieldList = null;
-		this.facetFieldList = new FieldList<FacetField>();
-		this.collapseField = null;
-		this.collapseMax = 2;
-		this.collapseActive = false;
 		this.start = start;
 		this.rows = rows;
 		this.lang = lang;
-		this.query = null;
-		this.docIds = null;
 		this.queryString = queryString;
 		if (scoreFunction != null)
 			if (scoreFunction.trim().length() == 0)
@@ -156,16 +178,28 @@ public abstract class Request implements XmlInfo {
 		this.forceLocal = forceLocal;
 		this.delete = delete;
 		this.withDocuments = withDocuments;
-		this.reader = null;
-		this.queryParsed = null;
 	}
 
 	@Override
-	public abstract Request clone();
+	public Request clone() {
+		return new Request(this);
+	}
 
-	protected abstract QueryParser getNewQueryParser();
+	protected QueryParser getNewQueryParser() {
+		synchronized (this) {
+			Schema schema = this.getConfig().getSchema();
+			return new QueryParser(schema.getFieldList().getDefaultField()
+					.getName(), schema.getQueryPerFieldAnalyzer(getLang()));
+		}
+	}
 
-	protected abstract QueryParser getNewHighlightQueryParser();
+	protected QueryParser getNewHighlightQueryParser() {
+		synchronized (this) {
+			Schema schema = this.getConfig().getSchema();
+			return new QueryParser(schema.getFieldList().getDefaultField()
+					.getName(), schema.getHighlightPerFieldAnalyzer(getLang()));
+		}
+	}
 
 	private static void setQueryParser(Request req, QueryParser queryParser) {
 		synchronized (queryParser) {
@@ -235,7 +269,7 @@ public abstract class Request implements XmlInfo {
 		queryString = q;
 	}
 
-	public void setQueryString(String q) throws ParseException {
+	public void setQueryString(String q) {
 		synchronized (this) {
 			queryString = q;
 			query = null;
@@ -417,7 +451,7 @@ public abstract class Request implements XmlInfo {
 		docIds.add(docId);
 	}
 
-	public ArrayList<Integer> getDocIds() {
+	public List<Integer> getDocIds() {
 		return this.docIds;
 	}
 

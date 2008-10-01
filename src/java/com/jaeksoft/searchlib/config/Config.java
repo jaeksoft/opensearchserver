@@ -110,6 +110,10 @@ public abstract class Config implements XmlInfo {
 		return this.index;
 	}
 
+	public Request getNewRequest() {
+		return new Request(this);
+	}
+
 	public Request getNewRequest(String requestName) {
 		return requests.get(requestName).clone();
 	}

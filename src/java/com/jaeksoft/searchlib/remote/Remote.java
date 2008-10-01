@@ -49,9 +49,21 @@ public class Remote implements XmlInfo {
 		this.path = path;
 	}
 
-	public String getUrl() {
-		return this.protocol + "://" + this.host + ':' + this.port + '/' + path
-				+ '/';
+	public String getUrl(String queryString) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(this.protocol);
+		sb.append("://");
+		sb.append(this.host);
+		sb.append(':');
+		sb.append(this.port);
+		sb.append('/');
+		if (path != null && path.length() != 0) {
+			sb.append(path);
+			sb.append('/');
+		}
+		if (queryString != null)
+			sb.append(queryString);
+		return sb.toString();
 	}
 
 	public String getName() {

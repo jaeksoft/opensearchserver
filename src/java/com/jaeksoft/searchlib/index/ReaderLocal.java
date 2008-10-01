@@ -28,9 +28,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -234,7 +234,6 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		r.lock();
 		try {
 			indexReader.deleteDocument(docNum);
-			flush();
 		} finally {
 			r.unlock();
 		}
@@ -384,11 +383,17 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 				cacheDshKey.append(SortField.getSortKey(sortFieldList));
 			}
 			String cacheDshKeyStr = cacheDshKey.toString();
-			DocSetHits dsh = searchCache.getAndPromote(cacheDshKeyStr);
+			DocSetHits dsh = null;
+			boolean isDelete = request.isDelete();
+			if (isDelete)
+				searchCache.expire(cacheDshKeyStr);
+			else
+				dsh = searchCache.getAndPromote(cacheDshKeyStr);
 			if (dsh == null) {
 				dsh = new DocSetHits(this, request.getQuery(), filter, sort,
-						request.isDelete());
-				searchCache.put(cacheDshKeyStr, dsh);
+						isDelete);
+				if (!isDelete)
+					searchCache.put(cacheDshKeyStr, dsh);
 			}
 			return dsh;
 		} finally {
@@ -423,7 +428,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			throws CorruptIndexException, IOException {
 		r.lock();
 		try {
-			ArrayList<Integer> docIds = request.getDocIds();
+			List<Integer> docIds = request.getDocIds();
 			if (docIds == null)
 				return null;
 			DocumentResult documentResult = new DocumentResult();
@@ -443,15 +448,6 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			if (reader == null)
 				return true;
 			return reader.sameIndex(this);
-		} finally {
-			r.unlock();
-		}
-	}
-
-	public void flush() throws IOException {
-		r.lock();
-		try {
-			indexReader.flush();
 		} finally {
 			r.unlock();
 		}

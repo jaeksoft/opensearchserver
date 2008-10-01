@@ -24,6 +24,10 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
@@ -37,6 +41,33 @@ public class IndexServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 3855116559376800406L;
 
+	private void updateDoc(Client client, IndexDocument doc,
+			List<? extends IndexDocument> docList, boolean forceLocal)
+			throws NoSuchAlgorithmException, IOException {
+		if (doc != null)
+			client.getIndex().updateDocument(client.getSchema(), doc,
+					forceLocal);
+		else if (docList != null)
+			client.getIndex().updateDocuments(null, client.getSchema(),
+					docList, forceLocal);
+	}
+
+	private void updateDoc(Client client, String indexName, IndexDocument doc,
+			List<? extends IndexDocument> docList, boolean forceLocal)
+			throws NoSuchAlgorithmException, IOException {
+		if (indexName == null) {
+			updateDoc(client, doc, docList, forceLocal);
+			return;
+		}
+		if (doc != null)
+			client.getIndex().updateDocument(indexName, client.getSchema(),
+					doc, forceLocal);
+		else if (docList != null)
+			client.getIndex().updateDocuments(indexName, client.getSchema(),
+					docList, forceLocal);
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
@@ -45,15 +76,16 @@ public class IndexServlet extends AbstractServlet {
 			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
 			readObject = new StreamReadObject(request.getInputStream());
-			IndexDocument document = (IndexDocument) readObject.read();
+			List<? extends IndexDocument> docList = null;
+			IndexDocument doc = null;
+			Object obj = readObject.read();
+			if (obj instanceof List)
+				docList = (List<? extends IndexDocument>) obj;
+			else if (obj instanceof IndexDocument)
+				doc = (IndexDocument) obj;
 			String index = request.getParameter("index");
 			boolean forceLocal = (request.getParameter("forceLocal") != null);
-			if (index == null)
-				client.getIndex().updateDocument(client.getSchema(), document,
-						forceLocal);
-			else
-				client.getIndex().updateDocument(request.getParameter("index"),
-						client.getSchema(), document, forceLocal);
+			updateDoc(client, index, doc, docList, forceLocal);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		} finally {
@@ -62,5 +94,4 @@ public class IndexServlet extends AbstractServlet {
 		}
 
 	}
-
 }
