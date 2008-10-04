@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.schema.SortField;
+import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
@@ -96,8 +96,7 @@ public abstract class Config implements XmlInfo {
 					createIndexIfNotExists);
 		default:
 			return new IndexGroup(homeDir, xpp, xpp
-					.getNode("/configuration/indices/index"),
-					createIndexIfNotExists);
+					.getNode("/configuration/indices"), createIndexIfNotExists);
 		}
 
 	}
@@ -183,9 +182,9 @@ public abstract class Config implements XmlInfo {
 				returnFields.add(getSchema().getFieldList().get(value));
 		}
 		if ((values = request.getParameterValues("sort")) != null) {
-			FieldList<SortField> sortFields = req.getSortFieldList();
+			SortList sortList = req.getSortList();
 			for (String value : values)
-				sortFields.add(SortField.newSortField(value));
+				sortList.add(value);
 		}
 		return req;
 	}

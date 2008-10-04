@@ -54,8 +54,9 @@ public class WriterLocal extends WriterAbstract {
 
 	private Directory directory;
 
-	private WriterLocal(String indexName) throws IOException {
-		super(indexName);
+	private WriterLocal(String indexName, String keyField, String keyMd5Pattern)
+			throws IOException {
+		super(indexName, keyField, keyMd5Pattern);
 		this.directory = null;
 		this.indexWriter = null;
 	}
@@ -236,7 +237,10 @@ public class WriterLocal extends WriterAbstract {
 			Node node) throws IOException {
 		if (indexName == null)
 			return null;
-		return new WriterLocal(indexName);
+		String keyField = XPathParser.getAttributeString(node, "keyField");
+		String keyMd5Pattern = XPathParser.getAttributeString(node,
+				"keyMd5RegExp");
+		return new WriterLocal(indexName, keyField, keyMd5Pattern);
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {

@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetGroup;
 import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.sort.SorterInterface;
 
 public class ResultGroup extends Result<CollapseGroup> {
 
@@ -44,6 +45,7 @@ public class ResultGroup extends Result<CollapseGroup> {
 	private int[] fetchedDoc;
 	private int numFound;
 	private float maxScore;
+	private SorterInterface sorter;
 
 	public ResultGroup(Request request) throws IOException {
 		super(request);
@@ -56,6 +58,7 @@ public class ResultGroup extends Result<CollapseGroup> {
 			this.facetList.add(new FacetGroup(facetField));
 		if (request.getCollapseField() != null)
 			this.collapse = new CollapseGroup(this);
+		this.sorter = request.getSortList().getSorter();
 	}
 
 	private ResultSearch[] getResults() {
@@ -152,7 +155,7 @@ public class ResultGroup extends Result<CollapseGroup> {
 	}
 
 	/**
-	 * Concat�nation d'un HitGroup et d'un Result Tri� en fonction du score
+	 * Concat�nation d'un HitGroup et d'un Result Tri�
 	 * 
 	 * @param resultSearch
 	 * @param start
@@ -165,30 +168,31 @@ public class ResultGroup extends Result<CollapseGroup> {
 			end = resultSearch.getFetchedDoc().length;
 		if (start >= end)
 			return 0;
+		int endTarget = request.getEnd();
 		int[] newDoc = new int[this.fetchedDoc.length + (end - start)];
 		ResultSearch[] newResults = new ResultSearch[newDoc.length];
 		int iOld = 0;
 		int iResult = start;
 		int n = 0;
-		for (;;) {
-			if (resultSearch.getScore(iResult) > this.resultsFetch[iOld]
-					.getScore(this.fetchedDoc[iOld])) {
+		while (n < endTarget) {
+			if (sorter.isBefore(resultSearch, iResult, resultsFetch[iOld],
+					fetchedDoc[iOld])) {
 				newDoc[n] = iResult;
 				newResults[n] = resultSearch;
 				n++;
 				if (++iResult == end) {
-					for (int i = iOld; i < this.fetchedDoc.length; i++) {
-						newDoc[n] = this.fetchedDoc[i];
-						newResults[n] = this.resultsFetch[i];
+					for (int i = iOld; i < fetchedDoc.length; i++) {
+						newDoc[n] = fetchedDoc[i];
+						newResults[n] = resultsFetch[i];
 						n++;
 					}
 					break;
 				}
 			} else {
-				newResults[n] = this.resultsFetch[iOld];
-				newDoc[n] = this.fetchedDoc[iOld];
+				newResults[n] = resultsFetch[iOld];
+				newDoc[n] = fetchedDoc[iOld];
 				n++;
-				if (++iOld == this.fetchedDoc.length) {
+				if (++iOld == fetchedDoc.length) {
 					for (int i = iResult; i < end; i++) {
 						newDoc[n] = i;
 						newResults[n] = resultSearch;
@@ -198,8 +202,8 @@ public class ResultGroup extends Result<CollapseGroup> {
 				}
 			}
 		}
-		this.fetchedDoc = newDoc;
-		this.resultsFetch = newResults;
+		fetchedDoc = newDoc;
+		resultsFetch = newResults;
 		return end - start;
 	}
 
@@ -209,6 +213,8 @@ public class ResultGroup extends Result<CollapseGroup> {
 
 	public float getScoreGoal() {
 		int end = request.getEnd();
+		if (end == 0)
+			return 0;
 		if (this.getDocs().length < end)
 			return 0;
 		return getScore(end - 1);

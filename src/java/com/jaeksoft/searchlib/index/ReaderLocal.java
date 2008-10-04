@@ -66,8 +66,7 @@ import com.jaeksoft.searchlib.result.DocumentCacheItem;
 import com.jaeksoft.searchlib.result.DocumentRequestItem;
 import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.ResultSearch;
-import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.SortField;
+import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
@@ -86,26 +85,33 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	private final Lock w = rwl.writeLock();
 
 	private File rootDir;
+	private File dataDir;
 
 	private ReaderLocal(String name, File rootDir, File dataDir)
 			throws IOException {
 		super(name);
+		init(rootDir, dataDir);
+	}
 
-		this.rootDir = rootDir;
-
-		this.indexDirectory = new IndexDirectory(name, dataDir);
-		this.indexSearcher = new IndexSearcher(indexDirectory.getDirectory());
-		this.indexReader = indexSearcher.getIndexReader();
-
-		this.searchCache = null;
-		this.filterCache = null;
-		this.documentCache = null;
+	private void init(File rootDir, File dataDir) throws IOException {
+		w.lock();
+		try {
+			this.rootDir = rootDir;
+			this.dataDir = dataDir;
+			this.indexDirectory = new IndexDirectory(getName(), dataDir);
+			this.indexSearcher = new IndexSearcher(indexDirectory
+					.getDirectory());
+			this.indexReader = indexSearcher.getIndexReader();
+		} finally {
+			w.unlock();
+		}
 	}
 
 	private void init(ReaderLocal r) {
 		w.lock();
 		try {
 			this.rootDir = r.rootDir;
+			this.dataDir = r.dataDir;
 			this.indexDirectory = r.indexDirectory;
 			this.indexSearcher = r.indexSearcher;
 			this.indexReader = r.indexReader;
@@ -120,6 +126,17 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			this.searchCache = new SearchCache(searchCache);
 			this.filterCache = new FilterCache(filterCache);
 			this.documentCache = new DocumentCache(documentCache);
+		} finally {
+			w.unlock();
+		}
+	}
+
+	private void resetCache() {
+		w.lock();
+		try {
+			searchCache.clear();
+			filterCache.clear();
+			documentCache.clear();
 		} finally {
 			w.unlock();
 		}
@@ -229,14 +246,9 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public void deleteDocument(int docNum) throws StaleReaderException,
+	protected void deleteDocument(int docNum) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException {
-		r.lock();
-		try {
-			indexReader.deleteDocument(docNum);
-		} finally {
-			r.unlock();
-		}
+		indexReader.deleteDocument(docNum);
 	}
 
 	public Document document(int docId, FieldSelector selector)
@@ -338,6 +350,17 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
+	private void reload() throws IOException {
+		w.lock();
+		try {
+			close();
+			init(rootDir, dataDir);
+			resetCache();
+		} finally {
+			w.unlock();
+		}
+	}
+
 	public void reload(String indexName, boolean deleteOld) throws IOException {
 		if (!acceptName(indexName))
 			return;
@@ -349,9 +372,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		try {
 			close();
 			init(newReader);
-			searchCache.clear();
-			filterCache.clear();
-			documentCache.clear();
+			resetCache();
 		} finally {
 			w.unlock();
 		}
@@ -359,7 +380,11 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	public DocSetHits searchDocSet(Request request) throws IOException,
 			ParseException, SyntaxError {
-		r.lock();
+		boolean isDelete = request.isDelete();
+		if (isDelete)
+			w.lock();
+		else
+			r.lock();
 		try {
 			StringBuffer cacheDshKey = new StringBuffer(request
 					.getQueryParsed());
@@ -375,29 +400,30 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 				cacheDshKey.append('|');
 				cacheDshKey.append(cacheFilterKey);
 			}
-			Sort sort = null;
-			FieldList<SortField> sortFieldList = request.getSortFieldList();
-			if (sortFieldList.size() > 0) {
-				sort = SortField.getLuceneSort(sortFieldList);
+			SortList sortList = request.getSortList();
+			Sort sort = sortList.getLuceneSort();
+			if (sort != null) {
 				cacheDshKey.append("_");
-				cacheDshKey.append(SortField.getSortKey(sortFieldList));
+				cacheDshKey.append(sortList.getSortKey());
 			}
 			String cacheDshKeyStr = cacheDshKey.toString();
 			DocSetHits dsh = null;
-			boolean isDelete = request.isDelete();
-			if (isDelete)
-				searchCache.expire(cacheDshKeyStr);
-			else
+			if (!isDelete)
 				dsh = searchCache.getAndPromote(cacheDshKeyStr);
 			if (dsh == null) {
 				dsh = new DocSetHits(this, request.getQuery(), filter, sort,
 						isDelete);
 				if (!isDelete)
 					searchCache.put(cacheDshKeyStr, dsh);
+				else if (dsh.getDocNumFound() > 0)
+					reload();
 			}
 			return dsh;
 		} finally {
-			r.unlock();
+			if (isDelete)
+				w.unlock();
+			else
+				r.unlock();
 		}
 	}
 

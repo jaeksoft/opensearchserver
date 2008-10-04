@@ -90,7 +90,7 @@ public class IndexGroup extends IndexAbstract {
 	public void optimize(String indexName, boolean forceLocal)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
-		if ("".equals(indexName)) {
+		if (indexName == null || indexName.length() == 0) {
 			for (IndexAbstract index : getIndices())
 				index.optimize(null, forceLocal);
 			return;

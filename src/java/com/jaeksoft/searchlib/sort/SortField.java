@@ -22,9 +22,9 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.schema;
+package com.jaeksoft.searchlib.sort;
 
-import org.apache.lucene.search.Sort;
+import com.jaeksoft.searchlib.schema.Field;
 
 public class SortField extends Field {
 
@@ -32,7 +32,7 @@ public class SortField extends Field {
 
 	private boolean desc;
 
-	public SortField(String name, boolean desc) {
+	protected SortField(String name, boolean desc) {
 		super(name);
 		this.desc = desc;
 	}
@@ -59,7 +59,7 @@ public class SortField extends Field {
 		sb.append(name);
 	}
 
-	public static SortField newSortField(String requestSort) {
+	protected static SortField newSortField(String requestSort) {
 		int c = requestSort.charAt(0);
 		boolean desc = (c == '-');
 		String name = (c == '+' || c == '-') ? requestSort.substring(1)
@@ -67,27 +67,12 @@ public class SortField extends Field {
 		return new SortField(name, desc);
 	}
 
-	public static Sort getLuceneSort(FieldList<SortField> sortFieldList) {
-		org.apache.lucene.search.SortField[] sortFields = new org.apache.lucene.search.SortField[sortFieldList
-				.size()];
-		int i = 0;
-		for (SortField field : sortFieldList) {
-			org.apache.lucene.search.SortField sf;
-			if (field.name.equals("score"))
-				sf = new org.apache.lucene.search.SortField(field.name,
-						org.apache.lucene.search.SortField.SCORE, field.desc);
-			else
-				sf = new org.apache.lucene.search.SortField(field.name,
-						field.desc);
-			sortFields[i++] = sf;
-		}
-		return new Sort(sortFields);
+	protected org.apache.lucene.search.SortField getLuceneSortField() {
+		if (name.equals("score"))
+			return new org.apache.lucene.search.SortField(name,
+					org.apache.lucene.search.SortField.SCORE, desc);
+		else
+			return new org.apache.lucene.search.SortField(name, desc);
 	}
 
-	public static String getSortKey(FieldList<SortField> sortFieldList) {
-		StringBuffer sb = new StringBuffer();
-		for (SortField field : sortFieldList)
-			field.toString(sb);
-		return sb.toString();
-	}
 }

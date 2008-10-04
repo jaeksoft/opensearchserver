@@ -49,7 +49,8 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.schema.SortField;
+import com.jaeksoft.searchlib.sort.SortField;
+import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Request implements XmlInfo {
@@ -66,7 +67,7 @@ public class Request implements XmlInfo {
 	private FieldList<FieldValue> returnFieldList;
 	private FieldList<FieldValue> documentFieldList;
 	private FieldList<FacetField> facetFieldList;
-	private FieldList<SortField> sortFieldList;
+	private SortList sortList;
 	private Field collapseField;
 	private int collapseMax;
 	private boolean collapseActive;
@@ -97,7 +98,7 @@ public class Request implements XmlInfo {
 		this.defaultOperator = Operator.OR;
 		this.highlightFieldList = new FieldList<HighlightField>();
 		this.returnFieldList = new FieldList<FieldValue>();
-		this.sortFieldList = new FieldList<SortField>();
+		this.sortList = new SortList();
 		this.documentFieldList = null;
 		this.facetFieldList = new FieldList<FacetField>();
 		this.collapseField = null;
@@ -132,7 +133,7 @@ public class Request implements XmlInfo {
 				request.highlightFieldList);
 		this.returnFieldList = new FieldList<FieldValue>(
 				request.returnFieldList);
-		this.sortFieldList = new FieldList<SortField>(request.sortFieldList);
+		this.sortList = new SortList(request.sortList);
 		this.documentFieldList = null;
 		if (request.documentFieldList != null)
 			this.documentFieldList = new FieldList<FieldValue>(
@@ -292,12 +293,12 @@ public class Request implements XmlInfo {
 		return this.returnFieldList;
 	}
 
-	public FieldList<SortField> getSortFieldList() {
-		return this.sortFieldList;
+	public SortList getSortList() {
+		return this.sortList;
 	}
 
-	public void addSort(SortField sortField) {
-		sortFieldList.add(sortField);
+	public void addSort(String fieldName, boolean desc) {
+		sortList.add(fieldName, desc);
 	}
 
 	public FieldList<FacetField> getFacetFieldList() {
@@ -398,7 +399,7 @@ public class Request implements XmlInfo {
 		}
 		if (this.collapseActive)
 			sb.append("&collapse.active=true");
-		for (SortField f : sortFieldList) {
+		for (SortField f : sortList.getFieldList()) {
 			sb.append("&sort=");
 			if (f.isDesc())
 				sb.append("-");

@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.result;
 import java.io.IOException;
 
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.collapse.CollapseSearch;
 import com.jaeksoft.searchlib.facet.Facet;
@@ -41,6 +42,7 @@ public class ResultSearch extends Result<CollapseSearch> {
 
 	private static final long serialVersionUID = -8289431499983379291L;
 	transient private ReaderLocal reader;
+	transient private StringIndex[] sortStringIndexArray;
 	private DocSetHits docs;
 
 	/**
@@ -69,6 +71,8 @@ public class ResultSearch extends Result<CollapseSearch> {
 				return;
 			}
 		}
+		sortStringIndexArray = request.getSortList()
+				.newStringIndexArray(reader);
 		docs.getHits(this.request.getEnd());
 	}
 
@@ -173,6 +177,12 @@ public class ResultSearch extends Result<CollapseSearch> {
 			return this.docs.getScore(this.collapse.getDocs()[pos]);
 		else
 			return this.docs.getScore(pos);
+	}
+
+	public void loadSortValues(int pos, String[] values) {
+		int i = 0;
+		for (StringIndex stringIndex : sortStringIndexArray)
+			values[i++] = stringIndex.lookup[stringIndex.order[getDocId(pos)]];
 	}
 
 	public int getDocId(int pos) {

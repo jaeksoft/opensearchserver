@@ -42,35 +42,16 @@ import com.jaeksoft.searchlib.remote.Remote;
 import com.jaeksoft.searchlib.remote.UrlRead;
 import com.jaeksoft.searchlib.remote.UrlWriteObject;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.util.Md5Spliter;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class WriterRemote extends WriterAbstract {
 
 	private Remote remote;
-	private Md5Spliter md5spliter = null;
-	private String keyField = null;
 
 	public WriterRemote(Remote remote, String indexName, String keyField,
 			String keyMd5Pattern) {
-		super(indexName);
-		this.keyField = keyField;
-		if (keyMd5Pattern != null)
-			md5spliter = new Md5Spliter(keyMd5Pattern);
+		super(indexName, keyField, keyMd5Pattern);
 		this.remote = remote;
-	}
-
-	@Override
-	protected boolean acceptDocument(IndexDocument document)
-			throws NoSuchAlgorithmException {
-		if (keyField == null)
-			return true;
-		if (md5spliter == null)
-			return true;
-		FieldContent fieldContent = document.getField(keyField);
-		if (fieldContent == null)
-			return false;
-		return md5spliter.acceptAnyKey(fieldContent.getValues());
 	}
 
 	private URL getCommandUrl(String command)

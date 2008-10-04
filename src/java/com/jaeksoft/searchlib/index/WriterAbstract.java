@@ -32,17 +32,33 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.util.Md5Spliter;
 
 public abstract class WriterAbstract extends NameFilter implements
 		WriterInterface {
 
-	protected WriterAbstract(String indexName) {
+	private Md5Spliter md5spliter = null;
+	private String keyField = null;
+
+	protected WriterAbstract(String indexName, String keyField,
+			String keyMd5Pattern) {
 		super(indexName);
+		this.md5spliter = null;
+		this.keyField = keyField;
+		if (keyMd5Pattern != null)
+			md5spliter = new Md5Spliter(keyMd5Pattern);
 	}
 
 	protected boolean acceptDocument(IndexDocument document)
 			throws NoSuchAlgorithmException {
-		return true;
+		if (keyField == null)
+			return true;
+		if (md5spliter == null)
+			return true;
+		FieldContent fieldContent = document.getField(keyField);
+		if (fieldContent == null)
+			return false;
+		return md5spliter.acceptAnyKey(fieldContent.getValues());
 	}
 
 	public void updateDocument(String indexName, Schema schema,
