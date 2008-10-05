@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -34,6 +36,9 @@ import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.ResultGroup;
 
 public class SearchGroup {
+
+	final private static Logger logger = Logger.getLogger(SearchGroup.class
+			.getCanonicalName());
 
 	private IndexGroup indexGroup;
 
@@ -44,6 +49,8 @@ public class SearchGroup {
 	private int search(ResultGroup resultGroup,
 			ArrayList<SearchThread> searchsThread, int step, int end)
 			throws IOException, ParseException, SyntaxError {
+		if (logger.isLoggable(Level.INFO))
+			logger.info(step + "/" + end);
 		for (SearchThread searchThread : searchsThread)
 			searchThread.search(step, resultGroup.getScoreGoal());
 		int fetchCount = 0;

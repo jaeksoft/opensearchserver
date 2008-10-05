@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jaeksoft.searchlib.collapse.CollapseGroup;
 import com.jaeksoft.searchlib.facet.Facet;
@@ -36,6 +38,8 @@ import com.jaeksoft.searchlib.sort.SorterInterface;
 
 public class ResultGroup extends Result<CollapseGroup> {
 
+	final private static Logger logger = Logger.getLogger(ResultGroup.class
+			.getCanonicalName());
 	/**
 	 * 
 	 */
@@ -123,6 +127,9 @@ public class ResultGroup extends Result<CollapseGroup> {
 
 		synchronized (this) {
 
+			if (logger.isLoggable(Level.INFO))
+				logger.info("Populate " + result);
+
 			if (result.getNumFound() == 0)
 				return 0;
 
@@ -174,7 +181,12 @@ public class ResultGroup extends Result<CollapseGroup> {
 		int iOld = 0;
 		int iResult = start;
 		int n = 0;
-		while (n < endTarget) {
+		for (;;) {
+			if (n >= endTarget) {
+				if (logger.isLoggable(Level.INFO))
+					logger.info("Break before " + n + " / " + endTarget);
+				break;
+			}
 			if (sorter.isBefore(resultSearch, iResult, resultsFetch[iOld],
 					fetchedDoc[iOld])) {
 				newDoc[n] = iResult;

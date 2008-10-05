@@ -6,12 +6,12 @@ public class SortListSorter implements SorterInterface {
 
 	private String[] values1;
 	private String[] values2;
-	private boolean[] desc;
+	private boolean[] descendant;
 
 	protected SortListSorter(SortList sortList) {
 		values1 = sortList.newStringArray();
 		values2 = sortList.newStringArray();
-		desc = sortList.newDescArray();
+		descendant = sortList.newDescArray();
 	}
 
 	@Override
@@ -19,8 +19,19 @@ public class SortListSorter implements SorterInterface {
 		r1.loadSortValues(i1, values1);
 		r2.loadSortValues(i2, values2);
 		for (int i = 0; i < values1.length; i++) {
-			int c = values1[i].compareTo(values2[i]);
-			if (desc[i]) {
+			String v1 = values1[i];
+			String v2 = values2[i];
+			boolean desc = descendant[i];
+			int c = 0;
+			// Take care of null values
+			if (v1 == null) {
+				if (v2 != null)
+					c = -1;
+			} else if (v2 == null) {
+				c = 1;
+			} else
+				c = values1[i].compareTo(values2[i]);
+			if (desc) {
 				if (c > 0)
 					return true;
 				if (c < 0)
