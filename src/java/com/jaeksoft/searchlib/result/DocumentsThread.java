@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 
+import org.apache.lucene.queryParser.ParseException;
+
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.request.Request;
 
@@ -34,7 +36,8 @@ public class DocumentsThread implements Runnable {
 	private ReaderInterface reader;
 	private Request request;
 	private Thread thread;
-	private IOException e;
+	private IOException ioException;
+	private ParseException parseException;
 	private DocumentResult documentResult;
 
 	public DocumentsThread(ReaderInterface reader, Request request)
@@ -43,7 +46,8 @@ public class DocumentsThread implements Runnable {
 		this.reader = reader;
 		this.request = request.clone();
 		this.request.setReader(reader);
-		this.e = null;
+		this.ioException = null;
+		this.parseException = null;
 	}
 
 	public void addDocId(ReaderInterface reader, int docId) {
@@ -54,7 +58,10 @@ public class DocumentsThread implements Runnable {
 		try {
 			documentResult = reader.documents(request);
 		} catch (IOException e) {
-			this.e = e;
+			this.ioException = e;
+			e.printStackTrace();
+		} catch (ParseException e) {
+			this.parseException = e;
 			e.printStackTrace();
 		}
 	}
@@ -71,9 +78,11 @@ public class DocumentsThread implements Runnable {
 		}
 	}
 
-	public void exception() throws IOException {
-		if (this.e != null)
-			throw this.e;
+	public void exception() throws IOException, ParseException {
+		if (this.ioException != null)
+			throw this.ioException;
+		if (this.parseException != null)
+			throw this.parseException;
 	}
 
 	public void start() {

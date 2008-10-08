@@ -41,12 +41,12 @@ public class SearchThread implements Runnable {
 	private Request request;
 	private Thread thread;
 	private int step;
-	private float rawScoreGoal;
 	private int currentFetchPos;
 	private IOException ioException;
 	private ParseException parseException;
 	private SyntaxError syntaxError;
 	private int fetchCount;
+	private boolean needMore;
 
 	public SearchThread(ReaderInterface reader, Request request,
 			ResultGroup resultGroup) throws IOException {
@@ -59,6 +59,7 @@ public class SearchThread implements Runnable {
 		this.ioException = null;
 		this.parseException = null;
 		this.syntaxError = null;
+		this.needMore = true;
 	}
 
 	public void run() {
@@ -66,11 +67,6 @@ public class SearchThread implements Runnable {
 			if (resultSearch == null) {
 				resultSearch = (ResultSearch) reader.search(request);
 				resultGroup.addResult(resultSearch);
-			} else {
-				if (resultSearch.getFetchedDoc().length > 0)
-					if (resultSearch
-							.getScore(this.resultSearch.getFetchedDoc().length - 1) < rawScoreGoal)
-						return;
 			}
 			resultSearch.getDocSetHits().getHits(
 					this.currentFetchPos + this.step);
@@ -101,10 +97,11 @@ public class SearchThread implements Runnable {
 		}
 	}
 
-	public void search(int step, float rawScoreGoal) {
+	public void search(int step) {
+		if (!needMore)
+			return;
 		this.step = step;
 		this.fetchCount = 0;
-		this.rawScoreGoal = rawScoreGoal;
 		this.thread = new Thread(this);
 		this.thread.start();
 	}

@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.lucene.queryParser.ParseException;
+
 import com.jaeksoft.searchlib.cache.DocumentCache;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.request.Request;
@@ -67,7 +69,7 @@ public class DocumentsGroup {
 		docIds.add(new Item(docsThread, reader, docId));
 	}
 
-	public DocumentResult documents() throws IOException {
+	public DocumentResult documents() throws IOException, ParseException {
 		for (DocumentsThread docsThread : docsThreads.values())
 			docsThread.start();
 		for (DocumentsThread docsThread : docsThreads.values()) {

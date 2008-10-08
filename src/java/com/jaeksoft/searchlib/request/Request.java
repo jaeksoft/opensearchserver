@@ -240,8 +240,14 @@ public class Request implements XmlInfo {
 				if (scoreFunction != null)
 					query = RootExpression.getQuery(query, scoreFunction);
 			}
-			if (highlightFieldList.size() == 0)
-				return query;
+			return query;
+		}
+	}
+
+	public Query getHighlightQuery() throws ParseException {
+		synchronized (this) {
+			if (highlightQuery != null)
+				return highlightQuery;
 			if (highlightQueryParser == null) {
 				highlightQueryParser = getNewHighlightQueryParser();
 				setQueryParser(this, highlightQueryParser);
@@ -249,12 +255,8 @@ public class Request implements XmlInfo {
 			synchronized (highlightQueryParser) {
 				highlightQuery = highlightQueryParser.parse(queryString);
 			}
-			return query;
+			return highlightQuery;
 		}
-	}
-
-	public Query getHighlightQuery() {
-		return highlightQuery;
 	}
 
 	public String getQueryString() {

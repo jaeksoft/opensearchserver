@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.highlight;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.highlight.DefaultEncoder;
 import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
@@ -119,7 +120,7 @@ public class HighlightField extends FieldValue {
 	}
 
 	private String[] getFragments(Request request, String content)
-			throws IOException {
+			throws IOException, ParseException {
 		Highlighter highlighter = new Highlighter(getNewFormater(),
 				new DefaultEncoder(), new QueryScorer(request
 						.getHighlightQuery()));
@@ -154,7 +155,7 @@ public class HighlightField extends FieldValue {
 	}
 
 	public void setSnippets(Request request, ArrayList<String> values)
-			throws IOException {
+			throws IOException, ParseException {
 		if (values == null)
 			return;
 		ArrayList<String> snippets = new ArrayList<String>();

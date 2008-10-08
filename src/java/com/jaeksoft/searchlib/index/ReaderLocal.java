@@ -428,7 +428,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	private DocumentRequestItem document(int docId, Request request)
-			throws CorruptIndexException, IOException {
+			throws CorruptIndexException, IOException, ParseException {
 		r.lock();
 		try {
 			DocumentCacheItem doc = null;
@@ -451,7 +451,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException {
+			throws CorruptIndexException, IOException, ParseException {
 		r.lock();
 		try {
 			List<Integer> docIds = request.getDocIds();

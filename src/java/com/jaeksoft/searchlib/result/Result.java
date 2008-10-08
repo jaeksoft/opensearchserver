@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.FacetList;
@@ -72,10 +73,11 @@ public abstract class Result<T extends Collapse<?>> implements Serializable {
 		return this.facetList;
 	}
 
-	public abstract DocumentResult documents() throws IOException;
+	public abstract DocumentResult documents() throws IOException,
+			ParseException;
 
 	public DocumentRequestItem document(int pos) throws CorruptIndexException,
-			IOException {
+			IOException, ParseException {
 		if (request.isDelete())
 			return null;
 		if (documentResult == null)

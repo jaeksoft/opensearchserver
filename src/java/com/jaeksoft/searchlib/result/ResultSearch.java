@@ -156,7 +156,7 @@ public class ResultSearch extends Result<CollapseSearch> {
 	}
 
 	@Override
-	public DocumentResult documents() throws IOException {
+	public DocumentResult documents() throws IOException, ParseException {
 		if (documentResult != null)
 			return documentResult;
 		if (request.isDelete())

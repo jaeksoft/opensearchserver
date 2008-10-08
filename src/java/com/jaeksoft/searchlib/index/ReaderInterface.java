@@ -39,7 +39,7 @@ public interface ReaderInterface {
 	public abstract boolean sameIndex(ReaderInterface reader);
 
 	public abstract DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException;
+			throws CorruptIndexException, IOException, ParseException;
 
 	public void reload(String indexName, boolean deleteOld) throws IOException;
 

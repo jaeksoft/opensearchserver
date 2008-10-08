@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,12 +48,12 @@ public class SearchGroup {
 	}
 
 	private int search(ResultGroup resultGroup,
-			ArrayList<SearchThread> searchsThread, int step, int end)
+			List<SearchThread> searchsThread, int step, int end)
 			throws IOException, ParseException, SyntaxError {
 		if (logger.isLoggable(Level.INFO))
 			logger.info(step + "/" + end);
 		for (SearchThread searchThread : searchsThread)
-			searchThread.search(step, resultGroup.getScoreGoal());
+			searchThread.search(step);
 		int fetchCount = 0;
 		for (SearchThread searchThread : searchsThread) {
 			searchThread.waitForCompletion();
@@ -81,8 +82,15 @@ public class SearchGroup {
 		int step = end / searchsThread.size() + 1;
 		int nextStep = request.getRows() / searchsThread.size() + 1;
 
-		while (search(resultGroup, searchsThread, step, end) > 0)
+		while (search(resultGroup, searchsThread, step, end) > 0) {
+			if (resultGroup.getDocs().length >= end) {
+				if (logger.isLoggable(Level.INFO))
+					logger.info("Break result group docs length: "
+							+ resultGroup.getDocs().length);
+				break;
+			}
 			step = nextStep;
+		}
 
 		return resultGroup;
 	}

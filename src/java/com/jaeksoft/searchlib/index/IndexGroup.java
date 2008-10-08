@@ -165,7 +165,7 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException {
+			throws CorruptIndexException, IOException, ParseException {
 		DocumentsGroup documentsGroup = new DocumentsGroup(request);
 		return documentsGroup.documents();
 	}

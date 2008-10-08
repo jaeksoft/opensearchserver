@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.lucene.queryParser.ParseException;
+
 import com.jaeksoft.searchlib.collapse.CollapseGroup;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -81,7 +83,7 @@ public class ResultGroup extends Result<CollapseGroup> {
 	}
 
 	@Override
-	public DocumentResult documents() throws IOException {
+	public DocumentResult documents() throws IOException, ParseException {
 		if (documentResult != null)
 			return documentResult;
 		DocumentsGroup docsGroup = new DocumentsGroup(request);
@@ -122,7 +124,16 @@ public class ResultGroup extends Result<CollapseGroup> {
 		}
 	}
 
-	public int populate(ResultSearch result, int start, int rows)
+	/**
+	 * Return true if more pertinent results are available
+	 * 
+	 * @param result
+	 * @param start
+	 * @param rows
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean populate(ResultSearch result, int start, int rows)
 			throws IOException {
 
 		synchronized (this) {
@@ -131,18 +142,19 @@ public class ResultGroup extends Result<CollapseGroup> {
 				logger.info("Populate " + result);
 
 			if (result.getNumFound() == 0)
-				return 0;
-
-			int r = 0;
-
-			if (this.fetchedDoc == null || this.fetchedDoc.length == 0)
-				r = this.setDoc(result, start + rows);
-			else
-				r = this.insertAndSort(result, start, rows);
+				return false;
 
 			if (result.getMaxScore() > this.maxScore)
 				this.maxScore = result.getMaxScore();
-			return r;
+
+			boolean needMore = true;
+
+			if (this.fetchedDoc == null || this.fetchedDoc.length == 0)
+				this.setDoc(result, start + rows);
+			else
+				needMore = this.insertAndSort(result, start, rows);
+
+			return needMore;
 		}
 	}
 
@@ -169,22 +181,24 @@ public class ResultGroup extends Result<CollapseGroup> {
 	 * @param rows
 	 * @return the number of rows
 	 */
-	private int insertAndSort(ResultSearch resultSearch, int start, int rows) {
+	private boolean insertAndSort(ResultSearch resultSearch, int start, int rows) {
 		int end = start + rows;
 		if (end > resultSearch.getFetchedDoc().length)
 			end = resultSearch.getFetchedDoc().length;
 		if (start >= end)
-			return 0;
+			return false;
 		int endTarget = request.getEnd();
 		int[] newDoc = new int[this.fetchedDoc.length + (end - start)];
 		ResultSearch[] newResults = new ResultSearch[newDoc.length];
 		int iOld = 0;
 		int iResult = start;
 		int n = 0;
+		boolean needMore = true;
 		for (;;) {
 			if (n >= endTarget) {
 				if (logger.isLoggable(Level.INFO))
 					logger.info("Break before " + n + " / " + endTarget);
+				needMore = false;
 				break;
 			}
 			if (sorter.isBefore(resultSearch, iResult, resultsFetch[iOld],
@@ -216,21 +230,18 @@ public class ResultGroup extends Result<CollapseGroup> {
 		}
 		fetchedDoc = newDoc;
 		resultsFetch = newResults;
-		return end - start;
+		return needMore;
 	}
 
 	public ArrayList<ResultSearch> getResultList() {
 		return this.resultList;
 	}
 
-	public float getScoreGoal() {
-		int end = request.getEnd();
-		if (end == 0)
-			return 0;
-		if (this.getDocs().length < end)
-			return 0;
-		return getScore(end - 1);
-	}
+	/*
+	 * TODO REMOVE public float getScoreGoal() { int end = request.getEnd(); if
+	 * (end == 0) return 0; if (this.getDocs().length < end) return 0; return
+	 * getScore(end - 1); }
+	 */
 
 	@Override
 	public float getMaxScore() {

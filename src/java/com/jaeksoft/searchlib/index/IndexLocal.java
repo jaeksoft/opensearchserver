@@ -197,7 +197,7 @@ public class IndexLocal extends IndexAbstract {
 	}
 
 	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException {
+			throws CorruptIndexException, IOException, ParseException {
 		r.lock();
 		try {
 			if (request.getForceLocal() && readerLocal != null)

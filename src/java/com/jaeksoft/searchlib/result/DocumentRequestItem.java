@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.apache.lucene.queryParser.ParseException;
+
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.schema.Field;
@@ -47,7 +49,7 @@ public class DocumentRequestItem implements Serializable {
 
 	@SuppressWarnings("unchecked")
 	public DocumentRequestItem(Request request, DocumentCacheItem document)
-			throws IOException {
+			throws IOException, ParseException {
 		returnFields = (FieldList<FieldValue>) request.getReturnFieldList()
 				.clone();
 		for (FieldValue field : returnFields)
