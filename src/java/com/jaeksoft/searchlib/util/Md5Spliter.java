@@ -37,8 +37,11 @@ public class Md5Spliter {
 			throws NoSuchAlgorithmException {
 		if (md5 == null)
 			md5 = MessageDigest.getInstance("MD5");
-		md5.update(data.getBytes());
-		byte result[] = md5.digest(key.getBytes());
+		byte result[] = null;
+		synchronized (md5) {
+			md5.update(data.getBytes());
+			result = md5.digest(key.getBytes());
+		}
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < result.length; i++) {
 			String s = Integer.toHexString(result[i]);
