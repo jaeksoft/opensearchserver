@@ -287,6 +287,10 @@ public class Request implements XmlInfo {
 		return this.filterList;
 	}
 
+	public void addFilter(String req) throws ParseException {
+		this.filterList.add(req, Filter.Source.REQUEST);
+	}
+
 	public FieldList<HighlightField> getHighlightFieldList() {
 		return this.highlightFieldList;
 	}

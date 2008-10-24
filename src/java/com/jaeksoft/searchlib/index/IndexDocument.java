@@ -97,7 +97,7 @@ public class IndexDocument implements Serializable, XmlInfo {
 		return lang;
 	}
 
-	protected FieldContent getField(String fieldName) {
+	public FieldContent getField(String fieldName) {
 		return fields.get(fieldName);
 	}
 
