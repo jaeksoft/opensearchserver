@@ -58,7 +58,10 @@ public class RootExpression extends GroupExpression {
 	private ValueSourceQuery[] getValueSourceQueries() {
 		ValueSourceQuery[] vsq = new ValueSourceQuery[functionValueSources
 				.size()];
-		return functionValueSources.toArray(vsq);
+		int i = 0;
+		for (FunctionValueSource fvs : functionValueSources)
+			vsq[i++] = new ValueSourceQuery(fvs.valueSource);
+		return vsq;
 	}
 
 	protected ScoreFunctionQuery getQuery(Query subQuery) throws SyntaxError {
