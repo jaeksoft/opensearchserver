@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -50,6 +51,7 @@ public class XPathParser {
 	public XPathParser() {
 		XPathFactory xPathfactory = XPathFactory.newInstance();
 		xPath = xPathfactory.newXPath();
+		currentFile = null;
 	}
 
 	public XPathParser(File file) throws ParserConfigurationException,
@@ -59,6 +61,14 @@ public class XPathParser {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		setDocument(builder.parse(currentFile.getAbsoluteFile()));
+	}
+
+	public XPathParser(InputStream is) throws ParserConfigurationException,
+			SAXException, IOException {
+		this();
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		setDocument(builder.parse(is));
 	}
 
 	public XPathParser(Document document) {

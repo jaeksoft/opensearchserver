@@ -142,12 +142,12 @@ public class TemplateRequest extends Request {
 		FilterList filterList = templateRequest.getFilterList();
 		nodes = xpp.getNodeList(node, "filters/filter");
 		for (int i = 0; i < nodes.getLength(); i++)
-			filterList.add(nodes.item(i).getTextContent(), Source.CONFIGXML);
+			filterList.add(xpp.getNodeString(nodes.item(i)), Source.CONFIGXML);
 
 		SortList sortList = templateRequest.getSortList();
 		nodes = xpp.getNodeList(node, "sort/field");
 		for (int i = 0; i < nodes.getLength(); i++)
-			sortList.add(nodes.item(i).getTextContent());
+			sortList.add(xpp.getNodeString(nodes.item(i)));
 		return templateRequest;
 	}
 }

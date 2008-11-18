@@ -31,6 +31,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class IndexDocument implements Serializable, XmlInfo {
@@ -57,6 +63,33 @@ public class IndexDocument implements Serializable, XmlInfo {
 		this();
 		if (lang != null)
 			this.lang = lang.getLanguage();
+	}
+
+	/**
+	 * Create a new instance of IndexDocument from an XML structure <br/>
+	 * <field name="FIELDNAME"><br/>
+	 * &nbsp;&nbsp;<value>VALUE1</value><br/>
+	 * &nbsp;&nbsp;<value>VALUE2</value><br/>
+	 * </field>
+	 * 
+	 * @param xpp
+	 * @param documentNode
+	 * @throws XPathExpressionException
+	 */
+	public IndexDocument(XPathParser xpp, Node documentNode)
+			throws XPathExpressionException {
+		this(XPathParser.getAttributeString(documentNode, "lang"));
+		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
+		int fieldsCount = fieldNodes.getLength();
+		for (int i = 0; i < fieldsCount; i++) {
+			Node fieldNode = fieldNodes.item(i);
+			String fieldName = XPathParser
+					.getAttributeString(fieldNode, "name");
+			NodeList valueNodes = xpp.getNodeList(fieldNode, "value");
+			int valuesCount = valueNodes.getLength();
+			for (int j = 0; j < valuesCount; j++)
+				add(fieldName, xpp.getNodeString(valueNodes.item(j)));
+		}
 	}
 
 	public void add(String field, String value) {
