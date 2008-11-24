@@ -34,6 +34,7 @@ import java.net.URLEncoder;
 import java.util.HashSet;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.Term;
 import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.remote.Remote;
@@ -164,7 +165,7 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 		return null;
 	}
 
-	public int getDocFreq(String field, String term) throws IOException {
+	public int getDocFreq(Term term) throws IOException {
 		// TODO Auto-generated method stub
 		return 0;
 	}

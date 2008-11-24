@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
@@ -269,13 +270,13 @@ public class IndexLocal extends IndexAbstract {
 		return this;
 	}
 
-	public int getDocFreq(String field, String term) throws IOException {
+	public int getDocFreq(Term term) throws IOException {
 		r.lock();
 		try {
 			if (readerLocal != null)
-				return readerLocal.getDocFreq(field, term);
+				return readerLocal.getDocFreq(term);
 			if (readerRemote != null)
-				return readerRemote.getDocFreq(field, term);
+				return readerRemote.getDocFreq(term);
 			return 0;
 		} finally {
 			r.unlock();

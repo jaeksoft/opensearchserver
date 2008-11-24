@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.index;
 import java.io.IOException;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -43,7 +44,7 @@ public interface ReaderInterface {
 
 	public void reload(String indexName, boolean deleteOld) throws IOException;
 
-	public int getDocFreq(String field, String term) throws IOException;
+	public int getDocFreq(Term term) throws IOException;
 
 	public Result<?> search(Request request) throws IOException,
 			ParseException, SyntaxError;

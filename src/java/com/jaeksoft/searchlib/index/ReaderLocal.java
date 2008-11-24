@@ -151,19 +151,19 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public TermDocs getTermDocs(String field, String term) throws IOException {
+	public TermDocs getTermDocs(Term term) throws IOException {
 		r.lock();
 		try {
-			return indexReader.termDocs(new Term(field, term));
+			return indexReader.termDocs(term);
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public int getDocFreq(String field, String term) throws IOException {
+	public int getDocFreq(Term term) throws IOException {
 		r.lock();
 		try {
-			TermDocs termDocs = getTermDocs(field, term);
+			TermDocs termDocs = getTermDocs(term);
 			int r = 0;
 			while (termDocs.next())
 				if (!indexReader.isDeleted(termDocs.doc()))

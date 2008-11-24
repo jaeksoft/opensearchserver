@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -39,7 +41,7 @@ public class SearchThread implements Runnable {
 	private ResultSearch resultSearch;
 	private ReaderInterface reader;
 	private Request request;
-	private Thread thread;
+	private boolean running;
 	private int step;
 	private int currentFetchPos;
 	private IOException ioException;
@@ -50,7 +52,7 @@ public class SearchThread implements Runnable {
 
 	public SearchThread(ReaderInterface reader, Request request,
 			ResultGroup resultGroup) throws IOException {
-		this.thread = null;
+		this.running = false;
 		this.reader = reader;
 		this.resultSearch = null;
 		this.resultGroup = resultGroup;
@@ -64,6 +66,7 @@ public class SearchThread implements Runnable {
 
 	public void run() {
 		try {
+			running = true;
 			if (resultSearch == null) {
 				resultSearch = (ResultSearch) reader.search(request);
 				resultGroup.addResult(resultSearch);
@@ -82,28 +85,31 @@ public class SearchThread implements Runnable {
 			this.parseException = e;
 		} catch (SyntaxError e) {
 			this.syntaxError = e;
+		} finally {
+			running = false;
 		}
 	}
 
 	public void waitForCompletion() {
-		synchronized (this.thread) {
-			while (this.thread.isAlive()) {
-				try {
-					this.thread.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+		while (running) {
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
+
+	private static final ExecutorService threadPool = Executors
+			.newCachedThreadPool();
 
 	public void search(int step) {
 		if (!needMore)
 			return;
 		this.step = step;
 		this.fetchCount = 0;
-		this.thread = new Thread(this);
-		this.thread.start();
+		running = true;
+		threadPool.execute(this);
 	}
 
 	public int getFetchCount() {

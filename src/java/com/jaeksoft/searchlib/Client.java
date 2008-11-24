@@ -32,6 +32,7 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
@@ -77,8 +78,8 @@ public class Client extends Config implements XmlInfo {
 
 	public int getDocFreq(String uniqueField) throws IOException {
 		return getIndex().getDocFreq(
-				getSchema().getFieldList().getUniqueField().getName(),
-				uniqueField);
+				new Term(getSchema().getFieldList().getUniqueField().getName(),
+						uniqueField));
 	}
 
 	public void reload(boolean deleteOld) throws IOException {

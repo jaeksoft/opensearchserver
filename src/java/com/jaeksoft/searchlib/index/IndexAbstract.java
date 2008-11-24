@@ -45,4 +45,5 @@ public abstract class IndexAbstract extends NameFilter implements
 	}
 
 	public abstract IndexAbstract get(String name);
+
 }

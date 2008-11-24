@@ -2,6 +2,7 @@ package com.jaeksoft.searchlib.facet;
 
 import java.io.IOException;
 
+import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 
 import com.jaeksoft.searchlib.index.DocSetHits;
@@ -26,7 +27,8 @@ public class FacetMultivalued extends FacetSearch {
 		int i = 0;
 		for (String term : stringIndex.lookup) {
 			if (term != null) {
-				TermDocs termDocs = reader.getTermDocs(fieldName, term);
+				Term t = new Term(fieldName, term);
+				TermDocs termDocs = reader.getTermDocs(t);
 				while (termDocs.next())
 					if (termDocs.freq() > 0)
 						if (dsh.contains(termDocs.doc()))

@@ -36,6 +36,7 @@ import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
@@ -157,10 +158,10 @@ public class IndexGroup extends IndexAbstract {
 		index.deleteDocuments(schema, uniqueField, forceLocal);
 	}
 
-	public int getDocFreq(String field, String term) throws IOException {
+	public int getDocFreq(Term term) throws IOException {
 		int r = 0;
 		for (IndexAbstract index : getIndices())
-			r += index.getDocFreq(field, term);
+			r += index.getDocFreq(term);
 		return r;
 	}
 
