@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.IndexAbstract;
+import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.index.IndexLocal;
 import com.jaeksoft.searchlib.render.Render;
@@ -91,8 +92,8 @@ public abstract class Config implements XmlInfo {
 		case 0:
 			return null;
 		case 1:
-			return new IndexLocal(homeDir, xpp, xpp
-					.getNode("/configuration/indices/index"),
+			return new IndexLocal(homeDir, new IndexConfig(xpp, xpp
+					.getNode("/configuration/indices/index")),
 					createIndexIfNotExists);
 		default:
 			return new IndexGroup(homeDir, xpp, xpp

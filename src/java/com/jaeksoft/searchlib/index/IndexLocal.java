@@ -35,14 +35,12 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class IndexLocal extends IndexAbstract {
 
@@ -51,15 +49,15 @@ public class IndexLocal extends IndexAbstract {
 	private ReaderRemote readerRemote = null;
 	private WriterRemote writerRemote = null;
 
-	public IndexLocal(File homeDir, XPathParser xpp, Node node,
+	public IndexLocal(File homeDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException {
-		super(node);
-		readerRemote = ReaderRemote.fromXmlConfig(getName(), xpp, node);
-		readerLocal = ReaderLocal.fromXmlConfig(homeDir, getName(), xpp, node,
+		super(indexConfig);
+		readerRemote = ReaderRemote.fromConfig(indexConfig);
+		readerLocal = ReaderLocal.fromConfig(homeDir, indexConfig,
 				createIfNotExists);
-		writerRemote = WriterRemote.fromXmlConfig(getName(), xpp, node);
+		writerRemote = WriterRemote.fromConfig(indexConfig);
 		if (readerLocal != null) {
-			writerLocal = WriterLocal.fromXmlConfig(getName(), xpp, node);
+			writerLocal = WriterLocal.fromConfig(indexConfig);
 			if (writerLocal != null)
 				writerLocal.setDirectory(readerLocal.getDirectory());
 		}

@@ -25,11 +25,10 @@
 package com.jaeksoft.searchlib.remote;
 
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashSet;
 
-import org.w3c.dom.Node;
-
-import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Remote implements XmlInfo {
@@ -40,13 +39,14 @@ public class Remote implements XmlInfo {
 	private int port;
 	private String path;
 
-	public Remote(String name, String protocol, String host, int port,
-			String path) {
-		this.name = name;
-		this.protocol = protocol;
-		this.host = host;
-		this.port = port;
-		this.path = path;
+	public Remote(String name, String url) throws MalformedURLException {
+		URL u = new URL(url);
+		protocol = u.getProtocol();
+		host = u.getHost();
+		port = u.getPort();
+		if (port == -1)
+			port = 80;
+		path = u.getPath();
 	}
 
 	public String getUrl(String queryString) {
@@ -68,28 +68,6 @@ public class Remote implements XmlInfo {
 
 	public String getName() {
 		return name;
-	}
-
-	public static Remote fromXmlConfig(Node node, String remotePathAttribute) {
-		String remoteName = XPathParser.getAttributeString(node, "remoteName");
-		if (remoteName == null)
-			return null;
-		String remoteProtocol = XPathParser.getAttributeString(node,
-				"remoteProtocol");
-		if (remoteProtocol == null)
-			remoteProtocol = "http";
-		String remoteHost = XPathParser.getAttributeString(node, "remoteHost");
-		if (remoteHost == null)
-			return null;
-		int remotePort = XPathParser.getAttributeValue(node, "remotePort");
-		if (remotePort == 0)
-			remotePort = 80;
-		String remotePath = XPathParser.getAttributeString(node,
-				remotePathAttribute);
-		if (remotePath == null)
-			return null;
-		return new Remote(remoteName, remoteProtocol, remoteHost, remotePort,
-				remotePath);
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {

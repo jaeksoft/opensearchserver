@@ -53,7 +53,6 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.cache.DocumentCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
@@ -68,7 +67,6 @@ import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.ResultSearch;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.FileUtils;
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class ReaderLocal extends NameFilter implements ReaderInterface {
 
@@ -311,18 +309,17 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		return reader;
 	}
 
-	public static ReaderLocal fromXmlConfig(File homeDir, String indexName,
-			XPathParser xpp, Node node, boolean createIfNotExists)
-			throws IOException {
-		String path = XPathParser.getAttributeString(node, "path");
-		if (indexName == null || path == null)
+	public static ReaderLocal fromConfig(File homeDir, IndexConfig indexConfig,
+			boolean createIfNotExists) throws IOException {
+		if (indexConfig.getName() == null || indexConfig.getPath() == null)
 			return null;
 
-		File rootDir = new File(FileUtils.locatePath(homeDir, path));
+		File rootDir = new File(FileUtils.locatePath(homeDir, indexConfig
+				.getPath()));
 		if (!rootDir.exists() && createIfNotExists)
 			rootDir.mkdirs();
-		ReaderLocal reader = ReaderLocal.getMostRecent(indexName, rootDir,
-				false);
+		ReaderLocal reader = ReaderLocal.getMostRecent(indexConfig.getName(),
+				rootDir, false);
 
 		if (reader == null) {
 			if (!createIfNotExists)
@@ -330,14 +327,11 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 			File dataDir = new File(rootDir, df.format(new Date()));
 			WriterLocal.create(dataDir);
-			reader = new ReaderLocal(indexName, rootDir, dataDir);
+			reader = new ReaderLocal(indexConfig.getName(), rootDir, dataDir);
 		}
 
-		int searchCache = XPathParser.getAttributeValue(node, "searchCache");
-		int filterCache = XPathParser.getAttributeValue(node, "filterCache");
-		int documentCache = XPathParser
-				.getAttributeValue(node, "documentCache");
-		reader.initCache(searchCache, filterCache, documentCache);
+		reader.initCache(indexConfig.getSearchCache(), indexConfig
+				.getFilterCache(), indexConfig.getDocumentCache());
 		return reader;
 	}
 

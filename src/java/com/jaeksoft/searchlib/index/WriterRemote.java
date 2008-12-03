@@ -36,13 +36,11 @@ import java.util.List;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.remote.Remote;
 import com.jaeksoft.searchlib.remote.UrlRead;
 import com.jaeksoft.searchlib.remote.UrlWriteObject;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class WriterRemote extends WriterAbstract {
 
@@ -155,17 +153,18 @@ public class WriterRemote extends WriterAbstract {
 		}
 	}
 
-	public static WriterRemote fromXmlConfig(String indexName, XPathParser xpp,
-			Node node) {
-		if (indexName == null)
+	public static WriterRemote fromConfig(IndexConfig indexConfig)
+			throws MalformedURLException {
+		if (indexConfig.getName() == null)
 			return null;
-		Remote remote = Remote.fromXmlConfig(node, "remoteIndexPath");
+		if (indexConfig.getRemoteUrl() == null)
+			return null;
+		Remote remote = new Remote(indexConfig.getName(), indexConfig
+				.getRemoteUrl());
 		if (remote == null)
 			return null;
-		String keyField = XPathParser.getAttributeString(node, "keyField");
-		String keyMd5Pattern = XPathParser.getAttributeString(node,
-				"keyMd5RegExp");
-		return new WriterRemote(remote, indexName, keyField, keyMd5Pattern);
+		return new WriterRemote(remote, indexConfig.getName(), indexConfig
+				.getKeyField(), indexConfig.getKeyMd5RegExp());
 	}
 
 }

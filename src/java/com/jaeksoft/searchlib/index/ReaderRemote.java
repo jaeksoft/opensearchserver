@@ -35,14 +35,12 @@ import java.util.HashSet;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.remote.Remote;
 import com.jaeksoft.searchlib.remote.UrlReadObject;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class ReaderRemote extends NameFilter implements ReaderInterface {
 
@@ -53,14 +51,15 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 		this.remote = remote;
 	}
 
-	public static ReaderRemote fromXmlConfig(String indexName, XPathParser xpp,
-			Node node) {
-		if (indexName == null)
+	public static ReaderRemote fromConfig(IndexConfig indexConfig)
+			throws MalformedURLException {
+		if (indexConfig.getName() == null)
 			return null;
-		Remote remote = Remote.fromXmlConfig(node, "remoteSearchPath");
-		if (remote == null)
+		if (indexConfig.getRemoteUrl() == null)
 			return null;
-		return new ReaderRemote(indexName, remote);
+		Remote remote = new Remote(indexConfig.getName(), indexConfig
+				.getRemoteUrl());
+		return new ReaderRemote(indexConfig.getName(), remote);
 	}
 
 	public void reload(String indexName, boolean deleteOld) throws IOException {

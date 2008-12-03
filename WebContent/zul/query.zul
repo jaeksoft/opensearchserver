@@ -1,0 +1,15 @@
+<zk>
+	<vbox width="100%">
+		<hbox>
+			<label>Select a request:</label>
+			<combobox />
+		</hbox>
+		<hbox>
+			<label>Enter the query:</label>
+			<textbox cols="80" />
+		</hbox>
+		<hbox>
+			<button label="Search" />
+		</hbox>
+	</vbox>
+</zk>

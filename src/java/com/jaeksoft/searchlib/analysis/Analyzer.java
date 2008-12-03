@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -83,6 +84,14 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer implements
 
 	public String getLang() {
 		return lang;
+	}
+
+	public String getTokenizer() {
+		return tokenizer.getClass().getSimpleName();
+	}
+
+	public List<FilterFactory> getFilters() {
+		return filters;
 	}
 
 	/**

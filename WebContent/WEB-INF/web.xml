@@ -1,60 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
-  <display-name>SearchServer</display-name>
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-    <welcome-file>index.htm</welcome-file>
-    <welcome-file>index.jsp</welcome-file>
-    <welcome-file>default.html</welcome-file>
-    <welcome-file>default.htm</welcome-file>
-    <welcome-file>default.jsp</welcome-file>
-  </welcome-file-list>
-  <servlet>
-    <servlet-name>Delete</servlet-name>
-    <servlet-class>com.jaeksoft.searchlib.web.DeleteServlet</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>Index</servlet-name>
-    <servlet-class>com.jaeksoft.searchlib.web.IndexServlet</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>Optimize</servlet-name>
-    <servlet-class>com.jaeksoft.searchlib.web.OptimizeServlet</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>Search</servlet-name>
-    <servlet-class>com.jaeksoft.searchlib.web.SearchServlet</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>Document</servlet-name>
-    <servlet-class>com.jaeksoft.searchlib.web.DocumentServlet</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>Stats</servlet-name>
-    <servlet-class>com.jaeksoft.searchlib.web.StatServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>Delete</servlet-name>
-    <url-pattern>/delete</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Index</servlet-name>
-    <url-pattern>/index</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Optimize</servlet-name>
-    <url-pattern>/optimize</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Search</servlet-name>
-    <url-pattern>/select</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Document</servlet-name>
-    <url-pattern>/document</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Stats</servlet-name>
-    <url-pattern>/stats</url-pattern>
-  </servlet-mapping>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<display-name>SearchServer</display-name>
+	<welcome-file-list>
+		<welcome-file>index.zul</welcome-file>
+		<welcome-file>index.zhtml</welcome-file>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+	<servlet>
+		<servlet-name>Delete</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.DeleteServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Index</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.IndexServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Optimize</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.OptimizeServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Search</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.SearchServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Document</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.DocumentServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Stats</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.StatServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Delete</servlet-name>
+		<url-pattern>/delete</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Index</servlet-name>
+		<url-pattern>/index</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Optimize</servlet-name>
+		<url-pattern>/optimize</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Search</servlet-name>
+		<url-pattern>/select</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Document</servlet-name>
+		<url-pattern>/document</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Stats</servlet-name>
+		<url-pattern>/stats</url-pattern>
+	</servlet-mapping>
+
+	<!-- //// -->
+	<!-- ZK -->
+	<listener>
+		<description>ZK listener for session cleanup</description>
+		<listener-class>org.zkoss.zk.ui.http.HttpSessionListener</listener-class>
+	</listener>
+	<servlet>
+		<description>ZK loader for evaluating ZK pages</description>
+		<servlet-name>zkLoader</servlet-name>
+		<servlet-class>org.zkoss.zk.ui.http.DHtmlLayoutServlet</servlet-class>
+
+		<!--
+			Must. Specifies URI of the update engine (DHtmlUpdateServlet).
+		-->
+		<init-param>
+			<param-name>update-uri</param-name>
+			<param-value>/zkau</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup><!-- MUST -->
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>zkLoader</servlet-name>
+		<url-pattern>*.zul</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>zkLoader</servlet-name>
+		<url-pattern>*.zhtml</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<description>The asynchronous update engine for ZK</description>
+		<servlet-name>auEngine</servlet-name>
+		<servlet-class>org.zkoss.zk.au.http.DHtmlUpdateServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>auEngine</servlet-name>
+		<url-pattern>/zkau/*</url-pattern>
+	</servlet-mapping>
+
+	<mime-mapping>
+		<extension>zhtml</extension>
+		<mime-type>text/html</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>zul</extension>
+		<mime-type>text/html</mime-type>
+	</mime-mapping>
+	<!-- //// -->
+
 </web-app>

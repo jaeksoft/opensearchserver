@@ -57,14 +57,14 @@ public class IndexGroup extends IndexAbstract {
 	public IndexGroup(File homeDir, XPathParser xpp, Node parentNode,
 			boolean createIfNotExists) throws XPathExpressionException,
 			IOException {
-		super(parentNode);
+		super(null);
 		indices = new LinkedHashMap<String, IndexAbstract>();
 		NodeList nodes = xpp.getNodeList(parentNode, "index");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
-			String indexName = XPathParser.getAttributeString(node, "name");
-			indices.put(indexName, new IndexLocal(homeDir, xpp, node,
-					createIfNotExists));
+			IndexConfig indexConfig = new IndexConfig(xpp, node);
+			indices.put(indexConfig.getName(), new IndexLocal(homeDir,
+					indexConfig, createIfNotExists));
 		}
 	}
 

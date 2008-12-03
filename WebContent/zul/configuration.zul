@@ -1,0 +1,22 @@
+<tabbox>
+	<tabs>
+		<tab id="tab1" label="Indices" selected="true" />
+		<tab id="tab2" label="Analyzers" />
+		<tab id="tab3" label="Fields" />
+		<tab id="tab4" label="Requests" />
+	</tabs>
+	<tabpanels>
+		<tabpanel>
+			<include src="zul/indices.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tab2.onSelect">
+			<include src="zul/analyzers.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tab3.onSelect">
+			<include src="zul/fields.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tab4.onSelect">
+			<include src="zul/requests.zul" />
+		</tabpanel>
+	</tabpanels>
+</tabbox>

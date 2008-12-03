@@ -41,6 +41,10 @@ public abstract class FilterFactory implements XmlInfo {
 
 	public abstract TokenStream create(TokenStream tokenStream);
 
+	public String getClassName() {
+		return this.getClass().getSimpleName();
+	}
+
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
 		writer.println("<filter class=\"" + this.getClass().getSimpleName()
 				+ "\" />");

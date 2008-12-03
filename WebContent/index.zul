@@ -1,0 +1,18 @@
+<window>
+	<caption image="images/jaeksoft_websearch_16.png"
+		label="Jaeksoft SearchServer" />
+	<tabbox>
+		<tabs>
+			<tab id="tab1" label="Query" selected="true" />
+			<tab id="tab2" label="Configuration" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="zul/query.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tab2.onSelect">
+				<include src="zul/configuration.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

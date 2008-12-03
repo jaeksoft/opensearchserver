@@ -40,11 +40,9 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class WriterLocal extends WriterAbstract {
 
@@ -233,14 +231,12 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public static WriterLocal fromXmlConfig(String indexName, XPathParser xpp,
-			Node node) throws IOException {
-		if (indexName == null)
+	public static WriterLocal fromConfig(IndexConfig indexConfig)
+			throws IOException {
+		if (indexConfig.getName() == null)
 			return null;
-		String keyField = XPathParser.getAttributeString(node, "keyField");
-		String keyMd5Pattern = XPathParser.getAttributeString(node,
-				"keyMd5RegExp");
-		return new WriterLocal(indexName, keyField, keyMd5Pattern);
+		return new WriterLocal(indexConfig.getName(),
+				indexConfig.getKeyField(), indexConfig.getKeyMd5RegExp());
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
