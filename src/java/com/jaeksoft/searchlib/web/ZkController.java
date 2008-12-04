@@ -9,8 +9,10 @@ import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexGroup;
+import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class ZkController extends Window {
 
@@ -39,7 +41,11 @@ public class ZkController extends Window {
 		return list;
 	}
 
-	public List<?> getAnalyzers() {
+	public List<Analyzer> getAnalyzers() {
 		return client.getSchema().getAnalyzerList();
+	}
+
+	public List<SchemaField> getFields() {
+		return client.getSchema().getFieldList().array();
 	}
 }

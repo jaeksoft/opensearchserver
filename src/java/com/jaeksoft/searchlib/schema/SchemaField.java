@@ -129,6 +129,43 @@ public class SchemaField extends FieldValue {
 		writer.println("/>");
 	}
 
+	public String getStoreLabel() {
+		if (org.apache.lucene.document.Field.Store.NO.equals(store))
+			return "no";
+		if (org.apache.lucene.document.Field.Store.YES.equals(store))
+			return "yes";
+		if (org.apache.lucene.document.Field.Store.COMPRESS.equals(store))
+			return "compress";
+		return null;
+	}
+
+	public String getIndexLabel() {
+		if (org.apache.lucene.document.Field.Index.NO.equals(index))
+			return "no";
+		if (org.apache.lucene.document.Field.Index.TOKENIZED.equals(index))
+			return "yes";
+		if (org.apache.lucene.document.Field.Index.UN_TOKENIZED.equals(index))
+			return "yes";
+		return null;
+	}
+
+	public String getTermVectorLabel() {
+		if (org.apache.lucene.document.Field.TermVector.NO.equals(termVector))
+			return "no";
+		if (org.apache.lucene.document.Field.TermVector.YES.equals(termVector))
+			return "yes";
+		if (org.apache.lucene.document.Field.TermVector.WITH_OFFSETS
+				.equals(termVector))
+			return "offsets";
+		if (org.apache.lucene.document.Field.TermVector.WITH_POSITIONS
+				.equals(termVector))
+			return "positions";
+		if (org.apache.lucene.document.Field.TermVector.WITH_POSITIONS_OFFSETS
+				.equals(termVector))
+			return "positions_offsets";
+		return null;
+	}
+
 	public String getDefaultAnalyzer() {
 		return defaultAnalyzer;
 	}

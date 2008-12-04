@@ -196,4 +196,8 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 		return this.fieldList.iterator();
 	}
 
+	public ArrayList<T> array() {
+		return fieldList;
+	}
+
 }
