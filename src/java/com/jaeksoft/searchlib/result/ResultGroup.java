@@ -133,7 +133,7 @@ public class ResultGroup extends Result<CollapseGroup> {
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean populate(ResultSearch result, int start, int rows)
+	public void populate(ResultSearch result, int start, int rows)
 			throws IOException {
 
 		synchronized (this) {
@@ -142,19 +142,16 @@ public class ResultGroup extends Result<CollapseGroup> {
 				logger.info("Populate " + result);
 
 			if (result.getNumFound() == 0)
-				return false;
+				return;
 
 			if (result.getMaxScore() > this.maxScore)
 				this.maxScore = result.getMaxScore();
 
-			boolean needMore = true;
-
 			if (this.fetchedDoc == null || this.fetchedDoc.length == 0)
 				this.setDoc(result, start + rows);
 			else
-				needMore = this.insertAndSort(result, start, rows);
+				insertAndSort(result, start, rows);
 
-			return needMore;
 		}
 	}
 
@@ -179,28 +176,19 @@ public class ResultGroup extends Result<CollapseGroup> {
 	 * @param resultSearch
 	 * @param start
 	 * @param rows
-	 * @return the number of rows
 	 */
-	private boolean insertAndSort(ResultSearch resultSearch, int start, int rows) {
+	private void insertAndSort(ResultSearch resultSearch, int start, int rows) {
 		int end = start + rows;
 		if (end > resultSearch.getFetchedDoc().length)
 			end = resultSearch.getFetchedDoc().length;
 		if (start >= end)
-			return false;
-		int endTarget = request.getEnd();
+			return;
 		int[] newDoc = new int[this.fetchedDoc.length + (end - start)];
 		ResultSearch[] newResults = new ResultSearch[newDoc.length];
 		int iOld = 0;
 		int iResult = start;
 		int n = 0;
-		boolean needMore = true;
 		for (;;) {
-			if (n >= endTarget) {
-				if (logger.isLoggable(Level.INFO))
-					logger.info("Break before " + n + " / " + endTarget);
-				needMore = false;
-				break;
-			}
 			if (sorter.isBefore(resultSearch, iResult, resultsFetch[iOld],
 					fetchedDoc[iOld])) {
 				newDoc[n] = iResult;
@@ -230,7 +218,6 @@ public class ResultGroup extends Result<CollapseGroup> {
 		}
 		fetchedDoc = newDoc;
 		resultsFetch = newResults;
-		return needMore;
 	}
 
 	public ArrayList<ResultSearch> getResultList() {

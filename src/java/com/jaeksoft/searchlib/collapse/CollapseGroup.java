@@ -48,9 +48,8 @@ public class CollapseGroup extends Collapse<ResultGroup> {
 	protected void prepare() throws IOException {
 		this.resultsFetch = this.result.getResultsFetch();
 		this.fetchedDoc = this.result.getFetchedDoc();
-		for (ResultSearch result : this.result.getResultList()) {
+		for (ResultSearch result : this.result.getResultList())
 			result.getCollapse().prepare();
-		}
 	}
 
 	@Override
@@ -84,7 +83,9 @@ public class CollapseGroup extends Collapse<ResultGroup> {
 
 	@Override
 	public String getTerm(int pos) throws IOException {
-		return this.resultsFetch[pos].getCollapse().getTerm(
-				this.fetchedDoc[pos]);
+		int i = fetchedDoc[pos];
+		ResultSearch resultSearch = resultsFetch[pos];
+		Collapse<?> collapse = resultSearch.getCollapse();
+		return collapse.getTerm(i);
 	}
 }

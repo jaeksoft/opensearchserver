@@ -62,17 +62,18 @@ public class ResultSearch extends Result<CollapseSearch> {
 		this.docs = reader.searchDocSet(request);
 		for (FacetField facetField : request.getFacetFieldList())
 			this.facetList.add(facetField.getFacetInstance(this));
-		if (request.getCollapseField() != null) {
-			this.collapse = new CollapseSearch(this);
-			if (this.docs.getDocNumFound() > 0 && request.getCollapseActive())
-				this.collapse.run();
-			if (request.getCollapseMax() > 0) {
-				fetchUntilCollapse();
-				return;
-			}
-		}
 		sortStringIndexArray = request.getSortList()
 				.newStringIndexArray(reader);
+		if (request.getCollapseField() != null) {
+			this.collapse = new CollapseSearch(this);
+			if (this.docs.getDocNumFound() > 0 && request.getCollapseActive()) {
+				this.collapse.run();
+				if (request.getCollapseMax() > 0) {
+					fetchUntilCollapse();
+					return;
+				}
+			}
+		}
 		docs.getHits(this.request.getEnd());
 	}
 

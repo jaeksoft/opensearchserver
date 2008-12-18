@@ -76,7 +76,6 @@ public abstract class Collapse<T extends Result<?>> implements Serializable {
 			} else {
 				lastTerm = term;
 				adjacent = 0;
-
 			}
 		}
 		this.collapsedDocCount = collapsedSet.cardinality();
