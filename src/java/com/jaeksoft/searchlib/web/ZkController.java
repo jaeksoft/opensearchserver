@@ -25,7 +25,6 @@ public class ZkController extends Window {
 
 	public ZkController() throws SearchLibException, NamingException {
 		super();
-		System.out.println("ZkController " + this + " " + this.hashCode());
 		client = Client.getWebAppInstance();
 	}
 

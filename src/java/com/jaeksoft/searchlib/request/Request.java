@@ -75,6 +75,7 @@ public class Request implements XmlInfo {
 	private int rows;
 	private String lang;
 	private String queryString;
+	private String highlightQueryString;
 	private String scoreFunction;
 	private Query query;
 	private String queryParsed;
@@ -109,6 +110,7 @@ public class Request implements XmlInfo {
 		this.lang = null;
 		this.query = null;
 		this.docIds = null;
+		this.highlightQueryString = null;
 		this.queryString = null;
 		this.scoreFunction = null;
 		this.forceLocal = false;
@@ -153,6 +155,7 @@ public class Request implements XmlInfo {
 		if (request.docIds != null)
 			this.docIds = new ArrayList<Integer>(request.docIds);
 		this.queryString = request.queryString;
+		this.highlightQueryString = request.highlightQueryString;
 		this.scoreFunction = request.scoreFunction;
 		this.forceLocal = request.forceLocal;
 		this.reader = request.reader;
@@ -161,7 +164,8 @@ public class Request implements XmlInfo {
 
 	protected Request(Config config, String name, boolean allowLeadingWildcard,
 			int phraseSlop, QueryParser.Operator defaultOperator, int start,
-			int rows, String lang, String queryString, String scoreFunction,
+			int rows, String lang, String queryString,
+			String highlightQueryString, String scoreFunction,
 			boolean forceLocal, boolean delete, boolean withDocuments) {
 		this(config);
 		this.name = name;
@@ -172,6 +176,7 @@ public class Request implements XmlInfo {
 		this.rows = rows;
 		this.lang = lang;
 		this.queryString = queryString;
+		this.highlightQueryString = highlightQueryString;
 		if (scoreFunction != null)
 			if (scoreFunction.trim().length() == 0)
 				scoreFunction = null;
@@ -198,7 +203,7 @@ public class Request implements XmlInfo {
 		synchronized (this) {
 			Schema schema = this.getConfig().getSchema();
 			return new QueryParser(schema.getFieldList().getDefaultField()
-					.getName(), schema.getHighlightPerFieldAnalyzer(getLang()));
+					.getName(), schema.getQueryPerFieldAnalyzer(getLang()));
 		}
 	}
 
@@ -253,7 +258,8 @@ public class Request implements XmlInfo {
 				setQueryParser(this, highlightQueryParser);
 			}
 			synchronized (highlightQueryParser) {
-				highlightQuery = highlightQueryParser.parse(queryString);
+				highlightQuery = highlightQueryParser
+						.parse(highlightQueryString);
 			}
 			return highlightQuery;
 		}
@@ -263,6 +269,10 @@ public class Request implements XmlInfo {
 		return queryString;
 	}
 
+	public String getHighlightQueryString() {
+		return highlightQueryString;
+	}
+
 	public String getQueryParsed() throws ParseException, SyntaxError {
 		getQuery();
 		return queryParsed;
@@ -270,6 +280,10 @@ public class Request implements XmlInfo {
 
 	protected void setQueryStringNotEscaped(String q) {
 		queryString = q;
+	}
+
+	protected void setHighlightQueryStringNotEscaped(String q) {
+		highlightQueryString = q;
 	}
 
 	public void setQueryString(String q) {
@@ -477,4 +491,5 @@ public class Request implements XmlInfo {
 			query = query.replace(s, "\\" + s);
 		return query;
 	}
+
 }

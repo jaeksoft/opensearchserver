@@ -62,11 +62,12 @@ public class TemplateRequest extends Request {
 	public TemplateRequest(Config config, String name,
 			boolean allowLeadingWildcard, int phraseSlop,
 			Operator defaultOperator, int start, int rows, String lang,
-			String queryString, String scoreFunction, boolean forceLocal,
-			boolean delete, boolean withDocuments) {
+			String queryString, String highlightQueryString,
+			String scoreFunction, boolean forceLocal, boolean delete,
+			boolean withDocuments) {
 		super(config, name, allowLeadingWildcard, phraseSlop, defaultOperator,
-				start, rows, lang, queryString, scoreFunction, forceLocal,
-				delete, withDocuments);
+				start, rows, lang, queryString, highlightQueryString,
+				scoreFunction, forceLocal, delete, withDocuments);
 	}
 
 	/**
@@ -90,6 +91,8 @@ public class TemplateRequest extends Request {
 	public void setQueryString(String q) {
 		setQueryStringNotEscaped(getSourceRequest().getQueryString().replace(
 				"$$", q));
+		setHighlightQueryStringNotEscaped(getSourceRequest()
+				.getHighlightQueryString().replace("$$", q));
 	}
 
 	/**
@@ -117,9 +120,9 @@ public class TemplateRequest extends Request {
 						.getAttributeValue(node, "start"), XPathParser
 						.getAttributeValue(node, "rows"), XPathParser
 						.getAttributeString(node, "lang"), xpp.getNodeString(
-						node, "query"), xpp
-						.getNodeString(node, "scoreFunction"), false, false,
-				false);
+						node, "query"), xpp.getNodeString(node,
+						"highlighting/query"), xpp.getNodeString(node,
+						"scoreFunction"), false, false, false);
 
 		FieldList<FieldValue> returnFields = templateRequest
 				.getReturnFieldList();

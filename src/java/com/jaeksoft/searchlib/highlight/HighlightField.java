@@ -46,13 +46,13 @@ public class HighlightField extends FieldValue {
 
 	private Fragmenter fragmenter;
 	private String tag;
-	private int maxDocBytes;
+	private int maxDocChar;
 	private int maxSize;
 
-	public HighlightField(Field field, String tag, int maxDocBytes, int maxSize) {
+	public HighlightField(Field field, String tag, int maxDocChar, int maxSize) {
 		super(field.getName());
 		this.tag = tag;
-		this.maxDocBytes = maxDocBytes;
+		this.maxDocChar = maxDocChar;
 		this.maxSize = maxSize;
 	}
 
@@ -64,7 +64,7 @@ public class HighlightField extends FieldValue {
 		super(field.name);
 		fragmenter = field.fragmenter;
 		tag = field.tag;
-		maxDocBytes = field.maxDocBytes;
+		maxDocChar = field.maxDocChar;
 		maxSize = field.maxSize;
 	}
 
@@ -99,12 +99,14 @@ public class HighlightField extends FieldValue {
 		String tag = XPathParser.getAttributeString(node, "tag");
 		if (tag == null)
 			tag = "em";
-		int maxDocBytes = XPathParser.getAttributeValue(node, "maxDocBytes");
+		int maxDocChar = XPathParser.getAttributeValue(node, "maxDocBytes");
+		if (maxDocChar == 0)
+			XPathParser.getAttributeValue(node, "maxDocChar");
 		int maxSize = XPathParser.getAttributeValue(node, "maxSize");
 		if (maxSize == 0)
 			maxSize = 100;
 		HighlightField field = new HighlightField(source.get(fieldName), tag,
-				maxDocBytes, maxSize);
+				maxDocChar, maxSize);
 		int fragmentNumber = XPathParser.getAttributeValue(node,
 				"maxFragmentNumber");
 		if (fragmentNumber == 0)
@@ -114,44 +116,74 @@ public class HighlightField extends FieldValue {
 				"separator");
 		if (fragmentSeparator == null)
 			fragmentSeparator = "...";
-		field.setFragmenter(new SentenceFragmenter(fragmentNumber,
-				fragmentSeparator));
+
+		field.setFragmenter(new Fragmenter(fragmentNumber, fragmentSeparator,
+				maxSize));
+
 		target.add(field);
 	}
 
 	private String[] getFragments(Request request, String content)
 			throws IOException, ParseException {
+		QueryScorer qs = new QueryScorer(request.getHighlightQuery(), name);
+
 		Highlighter highlighter = new Highlighter(getNewFormater(),
-				new DefaultEncoder(), new QueryScorer(request
-						.getHighlightQuery()));
-		if (maxDocBytes > 0)
-			highlighter.setMaxDocBytesToAnalyze(maxDocBytes);
+				new DefaultEncoder(), qs);
+		if (maxDocChar > 0)
+			highlighter.setMaxDocCharsToAnalyze(maxDocChar);
 		Fragmenter frgmtr = fragmenter.newFragmenter();
 		highlighter.setTextFragmenter(frgmtr);
 		return highlighter.getBestFragments(request.getConfig().getSchema()
-				.getHighlightPerFieldAnalyzer(request.getLang()), name,
-				content, frgmtr.getFragmentNumber());
+				.getQueryPerFieldAnalyzer(request.getLang()), name, content,
+				frgmtr.getFragmentNumber());
 	}
 
-	private static String getSnippet(String[] frags, int maxSize,
-			String separator) {
-		StringBuffer sb = new StringBuffer();
-		for (String frag : frags)
+	private static int getBestFragPos(String[] frags, int maxSize) {
+		int best_distance = maxSize;
+		int best = -1;
+		int pos = 0;
+		for (String frag : frags) {
 			if (frag != null) {
-				if (sb.length() + frag.length() + 1 > maxSize)
-					break;
-				if (sb.length() > 0)
-					sb.append(separator);
-				sb.append(frag);
+				int distance = maxSize - frag.length();
+				if (distance >= 0 && distance < best_distance) {
+					best = pos;
+					best_distance = distance;
+				}
 			}
-		sb.trimToSize();
-		return sb.length() == 0 ? null : sb.toString();
+			pos++;
+		}
+		return best;
+	}
+
+	private static String getBestFrag(String[] frags, int maxSize) {
+		int pos = getBestFragPos(frags, maxSize);
+		return (pos == -1) ? null : frags[pos];
 	}
 
 	private static String getSnippet(ArrayList<String> frags, int maxSize,
 			String separator) {
-		String[] a = new String[frags.size()];
-		return getSnippet(frags.toArray(a), maxSize, separator);
+		String[] fragsArray = new String[frags.size()];
+		String[] finalArray = new String[frags.size()];
+		frags.toArray(fragsArray);
+		int pos;
+		while ((pos = getBestFragPos(fragsArray, maxSize)) != -1) {
+			String frag = fragsArray[pos];
+			finalArray[pos] = frag;
+			fragsArray[pos] = null;
+			maxSize -= frag.length();
+		}
+		StringBuffer snippet = new StringBuffer();
+		boolean bAddSep = false;
+		for (String frag : finalArray) {
+			if (frag == null)
+				continue;
+			if (bAddSep)
+				snippet.append(separator);
+			else
+				bAddSep = true;
+			snippet.append(frag);
+		}
+		return snippet.toString();
 	}
 
 	public void setSnippets(Request request, ArrayList<String> values)
@@ -168,14 +200,14 @@ public class HighlightField extends FieldValue {
 			}
 			String[] frags = getFragments(request, value);
 			if (frags != null) {
-				String snippet = getSnippet(frags, maxSize, " ");
+				String snippet = getBestFrag(frags, maxSize);
 				if (snippet != null)
 					snippets.add(snippet);
 			}
 		}
 		String snippet = getSnippet(snippets, maxSize, fragmenter
 				.getSeparator());
-		if (snippet == null)
+		if (snippet == null || snippet.length() == 0)
 			snippet = valueContent.toString().trim();
 		addValue(snippet);
 	}

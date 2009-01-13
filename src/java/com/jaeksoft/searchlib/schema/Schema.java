@@ -49,13 +49,10 @@ public class Schema implements XmlInfo {
 
 	private HashMap<String, PerFieldAnalyzerWrapper> langQueryAnalyzers;
 
-	private HashMap<String, PerFieldAnalyzerWrapper> langHighlightAnalyzers;
-
 	private Schema() {
 		fieldList = null;
 		analyzers = null;
 		langQueryAnalyzers = new HashMap<String, PerFieldAnalyzerWrapper>();
-		langHighlightAnalyzers = new HashMap<String, PerFieldAnalyzerWrapper>();
 	}
 
 	public static Schema fromXmlConfig(Node parentNode, XPathParser xpp)
@@ -97,26 +94,6 @@ public class Schema implements XmlInfo {
 					pfa.addAnalyzer(field.name, analyzer);
 			}
 			langQueryAnalyzers.put(lang, pfa);
-			return pfa;
-		}
-	}
-
-	public PerFieldAnalyzerWrapper getHighlightPerFieldAnalyzer(String lang) {
-		synchronized (langHighlightAnalyzers) {
-			PerFieldAnalyzerWrapper pfa = langHighlightAnalyzers.get(lang);
-			if (pfa != null)
-				return pfa;
-			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer());
-			for (SchemaField field : this.fieldList) {
-				Analyzer analyzer = analyzers.get(field.getHighlightAnalyzer(),
-						lang);
-				if (analyzer == null)
-					analyzer = analyzers
-							.get(field.getHighlightAnalyzer(), null);
-				if (analyzer != null)
-					pfa.addAnalyzer(field.name, analyzer);
-			}
-			langHighlightAnalyzers.put(lang, pfa);
 			return pfa;
 		}
 	}

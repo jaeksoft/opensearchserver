@@ -45,8 +45,6 @@ public class SchemaField extends FieldValue {
 
 	private String defaultAnalyzer;
 
-	private String highlightAnalyzer;
-
 	private String indexAnalyzer;
 
 	private org.apache.lucene.document.Field.Store store;
@@ -61,7 +59,6 @@ public class SchemaField extends FieldValue {
 		this.index = field.index;
 		this.termVector = field.termVector;
 		this.defaultAnalyzer = field.defaultAnalyzer;
-		this.highlightAnalyzer = field.highlightAnalyzer;
 		this.indexAnalyzer = field.indexAnalyzer;
 	}
 
@@ -71,8 +68,7 @@ public class SchemaField extends FieldValue {
 	}
 
 	public SchemaField(String name, String store, String index,
-			String termVector, String defaultAnalyzer,
-			String highlightAnalyzer, String indexAnalyzer) {
+			String termVector, String defaultAnalyzer, String indexAnalyzer) {
 		super(name);
 		this.store = org.apache.lucene.document.Field.Store.NO;
 		if ("compress".equalsIgnoreCase(store))
@@ -82,9 +78,9 @@ public class SchemaField extends FieldValue {
 		this.index = org.apache.lucene.document.Field.Index.NO;
 		if ("yes".equalsIgnoreCase(index)) {
 			if (defaultAnalyzer != null)
-				this.index = org.apache.lucene.document.Field.Index.TOKENIZED;
+				this.index = org.apache.lucene.document.Field.Index.ANALYZED;
 			else
-				this.index = org.apache.lucene.document.Field.Index.UN_TOKENIZED;
+				this.index = org.apache.lucene.document.Field.Index.NOT_ANALYZED;
 		}
 		this.termVector = org.apache.lucene.document.Field.TermVector.NO;
 		if ("yes".equalsIgnoreCase(termVector))
@@ -96,7 +92,6 @@ public class SchemaField extends FieldValue {
 		else if ("positions_offsets".equalsIgnoreCase(termVector))
 			this.termVector = org.apache.lucene.document.Field.TermVector.WITH_POSITIONS_OFFSETS;
 		this.defaultAnalyzer = defaultAnalyzer;
-		this.highlightAnalyzer = highlightAnalyzer;
 		this.indexAnalyzer = indexAnalyzer;
 	}
 
@@ -124,8 +119,6 @@ public class SchemaField extends FieldValue {
 		writer.print(" termVector=\"" + termVector + "\"");
 		if (defaultAnalyzer != null)
 			writer.print(" defaultAnalyzer=\"" + defaultAnalyzer + "\"");
-		if (highlightAnalyzer != null)
-			writer.print(" highlightAnalyzer=\"" + highlightAnalyzer + "\"");
 		writer.println("/>");
 	}
 
@@ -142,9 +135,9 @@ public class SchemaField extends FieldValue {
 	public String getIndexLabel() {
 		if (org.apache.lucene.document.Field.Index.NO.equals(index))
 			return "no";
-		if (org.apache.lucene.document.Field.Index.TOKENIZED.equals(index))
+		if (org.apache.lucene.document.Field.Index.ANALYZED.equals(index))
 			return "yes";
-		if (org.apache.lucene.document.Field.Index.UN_TOKENIZED.equals(index))
+		if (org.apache.lucene.document.Field.Index.NOT_ANALYZED.equals(index))
 			return "yes";
 		return null;
 	}
@@ -168,12 +161,6 @@ public class SchemaField extends FieldValue {
 
 	public String getDefaultAnalyzer() {
 		return defaultAnalyzer;
-	}
-
-	public String getHighlightAnalyzer() {
-		if (highlightAnalyzer == null)
-			return defaultAnalyzer;
-		return highlightAnalyzer;
 	}
 
 	public String getIndexAnalyzer() {
@@ -203,8 +190,6 @@ public class SchemaField extends FieldValue {
 			Node node = nodes.item(i);
 			String name = XPathParser.getAttributeString(node, "name");
 			String analyzer = XPathParser.getAttributeString(node, "analyzer");
-			String highlightAnalyzer = XPathParser.getAttributeString(node,
-					"highlightAnalyzer");
 			String indexAnalyzer = XPathParser.getAttributeString(node,
 					"indexAnalyzer");
 			String stored = XPathParser.getAttributeString(node, "stored");
@@ -212,7 +197,7 @@ public class SchemaField extends FieldValue {
 			String termVector = XPathParser.getAttributeString(node,
 					"termVector");
 			fieldList.add(new SchemaField(name, stored, indexed, termVector,
-					analyzer, highlightAnalyzer, indexAnalyzer));
+					analyzer, indexAnalyzer));
 		}
 		fieldList.setDefaultField(XPathParser.getAttributeString(parentNode,
 				"default"));

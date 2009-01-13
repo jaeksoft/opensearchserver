@@ -106,7 +106,8 @@ public class WriterLocal extends WriterAbstract {
 	private static IndexWriter openIndexWriter(Directory directory,
 			boolean create) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
-		return new IndexWriter(directory, false, null, create);
+		return new IndexWriter(directory, null, create,
+				IndexWriter.MaxFieldLength.UNLIMITED);
 	}
 
 	protected static void create(File dataDir) throws IOException {

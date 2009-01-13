@@ -26,7 +26,9 @@ package com.jaeksoft.searchlib.highlight;
 
 import java.io.Serializable;
 
-public abstract class Fragmenter implements
+import org.apache.lucene.analysis.Token;
+
+public class Fragmenter implements
 		org.apache.lucene.search.highlight.Fragmenter, Serializable {
 
 	/**
@@ -36,15 +38,20 @@ public abstract class Fragmenter implements
 
 	private int fragmentNumber;
 	private String separator;
+	private int maxFragmentSize;
+
+	protected int currentFragmentSize;
 
 	/**
 	 * 
 	 * @param fragmentNumber
 	 * @param separator
 	 */
-	public Fragmenter(int fragmentNumber, String separator) {
+	public Fragmenter(int fragmentNumber, String separator, int maxFragmentSize) {
 		this.fragmentNumber = fragmentNumber;
 		this.separator = separator;
+		this.currentFragmentSize = 0;
+		this.maxFragmentSize = maxFragmentSize;
 	}
 
 	/**
@@ -54,9 +61,13 @@ public abstract class Fragmenter implements
 	protected Fragmenter(Fragmenter fragmenter) {
 		this.fragmentNumber = fragmenter.fragmentNumber;
 		this.separator = fragmenter.separator;
+		this.currentFragmentSize = 0;
+		this.maxFragmentSize = fragmenter.maxFragmentSize;
 	}
 
-	public abstract Fragmenter newFragmenter();
+	public Fragmenter newFragmenter() {
+		return new Fragmenter(this);
+	}
 
 	public int getFragmentNumber() {
 		return this.fragmentNumber;
@@ -64,6 +75,21 @@ public abstract class Fragmenter implements
 
 	public String getSeparator() {
 		return this.separator;
+	}
+
+	@Override
+	public boolean isNewFragment(Token token) {
+		int l = token.termLength();
+		currentFragmentSize += l;
+		if (currentFragmentSize < maxFragmentSize)
+			return false;
+		currentFragmentSize = l;
+		return true;
+	}
+
+	@Override
+	public void start(String originalText) {
+		currentFragmentSize = 0;
 	}
 
 }
