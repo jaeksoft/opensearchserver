@@ -1,6 +1,6 @@
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.ResultSearch;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
 public class SortListSorter implements SorterInterface {
 
@@ -14,10 +14,9 @@ public class SortListSorter implements SorterInterface {
 		descendant = sortList.newDescArray();
 	}
 
-	@Override
-	public boolean isBefore(ResultSearch r1, int i1, ResultSearch r2, int i2) {
-		r1.loadSortValues(i1, values1);
-		r2.loadSortValues(i2, values2);
+	public boolean isBefore(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+		doc1.resultSearch.loadSortValues(doc1, values1);
+		doc2.resultSearch.loadSortValues(doc2, values2);
 		for (int i = 0; i < values1.length; i++) {
 			String v1 = values1[i];
 			String v2 = values2[i];

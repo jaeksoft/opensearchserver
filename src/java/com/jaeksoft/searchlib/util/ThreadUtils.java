@@ -22,12 +22,13 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.util;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public interface SorterInterface {
+public class ThreadUtils {
 
-	public boolean isBefore(ResultScoreDoc doc1, ResultScoreDoc doc2);
+	public static final ExecutorService pool = Executors.newCachedThreadPool();
 
 }

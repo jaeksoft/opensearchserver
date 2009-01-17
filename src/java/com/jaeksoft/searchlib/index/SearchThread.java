@@ -25,8 +25,6 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -34,6 +32,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.ResultGroup;
 import com.jaeksoft.searchlib.result.ResultSearch;
+import com.jaeksoft.searchlib.util.ThreadUtils;
 
 public class SearchThread implements Runnable {
 
@@ -66,14 +65,13 @@ public class SearchThread implements Runnable {
 
 	public void run() {
 		try {
-			running = true;
 			if (resultSearch == null) {
 				resultSearch = (ResultSearch) reader.search(request);
 				resultGroup.addResult(resultSearch);
 			}
-			resultSearch.getDocSetHits().getHits(
+			resultSearch.getDocSetHits().getScoreDocs(
 					this.currentFetchPos + this.step);
-			fetchCount = resultSearch.getFetchedDoc().length - currentFetchPos;
+			fetchCount = resultSearch.getFetchedDocs().length - currentFetchPos;
 			if (fetchCount == 0)
 				return;
 			resultGroup
@@ -87,21 +85,23 @@ public class SearchThread implements Runnable {
 			this.syntaxError = e;
 		} finally {
 			running = false;
-		}
-	}
-
-	public void waitForCompletion() {
-		while (running) {
-			try {
-				Thread.sleep(20);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			synchronized (this) {
+				notifyAll();
 			}
 		}
 	}
 
-	private static final ExecutorService threadPool = Executors
-			.newCachedThreadPool();
+	public void waitForCompletion() {
+		synchronized (this) {
+			while (running) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	public void search(int step) {
 		if (!needMore)
@@ -109,7 +109,7 @@ public class SearchThread implements Runnable {
 		this.step = step;
 		this.fetchCount = 0;
 		running = true;
-		threadPool.execute(this);
+		ThreadUtils.pool.execute(this);
 	}
 
 	public int getFetchCount() {

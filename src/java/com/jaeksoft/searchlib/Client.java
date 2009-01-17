@@ -76,6 +76,12 @@ public class Client extends Config implements XmlInfo {
 		getIndex().deleteDocuments(getSchema(), uniqueField, false);
 	}
 
+	public void deleteDocuments(List<String> uniqueFields)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
+		getIndex().deleteDocuments(getSchema(), uniqueFields, false);
+	}
+
 	public int getDocFreq(String uniqueField) throws IOException {
 		return getIndex().getDocFreq(
 				new Term(getSchema().getFieldList().getUniqueField().getName(),

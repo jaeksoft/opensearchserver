@@ -30,6 +30,8 @@ import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
@@ -48,6 +50,9 @@ public class IndexLocal extends IndexAbstract {
 	private WriterLocal writerLocal = null;
 	private ReaderRemote readerRemote = null;
 	private WriterRemote writerRemote = null;
+
+	final private static Logger logger = Logger.getLogger(IndexLocal.class
+			.getCanonicalName());
 
 	public IndexLocal(File homeDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException {
@@ -122,6 +127,41 @@ public class IndexLocal extends IndexAbstract {
 				return;
 			if (writerRemote != null)
 				writerRemote.deleteDocuments(indexName, schema, uniqueField,
+						forceLocal);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void deleteDocuments(Schema schema, List<String> uniqueFields,
+			boolean forceLocal) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.deleteDocuments(schema, uniqueFields, forceLocal);
+			if (forceLocal)
+				return;
+			if (writerRemote != null)
+				writerRemote.deleteDocuments(schema, uniqueFields, forceLocal);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void deleteDocuments(String indexName, Schema schema,
+			List<String> uniqueFields, boolean forceLocal)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
+		r.lock();
+		try {
+			if (writerLocal != null)
+				writerLocal.deleteDocuments(indexName, schema, uniqueFields,
+						forceLocal);
+			if (forceLocal)
+				return;
+			if (writerRemote != null)
+				writerRemote.deleteDocuments(indexName, schema, uniqueFields,
 						forceLocal);
 		} finally {
 			r.unlock();
@@ -212,6 +252,8 @@ public class IndexLocal extends IndexAbstract {
 	public void reload(String indexName, boolean deleteOld) throws IOException {
 		w.lock();
 		try {
+			if (logger.isLoggable(Level.INFO))
+				logger.info("Reload " + indexName + " " + deleteOld);
 			if (readerLocal != null)
 				readerLocal.reload(indexName, deleteOld);
 			if (writerLocal != null && readerLocal != null)

@@ -83,10 +83,10 @@ public class SearchGroup {
 		int nextStep = request.getRows() / searchsThread.size() + 1;
 
 		while (search(resultGroup, searchsThread, step, end) > 0) {
-			if (resultGroup.getDocs().length >= end) {
+			if (resultGroup.getFetchedDocs().length >= end) {
 				if (logger.isLoggable(Level.INFO))
 					logger.info("Break result group docs length: "
-							+ resultGroup.getDocs().length);
+							+ resultGroup.getFetchedDocs().length);
 				break;
 			}
 			step = nextStep;

@@ -44,6 +44,15 @@ public interface WriterInterface {
 			boolean bForceLocal) throws CorruptIndexException,
 			LockObtainFailedException, IOException;
 
+	public void deleteDocuments(String indexName, Schema schema,
+			List<String> uniqueFields, boolean bForceLocal)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException;
+
+	public void deleteDocuments(Schema schema, List<String> uniqueFields,
+			boolean bForceLocal) throws CorruptIndexException,
+			LockObtainFailedException, IOException;
+
 	public void updateDocument(Schema schema, IndexDocument document,
 			boolean bForceLocal) throws NoSuchAlgorithmException, IOException;
 

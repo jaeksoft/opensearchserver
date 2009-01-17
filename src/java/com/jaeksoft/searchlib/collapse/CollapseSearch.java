@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
 
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultSearch;
 
 public class CollapseSearch extends Collapse<ResultSearch> {
@@ -36,7 +37,6 @@ public class CollapseSearch extends Collapse<ResultSearch> {
 	 */
 	private static final long serialVersionUID = -4471977653574049055L;
 	transient private StringIndex stringIndex;
-	private int[] fetchedDoc;
 
 	public CollapseSearch(ResultSearch result) throws IOException {
 		super(result);
@@ -52,14 +52,13 @@ public class CollapseSearch extends Collapse<ResultSearch> {
 
 	@Override
 	protected void prepare() {
-		this.fetchedDoc = this.result.getFetchedDoc();
 	}
 
 	@Override
-	protected void reduce() {
-		int[] sortFetchDocs = this.result.getFetchedDoc();
-		int[] newCollapsedDoc = new int[sortFetchDocs.length
-				- this.getDocCount()];
+	protected ResultScoreDoc[] reduce() {
+		ResultScoreDoc[] sortFetchDocs = result.getFetchedDocs();
+		ResultScoreDoc[] newCollapsedDoc = new ResultScoreDoc[sortFetchDocs.length
+				- getDocCount()];
 		int[] newCollapseCount = new int[newCollapsedDoc.length];
 
 		int currentPos = 0;
@@ -68,18 +67,19 @@ public class CollapseSearch extends Collapse<ResultSearch> {
 			if (!this.collapsedSet.get(i)) {
 				collapsePos = currentPos;
 				newCollapseCount[currentPos] = 0;
-				newCollapsedDoc[currentPos++] = i;
+				newCollapsedDoc[currentPos++] = sortFetchDocs[i];
 			} else {
 				newCollapseCount[collapsePos]++;
 			}
 		}
 
-		this.collapsedDoc = newCollapsedDoc;
-		this.collapseCount = newCollapseCount;
+		collapseCount = newCollapseCount;
+		return newCollapsedDoc;
 	}
 
 	@Override
-	protected String getTerm(int pos) {
-		return this.stringIndex.lookup[stringIndex.order[this.fetchedDoc[pos]]];
+	protected String getTerm(ResultScoreDoc doc) {
+		return this.stringIndex.lookup[stringIndex.order[doc.doc]];
 	}
+
 }

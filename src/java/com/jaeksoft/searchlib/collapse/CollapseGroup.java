@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.collapse;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.result.ResultGroup;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultSearch;
 
 public class CollapseGroup extends Collapse<ResultGroup> {
@@ -35,27 +36,24 @@ public class CollapseGroup extends Collapse<ResultGroup> {
 	 * 
 	 */
 	private static final long serialVersionUID = 7860659405139297551L;
-	transient private ResultSearch[] resultsCollapse;
-	transient private ResultSearch[] resultsFetch;
-	transient private int[] fetchedDoc;
+
+	transient private ResultScoreDoc[] fetchedDoc;
 
 	public CollapseGroup(ResultGroup result) throws IOException {
 		super(result);
-		this.resultsCollapse = null;
 	}
 
 	@Override
 	protected void prepare() throws IOException {
-		this.resultsFetch = this.result.getResultsFetch();
-		this.fetchedDoc = this.result.getFetchedDoc();
+		fetchedDoc = (ResultScoreDoc[]) result.getFetchedDocs();
 		for (ResultSearch result : this.result.getResultList())
 			result.getCollapse().prepare();
 	}
 
 	@Override
-	protected void reduce() {
-		int[] newCollapsedDoc = new int[fetchedDoc.length - this.getDocCount()];
-		ResultSearch[] newCollapsedResults = new ResultSearch[newCollapsedDoc.length];
+	protected ResultScoreDoc[] reduce() {
+		ResultScoreDoc[] newCollapsedDoc = new ResultScoreDoc[fetchedDoc.length
+				- this.getDocCount()];
 		int[] newCollapseCount = new int[newCollapsedDoc.length];
 
 		int currentPos = 0;
@@ -65,27 +63,19 @@ public class CollapseGroup extends Collapse<ResultGroup> {
 				collapsePos = currentPos;
 				newCollapseCount[currentPos] = 0;
 				newCollapsedDoc[currentPos] = fetchedDoc[i];
-				newCollapsedResults[currentPos] = resultsFetch[i];
 				currentPos++;
 			} else {
 				newCollapseCount[collapsePos]++;
 			}
 		}
 
-		this.collapsedDoc = newCollapsedDoc;
-		this.resultsCollapse = newCollapsedResults;
 		this.collapseCount = newCollapseCount;
-	}
-
-	public ResultSearch[] getResults() {
-		return resultsCollapse;
+		return newCollapsedDoc;
 	}
 
 	@Override
-	public String getTerm(int pos) throws IOException {
-		int i = fetchedDoc[pos];
-		ResultSearch resultSearch = resultsFetch[pos];
-		Collapse<?> collapse = resultSearch.getCollapse();
-		return collapse.getTerm(i);
+	protected String getTerm(ResultScoreDoc scoreDoc) throws IOException {
+		return scoreDoc.resultSearch.getCollapse().getTerm(scoreDoc);
 	}
+
 }

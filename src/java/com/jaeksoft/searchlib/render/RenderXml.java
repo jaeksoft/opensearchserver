@@ -72,9 +72,9 @@ public class RenderXml implements Render {
 			ParseException {
 		Request request = result.getRequest();
 		int end = request.getEnd();
-		if (end > result.getDocs().length) {
-			end = result.getDocs().length;
-		}
+		int length = result.getFetchedDocs().length;
+		if (end > length)
+			end = length;
 		int cdc = 0;
 		Collapse<?> collapse = result.getCollapse();
 		if (collapse != null) {
@@ -93,8 +93,8 @@ public class RenderXml implements Render {
 
 	private void renderDocument(int pos) throws CorruptIndexException,
 			IOException, ParseException {
-		writer.println("\t<doc score=\"" + result.getScore(pos) + "\" pos=\""
-				+ pos + "\">");
+		writer.println("\t<doc score=\"" + result.getFetchedDocs()[pos].score
+				+ "\" pos=\"" + pos + "\">");
 		DocumentRequestItem doc = result.document(pos);
 		for (Field field : this.request.getReturnFieldList())
 			renderField(doc, field);

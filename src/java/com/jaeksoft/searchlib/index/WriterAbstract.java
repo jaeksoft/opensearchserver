@@ -86,4 +86,13 @@ public abstract class WriterAbstract extends NameFilter implements
 		deleteDocuments(schema, uniqueField, bForceLocal);
 	}
 
+	public void deleteDocuments(String indexName, Schema schema,
+			List<String> uniqueFields, boolean bForceLocal)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
+		if (!acceptName(indexName))
+			return;
+		deleteDocuments(schema, uniqueFields, bForceLocal);
+	}
+
 }

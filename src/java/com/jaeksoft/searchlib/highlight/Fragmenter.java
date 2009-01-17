@@ -77,7 +77,6 @@ public class Fragmenter implements
 		return this.separator;
 	}
 
-	@Override
 	public boolean isNewFragment(Token token) {
 		int l = token.termLength();
 		currentFragmentSize += l;
@@ -87,7 +86,6 @@ public class Fragmenter implements
 		return true;
 	}
 
-	@Override
 	public void start(String originalText) {
 		currentFragmentSize = 0;
 	}

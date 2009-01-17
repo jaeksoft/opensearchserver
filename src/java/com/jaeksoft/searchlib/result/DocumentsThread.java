@@ -30,19 +30,20 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.util.ThreadUtils;
 
 public class DocumentsThread implements Runnable {
 
 	private ReaderInterface reader;
 	private Request request;
-	private Thread thread;
+	private boolean running;
 	private IOException ioException;
 	private ParseException parseException;
 	private DocumentResult documentResult;
 
 	public DocumentsThread(ReaderInterface reader, Request request)
 			throws IOException {
-		this.thread = null;
+		this.running = false;
 		this.reader = reader;
 		this.request = request.clone();
 		this.request.setReader(reader);
@@ -50,8 +51,9 @@ public class DocumentsThread implements Runnable {
 		this.parseException = null;
 	}
 
-	public void addDocId(ReaderInterface reader, int docId) {
-		request.addDocId(reader, docId);
+	public void add(ResultScoreDoc resultScoreDoc) {
+		request.addDocId(resultScoreDoc.resultSearch.getReader(),
+				resultScoreDoc.doc);
 	}
 
 	public void run() {
@@ -63,14 +65,19 @@ public class DocumentsThread implements Runnable {
 		} catch (ParseException e) {
 			this.parseException = e;
 			e.printStackTrace();
+		} finally {
+			running = false;
+			synchronized (this) {
+				notifyAll();
+			}
 		}
 	}
 
 	public void waitForCompletion() {
-		synchronized (this.thread) {
-			while (this.thread.isAlive()) {
+		synchronized (this) {
+			while (running) {
 				try {
-					this.thread.wait();
+					wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -87,8 +94,8 @@ public class DocumentsThread implements Runnable {
 
 	public void start() {
 		documentResult = null;
-		thread = new Thread(this);
-		thread.start();
+		running = true;
+		ThreadUtils.pool.execute(this);
 	}
 
 	public DocumentResult getDocumentResult() {

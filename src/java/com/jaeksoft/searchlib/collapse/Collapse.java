@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.BitSet;
 
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
 public abstract class Collapse<T extends Result<?>> implements Serializable {
 
@@ -38,7 +39,6 @@ public abstract class Collapse<T extends Result<?>> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	protected int[] collapseCount;
-	protected int[] collapsedDoc;
 	private int collapsedDocCount;
 	protected BitSet collapsedSet;
 	transient protected T result;
@@ -49,27 +49,26 @@ public abstract class Collapse<T extends Result<?>> implements Serializable {
 		this.collapseCount = null;
 		this.collapsedDocCount = 0;
 		this.collapseMax = result.getRequest().getCollapseMax();
-		this.collapsedDoc = new int[0];
 	}
 
 	public void setResult(T result) throws IOException {
 		this.result = result;
 	}
 
-	public void run() throws IOException {
+	public ResultScoreDoc[] run() throws IOException {
 
-		this.prepare();
+		prepare();
 
-		int[] fetchedDoc = result.getFetchedDoc();
+		ResultScoreDoc[] fetchedDoc = result.getFetchedDocs();
 		if (fetchedDoc == null)
-			return;
-		this.collapsedSet = new BitSet(fetchedDoc.length);
+			return null;
+		collapsedSet = new BitSet(fetchedDoc.length);
 
 		String lastTerm = null;
 		int adjacent = 0;
-		this.collapsedDocCount = 0;
+		collapsedDocCount = 0;
 		for (int i = 0; i < fetchedDoc.length; i++) {
-			String term = this.getTerm(i);
+			String term = getTerm(fetchedDoc[i]);
 			if (term.equals(lastTerm)) {
 				if (++adjacent >= collapseMax)
 					collapsedSet.set(i);
@@ -78,15 +77,22 @@ public abstract class Collapse<T extends Result<?>> implements Serializable {
 				adjacent = 0;
 			}
 		}
-		this.collapsedDocCount = collapsedSet.cardinality();
-		reduce();
+		collapsedDocCount = collapsedSet.cardinality();
+		return reduce();
 	}
 
 	protected abstract void prepare() throws IOException;
 
-	protected abstract String getTerm(int pos) throws IOException;
+	/**
+	 * Returns then term by the position
+	 * 
+	 * @param pos
+	 * @return
+	 * @throws IOException
+	 */
+	protected abstract String getTerm(ResultScoreDoc doc) throws IOException;
 
-	protected abstract void reduce();
+	protected abstract ResultScoreDoc[] reduce();
 
 	public int getCount(int pos) {
 		if (this.collapseCount == null)
@@ -100,10 +106,6 @@ public abstract class Collapse<T extends Result<?>> implements Serializable {
 
 	public int getDocCount() {
 		return this.collapsedDocCount;
-	}
-
-	public int[] getDocs() {
-		return collapsedDoc;
 	}
 
 }

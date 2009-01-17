@@ -28,12 +28,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.HitCollector;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TopDocs;
 
 import com.jaeksoft.searchlib.util.XmlInfo;
 
@@ -44,11 +48,16 @@ public class DocSetHits implements XmlInfo, Serializable {
 	 */
 	private static final long serialVersionUID = -1343588321039421631L;
 
+	private final ReadWriteLock rwl = new ReentrantReadWriteLock();
+	private final Lock r = rwl.readLock();
+	private final Lock w = rwl.writeLock();
+
 	transient private int[] collectedDocs;
-	transient private Hits hits;
 	transient private ReaderLocal reader;
-	private int[] sortFetchDocs;
-	private float[] sortScore;
+	transient private Query query;
+	transient private Filter filter;
+	transient private Sort sort;
+	private ScoreDoc[] scoreDocs;
 	private int docNumFound;
 	private float maxScore;
 
@@ -74,92 +83,118 @@ public class DocSetHits implements XmlInfo, Serializable {
 	}
 
 	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
-			Sort sort, boolean delete) throws IOException {
-		this.docNumFound = 0;
-		this.maxScore = 0;
-		this.reader = reader;
-		HitCollector hc;
-		if (delete)
-			hc = new DeleteHitCollector();
-		else
-			hc = new ScoreHitCollector();
-		this.sortFetchDocs = new int[0];
-		this.sortScore = new float[0];
-		this.hits = reader.search(query, filter, sort);
-		this.collectedDocs = new int[this.hits.length()];
-		reader.search(query, filter, hc);
-	}
-
-	public void getHits(int rows) throws IOException {
-		synchronized (this) {
-			if (rows > this.hits.length())
-				rows = this.hits.length();
-			if (rows <= this.sortFetchDocs.length)
+			Sort sort, boolean delete, boolean collect) throws IOException {
+		w.lock();
+		try {
+			this.query = query;
+			this.filter = filter;
+			this.sort = sort;
+			this.docNumFound = 0;
+			this.maxScore = 0;
+			this.scoreDocs = new ScoreDoc[0];
+			this.reader = reader;
+			this.collectedDocs = new int[0];
+			HitCollector hc = null;
+			if (reader.numDocs() == 0)
 				return;
-			int[] newDoc = new int[rows];
-			float[] newScore = new float[rows];
-			int newDocPos = 0;
-			for (int id : this.sortFetchDocs) {
-				newDoc[newDocPos] = id;
-				newScore[newDocPos] = this.sortScore[newDocPos++];
+			if (delete)
+				hc = new DeleteHitCollector();
+			else if (collect)
+				hc = new ScoreHitCollector();
+			TopDocs topDocs = reader.search(query, filter, sort, 1);
+			if (hc != null) {
+				this.collectedDocs = new int[topDocs.totalHits];
+				reader.search(query, filter, hc);
+			} else {
+				docNumFound = topDocs.totalHits;
+				maxScore = topDocs.getMaxScore();
 			}
-			int hitsPos = this.sortFetchDocs.length;
-			while (newDocPos < rows) {
-				newDoc[newDocPos] = hits.id(hitsPos);
-				newScore[newDocPos++] = hits.score(hitsPos++) * this.maxScore;
-			}
-			this.sortFetchDocs = newDoc;
-			this.sortScore = newScore;
+		} finally {
+			w.unlock();
 		}
 	}
 
-	public int[] getSortFetchDocs() {
-		synchronized (this) {
-			return this.sortFetchDocs;
+	public ScoreDoc[] getScoreDocs(int rows) throws IOException {
+		w.lock();
+		try {
+			if (rows > docNumFound)
+				rows = docNumFound;
+			if (rows <= scoreDocs.length)
+				return scoreDocs;
+			TopDocs topDocs = reader.search(query, filter, sort, rows);
+			this.scoreDocs = topDocs.scoreDocs;
+			return scoreDocs;
+		} finally {
+			w.unlock();
+		}
+	}
+
+	public int getDocByPos(int pos) {
+		r.lock();
+		try {
+			return scoreDocs[pos].doc;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public float getScoreByPos(int pos) {
+		r.lock();
+		try {
+			return scoreDocs[pos].score;
+		} finally {
+			r.unlock();
 		}
 	}
 
 	public boolean contains(int docId) {
-		for (int id : collectedDocs)
-			if (id == docId)
-				return true;
-		return false;
-	}
-
-	public int getDocId(int pos) {
-		synchronized (this) {
-			return this.sortFetchDocs[pos];
-		}
-	}
-
-	public float getScore(int pos) {
-		synchronized (this) {
-			return this.sortScore[pos];
+		r.lock();
+		try {
+			for (int id : collectedDocs)
+				if (id == docId)
+					return true;
+			return false;
+		} finally {
+			r.unlock();
 		}
 	}
 
 	public int[] getCollectedDocs() {
-		synchronized (this) {
-			return this.collectedDocs;
+		r.lock();
+		try {
+			return collectedDocs;
+		} finally {
+			r.unlock();
 		}
 	}
 
 	public float getMaxScore() {
-		synchronized (this) {
-			return this.maxScore;
+		r.lock();
+		try {
+			return maxScore;
+		} finally {
+			r.unlock();
 		}
 	}
 
 	public int getDocNumFound() {
-		synchronized (this) {
-			return this.docNumFound;
+		r.lock();
+		try {
+			return docNumFound;
+		} finally {
+			r.unlock();
 		}
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
-		writer.println("<docSetHits docFound=\"" + this.docNumFound
-				+ "\" fetchedDoc=\"" + this.sortFetchDocs.length
-				+ "\" maxScore=\"" + this.maxScore + "\"/>");
+		r.lock();
+		try {
+			writer.println("<docSetHits docFound=\"" + docNumFound
+					+ "\" fetchedDoc=\"" + scoreDocs.length + "\" maxScore=\""
+					+ maxScore + "\"/>");
+		} finally {
+			r.unlock();
+		}
 	}
 
 }

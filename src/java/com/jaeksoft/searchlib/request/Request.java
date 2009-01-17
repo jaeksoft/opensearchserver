@@ -492,4 +492,10 @@ public class Request implements XmlInfo {
 		return query;
 	}
 
+	public boolean isFacet() {
+		if (facetFieldList == null)
+			return false;
+		return facetFieldList.size() > 0;
+	}
+
 }

@@ -24,16 +24,11 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.ResultSearch;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
 public class AscScoreSorter implements SorterInterface {
 
-	public boolean isBefore(ResultSearch r1, int i1, ResultSearch r2, int i2) {
-		float sc1 = r1.getScore(i1);
-		float sc2 = r2.getScore(i2);
-		if (sc1 < sc2)
-			return true;
-		return false;
+	public boolean isBefore(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+		return doc1.score < doc2.score;
 	}
-
 }

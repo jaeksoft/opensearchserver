@@ -41,9 +41,10 @@ import com.jaeksoft.searchlib.request.Request;
 public class ResultSearch extends Result<CollapseSearch> {
 
 	private static final long serialVersionUID = -8289431499983379291L;
+
 	transient private ReaderLocal reader;
 	transient private StringIndex[] sortStringIndexArray;
-	private DocSetHits docs;
+	transient private DocSetHits docs;
 
 	/**
 	 * The constructor executes the request using the searcher provided and
@@ -59,14 +60,16 @@ public class ResultSearch extends Result<CollapseSearch> {
 			throws IOException, ParseException, SyntaxError {
 		super(request);
 		this.reader = reader;
-		this.docs = reader.searchDocSet(request);
+		docs = reader.searchDocSet(request);
+		numFound = docs.getDocNumFound();
+		maxScore = docs.getMaxScore();
 		for (FacetField facetField : request.getFacetFieldList())
 			this.facetList.add(facetField.getFacetInstance(this));
 		sortStringIndexArray = request.getSortList()
 				.newStringIndexArray(reader);
 		if (request.getCollapseField() != null) {
 			this.collapse = new CollapseSearch(this);
-			if (this.docs.getDocNumFound() > 0 && request.getCollapseActive()) {
+			if (docs.getDocNumFound() > 0 && request.getCollapseActive()) {
 				this.collapse.run();
 				if (request.getCollapseMax() > 0) {
 					fetchUntilCollapse();
@@ -74,7 +77,8 @@ public class ResultSearch extends Result<CollapseSearch> {
 				}
 			}
 		}
-		docs.getHits(this.request.getEnd());
+		fetchedDocs = ResultScoreDoc.newResultScoreDocArray(this, docs
+				.getScoreDocs(request.getEnd()));
 	}
 
 	/**
@@ -110,15 +114,6 @@ public class ResultSearch extends Result<CollapseSearch> {
 	}
 
 	/**
-	 * Set the DocSetHits.
-	 * 
-	 * @param docs
-	 */
-	public void setDocSetHits(DocSetHits docs) {
-		this.docs = docs;
-	}
-
-	/**
 	 * Fetch new documents until collapsed results is complete.
 	 * 
 	 * @throws IOException
@@ -127,33 +122,14 @@ public class ResultSearch extends Result<CollapseSearch> {
 		int end = this.request.getEnd();
 		int lastRows = 0;
 		int rows = end;
-		while (collapse.getDocs().length < end) {
-			docs.getHits(rows);
-			if (docs.getSortFetchDocs().length == lastRows)
+		while (fetchedDocs.length < end) {
+			int length = docs.getScoreDocs(rows).length;
+			if (length == lastRows)
 				break;
-			collapse.run();
-			lastRows = docs.getSortFetchDocs().length;
+			fetchedDocs = collapse.run();
+			lastRows = length;
 			rows += request.getRows();
 		}
-	}
-
-	/**
-	 * Returns the internal fetched document array.
-	 */
-	@Override
-	public int[] getFetchedDoc() {
-		return docs.getSortFetchDocs();
-	}
-
-	/**
-	 * Return the internal document array (fetched or collapsed).
-	 */
-	@Override
-	public int[] getDocs() {
-		if (request.getCollapseActive())
-			return this.collapse.getDocs();
-		else
-			return this.getFetchedDoc();
 	}
 
 	@Override
@@ -164,37 +140,19 @@ public class ResultSearch extends Result<CollapseSearch> {
 			return null;
 		int start = request.getStart();
 		int end = request.getEnd();
-		if (end > getDocs().length)
-			end = getDocs().length;
+		int length = getFetchedDocs().length;
+		if (end > length)
+			end = length;
 		for (int pos = start; pos < end; pos++)
-			request.addDocId(reader, getDocId(pos));
+			request.addDocId(reader, fetchedDocs[pos].doc);
 		documentResult = reader.documents(request);
 		return documentResult;
 	}
 
-	@Override
-	public float getScore(int pos) {
-		if (request.getCollapseActive())
-			return this.docs.getScore(this.collapse.getDocs()[pos]);
-		else
-			return this.docs.getScore(pos);
-	}
-
-	public void loadSortValues(int pos, String[] values) {
+	public void loadSortValues(ResultScoreDoc doc, String[] values) {
 		int i = 0;
 		for (StringIndex stringIndex : sortStringIndexArray)
-			values[i++] = stringIndex.lookup[stringIndex.order[getDocId(pos)]];
-	}
-
-	public int getDocId(int pos) {
-		if (request.getCollapseActive())
-			return this.docs.getDocId(this.collapse.getDocs()[pos]);
-		else
-			return this.docs.getDocId(pos);
-	}
-
-	public int[] getUnsortedDocFound() {
-		return this.docs.getCollectedDocs();
+			values[i++] = stringIndex.lookup[stringIndex.order[doc.doc]];
 	}
 
 	@Override

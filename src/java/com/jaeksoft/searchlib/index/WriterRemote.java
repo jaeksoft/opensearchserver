@@ -153,6 +153,13 @@ public class WriterRemote extends WriterAbstract {
 		}
 	}
 
+	// TODO Implementation
+	public void deleteDocuments(Schema schema, List<String> uniqueField,
+			boolean forceLocal) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
+		throw new RuntimeException("Not yet implemented");
+	}
+
 	public static WriterRemote fromConfig(IndexConfig indexConfig)
 			throws MalformedURLException {
 		if (indexConfig.getName() == null)

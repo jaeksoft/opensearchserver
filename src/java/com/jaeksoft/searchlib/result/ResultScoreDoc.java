@@ -22,14 +22,42 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.result;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import org.apache.lucene.search.ScoreDoc;
 
-public class DescScoreSorter implements SorterInterface {
+public class ResultScoreDoc {
 
-	public boolean isBefore(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		return doc1.score > doc2.score;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5961891131296766298L;
+
+	public ResultSearch resultSearch;
+
+	public float score;
+
+	public int doc;
+
+	public ResultScoreDoc(ResultSearch resultSearch, ScoreDoc scoreDoc) {
+		this.score = scoreDoc.score;
+		this.doc = scoreDoc.doc;
+		this.resultSearch = resultSearch;
 	}
 
+	/**
+	 * Create an populate a new ResultScoreDoc[]
+	 * 
+	 * @param resultSearch
+	 * @param scoreDocs
+	 * @return populated ResultScoreDoc array
+	 */
+	public static ResultScoreDoc[] newResultScoreDocArray(
+			ResultSearch resultSearch, ScoreDoc[] scoreDocs) {
+		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[scoreDocs.length];
+		int i = 0;
+		for (ScoreDoc scoreDoc : scoreDocs)
+			resultScoreDocs[i++] = new ResultScoreDoc(resultSearch, scoreDoc);
+		return resultScoreDocs;
+	}
 }

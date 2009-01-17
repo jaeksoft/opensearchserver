@@ -158,6 +158,23 @@ public class IndexGroup extends IndexAbstract {
 		index.deleteDocuments(schema, uniqueField, forceLocal);
 	}
 
+	public void deleteDocuments(Schema schema, List<String> uniqueFields,
+			boolean forceLocal) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
+		for (IndexAbstract index : getIndices())
+			index.deleteDocuments(schema, uniqueFields, forceLocal);
+	}
+
+	public void deleteDocuments(String indexName, Schema schema,
+			List<String> uniqueFields, boolean forceLocal)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return;
+		index.deleteDocuments(schema, uniqueFields, forceLocal);
+	}
+
 	public int getDocFreq(Term term) throws IOException {
 		int r = 0;
 		for (IndexAbstract index : getIndices())

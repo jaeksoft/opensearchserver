@@ -47,9 +47,15 @@ public abstract class Result<T extends Collapse<?>> implements Serializable {
 	protected FacetList facetList;
 	protected T collapse;
 	private Timer timer;
+	protected ResultScoreDoc[] fetchedDocs;
+	protected int numFound;
+	protected float maxScore;
 
 	protected Result(Request request) {
+		this.numFound = 0;
+		this.maxScore = 0;
 		this.documentResult = null;
+		this.fetchedDocs = new ResultScoreDoc[0];
 		this.request = request;
 		this.timer = new Timer();
 		if (request.getFacetFieldList().size() > 0)
@@ -85,15 +91,17 @@ public abstract class Result<T extends Collapse<?>> implements Serializable {
 		return documentResult.get(pos - request.getStart());
 	}
 
-	public abstract float getMaxScore();
+	public float getMaxScore() {
+		return maxScore;
+	}
 
-	public abstract int getNumFound();
+	public int getNumFound() {
+		return numFound;
+	}
 
-	public abstract float getScore(int pos);
-
-	public abstract int[] getFetchedDoc();
-
-	public abstract int[] getDocs();
+	public ResultScoreDoc[] getFetchedDocs() {
+		return fetchedDocs;
+	}
 
 	public Collapse<?> getCollapse() throws IOException {
 		return this.collapse;

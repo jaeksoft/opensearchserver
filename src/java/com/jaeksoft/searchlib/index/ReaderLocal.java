@@ -46,10 +46,10 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.HitCollector;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -161,12 +161,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	public int getDocFreq(Term term) throws IOException {
 		r.lock();
 		try {
-			TermDocs termDocs = getTermDocs(term);
-			int r = 0;
-			while (termDocs.next())
-				if (!indexReader.isDeleted(termDocs.doc()))
-					r++;
-			return r;
+			return indexSearcher.docFreq(term);
 		} finally {
 			r.unlock();
 		}
@@ -203,20 +198,26 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public Hits search(Query query, Filter filter, Sort sort)
+	public int numDocs() {
+		r.lock();
+		try {
+			return indexReader.numDocs();
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public TopDocs search(Query query, Filter filter, Sort sort, int nTop)
 			throws IOException {
 		r.lock();
 		try {
 			if (sort == null) {
 				if (filter == null)
-					return indexSearcher.search(query);
+					return indexSearcher.search(query, nTop);
 				else
-					return indexSearcher.search(query, filter);
+					return indexSearcher.search(query, filter, nTop);
 			} else {
-				if (filter == null)
-					return indexSearcher.search(query, sort);
-				else
-					return indexSearcher.search(query, filter, sort);
+				return indexSearcher.search(query, filter, nTop, sort);
 			}
 		} finally {
 			r.unlock();
@@ -254,6 +255,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		r.lock();
 		try {
 			return indexReader.document(docId, selector);
+		} catch (IllegalArgumentException e) {
+			throw e;
 		} finally {
 			r.unlock();
 		}
@@ -375,6 +378,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	public DocSetHits searchDocSet(Request request) throws IOException,
 			ParseException, SyntaxError {
 		boolean isDelete = request.isDelete();
+		boolean isFacet = request.isFacet();
 		if (isDelete)
 			w.lock();
 		else
@@ -400,13 +404,15 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 				cacheDshKey.append("_");
 				cacheDshKey.append(sortList.getSortKey());
 			}
+			if (isFacet)
+				cacheDshKey.append("|facet");
 			String cacheDshKeyStr = cacheDshKey.toString();
 			DocSetHits dsh = null;
 			if (!isDelete)
 				dsh = searchCache.getAndPromote(cacheDshKeyStr);
 			if (dsh == null) {
 				dsh = new DocSetHits(this, request.getQuery(), filter, sort,
-						isDelete);
+						isDelete, isFacet);
 				if (!isDelete)
 					searchCache.put(cacheDshKeyStr, dsh);
 				else if (dsh.getDocNumFound() > 0)

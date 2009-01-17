@@ -53,7 +53,7 @@ public class FacetSearch extends Facet {
 		setReader(result.getReader());
 		int[] order = stringIndex.order;
 		this.count = new int[stringIndex.lookup.length];
-		for (int id : result.getUnsortedDocFound())
+		for (int id : result.getDocSetHits().getCollectedDocs())
 			this.count[order[id]]++;
 	}
 

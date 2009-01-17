@@ -47,39 +47,16 @@ public class ResultGroup extends Result<CollapseGroup> {
 	 */
 	private static final long serialVersionUID = 7403200579165999208L;
 	private ArrayList<ResultSearch> resultList;
-	private ResultSearch[] resultsFetch;
-	private int[] fetchedDoc;
-	private int numFound;
-	private float maxScore;
 	private SorterInterface sorter;
 
 	public ResultGroup(Request request) throws IOException {
 		super(request);
 		this.resultList = new ArrayList<ResultSearch>();
-		this.fetchedDoc = new int[0];
-		this.resultsFetch = null;
-		this.numFound = 0;
-		this.maxScore = 0;
 		for (FacetField facetField : request.getFacetFieldList())
 			this.facetList.add(new FacetGroup(facetField));
 		if (request.getCollapseField() != null)
 			this.collapse = new CollapseGroup(this);
 		this.sorter = request.getSortList().getSorter();
-	}
-
-	private ResultSearch[] getResults() {
-		if (this.collapse != null)
-			return this.collapse.getResults();
-		else
-			return resultsFetch;
-	}
-
-	@Override
-	public int[] getDocs() {
-		if (this.collapse != null)
-			return this.collapse.getDocs();
-		else
-			return this.fetchedDoc;
 	}
 
 	@Override
@@ -90,28 +67,13 @@ public class ResultGroup extends Result<CollapseGroup> {
 		int start = request.getStart();
 		int end = request.getEnd();
 		for (int pos = start; pos < end; pos++) {
-			if (pos >= getDocs().length)
+			if (pos >= fetchedDocs.length)
 				break;
-			ResultSearch resultSearch = this.getResults()[pos];
-			docsGroup.add(resultSearch.getReader(), resultSearch
-					.getDocId(getDocs()[pos]));
+			ResultScoreDoc scoreDoc = (ResultScoreDoc) fetchedDocs[pos];
+			docsGroup.add(scoreDoc);
 		}
 		documentResult = docsGroup.documents();
 		return documentResult;
-	}
-
-	@Override
-	public float getScore(int pos) {
-		return this.getResults()[pos].getScore(this.getDocs()[pos]);
-	}
-
-	@Override
-	public int[] getFetchedDoc() {
-		return this.fetchedDoc;
-	}
-
-	public ResultSearch[] getResultsFetch() {
-		return resultsFetch;
 	}
 
 	public void addResult(ResultSearch result) throws IOException {
@@ -144,10 +106,10 @@ public class ResultGroup extends Result<CollapseGroup> {
 			if (result.getNumFound() == 0)
 				return;
 
-			if (result.getMaxScore() > this.maxScore)
-				this.maxScore = result.getMaxScore();
+			if (result.getMaxScore() > maxScore)
+				maxScore = result.getMaxScore();
 
-			if (this.fetchedDoc == null || this.fetchedDoc.length == 0)
+			if (fetchedDocs == null || fetchedDocs.length == 0)
 				this.setDoc(result, start + rows);
 			else
 				insertAndSort(result, start, rows);
@@ -156,17 +118,14 @@ public class ResultGroup extends Result<CollapseGroup> {
 	}
 
 	private int setDoc(ResultSearch result, int end) {
-		int[] resultDoc = result.getFetchedDoc();
-		if (resultDoc == null)
+		ResultScoreDoc[] resultScoreDocs = result.getFetchedDocs();
+		if (resultScoreDocs == null)
 			return 0;
-		if (end > resultDoc.length)
-			end = resultDoc.length;
-		this.fetchedDoc = new int[end];
-		this.resultsFetch = new ResultSearch[end];
-		for (int i = 0; i < end; i++) {
-			this.fetchedDoc[i] = i;
-			this.resultsFetch[i] = result;
-		}
+		if (end > resultScoreDocs.length)
+			end = resultScoreDocs.length;
+		fetchedDocs = new ResultScoreDoc[end];
+		for (int i = 0; i < end; i++)
+			fetchedDocs[i] = resultScoreDocs[i];
 		return end;
 	}
 
@@ -179,45 +138,35 @@ public class ResultGroup extends Result<CollapseGroup> {
 	 */
 	private void insertAndSort(ResultSearch resultSearch, int start, int rows) {
 		int end = start + rows;
-		if (end > resultSearch.getFetchedDoc().length)
-			end = resultSearch.getFetchedDoc().length;
+		ResultScoreDoc[] insertFetchedDocs = resultSearch.getFetchedDocs();
+		int length = insertFetchedDocs.length;
+		if (end > length)
+			end = length;
 		if (start >= end)
 			return;
-		int[] newDoc = new int[this.fetchedDoc.length + (end - start)];
-		ResultSearch[] newResults = new ResultSearch[newDoc.length];
+		ResultScoreDoc[] newDocs = new ResultScoreDoc[fetchedDocs.length
+				+ (end - start)];
 		int iOld = 0;
 		int iResult = start;
 		int n = 0;
 		for (;;) {
-			if (sorter.isBefore(resultSearch, iResult, resultsFetch[iOld],
-					fetchedDoc[iOld])) {
-				newDoc[n] = iResult;
-				newResults[n] = resultSearch;
-				n++;
+			if (sorter.isBefore(insertFetchedDocs[iResult], fetchedDocs[iOld])) {
+				newDocs[n++] = insertFetchedDocs[iResult];
 				if (++iResult == end) {
-					for (int i = iOld; i < fetchedDoc.length; i++) {
-						newDoc[n] = fetchedDoc[i];
-						newResults[n] = resultsFetch[i];
-						n++;
-					}
+					for (int i = iOld; i < fetchedDocs.length; i++)
+						newDocs[n++] = fetchedDocs[i];
 					break;
 				}
 			} else {
-				newResults[n] = resultsFetch[iOld];
-				newDoc[n] = fetchedDoc[iOld];
-				n++;
-				if (++iOld == fetchedDoc.length) {
-					for (int i = iResult; i < end; i++) {
-						newDoc[n] = i;
-						newResults[n] = resultSearch;
-						n++;
-					}
+				newDocs[n++] = fetchedDocs[iOld];
+				if (++iOld == fetchedDocs.length) {
+					for (int i = iResult; i < end; i++)
+						newDocs[n++] = insertFetchedDocs[i];
 					break;
 				}
 			}
 		}
-		fetchedDoc = newDoc;
-		resultsFetch = newResults;
+		fetchedDocs = newDocs;
 	}
 
 	public ArrayList<ResultSearch> getResultList() {

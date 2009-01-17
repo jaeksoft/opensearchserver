@@ -32,6 +32,7 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.cache.DocumentCache;
 import com.jaeksoft.searchlib.index.ReaderInterface;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
 
 public class DocumentsGroup {
@@ -59,14 +60,15 @@ public class DocumentsGroup {
 		this.request = request;
 	}
 
-	protected void add(ReaderInterface reader, int docId) throws IOException {
+	protected void add(ResultScoreDoc resultScoreDoc) throws IOException {
+		ReaderLocal reader = resultScoreDoc.resultSearch.getReader();
 		DocumentsThread docsThread = docsThreads.get(reader);
 		if (docsThread == null) {
 			docsThread = new DocumentsThread(reader, request);
 			docsThreads.put(reader, docsThread);
 		}
-		docsThread.addDocId(reader, docId);
-		docIds.add(new Item(docsThread, reader, docId));
+		docsThread.add(resultScoreDoc);
+		docIds.add(new Item(docsThread, reader, resultScoreDoc.doc));
 	}
 
 	public DocumentResult documents() throws IOException, ParseException {

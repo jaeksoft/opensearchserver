@@ -98,6 +98,7 @@ public class WriterLocal extends WriterAbstract {
 			if (indexWriter != null)
 				return;
 			indexWriter = openIndexWriter(directory, false);
+			indexWriter.setMaxMergeDocs(1000000);
 		} finally {
 			l.unlock();
 		}
@@ -211,7 +212,7 @@ public class WriterLocal extends WriterAbstract {
 			if (!acceptName(indexName))
 				return;
 			open();
-			indexWriter.optimize(true);
+			indexWriter.optimize(10, true);
 			close();
 		} finally {
 			l.unlock();
@@ -226,6 +227,24 @@ public class WriterLocal extends WriterAbstract {
 			open();
 			indexWriter.deleteDocuments(new Term(schema.getFieldList()
 					.getUniqueField().getName(), uniqueField));
+			close();
+		} finally {
+			l.unlock();
+		}
+	}
+
+	public void deleteDocuments(Schema schema, List<String> uniqueFields,
+			boolean bForceLocal) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
+		String uniqueField = schema.getFieldList().getUniqueField().getName();
+		Term[] terms = new Term[uniqueFields.size()];
+		int i = 0;
+		for (String value : uniqueFields)
+			terms[i++] = new Term(uniqueField, value);
+		l.lock();
+		try {
+			open();
+			indexWriter.deleteDocuments(terms);
 			close();
 		} finally {
 			l.unlock();
