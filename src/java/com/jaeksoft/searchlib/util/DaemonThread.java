@@ -34,8 +34,9 @@ public abstract class DaemonThread implements Runnable {
 
 	public enum Status {
 
-		NOTSTARTED("Not started"), RUNNING("Running"), ABORTING("Aborting"), ERROR(
-				"Error"), FINISHED("Finished"), ABORTED("Aborted");
+		NOTSTARTED("Not started"), RUNNING("Running"), SLEEPING("Sleeping"), ABORTING(
+				"Aborting"), ERROR("Error"), FINISHED("Finished"), ABORTED(
+				"Aborted");
 
 		private String name;
 
@@ -52,13 +53,9 @@ public abstract class DaemonThread implements Runnable {
 	private Thread thread;
 	private boolean abort;
 	private String error;
-	private boolean perpetual;
-	private int sleepInterval;
 
-	protected DaemonThread(boolean perpetual, int sleepInterval) {
+	protected DaemonThread() {
 		reset();
-		this.perpetual = perpetual;
-		this.sleepInterval = sleepInterval;
 	}
 
 	private void reset() {
@@ -160,17 +157,13 @@ public abstract class DaemonThread implements Runnable {
 
 	final public void run() {
 		abort = false;
-		do {
-			setStatus(Status.RUNNING);
-			try {
-				runner();
-			} catch (Exception e) {
-				setError(e.getMessage());
-				logger.log(Level.SEVERE, e.getMessage(), e);
-			}
-			if (perpetual)
-				sleepSec(sleepInterval);
-		} while (perpetual && !abort);
+		setStatus(Status.RUNNING);
+		try {
+			runner();
+		} catch (Exception e) {
+			setError(e.getMessage());
+			logger.log(Level.SEVERE, e.getMessage(), e);
+		}
 		evaluateFinalStatus();
 	}
 
@@ -185,6 +178,7 @@ public abstract class DaemonThread implements Runnable {
 	protected void sleepSec(int sec) {
 		if (sec == 0)
 			return;
+		setStatus(Status.SLEEPING);
 		while (!abort && sec-- > 0)
 			sleepMs(1000);
 	}

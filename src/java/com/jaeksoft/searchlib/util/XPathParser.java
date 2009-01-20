@@ -36,7 +36,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -45,7 +44,7 @@ import org.xml.sax.SAXException;
 public class XPathParser {
 
 	private XPath xPath;
-	private Document document;
+	private Node rootNode;
 	private File currentFile;
 
 	public XPathParser() {
@@ -60,7 +59,7 @@ public class XPathParser {
 		currentFile = file;
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
-		setDocument(builder.parse(currentFile.getAbsoluteFile()));
+		setRoot(builder.parse(currentFile.getAbsoluteFile()));
 	}
 
 	public XPathParser(InputStream is) throws ParserConfigurationException,
@@ -68,20 +67,29 @@ public class XPathParser {
 		this();
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
-		setDocument(builder.parse(is));
+		setRoot(builder.parse(is));
 	}
 
-	public XPathParser(Document document) {
+	public XPathParser(Node rootNode) {
 		this();
-		setDocument(document);
+		setRoot(rootNode);
 	}
 
 	public File getCurrentFile() {
 		return currentFile;
 	}
 
-	private void setDocument(Document document) {
-		this.document = document;
+	private void setRoot(Node rootNode) {
+		this.rootNode = rootNode;
+	}
+
+	public Object evaluate(Node parentNode, String query)
+			throws XPathExpressionException {
+		return xPath.evaluate(query, parentNode);
+	}
+
+	public Object evaluate(String query) throws XPathExpressionException {
+		return evaluate(rootNode, query);
 	}
 
 	public Node getNode(Node parentNode, String query)
@@ -90,16 +98,17 @@ public class XPathParser {
 	}
 
 	public Node getNode(String query) throws XPathExpressionException {
-		return getNode(document, query);
+		return getNode(rootNode, query);
 	}
 
 	public String getNodeString(Node parentNode, String query)
 			throws XPathExpressionException {
-		return xPath.evaluate(query, parentNode);
+		return (String) xPath
+				.evaluate(query, parentNode, XPathConstants.STRING);
 	}
 
 	public String getNodeString(String query) throws XPathExpressionException {
-		return getNodeString(document, query);
+		return getNodeString(rootNode, query);
 	}
 
 	public String getNodeString(Node node) throws XPathExpressionException {
@@ -113,7 +122,7 @@ public class XPathParser {
 	}
 
 	public NodeList getNodeList(String query) throws XPathExpressionException {
-		return getNodeList(document, query);
+		return getNodeList(rootNode, query);
 	}
 
 	public String getAttributeString(String query, String attributeName)
