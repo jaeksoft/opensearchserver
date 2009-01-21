@@ -92,13 +92,13 @@ public class SearchThread implements Runnable {
 	}
 
 	public void waitForCompletion() {
-		synchronized (this) {
-			while (running) {
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+		while (running) {
+			try {
+				synchronized (this) {
+					wait(5000);
 				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}

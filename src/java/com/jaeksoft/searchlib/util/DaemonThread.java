@@ -135,9 +135,20 @@ public abstract class DaemonThread implements Runnable {
 
 	public String getStatusName() {
 		synchronized (this) {
-			if (status == Status.ERROR)
-				return status.name + " " + error;
-			return status.name;
+			StringBuffer sb = new StringBuffer(status.name);
+			if (status == Status.ERROR) {
+				sb.append(' ');
+				sb.append(error);
+			}
+			return sb.toString();
+		}
+	}
+
+	public String getThreadStatus() {
+		synchronized (this) {
+			if (thread != null)
+				return thread.getState().toString();
+			return "";
 		}
 	}
 
@@ -183,4 +194,22 @@ public abstract class DaemonThread implements Runnable {
 			sleepMs(1000);
 	}
 
+	public String getCurrentMethod() {
+		if (thread == null)
+			return "No thread";
+		StackTraceElement[] ste = thread.getStackTrace();
+		if (ste == null)
+			return "No stack";
+		if (ste.length == 0)
+			return "Empty stack";
+		StackTraceElement element = ste[0];
+		for (StackTraceElement e : ste) {
+			if (e.getClassName().contains("jaeksoft")) {
+				element = e;
+				break;
+			}
+		}
+		return element.getClassName() + '.' + element.getMethodName() + " ("
+				+ element.getLineNumber() + ")";
+	}
 }

@@ -69,7 +69,7 @@ public abstract class Collapse<T extends Result<?>> implements Serializable {
 		collapsedDocCount = 0;
 		for (int i = 0; i < fetchedDoc.length; i++) {
 			String term = getTerm(fetchedDoc[i]);
-			if (term.equals(lastTerm)) {
+			if (term != null && term.equals(lastTerm)) {
 				if (++adjacent >= collapseMax)
 					collapsedSet.set(i);
 			} else {
