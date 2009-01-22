@@ -52,7 +52,7 @@ public class SearchServlet extends AbstractServlet {
 			Request req = client.getNewRequest(request.getParameter("qt"),
 					request);
 
-			Result<?> result = client.getIndex().search(req);
+			Result result = client.getIndex().search(req);
 
 			Render render = null;
 			String p;

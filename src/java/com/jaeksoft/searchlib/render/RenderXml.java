@@ -47,10 +47,10 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 public class RenderXml implements Render {
 
 	private PrintWriter writer;
-	private Result<?> result;
+	private Result result;
 	private Request request;
 
-	public RenderXml(Result<?> result) {
+	public RenderXml(Result result) {
 		this.result = result;
 		this.request = result.getRequest();
 	}
@@ -72,14 +72,13 @@ public class RenderXml implements Render {
 			ParseException {
 		Request request = result.getRequest();
 		int end = request.getEnd();
-		int length = result.getFetchedDocs().length;
+		int length = result.getDocs().length;
 		if (end > length)
 			end = length;
 		int cdc = 0;
-		Collapse<?> collapse = result.getCollapse();
-		if (collapse != null) {
+		Collapse collapse = result.getCollapse();
+		if (collapse.isActive())
 			cdc = collapse.getDocCount();
-		}
 		writer.println("<result name=\"response\" numFound=\""
 				+ result.getNumFound() + "\" collapsedDocCount=\"" + cdc
 				+ "\" start=\"" + request.getStart() + "\" maxScore=\""
@@ -93,7 +92,7 @@ public class RenderXml implements Render {
 
 	private void renderDocument(int pos) throws CorruptIndexException,
 			IOException, ParseException {
-		writer.println("\t<doc score=\"" + result.getFetchedDocs()[pos].score
+		writer.println("\t<doc score=\"" + result.getDocs()[pos].score
 				+ "\" pos=\"" + pos + "\">");
 		DocumentRequestItem doc = result.document(pos);
 		for (Field field : this.request.getReturnFieldList())
@@ -101,8 +100,8 @@ public class RenderXml implements Render {
 		for (HighlightField field : this.request.getHighlightFieldList())
 			renderHighlightValue(doc, field);
 
-		Collapse<?> collapse = result.getCollapse();
-		if (collapse != null) {
+		Collapse collapse = result.getCollapse();
+		if (collapse.isActive()) {
 			int cc = collapse.getCount(pos);
 			if (cc > 0) {
 				writer.println("\t\t<collapseCount>" + cc + "</collapseCount>");

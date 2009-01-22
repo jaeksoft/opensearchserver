@@ -24,7 +24,12 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.IOException;
+
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.FieldCache.StringIndex;
+
+import com.jaeksoft.searchlib.schema.Field;
 
 public class ResultScoreDoc {
 
@@ -39,10 +44,21 @@ public class ResultScoreDoc {
 
 	public int doc;
 
-	public ResultScoreDoc(ResultSearch resultSearch, ScoreDoc scoreDoc) {
+	public String collapseTerm;
+
+	public int collapseCount;
+
+	public ResultScoreDoc(ResultSearch resultSearch, ScoreDoc scoreDoc,
+			String collapseTerm) {
 		this.score = scoreDoc.score;
 		this.doc = scoreDoc.doc;
 		this.resultSearch = resultSearch;
+		this.collapseTerm = collapseTerm;
+		this.collapseCount = 0;
+	}
+
+	public ResultScoreDoc(ResultSearch resultSearch, ScoreDoc scoreDoc) {
+		this(resultSearch, scoreDoc, null);
 	}
 
 	/**
@@ -59,5 +75,23 @@ public class ResultScoreDoc {
 		for (ScoreDoc scoreDoc : scoreDocs)
 			resultScoreDocs[i++] = new ResultScoreDoc(resultSearch, scoreDoc);
 		return resultScoreDocs;
+	}
+
+	public static ResultScoreDoc[] newResultScoreDocArray(
+			ResultSearch resultSearch, ScoreDoc[] scoreDocs, Field collapseField)
+			throws IOException {
+		if (collapseField == null)
+			return newResultScoreDocArray(resultSearch, scoreDocs);
+		StringIndex stringIndex = resultSearch.getReader().getStringIndex(
+				collapseField.getName());
+		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[scoreDocs.length];
+		int i = 0;
+		for (ScoreDoc scoreDoc : scoreDocs) {
+			String collapseTerm = stringIndex.lookup[stringIndex.order[scoreDoc.doc]];
+			resultScoreDocs[i++] = new ResultScoreDoc(resultSearch, scoreDoc,
+					collapseTerm);
+		}
+		return resultScoreDocs;
+
 	}
 }

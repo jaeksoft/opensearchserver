@@ -92,8 +92,8 @@ public class Client extends Config implements XmlInfo {
 		getIndex().reload(null, deleteOld);
 	}
 
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError {
+	public Result search(Request request) throws IOException, ParseException,
+			SyntaxError {
 		return getIndex().search(request);
 	}
 

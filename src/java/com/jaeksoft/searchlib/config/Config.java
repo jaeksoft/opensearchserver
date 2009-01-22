@@ -190,7 +190,7 @@ public abstract class Config implements XmlInfo {
 		return req;
 	}
 
-	public Render getRender(HttpServletRequest request, Result<?> result) {
+	public Render getRender(HttpServletRequest request, Result result) {
 
 		Render render = null;
 

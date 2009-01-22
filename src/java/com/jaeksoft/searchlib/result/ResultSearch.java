@@ -27,9 +27,9 @@ package com.jaeksoft.searchlib.result;
 import java.io.IOException;
 
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
-import com.jaeksoft.searchlib.collapse.CollapseSearch;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetSearch;
@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
 
-public class ResultSearch extends Result<CollapseSearch> {
+public class ResultSearch extends Result {
 
 	private static final long serialVersionUID = -8289431499983379291L;
 
@@ -67,18 +67,19 @@ public class ResultSearch extends Result<CollapseSearch> {
 			this.facetList.add(facetField.getFacetInstance(this));
 		sortStringIndexArray = request.getSortList()
 				.newStringIndexArray(reader);
-		if (request.getCollapseField() != null) {
-			this.collapse = new CollapseSearch(this);
-			if (docs.getDocNumFound() > 0 && request.getCollapseActive()) {
-				this.collapse.run();
-				if (request.getCollapseMax() > 0) {
-					fetchUntilCollapse();
-					return;
-				}
-			}
-		}
-		fetchedDocs = ResultScoreDoc.newResultScoreDocArray(this, docs
-				.getScoreDocs(request.getEnd()));
+
+		// Are we doing collapsing ?
+		if (collapse.isActive()) {
+			fetchUntilCollapse();
+		} else
+			loadDocs(request.getEnd());
+	}
+
+	public void loadDocs(int end) throws IOException {
+		if (end <= getDocs().length)
+			return;
+		setDocs(ResultScoreDoc.newResultScoreDocArray(this, docs
+				.getScoreDocs(end), collapse.getCollapseField()));
 	}
 
 	/**
@@ -101,8 +102,6 @@ public class ResultSearch extends Result<CollapseSearch> {
 		if (this.request.getFacetFieldList().size() > 0)
 			for (Facet facet : this.getFacetList())
 				((FacetSearch) facet).setReader(reader);
-		if (this.collapse != null)
-			this.collapse.setResult(this);
 	}
 
 	/**
@@ -122,14 +121,16 @@ public class ResultSearch extends Result<CollapseSearch> {
 		int end = this.request.getEnd();
 		int lastRows = 0;
 		int rows = end;
-		while (fetchedDocs.length < end) {
-			int length = docs.getScoreDocs(rows).length;
-			if (length == lastRows)
+		while (collapse.getCollapsedDocsLength() < end) {
+			ScoreDoc[] scoreDocs = docs.getScoreDocs(rows);
+			if (scoreDocs.length == lastRows)
 				break;
-			fetchedDocs = collapse.run();
-			lastRows = length;
+			collapse.run(ResultScoreDoc.newResultScoreDocArray(this, scoreDocs,
+					collapse.getCollapseField()), end);
+			lastRows = scoreDocs.length;
 			rows += request.getRows();
 		}
+		setDocs(collapse.getCollapsedDoc());
 	}
 
 	@Override
@@ -140,11 +141,12 @@ public class ResultSearch extends Result<CollapseSearch> {
 			return null;
 		int start = request.getStart();
 		int end = request.getEnd();
-		int length = getFetchedDocs().length;
+		ResultScoreDoc[] scoreDocs = getDocs();
+		int length = scoreDocs.length;
 		if (end > length)
 			end = length;
 		for (int pos = start; pos < end; pos++)
-			request.addDocId(reader, fetchedDocs[pos].doc);
+			request.addDocId(reader, scoreDocs[pos].doc);
 		documentResult = reader.documents(request);
 		return documentResult;
 	}

@@ -193,8 +193,8 @@ public class IndexGroup extends IndexAbstract {
 			index.reload(indexName, deleteOld);
 	}
 
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError {
+	public Result search(Request request) throws IOException, ParseException,
+			SyntaxError {
 		if (indices.size() == 1)
 			request.setReader(indices.values().iterator().next());
 		if (request.getReader() != null)

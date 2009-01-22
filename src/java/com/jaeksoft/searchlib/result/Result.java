@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.util.Timer;
 
-public abstract class Result<T extends Collapse<?>> implements Serializable {
+public abstract class Result implements Serializable {
 
 	/**
 	 * 
@@ -45,9 +45,9 @@ public abstract class Result<T extends Collapse<?>> implements Serializable {
 	transient protected Request request;
 	protected DocumentResult documentResult;
 	protected FacetList facetList;
-	protected T collapse;
+	protected Collapse collapse;
 	private Timer timer;
-	protected ResultScoreDoc[] fetchedDocs;
+	private ResultScoreDoc[] docs;
 	protected int numFound;
 	protected float maxScore;
 
@@ -55,12 +55,12 @@ public abstract class Result<T extends Collapse<?>> implements Serializable {
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.documentResult = null;
-		this.fetchedDocs = new ResultScoreDoc[0];
+		this.docs = new ResultScoreDoc[0];
 		this.request = request;
 		this.timer = new Timer();
 		if (request.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
-		this.collapse = null;
+		this.collapse = new Collapse(request);
 	}
 
 	public Request getRequest() {
@@ -99,17 +99,22 @@ public abstract class Result<T extends Collapse<?>> implements Serializable {
 		return numFound;
 	}
 
-	public ResultScoreDoc[] getFetchedDocs() {
-		return fetchedDocs;
+	public void setDocs(ResultScoreDoc[] docs) {
+		this.docs = docs;
 	}
 
-	public Collapse<?> getCollapse() throws IOException {
-		return this.collapse;
+	public int getDocLength() {
+		if (docs == null)
+			return 0;
+		return docs.length;
 	}
 
-	public void collapse() throws IOException {
-		if (this.collapse != null)
-			this.collapse.run();
+	public ResultScoreDoc[] getDocs() {
+		return docs;
+	}
+
+	public Collapse getCollapse() throws IOException {
+		return collapse;
 	}
 
 	@Override

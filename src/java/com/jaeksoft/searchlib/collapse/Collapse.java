@@ -28,47 +28,50 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.BitSet;
 
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.schema.Field;
 
-public abstract class Collapse<T extends Result<?>> implements Serializable {
+public class Collapse implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected int[] collapseCount;
 	private int collapsedDocCount;
-	protected BitSet collapsedSet;
-	transient protected T result;
 	private int collapseMax;
+	private Field collapseField;
+	private boolean collapseActive;
+	protected BitSet collapsedSet;
+	private ResultScoreDoc[] collapsedDoc;
 
-	protected Collapse(T result) throws IOException {
-		this.setResult(result);
-		this.collapseCount = null;
+	public Collapse(Request request) {
+		this.collapseField = request.getCollapseField();
+		this.collapseMax = request.getCollapseMax();
+		this.collapseActive = request.getCollapseActive();
 		this.collapsedDocCount = 0;
-		this.collapseMax = result.getRequest().getCollapseMax();
+		this.collapsedDoc = null;
 	}
 
-	public void setResult(T result) throws IOException {
-		this.result = result;
-	}
+	public void run(ResultScoreDoc[] fetchedDocs, int fetchLength)
+			throws IOException {
 
-	public ResultScoreDoc[] run() throws IOException {
+		collapsedDoc = null;
 
-		prepare();
+		if (fetchedDocs == null)
+			return;
 
-		ResultScoreDoc[] fetchedDoc = result.getFetchedDocs();
-		if (fetchedDoc == null)
-			return null;
-		collapsedSet = new BitSet(fetchedDoc.length);
+		if (fetchLength > fetchedDocs.length)
+			fetchLength = fetchedDocs.length;
+
+		collapsedSet = new BitSet(fetchLength);
 
 		String lastTerm = null;
 		int adjacent = 0;
 		collapsedDocCount = 0;
-		for (int i = 0; i < fetchedDoc.length; i++) {
-			String term = getTerm(fetchedDoc[i]);
+		for (int i = 0; i < fetchLength; i++) {
+			String term = fetchedDocs[i].collapseTerm;
 			if (term != null && term.equals(lastTerm)) {
 				if (++adjacent >= collapseMax)
 					collapsedSet.set(i);
@@ -78,26 +81,20 @@ public abstract class Collapse<T extends Result<?>> implements Serializable {
 			}
 		}
 		collapsedDocCount = collapsedSet.cardinality();
-		return reduce();
-	}
 
-	protected abstract void prepare() throws IOException;
+		collapsedDoc = new ResultScoreDoc[fetchLength - collapsedDocCount];
 
-	/**
-	 * Returns then term by the position
-	 * 
-	 * @param pos
-	 * @return
-	 * @throws IOException
-	 */
-	protected abstract String getTerm(ResultScoreDoc doc) throws IOException;
-
-	protected abstract ResultScoreDoc[] reduce();
-
-	public int getCount(int pos) {
-		if (this.collapseCount == null)
-			return 0;
-		return this.collapseCount[pos];
+		int currentPos = 0;
+		ResultScoreDoc collapseDoc = null;
+		for (int i = 0; i < fetchLength; i++) {
+			if (!collapsedSet.get(i)) {
+				collapseDoc = fetchedDocs[i];
+				collapseDoc.collapseCount = 0;
+				collapsedDoc[currentPos++] = collapseDoc;
+			} else {
+				collapseDoc.collapseCount++;
+			}
+		}
 	}
 
 	public BitSet getBitSet() {
@@ -106,6 +103,36 @@ public abstract class Collapse<T extends Result<?>> implements Serializable {
 
 	public int getDocCount() {
 		return this.collapsedDocCount;
+	}
+
+	public Field getCollapseField() {
+		return collapseField;
+	}
+
+	public ResultScoreDoc[] getCollapsedDoc() {
+		return collapsedDoc;
+	}
+
+	public boolean isActive() {
+		if (!collapseActive)
+			return false;
+		if (collapseField == null)
+			return false;
+		if (collapseMax == 0)
+			return false;
+		return true;
+	}
+
+	public int getCount(int pos) {
+		if (collapsedDoc == null)
+			return 0;
+		return collapsedDoc[pos].collapseCount;
+	}
+
+	public int getCollapsedDocsLength() {
+		if (collapsedDoc == null)
+			return 0;
+		return collapsedDoc.length;
 	}
 
 }

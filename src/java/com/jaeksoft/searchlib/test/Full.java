@@ -72,7 +72,7 @@ public class Full {
 		open();
 		Request request = client.getNewRequest("search");
 		request.setQueryString("*:*");
-		Result<?> result = client.getIndex().search(request);
+		Result result = client.getIndex().search(request);
 		RenderXml render = new RenderXml(result);
 		PrintWriter pw = new PrintWriter(System.out);
 		render.render(pw);

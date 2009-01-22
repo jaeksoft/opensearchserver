@@ -41,13 +41,11 @@ public class SearchThread implements Runnable {
 	private ReaderInterface reader;
 	private Request request;
 	private boolean running;
-	private int step;
 	private int currentFetchPos;
 	private IOException ioException;
 	private ParseException parseException;
 	private SyntaxError syntaxError;
 	private int fetchCount;
-	private boolean needMore;
 
 	public SearchThread(ReaderInterface reader, Request request,
 			ResultGroup resultGroup) throws IOException {
@@ -60,7 +58,6 @@ public class SearchThread implements Runnable {
 		this.ioException = null;
 		this.parseException = null;
 		this.syntaxError = null;
-		this.needMore = true;
 	}
 
 	public void run() {
@@ -69,14 +66,16 @@ public class SearchThread implements Runnable {
 				resultSearch = (ResultSearch) reader.search(request);
 				resultGroup.addResult(resultSearch);
 			}
-			resultSearch.getDocSetHits().getScoreDocs(
-					this.currentFetchPos + this.step);
-			fetchCount = resultSearch.getFetchedDocs().length - currentFetchPos;
+			int nextFetchPos = currentFetchPos + fetchCount;
+			resultSearch.loadDocs(nextFetchPos);
+			int docLength = resultSearch.getDocLength();
+			if (nextFetchPos > docLength)
+				nextFetchPos = docLength;
+			fetchCount = nextFetchPos - currentFetchPos;
 			if (fetchCount == 0)
 				return;
-			resultGroup
-					.populate(resultSearch, currentFetchPos, this.fetchCount);
-			currentFetchPos += fetchCount;
+			resultGroup.populate(resultSearch, currentFetchPos, fetchCount);
+			currentFetchPos = nextFetchPos;
 		} catch (IOException e) {
 			this.ioException = e;
 		} catch (ParseException e) {
@@ -103,17 +102,14 @@ public class SearchThread implements Runnable {
 		}
 	}
 
-	public void search(int step) {
-		if (!needMore)
-			return;
-		this.step = step;
-		this.fetchCount = 0;
+	public void searchNextStep(int step) {
+		fetchCount = step;
 		running = true;
 		ThreadUtils.pool.execute(this);
 	}
 
 	public int getFetchCount() {
-		return this.fetchCount;
+		return fetchCount;
 	}
 
 	public void exception() throws IOException, ParseException, SyntaxError {

@@ -56,7 +56,7 @@ public class Pagination {
 			navPages.add(i);
 	}
 
-	public Pagination(Result<?> result, int pagesArround) {
+	public Pagination(Result result, int pagesArround) {
 		this(result.getNumFound(), result.getRequest().getStart(), result
 				.getRequest().getRows(), pagesArround);
 	}

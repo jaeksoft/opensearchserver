@@ -35,6 +35,7 @@ import org.apache.lucene.queryParser.ParseException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.ResultGroup;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
 public class SearchGroup {
 
@@ -47,20 +48,17 @@ public class SearchGroup {
 		this.indexGroup = indexGroup;
 	}
 
-	private int search(ResultGroup resultGroup,
-			List<SearchThread> searchsThread, int step, int end)
-			throws IOException, ParseException, SyntaxError {
-		if (logger.isLoggable(Level.INFO))
-			logger.info(step + "/" + end);
+	private int searchNextStep(ResultGroup resultGroup,
+			List<SearchThread> searchsThread, int step) throws IOException,
+			ParseException, SyntaxError {
 		for (SearchThread searchThread : searchsThread)
-			searchThread.search(step);
+			searchThread.searchNextStep(step);
 		int fetchCount = 0;
 		for (SearchThread searchThread : searchsThread) {
 			searchThread.waitForCompletion();
 			searchThread.exception();
 			fetchCount += searchThread.getFetchCount();
 		}
-		resultGroup.collapse();
 		return fetchCount;
 	}
 
@@ -81,18 +79,21 @@ public class SearchGroup {
 
 		int step = end / searchsThread.size() + 1;
 		int nextStep = request.getRows() / searchsThread.size() + 1;
-
-		while (search(resultGroup, searchsThread, step, end) > 0) {
-			if (resultGroup.getFetchedDocs().length >= end) {
-				if (logger.isLoggable(Level.INFO))
-					logger.info("Break result group docs length: "
-							+ resultGroup.getFetchedDocs().length);
+		int iterationCounter = 0;
+		while (searchNextStep(resultGroup, searchsThread, step) > 0) {
+			iterationCounter++;
+			ResultScoreDoc[] tempsDocs = resultGroup.getCollapsedDocs();
+			resultGroup.setDocs(tempsDocs);
+			if (tempsDocs.length >= end)
 				break;
-			}
 			step = nextStep;
+			// Help working with large collapsed set
+			nextStep *= 2;
 		}
-
+		if (logger.isLoggable(Level.INFO))
+			logger
+					.info("SearchGroup needs " + iterationCounter
+							+ " iterations");
 		return resultGroup;
 	}
-
 }

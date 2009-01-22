@@ -265,8 +265,8 @@ public class IndexLocal extends IndexAbstract {
 		}
 	}
 
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError {
+	public Result search(Request request) throws IOException, ParseException,
+			SyntaxError {
 		r.lock();
 		try {
 			if (request.getForceLocal() || readerLocal != null)

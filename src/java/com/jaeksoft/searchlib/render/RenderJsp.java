@@ -30,9 +30,9 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 public class RenderJsp implements Render {
 
 	private String jspPath;
-	private Result<?> result;
+	private Result result;
 
-	public RenderJsp(String jspPath, Result<?> result) {
+	public RenderJsp(String jspPath, Result result) {
 		this.jspPath = jspPath;
 		this.result = result;
 	}

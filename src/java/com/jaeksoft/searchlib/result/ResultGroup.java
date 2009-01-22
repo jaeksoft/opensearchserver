@@ -31,14 +31,13 @@ import java.util.logging.Logger;
 
 import org.apache.lucene.queryParser.ParseException;
 
-import com.jaeksoft.searchlib.collapse.CollapseGroup;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetGroup;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.sort.SorterInterface;
 
-public class ResultGroup extends Result<CollapseGroup> {
+public class ResultGroup extends Result {
 
 	final private static Logger logger = Logger.getLogger(ResultGroup.class
 			.getCanonicalName());
@@ -49,13 +48,14 @@ public class ResultGroup extends Result<CollapseGroup> {
 	private ArrayList<ResultSearch> resultList;
 	private SorterInterface sorter;
 
+	private transient ResultScoreDoc[] tempDocs;
+
 	public ResultGroup(Request request) throws IOException {
 		super(request);
+		this.tempDocs = null;
 		this.resultList = new ArrayList<ResultSearch>();
 		for (FacetField facetField : request.getFacetFieldList())
 			this.facetList.add(new FacetGroup(facetField));
-		if (request.getCollapseField() != null)
-			this.collapse = new CollapseGroup(this);
 		this.sorter = request.getSortList().getSorter();
 	}
 
@@ -66,10 +66,11 @@ public class ResultGroup extends Result<CollapseGroup> {
 		DocumentsGroup docsGroup = new DocumentsGroup(request);
 		int start = request.getStart();
 		int end = request.getEnd();
+		ResultScoreDoc[] resultScoreDoc = getDocs();
 		for (int pos = start; pos < end; pos++) {
-			if (pos >= fetchedDocs.length)
+			if (pos >= resultScoreDoc.length)
 				break;
-			ResultScoreDoc scoreDoc = (ResultScoreDoc) fetchedDocs[pos];
+			ResultScoreDoc scoreDoc = resultScoreDoc[pos];
 			docsGroup.add(scoreDoc);
 		}
 		documentResult = docsGroup.documents();
@@ -109,23 +110,24 @@ public class ResultGroup extends Result<CollapseGroup> {
 			if (result.getMaxScore() > maxScore)
 				maxScore = result.getMaxScore();
 
-			if (fetchedDocs == null || fetchedDocs.length == 0)
+			if (tempDocs == null || tempDocs.length == 0)
 				this.setDoc(result, start + rows);
 			else
 				insertAndSort(result, start, rows);
 
+			setDocs(tempDocs);
 		}
 	}
 
 	private int setDoc(ResultSearch result, int end) {
-		ResultScoreDoc[] resultScoreDocs = result.getFetchedDocs();
+		ResultScoreDoc[] resultScoreDocs = result.getDocs();
 		if (resultScoreDocs == null)
 			return 0;
 		if (end > resultScoreDocs.length)
 			end = resultScoreDocs.length;
-		fetchedDocs = new ResultScoreDoc[end];
+		tempDocs = new ResultScoreDoc[end];
 		for (int i = 0; i < end; i++)
-			fetchedDocs[i] = resultScoreDocs[i];
+			tempDocs[i] = resultScoreDocs[i];
 		return end;
 	}
 
@@ -137,36 +139,44 @@ public class ResultGroup extends Result<CollapseGroup> {
 	 * @param rows
 	 */
 	private void insertAndSort(ResultSearch resultSearch, int start, int rows) {
+
 		int end = start + rows;
-		ResultScoreDoc[] insertFetchedDocs = resultSearch.getFetchedDocs();
+		ResultScoreDoc[] insertFetchedDocs = resultSearch.getDocs();
 		int length = insertFetchedDocs.length;
 		if (end > length)
 			end = length;
 		if (start >= end)
 			return;
-		ResultScoreDoc[] newDocs = new ResultScoreDoc[fetchedDocs.length
+		ResultScoreDoc[] newDocs = new ResultScoreDoc[tempDocs.length
 				+ (end - start)];
 		int iOld = 0;
 		int iResult = start;
 		int n = 0;
 		for (;;) {
-			if (sorter.isBefore(insertFetchedDocs[iResult], fetchedDocs[iOld])) {
+			if (sorter.isBefore(insertFetchedDocs[iResult], tempDocs[iOld])) {
 				newDocs[n++] = insertFetchedDocs[iResult];
 				if (++iResult == end) {
-					for (int i = iOld; i < fetchedDocs.length; i++)
-						newDocs[n++] = fetchedDocs[i];
+					for (int i = iOld; i < tempDocs.length; i++)
+						newDocs[n++] = tempDocs[i];
 					break;
 				}
 			} else {
-				newDocs[n++] = fetchedDocs[iOld];
-				if (++iOld == fetchedDocs.length) {
+				newDocs[n++] = tempDocs[iOld];
+				if (++iOld == tempDocs.length) {
 					for (int i = iResult; i < end; i++)
 						newDocs[n++] = insertFetchedDocs[i];
 					break;
 				}
 			}
 		}
-		fetchedDocs = newDocs;
+		tempDocs = newDocs;
+	}
+
+	public ResultScoreDoc[] getCollapsedDocs() throws IOException {
+		if (!collapse.isActive())
+			return tempDocs;
+		collapse.run(tempDocs, tempDocs.length);
+		return collapse.getCollapsedDoc();
 	}
 
 	public ArrayList<ResultSearch> getResultList() {

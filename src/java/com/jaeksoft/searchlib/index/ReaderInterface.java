@@ -46,8 +46,8 @@ public interface ReaderInterface {
 
 	public int getDocFreq(Term term) throws IOException;
 
-	public Result<?> search(Request request) throws IOException,
-			ParseException, SyntaxError;
+	public Result search(Request request) throws IOException, ParseException,
+			SyntaxError;
 
 	public String getName();
 

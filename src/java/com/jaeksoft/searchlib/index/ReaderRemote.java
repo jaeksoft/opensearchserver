@@ -87,15 +87,15 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 		return new URL(baseUrl);
 	}
 
-	public Result<?> search(Request req) throws IOException {
+	public Result search(Request req) throws IOException {
 		UrlReadObject urlReadObject = null;
 		IOException err = null;
-		Result<?> res = null;
+		Result res = null;
 		try {
 			urlReadObject = new UrlReadObject(getRemoteSearchUrl(req));
 			if (urlReadObject.getResponseCode() != 200)
 				throw new IOException(urlReadObject.getResponseMessage());
-			res = (Result<?>) urlReadObject.read();
+			res = (Result) urlReadObject.read();
 			res.setRequest(req);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
