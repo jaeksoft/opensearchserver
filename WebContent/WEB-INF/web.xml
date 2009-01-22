@@ -53,6 +53,7 @@
 	<servlet-mapping>
 		<servlet-name>Search</servlet-name>
 		<url-pattern>/select</url-pattern>
+		<url-pattern>/search</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Document</servlet-name>
