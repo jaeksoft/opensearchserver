@@ -27,8 +27,8 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -60,6 +60,7 @@ import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentCacheItem;
 import com.jaeksoft.searchlib.result.DocumentRequestItem;
@@ -140,6 +141,24 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
+	protected File getRootDir() {
+		r.lock();
+		try {
+			return rootDir;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	protected File getDatadir() {
+		r.lock();
+		try {
+			return dataDir;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public long getVersion() {
 		r.lock();
 		try {
@@ -167,7 +186,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public void close() {
+	public void close(boolean bDeleteDirectory) {
 		w.lock();
 		try {
 			if (indexReader != null) {
@@ -179,6 +198,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 				indexSearcher = null;
 			}
 			if (indexDirectory != null) {
+				if (bDeleteDirectory)
+					indexDirectory.delete();
 				indexDirectory.close();
 				indexDirectory = null;
 			}
@@ -281,35 +302,48 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	private static ReaderLocal getMostRecent(String name, File rootDir,
-			boolean bDeleteOld) {
+	private static ReaderLocal findMostRecent(String name, File rootDir) {
 		ReaderLocal reader = null;
 		for (File f : rootDir.listFiles()) {
+			if (f.getName().startsWith("."))
+				continue;
 			try {
-				if (f.getName().startsWith("."))
-					continue;
 				ReaderLocal r = new ReaderLocal(name, rootDir, f);
 				if (reader == null)
 					reader = r;
-				else {
-					ReaderLocal deleteReader = null;
-					if (r.getVersion() > reader.getVersion()) {
-						reader.close();
-						if (bDeleteOld)
-							deleteReader = reader;
-						reader = r;
-					} else
-						deleteReader = r;
-					if (deleteReader != null)
-						deleteReader.indexDirectory.delete();
-				}
+				else if (r.getVersion() > reader.getVersion())
+					reader = r;
 			} catch (IOException e) {
 				e.printStackTrace();
-				if (bDeleteOld)
-					IndexDirectory.deleteDir(f);
 			}
 		}
 		return reader;
+	}
+
+	private static ReaderLocal findVersion(String name, File rootDir,
+			long version) {
+		for (File f : rootDir.listFiles()) {
+			if (f.getName().startsWith("."))
+				continue;
+			try {
+				ReaderLocal reader = new ReaderLocal(name, rootDir, f);
+				if (reader.getVersion() == version)
+					return reader;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	private void deleteAllOthers() {
+		for (File f : rootDir.listFiles()) {
+			if (f.getName().startsWith("."))
+				continue;
+			if (f.equals(dataDir))
+				continue;
+			IndexDirectory.deleteDir(f);
+		}
 	}
 
 	public static ReaderLocal fromConfig(File homeDir, IndexConfig indexConfig,
@@ -321,15 +355,13 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 				.getPath()));
 		if (!rootDir.exists() && createIfNotExists)
 			rootDir.mkdirs();
-		ReaderLocal reader = ReaderLocal.getMostRecent(indexConfig.getName(),
-				rootDir, false);
+		ReaderLocal reader = ReaderLocal.findMostRecent(indexConfig.getName(),
+				rootDir);
 
 		if (reader == null) {
 			if (!createIfNotExists)
 				return null;
-			SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-			File dataDir = new File(rootDir, df.format(new Date()));
-			WriterLocal.create(dataDir);
+			File dataDir = WriterLocal.createIndex(rootDir);
 			reader = new ReaderLocal(indexConfig.getName(), rootDir, dataDir);
 		}
 
@@ -347,10 +379,10 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	private void reload() throws IOException {
+	public void reload() throws IOException {
 		w.lock();
 		try {
-			close();
+			close(false);
 			init(rootDir, dataDir);
 			resetCache();
 		} finally {
@@ -358,21 +390,25 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public void reload(String indexName, boolean deleteOld) throws IOException {
-		if (!acceptName(indexName))
-			return;
-		ReaderLocal newReader = ReaderLocal.getMostRecent(getName(), rootDir,
-				deleteOld);
-		if (newReader.getVersion() <= getVersion())
+	public void swap(long version, boolean deleteOld) throws IOException {
+		ReaderLocal newReader = null;
+		if (version > 0)
+			newReader = ReaderLocal.findVersion(getName(), rootDir, version);
+		else
+			newReader = ReaderLocal.findMostRecent(getName(), rootDir);
+		if (newReader == null)
 			return;
 		w.lock();
 		try {
-			close();
+			close(false);
 			init(newReader);
 			resetCache();
+			if (deleteOld)
+				deleteAllOthers();
 		} finally {
 			w.unlock();
 		}
+
 	}
 
 	public DocSetHits searchDocSet(Request request) throws IOException,
@@ -488,4 +524,38 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
+	private void pushFile(File file, URI uri) throws URISyntaxException,
+			IOException {
+		StringBuffer query = new StringBuffer("?indexName=");
+		query.append(getName());
+		query.append("&version=");
+		query.append(getVersion());
+		query.append("&fileName=");
+		query.append(file.getName());
+		uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri
+				.getPort(), uri.getPath() + "/push", query.toString(), uri
+				.getFragment());
+		UriWriteStream uws = null;
+		try {
+			uws = new UriWriteStream(uri, file);
+		} finally {
+			if (uws != null)
+				uws.close();
+		}
+	}
+
+	public void push(URI dest) throws URISyntaxException, IOException {
+		r.lock();
+		try {
+			File[] files = dataDir.listFiles();
+			for (File file : files) {
+				if (file.getName().charAt(0) == '.')
+					continue;
+				pushFile(file, dest);
+			}
+		} finally {
+			r.unlock();
+		}
+
+	}
 }

@@ -38,6 +38,14 @@
 		<servlet-name>Stats</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.StatServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>Push</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.PushServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Action</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.ActionServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>Delete</servlet-name>
 		<url-pattern>/delete</url-pattern>
@@ -62,6 +70,14 @@
 	<servlet-mapping>
 		<servlet-name>Stats</servlet-name>
 		<url-pattern>/stats</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Push</servlet-name>
+		<url-pattern>/push</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Action</servlet-name>
+		<url-pattern>/action</url-pattern>
 	</servlet-mapping>
 
 	<!-- //// -->
@@ -97,9 +113,19 @@
 		<servlet-name>auEngine</servlet-name>
 		<servlet-class>org.zkoss.zk.au.http.DHtmlUpdateServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<description>
+		The servlet loads the DSP pages.</description>
+		<servlet-name>dspLoader</servlet-name>
+		<servlet-class>org.zkoss.web.servlet.dsp.InterpreterServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>auEngine</servlet-name>
 		<url-pattern>/zkau/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>dspLoader</servlet-name>
+		<url-pattern>*.dsp</url-pattern>
 	</servlet-mapping>
 
 	<mime-mapping>

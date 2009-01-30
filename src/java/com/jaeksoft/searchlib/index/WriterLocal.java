@@ -25,9 +25,13 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -111,13 +115,20 @@ public class WriterLocal extends WriterAbstract {
 				IndexWriter.MaxFieldLength.UNLIMITED);
 	}
 
-	protected static void create(File dataDir) throws IOException {
+	private final static SimpleDateFormat dateDirFormat = new SimpleDateFormat(
+			"yyyyMMddHHmmss");
+
+	protected static File createIndex(File rootDir) throws IOException {
+
+		File dataDir = new File(rootDir, dateDirFormat.format(new Date()));
+
 		Directory directory = null;
 		IndexWriter indexWriter = null;
 		try {
 			dataDir.mkdirs();
 			directory = FSDirectory.getDirectory(dataDir);
 			indexWriter = openIndexWriter(directory, true);
+			return dataDir;
 		} catch (IOException e) {
 			throw e;
 		} finally {
@@ -133,6 +144,34 @@ public class WriterLocal extends WriterAbstract {
 			if (directory != null) {
 				try {
 					directory.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	protected static void receiveIndexFile(File rootDir, Long version,
+			String fileName, InputStream is) throws IOException {
+		File dataDir = new File(rootDir, version.toString());
+		if (!dataDir.exists())
+			dataDir.mkdirs();
+		File targetFile = new File(dataDir, fileName);
+		if (!targetFile.exists())
+			targetFile.createNewFile();
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(targetFile);
+			int len;
+			byte[] buffer = new byte[131072];
+			while ((len = is.read(buffer)) != -1)
+				fos.write(buffer, 0, len);
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -209,7 +248,7 @@ public class WriterLocal extends WriterAbstract {
 			IOException {
 		l.lock();
 		try {
-			if (!acceptName(indexName))
+			if (!acceptNameOrEmpty(indexName))
 				return;
 			open();
 			indexWriter.optimize(10, true);

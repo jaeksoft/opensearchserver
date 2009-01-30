@@ -62,7 +62,13 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 		return new ReaderRemote(indexConfig.getName(), remote);
 	}
 
-	public void reload(String indexName, boolean deleteOld) throws IOException {
+	// TODO Implementation
+	public void reload() throws IOException {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	// TODO Propagate version information
+	public void swap(long version, boolean deleteOld) throws IOException {
 		String u = remote.getUrl("stats?reload="
 				+ URLEncoder.encode(remote.getName(), "UTF-8") + "&forceLocal");
 		if (deleteOld)
@@ -166,7 +172,12 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 
 	public int getDocFreq(Term term) throws IOException {
 		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	public long getVersion() {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("Not yet implemented");
 	}
 
 }

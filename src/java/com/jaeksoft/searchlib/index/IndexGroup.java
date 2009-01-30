@@ -26,7 +26,10 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -102,7 +105,7 @@ public class IndexGroup extends IndexAbstract {
 		index.optimize(null, forceLocal);
 	}
 
-	public IndexStatistics getStatistics() {
+	public IndexStatistics getStatistics() throws IOException {
 		IndexStatistics stats = new IndexStatistics();
 		for (IndexAbstract index : indices.values())
 			stats.add(index.getStatistics());
@@ -188,9 +191,15 @@ public class IndexGroup extends IndexAbstract {
 		return documentsGroup.documents();
 	}
 
-	public void reload(String indexName, boolean deleteOld) throws IOException {
+	public void reload(String indexName) throws IOException {
 		for (IndexAbstract index : getIndices())
-			index.reload(indexName, deleteOld);
+			index.reload(indexName);
+	}
+
+	public void swap(String indexName, long version, boolean deleteOld)
+			throws IOException {
+		for (IndexAbstract index : getIndices())
+			index.swap(indexName, version, deleteOld);
 	}
 
 	public Result search(Request request) throws IOException, ParseException,
@@ -207,4 +216,63 @@ public class IndexGroup extends IndexAbstract {
 		return reader == this;
 	}
 
+	@Override
+	public void receive(String indexName, long version, String fileName,
+			InputStream inputStream) throws IOException {
+		IndexAbstract idx = get(indexName);
+		if (idx == null)
+			return;
+		idx.receive(indexName, version, fileName, inputStream);
+	}
+
+	@Override
+	public void push(String indexName, URI dest) throws URISyntaxException,
+			IOException {
+		IndexAbstract index = get(indexName);
+		if (index != null) {
+			index.push(indexName, dest);
+			return;
+		}
+		for (IndexAbstract idx : getIndices())
+			idx.push(idx.getName(), dest);
+	}
+
+	@Override
+	public boolean isOnline(String indexName) {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return false;
+		return index.isOnline(indexName);
+	}
+
+	@Override
+	public boolean isReadOnly(String indexName) {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return false;
+		return index.isReadOnly(indexName);
+	}
+
+	@Override
+	public void setOnline(String indexName, boolean v) {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return;
+		index.setOnline(indexName, v);
+	}
+
+	@Override
+	public void setReadOnly(String indexName, boolean v) {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return;
+		index.setReadOnly(indexName, v);
+	}
+
+	public long getVersion(String indexName) {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return 0;
+		return index.getVersion(indexName);
+	}
 }

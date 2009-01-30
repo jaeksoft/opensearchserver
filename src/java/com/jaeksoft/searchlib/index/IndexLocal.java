@@ -26,7 +26,10 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
@@ -51,12 +54,18 @@ public class IndexLocal extends IndexAbstract {
 	private ReaderRemote readerRemote = null;
 	private WriterRemote writerRemote = null;
 
+	private volatile boolean online;
+
+	private volatile boolean readonly;
+
 	final private static Logger logger = Logger.getLogger(IndexLocal.class
 			.getCanonicalName());
 
 	public IndexLocal(File homeDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException {
 		super(indexConfig);
+		online = true;
+		readonly = false;
 		readerRemote = ReaderRemote.fromConfig(indexConfig);
 		readerLocal = ReaderLocal.fromConfig(homeDir, indexConfig,
 				createIfNotExists);
@@ -87,6 +96,10 @@ public class IndexLocal extends IndexAbstract {
 	public void optimize(String indexName, boolean forceLocal)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -101,6 +114,10 @@ public class IndexLocal extends IndexAbstract {
 	public void deleteDocuments(Schema schema, String uniqueField,
 			boolean forceLocal) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -118,6 +135,10 @@ public class IndexLocal extends IndexAbstract {
 			String uniqueField, boolean forceLocal)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -136,6 +157,10 @@ public class IndexLocal extends IndexAbstract {
 	public void deleteDocuments(Schema schema, List<String> uniqueFields,
 			boolean forceLocal) throws CorruptIndexException,
 			LockObtainFailedException, IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -153,6 +178,10 @@ public class IndexLocal extends IndexAbstract {
 			List<String> uniqueFields, boolean forceLocal)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -170,6 +199,10 @@ public class IndexLocal extends IndexAbstract {
 
 	public void updateDocument(Schema schema, IndexDocument document,
 			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -186,6 +219,10 @@ public class IndexLocal extends IndexAbstract {
 	public void updateDocument(String indexName, Schema schema,
 			IndexDocument document, boolean forceLocal)
 			throws NoSuchAlgorithmException, IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -204,6 +241,10 @@ public class IndexLocal extends IndexAbstract {
 	public void updateDocuments(Schema schema,
 			List<? extends IndexDocument> documents, boolean forceLocal)
 			throws NoSuchAlgorithmException, IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -220,6 +261,10 @@ public class IndexLocal extends IndexAbstract {
 	public void updateDocuments(String indexName, Schema schema,
 			List<? extends IndexDocument> documents, boolean forceLocal)
 			throws NoSuchAlgorithmException, IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
 		r.lock();
 		try {
 			if (writerLocal != null)
@@ -237,6 +282,8 @@ public class IndexLocal extends IndexAbstract {
 
 	public DocumentResult documents(Request request)
 			throws CorruptIndexException, IOException, ParseException {
+		if (!online)
+			throw new IOException("Index is offline");
 		r.lock();
 		try {
 			if (request.getForceLocal() && readerLocal != null)
@@ -249,17 +296,44 @@ public class IndexLocal extends IndexAbstract {
 		}
 	}
 
-	public void reload(String indexName, boolean deleteOld) throws IOException {
+	public void reload(String indexName) throws IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
+		if (!acceptNameOrEmpty(indexName))
+			return;
+		w.lock();
+		try {
+			if (readerLocal != null)
+				readerLocal.reload();
+			if (writerLocal != null && readerLocal != null)
+				writerLocal.setDirectory(readerLocal.getDirectory());
+			if (readerRemote != null)
+				readerRemote.reload();
+		} finally {
+			w.unlock();
+		}
+	}
+
+	public void swap(String indexName, long version, boolean deleteOld)
+			throws IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
+		if (!acceptNameOrEmpty(indexName))
+			return;
 		w.lock();
 		try {
 			if (logger.isLoggable(Level.INFO))
 				logger.info("Reload " + indexName + " " + deleteOld);
 			if (readerLocal != null)
-				readerLocal.reload(indexName, deleteOld);
+				readerLocal.swap(version, deleteOld);
 			if (writerLocal != null && readerLocal != null)
 				writerLocal.setDirectory(readerLocal.getDirectory());
 			if (readerRemote != null)
-				readerRemote.reload(indexName, deleteOld);
+				readerRemote.swap(version, deleteOld);
 		} finally {
 			w.unlock();
 		}
@@ -267,6 +341,8 @@ public class IndexLocal extends IndexAbstract {
 
 	public Result search(Request request) throws IOException, ParseException,
 			SyntaxError {
+		if (!online)
+			throw new IOException("Index is offline");
 		r.lock();
 		try {
 			if (request.getForceLocal() || readerLocal != null)
@@ -292,7 +368,9 @@ public class IndexLocal extends IndexAbstract {
 		}
 	}
 
-	public IndexStatistics getStatistics() {
+	public IndexStatistics getStatistics() throws IOException {
+		if (!online)
+			throw new IOException("Index is offline");
 		r.lock();
 		try {
 			if (readerLocal != null)
@@ -311,6 +389,8 @@ public class IndexLocal extends IndexAbstract {
 	}
 
 	public int getDocFreq(Term term) throws IOException {
+		if (!online)
+			throw new IOException("Index is offline");
 		r.lock();
 		try {
 			if (readerLocal != null)
@@ -323,4 +403,70 @@ public class IndexLocal extends IndexAbstract {
 		}
 	}
 
+	public void push(String indexName, URI dest) throws URISyntaxException,
+			IOException {
+		if (readerLocal == null)
+			return;
+		if (!acceptOnlyRightName(indexName))
+			return;
+		boolean oldReadOnly;
+		w.lock();
+		try {
+			oldReadOnly = readonly;
+			readonly = true;
+		} finally {
+			w.unlock();
+		}
+		r.lock();
+		try {
+			readerLocal.push(dest);
+		} finally {
+			r.unlock();
+		}
+		readonly = oldReadOnly;
+	}
+
+	public void receive(String indexName, long version, String fileName,
+			InputStream inputStream) throws IOException {
+		if (readerLocal == null)
+			return;
+		if (!acceptOnlyRightName(indexName))
+			return;
+		WriterLocal.receiveIndexFile(readerLocal.getRootDir(), version,
+				fileName, inputStream);
+	}
+
+	@Override
+	public boolean isOnline(String indexName) {
+		return online;
+	}
+
+	@Override
+	public boolean isReadOnly(String indexName) {
+		return readonly;
+	}
+
+	@Override
+	public void setOnline(String indexName, boolean v) {
+		if (!acceptNameOrEmpty(indexName))
+			return;
+		online = v;
+	}
+
+	@Override
+	public void setReadOnly(String indexName, boolean v) {
+		if (!acceptNameOrEmpty(indexName))
+			return;
+		readonly = v;
+	}
+
+	public long getVersion(String indexName) {
+		if (!online)
+			return 0;
+		if (!acceptNameOrEmpty(indexName))
+			return 0;
+		if (readerLocal == null)
+			return 0;
+		return readerLocal.getVersion();
+	}
 }

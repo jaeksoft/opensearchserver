@@ -88,8 +88,16 @@ public class Client extends Config implements XmlInfo {
 						uniqueField));
 	}
 
+	public void reload() throws IOException {
+		getIndex().reload(null);
+	}
+
+	/*
+	 * Older version compatibility
+	 */
+	@Deprecated
 	public void reload(boolean deleteOld) throws IOException {
-		getIndex().reload(null, deleteOld);
+		reload();
 	}
 
 	public Result search(Request request) throws IOException, ParseException,

@@ -36,11 +36,19 @@ public abstract class NameFilter {
 		return indexName;
 	}
 
-	protected boolean acceptName(String indexName) {
+	protected boolean acceptNameOrEmpty(String indexName) {
 		if (indexName == null)
 			return true;
 		if (indexName.length() == 0)
 			return true;
+		return indexName.equals(this.indexName);
+	}
+
+	protected boolean acceptOnlyRightName(String indexName) {
+		if (indexName == null)
+			return false;
+		if (indexName.length() == 0)
+			return false;
 		return indexName.equals(this.indexName);
 	}
 

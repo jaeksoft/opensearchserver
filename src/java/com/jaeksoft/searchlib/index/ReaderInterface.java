@@ -42,8 +42,6 @@ public interface ReaderInterface {
 	public abstract DocumentResult documents(Request request)
 			throws CorruptIndexException, IOException, ParseException;
 
-	public void reload(String indexName, boolean deleteOld) throws IOException;
-
 	public int getDocFreq(Term term) throws IOException;
 
 	public Result search(Request request) throws IOException, ParseException,
@@ -51,6 +49,6 @@ public interface ReaderInterface {
 
 	public String getName();
 
-	public IndexStatistics getStatistics();
+	public IndexStatistics getStatistics() throws IOException;
 
 }

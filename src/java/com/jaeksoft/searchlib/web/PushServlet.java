@@ -24,47 +24,43 @@
 
 package com.jaeksoft.searchlib.web;
 
-import java.io.PrintWriter;
-import java.util.HashSet;
+import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.naming.NamingException;
+import javax.servlet.ServletRequest;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 
-@Deprecated
-public class StatServlet extends AbstractServlet {
+public class PushServlet extends AbstractServlet {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6835267443840241748L;
+	private static final long serialVersionUID = 527058083952741700L;
 
 	@Override
-	protected void doRequest(ServletTransaction servletTransaction)
+	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
-
+		ServletRequest request = transaction.getServletRequest();
+		String indexName = request.getParameter("indexName");
+		long version = Long.parseLong(request.getParameter("version"));
+		String fileName = request.getParameter("fileName");
+		Client client;
 		try {
-			Client client = Client.getWebAppInstance();
-
-			HttpServletRequest request = servletTransaction.getServletRequest();
-
-			String reload = request.getParameter("reload");
-			// boolean deleteOld = (request.getParameter("deleteOld") != null);
-
-			if (reload != null)
-				client.getIndex().reload(reload);
-
-			PrintWriter writer = servletTransaction.getWriter("UTF-8");
-			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-			HashSet<String> classDetail = new HashSet<String>();
-			String[] values = request.getParameterValues("details");
-			if (values != null)
-				for (String value : values)
-					classDetail.add(value);
-			client.xmlInfo(writer, servletTransaction.getClassDetail(request));
-		} catch (Exception e) {
+			client = Client.getWebAppInstance();
+			client.getIndex().receive(indexName, version, fileName,
+					request.getInputStream());
+		} catch (SearchLibException e) {
+			e.printStackTrace();
+			throw new ServletException(e);
+		} catch (NamingException e) {
+			e.printStackTrace();
+			throw new ServletException(e);
+		} catch (IOException e) {
+			e.printStackTrace();
 			throw new ServletException(e);
 		}
-	}
 
+	}
 }
