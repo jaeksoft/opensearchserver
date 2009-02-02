@@ -54,19 +54,19 @@ public class WriterLocal extends WriterAbstract {
 
 	private IndexWriter indexWriter;
 
-	private Directory directory;
+	private ReaderLocal readerLocal;
 
 	private WriterLocal(String indexName, String keyField, String keyMd5Pattern)
 			throws IOException {
 		super(indexName, keyField, keyMd5Pattern);
-		this.directory = null;
+		this.readerLocal = null;
 		this.indexWriter = null;
 	}
 
-	protected void setDirectory(Directory directory) {
+	protected void setReaderLocal(ReaderLocal readerLocal) {
 		l.lock();
 		try {
-			this.directory = directory;
+			this.readerLocal = readerLocal;
 			close();
 		} finally {
 			l.unlock();
@@ -101,7 +101,7 @@ public class WriterLocal extends WriterAbstract {
 		try {
 			if (indexWriter != null)
 				return;
-			indexWriter = openIndexWriter(directory, false);
+			indexWriter = openIndexWriter(readerLocal.getDirectory(), false);
 			indexWriter.setMaxMergeDocs(1000000);
 		} finally {
 			l.unlock();

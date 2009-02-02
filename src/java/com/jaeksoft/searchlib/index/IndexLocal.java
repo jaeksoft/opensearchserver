@@ -73,7 +73,7 @@ public class IndexLocal extends IndexAbstract {
 		if (readerLocal != null) {
 			writerLocal = WriterLocal.fromConfig(indexConfig);
 			if (writerLocal != null)
-				writerLocal.setDirectory(readerLocal.getDirectory());
+				writerLocal.setReaderLocal(readerLocal);
 		}
 	}
 
@@ -307,8 +307,6 @@ public class IndexLocal extends IndexAbstract {
 		try {
 			if (readerLocal != null)
 				readerLocal.reload();
-			if (writerLocal != null && readerLocal != null)
-				writerLocal.setDirectory(readerLocal.getDirectory());
 			if (readerRemote != null)
 				readerRemote.reload();
 		} finally {
@@ -330,8 +328,6 @@ public class IndexLocal extends IndexAbstract {
 				logger.info("Reload " + indexName + " " + deleteOld);
 			if (readerLocal != null)
 				readerLocal.swap(version, deleteOld);
-			if (writerLocal != null && readerLocal != null)
-				writerLocal.setDirectory(readerLocal.getDirectory());
 			if (readerRemote != null)
 				readerRemote.swap(version, deleteOld);
 		} finally {
