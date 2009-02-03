@@ -42,7 +42,7 @@ import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.IndexGroup;
-import com.jaeksoft.searchlib.index.IndexLocal;
+import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
@@ -92,7 +92,7 @@ public abstract class Config implements XmlInfo {
 		case 0:
 			return null;
 		case 1:
-			return new IndexLocal(homeDir, new IndexConfig(xpp, xpp
+			return new IndexSingle(homeDir, new IndexConfig(xpp, xpp
 					.getNode("/configuration/indices/index")),
 					createIndexIfNotExists);
 		default:

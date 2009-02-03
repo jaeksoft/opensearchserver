@@ -29,6 +29,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashSet;
@@ -165,9 +167,9 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 		return reader.sameIndex(this);
 	}
 
-	// TODO
 	public IndexStatistics getStatistics() {
-		return null;
+		// TODO Auto-generated method stub
+		throw new RuntimeException("Not yet implemented");
 	}
 
 	public int getDocFreq(Term term) throws IOException {
@@ -176,6 +178,11 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 	}
 
 	public long getVersion() {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	public void push(URI dest) throws URISyntaxException, IOException {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Not yet implemented");
 	}

@@ -56,21 +56,11 @@ public class WriterLocal extends WriterAbstract {
 
 	private ReaderLocal readerLocal;
 
-	private WriterLocal(String indexName, String keyField, String keyMd5Pattern)
-			throws IOException {
+	private WriterLocal(String indexName, String keyField,
+			String keyMd5Pattern, ReaderLocal readerLocal) throws IOException {
 		super(indexName, keyField, keyMd5Pattern);
-		this.readerLocal = null;
+		this.readerLocal = readerLocal;
 		this.indexWriter = null;
-	}
-
-	protected void setReaderLocal(ReaderLocal readerLocal) {
-		l.lock();
-		try {
-			this.readerLocal = readerLocal;
-			close();
-		} finally {
-			l.unlock();
-		}
 	}
 
 	private void close() {
@@ -191,7 +181,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private void updateDocument(Schema schema, IndexDocument document)
+	private void updateDoc(Schema schema, IndexDocument document)
 			throws CorruptIndexException, IOException, NoSuchAlgorithmException {
 		if (!acceptDocument(document))
 			return;
@@ -203,8 +193,8 @@ public class WriterLocal extends WriterAbstract {
 		indexWriter.updateDocument(updateTerm, doc, pfa);
 	}
 
-	public void updateDocument(Schema schema, IndexDocument document,
-			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
+	public void updateDocument(Schema schema, IndexDocument document)
+			throws NoSuchAlgorithmException, IOException {
 		l.lock();
 		try {
 			open();
@@ -216,13 +206,13 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			List<? extends IndexDocument> documents, boolean bForceLocal)
+			List<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
 		l.lock();
 		try {
 			open();
 			for (IndexDocument document : documents)
-				updateDocument(schema, document);
+				updateDoc(schema, document);
 			close();
 		} finally {
 			l.unlock();
@@ -243,9 +233,8 @@ public class WriterLocal extends WriterAbstract {
 		return doc;
 	}
 
-	public void optimize(String indexName, boolean forceLocal)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+	public void optimize(String indexName) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
 		l.lock();
 		try {
 			if (!acceptNameOrEmpty(indexName))
@@ -258,9 +247,9 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public void deleteDocuments(Schema schema, String uniqueField,
-			boolean bForceLocal) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+	public void deleteDocuments(Schema schema, String uniqueField)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
 		l.lock();
 		try {
 			open();
@@ -272,9 +261,9 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public void deleteDocuments(Schema schema, List<String> uniqueFields,
-			boolean bForceLocal) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+	public void deleteDocuments(Schema schema, List<String> uniqueFields)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
 		String uniqueField = schema.getFieldList().getUniqueField().getName();
 		Term[] terms = new Term[uniqueFields.size()];
 		int i = 0;
@@ -290,12 +279,13 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public static WriterLocal fromConfig(IndexConfig indexConfig)
-			throws IOException {
+	public static WriterLocal fromConfig(IndexConfig indexConfig,
+			ReaderLocal reader) throws IOException {
 		if (indexConfig.getName() == null)
 			return null;
 		return new WriterLocal(indexConfig.getName(),
-				indexConfig.getKeyField(), indexConfig.getKeyMd5RegExp());
+				indexConfig.getKeyField(), indexConfig.getKeyMd5RegExp(),
+				reader);
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {

@@ -63,11 +63,8 @@ public class WriterRemote extends WriterAbstract {
 		remote.xmlInfo(writer, classDetail);
 	}
 
-	public void optimize(String indexName, boolean forceLocal)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
-		if (forceLocal)
-			return;
+	public void optimize(String indexName) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
 		UrlRead urlRead = null;
 		try {
 			String url = getCommandUrl("optimize").toExternalForm();
@@ -84,10 +81,8 @@ public class WriterRemote extends WriterAbstract {
 		}
 	}
 
-	public void updateDocument(Schema schema, IndexDocument document,
-			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
-		if (forceLocal)
-			return;
+	public void updateDocument(Schema schema, IndexDocument document)
+			throws NoSuchAlgorithmException, IOException {
 		if (!acceptDocument(document))
 			return;
 		IOException err = null;
@@ -109,10 +104,8 @@ public class WriterRemote extends WriterAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			List<? extends IndexDocument> documents, boolean forceLocal)
+			List<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
-		if (forceLocal)
-			return;
 		IOException err = null;
 		UrlWriteObject writeObject = null;
 		try {
@@ -131,11 +124,9 @@ public class WriterRemote extends WriterAbstract {
 		}
 	}
 
-	public void deleteDocuments(Schema schema, String uniqueField,
-			boolean forceLocal) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
-		if (forceLocal)
-			return;
+	public void deleteDocuments(Schema schema, String uniqueField)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
 		UrlRead urlRead = null;
 		try {
 			String url = getCommandUrl("delete").toExternalForm();
@@ -154,9 +145,9 @@ public class WriterRemote extends WriterAbstract {
 	}
 
 	// TODO Implementation
-	public void deleteDocuments(Schema schema, List<String> uniqueField,
-			boolean forceLocal) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+	public void deleteDocuments(Schema schema, List<String> uniqueField)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
 		throw new RuntimeException("Not yet implemented");
 	}
 

@@ -51,39 +51,37 @@ public class IndexServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 3855116559376800406L;
 
-	private void updateDoc(Client client, IndexDocument doc, boolean forceLocal)
+	private void updateDoc(Client client, IndexDocument doc)
 			throws NoSuchAlgorithmException, IOException {
-		client.getIndex().updateDocument(client.getSchema(), doc, forceLocal);
+		client.getIndex().updateDocument(client.getSchema(), doc);
 	}
 
-	private void updateDoc(Client client,
-			List<? extends IndexDocument> docList, boolean forceLocal)
+	private void updateDoc(Client client, List<? extends IndexDocument> docList)
 			throws NoSuchAlgorithmException, IOException {
-		client.getIndex().updateDocuments(null, client.getSchema(), docList,
-				forceLocal);
+		client.getIndex().updateDocuments(null, client.getSchema(), docList);
 	}
 
-	private void updateDoc(Client client, String indexName, IndexDocument doc,
-			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
+	private void updateDoc(Client client, String indexName, IndexDocument doc)
+			throws NoSuchAlgorithmException, IOException {
 		if (indexName == null)
-			updateDoc(client, doc, forceLocal);
+			updateDoc(client, doc);
 		else
-			client.getIndex().updateDocument(indexName, client.getSchema(),
-					doc, forceLocal);
+			client.getIndex()
+					.updateDocument(indexName, client.getSchema(), doc);
 	}
 
 	private void updateDoc(Client client, String indexName,
-			List<? extends IndexDocument> docList, boolean forceLocal)
+			List<? extends IndexDocument> docList)
 			throws NoSuchAlgorithmException, IOException {
 		if (indexName == null)
-			updateDoc(client, docList, forceLocal);
+			updateDoc(client, docList);
 		client.getIndex().updateDocuments(indexName, client.getSchema(),
-				docList, forceLocal);
+				docList);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void doObjectRequest(HttpServletRequest request, String indexName,
-			boolean forceLocal) throws ServletException {
+	private void doObjectRequest(HttpServletRequest request, String indexName)
+			throws ServletException {
 		StreamReadObject readObject = null;
 		try {
 			Client client = Client.getWebAppInstance();
@@ -91,9 +89,9 @@ public class IndexServlet extends AbstractServlet {
 			Object obj = readObject.read();
 			if (obj instanceof List)
 				updateDoc(client, indexName,
-						(List<? extends IndexDocument>) obj, forceLocal);
+						(List<? extends IndexDocument>) obj);
 			else if (obj instanceof IndexDocument)
-				updateDoc(client, indexName, (IndexDocument) obj, forceLocal);
+				updateDoc(client, indexName, (IndexDocument) obj);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		} finally {
@@ -103,8 +101,8 @@ public class IndexServlet extends AbstractServlet {
 
 	}
 
-	private void doXmlRequest(HttpServletRequest request, String indexName,
-			boolean forceLocal) throws ServletException {
+	private void doXmlRequest(HttpServletRequest request, String indexName)
+			throws ServletException {
 		try {
 			Client client = Client.getWebAppInstance();
 			XPathParser xpp = new XPathParser(request.getInputStream());
@@ -113,7 +111,7 @@ public class IndexServlet extends AbstractServlet {
 			List<IndexDocument> docList = new ArrayList<IndexDocument>();
 			for (int i = 0; i < l; i++)
 				docList.add(new IndexDocument(xpp, nodeList.item(i)));
-			updateDoc(client, indexName, docList, forceLocal);
+			updateDoc(client, indexName, docList);
 		} catch (SAXException e) {
 			throw new ServletException(e);
 		} catch (IOException e) {
@@ -137,12 +135,11 @@ public class IndexServlet extends AbstractServlet {
 			throws ServletException {
 		HttpServletRequest request = transaction.getServletRequest();
 		String indexName = request.getParameter("index");
-		boolean forceLocal = (request.getParameter("forceLocal") != null);
 		String ct = request.getContentType();
 		if (ct != null && ct.toLowerCase().contains("xml"))
-			doXmlRequest(request, indexName, forceLocal);
+			doXmlRequest(request, indexName);
 		else
-			doObjectRequest(request, indexName, forceLocal);
+			doObjectRequest(request, indexName);
 		PrintWriter writer;
 		try {
 			writer = transaction.getWriter("UTF-8");

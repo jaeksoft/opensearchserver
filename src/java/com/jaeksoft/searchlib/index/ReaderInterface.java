@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
@@ -34,8 +36,9 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.util.XmlInfo;
 
-public interface ReaderInterface {
+public interface ReaderInterface extends XmlInfo {
 
 	public abstract boolean sameIndex(ReaderInterface reader);
 
@@ -51,4 +54,11 @@ public interface ReaderInterface {
 
 	public IndexStatistics getStatistics() throws IOException;
 
+	public void reload() throws IOException;
+
+	public void swap(long version, boolean deleteOld) throws IOException;
+
+	public void push(URI dest) throws URISyntaxException, IOException;
+
+	public long getVersion();
 }

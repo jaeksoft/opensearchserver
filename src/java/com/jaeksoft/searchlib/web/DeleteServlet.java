@@ -42,14 +42,12 @@ public class DeleteServlet extends AbstractServlet {
 			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
 			String index = request.getParameter("index");
-			boolean forceLocal = (request.getParameter("forceLocal") != null);
 			String uniq = request.getParameter("uniq");
 			if (index == null)
-				client.getIndex().deleteDocuments(client.getSchema(), uniq,
-						forceLocal);
+				client.getIndex().deleteDocuments(client.getSchema(), uniq);
 			else
 				client.getIndex().deleteDocuments(index, client.getSchema(),
-						uniq, forceLocal);
+						uniq);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

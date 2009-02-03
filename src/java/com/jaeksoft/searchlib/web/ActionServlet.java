@@ -51,7 +51,7 @@ public class ActionServlet extends AbstractServlet {
 			String index = request.getParameter("index");
 			String action = request.getParameter("action");
 			if ("optimize".equalsIgnoreCase(action))
-				client.getIndex().optimize(index, true);
+				client.getIndex().optimize(index);
 			else if ("swap".equalsIgnoreCase(action)) {
 				String p = request.getParameter("version");
 				long version = (p == null) ? 0 : Long.parseLong(p);

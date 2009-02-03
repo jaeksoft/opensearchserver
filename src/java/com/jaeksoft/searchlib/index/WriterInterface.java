@@ -32,44 +32,42 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.util.XmlInfo;
 
-public interface WriterInterface {
+public interface WriterInterface extends XmlInfo {
 
 	public void deleteDocuments(String indexName, Schema schema,
-			String uniqueField, boolean bForceLocal)
+			String uniqueField) throws CorruptIndexException,
+			LockObtainFailedException, IOException;
+
+	public void deleteDocuments(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException;
 
-	public void deleteDocuments(Schema schema, String uniqueField,
-			boolean bForceLocal) throws CorruptIndexException,
+	public void deleteDocuments(String indexName, Schema schema,
+			List<String> uniqueFields) throws CorruptIndexException,
 			LockObtainFailedException, IOException;
 
-	public void deleteDocuments(String indexName, Schema schema,
-			List<String> uniqueFields, boolean bForceLocal)
+	public void deleteDocuments(Schema schema, List<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException;
 
-	public void deleteDocuments(Schema schema, List<String> uniqueFields,
-			boolean bForceLocal) throws CorruptIndexException,
-			LockObtainFailedException, IOException;
-
-	public void updateDocument(Schema schema, IndexDocument document,
-			boolean bForceLocal) throws NoSuchAlgorithmException, IOException;
-
-	public void updateDocument(String indexName, Schema schema,
-			IndexDocument document, boolean bForceLocal)
+	public void updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException;
 
+	public void updateDocument(String indexName, Schema schema,
+			IndexDocument document) throws NoSuchAlgorithmException,
+			IOException;
+
 	public void updateDocuments(Schema schema,
-			List<? extends IndexDocument> documents, boolean bForceLocal)
+			List<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException;
 
 	public void updateDocuments(String indexName, Schema schema,
-			List<? extends IndexDocument> documents, boolean bForceLocal)
+			List<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException;
 
-	public void optimize(String indexName, boolean bForceLocal)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException;
+	public void optimize(String indexName) throws CorruptIndexException,
+			LockObtainFailedException, IOException;
 
 }

@@ -62,24 +62,24 @@ public class Client extends Config implements XmlInfo {
 
 	public void updateDocument(IndexDocument document)
 			throws NoSuchAlgorithmException, IOException {
-		getIndex().updateDocument(getSchema(), document, false);
+		getIndex().updateDocument(getSchema(), document);
 	}
 
 	public void updateDocuments(List<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
-		getIndex().updateDocuments(getSchema(), documents, false);
+		getIndex().updateDocuments(getSchema(), documents);
 	}
 
 	public void deleteDocuments(String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
-		getIndex().deleteDocuments(getSchema(), uniqueField, false);
+		getIndex().deleteDocuments(getSchema(), uniqueField);
 	}
 
 	public void deleteDocuments(List<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
-		getIndex().deleteDocuments(getSchema(), uniqueFields, false);
+		getIndex().deleteDocuments(getSchema(), uniqueFields);
 	}
 
 	public int getDocFreq(String uniqueField) throws IOException {

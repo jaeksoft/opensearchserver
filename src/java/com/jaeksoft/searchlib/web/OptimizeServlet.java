@@ -42,7 +42,7 @@ public class OptimizeServlet extends AbstractServlet {
 			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
 			String index = request.getParameter("index");
-			client.getIndex().optimize(index, true);
+			client.getIndex().optimize(index);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

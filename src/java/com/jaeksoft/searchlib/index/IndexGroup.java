@@ -55,23 +55,23 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public class IndexGroup extends IndexAbstract {
 
-	private LinkedHashMap<String, IndexAbstract> indices;
+	private LinkedHashMap<String, IndexSingle> indices;
 
 	public IndexGroup(File homeDir, XPathParser xpp, Node parentNode,
 			boolean createIfNotExists) throws XPathExpressionException,
 			IOException {
 		super();
-		indices = new LinkedHashMap<String, IndexAbstract>();
+		indices = new LinkedHashMap<String, IndexSingle>();
 		NodeList nodes = xpp.getNodeList(parentNode, "index");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
 			IndexConfig indexConfig = new IndexConfig(xpp, node);
-			indices.put(indexConfig.getName(), new IndexLocal(homeDir,
+			indices.put(indexConfig.getName(), new IndexSingle(homeDir,
 					indexConfig, createIfNotExists));
 		}
 	}
 
-	public Collection<IndexAbstract> getIndices() {
+	public Collection<IndexSingle> getIndices() {
 		return indices.values();
 	}
 
@@ -91,18 +91,17 @@ public class IndexGroup extends IndexAbstract {
 		writer.println("</indices>");
 	}
 
-	public void optimize(String indexName, boolean forceLocal)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+	public void optimize(String indexName) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
 		if (indexName == null || indexName.length() == 0) {
 			for (IndexAbstract index : getIndices())
-				index.optimize(null, forceLocal);
+				index.optimize(null);
 			return;
 		}
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
-		index.optimize(null, forceLocal);
+		index.optimize(null);
 	}
 
 	public IndexStatistics getStatistics() throws IOException {
@@ -112,70 +111,68 @@ public class IndexGroup extends IndexAbstract {
 		return stats;
 	}
 
-	public void updateDocument(Schema schema, IndexDocument document,
-			boolean forceLocal) throws NoSuchAlgorithmException, IOException {
+	public void updateDocument(Schema schema, IndexDocument document)
+			throws NoSuchAlgorithmException, IOException {
 		for (IndexAbstract index : getIndices())
-			index.updateDocument(schema, document, forceLocal);
+			index.updateDocument(schema, document);
 	}
 
 	public void updateDocument(String indexName, Schema schema,
-			IndexDocument document, boolean forceLocal)
-			throws NoSuchAlgorithmException, IOException {
+			IndexDocument document) throws NoSuchAlgorithmException,
+			IOException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
-		index.updateDocument(schema, document, forceLocal);
+		index.updateDocument(schema, document);
 
 	}
 
 	public void updateDocuments(Schema schema,
-			List<? extends IndexDocument> documents, boolean forceLocal)
+			List<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
 		for (IndexAbstract index : getIndices())
-			index.updateDocuments(schema, documents, forceLocal);
+			index.updateDocuments(schema, documents);
 	}
 
 	public void updateDocuments(String indexName, Schema schema,
-			List<? extends IndexDocument> documents, boolean forceLocal)
+			List<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
-		index.updateDocuments(indexName, schema, documents, forceLocal);
+		index.updateDocuments(indexName, schema, documents);
 	}
 
-	public void deleteDocuments(Schema schema, String uniqueField,
-			boolean forceLocal) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+	public void deleteDocuments(Schema schema, String uniqueField)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
 		for (IndexAbstract index : getIndices())
-			index.deleteDocuments(schema, uniqueField, forceLocal);
+			index.deleteDocuments(schema, uniqueField);
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
-			String uniqueField, boolean forceLocal)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			String uniqueField) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
-		index.deleteDocuments(schema, uniqueField, forceLocal);
+		index.deleteDocuments(schema, uniqueField);
 	}
 
-	public void deleteDocuments(Schema schema, List<String> uniqueFields,
-			boolean forceLocal) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+	public void deleteDocuments(Schema schema, List<String> uniqueFields)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
 		for (IndexAbstract index : getIndices())
-			index.deleteDocuments(schema, uniqueFields, forceLocal);
+			index.deleteDocuments(schema, uniqueFields);
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
-			List<String> uniqueFields, boolean forceLocal)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			List<String> uniqueFields) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
-		index.deleteDocuments(schema, uniqueFields, forceLocal);
+		index.deleteDocuments(schema, uniqueFields);
 	}
 
 	public int getDocFreq(Term term) throws IOException {
@@ -269,10 +266,30 @@ public class IndexGroup extends IndexAbstract {
 		index.setReadOnly(indexName, v);
 	}
 
+	@Override
 	public long getVersion(String indexName) {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return 0;
-		return index.getVersion(indexName);
+		// TODO Auto-generated method stub
+		return 0;
 	}
+
+	public long getVersion() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void push(URI dest) throws URISyntaxException, IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void reload() throws IOException {
+		for (IndexAbstract index : getIndices())
+			index.reload();
+	}
+
+	public void swap(long version, boolean deleteOld) throws IOException {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("Operation not permitted on grouped indices");
+	}
+
 }

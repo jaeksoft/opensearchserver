@@ -62,37 +62,35 @@ public abstract class WriterAbstract extends NameFilter implements
 	}
 
 	public void updateDocument(String indexName, Schema schema,
-			IndexDocument document, boolean forceLocal)
-			throws NoSuchAlgorithmException, IOException {
+			IndexDocument document) throws NoSuchAlgorithmException,
+			IOException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
-		updateDocument(schema, document, forceLocal);
+		updateDocument(schema, document);
 	}
 
 	public void updateDocuments(String indexName, Schema schema,
-			List<? extends IndexDocument> documents, boolean forceLocal)
+			List<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
-		updateDocuments(schema, documents, forceLocal);
+		updateDocuments(schema, documents);
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
-			String uniqueField, boolean bForceLocal)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			String uniqueField) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
-		deleteDocuments(schema, uniqueField, bForceLocal);
+		deleteDocuments(schema, uniqueField);
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
-			List<String> uniqueFields, boolean bForceLocal)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			List<String> uniqueFields) throws CorruptIndexException,
+			LockObtainFailedException, IOException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
-		deleteDocuments(schema, uniqueFields, bForceLocal);
+		deleteDocuments(schema, uniqueFields);
 	}
 
 }
