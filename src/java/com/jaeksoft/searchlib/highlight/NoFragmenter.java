@@ -26,33 +26,21 @@ package com.jaeksoft.searchlib.highlight;
 
 import org.w3c.dom.NamedNodeMap;
 
-public class SentenceFragmenter extends FragmenterAbstract {
+public class NoFragmenter extends FragmenterAbstract {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4962131354275204301L;
-
-	public FragmenterAbstract newInstance() {
-		return new SentenceFragmenter();
+	@Override
+	protected FragmenterAbstract newInstance() {
+		return new NoFragmenter();
 	}
 
-	public void setAttributes(NamedNodeMap attr) {
+	@Override
+	protected void setAttributes(NamedNodeMap attr) {
+	}
+
+	@Override
+	protected void check(String originalText) {
 		// TODO Auto-generated method stub
+
 	}
 
-	public void check(String originalText) {
-		int pos = 0;
-		char[] chars = originalText.toCharArray();
-		for (char ch : chars) {
-			switch (ch) {
-			case '.':
-			case '?':
-			case '!':
-				addSplit(pos + 1);
-				break;
-			}
-			pos++;
-		}
-	}
 }

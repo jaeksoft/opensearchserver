@@ -26,16 +26,21 @@ package com.jaeksoft.searchlib.highlight;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeMap;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermPositionVector;
+import org.apache.lucene.index.TermVectorOffsetInfo;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.highlight.DefaultEncoder;
-import org.apache.lucene.search.highlight.Formatter;
-import org.apache.lucene.search.highlight.Highlighter;
-import org.apache.lucene.search.highlight.QueryScorer;
-import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
+import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
 
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.result.DocumentCacheItem;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -44,20 +49,23 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public class HighlightField extends FieldValue {
 
-	private Fragmenter fragmenter;
+	private FragmenterAbstract fragmenter;
 	private String tag;
 	private int maxDocChar;
-	private int maxSize;
+	private String separator = "...";
+	private int maxFragmentNumber = 5;
 
-	public HighlightField(Field field, String tag, int maxDocChar, int maxSize) {
+	private HighlightField(Field field, String tag, int maxDocChar,
+			String separator, int maxFragmentNumber,
+			FragmenterAbstract fragmenter) {
 		super(field.getName());
 		this.tag = tag;
 		this.maxDocChar = maxDocChar;
-		this.maxSize = maxSize;
+		this.fragmenter = fragmenter;
 	}
 
 	public HighlightField(Field field) {
-		this(field, "em", 0, 0);
+		this(field, "em", 0, "...", 0, null);
 	}
 
 	public HighlightField(HighlightField field) {
@@ -65,7 +73,8 @@ public class HighlightField extends FieldValue {
 		fragmenter = field.fragmenter;
 		tag = field.tag;
 		maxDocChar = field.maxDocChar;
-		maxSize = field.maxSize;
+		separator = field.separator;
+		maxFragmentNumber = field.maxFragmentNumber;
 	}
 
 	@Override
@@ -78,23 +87,20 @@ public class HighlightField extends FieldValue {
 	 */
 	private static final long serialVersionUID = 4048179036729127707L;
 
-	public void setFragmenter(Fragmenter fragmenter) {
-		this.fragmenter = fragmenter;
-	}
-
-	private Formatter getNewFormater() {
-		return new SimpleHTMLFormatter("<" + tag + ">", "</" + tag + ">");
-	}
-
 	/**
 	 * Retourne la liste des champs "highlighter".
 	 * 
 	 * @param xPath
 	 * @param node
 	 * @param target
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
 	public static void copyHighlightFields(Node node,
-			FieldList<SchemaField> source, FieldList<HighlightField> target) {
+			FieldList<SchemaField> source, FieldList<HighlightField> target)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		String fieldName = XPathParser.getAttributeString(node, "name");
 		String tag = XPathParser.getAttributeString(node, "tag");
 		if (tag == null)
@@ -102,113 +108,122 @@ public class HighlightField extends FieldValue {
 		int maxDocChar = XPathParser.getAttributeValue(node, "maxDocBytes");
 		if (maxDocChar == 0)
 			XPathParser.getAttributeValue(node, "maxDocChar");
-		int maxSize = XPathParser.getAttributeValue(node, "maxSize");
-		if (maxSize == 0)
-			maxSize = 100;
-		HighlightField field = new HighlightField(source.get(fieldName), tag,
-				maxDocChar, maxSize);
-		int fragmentNumber = XPathParser.getAttributeValue(node,
+		int maxFragmentNumber = XPathParser.getAttributeValue(node,
 				"maxFragmentNumber");
-		if (fragmentNumber == 0)
-			fragmentNumber = 1;
-
-		String fragmentSeparator = XPathParser.getAttributeString(node,
-				"separator");
-		if (fragmentSeparator == null)
-			fragmentSeparator = "...";
-
-		field.setFragmenter(new Fragmenter(fragmentNumber, fragmentSeparator,
-				maxSize));
+		if (maxFragmentNumber == 0)
+			maxFragmentNumber = 1;
+		FragmenterAbstract fragmenter = FragmenterAbstract
+				.newInstance(XPathParser.getAttributeString(node,
+						"fragmenterClass"));
+		fragmenter.setAttributes(node.getAttributes());
+		String separator = XPathParser.getAttributeString(node, "separator");
+		if (separator == null)
+			separator = "...";
+		HighlightField field = new HighlightField(source.get(fieldName), tag,
+				maxDocChar, separator, maxFragmentNumber, fragmenter);
 
 		target.add(field);
 	}
 
-	private String[] getFragments(Request request, String content)
-			throws IOException, ParseException {
-		QueryScorer qs = new QueryScorer(request.getHighlightQuery(), name);
-
-		Highlighter highlighter = new Highlighter(getNewFormater(),
-				new DefaultEncoder(), qs);
-		if (maxDocChar > 0)
-			highlighter.setMaxDocCharsToAnalyze(maxDocChar);
-		Fragmenter frgmtr = fragmenter.newFragmenter();
-		highlighter.setTextFragmenter(frgmtr);
-		return highlighter.getBestFragments(request.getConfig().getSchema()
-				.getQueryPerFieldAnalyzer(request.getLang()), name, content,
-				frgmtr.getFragmentNumber());
+	private String[] extractSearchTerms(Request request) throws ParseException,
+			SyntaxError, IOException {
+		Query query = request.getQuery();
+		query.rewrite(null);
+		Set<Term> terms = new HashSet<Term>();
+		query.extractTerms(terms);
+		String[] searchTerms = new String[terms.size()];
+		int i = 0;
+		for (Term term : terms)
+			if (name.equalsIgnoreCase(term.field()))
+				searchTerms[i++] = term.text();
+		String[] finalTerms = new String[i];
+		for (i = 0; i < finalTerms.length; i++)
+			finalTerms[i] = searchTerms[i];
+		return finalTerms;
 	}
 
-	private static int getBestFragPos(String[] frags, int maxSize) {
-		int best_distance = maxSize;
-		int best = -1;
-		int pos = 0;
-		for (String frag : frags) {
-			if (frag != null) {
-				int distance = maxSize - frag.length();
-				if (distance >= 0 && distance < best_distance) {
-					best = pos;
-					best_distance = distance;
-				}
-			}
-			pos++;
-		}
-		return best;
-	}
-
-	private static String getBestFrag(String[] frags, int maxSize) {
-		int pos = getBestFragPos(frags, maxSize);
-		return (pos == -1) ? null : frags[pos];
-	}
-
-	private static String getSnippet(ArrayList<String> frags, int maxSize,
-			String separator) {
-		String[] fragsArray = new String[frags.size()];
-		String[] finalArray = new String[frags.size()];
-		frags.toArray(fragsArray);
-		int pos;
-		while ((pos = getBestFragPos(fragsArray, maxSize)) != -1) {
-			String frag = fragsArray[pos];
-			finalArray[pos] = frag;
-			fragsArray[pos] = null;
-			maxSize -= frag.length();
-		}
-		StringBuffer snippet = new StringBuffer();
-		boolean bAddSep = false;
-		for (String frag : finalArray) {
-			if (frag == null)
+	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(
+			Request request, int docId) throws IOException, ParseException,
+			SyntaxError {
+		TermPositionVector termVector = (TermPositionVector) request
+				.getReader().getTermFreqVector(docId, name);
+		if (termVector == null)
+			return null;
+		String[] searchTerms = extractSearchTerms(request);
+		int[] termsIdx = termVector.indexesOf(searchTerms, 0,
+				searchTerms.length);
+		TreeMap<Integer, TermVectorOffsetInfo> map = new TreeMap<Integer, TermVectorOffsetInfo>();
+		for (int termId : termsIdx) {
+			if (termId == -1)
 				continue;
-			if (bAddSep)
-				snippet.append(separator);
-			else
-				bAddSep = true;
-			snippet.append(frag);
+			TermVectorOffsetInfo[] offsets = termVector.getOffsets(termId);
+			for (TermVectorOffsetInfo offset : offsets)
+				map.put(offset.getStartOffset(), offset);
 		}
-		return snippet.toString();
+		return map.values().iterator();
 	}
 
-	public void setSnippets(Request request, ArrayList<String> values)
-			throws IOException, ParseException {
-		if (values == null)
-			return;
-		ArrayList<String> snippets = new ArrayList<String>();
-		StringBuffer valueContent = new StringBuffer();
-		for (String value : values) {
-			if (value.length() + valueContent.length() <= maxSize) {
-				if (valueContent.length() > 0)
-					valueContent.append(". ");
-				valueContent.append(value);
+	private void checkValue(TermVectorOffsetInfo currentVector,
+			Iterator<TermVectorOffsetInfo> vectorIterator, int startOffset,
+			Fragment fragment) {
+		StringBuffer result = new StringBuffer();
+		String originalText = fragment.getOriginalText();
+		int originalTextLength = originalText.length();
+		int endOffset = startOffset + originalTextLength;
+		int pos = 0;
+		while (currentVector != null) {
+			int end = currentVector.getEndOffset();
+			if (end > endOffset)
+				break;
+			int start = currentVector.getStartOffset();
+			if (start >= startOffset) {
+				result.append(originalText.substring(pos, start - startOffset));
+				result.append("<");
+				result.append(tag);
+				result.append(">");
+				result.append(originalText.substring(start - startOffset, end
+						- startOffset));
+				result.append("</");
+				result.append(tag);
+				result.append(">");
+				pos = end - startOffset;
 			}
-			String[] frags = getFragments(request, value);
-			if (frags != null) {
-				String snippet = getBestFrag(frags, maxSize);
-				if (snippet != null)
-					snippets.add(snippet);
-			}
+			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
+					: null;
 		}
-		String snippet = getSnippet(snippets, maxSize, fragmenter
-				.getSeparator());
-		if (snippet == null || snippet.length() == 0)
-			snippet = valueContent.toString().trim();
-		addValue(snippet);
+		if (result.length() == 0)
+			return;
+		if (pos < originalTextLength)
+			result.append(originalText.substring(pos, originalTextLength));
+		fragment.setHighlightedText(result.toString());
+	}
+
+	// TODO make FragmentList global against multivalued field
+	public void setSnippets(Request request, DocumentCacheItem doc)
+			throws IOException, ParseException, SyntaxError {
+
+		Iterator<TermVectorOffsetInfo> vectorIterator = extractTermVectorIterator(
+				request, doc.getDocId());
+		if (vectorIterator == null)
+			return;
+		TermVectorOffsetInfo currentVector = vectorIterator.hasNext() ? vectorIterator
+				.next()
+				: null;
+		if (currentVector == null)
+			return;
+		ArrayList<String> values = doc.getValues(this);
+		int startOffset = 0;
+		for (String value : values) {
+			if (value == null)
+				continue;
+			FragmentList fragments = fragmenter.getFragments(value);
+			Iterator<Fragment> fragmentIterator = fragments.iterator();
+			while (fragmentIterator.hasNext()) {
+				Fragment fragment = fragmentIterator.next();
+				checkValue(currentVector, vectorIterator, startOffset, fragment);
+				startOffset += fragment.getOriginalText().length();
+			}
+			addValue(fragments.getSnippet(300, separator));
+		}
 	}
 }

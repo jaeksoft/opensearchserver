@@ -42,6 +42,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.Filter;
@@ -177,6 +178,16 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
+	public TermFreqVector getTermFreqVector(int docId, String field)
+			throws IOException {
+		r.lock();
+		try {
+			return indexReader.getTermFreqVector(docId, field);
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public int getDocFreq(Term term) throws IOException {
 		r.lock();
 		try {
@@ -248,6 +259,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	public ResultSearch search(Request request) throws IOException,
 			ParseException, SyntaxError {
 		ResultSearch result = new ResultSearch(this, request);
+		request.setReader(this);
 		if (request.isWithDocument())
 			result.documents();
 		return result;
@@ -464,7 +476,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	private DocumentRequestItem document(int docId, Request request)
-			throws CorruptIndexException, IOException, ParseException {
+			throws CorruptIndexException, IOException, ParseException,
+			SyntaxError {
 		r.lock();
 		try {
 			DocumentCacheItem doc = null;
@@ -477,7 +490,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			}
 
 			Document document = document(docId, request.getDocumentFieldList());
-			doc = new DocumentCacheItem(key, request, document);
+			doc = new DocumentCacheItem(key, docId, request, document);
 			if (key != null)
 				documentCache.put(key, doc);
 			return new DocumentRequestItem(request, doc);
@@ -487,7 +500,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException, ParseException {
+			throws CorruptIndexException, IOException, ParseException,
+			SyntaxError {
 		r.lock();
 		try {
 			List<Integer> docIds = request.getDocIds();

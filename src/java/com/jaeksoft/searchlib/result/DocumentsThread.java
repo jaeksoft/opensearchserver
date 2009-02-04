@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.util.ThreadUtils;
@@ -39,6 +40,7 @@ public class DocumentsThread implements Runnable {
 	private boolean running;
 	private IOException ioException;
 	private ParseException parseException;
+	private SyntaxError syntaxError;
 	private DocumentResult documentResult;
 
 	public DocumentsThread(ReaderInterface reader, Request request)
@@ -49,6 +51,7 @@ public class DocumentsThread implements Runnable {
 		this.request.setReader(reader);
 		this.ioException = null;
 		this.parseException = null;
+		this.syntaxError = null;
 	}
 
 	public void add(ResultScoreDoc resultScoreDoc) {
@@ -64,6 +67,9 @@ public class DocumentsThread implements Runnable {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			this.parseException = e;
+			e.printStackTrace();
+		} catch (SyntaxError e) {
+			this.syntaxError = e;
 			e.printStackTrace();
 		} finally {
 			running = false;
@@ -85,11 +91,13 @@ public class DocumentsThread implements Runnable {
 		}
 	}
 
-	public void exception() throws IOException, ParseException {
+	public void exception() throws IOException, ParseException, SyntaxError {
 		if (this.ioException != null)
 			throw this.ioException;
 		if (this.parseException != null)
 			throw this.parseException;
+		if (this.syntaxError != null)
+			throw this.syntaxError;
 	}
 
 	public void start() {

@@ -91,8 +91,6 @@ public class TemplateRequest extends Request {
 	public void setQueryString(String q) {
 		setQueryStringNotEscaped(getSourceRequest().getQueryString().replace(
 				"$$", q));
-		setHighlightQueryStringNotEscaped(getSourceRequest()
-				.getHighlightQueryString().replace("$$", q));
 	}
 
 	/**
@@ -105,10 +103,14 @@ public class TemplateRequest extends Request {
 	 * @throws XPathExpressionException
 	 * @throws ParseException
 	 * @throws DOMException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
 	public static TemplateRequest fromXmlConfig(Config config, XPathParser xpp,
 			Node node) throws XPathExpressionException, DOMException,
-			ParseException {
+			ParseException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (node == null)
 			return null;
 		String name = XPathParser.getAttributeString(node, "name");

@@ -24,35 +24,45 @@
 
 package com.jaeksoft.searchlib.highlight;
 
-import org.w3c.dom.NamedNodeMap;
+public class Fragment {
 
-public class SentenceFragmenter extends FragmenterAbstract {
+	private String originalText;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4962131354275204301L;
+	private String highlightedText;
 
-	public FragmenterAbstract newInstance() {
-		return new SentenceFragmenter();
+	protected Fragment(String originalText) {
+		this.originalText = originalText;
+		this.highlightedText = null;
 	}
 
-	public void setAttributes(NamedNodeMap attr) {
-		// TODO Auto-generated method stub
+	protected boolean isHighlighted() {
+		return highlightedText != null;
 	}
 
-	public void check(String originalText) {
-		int pos = 0;
-		char[] chars = originalText.toCharArray();
-		for (char ch : chars) {
-			switch (ch) {
-			case '.':
-			case '?':
-			case '!':
-				addSplit(pos + 1);
-				break;
-			}
-			pos++;
-		}
+	protected void setHighlightedText(String highlightedText) {
+		this.highlightedText = highlightedText;
+	}
+
+	protected String getOriginalText() {
+		return originalText;
+	}
+
+	protected String getFinalText() {
+		if (highlightedText != null)
+			return highlightedText;
+		return originalText;
+	}
+
+	protected String getFinalText(int maxLength) {
+		String text = getFinalText();
+		if (maxLength > text.length())
+			return text;
+		int pos = maxLength;
+		while (pos-- > 0)
+			if (Character.isWhitespace(text.indexOf(pos)))
+					break;
+		if (pos == 0)
+			pos = maxLength;
+		return text.substring(0, pos);
 	}
 }

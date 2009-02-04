@@ -32,6 +32,7 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -80,10 +81,10 @@ public abstract class Result implements Serializable {
 	}
 
 	public abstract DocumentResult documents() throws IOException,
-			ParseException;
+			ParseException, SyntaxError;
 
 	public DocumentRequestItem document(int pos) throws CorruptIndexException,
-			IOException, ParseException {
+			IOException, ParseException, SyntaxError {
 		if (request.isDelete())
 			return null;
 		if (documentResult == null)

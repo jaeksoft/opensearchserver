@@ -26,33 +26,40 @@ package com.jaeksoft.searchlib.highlight;
 
 import org.w3c.dom.NamedNodeMap;
 
-public class SentenceFragmenter extends FragmenterAbstract {
+public class SizeFragmenter extends FragmenterAbstract {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4962131354275204301L;
+	private static final long serialVersionUID = 1L;
 
-	public FragmenterAbstract newInstance() {
-		return new SentenceFragmenter();
+	private int maxFragmentSize;
+
+	/**
+	 * 
+	 * @param fragmenter
+	 */
+	private SizeFragmenter(SizeFragmenter fragmenter) {
+		maxFragmentSize = fragmenter.maxFragmentSize;
 	}
 
-	public void setAttributes(NamedNodeMap attr) {
-		// TODO Auto-generated method stub
+	public FragmenterAbstract newInstance() {
+		return new SizeFragmenter(this);
 	}
 
 	public void check(String originalText) {
 		int pos = 0;
-		char[] chars = originalText.toCharArray();
-		for (char ch : chars) {
-			switch (ch) {
-			case '.':
-			case '?':
-			case '!':
-				addSplit(pos + 1);
-				break;
-			}
-			pos++;
+		int len = originalText.length();
+		while ((len - pos) > maxFragmentSize) {
+			pos += maxFragmentSize;
+			addSplit(pos);
 		}
 	}
+
+	@Override
+	protected void setAttributes(NamedNodeMap attr) {
+		maxFragmentSize = Integer.parseInt(attr.getNamedItem("maxFragmentSize")
+				.getNodeValue());
+	}
+
 }

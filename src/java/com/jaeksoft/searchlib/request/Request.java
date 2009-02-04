@@ -59,7 +59,6 @@ public class Request implements XmlInfo {
 	private String name;
 	private FilterList filterList;
 	private QueryParser queryParser;
-	private QueryParser highlightQueryParser;
 	private boolean allowLeadingWildcard;
 	private int phraseSlop;
 	private QueryParser.Operator defaultOperator;
@@ -75,11 +74,9 @@ public class Request implements XmlInfo {
 	private int rows;
 	private String lang;
 	private String queryString;
-	private String highlightQueryString;
 	private String scoreFunction;
 	private Query query;
 	private String queryParsed;
-	private Query highlightQuery;
 	private transient Config config;
 	private boolean forceLocal;
 	private List<Integer> docIds;
@@ -93,7 +90,6 @@ public class Request implements XmlInfo {
 		this.name = null;
 		this.filterList = new FilterList(this.config);
 		this.queryParser = null;
-		this.highlightQueryParser = null;
 		this.allowLeadingWildcard = false;
 		this.phraseSlop = 10;
 		this.defaultOperator = Operator.OR;
@@ -110,7 +106,6 @@ public class Request implements XmlInfo {
 		this.lang = null;
 		this.query = null;
 		this.docIds = null;
-		this.highlightQueryString = null;
 		this.queryString = null;
 		this.scoreFunction = null;
 		this.forceLocal = false;
@@ -118,7 +113,6 @@ public class Request implements XmlInfo {
 		this.withDocuments = false;
 		this.reader = null;
 		this.queryParsed = null;
-		this.highlightQuery = null;
 	}
 
 	protected Request(Request request) {
@@ -127,7 +121,6 @@ public class Request implements XmlInfo {
 		this.name = request.name;
 		this.filterList = new FilterList(request.filterList);
 		this.queryParser = null;
-		this.highlightQueryParser = null;
 		this.allowLeadingWildcard = request.allowLeadingWildcard;
 		this.phraseSlop = request.phraseSlop;
 		this.defaultOperator = request.defaultOperator;
@@ -150,12 +143,10 @@ public class Request implements XmlInfo {
 		this.rows = request.rows;
 		this.lang = request.lang;
 		this.query = request.query;
-		this.highlightQuery = request.highlightQuery;
 		this.docIds = null;
 		if (request.docIds != null)
 			this.docIds = new ArrayList<Integer>(request.docIds);
 		this.queryString = request.queryString;
-		this.highlightQueryString = request.highlightQueryString;
 		this.scoreFunction = request.scoreFunction;
 		this.forceLocal = request.forceLocal;
 		this.reader = request.reader;
@@ -176,7 +167,6 @@ public class Request implements XmlInfo {
 		this.rows = rows;
 		this.lang = lang;
 		this.queryString = queryString;
-		this.highlightQueryString = highlightQueryString;
 		if (scoreFunction != null)
 			if (scoreFunction.trim().length() == 0)
 				scoreFunction = null;
@@ -249,28 +239,8 @@ public class Request implements XmlInfo {
 		}
 	}
 
-	public Query getHighlightQuery() throws ParseException {
-		synchronized (this) {
-			if (highlightQuery != null)
-				return highlightQuery;
-			if (highlightQueryParser == null) {
-				highlightQueryParser = getNewHighlightQueryParser();
-				setQueryParser(this, highlightQueryParser);
-			}
-			synchronized (highlightQueryParser) {
-				highlightQuery = highlightQueryParser
-						.parse(highlightQueryString);
-			}
-			return highlightQuery;
-		}
-	}
-
 	public String getQueryString() {
 		return queryString;
-	}
-
-	public String getHighlightQueryString() {
-		return highlightQueryString;
 	}
 
 	public String getQueryParsed() throws ParseException, SyntaxError {
@@ -280,10 +250,6 @@ public class Request implements XmlInfo {
 
 	protected void setQueryStringNotEscaped(String q) {
 		queryString = q;
-	}
-
-	protected void setHighlightQueryStringNotEscaped(String q) {
-		highlightQueryString = q;
 	}
 
 	public void setQueryString(String q) {

@@ -55,10 +55,14 @@ public class RequestList extends HashMap<String, Request> implements XmlInfo {
 	 * @throws XPathExpressionException
 	 * @throws ParseException
 	 * @throws DOMException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
 	public static RequestList fromXmlConfig(Config config, XPathParser xpp,
 			Node parentNode) throws XPathExpressionException, DOMException,
-			ParseException {
+			ParseException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		RequestList requestList = new RequestList();
 		if (parentNode == null)
 			return requestList;

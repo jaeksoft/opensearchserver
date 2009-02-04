@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
@@ -229,7 +230,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException, ParseException {
+			throws CorruptIndexException, IOException, ParseException,
+			SyntaxError {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();
@@ -338,6 +340,20 @@ public class IndexSingle extends IndexAbstract {
 			if (reader != null)
 				return reader.getDocFreq(term);
 			return 0;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public TermFreqVector getTermFreqVector(int docId, String field)
+			throws IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		r.lock();
+		try {
+			if (reader != null)
+				return reader.getTermFreqVector(docId, field);
+			return null;
 		} finally {
 			r.unlock();
 		}

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.schema.Field;
@@ -49,7 +50,7 @@ public class DocumentRequestItem implements Serializable {
 
 	@SuppressWarnings("unchecked")
 	public DocumentRequestItem(Request request, DocumentCacheItem document)
-			throws IOException, ParseException {
+			throws IOException, ParseException, SyntaxError {
 		returnFields = (FieldList<FieldValue>) request.getReturnFieldList()
 				.clone();
 		for (FieldValue field : returnFields)
@@ -57,7 +58,7 @@ public class DocumentRequestItem implements Serializable {
 		highlightFields = (FieldList<HighlightField>) request
 				.getHighlightFieldList().clone();
 		for (HighlightField field : highlightFields)
-			field.setSnippets(request, document.getValues(field));
+			field.setSnippets(request, document);
 		key = document.getKey();
 	}
 

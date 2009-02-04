@@ -134,7 +134,8 @@ public class ResultSearch extends Result {
 	}
 
 	@Override
-	public DocumentResult documents() throws IOException, ParseException {
+	public DocumentResult documents() throws IOException, ParseException,
+			SyntaxError {
 		if (documentResult != null)
 			return documentResult;
 		if (request.isDelete())

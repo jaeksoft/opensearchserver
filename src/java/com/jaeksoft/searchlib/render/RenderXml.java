@@ -69,7 +69,7 @@ public class RenderXml implements Render {
 	}
 
 	private void renderDocuments() throws CorruptIndexException, IOException,
-			ParseException {
+			ParseException, SyntaxError {
 		Request request = result.getRequest();
 		int end = request.getEnd();
 		int length = result.getDocs().length;
@@ -91,7 +91,7 @@ public class RenderXml implements Render {
 	}
 
 	private void renderDocument(int pos) throws CorruptIndexException,
-			IOException, ParseException {
+			IOException, ParseException, SyntaxError {
 		writer.println("\t<doc score=\"" + result.getDocs()[pos].score
 				+ "\" pos=\"" + pos + "\">");
 		DocumentRequestItem doc = result.document(pos);

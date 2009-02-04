@@ -40,6 +40,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
@@ -182,8 +183,14 @@ public class IndexGroup extends IndexAbstract {
 		return r;
 	}
 
+	public TermFreqVector getTermFreqVector(int docId, String field)
+			throws IOException {
+		throw new RuntimeException("Not yet implemented");
+	}
+
 	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException, ParseException {
+			throws CorruptIndexException, IOException, ParseException,
+			SyntaxError {
 		DocumentsGroup documentsGroup = new DocumentsGroup(request);
 		return documentsGroup.documents();
 	}

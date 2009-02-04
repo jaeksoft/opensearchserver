@@ -34,6 +34,7 @@ import org.apache.lucene.queryParser.ParseException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetGroup;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.sort.SorterInterface;
 
@@ -60,7 +61,8 @@ public class ResultGroup extends Result {
 	}
 
 	@Override
-	public DocumentResult documents() throws IOException, ParseException {
+	public DocumentResult documents() throws IOException, ParseException,
+			SyntaxError {
 		if (documentResult != null)
 			return documentResult;
 		DocumentsGroup docsGroup = new DocumentsGroup(request);

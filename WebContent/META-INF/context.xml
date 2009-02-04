@@ -1,4 +1,4 @@
 <Context>
   <Environment name="JaeksoftSearchServer/configfile" type="java.lang.String"
-        value="/Users/ekeller/jaeksoft_test_index/test_push_crawler/config.xml" override="true" />
+        value="/Users/ekeller/jaeksoft_test_index/indexDocumentList/config.xml" override="true" />
 </Context>

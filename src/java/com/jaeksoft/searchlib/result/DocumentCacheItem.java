@@ -38,15 +38,17 @@ public class DocumentCacheItem {
 
 	private FieldList<FieldValue> documentFields;
 	private String key;
+	private transient int docId;
 
 	@SuppressWarnings("unchecked")
-	public DocumentCacheItem(String key, Request request, Document document)
-			throws IOException {
+	public DocumentCacheItem(String key, int docId, Request request,
+			Document document) throws IOException {
 		documentFields = (FieldList<FieldValue>) request.getDocumentFieldList()
 				.clone();
 		for (FieldValue field : documentFields)
 			field.addValues(document.getValues(field.getName()));
 		this.key = key;
+		this.docId = docId;
 	}
 
 	public String getKey() {
@@ -55,6 +57,10 @@ public class DocumentCacheItem {
 
 	public ArrayList<String> getValues(Field field) {
 		return documentFields.get(field.getName()).getValues();
+	}
+
+	public int getDocId() {
+		return docId;
 	}
 
 }

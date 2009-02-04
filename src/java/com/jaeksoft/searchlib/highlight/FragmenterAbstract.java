@@ -1,0 +1,83 @@
+/**   
+ * License Agreement for Jaeksoft SearchLib Community
+ *
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.jaeksoft.com
+ * 
+ * This file is part of Jaeksoft SearchLib Community.
+ *
+ * Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft SearchLib Community. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+package com.jaeksoft.searchlib.highlight;
+
+import java.util.Iterator;
+import java.util.TreeSet;
+
+import org.w3c.dom.NamedNodeMap;
+
+public abstract class FragmenterAbstract {
+
+	private TreeSet<Integer> splitPos;
+
+	private int originalTextLength;
+
+	protected FragmenterAbstract() {
+		splitPos = new TreeSet<Integer>();
+	}
+
+	protected abstract void setAttributes(NamedNodeMap attr);
+
+	protected void addSplit(int pos) {
+		if (pos >= originalTextLength)
+			return;
+		if (pos == 0)
+			return;
+		splitPos.add(pos);
+	}
+
+	final protected FragmentList getFragments(String originalText) {
+		originalTextLength = originalText.length();
+		splitPos.clear();
+		check(originalText);
+		FragmentList fragmentList = new FragmentList();
+		Iterator<Integer> splitIterator = splitPos.iterator();
+		int pos = 0;
+		while (splitIterator.hasNext()) {
+			int nextSplitPos = splitIterator.next();
+			fragmentList.addOriginalText(originalText.substring(pos,
+					nextSplitPos));
+			pos = nextSplitPos;
+		}
+		if (pos < originalText.length())
+			fragmentList.addOriginalText(originalText.substring(pos));
+		return fragmentList;
+	}
+
+	protected abstract FragmenterAbstract newInstance();
+
+	final static protected FragmenterAbstract newInstance(String className)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		if (className == null || className.length() == 0)
+			className = "NoFragmenter";
+		FragmenterAbstract fragmenter = (FragmenterAbstract) Class.forName(
+				"com.jaeksoft.searchlib.highlight." + className).newInstance();
+		return fragmenter;
+	}
+
+	protected abstract void check(String originalText);
+}

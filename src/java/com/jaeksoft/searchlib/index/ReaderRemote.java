@@ -37,6 +37,7 @@ import java.util.HashSet;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermFreqVector;
 
 import com.jaeksoft.searchlib.remote.Remote;
 import com.jaeksoft.searchlib.remote.UrlReadObject;
@@ -174,6 +175,11 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 
 	public int getDocFreq(Term term) throws IOException {
 		// TODO Auto-generated method stub
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	public TermFreqVector getTermFreqVector(int docId, String field)
+			throws IOException {
 		throw new RuntimeException("Not yet implemented");
 	}
 

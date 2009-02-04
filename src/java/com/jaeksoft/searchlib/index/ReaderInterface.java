@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -43,9 +44,13 @@ public interface ReaderInterface extends XmlInfo {
 	public abstract boolean sameIndex(ReaderInterface reader);
 
 	public abstract DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException, ParseException;
+			throws CorruptIndexException, IOException, ParseException,
+			SyntaxError;
 
 	public int getDocFreq(Term term) throws IOException;
+
+	public TermFreqVector getTermFreqVector(int docId, String field)
+			throws IOException;
 
 	public Result search(Request request) throws IOException, ParseException,
 			SyntaxError;
