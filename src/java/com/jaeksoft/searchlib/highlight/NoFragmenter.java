@@ -39,8 +39,6 @@ public class NoFragmenter extends FragmenterAbstract {
 
 	@Override
 	protected void check(String originalText) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

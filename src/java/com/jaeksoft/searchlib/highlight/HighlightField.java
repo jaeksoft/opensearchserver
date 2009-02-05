@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -52,20 +53,24 @@ public class HighlightField extends FieldValue {
 	private FragmenterAbstract fragmenter;
 	private String tag;
 	private int maxDocChar;
-	private String separator = "...";
-	private int maxFragmentNumber = 5;
+	private String separator;
+	private int maxSnippetSize;
+	private int maxSnippetNumber;
 
 	private HighlightField(Field field, String tag, int maxDocChar,
-			String separator, int maxFragmentNumber,
+			String separator, int maxSnippetNumber, int maxSnippetSize,
 			FragmenterAbstract fragmenter) {
 		super(field.getName());
 		this.tag = tag;
 		this.maxDocChar = maxDocChar;
+		this.separator = separator;
+		this.maxSnippetNumber = maxSnippetNumber;
+		this.maxSnippetSize = maxSnippetSize;
 		this.fragmenter = fragmenter;
 	}
 
 	public HighlightField(Field field) {
-		this(field, "em", 0, "...", 0, null);
+		this(field, "em", Integer.MAX_VALUE, "...", 5, 200, null);
 	}
 
 	public HighlightField(HighlightField field) {
@@ -74,7 +79,8 @@ public class HighlightField extends FieldValue {
 		tag = field.tag;
 		maxDocChar = field.maxDocChar;
 		separator = field.separator;
-		maxFragmentNumber = field.maxFragmentNumber;
+		maxSnippetNumber = field.maxSnippetNumber;
+		maxSnippetSize = field.maxSnippetSize;
 	}
 
 	@Override
@@ -108,10 +114,16 @@ public class HighlightField extends FieldValue {
 		int maxDocChar = XPathParser.getAttributeValue(node, "maxDocBytes");
 		if (maxDocChar == 0)
 			XPathParser.getAttributeValue(node, "maxDocChar");
-		int maxFragmentNumber = XPathParser.getAttributeValue(node,
-				"maxFragmentNumber");
-		if (maxFragmentNumber == 0)
-			maxFragmentNumber = 1;
+		if (maxDocChar == 0)
+			maxDocChar = Integer.MAX_VALUE;
+		int maxSnippetNumber = XPathParser.getAttributeValue(node,
+				"maxSnippetNumber");
+		if (maxSnippetNumber == 0)
+			maxSnippetNumber = 1;
+		int maxSnippetSize = XPathParser.getAttributeValue(node,
+				"maxSnippetSize");
+		if (maxSnippetSize == 0)
+			maxSnippetSize = 200;
 		FragmenterAbstract fragmenter = FragmenterAbstract
 				.newInstance(XPathParser.getAttributeString(node,
 						"fragmenterClass"));
@@ -120,7 +132,8 @@ public class HighlightField extends FieldValue {
 		if (separator == null)
 			separator = "...";
 		HighlightField field = new HighlightField(source.get(fieldName), tag,
-				maxDocChar, separator, maxFragmentNumber, fragmenter);
+				maxDocChar, separator, maxSnippetNumber, maxSnippetSize,
+				fragmenter);
 
 		target.add(field);
 	}
@@ -163,7 +176,7 @@ public class HighlightField extends FieldValue {
 		return map.values().iterator();
 	}
 
-	private void checkValue(TermVectorOffsetInfo currentVector,
+	private TermVectorOffsetInfo checkValue(TermVectorOffsetInfo currentVector,
 			Iterator<TermVectorOffsetInfo> vectorIterator, int startOffset,
 			Fragment fragment) {
 		StringBuffer result = new StringBuffer();
@@ -192,13 +205,13 @@ public class HighlightField extends FieldValue {
 					: null;
 		}
 		if (result.length() == 0)
-			return;
+			return currentVector;
 		if (pos < originalTextLength)
 			result.append(originalText.substring(pos, originalTextLength));
 		fragment.setHighlightedText(result.toString());
+		return currentVector;
 	}
 
-	// TODO make FragmentList global against multivalued field
 	public void setSnippets(Request request, DocumentCacheItem doc)
 			throws IOException, ParseException, SyntaxError {
 
@@ -213,17 +226,43 @@ public class HighlightField extends FieldValue {
 			return;
 		ArrayList<String> values = doc.getValues(this);
 		int startOffset = 0;
+		FragmentList fragments = new FragmentList();
 		for (String value : values) {
-			if (value == null)
-				continue;
-			FragmentList fragments = fragmenter.getFragments(value);
-			Iterator<Fragment> fragmentIterator = fragments.iterator();
-			while (fragmentIterator.hasNext()) {
-				Fragment fragment = fragmentIterator.next();
-				checkValue(currentVector, vectorIterator, startOffset, fragment);
-				startOffset += fragment.getOriginalText().length();
+			if (value != null) {
+				fragmenter.getFragments(value, fragments);
+				if (fragments.getTotalSize() > maxDocChar)
+					break;
 			}
-			addValue(fragments.getSnippet(300, separator));
 		}
+		if (fragments.size() == 0)
+			return;
+		ListIterator<Fragment> fragmentIterator = fragments.iterator();
+		while (fragmentIterator.hasNext()) {
+			Fragment fragment = fragmentIterator.next();
+			currentVector = checkValue(currentVector, vectorIterator,
+					startOffset, fragment);
+			startOffset += fragment.getOriginalText().length();
+		}
+		fragmentIterator = fragments.iterator();
+		int snippetCounter = maxSnippetNumber;
+		while (snippetCounter-- != 0) {
+			Fragment fragment = fragments
+					.findNextHighlightedFragment(fragmentIterator);
+			if (fragment == null)
+				break;
+			StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
+					separator, fragmentIterator, fragment);
+			if (snippet != null)
+				if (snippet.length() > 0)
+					addValue(snippet.toString());
+		}
+		if (getValuesCount() > 0)
+			return;
+		fragmentIterator = fragments.iterator();
+		StringBuffer snippet = fragments.getSnippet(maxSnippetSize, separator,
+				fragmentIterator, fragmentIterator.next());
+		if (snippet != null)
+			if (snippet.length() > 0)
+				addValue(snippet.toString());
 	}
 }

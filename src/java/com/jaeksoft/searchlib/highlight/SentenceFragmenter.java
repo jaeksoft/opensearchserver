@@ -38,7 +38,6 @@ public class SentenceFragmenter extends FragmenterAbstract {
 	}
 
 	public void setAttributes(NamedNodeMap attr) {
-		// TODO Auto-generated method stub
 	}
 
 	public void check(String originalText) {

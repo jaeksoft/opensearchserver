@@ -70,6 +70,12 @@ public class FieldValue extends Field {
 			addValue(value);
 	}
 
+	public int getValuesCount() {
+		if (values == null)
+			return 0;
+		return values.size();
+	}
+
 	public ArrayList<String> getValues() {
 		return values;
 	}

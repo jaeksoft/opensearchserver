@@ -30,13 +30,25 @@ public class Fragment {
 
 	private String highlightedText;
 
+	private boolean inSnippet;
+
 	protected Fragment(String originalText) {
 		this.originalText = originalText;
 		this.highlightedText = null;
+		this.inSnippet = false;
 	}
 
 	protected boolean isHighlighted() {
 		return highlightedText != null;
+	}
+
+	/**
+	 * True if getFinalText or getOriginalText has been called
+	 * 
+	 * @return
+	 */
+	protected boolean isInSnippet() {
+		return inSnippet;
 	}
 
 	protected void setHighlightedText(String highlightedText) {
@@ -48,6 +60,7 @@ public class Fragment {
 	}
 
 	protected String getFinalText() {
+		inSnippet = true;
 		if (highlightedText != null)
 			return highlightedText;
 		return originalText;
@@ -60,7 +73,7 @@ public class Fragment {
 		int pos = maxLength;
 		while (pos-- > 0)
 			if (Character.isWhitespace(text.indexOf(pos)))
-					break;
+				break;
 		if (pos == 0)
 			pos = maxLength;
 		return text.substring(0, pos);

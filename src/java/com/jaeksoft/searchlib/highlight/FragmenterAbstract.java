@@ -49,22 +49,21 @@ public abstract class FragmenterAbstract {
 		splitPos.add(pos);
 	}
 
-	final protected FragmentList getFragments(String originalText) {
+	final protected void getFragments(String originalText,
+			FragmentList fragments) {
 		originalTextLength = originalText.length();
 		splitPos.clear();
 		check(originalText);
-		FragmentList fragmentList = new FragmentList();
 		Iterator<Integer> splitIterator = splitPos.iterator();
 		int pos = 0;
 		while (splitIterator.hasNext()) {
 			int nextSplitPos = splitIterator.next();
-			fragmentList.addOriginalText(originalText.substring(pos,
-					nextSplitPos));
+			fragments
+					.addOriginalText(originalText.substring(pos, nextSplitPos));
 			pos = nextSplitPos;
 		}
 		if (pos < originalText.length())
-			fragmentList.addOriginalText(originalText.substring(pos));
-		return fragmentList;
+			fragments.addOriginalText(originalText.substring(pos));
 	}
 
 	protected abstract FragmenterAbstract newInstance();

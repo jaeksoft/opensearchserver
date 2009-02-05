@@ -32,35 +32,62 @@ public class FragmentList {
 
 	private List<Fragment> fragments;
 
+	private int totalSize;
+
 	protected FragmentList() {
 		fragments = new ArrayList<Fragment>();
+		totalSize = 0;
 	}
 
 	protected void addOriginalText(String originalText) {
+		totalSize += originalText.length();
 		fragments.add(new Fragment(originalText));
+	}
+
+	protected int getTotalSize() {
+		return totalSize;
 	}
 
 	protected ListIterator<Fragment> iterator() {
 		return fragments.listIterator();
 	}
 
-	private Fragment findFirstHighlight(ListIterator<Fragment> iterator) {
+	/**
+	 * Find the next highlighted fragment
+	 * 
+	 * @param iterator
+	 * @return
+	 */
+	final protected Fragment findNextHighlightedFragment(
+			ListIterator<Fragment> iterator) {
 		while (iterator.hasNext()) {
 			Fragment fragment = iterator.next();
-			if (fragment.isHighlighted())
+			if (fragment.isHighlighted() && !fragment.isInSnippet())
 				return fragment;
 		}
 		return null;
 	}
 
-	final private static String firstLeft(String text, int max) {
-		if (max > text.length())
+	final private static String lastRight(String text, int max) {
+		int len = text.length();
+		if (max >= len)
 			return text;
-		int pos = max;
-		while (pos-- > 0) {
+		int pos = len - max;
+		while (++pos < len)
 			if (Character.isWhitespace(text.charAt(pos)))
 				break;
-		}
+		if (pos == len)
+			pos = len - max;
+		return text.substring(pos);
+	}
+
+	final private static String firstLeft(String text, int max) {
+		if (max >= text.length())
+			return text;
+		int pos = max;
+		while (pos-- > 0)
+			if (Character.isWhitespace(text.charAt(pos)))
+				break;
 		if (pos == 0)
 			pos = max;
 		return text.substring(0, pos);
@@ -80,31 +107,50 @@ public class FragmentList {
 
 	final private static boolean rightAppend(Fragment fragment, int maxLength,
 			StringBuffer snippet, String separator) {
+		int maxLeft = maxLength - snippet.length();
+		String text = fragment.getFinalText();
+		String appendText = lastRight(text, maxLeft);
+		snippet.insert(0, appendText);
+		if (appendText.length() == text.length())
+			return true;
+		snippet.insert(0, separator);
 		return false;
 	}
 
-	final protected String getSnippet(int maxLength, String separator) {
-		ListIterator<Fragment> iterator = iterator();
-		// Find first highlighted fragment
-		Fragment fragment = findFirstHighlight(iterator);
-		if (fragment == null) {
-			// Or taking fist fragment
-			iterator = iterator();
-			fragment = iterator.next();
-			if (fragment == null)
-				return null;
-		}
+	/**
+	 * Build a snippet starting from originalFragment (highlighted or not)
+	 * 
+	 * @param maxLength
+	 * @param separator
+	 * @param iterator
+	 * @param originalFragment
+	 * @return
+	 */
+	final protected StringBuffer getSnippet(int maxLength, String separator,
+			ListIterator<Fragment> iterator, Fragment originalFragment) {
 		StringBuffer snippet = new StringBuffer();
-		if (!leftAppend(fragment, maxLength, snippet, separator))
-			return snippet.toString();
+		if (!leftAppend(originalFragment, maxLength, snippet, separator))
+			return snippet;
 		// First add next fragment (highlighted or not)
-		while (iterator.hasNext())
+		int distFromOriginalFragment = 1;
+		while (iterator.hasNext()) {
 			if (!leftAppend(iterator.next(), maxLength, snippet, separator))
-				return snippet.toString();
+				return snippet;
+			distFromOriginalFragment++;
+		}
+		// Move back iterator to originalFragment
+		while (distFromOriginalFragment-- > 0)
+			iterator.previous();
 		// Then previous fragment (highlighted or not)
 		while (iterator.hasPrevious())
 			if (!rightAppend(iterator.previous(), maxLength, snippet, separator))
-				return snippet.toString();
-		return snippet.toString();
+				return snippet;
+		return snippet;
+
 	}
+
+	public int size() {
+		return fragments.size();
+	}
+
 }
