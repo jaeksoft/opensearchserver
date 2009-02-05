@@ -39,9 +39,12 @@ public class FragmentList {
 		totalSize = 0;
 	}
 
-	protected void addOriginalText(String originalText) {
+	protected Fragment addOriginalText(String originalText, int vectorOffset,
+			boolean newValue) {
 		totalSize += originalText.length();
-		fragments.add(new Fragment(originalText));
+		Fragment fragment = new Fragment(originalText, vectorOffset, newValue);
+		fragments.add(fragment);
+		return fragment;
 	}
 
 	protected int getTotalSize() {
@@ -73,9 +76,11 @@ public class FragmentList {
 		if (max >= len)
 			return text;
 		int pos = len - max;
-		while (++pos < len)
+		while (pos < len)
 			if (Character.isWhitespace(text.charAt(pos)))
 				break;
+			else
+				pos++;
 		if (pos == len)
 			pos = len - max;
 		return text.substring(pos);
@@ -85,9 +90,11 @@ public class FragmentList {
 		if (max >= text.length())
 			return text;
 		int pos = max;
-		while (pos-- > 0)
+		while (pos > 0)
 			if (Character.isWhitespace(text.charAt(pos)))
 				break;
+			else
+				pos--;
 		if (pos == 0)
 			pos = max;
 		return text.substring(0, pos);
@@ -96,8 +103,13 @@ public class FragmentList {
 	final private static boolean leftAppend(Fragment fragment, int maxLength,
 			StringBuffer snippet, String separator) {
 		int maxLeft = maxLength - snippet.length();
+		if (maxLeft < 0)
+			return false;
 		String text = fragment.getFinalText();
 		String appendText = firstLeft(text, maxLeft);
+		if (snippet.length() > 0)
+			if (fragment.isEdge())
+				snippet.append(separator);
 		snippet.append(appendText);
 		if (appendText.length() == text.length())
 			return true;
@@ -108,8 +120,13 @@ public class FragmentList {
 	final private static boolean rightAppend(Fragment fragment, int maxLength,
 			StringBuffer snippet, String separator) {
 		int maxLeft = maxLength - snippet.length();
+		if (maxLeft < 0)
+			return false;
 		String text = fragment.getFinalText();
 		String appendText = lastRight(text, maxLeft);
+		if (snippet.length() > 0)
+			if (fragment.isEdge())
+				snippet.insert(0, separator);
 		snippet.insert(0, appendText);
 		if (appendText.length() == text.length())
 			return true;

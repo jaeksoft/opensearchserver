@@ -208,12 +208,7 @@ public class IndexGroup extends IndexAbstract {
 
 	public Result search(Request request) throws IOException, ParseException,
 			SyntaxError {
-		if (indices.size() == 1)
-			request.setReader(indices.values().iterator().next());
-		if (request.getReader() != null)
-			return request.getReader().search(request);
-		SearchGroup searchGroup = new SearchGroup(this);
-		return searchGroup.search(request);
+		return new SearchGroup(this).search(request);
 	}
 
 	public boolean sameIndex(ReaderInterface reader) {

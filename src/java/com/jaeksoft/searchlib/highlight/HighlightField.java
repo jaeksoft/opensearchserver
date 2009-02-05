@@ -40,6 +40,7 @@ import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentCacheItem;
 import com.jaeksoft.searchlib.schema.Field;
@@ -156,10 +157,10 @@ public class HighlightField extends FieldValue {
 	}
 
 	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(
-			Request request, int docId) throws IOException, ParseException,
-			SyntaxError {
-		TermPositionVector termVector = (TermPositionVector) request
-				.getReader().getTermFreqVector(docId, name);
+			Request request, int docId, ReaderLocal reader) throws IOException,
+			ParseException, SyntaxError {
+		TermPositionVector termVector = (TermPositionVector) reader
+				.getTermFreqVector(docId, name);
 		if (termVector == null)
 			return null;
 		String[] searchTerms = extractSearchTerms(request);
@@ -179,16 +180,18 @@ public class HighlightField extends FieldValue {
 	private TermVectorOffsetInfo checkValue(TermVectorOffsetInfo currentVector,
 			Iterator<TermVectorOffsetInfo> vectorIterator, int startOffset,
 			Fragment fragment) {
+		if (currentVector == null)
+			return null;
 		StringBuffer result = new StringBuffer();
 		String originalText = fragment.getOriginalText();
 		int originalTextLength = originalText.length();
 		int endOffset = startOffset + originalTextLength;
 		int pos = 0;
 		while (currentVector != null) {
-			int end = currentVector.getEndOffset();
+			int end = currentVector.getEndOffset() - fragment.vectorOffset;
 			if (end > endOffset)
 				break;
-			int start = currentVector.getStartOffset();
+			int start = currentVector.getStartOffset() - fragment.vectorOffset;
 			if (start >= startOffset) {
 				result.append(originalText.substring(pos, start - startOffset));
 				result.append("<");
@@ -215,21 +218,21 @@ public class HighlightField extends FieldValue {
 	public void setSnippets(Request request, DocumentCacheItem doc)
 			throws IOException, ParseException, SyntaxError {
 
+		TermVectorOffsetInfo currentVector = null;
 		Iterator<TermVectorOffsetInfo> vectorIterator = extractTermVectorIterator(
-				request, doc.getDocId());
-		if (vectorIterator == null)
-			return;
-		TermVectorOffsetInfo currentVector = vectorIterator.hasNext() ? vectorIterator
-				.next()
-				: null;
-		if (currentVector == null)
-			return;
+				request, doc.getDocId(), doc.getReader());
+		if (vectorIterator != null)
+			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
+					: null;
 		ArrayList<String> values = doc.getValues(this);
 		int startOffset = 0;
 		FragmentList fragments = new FragmentList();
+		int vectorOffset = 0;
 		for (String value : values) {
 			if (value != null) {
-				fragmenter.getFragments(value, fragments);
+				// VectorOffset++ depends of EndOffset bug #patch Lucene 579 and
+				// 1458
+				fragmenter.getFragments(value, fragments, vectorOffset);
 				if (fragments.getTotalSize() > maxDocChar)
 					break;
 			}

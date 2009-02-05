@@ -51,10 +51,8 @@ public class DocumentServlet extends AbstractServlet {
 
 			String p;
 
-			if ((p = request.getParameter("search")) != null) {
+			if ((p = request.getParameter("search")) != null)
 				reader = client.getIndex().get(p);
-				req.setReader(reader);
-			}
 
 			if ((p = request.getParameter("q")) != null)
 				req.setQueryString(p);

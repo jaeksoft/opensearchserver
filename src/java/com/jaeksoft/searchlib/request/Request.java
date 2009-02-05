@@ -213,14 +213,6 @@ public class Request implements XmlInfo {
 		return this.name;
 	}
 
-	public ReaderInterface getReader() {
-		return reader;
-	}
-
-	public void setReader(ReaderInterface reader) {
-		this.reader = reader;
-	}
-
 	public Query getQuery() throws ParseException, SyntaxError {
 		synchronized (this) {
 			if (query != null)

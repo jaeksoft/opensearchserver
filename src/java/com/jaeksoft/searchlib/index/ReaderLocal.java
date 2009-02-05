@@ -259,7 +259,6 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	public ResultSearch search(Request request) throws IOException,
 			ParseException, SyntaxError {
 		ResultSearch result = new ResultSearch(this, request);
-		request.setReader(this);
 		if (request.isWithDocument())
 			result.documents();
 		return result;
@@ -490,7 +489,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			}
 
 			Document document = document(docId, request.getDocumentFieldList());
-			doc = new DocumentCacheItem(key, docId, request, document);
+			doc = new DocumentCacheItem(key, docId, this, request, document);
 			if (key != null)
 				documentCache.put(key, doc);
 			return new DocumentRequestItem(request, doc);

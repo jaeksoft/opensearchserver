@@ -38,11 +38,11 @@ public class ResultScoreDoc {
 	 */
 	private static final long serialVersionUID = 5961891131296766298L;
 
-	public ResultSearch resultSearch;
+	public transient ResultSearch resultSearch;
+
+	public transient int doc;
 
 	public float score;
-
-	public int doc;
 
 	public String collapseTerm;
 

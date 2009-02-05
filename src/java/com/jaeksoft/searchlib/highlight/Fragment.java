@@ -32,10 +32,16 @@ public class Fragment {
 
 	private boolean inSnippet;
 
-	protected Fragment(String originalText) {
+	protected int vectorOffset;
+
+	private boolean isEdge;
+
+	protected Fragment(String originalText, int vectorOffset, boolean isEdge) {
 		this.originalText = originalText;
 		this.highlightedText = null;
 		this.inSnippet = false;
+		this.vectorOffset = vectorOffset;
+		this.isEdge = isEdge;
 	}
 
 	protected boolean isHighlighted() {
@@ -49,6 +55,20 @@ public class Fragment {
 	 */
 	protected boolean isInSnippet() {
 		return inSnippet;
+	}
+
+	/**
+	 * True if this fragment is the first fragment of a new value (multivalue
+	 * suport)
+	 * 
+	 * @return
+	 */
+	protected boolean isEdge() {
+		return isEdge;
+	}
+
+	public void setEdge(boolean isEdge) {
+		this.isEdge = isEdge;
 	}
 
 	protected void setHighlightedText(String highlightedText) {
@@ -78,4 +98,5 @@ public class Fragment {
 			pos = maxLength;
 		return text.substring(0, pos);
 	}
+
 }

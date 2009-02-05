@@ -48,7 +48,6 @@ public class DocumentsThread implements Runnable {
 		this.running = false;
 		this.reader = reader;
 		this.request = request.clone();
-		this.request.setReader(reader);
 		this.ioException = null;
 		this.parseException = null;
 		this.syntaxError = null;

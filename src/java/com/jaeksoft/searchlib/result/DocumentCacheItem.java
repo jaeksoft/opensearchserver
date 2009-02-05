@@ -29,6 +29,7 @@ import java.util.ArrayList;
 
 import org.apache.lucene.document.Document;
 
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -38,16 +39,18 @@ public class DocumentCacheItem {
 
 	private FieldList<FieldValue> documentFields;
 	private String key;
+	private transient ReaderLocal reader;
 	private transient int docId;
 
 	@SuppressWarnings("unchecked")
-	public DocumentCacheItem(String key, int docId, Request request,
-			Document document) throws IOException {
+	public DocumentCacheItem(String key, int docId, ReaderLocal reader,
+			Request request, Document document) throws IOException {
 		documentFields = (FieldList<FieldValue>) request.getDocumentFieldList()
 				.clone();
 		for (FieldValue field : documentFields)
 			field.addValues(document.getValues(field.getName()));
 		this.key = key;
+		this.reader = reader;
 		this.docId = docId;
 	}
 
@@ -61,6 +64,10 @@ public class DocumentCacheItem {
 
 	public int getDocId() {
 		return docId;
+	}
+
+	public ReaderLocal getReader() {
+		return reader;
 	}
 
 }

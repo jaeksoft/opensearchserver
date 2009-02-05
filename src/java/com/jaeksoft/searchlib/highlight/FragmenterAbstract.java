@@ -50,20 +50,23 @@ public abstract class FragmenterAbstract {
 	}
 
 	final protected void getFragments(String originalText,
-			FragmentList fragments) {
+			FragmentList fragments, int vectorOffset) {
 		originalTextLength = originalText.length();
 		splitPos.clear();
 		check(originalText);
 		Iterator<Integer> splitIterator = splitPos.iterator();
 		int pos = 0;
+		Fragment lastFragment = null;
 		while (splitIterator.hasNext()) {
 			int nextSplitPos = splitIterator.next();
-			fragments
-					.addOriginalText(originalText.substring(pos, nextSplitPos));
+			lastFragment = fragments.addOriginalText(originalText.substring(
+					pos, nextSplitPos), vectorOffset, lastFragment == null);
 			pos = nextSplitPos;
 		}
 		if (pos < originalText.length())
-			fragments.addOriginalText(originalText.substring(pos));
+			lastFragment = fragments.addOriginalText(originalText
+					.substring(pos), vectorOffset, lastFragment == null);
+		lastFragment.setEdge(true);
 	}
 
 	protected abstract FragmenterAbstract newInstance();
