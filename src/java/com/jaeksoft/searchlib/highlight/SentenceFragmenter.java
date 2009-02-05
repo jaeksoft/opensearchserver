@@ -28,11 +28,6 @@ import org.w3c.dom.NamedNodeMap;
 
 public class SentenceFragmenter extends FragmenterAbstract {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4962131354275204301L;
-
 	public FragmenterAbstract newInstance() {
 		return new SentenceFragmenter();
 	}

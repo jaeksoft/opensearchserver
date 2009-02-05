@@ -28,12 +28,11 @@ import org.w3c.dom.NamedNodeMap;
 
 public class SizeFragmenter extends FragmenterAbstract {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	private int maxFragmentSize;
+
+	public SizeFragmenter() {
+		maxFragmentSize = 200;
+	}
 
 	/**
 	 * 
