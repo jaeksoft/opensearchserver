@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 
-public class DocumentRequestItem implements Serializable {
+public class ResultDocument implements Serializable {
 
 	/**
 	 * 
@@ -49,7 +49,7 @@ public class DocumentRequestItem implements Serializable {
 	private String key;
 
 	@SuppressWarnings("unchecked")
-	public DocumentRequestItem(Request request, DocumentCacheItem document)
+	public ResultDocument(Request request, DocumentCacheItem document)
 			throws IOException, ParseException, SyntaxError {
 		returnFields = (FieldList<FieldValue>) request.getReturnFieldList()
 				.clone();

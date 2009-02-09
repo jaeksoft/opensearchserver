@@ -25,14 +25,14 @@
 package com.jaeksoft.searchlib.remote;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 
-public class UrlReadObject extends UrlRead {
+public class UriReadObject extends UriRead {
 
 	private StreamReadObject sro;
 
-	public UrlReadObject(URL url) throws IOException {
-		super(url.toExternalForm());
+	public UriReadObject(URI uri) throws IOException {
+		super(uri);
 		sro = new StreamReadObject(getMethod.getResponseBodyAsStream());
 	}
 

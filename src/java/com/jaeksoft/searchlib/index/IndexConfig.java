@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -40,19 +43,20 @@ public class IndexConfig {
 
 	private int documentCache;
 
-	private String remoteUrl;
+	private URI remoteUri;
 
 	private String keyField;
 
 	private String keyMd5RegExp;
 
-	public IndexConfig(XPathParser xpp, Node node) {
+	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
 		name = XPathParser.getAttributeString(node, "name");
 		path = XPathParser.getAttributeString(node, "path");
 		searchCache = XPathParser.getAttributeValue(node, "searchCache");
 		filterCache = XPathParser.getAttributeValue(node, "filterCache");
 		documentCache = XPathParser.getAttributeValue(node, "documentCache");
-		remoteUrl = XPathParser.getAttributeString(node, "remoteUrl");
+		String s = XPathParser.getAttributeString(node, "remoteUrl");
+		remoteUri = s == null ? null : new URI(s);
 		keyField = XPathParser.getAttributeString(node, "keyField");
 		keyMd5RegExp = XPathParser.getAttributeString(node, "keyMd5RegExp");
 	}
@@ -133,18 +137,18 @@ public class IndexConfig {
 	}
 
 	/**
-	 * @return the remoteUrl
+	 * @return the remoteUri
 	 */
-	public String getRemoteUrl() {
-		return remoteUrl;
+	public URI getRemoteUri() {
+		return remoteUri;
 	}
 
 	/**
-	 * @param remoteUrl
-	 *            the remoteUrl to set
+	 * @param remoteUri
+	 *            the remoteUri to set
 	 */
-	public void setRemoteUrl(String remoteUrl) {
-		this.remoteUrl = remoteUrl;
+	public void setRemoteUri(URI remoteUri) {
+		this.remoteUri = remoteUri;
 	}
 
 	/**

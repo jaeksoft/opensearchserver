@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
+import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class IndexServlet extends AbstractServlet {
@@ -52,17 +55,17 @@ public class IndexServlet extends AbstractServlet {
 	private static final long serialVersionUID = 3855116559376800406L;
 
 	private void updateDoc(Client client, IndexDocument doc)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		client.getIndex().updateDocument(client.getSchema(), doc);
 	}
 
 	private void updateDoc(Client client, List<? extends IndexDocument> docList)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		client.getIndex().updateDocuments(null, client.getSchema(), docList);
 	}
 
 	private void updateDoc(Client client, String indexName, IndexDocument doc)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
 			updateDoc(client, doc);
 		else
@@ -72,7 +75,7 @@ public class IndexServlet extends AbstractServlet {
 
 	private void updateDoc(Client client, String indexName,
 			List<? extends IndexDocument> docList)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
 			updateDoc(client, docList);
 		client.getIndex().updateDocuments(indexName, client.getSchema(),
@@ -98,7 +101,6 @@ public class IndexServlet extends AbstractServlet {
 			if (readObject != null)
 				readObject.close();
 		}
-
 	}
 
 	private void doXmlRequest(HttpServletRequest request, String indexName)
@@ -126,6 +128,8 @@ public class IndexServlet extends AbstractServlet {
 			throw new ServletException(e);
 		} catch (NoSuchAlgorithmException e) {
 			throw new ServletException(e);
+		} catch (URISyntaxException e) {
+			throw new ServletException(e);
 		}
 
 	}
@@ -147,5 +151,37 @@ public class IndexServlet extends AbstractServlet {
 			throw new ServletException(e);
 		}
 		writer.println("OK");
+	}
+
+	private static void updateObject(URI uri, String indexName, Object docs)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		IOException err = null;
+		UriWriteObject writeObject = null;
+		uri = buildUri(uri, "/index", "index=" + indexName);
+		try {
+			writeObject = new UriWriteObject(uri, docs);
+			if (writeObject.getResponseCode() != 200)
+				throw new IOException(writeObject.getResponseCode() + " "
+						+ writeObject.getResponseMessage() + ")");
+		} catch (IOException e) {
+			e.printStackTrace();
+			err = e;
+		} finally {
+			if (writeObject != null)
+				writeObject.close();
+			if (err != null)
+				throw err;
+		}
+	}
+
+	public static void update(URI uri, String indexName, IndexDocument document)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		updateObject(uri, indexName, document);
+	}
+
+	public static void update(URI uri, String indexName,
+			List<? extends IndexDocument> documents)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		updateObject(uri, indexName, documents);
 	}
 }

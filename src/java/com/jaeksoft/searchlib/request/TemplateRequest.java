@@ -47,7 +47,11 @@ import com.jaeksoft.searchlib.util.XPathParser;
 public class TemplateRequest extends Request {
 
 	/**
-	 * Constructeur de base.
+	 * 
+	 */
+	private static final long serialVersionUID = 3450160208520194003L;
+
+	/**
 	 * 
 	 * @param config
 	 * @param name
@@ -56,8 +60,13 @@ public class TemplateRequest extends Request {
 	 * @param defaultOperator
 	 * @param start
 	 * @param rows
+	 * @param lang
 	 * @param queryString
+	 * @param highlightQueryString
+	 * @param scoreFunction
 	 * @param forceLocal
+	 * @param delete
+	 * @param withDocuments
 	 */
 	public TemplateRequest(Config config, String name,
 			boolean allowLeadingWildcard, int phraseSlop,
@@ -124,7 +133,7 @@ public class TemplateRequest extends Request {
 						.getAttributeString(node, "lang"), xpp.getNodeString(
 						node, "query"), xpp.getNodeString(node,
 						"highlighting/query"), xpp.getNodeString(node,
-						"scoreFunction"), false, false, false);
+						"scoreFunction"), false, false, true);
 
 		FieldList<FieldValue> returnFields = templateRequest
 				.getReturnFieldList();

@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.filter;
 
+import java.io.Serializable;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
@@ -31,26 +33,34 @@ import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.schema.Field;
 
-public class Filter {
+public class Filter implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3935917370775417249L;
 
 	private String queryString;
-	private Query query;
+	private transient Query query;
 	private Source source;
 
 	public enum Source {
 		CONFIGXML, REQUEST
 	}
 
-	public Filter(Field defaultField, Analyzer analyzer, String req, Source src)
-			throws ParseException {
+	public Filter(String req, Source src) {
 		this.source = src;
 		this.queryString = req;
-		this.query = new QueryParser(defaultField.getName(), analyzer)
-				.parse(req);
+		this.query = null;
 	}
 
-	public Query getQuery() {
-		return this.query;
+	public Query getQuery(Field defaultField, Analyzer analyzer)
+			throws ParseException {
+		if (query != null)
+			return query;
+		query = new QueryParser(defaultField.getName(), analyzer)
+				.parse(queryString);
+		return query;
 	}
 
 	public String getQueryString() {

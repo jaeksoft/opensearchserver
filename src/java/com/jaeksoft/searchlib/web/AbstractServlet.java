@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +34,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.httpclient.HttpException;
+
+import com.jaeksoft.searchlib.remote.UriRead;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
@@ -94,4 +99,31 @@ public abstract class AbstractServlet extends HttpServlet {
 		doRequest(request, Method.PUT, response);
 	}
 
+	protected static URI buildUri(URI uri, String additionalPath,
+			String queryString) throws URISyntaxException {
+		return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri
+				.getPort(), uri.getPath() + additionalPath, queryString, uri
+				.getFragment());
+
+	}
+
+	protected static void call(URI uri, String additionalPath,
+			String queryString) throws HttpException, IOException,
+			URISyntaxException {
+		uri = buildUri(uri, additionalPath, queryString);
+		UriRead uriRead = null;
+
+		try {
+			uriRead = new UriRead(uri);
+			if (uriRead.getResponseCode() != 200)
+				throw new IOException(uri + " returns "
+						+ uriRead.getResponseMessage() + "("
+						+ uriRead.getResponseCode() + ")");
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (uriRead != null)
+				uriRead.close();
+		}
+	}
 }

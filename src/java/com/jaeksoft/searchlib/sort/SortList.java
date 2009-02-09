@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.sort;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.FieldCache.StringIndex;
@@ -32,7 +33,12 @@ import org.apache.lucene.search.FieldCache.StringIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.FieldList;
 
-public class SortList {
+public class SortList implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8133333810675605075L;
 
 	private FieldList<SortField> sortFieldList;
 

@@ -30,21 +30,19 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
-import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetSearch;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
 
-public class ResultSearch extends Result {
+public class ResultSingle extends Result {
 
 	private static final long serialVersionUID = -8289431499983379291L;
 
 	transient private ReaderLocal reader;
 	transient private StringIndex[] sortStringIndexArray;
-	transient private DocSetHits docs;
+	transient private DocSetHits docSetHits;
 
 	/**
 	 * The constructor executes the request using the searcher provided and
@@ -56,29 +54,31 @@ public class ResultSearch extends Result {
 	 * @throws ParseException
 	 * @throws SyntaxError
 	 */
-	public ResultSearch(ReaderLocal reader, Request request)
+	public ResultSingle(ReaderLocal reader, Request request)
 			throws IOException, ParseException, SyntaxError {
 		super(request);
 		this.reader = reader;
-		docs = reader.searchDocSet(request);
-		numFound = docs.getDocNumFound();
-		maxScore = docs.getMaxScore();
+		docSetHits = reader.searchDocSet(request);
+		numFound = docSetHits.getDocNumFound();
+		maxScore = docSetHits.getMaxScore();
 		for (FacetField facetField : request.getFacetFieldList())
 			this.facetList.add(facetField.getFacetInstance(this));
 		sortStringIndexArray = request.getSortList()
 				.newStringIndexArray(reader);
 
 		// Are we doing collapsing ?
-		if (collapse.isActive()) {
+		if (collapse.isActive())
 			fetchUntilCollapse();
-		} else
+		else
 			loadDocs(request.getEnd());
+		if (request.isWithDocument())
+			loadDocuments();
 	}
 
 	public void loadDocs(int end) throws IOException {
-		if (end <= getDocs().length)
+		if (end <= getDocLength())
 			return;
-		setDocs(ResultScoreDoc.newResultScoreDocArray(this, docs
+		setDocs(ResultScoreDoc.newResultScoreDocArray(this, docSetHits
 				.getScoreDocs(end), collapse.getCollapseField()));
 	}
 
@@ -92,24 +92,11 @@ public class ResultSearch extends Result {
 	}
 
 	/**
-	 * To set the searcher. Useful when the result has been serialized.
-	 * 
-	 * @param searcher
-	 * @throws IOException
-	 */
-	public void setReader(ReaderLocal reader) throws IOException {
-		this.reader = reader;
-		if (this.request.getFacetFieldList().size() > 0)
-			for (Facet facet : this.getFacetList())
-				((FacetSearch) facet).setReader(reader);
-	}
-
-	/**
 	 * 
 	 * @return DocSetHits.
 	 */
 	public DocSetHits getDocSetHits() {
-		return this.docs;
+		return this.docSetHits;
 	}
 
 	/**
@@ -122,7 +109,7 @@ public class ResultSearch extends Result {
 		int lastRows = 0;
 		int rows = end;
 		while (collapse.getCollapsedDocsLength() < end) {
-			ScoreDoc[] scoreDocs = docs.getScoreDocs(rows);
+			ScoreDoc[] scoreDocs = docSetHits.getScoreDocs(rows);
 			if (scoreDocs.length == lastRows)
 				break;
 			collapse.run(ResultScoreDoc.newResultScoreDocArray(this, scoreDocs,
@@ -133,39 +120,26 @@ public class ResultSearch extends Result {
 		setDocs(collapse.getCollapsedDoc());
 	}
 
-	@Override
-	public DocumentResult documents() throws IOException, ParseException,
+	private void loadDocuments() throws IOException, ParseException,
 			SyntaxError {
-		if (documentResult != null)
-			return documentResult;
 		if (request.isDelete())
-			return null;
+			return;
 		int start = request.getStart();
 		int end = request.getEnd();
 		ResultScoreDoc[] scoreDocs = getDocs();
 		int length = scoreDocs.length;
 		if (end > length)
 			end = length;
-		for (int pos = start; pos < end; pos++)
-			request.addDocId(reader, scoreDocs[pos].doc);
-		documentResult = reader.documents(request);
-		return documentResult;
+		for (int i = start; i < end; i++) {
+			ResultScoreDoc scoreDoc = scoreDocs[i];
+			scoreDoc.resultDocument = reader.document(scoreDoc.doc, request);
+		}
 	}
 
 	public void loadSortValues(ResultScoreDoc doc, String[] values) {
 		int i = 0;
 		for (StringIndex stringIndex : sortStringIndexArray)
 			values[i++] = stringIndex.lookup[stringIndex.order[doc.doc]];
-	}
-
-	@Override
-	public float getMaxScore() {
-		return this.docs.getMaxScore();
-	}
-
-	@Override
-	public int getNumFound() {
-		return this.docs.getDocNumFound();
 	}
 
 }

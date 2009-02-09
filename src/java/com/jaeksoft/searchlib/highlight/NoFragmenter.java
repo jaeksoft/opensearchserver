@@ -28,10 +28,10 @@ import org.w3c.dom.NamedNodeMap;
 
 public class NoFragmenter extends FragmenterAbstract {
 
-	@Override
-	protected FragmenterAbstract newInstance() {
-		return new NoFragmenter();
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3193091155635514756L;
 
 	@Override
 	protected void setAttributes(NamedNodeMap attr) {

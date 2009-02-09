@@ -24,48 +24,37 @@
 
 package com.jaeksoft.searchlib.remote;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.methods.GetMethod;
 
-public class UrlWriteObject {
+public class UriRead {
 
-	private PutMethod putMethod;
-	private StreamWriteObject swo;
+	protected GetMethod getMethod = null;
 
-	public UrlWriteObject(URL url, Object object) throws IOException {
-		putMethod = new PutMethod(url.toExternalForm());
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		swo = new StreamWriteObject(baos);
-		swo.write(object);
-		swo.close(true);
-		swo = null;
-		putMethod.setRequestEntity(new ByteArrayRequestEntity(baos
-				.toByteArray()));
+	public UriRead(URI uri) throws HttpException, IOException {
 		HttpClient httpClient = new HttpClient();
-		httpClient.executeMethod(putMethod);
+		getMethod = new GetMethod(uri.toASCIIString());
+		getMethod.addRequestHeader("Connection", "close");
+		httpClient.executeMethod(getMethod);
 	}
 
 	public int getResponseCode() throws IOException {
-		return putMethod.getStatusCode();
+		return getMethod.getStatusCode();
 	}
 
 	public String getResponseMessage() throws IOException {
-		return putMethod.getResponseBodyAsString();
+		return getMethod.getStatusText();
 	}
 
 	public void close() {
-		if (swo != null) {
-			swo.close(false);
-			swo = null;
-		}
-		if (putMethod != null) {
-			putMethod.releaseConnection();
-			putMethod = null;
+		if (getMethod != null) {
+			getMethod.releaseConnection();
+			getMethod = null;
 		}
 	}
+
 }

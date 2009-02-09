@@ -24,43 +24,36 @@
 
 package com.jaeksoft.searchlib.result;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 
-public class DocumentResult implements Serializable {
+public class ResultDocumentIterator implements Iterator<ResultDocument> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4857214643135988896L;
+	private ResultScoreDoc[] docs;
 
-	private ArrayList<DocumentRequestItem> documents;
-	private HashMap<String, Integer> docKeys;
+	private int pos;
 
-	public DocumentResult() {
-		documents = new ArrayList<DocumentRequestItem>();
-		docKeys = new HashMap<String, Integer>();
+	private int end;
+
+	protected ResultDocumentIterator(Result result) {
+		docs = result.getDocs();
+		pos = result.getRequest().getStart();
+		end = result.getRequest().getEnd();
+		if (end > result.numFound)
+			end = result.numFound;
 	}
 
-	public void add(DocumentRequestItem item) {
-		docKeys.put(item.getKey(), documents.size());
-		documents.add(item);
+	public boolean hasNext() {
+		return pos < end;
 	}
 
-	public DocumentRequestItem get(int pos) {
-		return documents.get(pos);
+	public ResultDocument next() {
+		if (pos < end)
+			return docs[pos++].resultDocument;
+		return null;
 	}
 
-	public DocumentRequestItem get(String key) {
-		Integer pos = docKeys.get(key);
-		if (pos == null)
-			return null;
-		return documents.get(pos);
+	public void remove() {
+		throw new RuntimeException("Not allowed");
 	}
 
-	public List<DocumentRequestItem> getList() {
-		return documents;
-	}
 }

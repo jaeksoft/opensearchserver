@@ -25,49 +25,44 @@
 package com.jaeksoft.searchlib.facet;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
-public abstract class Facet implements Serializable {
+public abstract class Facet implements Serializable, Iterable<FacetItem> {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2867011819195319222L;
 
 	protected FacetField facetField;
+
+	protected FacetCount facetCount;
 
 	public Facet(FacetField facetField) {
 		this.facetField = facetField;
 	}
-
-	public abstract String[] getTerms();
-
-	public abstract int[] getCount();
 
 	public FacetField getFacetField() {
 		return this.facetField;
 	}
 
 	public int getTermCount() {
-		return getTerms().length;
+		return facetCount.size();
 	}
 
 	public String getTerm(int i) {
-		return getTerms()[i];
+		return facetCount.get(i).term;
 	}
 
 	public int getCount(int i) {
-		return getCount()[i];
+		return facetCount.get(i).count;
 	}
 
-	@Override
-	public String toString() {
-		String s = this.getClass().getName() + "@" + this.hashCode();
-		String[] terms = this.getTerms();
-		int[] count = this.getCount();
-		for (int i = 0; i < terms.length; i++)
-			if (count[i] > 0)
-				s += " " + terms[i] + "(" + count[i] + ")";
-		return s;
+	protected void setResult(FacetCount facetCount) {
+		this.facetCount = facetCount;
 	}
 
+	public Iterator<FacetItem> iterator() {
+		return facetCount.iterator();
+	}
 }

@@ -35,12 +35,13 @@ import org.apache.lucene.queryParser.ParseException;
 import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentRequestItem;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
@@ -94,7 +95,7 @@ public class RenderXml implements Render {
 			IOException, ParseException, SyntaxError {
 		writer.println("\t<doc score=\"" + result.getDocs()[pos].score
 				+ "\" pos=\"" + pos + "\">");
-		DocumentRequestItem doc = result.document(pos);
+		ResultDocument doc = result.getDocument(pos);
 		for (Field field : this.request.getReturnFieldList())
 			renderField(doc, field);
 		for (HighlightField field : this.request.getHighlightFieldList())
@@ -110,7 +111,7 @@ public class RenderXml implements Render {
 		writer.println("\t</doc>");
 	}
 
-	private void renderField(DocumentRequestItem doc, Field field)
+	private void renderField(ResultDocument doc, Field field)
 			throws CorruptIndexException, IOException {
 		String fieldName = field.getName();
 		ArrayList<String> values = doc.getValues(field);
@@ -125,8 +126,8 @@ public class RenderXml implements Render {
 							.escapeXml(v)) + "</field>");
 	}
 
-	private void renderHighlightValue(DocumentRequestItem doc,
-			HighlightField field) throws IOException {
+	private void renderHighlightValue(ResultDocument doc, HighlightField field)
+			throws IOException {
 		String fieldName = field.getName();
 		ArrayList<String> snippets = doc.getSnippets(field);
 		if (snippets == null)
@@ -141,25 +142,13 @@ public class RenderXml implements Render {
 	}
 
 	private void renderFacet(Facet facet) throws Exception {
-		int[] count = facet.getCount();
-		String[] terms = facet.getTerms();
-		if (count == null || terms == null) {
-			return;
-		}
-		if (count.length != terms.length) {
-			throw new Exception("BAD CONTENT SIZE " + count.length + "/"
-					+ terms.length);
-		}
 		FacetField facetField = facet.getFacetField();
 		writer.println("\t\t<field name=\"" + facetField.getName() + "\">");
-		int minCount = facetField.getMinCount();
-		for (int i = 0; i < count.length; i++) {
-			if (count[i] >= minCount && terms[i] != null) {
-				writer.println("\t\t\t<facet name=\""
-						+ StringEscapeUtils.escapeJava(StringEscapeUtils
-								.escapeXml(terms[i])) + "\">" + count[i]
-						+ "</facet>");
-			}
+		for (FacetItem facetItem : facet) {
+			writer.println("\t\t\t<facet name=\""
+					+ StringEscapeUtils.escapeJava(StringEscapeUtils
+							.escapeXml(facetItem.getTerm())) + "\">"
+					+ facetItem.getCount() + "</facet>");
 		}
 		writer.println("\t\t</field>");
 	}

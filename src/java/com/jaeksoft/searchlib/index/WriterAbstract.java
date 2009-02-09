@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public abstract class WriterAbstract extends NameFilter implements
 
 	public void updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException {
+			IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		updateDocument(schema, document);
@@ -71,7 +72,7 @@ public abstract class WriterAbstract extends NameFilter implements
 
 	public void updateDocuments(String indexName, Schema schema,
 			List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		updateDocuments(schema, documents);
@@ -79,7 +80,7 @@ public abstract class WriterAbstract extends NameFilter implements
 
 	public void deleteDocuments(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		deleteDocuments(schema, uniqueField);

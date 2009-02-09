@@ -22,38 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.remote;
+package com.jaeksoft.searchlib.facet;
 
-import java.io.IOException;
+import java.io.Serializable;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
+public class FacetItem implements Serializable {
 
-public class UrlRead {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1293498473522757010L;
 
-	protected GetMethod getMethod = null;
+	protected String term;
 
-	public UrlRead(String url) throws HttpException, IOException {
-		HttpClient httpClient = new HttpClient();
-		getMethod = new GetMethod(url);
-		getMethod.addRequestHeader("Connection", "close");
-		httpClient.executeMethod(getMethod);
+	protected int count;
+
+	public FacetItem(String term, int count) {
+		this.term = term;
+		this.count = count;
 	}
 
-	public int getResponseCode() throws IOException {
-		return getMethod.getStatusCode();
+	public String getTerm() {
+		return term;
 	}
 
-	public String getResponseMessage() throws IOException {
-		return getMethod.getStatusText();
-	}
-
-	public void close() {
-		if (getMethod != null) {
-			getMethod.releaseConnection();
-			getMethod = null;
-		}
+	public int getCount() {
+		return count;
 	}
 
 }

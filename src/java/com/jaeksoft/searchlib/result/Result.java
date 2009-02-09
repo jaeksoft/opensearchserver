@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.util.Timer;
 
-public abstract class Result implements Serializable {
+public abstract class Result implements Serializable, Iterable<ResultDocument> {
 
 	/**
 	 * 
@@ -44,7 +44,6 @@ public abstract class Result implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	transient protected Request request;
-	protected DocumentResult documentResult;
 	protected FacetList facetList;
 	protected Collapse collapse;
 	private Timer timer;
@@ -55,7 +54,6 @@ public abstract class Result implements Serializable {
 	protected Result(Request request) {
 		this.numFound = 0;
 		this.maxScore = 0;
-		this.documentResult = null;
 		this.docs = new ResultScoreDoc[0];
 		this.request = request;
 		this.timer = new Timer();
@@ -80,16 +78,21 @@ public abstract class Result implements Serializable {
 		return this.facetList;
 	}
 
-	public abstract DocumentResult documents() throws IOException,
-			ParseException, SyntaxError;
-
-	public DocumentRequestItem document(int pos) throws CorruptIndexException,
+	public ResultDocument getDocument(int pos) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
 		if (request.isDelete())
 			return null;
-		if (documentResult == null)
-			documentResult = documents();
-		return documentResult.get(pos - request.getStart());
+		if (docs == null)
+			return null;
+		if (pos >= request.getEnd())
+			return null;
+		if (pos >= numFound)
+			return null;
+		return docs[pos].resultDocument;
+	}
+
+	public ResultDocumentIterator iterator() {
+		return new ResultDocumentIterator(this);
 	}
 
 	public float getMaxScore() {

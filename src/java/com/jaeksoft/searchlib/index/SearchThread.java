@@ -25,24 +25,26 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.ResultGroup;
-import com.jaeksoft.searchlib.result.ResultSearch;
+import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 
 public class SearchThread implements Runnable {
 
 	private ResultGroup resultGroup;
-	private ResultSearch resultSearch;
+	private ResultSingle resultSingle;
 	private ReaderInterface reader;
 	private Request request;
 	private boolean running;
 	private int currentFetchPos;
 	private IOException ioException;
+	private URISyntaxException uriSyntaxException;
 	private ParseException parseException;
 	private SyntaxError syntaxError;
 	private int fetchCount;
@@ -51,33 +53,36 @@ public class SearchThread implements Runnable {
 			ResultGroup resultGroup) throws IOException {
 		this.running = false;
 		this.reader = reader;
-		this.resultSearch = null;
+		this.resultSingle = null;
 		this.resultGroup = resultGroup;
 		this.request = request;
 		this.currentFetchPos = 0;
 		this.ioException = null;
+		this.uriSyntaxException = null;
 		this.parseException = null;
 		this.syntaxError = null;
 	}
 
 	public void run() {
 		try {
-			if (resultSearch == null) {
-				resultSearch = (ResultSearch) reader.search(request);
-				resultGroup.addResult(resultSearch);
+			if (resultSingle == null) {
+				resultSingle = (ResultSingle) reader.search(request);
+				resultGroup.addResult(resultSingle);
 			}
 			int nextFetchPos = currentFetchPos + fetchCount;
-			resultSearch.loadDocs(nextFetchPos);
-			int docLength = resultSearch.getDocLength();
+			resultSingle.loadDocs(nextFetchPos);
+			int docLength = resultSingle.getDocLength();
 			if (nextFetchPos > docLength)
 				nextFetchPos = docLength;
 			fetchCount = nextFetchPos - currentFetchPos;
 			if (fetchCount == 0)
 				return;
-			resultGroup.populate(resultSearch, currentFetchPos, fetchCount);
+			resultGroup.populate(resultSingle, currentFetchPos, fetchCount);
 			currentFetchPos = nextFetchPos;
 		} catch (IOException e) {
 			this.ioException = e;
+		} catch (URISyntaxException e) {
+			this.uriSyntaxException = e;
 		} catch (ParseException e) {
 			this.parseException = e;
 		} catch (SyntaxError e) {
@@ -112,13 +117,16 @@ public class SearchThread implements Runnable {
 		return fetchCount;
 	}
 
-	public void exception() throws IOException, ParseException, SyntaxError {
-		if (this.ioException != null)
-			throw this.ioException;
-		if (this.parseException != null)
-			throw this.parseException;
-		if (this.syntaxError != null)
-			throw this.syntaxError;
+	public void exception() throws IOException, URISyntaxException,
+			ParseException, SyntaxError {
+		if (ioException != null)
+			throw ioException;
+		if (parseException != null)
+			throw parseException;
+		if (uriSyntaxException != null)
+			throw uriSyntaxException;
+		if (syntaxError != null)
+			throw syntaxError;
 	}
 
 }

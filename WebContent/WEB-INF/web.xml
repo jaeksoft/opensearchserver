@@ -53,6 +53,7 @@
 	<servlet-mapping>
 		<servlet-name>Index</servlet-name>
 		<url-pattern>/index</url-pattern>
+		<url-pattern>/update</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Optimize</servlet-name>

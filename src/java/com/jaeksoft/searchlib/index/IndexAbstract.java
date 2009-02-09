@@ -74,9 +74,10 @@ public abstract class IndexAbstract extends NameFilter implements
 
 	public abstract long getVersion(String indexName);
 
-	public abstract void reload(String indexName) throws IOException;
+	public abstract void reload(String indexName) throws IOException,
+			URISyntaxException;
 
 	public abstract void swap(String indexName, long version, boolean deleteOld)
-			throws IOException;
+			throws IOException, URISyntaxException;
 
 }

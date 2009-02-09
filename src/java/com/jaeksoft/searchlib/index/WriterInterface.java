@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -38,11 +39,11 @@ public interface WriterInterface extends XmlInfo {
 
 	public void deleteDocuments(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException;
+			LockObtainFailedException, IOException, URISyntaxException;
 
 	public void deleteDocuments(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException;
+			IOException, URISyntaxException;
 
 	public void deleteDocuments(String indexName, Schema schema,
 			List<String> uniqueFields) throws CorruptIndexException,
@@ -53,21 +54,21 @@ public interface WriterInterface extends XmlInfo {
 			IOException;
 
 	public void updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException;
+			throws NoSuchAlgorithmException, IOException, URISyntaxException;
 
 	public void updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException;
+			IOException, URISyntaxException;
 
 	public void updateDocuments(Schema schema,
 			List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException;
+			throws NoSuchAlgorithmException, IOException, URISyntaxException;
 
 	public void updateDocuments(String indexName, Schema schema,
 			List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException;
+			throws NoSuchAlgorithmException, IOException, URISyntaxException;
 
 	public void optimize(String indexName) throws CorruptIndexException,
-			LockObtainFailedException, IOException;
+			LockObtainFailedException, IOException, URISyntaxException;
 
 }

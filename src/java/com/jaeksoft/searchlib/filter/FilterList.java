@@ -24,18 +24,26 @@
 
 package com.jaeksoft.searchlib.filter;
 
+import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.Filter.Source;
 
-public class FilterList extends AbstractList<Filter> {
+public class FilterList extends AbstractList<Filter> implements Serializable {
 
-	private ArrayList<Filter> filterList;
-	private Config config;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5575695644602182902L;
+
+	private List<Filter> filterList;
+
+	private transient Config config;
 
 	public FilterList(FilterList fl) {
 		this.config = fl.config;
@@ -60,9 +68,7 @@ public class FilterList extends AbstractList<Filter> {
 	}
 
 	public boolean add(String req, Source src) throws ParseException {
-		return this.add(new Filter(config.getSchema().getFieldList()
-				.getDefaultField(), config.getSchema()
-				.getQueryPerFieldAnalyzer(null), req, src));
+		return this.add(new Filter(req, src));
 	}
 
 	@Override

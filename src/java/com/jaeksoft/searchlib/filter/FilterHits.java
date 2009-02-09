@@ -29,10 +29,13 @@ import java.io.PrintWriter;
 import java.util.BitSet;
 import java.util.HashSet;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.HitCollector;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class FilterHits extends org.apache.lucene.search.Filter implements
@@ -45,12 +48,13 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 
 	private BitSet docSet;
 
-	public FilterHits(ReaderLocal reader, FilterList filterList)
-			throws IOException {
+	public FilterHits(Field defaultField, Analyzer analyzer,
+			ReaderLocal reader, FilterList filterList) throws IOException,
+			ParseException {
 		this.docSet = null;
 		for (Filter f : filterList) {
 			Collector collector = new Collector(reader.maxDoc());
-			reader.search(f.getQuery(), null, collector);
+			reader.search(f.getQuery(defaultField, analyzer), null, collector);
 			if (this.docSet == null)
 				this.docSet = collector.bitSet;
 			else
@@ -61,7 +65,7 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 	public static String toCacheKey(FilterList filterList) {
 		String s = "";
 		for (Filter f : filterList)
-			s += "|" + f.getQuery().toString();
+			s += "|" + f.getQueryString();
 		return s;
 	}
 

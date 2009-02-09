@@ -26,122 +26,57 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.httpclient.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
-import com.jaeksoft.searchlib.remote.Remote;
-import com.jaeksoft.searchlib.remote.UrlRead;
-import com.jaeksoft.searchlib.remote.UrlWriteObject;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.web.ActionServlet;
+import com.jaeksoft.searchlib.web.DeleteServlet;
+import com.jaeksoft.searchlib.web.IndexServlet;
 
 public class WriterRemote extends WriterAbstract {
 
-	private Remote remote;
+	private URI uri;
 
-	public WriterRemote(Remote remote, String indexName, String keyField,
+	public WriterRemote(URI uri, String indexName, String keyField,
 			String keyMd5Pattern) {
 		super(indexName, keyField, keyMd5Pattern);
-		this.remote = remote;
-	}
-
-	private URL getCommandUrl(String command)
-			throws UnsupportedEncodingException, MalformedURLException {
-		String url = remote.getUrl(command + "?index="
-				+ URLEncoder.encode(remote.getName(), "UTF-8") + "&forceLocal");
-		return new URL(url);
+		this.uri = uri;
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
-		remote.xmlInfo(writer, classDetail);
 	}
 
-	public void optimize(String indexName) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
-		UrlRead urlRead = null;
-		try {
-			String url = getCommandUrl("optimize").toExternalForm();
-			urlRead = new UrlRead(url);
-			if (urlRead.getResponseCode() != 200)
-				throw new IOException(url + " returns "
-						+ urlRead.getResponseMessage() + "("
-						+ urlRead.getResponseCode() + ")");
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (urlRead != null)
-				urlRead.close();
-		}
+	public void optimize(String indexName) throws HttpException, IOException,
+			URISyntaxException {
+		ActionServlet.optimize(uri, getName());
 	}
 
 	public void updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!acceptDocument(document))
 			return;
-		IOException err = null;
-		UrlWriteObject writeObject = null;
-		try {
-			writeObject = new UrlWriteObject(getCommandUrl("index"), document);
-			if (writeObject.getResponseCode() != 200)
-				throw new IOException(writeObject.getResponseCode() + " "
-						+ writeObject.getResponseMessage() + ")");
-		} catch (IOException e) {
-			e.printStackTrace();
-			err = e;
-		} finally {
-			if (writeObject != null)
-				writeObject.close();
-			if (err != null)
-				throw err;
-		}
+		IndexServlet.update(uri, getName(), document);
 	}
 
 	public void updateDocuments(Schema schema,
 			List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException {
-		IOException err = null;
-		UrlWriteObject writeObject = null;
-		try {
-			writeObject = new UrlWriteObject(getCommandUrl("index"), documents);
-			if (writeObject.getResponseCode() != 200)
-				throw new IOException(writeObject.getResponseCode() + " "
-						+ writeObject.getResponseMessage() + ")");
-		} catch (IOException e) {
-			e.printStackTrace();
-			err = e;
-		} finally {
-			if (writeObject != null)
-				writeObject.close();
-			if (err != null)
-				throw err;
-		}
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		IndexServlet.update(uri, getName(), documents);
 	}
 
 	public void deleteDocuments(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
-		UrlRead urlRead = null;
-		try {
-			String url = getCommandUrl("delete").toExternalForm();
-			url += "&uniq=" + URLEncoder.encode(uniqueField, "UTF-8");
-			urlRead = new UrlRead(url);
-			if (urlRead.getResponseCode() != 200)
-				throw new IOException(url + " returns "
-						+ urlRead.getResponseMessage() + "("
-						+ urlRead.getResponseCode() + ")");
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (urlRead != null)
-				urlRead.close();
-		}
+			IOException, URISyntaxException {
+		DeleteServlet.delete(uri, uniqueField);
 	}
 
 	// TODO Implementation
@@ -155,14 +90,11 @@ public class WriterRemote extends WriterAbstract {
 			throws MalformedURLException {
 		if (indexConfig.getName() == null)
 			return null;
-		if (indexConfig.getRemoteUrl() == null)
+		if (indexConfig.getRemoteUri() == null)
 			return null;
-		Remote remote = new Remote(indexConfig.getName(), indexConfig
-				.getRemoteUrl());
-		if (remote == null)
-			return null;
-		return new WriterRemote(remote, indexConfig.getName(), indexConfig
-				.getKeyField(), indexConfig.getKeyMd5RegExp());
+		return new WriterRemote(indexConfig.getRemoteUri(), indexConfig
+				.getName(), indexConfig.getKeyField(), indexConfig
+				.getKeyMd5RegExp());
 	}
 
 }

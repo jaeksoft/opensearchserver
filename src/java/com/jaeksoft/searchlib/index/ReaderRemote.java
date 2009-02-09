@@ -26,60 +26,46 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.HashSet;
 
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
 
-import com.jaeksoft.searchlib.remote.Remote;
-import com.jaeksoft.searchlib.remote.UrlReadObject;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.web.ActionServlet;
+import com.jaeksoft.searchlib.web.SearchServlet;
 
 public class ReaderRemote extends NameFilter implements ReaderInterface {
 
-	private Remote remote;
+	private URI uri;
 
-	private ReaderRemote(String indexName, Remote remote) {
+	private ReaderRemote(String indexName, URI uri) {
 		super(indexName);
-		this.remote = remote;
+		this.uri = uri;
 	}
 
 	public static ReaderRemote fromConfig(IndexConfig indexConfig)
-			throws MalformedURLException {
+			throws URISyntaxException {
 		if (indexConfig.getName() == null)
 			return null;
-		if (indexConfig.getRemoteUrl() == null)
+		if (indexConfig.getRemoteUri() == null)
 			return null;
-		Remote remote = new Remote(indexConfig.getName(), indexConfig
-				.getRemoteUrl());
-		return new ReaderRemote(indexConfig.getName(), remote);
+		return new ReaderRemote(indexConfig.getName(), indexConfig
+				.getRemoteUri());
 	}
 
 	// TODO Implementation
-	public void reload() throws IOException {
-		throw new RuntimeException("Not yet implemented");
+	public void reload() throws IOException, URISyntaxException {
+		ActionServlet.reload(uri, getName());
 	}
 
 	// TODO Propagate version information
-	public void swap(long version, boolean deleteOld) throws IOException {
-		String u = remote.getUrl("stats?reload="
-				+ URLEncoder.encode(remote.getName(), "UTF-8") + "&forceLocal");
-		if (deleteOld)
-			u += "&deleteOld";
-		HttpURLConnection huc = (HttpURLConnection) new URL(u).openConnection();
-		huc.connect();
-		huc.getResponseCode();
-		huc.disconnect();
+	public void swap(long version, boolean deleteOld) throws IOException,
+			URISyntaxException {
+		ActionServlet.swap(uri, getName(), version, deleteOld);
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
@@ -87,80 +73,9 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 
 	}
 
-	private URL getRemoteSearchUrl(Request req)
-			throws UnsupportedEncodingException, MalformedURLException {
-		String baseUrl = remote.getUrl("/select?search="
-				+ URLEncoder.encode(remote.getName(), "UTF-8")
-				+ "&render=object&forceLocal");
-		baseUrl += "&" + req.getUrlQueryString();
-		return new URL(baseUrl);
+	public Result search(Request req) throws IOException, URISyntaxException {
+		return SearchServlet.search(uri, req, getName());
 	}
-
-	public Result search(Request req) throws IOException {
-		UrlReadObject urlReadObject = null;
-		IOException err = null;
-		Result res = null;
-		try {
-			urlReadObject = new UrlReadObject(getRemoteSearchUrl(req));
-			if (urlReadObject.getResponseCode() != 200)
-				throw new IOException(urlReadObject.getResponseMessage());
-			res = (Result) urlReadObject.read();
-			res.setRequest(req);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			res = null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			err = e;
-		} finally {
-			if (urlReadObject != null)
-				urlReadObject.close();
-			if (err != null)
-				throw err;
-		}
-		return res;
-	}
-
-	private URL getRemoteDocumentUrl(Request req)
-			throws UnsupportedEncodingException, MalformedURLException {
-		String baseUrl = remote.getUrl("/document?search="
-				+ URLEncoder.encode(remote.getName(), "UTF-8")
-				+ "&render=object&forceLocal");
-		baseUrl += "&" + req.getUrlQueryString();
-		return new URL(baseUrl);
-	}
-
-	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException {
-		UrlReadObject readObject = null;
-		IOException err = null;
-		DocumentResult documents = null;
-		try {
-			readObject = new UrlReadObject(getRemoteDocumentUrl(request));
-			if (readObject.getResponseCode() != 200)
-				throw new IOException(readObject.getResponseMessage());
-			documents = (DocumentResult) readObject.read();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			documents = null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			err = e;
-		} finally {
-			if (readObject != null)
-				readObject.close();
-			if (err != null)
-				throw err;
-		}
-		return documents;
-	}
-
-	/*
-	 * public void getHits(ResultSearch result, int rows) throws IOException {
-	 * Request req = result.getRequest().clone(); req.setRows(rows);
-	 * ResultSearch rs = (ResultSearch) search(req);
-	 * result.setDocSetHits(rs.getDocSetHits()); }
-	 */
 
 	public boolean sameIndex(ReaderInterface reader) {
 		if (reader == this)

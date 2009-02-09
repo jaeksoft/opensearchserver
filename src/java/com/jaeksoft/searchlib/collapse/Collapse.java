@@ -40,11 +40,11 @@ public class Collapse implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private int collapsedDocCount;
-	private int collapseMax;
-	private Field collapseField;
-	private boolean collapseActive;
-	protected BitSet collapsedSet;
-	private ResultScoreDoc[] collapsedDoc;
+	private transient int collapseMax;
+	private transient Field collapseField;
+	private transient boolean collapseActive;
+	protected transient BitSet collapsedSet;
+	private transient ResultScoreDoc[] collapsedDoc;
 
 	public Collapse(Request request) {
 		this.collapseField = request.getCollapseField();

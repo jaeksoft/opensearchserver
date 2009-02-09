@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
 import org.junit.Before;
@@ -45,7 +46,7 @@ public class Full {
 
 	@Test
 	public void populate() throws SearchLibException, NoSuchAlgorithmException,
-			IOException {
+			IOException, URISyntaxException {
 		open();
 		int lastFacet2 = 0;
 		for (int i = 0; i < 10; i++)

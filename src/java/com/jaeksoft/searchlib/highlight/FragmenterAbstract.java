@@ -24,19 +24,25 @@
 
 package com.jaeksoft.searchlib.highlight;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.TreeSet;
 
 import org.w3c.dom.NamedNodeMap;
 
-public abstract class FragmenterAbstract {
+public abstract class FragmenterAbstract implements Serializable {
 
-	private TreeSet<Integer> splitPos;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1443188121132664991L;
 
-	private int originalTextLength;
+	private transient TreeSet<Integer> splitPos;
+
+	private transient int originalTextLength;
 
 	protected FragmenterAbstract() {
-		splitPos = new TreeSet<Integer>();
+		splitPos = null;
 	}
 
 	protected abstract void setAttributes(NamedNodeMap attr);
@@ -52,6 +58,8 @@ public abstract class FragmenterAbstract {
 	final protected void getFragments(String originalText,
 			FragmentList fragments, int vectorOffset) {
 		originalTextLength = originalText.length();
+		if (splitPos == null)
+			splitPos = new TreeSet<Integer>();
 		splitPos.clear();
 		check(originalText);
 		Iterator<Integer> splitIterator = splitPos.iterator();
@@ -68,8 +76,6 @@ public abstract class FragmenterAbstract {
 					.substring(pos), vectorOffset, lastFragment == null);
 		lastFragment.setEdge(true);
 	}
-
-	protected abstract FragmenterAbstract newInstance();
 
 	final static protected FragmenterAbstract newInstance(String className)
 			throws InstantiationException, IllegalAccessException,

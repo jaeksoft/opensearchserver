@@ -30,9 +30,7 @@ import java.net.URISyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
 
 import com.jaeksoft.searchlib.Client;
 
@@ -68,27 +66,12 @@ public class ActionServlet extends AbstractServlet {
 		}
 	}
 
-	private static boolean call(URI uri, String query) throws HttpException,
-			IOException, URISyntaxException {
-		uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri
-				.getPort(), uri.getPath() + "/action", query, uri.getFragment());
-		HttpClient client = new HttpClient();
-		GetMethod method = null;
-		try {
-			method = new GetMethod(uri.toASCIIString());
-			return (client.executeMethod(method) == 200);
-		} finally {
-			if (method != null)
-				method.releaseConnection();
-		}
-	}
-
 	public static void optimize(URI uri, String indexName)
 			throws HttpException, IOException, URISyntaxException {
 		StringBuffer query = new StringBuffer("?action=optimize");
 		query.append("&index=");
 		query.append(indexName);
-		call(uri, query.toString());
+		call(uri, "/action", query.toString());
 	}
 
 	public static void reload(URI uri, String indexName) throws HttpException,
@@ -96,7 +79,7 @@ public class ActionServlet extends AbstractServlet {
 		StringBuffer query = new StringBuffer("?action=reload");
 		query.append("&index=");
 		query.append(indexName);
-		call(uri, query.toString());
+		call(uri, "/action", query.toString());
 	}
 
 	public static void swap(URI uri, String indexName, long version,
@@ -109,16 +92,16 @@ public class ActionServlet extends AbstractServlet {
 		query.append(version);
 		if (deleteOld)
 			query.append("&deleteOld");
-		call(uri, query.toString());
+		call(uri, "/action", query.toString());
 	}
 
 	public static void online(URI uri, String indexName) throws HttpException,
 			IOException, URISyntaxException {
-		call(uri, "?action=online");
+		call(uri, "/action", "?action=online");
 	}
 
 	public static void offline(URI uri, String indexName) throws HttpException,
 			IOException, URISyntaxException {
-		call(uri, "?action=offline");
+		call(uri, "/action", "?action=offline");
 	}
 }

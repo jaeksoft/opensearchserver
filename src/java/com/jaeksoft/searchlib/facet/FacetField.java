@@ -28,7 +28,7 @@ import java.io.IOException;
 
 import org.w3c.dom.Node;
 
-import com.jaeksoft.searchlib.result.ResultSearch;
+import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -60,11 +60,11 @@ public class FacetField extends Field {
 		return minCount;
 	}
 
-	public Facet getFacetInstance(ResultSearch result) throws IOException {
+	public Facet getFacetInstance(ResultSingle result) throws IOException {
 		if (multivalued)
 			return new FacetMultivalued(result, this);
 		else
-			return new FacetSearch(result, this);
+			return new FacetSingle(result, this);
 	}
 
 	public static void copyFacetFields(Node node,

@@ -28,46 +28,30 @@ import java.io.IOException;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
 
-import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.result.ResultSearch;
+import com.jaeksoft.searchlib.result.ResultSingle;
 
-public class FacetSearch extends Facet {
+public class FacetSingle extends Facet {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8151598793687762592L;
 
-	transient protected StringIndex stringIndex;
-	protected int[] count;
-
-	protected FacetSearch(FacetField facetField) {
+	protected FacetSingle(FacetField facetField) {
 		super(facetField);
-		stringIndex = null;
-		count = null;
 	}
 
-	protected FacetSearch(ResultSearch result, FacetField facetField)
+	protected FacetSingle(ResultSingle result, FacetField facetField)
 			throws IOException {
 		super(facetField);
-		setReader(result.getReader());
+		StringIndex stringIndex = result.getReader().getStringIndex(
+				facetField.getName());
 		int[] order = stringIndex.order;
-		this.count = new int[stringIndex.lookup.length];
+		int[] count = new int[stringIndex.lookup.length];
 		for (int id : result.getDocSetHits().getCollectedDocs())
-			this.count[order[id]]++;
+			count[order[id]]++;
+		setResult(new FacetCount(stringIndex.lookup, count, facetField
+				.getMinCount()));
 	}
 
-	public void setReader(ReaderLocal reader) throws IOException {
-		stringIndex = reader.getStringIndex(facetField.getName());
-	}
-
-	@Override
-	public String[] getTerms() {
-		return stringIndex.lookup;
-	}
-
-	@Override
-	public int[] getCount() {
-		return count;
-	}
 }

@@ -44,7 +44,6 @@ import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.Schema;
 
@@ -61,7 +60,7 @@ public class IndexSingle extends IndexAbstract {
 			.getCanonicalName());
 
 	public IndexSingle(File homeDir, IndexConfig indexConfig,
-			boolean createIfNotExists) throws IOException {
+			boolean createIfNotExists) throws IOException, URISyntaxException {
 		super(indexConfig);
 		online = true;
 		readonly = false;
@@ -88,7 +87,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public void optimize(String indexName) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -104,7 +103,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public void deleteDocuments(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -120,7 +119,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public void deleteDocuments(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -167,7 +166,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public void updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -183,7 +182,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public void updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException {
+			IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -199,7 +198,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public void updateDocuments(Schema schema,
 			List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -215,7 +214,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public void updateDocuments(String indexName, Schema schema,
 			List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -229,22 +228,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException, ParseException,
-			SyntaxError {
-		if (!online)
-			throw new IOException("Index is offline");
-		r.lock();
-		try {
-			if (reader != null)
-				return reader.documents(request);
-			return null;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	public void reload() throws IOException {
+	public void reload() throws IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -258,13 +242,14 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public void reload(String indexName) throws IOException {
+	public void reload(String indexName) throws IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		reload();
 	}
 
-	public void swap(long version, boolean deleteOld) throws IOException {
+	public void swap(long version, boolean deleteOld) throws IOException,
+			URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -281,14 +266,14 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public void swap(String indexName, long version, boolean deleteOld)
-			throws IOException {
+			throws IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		swap(version, deleteOld);
 	}
 
-	public Result search(Request request) throws IOException, ParseException,
-			SyntaxError {
+	public Result search(Request request) throws IOException,
+			URISyntaxException, ParseException, SyntaxError {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();

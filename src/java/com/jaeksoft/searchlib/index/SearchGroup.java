@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -50,7 +51,7 @@ public class SearchGroup {
 
 	private int searchNextStep(ResultGroup resultGroup,
 			List<SearchThread> searchsThread, int step) throws IOException,
-			ParseException, SyntaxError {
+			URISyntaxException, ParseException, SyntaxError {
 		for (SearchThread searchThread : searchsThread)
 			searchThread.searchNextStep(step);
 		int fetchCount = 0;
@@ -63,7 +64,7 @@ public class SearchGroup {
 	}
 
 	protected ResultGroup search(Request request) throws IOException,
-			ParseException, SyntaxError {
+			URISyntaxException, ParseException, SyntaxError {
 		ResultGroup resultGroup = new ResultGroup(request);
 		ArrayList<SearchThread> searchsThread = new ArrayList<SearchThread>(
 				indexGroup.size());

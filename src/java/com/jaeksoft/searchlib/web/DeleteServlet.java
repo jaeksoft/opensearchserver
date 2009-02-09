@@ -24,7 +24,15 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.httpclient.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 
@@ -51,5 +59,11 @@ public class DeleteServlet extends AbstractServlet {
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
+	}
+
+	public static void delete(URI uri, String uniqueField)
+			throws HttpException, UnsupportedEncodingException, IOException,
+			URISyntaxException {
+		call(uri, "/delete", "&uniq=" + URLEncoder.encode(uniqueField, "UTF-8"));
 	}
 }

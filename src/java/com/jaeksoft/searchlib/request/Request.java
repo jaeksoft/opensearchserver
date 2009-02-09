@@ -25,12 +25,9 @@
 package com.jaeksoft.searchlib.request;
 
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
@@ -49,16 +46,23 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class Request implements XmlInfo {
+public class Request implements XmlInfo, Serializable {
 
-	private Request sourceRequest;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 148522254171520640L;
+
+	private transient Request sourceRequest;
+	private transient QueryParser queryParser;
+	private transient Config config;
+	private transient ReaderInterface reader;
+
 	private String name;
 	private FilterList filterList;
-	private QueryParser queryParser;
 	private boolean allowLeadingWildcard;
 	private int phraseSlop;
 	private QueryParser.Operator defaultOperator;
@@ -77,10 +81,6 @@ public class Request implements XmlInfo {
 	private String scoreFunction;
 	private Query query;
 	private String queryParsed;
-	private transient Config config;
-	private boolean forceLocal;
-	private List<Integer> docIds;
-	private transient ReaderInterface reader;
 	private boolean delete;
 	private boolean withDocuments;
 
@@ -105,12 +105,10 @@ public class Request implements XmlInfo {
 		this.rows = 10;
 		this.lang = null;
 		this.query = null;
-		this.docIds = null;
 		this.queryString = null;
 		this.scoreFunction = null;
-		this.forceLocal = false;
 		this.delete = false;
-		this.withDocuments = false;
+		this.withDocuments = true;
 		this.reader = null;
 		this.queryParsed = null;
 	}
@@ -143,12 +141,8 @@ public class Request implements XmlInfo {
 		this.rows = request.rows;
 		this.lang = request.lang;
 		this.query = request.query;
-		this.docIds = null;
-		if (request.docIds != null)
-			this.docIds = new ArrayList<Integer>(request.docIds);
 		this.queryString = request.queryString;
 		this.scoreFunction = request.scoreFunction;
-		this.forceLocal = request.forceLocal;
 		this.reader = request.reader;
 		this.queryParsed = null;
 	}
@@ -171,9 +165,12 @@ public class Request implements XmlInfo {
 			if (scoreFunction.trim().length() == 0)
 				scoreFunction = null;
 		this.scoreFunction = scoreFunction;
-		this.forceLocal = forceLocal;
 		this.delete = delete;
 		this.withDocuments = withDocuments;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
 	}
 
 	@Override
@@ -339,63 +336,6 @@ public class Request implements XmlInfo {
 		return this.start + this.rows;
 	}
 
-	public boolean getForceLocal() {
-		return this.forceLocal;
-	}
-
-	public void setForceLocal(boolean forceLocal) {
-		this.forceLocal = forceLocal;
-	}
-
-	public String getUrlQueryString() throws UnsupportedEncodingException {
-		StringBuffer sb = new StringBuffer();
-		sb.append("qt=");
-		sb.append(name);
-		sb.append("&start=");
-		sb.append(start);
-		sb.append("&rows=");
-		sb.append(rows);
-		sb.append("&q=");
-		sb.append(URLEncoder.encode(queryString, "UTF-8"));
-		for (Filter f : filterList) {
-			if (f.getSource() == Filter.Source.REQUEST) {
-				sb.append("&fq=");
-				sb.append(URLEncoder.encode(f.getQueryString(), "UTF-8"));
-			}
-		}
-		if (reader != null) {
-			sb.append("&search=");
-			sb.append(URLEncoder.encode(reader.getName(), "UTF-8"));
-		}
-		if (forceLocal)
-			sb.append("&forceLocal");
-		if (collapseField != null) {
-			sb.append("&collapse.field=");
-			sb.append(URLEncoder.encode(collapseField.getName(), "UTF-8"));
-			sb.append("&collapse.max=");
-			sb.append(this.collapseMax);
-		}
-		if (this.collapseActive)
-			sb.append("&collapse.active=true");
-		for (SortField f : sortList.getFieldList()) {
-			sb.append("&sort=");
-			if (f.isDesc())
-				sb.append("-");
-			sb.append(f.getName());
-		}
-		if (this.delete)
-			sb.append("&delete");
-		if (this.withDocuments)
-			sb.append("&withDocs");
-		if (docIds != null) {
-			for (int docId : docIds) {
-				sb.append("&docId=");
-				sb.append(docId);
-			}
-		}
-		return sb.toString();
-	}
-
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
 		writer.println("<request name=\"" + name + "\" defaultOperator=\""
 				+ defaultOperator + "\" start=\"" + start + "\" rows=\"" + rows
@@ -420,18 +360,6 @@ public class Request implements XmlInfo {
 		while (it.hasNext())
 			documentFieldList.add(new FieldValue(it.next()));
 		return documentFieldList;
-	}
-
-	public void addDocId(ReaderInterface reader, int docId) {
-		if (!reader.sameIndex(this.reader))
-			return;
-		if (docIds == null)
-			docIds = new ArrayList<Integer>();
-		docIds.add(docId);
-	}
-
-	public List<Integer> getDocIds() {
-		return this.docIds;
 	}
 
 	public void setCollapseActive(boolean active) {

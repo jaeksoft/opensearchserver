@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -50,8 +52,8 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 	 */
 	private static final long serialVersionUID = -3706856755116432969L;
 
-	private ArrayList<T> fieldList;
-	private HashMap<String, T> fieldsName;
+	private List<T> fieldList;
+	private Map<String, T> fieldsName;
 	private T defaultField;
 	private T uniqueField;
 
@@ -196,7 +198,7 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 		return this.fieldList.iterator();
 	}
 
-	public ArrayList<T> array() {
+	public List<T> array() {
 		return fieldList;
 	}
 

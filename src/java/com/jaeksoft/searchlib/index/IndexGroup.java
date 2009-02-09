@@ -48,8 +48,6 @@ import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
-import com.jaeksoft.searchlib.result.DocumentsGroup;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -60,7 +58,7 @@ public class IndexGroup extends IndexAbstract {
 
 	public IndexGroup(File homeDir, XPathParser xpp, Node parentNode,
 			boolean createIfNotExists) throws XPathExpressionException,
-			IOException {
+			IOException, URISyntaxException {
 		super();
 		indices = new LinkedHashMap<String, IndexSingle>();
 		NodeList nodes = xpp.getNodeList(parentNode, "index");
@@ -93,7 +91,7 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public void optimize(String indexName) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, URISyntaxException {
 		if (indexName == null || indexName.length() == 0) {
 			for (IndexAbstract index : getIndices())
 				index.optimize(null);
@@ -113,14 +111,14 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public void updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.updateDocument(schema, document);
 	}
 
 	public void updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException {
+			IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
@@ -130,14 +128,14 @@ public class IndexGroup extends IndexAbstract {
 
 	public void updateDocuments(Schema schema,
 			List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.updateDocuments(schema, documents);
 	}
 
 	public void updateDocuments(String indexName, Schema schema,
 			List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
@@ -146,14 +144,14 @@ public class IndexGroup extends IndexAbstract {
 
 	public void deleteDocuments(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.deleteDocuments(schema, uniqueField);
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
@@ -188,26 +186,19 @@ public class IndexGroup extends IndexAbstract {
 		throw new RuntimeException("Not yet implemented");
 	}
 
-	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException, ParseException,
-			SyntaxError {
-		DocumentsGroup documentsGroup = new DocumentsGroup(request);
-		return documentsGroup.documents();
-	}
-
-	public void reload(String indexName) throws IOException {
+	public void reload(String indexName) throws IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.reload(indexName);
 	}
 
 	public void swap(String indexName, long version, boolean deleteOld)
-			throws IOException {
+			throws IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.swap(indexName, version, deleteOld);
 	}
 
-	public Result search(Request request) throws IOException, ParseException,
-			SyntaxError {
+	public Result search(Request request) throws IOException,
+			URISyntaxException, ParseException, SyntaxError {
 		return new SearchGroup(this).search(request);
 	}
 
@@ -284,7 +275,7 @@ public class IndexGroup extends IndexAbstract {
 
 	}
 
-	public void reload() throws IOException {
+	public void reload() throws IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.reload();
 	}

@@ -28,14 +28,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentResult;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
@@ -43,25 +41,22 @@ public interface ReaderInterface extends XmlInfo {
 
 	public abstract boolean sameIndex(ReaderInterface reader);
 
-	public abstract DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException, ParseException,
-			SyntaxError;
-
 	public int getDocFreq(Term term) throws IOException;
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException;
 
-	public Result search(Request request) throws IOException, ParseException,
-			SyntaxError;
+	public Result search(Request request) throws IOException,
+			URISyntaxException, ParseException, SyntaxError;
 
 	public String getName();
 
 	public IndexStatistics getStatistics() throws IOException;
 
-	public void reload() throws IOException;
+	public void reload() throws IOException, URISyntaxException;
 
-	public void swap(long version, boolean deleteOld) throws IOException;
+	public void swap(long version, boolean deleteOld) throws IOException,
+			URISyntaxException;
 
 	public void push(URI dest) throws URISyntaxException, IOException;
 

@@ -25,40 +25,49 @@
 package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.schema.Field;
 
-public class ResultScoreDoc {
+public class ResultScoreDoc implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5961891131296766298L;
 
-	public transient ResultSearch resultSearch;
+	public transient ResultSingle resultSingle;
 
-	public transient int doc;
+	public int doc;
 
 	public float score;
+
+	public ResultDocument resultDocument;
 
 	public String collapseTerm;
 
 	public int collapseCount;
 
-	public ResultScoreDoc(ResultSearch resultSearch, ScoreDoc scoreDoc,
-			String collapseTerm) {
+	public ResultScoreDoc(ResultSingle resultSingle, ScoreDoc scoreDoc,
+			ResultDocument resultDoc, String collapseTerm) {
 		this.score = scoreDoc.score;
 		this.doc = scoreDoc.doc;
-		this.resultSearch = resultSearch;
+		this.resultDocument = resultDoc;
+		this.resultSingle = resultSingle;
 		this.collapseTerm = collapseTerm;
 		this.collapseCount = 0;
 	}
 
-	public ResultScoreDoc(ResultSearch resultSearch, ScoreDoc scoreDoc) {
-		this(resultSearch, scoreDoc, null);
+	public ResultScoreDoc(ResultSingle resultSingle, ScoreDoc scoreDoc,
+			String collapseTerm) {
+		this(resultSingle, scoreDoc, null, null);
+	}
+
+	public ResultScoreDoc(ResultSingle resultSingle, ScoreDoc scoreDoc) {
+		this(resultSingle, scoreDoc, null);
 	}
 
 	/**
@@ -69,26 +78,26 @@ public class ResultScoreDoc {
 	 * @return populated ResultScoreDoc array
 	 */
 	public static ResultScoreDoc[] newResultScoreDocArray(
-			ResultSearch resultSearch, ScoreDoc[] scoreDocs) {
+			ResultSingle resultSingle, ScoreDoc[] scoreDocs) {
 		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[scoreDocs.length];
 		int i = 0;
 		for (ScoreDoc scoreDoc : scoreDocs)
-			resultScoreDocs[i++] = new ResultScoreDoc(resultSearch, scoreDoc);
+			resultScoreDocs[i++] = new ResultScoreDoc(resultSingle, scoreDoc);
 		return resultScoreDocs;
 	}
 
 	public static ResultScoreDoc[] newResultScoreDocArray(
-			ResultSearch resultSearch, ScoreDoc[] scoreDocs, Field collapseField)
+			ResultSingle resultSingle, ScoreDoc[] scoreDocs, Field collapseField)
 			throws IOException {
 		if (collapseField == null)
-			return newResultScoreDocArray(resultSearch, scoreDocs);
-		StringIndex stringIndex = resultSearch.getReader().getStringIndex(
+			return newResultScoreDocArray(resultSingle, scoreDocs);
+		StringIndex stringIndex = resultSingle.getReader().getStringIndex(
 				collapseField.getName());
 		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[scoreDocs.length];
 		int i = 0;
 		for (ScoreDoc scoreDoc : scoreDocs) {
 			String collapseTerm = stringIndex.lookup[stringIndex.order[scoreDoc.doc]];
-			resultScoreDocs[i++] = new ResultScoreDoc(resultSearch, scoreDoc,
+			resultScoreDocs[i++] = new ResultScoreDoc(resultSingle, scoreDoc,
 					collapseTerm);
 		}
 		return resultScoreDocs;

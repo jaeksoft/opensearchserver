@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -64,9 +63,9 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.result.DocumentCacheItem;
-import com.jaeksoft.searchlib.result.DocumentRequestItem;
-import com.jaeksoft.searchlib.result.DocumentResult;
-import com.jaeksoft.searchlib.result.ResultSearch;
+import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultSingle;
+import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.FileUtils;
 
@@ -256,12 +255,9 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public ResultSearch search(Request request) throws IOException,
+	public ResultSingle search(Request request) throws IOException,
 			ParseException, SyntaxError {
-		ResultSearch result = new ResultSearch(this, request);
-		if (request.isWithDocument())
-			result.documents();
-		return result;
+		return new ResultSingle(this, request);
 	}
 
 	public void search(Query query, Filter filter, HitCollector collector)
@@ -439,7 +435,11 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 				String cacheFilterKey = FilterHits.toCacheKey(filterList);
 				filter = filterCache.getAndPromote(cacheFilterKey);
 				if (filter == null) {
-					filter = new FilterHits(this, filterList);
+					Schema schema = request.getConfig().getSchema();
+					filter = new FilterHits(schema.getFieldList()
+							.getDefaultField(), schema
+							.getQueryPerFieldAnalyzer(request.getLang()), this,
+							filterList);
 					filterCache.put(cacheFilterKey, filter);
 				}
 				cacheDshKey.append('|');
@@ -474,7 +474,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	private DocumentRequestItem document(int docId, Request request)
+	public ResultDocument document(int docId, Request request)
 			throws CorruptIndexException, IOException, ParseException,
 			SyntaxError {
 		r.lock();
@@ -485,31 +485,14 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			if (key != null) {
 				doc = documentCache.getAndPromote(key);
 				if (doc != null)
-					new DocumentRequestItem(request, doc);
+					new ResultDocument(request, doc);
 			}
 
 			Document document = document(docId, request.getDocumentFieldList());
 			doc = new DocumentCacheItem(key, docId, this, request, document);
 			if (key != null)
 				documentCache.put(key, doc);
-			return new DocumentRequestItem(request, doc);
-		} finally {
-			r.unlock();
-		}
-	}
-
-	public DocumentResult documents(Request request)
-			throws CorruptIndexException, IOException, ParseException,
-			SyntaxError {
-		r.lock();
-		try {
-			List<Integer> docIds = request.getDocIds();
-			if (docIds == null)
-				return null;
-			DocumentResult documentResult = new DocumentResult();
-			for (int docId : docIds)
-				documentResult.add(document(docId, request));
-			return documentResult;
+			return new ResultDocument(request, doc);
 		} finally {
 			r.unlock();
 		}

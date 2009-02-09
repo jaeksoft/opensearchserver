@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.config;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,7 +87,7 @@ public abstract class Config implements XmlInfo {
 
 	protected IndexAbstract getIndex(File homeDir,
 			boolean createIndexIfNotExists) throws XPathExpressionException,
-			IOException {
+			IOException, URISyntaxException {
 		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
 		switch (nodeList.getLength()) {
 		case 0:
@@ -118,76 +119,76 @@ public abstract class Config implements XmlInfo {
 		return requests.get(requestName).clone();
 	}
 
-	public Request getNewRequest(String requestName, HttpServletRequest request)
+	public Request getNewRequest(HttpServletRequest httpRequest)
 			throws ParseException {
 
-		Request req = getNewRequest(requestName);
+		String requestName = httpRequest.getParameter("qt");
+		if (requestName == null)
+			requestName = "search";
+		Request request = getNewRequest(requestName);
 
 		if (request == null)
-			return req;
+			return null;
 
 		String p;
 
-		if ((p = request.getParameter("query")) != null)
-			req.setQueryString(p);
-		else if ((p = request.getParameter("q")) != null)
-			req.setQueryString(p);
+		if ((p = httpRequest.getParameter("query")) != null)
+			request.setQueryString(p);
+		else if ((p = httpRequest.getParameter("q")) != null)
+			request.setQueryString(p);
 
-		if ((p = request.getParameter("start")) != null)
-			req.setStart(Integer.parseInt(p));
+		if ((p = httpRequest.getParameter("start")) != null)
+			request.setStart(Integer.parseInt(p));
 
-		if ((p = request.getParameter("rows")) != null)
-			req.setRows(Integer.parseInt(p));
+		if ((p = httpRequest.getParameter("rows")) != null)
+			request.setRows(Integer.parseInt(p));
 
-		if ((p = request.getParameter("lang")) != null)
-			req.setLang(p);
+		if ((p = httpRequest.getParameter("lang")) != null)
+			request.setLang(p);
 
-		if ((p = request.getParameter("collapse.field")) != null) {
-			req.setCollapseField(getSchema().getFieldList().get(p));
-			req.setCollapseActive(true);
+		if ((p = httpRequest.getParameter("collapse.field")) != null) {
+			request.setCollapseField(getSchema().getFieldList().get(p));
+			request.setCollapseActive(true);
 		}
 
-		if ((p = request.getParameter("collapse.max")) != null)
-			req.setCollapseMax(Integer.parseInt(p));
+		if ((p = httpRequest.getParameter("collapse.max")) != null)
+			request.setCollapseMax(Integer.parseInt(p));
 
-		if ((p = request.getParameter("forceLocal")) != null)
-			req.setForceLocal(true);
+		if ((p = httpRequest.getParameter("delete")) != null)
+			request.setDelete(true);
 
-		if ((p = request.getParameter("delete")) != null)
-			req.setDelete(true);
-
-		if ((p = request.getParameter("withDocs")) != null)
-			req.setWithDocument(true);
+		if ((p = httpRequest.getParameter("withDocs")) != null)
+			request.setWithDocument(true);
 
 		String[] values;
 
-		if ((values = request.getParameterValues("fq")) != null) {
-			FilterList fl = req.getFilterList();
+		if ((values = httpRequest.getParameterValues("fq")) != null) {
+			FilterList fl = request.getFilterList();
 			for (String value : values)
 				if (value != null)
 					if (value.trim().length() > 0)
 						fl.add(value, Filter.Source.REQUEST);
 		}
 
-		if ((values = request.getParameterValues("hl")) != null) {
-			FieldList<HighlightField> highlightFields = req
+		if ((values = httpRequest.getParameterValues("hl")) != null) {
+			FieldList<HighlightField> highlightFields = request
 					.getHighlightFieldList();
 			for (String value : values)
 				highlightFields.add(new HighlightField(getSchema()
 						.getFieldList().get(value)));
 		}
 
-		if ((values = request.getParameterValues("fl")) != null) {
-			FieldList<FieldValue> returnFields = req.getReturnFieldList();
+		if ((values = httpRequest.getParameterValues("fl")) != null) {
+			FieldList<FieldValue> returnFields = request.getReturnFieldList();
 			for (String value : values)
 				returnFields.add(getSchema().getFieldList().get(value));
 		}
-		if ((values = request.getParameterValues("sort")) != null) {
-			SortList sortList = req.getSortList();
+		if ((values = httpRequest.getParameterValues("sort")) != null) {
+			SortList sortList = request.getSortList();
 			for (String value : values)
 				sortList.add(value);
 		}
-		return req;
+		return request;
 	}
 
 	public Render getRender(HttpServletRequest request, Result result) {

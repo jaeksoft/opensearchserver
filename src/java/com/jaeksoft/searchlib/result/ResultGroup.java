@@ -26,15 +26,13 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetGroup;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.sort.SorterInterface;
 
@@ -46,7 +44,7 @@ public class ResultGroup extends Result {
 	 * 
 	 */
 	private static final long serialVersionUID = 7403200579165999208L;
-	private ArrayList<ResultSearch> resultList;
+	private List<ResultSingle> resultList;
 	private SorterInterface sorter;
 
 	private transient ResultScoreDoc[] tempDocs;
@@ -54,32 +52,13 @@ public class ResultGroup extends Result {
 	public ResultGroup(Request request) throws IOException {
 		super(request);
 		this.tempDocs = null;
-		this.resultList = new ArrayList<ResultSearch>();
+		this.resultList = new ArrayList<ResultSingle>();
 		for (FacetField facetField : request.getFacetFieldList())
 			this.facetList.add(new FacetGroup(facetField));
 		this.sorter = request.getSortList().getSorter();
 	}
 
-	@Override
-	public DocumentResult documents() throws IOException, ParseException,
-			SyntaxError {
-		if (documentResult != null)
-			return documentResult;
-		DocumentsGroup docsGroup = new DocumentsGroup(request);
-		int start = request.getStart();
-		int end = request.getEnd();
-		ResultScoreDoc[] resultScoreDoc = getDocs();
-		for (int pos = start; pos < end; pos++) {
-			if (pos >= resultScoreDoc.length)
-				break;
-			ResultScoreDoc scoreDoc = resultScoreDoc[pos];
-			docsGroup.add(scoreDoc);
-		}
-		documentResult = docsGroup.documents();
-		return documentResult;
-	}
-
-	public void addResult(ResultSearch result) throws IOException {
+	public void addResult(ResultSingle result) throws IOException {
 		synchronized (this) {
 			this.resultList.add(result);
 			this.numFound += result.getNumFound();
@@ -98,7 +77,7 @@ public class ResultGroup extends Result {
 	 * @return
 	 * @throws IOException
 	 */
-	public void populate(ResultSearch result, int start, int rows)
+	public void populate(ResultSingle result, int start, int rows)
 			throws IOException {
 
 		synchronized (this) {
@@ -121,7 +100,7 @@ public class ResultGroup extends Result {
 		}
 	}
 
-	private int setDoc(ResultSearch result, int end) {
+	private int setDoc(ResultSingle result, int end) {
 		ResultScoreDoc[] resultScoreDocs = result.getDocs();
 		if (resultScoreDocs == null)
 			return 0;
@@ -140,10 +119,10 @@ public class ResultGroup extends Result {
 	 * @param start
 	 * @param rows
 	 */
-	private void insertAndSort(ResultSearch resultSearch, int start, int rows) {
+	private void insertAndSort(ResultSingle resultSingle, int start, int rows) {
 
 		int end = start + rows;
-		ResultScoreDoc[] insertFetchedDocs = resultSearch.getDocs();
+		ResultScoreDoc[] insertFetchedDocs = resultSingle.getDocs();
 		int length = insertFetchedDocs.length;
 		if (end > length)
 			end = length;
@@ -181,7 +160,7 @@ public class ResultGroup extends Result {
 		return collapse.getCollapsedDoc();
 	}
 
-	public ArrayList<ResultSearch> getResultList() {
+	public List<ResultSingle> getResultList() {
 		return this.resultList;
 	}
 

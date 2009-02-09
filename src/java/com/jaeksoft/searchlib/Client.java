@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -61,18 +62,18 @@ public class Client extends Config implements XmlInfo {
 	}
 
 	public void updateDocument(IndexDocument document)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		getIndex().updateDocument(getSchema(), document);
 	}
 
 	public void updateDocuments(List<? extends IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		getIndex().updateDocuments(getSchema(), documents);
 	}
 
 	public void deleteDocuments(String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, URISyntaxException {
 		getIndex().deleteDocuments(getSchema(), uniqueField);
 	}
 
@@ -88,7 +89,7 @@ public class Client extends Config implements XmlInfo {
 						uniqueField));
 	}
 
-	public void reload() throws IOException {
+	public void reload() throws IOException, URISyntaxException {
 		getIndex().reload(null);
 	}
 
@@ -96,12 +97,14 @@ public class Client extends Config implements XmlInfo {
 	 * Older version compatibility
 	 */
 	@Deprecated
-	public void reload(boolean deleteOld) throws IOException {
+	public void reload(boolean deleteOld) throws IOException,
+			URISyntaxException {
 		reload();
 	}
 
 	public Result search(Request request) throws IOException, ParseException,
-			SyntaxError {
+			SyntaxError, URISyntaxException {
+		request.setConfig(this);
 		return getIndex().search(request);
 	}
 
