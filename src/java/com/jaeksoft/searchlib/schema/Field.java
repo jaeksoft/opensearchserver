@@ -34,7 +34,7 @@ import org.apache.lucene.document.FieldSelectorResult;
 
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public abstract class Field implements FieldSelector, Serializable, XmlInfo {
+public class Field implements FieldSelector, Serializable, XmlInfo {
 
 	private static final long serialVersionUID = -7666123998960959190L;
 
@@ -44,8 +44,9 @@ public abstract class Field implements FieldSelector, Serializable, XmlInfo {
 		this.name = name;
 	}
 
-	@Override
-	public abstract Object clone();
+	public Field(Field field) {
+		this.name = field.name;
+	}
 
 	public FieldSelectorResult accept(String fieldName) {
 		if (this.name.equals(fieldName))

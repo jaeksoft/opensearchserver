@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.highlight.HighlightField;
+import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -135,8 +136,7 @@ public class TemplateRequest extends Request {
 						"highlighting/query"), xpp.getNodeString(node,
 						"scoreFunction"), false, false, true);
 
-		FieldList<FieldValue> returnFields = templateRequest
-				.getReturnFieldList();
+		FieldList<Field> returnFields = templateRequest.getReturnFieldList();
 		FieldList<SchemaField> fieldList = config.getSchema().getFieldList();
 		FieldValue.filterCopy(fieldList, xpp
 				.getNodeString(node, "returnFields"), returnFields);

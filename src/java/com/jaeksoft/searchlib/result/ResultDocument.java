@@ -26,12 +26,13 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -45,28 +46,30 @@ public class ResultDocument implements Serializable {
 	private static final long serialVersionUID = 6099412341625264882L;
 
 	private FieldList<FieldValue> returnFields;
-	private FieldList<HighlightField> highlightFields;
-	private String key;
+	private FieldList<FieldValue> highlightFields;
 
-	@SuppressWarnings("unchecked")
-	public ResultDocument(Request request, DocumentCacheItem document)
-			throws IOException, ParseException, SyntaxError {
-		returnFields = (FieldList<FieldValue>) request.getReturnFieldList()
-				.clone();
-		for (FieldValue field : returnFields)
-			field.addValues(document.getValues(field));
-		highlightFields = (FieldList<HighlightField>) request
-				.getHighlightFieldList().clone();
-		for (HighlightField field : highlightFields)
-			field.setSnippets(request, document);
-		key = document.getKey();
+	public ResultDocument(Request request, int docId, ReaderLocal reader,
+			FieldList<FieldValue> fieldsValues) throws IOException,
+			ParseException, SyntaxError {
+		returnFields = new FieldList<FieldValue>();
+		highlightFields = new FieldList<FieldValue>();
+
+		for (Field field : request.getReturnFieldList())
+			returnFields.add(fieldsValues.get(field));
+
+		for (HighlightField field : request.getHighlightFieldList()) {
+			List<String> snippets = field.getSnippets(request, docId, reader,
+					fieldsValues.get(field).getValues());
+			FieldValue fieldValue = new FieldValue(field, snippets);
+			highlightFields.add(fieldValue);
+		}
 	}
 
-	public ArrayList<String> getValues(Field field) {
-		return returnFields.get(field.getName()).getValues();
+	public String[] getValues(Field field) {
+		return returnFields.get(field).getValues();
 	}
 
-	public ArrayList<String> getValues(String fieldName) {
+	public String[] getValues(String fieldName) {
 		FieldValue field = returnFields.get(fieldName);
 		if (field == null)
 			return null;
@@ -74,12 +77,12 @@ public class ResultDocument implements Serializable {
 	}
 
 	public String getValue(Field field, int pos) {
-		ArrayList<String> values = getValues(field);
+		String[] values = getValues(field);
 		if (values == null)
 			return null;
-		if (pos >= values.size())
+		if (pos >= values.length)
 			return null;
-		return values.get(pos);
+		return values[pos];
 	}
 
 	public String getValue(String fieldName, int pos) {
@@ -89,25 +92,21 @@ public class ResultDocument implements Serializable {
 		return getValue(field, pos);
 	}
 
-	public String getKey() {
-		return key;
-	}
-
-	public ArrayList<String> getSnippets(HighlightField field) {
+	public String[] getSnippets(HighlightField field) {
 		return getSnippets(field.getName());
 	}
 
-	public ArrayList<String> getSnippets(String fieldName) {
+	public String[] getSnippets(String fieldName) {
 		return highlightFields.get(fieldName).getValues();
 	}
 
 	public String getSnippet(String fieldName, int pos) {
-		ArrayList<String> values = getSnippets(fieldName);
+		String[] values = getSnippets(fieldName);
 		if (values == null)
 			return null;
-		if (pos >= values.size())
+		if (pos >= values.length)
 			return null;
-		return values.get(pos);
+		return values[pos];
 	}
 
 }

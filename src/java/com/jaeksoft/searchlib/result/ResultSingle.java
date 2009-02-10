@@ -35,6 +35,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.FieldValue;
 
 public class ResultSingle extends Result {
 
@@ -132,7 +134,10 @@ public class ResultSingle extends Result {
 			end = length;
 		for (int i = start; i < end; i++) {
 			ResultScoreDoc scoreDoc = scoreDocs[i];
-			scoreDoc.resultDocument = reader.document(scoreDoc.doc, request);
+			FieldList<FieldValue> documentFields = reader.getDocumentFields(
+					scoreDoc.doc, request.getDocumentFieldList());
+			scoreDoc.resultDocument = new ResultDocument(request, scoreDoc.doc,
+					reader, documentFields);
 		}
 	}
 

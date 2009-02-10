@@ -96,7 +96,7 @@ public class FragmentList {
 			else
 				pos--;
 		if (pos == 0)
-			pos = max;
+			return null;
 		return text.substring(0, pos);
 	}
 
@@ -107,6 +107,8 @@ public class FragmentList {
 			return false;
 		String text = fragment.getFinalText();
 		String appendText = firstLeft(text, maxLeft);
+		if (appendText == null)
+			return true;
 		if (snippet.length() > 0)
 			if (fragment.isEdge())
 				snippet.append(separator);
@@ -124,6 +126,8 @@ public class FragmentList {
 			return false;
 		String text = fragment.getFinalText();
 		String appendText = lastRight(text, maxLeft);
+		if (appendText == null)
+			return true;
 		if (snippet.length() > 0)
 			if (fragment.isEdge())
 				snippet.insert(0, separator);

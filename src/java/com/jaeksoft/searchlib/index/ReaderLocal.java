@@ -54,7 +54,7 @@ import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 
-import com.jaeksoft.searchlib.cache.DocumentCache;
+import com.jaeksoft.searchlib.cache.DocumentFieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.filter.FilterHits;
@@ -62,9 +62,10 @@ import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentCacheItem;
-import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultSingle;
+import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.FileUtils;
@@ -77,7 +78,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	private SearchCache searchCache;
 	private FilterCache filterCache;
-	private DocumentCache documentCache;
+	private DocumentFieldCache documentFieldCache;
 
 	private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
@@ -124,7 +125,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		try {
 			this.searchCache = new SearchCache(searchCache);
 			this.filterCache = new FilterCache(filterCache);
-			this.documentCache = new DocumentCache(documentCache);
+			this.documentFieldCache = new DocumentFieldCache(documentCache);
 		} finally {
 			w.unlock();
 		}
@@ -135,7 +136,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		try {
 			searchCache.clear();
 			filterCache.clear();
-			documentCache.clear();
+			documentFieldCache.clear();
 		} finally {
 			w.unlock();
 		}
@@ -278,7 +279,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		indexReader.deleteDocument(docNum);
 	}
 
-	public Document document(int docId, FieldSelector selector)
+	private Document getDocFields(int docId, FieldSelector selector)
 			throws CorruptIndexException, IOException {
 		r.lock();
 		try {
@@ -474,25 +475,38 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public ResultDocument document(int docId, Request request)
-			throws CorruptIndexException, IOException, ParseException,
-			SyntaxError {
+	public FieldList<FieldValue> getDocumentFields(int docId,
+			FieldList<Field> fieldList) throws CorruptIndexException,
+			IOException, ParseException, SyntaxError {
 		r.lock();
 		try {
-			DocumentCacheItem doc = null;
-			String key = DocumentCache.getKey(request.getName(), getName(),
-					docId);
-			if (key != null) {
-				doc = documentCache.getAndPromote(key);
-				if (doc != null)
-					new ResultDocument(request, doc);
+
+			FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
+
+			FieldList<Field> missingField = new FieldList<Field>();
+
+			for (Field field : fieldList) {
+				String key = DocumentFieldCache.getKey(field, docId);
+				String[] values = documentFieldCache.getAndPromote(key);
+				if (values != null)
+					documentFields.add(new FieldValue(field, values));
+				else
+					missingField.add(field);
 			}
 
-			Document document = document(docId, request.getDocumentFieldList());
-			doc = new DocumentCacheItem(key, docId, this, request, document);
-			if (key != null)
-				documentCache.put(key, doc);
-			return new ResultDocument(request, doc);
+			if (missingField.size() > 0) {
+				Document document = getDocFields(docId, missingField);
+				for (Field field : missingField) {
+					String key = DocumentFieldCache.getKey(field, docId);
+					String[] values = document.getValues(field.getName());
+					if (values != null) {
+						documentFields.add(new FieldValue(field, values));
+						documentFieldCache.put(key, values);
+					}
+				}
+			}
+			return documentFields;
+
 		} finally {
 			r.unlock();
 		}

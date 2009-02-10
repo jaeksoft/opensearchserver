@@ -81,15 +81,6 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 			add(field);
 	}
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public Object clone() {
-		FieldList<T> list = new FieldList<T>();
-		for (T field : this)
-			list.add((T) field.clone());
-		return list;
-	}
-
 	/**
 	 * Retourne le champ par d�fault du fichier de config XML. <gisearch><schema
 	 * defaultField="nomchamp">...
@@ -132,6 +123,10 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 	 */
 	public T get(String name) {
 		return fieldsName.get(name);
+	}
+
+	public T get(Field field) {
+		return fieldsName.get(field.name);
 	}
 
 	/**

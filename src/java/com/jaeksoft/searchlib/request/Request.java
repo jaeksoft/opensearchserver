@@ -44,7 +44,6 @@ import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.XmlInfo;
@@ -67,8 +66,8 @@ public class Request implements XmlInfo, Serializable {
 	private int phraseSlop;
 	private QueryParser.Operator defaultOperator;
 	private FieldList<HighlightField> highlightFieldList;
-	private FieldList<FieldValue> returnFieldList;
-	private FieldList<FieldValue> documentFieldList;
+	private FieldList<Field> returnFieldList;
+	private FieldList<Field> documentFieldList;
 	private FieldList<FacetField> facetFieldList;
 	private SortList sortList;
 	private Field collapseField;
@@ -94,7 +93,7 @@ public class Request implements XmlInfo, Serializable {
 		this.phraseSlop = 10;
 		this.defaultOperator = Operator.OR;
 		this.highlightFieldList = new FieldList<HighlightField>();
-		this.returnFieldList = new FieldList<FieldValue>();
+		this.returnFieldList = new FieldList<Field>();
 		this.sortList = new SortList();
 		this.documentFieldList = null;
 		this.facetFieldList = new FieldList<FacetField>();
@@ -124,12 +123,11 @@ public class Request implements XmlInfo, Serializable {
 		this.defaultOperator = request.defaultOperator;
 		this.highlightFieldList = new FieldList<HighlightField>(
 				request.highlightFieldList);
-		this.returnFieldList = new FieldList<FieldValue>(
-				request.returnFieldList);
+		this.returnFieldList = new FieldList<Field>(request.returnFieldList);
 		this.sortList = new SortList(request.sortList);
 		this.documentFieldList = null;
 		if (request.documentFieldList != null)
-			this.documentFieldList = new FieldList<FieldValue>(
+			this.documentFieldList = new FieldList<Field>(
 					request.documentFieldList);
 		this.facetFieldList = new FieldList<FacetField>(request.facetFieldList);
 		this.collapseField = request.collapseField;
@@ -264,7 +262,7 @@ public class Request implements XmlInfo, Serializable {
 		return this.highlightFieldList;
 	}
 
-	public FieldList<FieldValue> getReturnFieldList() {
+	public FieldList<Field> getReturnFieldList() {
 		return this.returnFieldList;
 	}
 
@@ -352,13 +350,13 @@ public class Request implements XmlInfo, Serializable {
 		this.lang = p;
 	}
 
-	public FieldList<FieldValue> getDocumentFieldList() {
+	public FieldList<Field> getDocumentFieldList() {
 		if (documentFieldList != null)
 			return documentFieldList;
-		documentFieldList = new FieldList<FieldValue>(returnFieldList);
+		documentFieldList = new FieldList<Field>(returnFieldList);
 		Iterator<HighlightField> it = highlightFieldList.iterator();
 		while (it.hasNext())
-			documentFieldList.add(new FieldValue(it.next()));
+			documentFieldList.add(new Field(it.next()));
 		return documentFieldList;
 	}
 

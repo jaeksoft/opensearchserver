@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import java.util.TreeMap;
@@ -42,14 +43,12 @@ import org.w3c.dom.Node;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.DocumentCacheItem;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.XPathParser;
 
-public class HighlightField extends FieldValue {
+public class HighlightField extends Field {
 
 	private FragmenterAbstract fragmenter;
 	private String tag;
@@ -215,16 +214,18 @@ public class HighlightField extends FieldValue {
 		return currentVector;
 	}
 
-	public void setSnippets(Request request, DocumentCacheItem doc)
-			throws IOException, ParseException, SyntaxError {
+	public List<String> getSnippets(Request request, int docId,
+			ReaderLocal reader, String[] values) throws IOException,
+			ParseException, SyntaxError {
 
+		if (values == null)
+			return null;
 		TermVectorOffsetInfo currentVector = null;
 		Iterator<TermVectorOffsetInfo> vectorIterator = extractTermVectorIterator(
-				request, doc.getDocId(), doc.getReader());
+				request, docId, reader);
 		if (vectorIterator != null)
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
 					: null;
-		ArrayList<String> values = doc.getValues(this);
 		int startOffset = 0;
 		FragmentList fragments = new FragmentList();
 		int vectorOffset = 0;
@@ -238,7 +239,7 @@ public class HighlightField extends FieldValue {
 			}
 		}
 		if (fragments.size() == 0)
-			return;
+			return null;
 		ListIterator<Fragment> fragmentIterator = fragments.iterator();
 		while (fragmentIterator.hasNext()) {
 			Fragment fragment = fragmentIterator.next();
@@ -246,6 +247,8 @@ public class HighlightField extends FieldValue {
 					startOffset, fragment);
 			startOffset += fragment.getOriginalText().length();
 		}
+
+		List<String> snippets = new ArrayList<String>();
 		fragmentIterator = fragments.iterator();
 		int snippetCounter = maxSnippetNumber;
 		while (snippetCounter-- != 0) {
@@ -257,15 +260,17 @@ public class HighlightField extends FieldValue {
 					separator, fragmentIterator, fragment);
 			if (snippet != null)
 				if (snippet.length() > 0)
-					addValue(snippet.toString());
+					snippets.add(snippet.toString());
 		}
-		if (getValuesCount() > 0)
-			return;
-		fragmentIterator = fragments.iterator();
-		StringBuffer snippet = fragments.getSnippet(maxSnippetSize, separator,
-				fragmentIterator, fragmentIterator.next());
-		if (snippet != null)
-			if (snippet.length() > 0)
-				addValue(snippet.toString());
+		if (snippets.size() == 0) {
+			fragmentIterator = fragments.iterator();
+			StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
+					separator, fragmentIterator, fragmentIterator.next());
+			if (snippet != null)
+				if (snippet.length() > 0)
+					snippets.add(snippet.toString());
+		}
+		return snippets;
 	}
+
 }

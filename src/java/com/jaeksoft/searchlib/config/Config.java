@@ -50,8 +50,8 @@ import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.request.RequestList;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -179,7 +179,7 @@ public abstract class Config implements XmlInfo {
 		}
 
 		if ((values = httpRequest.getParameterValues("fl")) != null) {
-			FieldList<FieldValue> returnFields = request.getReturnFieldList();
+			FieldList<Field> returnFields = request.getReturnFieldList();
 			for (String value : values)
 				returnFields.add(getSchema().getFieldList().get(value));
 		}

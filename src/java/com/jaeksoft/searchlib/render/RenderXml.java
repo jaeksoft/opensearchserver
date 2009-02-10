@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
@@ -96,9 +95,9 @@ public class RenderXml implements Render {
 		writer.println("\t<doc score=\"" + result.getDocs()[pos].score
 				+ "\" pos=\"" + pos + "\">");
 		ResultDocument doc = result.getDocument(pos);
-		for (Field field : this.request.getReturnFieldList())
+		for (Field field : request.getReturnFieldList())
 			renderField(doc, field);
-		for (HighlightField field : this.request.getHighlightFieldList())
+		for (HighlightField field : request.getHighlightFieldList())
 			renderHighlightValue(doc, field);
 
 		Collapse collapse = result.getCollapse();
@@ -114,7 +113,7 @@ public class RenderXml implements Render {
 	private void renderField(ResultDocument doc, Field field)
 			throws CorruptIndexException, IOException {
 		String fieldName = field.getName();
-		ArrayList<String> values = doc.getValues(field);
+		String[] values = doc.getValues(field);
 		if (values == null)
 			return;
 		writer.println();
@@ -129,7 +128,7 @@ public class RenderXml implements Render {
 	private void renderHighlightValue(ResultDocument doc, HighlightField field)
 			throws IOException {
 		String fieldName = field.getName();
-		ArrayList<String> snippets = doc.getSnippets(field);
+		String[] snippets = doc.getSnippets(field);
 		if (snippets == null)
 			return;
 		writer.println();

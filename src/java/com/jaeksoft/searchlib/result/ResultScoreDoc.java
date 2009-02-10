@@ -103,4 +103,5 @@ public class ResultScoreDoc implements Serializable {
 		return resultScoreDocs;
 
 	}
+
 }

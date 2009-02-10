@@ -24,60 +24,62 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class FieldValue extends Field {
 
 	private static final long serialVersionUID = -6131981428734961071L;
 
-	private ArrayList<String> values;
-
-	public FieldValue(FieldValue field) {
-		this(field.name);
-		this.values = field.values;
-	}
+	private String[] values;
 
 	protected FieldValue(String name) {
 		super(name);
 		values = null;
 	}
 
+	public FieldValue(FieldValue field) {
+		this(field.name);
+		this.values = field.values;
+	}
+
+	public FieldValue(Field field, String[] values) {
+		super(field.name);
+		setValues(values);
+	}
+
+	public FieldValue(Field field, List<String> values) {
+		super(field.name);
+		setValues(values);
+	}
+
 	public void clearValues() {
 		if (values == null)
 			return;
-		values.clear();
 		values = null;
-	}
-
-	public void addValue(String value) {
-		if (values == null)
-			values = new ArrayList<String>();
-		values.add(value);
-	}
-
-	public void addValues(String[] vals) {
-		if (vals == null)
-			return;
-		for (String value : vals)
-			addValue(value);
-	}
-
-	public void addValues(ArrayList<String> vals) {
-		if (vals == null)
-			return;
-		for (String value : vals)
-			addValue(value);
 	}
 
 	public int getValuesCount() {
 		if (values == null)
 			return 0;
-		return values.size();
+		return values.length;
 	}
 
-	public ArrayList<String> getValues() {
+	public String[] getValues() {
 		return values;
+	}
+
+	public void setValues(String[] vals) {
+		this.values = vals;
+	}
+
+	public void setValues(List<String> vals) {
+		if (vals == null) {
+			values = null;
+			return;
+		}
+		values = new String[vals.size()];
+		vals.toArray(values);
 	}
 
 	@Override
