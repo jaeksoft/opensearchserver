@@ -26,12 +26,14 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
+import com.jaeksoft.searchlib.highlight.HighlightFieldValue;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.Request;
 import com.jaeksoft.searchlib.schema.Field;
@@ -46,21 +48,23 @@ public class ResultDocument implements Serializable {
 	private static final long serialVersionUID = 6099412341625264882L;
 
 	private FieldList<FieldValue> returnFields;
-	private FieldList<FieldValue> highlightFields;
+	private FieldList<HighlightFieldValue> highlightFields;
 
 	public ResultDocument(Request request, int docId, ReaderLocal reader,
 			FieldList<FieldValue> fieldsValues) throws IOException,
 			ParseException, SyntaxError {
 		returnFields = new FieldList<FieldValue>();
-		highlightFields = new FieldList<FieldValue>();
+		highlightFields = new FieldList<HighlightFieldValue>();
 
 		for (Field field : request.getReturnFieldList())
 			returnFields.add(fieldsValues.get(field));
 
 		for (HighlightField field : request.getHighlightFieldList()) {
-			List<String> snippets = field.getSnippets(request, docId, reader,
-					fieldsValues.get(field).getValues());
-			FieldValue fieldValue = new FieldValue(field, snippets);
+			List<String> snippets = new ArrayList<String>();
+			boolean highlighted = field.getSnippets(request, docId, reader,
+					fieldsValues.get(field).getValues(), snippets);
+			HighlightFieldValue fieldValue = new HighlightFieldValue(field,
+					snippets, highlighted);
 			highlightFields.add(fieldValue);
 		}
 	}
@@ -109,4 +113,7 @@ public class ResultDocument implements Serializable {
 		return values[pos];
 	}
 
+	public boolean isHighlighted(String fieldName) {
+		return highlightFields.get(fieldName).isHighlighted();
+	}
 }

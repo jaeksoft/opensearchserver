@@ -131,13 +131,19 @@ public class RenderXml implements Render {
 		String[] snippets = doc.getSnippets(field);
 		if (snippets == null)
 			return;
+		boolean highlighted = doc.isHighlighted(field.getName());
 		writer.println();
-		for (String snippet : snippets)
-			writer.println("\t\t<highlight name=\""
-					+ fieldName
-					+ "\">"
-					+ StringEscapeUtils.escapeJava(StringEscapeUtils
-							.escapeXml(snippet)) + "</highlight>");
+		for (String snippet : snippets) {
+			writer.print("\t\t<highlight name=\"");
+			writer.print(fieldName);
+			writer.print('"');
+			if (highlighted)
+				writer.print(" highlighted=\"yes\"");
+			writer.print('>');
+			writer.print(StringEscapeUtils.escapeJava(StringEscapeUtils
+					.escapeXml(snippet)));
+			writer.println("\t\t</highlight>");
+		}
 	}
 
 	private void renderFacet(Facet facet) throws Exception {

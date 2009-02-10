@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.highlight;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -214,12 +213,12 @@ public class HighlightField extends Field {
 		return currentVector;
 	}
 
-	public List<String> getSnippets(Request request, int docId,
-			ReaderLocal reader, String[] values) throws IOException,
+	public boolean getSnippets(Request request, int docId, ReaderLocal reader,
+			String[] values, List<String> snippets) throws IOException,
 			ParseException, SyntaxError {
 
 		if (values == null)
-			return null;
+			return false;
 		TermVectorOffsetInfo currentVector = null;
 		Iterator<TermVectorOffsetInfo> vectorIterator = extractTermVectorIterator(
 				request, docId, reader);
@@ -239,7 +238,7 @@ public class HighlightField extends Field {
 			}
 		}
 		if (fragments.size() == 0)
-			return null;
+			return false;
 		ListIterator<Fragment> fragmentIterator = fragments.iterator();
 		while (fragmentIterator.hasNext()) {
 			Fragment fragment = fragmentIterator.next();
@@ -248,7 +247,6 @@ public class HighlightField extends Field {
 			startOffset += fragment.getOriginalText().length();
 		}
 
-		List<String> snippets = new ArrayList<String>();
 		fragmentIterator = fragments.iterator();
 		int snippetCounter = maxSnippetNumber;
 		while (snippetCounter-- != 0) {
@@ -262,15 +260,16 @@ public class HighlightField extends Field {
 				if (snippet.length() > 0)
 					snippets.add(snippet.toString());
 		}
-		if (snippets.size() == 0) {
-			fragmentIterator = fragments.iterator();
-			StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
-					separator, fragmentIterator, fragmentIterator.next());
-			if (snippet != null)
-				if (snippet.length() > 0)
-					snippets.add(snippet.toString());
-		}
-		return snippets;
+		if (snippets.size() > 0)
+			return true;
+
+		fragmentIterator = fragments.iterator();
+		StringBuffer snippet = fragments.getSnippet(maxSnippetSize, separator,
+				fragmentIterator, fragmentIterator.next());
+		if (snippet != null)
+			if (snippet.length() > 0)
+				snippets.add(snippet.toString());
+		return false;
 	}
 
 }
