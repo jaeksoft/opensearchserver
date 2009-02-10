@@ -74,7 +74,7 @@ public class ResultDocument implements Serializable {
 	}
 
 	public List<String> getValueList(Field field) {
-		return returnFields.get(field).getValueList();
+		return getValueList(field.getName());
 	}
 
 	public String[] getValueArray(String fieldName) {
@@ -82,7 +82,10 @@ public class ResultDocument implements Serializable {
 	}
 
 	public List<String> getValueList(String fieldName) {
-		return returnFields.get(fieldName).getValueList();
+		FieldValue fieldValue = returnFields.get(fieldName);
+		if (fieldValue == null)
+			return null;
+		return fieldValue.getValueList();
 	}
 
 	public String getValue(Field field, int pos) {
@@ -114,7 +117,15 @@ public class ResultDocument implements Serializable {
 	}
 
 	public List<String> getSnippetList(String fieldName) {
-		return highlightFields.get(fieldName).getValueList();
+		HighlightFieldValue highlightFieldValue = highlightFields
+				.get(fieldName);
+		if (highlightFieldValue == null)
+			return null;
+		return highlightFieldValue.getValueList();
+	}
+
+	public List<String> getSnippetList(Field field) {
+		return getSnippetList(field.getName());
 	}
 
 	public String getSnippet(String fieldName, int pos) {
