@@ -62,26 +62,31 @@ public class ResultDocument implements Serializable {
 		for (HighlightField field : request.getHighlightFieldList()) {
 			List<String> snippets = new ArrayList<String>();
 			boolean highlighted = field.getSnippets(request, docId, reader,
-					fieldsValues.get(field).getValues(), snippets);
+					fieldsValues.get(field).getValueArray(), snippets);
 			HighlightFieldValue fieldValue = new HighlightFieldValue(field,
 					snippets, highlighted);
 			highlightFields.add(fieldValue);
 		}
 	}
 
-	public String[] getValues(Field field) {
-		return returnFields.get(field).getValues();
+	public String[] getValueArray(Field field) {
+		return returnFields.get(field).getValueArray();
 	}
 
-	public String[] getValues(String fieldName) {
-		FieldValue field = returnFields.get(fieldName);
-		if (field == null)
-			return null;
-		return field.getValues();
+	public List<String> getValueList(Field field) {
+		return returnFields.get(field).getValueList();
+	}
+
+	public String[] getValueArray(String fieldName) {
+		return returnFields.get(fieldName).getValueArray();
+	}
+
+	public List<String> getValueList(String fieldName) {
+		return returnFields.get(fieldName).getValueList();
 	}
 
 	public String getValue(Field field, int pos) {
-		String[] values = getValues(field);
+		String[] values = getValueArray(field);
 		if (values == null)
 			return null;
 		if (pos >= values.length)
@@ -96,16 +101,24 @@ public class ResultDocument implements Serializable {
 		return getValue(field, pos);
 	}
 
-	public String[] getSnippets(HighlightField field) {
-		return getSnippets(field.getName());
+	public String[] getSnippetArray(HighlightField field) {
+		return highlightFields.get(field).getValueArray();
 	}
 
-	public String[] getSnippets(String fieldName) {
-		return highlightFields.get(fieldName).getValues();
+	public List<String> getSnippetValue(HighlightField field) {
+		return highlightFields.get(field).getValueList();
+	}
+
+	public String[] getSnippetArray(String fieldName) {
+		return highlightFields.get(fieldName).getValueArray();
+	}
+
+	public List<String> getSnippetList(String fieldName) {
+		return highlightFields.get(fieldName).getValueList();
 	}
 
 	public String getSnippet(String fieldName, int pos) {
-		String[] values = getSnippets(fieldName);
+		String[] values = getSnippetArray(fieldName);
 		if (values == null)
 			return null;
 		if (pos >= values.length)

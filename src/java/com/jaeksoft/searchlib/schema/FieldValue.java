@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -31,16 +32,18 @@ public class FieldValue extends Field {
 
 	private static final long serialVersionUID = -6131981428734961071L;
 
-	private String[] values;
+	private String[] valueArray;
+	private transient List<String> valueList;
 
 	protected FieldValue(String name) {
 		super(name);
-		values = null;
+		valueArray = null;
+		valueList = null;
 	}
 
 	public FieldValue(FieldValue field) {
 		this(field.name);
-		this.values = field.values;
+		this.valueArray = field.valueArray;
 	}
 
 	public FieldValue(Field field, String[] values) {
@@ -53,38 +56,41 @@ public class FieldValue extends Field {
 		setValues(values);
 	}
 
-	public void clearValues() {
-		if (values == null)
-			return;
-		values = null;
-	}
-
 	public int getValuesCount() {
-		if (values == null)
+		if (valueArray == null)
 			return 0;
-		return values.length;
+		return valueArray.length;
 	}
 
-	public String[] getValues() {
-		return values;
+	public String[] getValueArray() {
+		return valueArray;
 	}
 
-	public void setValues(String[] vals) {
-		this.values = vals;
+	public List<String> getValueList() {
+		if (valueList != null)
+			return valueList;
+		if (valueArray == null)
+			return null;
+		valueList = new ArrayList<String>();
+		for (String value : valueArray)
+			valueList.add(value);
+		return valueList;
 	}
 
-	public void setValues(List<String> vals) {
-		if (vals == null) {
-			values = null;
+	public void setValues(String[] values) {
+		valueArray = values;
+		valueList = null;
+	}
+
+	public void setValues(List<String> values) {
+		if (values == null) {
+			valueArray = null;
+			valueList = null;
 			return;
 		}
-		values = new String[vals.size()];
-		vals.toArray(values);
-	}
-
-	@Override
-	public Object clone() {
-		return new FieldValue(this);
+		valueArray = new String[values.size()];
+		values.toArray(valueArray);
+		valueList = null;
 	}
 
 	/**

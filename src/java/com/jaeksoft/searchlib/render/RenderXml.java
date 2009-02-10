@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
@@ -113,7 +114,7 @@ public class RenderXml implements Render {
 	private void renderField(ResultDocument doc, Field field)
 			throws CorruptIndexException, IOException {
 		String fieldName = field.getName();
-		String[] values = doc.getValues(field);
+		List<String> values = doc.getValueList(field);
 		if (values == null)
 			return;
 		writer.println();
@@ -128,7 +129,7 @@ public class RenderXml implements Render {
 	private void renderHighlightValue(ResultDocument doc, HighlightField field)
 			throws IOException {
 		String fieldName = field.getName();
-		String[] snippets = doc.getSnippets(field);
+		String[] snippets = doc.getSnippetArray(field);
 		if (snippets == null)
 			return;
 		boolean highlighted = doc.isHighlighted(field.getName());
