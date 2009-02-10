@@ -198,7 +198,7 @@ public class WriterLocal extends WriterAbstract {
 		l.lock();
 		try {
 			open();
-			updateDocument(schema, document);
+			updateDoc(schema, document);
 			close();
 		} finally {
 			l.unlock();
