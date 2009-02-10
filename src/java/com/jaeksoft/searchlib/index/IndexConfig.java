@@ -41,7 +41,7 @@ public class IndexConfig {
 
 	private int filterCache;
 
-	private int documentCache;
+	private int fieldCache;
 
 	private URI remoteUri;
 
@@ -54,7 +54,9 @@ public class IndexConfig {
 		path = XPathParser.getAttributeString(node, "path");
 		searchCache = XPathParser.getAttributeValue(node, "searchCache");
 		filterCache = XPathParser.getAttributeValue(node, "filterCache");
-		documentCache = XPathParser.getAttributeValue(node, "documentCache");
+		fieldCache = XPathParser.getAttributeValue(node, "fieldCache");
+		if (fieldCache == 0)
+			fieldCache = XPathParser.getAttributeValue(node, "documentCache");
 		String s = XPathParser.getAttributeString(node, "remoteUrl");
 		remoteUri = s == null ? null : new URI(s);
 		keyField = XPathParser.getAttributeString(node, "keyField");
@@ -124,16 +126,16 @@ public class IndexConfig {
 	/**
 	 * @return the documentCache
 	 */
-	public int getDocumentCache() {
-		return documentCache;
+	public int getFieldCache() {
+		return fieldCache;
 	}
 
 	/**
 	 * @param documentCache
 	 *            the documentCache to set
 	 */
-	public void setDocumentCache(int documentCache) {
-		this.documentCache = documentCache;
+	public void setFieldCache(int fieldCache) {
+		this.fieldCache = fieldCache;
 	}
 
 	/**

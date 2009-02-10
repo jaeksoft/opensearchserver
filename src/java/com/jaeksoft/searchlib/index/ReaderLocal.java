@@ -43,7 +43,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.IndexSearcher;
@@ -54,7 +53,7 @@ import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 
-import com.jaeksoft.searchlib.cache.DocumentFieldCache;
+import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.filter.FilterHits;
@@ -78,7 +77,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	private SearchCache searchCache;
 	private FilterCache filterCache;
-	private DocumentFieldCache documentFieldCache;
+	private FieldCache fieldCache;
 
 	private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
@@ -120,12 +119,12 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	private void initCache(int searchCache, int filterCache, int documentCache) {
+	private void initCache(int searchCache, int filterCache, int fieldCache) {
 		w.lock();
 		try {
 			this.searchCache = new SearchCache(searchCache);
 			this.filterCache = new FilterCache(filterCache);
-			this.documentFieldCache = new DocumentFieldCache(documentCache);
+			this.fieldCache = new FieldCache(fieldCache);
 		} finally {
 			w.unlock();
 		}
@@ -136,7 +135,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		try {
 			searchCache.clear();
 			filterCache.clear();
-			documentFieldCache.clear();
+			fieldCache.clear();
 		} finally {
 			w.unlock();
 		}
@@ -294,7 +293,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	public StringIndex getStringIndex(String fieldName) throws IOException {
 		r.lock();
 		try {
-			return FieldCache.DEFAULT.getStringIndex(indexReader, fieldName);
+			return org.apache.lucene.search.FieldCache.DEFAULT.getStringIndex(
+					indexReader, fieldName);
 		} finally {
 			r.unlock();
 		}
@@ -374,7 +374,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 
 		reader.initCache(indexConfig.getSearchCache(), indexConfig
-				.getFilterCache(), indexConfig.getDocumentCache());
+				.getFilterCache(), indexConfig.getFieldCache());
 		return reader;
 	}
 
@@ -486,8 +486,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			FieldList<Field> missingField = new FieldList<Field>();
 
 			for (Field field : fieldList) {
-				String key = DocumentFieldCache.getKey(field, docId);
-				String[] values = documentFieldCache.getAndPromote(key);
+				String key = FieldCache.getKey(field, docId);
+				String[] values = fieldCache.getAndPromote(key);
 				if (values != null)
 					documentFields.add(new FieldValue(field, values));
 				else
@@ -497,11 +497,11 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			if (missingField.size() > 0) {
 				Document document = getDocFields(docId, missingField);
 				for (Field field : missingField) {
-					String key = DocumentFieldCache.getKey(field, docId);
+					String key = FieldCache.getKey(field, docId);
 					String[] values = document.getValues(field.getName());
 					if (values != null) {
 						documentFields.add(new FieldValue(field, values));
-						documentFieldCache.put(key, values);
+						fieldCache.put(key, values);
 					}
 				}
 			}

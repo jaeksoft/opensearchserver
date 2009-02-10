@@ -22,29 +22,18 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result;
+package com.jaeksoft.searchlib.cache;
 
-import java.io.IOException;
+import com.jaeksoft.searchlib.schema.Field;
 
-import com.jaeksoft.searchlib.schema.FieldValue;
+public class FieldCache extends LRUCache<String, String[]> {
 
-public class DocumentFieldCacheItem {
-
-	private FieldValue fieldValue;
-	private int docId;
-
-	public DocumentFieldCacheItem(int docId, FieldValue fieldValue)
-			throws IOException {
-		this.fieldValue = fieldValue;
-		this.docId = docId;
+	public FieldCache(int maxSize) {
+		super(maxSize);
 	}
 
-	public FieldValue getFieldValue() {
-		return fieldValue;
-	}
-
-	public int getDocId() {
-		return docId;
+	final public static String getKey(Field field, int docId) {
+		return docId + "_" + field.getName();
 	}
 
 }

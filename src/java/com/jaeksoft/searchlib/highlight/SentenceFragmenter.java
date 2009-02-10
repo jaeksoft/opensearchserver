@@ -39,12 +39,19 @@ public class SentenceFragmenter extends FragmenterAbstract {
 	public void check(String originalText) {
 		int pos = 0;
 		char[] chars = originalText.toCharArray();
+		boolean nextSpaceIsSplit = false;
 		for (char ch : chars) {
+			if (nextSpaceIsSplit)
+				if (Character.isWhitespace(ch))
+					addSplit(pos + 1);
 			switch (ch) {
 			case '.':
 			case '?':
 			case '!':
-				addSplit(pos + 1);
+				nextSpaceIsSplit = true;
+				break;
+			default:
+				nextSpaceIsSplit = false;
 				break;
 			}
 			pos++;
