@@ -259,7 +259,8 @@ public class SearchRequest implements XmlInfo, Serializable {
 		synchronized (this) {
 			if (patternQuery != null)
 				queryString = patternQuery.replace("$$", q);
-			queryString = q;
+			else
+				queryString = q;
 			query = null;
 		}
 	}
@@ -293,7 +294,7 @@ public class SearchRequest implements XmlInfo, Serializable {
 	}
 
 	public void setCollapseField(Field collapseField) {
-		this.collapseField = collapseField;
+		this.collapseField = new Field(collapseField);
 	}
 
 	public void setCollapseMax(int collapseMax) {

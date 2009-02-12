@@ -143,6 +143,10 @@ public class HighlightField extends Field implements Externalizable {
 
 	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(int docId,
 			ReaderLocal reader) throws IOException, ParseException, SyntaxError {
+		if (searchTerms == null)
+			return null;
+		if (searchTerms.length == 0)
+			return null;
 		TermPositionVector termVector = (TermPositionVector) reader
 				.getTermFreqVector(docId, name);
 		if (termVector == null)

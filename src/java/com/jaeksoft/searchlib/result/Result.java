@@ -79,8 +79,9 @@ public abstract class Result implements Externalizable,
 
 	public int getDocumentCount() {
 		int end = searchRequest.getEnd();
-		if (end > numFound)
-			end = numFound;
+		int len = getDocLength();
+		if (end > len)
+			end = len;
 		return end - searchRequest.getStart();
 	}
 
@@ -92,7 +93,7 @@ public abstract class Result implements Externalizable,
 			IOException, ParseException, SyntaxError {
 		if (pos >= searchRequest.getEnd())
 			return null;
-		if (pos >= numFound)
+		if (pos >= getDocLength())
 			return null;
 		return resultDocuments[pos - searchRequest.getStart()];
 	}
