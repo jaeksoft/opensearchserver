@@ -40,8 +40,9 @@ public class Filter implements Serializable {
 	 */
 	private static final long serialVersionUID = -3935917370775417249L;
 
-	private String queryString;
 	private transient Query query;
+
+	private String queryString;
 	private Source source;
 
 	public enum Source {

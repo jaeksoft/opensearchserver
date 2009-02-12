@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -24,75 +24,81 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
-import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.util.External;
 
-public abstract class Result implements Serializable, Iterable<ResultDocument> {
+public abstract class Result implements Externalizable,
+		Iterable<ResultDocument> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	transient protected Request request;
+	transient protected SearchRequest searchRequest;
+	transient protected Collapse collapse;
 	protected FacetList facetList;
-	protected Collapse collapse;
-	private Timer timer;
 	private ResultScoreDoc[] docs;
 	protected int numFound;
 	protected float maxScore;
+	protected int collapsedDocCount;
+	private ResultDocument[] resultDocuments;
 
-	protected Result(Request request) {
+	protected Result() {
+		searchRequest = null;
+	}
+
+	protected Result(SearchRequest searchRequest) {
+		this.resultDocuments = null;
 		this.numFound = 0;
 		this.maxScore = 0;
+		this.collapsedDocCount = 0;
 		this.docs = new ResultScoreDoc[0];
-		this.request = request;
-		this.timer = new Timer();
-		if (request.getFacetFieldList().size() > 0)
+		this.searchRequest = searchRequest;
+		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
-		this.collapse = new Collapse(request);
+		collapse = new Collapse(searchRequest);
 	}
 
-	public Request getRequest() {
-		return this.request;
+	public SearchRequest getSearchRequest() {
+		return this.searchRequest;
 	}
 
-	public void setRequest(Request request) {
-		this.request = request;
-	}
-
-	public Timer getTimer() {
-		return this.timer;
+	public void setSearchRequest(SearchRequest searchRequest) {
+		this.searchRequest = searchRequest;
 	}
 
 	public FacetList getFacetList() {
 		return this.facetList;
 	}
 
+	public int getDocumentCount() {
+		int end = searchRequest.getEnd();
+		if (end > numFound)
+			end = numFound;
+		return end - searchRequest.getStart();
+	}
+
+	protected void setDocuments(ResultDocument[] resultDocuments) {
+		this.resultDocuments = resultDocuments;
+	}
+
 	public ResultDocument getDocument(int pos) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
-		if (request.isDelete())
-			return null;
-		if (docs == null)
-			return null;
-		if (pos >= request.getEnd())
+		if (pos >= searchRequest.getEnd())
 			return null;
 		if (pos >= numFound)
 			return null;
-		return docs[pos].resultDocument;
+		return resultDocuments[pos - searchRequest.getStart()];
 	}
 
 	public ResultDocumentIterator iterator() {
-		return new ResultDocumentIterator(this);
+		return new ResultDocumentIterator(resultDocuments);
 	}
 
 	public float getMaxScore() {
@@ -103,7 +109,7 @@ public abstract class Result implements Serializable, Iterable<ResultDocument> {
 		return numFound;
 	}
 
-	public void setDocs(ResultScoreDoc[] docs) {
+	protected void setDocs(ResultScoreDoc[] docs) {
 		this.docs = docs;
 	}
 
@@ -117,14 +123,78 @@ public abstract class Result implements Serializable, Iterable<ResultDocument> {
 		return docs;
 	}
 
-	public Collapse getCollapse() throws IOException {
+	public Collapse getCollapse() {
 		return collapse;
+	}
+
+	public int getCollapseDocCount() {
+		return collapsedDocCount;
+	}
+
+	public int getCollapseCount(int pos) {
+		if (docs == null)
+			return 0;
+		return docs[pos].collapseCount;
 	}
 
 	@Override
 	public String toString() {
 		return "Found: " + this.getNumFound() + " maxScore: "
 				+ this.getMaxScore();
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+
+		// Reading FacetList if any
+		facetList = (FacetList) External.readObject(in);
+
+		// Reading docs (from request.start to getDocLength)
+		int length = in.readInt();
+		if (length > 0) {
+			docs = new ResultScoreDoc[length];
+			int start = in.readInt();
+			for (int i = start; i < length; i++)
+				docs[i] = (ResultScoreDoc) in.readObject();
+		} else
+			docs = null;
+
+		// Reading numFound, maxScore and collapsedDocCount
+		numFound = in.readInt();
+		maxScore = in.readFloat();
+		collapsedDocCount = in.readInt();
+
+		// Reading ResultDocument if any
+		length = in.readInt();
+		if (length > 0) {
+			resultDocuments = new ResultDocument[length];
+			External.readArray(in, resultDocuments);
+		} else
+			resultDocuments = null;
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+
+		// Writing FacetList if any
+		External.writeObject(facetList, out);
+
+		// Writing docs (from request.start to getDocLength)
+		int length = getDocLength();
+		out.writeInt(length);
+		if (docs != null) {
+			int start = searchRequest.getStart();
+			out.writeInt(start);
+			for (int i = start; i < length; i++)
+				out.writeObject(docs[i]);
+		}
+
+		// Writing numFound, maxScore, collapsedDocCount
+		out.writeInt(numFound);
+		out.writeFloat(maxScore);
+		out.writeInt(collapsedDocCount);
+
+		// Writing ResultDocument if any
+		External.writeArray(resultDocuments, out);
 	}
 
 }

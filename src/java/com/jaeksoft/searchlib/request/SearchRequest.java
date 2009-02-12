@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -29,15 +29,21 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.Query;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.function.expression.RootExpression;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
@@ -45,22 +51,26 @@ import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortList;
+import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class Request implements XmlInfo, Serializable {
+public class SearchRequest implements XmlInfo, Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 148522254171520640L;
 
-	private transient Request sourceRequest;
 	private transient QueryParser queryParser;
 	private transient Config config;
 	private transient ReaderInterface reader;
+	private transient Timer timer;
 
-	private String name;
+	private String indexName;
+	private String requestName;
 	private FilterList filterList;
 	private boolean allowLeadingWildcard;
 	private int phraseSlop;
@@ -77,16 +87,21 @@ public class Request implements XmlInfo, Serializable {
 	private int rows;
 	private String lang;
 	private String queryString;
+	private String patternQuery;
 	private String scoreFunction;
 	private Query query;
 	private String queryParsed;
 	private boolean delete;
 	private boolean withDocuments;
+	private long finalTime;
 
-	public Request(Config config) {
-		this.sourceRequest = null;
+	public SearchRequest() {
+	}
+
+	public SearchRequest(Config config) {
 		this.config = config;
-		this.name = null;
+		this.indexName = null;
+		this.requestName = null;
 		this.filterList = new FilterList(this.config);
 		this.queryParser = null;
 		this.allowLeadingWildcard = false;
@@ -105,53 +120,60 @@ public class Request implements XmlInfo, Serializable {
 		this.lang = null;
 		this.query = null;
 		this.queryString = null;
+		this.patternQuery = null;
 		this.scoreFunction = null;
 		this.delete = false;
 		this.withDocuments = true;
 		this.reader = null;
 		this.queryParsed = null;
+		this.timer = new Timer();
+		this.finalTime = 0;
 	}
 
-	protected Request(Request request) {
-		this(request.config);
-		this.sourceRequest = request;
-		this.name = request.name;
-		this.filterList = new FilterList(request.filterList);
+	public SearchRequest(SearchRequest searchRequest) {
+		this(searchRequest.config);
+		this.indexName = searchRequest.indexName;
+		this.requestName = searchRequest.requestName;
+		this.filterList = new FilterList(searchRequest.filterList);
 		this.queryParser = null;
-		this.allowLeadingWildcard = request.allowLeadingWildcard;
-		this.phraseSlop = request.phraseSlop;
-		this.defaultOperator = request.defaultOperator;
+		this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
+		this.phraseSlop = searchRequest.phraseSlop;
+		this.defaultOperator = searchRequest.defaultOperator;
 		this.highlightFieldList = new FieldList<HighlightField>(
-				request.highlightFieldList);
-		this.returnFieldList = new FieldList<Field>(request.returnFieldList);
-		this.sortList = new SortList(request.sortList);
+				searchRequest.highlightFieldList);
+		this.returnFieldList = new FieldList<Field>(
+				searchRequest.returnFieldList);
+		this.sortList = new SortList(searchRequest.sortList);
 		this.documentFieldList = null;
-		if (request.documentFieldList != null)
+		if (searchRequest.documentFieldList != null)
 			this.documentFieldList = new FieldList<Field>(
-					request.documentFieldList);
-		this.facetFieldList = new FieldList<FacetField>(request.facetFieldList);
-		this.collapseField = request.collapseField;
-		this.collapseMax = request.collapseMax;
-		this.collapseActive = request.collapseActive;
-		this.delete = request.delete;
-		this.withDocuments = request.withDocuments;
-		this.start = request.start;
-		this.rows = request.rows;
-		this.lang = request.lang;
-		this.query = request.query;
-		this.queryString = request.queryString;
-		this.scoreFunction = request.scoreFunction;
-		this.reader = request.reader;
+					searchRequest.documentFieldList);
+		this.facetFieldList = new FieldList<FacetField>(
+				searchRequest.facetFieldList);
+		this.collapseField = searchRequest.collapseField;
+		this.collapseMax = searchRequest.collapseMax;
+		this.collapseActive = searchRequest.collapseActive;
+		this.delete = searchRequest.delete;
+		this.withDocuments = searchRequest.withDocuments;
+		this.start = searchRequest.start;
+		this.rows = searchRequest.rows;
+		this.lang = searchRequest.lang;
+		this.query = searchRequest.query;
+		this.queryString = searchRequest.queryString;
+		this.patternQuery = searchRequest.patternQuery;
+		this.scoreFunction = searchRequest.scoreFunction;
+		this.reader = searchRequest.reader;
 		this.queryParsed = null;
 	}
 
-	protected Request(Config config, String name, boolean allowLeadingWildcard,
-			int phraseSlop, QueryParser.Operator defaultOperator, int start,
-			int rows, String lang, String queryString,
-			String highlightQueryString, String scoreFunction,
-			boolean forceLocal, boolean delete, boolean withDocuments) {
+	private SearchRequest(Config config, String indexName, String requestName,
+			boolean allowLeadingWildcard, int phraseSlop,
+			QueryParser.Operator defaultOperator, int start, int rows,
+			String lang, String patternQuery, String queryString,
+			String scoreFunction, boolean delete, boolean withDocuments) {
 		this(config);
-		this.name = name;
+		this.indexName = indexName;
+		this.requestName = requestName;
 		this.allowLeadingWildcard = allowLeadingWildcard;
 		this.phraseSlop = phraseSlop;
 		this.defaultOperator = defaultOperator;
@@ -159,6 +181,7 @@ public class Request implements XmlInfo, Serializable {
 		this.rows = rows;
 		this.lang = lang;
 		this.queryString = queryString;
+		this.patternQuery = patternQuery;
 		if (scoreFunction != null)
 			if (scoreFunction.trim().length() == 0)
 				scoreFunction = null;
@@ -169,11 +192,6 @@ public class Request implements XmlInfo, Serializable {
 
 	public void setConfig(Config config) {
 		this.config = config;
-	}
-
-	@Override
-	public Request clone() {
-		return new Request(this);
 	}
 
 	protected QueryParser getNewQueryParser() {
@@ -192,11 +210,13 @@ public class Request implements XmlInfo, Serializable {
 		}
 	}
 
-	private static void setQueryParser(Request req, QueryParser queryParser) {
+	private static void setQueryParser(SearchRequest searchRequest,
+			QueryParser queryParser) {
 		synchronized (queryParser) {
-			queryParser.setAllowLeadingWildcard(req.allowLeadingWildcard);
-			queryParser.setPhraseSlop(req.phraseSlop);
-			queryParser.setDefaultOperator(req.defaultOperator);
+			queryParser
+					.setAllowLeadingWildcard(searchRequest.allowLeadingWildcard);
+			queryParser.setPhraseSlop(searchRequest.phraseSlop);
+			queryParser.setDefaultOperator(searchRequest.defaultOperator);
 		}
 	}
 
@@ -204,8 +224,8 @@ public class Request implements XmlInfo, Serializable {
 		return this.config;
 	}
 
-	public String getName() {
-		return this.name;
+	public String getRequestName() {
+		return this.requestName;
 	}
 
 	public Query getQuery() throws ParseException, SyntaxError {
@@ -235,19 +255,13 @@ public class Request implements XmlInfo, Serializable {
 		return queryParsed;
 	}
 
-	protected void setQueryStringNotEscaped(String q) {
-		queryString = q;
-	}
-
 	public void setQueryString(String q) {
 		synchronized (this) {
+			if (patternQuery != null)
+				queryString = patternQuery.replace("$$", q);
 			queryString = q;
 			query = null;
 		}
-	}
-
-	public Request getSourceRequest() {
-		return this.sourceRequest;
 	}
 
 	public FilterList getFilterList() {
@@ -334,10 +348,16 @@ public class Request implements XmlInfo, Serializable {
 		return this.start + this.rows;
 	}
 
+	public void setEnd(int end) {
+		if (end < start)
+			end = start;
+		this.rows = end - this.start;
+	}
+
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
-		writer.println("<request name=\"" + name + "\" defaultOperator=\""
-				+ defaultOperator + "\" start=\"" + start + "\" rows=\"" + rows
-				+ "\">");
+		writer.println("<request name=\"" + requestName
+				+ "\" defaultOperator=\"" + defaultOperator + "\" start=\""
+				+ start + "\" rows=\"" + rows + "\">");
 		writer.println("<query>" + queryString + "</query>");
 		if (returnFieldList.size() > 0)
 			writer.println("<returnsField>" + returnFieldList.toString()
@@ -380,6 +400,83 @@ public class Request implements XmlInfo, Serializable {
 		if (facetFieldList == null)
 			return false;
 		return facetFieldList.size() > 0;
+	}
+
+	public long getFinalTime() {
+		if (finalTime != 0)
+			return finalTime;
+		finalTime = timer.duration();
+		return finalTime;
+	}
+
+	public String getIndexName() {
+		return indexName;
+	}
+
+	public void setIndexName(String indexName) {
+		this.indexName = indexName;
+	}
+
+	/**
+	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
+	 * config XML.
+	 * 
+	 * @param config
+	 * @param xpp
+	 * @param parentNode
+	 * @throws XPathExpressionException
+	 * @throws ParseException
+	 * @throws DOMException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 */
+	public static SearchRequest fromXmlConfig(Config config, XPathParser xpp,
+			Node node) throws XPathExpressionException, DOMException,
+			ParseException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		if (node == null)
+			return null;
+		String name = XPathParser.getAttributeString(node, "name");
+		String indexName = XPathParser.getAttributeString(node, "indexName");
+		SearchRequest searchRequest = new SearchRequest(config, indexName,
+				name, false, XPathParser.getAttributeValue(node, "phraseSlop"),
+				("and".equals(XPathParser.getAttributeString(node,
+						"defaultOperator"))) ? QueryParser.AND_OPERATOR
+						: QueryParser.OR_OPERATOR, XPathParser
+						.getAttributeValue(node, "start"), XPathParser
+						.getAttributeValue(node, "rows"), XPathParser
+						.getAttributeString(node, "lang"), xpp.getNodeString(
+						node, "query"), null, xpp.getNodeString(node,
+						"scoreFunction"), false, true);
+
+		FieldList<Field> returnFields = searchRequest.getReturnFieldList();
+		FieldList<SchemaField> fieldList = config.getSchema().getFieldList();
+		Field.filterCopy(fieldList, xpp.getNodeString(node, "returnFields"),
+				returnFields);
+
+		FieldList<HighlightField> highlightFields = searchRequest
+				.getHighlightFieldList();
+		NodeList nodes = xpp.getNodeList(node, "highlighting/field");
+		for (int i = 0; i < nodes.getLength(); i++)
+			HighlightField.copyHighlightFields(nodes.item(i), fieldList,
+					highlightFields);
+
+		FieldList<FacetField> facetFields = searchRequest.getFacetFieldList();
+		nodes = xpp.getNodeList(node, "facetFields/facetField");
+		for (int i = 0; i < nodes.getLength(); i++)
+			FacetField.copyFacetFields(nodes.item(i), fieldList, facetFields);
+
+		FilterList filterList = searchRequest.getFilterList();
+		nodes = xpp.getNodeList(node, "filters/filter");
+		for (int i = 0; i < nodes.getLength(); i++)
+			filterList.add(xpp.getNodeString(nodes.item(i)), Source.CONFIGXML);
+
+		SortList sortList = searchRequest.getSortList();
+		nodes = xpp.getNodeList(node, "sort/field");
+		for (int i = 0; i < nodes.getLength(); i++)
+			sortList.add(xpp.getNodeString(nodes.item(i)));
+		return searchRequest;
 	}
 
 }

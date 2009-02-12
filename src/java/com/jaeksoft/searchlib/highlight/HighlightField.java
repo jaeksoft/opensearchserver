@@ -24,7 +24,10 @@
 
 package com.jaeksoft.searchlib.highlight;
 
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -41,13 +44,14 @@ import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 
-public class HighlightField extends Field {
+public class HighlightField extends Field implements Externalizable {
 
 	private FragmenterAbstract fragmenter;
 	private String tag;
@@ -55,11 +59,16 @@ public class HighlightField extends Field {
 	private String separator;
 	private int maxSnippetSize;
 	private int maxSnippetNumber;
+	private String[] searchTerms;
+
+	public HighlightField() {
+	}
 
 	private HighlightField(Field field, String tag, int maxDocChar,
 			String separator, int maxSnippetNumber, int maxSnippetSize,
 			FragmenterAbstract fragmenter) {
 		super(field.getName());
+		this.searchTerms = null;
 		this.tag = tag;
 		this.maxDocChar = maxDocChar;
 		this.separator = separator;
@@ -74,17 +83,13 @@ public class HighlightField extends Field {
 
 	public HighlightField(HighlightField field) {
 		super(field.name);
+		this.searchTerms = field.searchTerms;
 		fragmenter = field.fragmenter;
 		tag = field.tag;
 		maxDocChar = field.maxDocChar;
 		separator = field.separator;
 		maxSnippetNumber = field.maxSnippetNumber;
 		maxSnippetSize = field.maxSnippetSize;
-	}
-
-	@Override
-	public Object clone() {
-		return new HighlightField(this);
 	}
 
 	/**
@@ -133,35 +138,15 @@ public class HighlightField extends Field {
 		HighlightField field = new HighlightField(source.get(fieldName), tag,
 				maxDocChar, separator, maxSnippetNumber, maxSnippetSize,
 				fragmenter);
-
 		target.add(field);
 	}
 
-	private String[] extractSearchTerms(Request request) throws ParseException,
-			SyntaxError, IOException {
-		Query query = request.getQuery();
-		query.rewrite(null);
-		Set<Term> terms = new HashSet<Term>();
-		query.extractTerms(terms);
-		String[] searchTerms = new String[terms.size()];
-		int i = 0;
-		for (Term term : terms)
-			if (name.equalsIgnoreCase(term.field()))
-				searchTerms[i++] = term.text();
-		String[] finalTerms = new String[i];
-		for (i = 0; i < finalTerms.length; i++)
-			finalTerms[i] = searchTerms[i];
-		return finalTerms;
-	}
-
-	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(
-			Request request, int docId, ReaderLocal reader) throws IOException,
-			ParseException, SyntaxError {
+	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(int docId,
+			ReaderLocal reader) throws IOException, ParseException, SyntaxError {
 		TermPositionVector termVector = (TermPositionVector) reader
 				.getTermFreqVector(docId, name);
 		if (termVector == null)
 			return null;
-		String[] searchTerms = extractSearchTerms(request);
 		int[] termsIdx = termVector.indexesOf(searchTerms, 0,
 				searchTerms.length);
 		TreeMap<Integer, TermVectorOffsetInfo> map = new TreeMap<Integer, TermVectorOffsetInfo>();
@@ -173,6 +158,27 @@ public class HighlightField extends Field {
 				map.put(offset.getStartOffset(), offset);
 		}
 		return map.values().iterator();
+	}
+
+	public void initSearchTerms(SearchRequest searchRequest)
+			throws ParseException, SyntaxError, IOException {
+		synchronized (this) {
+			Query query = searchRequest.getQuery();
+			query.rewrite(null);
+			Set<Term> terms = new HashSet<Term>();
+			query.extractTerms(terms);
+			String[] tempTerms = new String[terms.size()];
+			int i = 0;
+			// Find term for that field only
+			for (Term term : terms)
+				if (name.equalsIgnoreCase(term.field()))
+					tempTerms[i++] = term.text();
+			// Build final array
+			String[] finalTerms = new String[i];
+			for (i = 0; i < finalTerms.length; i++)
+				finalTerms[i] = tempTerms[i];
+			searchTerms = finalTerms;
+		}
 	}
 
 	private TermVectorOffsetInfo checkValue(TermVectorOffsetInfo currentVector,
@@ -213,15 +219,15 @@ public class HighlightField extends Field {
 		return currentVector;
 	}
 
-	public boolean getSnippets(Request request, int docId, ReaderLocal reader,
-			String[] values, List<String> snippets) throws IOException,
-			ParseException, SyntaxError {
+	public boolean getSnippets(int docId, ReaderLocal reader, String[] values,
+			List<String> snippets) throws IOException, ParseException,
+			SyntaxError {
 
 		if (values == null)
 			return false;
 		TermVectorOffsetInfo currentVector = null;
 		Iterator<TermVectorOffsetInfo> vectorIterator = extractTermVectorIterator(
-				request, docId, reader);
+				docId, reader);
 		if (vectorIterator != null)
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
 					: null;
@@ -270,6 +276,34 @@ public class HighlightField extends Field {
 			if (snippet.length() > 0)
 				snippets.add(snippet.toString());
 		return false;
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		super.readExternal(in);
+		fragmenter = External.readObject(in);
+		tag = External.readUTF(in);
+		maxDocChar = in.readInt();
+		separator = External.readUTF(in);
+		maxSnippetSize = in.readInt();
+		maxSnippetNumber = in.readInt();
+		int l = in.readInt();
+		if (l > 0) {
+			searchTerms = new String[l];
+			External.readArray(in, searchTerms);
+		} else
+			searchTerms = null;
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		super.writeExternal(out);
+		External.writeObject(fragmenter, out);
+		External.writeUTF(tag, out);
+		out.writeInt(maxDocChar);
+		External.writeUTF(separator, out);
+		out.writeInt(maxSnippetSize);
+		out.writeInt(maxSnippetNumber);
+		External.writeArray(searchTerms, out);
 	}
 
 }

@@ -36,11 +36,6 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderObject implements Render {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2688584347178074332L;
-
 	private Serializable object;
 
 	public RenderObject(Serializable object) throws CorruptIndexException,

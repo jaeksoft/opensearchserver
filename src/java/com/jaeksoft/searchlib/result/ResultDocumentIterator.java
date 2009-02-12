@@ -28,28 +28,21 @@ import java.util.Iterator;
 
 public class ResultDocumentIterator implements Iterator<ResultDocument> {
 
-	private ResultScoreDoc[] docs;
+	private ResultDocument[] resultDocuments;
 
 	private int pos;
 
-	private int end;
-
-	protected ResultDocumentIterator(Result result) {
-		docs = result.getDocs();
-		pos = result.getRequest().getStart();
-		end = result.getRequest().getEnd();
-		if (end > result.numFound)
-			end = result.numFound;
+	protected ResultDocumentIterator(ResultDocument[] resultDocuments) {
+		this.resultDocuments = resultDocuments;
+		pos = 0;
 	}
 
 	public boolean hasNext() {
-		return pos < end;
+		return pos < resultDocuments.length;
 	}
 
 	public ResultDocument next() {
-		if (pos < end)
-			return docs[pos++].resultDocument;
-		return null;
+		return resultDocuments[pos++];
 	}
 
 	public void remove() {

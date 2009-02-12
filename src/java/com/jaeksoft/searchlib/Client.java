@@ -40,8 +40,10 @@ import org.apache.lucene.store.LockObtainFailedException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.Context;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
@@ -102,10 +104,15 @@ public class Client extends Config implements XmlInfo {
 		reload();
 	}
 
-	public Result search(Request request) throws IOException, ParseException,
-			SyntaxError, URISyntaxException {
-		request.setConfig(this);
-		return getIndex().search(request);
+	public Result search(SearchRequest searchRequest) throws IOException,
+			ParseException, SyntaxError, URISyntaxException {
+		searchRequest.setConfig(this);
+		return getIndex().search(searchRequest);
+	}
+
+	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+			throws IOException, ParseException, SyntaxError, URISyntaxException {
+		return getIndex().documents(documentsRequest);
 	}
 
 	private static volatile Client INSTANCE;
@@ -126,4 +133,5 @@ public class Client extends Config implements XmlInfo {
 	public class Test {
 
 	}
+
 }

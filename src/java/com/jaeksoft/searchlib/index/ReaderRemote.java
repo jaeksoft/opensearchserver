@@ -32,10 +32,15 @@ import java.util.HashSet;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.queryParser.ParseException;
 
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.web.ActionServlet;
+import com.jaeksoft.searchlib.web.DocumentsServlet;
 import com.jaeksoft.searchlib.web.SearchServlet;
 
 public class ReaderRemote extends NameFilter implements ReaderInterface {
@@ -73,8 +78,14 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 
 	}
 
-	public Result search(Request req) throws IOException, URISyntaxException {
-		return SearchServlet.search(uri, req, getName());
+	public Result search(SearchRequest searchRequest) throws IOException,
+			URISyntaxException {
+		return SearchServlet.search(uri, searchRequest, getName());
+	}
+
+	public ResultDocument[] documents(DocumentsRequest documentRequest)
+			throws IOException, ParseException, SyntaxError, URISyntaxException {
+		return DocumentsServlet.documents(uri, documentRequest);
 	}
 
 	public boolean sameIndex(ReaderInterface reader) {

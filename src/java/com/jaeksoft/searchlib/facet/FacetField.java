@@ -24,7 +24,10 @@
 
 package com.jaeksoft.searchlib.facet;
 
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.w3c.dom.Node;
 
@@ -34,7 +37,7 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.XPathParser;
 
-public class FacetField extends Field {
+public class FacetField extends Field implements Externalizable {
 
 	/**
 	 * 
@@ -45,15 +48,13 @@ public class FacetField extends Field {
 
 	private boolean multivalued;
 
+	public FacetField() {
+	}
+
 	protected FacetField(String name, int minCount, boolean multivalued) {
 		super(name);
 		this.minCount = minCount;
 		this.multivalued = multivalued;
-	}
-
-	@Override
-	public Object clone() {
-		return new FacetField(name, minCount, multivalued);
 	}
 
 	public int getMinCount() {
@@ -76,5 +77,18 @@ public class FacetField extends Field {
 		FacetField facetField = new FacetField(source.get(fieldName).getName(),
 				minCount, multivalued);
 		target.add(facetField);
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		super.readExternal(in);
+		minCount = in.readInt();
+		multivalued = in.readBoolean();
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		super.writeExternal(out);
+		out.writeInt(minCount);
+		out.writeBoolean(multivalued);
 	}
 }

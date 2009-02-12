@@ -47,8 +47,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.DocumentsGroup;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchGroup;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultGroup;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.XPathParser;
 
@@ -197,9 +202,18 @@ public class IndexGroup extends IndexAbstract {
 			index.swap(indexName, version, deleteOld);
 	}
 
-	public Result search(Request request) throws IOException,
+	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError {
-		return new SearchGroup(this).search(request);
+		String indexName = searchRequest.getIndexName();
+		if (indexName != null)
+			return get(indexName).search(searchRequest);
+		ResultGroup resultGroup = new SearchGroup(this, searchRequest)
+				.getResult();
+		if (resultGroup == null)
+			return null;
+		if (searchRequest.isWithDocument())
+			resultGroup.loadDocuments(this);
+		return resultGroup;
 	}
 
 	public boolean sameIndex(ReaderInterface reader) {
@@ -283,6 +297,14 @@ public class IndexGroup extends IndexAbstract {
 	public void swap(long version, boolean deleteOld) throws IOException {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Operation not permitted on grouped indices");
+	}
+
+	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+			throws IOException, ParseException, SyntaxError, URISyntaxException {
+		String indexName = documentsRequest.getIndexName();
+		if (indexName != null)
+			return get(indexName).documents(documentsRequest);
+		return new DocumentsGroup(this, documentsRequest).getDocuments();
 	}
 
 }

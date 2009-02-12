@@ -24,8 +24,10 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.FieldCache.StringIndex;
@@ -33,7 +35,7 @@ import org.apache.lucene.search.FieldCache.StringIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.FieldList;
 
-public class SortList implements Serializable {
+public class SortList implements Externalizable {
 
 	/**
 	 * 
@@ -113,6 +115,17 @@ public class SortList implements Serializable {
 		for (SortField field : sortFieldList)
 			descArray[i++] = field.isDesc();
 		return descArray;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		sortFieldList = (FieldList<SortField>) in.readObject();
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(sortFieldList);
 
 	}
 }

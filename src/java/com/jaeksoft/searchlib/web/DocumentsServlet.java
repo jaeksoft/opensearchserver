@@ -30,50 +30,40 @@ import java.net.URISyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.lucene.queryParser.ParseException;
-
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.render.Render;
-import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderObject;
-import com.jaeksoft.searchlib.render.RenderXml;
-import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.result.ResultDocument;
 
-public class SearchServlet extends AbstractServlet {
+public class DocumentsServlet extends AbstractServlet {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2241064786260022955L;
+	private static final long serialVersionUID = -343590007504141181L;
+
+	/**
+	 * 
+	 */
 
 	private Render doObjectRequest(Client client, HttpServletRequest httpRequest)
 			throws ServletException {
 		StreamReadObject sro = null;
 		try {
 			sro = new StreamReadObject(httpRequest.getInputStream());
-			SearchRequest searchRequest = (SearchRequest) sro.read();
-			Result result = client.search(searchRequest);
-			return new RenderObject(result);
+			DocumentsRequest documentsRequest = (DocumentsRequest) sro.read();
+			ResultDocument[] resultDocuments = client
+					.documents(documentsRequest);
+			return new RenderObject(resultDocuments);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		} finally {
 			if (sro != null)
 				sro.close();
 		}
-	}
-
-	private Render doQueryRequest(Client client,
-			HttpServletRequest httpRequest, String render, String jsp)
-			throws IOException, ParseException, SyntaxError, URISyntaxException {
-		SearchRequest searchRequest = client.getNewSearchRequest(httpRequest);
-		Result result = client.search(searchRequest);
-		if ("jsp".equals(render) && jsp != null)
-			return new RenderJsp(jsp, result);
-		return new RenderXml(result);
 	}
 
 	@Override
@@ -86,13 +76,7 @@ public class SearchServlet extends AbstractServlet {
 					.getServletRequest();
 			Client client = Client.getWebAppInstance();
 
-			Render render = null;
-			String p = httpRequest.getParameter("render");
-			if ("object".equalsIgnoreCase(p))
-				render = doObjectRequest(client, httpRequest);
-			else
-				render = doQueryRequest(client, httpRequest, p, httpRequest
-						.getParameter("jsp"));
+			Render render = doObjectRequest(client, httpRequest);
 
 			render.render(servletTransaction);
 
@@ -105,18 +89,18 @@ public class SearchServlet extends AbstractServlet {
 
 	}
 
-	public static Result search(URI uri, SearchRequest searchRequest,
-			String indexName) throws IOException, URISyntaxException {
-		uri = buildUri(uri, "/select", "render=object");
+	public static ResultDocument[] documents(URI uri,
+			DocumentsRequest documentsRequest) throws IOException,
+			URISyntaxException {
+		uri = buildUri(uri, "/documents", null);
 		UriWriteObject uwo = null;
 		IOException err = null;
-		Result res = null;
+		ResultDocument[] documentsResult = null;
 		try {
-			uwo = new UriWriteObject(uri, searchRequest);
+			uwo = new UriWriteObject(uri, documentsRequest);
 			if (uwo.getResponseCode() != 200)
 				throw new IOException(uwo.getResponseMessage());
-			res = (Result) uwo.getResponseObject();
-			res.setSearchRequest(searchRequest);
+			documentsResult = (ResultDocument[]) uwo.getResponseObject();
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (IOException e) {
@@ -128,6 +112,6 @@ public class SearchServlet extends AbstractServlet {
 			if (err != null)
 				throw err;
 		}
-		return res;
+		return documentsResult;
 	}
 }

@@ -47,8 +47,8 @@ import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.request.RequestList;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SearchRequestList;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -63,7 +63,7 @@ public abstract class Config implements XmlInfo {
 
 	private Schema schema = null;
 
-	private RequestList requests = null;
+	private SearchRequestList searchRequests = null;
 
 	protected XPathParser xpp = null;
 
@@ -75,7 +75,7 @@ public abstract class Config implements XmlInfo {
 
 			schema = Schema.fromXmlConfig(xpp.getNode("/configuration/schema"),
 					xpp);
-			requests = RequestList.fromXmlConfig(this, xpp, xpp
+			searchRequests = SearchRequestList.fromXmlConfig(this, xpp, xpp
 					.getNode("/configuration/requests"));
 
 			index = getIndex(homeDir, createIndexIfNotExists);
@@ -111,59 +111,60 @@ public abstract class Config implements XmlInfo {
 		return this.index;
 	}
 
-	public Request getNewRequest() {
-		return new Request(this);
+	public SearchRequest getNewSearchRequest() {
+		return new SearchRequest(this);
 	}
 
-	public Request getNewRequest(String requestName) {
-		return requests.get(requestName).clone();
+	public SearchRequest getNewSearchRequest(String requestName) {
+		return new SearchRequest(searchRequests.get(requestName));
 	}
 
-	public Request getNewRequest(HttpServletRequest httpRequest)
+	public SearchRequest getNewSearchRequest(HttpServletRequest httpRequest)
 			throws ParseException {
 
 		String requestName = httpRequest.getParameter("qt");
 		if (requestName == null)
 			requestName = "search";
-		Request request = getNewRequest(requestName);
-
-		if (request == null)
-			return null;
+		SearchRequest searchRequest = getNewSearchRequest(requestName);
+		if (searchRequest == null)
+			searchRequest = getNewSearchRequest();
 
 		String p;
 
+		if ((p = httpRequest.getParameter("index")) != null)
+			searchRequest.setIndexName(p);
 		if ((p = httpRequest.getParameter("query")) != null)
-			request.setQueryString(p);
+			searchRequest.setQueryString(p);
 		else if ((p = httpRequest.getParameter("q")) != null)
-			request.setQueryString(p);
+			searchRequest.setQueryString(p);
 
 		if ((p = httpRequest.getParameter("start")) != null)
-			request.setStart(Integer.parseInt(p));
+			searchRequest.setStart(Integer.parseInt(p));
 
 		if ((p = httpRequest.getParameter("rows")) != null)
-			request.setRows(Integer.parseInt(p));
+			searchRequest.setRows(Integer.parseInt(p));
 
 		if ((p = httpRequest.getParameter("lang")) != null)
-			request.setLang(p);
+			searchRequest.setLang(p);
 
 		if ((p = httpRequest.getParameter("collapse.field")) != null) {
-			request.setCollapseField(getSchema().getFieldList().get(p));
-			request.setCollapseActive(true);
+			searchRequest.setCollapseField(getSchema().getFieldList().get(p));
+			searchRequest.setCollapseActive(true);
 		}
 
 		if ((p = httpRequest.getParameter("collapse.max")) != null)
-			request.setCollapseMax(Integer.parseInt(p));
+			searchRequest.setCollapseMax(Integer.parseInt(p));
 
 		if ((p = httpRequest.getParameter("delete")) != null)
-			request.setDelete(true);
+			searchRequest.setDelete(true);
 
 		if ((p = httpRequest.getParameter("withDocs")) != null)
-			request.setWithDocument(true);
+			searchRequest.setWithDocument(true);
 
 		String[] values;
 
 		if ((values = httpRequest.getParameterValues("fq")) != null) {
-			FilterList fl = request.getFilterList();
+			FilterList fl = searchRequest.getFilterList();
 			for (String value : values)
 				if (value != null)
 					if (value.trim().length() > 0)
@@ -171,7 +172,7 @@ public abstract class Config implements XmlInfo {
 		}
 
 		if ((values = httpRequest.getParameterValues("hl")) != null) {
-			FieldList<HighlightField> highlightFields = request
+			FieldList<HighlightField> highlightFields = searchRequest
 					.getHighlightFieldList();
 			for (String value : values)
 				highlightFields.add(new HighlightField(getSchema()
@@ -179,16 +180,16 @@ public abstract class Config implements XmlInfo {
 		}
 
 		if ((values = httpRequest.getParameterValues("fl")) != null) {
-			FieldList<Field> returnFields = request.getReturnFieldList();
+			FieldList<Field> returnFields = searchRequest.getReturnFieldList();
 			for (String value : values)
 				returnFields.add(getSchema().getFieldList().get(value));
 		}
 		if ((values = httpRequest.getParameterValues("sort")) != null) {
-			SortList sortList = request.getSortList();
+			SortList sortList = searchRequest.getSortList();
 			for (String value : values)
 				sortList.add(value);
 		}
-		return request;
+		return searchRequest;
 	}
 
 	public Render getRender(HttpServletRequest request, Result result) {
@@ -213,8 +214,8 @@ public abstract class Config implements XmlInfo {
 			index.xmlInfo(writer, classDetail);
 		if (schema != null)
 			schema.xmlInfo(writer, classDetail);
-		if (requests != null)
-			requests.xmlInfo(writer, classDetail);
+		if (searchRequests != null)
+			searchRequests.xmlInfo(writer, classDetail);
 		writer.println("</configuration>");
 	}
 

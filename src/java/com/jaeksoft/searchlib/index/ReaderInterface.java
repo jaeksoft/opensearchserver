@@ -33,8 +33,10 @@ import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public interface ReaderInterface extends XmlInfo {
@@ -46,8 +48,11 @@ public interface ReaderInterface extends XmlInfo {
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException;
 
-	public Result search(Request request) throws IOException,
+	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError;
+
+	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+			throws IOException, ParseException, SyntaxError, URISyntaxException;
 
 	public String getName();
 

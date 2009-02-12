@@ -15,7 +15,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.render.RenderXml;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 
 public class Full {
@@ -71,9 +71,9 @@ public class Full {
 	@Test
 	public void query() throws Exception {
 		open();
-		Request request = client.getNewRequest("search");
-		request.setQueryString("*:*");
-		Result result = client.getIndex().search(request);
+		SearchRequest searchRequest = client.getNewSearchRequest("search");
+		searchRequest.setQueryString("*:*");
+		Result result = client.getIndex().search(searchRequest);
 		RenderXml render = new RenderXml(result);
 		PrintWriter pw = new PrintWriter(System.out);
 		render.render(pw);

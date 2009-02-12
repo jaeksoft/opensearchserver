@@ -43,8 +43,10 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Schema;
 
 public class IndexSingle extends IndexAbstract {
@@ -272,18 +274,34 @@ public class IndexSingle extends IndexAbstract {
 		swap(version, deleteOld);
 	}
 
-	public Result search(Request request) throws IOException,
+	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();
 		try {
+			if (!acceptNameOrEmpty(searchRequest.getIndexName()))
+				return null;
 			if (reader != null)
-				return reader.search(request);
+				return reader.search(searchRequest);
 			return null;
 		} finally {
 			r.unlock();
 		}
+	}
+
+	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+			throws IOException, ParseException, SyntaxError, URISyntaxException {
+		if (!online)
+			throw new IOException("Index is offline");
+		r.lock();
+		try {
+			if (reader != null)
+				return reader.documents(documentsRequest);
+		} finally {
+			r.unlock();
+		}
+		return null;
 	}
 
 	public boolean sameIndex(ReaderInterface reader) {
@@ -418,4 +436,5 @@ public class IndexSingle extends IndexAbstract {
 			return 0;
 		return getVersion();
 	}
+
 }

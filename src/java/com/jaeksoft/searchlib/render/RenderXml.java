@@ -32,14 +32,13 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
-import com.jaeksoft.searchlib.collapse.Collapse;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
@@ -49,11 +48,11 @@ public class RenderXml implements Render {
 
 	private PrintWriter writer;
 	private Result result;
-	private Request request;
+	private SearchRequest searchRequest;
 
 	public RenderXml(Result result) {
 		this.result = result;
-		this.request = result.getRequest();
+		this.searchRequest = result.getSearchRequest();
 	}
 
 	private void renderPrefix() throws ParseException, SyntaxError {
@@ -61,7 +60,8 @@ public class RenderXml implements Render {
 		writer.println("<response>");
 		writer.println("<header>");
 		writer.println("\t<status>0</status>");
-		writer.println("\t<query>" + request.getQueryParsed() + "</query>");
+		writer.println("\t<query>" + searchRequest.getQueryParsed()
+				+ "</query>");
 		writer.println("</header>");
 	}
 
@@ -71,22 +71,16 @@ public class RenderXml implements Render {
 
 	private void renderDocuments() throws CorruptIndexException, IOException,
 			ParseException, SyntaxError {
-		Request request = result.getRequest();
-		int end = request.getEnd();
-		int length = result.getDocs().length;
-		if (end > length)
-			end = length;
-		int cdc = 0;
-		Collapse collapse = result.getCollapse();
-		if (collapse.isActive())
-			cdc = collapse.getDocCount();
+		SearchRequest searchRequest = result.getSearchRequest();
+		int end = result.getDocumentCount();
 		writer.println("<result name=\"response\" numFound=\""
-				+ result.getNumFound() + "\" collapsedDocCount=\"" + cdc
-				+ "\" start=\"" + request.getStart() + "\" maxScore=\""
+				+ result.getNumFound() + "\" collapsedDocCount=\""
+				+ result.getCollapseDocCount() + "\" start=\""
+				+ searchRequest.getStart() + "\" maxScore=\""
 				+ result.getMaxScore() + "\" time=\""
-				+ result.getTimer().duration() + "\">");
-		if (!request.isDelete())
-			for (int i = request.getStart(); i < end; i++)
+				+ searchRequest.getFinalTime() + "\">");
+		if (!searchRequest.isDelete())
+			for (int i = searchRequest.getStart(); i < end; i++)
 				this.renderDocument(i);
 		writer.println("</result>");
 	}
@@ -96,18 +90,14 @@ public class RenderXml implements Render {
 		writer.println("\t<doc score=\"" + result.getDocs()[pos].score
 				+ "\" pos=\"" + pos + "\">");
 		ResultDocument doc = result.getDocument(pos);
-		for (Field field : request.getReturnFieldList())
+		for (Field field : searchRequest.getReturnFieldList())
 			renderField(doc, field);
-		for (HighlightField field : request.getHighlightFieldList())
+		for (HighlightField field : searchRequest.getHighlightFieldList())
 			renderHighlightValue(doc, field);
 
-		Collapse collapse = result.getCollapse();
-		if (collapse.isActive()) {
-			int cc = collapse.getCount(pos);
-			if (cc > 0) {
-				writer.println("\t\t<collapseCount>" + cc + "</collapseCount>");
-			}
-		}
+		int cc = result.getCollapseCount(pos);
+		if (cc > 0)
+			writer.println("\t\t<collapseCount>" + cc + "</collapseCount>");
 		writer.println("\t</doc>");
 	}
 

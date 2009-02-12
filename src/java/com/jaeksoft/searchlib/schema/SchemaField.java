@@ -36,12 +36,7 @@ import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.util.XPathParser;
 
-public class SchemaField extends FieldValue {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7179322665792749748L;
+public class SchemaField extends Field {
 
 	private String defaultAnalyzer;
 
@@ -60,11 +55,6 @@ public class SchemaField extends FieldValue {
 		this.termVector = field.termVector;
 		this.defaultAnalyzer = field.defaultAnalyzer;
 		this.indexAnalyzer = field.indexAnalyzer;
-	}
-
-	@Override
-	public Object clone() {
-		return new SchemaField(this);
 	}
 
 	public SchemaField(String name, String store, String index,

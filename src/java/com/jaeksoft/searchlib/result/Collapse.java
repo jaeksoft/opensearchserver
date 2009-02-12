@@ -22,22 +22,15 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.collapse;
+package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.BitSet;
 
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 
-public class Collapse implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class Collapse {
 
 	private int collapsedDocCount;
 	private transient int collapseMax;
@@ -46,15 +39,15 @@ public class Collapse implements Serializable {
 	protected transient BitSet collapsedSet;
 	private transient ResultScoreDoc[] collapsedDoc;
 
-	public Collapse(Request request) {
-		this.collapseField = request.getCollapseField();
-		this.collapseMax = request.getCollapseMax();
-		this.collapseActive = request.getCollapseActive();
+	protected Collapse(SearchRequest searchRequest) {
+		this.collapseField = searchRequest.getCollapseField();
+		this.collapseMax = searchRequest.getCollapseMax();
+		this.collapseActive = searchRequest.getCollapseActive();
 		this.collapsedDocCount = 0;
 		this.collapsedDoc = null;
 	}
 
-	public void run(ResultScoreDoc[] fetchedDocs, int fetchLength)
+	protected void run(ResultScoreDoc[] fetchedDocs, int fetchLength)
 			throws IOException {
 
 		collapsedDoc = null;
@@ -97,23 +90,23 @@ public class Collapse implements Serializable {
 		}
 	}
 
-	public BitSet getBitSet() {
+	protected BitSet getBitSet() {
 		return this.collapsedSet;
 	}
 
-	public int getDocCount() {
+	protected int getDocCount() {
 		return this.collapsedDocCount;
 	}
 
-	public Field getCollapseField() {
+	protected Field getCollapseField() {
 		return collapseField;
 	}
 
-	public ResultScoreDoc[] getCollapsedDoc() {
+	protected ResultScoreDoc[] getCollapsedDoc() {
 		return collapsedDoc;
 	}
 
-	public boolean isActive() {
+	protected boolean isActive() {
 		if (!collapseActive)
 			return false;
 		if (collapseField == null)
@@ -123,13 +116,7 @@ public class Collapse implements Serializable {
 		return true;
 	}
 
-	public int getCount(int pos) {
-		if (collapsedDoc == null)
-			return 0;
-		return collapsedDoc[pos].collapseCount;
-	}
-
-	public int getCollapsedDocsLength() {
+	protected int getCollapsedDocsLength() {
 		if (collapsedDoc == null)
 			return 0;
 		return collapsedDoc.length;

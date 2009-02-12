@@ -24,15 +24,15 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
-import com.jaeksoft.searchlib.schema.Field;
-
-public class ResultScoreDoc implements Serializable {
+public class ResultScoreDoc implements Externalizable {
 
 	/**
 	 * 
@@ -41,67 +41,83 @@ public class ResultScoreDoc implements Serializable {
 
 	public transient ResultSingle resultSingle;
 
+	public String indexName;
+
 	public int doc;
 
 	public float score;
 
-	public ResultDocument resultDocument;
-
 	public String collapseTerm;
 
-	public int collapseCount;
+	public transient int collapseCount;
 
-	public ResultScoreDoc(ResultSingle resultSingle, ScoreDoc scoreDoc,
-			ResultDocument resultDoc, String collapseTerm) {
+	public ResultScoreDoc() {
+	}
+
+	public ResultScoreDoc(String indexName, ResultSingle resultSingle,
+			ScoreDoc scoreDoc) {
 		this.score = scoreDoc.score;
 		this.doc = scoreDoc.doc;
-		this.resultDocument = resultDoc;
+		this.indexName = indexName;
 		this.resultSingle = resultSingle;
-		this.collapseTerm = collapseTerm;
+		this.collapseTerm = null;
 		this.collapseCount = 0;
 	}
 
-	public ResultScoreDoc(ResultSingle resultSingle, ScoreDoc scoreDoc,
-			String collapseTerm) {
-		this(resultSingle, scoreDoc, null, null);
+	public void loadCollapseTerm(StringIndex stringIndex) {
+		if (collapseTerm != null)
+			return;
+		collapseTerm = stringIndex.lookup[stringIndex.order[doc]];
 	}
 
-	public ResultScoreDoc(ResultSingle resultSingle, ScoreDoc scoreDoc) {
-		this(resultSingle, scoreDoc, null);
-	}
-
-	/**
-	 * Create an populate a new ResultScoreDoc[]
-	 * 
-	 * @param resultSearch
-	 * @param scoreDocs
-	 * @return populated ResultScoreDoc array
-	 */
-	public static ResultScoreDoc[] newResultScoreDocArray(
-			ResultSingle resultSingle, ScoreDoc[] scoreDocs) {
+	public static ResultScoreDoc[] appendResultScoreDocArray(String indexName,
+			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
+			ScoreDoc[] scoreDocs) {
 		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[scoreDocs.length];
 		int i = 0;
-		for (ScoreDoc scoreDoc : scoreDocs)
-			resultScoreDocs[i++] = new ResultScoreDoc(resultSingle, scoreDoc);
+		if (oldResultScoreDocs != null)
+			for (ResultScoreDoc rsc : oldResultScoreDocs)
+				resultScoreDocs[i++] = rsc;
+		while (i < scoreDocs.length)
+			resultScoreDocs[i] = new ResultScoreDoc(indexName, resultSingle,
+					scoreDocs[i++]);
 		return resultScoreDocs;
 	}
 
-	public static ResultScoreDoc[] newResultScoreDocArray(
-			ResultSingle resultSingle, ScoreDoc[] scoreDocs, Field collapseField)
-			throws IOException {
-		if (collapseField == null)
-			return newResultScoreDocArray(resultSingle, scoreDocs);
-		StringIndex stringIndex = resultSingle.getReader().getStringIndex(
-				collapseField.getName());
-		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[scoreDocs.length];
-		int i = 0;
-		for (ScoreDoc scoreDoc : scoreDocs) {
-			String collapseTerm = stringIndex.lookup[stringIndex.order[scoreDoc.doc]];
-			resultScoreDocs[i++] = new ResultScoreDoc(resultSingle, scoreDoc,
-					collapseTerm);
-		}
+	public static ResultScoreDoc[] appendResultScoreDocArray(String indexName,
+			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
+			ScoreDoc[] scoreDocs, StringIndex collapseFieldStringIndex) {
+		if (collapseFieldStringIndex == null)
+			return appendResultScoreDocArray(indexName, resultSingle,
+					oldResultScoreDocs, scoreDocs);
+		int l = oldResultScoreDocs != null ? oldResultScoreDocs.length : 0;
+		ResultScoreDoc[] resultScoreDocs = appendResultScoreDocArray(indexName,
+				resultSingle, oldResultScoreDocs, scoreDocs);
+		for (int i = l; i < resultScoreDocs.length; i++)
+			resultScoreDocs[i].loadCollapseTerm(collapseFieldStringIndex);
 		return resultScoreDocs;
-
 	}
 
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		resultSingle = null;
+		collapseCount = 0;
+		if (in.readBoolean())
+			indexName = in.readUTF();
+		doc = in.readInt();
+		score = in.readFloat();
+		if (in.readBoolean())
+			collapseTerm = in.readUTF();
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeBoolean(indexName != null);
+		if (indexName != null)
+			out.writeUTF(indexName);
+		out.writeInt(doc);
+		out.writeFloat(score);
+		out.writeBoolean(collapseTerm != null);
+		if (collapseTerm != null)
+			out.writeUTF(collapseTerm);
+	}
 }

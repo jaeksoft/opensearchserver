@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -41,22 +40,17 @@ import org.apache.lucene.search.TopDocs;
 
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class DocSetHits implements XmlInfo, Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1343588321039421631L;
+public class DocSetHits implements XmlInfo {
 
 	private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
 
-	transient private int[] collectedDocs;
-	transient private ReaderLocal reader;
-	transient private Query query;
-	transient private Filter filter;
-	transient private Sort sort;
+	private int[] collectedDocs;
+	private ReaderLocal reader;
+	private Query query;
+	private Filter filter;
+	private Sort sort;
 	private ScoreDoc[] scoreDocs;
 	private int docNumFound;
 	private float maxScore;

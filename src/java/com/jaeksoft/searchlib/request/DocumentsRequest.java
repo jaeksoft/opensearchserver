@@ -1,0 +1,173 @@
+/**   
+ * License Agreement for Jaeksoft SearchLib Community
+ *
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.jaeksoft.com
+ * 
+ * This file is part of Jaeksoft SearchLib Community.
+ *
+ * Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft SearchLib Community. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+package com.jaeksoft.searchlib.request;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Iterator;
+
+import org.apache.lucene.queryParser.ParseException;
+
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.highlight.HighlightField;
+import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.util.External;
+
+public class DocumentsRequest implements Externalizable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2369658807248539632L;
+
+	private String indexName;
+
+	private DocumentRequest[] requestedDocuments;
+
+	private FieldList<HighlightField> highlightFieldList;
+
+	private FieldList<Field> returnFieldList;
+
+	private transient FieldList<Field> documentFieldList;
+
+	public DocumentsRequest() {
+		documentFieldList = null;
+	}
+
+	private DocumentsRequest(SearchRequest searchRequest)
+			throws ParseException, SyntaxError, IOException {
+		indexName = searchRequest.getIndexName();
+		requestedDocuments = null;
+		this.highlightFieldList = searchRequest.getHighlightFieldList();
+		for (HighlightField highlightField : highlightFieldList)
+			highlightField.initSearchTerms(searchRequest);
+		this.returnFieldList = searchRequest.getReturnFieldList();
+	}
+
+	/**
+	 * Build a new DocumentsRequest by extracting requested documents (from
+	 * request.start to request.end)
+	 * 
+	 * @param resultSingle
+	 * @throws ParseException
+	 * @throws SyntaxError
+	 * @throws IOException
+	 */
+	public DocumentsRequest(Result result) throws ParseException, SyntaxError,
+			IOException {
+		this(result.getSearchRequest());
+		int rows = result.getDocumentCount();
+		requestedDocuments = new DocumentRequest[rows];
+		ResultScoreDoc[] docs = result.getDocs();
+		int start = result.getSearchRequest().getStart();
+		for (int i = 0; i < rows; i++) {
+			ResultScoreDoc doc = docs[i + start];
+			requestedDocuments[i] = new DocumentRequest(doc, i);
+		}
+	}
+
+	/**
+	 * Build a new DocumentsRequest with only documents that match the indexName
+	 * 
+	 * @param resultGroup
+	 * @param indexName
+	 * @throws ParseException
+	 * @throws SyntaxError
+	 * @throws IOException
+	 */
+	public DocumentsRequest(DocumentsRequest documentsRequest, String indexName)
+			throws ParseException, SyntaxError, IOException {
+		this.indexName = indexName;
+
+		this.highlightFieldList = documentsRequest.highlightFieldList;
+		this.returnFieldList = documentsRequest.returnFieldList;
+		this.documentFieldList = documentsRequest.documentFieldList;
+
+		DocumentRequest[] tempDocs = new DocumentRequest[documentsRequest.requestedDocuments.length];
+		int l = 0;
+		for (DocumentRequest doc : documentsRequest.requestedDocuments)
+			if (indexName.equals(doc.indexName))
+				tempDocs[l++] = doc;
+		requestedDocuments = new DocumentRequest[l];
+		l = 0;
+		for (DocumentRequest doc : tempDocs) {
+			if (doc == null)
+				break;
+			requestedDocuments[l++] = doc;
+		}
+	}
+
+	public DocumentRequest[] getRequestedDocuments() {
+		return requestedDocuments;
+	}
+
+	public FieldList<HighlightField> getHighlightFieldList() {
+		return highlightFieldList;
+	}
+
+	public FieldList<Field> getReturnFieldList() {
+		return returnFieldList;
+	}
+
+	public String getIndexName() {
+		return indexName;
+	}
+
+	public FieldList<Field> getDocumentFieldList() {
+		if (documentFieldList != null)
+			return documentFieldList;
+		documentFieldList = new FieldList<Field>(returnFieldList);
+		Iterator<HighlightField> it = highlightFieldList.iterator();
+		while (it.hasNext())
+			documentFieldList.add(new Field(it.next()));
+		return documentFieldList;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		indexName = External.readUTF(in);
+		int l = in.readInt();
+		if (l > 0) {
+			requestedDocuments = new DocumentRequest[l];
+			External.readArray(in, requestedDocuments);
+		}
+		highlightFieldList = (FieldList<HighlightField>) in.readObject();
+		returnFieldList = (FieldList<Field>) in.readObject();
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		External.writeUTF(indexName, out);
+		External.writeArray(requestedDocuments, out);
+		out.writeObject(highlightFieldList);
+		out.writeObject(returnFieldList);
+	}
+
+}

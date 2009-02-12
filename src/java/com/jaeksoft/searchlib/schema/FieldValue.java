@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -24,16 +24,24 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
-public class FieldValue extends Field {
+import com.jaeksoft.searchlib.util.External;
+
+public class FieldValue extends Field implements Externalizable {
 
 	private static final long serialVersionUID = -6131981428734961071L;
 
 	private String[] valueArray;
 	private transient List<String> valueList;
+
+	public FieldValue() {
+	}
 
 	protected FieldValue(String name) {
 		super(name);
@@ -93,23 +101,21 @@ public class FieldValue extends Field {
 		valueList = null;
 	}
 
-	/**
-	 * Alimente la liste "target" avec les champs nommé dans le champ fl.
-	 * 
-	 * @param fl
-	 *            "Champ1,Champ2,Champ3"
-	 * @param target
-	 *            Liste de champs destinataire des champs trouvés
-	 */
-	public static void filterCopy(FieldList<SchemaField> source, String filter,
-			FieldList<FieldValue> target) {
-		if (filter == null)
-			return;
-		StringTokenizer st = new StringTokenizer(filter, ", \t\r\n");
-		while (st.hasMoreTokens()) {
-			String fieldName = st.nextToken().trim();
-			target.add(source.get(fieldName));
-		}
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		super.readExternal(in);
+		int l = in.readInt();
+		if (l > 0) {
+			valueArray = new String[l];
+			External.readArray(in, valueArray);
+		} else
+			valueArray = null;
+		valueList = null;
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		super.writeExternal(out);
+		External.writeArray(valueArray, out);
 	}
 
 }

@@ -24,28 +24,18 @@
 
 package com.jaeksoft.searchlib.util;
 
-import java.io.Serializable;
-
-public class Timer implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5045504570428743500L;
+public class Timer {
 
 	private long startTime;
 	private long endTime;
-	private String name;
 
 	public Timer() {
 		this.startTime = System.currentTimeMillis();
 		this.endTime = 0;
-		this.name = null;
 	}
 
 	public Timer(String name) {
 		this();
-		this.name = name;
 	}
 
 	public void end() {
@@ -56,10 +46,6 @@ public class Timer implements Serializable {
 		if (this.endTime == 0)
 			this.end();
 		return this.endTime - this.startTime;
-	}
-
-	public String toString() {
-		return name + ": " + duration();
 	}
 
 }

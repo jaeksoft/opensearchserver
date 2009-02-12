@@ -34,9 +34,9 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.schema.Field;
 
 public class ResultSingle extends Result {
 
@@ -45,6 +45,9 @@ public class ResultSingle extends Result {
 	transient private ReaderLocal reader;
 	transient private StringIndex[] sortStringIndexArray;
 	transient private DocSetHits docSetHits;
+
+	public ResultSingle() {
+	}
 
 	/**
 	 * The constructor executes the request using the searcher provided and
@@ -56,32 +59,41 @@ public class ResultSingle extends Result {
 	 * @throws ParseException
 	 * @throws SyntaxError
 	 */
-	public ResultSingle(ReaderLocal reader, Request request)
+	public ResultSingle(ReaderLocal reader, SearchRequest searchRequest)
 			throws IOException, ParseException, SyntaxError {
-		super(request);
+		super(searchRequest);
 		this.reader = reader;
-		docSetHits = reader.searchDocSet(request);
+		docSetHits = reader.searchDocSet(searchRequest);
 		numFound = docSetHits.getDocNumFound();
 		maxScore = docSetHits.getMaxScore();
-		for (FacetField facetField : request.getFacetFieldList())
+		for (FacetField facetField : searchRequest.getFacetFieldList())
 			this.facetList.add(facetField.getFacetInstance(this));
-		sortStringIndexArray = request.getSortList()
-				.newStringIndexArray(reader);
+		sortStringIndexArray = searchRequest.getSortList().newStringIndexArray(
+				reader);
 
+		ResultScoreDoc[] docs;
 		// Are we doing collapsing ?
-		if (collapse.isActive())
-			fetchUntilCollapse();
-		else
-			loadDocs(request.getEnd());
-		if (request.isWithDocument())
-			loadDocuments();
+		if (collapse.isActive()) {
+			docs = fetchUntilCollapse();
+			collapsedDocCount = collapse.getDocCount();
+		} else
+			docs = fetchWithoutCollapse();
+
+		setDocs(docs);
+
+		if (searchRequest.isWithDocument())
+			setDocuments(reader.documents(new DocumentsRequest(this)));
 	}
 
-	public void loadDocs(int end) throws IOException {
-		if (end <= getDocLength())
-			return;
-		setDocs(ResultScoreDoc.newResultScoreDocArray(this, docSetHits
-				.getScoreDocs(end), collapse.getCollapseField()));
+	private ResultScoreDoc[] fetchWithoutCollapse() throws IOException,
+			ParseException, SyntaxError {
+		int end = searchRequest.getEnd();
+		Field collapseField = searchRequest.getCollapseField();
+		StringIndex collapseFieldStringIndex = (collapseField != null) ? reader
+				.getStringIndex(collapseField.getName()) : null;
+		return ResultScoreDoc.appendResultScoreDocArray(reader.getName(), this,
+				getDocs(), docSetHits.getScoreDocs(end),
+				collapseFieldStringIndex);
 	}
 
 	/**
@@ -105,40 +117,30 @@ public class ResultSingle extends Result {
 	 * Fetch new documents until collapsed results is complete.
 	 * 
 	 * @throws IOException
+	 * @throws SyntaxError
+	 * @throws ParseException
 	 */
-	private void fetchUntilCollapse() throws IOException {
-		int end = this.request.getEnd();
+	private ResultScoreDoc[] fetchUntilCollapse() throws IOException,
+			ParseException, SyntaxError {
+		int end = searchRequest.getEnd();
 		int lastRows = 0;
 		int rows = end;
+		StringIndex collapseFieldStringIndex = reader
+				.getStringIndex(searchRequest.getCollapseField().getName());
+		ResultScoreDoc[] resultScoreDocs = null;
+		String indexName = reader.getName();
 		while (collapse.getCollapsedDocsLength() < end) {
 			ScoreDoc[] scoreDocs = docSetHits.getScoreDocs(rows);
 			if (scoreDocs.length == lastRows)
 				break;
-			collapse.run(ResultScoreDoc.newResultScoreDocArray(this, scoreDocs,
-					collapse.getCollapseField()), end);
+			resultScoreDocs = ResultScoreDoc.appendResultScoreDocArray(
+					indexName, this, resultScoreDocs, scoreDocs,
+					collapseFieldStringIndex);
+			collapse.run(resultScoreDocs, end);
 			lastRows = scoreDocs.length;
-			rows += request.getRows();
+			rows += searchRequest.getRows();
 		}
-		setDocs(collapse.getCollapsedDoc());
-	}
-
-	private void loadDocuments() throws IOException, ParseException,
-			SyntaxError {
-		if (request.isDelete())
-			return;
-		int start = request.getStart();
-		int end = request.getEnd();
-		ResultScoreDoc[] scoreDocs = getDocs();
-		int length = scoreDocs.length;
-		if (end > length)
-			end = length;
-		for (int i = start; i < end; i++) {
-			ResultScoreDoc scoreDoc = scoreDocs[i];
-			FieldList<FieldValue> documentFields = reader.getDocumentFields(
-					scoreDoc.doc, request.getDocumentFieldList());
-			scoreDoc.resultDocument = new ResultDocument(request, scoreDoc.doc,
-					reader, documentFields);
-		}
+		return collapse.getCollapsedDoc();
 	}
 
 	public void loadSortValues(ResultScoreDoc doc, String[] values) {

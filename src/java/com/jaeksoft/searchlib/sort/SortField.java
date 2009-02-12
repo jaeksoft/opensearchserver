@@ -24,13 +24,21 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import com.jaeksoft.searchlib.schema.Field;
 
-public class SortField extends Field {
+public class SortField extends Field implements Externalizable {
 
 	private static final long serialVersionUID = -476489382677039069L;
 
 	private boolean desc;
+
+	public SortField() {
+	}
 
 	protected SortField(String name, boolean desc) {
 		super(name);
@@ -75,4 +83,14 @@ public class SortField extends Field {
 			return new org.apache.lucene.search.SortField(name, desc);
 	}
 
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		super.readExternal(in);
+		desc = in.readBoolean();
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		super.writeExternal(out);
+		out.writeBoolean(desc);
+	}
 }

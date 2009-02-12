@@ -60,7 +60,10 @@ import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.DocumentRequest;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -255,9 +258,9 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public ResultSingle search(Request request) throws IOException,
+	public ResultSingle search(SearchRequest searchRequest) throws IOException,
 			ParseException, SyntaxError {
-		return new ResultSingle(this, request);
+		return new ResultSingle(this, searchRequest);
 	}
 
 	public void search(Query query, Filter filter, HitCollector collector)
@@ -419,34 +422,34 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	}
 
-	public DocSetHits searchDocSet(Request request) throws IOException,
-			ParseException, SyntaxError {
-		boolean isDelete = request.isDelete();
-		boolean isFacet = request.isFacet();
+	public DocSetHits searchDocSet(SearchRequest searchRequest)
+			throws IOException, ParseException, SyntaxError {
+		boolean isDelete = searchRequest.isDelete();
+		boolean isFacet = searchRequest.isFacet();
 		if (isDelete)
 			w.lock();
 		else
 			r.lock();
 		try {
-			StringBuffer cacheDshKey = new StringBuffer(request
+			StringBuffer cacheDshKey = new StringBuffer(searchRequest
 					.getQueryParsed());
 			FilterHits filter = null;
-			FilterList filterList = request.getFilterList();
+			FilterList filterList = searchRequest.getFilterList();
 			if (filterList.size() > 0) {
 				String cacheFilterKey = FilterHits.toCacheKey(filterList);
 				filter = filterCache.getAndPromote(cacheFilterKey);
 				if (filter == null) {
-					Schema schema = request.getConfig().getSchema();
+					Schema schema = searchRequest.getConfig().getSchema();
 					filter = new FilterHits(schema.getFieldList()
 							.getDefaultField(), schema
-							.getQueryPerFieldAnalyzer(request.getLang()), this,
-							filterList);
+							.getQueryPerFieldAnalyzer(searchRequest.getLang()),
+							this, filterList);
 					filterCache.put(cacheFilterKey, filter);
 				}
 				cacheDshKey.append('|');
 				cacheDshKey.append(cacheFilterKey);
 			}
-			SortList sortList = request.getSortList();
+			SortList sortList = searchRequest.getSortList();
 			Sort sort = sortList.getLuceneSort();
 			if (sort != null) {
 				cacheDshKey.append("_");
@@ -459,8 +462,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			if (!isDelete)
 				dsh = searchCache.getAndPromote(cacheDshKeyStr);
 			if (dsh == null) {
-				dsh = new DocSetHits(this, request.getQuery(), filter, sort,
-						isDelete, isFacet);
+				dsh = new DocSetHits(this, searchRequest.getQuery(), filter,
+						sort, isDelete, isFacet);
 				if (!isDelete)
 					searchCache.put(cacheDshKeyStr, dsh);
 				else if (dsh.getDocNumFound() > 0)
@@ -507,6 +510,23 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			}
 			return documentFields;
 
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+			throws IOException, ParseException, SyntaxError {
+		r.lock();
+		try {
+			DocumentRequest[] requestedDocuments = documentsRequest
+					.getRequestedDocuments();
+			ResultDocument[] documents = new ResultDocument[requestedDocuments.length];
+			int i = 0;
+			for (DocumentRequest documentRequest : requestedDocuments)
+				documents[i++] = new ResultDocument(documentsRequest,
+						documentRequest.doc, this);
+			return documents;
 		} finally {
 			r.unlock();
 		}
@@ -568,4 +588,5 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 
 	}
+
 }

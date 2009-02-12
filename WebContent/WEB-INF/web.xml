@@ -31,8 +31,8 @@
 		<servlet-class>com.jaeksoft.searchlib.web.SearchServlet</servlet-class>
 	</servlet>
 	<servlet>
-		<servlet-name>Document</servlet-name>
-		<servlet-class>com.jaeksoft.searchlib.web.DocumentServlet</servlet-class>
+		<servlet-name>Documents</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.DocumentsServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>Stats</servlet-name>
@@ -65,8 +65,8 @@
 		<url-pattern>/search</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>Document</servlet-name>
-		<url-pattern>/document</url-pattern>
+		<servlet-name>Documents</servlet-name>
+		<url-pattern>/documents</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Stats</servlet-name>

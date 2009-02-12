@@ -24,13 +24,16 @@
 
 package com.jaeksoft.searchlib.highlight;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.TreeSet;
 
 import org.w3c.dom.NamedNodeMap;
 
-public abstract class FragmenterAbstract implements Serializable {
+public abstract class FragmenterAbstract implements Externalizable {
 
 	/**
 	 * 
@@ -41,7 +44,7 @@ public abstract class FragmenterAbstract implements Serializable {
 
 	private transient int originalTextLength;
 
-	protected FragmenterAbstract() {
+	public FragmenterAbstract() {
 		splitPos = null;
 	}
 
@@ -88,4 +91,12 @@ public abstract class FragmenterAbstract implements Serializable {
 	}
 
 	protected abstract void check(String originalText);
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+	}
+
 }

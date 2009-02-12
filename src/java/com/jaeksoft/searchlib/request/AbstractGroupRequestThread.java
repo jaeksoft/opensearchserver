@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
+package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -30,55 +30,45 @@ import java.net.URISyntaxException;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.request.Request;
-import com.jaeksoft.searchlib.result.ResultGroup;
-import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 
-public class SearchThread implements Runnable {
+public abstract class AbstractGroupRequestThread implements Runnable {
 
-	private ResultGroup resultGroup;
-	private ResultSingle resultSingle;
-	private ReaderInterface reader;
-	private Request request;
-	private boolean running;
-	private int currentFetchPos;
+	private volatile boolean running;
+
 	private IOException ioException;
 	private URISyntaxException uriSyntaxException;
 	private ParseException parseException;
 	private SyntaxError syntaxError;
-	private int fetchCount;
 
-	public SearchThread(ReaderInterface reader, Request request,
-			ResultGroup resultGroup) throws IOException {
-		this.running = false;
-		this.reader = reader;
-		this.resultSingle = null;
-		this.resultGroup = resultGroup;
-		this.request = request;
-		this.currentFetchPos = 0;
-		this.ioException = null;
-		this.uriSyntaxException = null;
-		this.parseException = null;
-		this.syntaxError = null;
+	protected AbstractGroupRequestThread() {
+		running = false;
+		ioException = null;
+		uriSyntaxException = null;
+		parseException = null;
+		syntaxError = null;
 	}
 
-	public void run() {
-		try {
-			if (resultSingle == null) {
-				resultSingle = (ResultSingle) reader.search(request);
-				resultGroup.addResult(resultSingle);
+	final public void waitForCompletion() {
+		while (running) {
+			try {
+				synchronized (this) {
+					wait(5000);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-			int nextFetchPos = currentFetchPos + fetchCount;
-			resultSingle.loadDocs(nextFetchPos);
-			int docLength = resultSingle.getDocLength();
-			if (nextFetchPos > docLength)
-				nextFetchPos = docLength;
-			fetchCount = nextFetchPos - currentFetchPos;
-			if (fetchCount == 0)
-				return;
-			resultGroup.populate(resultSingle, currentFetchPos, fetchCount);
-			currentFetchPos = nextFetchPos;
+		}
+	}
+
+	public abstract void runner() throws IOException, URISyntaxException,
+			ParseException, SyntaxError;
+
+	public abstract boolean done();
+
+	final public void run() {
+		try {
+			runner();
 		} catch (IOException e) {
 			this.ioException = e;
 		} catch (URISyntaxException e) {
@@ -95,29 +85,12 @@ public class SearchThread implements Runnable {
 		}
 	}
 
-	public void waitForCompletion() {
-		while (running) {
-			try {
-				synchronized (this) {
-					wait(5000);
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public void searchNextStep(int step) {
-		fetchCount = step;
+	final public void start() {
 		running = true;
 		ThreadUtils.pool.execute(this);
 	}
 
-	public int getFetchCount() {
-		return fetchCount;
-	}
-
-	public void exception() throws IOException, URISyntaxException,
+	final public void exception() throws IOException, URISyntaxException,
 			ParseException, SyntaxError {
 		if (ioException != null)
 			throw ioException;
@@ -128,5 +101,4 @@ public class SearchThread implements Runnable {
 		if (syntaxError != null)
 			throw syntaxError;
 	}
-
 }

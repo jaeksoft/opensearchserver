@@ -24,8 +24,10 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +37,13 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.highlight.HighlightFieldValue;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.util.External;
 
-public class ResultDocument implements Serializable {
+public class ResultDocument implements Externalizable {
 
 	/**
 	 * 
@@ -50,19 +53,25 @@ public class ResultDocument implements Serializable {
 	private FieldList<FieldValue> returnFields;
 	private FieldList<HighlightFieldValue> highlightFields;
 
-	public ResultDocument(Request request, int docId, ReaderLocal reader,
-			FieldList<FieldValue> fieldsValues) throws IOException,
-			ParseException, SyntaxError {
+	public ResultDocument() {
+	}
+
+	public ResultDocument(DocumentsRequest documentsRequest, int doc,
+			ReaderLocal reader) throws IOException, ParseException, SyntaxError {
+
+		FieldList<FieldValue> documentFields = reader.getDocumentFields(doc,
+				documentsRequest.getDocumentFieldList());
+
 		returnFields = new FieldList<FieldValue>();
 		highlightFields = new FieldList<HighlightFieldValue>();
 
-		for (Field field : request.getReturnFieldList())
-			returnFields.add(fieldsValues.get(field));
+		for (Field field : documentsRequest.getReturnFieldList())
+			returnFields.add(documentFields.get(field));
 
-		for (HighlightField field : request.getHighlightFieldList()) {
+		for (HighlightField field : documentsRequest.getHighlightFieldList()) {
 			List<String> snippets = new ArrayList<String>();
-			boolean highlighted = field.getSnippets(request, docId, reader,
-					fieldsValues.get(field).getValueArray(), snippets);
+			boolean highlighted = field.getSnippets(doc, reader, documentFields
+					.get(field).getValueArray(), snippets);
 			HighlightFieldValue fieldValue = new HighlightFieldValue(field,
 					snippets, highlighted);
 			highlightFields.add(fieldValue);
@@ -140,4 +149,16 @@ public class ResultDocument implements Serializable {
 	public boolean isHighlighted(String fieldName) {
 		return highlightFields.get(fieldName).isHighlighted();
 	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		returnFields = External.readObject(in);
+		highlightFields = External.readObject(in);
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		External.writeObject(returnFields, out);
+		External.writeObject(highlightFields, out);
+	}
+
 }

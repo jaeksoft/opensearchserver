@@ -25,45 +25,37 @@
 package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.URISyntaxException;
+
+import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetGroup;
-import com.jaeksoft.searchlib.request.Request;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.IndexGroup;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.sort.SorterInterface;
 
 public class ResultGroup extends Result {
 
-	final private static Logger logger = Logger.getLogger(ResultGroup.class
-			.getCanonicalName());
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7403200579165999208L;
-	private List<ResultSingle> resultList;
-	private SorterInterface sorter;
+	private transient SorterInterface sorter;
+	private transient ResultScoreDoc[] notCollapsedDocs;
 
-	private transient ResultScoreDoc[] tempDocs;
-
-	public ResultGroup(Request request) throws IOException {
-		super(request);
-		this.tempDocs = null;
-		this.resultList = new ArrayList<ResultSingle>();
-		for (FacetField facetField : request.getFacetFieldList())
+	public ResultGroup(SearchRequest searchRequest) throws IOException {
+		super(searchRequest);
+		notCollapsedDocs = null;
+		for (FacetField facetField : searchRequest.getFacetFieldList())
 			this.facetList.add(new FacetGroup(facetField));
-		this.sorter = request.getSortList().getSorter();
+		sorter = searchRequest.getSortList().getSorter();
 	}
 
-	public void addResult(ResultSingle result) throws IOException {
+	private void addResult(Result result) throws IOException {
 		synchronized (this) {
-			this.resultList.add(result);
-			this.numFound += result.getNumFound();
-			if (this.facetList != null)
-				for (Facet facet : this.facetList)
+			numFound += result.getNumFound();
+			if (facetList != null)
+				for (Facet facet : facetList)
 					((FacetGroup) facet).run(result.getFacetList());
 		}
 	}
@@ -77,13 +69,12 @@ public class ResultGroup extends Result {
 	 * @return
 	 * @throws IOException
 	 */
-	public void populate(ResultSingle result, int start, int rows)
-			throws IOException {
+	public void populate(Result result) throws IOException {
 
 		synchronized (this) {
 
-			if (logger.isLoggable(Level.INFO))
-				logger.info("Populate " + result);
+			if (result.getSearchRequest().getStart() == 0)
+				addResult(result);
 
 			if (result.getNumFound() == 0)
 				return;
@@ -91,25 +82,28 @@ public class ResultGroup extends Result {
 			if (result.getMaxScore() > maxScore)
 				maxScore = result.getMaxScore();
 
-			if (tempDocs == null || tempDocs.length == 0)
-				this.setDoc(result, start + rows);
+			if (notCollapsedDocs == null || notCollapsedDocs.length == 0)
+				this.setDoc(result);
 			else
-				insertAndSort(result, start, rows);
+				insertAndSort(result);
 
-			setDocs(tempDocs);
+			setDocs(notCollapsedDocs);
 		}
 	}
 
-	private int setDoc(ResultSingle result, int end) {
+	private void setDoc(Result result) {
 		ResultScoreDoc[] resultScoreDocs = result.getDocs();
 		if (resultScoreDocs == null)
-			return 0;
+			return;
+
+		int start = result.searchRequest.getStart();
+		int end = result.searchRequest.getEnd();
 		if (end > resultScoreDocs.length)
 			end = resultScoreDocs.length;
-		tempDocs = new ResultScoreDoc[end];
-		for (int i = 0; i < end; i++)
-			tempDocs[i] = resultScoreDocs[i];
-		return end;
+
+		notCollapsedDocs = new ResultScoreDoc[end - start];
+		for (int i = 0; i < notCollapsedDocs.length; i++)
+			notCollapsedDocs[i] = resultScoreDocs[start + i];
 	}
 
 	/**
@@ -119,49 +113,52 @@ public class ResultGroup extends Result {
 	 * @param start
 	 * @param rows
 	 */
-	private void insertAndSort(ResultSingle resultSingle, int start, int rows) {
+	private void insertAndSort(Result result) {
 
-		int end = start + rows;
-		ResultScoreDoc[] insertFetchedDocs = resultSingle.getDocs();
+		int start = result.searchRequest.getStart();
+		int end = result.searchRequest.getEnd();
+		ResultScoreDoc[] insertFetchedDocs = result.getDocs();
 		int length = insertFetchedDocs.length;
 		if (end > length)
 			end = length;
 		if (start >= end)
 			return;
-		ResultScoreDoc[] newDocs = new ResultScoreDoc[tempDocs.length
+		ResultScoreDoc[] newDocs = new ResultScoreDoc[notCollapsedDocs.length
 				+ (end - start)];
 		int iOld = 0;
 		int iResult = start;
 		int n = 0;
 		for (;;) {
-			if (sorter.isBefore(insertFetchedDocs[iResult], tempDocs[iOld])) {
+			if (sorter.isBefore(insertFetchedDocs[iResult],
+					notCollapsedDocs[iOld])) {
 				newDocs[n++] = insertFetchedDocs[iResult];
 				if (++iResult == end) {
-					for (int i = iOld; i < tempDocs.length; i++)
-						newDocs[n++] = tempDocs[i];
+					for (int i = iOld; i < notCollapsedDocs.length; i++)
+						newDocs[n++] = notCollapsedDocs[i];
 					break;
 				}
 			} else {
-				newDocs[n++] = tempDocs[iOld];
-				if (++iOld == tempDocs.length) {
+				newDocs[n++] = notCollapsedDocs[iOld];
+				if (++iOld == notCollapsedDocs.length) {
 					for (int i = iResult; i < end; i++)
 						newDocs[n++] = insertFetchedDocs[i];
 					break;
 				}
 			}
 		}
-		tempDocs = newDocs;
+		notCollapsedDocs = newDocs;
 	}
 
-	public ResultScoreDoc[] getCollapsedDocs() throws IOException {
+	public void setFinalDocs() throws IOException {
+		if (notCollapsedDocs == null)
+			return;
 		if (!collapse.isActive())
-			return tempDocs;
-		collapse.run(tempDocs, tempDocs.length);
-		return collapse.getCollapsedDoc();
-	}
-
-	public List<ResultSingle> getResultList() {
-		return this.resultList;
+			setDocs(notCollapsedDocs);
+		else {
+			collapse.run(notCollapsedDocs, notCollapsedDocs.length);
+			setDocs(collapse.getCollapsedDoc());
+			collapsedDocCount = collapse.getDocCount();
+		}
 	}
 
 	/*
@@ -178,6 +175,14 @@ public class ResultGroup extends Result {
 	@Override
 	public int getNumFound() {
 		return this.numFound;
+	}
+
+	public void loadDocuments(IndexGroup indexGroup) throws ParseException,
+			SyntaxError, IOException, URISyntaxException {
+		DocumentsRequest documentsRequest = new DocumentsRequest(this);
+		ResultDocument[] resultDocuments = indexGroup
+				.documents(documentsRequest);
+		setDocuments(resultDocuments);
 	}
 
 }

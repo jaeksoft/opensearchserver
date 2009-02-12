@@ -24,8 +24,11 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 
@@ -34,11 +37,14 @@ import org.apache.lucene.document.FieldSelectorResult;
 
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class Field implements FieldSelector, Serializable, XmlInfo {
+public class Field implements FieldSelector, Externalizable, XmlInfo {
 
 	private static final long serialVersionUID = -7666123998960959190L;
 
 	protected String name;
+
+	public Field() {
+	}
 
 	protected Field(String name) {
 		this.name = name;
@@ -46,6 +52,10 @@ public class Field implements FieldSelector, Serializable, XmlInfo {
 
 	public Field(Field field) {
 		this.name = field.name;
+	}
+
+	public Field newInstance(Field field) {
+		return new Field(field);
 	}
 
 	public FieldSelectorResult accept(String fieldName) {
@@ -74,15 +84,24 @@ public class Field implements FieldSelector, Serializable, XmlInfo {
 	 * @param target
 	 *            Liste de champs destinataire des champs trouvés
 	 */
-	public static void filterCopy(FieldList<SchemaField> source, String filter,
-			FieldList<Field> target) {
+	public static <T extends Field> void filterCopy(FieldList<T> source,
+			String filter, FieldList<Field> target) {
 		if (filter == null)
 			return;
 		StringTokenizer st = new StringTokenizer(filter, ", \t\r\n");
 		while (st.hasMoreTokens()) {
 			String fieldName = st.nextToken().trim();
-			target.add(source.get(fieldName));
+			target.add(new Field(source.get(fieldName)));
 		}
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		name = in.readUTF();
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeUTF(name);
 	}
 
 }

@@ -101,6 +101,10 @@ public abstract class AbstractServlet extends HttpServlet {
 
 	protected static URI buildUri(URI uri, String additionalPath,
 			String queryString) throws URISyntaxException {
+		if (additionalPath == null)
+			additionalPath = "";
+		if (queryString == null)
+			queryString = "";
 		return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri
 				.getPort(), uri.getPath() + additionalPath, queryString, uri
 				.getFragment());

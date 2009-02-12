@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 
 public class Pagination {
@@ -56,9 +57,15 @@ public class Pagination {
 			navPages.add(i);
 	}
 
+	private Pagination(Result result, SearchRequest searchRequest,
+			int pagesArround) {
+		this(result.getNumFound(), searchRequest.getStart(), searchRequest
+				.getRows(), pagesArround);
+	}
+
 	public Pagination(Result result, int pagesArround) {
-		this(result.getNumFound(), result.getRequest().getStart(), result
-				.getRequest().getRows(), pagesArround);
+		this(result, result.getSearchRequest(), pagesArround);
+
 	}
 
 	public List<Integer> getPages() {

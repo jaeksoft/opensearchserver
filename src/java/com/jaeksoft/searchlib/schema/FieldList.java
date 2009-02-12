@@ -24,8 +24,11 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,11 +44,12 @@ import org.apache.lucene.document.FieldSelectorResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
-		Serializable, Iterable<T> {
+		Externalizable, Iterable<T> {
 
 	/**
 	 * 
@@ -53,7 +57,7 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 	private static final long serialVersionUID = -3706856755116432969L;
 
 	private List<T> fieldList;
-	private Map<String, T> fieldsName;
+	private transient Map<String, T> fieldsName;
 	private T defaultField;
 	private T uniqueField;
 
@@ -197,4 +201,18 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 		return fieldList;
 	}
 
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		External.readList(in, fieldList);
+		for (T field : fieldList)
+			fieldsName.put(field.name, field);
+		defaultField = External.<T> readObject(in);
+		uniqueField = External.<T> readObject(in);
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		External.writeList(fieldList, out);
+		External.writeObject(defaultField, out);
+		External.writeObject(uniqueField, out);
+	}
 }

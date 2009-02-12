@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -39,7 +39,8 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class RequestList extends HashMap<String, Request> implements XmlInfo {
+public class SearchRequestList extends HashMap<String, SearchRequest> implements
+		XmlInfo {
 
 	/**
 	 * RequestList est une liste de Request.
@@ -59,27 +60,28 @@ public class RequestList extends HashMap<String, Request> implements XmlInfo {
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public static RequestList fromXmlConfig(Config config, XPathParser xpp,
-			Node parentNode) throws XPathExpressionException, DOMException,
-			ParseException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		RequestList requestList = new RequestList();
+	public static SearchRequestList fromXmlConfig(Config config,
+			XPathParser xpp, Node parentNode) throws XPathExpressionException,
+			DOMException, ParseException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		SearchRequestList searchRequestList = new SearchRequestList();
 		if (parentNode == null)
-			return requestList;
+			return searchRequestList;
 		NodeList nodes = xpp.getNodeList(parentNode, "request");
 		if (nodes == null)
-			return requestList;
+			return searchRequestList;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			TemplateRequest templateRequest = TemplateRequest.fromXmlConfig(
-					config, xpp, nodes.item(i));
-			requestList.put(templateRequest.getName(), templateRequest);
+			SearchRequest searchRequest = SearchRequest.fromXmlConfig(config,
+					xpp, nodes.item(i));
+			searchRequestList
+					.put(searchRequest.getRequestName(), searchRequest);
 		}
-		return requestList;
+		return searchRequestList;
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
 		writer.println("<requests>");
-		for (Request request : this.values())
+		for (SearchRequest request : this.values())
 			request.xmlInfo(writer, classDetail);
 		writer.println("</requests>");
 	}

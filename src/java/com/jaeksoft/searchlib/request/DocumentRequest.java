@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -22,47 +22,48 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.highlight;
+package com.jaeksoft.searchlib.request;
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.List;
 
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.util.External;
 
-public class HighlightFieldValue extends FieldValue implements Externalizable {
+public class DocumentRequest implements Externalizable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2819968548098199426L;
+	private static final long serialVersionUID = 8390479489794895730L;
 
-	private boolean highlighted;
+	protected String indexName;
 
-	public HighlightFieldValue() {
+	public int doc;
+
+	protected int pos;
+
+	public DocumentRequest() {
 	}
 
-	public HighlightFieldValue(Field field, List<String> values,
-			boolean highlighted) {
-		super(field, values);
-		this.highlighted = highlighted;
-	}
-
-	public boolean isHighlighted() {
-		return highlighted;
+	protected DocumentRequest(ResultScoreDoc resultScoreDoc, int pos) {
+		this.indexName = resultScoreDoc.indexName;
+		this.doc = resultScoreDoc.doc;
+		this.pos = pos;
 	}
 
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		super.readExternal(in);
-		highlighted = in.readBoolean();
+		indexName = External.readUTF(in);
+		doc = in.readInt();
+		pos = in.readInt();
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
-		out.writeBoolean(highlighted);
+		External.writeUTF(indexName, out);
+		out.writeInt(doc);
+		out.writeInt(pos);
 	}
 }
