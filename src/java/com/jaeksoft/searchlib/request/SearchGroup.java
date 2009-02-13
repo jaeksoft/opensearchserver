@@ -47,7 +47,8 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 	private int nextStep;
 
 	public SearchGroup(IndexGroup indexGroup, SearchRequest searchRequest)
-			throws IOException, URISyntaxException, ParseException, SyntaxError {
+			throws IOException, URISyntaxException, ParseException,
+			SyntaxError, ClassNotFoundException {
 		super(indexGroup);
 		resultGroup = new ResultGroup(searchRequest);
 		totalFetchCount = 0;
@@ -66,6 +67,7 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 	protected boolean done() throws IOException, URISyntaxException,
 			ParseException, SyntaxError {
 		resultGroup.setFinalDocs();
+		resultGroup.expungeFacet();
 		if (totalFetchCount == 0)
 			return true;
 		if (resultGroup.getDocLength() >= fetchGoal)

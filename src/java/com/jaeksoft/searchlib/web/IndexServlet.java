@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft WebSearch
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -30,7 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +44,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
-import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class IndexServlet extends AbstractServlet {
@@ -54,32 +53,21 @@ public class IndexServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 3855116559376800406L;
 
-	private void updateDoc(Client client, IndexDocument doc)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		client.getIndex().updateDocument(client.getSchema(), doc);
-	}
-
-	private void updateDoc(Client client, List<? extends IndexDocument> docList)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		client.getIndex().updateDocuments(null, client.getSchema(), docList);
-	}
-
 	private void updateDoc(Client client, String indexName, IndexDocument doc)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
-			updateDoc(client, doc);
+			client.updateDocument(doc);
 		else
-			client.getIndex()
-					.updateDocument(indexName, client.getSchema(), doc);
+			client.updateDocument(indexName, doc);
 	}
 
 	private void updateDoc(Client client, String indexName,
-			List<? extends IndexDocument> docList)
+			Collection<? extends IndexDocument> docList)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
-			updateDoc(client, docList);
-		client.getIndex().updateDocuments(indexName, client.getSchema(),
-				docList);
+			client.updateDocuments(docList);
+		else
+			client.updateDocuments(indexName, docList);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -90,9 +78,9 @@ public class IndexServlet extends AbstractServlet {
 			Client client = Client.getWebAppInstance();
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
-			if (obj instanceof List)
+			if (obj instanceof Collection)
 				updateDoc(client, indexName,
-						(List<? extends IndexDocument>) obj);
+						(Collection<? extends IndexDocument>) obj);
 			else if (obj instanceof IndexDocument)
 				updateDoc(client, indexName, (IndexDocument) obj);
 		} catch (Exception e) {
@@ -110,7 +98,7 @@ public class IndexServlet extends AbstractServlet {
 			XPathParser xpp = new XPathParser(request.getInputStream());
 			NodeList nodeList = xpp.getNodeList("/index/document");
 			int l = nodeList.getLength();
-			List<IndexDocument> docList = new ArrayList<IndexDocument>();
+			Collection<IndexDocument> docList = new ArrayList<IndexDocument>();
 			for (int i = 0; i < l; i++)
 				docList.add(new IndexDocument(xpp, nodeList.item(i)));
 			updateDoc(client, indexName, docList);
@@ -153,35 +141,14 @@ public class IndexServlet extends AbstractServlet {
 		writer.println("OK");
 	}
 
-	private static void updateObject(URI uri, String indexName, Object docs)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		IOException err = null;
-		UriWriteObject writeObject = null;
-		uri = buildUri(uri, "/index", "index=" + indexName);
-		try {
-			writeObject = new UriWriteObject(uri, docs);
-			if (writeObject.getResponseCode() != 200)
-				throw new IOException(writeObject.getResponseCode() + " "
-						+ writeObject.getResponseMessage() + ")");
-		} catch (IOException e) {
-			e.printStackTrace();
-			err = e;
-		} finally {
-			if (writeObject != null)
-				writeObject.close();
-			if (err != null)
-				throw err;
-		}
-	}
-
 	public static void update(URI uri, String indexName, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		updateObject(uri, indexName, document);
+		sendObject(buildUri(uri, "/index", indexName, null), document);
 	}
 
 	public static void update(URI uri, String indexName,
-			List<? extends IndexDocument> documents)
+			Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		updateObject(uri, indexName, documents);
+		sendObject(buildUri(uri, "/index", indexName, null), documents);
 	}
 }

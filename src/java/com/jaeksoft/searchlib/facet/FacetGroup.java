@@ -25,23 +25,31 @@
 package com.jaeksoft.searchlib.facet;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 public class FacetGroup extends Facet {
 
 	private static final long serialVersionUID = -2026182316339285266L;
 
-	private FacetCount facetCount;
-
 	public FacetGroup(FacetField facetField) {
 		super(facetField);
 	}
 
-	public void run(FacetList facetList) throws IOException {
+	public void append(FacetList facetList) throws IOException {
 		synchronized (this) {
-			Facet facet = facetList.getByField(this.facetField.getName());
+			Facet facet = facetList.getByField(facetField.getName());
 			if (facet != null)
-				facetCount.sum(facet.facetCount);
-			facetCount.expungeLowCount(facetField.getMinCount());
+				sum(facet);
 		}
 	}
+
+	public void expunge() {
+		Iterator<FacetItem> iterator = iterator();
+		int minCount = facetField.getMinCount();
+		while (iterator.hasNext())
+			if (iterator.next().count < minCount)
+				iterator.remove();
+		array = null;
+	}
+
 }

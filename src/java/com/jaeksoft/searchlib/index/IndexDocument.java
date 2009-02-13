@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -46,7 +47,7 @@ public class IndexDocument implements Serializable, XmlInfo {
 	 */
 	private static final long serialVersionUID = 3144413917081822065L;
 
-	private HashMap<String, FieldContent> fields;
+	private Map<String, FieldContent> fields;
 	private String lang;
 
 	public IndexDocument() {

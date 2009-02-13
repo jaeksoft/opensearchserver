@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -24,46 +24,55 @@
 
 package com.jaeksoft.searchlib.facet;
 
-import java.io.Serializable;
-import java.util.AbstractList;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-public class FacetList extends AbstractList<Facet> implements Serializable {
+import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.External.Collecter;
+
+public class FacetList implements Iterable<Facet>, Externalizable,
+		Collecter<Facet> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2891562911711846847L;
 
-	private ArrayList<Facet> facetList;
-	private HashMap<String, Facet> facetMap;
+	private List<Facet> facetList;
+	private transient Map<String, Facet> facetMap;
 
 	public FacetList() {
 		this.facetMap = new HashMap<String, Facet>();
 		this.facetList = new ArrayList<Facet>();
 	}
 
-	@Override
-	public boolean add(Facet facet) {
-		if (!this.facetList.add(facet))
-			return false;
-		this.facetMap.put(facet.facetField.getName(), facet);
-		return true;
-	}
-
-	@Override
-	public Facet get(int index) {
-		return this.facetList.get(index);
-	}
-
-	@Override
-	public int size() {
-		return this.facetList.size();
-	}
-
 	public Facet getByField(String fieldName) {
 		return facetMap.get(fieldName);
+	}
+
+	public Iterator<Facet> iterator() {
+		return facetList.iterator();
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		External.readCollection(in, this);
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		External.writeCollection(facetList, out);
+	}
+
+	public void addObject(Facet facet) {
+		facetList.add(facet);
+		facetMap.put(facet.facetField.getName(), facet);
 	}
 
 }

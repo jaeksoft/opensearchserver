@@ -72,7 +72,8 @@ public class RenderXml implements Render {
 	private void renderDocuments() throws CorruptIndexException, IOException,
 			ParseException, SyntaxError {
 		SearchRequest searchRequest = result.getSearchRequest();
-		int end = result.getDocumentCount();
+		int start = searchRequest.getStart();
+		int end = result.getDocumentCount() + searchRequest.getStart();
 		writer.println("<result name=\"response\" numFound=\""
 				+ result.getNumFound() + "\" collapsedDocCount=\""
 				+ result.getCollapseDocCount() + "\" start=\""
@@ -80,7 +81,7 @@ public class RenderXml implements Render {
 				+ result.getMaxScore() + "\" time=\""
 				+ searchRequest.getFinalTime() + "\">");
 		if (!searchRequest.isDelete())
-			for (int i = searchRequest.getStart(); i < end; i++)
+			for (int i = start; i < end; i++)
 				this.renderDocument(i);
 		writer.println("</result>");
 	}
@@ -152,8 +153,6 @@ public class RenderXml implements Render {
 	private void renderFacets() throws Exception {
 		FacetList facetList = result.getFacetList();
 		if (facetList == null)
-			return;
-		if (facetList.size() == 0)
 			return;
 		writer.println("<faceting>");
 		for (Facet facet : facetList)

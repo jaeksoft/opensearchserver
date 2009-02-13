@@ -83,10 +83,12 @@ public class DocumentsRequest implements Externalizable {
 	public DocumentsRequest(Result result) throws ParseException, SyntaxError,
 			IOException {
 		this(result.getSearchRequest());
+		int start = result.getSearchRequest().getStart();
 		int rows = result.getDocumentCount();
+		if (rows <= 0)
+			return;
 		requestedDocuments = new DocumentRequest[rows];
 		ResultScoreDoc[] docs = result.getDocs();
-		int start = result.getSearchRequest().getStart();
 		for (int i = 0; i < rows; i++) {
 			ResultScoreDoc doc = docs[i + start];
 			requestedDocuments[i] = new DocumentRequest(doc, i);
@@ -168,6 +170,12 @@ public class DocumentsRequest implements Externalizable {
 		External.writeArray(requestedDocuments, out);
 		out.writeObject(highlightFieldList);
 		out.writeObject(returnFieldList);
+	}
+
+	public boolean isEmpty() {
+		if (requestedDocuments == null)
+			return true;
+		return requestedDocuments.length == 0;
 	}
 
 }

@@ -47,16 +47,19 @@ public class ResultGroup extends Result {
 		super(searchRequest);
 		notCollapsedDocs = null;
 		for (FacetField facetField : searchRequest.getFacetFieldList())
-			this.facetList.add(new FacetGroup(facetField));
+			this.facetList.addObject(new FacetGroup(facetField));
 		sorter = searchRequest.getSortList().getSorter();
 	}
 
 	private void addResult(Result result) throws IOException {
 		synchronized (this) {
 			numFound += result.getNumFound();
-			if (facetList != null)
-				for (Facet facet : facetList)
-					((FacetGroup) facet).run(result.getFacetList());
+			if (facetList != null) {
+				for (Facet facet : facetList) {
+					FacetGroup facetGroup = (FacetGroup) facet;
+					facetGroup.append(result.getFacetList());
+				}
+			}
 		}
 	}
 
@@ -177,8 +180,16 @@ public class ResultGroup extends Result {
 		return this.numFound;
 	}
 
+	public void expungeFacet() {
+		if (facetList == null)
+			return;
+		for (Facet facet : facetList)
+			((FacetGroup) facet).expunge();
+	}
+
 	public void loadDocuments(IndexGroup indexGroup) throws ParseException,
-			SyntaxError, IOException, URISyntaxException {
+			SyntaxError, IOException, URISyntaxException,
+			ClassNotFoundException {
 		DocumentsRequest documentsRequest = new DocumentsRequest(this);
 		ResultDocument[] resultDocuments = indexGroup
 				.documents(documentsRequest);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -68,7 +68,8 @@ public class SearchServlet extends AbstractServlet {
 
 	private Render doQueryRequest(Client client,
 			HttpServletRequest httpRequest, String render, String jsp)
-			throws IOException, ParseException, SyntaxError, URISyntaxException {
+			throws IOException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException {
 		SearchRequest searchRequest = client.getNewSearchRequest(httpRequest);
 		Result result = client.search(searchRequest);
 		if ("jsp".equals(render) && jsp != null)
@@ -107,7 +108,7 @@ public class SearchServlet extends AbstractServlet {
 
 	public static Result search(URI uri, SearchRequest searchRequest,
 			String indexName) throws IOException, URISyntaxException {
-		uri = buildUri(uri, "/select", "render=object");
+		uri = buildUri(uri, "/select", null, "render=object");
 		UriWriteObject uwo = null;
 		IOException err = null;
 		Result res = null;

@@ -48,7 +48,8 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 			throws ParseException, SyntaxError, IOException;
 
 	final private void run(List<T> threads) throws IOException,
-			URISyntaxException, ParseException, SyntaxError {
+			URISyntaxException, ParseException, SyntaxError,
+			ClassNotFoundException {
 		for (T thread : threads)
 			thread.start();
 		Iterator<T> iterator = threads.iterator();
@@ -87,7 +88,7 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 	}
 
 	final protected void loop() throws IOException, URISyntaxException,
-			ParseException, SyntaxError {
+			ParseException, SyntaxError, ClassNotFoundException {
 
 		List<T> threads = initThreads();
 		while (threads.size() > 0) {
@@ -98,7 +99,7 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 	}
 
 	final protected void run() throws ParseException, SyntaxError, IOException,
-			URISyntaxException {
+			URISyntaxException, ClassNotFoundException {
 		List<T> threads = initThreads();
 		run(threads);
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -67,9 +67,7 @@ public class ResultSingle extends Result {
 		numFound = docSetHits.getDocNumFound();
 		maxScore = docSetHits.getMaxScore();
 		for (FacetField facetField : searchRequest.getFacetFieldList())
-			this.facetList.add(facetField.getFacetInstance(this));
-		sortStringIndexArray = searchRequest.getSortList().newStringIndexArray(
-				reader);
+			this.facetList.addObject(facetField.getFacet(this));
 
 		ResultScoreDoc[] docs;
 		// Are we doing collapsing ?
@@ -78,6 +76,14 @@ public class ResultSingle extends Result {
 			collapsedDocCount = collapse.getDocCount();
 		} else
 			docs = fetchWithoutCollapse();
+
+		if (searchRequest.isWithSortValues()) {
+			sortStringIndexArray = searchRequest.getSortList()
+					.newStringIndexArray(reader);
+			if (sortStringIndexArray != null)
+				for (ResultScoreDoc doc : docs)
+					doc.loadSortValues(sortStringIndexArray);
+		}
 
 		setDocs(docs);
 
@@ -141,12 +147,6 @@ public class ResultSingle extends Result {
 			rows += searchRequest.getRows();
 		}
 		return collapse.getCollapsedDoc();
-	}
-
-	public void loadSortValues(ResultScoreDoc doc, String[] values) {
-		int i = 0;
-		for (StringIndex stringIndex : sortStringIndexArray)
-			values[i++] = stringIndex.lookup[stringIndex.order[doc.doc]];
 	}
 
 }

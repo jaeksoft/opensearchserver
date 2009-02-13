@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -47,9 +47,10 @@ import org.w3c.dom.Node;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
+import com.jaeksoft.searchlib.util.External.Collecter;
 
 public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
-		Externalizable, Iterable<T> {
+		Externalizable, Iterable<T>, Collecter<T> {
 
 	/**
 	 * 
@@ -203,16 +204,19 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		External.readList(in, fieldList);
-		for (T field : fieldList)
-			fieldsName.put(field.name, field);
+		External.readCollection(in, this);
 		defaultField = External.<T> readObject(in);
 		uniqueField = External.<T> readObject(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeList(fieldList, out);
+		External.writeCollection(fieldList, out);
 		External.writeObject(defaultField, out);
 		External.writeObject(uniqueField, out);
+	}
+
+	public void addObject(T field) {
+		fieldList.add(field);
+		fieldsName.put(field.name, field);
 	}
 }

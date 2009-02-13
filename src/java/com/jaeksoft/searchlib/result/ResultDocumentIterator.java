@@ -38,6 +38,8 @@ public class ResultDocumentIterator implements Iterator<ResultDocument> {
 	}
 
 	public boolean hasNext() {
+		if (resultDocuments == null)
+			return false;
 		return pos < resultDocuments.length;
 	}
 

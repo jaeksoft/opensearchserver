@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
-import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderObject;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
@@ -91,27 +90,8 @@ public class DocumentsServlet extends AbstractServlet {
 
 	public static ResultDocument[] documents(URI uri,
 			DocumentsRequest documentsRequest) throws IOException,
-			URISyntaxException {
-		uri = buildUri(uri, "/documents", null);
-		UriWriteObject uwo = null;
-		IOException err = null;
-		ResultDocument[] documentsResult = null;
-		try {
-			uwo = new UriWriteObject(uri, documentsRequest);
-			if (uwo.getResponseCode() != 200)
-				throw new IOException(uwo.getResponseMessage());
-			documentsResult = (ResultDocument[]) uwo.getResponseObject();
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			e.printStackTrace();
-			err = e;
-		} finally {
-			if (uwo != null)
-				uwo.close();
-			if (err != null)
-				throw err;
-		}
-		return documentsResult;
+			URISyntaxException, ClassNotFoundException {
+		return (ResultDocument[]) sendReceiveObject(buildUri(uri, "/documents",
+				null, null), documentsRequest);
 	}
 }

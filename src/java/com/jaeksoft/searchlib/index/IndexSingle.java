@@ -31,8 +31,8 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -135,9 +135,9 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public void deleteDocuments(Schema schema, List<String> uniqueFields)
+	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -152,8 +152,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
-			List<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			Collection<String> uniqueFields) throws CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -199,7 +199,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			List<? extends IndexDocument> documents)
+			Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
@@ -215,7 +215,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public void updateDocuments(String indexName, Schema schema,
-			List<? extends IndexDocument> documents)
+			Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
@@ -275,7 +275,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public Result search(SearchRequest searchRequest) throws IOException,
-			URISyntaxException, ParseException, SyntaxError {
+			URISyntaxException, ParseException, SyntaxError,
+			ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();
@@ -291,7 +292,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public ResultDocument[] documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError, URISyntaxException {
+			throws IOException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();

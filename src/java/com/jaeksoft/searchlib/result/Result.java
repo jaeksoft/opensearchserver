@@ -77,20 +77,14 @@ public abstract class Result implements Externalizable,
 		return this.facetList;
 	}
 
-	public int getDocumentCount() {
-		int end = searchRequest.getEnd();
-		int len = getDocLength();
-		if (end > len)
-			end = len;
-		return end - searchRequest.getStart();
-	}
-
 	protected void setDocuments(ResultDocument[] resultDocuments) {
 		this.resultDocuments = resultDocuments;
 	}
 
 	public ResultDocument getDocument(int pos) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
+		if (pos < searchRequest.getStart())
+			return null;
 		if (pos >= searchRequest.getEnd())
 			return null;
 		if (pos >= getDocLength())
@@ -118,6 +112,14 @@ public abstract class Result implements Externalizable,
 		if (docs == null)
 			return 0;
 		return docs.length;
+	}
+
+	public int getDocumentCount() {
+		int end = searchRequest.getEnd();
+		int len = getDocLength();
+		if (end > len)
+			end = len;
+		return end - searchRequest.getStart();
 	}
 
 	public ResultScoreDoc[] getDocs() {

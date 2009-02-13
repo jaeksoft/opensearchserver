@@ -42,11 +42,15 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 
 	public DocumentsGroup(IndexGroup indexGroup,
 			DocumentsRequest documentsRequest) throws IOException,
-			URISyntaxException, ParseException, SyntaxError {
+			URISyntaxException, ParseException, SyntaxError,
+			ClassNotFoundException {
 		super(indexGroup);
 		this.documentsRequest = documentsRequest;
-		resultDocuments = new ResultDocument[documentsRequest
-				.getRequestedDocuments().length];
+		DocumentRequest[] requestedDocuments = documentsRequest
+				.getRequestedDocuments();
+		if (requestedDocuments == null)
+			return;
+		resultDocuments = new ResultDocument[requestedDocuments.length];
 		run();
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.httpclient.HttpException;
 
 import com.jaeksoft.searchlib.remote.UriRead;
+import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
@@ -100,34 +101,66 @@ public abstract class AbstractServlet extends HttpServlet {
 	}
 
 	protected static URI buildUri(URI uri, String additionalPath,
-			String queryString) throws URISyntaxException {
-		if (additionalPath == null)
-			additionalPath = "";
-		if (queryString == null)
-			queryString = "";
+			String indexName, String additionnalQuery)
+			throws URISyntaxException {
+		StringBuffer path = new StringBuffer(uri.getPath());
+		if (additionalPath != null)
+			path.append(additionalPath);
+		StringBuffer query = new StringBuffer();
+		if (indexName != null) {
+			query.append("index=");
+			query.append(indexName);
+		}
+		if (additionnalQuery != null) {
+			if (query.length() > 0)
+				query.append("&");
+			query.append(additionnalQuery);
+		}
 		return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri
-				.getPort(), uri.getPath() + additionalPath, queryString, uri
+				.getPort(), path.toString(), query.toString(), uri
 				.getFragment());
 
 	}
 
-	protected static void call(URI uri, String additionalPath,
-			String queryString) throws HttpException, IOException,
+	protected static void call(URI uri) throws HttpException, IOException,
 			URISyntaxException {
-		uri = buildUri(uri, additionalPath, queryString);
 		UriRead uriRead = null;
-
 		try {
 			uriRead = new UriRead(uri);
 			if (uriRead.getResponseCode() != 200)
 				throw new IOException(uri + " returns "
 						+ uriRead.getResponseMessage() + "("
 						+ uriRead.getResponseCode() + ")");
-		} catch (IOException e) {
-			throw e;
 		} finally {
 			if (uriRead != null)
 				uriRead.close();
+		}
+	}
+
+	protected static void sendObject(URI uri, Object object) throws IOException {
+		UriWriteObject writeObject = null;
+		try {
+			writeObject = new UriWriteObject(uri, object);
+			if (writeObject.getResponseCode() != 200)
+				throw new IOException(writeObject.getResponseCode() + " "
+						+ writeObject.getResponseMessage() + ")");
+		} finally {
+			if (writeObject != null)
+				writeObject.close();
+		}
+	}
+
+	protected static Object sendReceiveObject(URI uri, Object object)
+			throws IOException, ClassNotFoundException {
+		UriWriteObject uwo = null;
+		try {
+			uwo = new UriWriteObject(uri, object);
+			if (uwo.getResponseCode() != 200)
+				throw new IOException(uwo.getResponseMessage());
+			return uwo.getResponseObject();
+		} finally {
+			if (uwo != null)
+				uwo.close();
 		}
 	}
 }

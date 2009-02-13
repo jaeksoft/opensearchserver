@@ -34,7 +34,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -132,14 +131,14 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			List<? extends IndexDocument> documents)
+			Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.updateDocuments(schema, documents);
 	}
 
 	public void updateDocuments(String indexName, Schema schema,
-			List<? extends IndexDocument> documents)
+			Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
@@ -163,16 +162,16 @@ public class IndexGroup extends IndexAbstract {
 		index.deleteDocuments(schema, uniqueField);
 	}
 
-	public void deleteDocuments(Schema schema, List<String> uniqueFields)
+	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.deleteDocuments(schema, uniqueFields);
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
-			List<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			Collection<String> uniqueFields) throws CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
@@ -203,7 +202,8 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public Result search(SearchRequest searchRequest) throws IOException,
-			URISyntaxException, ParseException, SyntaxError {
+			URISyntaxException, ParseException, SyntaxError,
+			ClassNotFoundException {
 		String indexName = searchRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).search(searchRequest);
@@ -300,11 +300,13 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public ResultDocument[] documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError, URISyntaxException {
+			throws IOException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException {
 		String indexName = documentsRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).documents(documentsRequest);
-		return new DocumentsGroup(this, documentsRequest).getDocuments();
+		else
+			return new DocumentsGroup(this, documentsRequest).getDocuments();
 	}
 
 }

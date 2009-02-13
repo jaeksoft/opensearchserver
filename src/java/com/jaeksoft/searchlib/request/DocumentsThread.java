@@ -58,7 +58,9 @@ public class DocumentsThread extends AbstractGroupRequestThread {
 
 	@Override
 	public void runner() throws IOException, URISyntaxException,
-			ParseException, SyntaxError {
+			ParseException, SyntaxError, ClassNotFoundException {
+		if (documentsRequest.isEmpty())
+			return;
 		ResultDocument[] documents = reader.documents(documentsRequest);
 		int i = 0;
 		for (DocumentRequest documentRequest : documentsRequest

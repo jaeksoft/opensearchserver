@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft WebSearch
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -25,16 +25,15 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.httpclient.HttpException;
-
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.remote.StreamReadObject;
 
 public class DeleteServlet extends AbstractServlet {
 
@@ -43,27 +42,70 @@ public class DeleteServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = -2663934578246659291L;
 
+	private void deleteDoc(Client client, String indexName, String uniq)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		if (indexName == null)
+			client.deleteDocuments(uniq);
+		else
+			client.deleteDocuments(indexName, uniq);
+	}
+
+	private void deleteDocs(Client client, String indexName,
+			Collection<String> uniqs) throws NoSuchAlgorithmException,
+			IOException, URISyntaxException {
+		if (indexName == null)
+			client.deleteDocuments(uniqs);
+		else
+			client.deleteDocuments(indexName, uniqs);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void doObjectRequest(HttpServletRequest request, String indexName)
+			throws ServletException {
+		StreamReadObject readObject = null;
+		try {
+			Client client = Client.getWebAppInstance();
+			readObject = new StreamReadObject(request.getInputStream());
+			Object obj = readObject.read();
+			if (obj instanceof Collection)
+				deleteDocs(client, indexName, (Collection<String>) obj);
+			else if (obj instanceof String)
+				deleteDoc(client, indexName, (String) obj);
+		} catch (Exception e) {
+			throw new ServletException(e);
+		} finally {
+			if (readObject != null)
+				readObject.close();
+		}
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
 			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
-			String index = request.getParameter("index");
+			String indexName = request.getParameter("index");
 			String uniq = request.getParameter("uniq");
-			if (index == null)
-				client.getIndex().deleteDocuments(client.getSchema(), uniq);
+
+			if (uniq != null)
+				deleteDoc(client, indexName, uniq);
 			else
-				client.getIndex().deleteDocuments(index, client.getSchema(),
-						uniq);
+				doObjectRequest(request, indexName);
+
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
-	public static void delete(URI uri, String uniqueField)
-			throws HttpException, UnsupportedEncodingException, IOException,
+	public static void delete(URI uri, String indexName, String uniqueField)
+			throws IOException, URISyntaxException {
+		call(buildUri(uri, "/delete", indexName, "uniq=" + uniqueField));
+	}
+
+	public static void delete(URI uri, String indexName,
+			Collection<String> uniqueFields) throws IOException,
 			URISyntaxException {
-		call(uri, "/delete", "&uniq=" + URLEncoder.encode(uniqueField, "UTF-8"));
+		sendObject(buildUri(uri, "/delete", indexName, null), uniqueFields);
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -24,17 +24,21 @@
 
 package com.jaeksoft.searchlib.filter;
 
-import java.io.Serializable;
-import java.util.AbstractList;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
-import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class FilterList extends AbstractList<Filter> implements Serializable {
+public class FilterList implements Externalizable, Collecter<Filter>,
+		Iterable<Filter> {
 
 	/**
 	 * 
@@ -45,11 +49,16 @@ public class FilterList extends AbstractList<Filter> implements Serializable {
 
 	private transient Config config;
 
+	public FilterList() {
+		config = null;
+		this.filterList = new ArrayList<Filter>();
+	}
+
 	public FilterList(FilterList fl) {
 		this.config = fl.config;
 		this.filterList = new ArrayList<Filter>();
 		for (Filter f : fl)
-			this.add(f);
+			addObject(f);
 	}
 
 	public FilterList(Config config) {
@@ -57,23 +66,33 @@ public class FilterList extends AbstractList<Filter> implements Serializable {
 		this.config = config;
 	}
 
-	@Override
 	public Filter get(int index) {
 		return filterList.get(index);
 	}
 
-	@Override
-	public boolean add(Filter filter) {
-		return this.filterList.add(filter);
+	public void addObject(Filter filter) {
+		filterList.add(filter);
 	}
 
-	public boolean add(String req, Source src) throws ParseException {
-		return this.add(new Filter(req, src));
+	public void add(String req, Source src) {
+		addObject(new Filter(req, src));
 	}
 
-	@Override
 	public int size() {
 		return filterList.size();
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		External.readCollection(in, this);
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		External.writeCollection(filterList, out);
+	}
+
+	public Iterator<Filter> iterator() {
+		return filterList.iterator();
 	}
 
 }

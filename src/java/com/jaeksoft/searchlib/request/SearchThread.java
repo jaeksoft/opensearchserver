@@ -53,13 +53,14 @@ public class SearchThread extends AbstractGroupRequestThread {
 		searchRequest.setCollapseActive(false);
 		searchRequest.setIndexName(index.getName());
 		searchRequest.setWithDocument(false);
+		searchRequest.setWithSortValues(true);
 		searchRequest.setStart(0);
-		searchRequest.setEnd(0);
+		searchRequest.setRows(0);
 
 	}
 
 	public void runner() throws IOException, URISyntaxException,
-			ParseException, SyntaxError {
+			ParseException, SyntaxError, ClassNotFoundException {
 		searchRequest.setStart(searchRequest.getEnd());
 		searchRequest.setRows(step);
 		Result result = reader.search(searchRequest);

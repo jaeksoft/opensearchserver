@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.index;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -71,7 +71,7 @@ public abstract class WriterAbstract extends NameFilter implements
 	}
 
 	public void updateDocuments(String indexName, Schema schema,
-			List<? extends IndexDocument> documents)
+			Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
@@ -87,8 +87,8 @@ public abstract class WriterAbstract extends NameFilter implements
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,
-			List<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			Collection<String> uniqueFields) throws CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		deleteDocuments(schema, uniqueFields);

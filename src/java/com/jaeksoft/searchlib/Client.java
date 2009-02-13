@@ -28,7 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.Collection;
 
 import javax.naming.NamingException;
 
@@ -68,9 +68,20 @@ public class Client extends Config implements XmlInfo {
 		getIndex().updateDocument(getSchema(), document);
 	}
 
-	public void updateDocuments(List<? extends IndexDocument> documents)
+	public void updateDocument(String indexName, IndexDocument document)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		getIndex().updateDocument(indexName, getSchema(), document);
+	}
+
+	public void updateDocuments(Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		getIndex().updateDocuments(getSchema(), documents);
+	}
+
+	public void updateDocuments(String indexName,
+			Collection<? extends IndexDocument> documents)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		getIndex().updateDocuments(indexName, getSchema(), documents);
 	}
 
 	public void deleteDocuments(String uniqueField)
@@ -79,10 +90,22 @@ public class Client extends Config implements XmlInfo {
 		getIndex().deleteDocuments(getSchema(), uniqueField);
 	}
 
-	public void deleteDocuments(List<String> uniqueFields)
+	public void deleteDocuments(String indexName, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, URISyntaxException {
+		getIndex().deleteDocuments(indexName, getSchema(), uniqueField);
+	}
+
+	public void deleteDocuments(Collection<String> uniqueFields)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
 		getIndex().deleteDocuments(getSchema(), uniqueFields);
+	}
+
+	public void deleteDocuments(String indexName,
+			Collection<String> uniqueFields) throws CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
+		getIndex().deleteDocuments(indexName, getSchema(), uniqueFields);
 	}
 
 	public int getDocFreq(String uniqueField) throws IOException {
@@ -105,13 +128,15 @@ public class Client extends Config implements XmlInfo {
 	}
 
 	public Result search(SearchRequest searchRequest) throws IOException,
-			ParseException, SyntaxError, URISyntaxException {
+			ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException {
 		searchRequest.setConfig(this);
 		return getIndex().search(searchRequest);
 	}
 
 	public ResultDocument[] documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError, URISyntaxException {
+			throws IOException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException {
 		return getIndex().documents(documentsRequest);
 	}
 

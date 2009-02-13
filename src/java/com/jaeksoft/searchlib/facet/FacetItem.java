@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -24,9 +24,14 @@
 
 package com.jaeksoft.searchlib.facet;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-public class FacetItem implements Serializable {
+import com.jaeksoft.searchlib.util.External;
+
+public class FacetItem implements Externalizable {
 
 	/**
 	 * 
@@ -36,6 +41,9 @@ public class FacetItem implements Serializable {
 	protected String term;
 
 	protected int count;
+
+	public FacetItem() {
+	}
 
 	public FacetItem(String term, int count) {
 		this.term = term;
@@ -48,6 +56,17 @@ public class FacetItem implements Serializable {
 
 	public int getCount() {
 		return count;
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		term = External.readUTF(in);
+		count = in.readInt();
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		External.writeUTF(term, out);
+		out.writeInt(count);
 	}
 
 }

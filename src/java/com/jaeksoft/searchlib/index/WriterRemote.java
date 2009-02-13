@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -30,8 +30,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
@@ -68,7 +68,7 @@ public class WriterRemote extends WriterAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			List<? extends IndexDocument> documents)
+			Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		IndexServlet.update(uri, getName(), documents);
 	}
@@ -76,14 +76,12 @@ public class WriterRemote extends WriterAbstract {
 	public void deleteDocuments(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
-		DeleteServlet.delete(uri, uniqueField);
+		DeleteServlet.delete(uri, getName(), uniqueField);
 	}
 
-	// TODO Implementation
-	public void deleteDocuments(Schema schema, List<String> uniqueField)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
-		throw new RuntimeException("Not yet implemented");
+	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
+			throws IOException, URISyntaxException {
+		DeleteServlet.delete(uri, getName(), uniqueFields);
 	}
 
 	public static WriterRemote fromConfig(IndexConfig indexConfig)

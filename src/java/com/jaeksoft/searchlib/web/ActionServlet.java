@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -68,40 +68,32 @@ public class ActionServlet extends AbstractServlet {
 
 	public static void optimize(URI uri, String indexName)
 			throws HttpException, IOException, URISyntaxException {
-		StringBuffer query = new StringBuffer("?action=optimize");
-		query.append("&index=");
-		query.append(indexName);
-		call(uri, "/action", query.toString());
+		call(buildUri(uri, "/action", indexName, "action=optimize"));
 	}
 
 	public static void reload(URI uri, String indexName) throws HttpException,
 			IOException, URISyntaxException {
-		StringBuffer query = new StringBuffer("?action=reload");
-		query.append("&index=");
-		query.append(indexName);
-		call(uri, "/action", query.toString());
+		call(buildUri(uri, "/action", indexName, "action=reload"));
 	}
 
 	public static void swap(URI uri, String indexName, long version,
 			boolean deleteOld) throws URISyntaxException, HttpException,
 			IOException {
-		StringBuffer query = new StringBuffer("?action=swap");
-		query.append("&index=");
-		query.append(indexName);
+		StringBuffer query = new StringBuffer("action=swap");
 		query.append("&version=");
 		query.append(version);
 		if (deleteOld)
 			query.append("&deleteOld");
-		call(uri, "/action", query.toString());
+		call(buildUri(uri, "/action", indexName, query.toString()));
 	}
 
 	public static void online(URI uri, String indexName) throws HttpException,
 			IOException, URISyntaxException {
-		call(uri, "/action", "?action=online");
+		call(buildUri(uri, "/action", indexName, "action=online"));
 	}
 
 	public static void offline(URI uri, String indexName) throws HttpException,
 			IOException, URISyntaxException {
-		call(uri, "/action", "?action=offline");
+		call(buildUri(uri, "/action", indexName, "action=offline"));
 	}
 }

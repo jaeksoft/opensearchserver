@@ -32,6 +32,8 @@ import java.io.ObjectOutput;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
+import com.jaeksoft.searchlib.util.External;
+
 public class ResultScoreDoc implements Externalizable {
 
 	/**
@@ -51,6 +53,8 @@ public class ResultScoreDoc implements Externalizable {
 
 	public transient int collapseCount;
 
+	public String[] sortValues;
+
 	public ResultScoreDoc() {
 	}
 
@@ -68,6 +72,19 @@ public class ResultScoreDoc implements Externalizable {
 		if (collapseTerm != null)
 			return;
 		collapseTerm = stringIndex.lookup[stringIndex.order[doc]];
+	}
+
+	public void loadSortValues(StringIndex[] sortStringIndexArray) {
+		if (sortValues != null)
+			return;
+		int i = 0;
+		sortValues = new String[sortStringIndexArray.length];
+		for (StringIndex stringIndex : sortStringIndexArray)
+			sortValues[i++] = stringIndex.lookup[stringIndex.order[doc]];
+	}
+
+	public String[] getSortValues() {
+		return sortValues;
 	}
 
 	public static ResultScoreDoc[] appendResultScoreDocArray(String indexName,
@@ -102,22 +119,23 @@ public class ResultScoreDoc implements Externalizable {
 			ClassNotFoundException {
 		resultSingle = null;
 		collapseCount = 0;
-		if (in.readBoolean())
-			indexName = in.readUTF();
+		indexName = External.readUTF(in);
 		doc = in.readInt();
 		score = in.readFloat();
-		if (in.readBoolean())
-			collapseTerm = in.readUTF();
+		collapseTerm = External.readUTF(in);
+		int l = in.readInt();
+		if (l > 0) {
+			sortValues = new String[l];
+			External.readArray(in, sortValues);
+		}
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeBoolean(indexName != null);
-		if (indexName != null)
-			out.writeUTF(indexName);
+		External.writeUTF(indexName, out);
 		out.writeInt(doc);
 		out.writeFloat(score);
-		out.writeBoolean(collapseTerm != null);
-		if (collapseTerm != null)
-			out.writeUTF(collapseTerm);
+		External.writeUTF(collapseTerm, out);
+		External.writeArray(sortValues, out);
 	}
+
 }

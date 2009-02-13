@@ -40,6 +40,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 	private URISyntaxException uriSyntaxException;
 	private ParseException parseException;
 	private SyntaxError syntaxError;
+	private ClassNotFoundException classNotFound;
 
 	protected AbstractGroupRequestThread() {
 		running = false;
@@ -62,7 +63,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 	}
 
 	public abstract void runner() throws IOException, URISyntaxException,
-			ParseException, SyntaxError;
+			ParseException, SyntaxError, ClassNotFoundException;
 
 	public abstract boolean done();
 
@@ -77,6 +78,8 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			this.parseException = e;
 		} catch (SyntaxError e) {
 			this.syntaxError = e;
+		} catch (ClassNotFoundException e) {
+			this.classNotFound = e;
 		} finally {
 			running = false;
 			synchronized (this) {
@@ -91,7 +94,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 	}
 
 	final public void exception() throws IOException, URISyntaxException,
-			ParseException, SyntaxError {
+			ParseException, SyntaxError, ClassNotFoundException {
 		if (ioException != null)
 			throw ioException;
 		if (parseException != null)
@@ -100,5 +103,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			throw uriSyntaxException;
 		if (syntaxError != null)
 			throw syntaxError;
+		if (classNotFound != null)
+			throw classNotFound;
 	}
 }

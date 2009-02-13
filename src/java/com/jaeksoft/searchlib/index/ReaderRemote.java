@@ -32,9 +32,7 @@ import java.util.HashSet;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.queryParser.ParseException;
 
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
@@ -84,7 +82,7 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 	}
 
 	public ResultDocument[] documents(DocumentsRequest documentRequest)
-			throws IOException, ParseException, SyntaxError, URISyntaxException {
+			throws IOException, URISyntaxException, ClassNotFoundException {
 		return DocumentsServlet.documents(uri, documentRequest);
 	}
 

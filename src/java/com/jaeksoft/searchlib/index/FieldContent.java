@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -40,7 +41,7 @@ public class FieldContent implements Serializable, XmlInfo {
 	 */
 	private static final long serialVersionUID = -4734981884898319100L;
 	private String field;
-	private ArrayList<String> values;
+	private List<String> values;
 
 	public FieldContent(String field) {
 		this.field = field;
@@ -65,7 +66,7 @@ public class FieldContent implements Serializable, XmlInfo {
 		return values.get(pos);
 	}
 
-	public ArrayList<String> getValues() {
+	public List<String> getValues() {
 		return values;
 	}
 

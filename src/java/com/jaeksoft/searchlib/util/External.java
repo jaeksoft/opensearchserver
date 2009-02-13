@@ -27,37 +27,41 @@ package com.jaeksoft.searchlib.util;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.List;
+import java.util.Collection;
 
 public class External {
 
-	final public static <T> void writeList(List<T> list, ObjectOutput out)
-			throws IOException {
-		if (list != null) {
-			int l = list.size();
+	final public static void writeCollection(Collection<?> collection,
+			ObjectOutput out) throws IOException {
+		if (collection != null) {
+			int l = collection.size();
 			if (l > 0) {
 				out.writeInt(l);
-				for (T object : list)
+				for (Object object : collection)
 					out.writeObject(object);
 			}
 		}
 		out.writeInt(0);
 	}
 
-	@SuppressWarnings("unchecked")
-	final public static <T> void readList(ObjectInput in, List<T> list)
-			throws IOException, ClassNotFoundException {
-		int l = in.readInt();
-		while (l-- > 0)
-			list.add((T) in.readObject());
+	public interface Collecter<T> {
+		public void addObject(T object);
 	}
 
-	final public static <T> void writeArray(T[] array, ObjectOutput out)
+	@SuppressWarnings("unchecked")
+	final public static <T> void readCollection(ObjectInput in,
+			Collecter<T> collecter) throws IOException, ClassNotFoundException {
+		int l = in.readInt();
+		while (l-- > 0)
+			collecter.addObject((T) in.readObject());
+	}
+
+	final public static void writeArray(Object[] array, ObjectOutput out)
 			throws IOException {
 		if (array != null) {
 			if (array.length > 0) {
 				out.writeInt(array.length);
-				for (T object : array)
+				for (Object object : array)
 					out.writeObject(object);
 				return;
 			}
@@ -65,13 +69,12 @@ public class External {
 		out.writeInt(0);
 	}
 
-	@SuppressWarnings("unchecked")
-	final public static <T> void readArray(ObjectInput in, T[] array)
+	final public static void readArray(ObjectInput in, Object[] array)
 			throws IOException, ClassNotFoundException {
 		if (array == null)
 			return;
 		for (int i = 0; i < array.length; i++)
-			array[i] = (T) in.readObject();
+			array[i] = in.readObject();
 	}
 
 	final public static <T> void writeObject(T object, ObjectOutput out)
@@ -101,4 +104,5 @@ public class External {
 			return null;
 		return in.readUTF();
 	}
+
 }

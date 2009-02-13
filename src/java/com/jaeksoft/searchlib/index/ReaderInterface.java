@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -49,10 +49,12 @@ public interface ReaderInterface extends XmlInfo {
 			throws IOException;
 
 	public Result search(SearchRequest searchRequest) throws IOException,
-			URISyntaxException, ParseException, SyntaxError;
+			URISyntaxException, ParseException, SyntaxError,
+			ClassNotFoundException;
 
 	public ResultDocument[] documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError, URISyntaxException;
+			throws IOException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException;
 
 	public String getName();
 

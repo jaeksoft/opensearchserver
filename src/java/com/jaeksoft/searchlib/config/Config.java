@@ -37,6 +37,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.highlight.HighlightField;
@@ -184,10 +185,22 @@ public abstract class Config implements XmlInfo {
 			for (String value : values)
 				returnFields.add(getSchema().getFieldList().get(value));
 		}
+
 		if ((values = httpRequest.getParameterValues("sort")) != null) {
 			SortList sortList = searchRequest.getSortList();
 			for (String value : values)
 				sortList.add(value);
+		}
+
+		if ((values = httpRequest.getParameterValues("facet")) != null) {
+			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
+			for (String value : values)
+				facetList.add(new FacetField(value, 1, false));
+		}
+		if ((values = httpRequest.getParameterValues("facet.multi")) != null) {
+			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
+			for (String value : values)
+				facetList.add(new FacetField(value, 1, true));
 		}
 		return searchRequest;
 	}

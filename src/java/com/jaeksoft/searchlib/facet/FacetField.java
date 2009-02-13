@@ -51,7 +51,7 @@ public class FacetField extends Field implements Externalizable {
 	public FacetField() {
 	}
 
-	protected FacetField(String name, int minCount, boolean multivalued) {
+	public FacetField(String name, int minCount, boolean multivalued) {
 		super(name);
 		this.minCount = minCount;
 		this.multivalued = multivalued;
@@ -61,11 +61,11 @@ public class FacetField extends Field implements Externalizable {
 		return minCount;
 	}
 
-	public Facet getFacetInstance(ResultSingle result) throws IOException {
+	public Facet getFacet(ResultSingle result) throws IOException {
 		if (multivalued)
-			return new FacetMultivalued(result, this);
+			return Facet.facetMultivalued(result, this);
 		else
-			return new FacetSingle(result, this);
+			return Facet.facetSingleValue(result, this);
 	}
 
 	public static void copyFacetFields(Node node,

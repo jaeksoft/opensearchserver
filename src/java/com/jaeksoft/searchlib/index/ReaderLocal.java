@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -521,6 +521,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		try {
 			DocumentRequest[] requestedDocuments = documentsRequest
 					.getRequestedDocuments();
+			if (requestedDocuments == null)
+				return null;
 			ResultDocument[] documents = new ResultDocument[requestedDocuments.length];
 			int i = 0;
 			for (DocumentRequest documentRequest : requestedDocuments)

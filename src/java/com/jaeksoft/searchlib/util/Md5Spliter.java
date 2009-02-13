@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 public class Md5Spliter {
@@ -63,7 +63,7 @@ public class Md5Spliter {
 			this.keyPattern = Pattern.compile(keyPattern);
 	}
 
-	public boolean acceptAnyKey(ArrayList<String> keys)
+	public boolean acceptAnyKey(Collection<String> keys)
 			throws NoSuchAlgorithmException {
 		if (keyPattern == null)
 			return true;

@@ -31,9 +31,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
@@ -206,7 +206,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			List<? extends IndexDocument> documents)
+			Collection<? extends IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
 		l.lock();
 		try {
@@ -261,7 +261,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public void deleteDocuments(Schema schema, List<String> uniqueFields)
+	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
 		String uniqueField = schema.getFieldList().getUniqueField().getName();

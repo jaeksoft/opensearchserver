@@ -24,8 +24,11 @@
 
 package com.jaeksoft.searchlib.request;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -53,11 +56,12 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortList;
+import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class SearchRequest implements XmlInfo, Serializable {
+public class SearchRequest implements XmlInfo, Externalizable {
 
 	/**
 	 * 
@@ -65,9 +69,11 @@ public class SearchRequest implements XmlInfo, Serializable {
 	private static final long serialVersionUID = 148522254171520640L;
 
 	private transient QueryParser queryParser;
+	private transient Query query;
 	private transient Config config;
 	private transient ReaderInterface reader;
 	private transient Timer timer;
+	private transient long finalTime;
 
 	private String indexName;
 	private String requestName;
@@ -89,13 +95,17 @@ public class SearchRequest implements XmlInfo, Serializable {
 	private String queryString;
 	private String patternQuery;
 	private String scoreFunction;
-	private Query query;
 	private String queryParsed;
 	private boolean delete;
 	private boolean withDocuments;
-	private long finalTime;
+	private boolean withSortValues;
 
 	public SearchRequest() {
+		queryParser = null;
+		config = null;
+		reader = null;
+		timer = null;
+		finalTime = 0;
 	}
 
 	public SearchRequest(Config config) {
@@ -124,6 +134,7 @@ public class SearchRequest implements XmlInfo, Serializable {
 		this.scoreFunction = null;
 		this.delete = false;
 		this.withDocuments = true;
+		this.withSortValues = false;
 		this.reader = null;
 		this.queryParsed = null;
 		this.timer = new Timer();
@@ -155,6 +166,7 @@ public class SearchRequest implements XmlInfo, Serializable {
 		this.collapseActive = searchRequest.collapseActive;
 		this.delete = searchRequest.delete;
 		this.withDocuments = searchRequest.withDocuments;
+		this.withSortValues = searchRequest.withSortValues;
 		this.start = searchRequest.start;
 		this.rows = searchRequest.rows;
 		this.lang = searchRequest.lang;
@@ -170,7 +182,8 @@ public class SearchRequest implements XmlInfo, Serializable {
 			boolean allowLeadingWildcard, int phraseSlop,
 			QueryParser.Operator defaultOperator, int start, int rows,
 			String lang, String patternQuery, String queryString,
-			String scoreFunction, boolean delete, boolean withDocuments) {
+			String scoreFunction, boolean delete, boolean withDocuments,
+			boolean withSortValues) {
 		this(config);
 		this.indexName = indexName;
 		this.requestName = requestName;
@@ -188,6 +201,7 @@ public class SearchRequest implements XmlInfo, Serializable {
 		this.scoreFunction = scoreFunction;
 		this.delete = delete;
 		this.withDocuments = withDocuments;
+		this.withSortValues = withSortValues;
 	}
 
 	public void setConfig(Config config) {
@@ -333,6 +347,14 @@ public class SearchRequest implements XmlInfo, Serializable {
 		this.withDocuments = withDocuments;
 	}
 
+	public boolean isWithSortValues() {
+		return withSortValues;
+	}
+
+	public void setWithSortValues(boolean withSortValues) {
+		this.withSortValues = withSortValues;
+	}
+
 	public int getRows() {
 		return this.rows;
 	}
@@ -347,12 +369,6 @@ public class SearchRequest implements XmlInfo, Serializable {
 
 	public int getEnd() {
 		return this.start + this.rows;
-	}
-
-	public void setEnd(int end) {
-		if (end < start)
-			end = start;
-		this.rows = end - this.start;
 	}
 
 	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
@@ -449,7 +465,7 @@ public class SearchRequest implements XmlInfo, Serializable {
 						.getAttributeValue(node, "rows"), XPathParser
 						.getAttributeString(node, "lang"), xpp.getNodeString(
 						node, "query"), null, xpp.getNodeString(node,
-						"scoreFunction"), false, true);
+						"scoreFunction"), false, true, false);
 
 		FieldList<Field> returnFields = searchRequest.getReturnFieldList();
 		FieldList<SchemaField> fieldList = config.getSchema().getFieldList();
@@ -478,6 +494,72 @@ public class SearchRequest implements XmlInfo, Serializable {
 		for (int i = 0; i < nodes.getLength(); i++)
 			sortList.add(xpp.getNodeString(nodes.item(i)));
 		return searchRequest;
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		indexName = External.readUTF(in);
+		requestName = External.readUTF(in);
+		filterList = External.readObject(in);
+		allowLeadingWildcard = in.readBoolean();
+		phraseSlop = in.readInt();
+
+		if (in.readBoolean())
+			defaultOperator = Operator.OR;
+		else
+			defaultOperator = Operator.AND;
+
+		highlightFieldList = External.readObject(in);
+		returnFieldList = External.readObject(in);
+		documentFieldList = External.readObject(in);
+		facetFieldList = External.readObject(in);
+		sortList = External.readObject(in);
+		collapseField = External.readObject(in);
+		collapseMax = in.readInt();
+		collapseActive = in.readBoolean();
+		start = in.readInt();
+		rows = in.readInt();
+		lang = External.readUTF(in);
+		queryString = External.readUTF(in);
+		patternQuery = External.readUTF(in);
+		scoreFunction = External.readUTF(in);
+		queryParsed = External.readUTF(in);
+		delete = in.readBoolean();
+		withDocuments = in.readBoolean();
+		withSortValues = in.readBoolean();
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+
+		External.writeUTF(indexName, out);
+		requestName = External.readUTF(in);
+		filterList = External.readObject(in);
+		allowLeadingWildcard = in.readBoolean();
+		phraseSlop = in.readInt();
+
+		if (in.readBoolean())
+			defaultOperator = Operator.OR;
+		else
+			defaultOperator = Operator.AND;
+
+		highlightFieldList = External.readObject(in);
+		returnFieldList = External.readObject(in);
+		documentFieldList = External.readObject(in);
+		facetFieldList = External.readObject(in);
+		sortList = External.readObject(in);
+		collapseField = External.readObject(in);
+		collapseMax = in.readInt();
+		collapseActive = in.readBoolean();
+		start = in.readInt();
+		rows = in.readInt();
+		lang = External.readUTF(in);
+		queryString = External.readUTF(in);
+		patternQuery = External.readUTF(in);
+		scoreFunction = External.readUTF(in);
+		queryParsed = External.readUTF(in);
+		delete = in.readBoolean();
+		withDocuments = in.readBoolean();
+		withSortValues = in.readBoolean();
 	}
 
 }
