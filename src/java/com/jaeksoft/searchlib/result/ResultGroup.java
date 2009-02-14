@@ -191,7 +191,7 @@ public class ResultGroup extends Result {
 			SyntaxError, IOException, URISyntaxException,
 			ClassNotFoundException {
 		DocumentsRequest documentsRequest = new DocumentsRequest(this);
-		ResultDocument[] resultDocuments = indexGroup
+		ResultDocuments resultDocuments = indexGroup
 				.documents(documentsRequest);
 		setDocuments(resultDocuments);
 	}

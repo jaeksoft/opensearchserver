@@ -37,11 +37,11 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 
 public interface WriterInterface extends XmlInfo {
 
-	public void deleteDocuments(String indexName, Schema schema,
+	public void deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException;
 
-	public void deleteDocuments(Schema schema, String uniqueField)
+	public void deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException;
 
@@ -61,11 +61,11 @@ public interface WriterInterface extends XmlInfo {
 			IOException, URISyntaxException;
 
 	public void updateDocuments(Schema schema,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException;
 
 	public void updateDocuments(String indexName, Schema schema,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException;
 
 	public void optimize(String indexName) throws CorruptIndexException,

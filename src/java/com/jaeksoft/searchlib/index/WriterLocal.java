@@ -206,7 +206,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
 		l.lock();
 		try {
@@ -247,7 +247,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public void deleteDocuments(Schema schema, String uniqueField)
+	public void deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
 		l.lock();

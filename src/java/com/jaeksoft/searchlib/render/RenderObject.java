@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.render;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.Serializable;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,9 +36,9 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderObject implements Render {
 
-	private Serializable object;
+	private Externalizable object;
 
-	public RenderObject(Serializable object) throws CorruptIndexException,
+	public RenderObject(Externalizable object) throws CorruptIndexException,
 			IOException {
 		this.object = object;
 	}
@@ -47,7 +47,7 @@ public class RenderObject implements Render {
 
 		HttpServletResponse response = servletTransaction.getServletResponse();
 		response.setContentType("application/x-java-serialized-object");
-		response.setHeader("Content-Encoding", "gzip");
+		// response.setHeader("Content-Encoding", "gzip");
 		StreamWriteObject writeObject = null;
 		IOException err = null;
 		try {

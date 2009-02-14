@@ -43,7 +43,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.util.Context;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
@@ -73,27 +73,27 @@ public class Client extends Config implements XmlInfo {
 		getIndex().updateDocument(indexName, getSchema(), document);
 	}
 
-	public void updateDocuments(Collection<? extends IndexDocument> documents)
+	public void updateDocuments(Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		getIndex().updateDocuments(getSchema(), documents);
 	}
 
 	public void updateDocuments(String indexName,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		getIndex().updateDocuments(indexName, getSchema(), documents);
 	}
 
-	public void deleteDocuments(String uniqueField)
+	public void deleteDocument(String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
-		getIndex().deleteDocuments(getSchema(), uniqueField);
+		getIndex().deleteDocument(getSchema(), uniqueField);
 	}
 
-	public void deleteDocuments(String indexName, String uniqueField)
+	public void deleteDocument(String indexName, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
-		getIndex().deleteDocuments(indexName, getSchema(), uniqueField);
+		getIndex().deleteDocument(indexName, getSchema(), uniqueField);
 	}
 
 	public void deleteDocuments(Collection<String> uniqueFields)
@@ -134,7 +134,7 @@ public class Client extends Config implements XmlInfo {
 		return getIndex().search(searchRequest);
 	}
 
-	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException {
 		return getIndex().documents(documentsRequest);

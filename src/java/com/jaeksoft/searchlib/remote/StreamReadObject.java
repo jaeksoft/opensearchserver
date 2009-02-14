@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.remote;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -38,8 +39,8 @@ public class StreamReadObject {
 		ois = new ObjectInputStream(is);
 	}
 
-	public Object read() throws IOException, ClassNotFoundException {
-		return ois.readObject();
+	public Externalizable read() throws IOException, ClassNotFoundException {
+		return (Externalizable) ois.readObject();
 	}
 
 	public void close() {

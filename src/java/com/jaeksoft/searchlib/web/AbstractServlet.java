@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -46,7 +47,8 @@ public abstract class AbstractServlet extends HttpServlet {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 7013544620359275684L;
+
 	final private static Logger logger = Logger.getLogger(AbstractServlet.class
 			.getCanonicalName());
 
@@ -137,7 +139,8 @@ public abstract class AbstractServlet extends HttpServlet {
 		}
 	}
 
-	protected static void sendObject(URI uri, Object object) throws IOException {
+	protected static void sendObject(URI uri, Externalizable object)
+			throws IOException {
 		UriWriteObject writeObject = null;
 		try {
 			writeObject = new UriWriteObject(uri, object);
@@ -150,8 +153,8 @@ public abstract class AbstractServlet extends HttpServlet {
 		}
 	}
 
-	protected static Object sendReceiveObject(URI uri, Object object)
-			throws IOException, ClassNotFoundException {
+	protected static Externalizable sendReceiveObject(URI uri,
+			Externalizable object) throws IOException, ClassNotFoundException {
 		UriWriteObject uwo = null;
 		try {
 			uwo = new UriWriteObject(uri, object);

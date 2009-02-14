@@ -532,34 +532,34 @@ public class SearchRequest implements XmlInfo, Externalizable {
 	public void writeExternal(ObjectOutput out) throws IOException {
 
 		External.writeUTF(indexName, out);
-		requestName = External.readUTF(in);
-		filterList = External.readObject(in);
-		allowLeadingWildcard = in.readBoolean();
-		phraseSlop = in.readInt();
+		External.writeUTF(requestName, out);
+		External.writeObject(filterList, out);
+		out.writeBoolean(allowLeadingWildcard);
+		out.writeInt(phraseSlop);
+		out.writeBoolean(defaultOperator == Operator.OR);
 
-		if (in.readBoolean())
-			defaultOperator = Operator.OR;
-		else
-			defaultOperator = Operator.AND;
+		External.writeObject(highlightFieldList, out);
+		External.writeObject(returnFieldList, out);
+		External.writeObject(documentFieldList, out);
+		External.writeObject(facetFieldList, out);
+		External.writeObject(sortList, out);
 
-		highlightFieldList = External.readObject(in);
-		returnFieldList = External.readObject(in);
-		documentFieldList = External.readObject(in);
-		facetFieldList = External.readObject(in);
-		sortList = External.readObject(in);
-		collapseField = External.readObject(in);
-		collapseMax = in.readInt();
-		collapseActive = in.readBoolean();
-		start = in.readInt();
-		rows = in.readInt();
-		lang = External.readUTF(in);
-		queryString = External.readUTF(in);
-		patternQuery = External.readUTF(in);
-		scoreFunction = External.readUTF(in);
-		queryParsed = External.readUTF(in);
-		delete = in.readBoolean();
-		withDocuments = in.readBoolean();
-		withSortValues = in.readBoolean();
+		External.writeObject(collapseField, out);
+		out.writeInt(collapseMax);
+		out.writeBoolean(collapseActive);
+
+		out.writeInt(start);
+		out.writeInt(rows);
+
+		External.writeUTF(lang, out);
+		External.writeUTF(queryString, out);
+		External.writeUTF(patternQuery, out);
+		External.writeUTF(scoreFunction, out);
+		External.writeUTF(queryParsed, out);
+
+		out.writeBoolean(delete);
+		out.writeBoolean(withDocuments);
+		out.writeBoolean(withSortValues);
 	}
 
 }

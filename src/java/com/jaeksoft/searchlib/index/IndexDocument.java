@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -24,8 +24,11 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,10 +40,13 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
+import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class IndexDocument implements Serializable, XmlInfo {
+public class IndexDocument implements Externalizable, XmlInfo,
+		Collecter<FieldContent> {
 
 	/**
 	 * 
@@ -112,10 +118,6 @@ public class IndexDocument implements Serializable, XmlInfo {
 		add(field, value.toString());
 	}
 
-	protected void set(FieldContent fieldContent) {
-		fields.put(fieldContent.getField(), fieldContent);
-	}
-
 	public void set(String field, String value) {
 		FieldContent fc = fields.get(field);
 		if (fc != null)
@@ -154,6 +156,21 @@ public class IndexDocument implements Serializable, XmlInfo {
 			field.xmlInfo(writer, classDetail);
 		writer.println("</document>");
 
+	}
+
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		External.readCollection(in, this);
+		lang = External.readUTF(in);
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		External.writeCollection(fields.values(), out);
+		External.writeUTF(lang, out);
+	}
+
+	public void addObject(FieldContent fieldContent) {
+		fields.put(fieldContent.getField(), fieldContent);
 	}
 
 }

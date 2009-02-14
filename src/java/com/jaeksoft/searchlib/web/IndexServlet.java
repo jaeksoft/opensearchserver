@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
+import com.jaeksoft.searchlib.request.IndexRequest;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class IndexServlet extends AbstractServlet {
@@ -62,15 +63,20 @@ public class IndexServlet extends AbstractServlet {
 	}
 
 	private void updateDoc(Client client, String indexName,
-			Collection<? extends IndexDocument> docList)
+			Collection<IndexDocument> indexDocuments)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
-			client.updateDocuments(docList);
+			client.updateDocuments(indexDocuments);
 		else
-			client.updateDocuments(indexName, docList);
+			client.updateDocuments(indexName, indexDocuments);
 	}
 
-	@SuppressWarnings("unchecked")
+	private void updateDoc(Client client, String indexName,
+			IndexRequest indexRequest) throws NoSuchAlgorithmException,
+			IOException, URISyntaxException {
+		updateDoc(client, indexName, indexRequest.getCollection());
+	}
+
 	private void doObjectRequest(HttpServletRequest request, String indexName)
 			throws ServletException {
 		StreamReadObject readObject = null;
@@ -78,9 +84,8 @@ public class IndexServlet extends AbstractServlet {
 			Client client = Client.getWebAppInstance();
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
-			if (obj instanceof Collection)
-				updateDoc(client, indexName,
-						(Collection<? extends IndexDocument>) obj);
+			if (obj instanceof IndexRequest)
+				updateDoc(client, indexName, (IndexRequest) obj);
 			else if (obj instanceof IndexDocument)
 				updateDoc(client, indexName, (IndexDocument) obj);
 		} catch (Exception e) {
@@ -147,8 +152,9 @@ public class IndexServlet extends AbstractServlet {
 	}
 
 	public static void update(URI uri, String indexName,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> indexDocuments)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		sendObject(buildUri(uri, "/index", indexName, null), documents);
+		sendObject(buildUri(uri, "/index", indexName, null), new IndexRequest(
+				indexDocuments));
 	}
 }

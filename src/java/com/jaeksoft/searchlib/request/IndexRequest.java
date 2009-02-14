@@ -22,86 +22,53 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
+package com.jaeksoft.searchlib.request;
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.External;
-import com.jaeksoft.searchlib.util.XmlInfo;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class FieldContent implements Externalizable, Collecter<String>, XmlInfo {
+public class IndexRequest implements Externalizable, Iterable<IndexDocument>,
+		Collecter<IndexDocument> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4734981884898319100L;
+	private Collection<IndexDocument> indexDocuments;
 
-	private String field;
-	private List<String> values;
-
-	public FieldContent() {
-		values = new ArrayList<String>();
+	public IndexRequest() {
+		indexDocuments = new ArrayList<IndexDocument>();
 	}
 
-	public FieldContent(String field) {
-		this();
-		this.field = field;
+	public IndexRequest(Collection<IndexDocument> indexDocuments) {
+		this.indexDocuments = indexDocuments;
 	}
 
-	public String getField() {
-		return field;
-	}
-
-	public void add(String value) {
-		values.add(value);
-	}
-
-	public void clear() {
-		values.clear();
-	}
-
-	public String getValue(int pos) {
-		if (values == null)
-			return null;
-		return values.get(pos);
-	}
-
-	public List<String> getValues() {
-		return values;
-	}
-
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
-		writer.println("<field name=\"" + field + "\">");
-		for (String value : values)
-			writer.println("<value>" + StringEscapeUtils.escapeXml(value)
-					+ "</value>");
-		writer.println("</field>");
+	public Collection<IndexDocument> getCollection() {
+		return indexDocuments;
 	}
 
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		field = External.readObject(in);
 		External.readCollection(in, this);
+
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeObject(field, out);
-		External.writeCollection(values, out);
-
+		External.writeCollection(indexDocuments, out);
 	}
 
-	public void addObject(String value) {
-		add(value);
+	public Iterator<IndexDocument> iterator() {
+		return indexDocuments.iterator();
+	}
+
+	public void addObject(IndexDocument indexDocument) {
+		indexDocuments.add(indexDocument);
 	}
 
 }

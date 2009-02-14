@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public interface ReaderInterface extends XmlInfo {
@@ -52,7 +52,7 @@ public interface ReaderInterface extends XmlInfo {
 			URISyntaxException, ParseException, SyntaxError,
 			ClassNotFoundException;
 
-	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException;
 

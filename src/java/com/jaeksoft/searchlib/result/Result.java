@@ -28,6 +28,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Iterator;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
@@ -47,14 +48,15 @@ public abstract class Result implements Externalizable,
 	protected int numFound;
 	protected float maxScore;
 	protected int collapsedDocCount;
-	private ResultDocument[] resultDocuments;
+	private ResultDocuments resultDocuments;
 
 	protected Result() {
 		searchRequest = null;
+		resultDocuments = null;
 	}
 
 	protected Result(SearchRequest searchRequest) {
-		this.resultDocuments = null;
+		this();
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
@@ -77,7 +79,7 @@ public abstract class Result implements Externalizable,
 		return this.facetList;
 	}
 
-	protected void setDocuments(ResultDocument[] resultDocuments) {
+	protected void setDocuments(ResultDocuments resultDocuments) {
 		this.resultDocuments = resultDocuments;
 	}
 
@@ -89,11 +91,13 @@ public abstract class Result implements Externalizable,
 			return null;
 		if (pos >= getDocLength())
 			return null;
-		return resultDocuments[pos - searchRequest.getStart()];
+		return resultDocuments.get(pos - searchRequest.getStart());
 	}
 
-	public ResultDocumentIterator iterator() {
-		return new ResultDocumentIterator(resultDocuments);
+	public Iterator<ResultDocument> iterator() {
+		if (resultDocuments == null)
+			return new ResultDocuments(0).iterator();
+		return resultDocuments.iterator();
 	}
 
 	public float getMaxScore() {
@@ -168,12 +172,7 @@ public abstract class Result implements Externalizable,
 		collapsedDocCount = in.readInt();
 
 		// Reading ResultDocument if any
-		length = in.readInt();
-		if (length > 0) {
-			resultDocuments = new ResultDocument[length];
-			External.readArray(in, resultDocuments);
-		} else
-			resultDocuments = null;
+		resultDocuments = External.readObject(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -182,9 +181,9 @@ public abstract class Result implements Externalizable,
 		External.writeObject(facetList, out);
 
 		// Writing docs (from request.start to getDocLength)
-		int length = getDocLength();
+		int length = getDocumentCount();
 		out.writeInt(length);
-		if (docs != null) {
+		if (length > 0) {
 			int start = searchRequest.getStart();
 			out.writeInt(start);
 			for (int i = start; i < length; i++)
@@ -197,7 +196,7 @@ public abstract class Result implements Externalizable,
 		out.writeInt(collapsedDocCount);
 
 		// Writing ResultDocument if any
-		External.writeArray(resultDocuments, out);
+		External.writeObject(resultDocuments, out);
 	}
 
 }

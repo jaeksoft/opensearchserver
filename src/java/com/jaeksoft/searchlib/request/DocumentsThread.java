@@ -32,7 +32,7 @@ import org.apache.lucene.queryParser.ParseException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
-import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 
 public class DocumentsThread extends AbstractGroupRequestThread {
 
@@ -40,9 +40,9 @@ public class DocumentsThread extends AbstractGroupRequestThread {
 
 	private ReaderInterface reader;
 
-	private ResultDocument[] groupResultDocuments;
+	private ResultDocuments groupResultDocuments;
 
-	public DocumentsThread(ResultDocument[] groupResultDocuments,
+	public DocumentsThread(ResultDocuments groupResultDocuments,
 			IndexAbstract index, DocumentsRequest documentsRequest)
 			throws ParseException, SyntaxError, IOException {
 		reader = index;
@@ -61,11 +61,10 @@ public class DocumentsThread extends AbstractGroupRequestThread {
 			ParseException, SyntaxError, ClassNotFoundException {
 		if (documentsRequest.isEmpty())
 			return;
-		ResultDocument[] documents = reader.documents(documentsRequest);
+		ResultDocuments documents = reader.documents(documentsRequest);
 		int i = 0;
 		for (DocumentRequest documentRequest : documentsRequest
 				.getRequestedDocuments())
-			groupResultDocuments[documentRequest.pos] = documents[i++];
+			groupResultDocuments.set(documentRequest.pos, documents.get(i++));
 	}
-
 }

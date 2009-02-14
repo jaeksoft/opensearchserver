@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
+import com.jaeksoft.searchlib.request.DeleteRequest;
 
 public class DeleteServlet extends AbstractServlet {
 
@@ -45,21 +46,26 @@ public class DeleteServlet extends AbstractServlet {
 	private void deleteDoc(Client client, String indexName, String uniq)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
-			client.deleteDocuments(uniq);
+			client.deleteDocument(uniq);
 		else
-			client.deleteDocuments(indexName, uniq);
+			client.deleteDocument(indexName, uniq);
 	}
 
 	private void deleteDocs(Client client, String indexName,
-			Collection<String> uniqs) throws NoSuchAlgorithmException,
+			Collection<String> uniqFields) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException {
 		if (indexName == null)
-			client.deleteDocuments(uniqs);
+			client.deleteDocuments(uniqFields);
 		else
-			client.deleteDocuments(indexName, uniqs);
+			client.deleteDocuments(indexName, uniqFields);
 	}
 
-	@SuppressWarnings("unchecked")
+	private void deleteDocs(Client client, String indexName,
+			DeleteRequest deleteRequest) throws NoSuchAlgorithmException,
+			IOException, URISyntaxException {
+		deleteDocs(client, indexName, deleteRequest.getCollection());
+	}
+
 	private void doObjectRequest(HttpServletRequest request, String indexName)
 			throws ServletException {
 		StreamReadObject readObject = null;
@@ -67,8 +73,8 @@ public class DeleteServlet extends AbstractServlet {
 			Client client = Client.getWebAppInstance();
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
-			if (obj instanceof Collection)
-				deleteDocs(client, indexName, (Collection<String>) obj);
+			if (obj instanceof DeleteRequest)
+				deleteDocs(client, indexName, (DeleteRequest) obj);
 			else if (obj instanceof String)
 				deleteDoc(client, indexName, (String) obj);
 		} catch (Exception e) {
@@ -106,6 +112,7 @@ public class DeleteServlet extends AbstractServlet {
 	public static void delete(URI uri, String indexName,
 			Collection<String> uniqueFields) throws IOException,
 			URISyntaxException {
-		sendObject(buildUri(uri, "/delete", indexName, null), uniqueFields);
+		sendObject(buildUri(uri, "/delete", indexName, null),
+				new DeleteRequest(uniqueFields));
 	}
 }

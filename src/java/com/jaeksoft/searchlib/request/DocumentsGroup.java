@@ -32,13 +32,13 @@ import org.apache.lucene.queryParser.ParseException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexGroup;
-import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 
 public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 
 	private DocumentsRequest documentsRequest;
 
-	private ResultDocument[] resultDocuments;
+	private ResultDocuments resultDocuments;
 
 	public DocumentsGroup(IndexGroup indexGroup,
 			DocumentsRequest documentsRequest) throws IOException,
@@ -50,7 +50,7 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 				.getRequestedDocuments();
 		if (requestedDocuments == null)
 			return;
-		resultDocuments = new ResultDocument[requestedDocuments.length];
+		resultDocuments = new ResultDocuments(requestedDocuments.length);
 		run();
 	}
 
@@ -70,7 +70,7 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 		return new DocumentsThread(resultDocuments, index, documentsRequest);
 	}
 
-	public ResultDocument[] getDocuments() {
+	public ResultDocuments getDocuments() {
 		return resultDocuments;
 	}
 

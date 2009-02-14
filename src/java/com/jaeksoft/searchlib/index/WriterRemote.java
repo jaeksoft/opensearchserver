@@ -68,12 +68,12 @@ public class WriterRemote extends WriterAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		IndexServlet.update(uri, getName(), documents);
 	}
 
-	public void deleteDocuments(Schema schema, String uniqueField)
+	public void deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
 		DeleteServlet.delete(uri, getName(), uniqueField);

@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchGroup;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.result.ResultGroup;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -131,14 +131,14 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public void updateDocuments(Schema schema,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.updateDocuments(schema, documents);
 	}
 
 	public void updateDocuments(String indexName, Schema schema,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
@@ -146,20 +146,20 @@ public class IndexGroup extends IndexAbstract {
 		index.updateDocuments(indexName, schema, documents);
 	}
 
-	public void deleteDocuments(Schema schema, String uniqueField)
+	public void deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
-			index.deleteDocuments(schema, uniqueField);
+			index.deleteDocument(schema, uniqueField);
 	}
 
-	public void deleteDocuments(String indexName, Schema schema,
+	public void deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return;
-		index.deleteDocuments(schema, uniqueField);
+		index.deleteDocument(schema, uniqueField);
 	}
 
 	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
@@ -299,7 +299,7 @@ public class IndexGroup extends IndexAbstract {
 		throw new RuntimeException("Operation not permitted on grouped indices");
 	}
 
-	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException {
 		String indexName = documentsRequest.getIndexName();

@@ -64,6 +64,7 @@ import com.jaeksoft.searchlib.request.DocumentRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -515,7 +516,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	public ResultDocument[] documents(DocumentsRequest documentsRequest)
+	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError {
 		r.lock();
 		try {
@@ -523,11 +524,12 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 					.getRequestedDocuments();
 			if (requestedDocuments == null)
 				return null;
-			ResultDocument[] documents = new ResultDocument[requestedDocuments.length];
+			ResultDocuments documents = new ResultDocuments(
+					requestedDocuments.length);
 			int i = 0;
 			for (DocumentRequest documentRequest : requestedDocuments)
-				documents[i++] = new ResultDocument(documentsRequest,
-						documentRequest.doc, this);
+				documents.set(i++, new ResultDocument(documentsRequest,
+						documentRequest.doc, this));
 			return documents;
 		} finally {
 			r.unlock();

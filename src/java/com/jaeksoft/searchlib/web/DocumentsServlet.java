@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderObject;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
-import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 
 public class DocumentsServlet extends AbstractServlet {
 
@@ -54,7 +54,7 @@ public class DocumentsServlet extends AbstractServlet {
 		try {
 			sro = new StreamReadObject(httpRequest.getInputStream());
 			DocumentsRequest documentsRequest = (DocumentsRequest) sro.read();
-			ResultDocument[] resultDocuments = client
+			ResultDocuments resultDocuments = client
 					.documents(documentsRequest);
 			return new RenderObject(resultDocuments);
 		} catch (Exception e) {
@@ -88,10 +88,10 @@ public class DocumentsServlet extends AbstractServlet {
 
 	}
 
-	public static ResultDocument[] documents(URI uri,
+	public static ResultDocuments documents(URI uri,
 			DocumentsRequest documentsRequest) throws IOException,
 			URISyntaxException, ClassNotFoundException {
-		return (ResultDocument[]) sendReceiveObject(buildUri(uri, "/documents",
+		return (ResultDocuments) sendReceiveObject(buildUri(uri, "/documents",
 				null, null), documentsRequest);
 	}
 }

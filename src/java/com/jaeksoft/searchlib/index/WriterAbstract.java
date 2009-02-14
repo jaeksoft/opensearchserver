@@ -71,19 +71,19 @@ public abstract class WriterAbstract extends NameFilter implements
 	}
 
 	public void updateDocuments(String indexName, Schema schema,
-			Collection<? extends IndexDocument> documents)
+			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		updateDocuments(schema, documents);
 	}
 
-	public void deleteDocuments(String indexName, Schema schema,
+	public void deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
-		deleteDocuments(schema, uniqueField);
+		deleteDocument(schema, uniqueField);
 	}
 
 	public void deleteDocuments(String indexName, Schema schema,

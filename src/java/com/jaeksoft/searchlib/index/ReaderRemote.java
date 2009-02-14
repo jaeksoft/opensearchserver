@@ -36,7 +36,7 @@ import org.apache.lucene.index.TermFreqVector;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.web.ActionServlet;
 import com.jaeksoft.searchlib.web.DocumentsServlet;
 import com.jaeksoft.searchlib.web.SearchServlet;
@@ -81,7 +81,7 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 		return SearchServlet.search(uri, searchRequest, getName());
 	}
 
-	public ResultDocument[] documents(DocumentsRequest documentRequest)
+	public ResultDocuments documents(DocumentsRequest documentRequest)
 			throws IOException, URISyntaxException, ClassNotFoundException {
 		return DocumentsServlet.documents(uri, documentRequest);
 	}
