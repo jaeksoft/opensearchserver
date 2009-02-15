@@ -172,6 +172,16 @@ public abstract class Config implements XmlInfo {
 						fl.add(value, Filter.Source.REQUEST);
 		}
 
+		if ((values = httpRequest.getParameterValues("rf")) != null) {
+			FieldList<Field> rf = searchRequest.getReturnFieldList();
+			for (String value : values)
+				if (value != null)
+					if (value.trim().length() > 0)
+						rf
+								.add(new Field(getSchema().getFieldList().get(
+										value)));
+		}
+
 		if ((values = httpRequest.getParameterValues("hl")) != null) {
 			FieldList<HighlightField> highlightFields = searchRequest
 					.getHighlightFieldList();

@@ -61,18 +61,17 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 			if (thread.done())
 				iterator.remove();
 		}
+		complete();
 	}
 
 	/**
-	 * Called when all thread execution terminate
-	 * 
-	 * @return true stop the execution
+	 * Called when all thread execution completed
 	 */
-	protected abstract boolean done() throws IOException, URISyntaxException,
+	protected abstract void complete() throws IOException, URISyntaxException,
 			ParseException, SyntaxError;
 
 	/**
-	 * Call each time a thread execution terminates
+	 * Call each time a thread execution complete
 	 * 
 	 * @param thread
 	 */
@@ -89,13 +88,9 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	final protected void loop() throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException {
-
 		List<T> threads = initThreads();
-		while (threads.size() > 0) {
+		while (threads.size() > 0)
 			run(threads);
-			if (done())
-				break;
-		}
 	}
 
 	final protected void run() throws ParseException, SyntaxError, IOException,

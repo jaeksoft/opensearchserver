@@ -36,7 +36,7 @@ public class SortListSorter implements SorterInterface {
 
 	public boolean isBefore(ResultScoreDoc doc1, ResultScoreDoc doc2) {
 		String[] values1 = doc1.getSortValues();
-		String[] values2 = doc1.getSortValues();
+		String[] values2 = doc2.getSortValues();
 		for (int i = 0; i < values1.length; i++) {
 			String v1 = values1[i];
 			String v2 = values2[i];

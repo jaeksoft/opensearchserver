@@ -38,8 +38,6 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 
 	private ResultGroup resultGroup;
 
-	private int totalFetchCount;
-
 	private int fetchGoal;
 
 	private int step;
@@ -51,7 +49,6 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 			SyntaxError, ClassNotFoundException {
 		super(indexGroup);
 		resultGroup = new ResultGroup(searchRequest);
-		totalFetchCount = 0;
 		fetchGoal = searchRequest.getEnd();
 		step = fetchGoal / indexGroup.size() + 1;
 		nextStep = searchRequest.getRows() / indexGroup.size() + 1;
@@ -64,24 +61,18 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 	}
 
 	@Override
-	protected boolean done() throws IOException, URISyntaxException,
+	protected void complete() throws IOException, URISyntaxException,
 			ParseException, SyntaxError {
 		resultGroup.setFinalDocs();
 		resultGroup.expungeFacet();
-		if (totalFetchCount == 0)
-			return true;
-		if (resultGroup.getDocLength() >= fetchGoal)
-			return true;
-		totalFetchCount = 0;
+		resultGroup.setThresholdDoc();
 		step = nextStep;
 		// Help working with large collapsed set
-		nextStep *= 2;
-		return false;
+		nextStep += nextStep / 2;
 	}
 
 	@Override
 	protected void complete(SearchThread thread) {
-		totalFetchCount += thread.getFetchCount();
 		thread.setStep(step);
 	}
 

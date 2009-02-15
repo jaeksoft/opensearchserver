@@ -42,10 +42,12 @@ public class ResultGroup extends Result {
 
 	private transient SorterInterface sorter;
 	private transient ResultScoreDoc[] notCollapsedDocs;
+	private transient ResultScoreDoc thresholdDoc;
 
 	public ResultGroup(SearchRequest searchRequest) throws IOException {
 		super(searchRequest);
 		notCollapsedDocs = null;
+		thresholdDoc = null;
 		for (FacetField facetField : searchRequest.getFacetFieldList())
 			this.facetList.addObject(new FacetGroup(facetField));
 		sorter = searchRequest.getSortList().getSorter();
@@ -164,12 +166,6 @@ public class ResultGroup extends Result {
 		}
 	}
 
-	/*
-	 * TODO REMOVE public float getScoreGoal() { int end = request.getEnd(); if
-	 * (end == 0) return 0; if (this.getDocs().length < end) return 0; return
-	 * getScore(end - 1); }
-	 */
-
 	@Override
 	public float getMaxScore() {
 		return this.maxScore;
@@ -196,4 +192,19 @@ public class ResultGroup extends Result {
 		setDocuments(resultDocuments);
 	}
 
+	public void setThresholdDoc() {
+		ResultScoreDoc[] docs = getDocs();
+		if (docs == null)
+			return;
+		int last = searchRequest.getEnd() - 1;
+		if (docs.length <= last)
+			return;
+		thresholdDoc = docs[last];
+	}
+
+	public boolean isThresholdBefore(ResultScoreDoc resultScoreDoc) {
+		if (thresholdDoc == null)
+			return false;
+		return sorter.isBefore(thresholdDoc, resultScoreDoc);
+	}
 }

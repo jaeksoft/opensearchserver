@@ -40,13 +40,13 @@ public class SearchThread extends AbstractGroupRequestThread {
 	private ResultGroup resultGroup;
 	private ReaderInterface reader;
 	private SearchRequest searchRequest;
-	private int fetchCount;
+	private boolean done;
 	private int step;
 
 	public SearchThread(IndexAbstract index, ResultGroup resultGroup, int step) {
 		reader = index;
 		this.resultGroup = resultGroup;
-		fetchCount = 0;
+		this.done = false;
 		this.step = step;
 
 		searchRequest = new SearchRequest(resultGroup.getSearchRequest());
@@ -64,21 +64,22 @@ public class SearchThread extends AbstractGroupRequestThread {
 		searchRequest.setStart(searchRequest.getEnd());
 		searchRequest.setRows(step);
 		Result result = reader.search(searchRequest);
-		fetchCount = result.getDocLength();
-		if (fetchCount > 0)
-			resultGroup.populate(reader.search(searchRequest));
+		done = true;
+		if (result.getDocumentCount() <= 0)
+			return;
+		if (resultGroup.isThresholdBefore(result.getDocs()[searchRequest
+				.getStart()]))
+			return;
+		resultGroup.populate(reader.search(searchRequest));
+		done = false;
 	}
 
 	public void setStep(int step) {
 		this.step = step;
 	}
 
-	public int getFetchCount() {
-		return fetchCount;
-	}
-
 	public boolean done() {
-		return fetchCount == 0;
+		return done;
 	}
 
 }

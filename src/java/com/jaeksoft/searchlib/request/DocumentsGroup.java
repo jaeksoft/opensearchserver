@@ -59,9 +59,8 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 	}
 
 	@Override
-	protected boolean done() throws IOException, URISyntaxException,
+	protected void complete() throws IOException, URISyntaxException,
 			ParseException, SyntaxError {
-		return true;
 	}
 
 	@Override
