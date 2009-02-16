@@ -197,6 +197,8 @@ public class ResultGroup extends Result {
 		if (docs == null)
 			return;
 		int last = searchRequest.getEnd() - 1;
+		if (last < 0)
+			return;
 		if (docs.length <= last)
 			return;
 		thresholdDoc = docs[last];
