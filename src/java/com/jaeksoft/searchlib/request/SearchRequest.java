@@ -383,6 +383,22 @@ public class SearchRequest implements XmlInfo, Externalizable {
 
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Name: ");
+		sb.append(requestName);
+		sb.append(" DefaultOperator: ");
+		sb.append(defaultOperator);
+		sb.append(" Start: ");
+		sb.append(start);
+		sb.append(" Rows: ");
+		sb.append(rows);
+		sb.append(" Query: ");
+		sb.append(query);
+		return sb.toString();
+	}
+
 	public void setLang(String p) {
 		this.lang = p;
 	}

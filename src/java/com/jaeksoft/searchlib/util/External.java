@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -56,8 +57,16 @@ public class External {
 			collecter.addObject((T) in.readObject());
 	}
 
-	final public static void writeArray(Object[] array, ObjectOutput out)
-			throws IOException {
+	final public static void readObjectArray(ObjectInput in,
+			Externalizable[] array) throws IOException, ClassNotFoundException {
+		if (array == null)
+			return;
+		for (int i = 0; i < array.length; i++)
+			array[i] = (Externalizable) in.readObject();
+	}
+
+	final public static void writeObjectArray(Externalizable[] array,
+			ObjectOutput out) throws IOException {
 		if (array != null) {
 			if (array.length > 0) {
 				out.writeInt(array.length);
@@ -69,12 +78,28 @@ public class External {
 		out.writeInt(0);
 	}
 
-	final public static void readArray(ObjectInput in, Object[] array)
+	final public static String[] readStringArray(ObjectInput in)
 			throws IOException, ClassNotFoundException {
-		if (array == null)
-			return;
+		int l = in.readInt();
+		if (l == 0)
+			return null;
+		String[] array = new String[l];
 		for (int i = 0; i < array.length; i++)
-			array[i] = in.readObject();
+			array[i] = in.readUTF();
+		return array;
+	}
+
+	final public static void writeStringArray(String[] array, ObjectOutput out)
+			throws IOException {
+		if (array != null) {
+			if (array.length > 0) {
+				out.writeInt(array.length);
+				for (String string : array)
+					out.writeUTF(string);
+				return;
+			}
+		}
+		out.writeInt(0);
 	}
 
 	final public static <T> void writeObject(T object, ObjectOutput out)

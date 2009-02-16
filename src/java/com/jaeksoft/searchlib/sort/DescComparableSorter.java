@@ -26,15 +26,14 @@ package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
-public class AscScoreSorter extends SorterAbstract {
+public class DescComparableSorter<T extends Comparable<T>> extends
+		SorterAbstract {
 
+	@SuppressWarnings("unchecked")
 	protected int compare(ResultScoreDoc doc1, Object value1,
 			ResultScoreDoc doc2, Object value2) {
-		if (doc1.score > doc2.score)
-			return 1;
-		else if (doc1.score < doc2.score)
-			return -1;
-		else
-			return 0;
+		T v1 = (T) value1;
+		T v2 = (T) value2;
+		return v2.compareTo(v1);
 	}
 }

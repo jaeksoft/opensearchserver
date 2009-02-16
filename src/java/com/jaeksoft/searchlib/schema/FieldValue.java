@@ -104,18 +104,12 @@ public class FieldValue extends Field implements Externalizable {
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		super.readExternal(in);
-		int l = in.readInt();
-		if (l > 0) {
-			valueArray = new String[l];
-			External.readArray(in, valueArray);
-		} else
-			valueArray = null;
+		valueArray = External.readStringArray(in);
 		valueList = null;
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
-		External.writeArray(valueArray, out);
+		External.writeStringArray(valueArray, out);
 	}
-
 }

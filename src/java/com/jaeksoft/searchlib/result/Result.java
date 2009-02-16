@@ -144,12 +144,6 @@ public abstract class Result implements Externalizable,
 		return docs[pos].collapseCount;
 	}
 
-	@Override
-	public String toString() {
-		return "Found: " + this.getNumFound() + " maxScore: "
-				+ this.getMaxScore();
-	}
-
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 
@@ -157,6 +151,7 @@ public abstract class Result implements Externalizable,
 		facetList = (FacetList) External.readObject(in);
 
 		// Reading docs (from request.start to getDocLength)
+
 		int length = in.readInt();
 		if (length > 0) {
 			docs = new ResultScoreDoc[length];
@@ -181,13 +176,14 @@ public abstract class Result implements Externalizable,
 		External.writeObject(facetList, out);
 
 		// Writing docs (from request.start to getDocLength)
-		int length = getDocumentCount();
+		int length = getDocLength();
 		out.writeInt(length);
 		if (length > 0) {
 			int start = searchRequest.getStart();
 			out.writeInt(start);
-			for (int i = start; i < length; i++)
-				out.writeObject(docs[i]);
+			length = getDocumentCount();
+			for (int i = 0; i < length; i++)
+				out.writeObject(docs[start + i]);
 		}
 
 		// Writing numFound, maxScore, collapsedDocCount
@@ -199,4 +195,23 @@ public abstract class Result implements Externalizable,
 		External.writeObject(resultDocuments, out);
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(numFound);
+		sb.append(" founds.");
+		if (docs != null) {
+			sb.append(' ');
+			sb.append(docs.length);
+			sb.append(" docs.");
+		}
+		if (resultDocuments != null) {
+			sb.append(' ');
+			sb.append(resultDocuments.size());
+			sb.append("resultDocuments.");
+		}
+		sb.append(" MaxScore: ");
+		sb.append(maxScore);
+		return sb.toString();
+	}
 }

@@ -53,17 +53,24 @@ public class ResultDocuments implements Externalizable,
 		return resultDocuments[pos];
 	}
 
+	public int size() {
+		if (resultDocuments == null)
+			return 0;
+		else
+			return resultDocuments.length;
+	}
+
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		int l = in.readInt();
 		if (l > 0) {
 			resultDocuments = new ResultDocument[l];
-			External.readArray(in, resultDocuments);
+			External.readObjectArray(in, resultDocuments);
 		}
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeArray(resultDocuments, out);
+		External.writeObjectArray(resultDocuments, out);
 	}
 
 	private class ResultDocumentIterator implements Iterator<ResultDocument> {

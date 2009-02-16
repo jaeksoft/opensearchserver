@@ -291,12 +291,7 @@ public class HighlightField extends Field implements Externalizable {
 		separator = External.readUTF(in);
 		maxSnippetSize = in.readInt();
 		maxSnippetNumber = in.readInt();
-		int l = in.readInt();
-		if (l > 0) {
-			searchTerms = new String[l];
-			External.readArray(in, searchTerms);
-		} else
-			searchTerms = null;
+		searchTerms = External.readStringArray(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -307,7 +302,7 @@ public class HighlightField extends Field implements Externalizable {
 		External.writeUTF(separator, out);
 		out.writeInt(maxSnippetSize);
 		out.writeInt(maxSnippetNumber);
-		External.writeArray(searchTerms, out);
+		External.writeStringArray(searchTerms, out);
 	}
 
 }

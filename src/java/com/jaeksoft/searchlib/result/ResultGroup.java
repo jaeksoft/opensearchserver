@@ -36,11 +36,11 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.sort.SorterInterface;
+import com.jaeksoft.searchlib.sort.SorterAbstract;
 
 public class ResultGroup extends Result {
 
-	private transient SorterInterface sorter;
+	private transient SorterAbstract sorter;
 	private transient ResultScoreDoc[] notCollapsedDocs;
 	private transient ResultScoreDoc thresholdDoc;
 

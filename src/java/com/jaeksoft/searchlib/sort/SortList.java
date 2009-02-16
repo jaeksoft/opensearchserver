@@ -86,10 +86,10 @@ public class SortList implements Externalizable {
 		return sb.toString();
 	}
 
-	public SorterInterface getSorter() {
+	public SorterAbstract getSorter() {
 		if (sortFieldList.size() == 0)
 			return new DescScoreSorter();
-		return new SortListSorter(this);
+		return new SortListSorter(sortFieldList);
 	}
 
 	public StringIndex[] newStringIndexArray(ReaderLocal reader)
@@ -99,23 +99,8 @@ public class SortList implements Externalizable {
 		StringIndex[] stringIndexArray = new StringIndex[sortFieldList.size()];
 		int i = 0;
 		for (SortField field : sortFieldList)
-			stringIndexArray[i++] = reader.getStringIndex(field.getName());
+			stringIndexArray[i++] = field.getStringIndex(reader);
 		return stringIndexArray;
-	}
-
-	protected String[] newStringArray() {
-		return new String[sortFieldList.size()];
-	}
-
-	protected boolean[] newDescArray() {
-		if (sortFieldList.size() == 0)
-			return null;
-		boolean[] descArray = new boolean[sortFieldList.size()];
-		int i = 0;
-		for (SortField field : sortFieldList)
-			descArray[i++] = field.isDesc();
-		return descArray;
-
 	}
 
 	@SuppressWarnings("unchecked")

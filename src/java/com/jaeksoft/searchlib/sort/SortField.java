@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -29,6 +29,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.apache.lucene.search.FieldCache.StringIndex;
+
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
 
 public class SortField extends Field implements Externalizable {
@@ -45,18 +48,8 @@ public class SortField extends Field implements Externalizable {
 		this.desc = desc;
 	}
 
-	private SortField(SortField sortField) {
-		super(sortField.name);
-		desc = sortField.desc;
-	}
-
 	public boolean isDesc() {
 		return desc;
-	}
-
-	@Override
-	public Object clone() {
-		return new SortField(this);
 	}
 
 	public void toString(StringBuffer sb) {
@@ -92,5 +85,25 @@ public class SortField extends Field implements Externalizable {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
 		out.writeBoolean(desc);
+	}
+
+	public SorterAbstract getSorter() {
+		if (name.equals("score")) {
+			if (desc)
+				return new DescComparableSorter<Float>();
+			else
+				return new AscComparableSorter<Float>();
+		}
+		if (desc)
+			return new DescComparableSorter<String>();
+		else
+			return new AscComparableSorter<String>();
+	}
+
+	public StringIndex getStringIndex(ReaderLocal reader) throws IOException {
+		if (name.equals("score"))
+			return null;
+		else
+			return reader.getStringIndex(name);
 	}
 }

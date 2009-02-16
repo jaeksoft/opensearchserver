@@ -25,43 +25,30 @@
 package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.schema.FieldList;
 
-public class SortListSorter implements SorterInterface {
+public class SortListSorter extends SorterAbstract {
 
-	private boolean[] descendant;
+	private SorterAbstract[] sorterList;
 
-	protected SortListSorter(SortList sortList) {
-		descendant = sortList.newDescArray();
+	protected SortListSorter(FieldList<SortField> sortFieldList) {
+		sorterList = new SorterAbstract[sortFieldList.size()];
+		int i = 0;
+		for (SortField sortField : sortFieldList)
+			sorterList[i++] = sortField.getSorter();
 	}
 
-	public boolean isBefore(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		String[] values1 = doc1.getSortValues();
-		String[] values2 = doc2.getSortValues();
-		for (int i = 0; i < values1.length; i++) {
-			String v1 = values1[i];
-			String v2 = values2[i];
-			boolean desc = descendant[i];
-			int c = 0;
-			// Take care of null values
-			if (v1 == null) {
-				if (v2 != null)
-					c = -1;
-			} else if (v2 == null) {
-				c = 1;
-			} else
-				c = values1[i].compareTo(values2[i]);
-			if (desc) {
-				if (c > 0)
-					return true;
-				if (c < 0)
-					return false;
-			} else {
-				if (c > 0)
-					return false;
-				if (c < 0)
-					return true;
-			}
+	protected int compare(ResultScoreDoc doc1, Object value1,
+			ResultScoreDoc doc2, Object value2) {
+		Object[] values1 = doc1.getSortValues();
+		Object[] values2 = doc2.getSortValues();
+		int i = 0;
+		for (SorterAbstract sorter : sorterList) {
+			int c = sorter.compare(doc1, values1[i], doc2, values2[i]);
+			if (c != 0)
+				return c;
 		}
-		return false;
+		return 0;
 	}
+
 }

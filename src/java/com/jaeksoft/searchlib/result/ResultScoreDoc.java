@@ -79,8 +79,13 @@ public class ResultScoreDoc implements Externalizable {
 			return;
 		int i = 0;
 		sortValues = new String[sortStringIndexArray.length];
-		for (StringIndex stringIndex : sortStringIndexArray)
-			sortValues[i++] = stringIndex.lookup[stringIndex.order[doc]];
+		for (StringIndex stringIndex : sortStringIndexArray) {
+			if (stringIndex == null)
+				sortValues[i] = null;
+			else
+				sortValues[i] = stringIndex.lookup[stringIndex.order[doc]];
+			i++;
+		}
 	}
 
 	public String[] getSortValues() {
@@ -123,11 +128,7 @@ public class ResultScoreDoc implements Externalizable {
 		doc = in.readInt();
 		score = in.readFloat();
 		collapseTerm = External.readUTF(in);
-		int l = in.readInt();
-		if (l > 0) {
-			sortValues = new String[l];
-			External.readArray(in, sortValues);
-		}
+		sortValues = External.readStringArray(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -135,7 +136,21 @@ public class ResultScoreDoc implements Externalizable {
 		out.writeInt(doc);
 		out.writeFloat(score);
 		External.writeUTF(collapseTerm, out);
-		External.writeArray(sortValues, out);
+		External.writeStringArray(sortValues, out);
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		if (indexName != null) {
+			sb.append("Index: ");
+			sb.append(indexName);
+			sb.append('.');
+		}
+		sb.append(" DocId: ");
+		sb.append(doc);
+		sb.append(" Score: ");
+		sb.append(score);
+		return sb.toString();
+	}
 }

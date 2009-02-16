@@ -159,7 +159,7 @@ public class DocumentsRequest implements Externalizable {
 		int l = in.readInt();
 		if (l > 0) {
 			requestedDocuments = new DocumentRequest[l];
-			External.readArray(in, requestedDocuments);
+			External.readObjectArray(in, requestedDocuments);
 		}
 		highlightFieldList = (FieldList<HighlightField>) in.readObject();
 		returnFieldList = (FieldList<Field>) in.readObject();
@@ -167,7 +167,7 @@ public class DocumentsRequest implements Externalizable {
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeUTF(indexName, out);
-		External.writeArray(requestedDocuments, out);
+		External.writeObjectArray(requestedDocuments, out);
 		out.writeObject(highlightFieldList);
 		out.writeObject(returnFieldList);
 	}

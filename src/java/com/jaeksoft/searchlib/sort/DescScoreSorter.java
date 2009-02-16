@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -26,10 +26,15 @@ package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
-public class DescScoreSorter implements SorterInterface {
+public class DescScoreSorter extends SorterAbstract {
 
-	public boolean isBefore(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		return doc1.score > doc2.score;
+	protected int compare(ResultScoreDoc doc1, Object value1,
+			ResultScoreDoc doc2, Object value2) {
+		if (doc1.score > doc2.score)
+			return -1;
+		else if (doc1.score < doc2.score)
+			return 1;
+		else
+			return 0;
 	}
-
 }
