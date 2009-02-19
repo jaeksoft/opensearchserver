@@ -64,10 +64,16 @@ public class SearchThread extends AbstractGroupRequestThread {
 		searchRequest.setStart(searchRequest.getEnd());
 		searchRequest.setRows(step);
 		Result result = reader.search(searchRequest);
+
 		done = true;
+
+		if (searchRequest.getStart() == 0)
+			resultGroup.addResult(result);
+
 		if (result.getDocumentCount() <= 0)
 			return;
-		if (resultGroup.isThresholdBefore(result.getDocs()[searchRequest
+
+		if (resultGroup.isThresholdReach(result.getDocs()[searchRequest
 				.getStart()]))
 			return;
 		resultGroup.populate(reader.search(searchRequest));

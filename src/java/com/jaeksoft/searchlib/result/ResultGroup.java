@@ -53,8 +53,12 @@ public class ResultGroup extends Result {
 		sorter = searchRequest.getSortList().getSorter();
 	}
 
-	private void addResult(Result result) throws IOException {
+	public void addResult(Result result) throws IOException {
 		synchronized (this) {
+
+			if (result.getMaxScore() > maxScore)
+				maxScore = result.getMaxScore();
+
 			numFound += result.getNumFound();
 			if (facetList != null) {
 				for (Facet facet : facetList) {
@@ -78,14 +82,8 @@ public class ResultGroup extends Result {
 
 		synchronized (this) {
 
-			if (result.getSearchRequest().getStart() == 0)
-				addResult(result);
-
 			if (result.getNumFound() == 0)
 				return;
-
-			if (result.getMaxScore() > maxScore)
-				maxScore = result.getMaxScore();
 
 			if (notCollapsedDocs == null || notCollapsedDocs.length == 0)
 				this.setDoc(result);
@@ -134,8 +132,8 @@ public class ResultGroup extends Result {
 		int iResult = start;
 		int n = 0;
 		for (;;) {
-			if (sorter.isBefore(insertFetchedDocs[iResult],
-					notCollapsedDocs[iOld])) {
+			if (sorter.compare(insertFetchedDocs[iResult],
+					notCollapsedDocs[iOld]) < 0) {
 				newDocs[n++] = insertFetchedDocs[iResult];
 				if (++iResult == end) {
 					for (int i = iOld; i < notCollapsedDocs.length; i++)
@@ -204,9 +202,9 @@ public class ResultGroup extends Result {
 		thresholdDoc = docs[last];
 	}
 
-	public boolean isThresholdBefore(ResultScoreDoc resultScoreDoc) {
+	public boolean isThresholdReach(ResultScoreDoc resultScoreDoc) {
 		if (thresholdDoc == null)
 			return false;
-		return sorter.isBefore(thresholdDoc, resultScoreDoc);
+		return sorter.compare(thresholdDoc, resultScoreDoc) <= 0;
 	}
 }

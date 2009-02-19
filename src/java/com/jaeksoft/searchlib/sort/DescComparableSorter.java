@@ -32,6 +32,13 @@ public class DescComparableSorter<T extends Comparable<T>> extends
 	@SuppressWarnings("unchecked")
 	protected int compare(ResultScoreDoc doc1, Object value1,
 			ResultScoreDoc doc2, Object value2) {
+		if (value1 == null) {
+			if (value2 == null)
+				return 0;
+			else
+				return 1;
+		} else if (value2 == null)
+			return -1;
 		T v1 = (T) value1;
 		T v2 = (T) value2;
 		return v2.compareTo(v1);

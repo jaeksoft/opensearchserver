@@ -2,7 +2,7 @@
 	<vbox width="100%">
 		<hbox>
 			<label>Select a request:</label>
-			<combobox />
+			<combobox   />
 		</hbox>
 		<hbox>
 			<label>Enter the query:</label>

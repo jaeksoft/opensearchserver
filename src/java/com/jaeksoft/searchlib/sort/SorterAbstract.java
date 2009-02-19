@@ -31,7 +31,8 @@ public abstract class SorterAbstract {
 	protected abstract int compare(ResultScoreDoc doc1, Object value1,
 			ResultScoreDoc doc2, Object value2);
 
-	public boolean isBefore(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		return compare(doc1, null, doc2, null) < 0;
+	public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+		return compare(doc1, null, doc2, null);
 	}
+
 }

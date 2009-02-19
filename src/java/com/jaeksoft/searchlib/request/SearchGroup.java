@@ -49,9 +49,14 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 			SyntaxError, ClassNotFoundException {
 		super(indexGroup);
 		resultGroup = new ResultGroup(searchRequest);
+		int rows = searchRequest.getRows();
+		if (rows == 0) {
+			run();
+			return;
+		}
 		fetchGoal = searchRequest.getEnd();
 		step = fetchGoal / indexGroup.size() + 1;
-		nextStep = searchRequest.getRows() / indexGroup.size() + 1;
+		nextStep = rows / indexGroup.size() + 1;
 		loop();
 	}
 
