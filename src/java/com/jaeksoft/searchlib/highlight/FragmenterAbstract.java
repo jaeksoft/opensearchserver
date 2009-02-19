@@ -77,7 +77,8 @@ public abstract class FragmenterAbstract implements Externalizable {
 		if (pos < originalText.length())
 			lastFragment = fragments.addOriginalText(originalText
 					.substring(pos), vectorOffset, lastFragment == null);
-		lastFragment.setEdge(true);
+		if (lastFragment != null)
+			lastFragment.setEdge(true);
 	}
 
 	final static protected FragmenterAbstract newInstance(String className)
