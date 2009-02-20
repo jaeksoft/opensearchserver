@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.util.Debug;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderXml implements Render {
@@ -60,8 +61,12 @@ public class RenderXml implements Render {
 		writer.println("<response>");
 		writer.println("<header>");
 		writer.println("\t<status>0</status>");
-		writer.println("\t<query>" + searchRequest.getQueryParsed()
-				+ "</query>");
+		writer.print("\t<query>");
+		writer.print(searchRequest.getQueryParsed());
+		writer.println("</query>");
+		Debug debug = result.getDebug();
+		if (debug != null)
+			debug.xmlInfo(writer);
 		writer.println("</header>");
 	}
 
@@ -74,12 +79,17 @@ public class RenderXml implements Render {
 		SearchRequest searchRequest = result.getSearchRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
-		writer.println("<result name=\"response\" numFound=\""
-				+ result.getNumFound() + "\" collapsedDocCount=\""
-				+ result.getCollapseDocCount() + "\" start=\""
-				+ searchRequest.getStart() + "\" maxScore=\""
-				+ result.getMaxScore() + "\" time=\""
-				+ searchRequest.getFinalTime() + "\">");
+		writer.print("<result name=\"response\" numFound=\"");
+		writer.print(result.getNumFound());
+		writer.print("\" collapsedDocCount=\"");
+		writer.print(result.getCollapseDocCount());
+		writer.print("\" start=\"");
+		writer.print(searchRequest.getStart());
+		writer.print("\" maxScore=\"");
+		writer.print(result.getMaxScore());
+		writer.print("\" time=\"");
+		writer.print(searchRequest.getFinalTime());
+		writer.println("\">");
 		if (!searchRequest.isDelete())
 			for (int i = start; i < end; i++)
 				this.renderDocument(i);
@@ -88,8 +98,11 @@ public class RenderXml implements Render {
 
 	private void renderDocument(int pos) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
-		writer.println("\t<doc score=\"" + result.getDocs()[pos].score
-				+ "\" pos=\"" + pos + "\">");
+		writer.print("\t<doc score=\"");
+		writer.print(result.getDocs()[pos].score);
+		writer.print("\" pos=\"");
+		writer.print(pos);
+		writer.println("\">");
 		ResultDocument doc = result.getDocument(pos);
 		for (Field field : searchRequest.getReturnFieldList())
 			renderField(doc, field);
@@ -97,8 +110,11 @@ public class RenderXml implements Render {
 			renderHighlightValue(doc, field);
 
 		int cc = result.getCollapseCount(pos);
-		if (cc > 0)
-			writer.println("\t\t<collapseCount>" + cc + "</collapseCount>");
+		if (cc > 0) {
+			writer.print("\t\t<collapseCount>");
+			writer.print(cc);
+			writer.println("</collapseCount>");
+		}
 		writer.println("\t</doc>");
 	}
 
@@ -109,12 +125,14 @@ public class RenderXml implements Render {
 		if (values == null)
 			return;
 		writer.println();
-		for (String v : values)
-			writer.println("\t\t<field name=\""
-					+ fieldName
-					+ "\">"
-					+ StringEscapeUtils.escapeJava(StringEscapeUtils
-							.escapeXml(v)) + "</field>");
+		for (String v : values) {
+			writer.print("\t\t<field name=\"");
+			writer.print(fieldName);
+			writer.print("\">");
+			writer.print(StringEscapeUtils.escapeJava(StringEscapeUtils
+					.escapeXml(v)));
+			writer.println("</field>");
+		}
 	}
 
 	private void renderHighlightValue(ResultDocument doc, HighlightField field)
@@ -140,12 +158,16 @@ public class RenderXml implements Render {
 
 	private void renderFacet(Facet facet) throws Exception {
 		FacetField facetField = facet.getFacetField();
-		writer.println("\t\t<field name=\"" + facetField.getName() + "\">");
+		writer.print("\t\t<field name=\"");
+		writer.print(facetField.getName());
+		writer.println("\">");
 		for (FacetItem facetItem : facet) {
-			writer.println("\t\t\t<facet name=\""
-					+ StringEscapeUtils.escapeJava(StringEscapeUtils
-							.escapeXml(facetItem.getTerm())) + "\">"
-					+ facetItem.getCount() + "</facet>");
+			writer.print("\t\t\t<facet name=\"");
+			writer.print(StringEscapeUtils.escapeJava(StringEscapeUtils
+					.escapeXml(facetItem.getTerm())));
+			writer.print("\">");
+			writer.print(facetItem.getCount());
+			writer.print("</facet>");
 		}
 		writer.println("\t\t</field>");
 	}

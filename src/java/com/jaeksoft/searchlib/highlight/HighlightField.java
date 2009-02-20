@@ -53,7 +53,7 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public class HighlightField extends Field implements Externalizable {
 
-	private FragmenterAbstract fragmenter;
+	private FragmenterAbstract fragmenterTemplate;
 	private String tag;
 	private int maxDocChar;
 	private String separator;
@@ -66,7 +66,7 @@ public class HighlightField extends Field implements Externalizable {
 
 	private HighlightField(Field field, String tag, int maxDocChar,
 			String separator, int maxSnippetNumber, int maxSnippetSize,
-			FragmenterAbstract fragmenter) {
+			FragmenterAbstract fragmenterTemplate) {
 		super(field.getName());
 		this.searchTerms = null;
 		this.tag = tag;
@@ -74,22 +74,11 @@ public class HighlightField extends Field implements Externalizable {
 		this.separator = separator;
 		this.maxSnippetNumber = maxSnippetNumber;
 		this.maxSnippetSize = maxSnippetSize;
-		this.fragmenter = fragmenter;
+		this.fragmenterTemplate = fragmenterTemplate;
 	}
 
 	public HighlightField(Field field) {
 		this(field, "em", Integer.MAX_VALUE, "...", 5, 200, null);
-	}
-
-	public HighlightField(HighlightField field) {
-		super(field.name);
-		this.searchTerms = field.searchTerms;
-		fragmenter = field.fragmenter;
-		tag = field.tag;
-		maxDocChar = field.maxDocChar;
-		separator = field.separator;
-		maxSnippetNumber = field.maxSnippetNumber;
-		maxSnippetSize = field.maxSnippetSize;
 	}
 
 	/**
@@ -229,6 +218,7 @@ public class HighlightField extends Field implements Externalizable {
 
 		if (values == null)
 			return false;
+		FragmenterAbstract fragmenter = fragmenterTemplate.newInstance();
 		TermVectorOffsetInfo currentVector = null;
 		Iterator<TermVectorOffsetInfo> vectorIterator = extractTermVectorIterator(
 				docId, reader);
@@ -285,7 +275,7 @@ public class HighlightField extends Field implements Externalizable {
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		super.readExternal(in);
-		fragmenter = External.readObject(in);
+		fragmenterTemplate = External.readObject(in);
 		tag = External.readUTF(in);
 		maxDocChar = in.readInt();
 		separator = External.readUTF(in);
@@ -296,7 +286,7 @@ public class HighlightField extends Field implements Externalizable {
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
-		External.writeObject(fragmenter, out);
+		External.writeObject(fragmenterTemplate, out);
 		External.writeUTF(tag, out);
 		out.writeInt(maxDocChar);
 		External.writeUTF(separator, out);

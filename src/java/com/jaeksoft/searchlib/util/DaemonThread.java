@@ -174,6 +174,7 @@ public abstract class DaemonThread implements Runnable {
 		} catch (Exception e) {
 			setError(e.getMessage());
 			logger.log(Level.SEVERE, e.getMessage(), e);
+			e.printStackTrace();
 		}
 		evaluateFinalStatus();
 	}

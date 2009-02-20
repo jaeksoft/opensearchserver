@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
@@ -162,6 +161,9 @@ public abstract class Config implements XmlInfo {
 		if ((p = httpRequest.getParameter("withDocs")) != null)
 			searchRequest.setWithDocument(true);
 
+		if ((p = httpRequest.getParameter("debug")) != null)
+			searchRequest.setDebug(true);
+
 		String[] values;
 
 		if ((values = httpRequest.getParameterValues("fq")) != null) {
@@ -231,14 +233,14 @@ public abstract class Config implements XmlInfo {
 		return render;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<configuration>");
 		if (index != null)
-			index.xmlInfo(writer, classDetail);
+			index.xmlInfo(writer);
 		if (schema != null)
-			schema.xmlInfo(writer, classDetail);
+			schema.xmlInfo(writer);
 		if (searchRequests != null)
-			searchRequests.xmlInfo(writer, classDetail);
+			searchRequests.xmlInfo(writer);
 		writer.println("</configuration>");
 	}
 

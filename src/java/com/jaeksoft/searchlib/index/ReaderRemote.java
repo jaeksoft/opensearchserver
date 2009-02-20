@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
@@ -71,7 +70,7 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 		ActionServlet.swap(uri, getName(), version, deleteOld);
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		// TODO Auto-generated method stub
 
 	}

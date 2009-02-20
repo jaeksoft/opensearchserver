@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.schema;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -102,7 +101,7 @@ public class SchemaField extends Field {
 	}
 
 	@Override
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.print("<field name=\"" + name + "\"");
 		writer.print(" stored=\"" + store + "\"");
 		writer.print(" indexed=\"" + index + "\"");

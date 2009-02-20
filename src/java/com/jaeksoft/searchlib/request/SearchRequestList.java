@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -79,10 +78,10 @@ public class SearchRequestList extends HashMap<String, SearchRequest> implements
 		return searchRequestList;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<requests>");
 		for (SearchRequest request : this.values())
-			request.xmlInfo(writer, classDetail);
+			request.xmlInfo(writer);
 		writer.println("</requests>");
 	}
 

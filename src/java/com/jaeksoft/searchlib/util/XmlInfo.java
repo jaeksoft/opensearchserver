@@ -25,10 +25,9 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.PrintWriter;
-import java.util.HashSet;
 
 public interface XmlInfo {
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail);
+	public void xmlInfo(PrintWriter writer);
 
 }

@@ -34,19 +34,21 @@ import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultGroup;
+import com.jaeksoft.searchlib.util.Debug;
 
 public class SearchThread extends AbstractGroupRequestThread {
 
 	private ResultGroup resultGroup;
 	private ReaderInterface reader;
 	private SearchRequest searchRequest;
-	private boolean done;
+	private int newDocumentCount;
 	private int step;
 
-	public SearchThread(IndexAbstract index, ResultGroup resultGroup, int step) {
+	public SearchThread(Debug debug, IndexAbstract index,
+			ResultGroup resultGroup, int step) {
 		reader = index;
 		this.resultGroup = resultGroup;
-		this.done = false;
+		this.newDocumentCount = 0;
 		this.step = step;
 
 		searchRequest = new SearchRequest(resultGroup.getSearchRequest());
@@ -65,19 +67,24 @@ public class SearchThread extends AbstractGroupRequestThread {
 		searchRequest.setRows(step);
 		Result result = reader.search(searchRequest);
 
-		done = true;
+		Debug dbg = resultGroup.getDebug();
+		if (dbg != null)
+			dbg.addChildren(result.getDebug());
 
 		if (searchRequest.getStart() == 0)
 			resultGroup.addResult(result);
 
-		if (result.getDocumentCount() <= 0)
+		newDocumentCount = 0;
+		int docCount = result.getDocumentCount();
+		if (docCount <= 0)
 			return;
 
 		if (resultGroup.isThresholdReach(result.getDocs()[searchRequest
 				.getStart()]))
 			return;
-		resultGroup.populate(reader.search(searchRequest));
-		done = false;
+
+		newDocumentCount = docCount;
+		resultGroup.populate(result);
 	}
 
 	public void setStep(int step) {
@@ -85,7 +92,11 @@ public class SearchThread extends AbstractGroupRequestThread {
 	}
 
 	public boolean done() {
-		return done;
+		return newDocumentCount == 0;
+	}
+
+	public int getNewDocumentCount() {
+		return newDocumentCount;
 	}
 
 }

@@ -31,7 +31,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.HashSet;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
@@ -52,7 +51,7 @@ public class WriterRemote extends WriterAbstract {
 		this.uri = uri;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 	}
 
 	public void optimize(String indexName) throws HttpException, IOException,

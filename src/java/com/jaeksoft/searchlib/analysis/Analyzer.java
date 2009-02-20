@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -124,7 +123,7 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer implements
 		return analyzer;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.print("<analyzer name=\"" + name + "\"");
 		if (lang != null)
 			writer.print(" lang=\"" + lang + "\"");
@@ -137,7 +136,7 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer implements
 		}
 		writer.println(">");
 		for (FilterFactory filter : filters)
-			filter.xmlInfo(writer, classDetail);
+			filter.xmlInfo(writer);
 		writer.println("</analyzer>");
 
 	}

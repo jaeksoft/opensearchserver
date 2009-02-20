@@ -32,7 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,13 +75,13 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public void xmlInfo(PrintWriter pw, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter pw) {
 		r.lock();
 		try {
 			if (reader != null)
-				reader.xmlInfo(pw, classDetail);
+				reader.xmlInfo(pw);
 			if (writer != null)
-				writer.xmlInfo(pw, classDetail);
+				writer.xmlInfo(pw);
 		} finally {
 			r.unlock();
 		}

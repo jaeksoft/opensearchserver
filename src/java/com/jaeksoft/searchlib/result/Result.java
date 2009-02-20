@@ -36,6 +36,7 @@ import org.apache.lucene.queryParser.ParseException;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.util.Debug;
 import com.jaeksoft.searchlib.util.External;
 
 public abstract class Result implements Externalizable,
@@ -49,6 +50,7 @@ public abstract class Result implements Externalizable,
 	protected float maxScore;
 	protected int collapsedDocCount;
 	private ResultDocuments resultDocuments;
+	transient protected Debug debug;
 
 	protected Result() {
 		searchRequest = null;
@@ -62,6 +64,8 @@ public abstract class Result implements Externalizable,
 		this.collapsedDocCount = 0;
 		this.docs = new ResultScoreDoc[0];
 		this.searchRequest = searchRequest;
+		if (searchRequest.isDebug())
+			debug = new Debug();
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		collapse = new Collapse(searchRequest);
@@ -69,6 +73,10 @@ public abstract class Result implements Externalizable,
 
 	public SearchRequest getSearchRequest() {
 		return this.searchRequest;
+	}
+
+	public Debug getDebug() {
+		return debug;
 	}
 
 	public void setSearchRequest(SearchRequest searchRequest) {
@@ -212,6 +220,10 @@ public abstract class Result implements Externalizable,
 		}
 		sb.append(" MaxScore: ");
 		sb.append(maxScore);
+		if (searchRequest != null) {
+			sb.append(" - ");
+			sb.append(searchRequest);
+		}
 		return sb.toString();
 	}
 }

@@ -44,7 +44,7 @@ public abstract class FragmenterAbstract implements Externalizable {
 
 	private transient int originalTextLength;
 
-	public FragmenterAbstract() {
+	protected FragmenterAbstract() {
 		splitPos = null;
 	}
 
@@ -80,6 +80,8 @@ public abstract class FragmenterAbstract implements Externalizable {
 		if (lastFragment != null)
 			lastFragment.setEdge(true);
 	}
+
+	protected abstract FragmenterAbstract newInstance();
 
 	final static protected FragmenterAbstract newInstance(String className)
 			throws InstantiationException, IllegalAccessException,

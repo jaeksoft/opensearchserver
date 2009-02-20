@@ -50,4 +50,11 @@ public class SizeFragmenter extends FragmenterAbstract {
 				.getNodeValue());
 	}
 
+	@Override
+	protected FragmenterAbstract newInstance() {
+		SizeFragmenter fragmenter = new SizeFragmenter();
+		fragmenter.maxFragmentSize = this.maxFragmentSize;
+		return fragmenter;
+	}
+
 }

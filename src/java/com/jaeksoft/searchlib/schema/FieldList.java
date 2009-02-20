@@ -31,7 +31,6 @@ import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +181,7 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 		return s;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.print("<fields");
 		if (defaultField != null)
 			writer.print(" default=\"" + defaultField.getName() + "\"");
@@ -190,7 +189,7 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 			writer.print(" unique=\"" + uniqueField.getName() + "\"");
 		writer.println(">");
 		for (Field field : this.fieldList)
-			field.xmlInfo(writer, classDetail);
+			field.xmlInfo(writer);
 		writer.println("</fields>");
 	}
 

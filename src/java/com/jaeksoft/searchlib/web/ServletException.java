@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.PrintWriter;
-import java.util.HashSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -47,7 +46,7 @@ public class ServletException extends Exception implements XmlInfo {
 		e.printStackTrace();
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<error>" + StringEscapeUtils.escapeXml(getMessage())
 				+ "</error>");
 	}

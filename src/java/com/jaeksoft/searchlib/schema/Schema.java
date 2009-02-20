@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.schema;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -98,10 +97,10 @@ public class Schema implements XmlInfo {
 		}
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<schema>");
-		analyzers.xmlInfo(writer, classDetail);
-		fieldList.xmlInfo(writer, classDetail);
+		analyzers.xmlInfo(writer);
+		fieldList.xmlInfo(writer);
 		writer.println("</schema>");
 
 	}

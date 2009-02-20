@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.w3c.dom.Node;
@@ -45,7 +44,7 @@ public abstract class FilterFactory implements XmlInfo {
 		return this.getClass().getSimpleName();
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<filter class=\"" + this.getClass().getSimpleName()
 				+ "\" />");
 	}

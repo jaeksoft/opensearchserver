@@ -25,12 +25,8 @@
 package com.jaeksoft.searchlib.cache;
 
 import java.io.PrintWriter;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.apache.commons.lang.StringEscapeUtils;
 
 public class LRUCache<K, V> {
 
@@ -110,7 +106,7 @@ public class LRUCache<K, V> {
 		}
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		synchronized (this) {
 			float hitRatio = 0;
 			if (hits > 0 && lookups > 0)
@@ -121,18 +117,6 @@ public class LRUCache<K, V> {
 					+ "\" lookups=\"" + lookups + "\" hits=\"" + hits
 					+ "\" inserts=\"" + inserts + "\" evictions=\"" + evictions
 					+ "\" memoryEviction=\"" + memoryEvictions + "\">");
-			if (classDetail.contains(this.getClass().getCanonicalName())) {
-				Iterator<Map.Entry<K, V>> it = map.entrySet().iterator();
-				while (it.hasNext()) {
-					writer.println("<entry>");
-					Map.Entry<K, V> e = it.next();
-					writer.println("<key>"
-							+ StringEscapeUtils
-									.escapeXml(e.getKey().toString())
-							+ "</key>");
-					writer.println("</entry>");
-				}
-			}
 			writer.println("</cache>");
 		}
 	}

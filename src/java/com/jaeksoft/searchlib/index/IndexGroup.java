@@ -32,7 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -87,10 +86,10 @@ public class IndexGroup extends IndexAbstract {
 		return indices.get(name);
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<indices>");
 		for (IndexAbstract index : indices.values())
-			index.xmlInfo(writer, classDetail);
+			index.xmlInfo(writer);
 		writer.println("</indices>");
 	}
 

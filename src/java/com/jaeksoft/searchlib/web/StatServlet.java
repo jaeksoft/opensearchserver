@@ -61,7 +61,7 @@ public class StatServlet extends AbstractServlet {
 			if (values != null)
 				for (String value : values)
 					classDetail.add(value);
-			client.xmlInfo(writer, servletTransaction.getClassDetail(request));
+			client.xmlInfo(writer);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

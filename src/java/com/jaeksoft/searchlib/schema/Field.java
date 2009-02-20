@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
-import java.util.HashSet;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.document.FieldSelector;
@@ -64,7 +63,7 @@ public class Field implements FieldSelector, Externalizable, XmlInfo {
 		return FieldSelectorResult.NO_LOAD;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.print("<field name=\"" + name + "\"/>");
 	}
 

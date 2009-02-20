@@ -62,6 +62,7 @@ public class ResultSingle extends Result {
 	public ResultSingle(ReaderLocal reader, SearchRequest searchRequest)
 			throws IOException, ParseException, SyntaxError {
 		super(searchRequest);
+
 		this.reader = reader;
 		docSetHits = reader.searchDocSet(searchRequest);
 		numFound = docSetHits.getDocNumFound();
@@ -89,6 +90,10 @@ public class ResultSingle extends Result {
 
 		if (searchRequest.isWithDocument())
 			setDocuments(reader.documents(new DocumentsRequest(this)));
+
+		if (debug != null)
+			debug.setInfo(this);
+
 	}
 
 	private ResultScoreDoc[] fetchWithoutCollapse() throws IOException,

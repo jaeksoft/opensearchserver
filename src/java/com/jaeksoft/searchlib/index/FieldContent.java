@@ -30,7 +30,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -80,7 +79,7 @@ public class FieldContent implements Externalizable, Collecter<String>, XmlInfo 
 		return values;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<field name=\"" + field + "\">");
 		for (String value : values)
 			writer.println("<value>" + StringEscapeUtils.escapeXml(value)

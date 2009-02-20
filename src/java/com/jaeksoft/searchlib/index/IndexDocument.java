@@ -31,7 +31,6 @@ import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 
@@ -150,10 +149,10 @@ public class IndexDocument implements Externalizable, XmlInfo,
 		return fields.values();
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.print("<document>");
 		for (FieldContent field : fields.values())
-			field.xmlInfo(writer, classDetail);
+			field.xmlInfo(writer);
 		writer.println("</document>");
 
 	}

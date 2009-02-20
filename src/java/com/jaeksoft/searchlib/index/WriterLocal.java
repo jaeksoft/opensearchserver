@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -33,7 +33,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
@@ -288,7 +287,7 @@ public class WriterLocal extends WriterAbstract {
 				reader);
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		// TODO Auto-generated method stub
 
 	}

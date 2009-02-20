@@ -29,7 +29,6 @@ import java.io.PrintWriter;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -101,10 +100,10 @@ public class AnalyzerList extends AbstractList<Analyzer> implements XmlInfo {
 		return analyzers;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<analyzers>");
 		for (Analyzer analyzer : this.analyzerList)
-			analyzer.xmlInfo(writer, classDetail);
+			analyzer.xmlInfo(writer);
 		writer.println("</analyzers>");
 	}
 

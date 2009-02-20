@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -99,6 +98,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 	private boolean delete;
 	private boolean withDocuments;
 	private boolean withSortValues;
+	private boolean debug;
 
 	public SearchRequest() {
 		queryParser = null;
@@ -139,6 +139,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.queryParsed = null;
 		this.timer = new Timer();
 		this.finalTime = 0;
+		this.debug = false;
 	}
 
 	public SearchRequest(SearchRequest searchRequest) {
@@ -176,6 +177,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.scoreFunction = searchRequest.scoreFunction;
 		this.reader = searchRequest.reader;
 		this.queryParsed = null;
+		this.debug = searchRequest.debug;
 	}
 
 	private SearchRequest(Config config, String indexName, String requestName,
@@ -183,7 +185,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 			QueryParser.Operator defaultOperator, int start, int rows,
 			String lang, String patternQuery, String queryString,
 			String scoreFunction, boolean delete, boolean withDocuments,
-			boolean withSortValues) {
+			boolean withSortValues, boolean debug) {
 		this(config);
 		this.indexName = indexName;
 		this.requestName = requestName;
@@ -202,6 +204,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.delete = delete;
 		this.withDocuments = withDocuments;
 		this.withSortValues = withSortValues;
+		this.debug = debug;
 	}
 
 	public void setConfig(Config config) {
@@ -295,6 +298,11 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return this.returnFieldList;
 	}
 
+	public void addReturnField(String fieldName) {
+		returnFieldList.add(new Field(config.getSchema().getFieldList().get(
+				fieldName)));
+	}
+
 	public SortList getSortList() {
 		return this.sortList;
 	}
@@ -355,6 +363,14 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.withSortValues = withSortValues;
 	}
 
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	public boolean isDebug() {
+		return debug;
+	}
+
 	public int getRows() {
 		return this.rows;
 	}
@@ -371,7 +387,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return this.start + this.rows;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<request name=\"" + requestName
 				+ "\" defaultOperator=\"" + defaultOperator + "\" start=\""
 				+ start + "\" rows=\"" + rows + "\">");
@@ -386,7 +402,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Name: ");
+		sb.append("RequestName: ");
 		sb.append(requestName);
 		sb.append(" DefaultOperator: ");
 		sb.append(defaultOperator);
@@ -396,6 +412,8 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		sb.append(rows);
 		sb.append(" Query: ");
 		sb.append(query);
+		sb.append(" IndexName: ");
+		sb.append(indexName);
 		return sb.toString();
 	}
 
@@ -481,7 +499,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 						.getAttributeValue(node, "rows"), XPathParser
 						.getAttributeString(node, "lang"), xpp.getNodeString(
 						node, "query"), null, xpp.getNodeString(node,
-						"scoreFunction"), false, true, false);
+						"scoreFunction"), false, true, false, false);
 
 		FieldList<Field> returnFields = searchRequest.getReturnFieldList();
 		FieldList<SchemaField> fieldList = config.getSchema().getFieldList();
@@ -543,6 +561,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		delete = in.readBoolean();
 		withDocuments = in.readBoolean();
 		withSortValues = in.readBoolean();
+		debug = in.readBoolean();
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -576,6 +595,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		out.writeBoolean(delete);
 		out.writeBoolean(withDocuments);
 		out.writeBoolean(withSortValues);
+		out.writeBoolean(debug);
 	}
 
 }

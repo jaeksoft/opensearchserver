@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -180,7 +179,7 @@ public class DocSetHits implements XmlInfo {
 		}
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		r.lock();
 		try {
 			writer.println("<docSetHits docFound=\"" + docNumFound

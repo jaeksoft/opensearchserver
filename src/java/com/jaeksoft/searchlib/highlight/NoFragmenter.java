@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -39,6 +39,11 @@ public class NoFragmenter extends FragmenterAbstract {
 
 	@Override
 	protected void check(String originalText) {
+	}
+
+	@Override
+	protected FragmenterAbstract newInstance() {
+		return new NoFragmenter();
 	}
 
 }

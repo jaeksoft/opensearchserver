@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.result.ResultGroup;
+import com.jaeksoft.searchlib.util.Debug;
 
 public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 
@@ -44,11 +45,17 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 
 	private int nextStep;
 
+	private int newDocumentCount;
+
+	private Debug debug;
+
 	public SearchGroup(IndexGroup indexGroup, SearchRequest searchRequest)
 			throws IOException, URISyntaxException, ParseException,
 			SyntaxError, ClassNotFoundException {
 		super(indexGroup);
+		newDocumentCount = 0;
 		resultGroup = new ResultGroup(searchRequest);
+		debug = resultGroup.getDebug();
 		int rows = searchRequest.getRows();
 		if (rows == 0) {
 			run();
@@ -58,26 +65,32 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 		step = fetchGoal / indexGroup.size() + 1;
 		nextStep = rows / indexGroup.size() + 1;
 		loop();
+		resultGroup.expungeFacet();
+		if (debug != null)
+			debug.setInfo(resultGroup);
 	}
 
 	@Override
 	protected SearchThread getNewThread(IndexAbstract index) {
-		return new SearchThread(index, resultGroup, step);
+		return new SearchThread(debug, index, resultGroup, step);
 	}
 
 	@Override
 	protected void complete() throws IOException, URISyntaxException,
 			ParseException, SyntaxError {
+		if (newDocumentCount == 0)
+			return;
 		resultGroup.setFinalDocs();
-		resultGroup.expungeFacet();
 		resultGroup.setThresholdDoc();
 		step = nextStep;
 		// Help working with large collapsed set
 		nextStep += nextStep / 2;
+		newDocumentCount = 0;
 	}
 
 	@Override
 	protected void complete(SearchThread thread) {
+		newDocumentCount += thread.getNewDocumentCount();
 		thread.setStep(step);
 	}
 

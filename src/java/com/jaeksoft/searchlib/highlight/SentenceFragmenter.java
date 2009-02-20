@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -56,5 +56,10 @@ public class SentenceFragmenter extends FragmenterAbstract {
 			}
 			pos++;
 		}
+	}
+
+	@Override
+	protected FragmenterAbstract newInstance() {
+		return new SentenceFragmenter();
 	}
 }

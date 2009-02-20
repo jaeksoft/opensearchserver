@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.filter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.BitSet;
-import java.util.HashSet;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
@@ -88,7 +87,7 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 		return this.docSet;
 	}
 
-	public void xmlInfo(PrintWriter writer, HashSet<String> classDetail) {
+	public void xmlInfo(PrintWriter writer) {
 		writer.println("<filterHits cardinality=\"" + this.docSet.cardinality()
 				+ "\"/>");
 	}
