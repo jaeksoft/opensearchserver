@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
@@ -67,6 +69,8 @@ public abstract class Config implements XmlInfo {
 
 	protected XPathParser xpp = null;
 
+	private ExecutorService threadPool = null;
+
 	protected Config(File homeDir, File configFile,
 			boolean createIndexIfNotExists) throws SearchLibException {
 
@@ -77,6 +81,8 @@ public abstract class Config implements XmlInfo {
 					xpp);
 			searchRequests = SearchRequestList.fromXmlConfig(this, xpp, xpp
 					.getNode("/configuration/requests"));
+
+			threadPool = Executors.newCachedThreadPool();
 
 			index = getIndex(homeDir, createIndexIfNotExists);
 
@@ -98,7 +104,8 @@ public abstract class Config implements XmlInfo {
 					createIndexIfNotExists);
 		default:
 			return new IndexGroup(homeDir, xpp, xpp
-					.getNode("/configuration/indices"), createIndexIfNotExists);
+					.getNode("/configuration/indices"), createIndexIfNotExists,
+					threadPool);
 		}
 
 	}

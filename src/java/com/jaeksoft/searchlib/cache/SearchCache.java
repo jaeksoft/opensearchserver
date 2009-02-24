@@ -24,9 +24,10 @@
 
 package com.jaeksoft.searchlib.cache;
 
+import com.jaeksoft.searchlib.index.DocSetHitCacheKey;
 import com.jaeksoft.searchlib.index.DocSetHits;
 
-public class SearchCache extends LRUCache<String, DocSetHits> {
+public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 
 	public SearchCache(int maxSize) {
 		super(maxSize);

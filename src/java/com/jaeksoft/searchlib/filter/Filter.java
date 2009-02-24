@@ -47,6 +47,7 @@ public class Filter implements Externalizable {
 	private transient Query query;
 
 	private String queryString;
+
 	private Source source;
 
 	public enum Source {

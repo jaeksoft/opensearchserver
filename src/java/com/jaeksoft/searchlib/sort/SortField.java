@@ -31,10 +31,12 @@ import java.io.ObjectOutput;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
 
+import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
 
-public class SortField extends Field implements Externalizable {
+public class SortField extends Field implements Externalizable,
+		CacheKeyInterface<SortField> {
 
 	private static final long serialVersionUID = -476489382677039069L;
 
@@ -50,14 +52,6 @@ public class SortField extends Field implements Externalizable {
 
 	public boolean isDesc() {
 		return desc;
-	}
-
-	public void toString(StringBuffer sb) {
-		if (desc)
-			sb.append('-');
-		else
-			sb.append('+');
-		sb.append(name);
 	}
 
 	protected static SortField newSortField(String requestSort) {
@@ -105,5 +99,15 @@ public class SortField extends Field implements Externalizable {
 			return null;
 		else
 			return reader.getStringIndex(name);
+	}
+
+	@Override
+	public int compareTo(SortField o) {
+		int c = name.compareTo(o.name);
+		if (c != 0)
+			return c;
+		if (desc == o.desc)
+			return 0;
+		return desc ? -1 : 1;
 	}
 }

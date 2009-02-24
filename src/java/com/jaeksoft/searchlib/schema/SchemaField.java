@@ -169,9 +169,9 @@ public class SchemaField extends Field {
 	 * @throws DOMException
 	 * @throws IOException
 	 */
-	public static FieldList<SchemaField> fromXmlConfig(XPathParser xpp,
-			Node parentNode) throws XPathExpressionException {
-		FieldList<SchemaField> fieldList = new FieldList<SchemaField>();
+	public static SchemaFieldList fromXmlConfig(XPathParser xpp, Node parentNode)
+			throws XPathExpressionException {
+		SchemaFieldList fieldList = new SchemaFieldList();
 		NodeList nodes = xpp.getNodeList(parentNode, "field");
 		if (nodes == null)
 			return fieldList;

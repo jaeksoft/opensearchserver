@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -40,8 +41,12 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	protected IndexGroup indexGroup;
 
-	protected AbstractGroupRequest(IndexGroup indexGroup) {
+	private ExecutorService threadPool;
+
+	protected AbstractGroupRequest(IndexGroup indexGroup,
+			ExecutorService treadPool) {
 		this.indexGroup = indexGroup;
+		this.threadPool = treadPool;
 	}
 
 	protected abstract T getNewThread(IndexAbstract index)
@@ -51,7 +56,7 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 			URISyntaxException, ParseException, SyntaxError,
 			ClassNotFoundException {
 		for (T thread : threads)
-			thread.start();
+			thread.start(threadPool);
 		Iterator<T> iterator = threads.iterator();
 		while (iterator.hasNext()) {
 			T thread = iterator.next();

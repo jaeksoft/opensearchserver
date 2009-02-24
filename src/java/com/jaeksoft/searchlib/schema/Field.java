@@ -71,6 +71,10 @@ public class Field implements FieldSelector, Externalizable, XmlInfo {
 		return name;
 	}
 
+	public void toString(StringBuffer sb) {
+		sb.append(name);
+	}
+
 	public boolean equals(Field field) {
 		return field.name == this.name;
 	}

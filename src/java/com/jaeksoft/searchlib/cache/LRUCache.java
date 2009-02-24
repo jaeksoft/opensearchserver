@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -27,14 +27,15 @@ package com.jaeksoft.searchlib.cache;
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
-public class LRUCache<K, V> {
+public class LRUCache<K extends CacheKeyInterface<K>, V> {
 
-	private class CacheMap extends LinkedHashMap<K, V> {
+	private class EvictionQueue extends LinkedHashMap<K, V> {
 
 		private static final long serialVersionUID = -2384951296369306995L;
 
-		public CacheMap(int maxSize) {
+		public EvictionQueue(int maxSize) {
 			super(maxSize);
 		}
 
@@ -42,66 +43,63 @@ public class LRUCache<K, V> {
 		protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
 			if (size() <= maxSize)
 				return false;
+			tree.remove(eldest.getKey());
 			evictions++;
 			return true;
 		}
 	}
 
-	private CacheMap map;
+	private TreeMap<K, V> tree;
+	private EvictionQueue queue;
+
 	private int maxSize;
 	private long evictions;
 	private long lookups;
 	private long hits;
 	private long inserts;
-	private long memoryEvictions;
 
 	protected LRUCache(int maxSize) {
-		map = new CacheMap(maxSize);
+		queue = new EvictionQueue(maxSize);
+		tree = new TreeMap<K, V>();
 		this.maxSize = maxSize;
 		this.evictions = 0;
 		this.lookups = 0;
 		this.inserts = 0;
 		this.hits = 0;
-		this.memoryEvictions = 0;
 	}
 
 	public V getAndPromote(K key) {
 		synchronized (this) {
 			lookups++;
-			V value = map.get(key);
+			V value = tree.get(key);
 			if (value == null)
 				return null;
 			hits++;
-			map.remove(key);
-			map.put(key, value);
+			queue.remove(key);
+			queue.put(key, value);
 			return value;
 		}
 	}
 
-	public void expire(K key) {
-		synchronized (this) {
-			evictions++;
-			map.remove(key);
-		}
-	}
-
-	public V put(K key, V value) {
+	public void put(K key, V value) {
 		synchronized (this) {
 			inserts++;
-			return map.put(key, value);
+			queue.put(key, value);
+			tree.put(key, value);
 		}
 	}
 
 	public void clear() {
 		synchronized (this) {
-			map.clear();
+			queue.clear();
+			tree.clear();
 		}
 	}
 
 	@Override
 	public String toString() {
 		synchronized (this) {
-			return getClass().getSimpleName() + " " + map.size() + "/"
+			return getClass().getSimpleName() + " " + queue.size() + "/"
 					+ maxSize;
 		}
 	}
@@ -113,10 +111,10 @@ public class LRUCache<K, V> {
 				hitRatio = (float) (((float) hits) / ((float) lookups));
 			writer.println("<cache class=\"" + this.getClass().getName()
 					+ "\" maxSize=\"" + this.maxSize + "\" size=\""
-					+ map.size() + "\" hitRatio=\"" + hitRatio
+					+ queue.size() + "\" hitRatio=\"" + hitRatio
 					+ "\" lookups=\"" + lookups + "\" hits=\"" + hits
 					+ "\" inserts=\"" + inserts + "\" evictions=\"" + evictions
-					+ "\" memoryEviction=\"" + memoryEvictions + "\">");
+					+ "\">");
 			writer.println("</cache>");
 		}
 	}

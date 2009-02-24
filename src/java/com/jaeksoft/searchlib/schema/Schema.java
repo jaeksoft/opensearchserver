@@ -26,7 +26,8 @@ package com.jaeksoft.searchlib.schema;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -42,16 +43,16 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Schema implements XmlInfo {
 
-	private FieldList<SchemaField> fieldList;
+	private SchemaFieldList fieldList;
 
 	private AnalyzerList analyzers;
 
-	private HashMap<String, PerFieldAnalyzerWrapper> langQueryAnalyzers;
+	private Map<String, PerFieldAnalyzerWrapper> langQueryAnalyzers;
 
 	private Schema() {
 		fieldList = null;
 		analyzers = null;
-		langQueryAnalyzers = new HashMap<String, PerFieldAnalyzerWrapper>();
+		langQueryAnalyzers = new TreeMap<String, PerFieldAnalyzerWrapper>();
 	}
 
 	public static Schema fromXmlConfig(Node parentNode, XPathParser xpp)
@@ -74,17 +75,19 @@ public class Schema implements XmlInfo {
 		return analyzers;
 	}
 
-	public FieldList<SchemaField> getFieldList() {
+	public SchemaFieldList getFieldList() {
 		return fieldList;
 	}
 
 	public PerFieldAnalyzerWrapper getQueryPerFieldAnalyzer(String lang) {
 		synchronized (langQueryAnalyzers) {
+			if (lang == null)
+				lang = "";
 			PerFieldAnalyzerWrapper pfa = langQueryAnalyzers.get(lang);
 			if (pfa != null)
 				return pfa;
 			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer());
-			for (SchemaField field : this.fieldList) {
+			for (SchemaField field : fieldList) {
 				Analyzer analyzer = analyzers.get(field.getDefaultAnalyzer(),
 						lang);
 				if (analyzer == null)

@@ -30,11 +30,11 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -43,12 +43,14 @@ import org.apache.lucene.document.FieldSelectorResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
+public class FieldList<T extends Field> implements
+		CacheKeyInterface<FieldList<T>>, FieldSelector, XmlInfo,
 		Externalizable, Iterable<T>, Collecter<T> {
 
 	/**
@@ -58,15 +60,15 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 
 	private List<T> fieldList;
 	private transient Map<String, T> fieldsName;
-	private T defaultField;
-	private T uniqueField;
+	private String cacheKey;
 
 	/**
 	 * Constructeur de base.
 	 */
 	public FieldList() {
-		this.fieldsName = new HashMap<String, T>();
+		this.fieldsName = new TreeMap<String, T>();
 		this.fieldList = new ArrayList<T>();
+		cacheKey = null;
 	}
 
 	/**
@@ -83,6 +85,7 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 	public void add(FieldList<T> fl) {
 		for (T field : fl)
 			add(field);
+		cacheKey = null;
 	}
 
 	/**
@@ -109,6 +112,7 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 		if (!this.fieldList.add(field))
 			return false;
 		this.fieldsName.put(field.name, field);
+		cacheKey = null;
 		return true;
 	}
 
@@ -153,22 +157,6 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 		return set.toArray(names);
 	}
 
-	protected void setDefaultField(String fieldName) {
-		this.defaultField = this.get(fieldName);
-	}
-
-	protected void setUniqueField(String fieldName) {
-		this.uniqueField = this.get(fieldName);
-	}
-
-	public T getDefaultField() {
-		return this.defaultField;
-	}
-
-	public T getUniqueField() {
-		return this.uniqueField;
-	}
-
 	@Override
 	public String toString() {
 		String s = null;
@@ -182,13 +170,8 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 	}
 
 	public void xmlInfo(PrintWriter writer) {
-		writer.print("<fields");
-		if (defaultField != null)
-			writer.print(" default=\"" + defaultField.getName() + "\"");
-		if (uniqueField != null)
-			writer.print(" unique=\"" + uniqueField.getName() + "\"");
-		writer.println(">");
-		for (Field field : this.fieldList)
+		writer.print("<fields>");
+		for (Field field : fieldList)
 			field.xmlInfo(writer);
 		writer.println("</fields>");
 	}
@@ -204,18 +187,29 @@ public class FieldList<T extends Field> implements FieldSelector, XmlInfo,
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
-		defaultField = External.<T> readObject(in);
-		uniqueField = External.<T> readObject(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(fieldList, out);
-		External.writeObject(defaultField, out);
-		External.writeObject(uniqueField, out);
 	}
 
 	public void addObject(T field) {
 		fieldList.add(field);
 		fieldsName.put(field.name, field);
 	}
+
+	private String getCacheKey() {
+		if (cacheKey != null)
+			return cacheKey;
+		StringBuffer sb = new StringBuffer();
+		for (Field field : fieldList)
+			field.toString(sb);
+		return cacheKey = sb.toString();
+	}
+
+	@Override
+	public int compareTo(FieldList<T> o) {
+		return getCacheKey().compareTo(o.getCacheKey());
+	}
+
 }

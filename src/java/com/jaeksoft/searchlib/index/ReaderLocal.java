@@ -30,9 +30,9 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.index.CorruptIndexException;
@@ -55,8 +55,8 @@ import org.apache.lucene.store.LockObtainFailedException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
+import com.jaeksoft.searchlib.filter.FilterCacheKey;
 import com.jaeksoft.searchlib.filter.FilterHits;
-import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.request.DocumentRequest;
@@ -69,7 +69,6 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.FileUtils;
 
 public class ReaderLocal extends NameFilter implements ReaderInterface {
@@ -82,7 +81,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	private FilterCache filterCache;
 	private FieldCache fieldCache;
 
-	private final ReadWriteLock rwl = new ReentrantReadWriteLock();
+	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
 
@@ -276,6 +275,25 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
+	public FilterHits getFilterHits(Field defaultField, Analyzer analyzer,
+			com.jaeksoft.searchlib.filter.Filter filter) throws ParseException,
+			IOException {
+		r.lock();
+		try {
+			FilterCacheKey filterCacheKey = new FilterCacheKey(filter,
+					defaultField, analyzer);
+			FilterHits filterHits = filterCache.getAndPromote(filterCacheKey);
+			if (filterHits != null)
+				return filterHits;
+			Query query = filter.getQuery(defaultField, analyzer);
+			filterHits = new FilterHits(query, this, filter);
+			filterCache.put(filterCacheKey, filterHits);
+			return filterHits;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	protected void deleteDocument(int docNum) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException {
 		indexReader.deleteDocument(docNum);
@@ -431,41 +449,26 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		else
 			r.lock();
 		try {
-			StringBuffer cacheDshKey = new StringBuffer(searchRequest
-					.getQueryParsed());
-			FilterHits filter = null;
-			FilterList filterList = searchRequest.getFilterList();
-			if (filterList.size() > 0) {
-				String cacheFilterKey = FilterHits.toCacheKey(filterList);
-				filter = filterCache.getAndPromote(cacheFilterKey);
-				if (filter == null) {
-					Schema schema = searchRequest.getConfig().getSchema();
-					filter = new FilterHits(schema.getFieldList()
-							.getDefaultField(), schema
-							.getQueryPerFieldAnalyzer(searchRequest.getLang()),
-							this, filterList);
-					filterCache.put(cacheFilterKey, filter);
-				}
-				cacheDshKey.append('|');
-				cacheDshKey.append(cacheFilterKey);
-			}
-			SortList sortList = searchRequest.getSortList();
-			Sort sort = sortList.getLuceneSort();
-			if (sort != null) {
-				cacheDshKey.append("_");
-				cacheDshKey.append(sortList.getSortKey());
-			}
-			if (isFacet)
-				cacheDshKey.append("|facet");
-			String cacheDshKeyStr = cacheDshKey.toString();
+
+			Schema schema = searchRequest.getConfig().getSchema();
+			Field defaultField = schema.getFieldList().getDefaultField();
+			Analyzer analyzer = schema.getQueryPerFieldAnalyzer(searchRequest
+					.getLang());
+			DocSetHitCacheKey key = new DocSetHitCacheKey(searchRequest,
+					defaultField, analyzer);
+
 			DocSetHits dsh = null;
 			if (!isDelete)
-				dsh = searchCache.getAndPromote(cacheDshKeyStr);
+				dsh = searchCache.getAndPromote(key);
+
 			if (dsh == null) {
-				dsh = new DocSetHits(this, searchRequest.getQuery(), filter,
-						sort, isDelete, isFacet);
+				FilterHits filterHits = FilterHits.getFilterHits(searchRequest,
+						this, defaultField, analyzer);
+				Sort sort = searchRequest.getSortList().getLuceneSort();
+				dsh = new DocSetHits(this, searchRequest.getQuery(),
+						filterHits, sort, isDelete, isFacet);
 				if (!isDelete)
-					searchCache.put(cacheDshKeyStr, dsh);
+					searchCache.put(key, dsh);
 				else if (dsh.getDocNumFound() > 0)
 					reload();
 			}
@@ -489,7 +492,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			FieldList<Field> missingField = new FieldList<Field>();
 
 			for (Field field : fieldList) {
-				String key = FieldCache.getKey(field, docId);
+				FieldContentCacheKey key = new FieldContentCacheKey(field
+						.getName(), docId);
 				String[] values = fieldCache.getAndPromote(key);
 				if (values != null)
 					documentFields.add(new FieldValue(field, values));
@@ -500,7 +504,8 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			if (missingField.size() > 0) {
 				Document document = getDocFields(docId, missingField);
 				for (Field field : missingField) {
-					String key = FieldCache.getKey(field, docId);
+					FieldContentCacheKey key = new FieldContentCacheKey(field
+							.getName(), docId);
 					String[] values = document.getValues(field.getName());
 					if (values != null) {
 						documentFields.add(new FieldValue(field, values));

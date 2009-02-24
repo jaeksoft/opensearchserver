@@ -24,12 +24,6 @@
 
 package com.jaeksoft.searchlib.cache;
 
-import com.jaeksoft.searchlib.filter.FilterCacheKey;
-import com.jaeksoft.searchlib.filter.FilterHits;
+public interface CacheKeyInterface<T> extends Comparable<T> {
 
-public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
-
-	public FilterCache(int maxSize) {
-		super(maxSize);
-	}
 }

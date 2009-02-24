@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -49,10 +50,10 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 
 	private Debug debug;
 
-	public SearchGroup(IndexGroup indexGroup, SearchRequest searchRequest)
-			throws IOException, URISyntaxException, ParseException,
-			SyntaxError, ClassNotFoundException {
-		super(indexGroup);
+	public SearchGroup(IndexGroup indexGroup, SearchRequest searchRequest,
+			ExecutorService threadPool) throws IOException, URISyntaxException,
+			ParseException, SyntaxError, ClassNotFoundException {
+		super(indexGroup, threadPool);
 		newDocumentCount = 0;
 		resultGroup = new ResultGroup(searchRequest);
 		debug = resultGroup.getDebug();

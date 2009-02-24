@@ -49,7 +49,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class WriterLocal extends WriterAbstract {
 
-	private ReentrantLock l = new ReentrantLock();
+	private ReentrantLock l = new ReentrantLock(true);
 
 	private IndexWriter indexWriter;
 

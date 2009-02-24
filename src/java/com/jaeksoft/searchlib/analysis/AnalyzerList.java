@@ -28,7 +28,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -47,10 +48,10 @@ public class AnalyzerList extends AbstractList<Analyzer> implements XmlInfo {
 	private static final long serialVersionUID = -1994552936047860059L;
 
 	private ArrayList<Analyzer> analyzerList;
-	private HashMap<String, Analyzer> analyzersName;
+	private Map<String, Analyzer> analyzersName;
 
 	public AnalyzerList() {
-		analyzersName = new HashMap<String, Analyzer>();
+		analyzersName = new TreeMap<String, Analyzer>();
 		analyzerList = new ArrayList<Analyzer>();
 	}
 

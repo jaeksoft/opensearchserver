@@ -22,14 +22,25 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.cache;
+package com.jaeksoft.searchlib.filter;
 
-import com.jaeksoft.searchlib.filter.FilterCacheKey;
-import com.jaeksoft.searchlib.filter.FilterHits;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryParser.ParseException;
 
-public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
+import com.jaeksoft.searchlib.cache.CacheKeyInterface;
+import com.jaeksoft.searchlib.schema.Field;
 
-	public FilterCache(int maxSize) {
-		super(maxSize);
+public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
+
+	private String query;
+
+	public FilterCacheKey(Filter filter, Field defaultField, Analyzer analyzer)
+			throws ParseException {
+		query = filter.getQuery(defaultField, analyzer).toString();
+	}
+
+	@Override
+	public int compareTo(FilterCacheKey o) {
+		return query.compareTo(o.query);
 	}
 }

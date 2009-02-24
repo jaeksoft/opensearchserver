@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -41,10 +42,10 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 	private ResultDocuments resultDocuments;
 
 	public DocumentsGroup(IndexGroup indexGroup,
-			DocumentsRequest documentsRequest) throws IOException,
-			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException {
-		super(indexGroup);
+			DocumentsRequest documentsRequest, ExecutorService threadPool)
+			throws IOException, URISyntaxException, ParseException,
+			SyntaxError, ClassNotFoundException {
+		super(indexGroup, threadPool);
 		this.documentsRequest = documentsRequest;
 		DocumentRequest[] requestedDocuments = documentsRequest
 				.getRequestedDocuments();

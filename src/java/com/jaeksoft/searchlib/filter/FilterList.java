@@ -56,7 +56,7 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 
 	public FilterList(FilterList fl) {
 		this.config = fl.config;
-		this.filterList = new ArrayList<Filter>();
+		this.filterList = new ArrayList<Filter>(fl.size());
 		for (Filter f : fl)
 			addObject(f);
 	}
@@ -64,10 +64,6 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 	public FilterList(Config config) {
 		this.filterList = new ArrayList<Filter>();
 		this.config = config;
-	}
-
-	public Filter get(int index) {
-		return filterList.get(index);
 	}
 
 	public void addObject(Filter filter) {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -24,16 +24,12 @@
 
 package com.jaeksoft.searchlib.cache;
 
-import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.index.FieldContentCacheKey;
 
-public class FieldCache extends LRUCache<String, String[]> {
+public class FieldCache extends LRUCache<FieldContentCacheKey, String[]> {
 
 	public FieldCache(int maxSize) {
 		super(maxSize);
-	}
-
-	final public static String getKey(Field field, int docId) {
-		return docId + "_" + field.getName();
 	}
 
 }

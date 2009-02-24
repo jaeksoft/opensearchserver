@@ -22,57 +22,59 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.facet;
+package com.jaeksoft.searchlib.schema;
 
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.io.PrintWriter;
 
 import com.jaeksoft.searchlib.util.External;
-import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class FacetList implements Iterable<Facet>, Externalizable,
-		Collecter<Facet> {
+public class SchemaFieldList extends FieldList<SchemaField> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2891562911711846847L;
+	private Field defaultField;
+	private Field uniqueField;
 
-	private List<Facet> facetList;
-	private transient Map<String, Facet> facetMap;
-
-	public FacetList() {
-		this.facetMap = new TreeMap<String, Facet>();
-		this.facetList = new ArrayList<Facet>();
+	protected void setDefaultField(String fieldName) {
+		this.defaultField = this.get(fieldName);
 	}
 
-	public Facet getByField(String fieldName) {
-		return facetMap.get(fieldName);
+	protected void setUniqueField(String fieldName) {
+		this.uniqueField = this.get(fieldName);
 	}
 
-	public Iterator<Facet> iterator() {
-		return facetList.iterator();
+	public Field getDefaultField() {
+		return this.defaultField;
+	}
+
+	public Field getUniqueField() {
+		return this.uniqueField;
+	}
+
+	public void xmlInfo(PrintWriter writer) {
+		writer.print("<fields");
+		if (defaultField != null)
+			writer.print(" default=\"" + defaultField.getName() + "\"");
+		if (uniqueField != null)
+			writer.print(" unique=\"" + uniqueField.getName() + "\"");
+		writer.println(">");
+		for (Field field : this)
+			field.xmlInfo(writer);
+		writer.println("</fields>");
 	}
 
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		External.readCollection(in, this);
+		super.readExternal(in);
+		defaultField = External.<Field> readObject(in);
+		uniqueField = External.<Field> readObject(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeCollection(facetList, out);
-	}
-
-	public void addObject(Facet facet) {
-		facetList.add(facet);
-		facetMap.put(facet.facetField.getName(), facet);
+		super.writeExternal(out);
+		External.writeObject(defaultField, out);
+		External.writeObject(uniqueField, out);
 	}
 
 }

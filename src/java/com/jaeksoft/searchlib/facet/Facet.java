@@ -28,9 +28,9 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
@@ -55,7 +55,7 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 
 	public Facet() {
 		array = null;
-		facetMap = new HashMap<String, FacetItem>();
+		facetMap = new TreeMap<String, FacetItem>();
 	}
 
 	public Facet(FacetField facetField) {

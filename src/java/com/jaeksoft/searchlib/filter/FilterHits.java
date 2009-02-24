@@ -32,8 +32,10 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.HitCollector;
+import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
@@ -45,27 +47,24 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 	 */
 	private static final long serialVersionUID = 966120808560552509L;
 
-	private BitSet docSet;
+	protected BitSet docSet;
 
-	public FilterHits(Field defaultField, Analyzer analyzer,
-			ReaderLocal reader, FilterList filterList) throws IOException,
-			ParseException {
-		this.docSet = null;
-		for (Filter f : filterList) {
-			Collector collector = new Collector(reader.maxDoc());
-			reader.search(f.getQuery(defaultField, analyzer), null, collector);
-			if (this.docSet == null)
-				this.docSet = collector.bitSet;
-			else
-				this.docSet.and(collector.bitSet);
-		}
+	private FilterHits() {
+		docSet = null;
 	}
 
-	public static String toCacheKey(FilterList filterList) {
-		String s = "";
-		for (Filter f : filterList)
-			s += "|" + f.getQueryString();
-		return s;
+	private void and(FilterHits filterHits) {
+		if (docSet == null)
+			docSet = filterHits.docSet;
+		else
+			docSet.and(filterHits.docSet);
+	}
+
+	public FilterHits(Query query, ReaderLocal reader, Filter filter)
+			throws IOException, ParseException {
+		Collector collector = new Collector(reader.maxDoc());
+		reader.search(query, null, collector);
+		docSet = collector.bitSet;
 	}
 
 	private class Collector extends HitCollector {
@@ -92,4 +91,19 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 				+ "\"/>");
 	}
 
+	public static FilterHits getFilterHits(SearchRequest searchRequest,
+			ReaderLocal reader, Field defaultField, Analyzer analyzer)
+			throws IOException, ParseException {
+
+		FilterList filterList = searchRequest.getFilterList();
+		if (filterList.size() == 0)
+			return null;
+
+		FilterHits filterHits = new FilterHits();
+		for (Filter filter : filterList)
+			filterHits
+					.and(reader.getFilterHits(defaultField, analyzer, filter));
+
+		return filterHits;
+	}
 }

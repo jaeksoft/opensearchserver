@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -32,7 +32,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -57,13 +59,16 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public class IndexGroup extends IndexAbstract {
 
-	private LinkedHashMap<String, IndexSingle> indices;
+	private Map<String, IndexSingle> indices;
+
+	private ExecutorService threadPool;
 
 	public IndexGroup(File homeDir, XPathParser xpp, Node parentNode,
-			boolean createIfNotExists) throws XPathExpressionException,
-			IOException, URISyntaxException {
+			boolean createIfNotExists, ExecutorService threadPool)
+			throws XPathExpressionException, IOException, URISyntaxException {
 		super();
-		indices = new LinkedHashMap<String, IndexSingle>();
+		this.threadPool = threadPool;
+		indices = new TreeMap<String, IndexSingle>();
 		NodeList nodes = xpp.getNodeList(parentNode, "index");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
@@ -206,8 +211,8 @@ public class IndexGroup extends IndexAbstract {
 		String indexName = searchRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).search(searchRequest);
-		ResultGroup resultGroup = new SearchGroup(this, searchRequest)
-				.getResult();
+		ResultGroup resultGroup = new SearchGroup(this, searchRequest,
+				threadPool).getResult();
 		if (resultGroup == null)
 			return null;
 		if (searchRequest.isWithDocument())
@@ -305,7 +310,8 @@ public class IndexGroup extends IndexAbstract {
 		if (indexName != null)
 			return get(indexName).documents(documentsRequest);
 		else
-			return new DocumentsGroup(this, documentsRequest).getDocuments();
+			return new DocumentsGroup(this, documentsRequest, threadPool)
+					.getDocuments();
 	}
 
 }

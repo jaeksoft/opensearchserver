@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 public abstract class IndexAbstract extends NameFilter implements
 		ReaderInterface, WriterInterface, XmlInfo {
 
-	protected final ReadWriteLock rwl = new ReentrantReadWriteLock();
+	protected final ReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	protected final Lock r = rwl.readLock();
 	protected final Lock w = rwl.writeLock();
 

@@ -25,7 +25,7 @@
 package com.jaeksoft.searchlib.request;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class SearchRequestList extends HashMap<String, SearchRequest> implements
+public class SearchRequestList extends TreeMap<String, SearchRequest> implements
 		XmlInfo {
 
 	/**

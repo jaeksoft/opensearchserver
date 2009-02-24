@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -32,10 +32,11 @@ import java.io.ObjectOutput;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
+import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.FieldList;
 
-public class SortList implements Externalizable {
+public class SortList implements Externalizable, CacheKeyInterface<SortList> {
 
 	/**
 	 * 
@@ -79,13 +80,6 @@ public class SortList implements Externalizable {
 		return new Sort(sortFields);
 	}
 
-	public String getSortKey() {
-		StringBuffer sb = new StringBuffer();
-		for (SortField field : sortFieldList)
-			field.toString(sb);
-		return sb.toString();
-	}
-
 	public SorterAbstract getSorter() {
 		if (sortFieldList.size() == 0)
 			return new DescScoreSorter();
@@ -111,6 +105,10 @@ public class SortList implements Externalizable {
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(sortFieldList);
+	}
 
+	@Override
+	public int compareTo(SortList o) {
+		return sortFieldList.compareTo(o.sortFieldList);
 	}
 }

@@ -30,9 +30,9 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -56,7 +56,7 @@ public class IndexDocument implements Externalizable, XmlInfo,
 	private String lang;
 
 	public IndexDocument() {
-		fields = new HashMap<String, FieldContent>();
+		fields = new TreeMap<String, FieldContent>();
 		this.lang = null;
 	}
 

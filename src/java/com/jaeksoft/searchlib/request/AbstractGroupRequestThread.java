@@ -26,11 +26,11 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.util.ThreadUtils;
 
 public abstract class AbstractGroupRequestThread implements Runnable {
 
@@ -88,9 +88,9 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 		}
 	}
 
-	final public void start() {
+	final public void start(ExecutorService threadPool) {
 		running = true;
-		ThreadUtils.pool.execute(this);
+		threadPool.execute(this);
 	}
 
 	final public void exception() throws IOException, URISyntaxException,
