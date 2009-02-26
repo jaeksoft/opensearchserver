@@ -32,8 +32,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryParser.ParseException;
+
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
@@ -91,4 +96,18 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 		return filterList.iterator();
 	}
 
+	public FilterHits getFilterHits(ReaderLocal reader, Field defaultField,
+			Analyzer analyzer, boolean noCache) throws IOException,
+			ParseException {
+
+		if (size() == 0)
+			return null;
+
+		FilterHits filterHits = new FilterHits();
+		for (Filter filter : filterList)
+			filterHits.and(reader.getFilterHits(defaultField, analyzer, filter,
+					noCache));
+
+		return filterHits;
+	}
 }

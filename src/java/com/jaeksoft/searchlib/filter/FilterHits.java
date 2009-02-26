@@ -28,15 +28,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.BitSet;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class FilterHits extends org.apache.lucene.search.Filter implements
@@ -49,19 +46,19 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 
 	protected BitSet docSet;
 
-	private FilterHits() {
+	protected FilterHits() {
 		docSet = null;
 	}
 
-	private void and(FilterHits filterHits) {
+	protected void and(FilterHits filterHits) {
 		if (docSet == null)
-			docSet = filterHits.docSet;
+			docSet = (BitSet) filterHits.docSet.clone();
 		else
 			docSet.and(filterHits.docSet);
 	}
 
-	public FilterHits(Query query, ReaderLocal reader, Filter filter)
-			throws IOException, ParseException {
+	public FilterHits(Query query, ReaderLocal reader) throws IOException,
+			ParseException {
 		Collector collector = new Collector(reader.maxDoc());
 		reader.search(query, null, collector);
 		docSet = collector.bitSet;
@@ -91,19 +88,4 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 				+ "\"/>");
 	}
 
-	public static FilterHits getFilterHits(SearchRequest searchRequest,
-			ReaderLocal reader, Field defaultField, Analyzer analyzer)
-			throws IOException, ParseException {
-
-		FilterList filterList = searchRequest.getFilterList();
-		if (filterList.size() == 0)
-			return null;
-
-		FilterHits filterHits = new FilterHits();
-		for (Filter filter : filterList)
-			filterHits
-					.and(reader.getFilterHits(defaultField, analyzer, filter));
-
-		return filterHits;
-	}
 }

@@ -43,4 +43,8 @@ public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
 	public int compareTo(FilterCacheKey o) {
 		return query.compareTo(o.query);
 	}
+
+	public String toString() {
+		return hashCode() + ' ' + query;
+	}
 }

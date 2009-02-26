@@ -276,18 +276,23 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 	}
 
 	public FilterHits getFilterHits(Field defaultField, Analyzer analyzer,
-			com.jaeksoft.searchlib.filter.Filter filter) throws ParseException,
-			IOException {
+			com.jaeksoft.searchlib.filter.Filter filter, boolean noCache)
+			throws ParseException, IOException {
 		r.lock();
 		try {
-			FilterCacheKey filterCacheKey = new FilterCacheKey(filter,
-					defaultField, analyzer);
-			FilterHits filterHits = filterCache.getAndPromote(filterCacheKey);
-			if (filterHits != null)
-				return filterHits;
+			FilterHits filterHits;
+			FilterCacheKey filterCacheKey = null;
+			if (!noCache) {
+				filterCacheKey = new FilterCacheKey(filter, defaultField,
+						analyzer);
+				filterHits = filterCache.getAndPromote(filterCacheKey);
+				if (filterHits != null)
+					return filterHits;
+			}
 			Query query = filter.getQuery(defaultField, analyzer);
-			filterHits = new FilterHits(query, this, filter);
-			filterCache.put(filterCacheKey, filterHits);
+			filterHits = new FilterHits(query, this);
+			if (!noCache)
+				filterCache.put(filterCacheKey, filterHits);
 			return filterHits;
 		} finally {
 			r.unlock();
@@ -444,6 +449,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 			throws IOException, ParseException, SyntaxError {
 		boolean isDelete = searchRequest.isDelete();
 		boolean isFacet = searchRequest.isFacet();
+		boolean isNoCache = searchRequest.isNoCache();
 		if (isDelete)
 			w.lock();
 		else
@@ -458,20 +464,21 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 					defaultField, analyzer);
 
 			DocSetHits dsh = null;
-			if (!isDelete)
+			if (!isDelete && !isNoCache) {
 				dsh = searchCache.getAndPromote(key);
-
-			if (dsh == null) {
-				FilterHits filterHits = FilterHits.getFilterHits(searchRequest,
-						this, defaultField, analyzer);
-				Sort sort = searchRequest.getSortList().getLuceneSort();
-				dsh = new DocSetHits(this, searchRequest.getQuery(),
-						filterHits, sort, isDelete, isFacet);
-				if (!isDelete)
-					searchCache.put(key, dsh);
-				else if (dsh.getDocNumFound() > 0)
-					reload();
+				if (dsh != null)
+					return dsh;
 			}
+
+			FilterHits filterHits = searchRequest.getFilterList()
+					.getFilterHits(this, defaultField, analyzer, isNoCache);
+			Sort sort = searchRequest.getSortList().getLuceneSort();
+			dsh = new DocSetHits(this, searchRequest.getQuery(), filterHits,
+					sort, isDelete, isFacet);
+			if (!isDelete && !isNoCache)
+				searchCache.put(key, dsh);
+			if (isDelete && dsh.getDocNumFound() > 0)
+				reload();
 			return dsh;
 		} finally {
 			if (isDelete)

@@ -98,6 +98,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 	private boolean delete;
 	private boolean withDocuments;
 	private boolean withSortValues;
+	private boolean noCache;
 	private boolean debug;
 
 	public SearchRequest() {
@@ -139,6 +140,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.queryParsed = null;
 		this.timer = new Timer();
 		this.finalTime = 0;
+		this.noCache = false;
 		this.debug = false;
 	}
 
@@ -177,6 +179,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.scoreFunction = searchRequest.scoreFunction;
 		this.reader = searchRequest.reader;
 		this.queryParsed = null;
+		this.noCache = searchRequest.noCache;
 		this.debug = searchRequest.debug;
 	}
 
@@ -185,7 +188,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 			QueryParser.Operator defaultOperator, int start, int rows,
 			String lang, String patternQuery, String queryString,
 			String scoreFunction, boolean delete, boolean withDocuments,
-			boolean withSortValues, boolean debug) {
+			boolean withSortValues, boolean noCache, boolean debug) {
 		this(config);
 		this.indexName = indexName;
 		this.requestName = requestName;
@@ -204,6 +207,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.delete = delete;
 		this.withDocuments = withDocuments;
 		this.withSortValues = withSortValues;
+		this.noCache = noCache;
 		this.debug = debug;
 	}
 
@@ -363,8 +367,17 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.withSortValues = withSortValues;
 	}
 
+	public void setNoCache(boolean noCache) {
+		this.noCache = noCache;
+
+	}
+
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public boolean isNoCache() {
+		return noCache;
 	}
 
 	public boolean isDebug() {
@@ -499,7 +512,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 						.getAttributeValue(node, "rows"), XPathParser
 						.getAttributeString(node, "lang"), xpp.getNodeString(
 						node, "query"), null, xpp.getNodeString(node,
-						"scoreFunction"), false, true, false, false);
+						"scoreFunction"), false, true, false, false, false);
 
 		FieldList<Field> returnFields = searchRequest.getReturnFieldList();
 		FieldList<SchemaField> fieldList = config.getSchema().getFieldList();

@@ -168,6 +168,9 @@ public abstract class Config implements XmlInfo {
 		if ((p = httpRequest.getParameter("withDocs")) != null)
 			searchRequest.setWithDocument(true);
 
+		if ((p = httpRequest.getParameter("noCache")) != null)
+			searchRequest.setNoCache(true);
+
 		if ((p = httpRequest.getParameter("debug")) != null)
 			searchRequest.setDebug(true);
 

@@ -63,4 +63,5 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 			return c;
 		return 0;
 	}
+
 }
