@@ -249,6 +249,10 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return this.requestName;
 	}
 
+	public int getPhraseSlop() {
+		return phraseSlop;
+	}
+
 	public Query getQuery() throws ParseException, SyntaxError {
 		synchronized (this) {
 			if (query != null)
@@ -269,6 +273,10 @@ public class SearchRequest implements XmlInfo, Externalizable {
 
 	public String getQueryString() {
 		return queryString;
+	}
+
+	public String getPatternQuery() {
+		return patternQuery;
 	}
 
 	public String getQueryParsed() throws ParseException, SyntaxError {
@@ -442,6 +450,10 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		while (it.hasNext())
 			documentFieldList.add(new Field(it.next()));
 		return documentFieldList;
+	}
+
+	public Operator getDefaultOperator() {
+		return defaultOperator;
 	}
 
 	public void setCollapseActive(boolean active) {

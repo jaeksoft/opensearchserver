@@ -1,7 +1,25 @@
-<window>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft SearchLib-Community
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.jaeksoft.com
+	This file is part of Jaeksoft SearchLib-Community.
+	Jaeksoft SearchLib-Community is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft SearchLib-Community is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="index"
+	use="com.jaeksoft.searchlib.web.controller.IndexController">
 	<caption image="images/jaeksoft_websearch_16.png"
 		label="Jaeksoft SearchServer" />
-	<tabbox>
+	<tabbox visible="@{index.instanceValid}">
 		<tabs>
 			<tab id="tab1" label="Query" selected="true" />
 			<tab id="tab2" label="Configuration" />
@@ -15,4 +33,10 @@
 			</tabpanel>
 		</tabpanels>
 	</tabbox>
+
+	<hbox visible="@{index.instanceNotValid}">
+		<label value="Enter the path of the configuration file" />
+		<textbox cols="255" value="@{index.configPath}" width="150px" />
+		<button label="Enter" forward="onEnterConfig" />
+	</hbox>
 </window>

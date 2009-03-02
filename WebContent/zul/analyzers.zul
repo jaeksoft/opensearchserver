@@ -1,7 +1,7 @@
 <?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
 <!--
 	License Agreement for Jaeksoft SearchLib-Community
-	Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
 	http://www.jaeksoft.com
 	This file is part of Jaeksoft SearchLib-Community.
 	Jaeksoft SearchLib-Community is free software: you can
@@ -15,8 +15,9 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="ctrl" use="com.jaeksoft.searchlib.web.ZkController">
-	<grid model="@{ctrl.analyzers}">
+<window id="conf"
+	use="com.jaeksoft.searchlib.web.controller.ConfigurationController">
+	<grid model="@{conf.analyzers}">
 		<columns>
 			<column label="name" width="100px" />
 			<column label="lang" width="50px" />
@@ -28,11 +29,11 @@
 				<label value="@{analyzer.name}" />
 				<label value="@{analyzer.lang}" />
 				<label value="@{analyzer.tokenizer}" />
-					<listbox model="@{analyzer.filters}">
-						<listitem self="@{each=filter}">
-							<listcell label="@{filter.className}" />
-						</listitem>
-					</listbox>
+				<listbox model="@{analyzer.filters}">
+					<listitem self="@{each=filter}">
+						<listcell label="@{filter.className}" />
+					</listitem>
+				</listbox>
 			</row>
 		</rows>
 	</grid>

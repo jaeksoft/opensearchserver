@@ -1,14 +1,28 @@
+
+	<!--
+		License Agreement for Jaeksoft SearchLib Community Copyright (C)
+		2008-2009 Emmanuel Keller / Jaeksoft http://www.jaeksoft.com This file
+		is part of Jaeksoft SearchLib Community. Jaeksoft SearchLib Community
+		is free software: you can redistribute it and/or modify it under the
+		terms of the GNU General Public License as published by the Free
+		Software Foundation, either version 3 of the License, or (at your
+		option) any later version. Jaeksoft SearchLib Community is distributed
+		in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+		even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+		PARTICULAR PURPOSE. See the GNU General Public License for more
+		details. You should have received a copy of the GNU General Public
+		License along with Jaeksoft SearchLib Community. If not, see
+		<http://www.gnu.org/licenses/>.
+	-->
 <configuration>
 	<indices>
 		<index name="index" searchCache="128" filterCache="128"
-			documentCache="32" path="${root}/temp/index" />
+			fieldCache="512" path="${root}/temp/index" />
 	</indices>
 	<schema>
 		<analyzers>
-			<analyzer name="StandardAnalyzer" lang="fr"
-				tokenizer="LetterOrDigitTokenizerFactory">
+			<analyzer name="LowerCase">
 				<filter class="LowerCaseFilter" />
-				<filter class="ISOLatin1AccentFilter" />
 			</analyzer>
 			<analyzer name="TextAnalyzer" lang="en"
 				tokenizer="LetterOrDigitTokenizerFactory">
@@ -28,29 +42,38 @@
 				<filter class="SnowballGermanFilter" />
 			</analyzer>
 		</analyzers>
-		<fields default="text1" unique="id">
-			<field name="id" indexed="yes" stored="yes" />
-			<field name="text1" indexed="yes" stored="yes" analyzer="StandardAnalyzer"
+		<fields default="exactName" unique="exactName">
+			<field name="exactName" indexed="yes" stored="yes" />
+			<field name="searchName" indexed="yes" stored="no" analyzer="TextAnalyzer"
 				termVector="positions_offsets" />
-			<field name="text2" indexed="yes" stored="compress" analyzer="TextAnalyzer"
-				termVector="positions_offsets" />
-			<field name="facet1" indexed="yes" stored="yes" />
-			<field name="facet2" indexed="yes" stored="yes" />
+			<field name="description" indexed="yes" stored="compress"
+				analyzer="TextAnalyzer" termVector="positions_offsets" />
+			<field name="color" indexed="yes" stored="yes" analyzer="LowerCase" />
+			<field name="type" indexed="yes" stored="yes" analyzer="LowerCase" />
+			<field name="source" indexed="yes" stored="yes" analyzer="LowerCase" />
 		</fields>
 	</schema>
 	<requests>
 		<request name="search" defaultOperator="and" phraseSlop="2"
 			start="0" rows="50" lang="fr">
-			<query>text1:($$) OR text2:($$)</query>
-			<returnFields> text1,text2,facet1,facet2</returnFields>
-			<highlighting>
-				<field tag="em" name="text1" maxFragmentNumber="1" maxSize="500" />
-				<field tag="em" name="text2" maxFragmentNumber="1" maxSize="4000" />
-			</highlighting>
+			<query>exactName:($$) OR searchName:($$) OR
+				description:($$)
+			</query>
+			<returnFields>exactName,color,type,source
+			</returnFields>
 			<facetFields>
-				<facetField minCount="0" name="facet1" />
-				<facetField mincount="1" name="facet2" multivalued="yes" />
+				<facetField minCount="1" name="type" />
+				<facetField minCount="0" name="source" />
+				<facetField name="color" multivalued="yes" />
 			</facetFields>
+			<highlighting>
+				<field tag="b" name="searchName" />
+				<field tag="b" name="description" maxSnippetNumber="1"
+					maxSnippetSize="200" separator="..." fragmenterClass="SentenceFragmenter" />
+			</highlighting>
+			<filters>
+				<filter>type:fruit</filter>
+			</filters>
 		</request>
 	</requests>
 </configuration>

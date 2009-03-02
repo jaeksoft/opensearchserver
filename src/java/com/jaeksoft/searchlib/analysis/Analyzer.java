@@ -51,6 +51,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer implements
 	public Analyzer(String name, String lang, String tokenizerFactoryClassName)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
+		if (tokenizerFactoryClassName == null)
+			tokenizerFactoryClassName = "StandardTokenizer";
 		this.tokenizer = (TokenizerFactory) Class.forName(
 				"com.jaeksoft.searchlib.analysis." + tokenizerFactoryClassName)
 				.newInstance();

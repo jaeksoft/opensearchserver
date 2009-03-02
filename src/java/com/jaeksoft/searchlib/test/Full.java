@@ -3,82 +3,53 @@ package com.jaeksoft.searchlib.test;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 
 public class Full {
 
-	protected File configFile = null;
-
-	protected Client client = null;
+	private Client client;
 
 	@Before
-	public void before() {
-		configFile = new File("resources/test_config.xml");
-	}
-
-	public Client getClient(boolean create) throws SearchLibException {
-		return new Client(configFile, create);
-	}
-
-	public void open() throws SearchLibException {
+	public void getInstance() throws SearchLibException,
+			NoSuchAlgorithmException, XPathExpressionException, IOException,
+			URISyntaxException, ParserConfigurationException, SAXException {
+		File configFile = new File("resources/test_config.xml");
 		assertTrue(configFile.exists());
-		client = getClient(false);
+		client = Client.getFileInstance(configFile);
+		populate();
 	}
 
-	@Test
-	public void create() throws SearchLibException {
-		assertTrue(configFile.exists());
-		client = getClient(true);
-	}
-
-	@Test
 	public void populate() throws SearchLibException, NoSuchAlgorithmException,
-			IOException, URISyntaxException {
-		open();
-		int lastFacet2 = 0;
-		for (int i = 0; i < 10; i++)
-			for (int j = 0; j < i; j++) {
-				int ref = i * 10 + j;
-				int facet1 = 10 + i;
-				int facet2 = 20 + i;
-				IndexDocument document = new IndexDocument();
-				document.add("id", ref);
-				document.add("text1", "text " + ref + " " + facet1);
-				document.add("text2", "text " + ref + " " + facet2);
-				document.add("facet1", facet1);
-				document.add("facet2", facet2);
-				if (lastFacet2 != 0)
-					document.add("facet2", lastFacet2);
-				lastFacet2 = facet2;
-				System.out.println(ref + " " + facet1 + " " + facet2);
-				client.updateDocument(document);
-			}
+			IOException, URISyntaxException, XPathExpressionException,
+			ParserConfigurationException, SAXException {
+		File contentFile = new File("resources/content_sample.xml");
+		assertTrue(contentFile.exists());
+		FileInputStream fis = new FileInputStream(contentFile);
+		client.updateXmlDocuments(fis);
+		fis.close();
+		client.reload();
 	}
 
 	@Test
-	public void query() throws Exception {
-		open();
-		SearchRequest searchRequest = client.getNewSearchRequest("search");
+	public void matchAllDocs() throws Exception {
+		SearchRequest searchRequest = client.getNewSearchRequest();
 		searchRequest.setQueryString("*:*");
-		Result result = client.getIndex().search(searchRequest);
-		RenderXml render = new RenderXml(result);
-		PrintWriter pw = new PrintWriter(System.out);
-		render.render(pw);
-		pw.flush();
-		pw.close();
+		Result result = client.search(searchRequest);
+		assertTrue(result.getDocumentCount() > 0);
 	}
-
 }

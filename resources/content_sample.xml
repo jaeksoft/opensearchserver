@@ -1,0 +1,132 @@
+<index>
+	<document lang="en">
+		<field name="exactName">
+			<value>Banana</value>
+		</field>
+		<field name="searchName">
+			<value>banana</value>
+		</field>
+		<field name="description">
+			<value>Banana is the common name for a fruit and also
+				the
+				herbaceous plants of the genus Musa which produce this commonly
+				eaten fruit. They are native to the tropical region of Southeast
+				Asia. Bananas are likely to have been first domesticated in Papua
+				New
+				Guinea. In popular culture and commerce, "banana" usually refers
+				to
+				soft, sweet "dessert" bananas. The bananas from a group of
+				cultivars
+				with firmer, starchier fruit are called plantains. Bananas
+				may also
+				be cut and dried and eaten as a type of chip. Dried bananas
+				are also
+				ground into banana flour. Although the wild species have
+				fruits with
+				numerous large, hard seeds, virtually all culinary
+				bananas have
+				seedless fruits. Bananas are classified either as
+				dessert bananas
+				(meaning they are yellow and fully ripe when eaten)
+				or as green
+				cooking bananas. Almost all export bananas are of the
+				dessert types;
+				however, only about 10-15% of all production is for export, with the United States and European Union being the dominant buyers.</value></field>
+		<field name="type"><value>fruit</value></field>
+		<field name="color"><value>yellow</value></field>
+		<field name="source"><value>wikipedia</value></field>
+	</document>
+	<document lang="en">
+		<field name="exactName"><value>Apple</value></field>
+		<field name="searchName"><value>apple</value></field>
+		<field name="description"><value>The apple is the pomaceous fruit of the apple
+			tree, species Malus domestica in the rose family Rosaceae. It is one
+			of the most widely cultivated tree fruits. The tree is small and
+			deciduous, reaching 3 to 12 metres (9.8 to 39 ft) tall, with a broad,
+			often densely twiggy crown. The United States is the second leading
+			producer, with more than 7.5% of the world production. Turkey, France, Italy and Iran are also among the leading apple exporters.</value></field>
+		<field name="type"><value>fruit</value></field>
+		<field name="color"><value>green</value><value>red</value><value>yellow</value></field>
+		<field name="source"><value>wikipedia</value></field>
+	</document>
+	<document lang="en">
+		<field name="exactName"><value>Orange</value></field>
+		<field name="searchName"><value>orange</value></field>
+		<field name="description"><value>An orange—specifically, the sweet orange—is the
+			citrus Citrus sinensis (syn. Citrus aurantium L. var. dulcis L., or
+			Citrus aurantium Risso) and its fruit. The orange is a hybrid of
+			ancient cultivated origin, possibly between pomelo (Citrus maxima)
+			and tangerine (Citrus reticulata). It is a small flowering tree
+			growing to about 10 m tall with evergreen leaves, which are arranged
+			alternately, of ovate shape with crenulate margins and 4–10 cm long.
+			The orange fruit is a hesperidium, a type of berry. Oranges
+			originated in Southeast Asia. The fruit of Citrus sinensis is called
+			sweet orange to distinguish it from Citrus aurantium, the bitter
+			orange. In a number of languages, it is known as a "Chinese apple"
+			(e.g. Dutch Sinaasappel, "China's apple", or "Apfelsine" in German).
+			The name is thought to ultimately derive from the Dravidian and
+			Telugu word for the orange tree, with its final form developing after
+			passing through numerous intermediate languages.</value></field>
+		<field name="type"><value>fruit</value></field>
+		<field name="color"><value>orange</value><value>red</value><value>yellow</value></field>
+		<field name="source">wikipedia</field>
+	</document>
+	<document lang="en">
+		<field name="exactName"><value>Tomato</value></field>
+		<field name="searchName"><value>tomato</value></field>
+		<field name="description"><value><![CDATA[The tomato (Solanum lycopersicum, syn. Lycopersicon lycopersicum & Lycopersicon esculentum) is a herbaceous, usually sprawling plant in the Solanaceae or nightshade family, as are its close cousins tobacco, potatoes, aubergine (eggplants), chilli peppers, and the poisonous belladonna. It is a perennial, often grown outdoors in temperate climates as an annual. Typically reaching to 1-3m (3 to 9 ft) in height, it has a weak, woody stem that often vines over other plants. The leaves are 10–25 centimetres (3.9–9.8 in) long, odd pinnate, with 5–9 leaflets on petioles, each leaflet up to 8 centimetres (3.1 in) long, with a serrated margin; both the stem and leaves are densely glandular-hairy. The flowers are 1–2 centimetres (0.39–0.79 in) across, yellow, with five pointed lobes on the corolla; they are borne in a cyme of 3–12 together. The tomato is native to South America and a prehistoric introduction to Central America and Southern parts of North America. Genetic evidence shows that the progenitors of tomatoes were herbaceous green plants with small green fruit with a center of diversity in the highlands of Peru. These early Solanums diversified into the dozen species of tomato recognized today. One species, Solanum Lycopersicum, was transported to Mexico where it was grown and consumed by prehistoric humans. The exact date of domestication is not known. Evidence supports the theory the first domesticated tomato was a little yellow fruit, ancestor of L. cerasiforme,[citation needed] grown by the Aztecs of Central Mexico who called it ‘xitomatl’ (pronounced zee-toe-má-tel), meaning plump thing with a navel, and later called tomatl by other Mesoamerican peoples. Aztec writings mention tomatoes were prepared with peppers, corn and salt, likely to be the original salsa recipe. Some believe Spanish explorer Cortez may have been the first to transfer the small yellow tomato to Europe after he captured the Aztec city of Tenochtítlan in 1521, now Mexico City. Yet others believe Christopher Columbus, an Italian working for the Spanish monarchy, discovered the tomato earlier in 1493. The earliest discussion of the tomato in European literature appeared in an herbal written in 1544 by Pietro Andrea Mattioli, an Italian physician and botanist, who named it pomi d’oro, golden apple. The word tomato comes from a word in the Nahuatl language, tomatl. The specific name, lycopersicum, means "wolf-peach" (compare the related species Solanum lycocarpum, whose scientific name means "wolf-fruit", common name "wolf-apple"), as they are a major food of wild canids in South America.]]></value></field>
+		<field name="type"><value>vegetable</value></field>
+		<field name="color"><value>red</value><value>yellow</value></field>
+		<field name="source"><value>wikipedia</value></field>
+	</document>
+	<document>
+		<field name="exactName"><value>Potato</value></field>
+		<field name="searchName"><value>potato</value></field>
+		<field name="description"><value>The potato is a starchy, tuberous crop from the
+			perennial Solanum tuberosum of the Solanaceae family. The word potato
+			may refer to the plant itself as well. In the region of the Andes,
+			there are some other closely related cultivated potato species.
+			Potatoes are the world's fourth largest food crop, following rice,
+			wheat, and corn. Wild potato species occur from the United States to
+			Uruguay and Chile. Genetic testing of the wide variety of cultivars
+			and wild species suggest that the potato has a single origin in the
+			area of southern Peru, from a species in the Solanum brevicaule
+			complex. However, although Peru is essentially the birthplace of the
+			potato, today over 99% of all cultivated potatoes worldwide are descendants of a subspecies indigenous to south-central Chile. Based on historical records, local agriculturalists, and DNA analyses, the most widely cultivated variety worldwide, Solanum tuberosum tuberosum, is believed to be indigenous to Chiloé Archipelago where it was cultivated as long as 10,000 years ago. The potato was introduced to Europe in 1536, and subsequently by European mariners to territories and ports throughout the world. Thousands of varieties persist in the Andes, where over 100 varieties might be found in a single valley, and a dozen or more might be maintained by a single agricultural household. Once established in Europe, the potato soon became an important food staple and field crop. But lack of genetic diversity, due to the fact that very few varieties were initially introduced, left the crop vulnerable to disease. In 1845, a plant disease known as late blight, caused by the fungus-like oomycete Phytophthora infestans, spread rapidly through the poorer communities of western Ireland, resulting in the crop failures that led to the Great Irish Famine. The annual diet of an average global citizen in the first decade of the twenty-first century would include about 33 kilograms (or 73 lbs.) of potato. However, the local importance of potato is extremely variable and rapidly changing. The potato remains an essential crop in Europe (especially eastern and central Europe), where per capita production is still the highest in the world, but the most rapid expansion of potato over the past few decades has occurred in southern and eastern Asia. China is now the world's largest potato producing country, and nearly a third of the world's potatoes are harvested in China and India. More generally, the geographic shift of potato production has been away from wealthier countries toward lower-income areas of the world.</value></field>
+		<field name="type"><value>vegetable</value></field>
+		<field name="color"><value>yellow</value></field>
+		<field name="source"><value>wikipedia</value></field>
+	</document>
+	<document>
+		<field name="exactName"><value>Carrot</value></field>
+		<field name="searchName"><value>Carrot</value></field>
+		<field name="description"><value>The carrot (Daucus carota subsp. sativus, Etymology: Middle French carotte, from Late Latin carōta, from Greek karōton, originally from the Indoeuropean root ker- (horn), due to its horn-like shape) is a root vegetable, usually orange or white, or red-white blend in colour, with a crisp texture when fresh. The edible part of a carrot is a taproot. It is a domesticated form of the wild carrot Daucus carota, native to Europe and southwestern Asia. It has been bred for its greatly enlarged and more palatable, less woody-textured edible taproot, but is still the same species. It is a biennial plant which grows a rosette of leaves in the spring and summer, while building up the stout taproot, which stores large amounts of sugars for the plant to flower in the second year. The flowering stem grows to about 1 metre (3 ft) tall, with an umbel of white flowers that produce a fruit called a mericarp by botanists, which is a type of schizocarp.</value></field>
+		<field name="type"><value>vegetable</value></field>
+		<field name="color"><value>orange</value></field>
+		<field name="source"><value>wikipedia</value></field>
+	</document>
+	<document>
+		<field name="exactName"><value>Apricot</value></field>
+		<field name="searchName"><value>Apricot</value></field>
+		<field name="description"><value>The Apricot (Prunus armeniaca, "Armenian plum" in Latin, syn. Armeniaca vulgaris Lam."Tsiran" in Armenian) is a species of Prunus, classified with the plum in the subgenus Prunus. The native range is somewhat uncertain due to its extensive prehistoric cultivation, but most likely in northern and western China and Central Asia, possibly also Korea and Japan.</value></field>
+		<field name="type"><value>fruit</value></field>
+		<field name="color"><value>orange</value></field>
+		<field name="source"><value>wikipedia</value></field>
+	</document>
+	<document>
+		<field name="exactName"><value>Peach</value></field>
+		<field name="searchName"><value>Peach</value></field>
+		<field name="description"><value>The peach (Prunus persica) is known as a species of Prunus native to China that bears an edible juicy fruit also called a peach. It is a deciduous tree growing to 5–10 m tall, belonging to the subfamily Prunoideae of the family Rosaceae. It is classified with the almond in the subgenus Amygdalus within the genus Prunus, distinguished from the other subgenera by the corrugated seed shell. The leaves are lanceolate, 7–15 cm long (3-6 in), 2–3 cm broad, pinnately veined. The flowers are produced in early spring before the leaves; they are solitary or paired, 2.5–3 cm diameter, pink, with five petals. The fruit is a drupe, with a single large seed encased in what appears to be wood, but isn't (called the "stone" or "pit"), yellow or whitish flesh, a delicate aroma, and a skin that is either velvety (peaches) or smooth (nectarines) in different cultivars. The flesh is very delicate and easily bruised in some cultivars, but is fairly firm in some commercial cultivars, especially when green. The seed is red-brown, oval shaped and approximately 1.3-2 cm long. Peaches, along with cherries, plums and apricots, are stone fruits (drupes). The tree is small, and up to 15 ft tall. The scientific name persica, along with the word "peach" itself and its cognates in many European languages, derives from an early European belief that peaches were native to Persia (now Iran). The modern botanical consensus is that they originate in China, and were introduced to Persia and the Mediterranean region along the Silk Road before Christian times. Cultivated peaches are divided into clingstones and freestones, depending on whether the flesh sticks to the stone or not; both can have either white or yellow flesh. Peaches with white flesh typically are very sweet with little acidity, while yellow-fleshed peaches typically have an acidic tang coupled with sweetness, though this also varies greatly. Both colours often have some red on their skin. Low-acid white-fleshed peaches are the most popular kinds in China, Japan, and neighbouring Asian countries, while Europeans and North Americans have historically favoured the acidic, yellow-fleshed kinds, though some prefer the other fruits.</value></field>
+		<field name="type"><value>fruit</value></field>
+		<field name="color"><value>orange</value><value>red</value><value>yellow</value></field>
+		<field name="source"><value>wikipedia</value></field>
+	</document>
+	<document>
+		<field name="exactName"><value>Garden strawberries</value></field>
+		<field name="searchName"><value>Garden strawberries</value></field>
+		<field name="description"><value>Garden strawberries are a common variety of strawberry cultivated worldwide. Like other species of Fragaria (strawberries), it belongs to the family Rosaceae. Technically it is not a fruit but a false fruit, meaning the fleshy part is derived not from the plant's ovaries (achenes) but from the peg at the bottom of the bowl-shaped hypanthium that holds the ovaries. The Garden Strawberry was first bred in Europe in the early 18th century. This represents the accidental cross of Fragaria virginiana from eastern North America, which was noted for its flavor, and Fragaria chiloensis from Chile, which was noted for its large size. Cultivars of Fragaria × ananassa have replaced in commercial production the Woodland Strawberry, which was the first strawberry species cultivated in the early 17th century.</value></field>
+		<field name="type"><value>fruit</value></field>
+		<field name="color"><value>black</value><value>red</value></field>
+		<field name="source"><value>wikipedia</value></field>
+	</document>
+</index>

@@ -15,8 +15,9 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="win" use="com.jaeksoft.searchlib.web.ZkController">
-	<grid model="@{win.indices}">
+<window id="conf"
+	use="com.jaeksoft.searchlib.web.controller.ConfigurationController">
+	<grid model="@{conf.indices}">
 		<columns>
 			<column width="120px" label="name" />
 			<column width="40px" label="search"

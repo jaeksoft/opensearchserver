@@ -110,4 +110,9 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 
 		return filterHits;
 	}
+
+	public Object[] toArray() {
+		return filterList.toArray();
+	}
+
 }

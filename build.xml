@@ -30,6 +30,7 @@
 	<property name="build-release" location="${build}/release" />
 	<property name="build-debug" location="${build}/debug" />
 	<property name="dist" location="dist" />
+	<property name="temp" location="temp" />
 	<property name="name-release" value="searchlib-community" />
 	<property name="name-debug" value="searchlib-community-debug" />
 
@@ -94,5 +95,6 @@
 	<target name="clean" description="clean up">
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
+		<delete dir="${temp}" />
 	</target>
 </project>

@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class SearchRequestList extends TreeMap<String, SearchRequest> implements
+public class SearchRequestMap extends TreeMap<String, SearchRequest> implements
 		XmlInfo {
 
 	/**
@@ -59,11 +59,11 @@ public class SearchRequestList extends TreeMap<String, SearchRequest> implements
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public static SearchRequestList fromXmlConfig(Config config,
+	public static SearchRequestMap fromXmlConfig(Config config,
 			XPathParser xpp, Node parentNode) throws XPathExpressionException,
 			DOMException, ParseException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		SearchRequestList searchRequestList = new SearchRequestList();
+		SearchRequestMap searchRequestList = new SearchRequestMap();
 		if (parentNode == null)
 			return searchRequestList;
 		NodeList nodes = xpp.getNodeList(parentNode, "request");

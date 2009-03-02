@@ -1,15 +1,49 @@
-<zk>
-	<vbox width="100%">
-		<hbox>
-			<label>Select a request:</label>
-			<combobox   />
-		</hbox>
-		<hbox>
-			<label>Enter the query:</label>
-			<textbox cols="80" />
-		</hbox>
-		<hbox>
-			<button label="Search" />
-		</hbox>
-	</vbox>
-</zk>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft SearchLib-Community
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.jaeksoft.com
+	This file is part of Jaeksoft SearchLib-Community.
+	Jaeksoft SearchLib-Community is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft SearchLib-Community is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="query"
+	use="com.jaeksoft.searchlib.web.controller.QueryController">
+	<grid width="100%">
+		<columns>
+			<column align="right" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label>Load parameters from template request:</label>
+				<hbox>
+					<listbox model="@{query.requests}" mold="select">
+						<listitem self="@{each=request}">
+							<listcell label="@{request.key}" />
+						</listitem>
+					</listbox>
+					<button label="Load" />
+					<label value="@{query.request.patternQuery}" />
+				</hbox>
+			</row>
+			<row>
+				<label>Enter the query:</label>
+				<textbox cols="80" />
+			</row>
+		</rows>
+		<foot>
+			<footer>
+				<button label="Search" />
+			</footer>
+		</foot>
+	</grid>
+</window>

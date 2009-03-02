@@ -26,16 +26,22 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.naming.NamingException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -45,6 +51,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.util.Context;
+import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Client extends Config implements XmlInfo {
@@ -82,6 +89,29 @@ public class Client extends Config implements XmlInfo {
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		getIndex().updateDocuments(indexName, getSchema(), documents);
+	}
+
+	public void updateXmlDocuments(String indexName, InputStream inputStream)
+			throws ParserConfigurationException, SAXException, IOException,
+			XPathExpressionException, NoSuchAlgorithmException,
+			URISyntaxException {
+		XPathParser xpp = new XPathParser(inputStream);
+		NodeList nodeList = xpp.getNodeList("/index/document");
+		int l = nodeList.getLength();
+		Collection<IndexDocument> docList = new ArrayList<IndexDocument>();
+		for (int i = 0; i < l; i++)
+			docList.add(new IndexDocument(xpp, nodeList.item(i)));
+		if (indexName == null)
+			updateDocuments(docList);
+		else
+			updateDocuments(indexName, docList);
+	}
+
+	public void updateXmlDocuments(InputStream inputStream)
+			throws XPathExpressionException, NoSuchAlgorithmException,
+			ParserConfigurationException, SAXException, IOException,
+			URISyntaxException {
+		updateXmlDocuments(null, inputStream);
 	}
 
 	public void deleteDocument(String uniqueField)
@@ -142,21 +172,25 @@ public class Client extends Config implements XmlInfo {
 
 	private static volatile Client INSTANCE;
 
-	public static Client getWebAppInstance() throws SearchLibException,
-			NamingException {
+	public static Client getFileInstance(File configFile)
+			throws SearchLibException {
 		if (INSTANCE == null) {
 			synchronized (Client.class) {
-				String contextPath = "java:comp/env/JaeksoftSearchServer/configfile";
 				if (INSTANCE == null)
-					INSTANCE = new Client(new File((String) Context
-							.get(contextPath)), true);
+					INSTANCE = new Client(configFile, true);
 			}
 		}
 		return INSTANCE;
 	}
 
-	public class Test {
-
+	public static Client getWebAppInstance() throws SearchLibException,
+			NamingException {
+		if (INSTANCE == null) {
+			String contextPath = "java:comp/env/JaeksoftSearchServer/configfile";
+			File configFile = new File((String) Context.get(contextPath));
+			getFileInstance(configFile);
+		}
+		return INSTANCE;
 	}
 
 }

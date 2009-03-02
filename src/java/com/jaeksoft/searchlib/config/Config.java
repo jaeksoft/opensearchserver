@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,7 +51,7 @@ import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.request.SearchRequestList;
+import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -65,7 +66,7 @@ public abstract class Config implements XmlInfo {
 
 	private Schema schema = null;
 
-	private SearchRequestList searchRequests = null;
+	private SearchRequestMap searchRequests = null;
 
 	protected XPathParser xpp = null;
 
@@ -79,7 +80,7 @@ public abstract class Config implements XmlInfo {
 
 			schema = Schema.fromXmlConfig(xpp.getNode("/configuration/schema"),
 					xpp);
-			searchRequests = SearchRequestList.fromXmlConfig(this, xpp, xpp
+			searchRequests = SearchRequestMap.fromXmlConfig(this, xpp, xpp
 					.getNode("/configuration/requests"));
 
 			threadPool = Executors.newCachedThreadPool();
@@ -124,6 +125,10 @@ public abstract class Config implements XmlInfo {
 
 	public SearchRequest getNewSearchRequest(String requestName) {
 		return new SearchRequest(searchRequests.get(requestName));
+	}
+
+	public Map<String, SearchRequest> getSearchRequestMap() {
+		return searchRequests;
 	}
 
 	public SearchRequest getNewSearchRequest(HttpServletRequest httpRequest)

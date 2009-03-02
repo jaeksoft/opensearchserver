@@ -22,30 +22,38 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web;
+package com.jaeksoft.searchlib.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 
-public class OptimizeServlet extends AbstractServlet {
+public class QueryController extends CommonController {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -369063857059673597L;
+	private static final long serialVersionUID = 1985920874142697802L;
 
-	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
-		try {
-			Client client = Client.getWebAppInstance();
-			HttpServletRequest request = transaction.getServletRequest();
-			String index = request.getParameter("index");
-			client.getIndex().optimize(index);
-		} catch (Exception e) {
-			throw new ServletException(e);
-		}
+	public QueryController() throws SearchLibException {
+		super();
+	}
+
+	public SearchRequest getRequest() {
+		return (SearchRequest) getAttribute("searchRequest");
+	}
+
+	public void setRequest(SearchRequest request) {
+		setAttribute("searchRequest", request);
+	}
+
+	public Map<String, SearchRequest> getRequests() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getSearchRequestMap();
 	}
 
 }

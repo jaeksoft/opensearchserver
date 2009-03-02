@@ -22,30 +22,43 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web;
+package com.jaeksoft.searchlib.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 
-public class OptimizeServlet extends AbstractServlet {
+public class IndexController extends CommonController {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -369063857059673597L;
+	private static final long serialVersionUID = -7590913483471357743L;
 
-	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
-		try {
-			Client client = Client.getWebAppInstance();
-			HttpServletRequest request = transaction.getServletRequest();
-			String index = request.getParameter("index");
-			client.getIndex().optimize(index);
-		} catch (Exception e) {
-			throw new ServletException(e);
-		}
+	public IndexController() throws SearchLibException {
+		super();
+	}
+
+	public boolean isInstanceValid() throws SearchLibException {
+		return getClient() != null;
+	}
+
+	public boolean isInstanceNotValid() throws SearchLibException {
+		return getClient() == null;
+	}
+
+	public void onEnterConfig() throws SearchLibException {
+		Client.getFileInstance(new File(getConfigPath()));
+		reloadDesktop();
+	}
+
+	public void setConfigPath(String configPath) {
+		setAttribute("configPath", configPath);
+	}
+
+	public String getConfigPath() {
+		return (String) getAttribute("configPath");
 	}
 
 }
