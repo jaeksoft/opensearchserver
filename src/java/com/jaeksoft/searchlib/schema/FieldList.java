@@ -82,9 +82,10 @@ public class FieldList<T extends Field> implements
 		add(fl);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void add(FieldList<T> fl) {
 		for (T field : fl)
-			add(field);
+			add((T) field.duplicate());
 		cacheKey = null;
 	}
 
@@ -145,9 +146,8 @@ public class FieldList<T extends Field> implements
 	}
 
 	public FieldSelectorResult accept(String fieldName) {
-		if (this.fieldsName.containsKey(fieldName)) {
+		if (this.fieldsName.containsKey(fieldName))
 			return FieldSelectorResult.LOAD;
-		}
 		return FieldSelectorResult.NO_LOAD;
 	}
 
@@ -180,7 +180,7 @@ public class FieldList<T extends Field> implements
 		return this.fieldList.iterator();
 	}
 
-	public List<T> array() {
+	public List<T> getList() {
 		return fieldList;
 	}
 
@@ -194,8 +194,10 @@ public class FieldList<T extends Field> implements
 	}
 
 	public void addObject(T field) {
-		fieldList.add(field);
-		fieldsName.put(field.name, field);
+		synchronized (this) {
+			fieldList.add(field);
+			fieldsName.put(field.name, field);
+		}
 	}
 
 	private String getCacheKey() {
@@ -212,4 +214,10 @@ public class FieldList<T extends Field> implements
 		return getCacheKey().compareTo(o.getCacheKey());
 	}
 
+	public void remove(Field field) {
+		synchronized (this) {
+			fieldList.remove(field);
+			fieldsName.remove(field.name);
+		}
+	}
 }

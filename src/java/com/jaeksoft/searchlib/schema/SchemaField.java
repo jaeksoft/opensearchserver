@@ -96,6 +96,11 @@ public class SchemaField extends Field {
 	}
 
 	@Override
+	public Field duplicate() {
+		return new SchemaField(this);
+	}
+
+	@Override
 	public String toString() {
 		return this.getClass().getName() + "/" + this.name + "/";
 	}
@@ -109,6 +114,19 @@ public class SchemaField extends Field {
 		if (defaultAnalyzer != null)
 			writer.print(" defaultAnalyzer=\"" + defaultAnalyzer + "\"");
 		writer.println("/>");
+	}
+
+	public boolean isStored() {
+		return store == org.apache.lucene.document.Field.Store.YES
+				|| store == org.apache.lucene.document.Field.Store.COMPRESS;
+	}
+
+	public boolean isIndexed() {
+		if (index == org.apache.lucene.document.Field.Index.ANALYZED)
+			return true;
+		if (index == org.apache.lucene.document.Field.Index.NOT_ANALYZED)
+			return true;
+		return false;
 	}
 
 	public String getStoreLabel() {

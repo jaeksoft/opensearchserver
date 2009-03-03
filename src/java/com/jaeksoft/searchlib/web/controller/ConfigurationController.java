@@ -53,7 +53,7 @@ public class ConfigurationController extends CommonController {
 	}
 
 	public List<SchemaField> getFields() throws SearchLibException {
-		return getClient().getSchema().getFieldList().array();
+		return getClient().getSchema().getFieldList().getList();
 	}
 
 	public List<IndexAbstract> getIndices() throws SearchLibException,

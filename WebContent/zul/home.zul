@@ -15,29 +15,10 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="index"
-	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/jaeksoft_websearch_16.png"
-		label="Jaeksoft SearchServer" />
-	<tabbox>
-		<tabs>
-			<tab id="tab0" label="Home" selected="true" />
-			<tab id="tab1" visible="@{index.instanceValid}"
-				label="Query" />
-			<tab id="tab2" visible="@{index.instanceValid}"
-				label="Configuration" />
-		</tabs>
-		<tabpanels>
-			<tabpanel>
-				<include src="zul/home.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab1.onSelect">
-				<include src="zul/query.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab2.onSelect">
-				<include src="zul/configuration.zul" />
-			</tabpanel>
-		</tabpanels>
-	</tabbox>
-
+<window id="home"
+	use="com.jaeksoft.searchlib.web.controller.HomeController">
+	<label value="Enter the path of the configuration file" />
+	<textbox cols="80" readonly="@{home.instanceValid}"
+		value="@{home.configPath}" />
+	<button label="Enter" forward="onEnterConfig" />
 </window>

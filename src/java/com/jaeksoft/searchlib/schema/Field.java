@@ -53,8 +53,8 @@ public class Field implements FieldSelector, Externalizable, XmlInfo {
 		this.name = field.name;
 	}
 
-	public Field newInstance(Field field) {
-		return new Field(field);
+	public Field duplicate() {
+		return new Field(this);
 	}
 
 	public FieldSelectorResult accept(String fieldName) {

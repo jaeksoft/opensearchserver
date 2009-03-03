@@ -81,6 +81,12 @@ public class HighlightField extends Field implements Externalizable {
 		this(field, "em", Integer.MAX_VALUE, "...", 5, 200, null);
 	}
 
+	@Override
+	public Field duplicate() {
+		return new HighlightField(this, tag, maxDocChar, separator,
+				maxSnippetNumber, maxSnippetSize, fragmenterTemplate);
+	}
+
 	/**
 	 * 
 	 */

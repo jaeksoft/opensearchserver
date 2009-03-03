@@ -55,7 +55,7 @@
 	</schema>
 	<requests>
 		<request name="search" defaultOperator="and" phraseSlop="2"
-			start="0" rows="50" lang="fr">
+			start="0" rows="10" lang="fr">
 			<query>exactName:($$) OR searchName:($$) OR
 				description:($$)
 			</query>
@@ -75,5 +75,6 @@
 				<filter>type:fruit</filter>
 			</filters>
 		</request>
+		<request name="minimal search" />
 	</requests>
 </configuration>

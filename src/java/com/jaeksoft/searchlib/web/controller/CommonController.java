@@ -61,6 +61,14 @@ public class CommonController extends Window {
 		}
 	}
 
+	public boolean isInstanceValid() throws SearchLibException {
+		return getClient() != null;
+	}
+
+	public boolean isInstanceNotValid() throws SearchLibException {
+		return getClient() == null;
+	}
+
 	protected void reloadDesktop() {
 		Iterator<?> it = getDesktop().getPages().iterator();
 		while (it.hasNext()) {

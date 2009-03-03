@@ -24,17 +24,33 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import com.jaeksoft.searchlib.SearchLibException;
+import org.zkoss.zul.Button;
+import org.zkoss.zul.Intbox;
+import org.zkoss.zul.Label;
+import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Row;
+import org.zkoss.zul.RowRenderer;
 
-public class IndexController extends CommonController {
+import com.jaeksoft.searchlib.facet.FacetField;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7590913483471357743L;
+public class FacetFieldRenderer implements RowRenderer {
 
-	public IndexController() throws SearchLibException {
-		super();
+	@Override
+	public void render(Row row, Object data) throws Exception {
+		FacetField facetField = (FacetField) data;
+		new Label(facetField.getName()).setParent(row);
+		Listbox listbox = new Listbox();
+		listbox.setMold("select");
+		listbox.appendItem("no", "no");
+		listbox.appendItem("yes", "yes");
+		listbox.setSelectedIndex(facetField.isMultivalued() ? 1 : 0);
+		listbox.setParent(row);
+		Intbox intbox = new Intbox(facetField.getMinCount());
+		intbox.setConstraint("no empty, no negative");
+		intbox.setParent(row);
+		Button button = new Button("Remove");
+		button.addForward(null, "query", "onFacetRemove", facetField);
+		button.setParent(row);
 	}
 
 }

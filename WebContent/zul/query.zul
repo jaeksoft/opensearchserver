@@ -26,18 +26,69 @@
 			<row>
 				<label>Load parameters from template request:</label>
 				<hbox>
-					<listbox model="@{query.requests}" mold="select">
-						<listitem self="@{each=request}">
-							<listcell label="@{request.key}" />
-						</listitem>
+					<listbox mold="select"
+						selectedItem="@{query.selectedRequest}"
+						model="@{query.requests}">
+						<listitem self="@{each=request}"
+							label="@{request}" />
 					</listbox>
-					<button label="Load" />
-					<label value="@{query.request.patternQuery}" />
+					<button label="Load" forward="onLoadRequest" />
 				</hbox>
+			</row>
+			<row>
+				<label>Pattern query:</label>
+				<label value="@{query.request.patternQuery}" />
 			</row>
 			<row>
 				<label>Enter the query:</label>
 				<textbox cols="80" />
+			</row>
+			<row>
+				<label>Start offset:</label>
+				<intbox cols="10" constraint="no empty, no negative"
+					value="@{query.request.start}" />
+			</row>
+			<row>
+				<label>Number of rows:</label>
+				<intbox cols="10" constraint="no empty, no negative"
+					value="@{query.request.rows}" />
+			</row>
+			<row>
+				<label>Language:</label>
+				<textbox cols="10" value="@{query.request.lang}" />
+			</row>
+			<row>
+				<label>Select returns fields:</label>
+				<listbox id="returnFieldList" multiple="true"
+					checkmark="true" model="@{query.returnFieldList}">
+					<listitem self="@{each=checkedField}"
+						label="@{checkedField.field.name}"
+						selected="@{checkedField.selected}" />
+				</listbox>
+			</row>
+			<row>
+				<label>Select facet fields</label>
+				<grid model="@{query.request.facetFieldList.list}"
+					rowRenderer="@{query.facetFieldRenderer}">
+					<columns>
+						<column label="Field" />
+						<column label="Multivalued" />
+						<column label="Minimal count" />
+						<column label="Action" />
+					</columns>
+					<foot>
+						<footer span="4">
+							<listbox mold="select"
+								selectedItem="@{query.selectedFacet}"
+								model="@{query.facetFieldLeft}">
+								<listitem self="@{each=facetField}"
+									label="@{facetField}" />
+							</listbox>
+							<button label="add facet"
+								forward="onFacetAdd" />
+						</footer>
+					</foot>
+				</grid>
 			</row>
 		</rows>
 		<foot>

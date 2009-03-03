@@ -51,14 +51,43 @@ public class FacetField extends Field implements Externalizable {
 	public FacetField() {
 	}
 
+	protected FacetField(FacetField field) {
+		super(field);
+		this.minCount = field.minCount;
+		this.multivalued = field.multivalued;
+	}
+
 	public FacetField(String name, int minCount, boolean multivalued) {
 		super(name);
 		this.minCount = minCount;
 		this.multivalued = multivalued;
 	}
 
+	@Override
+	public Field duplicate() {
+		return new FacetField(this);
+	}
+
 	public int getMinCount() {
 		return minCount;
+	}
+
+	public void setMinCount(int value) {
+		minCount = value;
+	}
+
+	public boolean isMultivalued() {
+		return multivalued;
+	}
+
+	public String getMultivalued() {
+		return multivalued ? "yes" : "no";
+	}
+
+	public void setMultivalued(String value) {
+		multivalued = "yes".equalsIgnoreCase(value)
+				|| "true".equalsIgnoreCase(value)
+				|| "1".equalsIgnoreCase(value);
 	}
 
 	public Facet getFacet(ResultSingle result) throws IOException {

@@ -54,6 +54,11 @@ public class SortField extends Field implements Externalizable,
 		return desc;
 	}
 
+	@Override
+	public Field duplicate() {
+		return new SortField(name, desc);
+	}
+
 	protected static SortField newSortField(String requestSort) {
 		int c = requestSort.charAt(0);
 		boolean desc = (c == '-');

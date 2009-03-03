@@ -24,17 +24,36 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.io.File;
+
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class IndexController extends CommonController {
+public class HomeController extends CommonController {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7590913483471357743L;
+	private static final long serialVersionUID = 2896471240596574094L;
 
-	public IndexController() throws SearchLibException {
+	public HomeController() throws SearchLibException {
 		super();
+	}
+
+	public void onEnterConfig() throws SearchLibException {
+		Client.getFileInstance(new File(getConfigPath()));
+		reloadDesktop();
+	}
+
+	public void setConfigPath(String configPath) {
+		setAttribute("configPath", configPath);
+	}
+
+	public String getConfigPath() {
+		String s = (String) getAttribute("configPath");
+		if (s == null) // TEMP
+			s = "/Users/ekeller/Documents/workspace/SearchLib-Community/resources/test_config.xml";
+		return s;
 	}
 
 }
