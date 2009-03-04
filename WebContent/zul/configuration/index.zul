@@ -7,16 +7,16 @@
 	</tabs>
 	<tabpanels>
 		<tabpanel>
-			<include src="zul/indices.zul" />
+			<include src="zul/configuration/indices.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tab2.onSelect">
-			<include src="zul/analyzers.zul" />
+			<include src="zul/configuration/analyzers.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tab3.onSelect">
-			<include src="zul/fields.zul" />
+			<include src="zul/configuration/fields.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tab4.onSelect">
-			<include src="zul/requests.zul" />
+			<include src="zul/configuration/requests.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

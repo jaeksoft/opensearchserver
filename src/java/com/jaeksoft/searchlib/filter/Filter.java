@@ -77,6 +77,11 @@ public class Filter implements Externalizable {
 		return this.queryString;
 	}
 
+	public void setQueryString(String queryString) {
+		this.queryString = queryString;
+		this.query = null;
+	}
+
 	public Source getSource() {
 		return this.source;
 	}

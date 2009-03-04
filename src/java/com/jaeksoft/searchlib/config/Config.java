@@ -204,7 +204,7 @@ public abstract class Config implements XmlInfo {
 					.getHighlightFieldList();
 			for (String value : values)
 				highlightFields.add(new HighlightField(getSchema()
-						.getFieldList().get(value)));
+						.getFieldList().get(value).getName()));
 		}
 
 		if ((values = httpRequest.getParameterValues("fl")) != null) {

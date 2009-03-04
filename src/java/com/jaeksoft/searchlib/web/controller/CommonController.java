@@ -28,6 +28,7 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zkplus.databind.DataBinder;
 import org.zkoss.zul.Window;
@@ -73,8 +74,13 @@ public class CommonController extends Window {
 		Iterator<?> it = getDesktop().getPages().iterator();
 		while (it.hasNext()) {
 			Page page = (Page) it.next();
-			DataBinder binder = (DataBinder) page.getVariable("binder");
-			binder.loadAll();
+			Component component = page.getFirstRoot();
+			if (component instanceof CommonController)
+				((CommonController) component).reloadPage();
+			else {
+				DataBinder binder = (DataBinder) page.getVariable("binder");
+				binder.loadAll();
+			}
 		}
 	}
 

@@ -45,13 +45,24 @@ public class SortField extends Field implements Externalizable,
 	public SortField() {
 	}
 
-	protected SortField(String name, boolean desc) {
+	public SortField(String name, boolean desc) {
 		super(name);
 		this.desc = desc;
 	}
 
 	public boolean isDesc() {
 		return desc;
+	}
+
+	public void setDesc(String v) {
+		final String[] ascArray = { "+", "asc", "ascendant" };
+		for (String asc : ascArray) {
+			if (asc.equalsIgnoreCase(v)) {
+				desc = false;
+				return;
+			}
+		}
+		desc = true;
 	}
 
 	@Override
@@ -115,4 +126,5 @@ public class SortField extends Field implements Externalizable,
 			return 0;
 		return desc ? -1 : 1;
 	}
+
 }

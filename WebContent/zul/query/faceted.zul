@@ -15,29 +15,26 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="index"
-	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/jaeksoft_websearch_16.png"
-		label="Jaeksoft SearchServer" />
-	<tabbox>
-		<tabs>
-			<tab id="tab0" label="Home" selected="true" />
-			<tab id="tab1" visible="@{index.instanceValid}"
-				label="Query" />
-			<tab id="tab2" visible="@{index.instanceValid}"
-				label="Configuration" />
-		</tabs>
-		<tabpanels>
-			<tabpanel>
-				<include src="zul/home.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab1.onSelect">
-				<include src="zul/query/index.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab2.onSelect">
-				<include src="zul/configuration/index.zul" />
-			</tabpanel>
-		</tabpanels>
-	</tabbox>
-
+<window id="facet"
+	use="com.jaeksoft.searchlib.web.controller.query.FacetController">
+	<grid model="@{facet.request.facetFieldList.list}"
+		rowRenderer="@{facet.facetFieldRenderer}">
+		<columns>
+			<column label="Field" />
+			<column label="Multivalued" />
+			<column label="Minimal count" />
+			<column label="Action" />
+		</columns>
+		<foot visible="@{facet.fieldLeft}">
+			<footer span="4">
+				<listbox mold="select"
+					selectedItem="@{facet.selectedFacet}"
+					model="@{facet.facetFieldLeft}">
+					<listitem self="@{each=facetField}"
+						label="@{facetField}" />
+				</listbox>
+				<button label="add facet" forward="onFacetAdd" />
+			</footer>
+		</foot>
+	</grid>
 </window>

@@ -253,6 +253,10 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return phraseSlop;
 	}
 
+	public void setPhraseSlop(int value) {
+		phraseSlop = value;
+	}
+
 	public Query getQuery() throws ParseException, SyntaxError {
 		synchronized (this) {
 			if (query != null)
@@ -262,7 +266,14 @@ public class SearchRequest implements XmlInfo, Externalizable {
 				setQueryParser(this, queryParser);
 			}
 			synchronized (queryParser) {
-				query = queryParser.parse(queryString);
+
+				String finalQuery;
+				if (patternQuery != null)
+					finalQuery = patternQuery.replace("$$", queryString);
+				else
+					finalQuery = queryString;
+
+				query = queryParser.parse(finalQuery);
 				queryParsed = query.toString();
 				if (scoreFunction != null)
 					query = RootExpression.getQuery(query, scoreFunction);
@@ -279,6 +290,10 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return patternQuery;
 	}
 
+	public void setPatternQuery(String value) {
+		patternQuery = value;
+	}
+
 	public String getQueryParsed() throws ParseException, SyntaxError {
 		getQuery();
 		return queryParsed;
@@ -286,10 +301,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 
 	public void setQueryString(String q) {
 		synchronized (this) {
-			if (patternQuery != null)
-				queryString = patternQuery.replace("$$", q);
-			else
-				queryString = q;
+			queryString = q;
 			query = null;
 		}
 	}

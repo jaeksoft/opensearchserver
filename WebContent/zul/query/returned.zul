@@ -15,29 +15,12 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="index"
-	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/jaeksoft_websearch_16.png"
-		label="Jaeksoft SearchServer" />
-	<tabbox>
-		<tabs>
-			<tab id="tab0" label="Home" selected="true" />
-			<tab id="tab1" visible="@{index.instanceValid}"
-				label="Query" />
-			<tab id="tab2" visible="@{index.instanceValid}"
-				label="Configuration" />
-		</tabs>
-		<tabpanels>
-			<tabpanel>
-				<include src="zul/home.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab1.onSelect">
-				<include src="zul/query/index.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab2.onSelect">
-				<include src="zul/configuration/index.zul" />
-			</tabpanel>
-		</tabpanels>
-	</tabbox>
-
+<window id="returned"
+	use="com.jaeksoft.searchlib.web.controller.query.ReturnedController">
+	<listbox id="returnFieldList" multiple="true" checkmark="true"
+		model="@{returned.returnFieldList}">
+		<listitem self="@{each=checkedField}"
+			label="@{checkedField.field.name}"
+			selected="@{checkedField.selected}" />
+	</listbox>
 </window>

@@ -22,35 +22,39 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller;
+package com.jaeksoft.searchlib.web.controller.query;
 
-import org.zkoss.zul.Button;
-import org.zkoss.zul.Intbox;
-import org.zkoss.zul.Label;
-import org.zkoss.zul.Listbox;
-import org.zkoss.zul.Row;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.RowRenderer;
 
-import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.filter.Filter;
+import com.jaeksoft.searchlib.filter.Filter.Source;
 
-public class FacetFieldRenderer implements RowRenderer {
+public class FiltersController extends QueryController {
 
-	@Override
-	public void render(Row row, Object data) throws Exception {
-		FacetField facetField = (FacetField) data;
-		new Label(facetField.getName()).setParent(row);
-		Listbox listbox = new Listbox();
-		listbox.setMold("select");
-		listbox.appendItem("no", "no");
-		listbox.appendItem("yes", "yes");
-		listbox.setSelectedIndex(facetField.isMultivalued() ? 1 : 0);
-		listbox.setParent(row);
-		Intbox intbox = new Intbox(facetField.getMinCount());
-		intbox.setConstraint("no empty, no negative");
-		intbox.setParent(row);
-		Button button = new Button("Remove");
-		button.addForward(null, "query", "onFacetRemove", facetField);
-		button.setParent(row);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 989287631079056922L;
+
+	public FiltersController() throws SearchLibException {
+		super();
+	}
+
+	public RowRenderer getFilterRenderer() {
+		return new FilterRenderer();
+	}
+
+	public void onFilterAdd() throws SearchLibException {
+		getRequest().getFilterList().add("", Source.REQUEST);
+		reloadPage();
+	}
+
+	public void onFilterRemove(Event event) throws SearchLibException {
+		Filter filter = (Filter) event.getData();
+		getRequest().getFilterList().remove(filter);
+		reloadPage();
 	}
 
 }

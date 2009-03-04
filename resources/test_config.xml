@@ -57,8 +57,7 @@
 		<request name="search" defaultOperator="and" phraseSlop="2"
 			start="0" rows="10" lang="fr">
 			<query>exactName:($$) OR searchName:($$) OR
-				description:($$)
-			</query>
+				description:($$) </query>
 			<returnFields>exactName,color,type,source
 			</returnFields>
 			<facetFields>

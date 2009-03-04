@@ -79,6 +79,10 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 		addObject(new Filter(req, src));
 	}
 
+	public void remove(Filter filter) {
+		filterList.remove(filter);
+	}
+
 	public int size() {
 		return filterList.size();
 	}

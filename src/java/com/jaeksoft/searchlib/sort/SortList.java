@@ -111,4 +111,8 @@ public class SortList implements Externalizable, CacheKeyInterface<SortList> {
 	public int compareTo(SortList o) {
 		return sortFieldList.compareTo(o.sortFieldList);
 	}
+
+	public void remove(SortField sortField) {
+		sortFieldList.remove(sortField);
+	}
 }

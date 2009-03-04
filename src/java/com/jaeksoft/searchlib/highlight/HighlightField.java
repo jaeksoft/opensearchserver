@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -53,6 +53,11 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public class HighlightField extends Field implements Externalizable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4048179036729127707L;
+
 	private FragmenterAbstract fragmenterTemplate;
 	private String tag;
 	private int maxDocChar;
@@ -64,10 +69,10 @@ public class HighlightField extends Field implements Externalizable {
 	public HighlightField() {
 	}
 
-	private HighlightField(Field field, String tag, int maxDocChar,
+	private HighlightField(String fieldName, String tag, int maxDocChar,
 			String separator, int maxSnippetNumber, int maxSnippetSize,
 			FragmenterAbstract fragmenterTemplate) {
-		super(field.getName());
+		super(fieldName);
 		this.searchTerms = null;
 		this.tag = tag;
 		this.maxDocChar = maxDocChar;
@@ -77,20 +82,102 @@ public class HighlightField extends Field implements Externalizable {
 		this.fragmenterTemplate = fragmenterTemplate;
 	}
 
-	public HighlightField(Field field) {
-		this(field, "em", Integer.MAX_VALUE, "...", 5, 200, null);
+	public HighlightField(String fieldName) {
+		this(fieldName, "em", Integer.MAX_VALUE, "...", 5, 200, null);
 	}
 
 	@Override
 	public Field duplicate() {
-		return new HighlightField(this, tag, maxDocChar, separator,
+		return new HighlightField(name, tag, maxDocChar, separator,
 				maxSnippetNumber, maxSnippetSize, fragmenterTemplate);
 	}
 
+	public String getFragmenter() {
+		if (fragmenterTemplate == null)
+			return "NoFragmenter";
+		return fragmenterTemplate.getClass().getSimpleName();
+	}
+
+	public void setFragmenter(String fragmenterName)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		fragmenterTemplate = FragmenterAbstract.newInstance(fragmenterName);
+	}
+
 	/**
-	 * 
+	 * @return the tag
 	 */
-	private static final long serialVersionUID = 4048179036729127707L;
+	public String getTag() {
+		return tag;
+	}
+
+	/**
+	 * @param tag
+	 *            the tag to set
+	 */
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+
+	/**
+	 * @return the maxDocChar
+	 */
+	public int getMaxDocChar() {
+		return maxDocChar;
+	}
+
+	/**
+	 * @param maxDocChar
+	 *            the maxDocChar to set
+	 */
+	public void setMaxDocChar(int maxDocChar) {
+		this.maxDocChar = maxDocChar;
+	}
+
+	/**
+	 * @return the separator
+	 */
+	public String getSeparator() {
+		return separator;
+	}
+
+	/**
+	 * @param separator
+	 *            the separator to set
+	 */
+	public void setSeparator(String separator) {
+		this.separator = separator;
+	}
+
+	/**
+	 * @return the maxSnippetSize
+	 */
+	public int getMaxSnippetSize() {
+		return maxSnippetSize;
+	}
+
+	/**
+	 * @param maxSnippetSize
+	 *            the maxSnippetSize to set
+	 */
+	public void setMaxSnippetSize(int maxSnippetSize) {
+		this.maxSnippetSize = maxSnippetSize;
+	}
+
+	/**
+	 * @return the maxSnippetNumber
+	 */
+	public int getMaxSnippetNumber() {
+		return maxSnippetNumber;
+	}
+
+	/**
+	 * @param maxSnippetNumber
+	 *            the maxSnippetNumber to set
+	 */
+	public void setMaxSnippetNumber(int maxSnippetNumber) {
+		this.maxSnippetNumber = maxSnippetNumber;
+	}
 
 	/**
 	 * Retourne la liste des champs "highlighter".
@@ -130,9 +217,9 @@ public class HighlightField extends Field implements Externalizable {
 		String separator = XPathParser.getAttributeString(node, "separator");
 		if (separator == null)
 			separator = "...";
-		HighlightField field = new HighlightField(source.get(fieldName), tag,
-				maxDocChar, separator, maxSnippetNumber, maxSnippetSize,
-				fragmenter);
+		HighlightField field = new HighlightField(source.get(fieldName)
+				.getName(), tag, maxDocChar, separator, maxSnippetNumber,
+				maxSnippetSize, fragmenter);
 		target.add(field);
 	}
 

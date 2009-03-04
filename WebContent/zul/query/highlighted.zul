@@ -15,29 +15,30 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="index"
-	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/jaeksoft_websearch_16.png"
-		label="Jaeksoft SearchServer" />
-	<tabbox>
-		<tabs>
-			<tab id="tab0" label="Home" selected="true" />
-			<tab id="tab1" visible="@{index.instanceValid}"
-				label="Query" />
-			<tab id="tab2" visible="@{index.instanceValid}"
-				label="Configuration" />
-		</tabs>
-		<tabpanels>
-			<tabpanel>
-				<include src="zul/home.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab1.onSelect">
-				<include src="zul/query/index.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab2.onSelect">
-				<include src="zul/configuration/index.zul" />
-			</tabpanel>
-		</tabpanels>
-	</tabbox>
-
+<window id="highlighted"
+	use="com.jaeksoft.searchlib.web.controller.query.HighlightedController">
+	<grid model="@{highlighted.request.highlightFieldList.list}"
+		rowRenderer="@{highlighted.highlightFieldRenderer}">
+		<columns>
+			<column label="Field" />
+			<column label="Fragmenter" />
+			<column label="Tag" />
+			<column label="Separator" />
+			<column label="Max snippet size" />
+			<column label="Max snippet number" />
+			<column label="Max field size" />
+			<column label="Action" />
+		</columns>
+		<foot visible="@{highlighted.fieldLeft}">
+			<footer span="4">
+				<listbox mold="select"
+					selectedItem="@{highlighted.selectedHighlight}"
+					model="@{highlighted.highlightFieldLeft}">
+					<listitem self="@{each=highlightField}"
+						label="@{highlightField}" />
+				</listbox>
+				<button label="add highlight" forward="onHighlightAdd" />
+			</footer>
+		</foot>
+	</grid>
 </window>

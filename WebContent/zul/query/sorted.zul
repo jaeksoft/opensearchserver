@@ -15,29 +15,25 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="index"
-	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/jaeksoft_websearch_16.png"
-		label="Jaeksoft SearchServer" />
-	<tabbox>
-		<tabs>
-			<tab id="tab0" label="Home" selected="true" />
-			<tab id="tab1" visible="@{index.instanceValid}"
-				label="Query" />
-			<tab id="tab2" visible="@{index.instanceValid}"
-				label="Configuration" />
-		</tabs>
-		<tabpanels>
-			<tabpanel>
-				<include src="zul/home.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab1.onSelect">
-				<include src="zul/query/index.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tab2.onSelect">
-				<include src="zul/configuration/index.zul" />
-			</tabpanel>
-		</tabpanels>
-	</tabbox>
-
+<window id="sorted"
+	use="com.jaeksoft.searchlib.web.controller.query.SortedController">
+	<grid model="@{sorted.request.sortList.fieldList.list}"
+		rowRenderer="@{sorted}">
+		<columns>
+			<column label="Field" />
+			<column label="Direction" />
+			<column label="Action" />
+		</columns>
+		<foot visible="@{sorted.fieldLeft}">
+			<footer span="2">
+				<listbox mold="select"
+					selectedItem="@{sorted.selectedSort}"
+					model="@{sorted.sortFieldLeft}">
+					<listitem self="@{each=sortField}"
+						label="@{sortField}" />
+				</listbox>
+				<button label="add sort field" forward="onSortAdd" />
+			</footer>
+		</foot>
+	</grid>
 </window>
