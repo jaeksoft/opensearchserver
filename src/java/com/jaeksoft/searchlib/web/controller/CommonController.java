@@ -75,11 +75,12 @@ public class CommonController extends Window {
 		while (it.hasNext()) {
 			Page page = (Page) it.next();
 			Component component = page.getFirstRoot();
-			if (component instanceof CommonController)
+			if (component != null && component instanceof CommonController)
 				((CommonController) component).reloadPage();
 			else {
 				DataBinder binder = (DataBinder) page.getVariable("binder");
-				binder.loadAll();
+				if (binder != null)
+					binder.loadAll();
 			}
 		}
 	}
