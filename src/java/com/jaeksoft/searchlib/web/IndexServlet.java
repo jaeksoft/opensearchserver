@@ -51,39 +51,41 @@ public class IndexServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 3855116559376800406L;
 
-	private void updateDoc(Client client, String indexName, IndexDocument doc)
+	private boolean updateDoc(Client client, String indexName, IndexDocument doc)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
-			client.updateDocument(doc);
+			return client.updateDocument(doc);
 		else
-			client.updateDocument(indexName, doc);
+			return client.updateDocument(indexName, doc);
 	}
 
-	private void updateDoc(Client client, String indexName,
+	private int updateDoc(Client client, String indexName,
 			Collection<IndexDocument> indexDocuments)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
-			client.updateDocuments(indexDocuments);
+			return client.updateDocuments(indexDocuments);
 		else
-			client.updateDocuments(indexName, indexDocuments);
+			return client.updateDocuments(indexName, indexDocuments);
 	}
 
-	private void updateDoc(Client client, String indexName,
+	private int updateDoc(Client client, String indexName,
 			IndexRequest indexRequest) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException {
-		updateDoc(client, indexName, indexRequest.getCollection());
+		return updateDoc(client, indexName, indexRequest.getCollection());
 	}
 
-	private void doObjectRequest(Client client, HttpServletRequest request,
+	private Object doObjectRequest(Client client, HttpServletRequest request,
 			String indexName) throws ServletException {
 		StreamReadObject readObject = null;
 		try {
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof IndexRequest)
-				updateDoc(client, indexName, (IndexRequest) obj);
+				return updateDoc(client, indexName, (IndexRequest) obj);
 			else if (obj instanceof IndexDocument)
-				updateDoc(client, indexName, (IndexDocument) obj);
+				return updateDoc(client, indexName, (IndexDocument) obj);
+			else
+				return "Error";
 		} catch (Exception e) {
 			throw new ServletException(e);
 		} finally {
@@ -100,12 +102,14 @@ public class IndexServlet extends AbstractServlet {
 			HttpServletRequest request = transaction.getServletRequest();
 			String indexName = request.getParameter("index");
 			String ct = request.getContentType();
+			Object result = null;
 			if (ct != null && ct.toLowerCase().contains("xml"))
-				client.updateXmlDocuments(indexName, request.getInputStream());
+				result = client.updateXmlDocuments(indexName, request
+						.getInputStream());
 			else
-				doObjectRequest(client, request, indexName);
+				result = doObjectRequest(client, request, indexName);
 			PrintWriter writer = transaction.getWriter("UTF-8");
-			writer.println("OK");
+			writer.println(result);
 		} catch (IOException e) {
 			throw new ServletException(e);
 		} catch (XPathExpressionException e) {
@@ -125,15 +129,19 @@ public class IndexServlet extends AbstractServlet {
 		}
 	}
 
-	public static void update(URI uri, String indexName, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		sendObject(buildUri(uri, "/index", indexName, null), document);
+	public static boolean update(URI uri, String indexName,
+			IndexDocument document) throws NoSuchAlgorithmException,
+			IOException, URISyntaxException {
+		String msg = sendObject(buildUri(uri, "/index", indexName, null),
+				document);
+		return Boolean.getBoolean(msg.trim());
 	}
 
-	public static void update(URI uri, String indexName,
+	public static int update(URI uri, String indexName,
 			Collection<IndexDocument> indexDocuments)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		sendObject(buildUri(uri, "/index", indexName, null), new IndexRequest(
-				indexDocuments));
+		String msg = sendObject(buildUri(uri, "/index", indexName, null),
+				new IndexRequest(indexDocuments));
+		return Integer.getInteger(msg.trim());
 	}
 }

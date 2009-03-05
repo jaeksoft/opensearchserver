@@ -62,36 +62,36 @@ public abstract class WriterAbstract extends NameFilter implements
 		return md5spliter.acceptAnyKey(fieldContent.getValues());
 	}
 
-	public void updateDocument(String indexName, Schema schema,
+	public boolean updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
-			return;
-		updateDocument(schema, document);
+			return false;
+		return updateDocument(schema, document);
 	}
 
-	public void updateDocuments(String indexName, Schema schema,
+	public int updateDocuments(String indexName, Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
-			return;
-		updateDocuments(schema, documents);
+			return 0;
+		return updateDocuments(schema, documents);
 	}
 
-	public void deleteDocument(String indexName, Schema schema,
+	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
-			return;
-		deleteDocument(schema, uniqueField);
+			return false;
+		return deleteDocument(schema, uniqueField);
 	}
 
-	public void deleteDocuments(String indexName, Schema schema,
+	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
-			return;
-		deleteDocuments(schema, uniqueFields);
+			return 0;
+		return deleteDocuments(schema, uniqueFields);
 	}
 
 }

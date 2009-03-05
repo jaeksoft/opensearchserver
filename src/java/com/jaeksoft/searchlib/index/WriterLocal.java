@@ -180,39 +180,44 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private void updateDoc(Schema schema, IndexDocument document)
+	private boolean updateDoc(Schema schema, IndexDocument document)
 			throws CorruptIndexException, IOException, NoSuchAlgorithmException {
 		if (!acceptDocument(document))
-			return;
+			return false;
 		String field = schema.getFieldList().getUniqueField().getName();
 		Document doc = getLuceneDocument(schema, document);
 		Term updateTerm = new Term(field, doc.get(field));
 		PerFieldAnalyzerWrapper pfa = schema.getQueryPerFieldAnalyzer(document
 				.getLang());
 		indexWriter.updateDocument(updateTerm, doc, pfa);
+		return true;
 	}
 
-	public void updateDocument(Schema schema, IndexDocument document)
+	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException {
 		l.lock();
 		try {
 			open();
-			updateDoc(schema, document);
+			boolean updated = updateDoc(schema, document);
 			close();
+			return updated;
 		} finally {
 			l.unlock();
 		}
 	}
 
-	public void updateDocuments(Schema schema,
+	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException {
 		l.lock();
 		try {
+			int count = 0;
 			open();
 			for (IndexDocument document : documents)
-				updateDoc(schema, document);
+				if (updateDoc(schema, document))
+					count++;
 			close();
+			return count;
 		} finally {
 			l.unlock();
 		}
@@ -246,7 +251,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public void deleteDocument(Schema schema, String uniqueField)
+	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
 		l.lock();
@@ -255,12 +260,13 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.deleteDocuments(new Term(schema.getFieldList()
 					.getUniqueField().getName(), uniqueField));
 			close();
+			return true;
 		} finally {
 			l.unlock();
 		}
 	}
 
-	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
+	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
 		String uniqueField = schema.getFieldList().getUniqueField().getName();
@@ -273,6 +279,7 @@ public class WriterLocal extends WriterAbstract {
 			open();
 			indexWriter.deleteDocuments(terms);
 			close();
+			return terms.length;
 		} finally {
 			l.unlock();
 		}

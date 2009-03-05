@@ -53,10 +53,5 @@
 				<textbox cols="10" value="@{general.request.lang}" />
 			</row>
 		</rows>
-		<foot>
-			<footer>
-				<button label="Search" />
-			</footer>
-		</foot>
 	</grid>
 </window>

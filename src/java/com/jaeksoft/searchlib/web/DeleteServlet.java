@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -43,30 +44,30 @@ public class DeleteServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = -2663934578246659291L;
 
-	private void deleteDoc(Client client, String indexName, String uniq)
+	private boolean deleteDoc(Client client, String indexName, String uniq)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
-			client.deleteDocument(uniq);
+			return client.deleteDocument(uniq);
 		else
-			client.deleteDocument(indexName, uniq);
+			return client.deleteDocument(indexName, uniq);
 	}
 
-	private void deleteDocs(Client client, String indexName,
+	private int deleteDocs(Client client, String indexName,
 			Collection<String> uniqFields) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException {
 		if (indexName == null)
-			client.deleteDocuments(uniqFields);
+			return client.deleteDocuments(uniqFields);
 		else
-			client.deleteDocuments(indexName, uniqFields);
+			return client.deleteDocuments(indexName, uniqFields);
 	}
 
-	private void deleteDocs(Client client, String indexName,
+	private int deleteDocs(Client client, String indexName,
 			DeleteRequest deleteRequest) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException {
-		deleteDocs(client, indexName, deleteRequest.getCollection());
+		return deleteDocs(client, indexName, deleteRequest.getCollection());
 	}
 
-	private void doObjectRequest(HttpServletRequest request, String indexName)
+	private Object doObjectRequest(HttpServletRequest request, String indexName)
 			throws ServletException {
 		StreamReadObject readObject = null;
 		try {
@@ -74,9 +75,10 @@ public class DeleteServlet extends AbstractServlet {
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof DeleteRequest)
-				deleteDocs(client, indexName, (DeleteRequest) obj);
+				return deleteDocs(client, indexName, (DeleteRequest) obj);
 			else if (obj instanceof String)
-				deleteDoc(client, indexName, (String) obj);
+				return deleteDoc(client, indexName, (String) obj);
+			return "Error";
 		} catch (Exception e) {
 			throw new ServletException(e);
 		} finally {
@@ -93,26 +95,30 @@ public class DeleteServlet extends AbstractServlet {
 			HttpServletRequest request = transaction.getServletRequest();
 			String indexName = request.getParameter("index");
 			String uniq = request.getParameter("uniq");
-
+			Object result = null;
 			if (uniq != null)
-				deleteDoc(client, indexName, uniq);
+				result = deleteDoc(client, indexName, uniq);
 			else
-				doObjectRequest(request, indexName);
-
+				result = doObjectRequest(request, indexName);
+			PrintWriter pw = transaction.getWriter("UTF-8");
+			pw.println(result);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
-	public static void delete(URI uri, String indexName, String uniqueField)
+	public static boolean delete(URI uri, String indexName, String uniqueField)
 			throws IOException, URISyntaxException {
-		call(buildUri(uri, "/delete", indexName, "uniq=" + uniqueField));
+		String msg = call(buildUri(uri, "/delete", indexName, "uniq="
+				+ uniqueField));
+		return Boolean.getBoolean(msg.trim());
 	}
 
-	public static void delete(URI uri, String indexName,
+	public static int delete(URI uri, String indexName,
 			Collection<String> uniqueFields) throws IOException,
 			URISyntaxException {
-		sendObject(buildUri(uri, "/delete", indexName, null),
+		String msg = sendObject(buildUri(uri, "/delete", indexName, null),
 				new DeleteRequest(uniqueFields));
+		return Integer.getInteger(msg.trim());
 	}
 }

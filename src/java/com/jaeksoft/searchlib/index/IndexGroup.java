@@ -118,68 +118,78 @@ public class IndexGroup extends IndexAbstract {
 		return stats;
 	}
 
-	public void updateDocument(Schema schema, IndexDocument document)
+	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		boolean updated = false;
 		for (IndexAbstract index : getIndices())
-			index.updateDocument(schema, document);
+			if (index.updateDocument(schema, document))
+				updated = true;
+		return updated;
 	}
 
-	public void updateDocument(String indexName, Schema schema,
+	public boolean updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
-			return;
-		index.updateDocument(schema, document);
+			return false;
+		return index.updateDocument(schema, document);
 
 	}
 
-	public void updateDocuments(Schema schema,
+	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+		int count = 0;
 		for (IndexAbstract index : getIndices())
-			index.updateDocuments(schema, documents);
+			count += index.updateDocuments(schema, documents);
+		return count;
 	}
 
-	public void updateDocuments(String indexName, Schema schema,
+	public int updateDocuments(String indexName, Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
-			return;
-		index.updateDocuments(indexName, schema, documents);
+			return 0;
+		return index.updateDocuments(indexName, schema, documents);
 	}
 
-	public void deleteDocument(Schema schema, String uniqueField)
+	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
+		boolean deleted = false;
 		for (IndexAbstract index : getIndices())
-			index.deleteDocument(schema, uniqueField);
+			if (index.deleteDocument(schema, uniqueField))
+				deleted = true;
+		return deleted;
 	}
 
-	public void deleteDocument(String indexName, Schema schema,
+	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
-			return;
-		index.deleteDocument(schema, uniqueField);
+			return false;
+		return index.deleteDocument(schema, uniqueField);
 	}
 
-	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
+	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
+		int count = 0;
 		for (IndexAbstract index : getIndices())
-			index.deleteDocuments(schema, uniqueFields);
+			count += index.deleteDocuments(schema, uniqueFields);
+		return count;
 	}
 
-	public void deleteDocuments(String indexName, Schema schema,
+	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
-			return;
-		index.deleteDocuments(schema, uniqueFields);
+			return 0;
+		return index.deleteDocuments(schema, uniqueFields);
 	}
 
 	public int getDocFreq(Term term) throws IOException {

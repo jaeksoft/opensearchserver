@@ -102,7 +102,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public void deleteDocument(Schema schema, String uniqueField)
+	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
 		if (!online)
@@ -112,13 +112,15 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.deleteDocument(schema, uniqueField);
+				return writer.deleteDocument(schema, uniqueField);
+			else
+				return false;
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void deleteDocument(String indexName, Schema schema,
+	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		if (!online)
@@ -128,13 +130,15 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.deleteDocument(indexName, schema, uniqueField);
+				return writer.deleteDocument(indexName, schema, uniqueField);
+			else
+				return false;
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
+	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
 		if (!online)
@@ -144,13 +148,15 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.deleteDocuments(schema, uniqueFields);
+				return writer.deleteDocuments(schema, uniqueFields);
+			else
+				return 0;
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void deleteDocuments(String indexName, Schema schema,
+	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		if (!online)
@@ -160,13 +166,15 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.deleteDocuments(indexName, schema, uniqueFields);
+				return writer.deleteDocuments(indexName, schema, uniqueFields);
+			else
+				return 0;
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void updateDocument(Schema schema, IndexDocument document)
+	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!online)
 			throw new IOException("Index is offline");
@@ -175,13 +183,15 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.updateDocument(schema, document);
+				return writer.updateDocument(schema, document);
+			else
+				return false;
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void updateDocument(String indexName, Schema schema,
+	public boolean updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException {
 		if (!online)
@@ -191,13 +201,15 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.updateDocument(indexName, schema, document);
+				return writer.updateDocument(indexName, schema, document);
+			else
+				return false;
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void updateDocuments(Schema schema,
+	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!online)
@@ -207,13 +219,15 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.updateDocuments(schema, documents);
+				return writer.updateDocuments(schema, documents);
+			else
+				return 0;
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void updateDocuments(String indexName, Schema schema,
+	public int updateDocuments(String indexName, Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!online)
@@ -223,7 +237,9 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.updateDocuments(indexName, schema, documents);
+				return writer.updateDocuments(indexName, schema, documents);
+			else
+				return 0;
 		} finally {
 			r.unlock();
 		}

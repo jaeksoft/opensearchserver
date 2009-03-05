@@ -124,7 +124,7 @@ public abstract class AbstractServlet extends HttpServlet {
 
 	}
 
-	protected static void call(URI uri) throws HttpException, IOException,
+	protected static String call(URI uri) throws HttpException, IOException,
 			URISyntaxException {
 		UriRead uriRead = null;
 		try {
@@ -133,13 +133,14 @@ public abstract class AbstractServlet extends HttpServlet {
 				throw new IOException(uri + " returns "
 						+ uriRead.getResponseMessage() + "("
 						+ uriRead.getResponseCode() + ")");
+			return uriRead.getResponseMessage();
 		} finally {
 			if (uriRead != null)
 				uriRead.close();
 		}
 	}
 
-	protected static void sendObject(URI uri, Externalizable object)
+	protected static String sendObject(URI uri, Externalizable object)
 			throws IOException {
 		UriWriteObject writeObject = null;
 		try {
@@ -147,6 +148,7 @@ public abstract class AbstractServlet extends HttpServlet {
 			if (writeObject.getResponseCode() != 200)
 				throw new IOException(writeObject.getResponseCode() + " "
 						+ writeObject.getResponseMessage() + ")");
+			return writeObject.getResponseMessage();
 		} finally {
 			if (writeObject != null)
 				writeObject.close();

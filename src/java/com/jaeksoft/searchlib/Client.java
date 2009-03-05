@@ -70,28 +70,28 @@ public class Client extends Config implements XmlInfo {
 		this(null, configfile, false);
 	}
 
-	public void updateDocument(IndexDocument document)
+	public boolean updateDocument(IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		getIndex().updateDocument(getSchema(), document);
+		return getIndex().updateDocument(getSchema(), document);
 	}
 
-	public void updateDocument(String indexName, IndexDocument document)
+	public boolean updateDocument(String indexName, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		getIndex().updateDocument(indexName, getSchema(), document);
+		return getIndex().updateDocument(indexName, getSchema(), document);
 	}
 
-	public void updateDocuments(Collection<IndexDocument> documents)
+	public int updateDocuments(Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		getIndex().updateDocuments(getSchema(), documents);
+		return getIndex().updateDocuments(getSchema(), documents);
 	}
 
-	public void updateDocuments(String indexName,
+	public int updateDocuments(String indexName,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		getIndex().updateDocuments(indexName, getSchema(), documents);
+		return getIndex().updateDocuments(indexName, getSchema(), documents);
 	}
 
-	public void updateXmlDocuments(String indexName, InputStream inputStream)
+	public int updateXmlDocuments(String indexName, InputStream inputStream)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException {
@@ -102,40 +102,40 @@ public class Client extends Config implements XmlInfo {
 		for (int i = 0; i < l; i++)
 			docList.add(new IndexDocument(xpp, nodeList.item(i)));
 		if (indexName == null)
-			updateDocuments(docList);
+			return updateDocuments(docList);
 		else
-			updateDocuments(indexName, docList);
+			return updateDocuments(indexName, docList);
 	}
 
-	public void updateXmlDocuments(InputStream inputStream)
+	public int updateXmlDocuments(InputStream inputStream)
 			throws XPathExpressionException, NoSuchAlgorithmException,
 			ParserConfigurationException, SAXException, IOException,
 			URISyntaxException {
-		updateXmlDocuments(null, inputStream);
+		return updateXmlDocuments(null, inputStream);
 	}
 
-	public void deleteDocument(String uniqueField)
+	public boolean deleteDocument(String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
-		getIndex().deleteDocument(getSchema(), uniqueField);
+		return getIndex().deleteDocument(getSchema(), uniqueField);
 	}
 
-	public void deleteDocument(String indexName, String uniqueField)
+	public boolean deleteDocument(String indexName, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
-		getIndex().deleteDocument(indexName, getSchema(), uniqueField);
+		return getIndex().deleteDocument(indexName, getSchema(), uniqueField);
 	}
 
-	public void deleteDocuments(Collection<String> uniqueFields)
+	public int deleteDocuments(Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
-		getIndex().deleteDocuments(getSchema(), uniqueFields);
+		return getIndex().deleteDocuments(getSchema(), uniqueFields);
 	}
 
-	public void deleteDocuments(String indexName,
-			Collection<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
-		getIndex().deleteDocuments(indexName, getSchema(), uniqueFields);
+	public int deleteDocuments(String indexName, Collection<String> uniqueFields)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		return getIndex().deleteDocuments(indexName, getSchema(), uniqueFields);
 	}
 
 	public int getDocFreq(String uniqueField) throws IOException {

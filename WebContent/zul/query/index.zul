@@ -63,4 +63,7 @@
 			</tabpanel>
 		</tabpanels>
 	</tabbox>
+	<vbox width="100%" align="center">
+		<button label="Search" forward="onSearch" />
+	</vbox>
 </window>

@@ -21,21 +21,31 @@
 		label="Jaeksoft SearchServer" />
 	<tabbox>
 		<tabs>
-			<tab id="tab0" label="Home" selected="true" />
-			<tab id="tab1" visible="@{index.instanceValid}"
+			<tab id="tabHome" label="Home" selected="true" />
+			<tab id="tabQuery" visible="@{index.instanceValid}"
 				label="Query" />
-			<tab id="tab2" visible="@{index.instanceValid}"
+			<tab id="tabUpdate" visible="@{index.instanceValid}"
+				label="Update" />
+			<tab id="tabConfiguration" visible="@{index.instanceValid}"
 				label="Configuration" />
+			<tab id="tabRuntime" visible="@{index.instanceValid}"
+				label="Runtime" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
 				<include src="zul/home.zul" />
 			</tabpanel>
-			<tabpanel fulfill="tab1.onSelect">
+			<tabpanel fulfill="tabQuery.onSelect">
 				<include src="zul/query/index.zul" />
 			</tabpanel>
-			<tabpanel fulfill="tab2.onSelect">
+			<tabpanel fulfill="tabUpdate.onSelect">
+				<include src="zul/update/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabConfiguration.onSelect">
 				<include src="zul/configuration/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntime.onSelect">
+				<include src="zul/runtime/index.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

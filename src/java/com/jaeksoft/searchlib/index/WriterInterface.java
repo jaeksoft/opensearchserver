@@ -37,34 +37,34 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 
 public interface WriterInterface extends XmlInfo {
 
-	public void deleteDocument(String indexName, Schema schema,
+	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException;
 
-	public void deleteDocument(Schema schema, String uniqueField)
+	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException;
 
-	public void deleteDocuments(String indexName, Schema schema,
+	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException;
 
-	public void deleteDocuments(Schema schema, Collection<String> uniqueFields)
+	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException;
 
-	public void updateDocument(Schema schema, IndexDocument document)
+	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException;
 
-	public void updateDocument(String indexName, Schema schema,
+	public boolean updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException;
 
-	public void updateDocuments(Schema schema,
+	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException;
 
-	public void updateDocuments(String indexName, Schema schema,
+	public int updateDocuments(String indexName, Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException;
 

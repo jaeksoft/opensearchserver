@@ -24,12 +24,17 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.lucene.queryParser.ParseException;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -90,6 +95,12 @@ public class QueryController extends CommonController {
 	public void onLoadRequest() throws SearchLibException {
 		setRequest(getClient().getNewSearchRequest(selectedRequestName));
 		reloadDesktop();
+	}
+
+	public void onSearch() throws IOException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException, SearchLibException {
+		setAttribute("searchResult", getClient().search(getRequest()),
+				SESSION_SCOPE);
 	}
 
 }
