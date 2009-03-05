@@ -27,50 +27,100 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zul.Button;
+import org.zkoss.zul.Label;
+import org.zkoss.zul.Row;
+import org.zkoss.zul.RowRenderer;
+
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class ReturnedController extends QueryController {
+public class ReturnedController extends QueryController implements RowRenderer {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -9118404394554950556L;
 
+	private String selectedReturn = null;
+
+	private List<String> fieldLeft = null;
+
 	public ReturnedController() throws SearchLibException {
 		super();
 	}
 
-	public class CheckedField {
-		private Field field;
-		private boolean selected;
-
-		private CheckedField(Field field, boolean selected) {
-			this.field = field;
-			this.selected = selected;
+	public void setSelectedReturn(String value) {
+		synchronized (this) {
+			selectedReturn = value;
 		}
-
-		public Field getField() {
-			return field;
-		}
-
-		public boolean isSelected() {
-			return selected;
-		}
-
 	}
 
-	public List<CheckedField> getReturnFieldList() throws SearchLibException {
-		SearchRequest request = getRequest();
-		List<CheckedField> list = new ArrayList<CheckedField>();
-		for (SchemaField field : getClient().getSchema().getFieldList())
-			if (field.isStored())
-				list.add(new CheckedField(field, request != null ? request
-						.getReturnFieldList().get(field.getName()) != null
-						: false));
-		return list;
+	public String getSelectedReturn() {
+		synchronized (this) {
+			return selectedReturn;
+		}
+	}
+
+	public void onReturnAdd() throws SearchLibException {
+		synchronized (this) {
+			if (selectedReturn == null)
+				return;
+			getRequest().getReturnFieldList().add(new Field(selectedReturn));
+			reloadPage();
+		}
+	}
+
+	public void onReturnRemove(Event event) throws SearchLibException {
+		synchronized (this) {
+			Field field = (Field) event.getData();
+			getRequest().getReturnFieldList().remove(field);
+			reloadPage();
+		}
+	}
+
+	public boolean isFieldLeft() throws SearchLibException {
+		synchronized (this) {
+			return getReturnFieldLeft().size() > 0;
+		}
+	}
+
+	public List<String> getReturnFieldLeft() throws SearchLibException {
+		synchronized (this) {
+			if (fieldLeft != null)
+				return fieldLeft;
+			fieldLeft = new ArrayList<String>();
+			FieldList<Field> fields = getRequest().getReturnFieldList();
+			for (SchemaField field : getClient().getSchema().getFieldList())
+				if (field.isStored())
+					if (fields.get(field.getName()) == null) {
+						if (selectedReturn == null)
+							selectedReturn = field.getName();
+						fieldLeft.add(field.getName());
+					}
+			return fieldLeft;
+		}
+	}
+
+	@Override
+	public void render(Row row, Object data) throws Exception {
+		Field field = (Field) data;
+		new Label(field.getName()).setParent(row);
+		Button button = new Button("Remove");
+		button.addForward(null, "query", "onReturnRemove", field);
+		button.setParent(row);
+	}
+
+	@Override
+	protected void reloadPage() {
+		synchronized (this) {
+			selectedReturn = null;
+			fieldLeft = null;
+			super.reloadPage();
+		}
 	}
 
 }

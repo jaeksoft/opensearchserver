@@ -15,24 +15,9 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="returned"
-	use="com.jaeksoft.searchlib.web.controller.query.ReturnedController">
-	<grid model="@{returned.request.returnFieldList.list}"
-		rowRenderer="@{returned}">
-		<columns>
-			<column label="Field" />
-			<column label="Action" />
-		</columns>
-		<foot visible="@{returned.fieldLeft}">
-			<footer span="2">
-				<listbox mold="select"
-					selectedItem="@{returned.selectedReturn}"
-					model="@{returned.returnFieldLeft}">
-					<listitem self="@{each=returnField}"
-						label="@{returnField}" />
-				</listbox>
-				<button label="add return field" forward="onReturnAdd" />
-			</footer>
-		</foot>
-	</grid>
+<window id="function"
+	use="com.jaeksoft.searchlib.web.controller.query.ScoreFunctionController">
+	<textbox width="99%" rows="2"
+		value="@{function.request.scoreFunction}">
+	</textbox>
 </window>

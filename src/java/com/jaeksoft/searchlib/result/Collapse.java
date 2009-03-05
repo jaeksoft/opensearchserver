@@ -28,13 +28,12 @@ import java.io.IOException;
 import java.util.BitSet;
 
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.schema.Field;
 
 public class Collapse {
 
 	private int collapsedDocCount;
 	private transient int collapseMax;
-	private transient Field collapseField;
+	private transient String collapseField;
 	private transient boolean collapseActive;
 	protected transient BitSet collapsedSet;
 	private transient ResultScoreDoc[] collapsedDoc;
@@ -98,7 +97,7 @@ public class Collapse {
 		return this.collapsedDocCount;
 	}
 
-	protected Field getCollapseField() {
+	protected String getCollapseField() {
 		return collapseField;
 	}
 

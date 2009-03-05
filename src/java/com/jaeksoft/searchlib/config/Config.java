@@ -160,7 +160,8 @@ public abstract class Config implements XmlInfo {
 			searchRequest.setLang(p);
 
 		if ((p = httpRequest.getParameter("collapse.field")) != null) {
-			searchRequest.setCollapseField(getSchema().getFieldList().get(p));
+			searchRequest.setCollapseField(getSchema().getFieldList().get(p)
+					.getName());
 			searchRequest.setCollapseActive(true);
 		}
 

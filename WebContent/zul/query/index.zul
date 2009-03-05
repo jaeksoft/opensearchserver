@@ -33,6 +33,8 @@
 			<tab id="tabHighlight" label="Highlighted fields" />
 			<tab id="tabSort" label="Sorted fields" />
 			<tab id="tabFilter" label="Filters" />
+			<tab id="tabCollapsing" label="Collapsing" />
+			<tab id="tabScoreFunction" label="Score function" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -52,6 +54,12 @@
 			</tabpanel>
 			<tabpanel fulfill="tabFilter.onSelect">
 				<include src="zul/query/filters.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCollapsing.onSelect">
+				<include src="zul/query/collapsing.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabScoreFunction.onSelect">
+				<include src="zul/query/scoreFunction.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

@@ -116,9 +116,11 @@ public class SortedController extends QueryController implements RowRenderer {
 
 	@Override
 	protected void reloadPage() {
-		selectedSort = null;
-		sortFieldLeft = null;
-		super.reloadPage();
+		synchronized (this) {
+			selectedSort = null;
+			sortFieldLeft = null;
+			super.reloadPage();
+		}
 	}
 
 	public class DirectionListener implements EventListener {
@@ -151,7 +153,7 @@ public class SortedController extends QueryController implements RowRenderer {
 		listbox.addEventListener("onSelect", new DirectionListener(sortField));
 		listbox.setParent(row);
 		Button button = new Button("Remove");
-		button.addForward(null, "query", "onSortRemove", sortField);
+		button.addForward(null, "sorted", "onSortRemove", sortField);
 		button.setParent(row);
 	}
 

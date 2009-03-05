@@ -45,7 +45,7 @@ public class Field implements FieldSelector, Externalizable, XmlInfo {
 	public Field() {
 	}
 
-	protected Field(String name) {
+	public Field(String name) {
 		this.name = name;
 	}
 

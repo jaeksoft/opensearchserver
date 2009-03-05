@@ -36,7 +36,6 @@ import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.schema.Field;
 
 public class ResultSingle extends Result {
 
@@ -99,9 +98,9 @@ public class ResultSingle extends Result {
 	private ResultScoreDoc[] fetchWithoutCollapse() throws IOException,
 			ParseException, SyntaxError {
 		int end = searchRequest.getEnd();
-		Field collapseField = searchRequest.getCollapseField();
+		String collapseField = searchRequest.getCollapseField();
 		StringIndex collapseFieldStringIndex = (collapseField != null) ? reader
-				.getStringIndex(collapseField.getName()) : null;
+				.getStringIndex(collapseField) : null;
 		return ResultScoreDoc.appendResultScoreDocArray(reader.getName(), this,
 				getDocs(), docSetHits.getScoreDocs(end),
 				collapseFieldStringIndex);
@@ -137,7 +136,7 @@ public class ResultSingle extends Result {
 		int lastRows = 0;
 		int rows = end;
 		StringIndex collapseFieldStringIndex = reader
-				.getStringIndex(searchRequest.getCollapseField().getName());
+				.getStringIndex(searchRequest.getCollapseField());
 		ResultScoreDoc[] resultScoreDocs = null;
 		String indexName = reader.getName();
 		while (collapse.getCollapsedDocsLength() < end) {

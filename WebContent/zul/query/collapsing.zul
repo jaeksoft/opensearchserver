@@ -15,24 +15,31 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="returned"
-	use="com.jaeksoft.searchlib.web.controller.query.ReturnedController">
-	<grid model="@{returned.request.returnFieldList.list}"
-		rowRenderer="@{returned}">
+<window id="collapse"
+	use="com.jaeksoft.searchlib.web.controller.query.CollapsingController">
+	<grid>
 		<columns>
-			<column label="Field" />
-			<column label="Action" />
+			<column align="right" width="30%" />
+			<column align="left" />
 		</columns>
-		<foot visible="@{returned.fieldLeft}">
-			<footer span="2">
-				<listbox mold="select"
-					selectedItem="@{returned.selectedReturn}"
-					model="@{returned.returnFieldLeft}">
-					<listitem self="@{each=returnField}"
-						label="@{returnField}" />
+		<rows>
+			<row>
+				<label>Active</label>
+				<checkbox checked="@{collapse.request.collapseActive}" />
+			</row>
+			<row>
+				<label>Field</label>
+				<listbox mold="select" model="@{collapse.indexedFields}"
+					selectedItem="@{collapse.request.collapseField}">
+					<listitem self="@{each=field}" label="@{field}"
+						value="@{field}" />
 				</listbox>
-				<button label="add return field" forward="onReturnAdd" />
-			</footer>
-		</foot>
+			</row>
+			<row>
+				<label>Max consecutive documents:</label>
+				<intbox cols="5" constraint="no empty, no negative"
+					value="@{collapse.request.collapseMax}" />
+			</row>
+		</rows>
 	</grid>
 </window>

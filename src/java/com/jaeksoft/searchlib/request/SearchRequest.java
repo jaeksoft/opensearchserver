@@ -85,7 +85,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 	private FieldList<Field> documentFieldList;
 	private FieldList<FacetField> facetFieldList;
 	private SortList sortList;
-	private Field collapseField;
+	private String collapseField;
 	private int collapseMax;
 	private boolean collapseActive;
 	private int start;
@@ -306,6 +306,14 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		}
 	}
 
+	public String getScoreFunction() {
+		return scoreFunction;
+	}
+
+	public void setScoreFunction(String v) {
+		scoreFunction = v;
+	}
+
 	public FilterList getFilterList() {
 		return this.filterList;
 	}
@@ -339,15 +347,15 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return this.facetFieldList;
 	}
 
-	public void setCollapseField(Field collapseField) {
-		this.collapseField = new Field(collapseField);
+	public void setCollapseField(String collapseField) {
+		this.collapseField = collapseField;
 	}
 
 	public void setCollapseMax(int collapseMax) {
 		this.collapseMax = collapseMax;
 	}
 
-	public Field getCollapseField() {
+	public String getCollapseField() {
 		return this.collapseField;
 	}
 
@@ -585,7 +593,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		documentFieldList = External.readObject(in);
 		facetFieldList = External.readObject(in);
 		sortList = External.readObject(in);
-		collapseField = External.readObject(in);
+		collapseField = External.readUTF(in);
 		collapseMax = in.readInt();
 		collapseActive = in.readBoolean();
 		start = in.readInt();
@@ -616,7 +624,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		External.writeObject(facetFieldList, out);
 		External.writeObject(sortList, out);
 
-		External.writeObject(collapseField, out);
+		External.writeUTF(collapseField, out);
 		out.writeInt(collapseMax);
 		out.writeBoolean(collapseActive);
 

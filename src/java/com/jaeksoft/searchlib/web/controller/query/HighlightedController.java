@@ -117,9 +117,11 @@ public class HighlightedController extends QueryController {
 
 	@Override
 	protected void reloadPage() {
-		highlightFieldLeft = null;
-		selectedHighlight = null;
-		super.reloadPage();
+		synchronized (this) {
+			highlightFieldLeft = null;
+			selectedHighlight = null;
+			super.reloadPage();
+		}
 	}
 
 }
