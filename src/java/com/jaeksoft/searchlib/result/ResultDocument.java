@@ -78,6 +78,14 @@ public class ResultDocument implements Externalizable {
 		}
 	}
 
+	public FieldList<FieldValue> getReturnFields() {
+		return returnFields;
+	}
+
+	public FieldList<HighlightFieldValue> getHighlightFields() {
+		return highlightFields;
+	}
+
 	public String[] getValueArray(Field field) {
 		return returnFields.get(field).getValueArray();
 	}

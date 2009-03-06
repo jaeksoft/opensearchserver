@@ -112,4 +112,15 @@ public class FieldValue extends Field implements Externalizable {
 		super.writeExternal(out);
 		External.writeStringArray(valueArray, out);
 	}
+
+	public String toString() {
+		StringBuffer sb = new StringBuffer(name);
+		int c = getValuesCount();
+		if (c > 0) {
+			sb.append('(');
+			sb.append(c);
+			sb.append(')');
+		}
+		return sb.toString();
+	}
 }

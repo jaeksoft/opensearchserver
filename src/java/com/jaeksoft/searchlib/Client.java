@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -41,6 +41,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
@@ -91,11 +92,9 @@ public class Client extends Config implements XmlInfo {
 		return getIndex().updateDocuments(indexName, getSchema(), documents);
 	}
 
-	public int updateXmlDocuments(String indexName, InputStream inputStream)
-			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, NoSuchAlgorithmException,
-			URISyntaxException {
-		XPathParser xpp = new XPathParser(inputStream);
+	private int updateXmlDocuments(String indexName, XPathParser xpp)
+			throws XPathExpressionException, NoSuchAlgorithmException,
+			IOException, URISyntaxException {
 		NodeList nodeList = xpp.getNodeList("/index/document");
 		int l = nodeList.getLength();
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>();
@@ -107,11 +106,21 @@ public class Client extends Config implements XmlInfo {
 			return updateDocuments(indexName, docList);
 	}
 
-	public int updateXmlDocuments(InputStream inputStream)
-			throws XPathExpressionException, NoSuchAlgorithmException,
-			ParserConfigurationException, SAXException, IOException,
+	public int updateXmlDocuments(String indexName, InputSource inputSource)
+			throws ParserConfigurationException, SAXException, IOException,
+			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException {
-		return updateXmlDocuments(null, inputStream);
+		XPathParser xpp = new XPathParser(inputSource);
+		return updateXmlDocuments(indexName, xpp);
+	}
+
+	public int updateXmlDocuments(String indexName, String xmlString)
+			throws SAXException, IOException, ParserConfigurationException,
+			XPathExpressionException, NoSuchAlgorithmException,
+			URISyntaxException {
+		XPathParser xpp = new XPathParser(new InputSource(new StringReader(
+				xmlString)));
+		return updateXmlDocuments(indexName, xpp);
 	}
 
 	public boolean deleteDocument(String uniqueField)
@@ -160,7 +169,7 @@ public class Client extends Config implements XmlInfo {
 	public Result search(SearchRequest searchRequest) throws IOException,
 			ParseException, SyntaxError, URISyntaxException,
 			ClassNotFoundException {
-		searchRequest.setConfig(this);
+		searchRequest.init(this);
 		return getIndex().search(searchRequest);
 	}
 

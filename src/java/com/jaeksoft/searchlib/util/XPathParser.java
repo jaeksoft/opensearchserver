@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,6 +38,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class XPathParser {
@@ -53,21 +53,22 @@ public class XPathParser {
 		currentFile = null;
 	}
 
+	private DocumentBuilder getBuilder() throws ParserConfigurationException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		return factory.newDocumentBuilder();
+	}
+
 	public XPathParser(File file) throws ParserConfigurationException,
 			SAXException, IOException {
 		this();
 		currentFile = file;
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		setRoot(builder.parse(currentFile.getAbsoluteFile()));
+		setRoot(getBuilder().parse(currentFile.getAbsoluteFile()));
 	}
 
-	public XPathParser(InputStream is) throws ParserConfigurationException,
-			SAXException, IOException {
+	public XPathParser(InputSource inputSource) throws SAXException,
+			IOException, ParserConfigurationException {
 		this();
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		setRoot(builder.parse(is));
+		setRoot(getBuilder().parse(inputSource));
 	}
 
 	public XPathParser(Node rootNode) {

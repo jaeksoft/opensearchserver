@@ -66,4 +66,5 @@
 	<vbox width="100%" align="center">
 		<button label="Search" forward="onSearch" />
 	</vbox>
+	<include src="zul/query/result.zul" />
 </window>

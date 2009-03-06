@@ -13,6 +13,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -40,7 +41,7 @@ public class Full {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
 		FileInputStream fis = new FileInputStream(contentFile);
-		client.updateXmlDocuments(fis);
+		client.updateXmlDocuments(null, new InputSource(fis));
 		fis.close();
 		client.reload();
 	}

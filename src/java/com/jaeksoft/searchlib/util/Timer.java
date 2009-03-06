@@ -30,12 +30,16 @@ public class Timer {
 	private long endTime;
 
 	public Timer() {
-		this.startTime = System.currentTimeMillis();
-		this.endTime = 0;
+		reset();
 	}
 
 	public Timer(String name) {
 		this();
+	}
+
+	public void reset() {
+		startTime = System.currentTimeMillis();
+		endTime = 0;
 	}
 
 	public void end() {

@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -104,8 +105,8 @@ public class IndexServlet extends AbstractServlet {
 			String ct = request.getContentType();
 			Object result = null;
 			if (ct != null && ct.toLowerCase().contains("xml"))
-				result = client.updateXmlDocuments(indexName, request
-						.getInputStream());
+				result = client.updateXmlDocuments(indexName, new InputSource(
+						request.getInputStream()));
 			else
 				result = doObjectRequest(client, request, indexName);
 			PrintWriter writer = transaction.getWriter("UTF-8");

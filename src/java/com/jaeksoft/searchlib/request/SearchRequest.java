@@ -211,8 +211,12 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.debug = debug;
 	}
 
-	public void setConfig(Config config) {
-		this.config = config;
+	public void init(Config config) {
+		synchronized (this) {
+			this.config = config;
+			finalTime = 0;
+			timer.reset();
+		}
 	}
 
 	protected QueryParser getNewQueryParser() {

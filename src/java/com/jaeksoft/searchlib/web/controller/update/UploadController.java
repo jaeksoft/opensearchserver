@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
 import org.zkoss.zul.Fileupload;
@@ -66,9 +67,23 @@ public class UploadController extends CommonController {
 		if (media == null)
 			return;
 		synchronized (this) {
-			updatedCount = getClient()
-					.updateXmlDocuments(media.getStreamData());
+			if (media.inMemory()) {
+				if (media.isBinary())
+					updatedCount = getClient().updateXmlDocuments(null,
+							new String(media.getByteData()));
+				else
+					updatedCount = getClient().updateXmlDocuments(null,
+							media.getStringData());
+			} else {
+				if (media.isBinary())
+					updatedCount = getClient().updateXmlDocuments(null,
+							new InputSource(media.getStreamData()));
+				else
+					updatedCount = getClient().updateXmlDocuments(null,
+							new InputSource(media.getReaderData()));
+			}
 			reloadPage();
 		}
 	}
+
 }

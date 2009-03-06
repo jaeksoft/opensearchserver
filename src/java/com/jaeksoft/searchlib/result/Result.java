@@ -146,6 +146,12 @@ public abstract class Result implements Externalizable,
 		return collapsedDocCount;
 	}
 
+	public float getScore(int pos) {
+		if (docs == null)
+			return 0;
+		return docs[pos].score;
+	}
+
 	public int getCollapseCount(int pos) {
 		if (docs == null)
 			return 0;

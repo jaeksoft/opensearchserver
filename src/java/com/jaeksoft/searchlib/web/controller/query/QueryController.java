@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class QueryController extends CommonController {
@@ -92,6 +93,18 @@ public class QueryController extends CommonController {
 		return set;
 	}
 
+	public boolean isResultExists() {
+		return getResult() != null;
+	}
+
+	public Result getResult() {
+		return (Result) getAttribute("searchResult", SESSION_SCOPE);
+	}
+
+	public void setResult(Result result) {
+		setAttribute("searchResult", result, SESSION_SCOPE);
+	}
+
 	public void onLoadRequest() throws SearchLibException {
 		setRequest(getClient().getNewSearchRequest(selectedRequestName));
 		reloadDesktop();
@@ -99,8 +112,7 @@ public class QueryController extends CommonController {
 
 	public void onSearch() throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, SearchLibException {
-		setAttribute("searchResult", getClient().search(getRequest()),
-				SESSION_SCOPE);
+		setResult(getClient().search(getRequest()));
+		reloadDesktop();
 	}
-
 }

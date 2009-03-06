@@ -99,7 +99,7 @@ public class RenderXml implements Render {
 	private void renderDocument(int pos) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
 		writer.print("\t<doc score=\"");
-		writer.print(result.getDocs()[pos].score);
+		writer.print(result.getScore(pos));
 		writer.print("\" pos=\"");
 		writer.print(pos);
 		writer.println("\">");
