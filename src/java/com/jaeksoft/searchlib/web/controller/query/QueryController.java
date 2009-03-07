@@ -93,7 +93,7 @@ public class QueryController extends CommonController {
 		return set;
 	}
 
-	public boolean isResultExists() {
+	public boolean getResultExists() {
 		return getResult() != null;
 	}
 

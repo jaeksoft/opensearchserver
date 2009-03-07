@@ -83,11 +83,13 @@ public abstract class FragmenterAbstract implements Externalizable {
 
 	protected abstract FragmenterAbstract newInstance();
 
+	final protected static NoFragmenter NOFRAGMENTER = new NoFragmenter();
+
 	final static protected FragmenterAbstract newInstance(String className)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		if (className == null || className.length() == 0)
-			className = "NoFragmenter";
+			return NOFRAGMENTER;
 		FragmenterAbstract fragmenter = (FragmenterAbstract) Class.forName(
 				"com.jaeksoft.searchlib.highlight." + className).newInstance();
 		return fragmenter;

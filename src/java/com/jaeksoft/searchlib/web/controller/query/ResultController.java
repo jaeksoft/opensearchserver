@@ -38,6 +38,8 @@ import org.zkoss.zul.TreeitemRenderer;
 import org.zkoss.zul.Treerow;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.highlight.HighlightFieldValue;
 import com.jaeksoft.searchlib.result.Result;
@@ -77,13 +79,11 @@ public class ResultController extends QueryController implements
 				if (title != null)
 					return title.toString();
 				title = new StringBuffer();
-				title.append("Position: ");
+				title.append('#');
 				title.append(getPos());
-				title.append(" - ");
-				title.append("Score: ");
+				title.append(" - Score: ");
 				title.append(getScore());
-				title.append(" - ");
-				title.append("Collapsed: ");
+				title.append(" - Collapsed: ");
 				title.append(getCollapseCount());
 				return title.toString();
 			}
@@ -104,6 +104,34 @@ public class ResultController extends QueryController implements
 		public ResultDocument getResultDocument() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
 			return result.getDocument(pos);
+		}
+
+		public boolean isReturnValid() throws CorruptIndexException,
+				IOException, ParseException, SyntaxError {
+			return getResultDocument().getReturnFields().size() > 0;
+		}
+
+		public boolean isHighlightValid() throws CorruptIndexException,
+				IOException, ParseException, SyntaxError {
+			return getResultDocument().getHighlightFields().size() > 0;
+		}
+
+		public String getReturnPercent() throws CorruptIndexException,
+				IOException, ParseException, SyntaxError {
+			if (!isReturnValid())
+				return "0%";
+			if (!isHighlightValid())
+				return "100%";
+			return "50%";
+		}
+
+		public String getHighlightPercent() throws CorruptIndexException,
+				IOException, ParseException, SyntaxError {
+			if (!isHighlightValid())
+				return "0%";
+			if (!isReturnValid())
+				return "100%";
+			return "50%";
 		}
 
 		public TreeModel getReturnTree() throws CorruptIndexException,
@@ -176,6 +204,33 @@ public class ResultController extends QueryController implements
 			while (pos < end)
 				documents.add(new Document(pos++));
 			return documents;
+		}
+	}
+
+	public boolean getDocumentFound() {
+		synchronized (this) {
+			Result result = getResult();
+			if (result == null)
+				return false;
+			return result.getDocumentCount() > 0;
+		}
+	}
+
+	public List<Facet> getFacetList() {
+		synchronized (this) {
+			Result result = getResult();
+			if (result == null)
+				return null;
+			FacetList facetList = result.getFacetList();
+			if (facetList == null)
+				return null;
+			return facetList.getList();
+		}
+	}
+
+	public boolean isFacetValid() {
+		synchronized (this) {
+			return getFacetList() != null;
 		}
 	}
 

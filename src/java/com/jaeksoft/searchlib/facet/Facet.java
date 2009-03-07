@@ -51,7 +51,7 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 
 	protected FacetField facetField;
 	private Map<String, FacetItem> facetMap;
-	protected transient Object[] array = null;
+	protected transient FacetItem[] array = null;
 
 	public Facet() {
 		array = null;
@@ -95,11 +95,14 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 		}
 	}
 
-	private Object[] getArray() {
-		if (array != null)
+	public FacetItem[] getArray() {
+		synchronized (this) {
+			if (array != null)
+				return array;
+			array = new FacetItem[facetMap.size()];
+			facetMap.values().toArray(array);
 			return array;
-		array = facetMap.values().toArray();
-		return array;
+		}
 	}
 
 	private FacetItem get(int i) {

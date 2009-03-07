@@ -75,4 +75,8 @@ public class FacetList implements Iterable<Facet>, Externalizable,
 		facetMap.put(facet.facetField.getName(), facet);
 	}
 
+	public List<Facet> getList() {
+		return facetList;
+	}
+
 }

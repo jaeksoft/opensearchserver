@@ -44,7 +44,7 @@
 		</analyzers>
 		<fields default="exactName" unique="exactName">
 			<field name="exactName" indexed="yes" stored="yes" />
-			<field name="searchName" indexed="yes" stored="no" analyzer="TextAnalyzer"
+			<field name="searchName" indexed="yes" stored="yes" analyzer="TextAnalyzer"
 				termVector="positions_offsets" />
 			<field name="description" indexed="yes" stored="compress"
 				analyzer="TextAnalyzer" termVector="positions_offsets" />
@@ -54,10 +54,10 @@
 		</fields>
 	</schema>
 	<requests>
-		<request name="search" defaultOperator="and" phraseSlop="2"
-			start="0" rows="10" lang="fr">
-			<query>exactName:($$) OR searchName:($$) OR
-				description:($$) </query>
+		<request name="search" defaultOperator="or" phraseSlop="2"
+			start="0" rows="10" lang="en">
+			<query>exactName:($$) searchName:($$) description:($$)
+			</query>
 			<returnFields>exactName,color,type,source
 			</returnFields>
 			<facetFields>

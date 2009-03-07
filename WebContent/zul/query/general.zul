@@ -31,7 +31,15 @@
 			<row>
 				<label>Enter the query:</label>
 				<textbox value="@{general.request.queryString}"
-					width="90%" />
+					width="90%" constraint="no empty" />
+			</row>
+			<row>
+				<label>Default operator:</label>
+				<listbox mold="select"
+					selectedItem="@{general.request.defaultOperator}">
+					<listitem label="AND" value="AND" />
+					<listitem label="OR" value="OR" />
+				</listbox>
 			</row>
 			<row>
 				<label>Start offset:</label>

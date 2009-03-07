@@ -83,7 +83,8 @@ public class HighlightField extends Field implements Externalizable {
 	}
 
 	public HighlightField(String fieldName) {
-		this(fieldName, "em", Integer.MAX_VALUE, "...", 5, 200, null);
+		this(fieldName, "em", Integer.MAX_VALUE, "...", 5, 200,
+				FragmenterAbstract.NOFRAGMENTER);
 	}
 
 	@Override
@@ -93,8 +94,6 @@ public class HighlightField extends Field implements Externalizable {
 	}
 
 	public String getFragmenter() {
-		if (fragmenterTemplate == null)
-			return "NoFragmenter";
 		return fragmenterTemplate.getClass().getSimpleName();
 	}
 

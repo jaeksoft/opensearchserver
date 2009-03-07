@@ -75,12 +75,13 @@ public class HighlightedController extends QueryController {
 			FieldList<HighlightField> highlightFields = getRequest()
 					.getHighlightFieldList();
 			for (SchemaField field : getClient().getSchema().getFieldList())
-				if ("positions_offsets".equals(field.getTermVectorLabel()))
-					if (highlightFields.get(field.getName()) == null) {
-						if (selectedHighlight == null)
-							selectedHighlight = field.getName();
-						highlightFieldLeft.add(field.getName());
-					}
+				if (field.isStored())
+					if ("positions_offsets".equals(field.getTermVectorLabel()))
+						if (highlightFields.get(field.getName()) == null) {
+							if (selectedHighlight == null)
+								selectedHighlight = field.getName();
+							highlightFieldLeft.add(field.getName());
+						}
 			return highlightFieldLeft;
 		}
 	}

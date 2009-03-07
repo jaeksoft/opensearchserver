@@ -15,21 +15,22 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<tabbox>
-	<tabs>
-		<tab id="tabStatistics" label="Statistics" selected="true" />
-		<tab id="tabCommands" label="Commands" />
-		<tab id="tabCache" label="Cache" />
-	</tabs>
-	<tabpanels>
-		<tabpanel>
-			<include src="zul/runtime/statistics.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabCommands.onSelect">
-			<include src="zul/runtime/commands.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabCache.onSelect">
-			<include src="zul/runtime/cache.zul" />
-		</tabpanel>
-	</tabpanels>
-</tabbox>
+<window id="commands"
+	use="com.jaeksoft.searchlib.web.controller.runtime.CommandsController">
+	<grid>
+		<columns>
+			<column label="Command" align="right" width="50%" />
+			<column label="Last execution" width="50%" />
+		</columns>
+		<rows>
+			<row>
+				<button label="Reload" forward="onReload" />
+				<label value="@{commands.lastReload}" />
+			</row>
+			<row>
+				<button label="Optimize" forward="onOptimize" />
+				<label value="@{commands.lastOptimize}" />
+			</row>
+		</rows>
+	</grid>
+</window>

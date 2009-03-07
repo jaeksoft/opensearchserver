@@ -227,14 +227,6 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		}
 	}
 
-	protected QueryParser getNewHighlightQueryParser() {
-		synchronized (this) {
-			Schema schema = this.getConfig().getSchema();
-			return new QueryParser(schema.getFieldList().getDefaultField()
-					.getName(), schema.getQueryPerFieldAnalyzer(getLang()));
-		}
-	}
-
 	private static void setQueryParser(SearchRequest searchRequest,
 			QueryParser queryParser) {
 		synchronized (queryParser) {
@@ -272,11 +264,13 @@ public class SearchRequest implements XmlInfo, Externalizable {
 			synchronized (queryParser) {
 
 				String finalQuery;
-				if (patternQuery != null)
+				if (patternQuery != null && patternQuery.length() > 0)
 					finalQuery = patternQuery.replace("$$", queryString);
 				else
 					finalQuery = queryString;
 
+				if (finalQuery == null || finalQuery.length() == 0)
+					throw new SyntaxError("No query");
 				query = queryParser.parse(finalQuery);
 				queryParsed = query.toString();
 				if (scoreFunction != null)
@@ -476,8 +470,15 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return documentFieldList;
 	}
 
-	public Operator getDefaultOperator() {
-		return defaultOperator;
+	public String getDefaultOperator() {
+		return defaultOperator.toString();
+	}
+
+	public void setDefaultOperator(String value) {
+		if ("and".equalsIgnoreCase(value))
+			defaultOperator = Operator.AND;
+		else if ("or".equalsIgnoreCase(value))
+			defaultOperator = Operator.OR;
 	}
 
 	public void setCollapseActive(boolean active) {

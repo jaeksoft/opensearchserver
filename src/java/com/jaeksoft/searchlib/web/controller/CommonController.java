@@ -87,7 +87,8 @@ public class CommonController extends Window {
 
 	protected void reloadPage() {
 		DataBinder binder = (DataBinder) getPage().getVariable("binder");
-		binder.loadAll();
+		if (binder != null)
+			binder.loadAll();
 	}
 
 }
