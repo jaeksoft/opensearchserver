@@ -32,20 +32,20 @@ import com.jaeksoft.searchlib.filter.FilterListCacheKey;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.sort.SortList;
 
 public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 
 	private String query;
 	private Boolean facet;
-	private SortList sortList;
+	private String sortListCacheKey;
 	private FilterListCacheKey filterListCacheKey;
 
 	public DocSetHitCacheKey(SearchRequest searchRequest, Field defaultField,
 			Analyzer analyzer) throws ParseException, SyntaxError {
 		query = searchRequest.getQuery().toString();
 		facet = searchRequest.isFacet();
-		sortList = searchRequest.getSortList();
+		sortListCacheKey = searchRequest.getSortList().getFieldList()
+				.getCacheKey();
 		filterListCacheKey = new FilterListCacheKey(searchRequest
 				.getFilterList(), defaultField, analyzer);
 	}
@@ -57,7 +57,7 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 			return c;
 		if ((c = query.compareTo(r.query)) != 0)
 			return c;
-		if ((c = sortList.compareTo(r.sortList)) != 0)
+		if ((c = sortListCacheKey.compareTo(r.sortListCacheKey)) != 0)
 			return c;
 		if ((c = filterListCacheKey.compareTo(r.filterListCacheKey)) != 0)
 			return c;

@@ -41,6 +41,9 @@ import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.cache.FieldCache;
+import com.jaeksoft.searchlib.cache.FilterCache;
+import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -454,4 +457,39 @@ public class IndexSingle extends IndexAbstract {
 		return getVersion();
 	}
 
+	public SearchCache getSearchCache() {
+		r.lock();
+		try {
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getSearchCache();
+			return null;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public FilterCache getFilterCache() {
+		r.lock();
+		try {
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getFilterCache();
+			return null;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public FieldCache getFieldCache() {
+		r.lock();
+		try {
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getFieldCache();
+			return null;
+		} finally {
+			r.unlock();
+		}
+	}
 }

@@ -60,7 +60,7 @@ public class FieldList<T extends Field> implements
 
 	private List<T> fieldList;
 	private transient Map<String, T> fieldsName;
-	private String cacheKey;
+	private transient String cacheKey;
 
 	/**
 	 * Constructeur de base.
@@ -84,9 +84,11 @@ public class FieldList<T extends Field> implements
 
 	@SuppressWarnings("unchecked")
 	public void add(FieldList<T> fl) {
-		for (T field : fl)
-			add((T) field.duplicate());
-		cacheKey = null;
+		synchronized (this) {
+			for (T field : fl)
+				add((T) field.duplicate());
+			cacheKey = null;
+		}
 	}
 
 	/**
@@ -110,11 +112,13 @@ public class FieldList<T extends Field> implements
 	 * Ajoute un champ � la liste
 	 */
 	public boolean add(T field) {
-		if (!this.fieldList.add(field))
-			return false;
-		this.fieldsName.put(field.name, field);
-		cacheKey = null;
-		return true;
+		synchronized (this) {
+			if (!this.fieldList.add(field))
+				return false;
+			this.fieldsName.put(field.name, field);
+			cacheKey = null;
+			return true;
+		}
 	}
 
 	/**
@@ -197,16 +201,20 @@ public class FieldList<T extends Field> implements
 		synchronized (this) {
 			fieldList.add(field);
 			fieldsName.put(field.name, field);
+			cacheKey = null;
 		}
 	}
 
-	private String getCacheKey() {
-		if (cacheKey != null)
+	public String getCacheKey() {
+		synchronized (this) {
+			if (cacheKey != null)
+				return cacheKey;
+			StringBuffer sb = new StringBuffer();
+			for (Field field : fieldList)
+				field.toString(sb);
+			cacheKey = sb.toString();
 			return cacheKey;
-		StringBuffer sb = new StringBuffer();
-		for (Field field : fieldList)
-			field.toString(sb);
-		return cacheKey = sb.toString();
+		}
 	}
 
 	@Override
@@ -218,6 +226,7 @@ public class FieldList<T extends Field> implements
 		synchronized (this) {
 			fieldList.remove(field);
 			fieldsName.remove(field.name);
+			cacheKey = null;
 		}
 	}
 }

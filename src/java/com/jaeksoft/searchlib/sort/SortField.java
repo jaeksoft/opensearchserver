@@ -127,4 +127,14 @@ public class SortField extends Field implements Externalizable,
 		return desc ? -1 : 1;
 	}
 
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		if (desc)
+			sb.append('-');
+		else
+			sb.append('+');
+		sb.append(name);
+		return sb.toString();
+	}
+
 }

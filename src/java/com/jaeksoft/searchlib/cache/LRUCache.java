@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.cache;
 
 import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -52,11 +53,12 @@ public class LRUCache<K extends CacheKeyInterface<K>, V> {
 	private TreeMap<K, V> tree;
 	private EvictionQueue queue;
 
-	private int maxSize;
-	private long evictions;
-	private long lookups;
-	private long hits;
-	private long inserts;
+	private volatile int size;
+	private volatile int maxSize;
+	private volatile long evictions;
+	private volatile long lookups;
+	private volatile long hits;
+	private volatile long inserts;
 
 	protected LRUCache(int maxSize) {
 		queue = new EvictionQueue(maxSize);
@@ -66,6 +68,7 @@ public class LRUCache<K extends CacheKeyInterface<K>, V> {
 		this.lookups = 0;
 		this.inserts = 0;
 		this.hits = 0;
+		this.size = 0;
 	}
 
 	public V getAndPromote(K key) {
@@ -86,6 +89,7 @@ public class LRUCache<K extends CacheKeyInterface<K>, V> {
 			inserts++;
 			queue.put(key, value);
 			tree.put(key, value);
+			size = queue.size();
 		}
 	}
 
@@ -93,6 +97,7 @@ public class LRUCache<K extends CacheKeyInterface<K>, V> {
 		synchronized (this) {
 			queue.clear();
 			tree.clear();
+			size = queue.size();
 		}
 	}
 
@@ -106,9 +111,7 @@ public class LRUCache<K extends CacheKeyInterface<K>, V> {
 
 	public void xmlInfo(PrintWriter writer) {
 		synchronized (this) {
-			float hitRatio = 0;
-			if (hits > 0 && lookups > 0)
-				hitRatio = (float) (((float) hits) / ((float) lookups));
+			float hitRatio = getHitRatio();
 			writer.println("<cache class=\"" + this.getClass().getName()
 					+ "\" maxSize=\"" + this.maxSize + "\" size=\""
 					+ queue.size() + "\" hitRatio=\"" + hitRatio
@@ -117,6 +120,41 @@ public class LRUCache<K extends CacheKeyInterface<K>, V> {
 					+ "\">");
 			writer.println("</cache>");
 		}
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public int getMaxSize() {
+		return maxSize;
+	}
+
+	public long getEvictions() {
+		return evictions;
+	}
+
+	public long getLookups() {
+		return lookups;
+	}
+
+	public long getHits() {
+		return hits;
+	}
+
+	public long getInserts() {
+		return inserts;
+	}
+
+	public float getHitRatio() {
+		if (hits > 0 && lookups > 0)
+			return (float) (((float) hits) / ((float) lookups));
+		else
+			return 0;
+	}
+
+	public String getHitRatioPercent() {
+		return NumberFormat.getPercentInstance().format(getHitRatio());
 	}
 
 }

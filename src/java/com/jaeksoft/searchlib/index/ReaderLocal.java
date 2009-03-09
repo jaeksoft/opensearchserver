@@ -604,4 +604,30 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 
 	}
 
+	protected SearchCache getSearchCache() {
+		r.lock();
+		try {
+			return searchCache;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	protected FilterCache getFilterCache() {
+		r.lock();
+		try {
+			return filterCache;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	protected FieldCache getFieldCache() {
+		r.lock();
+		try {
+			return fieldCache;
+		} finally {
+			r.unlock();
+		}
+	}
 }
