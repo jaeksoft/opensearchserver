@@ -52,7 +52,7 @@ public class StatServlet extends AbstractServlet {
 			// boolean deleteOld = (request.getParameter("deleteOld") != null);
 
 			if (reload != null)
-				client.getIndex().reload(reload);
+				client.reload(reload);
 
 			PrintWriter writer = servletTransaction.getWriter("UTF-8");
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");

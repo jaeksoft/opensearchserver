@@ -43,7 +43,7 @@ public class Full {
 		FileInputStream fis = new FileInputStream(contentFile);
 		client.updateXmlDocuments(null, new InputSource(fis));
 		fis.close();
-		client.reload();
+		client.reload(null);
 	}
 
 	@Test

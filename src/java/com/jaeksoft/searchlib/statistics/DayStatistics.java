@@ -22,42 +22,30 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.statistics;
 
-public class Timer {
+import java.util.Calendar;
 
-	private long startTime;
-	private long endTime;
+public class DayStatistics extends StatisticsAbstract {
 
-	public Timer() {
-		reset();
+	public DayStatistics(StatisticTypeEnum type, boolean writeToLog,
+			int maxRetention) {
+		super(type, writeToLog, maxRetention);
 	}
 
-	public Timer(String name) {
-		this();
+	public Aggregate newAggregate(long startTime) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.roll(Calendar.DAY_OF_MONTH, true);
+		long nextStart = cal.getTimeInMillis();
+		return new Aggregate(startTime, nextStart);
 	}
 
-	public void reset() {
-		startTime = System.currentTimeMillis();
-		endTime = 0;
+	@Override
+	public StatisticPeriodEnum getPeriod() {
+		return StatisticPeriodEnum.DAY;
 	}
-
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public long getEndTime() {
-		return endTime;
-	}
-
-	public void setEnd() {
-		this.endTime = System.currentTimeMillis();
-	}
-
-	public long duration() {
-		if (this.endTime == 0)
-			this.setEnd();
-		return this.endTime - this.startTime;
-	}
-
 }

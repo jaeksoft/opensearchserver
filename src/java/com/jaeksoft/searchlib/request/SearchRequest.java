@@ -510,6 +510,10 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return finalTime;
 	}
 
+	public Timer getTimer() {
+		return timer;
+	}
+
 	public String getIndexName() {
 		return indexName;
 	}

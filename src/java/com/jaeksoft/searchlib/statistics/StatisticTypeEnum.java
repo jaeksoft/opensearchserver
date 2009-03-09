@@ -22,42 +22,9 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.statistics;
 
-public class Timer {
+public enum StatisticTypeEnum {
 
-	private long startTime;
-	private long endTime;
-
-	public Timer() {
-		reset();
-	}
-
-	public Timer(String name) {
-		this();
-	}
-
-	public void reset() {
-		startTime = System.currentTimeMillis();
-		endTime = 0;
-	}
-
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public long getEndTime() {
-		return endTime;
-	}
-
-	public void setEnd() {
-		this.endTime = System.currentTimeMillis();
-	}
-
-	public long duration() {
-		if (this.endTime == 0)
-			this.setEnd();
-		return this.endTime - this.startTime;
-	}
-
+	SEARCH, UPDATE, DELETE, RELOAD, OPTIMIZE;
 }

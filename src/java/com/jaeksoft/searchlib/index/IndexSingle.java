@@ -32,8 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
@@ -59,9 +57,6 @@ public class IndexSingle extends IndexAbstract {
 	private volatile boolean online;
 
 	private volatile boolean readonly;
-
-	final private static Logger logger = Logger.getLogger(IndexSingle.class
-			.getCanonicalName());
 
 	public IndexSingle(File homeDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, URISyntaxException {
@@ -276,8 +271,6 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is read only");
 		w.lock();
 		try {
-			if (logger.isLoggable(Level.INFO))
-				logger.info("Reload " + getName() + " " + deleteOld);
 			if (reader != null)
 				reader.swap(version, deleteOld);
 		} finally {

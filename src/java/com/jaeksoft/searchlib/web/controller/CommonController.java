@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import javax.naming.NamingException;
@@ -89,6 +91,11 @@ public class CommonController extends Window {
 		DataBinder binder = (DataBinder) getPage().getVariable("binder");
 		if (binder != null)
 			binder.loadAll();
+	}
+
+	public void onReload() throws IOException, URISyntaxException,
+			SearchLibException {
+		reloadPage();
 	}
 
 }

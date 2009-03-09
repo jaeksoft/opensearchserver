@@ -57,6 +57,7 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.sort.SortList;
+import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
 
@@ -72,6 +73,8 @@ public abstract class Config implements XmlInfo {
 
 	private ExecutorService threadPool = null;
 
+	protected StatisticsList statisticsList;
+
 	protected Config(File homeDir, File configFile,
 			boolean createIndexIfNotExists) throws SearchLibException {
 
@@ -86,6 +89,9 @@ public abstract class Config implements XmlInfo {
 			threadPool = Executors.newCachedThreadPool();
 
 			index = getIndex(homeDir, createIndexIfNotExists);
+
+			statisticsList = StatisticsList.fromXmlConfig(xpp, xpp
+					.getNode("/configuration/statistics"));
 
 		} catch (Exception e) {
 			throw new SearchLibException(e);
@@ -117,6 +123,10 @@ public abstract class Config implements XmlInfo {
 
 	public IndexAbstract getIndex() {
 		return this.index;
+	}
+
+	public StatisticsList getStatisticsList() {
+		return statisticsList;
 	}
 
 	public SearchRequest getNewSearchRequest() {

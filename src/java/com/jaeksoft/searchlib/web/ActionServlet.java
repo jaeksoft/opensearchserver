@@ -49,14 +49,14 @@ public class ActionServlet extends AbstractServlet {
 			String index = request.getParameter("index");
 			String action = request.getParameter("action");
 			if ("optimize".equalsIgnoreCase(action))
-				client.getIndex().optimize(index);
+				client.optimize(index);
 			else if ("swap".equalsIgnoreCase(action)) {
 				String p = request.getParameter("version");
 				long version = (p == null) ? 0 : Long.parseLong(p);
 				boolean deleteOld = (request.getParameter("deleteOld") != null);
 				client.getIndex().swap(index, version, deleteOld);
 			} else if ("reload".equalsIgnoreCase(action)) {
-				client.getIndex().reload(index);
+				client.reload(index);
 			} else if ("online".equalsIgnoreCase(action))
 				client.getIndex().setOnline(index, true);
 			else if ("offline".equalsIgnoreCase(action))

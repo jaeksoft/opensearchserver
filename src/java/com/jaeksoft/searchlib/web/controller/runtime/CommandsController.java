@@ -51,11 +51,12 @@ public class CommandsController extends CommonController {
 		lastOptimize = null;
 	}
 
+	@Override
 	public void onReload() throws IOException, URISyntaxException,
 			SearchLibException {
 		synchronized (this) {
 			Date t = new Date();
-			getClient().reload();
+			getClient().reload(null);
 			lastReload = t;
 			reloadPage();
 		}
@@ -66,7 +67,7 @@ public class CommandsController extends CommonController {
 			SearchLibException {
 		synchronized (this) {
 			Date t = new Date();
-			getClient().getIndex().optimize(null);
+			getClient().optimize(null);
 			lastOptimize = t;
 			reloadPage();
 		}

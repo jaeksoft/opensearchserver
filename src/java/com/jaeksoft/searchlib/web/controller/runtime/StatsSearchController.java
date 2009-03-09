@@ -22,42 +22,20 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.web.controller.runtime;
 
-public class Timer {
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.statistics.StatisticTypeEnum;
 
-	private long startTime;
-	private long endTime;
+public class StatsSearchController extends StatisticsControllerAbstract {
 
-	public Timer() {
-		reset();
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6732672035937261768L;
 
-	public Timer(String name) {
-		this();
-	}
-
-	public void reset() {
-		startTime = System.currentTimeMillis();
-		endTime = 0;
-	}
-
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public long getEndTime() {
-		return endTime;
-	}
-
-	public void setEnd() {
-		this.endTime = System.currentTimeMillis();
-	}
-
-	public long duration() {
-		if (this.endTime == 0)
-			this.setEnd();
-		return this.endTime - this.startTime;
+	public StatsSearchController() throws SearchLibException {
+		super(StatisticTypeEnum.SEARCH);
 	}
 
 }

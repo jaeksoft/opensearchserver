@@ -76,4 +76,11 @@
 		</request>
 		<request name="minimal search" />
 	</requests>
+	<statistics>
+		<statistic type="SEARCH" period="MINUTE" maxRetention="60" />
+		<statistic type="SEARCH" period="HOUR" maxRetention="24"
+			writeToLog="yes" />
+		<statistic type="SEARCH" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+	</statistics>
 </configuration>

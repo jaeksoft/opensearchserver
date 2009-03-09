@@ -28,8 +28,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +37,6 @@ import org.apache.commons.httpclient.HttpException;
 
 import com.jaeksoft.searchlib.remote.UriRead;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
-import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
 public abstract class AbstractServlet extends HttpServlet {
@@ -48,9 +45,6 @@ public abstract class AbstractServlet extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 7013544620359275684L;
-
-	final private static Logger logger = Logger.getLogger(AbstractServlet.class
-			.getCanonicalName());
 
 	protected abstract void doRequest(ServletTransaction transaction)
 			throws ServletException;
@@ -61,18 +55,8 @@ public abstract class AbstractServlet extends HttpServlet {
 		ServletTransaction transaction = new ServletTransaction(this, request,
 				method, response);
 
-		String p;
-		if ((p = request.getParameter("log")) != null)
-			logger.setLevel(Level.parse(p.toUpperCase()));
-
-		Timer timer = new Timer();
-
 		try {
 			doRequest(transaction);
-			timer.end();
-			logger.info(this.getClass().getSimpleName()
-					+ (transaction.getInfo() == null ? "" : " "
-							+ transaction.getInfo()) + " " + timer.duration());
 		} catch (Exception e) {
 			try {
 				response.sendError(500, e.getMessage());
@@ -80,7 +64,6 @@ public abstract class AbstractServlet extends HttpServlet {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 
