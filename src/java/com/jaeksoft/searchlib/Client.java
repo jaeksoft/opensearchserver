@@ -132,27 +132,17 @@ public class Client extends Config implements XmlInfo {
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException {
-		Timer timer = new Timer();
-		try {
-			XPathParser xpp = new XPathParser(inputSource);
-			return updateXmlDocuments(indexName, xpp);
-		} finally {
-			statisticsList.addUpdate(timer);
-		}
+		XPathParser xpp = new XPathParser(inputSource);
+		return updateXmlDocuments(indexName, xpp);
 	}
 
 	public int updateXmlDocuments(String indexName, String xmlString)
 			throws SAXException, IOException, ParserConfigurationException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException {
-		Timer timer = new Timer();
-		try {
-			XPathParser xpp = new XPathParser(new InputSource(new StringReader(
-					xmlString)));
-			return updateXmlDocuments(indexName, xpp);
-		} finally {
-			statisticsList.addUpdate(timer);
-		}
+		XPathParser xpp = new XPathParser(new InputSource(new StringReader(
+				xmlString)));
+		return updateXmlDocuments(indexName, xpp);
 	}
 
 	public boolean deleteDocument(String uniqueField)

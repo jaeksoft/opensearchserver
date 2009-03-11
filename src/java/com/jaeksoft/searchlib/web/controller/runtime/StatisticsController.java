@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.statistics.StatisticTypeEnum;
 import com.jaeksoft.searchlib.statistics.StatisticsAbstract;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public abstract class StatisticsControllerAbstract extends CommonController {
+public class StatisticsController extends CommonController {
 
 	/**
 	 * 
@@ -40,27 +40,29 @@ public abstract class StatisticsControllerAbstract extends CommonController {
 
 	private StatisticsAbstract selectedStat;
 
-	private StatisticTypeEnum statType;
+	private StatisticTypeEnum selectedType;
 
 	private List<StatisticsAbstract> statList;
 
-	protected StatisticsControllerAbstract(StatisticTypeEnum type)
-			throws SearchLibException {
+	public StatisticsController() throws SearchLibException {
 		super();
-		this.statType = type;
+		this.selectedType = StatisticTypeEnum.SEARCH;
 		selectedStat = null;
 		statList = null;
 	}
 
 	public boolean isStatList() throws SearchLibException {
-		return getList() != null;
+		synchronized (this) {
+			return getStatList() != null;
+		}
 	}
 
-	public List<StatisticsAbstract> getList() throws SearchLibException {
+	public List<StatisticsAbstract> getStatList() throws SearchLibException {
 		synchronized (this) {
 			if (statList != null)
 				return statList;
-			statList = getClient().getStatisticsList().getStatList(statType);
+			statList = getClient().getStatisticsList()
+					.getStatList(selectedType);
 			if (statList == null)
 				return null;
 			if (selectedStat == null && statList.size() > 0)
@@ -82,12 +84,32 @@ public abstract class StatisticsControllerAbstract extends CommonController {
 		}
 	}
 
+	public StatisticTypeEnum getSelectedType() {
+		synchronized (this) {
+			return selectedType;
+		}
+	}
+
+	public void setSelectedType(StatisticTypeEnum selectedType) {
+		synchronized (this) {
+			this.selectedType = selectedType;
+			reloadPage();
+		}
+	}
+
+	public StatisticTypeEnum[] getTypeList() {
+		synchronized (this) {
+			return StatisticTypeEnum.values();
+		}
+	}
+
 	@Override
-	protected void reloadPage() {
+	public void reloadPage() {
 		synchronized (this) {
 			selectedStat = null;
 			statList = null;
 			super.reloadPage();
 		}
 	}
+
 }

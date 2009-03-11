@@ -82,5 +82,21 @@
 			writeToLog="yes" />
 		<statistic type="SEARCH" period="DAY" maxRetention="30"
 			writeToLog="yes" />
+		<statistic type="UPDATE" period="MINUTE" maxRetention="60" />
+		<statistic type="UPDATE" period="HOUR" maxRetention="24"
+			writeToLog="yes" />
+		<statistic type="UPDATE" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+		<statistic type="DELETE" period="MINUTE" maxRetention="60" />
+		<statistic type="DELETE" period="HOUR" maxRetention="24"
+			writeToLog="yes" />
+		<statistic type="DELETE" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+		<statistic type="RELOAD" period="HOUR" maxRetention="24"
+			writeToLog="yes" />
+		<statistic type="RELOAD" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+		<statistic type="OPTIMIZE" period="DAY" maxRetention="30"
+			writeToLog="yes" />
 	</statistics>
 </configuration>

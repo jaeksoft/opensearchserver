@@ -235,7 +235,7 @@ public class ResultController extends QueryController implements
 	}
 
 	@Override
-	protected void reloadPage() {
+	public void reloadPage() {
 		synchronized (this) {
 			documents = null;
 			result = null;

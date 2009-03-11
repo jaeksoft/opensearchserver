@@ -75,8 +75,16 @@ public class FieldContent implements Externalizable, Collecter<String>, XmlInfo 
 		return values.get(pos);
 	}
 
+	public void setValue(int pos, String value) {
+		values.set(pos, value);
+	}
+
 	public List<String> getValues() {
 		return values;
+	}
+
+	public void remove(int index) {
+		values.remove(index);
 	}
 
 	public void xmlInfo(PrintWriter writer) {

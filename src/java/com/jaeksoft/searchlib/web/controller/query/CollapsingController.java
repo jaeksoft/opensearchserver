@@ -57,7 +57,7 @@ public class CollapsingController extends QueryController {
 	}
 
 	@Override
-	protected void reloadPage() {
+	public void reloadPage() {
 		synchronized (this) {
 			indexedFields = null;
 			super.reloadPage();

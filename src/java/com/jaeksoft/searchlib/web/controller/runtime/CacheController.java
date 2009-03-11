@@ -138,7 +138,7 @@ public class CacheController extends CommonController {
 	}
 
 	@Override
-	protected void reloadPage() {
+	public void reloadPage() {
 		synchronized (this) {
 			searchCacheList = null;
 			filterCacheList = null;

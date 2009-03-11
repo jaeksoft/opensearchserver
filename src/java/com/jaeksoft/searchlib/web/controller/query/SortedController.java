@@ -115,7 +115,7 @@ public class SortedController extends QueryController implements RowRenderer {
 	}
 
 	@Override
-	protected void reloadPage() {
+	public void reloadPage() {
 		synchronized (this) {
 			selectedSort = null;
 			sortFieldLeft = null;

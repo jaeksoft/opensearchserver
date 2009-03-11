@@ -116,7 +116,7 @@ public class FacetController extends QueryController {
 	}
 
 	@Override
-	protected void reloadPage() {
+	public void reloadPage() {
 		synchronized (this) {
 			fieldLeft = null;
 			selectedFacet = null;

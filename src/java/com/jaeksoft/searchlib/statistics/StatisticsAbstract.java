@@ -71,7 +71,8 @@ public abstract class StatisticsAbstract {
 			long startTime = timer.getStartTime();
 			if (startTime > nextStart) {
 				if (aggregate != null && writeToLog)
-					System.out.println(type + " - " + aggregate);
+					System.out.println(type + " - " + getPeriod().getName()
+							+ " - " + aggregate);
 				aggregate = newAggregate(timer.getStartTime());
 				nextStart = aggregate.getNextStart();
 				aggregateList.add(aggregate);

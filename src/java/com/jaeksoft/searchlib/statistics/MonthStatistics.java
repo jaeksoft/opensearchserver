@@ -35,7 +35,7 @@ public class MonthStatistics extends StatisticsAbstract {
 
 	public Aggregate newAggregate(long startTime) {
 		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.DAY_OF_MONTH, 0);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
 		cal.set(Calendar.HOUR, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);

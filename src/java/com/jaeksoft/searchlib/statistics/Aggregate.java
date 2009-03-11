@@ -96,13 +96,13 @@ public class Aggregate {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(startTime);
-		sb.append(" - Count: ");
+		sb.append(" - Count:");
 		sb.append(count);
-		sb.append(" -  Average: ");
+		sb.append(" -  Average:");
 		sb.append(avg);
-		sb.append(" - Min: ");
+		sb.append(" - Min:");
 		sb.append(min);
-		sb.append(" - Max: ");
+		sb.append(" - Max:");
 		sb.append(max);
 		return sb.toString();
 	}

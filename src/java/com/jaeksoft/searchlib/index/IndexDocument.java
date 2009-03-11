@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -145,8 +144,8 @@ public class IndexDocument implements Externalizable, XmlInfo,
 		return fc.getValue(pos);
 	}
 
-	public Collection<FieldContent> getFields() {
-		return fields.values();
+	public Map<String, FieldContent> getFields() {
+		return fields;
 	}
 
 	public void xmlInfo(PrintWriter writer) {

@@ -15,55 +15,47 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<tabbox>
-	<tabs>
-		<tab label="Search request" />
-		<tab label="Update request" />
-		<tab label="Delete request" />
-		<tab label="Reload request" />
-		<tab label="Optimize request" />
-	</tabs>
-	<tabpanels>
-		<tabpanel>
-			<window id="stats"
-				use="com.jaeksoft.searchlib.web.controller.runtime.StatsSearchController">
-				<grid>
-					<columns>
-						<column align="left" />
-						<column align="right" />
-					</columns>
-					<rows>
-						<row>
-							<hbox align="center">
-								<label value="Select a period:" />
-								<listbox mold="select"
-									model="@{stats.list}" selectedItem="@{stats.selectedStat}">
-									<listitem self="@{each='stat'}"
-										label="@{stat.period.name}" />
-								</listbox>
-							</hbox>
-							<button label="refresh data"
-								forward="onReload" />
-						</row>
-					</rows>
-				</grid>
-				<listbox model="@{stats.selectedStat.array}">
-					<listhead>
-						<listheader label="date" />
-						<listheader label="count" />
-						<listheader label="average" />
-						<listheader label="min" />
-						<listheader label="max" />
-					</listhead>
-					<listitem self="@{each='item'}">
-						<listcell label="@{item.startTime}" />
-						<listcell label="@{item.count}" />
-						<listcell label="@{item.average}" />
-						<listcell label="@{item.min}" />
-						<listcell label="@{item.max}" />
-					</listitem>
-				</listbox>
-			</window>
-		</tabpanel>
-	</tabpanels>
-</tabbox>
+<window id="stats"
+	use="com.jaeksoft.searchlib.web.controller.runtime.StatisticsController">
+	<grid>
+		<columns>
+			<column align="left" />
+			<column align="right" />
+		</columns>
+		<rows>
+			<row>
+				<hbox align="center">
+					<label value="Select a statistic:" />
+					<listbox mold="select" model="@{stats.typeList}"
+						selectedItem="@{stats.selectedType}">
+						<listitem self="@{each='type'}" label="@{type}" />
+					</listbox>
+					<space />
+					<label value="Select a period:" />
+					<listbox mold="select" model="@{stats.statList}"
+						selectedItem="@{stats.selectedStat}">
+						<listitem self="@{each='stat'}"
+							label="@{stat.period.name}" />
+					</listbox>
+				</hbox>
+				<button label="refresh data" forward="onReload" />
+			</row>
+		</rows>
+	</grid>
+	<listbox model="@{stats.selectedStat.array}">
+		<listhead>
+			<listheader label="Period start time" />
+			<listheader label="count" />
+			<listheader label="average" />
+			<listheader label="min" />
+			<listheader label="max" />
+		</listhead>
+		<listitem self="@{each='item'}">
+			<listcell label="@{item.startTime}" />
+			<listcell label="@{item.count}" />
+			<listcell label="@{item.average}" />
+			<listcell label="@{item.min}" />
+			<listcell label="@{item.max}" />
+		</listitem>
+	</listbox>
+</window>

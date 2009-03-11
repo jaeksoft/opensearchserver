@@ -227,13 +227,14 @@ public class WriterLocal extends WriterAbstract {
 	private static Document getLuceneDocument(Schema schema,
 			IndexDocument document) {
 		org.apache.lucene.document.Document doc = new Document();
-		for (FieldContent fieldContent : document.getFields())
+		for (FieldContent fieldContent : document.getFields().values()) {
+			String fieldName = fieldContent.getField();
 			for (String value : fieldContent.getValues()) {
-				SchemaField field = schema.getFieldList().get(
-						fieldContent.getField());
+				SchemaField field = schema.getFieldList().get(fieldName);
 				if (field != null)
 					doc.add(field.getLuceneField(value));
 			}
+		}
 		return doc;
 	}
 

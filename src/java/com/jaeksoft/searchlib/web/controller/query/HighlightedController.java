@@ -117,7 +117,7 @@ public class HighlightedController extends QueryController {
 	}
 
 	@Override
-	protected void reloadPage() {
+	public void reloadPage() {
 		synchronized (this) {
 			highlightFieldLeft = null;
 			selectedHighlight = null;
