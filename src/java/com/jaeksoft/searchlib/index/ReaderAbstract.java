@@ -22,52 +22,37 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.request;
+package com.jaeksoft.searchlib.index;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.ArrayList;
+import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Iterator;
 
-import com.jaeksoft.searchlib.util.External;
-import com.jaeksoft.searchlib.util.External.Collecter;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.StaleReaderException;
+import org.apache.lucene.store.LockObtainFailedException;
 
-public class DeleteRequest<T> implements Externalizable, Iterable<T>,
-		Collecter<T> {
+public abstract class ReaderAbstract extends NameFilter implements
+		ReaderInterface {
 
-	private Collection<T> collection;
-
-	public DeleteRequest() {
-		collection = new ArrayList<T>();
+	protected ReaderAbstract(String indexName) {
+		super(indexName);
 	}
 
-	public DeleteRequest(Collection<T> collection) {
-		this.collection = collection;
+	public boolean deleteDocument(String indexName, int docId)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
+		if (!acceptNameOrEmpty(indexName))
+			return false;
+		return deleteDocument(docId);
 	}
 
-	public Collection<T> getCollection() {
-		return collection;
-	}
-
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		External.readCollection(in, this);
-
-	}
-
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeCollection(collection, out);
-	}
-
-	public Iterator<T> iterator() {
-		return collection.iterator();
-	}
-
-	public void addObject(T field) {
-		collection.add(field);
+	public int deleteDocuments(String indexName, Collection<Integer> docIds)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
+		if (!acceptNameOrEmpty(indexName))
+			return 0;
+		return deleteDocuments(docIds);
 	}
 
 }

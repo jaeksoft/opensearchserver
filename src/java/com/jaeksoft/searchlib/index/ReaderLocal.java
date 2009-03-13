@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -71,7 +72,7 @@ import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.FileUtils;
 
-public class ReaderLocal extends NameFilter implements ReaderInterface {
+public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	private IndexDirectory indexDirectory;
 	private IndexSearcher indexSearcher;
@@ -262,6 +263,33 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		return new ResultSingle(this, searchRequest);
 	}
 
+	public boolean deleteDocument(int docId) throws StaleReaderException,
+			CorruptIndexException, LockObtainFailedException, IOException {
+		r.lock();
+		try {
+			fastDeleteDocument(docId);
+			return true;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public int deleteDocuments(Collection<Integer> docIds)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException {
+		r.lock();
+		try {
+			int count = 0;
+			for (Integer docId : docIds) {
+				fastDeleteDocument(docId);
+				count++;
+			}
+			return count;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public void search(Query query, Filter filter, HitCollector collector)
 			throws IOException {
 		r.lock();
@@ -299,7 +327,7 @@ public class ReaderLocal extends NameFilter implements ReaderInterface {
 		}
 	}
 
-	protected void deleteDocument(int docNum) throws StaleReaderException,
+	protected void fastDeleteDocument(int docNum) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException {
 		indexReader.deleteDocument(docNum);
 	}

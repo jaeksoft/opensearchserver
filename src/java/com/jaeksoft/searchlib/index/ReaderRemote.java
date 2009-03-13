@@ -28,19 +28,24 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.web.ActionServlet;
+import com.jaeksoft.searchlib.web.DeleteServlet;
 import com.jaeksoft.searchlib.web.DocumentsServlet;
 import com.jaeksoft.searchlib.web.SearchServlet;
 
-public class ReaderRemote extends NameFilter implements ReaderInterface {
+public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 
 	private URI uri;
 
@@ -83,6 +88,18 @@ public class ReaderRemote extends NameFilter implements ReaderInterface {
 	public ResultDocuments documents(DocumentsRequest documentRequest)
 			throws IOException, URISyntaxException, ClassNotFoundException {
 		return DocumentsServlet.documents(uri, documentRequest);
+	}
+
+	public boolean deleteDocument(int docId) throws StaleReaderException,
+			CorruptIndexException, LockObtainFailedException, IOException,
+			URISyntaxException {
+		return DeleteServlet.deleteDocument(uri, getName(), docId);
+	}
+
+	public int deleteDocuments(Collection<Integer> docIds)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
+		return DeleteServlet.deleteDocuments(uri, getName(), docIds);
 	}
 
 	public boolean sameIndex(ReaderInterface reader) {

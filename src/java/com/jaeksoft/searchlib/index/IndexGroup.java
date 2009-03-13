@@ -174,6 +174,24 @@ public class IndexGroup extends IndexAbstract {
 		return index.deleteDocument(schema, uniqueField);
 	}
 
+	public boolean deleteDocument(String indexName, int docId)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return false;
+		return index.deleteDocument(docId);
+	}
+
+	public boolean deleteDocument(int docId) throws CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
+		boolean deleted = false;
+		for (IndexAbstract index : getIndices())
+			if (index.deleteDocument(docId))
+				deleted = true;
+		return deleted;
+	}
+
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
@@ -190,6 +208,24 @@ public class IndexGroup extends IndexAbstract {
 		if (index == null)
 			return 0;
 		return index.deleteDocuments(schema, uniqueFields);
+	}
+
+	public int deleteDocuments(Collection<Integer> docIds)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		int count = 0;
+		for (IndexAbstract index : getIndices())
+			count += index.deleteDocuments(docIds);
+		return count;
+	}
+
+	public int deleteDocuments(String indexName, Collection<Integer> docIds)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		IndexAbstract index = get(indexName);
+		if (index == null)
+			return 0;
+		return index.deleteDocuments(docIds);
 	}
 
 	public int getDocFreq(Term term) throws IOException {

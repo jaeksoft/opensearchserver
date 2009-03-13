@@ -76,26 +76,36 @@ public class StatisticsList {
 	}
 
 	public void addSearch(Timer timer) {
+		if (searchList == null)
+			return;
 		for (StatisticsAbstract stat : searchList)
 			stat.add(timer);
 	}
 
 	public void addUpdate(Timer timer) {
+		if (updateList == null)
+			return;
 		for (StatisticsAbstract stat : updateList)
 			stat.add(timer);
 	}
 
 	public void addDelete(Timer timer) {
+		if (deleteList == null)
+			return;
 		for (StatisticsAbstract stat : deleteList)
 			stat.add(timer);
 	}
 
 	public void addReload(Timer timer) {
+		if (reloadList == null)
+			return;
 		for (StatisticsAbstract stat : reloadList)
 			stat.add(timer);
 	}
 
 	public void addOptimize(Timer timer) {
+		if (optimizeList == null)
+			return;
 		for (StatisticsAbstract stat : optimizeList)
 			stat.add(timer);
 	}

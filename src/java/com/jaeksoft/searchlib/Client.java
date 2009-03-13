@@ -37,7 +37,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.NodeList;
@@ -168,6 +167,27 @@ public class Client extends Config implements XmlInfo {
 		}
 	}
 
+	public boolean deleteDocument(int docId) throws CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
+		Timer timer = new Timer();
+		try {
+			return getIndex().deleteDocument(docId);
+		} finally {
+			statisticsList.addDelete(timer);
+		}
+	}
+
+	public boolean deleteDocument(String indexName, int docId)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		Timer timer = new Timer();
+		try {
+			return getIndex().deleteDocument(indexName, docId);
+		} finally {
+			statisticsList.addDelete(timer);
+		}
+	}
+
 	public int deleteDocuments(Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
@@ -191,10 +211,26 @@ public class Client extends Config implements XmlInfo {
 		}
 	}
 
-	public int getDocFreq(String uniqueField) throws IOException {
-		return getIndex().getDocFreq(
-				new Term(getSchema().getFieldList().getUniqueField().getName(),
-						uniqueField));
+	public int deleteDocumentsById(Collection<Integer> docIds)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		Timer timer = new Timer();
+		try {
+			return getIndex().deleteDocuments(docIds);
+		} finally {
+			statisticsList.addDelete(timer);
+		}
+	}
+
+	public int deleteDocumentsbyId(String indexName, Collection<Integer> docIds)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		Timer timer = new Timer();
+		try {
+			return getIndex().deleteDocuments(indexName, docIds);
+		} finally {
+			statisticsList.addDelete(timer);
+		}
 	}
 
 	public void optimize(String indexName) throws IOException,

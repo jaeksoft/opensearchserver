@@ -85,6 +85,10 @@ public class ResultController extends QueryController implements
 				title.append(getScore());
 				title.append(" - Collapsed: ");
 				title.append(getCollapseCount());
+				title.append(" - Index: ");
+				title.append(getIndex());
+				title.append(" - docId: ");
+				title.append(getDocId());
 				return title.toString();
 			}
 		}
@@ -99,6 +103,14 @@ public class ResultController extends QueryController implements
 
 		public int getCollapseCount() {
 			return result.getCollapseCount(pos);
+		}
+
+		public int getDocId() {
+			return result.getDocs()[pos].doc;
+		}
+
+		public String getIndex() {
+			return result.getDocs()[pos].indexName;
 		}
 
 		public ResultDocument getResultDocument() throws CorruptIndexException,

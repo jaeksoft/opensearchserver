@@ -67,7 +67,7 @@ public class DocSetHits implements XmlInfo {
 		public void collect(int docId, float sc) {
 			super.collect(docId, sc);
 			try {
-				reader.deleteDocument(docId);
+				reader.fastDeleteDocument(docId);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

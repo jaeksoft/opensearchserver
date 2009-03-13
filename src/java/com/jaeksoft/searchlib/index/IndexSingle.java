@@ -136,6 +136,40 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	public boolean deleteDocument(int docId) throws IOException,
+			URISyntaxException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
+		r.lock();
+		try {
+			if (reader != null)
+				return reader.deleteDocument(docId);
+			else
+				return false;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public boolean deleteDocument(String indexName, int docId)
+			throws IOException, URISyntaxException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
+		r.lock();
+		try {
+			if (reader != null)
+				return reader.deleteDocument(indexName, docId);
+			else
+				return false;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException {
@@ -165,6 +199,42 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (writer != null)
 				return writer.deleteDocuments(indexName, schema, uniqueFields);
+			else
+				return 0;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public int deleteDocuments(Collection<Integer> docIds)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
+		r.lock();
+		try {
+			if (reader != null)
+				return reader.deleteDocuments(docIds);
+			else
+				return 0;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public int deleteDocuments(String indexName, Collection<Integer> docIds)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException, URISyntaxException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
+		r.lock();
+		try {
+			if (reader != null)
+				return reader.deleteDocuments(indexName, docIds);
 			else
 				return 0;
 		} finally {

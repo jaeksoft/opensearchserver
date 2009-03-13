@@ -27,10 +27,14 @@ package com.jaeksoft.searchlib.index;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
@@ -55,6 +59,22 @@ public interface ReaderInterface extends XmlInfo {
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException;
+
+	public boolean deleteDocument(int docId) throws StaleReaderException,
+			CorruptIndexException, LockObtainFailedException, IOException,
+			URISyntaxException;
+
+	public boolean deleteDocument(String indexName, int docId)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException;
+
+	public int deleteDocuments(Collection<Integer> docIds)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException;
+
+	public int deleteDocuments(String indexName, Collection<Integer> docIds)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException;
 
 	public String getName();
 
