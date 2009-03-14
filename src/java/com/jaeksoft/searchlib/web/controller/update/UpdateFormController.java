@@ -29,7 +29,6 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -117,9 +116,8 @@ public class UpdateFormController extends CommonController implements
 		synchronized (this) {
 			if (fieldDocumentList != null)
 				return fieldDocumentList;
-			Map<String, FieldContent> fieldMap = getIndexDocument().getFields();
-			fieldDocumentList = new ArrayList<FieldDocument>(fieldMap.size());
-			for (FieldContent fieldContent : fieldMap.values())
+			fieldDocumentList = new ArrayList<FieldDocument>();
+			for (FieldContent fieldContent : indexDocument)
 				fieldDocumentList.add(new FieldDocument(fieldContent));
 			return fieldDocumentList;
 		}
@@ -133,9 +131,9 @@ public class UpdateFormController extends CommonController implements
 
 		private FieldDocument(FieldContent fieldContent) {
 			fieldName = fieldContent.getField();
-			Map<String, FieldContent> mapFields = getIndexDocument()
-					.getFields();
-			fieldValueList = new ArrayList<FieldValue>(mapFields.size());
+
+			fieldValueList = new ArrayList<FieldValue>(fieldContent.getValues()
+					.size());
 			int i = 0;
 			for (@SuppressWarnings("unused")
 			String value : fieldContent.getValues())

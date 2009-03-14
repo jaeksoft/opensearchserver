@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,7 +45,7 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
 public class IndexDocument implements Externalizable, XmlInfo,
-		Collecter<FieldContent> {
+		Collecter<FieldContent>, Iterable<FieldContent> {
 
 	/**
 	 * 
@@ -53,10 +54,12 @@ public class IndexDocument implements Externalizable, XmlInfo,
 
 	private Map<String, FieldContent> fields;
 	private String lang;
+	private FieldContent[] fieldContentArray;
 
 	public IndexDocument() {
 		fields = new TreeMap<String, FieldContent>();
 		this.lang = null;
+		fieldContentArray = null;
 	}
 
 	public IndexDocument(String lang) {
@@ -107,6 +110,7 @@ public class IndexDocument implements Externalizable, XmlInfo,
 			fields.put(field, fc);
 		}
 		fc.add(value);
+		fieldContentArray = null;
 	}
 
 	public void add(String field, Object value) {
@@ -144,16 +148,20 @@ public class IndexDocument implements Externalizable, XmlInfo,
 		return fc.getValue(pos);
 	}
 
-	public Map<String, FieldContent> getFields() {
-		return fields;
-	}
-
 	public void xmlInfo(PrintWriter writer) {
 		writer.print("<document>");
 		for (FieldContent field : fields.values())
 			field.xmlInfo(writer);
 		writer.println("</document>");
 
+	}
+
+	public FieldContent[] getFieldContentArray() {
+		if (fieldContentArray != null)
+			return fieldContentArray;
+		fieldContentArray = new FieldContent[fields.size()];
+		fields.values().toArray(fieldContentArray);
+		return fieldContentArray;
 	}
 
 	public void readExternal(ObjectInput in) throws IOException,
@@ -169,6 +177,12 @@ public class IndexDocument implements Externalizable, XmlInfo,
 
 	public void addObject(FieldContent fieldContent) {
 		fields.put(fieldContent.getField(), fieldContent);
+		fieldContentArray = null;
+	}
+
+	@Override
+	public Iterator<FieldContent> iterator() {
+		return fields.values().iterator();
 	}
 
 }
