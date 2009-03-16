@@ -117,7 +117,7 @@ public class UpdateFormController extends CommonController implements
 			if (fieldDocumentList != null)
 				return fieldDocumentList;
 			fieldDocumentList = new ArrayList<FieldDocument>();
-			for (FieldContent fieldContent : indexDocument)
+			for (FieldContent fieldContent : getIndexDocument())
 				fieldDocumentList.add(new FieldDocument(fieldContent));
 			return fieldDocumentList;
 		}
