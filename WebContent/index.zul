@@ -26,6 +26,8 @@
 				label="Query" />
 			<tab id="tabUpdate" visible="@{index.instanceValid}"
 				label="Update" />
+			<tab id="tabBasket" visible="@{index.instanceValid}"
+				label="Basket" />
 			<tab id="tabConfiguration" visible="@{index.instanceValid}"
 				label="Configuration" />
 			<tab id="tabRuntime" visible="@{index.instanceValid}"
@@ -33,19 +35,22 @@
 		</tabs>
 		<tabpanels>
 			<tabpanel>
-				<include src="zul/home.zul" />
+				<include src="WEB-INF/zul/home.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabQuery.onSelect">
-				<include src="zul/query/index.zul" />
+				<include src="WEB-INF/zul/query/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabUpdate.onSelect">
-				<include src="zul/update/index.zul" />
+				<include src="WEB-INF/zul/update/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabBasket.onSelect">
+				<include src="WEB-INF/zul/basket/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabConfiguration.onSelect">
-				<include src="zul/configuration/index.zul" />
+				<include src="WEB-INF/zul/configuration/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabRuntime.onSelect">
-				<include src="zul/runtime/index.zul" />
+				<include src="WEB-INF/zul/runtime/index.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>
