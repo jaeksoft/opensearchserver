@@ -39,6 +39,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
@@ -75,6 +76,8 @@ public abstract class Config implements XmlInfo {
 
 	protected StatisticsList statisticsList;
 
+	private BasketCache basketCache;
+
 	protected Config(File homeDir, File configFile,
 			boolean createIndexIfNotExists) throws SearchLibException {
 
@@ -89,6 +92,8 @@ public abstract class Config implements XmlInfo {
 			threadPool = Executors.newCachedThreadPool();
 
 			index = getIndex(homeDir, createIndexIfNotExists);
+
+			basketCache = new BasketCache(100);
 
 			statisticsList = StatisticsList.fromXmlConfig(xpp, xpp
 					.getNode("/configuration/statistics"));
@@ -119,6 +124,10 @@ public abstract class Config implements XmlInfo {
 
 	public Schema getSchema() {
 		return this.schema;
+	}
+
+	public BasketCache getBasketCache() {
+		return basketCache;
 	}
 
 	public IndexAbstract getIndex() {
