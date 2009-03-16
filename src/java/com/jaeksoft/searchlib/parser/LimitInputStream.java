@@ -22,31 +22,34 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.basket;
+package com.jaeksoft.searchlib.parser;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
-import com.jaeksoft.searchlib.index.IndexDocument;
+import java.io.IOException;
+import java.io.InputStream;
 
-public class BasketDocument extends IndexDocument implements
-		CacheKeyInterface<BasketDocument> {
+public class LimitInputStream extends InputStream {
+
+	private boolean isComplete;
+	private InputStream inputStream;
+	private long limit;
+
+	public LimitInputStream(InputStream inputStream, long limit) {
+		this.inputStream = inputStream;
+		this.limit = limit;
+		this.isComplete = true;
+	}
 
 	@Override
-	public int compareTo(BasketDocument basket) {
-		return basket.hashCode() - hashCode();
+	public int read() throws IOException {
+		if (limit-- == 0) {
+			isComplete = false;
+			throw new LimitException();
+		}
+		return inputStream.read();
 	}
 
-	public void addIfNoEmpty(String field, String value) {
-		if (value == null)
-			return;
-		if (value.length() == 0)
-			return;
-		add(field, value);
-	}
-
-	public void addIfNoEmpty(String field, Object object) {
-		if (object == null)
-			return;
-		addIfNoEmpty(field, object.toString());
+	public boolean isComplete() {
+		return isComplete;
 	}
 
 }

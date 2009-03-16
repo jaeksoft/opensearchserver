@@ -76,6 +76,29 @@
 		</request>
 		<request name="minimal search" />
 	</requests>
+	<parsers>
+		<parser class="com.jaeksoft.searchlib.parser.HtmlParser"
+			sizeLimit="8388608">
+			<contentType>text/html</contentType>
+			<extension>html</extension>
+		</parser>
+		<parser class="com.jaeksoft.searchlib.parser.PdfParser"
+			sizeLimit="8388608">
+			<contentType>application/pdf</contentType>
+			<extension>pdf</extension>
+		</parser>
+		<parser class="com.jaeksoft.searchlib.parser.DocParser"
+			sizeLimit="8388608">
+			<contentType>application/msword</contentType>
+			<extension>doc</extension>
+		</parser>
+		<parser class="com.jaeksoft.searchlib.parser.PptParser"
+			sizeLimit="8388608">
+			<contentType>application/vnd.ms-powerpoint
+			</contentType>
+			<extension>ppt</extension>
+		</parser>
+	</parsers>
 	<statistics>
 		<statistic type="SEARCH" period="MINUTE" maxRetention="60" />
 		<statistic type="SEARCH" period="HOUR" maxRetention="24"

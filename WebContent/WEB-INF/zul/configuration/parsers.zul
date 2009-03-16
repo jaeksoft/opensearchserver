@@ -15,29 +15,34 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="basketUpload"
-	use="com.jaeksoft.searchlib.web.controller.basket.UploadController">
-	<vbox width="100%" align="center">
-		<button label="Upload" forward="onUpload" />
-	</vbox>
-	<separator />
-	<panel visible="@{basketUpload.currentDocumentValid}"
-		title="Basket document">
-		<panelchildren>
-			<grid
-				model="@{basketUpload.currentDocument.fieldContentArray}">
-				<rows>
-					<row self="@{each=fieldContent}">
-						<panel title="@{fieldContent.field}"
-							collapsible="true">
-							<panelchildren>
-								<grid mold="paging" pageSize="25"
-									model="@{fieldContent.values}" forward="onPaging" />
-							</panelchildren>
-						</panel>
-					</row>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
+<window id="conf"
+	use="com.jaeksoft.searchlib.web.controller.ConfigurationController">
+	<grid model="@{conf.client.parserSelector.mimeParserSet}">
+		<columns>
+			<column label="Content type" />
+			<column label="Java class" />
+			<column label="Size limit" />
+		</columns>
+		<rows>
+			<row self="@{each=entry}">
+				<label value="@{entry.key}" />
+				<label value="@{entry.value.className}" />
+				<label value="@{entry.value.sizeLimit}" />
+			</row>
+		</rows>
+	</grid>
+	<grid model="@{conf.client.parserSelector.extensionParserSet}">
+		<columns>
+			<column label="Extension" />
+			<column label="Java class" />
+			<column label="Size limit" />
+		</columns>
+		<rows>
+			<row self="@{each=entry}">
+				<label value="@{entry.key}" />
+				<label value="@{entry.value.className}" />
+				<label value="@{entry.value.sizeLimit}" />
+			</row>
+		</rows>
+	</grid>
 </window>

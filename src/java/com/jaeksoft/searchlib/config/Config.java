@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.ParseException;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -48,6 +49,7 @@ import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.index.IndexSingle;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
@@ -78,6 +80,8 @@ public abstract class Config implements XmlInfo {
 
 	private BasketCache basketCache;
 
+	private ParserSelector parserSelector;
+
 	protected Config(File homeDir, File configFile,
 			boolean createIndexIfNotExists) throws SearchLibException {
 
@@ -94,6 +98,10 @@ public abstract class Config implements XmlInfo {
 			index = getIndex(homeDir, createIndexIfNotExists);
 
 			basketCache = new BasketCache(100);
+
+			Node node = xpp.getNode("/configuration/parsers");
+			if (node != null)
+				parserSelector = ParserSelector.fromXmlConfig(xpp, node);
 
 			statisticsList = StatisticsList.fromXmlConfig(xpp, xpp
 					.getNode("/configuration/statistics"));
@@ -128,6 +136,10 @@ public abstract class Config implements XmlInfo {
 
 	public BasketCache getBasketCache() {
 		return basketCache;
+	}
+
+	public ParserSelector getParserSelector() {
+		return parserSelector;
 	}
 
 	public IndexAbstract getIndex() {

@@ -31,13 +31,19 @@ import java.security.NoSuchAlgorithmException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
+import org.zkoss.zhtml.Messagebox;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.Fileupload;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.basket.BasketDocument;
+import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class UploadController extends CommonController {
 
@@ -50,28 +56,64 @@ public class UploadController extends CommonController {
 		super();
 	}
 
+	public boolean isCurrentDocumentValid() {
+		return getCurrentDocument() != null;
+	}
+
+	public BasketDocument getCurrentDocument() {
+		return (BasketDocument) getAttribute(ScopeAttribute.BASKET_CURRENT_DOCUMENT);
+	}
+
+	public void setCurrentDocument(BasketDocument basketDocument) {
+		setAttribute(ScopeAttribute.BASKET_CURRENT_DOCUMENT, basketDocument);
+	}
+
 	public void onUpload() throws InterruptedException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			ParserConfigurationException, SAXException, IOException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		Media media = Fileupload.get();
 		if (media == null)
 			return;
-		Object content;
+		setCurrentDocument(null);
+		ParserSelector parserSelector = getClient().getParserSelector();
+		Parser parser = null;
+		String contentType = media.getContentType();
+		if (contentType != null)
+			parser = parserSelector.getParserFromMimeType(contentType);
+		if (parser == null) {
+			String extension = FileUtils.getFileNameExtension(media.getName());
+			parser = parserSelector.getParserFromExtension(extension);
+		}
+		if (parser == null) {
+			Messagebox.show("No parser found for that document type ("
+					+ contentType + " - " + media.getName() + ')');
+			return;
+		}
+
+		BasketDocument basketDocument = parser.getBasketDocument();
+		setCurrentDocument(basketDocument);
+		basketDocument.addIfNoEmpty("filename", media.getName());
+		basketDocument.addIfNoEmpty("content_type", contentType);
+
 		synchronized (this) {
 			if (media.inMemory()) {
 				if (media.isBinary())
-					content = new String(media.getByteData());
-
+					parser.parseContent(media.getByteData());
 				else
-					content = media.getStringData();
+					parser.parseContent(media.getStringData());
 			} else {
 				if (media.isBinary())
-					content = new InputSource(media.getStreamData());
+					parser.parseContent(media.getStreamData());
 				else
-					content = new InputSource(media.getReaderData());
+					parser.parseContent(media.getReaderData());
 			}
 			reloadPage();
 		}
+	}
+
+	public void onPaging(Event event) {
+		System.out.println(event);
 	}
 }

@@ -22,31 +22,23 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.basket;
+package com.jaeksoft.searchlib.parser;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
-import com.jaeksoft.searchlib.index.IndexDocument;
+import java.io.IOException;
 
-public class BasketDocument extends IndexDocument implements
-		CacheKeyInterface<BasketDocument> {
+public class LimitException extends IOException {
 
-	@Override
-	public int compareTo(BasketDocument basket) {
-		return basket.hashCode() - hashCode();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1025969895922971791L;
+
+	public LimitException() {
+		super();
 	}
 
-	public void addIfNoEmpty(String field, String value) {
-		if (value == null)
-			return;
-		if (value.length() == 0)
-			return;
-		add(field, value);
-	}
-
-	public void addIfNoEmpty(String field, Object object) {
-		if (object == null)
-			return;
-		addIfNoEmpty(field, object.toString());
+	public LimitException(String message) {
+		super(message);
 	}
 
 }

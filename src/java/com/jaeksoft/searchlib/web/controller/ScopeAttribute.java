@@ -22,31 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.basket;
+package com.jaeksoft.searchlib.web.controller;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
-import com.jaeksoft.searchlib.index.IndexDocument;
+import org.zkoss.zk.ui.Component;
 
-public class BasketDocument extends IndexDocument implements
-		CacheKeyInterface<BasketDocument> {
+public enum ScopeAttribute {
 
-	@Override
-	public int compareTo(BasketDocument basket) {
-		return basket.hashCode() - hashCode();
+	BASKET_CURRENT_DOCUMENT(Component.SESSION_SCOPE),
+
+	QUERY_SEARCH_REQUEST(Component.SESSION_SCOPE),
+
+	QUERY_SEARCH_RESULT(Component.SESSION_SCOPE),
+
+	UPDATE_FORM_INDEX_DOCUMENT(Component.SESSION_SCOPE);
+
+	private int scope;
+
+	private ScopeAttribute(int scope) {
+		this.scope = scope;
 	}
 
-	public void addIfNoEmpty(String field, String value) {
-		if (value == null)
-			return;
-		if (value.length() == 0)
-			return;
-		add(field, value);
+	public void set(Component component, Object value) {
+		component.setAttribute(name(), value, scope);
 	}
 
-	public void addIfNoEmpty(String field, Object object) {
-		if (object == null)
-			return;
-		addIfNoEmpty(field, object.toString());
+	public Object get(Component component) {
+		return component.getAttribute(name(), scope);
 	}
 
 }

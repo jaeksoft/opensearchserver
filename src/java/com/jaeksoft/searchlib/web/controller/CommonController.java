@@ -52,6 +52,14 @@ public class CommonController extends Window {
 		client = null;
 	}
 
+	protected Object getAttribute(ScopeAttribute scopeAttribute) {
+		return scopeAttribute.get(this);
+	}
+
+	protected void setAttribute(ScopeAttribute scopeAttribute, Object value) {
+		scopeAttribute.set(this, value);
+	}
+
 	public Client getClient() throws SearchLibException {
 		synchronized (this) {
 			if (client != null)

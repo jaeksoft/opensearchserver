@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class QueryController extends CommonController {
 
@@ -53,8 +54,7 @@ public class QueryController extends CommonController {
 	}
 
 	public SearchRequest getRequest() throws SearchLibException {
-		SearchRequest request = (SearchRequest) getAttribute("searchRequest",
-				SESSION_SCOPE);
+		SearchRequest request = (SearchRequest) getAttribute(ScopeAttribute.QUERY_SEARCH_REQUEST);
 		if (request != null)
 			return request;
 		Client client = getClient();
@@ -66,7 +66,7 @@ public class QueryController extends CommonController {
 	}
 
 	public void setRequest(SearchRequest request) {
-		setAttribute("searchRequest", request, SESSION_SCOPE);
+		setAttribute(ScopeAttribute.QUERY_SEARCH_REQUEST, request);
 	}
 
 	public void setSelectedRequest(String requestName) {
@@ -98,11 +98,11 @@ public class QueryController extends CommonController {
 	}
 
 	public Result getResult() {
-		return (Result) getAttribute("searchResult", SESSION_SCOPE);
+		return (Result) getAttribute(ScopeAttribute.QUERY_SEARCH_RESULT);
 	}
 
 	public void setResult(Result result) {
-		setAttribute("searchResult", result, SESSION_SCOPE);
+		setAttribute(ScopeAttribute.QUERY_SEARCH_RESULT, result);
 	}
 
 	public void onLoadRequest() throws SearchLibException {

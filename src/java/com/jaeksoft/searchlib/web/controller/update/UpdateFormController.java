@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class UpdateFormController extends CommonController implements
 		ListitemRenderer {
@@ -102,11 +103,11 @@ public class UpdateFormController extends CommonController implements
 		synchronized (this) {
 			if (indexDocument != null)
 				return indexDocument;
-			indexDocument = (IndexDocument) getAttribute("indexDocument",
-					SESSION_SCOPE);
+			indexDocument = (IndexDocument) getAttribute(ScopeAttribute.UPDATE_FORM_INDEX_DOCUMENT);
 			if (indexDocument == null) {
 				indexDocument = new IndexDocument();
-				setAttribute("indexDocument", indexDocument, SESSION_SCOPE);
+				setAttribute(ScopeAttribute.UPDATE_FORM_INDEX_DOCUMENT,
+						indexDocument);
 			}
 			return indexDocument;
 		}

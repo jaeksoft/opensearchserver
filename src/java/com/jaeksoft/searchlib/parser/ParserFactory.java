@@ -22,31 +22,30 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.basket;
+package com.jaeksoft.searchlib.parser;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
-import com.jaeksoft.searchlib.index.IndexDocument;
+public class ParserFactory {
 
-public class BasketDocument extends IndexDocument implements
-		CacheKeyInterface<BasketDocument> {
+	private String className;
+	private long sizeLimit;
 
-	@Override
-	public int compareTo(BasketDocument basket) {
-		return basket.hashCode() - hashCode();
+	public ParserFactory(String className, long sizeLimit) {
+		this.className = className;
+		this.sizeLimit = sizeLimit;
 	}
 
-	public void addIfNoEmpty(String field, String value) {
-		if (value == null)
-			return;
-		if (value.length() == 0)
-			return;
-		add(field, value);
+	public Parser getNewParser() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		Parser parser = (Parser) Class.forName(className).newInstance();
+		parser.setSizeLimit(sizeLimit);
+		return parser;
 	}
 
-	public void addIfNoEmpty(String field, Object object) {
-		if (object == null)
-			return;
-		addIfNoEmpty(field, object.toString());
+	public String getClassName() {
+		return className;
 	}
 
+	public long getSizeLimit() {
+		return sizeLimit;
+	}
 }

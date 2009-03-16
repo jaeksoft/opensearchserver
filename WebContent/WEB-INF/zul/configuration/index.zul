@@ -4,6 +4,7 @@
 		<tab id="tab2" label="Analyzers" />
 		<tab id="tab3" label="Fields" />
 		<tab id="tab4" label="Requests" />
+		<tab id="tabParsers" label="Parsers" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
@@ -17,6 +18,9 @@
 		</tabpanel>
 		<tabpanel fulfill="tab4.onSelect">
 			<include src="WEB-INF/zul/configuration/requests.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabParsers.onSelect">
+			<include src="WEB-INF/zul/configuration/parsers.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>
