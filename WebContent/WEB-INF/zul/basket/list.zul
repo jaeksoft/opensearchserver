@@ -15,7 +15,28 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="list"
+<window id="basketList"
 	use="com.jaeksoft.searchlib.web.controller.basket.ListController">
-
+	<listbox model="@{basketList.client.basketCache.tree}"
+		multiple="false" mold="paging"
+		selectedItem="@{basketList.currentBasketDocument}">
+		<listhead>
+			<listheader label="Key" />
+			<listheader label="Source" />
+			<listheader label="Title" />
+		</listhead>
+		<listitem self="@{each='entry'}">
+			<listcell label="@{entry.key.key}" />
+			<listcell label="@{entry.value.source}" />
+			<listcell label="@{entry.value.firstTitle}" />
+		</listitem>
+	</listbox>
+	<separator />
+	<panel id="basketDocumentPanel" border="normal"
+		visible="@{basketList.currentBasketDocumentValid}"
+		title="Basket document">
+		<toolbar>
+			<button label="Remove document" forward="onRemoveDocument" />
+		</toolbar>
+	</panel>
 </window>

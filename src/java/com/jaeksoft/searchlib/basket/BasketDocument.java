@@ -53,4 +53,11 @@ public class BasketDocument extends IndexDocument implements
 		addIfNoEmpty(field, object.toString());
 	}
 
+	public String getFirstTitle() {
+		return getFieldValue("title", 0);
+	}
+
+	public String getSource() {
+		return getFieldValue("filename", 0);
+	}
 }

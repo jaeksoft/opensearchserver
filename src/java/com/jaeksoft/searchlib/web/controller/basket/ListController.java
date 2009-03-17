@@ -24,18 +24,83 @@
 
 package com.jaeksoft.searchlib.web.controller.basket;
 
+import java.util.Map;
+
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zul.Panelchildren;
+
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.basket.BasketDocument;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.model.FieldContentModel;
 
 public class ListController extends CommonController {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2248133377234564731L;
+	private static final long serialVersionUID = -4651293740989742211L;
+
+	private BasketDocument basketDocument;
+
+	private Panelchildren basketComponent;
 
 	public ListController() throws SearchLibException {
 		super();
+		basketDocument = null;
+		basketComponent = null;
 	}
 
+	public BasketDocument getCurrentBasketDocument() {
+		synchronized (this) {
+			return basketDocument;
+		}
+	}
+
+	public boolean isCurrentBasketDocumentValid() {
+		synchronized (this) {
+			return basketDocument != null;
+		}
+	}
+
+	private void removeBasketComponent() {
+		synchronized (this) {
+			if (basketComponent == null)
+				return;
+			getFellow("basketDocumentPanel").removeChild(basketComponent);
+			basketComponent = null;
+		}
+	}
+
+	private void setBasketComponent() {
+		synchronized (this) {
+			removeBasketComponent();
+			if (basketDocument == null)
+				return;
+			basketComponent = FieldContentModel
+					.createIndexDocumentComponent(basketDocument
+							.getFieldContentArray());
+			Component parent = getFellow("basketDocumentPanel");
+			basketComponent.setParent(parent);
+		}
+	}
+
+	public void setCurrentBasketDocument(
+			Map.Entry<BasketDocument, BasketDocument> entry) {
+		synchronized (this) {
+			basketDocument = entry == null ? null : entry.getValue();
+			setBasketComponent();
+			reloadPage();
+		}
+	}
+
+	public void onRemoveDocument() throws SearchLibException {
+		synchronized (this) {
+			if (basketDocument == null)
+				return;
+			getClient().getBasketCache().remove(basketDocument);
+			setCurrentBasketDocument(null);
+			reloadPage();
+		}
+	}
 }

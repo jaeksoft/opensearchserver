@@ -84,6 +84,15 @@ public class LRUCache<K extends CacheKeyInterface<K>, V> {
 		}
 	}
 
+	public void remove(K key) {
+		synchronized (this) {
+			queue.remove(key);
+			tree.remove(key);
+			evictions++;
+		}
+
+	}
+
 	public void put(K key, V value) {
 		synchronized (this) {
 			inserts++;
@@ -155,6 +164,10 @@ public class LRUCache<K extends CacheKeyInterface<K>, V> {
 
 	public String getHitRatioPercent() {
 		return NumberFormat.getPercentInstance().format(getHitRatio());
+	}
+
+	public TreeMap<K, V> getTree() {
+		return tree;
 	}
 
 }
