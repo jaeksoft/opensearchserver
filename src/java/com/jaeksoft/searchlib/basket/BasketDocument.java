@@ -35,6 +35,10 @@ public class BasketDocument extends IndexDocument implements
 		return basket.hashCode() - hashCode();
 	}
 
+	public int getKey() {
+		return hashCode();
+	}
+
 	public void addIfNoEmpty(String field, String value) {
 		if (value == null)
 			return;

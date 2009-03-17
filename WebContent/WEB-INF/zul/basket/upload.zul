@@ -17,27 +17,13 @@
 -->
 <window id="basketUpload"
 	use="com.jaeksoft.searchlib.web.controller.basket.UploadController">
-	<vbox width="100%" align="center">
-		<button label="Upload" forward="onUpload" />
-	</vbox>
+	<hbox width="100%" align="center">
+		<button label="Upload a document" forward="onUpload" />
+		<button visible="@{basketUpload.currentDocumentValid}"
+			label="Save document in basket" forward="onSave" />
+	</hbox>
 	<separator />
-	<panel visible="@{basketUpload.currentDocumentValid}"
-		title="Basket document">
-		<panelchildren>
-			<grid
-				model="@{basketUpload.currentDocument.fieldContentArray}">
-				<rows>
-					<row self="@{each=fieldContent}">
-						<panel title="@{fieldContent.field}"
-							collapsible="true">
-							<panelchildren>
-								<grid mold="paging" pageSize="25"
-									model="@{fieldContent.values}" forward="onPaging" />
-							</panelchildren>
-						</panel>
-					</row>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
+	<panel id="basketDocumentPanel"
+		visible="@{basketUpload.currentDocumentValid}"
+		title="Basket document" />
 </window>

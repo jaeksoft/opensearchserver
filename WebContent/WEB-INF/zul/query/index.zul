@@ -66,6 +66,6 @@
 	<vbox width="100%" align="center">
 		<button label="Search" forward="onSearch" />
 	</vbox>
-	<include src="WEB-INF/szul/query/result.zul"
+	<include src="WEB-INF/zul/query/result.zul"
 		visible="@{query.resultExists}" />
 </window>

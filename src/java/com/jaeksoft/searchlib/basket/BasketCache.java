@@ -30,7 +30,6 @@ public class BasketCache extends LRUCache<BasketDocument, BasketDocument> {
 
 	public BasketCache(int maxSize) {
 		super(maxSize);
-		// TODO Auto-generated constructor stub
 	}
 
 }
