@@ -50,10 +50,7 @@ public class HomeController extends CommonController {
 	}
 
 	public String getConfigPath() {
-		String s = (String) getAttribute("configPath");
-		if (s == null) // TEMP
-			s = "/Users/ekeller/Documents/workspace/SearchLib-Community/resources/test_config.xml";
-		return s;
+		return (String) getAttribute("configPath");
 	}
 
 }

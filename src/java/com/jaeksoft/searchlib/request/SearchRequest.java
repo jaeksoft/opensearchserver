@@ -173,7 +173,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.start = searchRequest.start;
 		this.rows = searchRequest.rows;
 		this.lang = searchRequest.lang;
-		this.query = searchRequest.query;
+		this.query = null;
 		this.queryString = searchRequest.queryString;
 		this.patternQuery = searchRequest.patternQuery;
 		this.scoreFunction = searchRequest.scoreFunction;
@@ -181,6 +181,12 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.queryParsed = null;
 		this.noCache = searchRequest.noCache;
 		this.debug = searchRequest.debug;
+	}
+
+	public void reset() {
+		this.queryParsed = null;
+		this.query = null;
+		this.queryParser = null;
 	}
 
 	private SearchRequest(Config config, String indexName, String requestName,

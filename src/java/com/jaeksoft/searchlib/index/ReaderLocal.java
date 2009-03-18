@@ -199,6 +199,15 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	public void rewrite(Query query) throws IOException {
+		r.lock();
+		try {
+			query.rewrite(indexReader);
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public void close(boolean bDeleteDirectory) {
 		w.lock();
 		try {

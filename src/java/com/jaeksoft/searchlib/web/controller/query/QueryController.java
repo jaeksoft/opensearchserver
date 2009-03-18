@@ -113,7 +113,9 @@ public class QueryController extends CommonController {
 	public void onSearch() throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, SearchLibException,
 			InterruptedException {
-		setResult(getClient().search(getRequest()));
+		SearchRequest request = getRequest();
+		request.reset();
+		setResult(getClient().search(request));
 		reloadDesktop();
 	}
 }

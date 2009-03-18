@@ -249,7 +249,6 @@ public class HighlightField extends Field implements Externalizable {
 			throws ParseException, SyntaxError, IOException {
 		synchronized (this) {
 			Query query = searchRequest.getQuery();
-			query.rewrite(null);
 			Set<Term> terms = new HashSet<Term>();
 			query.extractTerms(terms);
 			String[] tempTerms = new String[terms.size()];

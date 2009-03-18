@@ -57,12 +57,9 @@ public class ResultController extends QueryController implements
 
 	private List<Document> documents;
 
-	private Result result;
-
 	public ResultController() throws SearchLibException {
 		super();
 		documents = null;
-		result = null;
 	}
 
 	public class Document {
@@ -98,24 +95,24 @@ public class ResultController extends QueryController implements
 		}
 
 		public float getScore() {
-			return result.getScore(pos);
+			return getResult().getScore(pos);
 		}
 
 		public int getCollapseCount() {
-			return result.getCollapseCount(pos);
+			return getResult().getCollapseCount(pos);
 		}
 
 		public int getDocId() {
-			return result.getDocs()[pos].doc;
+			return getResult().getDocs()[pos].doc;
 		}
 
 		public String getIndex() {
-			return result.getDocs()[pos].indexName;
+			return getResult().getDocs()[pos].indexName;
 		}
 
 		public ResultDocument getResultDocument() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			return result.getDocument(pos);
+			return getResult().getDocument(pos);
 		}
 
 		public boolean isReturnValid() throws CorruptIndexException,
@@ -204,7 +201,7 @@ public class ResultController extends QueryController implements
 		synchronized (this) {
 			if (documents != null)
 				return documents;
-			result = getResult();
+			Result result = getResult();
 			if (result == null)
 				return null;
 			int i = result.getDocumentCount();
@@ -250,7 +247,6 @@ public class ResultController extends QueryController implements
 	public void reloadPage() {
 		synchronized (this) {
 			documents = null;
-			result = null;
 			super.reloadPage();
 		}
 	}
