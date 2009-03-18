@@ -27,6 +27,10 @@ package com.jaeksoft.searchlib.request;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -34,42 +38,48 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 
 public abstract class AbstractGroupRequestThread implements Runnable {
 
-	private volatile boolean running;
+	final Lock lock = new ReentrantLock(true);
+	final Condition notCompletion = lock.newCondition();
+	private boolean completion;
 
 	private IOException ioException;
 	private URISyntaxException uriSyntaxException;
 	private ParseException parseException;
 	private SyntaxError syntaxError;
 	private ClassNotFoundException classNotFound;
+	private InterruptedException interruptedException;
 
 	protected AbstractGroupRequestThread() {
-		running = false;
 		ioException = null;
 		uriSyntaxException = null;
 		parseException = null;
 		syntaxError = null;
+		interruptedException = null;
+		completion = false;
 	}
 
-	final public void waitForCompletion() {
-		while (running) {
-			try {
-				synchronized (this) {
-					wait(5000);
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+	final protected void waitForCompletion(int timeOut)
+			throws InterruptedException {
+		lock.lock();
+		try {
+			while (!completion)
+				if (!notCompletion.await(timeOut, TimeUnit.SECONDS))
+					throw new InterruptedException("Running time out");
+		} finally {
+			lock.unlock();
 		}
 	}
 
 	public abstract void runner() throws IOException, URISyntaxException,
-			ParseException, SyntaxError, ClassNotFoundException;
-
-	public abstract boolean done();
+			ParseException, SyntaxError, ClassNotFoundException,
+			InterruptedException;
 
 	final public void run() {
+		lock.lock();
 		try {
 			runner();
+			completion = true;
+			notCompletion.signal();
 		} catch (IOException e) {
 			this.ioException = e;
 		} catch (URISyntaxException e) {
@@ -80,21 +90,25 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			this.syntaxError = e;
 		} catch (ClassNotFoundException e) {
 			this.classNotFound = e;
+		} catch (InterruptedException e) {
+			this.interruptedException = e;
 		} finally {
-			running = false;
-			synchronized (this) {
-				notifyAll();
-			}
+			lock.unlock();
 		}
 	}
 
 	final public void start(ExecutorService threadPool) {
-		running = true;
-		threadPool.execute(this);
+		lock.lock();
+		try {
+			threadPool.execute(this);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	final public void exception() throws IOException, URISyntaxException,
-			ParseException, SyntaxError, ClassNotFoundException {
+			ParseException, SyntaxError, ClassNotFoundException,
+			InterruptedException {
 		if (ioException != null)
 			throw ioException;
 		if (parseException != null)
@@ -105,5 +119,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			throw syntaxError;
 		if (classNotFound != null)
 			throw classNotFound;
+		if (interruptedException != null)
+			throw interruptedException;
 	}
 }

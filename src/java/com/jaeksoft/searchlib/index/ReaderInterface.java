@@ -54,11 +54,11 @@ public interface ReaderInterface extends XmlInfo {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException;
+			ClassNotFoundException, InterruptedException;
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException;
+			URISyntaxException, ClassNotFoundException, InterruptedException;
 
 	public boolean deleteDocument(int docId) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException,

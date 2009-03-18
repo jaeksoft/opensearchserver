@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -43,10 +45,15 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	private ExecutorService threadPool;
 
+	private int timeOut;
+
+	final private Lock lock = new ReentrantLock(true);
+
 	protected AbstractGroupRequest(IndexGroup indexGroup,
-			ExecutorService treadPool) {
+			ExecutorService treadPool, int timeOut) {
 		this.indexGroup = indexGroup;
 		this.threadPool = treadPool;
+		this.timeOut = timeOut;
 	}
 
 	protected abstract T getNewThread(IndexAbstract index)
@@ -54,16 +61,15 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	final private void run(List<T> threads) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException {
+			ClassNotFoundException, InterruptedException {
 		for (T thread : threads)
 			thread.start(threadPool);
 		Iterator<T> iterator = threads.iterator();
 		while (iterator.hasNext()) {
 			T thread = iterator.next();
-			thread.waitForCompletion();
+			thread.waitForCompletion(timeOut);
 			thread.exception();
-			complete(thread);
-			if (thread.done())
+			if (complete(thread))
 				iterator.remove();
 		}
 		complete();
@@ -80,7 +86,7 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 	 * 
 	 * @param thread
 	 */
-	protected abstract void complete(T thread);
+	protected abstract boolean complete(T thread);
 
 	final private List<T> initThreads() throws ParseException, SyntaxError,
 			IOException {
@@ -91,16 +97,34 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 		return threads;
 	}
 
-	final protected void loop() throws IOException, URISyntaxException,
-			ParseException, SyntaxError, ClassNotFoundException {
-		List<T> threads = initThreads();
-		while (threads.size() > 0)
-			run(threads);
+	final protected void loop(int maxIteration) throws IOException,
+			URISyntaxException, ParseException, SyntaxError,
+			ClassNotFoundException, InterruptedException {
+		lock.lock();
+		try {
+
+			List<T> threads = initThreads();
+			while (threads.size() > 0) {
+				if (maxIteration-- == 0)
+					throw new InterruptedException("Maximum iteration reachs ("
+							+ maxIteration + ')');
+				run(threads);
+			}
+
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	final protected void run() throws ParseException, SyntaxError, IOException,
-			URISyntaxException, ClassNotFoundException {
-		List<T> threads = initThreads();
-		run(threads);
+			URISyntaxException, ClassNotFoundException, InterruptedException {
+		lock.lock();
+		try {
+			List<T> threads = initThreads();
+			run(threads);
+		} finally {
+			lock.unlock();
+		}
 	}
+
 }

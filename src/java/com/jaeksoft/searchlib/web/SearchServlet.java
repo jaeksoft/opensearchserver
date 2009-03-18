@@ -69,7 +69,7 @@ public class SearchServlet extends AbstractServlet {
 	private Render doQueryRequest(Client client,
 			HttpServletRequest httpRequest, String render, String jsp)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException {
+			URISyntaxException, ClassNotFoundException, InterruptedException {
 		SearchRequest searchRequest = client.getNewSearchRequest(httpRequest);
 		Result result = client.search(searchRequest);
 		if ("jsp".equals(render) && jsp != null)

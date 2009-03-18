@@ -357,7 +357,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException {
+			ClassNotFoundException, InterruptedException {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();
@@ -374,7 +374,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException {
+			URISyntaxException, ClassNotFoundException, InterruptedException {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();

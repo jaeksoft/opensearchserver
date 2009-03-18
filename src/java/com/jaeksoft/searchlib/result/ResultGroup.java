@@ -200,7 +200,7 @@ public class ResultGroup extends Result {
 
 	public void loadDocuments(IndexGroup indexGroup) throws ParseException,
 			SyntaxError, IOException, URISyntaxException,
-			ClassNotFoundException {
+			ClassNotFoundException, InterruptedException {
 		DocumentsRequest documentsRequest = new DocumentsRequest(this);
 		ResultDocuments resultDocuments = indexGroup
 				.documents(documentsRequest);

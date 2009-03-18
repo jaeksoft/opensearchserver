@@ -253,7 +253,7 @@ public class IndexGroup extends IndexAbstract {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException {
+			ClassNotFoundException, InterruptedException {
 		String indexName = searchRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).search(searchRequest);
@@ -351,7 +351,7 @@ public class IndexGroup extends IndexAbstract {
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException {
+			URISyntaxException, ClassNotFoundException, InterruptedException {
 		String indexName = documentsRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).documents(documentsRequest);

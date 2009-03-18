@@ -52,8 +52,9 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 
 	public SearchGroup(IndexGroup indexGroup, SearchRequest searchRequest,
 			ExecutorService threadPool) throws IOException, URISyntaxException,
-			ParseException, SyntaxError, ClassNotFoundException {
-		super(indexGroup, threadPool);
+			ParseException, SyntaxError, ClassNotFoundException,
+			InterruptedException {
+		super(indexGroup, threadPool, 60);
 		newDocumentCount = 0;
 		resultGroup = new ResultGroup(searchRequest);
 		debug = resultGroup.getDebug();
@@ -65,7 +66,8 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 		fetchGoal = searchRequest.getEnd();
 		step = fetchGoal / indexGroup.size() + 1;
 		nextStep = rows / indexGroup.size() + 1;
-		loop();
+		// TODO define the correct iteration maximum
+		loop(rows);
 		resultGroup.expungeFacet();
 		if (debug != null)
 			debug.setInfo(resultGroup);
@@ -90,9 +92,13 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 	}
 
 	@Override
-	protected void complete(SearchThread thread) {
-		newDocumentCount += thread.getNewDocumentCount();
+	protected boolean complete(SearchThread thread) {
+		int ndc = thread.getNewDocumentCount();
+		if (ndc == 0)
+			return true;
+		newDocumentCount += ndc;
 		thread.setStep(step);
+		return false;
 	}
 
 	public ResultGroup getResult() {

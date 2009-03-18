@@ -62,7 +62,8 @@ public class SearchThread extends AbstractGroupRequestThread {
 	}
 
 	public void runner() throws IOException, URISyntaxException,
-			ParseException, SyntaxError, ClassNotFoundException {
+			ParseException, SyntaxError, ClassNotFoundException,
+			InterruptedException {
 		searchRequest.setStart(searchRequest.getEnd());
 		searchRequest.setRows(step);
 		Result result = reader.search(searchRequest);
@@ -89,10 +90,6 @@ public class SearchThread extends AbstractGroupRequestThread {
 
 	public void setStep(int step) {
 		this.step = step;
-	}
-
-	public boolean done() {
-		return newDocumentCount == 0;
 	}
 
 	public int getNewDocumentCount() {

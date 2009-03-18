@@ -263,7 +263,7 @@ public class Client extends Config implements XmlInfo {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException {
+			ClassNotFoundException, InterruptedException {
 		searchRequest.init(this);
 		Result result = getIndex().search(searchRequest);
 		statisticsList.addSearch(searchRequest.getTimer());
@@ -272,7 +272,7 @@ public class Client extends Config implements XmlInfo {
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException {
+			URISyntaxException, ClassNotFoundException, InterruptedException {
 		return getIndex().documents(documentsRequest);
 	}
 

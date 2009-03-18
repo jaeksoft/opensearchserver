@@ -60,6 +60,7 @@ public class Debug implements XmlInfo {
 			this.hc = object.hashCode();
 		}
 		this.elapsedTime = System.currentTimeMillis() - startTime;
+		System.out.println(this);
 	}
 
 	public Debug addChildren() {
@@ -98,5 +99,17 @@ public class Debug implements XmlInfo {
 			for (Debug children : childrens)
 				children.xmlInfo(writer);
 		writer.print("</debug>");
+	}
+
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(dtdf.format(new Date(startTime)));
+		sb.append(" elapsed:");
+		sb.append(elapsedTime);
+		sb.append(" info:");
+		sb.append(info);
+		sb.append(" class:");
+		sb.append(" className:");
+		return sb.toString();
 	}
 }

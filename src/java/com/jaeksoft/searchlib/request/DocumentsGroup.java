@@ -44,8 +44,8 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 	public DocumentsGroup(IndexGroup indexGroup,
 			DocumentsRequest documentsRequest, ExecutorService threadPool)
 			throws IOException, URISyntaxException, ParseException,
-			SyntaxError, ClassNotFoundException {
-		super(indexGroup, threadPool);
+			SyntaxError, ClassNotFoundException, InterruptedException {
+		super(indexGroup, threadPool, 60);
 		this.documentsRequest = documentsRequest;
 		DocumentRequest[] requestedDocuments = documentsRequest
 				.getRequestedDocuments();
@@ -56,7 +56,8 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 	}
 
 	@Override
-	protected void complete(DocumentsThread thread) {
+	protected boolean complete(DocumentsThread thread) {
+		return true;
 	}
 
 	@Override
