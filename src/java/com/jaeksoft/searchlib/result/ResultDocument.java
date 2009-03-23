@@ -34,13 +34,13 @@ import java.util.List;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.highlight.HighlightField;
-import com.jaeksoft.searchlib.highlight.HighlightFieldValue;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.util.External;
 
 public class ResultDocument implements Externalizable {
@@ -51,7 +51,7 @@ public class ResultDocument implements Externalizable {
 	private static final long serialVersionUID = 6099412341625264882L;
 
 	private FieldList<FieldValue> returnFields;
-	private FieldList<HighlightFieldValue> highlightFields;
+	private FieldList<SnippetFieldValue> snippetFields;
 
 	public ResultDocument() {
 	}
@@ -63,18 +63,18 @@ public class ResultDocument implements Externalizable {
 				documentsRequest.getDocumentFieldList());
 
 		returnFields = new FieldList<FieldValue>();
-		highlightFields = new FieldList<HighlightFieldValue>();
+		snippetFields = new FieldList<SnippetFieldValue>();
 
 		for (Field field : documentsRequest.getReturnFieldList())
 			returnFields.add(documentFields.get(field));
 
-		for (HighlightField field : documentsRequest.getHighlightFieldList()) {
+		for (SnippetField field : documentsRequest.getSnippetFieldList()) {
 			List<String> snippets = new ArrayList<String>();
-			boolean highlighted = field.getSnippets(doc, reader, documentFields
+			boolean isSnippet = field.getSnippets(doc, reader, documentFields
 					.get(field).getValueArray(), snippets);
-			HighlightFieldValue fieldValue = new HighlightFieldValue(field,
-					snippets, highlighted);
-			highlightFields.add(fieldValue);
+			SnippetFieldValue fieldValue = new SnippetFieldValue(field,
+					snippets, isSnippet);
+			snippetFields.add(fieldValue);
 		}
 	}
 
@@ -82,8 +82,8 @@ public class ResultDocument implements Externalizable {
 		return returnFields;
 	}
 
-	public FieldList<HighlightFieldValue> getHighlightFields() {
-		return highlightFields;
+	public FieldList<SnippetFieldValue> getSnippetFields() {
+		return snippetFields;
 	}
 
 	public String[] getValueArray(Field field) {
@@ -121,24 +121,23 @@ public class ResultDocument implements Externalizable {
 		return getValue(field, pos);
 	}
 
-	public String[] getSnippetArray(HighlightField field) {
-		return highlightFields.get(field).getValueArray();
+	public String[] getSnippetArray(SnippetField field) {
+		return snippetFields.get(field).getValueArray();
 	}
 
-	public List<String> getSnippetValue(HighlightField field) {
-		return highlightFields.get(field).getValueList();
+	public List<String> getSnippetValue(SnippetField field) {
+		return snippetFields.get(field).getValueList();
 	}
 
 	public String[] getSnippetArray(String fieldName) {
-		return highlightFields.get(fieldName).getValueArray();
+		return snippetFields.get(fieldName).getValueArray();
 	}
 
 	public List<String> getSnippetList(String fieldName) {
-		HighlightFieldValue highlightFieldValue = highlightFields
-				.get(fieldName);
-		if (highlightFieldValue == null)
+		SnippetFieldValue snippetFieldValue = snippetFields.get(fieldName);
+		if (snippetFieldValue == null)
 			return null;
-		return highlightFieldValue.getValueList();
+		return snippetFieldValue.getValueList();
 	}
 
 	public List<String> getSnippetList(Field field) {
@@ -155,18 +154,18 @@ public class ResultDocument implements Externalizable {
 	}
 
 	public boolean isHighlighted(String fieldName) {
-		return highlightFields.get(fieldName).isHighlighted();
+		return snippetFields.get(fieldName).isHighlighted();
 	}
 
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		returnFields = External.readObject(in);
-		highlightFields = External.readObject(in);
+		snippetFields = External.readObject(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeObject(returnFields, out);
-		External.writeObject(highlightFields, out);
+		External.writeObject(snippetFields, out);
 	}
 
 }

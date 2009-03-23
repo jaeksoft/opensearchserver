@@ -44,7 +44,6 @@ import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
-import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.IndexGroup;
@@ -59,6 +58,7 @@ import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -82,10 +82,19 @@ public abstract class Config implements XmlInfo {
 
 	private ParserSelector parserSelector;
 
-	protected Config(File homeDir, File configFile,
-			boolean createIndexIfNotExists) throws SearchLibException {
+	protected Config(File initFile, boolean createIndexIfNotExists)
+			throws SearchLibException {
 
 		try {
+			File configFile;
+			File indexDir;
+			if (initFile.isDirectory()) {
+				indexDir = new File(initFile, "index");
+				configFile = new File(initFile, "config.xml");
+			} else {
+				indexDir = new File(initFile.getParentFile(), "index");
+				configFile = initFile;
+			}
 			xpp = new XPathParser(configFile);
 
 			schema = Schema.fromXmlConfig(xpp.getNode("/configuration/schema"),
@@ -95,7 +104,7 @@ public abstract class Config implements XmlInfo {
 
 			threadPool = Executors.newCachedThreadPool();
 
-			index = getIndex(homeDir, createIndexIfNotExists);
+			index = getIndex(indexDir, createIndexIfNotExists);
 
 			basketCache = new BasketCache(100);
 
@@ -111,7 +120,7 @@ public abstract class Config implements XmlInfo {
 		}
 	}
 
-	protected IndexAbstract getIndex(File homeDir,
+	protected IndexAbstract getIndex(File indexDir,
 			boolean createIndexIfNotExists) throws XPathExpressionException,
 			IOException, URISyntaxException {
 		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
@@ -119,11 +128,11 @@ public abstract class Config implements XmlInfo {
 		case 0:
 			return null;
 		case 1:
-			return new IndexSingle(homeDir, new IndexConfig(xpp, xpp
+			return new IndexSingle(indexDir, new IndexConfig(xpp, xpp
 					.getNode("/configuration/indices/index")),
 					createIndexIfNotExists);
 		default:
-			return new IndexGroup(homeDir, xpp, xpp
+			return new IndexGroup(indexDir, xpp, xpp
 					.getNode("/configuration/indices"), createIndexIfNotExists,
 					threadPool);
 		}
@@ -232,11 +241,11 @@ public abstract class Config implements XmlInfo {
 		}
 
 		if ((values = httpRequest.getParameterValues("hl")) != null) {
-			FieldList<HighlightField> highlightFields = searchRequest
-					.getHighlightFieldList();
+			FieldList<SnippetField> snippetFields = searchRequest
+					.getSnippetFieldList();
 			for (String value : values)
-				highlightFields.add(new HighlightField(getSchema()
-						.getFieldList().get(value).getName()));
+				snippetFields.add(new SnippetField(getSchema().getFieldList()
+						.get(value).getName()));
 		}
 
 		if ((values = httpRequest.getParameterValues("fl")) != null) {

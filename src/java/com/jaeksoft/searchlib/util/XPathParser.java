@@ -62,6 +62,7 @@ public class XPathParser {
 			SAXException, IOException {
 		this();
 		currentFile = file;
+		System.out.println(currentFile);
 		setRoot(getBuilder().parse(currentFile.getAbsoluteFile()));
 	}
 

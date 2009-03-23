@@ -58,13 +58,13 @@ public class IndexSingle extends IndexAbstract {
 
 	private volatile boolean readonly;
 
-	public IndexSingle(File homeDir, IndexConfig indexConfig,
+	public IndexSingle(File indexDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, URISyntaxException {
 		super(indexConfig);
 		online = true;
 		readonly = false;
-		reader = ReaderLocal
-				.fromConfig(homeDir, indexConfig, createIfNotExists);
+		reader = ReaderLocal.fromConfig(indexDir, indexConfig,
+				createIfNotExists);
 		if (reader != null) {
 			writer = WriterLocal.fromConfig(indexConfig, (ReaderLocal) reader);
 		} else {

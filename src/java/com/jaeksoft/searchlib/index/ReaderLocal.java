@@ -70,7 +70,6 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.util.FileUtils;
 
 public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
@@ -417,23 +416,26 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public static ReaderLocal fromConfig(File homeDir, IndexConfig indexConfig,
-			boolean createIfNotExists) throws IOException {
-		if (indexConfig.getName() == null || indexConfig.getPath() == null)
+	public static ReaderLocal fromConfig(File indexDir,
+			IndexConfig indexConfig, boolean createIfNotExists)
+			throws IOException {
+		if (indexConfig.getName() == null)
+			return null;
+		if (indexConfig.getRemoteUri() != null)
 			return null;
 
-		File rootDir = new File(FileUtils.locatePath(homeDir, indexConfig
-				.getPath()));
-		if (!rootDir.exists() && createIfNotExists)
-			rootDir.mkdirs();
+		if (!indexDir.exists() && createIfNotExists)
+			indexDir.mkdirs();
+		// TODO remove
+		System.out.println("IndexDIR=" + indexDir);
 		ReaderLocal reader = ReaderLocal.findMostRecent(indexConfig.getName(),
-				rootDir);
+				indexDir);
 
 		if (reader == null) {
 			if (!createIfNotExists)
 				return null;
-			File dataDir = WriterLocal.createIndex(rootDir);
-			reader = new ReaderLocal(indexConfig.getName(), rootDir, dataDir);
+			File dataDir = WriterLocal.createIndex(indexDir);
+			reader = new ReaderLocal(indexConfig.getName(), indexDir, dataDir);
 		}
 
 		reader.initCache(indexConfig.getSearchCache(), indexConfig

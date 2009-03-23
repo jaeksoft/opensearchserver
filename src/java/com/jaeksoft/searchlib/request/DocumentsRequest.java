@@ -33,11 +33,11 @@ import java.util.Iterator;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.util.External;
 
 public class DocumentsRequest implements Externalizable {
@@ -51,7 +51,7 @@ public class DocumentsRequest implements Externalizable {
 
 	private DocumentRequest[] requestedDocuments;
 
-	private FieldList<HighlightField> highlightFieldList;
+	private FieldList<SnippetField> snippetFieldList;
 
 	private FieldList<Field> returnFieldList;
 
@@ -65,9 +65,9 @@ public class DocumentsRequest implements Externalizable {
 			throws ParseException, SyntaxError, IOException {
 		indexName = searchRequest.getIndexName();
 		requestedDocuments = null;
-		this.highlightFieldList = searchRequest.getHighlightFieldList();
-		for (HighlightField highlightField : highlightFieldList)
-			highlightField.initSearchTerms(searchRequest);
+		this.snippetFieldList = searchRequest.getSnippetFieldList();
+		for (SnippetField snippetField : snippetFieldList)
+			snippetField.initSearchTerms(searchRequest);
 		this.returnFieldList = searchRequest.getReturnFieldList();
 	}
 
@@ -108,7 +108,7 @@ public class DocumentsRequest implements Externalizable {
 			throws ParseException, SyntaxError, IOException {
 		this.indexName = indexName;
 
-		this.highlightFieldList = documentsRequest.highlightFieldList;
+		this.snippetFieldList = documentsRequest.snippetFieldList;
 		this.returnFieldList = documentsRequest.returnFieldList;
 		this.documentFieldList = documentsRequest.documentFieldList;
 
@@ -130,8 +130,8 @@ public class DocumentsRequest implements Externalizable {
 		return requestedDocuments;
 	}
 
-	public FieldList<HighlightField> getHighlightFieldList() {
-		return highlightFieldList;
+	public FieldList<SnippetField> getSnippetFieldList() {
+		return snippetFieldList;
 	}
 
 	public FieldList<Field> getReturnFieldList() {
@@ -146,7 +146,7 @@ public class DocumentsRequest implements Externalizable {
 		if (documentFieldList != null)
 			return documentFieldList;
 		documentFieldList = new FieldList<Field>(returnFieldList);
-		Iterator<HighlightField> it = highlightFieldList.iterator();
+		Iterator<SnippetField> it = snippetFieldList.iterator();
 		while (it.hasNext())
 			documentFieldList.add(new Field(it.next()));
 		return documentFieldList;
@@ -161,14 +161,14 @@ public class DocumentsRequest implements Externalizable {
 			requestedDocuments = new DocumentRequest[l];
 			External.readObjectArray(in, requestedDocuments);
 		}
-		highlightFieldList = (FieldList<HighlightField>) in.readObject();
+		snippetFieldList = (FieldList<SnippetField>) in.readObject();
 		returnFieldList = (FieldList<Field>) in.readObject();
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeUTF(indexName, out);
 		External.writeObjectArray(requestedDocuments, out);
-		out.writeObject(highlightFieldList);
+		out.writeObject(snippetFieldList);
 		out.writeObject(returnFieldList);
 	}
 

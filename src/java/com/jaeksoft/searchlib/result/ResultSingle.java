@@ -87,12 +87,8 @@ public class ResultSingle extends Result {
 
 		setDocs(docs);
 
-		if (searchRequest.isWithDocument()) {
-			// TODO Further needs for fuzzy search
-			// if (searchRequest.getHighlightFieldList().size() > 0)
-			// reader.rewrite(searchRequest.getQuery());
+		if (searchRequest.isWithDocument())
 			setDocuments(reader.documents(new DocumentsRequest(this)));
-		}
 
 		if (debug != null)
 			debug.setInfo(this);

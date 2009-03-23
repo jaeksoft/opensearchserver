@@ -15,10 +15,10 @@
 	copy of the GNU General Public License along with Jaeksoft SearchLib-Community.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="highlighted"
-	use="com.jaeksoft.searchlib.web.controller.query.HighlightedController">
-	<grid model="@{highlighted.request.highlightFieldList.list}"
-		rowRenderer="@{highlighted.highlightFieldRenderer}">
+<window id="snippet"
+	use="com.jaeksoft.searchlib.web.controller.query.SnippetController">
+	<grid model="@{snippet.request.snippetFieldList.list}"
+		rowRenderer="@{snippet.snippetFieldRenderer}">
 		<columns>
 			<column label="Field" />
 			<column label="Fragmenter" />
@@ -29,15 +29,15 @@
 			<column label="Max field size" />
 			<column label="Action" />
 		</columns>
-		<foot visible="@{highlighted.fieldLeft}">
+		<foot visible="@{snippet.fieldLeft}">
 			<footer span="4">
 				<listbox mold="select"
-					selectedItem="@{highlighted.selectedHighlight}"
-					model="@{highlighted.highlightFieldLeft}">
-					<listitem self="@{each=highlightField}"
-						label="@{highlightField}" />
+					selectedItem="@{snippet.selectedSnippet}"
+					model="@{snippet.snippetFieldLeft}">
+					<listitem self="@{each=snippetField}"
+						label="@{snippetField}" />
 				</listbox>
-				<button label="add highlight" forward="onHighlightAdd" />
+				<button label="add snippet" forward="onSnippetAdd" />
 			</footer>
 		</foot>
 	</grid>

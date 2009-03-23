@@ -31,87 +31,87 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.RowRenderer;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.snippet.SnippetField;
 
-public class HighlightedController extends QueryController {
+public class SnippetController extends QueryController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1641413871487856522L;
 
-	private String selectedHighlight = null;
+	private String selectedSnippet = null;
 
-	private List<String> highlightFieldLeft = null;
+	private List<String> snippetFieldLeft = null;
 
 	private RowRenderer rowRenderer = null;
 
-	public HighlightedController() throws SearchLibException {
+	public SnippetController() throws SearchLibException {
 		super();
 	}
 
-	public RowRenderer getHighlightFieldRenderer() {
+	public RowRenderer getSnippetFieldRenderer() {
 		synchronized (this) {
 			if (rowRenderer != null)
 				return rowRenderer;
-			rowRenderer = new HighlightFieldRenderer();
+			rowRenderer = new SnippetFieldRenderer();
 			return rowRenderer;
 		}
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {
 		synchronized (this) {
-			return getHighlightFieldLeft().size() > 0;
+			return getSnippetFieldLeft().size() > 0;
 		}
 	}
 
-	public List<String> getHighlightFieldLeft() throws SearchLibException {
+	public List<String> getSnippetFieldLeft() throws SearchLibException {
 		synchronized (this) {
-			if (highlightFieldLeft != null)
-				return highlightFieldLeft;
-			highlightFieldLeft = new ArrayList<String>();
-			FieldList<HighlightField> highlightFields = getRequest()
-					.getHighlightFieldList();
+			if (snippetFieldLeft != null)
+				return snippetFieldLeft;
+			snippetFieldLeft = new ArrayList<String>();
+			FieldList<SnippetField> snippetFields = getRequest()
+					.getSnippetFieldList();
 			for (SchemaField field : getClient().getSchema().getFieldList())
 				if (field.isStored())
 					if ("positions_offsets".equals(field.getTermVectorLabel()))
-						if (highlightFields.get(field.getName()) == null) {
-							if (selectedHighlight == null)
-								selectedHighlight = field.getName();
-							highlightFieldLeft.add(field.getName());
+						if (snippetFields.get(field.getName()) == null) {
+							if (selectedSnippet == null)
+								selectedSnippet = field.getName();
+							snippetFieldLeft.add(field.getName());
 						}
-			return highlightFieldLeft;
+			return snippetFieldLeft;
 		}
 	}
 
-	public void onHighlightRemove(Event event) throws SearchLibException {
+	public void onSnippetRemove(Event event) throws SearchLibException {
 		synchronized (this) {
-			HighlightField field = (HighlightField) event.getData();
-			getRequest().getHighlightFieldList().remove(field);
+			SnippetField field = (SnippetField) event.getData();
+			getRequest().getSnippetFieldList().remove(field);
 			reloadPage();
 		}
 	}
 
-	public void setSelectedHighlight(String value) {
+	public void setSelectedSnippet(String value) {
 		synchronized (this) {
-			selectedHighlight = value;
+			selectedSnippet = value;
 		}
 	}
 
-	public String getSelectedHighlight() {
+	public String getSelectedSnippet() {
 		synchronized (this) {
-			return selectedHighlight;
+			return selectedSnippet;
 		}
 	}
 
-	public void onHighlightAdd() throws SearchLibException {
+	public void onSnippetAdd() throws SearchLibException {
 		synchronized (this) {
-			if (selectedHighlight == null)
+			if (selectedSnippet == null)
 				return;
-			getRequest().getHighlightFieldList().add(
-					new HighlightField(selectedHighlight));
+			getRequest().getSnippetFieldList().add(
+					new SnippetField(selectedSnippet));
 			reloadPage();
 		}
 	}
@@ -119,8 +119,8 @@ public class HighlightedController extends QueryController {
 	@Override
 	public void reloadPage() {
 		synchronized (this) {
-			highlightFieldLeft = null;
-			selectedHighlight = null;
+			snippetFieldLeft = null;
+			selectedSnippet = null;
 			super.reloadPage();
 		}
 	}

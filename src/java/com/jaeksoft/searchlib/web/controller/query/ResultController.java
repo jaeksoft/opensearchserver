@@ -41,11 +41,11 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.highlight.HighlightFieldValue;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 public class ResultController extends QueryController implements
 		TreeitemRenderer {
@@ -120,23 +120,23 @@ public class ResultController extends QueryController implements
 			return getResultDocument().getReturnFields().size() > 0;
 		}
 
-		public boolean isHighlightValid() throws CorruptIndexException,
+		public boolean isSnippetValid() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			return getResultDocument().getHighlightFields().size() > 0;
+			return getResultDocument().getSnippetFields().size() > 0;
 		}
 
 		public String getReturnPercent() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
 			if (!isReturnValid())
 				return "0%";
-			if (!isHighlightValid())
+			if (!isSnippetValid())
 				return "100%";
 			return "50%";
 		}
 
-		public String getHighlightPercent() throws CorruptIndexException,
+		public String getSnippetPercent() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			if (!isHighlightValid())
+			if (!isSnippetValid())
 				return "0%";
 			if (!isReturnValid())
 				return "100%";
@@ -149,10 +149,10 @@ public class ResultController extends QueryController implements
 					.getReturnFields());
 		}
 
-		public TreeModel getHighlightTree() throws CorruptIndexException,
+		public TreeModel getSnippetTree() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			return new FieldTreeModel<HighlightFieldValue>(getResultDocument()
-					.getHighlightFields());
+			return new FieldTreeModel<SnippetFieldValue>(getResultDocument()
+					.getSnippetFields());
 		}
 	}
 

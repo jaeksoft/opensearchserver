@@ -35,8 +35,6 @@ public class IndexConfig {
 
 	private String name;
 
-	private String path;
-
 	private int searchCache;
 
 	private int filterCache;
@@ -51,7 +49,6 @@ public class IndexConfig {
 
 	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
 		name = XPathParser.getAttributeString(node, "name");
-		path = XPathParser.getAttributeString(node, "path");
 		searchCache = XPathParser.getAttributeValue(node, "searchCache");
 		filterCache = XPathParser.getAttributeValue(node, "filterCache");
 		fieldCache = XPathParser.getAttributeValue(node, "fieldCache");
@@ -76,21 +73,6 @@ public class IndexConfig {
 	 */
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	/**
-	 * @return the path
-	 */
-	public String getPath() {
-		return path;
-	}
-
-	/**
-	 * @param path
-	 *            the path to set
-	 */
-	public void setPath(String path) {
-		this.path = path;
 	}
 
 	/**

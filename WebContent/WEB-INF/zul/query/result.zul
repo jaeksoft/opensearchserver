@@ -74,7 +74,7 @@
 										<column
 											width="@{document.returnPercent}" />
 										<column
-											width="@{document.highlightPercent}" />
+											width="@{document.snippetPercent}" />
 									</columns>
 									<rows>
 										<row valign="top">
@@ -89,12 +89,11 @@
 												</treecols>
 											</tree>
 											<tree
-												model="@{document.highlightTree}"
-												treeitemRenderer="@{result}"
-												visible="@{document.highlightValid}" width="100%">
+												model="@{document.snippetTree}" treeitemRenderer="@{result}"
+												visible="@{document.snippetValid}" width="100%">
 												<treecols>
 													<treecol width="30%"
-														label="Highlighted field(s)" />
+														label="Snippet field(s)" />
 													<treecol
 														label="First value" width="69%" />
 												</treecols>

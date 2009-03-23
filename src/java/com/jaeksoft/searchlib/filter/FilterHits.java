@@ -26,12 +26,13 @@ package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.BitSet;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.util.XmlInfo;
@@ -44,7 +45,7 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 	 */
 	private static final long serialVersionUID = 966120808560552509L;
 
-	protected BitSet docSet;
+	protected OpenBitSet docSet;
 
 	protected FilterHits() {
 		docSet = null;
@@ -52,7 +53,7 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 
 	protected void and(FilterHits filterHits) {
 		if (docSet == null)
-			docSet = (BitSet) filterHits.docSet.clone();
+			docSet = (OpenBitSet) filterHits.docSet.clone();
 		else
 			docSet.and(filterHits.docSet);
 	}
@@ -66,10 +67,10 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 
 	private class Collector extends HitCollector {
 
-		private BitSet bitSet;
+		private OpenBitSet bitSet;
 
 		private Collector(int size) {
-			this.bitSet = new BitSet(size);
+			this.bitSet = new OpenBitSet(size);
 		}
 
 		@Override
@@ -79,7 +80,7 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 	}
 
 	@Override
-	public BitSet bits(IndexReader reader) throws IOException {
+	public DocIdSet getDocIdSet(IndexReader reader) throws IOException {
 		return this.docSet;
 	}
 

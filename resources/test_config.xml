@@ -65,11 +65,11 @@
 				<facetField minCount="0" name="source" />
 				<facetField name="color" multivalued="yes" />
 			</facetFields>
-			<highlighting>
+			<snippet>
 				<field tag="b" name="searchName" />
 				<field tag="b" name="description" maxSnippetNumber="1"
 					maxSnippetSize="200" separator="..." fragmenterClass="SentenceFragmenter" />
-			</highlighting>
+			</snippet>
 			<filters>
 				<filter>type:fruit</filter>
 			</filters>

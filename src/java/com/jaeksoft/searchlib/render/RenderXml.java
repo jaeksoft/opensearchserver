@@ -37,11 +37,11 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.util.Debug;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
@@ -106,8 +106,8 @@ public class RenderXml implements Render {
 		ResultDocument doc = result.getDocument(pos);
 		for (Field field : searchRequest.getReturnFieldList())
 			renderField(doc, field);
-		for (HighlightField field : searchRequest.getHighlightFieldList())
-			renderHighlightValue(doc, field);
+		for (SnippetField field : searchRequest.getSnippetFieldList())
+			renderSnippetValue(doc, field);
 
 		int cc = result.getCollapseCount(pos);
 		if (cc > 0) {
@@ -135,7 +135,7 @@ public class RenderXml implements Render {
 		}
 	}
 
-	private void renderHighlightValue(ResultDocument doc, HighlightField field)
+	private void renderSnippetValue(ResultDocument doc, SnippetField field)
 			throws IOException {
 		String fieldName = field.getName();
 		String[] snippets = doc.getSnippetArray(field);
@@ -144,7 +144,7 @@ public class RenderXml implements Render {
 		boolean highlighted = doc.isHighlighted(field.getName());
 		writer.println();
 		for (String snippet : snippets) {
-			writer.print("\t\t<highlight name=\"");
+			writer.print("\t\t<snippet name=\"");
 			writer.print(fieldName);
 			writer.print('"');
 			if (highlighted)
@@ -152,7 +152,7 @@ public class RenderXml implements Render {
 			writer.print('>');
 			writer.print(StringEscapeUtils.escapeJava(StringEscapeUtils
 					.escapeXml(snippet)));
-			writer.println("\t\t</highlight>");
+			writer.println("\t\t</snippet>");
 		}
 	}
 

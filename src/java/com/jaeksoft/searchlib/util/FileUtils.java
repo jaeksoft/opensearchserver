@@ -26,17 +26,9 @@ package com.jaeksoft.searchlib.util;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-
 import org.junit.Test;
 
 public class FileUtils {
-
-	final public static String locatePath(File homeDir, String path) {
-		String rootPath = homeDir == null ? System.getProperty("user.dir")
-				: homeDir.getAbsolutePath();
-		return path.replace("${root}", rootPath);
-	}
 
 	final public static String getFileNameExtension(String fileName) {
 		if (fileName == null)

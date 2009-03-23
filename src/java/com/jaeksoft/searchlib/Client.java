@@ -57,18 +57,13 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Client extends Config implements XmlInfo {
 
-	public Client(File homeDir, File configfile, boolean createIndexIfNotExists)
+	public Client(File initFile, boolean createIndexIfNotExists)
 			throws SearchLibException {
-		super(homeDir, configfile, createIndexIfNotExists);
+		super(initFile, createIndexIfNotExists);
 	}
 
-	public Client(File configfile, boolean createIndexIfNotExists)
-			throws SearchLibException {
-		this(null, configfile, createIndexIfNotExists);
-	}
-
-	public Client(File configfile) throws SearchLibException {
-		this(null, configfile, false);
+	public Client(File initFile) throws SearchLibException {
+		this(initFile, false);
 	}
 
 	public boolean updateDocument(IndexDocument document)

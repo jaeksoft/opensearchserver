@@ -30,7 +30,7 @@
 			<tab id="tabQuery" label="Query" selected="true" />
 			<tab id="tabReturn" label="Returned fields" />
 			<tab id="tabFacet" label="Faceted fields" />
-			<tab id="tabHighlight" label="Highlighted fields" />
+			<tab id="tabSnippet" label="Snippet fields" />
 			<tab id="tabSort" label="Sorted fields" />
 			<tab id="tabFilter" label="Filters" />
 			<tab id="tabCollapsing" label="Collapsing" />
@@ -46,8 +46,8 @@
 			<tabpanel fulfill="tabFacet.onSelect">
 				<include src="WEB-INF/zul/query/faceted.zul" />
 			</tabpanel>
-			<tabpanel fulfill="tabHighlight.onSelect">
-				<include src="WEB-INF/zul/query/highlighted.zul" />
+			<tabpanel fulfill="tabSnippet.onSelect">
+				<include src="WEB-INF/zul/query/snippet.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabSort.onSelect">
 				<include src="WEB-INF/zul/query/sorted.zul" />

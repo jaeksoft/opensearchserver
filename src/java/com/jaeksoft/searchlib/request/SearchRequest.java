@@ -48,12 +48,12 @@ import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.function.expression.RootExpression;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.highlight.HighlightField;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
@@ -80,7 +80,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 	private boolean allowLeadingWildcard;
 	private int phraseSlop;
 	private QueryParser.Operator defaultOperator;
-	private FieldList<HighlightField> highlightFieldList;
+	private FieldList<SnippetField> snippetFieldList;
 	private FieldList<Field> returnFieldList;
 	private FieldList<Field> documentFieldList;
 	private FieldList<FacetField> facetFieldList;
@@ -118,7 +118,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.allowLeadingWildcard = false;
 		this.phraseSlop = 10;
 		this.defaultOperator = Operator.OR;
-		this.highlightFieldList = new FieldList<HighlightField>();
+		this.snippetFieldList = new FieldList<SnippetField>();
 		this.returnFieldList = new FieldList<Field>();
 		this.sortList = new SortList();
 		this.documentFieldList = null;
@@ -153,8 +153,8 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
 		this.phraseSlop = searchRequest.phraseSlop;
 		this.defaultOperator = searchRequest.defaultOperator;
-		this.highlightFieldList = new FieldList<HighlightField>(
-				searchRequest.highlightFieldList);
+		this.snippetFieldList = new FieldList<SnippetField>(
+				searchRequest.snippetFieldList);
 		this.returnFieldList = new FieldList<Field>(
 				searchRequest.returnFieldList);
 		this.sortList = new SortList(searchRequest.sortList);
@@ -326,8 +326,8 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		this.filterList.add(req, Filter.Source.REQUEST);
 	}
 
-	public FieldList<HighlightField> getHighlightFieldList() {
-		return this.highlightFieldList;
+	public FieldList<SnippetField> getSnippetFieldList() {
+		return this.snippetFieldList;
 	}
 
 	public FieldList<Field> getReturnFieldList() {
@@ -470,7 +470,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		if (documentFieldList != null)
 			return documentFieldList;
 		documentFieldList = new FieldList<Field>(returnFieldList);
-		Iterator<HighlightField> it = highlightFieldList.iterator();
+		Iterator<SnippetField> it = snippetFieldList.iterator();
 		while (it.hasNext())
 			documentFieldList.add(new Field(it.next()));
 		return documentFieldList;
@@ -566,12 +566,12 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		Field.filterCopy(fieldList, xpp.getNodeString(node, "returnFields"),
 				returnFields);
 
-		FieldList<HighlightField> highlightFields = searchRequest
-				.getHighlightFieldList();
-		NodeList nodes = xpp.getNodeList(node, "highlighting/field");
+		FieldList<SnippetField> snippetFields = searchRequest
+				.getSnippetFieldList();
+		NodeList nodes = xpp.getNodeList(node, "snippet/field");
 		for (int i = 0; i < nodes.getLength(); i++)
-			HighlightField.copyHighlightFields(nodes.item(i), fieldList,
-					highlightFields);
+			SnippetField.copySnippetFields(nodes.item(i), fieldList,
+					snippetFields);
 
 		FieldList<FacetField> facetFields = searchRequest.getFacetFieldList();
 		nodes = xpp.getNodeList(node, "facetFields/facetField");
@@ -603,7 +603,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		else
 			defaultOperator = Operator.AND;
 
-		highlightFieldList = External.readObject(in);
+		snippetFieldList = External.readObject(in);
 		returnFieldList = External.readObject(in);
 		documentFieldList = External.readObject(in);
 		facetFieldList = External.readObject(in);
@@ -633,7 +633,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		out.writeInt(phraseSlop);
 		out.writeBoolean(defaultOperator == Operator.OR);
 
-		External.writeObject(highlightFieldList, out);
+		External.writeObject(snippetFieldList, out);
 		External.writeObject(returnFieldList, out);
 		External.writeObject(documentFieldList, out);
 		External.writeObject(facetFieldList, out);

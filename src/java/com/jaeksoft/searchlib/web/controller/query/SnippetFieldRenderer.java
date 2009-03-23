@@ -35,16 +35,16 @@ import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.Textbox;
 import org.zkoss.zul.api.Listitem;
 
-import com.jaeksoft.searchlib.highlight.HighlightField;
+import com.jaeksoft.searchlib.snippet.SnippetField;
 
-public class HighlightFieldRenderer implements RowRenderer {
+public class SnippetFieldRenderer implements RowRenderer {
 
 	public class FragmenterListener implements EventListener {
 
-		protected HighlightField highlightField;
+		protected SnippetField snippetField;
 
-		protected FragmenterListener(HighlightField highlightField) {
-			this.highlightField = highlightField;
+		protected FragmenterListener(SnippetField snippetField) {
+			this.snippetField = snippetField;
 		}
 
 		@Override
@@ -52,83 +52,83 @@ public class HighlightFieldRenderer implements RowRenderer {
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();
 			if (listitem != null)
-				highlightField.setFragmenter(listitem.getValue().toString());
+				snippetField.setFragmenter(listitem.getValue().toString());
 		}
 	}
 
 	public class TagListener extends FragmenterListener {
 
-		protected TagListener(HighlightField highlightField) {
-			super(highlightField);
+		protected TagListener(SnippetField snippetField) {
+			super(snippetField);
 		}
 
 		@Override
 		public void onEvent(Event event) throws Exception {
 			Textbox textbox = (Textbox) event.getTarget();
 			if (textbox != null)
-				highlightField.setTag(textbox.getValue());
+				snippetField.setTag(textbox.getValue());
 		}
 	}
 
 	public class SeparatorListener extends FragmenterListener {
 
-		protected SeparatorListener(HighlightField highlightField) {
-			super(highlightField);
+		protected SeparatorListener(SnippetField snippetField) {
+			super(snippetField);
 		}
 
 		@Override
 		public void onEvent(Event event) throws Exception {
 			Textbox textbox = (Textbox) event.getTarget();
 			if (textbox != null)
-				highlightField.setSeparator(textbox.getValue());
+				snippetField.setSeparator(textbox.getValue());
 		}
 	}
 
 	public class SnippetSizeListener extends FragmenterListener {
 
-		protected SnippetSizeListener(HighlightField highlightField) {
-			super(highlightField);
+		protected SnippetSizeListener(SnippetField snippetField) {
+			super(snippetField);
 		}
 
 		@Override
 		public void onEvent(Event event) throws Exception {
 			Intbox intbox = (Intbox) event.getTarget();
 			if (intbox != null)
-				highlightField.setMaxSnippetSize(intbox.getValue());
+				snippetField.setMaxSnippetSize(intbox.getValue());
 		}
 	}
 
 	public class SnippetNumberListener extends FragmenterListener {
 
-		protected SnippetNumberListener(HighlightField highlightField) {
-			super(highlightField);
+		protected SnippetNumberListener(SnippetField snippetField) {
+			super(snippetField);
 		}
 
 		@Override
 		public void onEvent(Event event) throws Exception {
 			Intbox intbox = (Intbox) event.getTarget();
 			if (intbox != null)
-				highlightField.setMaxSnippetNumber(intbox.getValue());
+				snippetField.setMaxSnippetNumber(intbox.getValue());
 		}
 	}
 
 	public class DocCharListener extends FragmenterListener {
 
-		protected DocCharListener(HighlightField highlightField) {
-			super(highlightField);
+		protected DocCharListener(SnippetField snippetField) {
+			super(snippetField);
 		}
 
 		@Override
 		public void onEvent(Event event) throws Exception {
 			Intbox intbox = (Intbox) event.getTarget();
 			if (intbox != null)
-				highlightField.setMaxDocChar(intbox.getValue());
+				snippetField.setMaxDocChar(intbox.getValue());
 		}
 	}
 
 	@Override
 	public void render(Row row, Object data) throws Exception {
-		HighlightField field = (HighlightField) data;
+		SnippetField field = (SnippetField) data;
 		new Label(field.getName()).setParent(row);
 
 		String fieldFragmenter = field.getFragmenter();
@@ -178,7 +178,7 @@ public class HighlightFieldRenderer implements RowRenderer {
 		intbox.setParent(row);
 
 		Button button = new Button("Remove");
-		button.addForward(null, "query", "onHighlightRemove", field);
+		button.addForward(null, "query", "onSnippetRemove", field);
 		button.setParent(row);
 	}
 }
