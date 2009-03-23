@@ -416,7 +416,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public static ReaderLocal fromConfig(File indexDir,
+	public static ReaderLocal fromConfig(File configDir,
 			IndexConfig indexConfig, boolean createIfNotExists)
 			throws IOException {
 		if (indexConfig.getName() == null)
@@ -424,10 +424,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		if (indexConfig.getRemoteUri() != null)
 			return null;
 
+		File indexDir = new File(configDir, indexConfig.getName());
 		if (!indexDir.exists() && createIfNotExists)
 			indexDir.mkdirs();
-		// TODO remove
-		System.out.println("IndexDIR=" + indexDir);
+
 		ReaderLocal reader = ReaderLocal.findMostRecent(indexConfig.getName(),
 				indexDir);
 

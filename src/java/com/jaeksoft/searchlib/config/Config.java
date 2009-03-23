@@ -89,10 +89,10 @@ public abstract class Config implements XmlInfo {
 			File configFile;
 			File indexDir;
 			if (initFile.isDirectory()) {
-				indexDir = new File(initFile, "index");
+				indexDir = initFile;
 				configFile = new File(initFile, "config.xml");
 			} else {
-				indexDir = new File(initFile.getParentFile(), "index");
+				indexDir = initFile.getParentFile();
 				configFile = initFile;
 			}
 			xpp = new XPathParser(configFile);

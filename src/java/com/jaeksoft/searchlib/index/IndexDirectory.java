@@ -33,13 +33,13 @@ import org.apache.lucene.store.FSDirectory;
 public class IndexDirectory {
 
 	private Directory directory;
-	private File dataDir;
+	private File indexDir;
 	private String name;
 
-	protected IndexDirectory(String name, File dataDir) throws IOException {
-		this.dataDir = dataDir;
+	protected IndexDirectory(String name, File indexDir) throws IOException {
+		this.indexDir = indexDir;
 		this.name = name;
-		directory = FSDirectory.getDirectory(dataDir);
+		directory = FSDirectory.getDirectory(indexDir);
 	}
 
 	public Directory getDirectory() {
@@ -80,7 +80,7 @@ public class IndexDirectory {
 	public void delete() {
 		synchronized (this) {
 			close();
-			deleteDir(this.dataDir);
+			deleteDir(this.indexDir);
 		}
 	}
 
