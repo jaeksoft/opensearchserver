@@ -217,7 +217,6 @@ public class FieldList<T extends Field> implements
 		}
 	}
 
-	@Override
 	public int compareTo(FieldList<T> o) {
 		return getCacheKey().compareTo(o.getCacheKey());
 	}

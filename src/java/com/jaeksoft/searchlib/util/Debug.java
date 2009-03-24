@@ -81,7 +81,6 @@ public class Debug implements XmlInfo {
 	private DateFormat dtdf = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
 			DateFormat.FULL);
 
-	@Override
 	public void xmlInfo(PrintWriter writer) {
 		writer.print("<debug start=\"");
 		writer.print(dtdf.format(new Date(startTime)));
@@ -101,6 +100,7 @@ public class Debug implements XmlInfo {
 		writer.print("</debug>");
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(dtdf.format(new Date(startTime)));

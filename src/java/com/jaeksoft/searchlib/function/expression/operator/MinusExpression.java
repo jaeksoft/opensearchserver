@@ -35,6 +35,7 @@ public class MinusExpression extends OperatorExpression {
 		return value1 - value2;
 	}
 
+	@Override
 	public String toString() {
 		return "-";
 	}

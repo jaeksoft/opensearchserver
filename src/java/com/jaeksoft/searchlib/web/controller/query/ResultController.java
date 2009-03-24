@@ -167,7 +167,6 @@ public class ResultController extends QueryController implements
 			super(fieldList);
 		}
 
-		@Override
 		public Object getChild(Object parent, int index) {
 			if (parent instanceof FieldList) {
 				FieldList<?> fieldList = (FieldList<?>) parent;
@@ -179,7 +178,6 @@ public class ResultController extends QueryController implements
 			return null;
 		}
 
-		@Override
 		public int getChildCount(Object parent) {
 			if (parent instanceof FieldList) {
 				FieldList<?> fieldList = (FieldList<?>) parent;
@@ -191,7 +189,6 @@ public class ResultController extends QueryController implements
 			return 0;
 		}
 
-		@Override
 		public boolean isLeaf(Object node) {
 			return node instanceof String;
 		}
@@ -267,7 +264,6 @@ public class ResultController extends QueryController implements
 		treecell.setParent(treerow);
 	}
 
-	@Override
 	public void render(Treeitem item, Object data) throws Exception {
 		Treerow treerow = new Treerow();
 		if (data instanceof String)

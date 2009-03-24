@@ -33,6 +33,7 @@ public class MonthStatistics extends StatisticsAbstract {
 		super(type, writeToLog, maxRetention);
 	}
 
+	@Override
 	public Aggregate newAggregate(long startTime) {
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.DAY_OF_MONTH, 1);

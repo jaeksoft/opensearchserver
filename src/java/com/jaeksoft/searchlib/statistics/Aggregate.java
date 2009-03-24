@@ -93,6 +93,7 @@ public class Aggregate {
 		return nextStart;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(startTime);

@@ -38,14 +38,17 @@ public class FloatExpression extends Expression {
 		value = token.value;
 	}
 
+	@Override
 	protected float getValue(float subQueryScore, float valSrcScore) {
 		return value;
 	}
 
+	@Override
 	protected float getValue(float subQueryScore, float[] valSrcScores) {
 		return value;
 	}
 
+	@Override
 	public String toString() {
 		return Float.toString(value);
 	}

@@ -67,6 +67,7 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 		return expression.getValue(subQueryScore, valSrcScores);
 	}
 
+	@Override
 	public String toString() {
 		return expression.toString();
 	}

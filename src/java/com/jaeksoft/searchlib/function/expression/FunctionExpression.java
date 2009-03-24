@@ -58,12 +58,14 @@ public class FunctionExpression extends Expression {
 		return valSrcScore;
 	}
 
+	@Override
 	protected float getValue(float subQueryScore, float[] valSrcScores) {
 		if (valSrcScores.length == 0)
 			return 0;
 		return valSrcScores[functionValueSource.pos];
 	}
 
+	@Override
 	public String toString() {
 		return functionValueSource.toString();
 	}

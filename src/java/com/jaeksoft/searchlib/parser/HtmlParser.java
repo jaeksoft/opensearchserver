@@ -222,6 +222,7 @@ public class HtmlParser extends Parser {
 		return StringEscapeUtils.unescapeHtml(content);
 	}
 
+	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
 

@@ -32,12 +32,14 @@ public class LetterOrDigitToken extends Token {
 		super(chars, pos, additionalChars);
 	}
 
+	@Override
 	protected boolean charIsValid(char ch) {
 		if (super.charIsValid(ch))
 			return true;
 		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '-';
 	}
 
+	@Override
 	protected void set(StringBuffer token) {
 		word = token.toString();
 	}

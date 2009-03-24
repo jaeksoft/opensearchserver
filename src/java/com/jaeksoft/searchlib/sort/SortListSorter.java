@@ -38,6 +38,7 @@ public class SortListSorter extends SorterAbstract {
 			sorterList[i++] = sortField.getSorter();
 	}
 
+	@Override
 	protected int compare(ResultScoreDoc doc1, Object value1,
 			ResultScoreDoc doc2, Object value2) {
 		Object[] values1 = doc1.getSortValues();

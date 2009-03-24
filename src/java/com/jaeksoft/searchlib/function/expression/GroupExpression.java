@@ -100,6 +100,7 @@ public class GroupExpression extends Expression {
 		return value;
 	}
 
+	@Override
 	protected float getValue(float subQueryScore, float[] valSrcScores) {
 		float value = 0;
 		OperatorExpression operator = new PlusExpression(0);
@@ -114,6 +115,7 @@ public class GroupExpression extends Expression {
 		return value;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append('(');

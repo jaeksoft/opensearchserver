@@ -25,7 +25,8 @@
 package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
-import java.util.BitSet;
+
+import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.request.SearchRequest;
 
@@ -35,7 +36,7 @@ public class Collapse {
 	private transient int collapseMax;
 	private transient String collapseField;
 	private transient boolean collapseActive;
-	protected transient BitSet collapsedSet;
+	protected transient OpenBitSet collapsedSet;
 	private transient ResultScoreDoc[] collapsedDoc;
 
 	protected Collapse(SearchRequest searchRequest) {
@@ -57,7 +58,7 @@ public class Collapse {
 		if (fetchLength > fetchedDocs.length)
 			fetchLength = fetchedDocs.length;
 
-		collapsedSet = new BitSet(fetchLength);
+		collapsedSet = new OpenBitSet(fetchLength);
 
 		String lastTerm = null;
 		int adjacent = 0;
@@ -72,7 +73,7 @@ public class Collapse {
 				adjacent = 0;
 			}
 		}
-		collapsedDocCount = collapsedSet.cardinality();
+		collapsedDocCount = (int) collapsedSet.cardinality();
 
 		collapsedDoc = new ResultScoreDoc[fetchLength - collapsedDocCount];
 
@@ -89,7 +90,7 @@ public class Collapse {
 		}
 	}
 
-	protected BitSet getBitSet() {
+	protected OpenBitSet getBitSet() {
 		return this.collapsedSet;
 	}
 

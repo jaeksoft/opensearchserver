@@ -28,6 +28,7 @@ import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
 public class DescScoreSorter extends SorterAbstract {
 
+	@Override
 	protected int compare(ResultScoreDoc doc1, Object value1,
 			ResultScoreDoc doc2, Object value2) {
 		if (doc1.score > doc2.score)

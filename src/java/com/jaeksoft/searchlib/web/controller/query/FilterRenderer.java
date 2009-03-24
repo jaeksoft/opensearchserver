@@ -43,7 +43,6 @@ public class FilterRenderer implements RowRenderer {
 			this.filter = filter;
 		}
 
-		@Override
 		public void onEvent(Event event) throws Exception {
 			Textbox textbox = (Textbox) event.getTarget();
 			if (textbox != null)
@@ -51,7 +50,6 @@ public class FilterRenderer implements RowRenderer {
 		}
 	}
 
-	@Override
 	public void render(Row row, Object data) throws Exception {
 		Filter filter = (Filter) data;
 		Textbox textbox = new Textbox(filter.getQueryString());

@@ -35,6 +35,7 @@ public class SizeFragmenter extends FragmenterAbstract {
 
 	private int maxFragmentSize = 200;
 
+	@Override
 	public void check(String originalText) {
 		int pos = 0;
 		int len = originalText.length();

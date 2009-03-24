@@ -52,6 +52,7 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 		return this.uniqueField;
 	}
 
+	@Override
 	public void xmlInfo(PrintWriter writer) {
 		writer.print("<fields");
 		if (defaultField != null)
@@ -64,6 +65,7 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 		writer.println("</fields>");
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		super.readExternal(in);
@@ -71,6 +73,7 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 		uniqueField = External.<Field> readObject(in);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
 		External.writeObject(defaultField, out);

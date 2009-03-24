@@ -107,7 +107,6 @@ public class SortList implements Externalizable, CacheKeyInterface<SortList> {
 		out.writeObject(sortFieldList);
 	}
 
-	@Override
 	public int compareTo(SortList o) {
 		return sortFieldList.compareTo(o.sortFieldList);
 	}

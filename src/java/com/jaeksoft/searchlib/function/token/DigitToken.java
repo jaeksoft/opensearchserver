@@ -39,6 +39,7 @@ public class DigitToken extends Token {
 		return Character.isDigit(ch);
 	}
 
+	@Override
 	protected void set(StringBuffer token) {
 		value = Float.parseFloat(token.toString());
 	}

@@ -30,6 +30,7 @@ public class DescComparableSorter<T extends Comparable<T>> extends
 		SorterAbstract {
 
 	@SuppressWarnings("unchecked")
+	@Override
 	protected int compare(ResultScoreDoc doc1, Object value1,
 			ResultScoreDoc doc2, Object value2) {
 		if (value1 == null) {

@@ -327,6 +327,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public void reload(String indexName) throws IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
@@ -348,6 +349,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public void swap(String indexName, long version, boolean deleteOld)
 			throws IOException, URISyntaxException {
 		if (!acceptNameOrEmpty(indexName))
@@ -465,6 +467,7 @@ public class IndexSingle extends IndexAbstract {
 		readonly = oldReadOnly;
 	}
 
+	@Override
 	public void push(String indexName, URI dest) throws URISyntaxException,
 			IOException {
 		if (!acceptOnlyRightName(indexName))
@@ -472,6 +475,7 @@ public class IndexSingle extends IndexAbstract {
 		push(dest);
 	}
 
+	@Override
 	public void receive(String indexName, long version, String fileName,
 			InputStream inputStream) throws IOException {
 		if (reader == null)
@@ -512,6 +516,7 @@ public class IndexSingle extends IndexAbstract {
 		return reader.getVersion();
 	}
 
+	@Override
 	public long getVersion(String indexName) {
 		if (!online)
 			return 0;

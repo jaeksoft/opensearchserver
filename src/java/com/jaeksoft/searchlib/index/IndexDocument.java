@@ -184,7 +184,6 @@ public class IndexDocument implements Externalizable, XmlInfo,
 		fieldContentArray = null;
 	}
 
-	@Override
 	public Iterator<FieldContent> iterator() {
 		return fields.values().iterator();
 	}

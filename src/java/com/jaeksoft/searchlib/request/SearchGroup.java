@@ -54,7 +54,7 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 			ExecutorService threadPool) throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
 			InterruptedException {
-		super(indexGroup, threadPool, 60);
+		super(indexGroup, threadPool, 300);
 		newDocumentCount = 0;
 		resultGroup = new ResultGroup(searchRequest);
 		debug = resultGroup.getDebug();

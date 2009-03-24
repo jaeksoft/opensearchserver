@@ -40,6 +40,7 @@ public class UriReadObject extends UriRead {
 		return sro.read();
 	}
 
+	@Override
 	public void close() {
 		if (sro != null) {
 			sro.close();

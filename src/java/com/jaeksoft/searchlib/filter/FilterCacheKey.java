@@ -39,11 +39,11 @@ public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
 		query = filter.getQuery(defaultField, analyzer).toString();
 	}
 
-	@Override
 	public int compareTo(FilterCacheKey o) {
 		return query.compareTo(o.query);
 	}
 
+	@Override
 	public String toString() {
 		return hashCode() + ' ' + query;
 	}

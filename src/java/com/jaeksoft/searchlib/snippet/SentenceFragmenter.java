@@ -33,9 +33,11 @@ public class SentenceFragmenter extends FragmenterAbstract {
 	 */
 	private static final long serialVersionUID = 5789364707381845312L;
 
+	@Override
 	public void setAttributes(NamedNodeMap attr) {
 	}
 
+	@Override
 	public void check(String originalText) {
 		int pos = 0;
 		char[] chars = originalText.toCharArray();

@@ -33,6 +33,7 @@ public class HourStatistics extends StatisticsAbstract {
 		super(type, writeToLog, maxRetention);
 	}
 
+	@Override
 	public Aggregate newAggregate(long startTime) {
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.MINUTE, 0);

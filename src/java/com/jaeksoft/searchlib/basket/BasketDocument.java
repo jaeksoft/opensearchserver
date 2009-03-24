@@ -30,7 +30,6 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 public class BasketDocument extends IndexDocument implements
 		CacheKeyInterface<BasketDocument> {
 
-	@Override
 	public int compareTo(BasketDocument basket) {
 		return basket.hashCode() - hashCode();
 	}

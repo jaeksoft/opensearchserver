@@ -240,11 +240,13 @@ public class IndexGroup extends IndexAbstract {
 		throw new RuntimeException("Not yet implemented");
 	}
 
+	@Override
 	public void reload(String indexName) throws IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())
 			index.reload(indexName);
 	}
 
+	@Override
 	public void swap(String indexName, long version, boolean deleteOld)
 			throws IOException, URISyntaxException {
 		for (IndexAbstract index : getIndices())

@@ -363,6 +363,7 @@ public class SnippetField extends Field implements Externalizable {
 		return false;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		super.readExternal(in);
@@ -375,6 +376,7 @@ public class SnippetField extends Field implements Externalizable {
 		searchTerms = External.readStringArray(in);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
 		External.writeObject(fragmenterTemplate, out);

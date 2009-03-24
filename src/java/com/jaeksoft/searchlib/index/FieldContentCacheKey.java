@@ -38,7 +38,6 @@ public class FieldContentCacheKey implements
 		this.docId = docId;
 	}
 
-	@Override
 	public int compareTo(FieldContentCacheKey o) {
 		int c;
 		if ((c = docId.compareTo(o.docId)) != 0)

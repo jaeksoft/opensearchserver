@@ -86,12 +86,14 @@ public class SortField extends Field implements Externalizable,
 			return new org.apache.lucene.search.SortField(name, desc);
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		super.readExternal(in);
 		desc = in.readBoolean();
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
 		out.writeBoolean(desc);
@@ -117,7 +119,6 @@ public class SortField extends Field implements Externalizable,
 			return reader.getStringIndex(name);
 	}
 
-	@Override
 	public int compareTo(SortField o) {
 		int c = name.compareTo(o.name);
 		if (c != 0)
@@ -127,6 +128,7 @@ public class SortField extends Field implements Externalizable,
 		return desc ? -1 : 1;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		if (desc)

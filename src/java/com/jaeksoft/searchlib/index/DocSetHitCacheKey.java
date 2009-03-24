@@ -50,7 +50,6 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 				.getFilterList(), defaultField, analyzer);
 	}
 
-	@Override
 	public int compareTo(DocSetHitCacheKey r) {
 		int c;
 		if ((c = facet.compareTo(r.facet)) != 0)

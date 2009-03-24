@@ -55,12 +55,14 @@ public class SnippetFieldValue extends FieldValue implements Externalizable {
 		return highlighted;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		super.readExternal(in);
 		highlighted = in.readBoolean();
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
 		out.writeBoolean(highlighted);
