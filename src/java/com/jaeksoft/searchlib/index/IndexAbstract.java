@@ -58,6 +58,8 @@ public abstract class IndexAbstract extends NameFilter implements
 		return indexConfig;
 	}
 
+	public abstract void close();
+
 	public abstract boolean isOnline(String indexName);
 
 	public abstract void setOnline(String indexName, boolean v);

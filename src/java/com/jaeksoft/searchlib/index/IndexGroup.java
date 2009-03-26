@@ -98,6 +98,12 @@ public class IndexGroup extends IndexAbstract {
 		writer.println("</indices>");
 	}
 
+	@Override
+	public void close() {
+		for (IndexAbstract index : indices.values())
+			index.close();
+	}
+
 	public void optimize(String indexName) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		if (indexName == null || indexName.length() == 0) {

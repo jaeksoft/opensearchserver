@@ -44,6 +44,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
@@ -184,12 +185,18 @@ public class WriterLocal extends WriterAbstract {
 			throws CorruptIndexException, IOException, NoSuchAlgorithmException {
 		if (!acceptDocument(document))
 			return false;
-		String field = schema.getFieldList().getUniqueField().getName();
 		Document doc = getLuceneDocument(schema, document);
-		Term updateTerm = new Term(field, doc.get(field));
 		PerFieldAnalyzerWrapper pfa = schema.getQueryPerFieldAnalyzer(document
 				.getLang());
-		indexWriter.updateDocument(updateTerm, doc, pfa);
+
+		Field uniqueField = schema.getFieldList().getUniqueField();
+		if (uniqueField != null) {
+			String uniqueFieldName = uniqueField.getName();
+			Term updateTerm = new Term(uniqueFieldName, doc
+					.get(uniqueFieldName));
+			indexWriter.updateDocument(updateTerm, doc, pfa);
+		} else
+			indexWriter.addDocument(doc, pfa);
 		return true;
 	}
 

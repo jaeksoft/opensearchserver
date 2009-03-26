@@ -85,6 +85,18 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
+	public void close() {
+		w.lock();
+		try {
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					((ReaderLocal) reader).close(false);
+		} finally {
+			w.unlock();
+		}
+	}
+
 	public void optimize(String indexName) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 		if (!online)

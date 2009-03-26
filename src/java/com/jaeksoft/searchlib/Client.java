@@ -271,6 +271,10 @@ public class Client extends Config implements XmlInfo {
 		return getIndex().documents(documentsRequest);
 	}
 
+	public void close() {
+		getIndex().close();
+	}
+
 	private static volatile Client INSTANCE;
 
 	public static Client getFileInstance(File configFile)
