@@ -67,7 +67,7 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 		step = fetchGoal / indexGroup.size() + 1;
 		nextStep = rows / indexGroup.size() + 1;
 		// TODO define the correct iteration maximum
-		loop(rows);
+		loop(rows * 10);
 		resultGroup.expungeFacet();
 		if (debug != null)
 			debug.setInfo(resultGroup);
