@@ -231,6 +231,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	public void close() {
+		close(false);
+	}
+
 	public int maxDoc() throws IOException {
 		r.lock();
 		try {

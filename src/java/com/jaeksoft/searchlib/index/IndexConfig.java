@@ -47,6 +47,8 @@ public class IndexConfig {
 
 	private String keyMd5RegExp;
 
+	private boolean nativeOSSE;
+
 	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
 		name = XPathParser.getAttributeString(node, "name");
 		searchCache = XPathParser.getAttributeValue(node, "searchCache");
@@ -58,6 +60,8 @@ public class IndexConfig {
 		remoteUri = s == null ? null : new URI(s);
 		keyField = XPathParser.getAttributeString(node, "keyField");
 		keyMd5RegExp = XPathParser.getAttributeString(node, "keyMd5RegExp");
+		nativeOSSE = "yes".equals(XPathParser.getAttributeString(node,
+				"nativeOSSE"));
 	}
 
 	/**
@@ -133,6 +137,10 @@ public class IndexConfig {
 	 */
 	public void setRemoteUri(URI remoteUri) {
 		this.remoteUri = remoteUri;
+	}
+
+	public boolean getNativeOSSE() {
+		return nativeOSSE;
 	}
 
 	/**

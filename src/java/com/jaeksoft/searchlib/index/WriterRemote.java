@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -45,10 +44,9 @@ public class WriterRemote extends WriterAbstract {
 
 	private URI uri;
 
-	public WriterRemote(URI uri, String indexName, String keyField,
-			String keyMd5Pattern) {
-		super(indexName, keyField, keyMd5Pattern);
-		this.uri = uri;
+	protected WriterRemote(IndexConfig indexConfig) {
+		super(indexConfig);
+		this.uri = indexConfig.getRemoteUri();
 	}
 
 	public void xmlInfo(PrintWriter writer) {
@@ -81,17 +79,6 @@ public class WriterRemote extends WriterAbstract {
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws IOException, URISyntaxException {
 		return DeleteServlet.delete(uri, getName(), uniqueFields);
-	}
-
-	public static WriterRemote fromConfig(IndexConfig indexConfig)
-			throws MalformedURLException {
-		if (indexConfig.getName() == null)
-			return null;
-		if (indexConfig.getRemoteUri() == null)
-			return null;
-		return new WriterRemote(indexConfig.getRemoteUri(), indexConfig
-				.getName(), indexConfig.getKeyField(), indexConfig
-				.getKeyMd5RegExp());
 	}
 
 }

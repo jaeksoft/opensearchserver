@@ -41,13 +41,12 @@ public abstract class WriterAbstract extends NameFilter implements
 	private Md5Spliter md5spliter = null;
 	private String keyField = null;
 
-	protected WriterAbstract(String indexName, String keyField,
-			String keyMd5Pattern) {
-		super(indexName);
+	protected WriterAbstract(IndexConfig indexConfig) {
+		super(indexConfig.getName());
 		this.md5spliter = null;
-		this.keyField = keyField;
-		if (keyMd5Pattern != null)
-			md5spliter = new Md5Spliter(keyMd5Pattern);
+		this.keyField = indexConfig.getKeyField();
+		if (indexConfig.getKeyMd5RegExp() != null)
+			md5spliter = new Md5Spliter(indexConfig.getKeyMd5RegExp());
 	}
 
 	protected boolean acceptDocument(IndexDocument document)

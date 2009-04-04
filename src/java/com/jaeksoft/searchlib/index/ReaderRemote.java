@@ -49,19 +49,12 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 
 	private URI uri;
 
-	private ReaderRemote(String indexName, URI uri) {
-		super(indexName);
-		this.uri = uri;
+	protected ReaderRemote(IndexConfig indexConfig) {
+		super(indexConfig.getName());
+		this.uri = indexConfig.getRemoteUri();
 	}
 
-	public static ReaderRemote fromConfig(IndexConfig indexConfig)
-			throws URISyntaxException {
-		if (indexConfig.getName() == null)
-			return null;
-		if (indexConfig.getRemoteUri() == null)
-			return null;
-		return new ReaderRemote(indexConfig.getName(), indexConfig
-				.getRemoteUri());
+	public void close() {
 	}
 
 	// TODO Implementation

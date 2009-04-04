@@ -56,9 +56,9 @@ public class WriterLocal extends WriterAbstract {
 
 	private ReaderLocal readerLocal;
 
-	private WriterLocal(String indexName, String keyField,
-			String keyMd5Pattern, ReaderLocal readerLocal) throws IOException {
-		super(indexName, keyField, keyMd5Pattern);
+	protected WriterLocal(IndexConfig indexConfig, ReaderLocal readerLocal)
+			throws IOException {
+		super(indexConfig);
 		this.readerLocal = readerLocal;
 		this.indexWriter = null;
 	}
@@ -291,15 +291,6 @@ public class WriterLocal extends WriterAbstract {
 		} finally {
 			l.unlock();
 		}
-	}
-
-	public static WriterLocal fromConfig(IndexConfig indexConfig,
-			ReaderLocal reader) throws IOException {
-		if (indexConfig.getName() == null)
-			return null;
-		return new WriterLocal(indexConfig.getName(),
-				indexConfig.getKeyField(), indexConfig.getKeyMd5RegExp(),
-				reader);
 	}
 
 	public void xmlInfo(PrintWriter writer) {

@@ -63,13 +63,17 @@ public class IndexSingle extends IndexAbstract {
 		super(indexConfig);
 		online = true;
 		readonly = false;
-		reader = ReaderLocal.fromConfig(configDir, indexConfig,
-				createIfNotExists);
-		if (reader != null) {
-			writer = WriterLocal.fromConfig(indexConfig, (ReaderLocal) reader);
+		if (indexConfig.getNativeOSSE()) {
+			reader = new ReaderNativeOSSE(configDir, indexConfig);
+			writer = new WriterNativeOSSE(configDir, indexConfig,
+					(ReaderNativeOSSE) reader);
+		} else if (indexConfig.getRemoteUri() == null) {
+			reader = ReaderLocal.fromConfig(configDir, indexConfig,
+					createIfNotExists);
+			writer = new WriterLocal(indexConfig, (ReaderLocal) reader);
 		} else {
-			reader = ReaderRemote.fromConfig(indexConfig);
-			writer = WriterRemote.fromConfig(indexConfig);
+			reader = new ReaderRemote(indexConfig);
+			writer = new WriterRemote(indexConfig);
 		}
 	}
 
@@ -90,8 +94,7 @@ public class IndexSingle extends IndexAbstract {
 		w.lock();
 		try {
 			if (reader != null)
-				if (reader instanceof ReaderLocal)
-					((ReaderLocal) reader).close(false);
+				reader.close();
 		} finally {
 			w.unlock();
 		}

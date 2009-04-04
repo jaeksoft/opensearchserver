@@ -47,6 +47,8 @@ public interface ReaderInterface extends XmlInfo {
 
 	public abstract boolean sameIndex(ReaderInterface reader);
 
+	public void close();
+
 	public int getDocFreq(Term term) throws IOException;
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
