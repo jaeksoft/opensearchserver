@@ -88,6 +88,7 @@ public class IndexServlet extends AbstractServlet {
 			else
 				return "Error";
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServletException(e);
 		} finally {
 			if (readObject != null)
@@ -143,6 +144,8 @@ public class IndexServlet extends AbstractServlet {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		String msg = sendObject(buildUri(uri, "/index", indexName, null),
 				new IndexRequest(indexDocuments));
-		return Integer.getInteger(msg.trim());
+		if (msg == null)
+			return 0;
+		return Integer.parseInt(msg.trim());
 	}
 }

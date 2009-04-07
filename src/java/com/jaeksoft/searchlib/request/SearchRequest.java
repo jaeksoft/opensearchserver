@@ -221,7 +221,9 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		synchronized (this) {
 			this.config = config;
 			finalTime = 0;
-			timer.reset();
+			if (timer != null)
+				timer.reset();
+			timer = new Timer();
 		}
 	}
 

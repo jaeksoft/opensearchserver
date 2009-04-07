@@ -49,6 +49,16 @@ public interface OsseLibrary extends Library {
 
 	public long index_add(Pointer index, Pointer document);
 
+	public void index_search(WString query, Pointer result);
+
+	public Pointer result_new();
+
+	void result_delete(Pointer result);
+
+	float result_getScore(Pointer result, long pos);
+
+	long result_getDocumentId(Pointer result, long pos);
+
 	public void test();
 
 	public OsseLibrary INSTANCE = (OsseLibrary) Native.loadLibrary(

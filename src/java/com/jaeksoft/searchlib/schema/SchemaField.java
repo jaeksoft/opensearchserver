@@ -89,10 +89,8 @@ public class SchemaField extends Field {
 			return new org.apache.lucene.document.Field(name, value, store,
 					index, termVector);
 		} catch (java.lang.NullPointerException e) {
-			System.err.println("Erreur on field " + name);
-			throw e;
+			throw new NullPointerException("Erreur on field " + name);
 		}
-
 	}
 
 	@Override
