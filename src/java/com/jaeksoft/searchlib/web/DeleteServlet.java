@@ -137,7 +137,7 @@ public class DeleteServlet extends AbstractServlet {
 			throws IOException, URISyntaxException {
 		String msg = call(buildUri(uri, "/delete", indexName, "uniq="
 				+ uniqueField));
-		return Boolean.getBoolean(msg.trim());
+		return Boolean.parseBoolean(msg.trim());
 	}
 
 	public static int delete(URI uri, String indexName,
@@ -151,7 +151,7 @@ public class DeleteServlet extends AbstractServlet {
 	public static boolean deleteDocument(URI uri, String indexName, int docId)
 			throws HttpException, IOException, URISyntaxException {
 		String msg = call(buildUri(uri, "/delete", indexName, "id=" + docId));
-		return Boolean.getBoolean(msg.trim());
+		return Boolean.parseBoolean(msg.trim());
 	}
 
 	public static int deleteDocuments(URI uri, String indexName,

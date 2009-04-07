@@ -136,7 +136,7 @@ public class IndexServlet extends AbstractServlet {
 			IOException, URISyntaxException {
 		String msg = sendObject(buildUri(uri, "/index", indexName, null),
 				document);
-		return Boolean.getBoolean(msg.trim());
+		return Boolean.parseBoolean(msg.trim());
 	}
 
 	public static int update(URI uri, String indexName,
