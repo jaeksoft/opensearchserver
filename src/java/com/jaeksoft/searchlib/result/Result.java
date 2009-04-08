@@ -164,8 +164,7 @@ public abstract class Result implements Externalizable,
 		// Reading FacetList if any
 		facetList = (FacetList) External.readObject(in);
 
-		// Reading docs (from request.start to getDocLength)
-
+		// Reading docs (from request.start to last document)
 		int length = in.readInt();
 		if (length > 0) {
 			docs = new ResultScoreDoc[length];
@@ -189,15 +188,14 @@ public abstract class Result implements Externalizable,
 		// Writing FacetList if any
 		External.writeObject(facetList, out);
 
-		// Writing docs (from request.start to getDocLength)
-		int length = getDocLength();
+		// Writing docs (from request.start to last document)
+		int length = searchRequest.getStart() + getDocumentCount();
 		out.writeInt(length);
 		if (length > 0) {
 			int start = searchRequest.getStart();
 			out.writeInt(start);
-			length = getDocumentCount();
-			for (int i = 0; i < length; i++)
-				out.writeObject(docs[start + i]);
+			for (int i = start; i < length; i++)
+				out.writeObject(docs[+i]);
 		}
 
 		// Writing numFound, maxScore, collapsedDocCount
