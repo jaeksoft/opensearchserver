@@ -34,15 +34,12 @@ public class External {
 
 	final public static void writeCollection(Collection<?> collection,
 			ObjectOutput out) throws IOException {
-		if (collection != null) {
-			int l = collection.size();
-			if (l > 0) {
-				out.writeInt(l);
-				for (Object object : collection)
-					out.writeObject(object);
-			}
-		}
-		out.writeInt(0);
+		int l = collection != null ? collection.size() : 0;
+		out.writeInt(l);
+		if (l == 0)
+			return;
+		for (Object object : collection)
+			out.writeObject(object);
 	}
 
 	public interface Collecter<T> {

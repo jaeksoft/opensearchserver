@@ -35,6 +35,8 @@ import com.jaeksoft.searchlib.util.External;
 public class ResultDocuments implements Externalizable,
 		Iterable<ResultDocument> {
 
+	private static final long serialVersionUID = 6099476851625264882L;
+
 	private ResultDocument[] resultDocuments;
 
 	public ResultDocuments() {
