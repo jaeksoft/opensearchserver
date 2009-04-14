@@ -29,10 +29,20 @@
 	<property name="build" location="ant-build" />
 	<property name="build-release" location="${build}/release" />
 	<property name="build-debug" location="${build}/debug" />
+	<property name="doc" location="doc" />
 	<property name="dist" location="dist" />
 	<property name="temp" location="temp" />
 	<property name="name-release" value="searchlib-community" />
 	<property name="name-debug" value="searchlib-community-debug" />
+
+	<path id="project.class.path">
+		<fileset dir="${lib}">
+			<include name="**.jar" />
+		</fileset>
+		<fileset dir="${wlib}">
+			<include name="**.jar" />
+		</fileset>
+	</path>
 
 	<target name="init">
 		<mkdir dir="${build}" />
@@ -40,30 +50,16 @@
 		<mkdir dir="${build-debug}" />
 	</target>
 
+	<target name="doc">
+		<javadoc sourcepath="${src}" destdir="${doc}" />
+	</target>
+
 	<target name="compile-release" depends="init" description="compile the source ">
-		<javac debug="false" compiler="modern" optimize="true" srcdir="${src}" destdir="${build-release}">
-			<classpath>
-				<fileset dir="${lib}">
-					<include name="**.jar" />
-				</fileset>
-				<fileset dir="${wlib}">
-					<include name="**.jar" />
-				</fileset>
-			</classpath>
-		</javac>
+		<javac debug="false" compiler="modern" optimize="true" target="1.5" srcdir="${src}" destdir="${build-release}" classpathref="project.class.path" />
 	</target>
 
 	<target name="compile-debug" depends="init" description="compile the source ">
-		<javac debug="true" compiler="modern" optimize="false" srcdir="${src}" destdir="${build-debug}">
-			<classpath>
-				<fileset dir="${lib}">
-					<include name="**.jar" />
-				</fileset>
-				<fileset dir="${wlib}">
-					<include name="**.jar" />
-				</fileset>
-			</classpath>
-		</javac>
+		<javac debug="true" compiler="modern" optimize="false" target="1.5" srcdir="${src}" destdir="${build-debug}" classpathref="project.class.path" />
 	</target>
 
 	<target name="dist-jar-release" depends="compile-release">
