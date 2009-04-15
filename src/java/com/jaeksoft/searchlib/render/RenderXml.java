@@ -129,8 +129,7 @@ public class RenderXml implements Render {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
 			writer.print("\">");
-			writer.print(StringEscapeUtils.escapeJava(StringEscapeUtils
-					.escapeXml(v)));
+			writer.print(StringEscapeUtils.escapeXml(v));
 			writer.println("</field>");
 		}
 	}
@@ -150,8 +149,7 @@ public class RenderXml implements Render {
 			if (highlighted)
 				writer.print(" highlighted=\"yes\"");
 			writer.print('>');
-			writer.print(StringEscapeUtils.escapeJava(StringEscapeUtils
-					.escapeXml(snippet)));
+			writer.print(StringEscapeUtils.escapeXml(snippet));
 			writer.println("\t\t</snippet>");
 		}
 	}
@@ -163,8 +161,7 @@ public class RenderXml implements Render {
 		writer.println("\">");
 		for (FacetItem facetItem : facet) {
 			writer.print("\t\t\t<facet name=\"");
-			writer.print(StringEscapeUtils.escapeJava(StringEscapeUtils
-					.escapeXml(facetItem.getTerm())));
+			writer.print(StringEscapeUtils.escapeXml(facetItem.getTerm()));
 			writer.print("\">");
 			writer.print(facetItem.getCount());
 			writer.print("</facet>");

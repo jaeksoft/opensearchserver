@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--
+	<!--
 	Created by ZK Studio
 -->
 
 <zk>
 
-	
+	<device-config>
+		<device-type>ajax</device-type>
+		<timeout-uri>/index.zul</timeout-uri>
+	</device-config>
+
 </zk>

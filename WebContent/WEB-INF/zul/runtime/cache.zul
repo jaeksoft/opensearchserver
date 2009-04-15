@@ -99,4 +99,5 @@
 			</tabpanel>
 		</tabpanels>
 	</tabbox>
+	<button label="refresh data" forward="onReload" />
 </window>
