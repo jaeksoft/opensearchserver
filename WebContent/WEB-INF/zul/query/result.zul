@@ -120,7 +120,7 @@
 							collapsible="true">
 							<panelchildren>
 								<listbox model="@{facet.array}"
-									fixedLayout="true">
+									mold="paging" pageSize="100" fixedLayout="true">
 									<listhead>
 										<listheader align="right" />
 										<listheader />
