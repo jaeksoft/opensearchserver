@@ -119,7 +119,7 @@ public class FacetField extends Field implements Externalizable {
 	 */
 	public static FacetField buildFacetField(String value, boolean multivalued)
 			throws SyntaxError {
-		int minCount = 0;
+		int minCount = 1;
 		String fieldName = null;
 
 		int i1 = value.indexOf('(');
