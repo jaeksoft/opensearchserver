@@ -31,6 +31,7 @@ import java.io.ObjectOutput;
 
 import org.w3c.dom.Node;
 
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -106,6 +107,32 @@ public class FacetField extends Field implements Externalizable {
 		FacetField facetField = new FacetField(source.get(fieldName).getName(),
 				minCount, multivalued);
 		target.add(facetField);
+	}
+
+	/**
+	 * Return a new FacetField instance for field(mincount) syntax
+	 * 
+	 * @param value
+	 * @param multivalued
+	 * @return
+	 * @throws SyntaxError
+	 */
+	public static FacetField buildFacetField(String value, boolean multivalued)
+			throws SyntaxError {
+		int minCount = 0;
+		String fieldName = null;
+
+		int i1 = value.indexOf('(');
+		if (i1 != -1) {
+			fieldName = value.substring(0, i1);
+			int i2 = value.indexOf(')', i1);
+			if (i2 == -1)
+				throw new SyntaxError("closed braket missing");
+			minCount = Integer.parseInt(value.substring(i1 + 1, i2));
+		} else
+			fieldName = value;
+
+		return new FacetField(fieldName, minCount, multivalued);
 	}
 
 	@Override

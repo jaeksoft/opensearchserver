@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.IndexGroup;
@@ -172,7 +173,7 @@ public abstract class Config implements XmlInfo {
 	}
 
 	public SearchRequest getNewSearchRequest(HttpServletRequest httpRequest)
-			throws ParseException {
+			throws ParseException, SyntaxError {
 
 		String requestName = httpRequest.getParameter("qt");
 		if (requestName == null)
@@ -263,12 +264,12 @@ public abstract class Config implements XmlInfo {
 		if ((values = httpRequest.getParameterValues("facet")) != null) {
 			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
 			for (String value : values)
-				facetList.add(new FacetField(value, 1, false));
+				facetList.add(FacetField.buildFacetField(value, false));
 		}
 		if ((values = httpRequest.getParameterValues("facet.multi")) != null) {
 			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
 			for (String value : values)
-				facetList.add(new FacetField(value, 1, true));
+				facetList.add(FacetField.buildFacetField(value, true));
 		}
 		return searchRequest;
 	}
