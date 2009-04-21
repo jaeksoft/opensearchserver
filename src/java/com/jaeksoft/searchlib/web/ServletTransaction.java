@@ -28,20 +28,29 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
 public class ServletTransaction {
 
 	public enum Method {
 		PUT, POST, GET, HEAD;
 	}
-
-	private String info;
 
 	private AbstractServlet servlet;
 
@@ -59,26 +68,20 @@ public class ServletTransaction {
 
 	private Method method;
 
+	private Map<String, String> xmlResponse;
+
 	public ServletTransaction(AbstractServlet servlet,
 			HttpServletRequest request, Method method,
 			HttpServletResponse response) {
-		info = "";
 		this.method = method;
 		this.servlet = servlet;
 		this.response = response;
 		this.request = request;
+		xmlResponse = null;
 		writer = null;
 		reader = null;
 		out = null;
 		in = null;
-	}
-
-	public void setInfo(String info) {
-		this.info = info;
-	}
-
-	public String getInfo() {
-		return this.info;
 	}
 
 	public Method getMethod() {
@@ -91,6 +94,12 @@ public class ServletTransaction {
 
 	public HttpServletResponse getServletResponse() {
 		return this.response;
+	}
+
+	public void addXmlResponse(String key, String value) {
+		if (xmlResponse == null)
+			xmlResponse = new LinkedHashMap<String, String>();
+		xmlResponse.put(key, value);
 	}
 
 	public BufferedReader getReader() throws IOException {
@@ -151,4 +160,39 @@ public class ServletTransaction {
 		return classDetail;
 	}
 
+	public void writeXmlResponse() throws IOException,
+			TransformerConfigurationException, SAXException {
+		if (xmlResponse == null)
+			return;
+		if (xmlResponse.size() == 0)
+			return;
+		PrintWriter out = getWriter("UTF-8");
+		StreamResult streamResult = new StreamResult(out);
+		SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory
+				.newInstance();
+
+		TransformerHandler hd = tf.newTransformerHandler();
+		Transformer serializer = hd.getTransformer();
+		serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+		hd.setResult(streamResult);
+		hd.startDocument();
+		AttributesImpl atts = new AttributesImpl();
+
+		hd.startElement("", "", "response", atts);
+
+		for (Map.Entry<String, String> entry : xmlResponse.entrySet()) {
+			atts.clear();
+			atts.addAttribute("", "", "key", "CDATA", entry.getKey());
+			hd.startElement("", "", "entry", atts);
+			String value = entry.getValue();
+			int length = value.length();
+			char[] chars = new char[length];
+			value.getChars(0, length, chars, 0);
+			hd.characters(chars, 0, length);
+			hd.endElement("", "", "entry");
+		}
+		hd.endElement("", "", "response");
+		hd.endDocument();
+	}
 }

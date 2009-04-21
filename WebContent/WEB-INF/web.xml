@@ -15,6 +15,10 @@
 		<welcome-file>default.jsp</welcome-file>
 	</welcome-file-list>
 	<servlet>
+		<servlet-name>Basket</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.BasketServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>Delete</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.DeleteServlet</servlet-class>
 	</servlet>
@@ -46,6 +50,10 @@
 		<servlet-name>Action</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.ActionServlet</servlet-class>
 	</servlet>
+	<servlet-mapping>
+		<servlet-name>Basket</servlet-name>
+		<url-pattern>/basket</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Delete</servlet-name>
 		<url-pattern>/delete</url-pattern>

@@ -30,6 +30,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,6 +40,10 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.basket.BasketCache;
+import com.jaeksoft.searchlib.basket.BasketDocument;
+import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlInfo;
@@ -83,9 +88,11 @@ public class IndexDocument implements Externalizable, XmlInfo,
 	 * @param xpp
 	 * @param documentNode
 	 * @throws XPathExpressionException
+	 * @throws SearchLibException
 	 */
-	public IndexDocument(XPathParser xpp, Node documentNode)
-			throws XPathExpressionException {
+	public IndexDocument(XPathParser xpp, Node documentNode,
+			BasketCache basketCache) throws XPathExpressionException,
+			SearchLibException {
 		this(XPathParser.getAttributeString(documentNode, "lang"));
 		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
 		int fieldsCount = fieldNodes.getLength();
@@ -95,8 +102,26 @@ public class IndexDocument implements Externalizable, XmlInfo,
 					.getAttributeString(fieldNode, "name");
 			NodeList valueNodes = xpp.getNodeList(fieldNode, "value");
 			int valuesCount = valueNodes.getLength();
-			for (int j = 0; j < valuesCount; j++)
-				add(fieldName, xpp.getNodeString(valueNodes.item(j)));
+			for (int j = 0; j < valuesCount; j++) {
+				Node valueNode = valueNodes.item(j);
+				long basketId = XPathParser.getAttributeLong(valueNode,
+						"basketId");
+				if (basketId != 0) {
+					BasketDocument basketDocument = basketCache
+							.getAndPromote(new BasketKey(basketId));
+					if (basketDocument == null)
+						throw new SearchLibException(
+								"No basket document found: " + basketId);
+					String basketField = XPathParser.getAttributeString(
+							valueNode, "basketField");
+					if (basketField == null) {
+						for (FieldContent fieldContent : basketDocument)
+							add(fieldName, fieldContent);
+					} else
+						add(fieldName, basketDocument.getField(basketField));
+				}
+				add(fieldName, xpp.getNodeString(valueNode));
+			}
 		}
 	}
 
@@ -104,6 +129,8 @@ public class IndexDocument implements Externalizable, XmlInfo,
 		if (value == null)
 			throw new java.lang.NullPointerException("Null value on field "
 					+ field);
+		if (value.length() == 0)
+			return;
 		FieldContent fc = fields.get(field);
 		if (fc == null) {
 			fc = new FieldContent(field);
@@ -111,6 +138,19 @@ public class IndexDocument implements Externalizable, XmlInfo,
 		}
 		fc.add(value);
 		fieldContentArray = null;
+	}
+
+	public void add(String field, List<String> values) {
+		if (values == null)
+			return;
+		for (String value : values)
+			add(field, value);
+	}
+
+	public void add(String field, FieldContent fieldContent) {
+		if (fieldContent == null)
+			return;
+		add(field, fieldContent.getValues());
 	}
 
 	public void add(String field, Object value) {

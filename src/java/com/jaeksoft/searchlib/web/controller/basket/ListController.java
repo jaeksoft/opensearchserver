@@ -31,6 +31,7 @@ import org.zkoss.zul.Panelchildren;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketDocument;
+import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.model.FieldContentModel;
 
@@ -98,7 +99,7 @@ public class ListController extends CommonController {
 		synchronized (this) {
 			if (basketDocument == null)
 				return;
-			getClient().getBasketCache().remove(basketDocument);
+			getClient().getBasketCache().remove(new BasketKey(basketDocument));
 			setCurrentBasketDocument(null);
 			reloadPage();
 		}

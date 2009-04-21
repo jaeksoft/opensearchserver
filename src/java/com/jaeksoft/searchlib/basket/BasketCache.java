@@ -26,10 +26,15 @@ package com.jaeksoft.searchlib.basket;
 
 import com.jaeksoft.searchlib.cache.LRUCache;
 
-public class BasketCache extends LRUCache<BasketDocument, BasketDocument> {
+public class BasketCache extends LRUCache<BasketKey, BasketDocument> {
 
 	public BasketCache(int maxSize) {
 		super(maxSize);
 	}
 
+	public BasketKey put(BasketDocument basketDocument) {
+		BasketKey key = new BasketKey(basketDocument);
+		put(key, basketDocument);
+		return key;
+	}
 }

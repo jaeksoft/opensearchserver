@@ -24,19 +24,9 @@
 
 package com.jaeksoft.searchlib.basket;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.IndexDocument;
 
-public class BasketDocument extends IndexDocument implements
-		CacheKeyInterface<BasketDocument> {
-
-	public int compareTo(BasketDocument basket) {
-		return basket.hashCode() - hashCode();
-	}
-
-	public int getKey() {
-		return hashCode();
-	}
+public class BasketDocument extends IndexDocument {
 
 	public void addIfNoEmpty(String field, String value) {
 		if (value == null)

@@ -97,9 +97,6 @@ public class SearchServlet extends AbstractServlet {
 
 			render.render(servletTransaction);
 
-			// TODO Info should be queryString
-			servletTransaction.setInfo(httpRequest.toString());
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ServletException(e);

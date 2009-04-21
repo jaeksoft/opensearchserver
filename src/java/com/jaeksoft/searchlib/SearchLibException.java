@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft SearchLib Community
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -29,9 +29,13 @@ public class SearchLibException extends Exception {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1720638403781547142L;
 
 	public SearchLibException(Exception e) {
 		super(e);
+	}
+
+	public SearchLibException(String message) {
+		super(message);
 	}
 }

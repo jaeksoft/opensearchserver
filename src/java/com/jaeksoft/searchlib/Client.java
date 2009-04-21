@@ -110,12 +110,13 @@ public class Client extends Config implements XmlInfo {
 
 	private int updateXmlDocuments(String indexName, XPathParser xpp)
 			throws XPathExpressionException, NoSuchAlgorithmException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		NodeList nodeList = xpp.getNodeList("/index/document");
 		int l = nodeList.getLength();
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>();
 		for (int i = 0; i < l; i++)
-			docList.add(new IndexDocument(xpp, nodeList.item(i)));
+			docList.add(new IndexDocument(xpp, nodeList.item(i),
+					getBasketCache()));
 		if (indexName == null)
 			return updateDocuments(docList);
 		else
@@ -125,7 +126,7 @@ public class Client extends Config implements XmlInfo {
 	public int updateXmlDocuments(String indexName, InputSource inputSource)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
-			URISyntaxException {
+			URISyntaxException, SearchLibException {
 		XPathParser xpp = new XPathParser(inputSource);
 		return updateXmlDocuments(indexName, xpp);
 	}
@@ -133,7 +134,7 @@ public class Client extends Config implements XmlInfo {
 	public int updateXmlDocuments(String indexName, String xmlString)
 			throws SAXException, IOException, ParserConfigurationException,
 			XPathExpressionException, NoSuchAlgorithmException,
-			URISyntaxException {
+			URISyntaxException, SearchLibException {
 		XPathParser xpp = new XPathParser(new InputSource(new StringReader(
 				xmlString)));
 		return updateXmlDocuments(indexName, xpp);

@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -52,12 +51,12 @@ public class IndexServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 3855116559376800406L;
 
-	private boolean updateDoc(Client client, String indexName, IndexDocument doc)
+	private int updateDoc(Client client, String indexName, IndexDocument doc)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (indexName == null)
-			return client.updateDocument(doc);
+			return client.updateDocument(doc) ? 1 : 0;
 		else
-			return client.updateDocument(indexName, doc);
+			return client.updateDocument(indexName, doc) ? 1 : 0;
 	}
 
 	private int updateDoc(Client client, String indexName,
@@ -75,7 +74,7 @@ public class IndexServlet extends AbstractServlet {
 		return updateDoc(client, indexName, indexRequest.getCollection());
 	}
 
-	private Object doObjectRequest(Client client, HttpServletRequest request,
+	private int doObjectRequest(Client client, HttpServletRequest request,
 			String indexName) throws ServletException {
 		StreamReadObject readObject = null;
 		try {
@@ -85,8 +84,7 @@ public class IndexServlet extends AbstractServlet {
 				return updateDoc(client, indexName, (IndexRequest) obj);
 			else if (obj instanceof IndexDocument)
 				return updateDoc(client, indexName, (IndexDocument) obj);
-			else
-				return "Error";
+			throw new ServletException("Nothing to do");
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ServletException(e);
@@ -110,8 +108,8 @@ public class IndexServlet extends AbstractServlet {
 						request.getInputStream()));
 			else
 				result = doObjectRequest(client, request, indexName);
-			PrintWriter writer = transaction.getWriter("UTF-8");
-			writer.println(result);
+			transaction.addXmlResponse("Status", "OK");
+			transaction.addXmlResponse("Count", result.toString());
 		} catch (IOException e) {
 			throw new ServletException(e);
 		} catch (XPathExpressionException e) {

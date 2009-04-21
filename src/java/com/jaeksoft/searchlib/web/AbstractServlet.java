@@ -58,11 +58,18 @@ public abstract class AbstractServlet extends HttpServlet {
 		try {
 			doRequest(transaction);
 		} catch (Exception e) {
+			transaction.addXmlResponse("Status", "Error");
+			transaction.addXmlResponse("Exception", e.getMessage());
+		} finally {
 			try {
-				response.sendError(500, e.getMessage());
+				transaction.writeXmlResponse();
+			} catch (Exception e) {
+				try {
+					response.sendError(500, e.getMessage());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 				e.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
 			}
 		}
 	}

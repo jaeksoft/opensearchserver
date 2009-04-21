@@ -79,9 +79,6 @@ public class DocumentsServlet extends AbstractServlet {
 
 			render.render(servletTransaction);
 
-			// TODO Info should be queryString
-			servletTransaction.setInfo(httpRequest.toString());
-
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

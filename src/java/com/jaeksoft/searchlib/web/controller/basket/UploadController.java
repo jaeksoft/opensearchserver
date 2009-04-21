@@ -39,6 +39,7 @@ import org.zkoss.zul.Panelchildren;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketDocument;
+import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.FileUtils;
@@ -161,10 +162,9 @@ public class UploadController extends CommonController {
 			BasketDocument basketDocument = getCurrentDocument();
 			if (basketDocument == null)
 				return;
-			getClient().getBasketCache().put(basketDocument, basketDocument);
+			BasketKey key = getClient().getBasketCache().put(basketDocument);
 			setCurrentDocument(null);
-			Messagebox.show("Document added with id "
-					+ Integer.toString(basketDocument.getKey()),
+			Messagebox.show("Document added with id " + key,
 					"Jaeksoft SearchServer", Messagebox.OK,
 					org.zkoss.zul.Messagebox.INFORMATION);
 			reloadDesktop();

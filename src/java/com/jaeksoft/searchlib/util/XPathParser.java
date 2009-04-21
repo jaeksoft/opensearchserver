@@ -158,4 +158,11 @@ public class XPathParser {
 			return 0;
 		return Integer.parseInt(value);
 	}
+
+	public static long getAttributeLong(Node node, String attributeName) {
+		String value = getAttributeString(node, attributeName);
+		if (value == null)
+			return 0;
+		return Long.parseLong(value);
+	}
 }
