@@ -1,0 +1,10 @@
+<tabbox>
+	<tabs>
+		<tab id="tabWebCrawler" label="Web" selected="true" />
+	</tabs>
+	<tabpanels>
+		<tabpanel>
+			<include src="WEB-INF/zul/crawler/web/index.zul" />
+		</tabpanel>
+	</tabpanels>
+</tabbox>
