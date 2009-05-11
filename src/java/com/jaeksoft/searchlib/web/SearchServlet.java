@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
@@ -69,7 +70,8 @@ public class SearchServlet extends AbstractServlet {
 	private Render doQueryRequest(Client client,
 			HttpServletRequest httpRequest, String render, String jsp)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException {
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			SearchLibException {
 		SearchRequest searchRequest = client.getNewSearchRequest(httpRequest);
 		Result result = client.search(searchRequest);
 		if ("jsp".equals(render) && jsp != null)

@@ -30,6 +30,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
@@ -57,9 +58,10 @@ public class ResultSingle extends Result {
 	 * @throws IOException
 	 * @throws ParseException
 	 * @throws SyntaxError
+	 * @throws SearchLibException
 	 */
 	public ResultSingle(ReaderLocal reader, SearchRequest searchRequest)
-			throws IOException, ParseException, SyntaxError {
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		super(searchRequest);
 
 		this.reader = reader;

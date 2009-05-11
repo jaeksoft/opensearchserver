@@ -25,22 +25,31 @@
 package com.jaeksoft.searchlib.config;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.ParseException;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketCache;
+import com.jaeksoft.searchlib.crawler.web.database.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
@@ -73,107 +82,245 @@ public abstract class Config implements XmlInfo {
 
 	private SearchRequestMap searchRequests = null;
 
-	protected XPathParser xpp = null;
-
 	private ExecutorService threadPool = null;
 
-	protected StatisticsList statisticsList;
+	private StatisticsList statisticsList = null;
 
-	private BasketCache basketCache;
+	private BasketCache basketCache = null;
 
-	private ParserSelector parserSelector;
+	private ParserSelector parserSelector = null;
 
-	protected Config(File initFile, boolean createIndexIfNotExists)
-			throws SearchLibException {
+	private UrlManager urlManager = null;
 
+	private PatternUrlManager patternUrlManager = null;
+
+	private PropertyManager propertyManager = null;
+
+	private XPathParser xppConfig = null;
+
+	private File indexDir;
+
+	private Lock lock;
+
+	protected Config(File initFileOrDir, String configXmlResourceName,
+			boolean createIndexIfNotExists) throws SearchLibException {
+
+		lock = new ReentrantLock(true);
 		try {
+
 			File configFile;
-			File indexDir;
-			if (initFile.isDirectory()) {
-				indexDir = initFile;
-				configFile = new File(initFile, "config.xml");
+			if (initFileOrDir.isDirectory()) {
+				indexDir = initFileOrDir;
+				configFile = new File(initFileOrDir, "config.xml");
 			} else {
-				indexDir = initFile.getParentFile();
-				configFile = initFile;
+				indexDir = initFileOrDir.getParentFile();
+				configFile = initFileOrDir;
 			}
-			xpp = new XPathParser(configFile);
+			if (configXmlResourceName == null)
+				xppConfig = new XPathParser(configFile);
+			else
+				xppConfig = new XPathParser(getClass().getResourceAsStream(
+						configXmlResourceName));
 
-			schema = Schema.fromXmlConfig(xpp.getNode("/configuration/schema"),
-					xpp);
-			searchRequests = SearchRequestMap.fromXmlConfig(this, xpp, xpp
-					.getNode("/configuration/requests"));
+			index = getIndex(indexDir, xppConfig, createIndexIfNotExists);
+			schema = Schema.fromXmlConfig(xppConfig
+					.getNode("/configuration/schema"), xppConfig);
 
-			threadPool = Executors.newCachedThreadPool();
-
-			index = getIndex(indexDir, createIndexIfNotExists);
-
-			basketCache = new BasketCache(100);
-
-			Node node = xpp.getNode("/configuration/parsers");
-			if (node != null)
-				parserSelector = ParserSelector.fromXmlConfig(xpp, node);
-
-			statisticsList = StatisticsList.fromXmlConfig(xpp, xpp
-					.getNode("/configuration/statistics"));
-
-		} catch (Exception e) {
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (DOMException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}
 
-	protected IndexAbstract getIndex(File indexDir,
+	protected IndexAbstract getIndex(File indexDir, XPathParser xpp,
 			boolean createIndexIfNotExists) throws XPathExpressionException,
 			IOException, URISyntaxException {
-		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
-		switch (nodeList.getLength()) {
-		case 0:
-			return null;
-		case 1:
-			return new IndexSingle(indexDir, new IndexConfig(xpp, xpp
-					.getNode("/configuration/indices/index")),
-					createIndexIfNotExists);
-		default:
-			return new IndexGroup(indexDir, xpp, xpp
-					.getNode("/configuration/indices"), createIndexIfNotExists,
-					threadPool);
+		lock.lock();
+		try {
+			NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
+			switch (nodeList.getLength()) {
+			case 0:
+				return null;
+			case 1:
+				return new IndexSingle(indexDir, new IndexConfig(xpp, xpp
+						.getNode("/configuration/indices/index")),
+						createIndexIfNotExists);
+			default:
+				return new IndexGroup(indexDir, xpp, xpp
+						.getNode("/configuration/indices"),
+						createIndexIfNotExists, getThreadPool());
+			}
+		} finally {
+			lock.unlock();
 		}
+	}
 
+	private ExecutorService getThreadPool() {
+		lock.lock();
+		try {
+			if (threadPool == null)
+				threadPool = Executors.newCachedThreadPool();
+			return threadPool;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public Schema getSchema() {
-		return this.schema;
+		return schema;
 	}
 
 	public BasketCache getBasketCache() {
-		return basketCache;
+		lock.lock();
+		try {
+			if (basketCache == null)
+				basketCache = new BasketCache(100);
+			return basketCache;
+		} finally {
+			lock.unlock();
+		}
 	}
 
-	public ParserSelector getParserSelector() {
-		return parserSelector;
+	public ParserSelector getParserSelector() throws SearchLibException {
+		lock.lock();
+		try {
+			if (parserSelector == null) {
+				Node node = xppConfig.getNode("/configuration/parsers");
+				if (node != null)
+					parserSelector = ParserSelector.fromXmlConfig(xppConfig,
+							node);
+			}
+			return parserSelector;
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (DOMException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public IndexAbstract getIndex() {
 		return this.index;
 	}
 
-	public StatisticsList getStatisticsList() {
-		return statisticsList;
+	public StatisticsList getStatisticsList() throws SearchLibException {
+		try {
+			if (statisticsList == null)
+				statisticsList = StatisticsList.fromXmlConfig(xppConfig,
+						xppConfig.getNode("/configuration/statistics"));
+			return statisticsList;
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (DOMException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	public SearchRequest getNewSearchRequest() {
 		return new SearchRequest(this);
 	}
 
-	public SearchRequest getNewSearchRequest(String requestName) {
-		return new SearchRequest(searchRequests.get(requestName));
+	public SearchRequest getNewSearchRequest(String requestName)
+			throws SearchLibException {
+		return new SearchRequest(getSearchRequestMap().get(requestName));
 	}
 
-	public Map<String, SearchRequest> getSearchRequestMap() {
-		return searchRequests;
+	public Map<String, SearchRequest> getSearchRequestMap()
+			throws SearchLibException {
+		lock.lock();
+		try {
+			if (searchRequests == null)
+				searchRequests = SearchRequestMap
+						.fromXmlConfig(this, xppConfig, xppConfig
+								.getNode("/configuration/requests"));
+			return searchRequests;
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (DOMException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public UrlManager getUrlManager() throws SearchLibException {
+		lock.lock();
+		try {
+			if (urlManager == null)
+				urlManager = new UrlManager(indexDir);
+			return urlManager;
+		} catch (FileNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public PatternUrlManager getPatternUrlManager() throws SearchLibException {
+		lock.lock();
+		try {
+			if (patternUrlManager == null)
+				patternUrlManager = new PatternUrlManager(indexDir);
+			return patternUrlManager;
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public PropertyManager getPropertyManager() throws SearchLibException {
+		lock.lock();
+		try {
+			if (propertyManager == null)
+				propertyManager = new PropertyManager(new File(indexDir,
+						"crawler-properties.xml"));
+			return propertyManager;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public SearchRequest getNewSearchRequest(HttpServletRequest httpRequest)
-			throws ParseException, SyntaxError {
+			throws ParseException, SyntaxError, SearchLibException {
 
 		String requestName = httpRequest.getParameter("qt");
 		if (requestName == null)

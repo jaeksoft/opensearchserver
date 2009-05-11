@@ -41,6 +41,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
@@ -336,7 +337,7 @@ public class SearchRequest implements XmlInfo, Externalizable {
 		return this.returnFieldList;
 	}
 
-	public void addReturnField(String fieldName) {
+	public void addReturnField(String fieldName) throws SearchLibException {
 		returnFieldList.add(new Field(config.getSchema().getFieldList().get(
 				fieldName)));
 	}

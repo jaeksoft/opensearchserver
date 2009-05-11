@@ -1,39 +1,55 @@
 <?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
 <!--
-	License Agreement for Jaeksoft WebSearch
+	License Agreement for Jaeksoft OpenSearchServer
 	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
 	http://www.jaeksoft.com
-	This file is part of Jaeksoft WebSearch.
-	Jaeksoft WebSearch is free software: you can
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
 	redistribute it and/or modify it under the terms of the GNU General
 	Public License as published by the Free Software Foundation, either
 	version 3 of the License, or (at your option) any later version.
-	Jaeksoft WebSearch is distributed in the hope that it will be useful,
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 	General Public License for more details. You should have received a
-	copy of the GNU General Public License along with Jaeksoft WebSearch.
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="searchPattern"
-	use="com.jaeksoft.websearch.web.controller.SearchPattern">
+<window id="pattern"
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.PatternController">
+	<vbox width="99%">
+		<label>For example:</label>
+		<label>
+			Enter http://www.jaeksoft.com if you only want to crawl the
+			home page
+		</label>
+		<label>
+			Enter http://www.jaeksoft.com/* if you want to crawl all the
+			content
+		</label>
+		<label>
+			Enter http://www.jaeksoft.com/*wiki* if you only want to
+			crawl the url containing the word wiki
+		</label>
+		<textbox multiline="true" rows="10" width="100%"
+			value="@{pattern.pattern}" />
+		<button label="Add" forward="onAdd" />
+	</vbox>
 	<hbox align="center">
-		<textbox cols="20" value="@{searchPattern.like}" />
+		<textbox cols="20" value="@{pattern.like}" />
 		<space />
 		<button label="Search" forward="onSearch" />
 	</hbox>
-	<listbox checkmark="true" multiple="true"
-		itemRenderer="@{searchPattern}"
-		model="@{searchPattern.patternList}">
+	<listbox checkmark="true" multiple="true" itemRenderer="@{pattern}"
+		model="@{pattern.patternList}">
 		<listfoot>
 			<listfooter>
 				<paging id="paging" detailed="true"
-					totalSize="@{searchPattern.totalSize}"
-					pageSize="@{searchPattern.pageSize}"
-					activePage="@{searchPattern.activePage}" />
+					totalSize="@{pattern.totalSize}" pageSize="@{pattern.pageSize}"
+					activePage="@{pattern.activePage}" />
 			</listfooter>
 		</listfoot>
 	</listbox>
-	<button label="delete" visible="@{searchPattern.selection}"
+	<button label="delete" visible="@{pattern.selection}"
 		forward="onDelete" />
 </window>

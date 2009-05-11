@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -69,6 +70,12 @@ public class XPathParser {
 			IOException, ParserConfigurationException {
 		this();
 		setRoot(getBuilder().parse(inputSource));
+	}
+
+	public XPathParser(InputStream inputStream) throws SAXException,
+			IOException, ParserConfigurationException {
+		this();
+		setRoot(getBuilder().parse(inputStream));
 	}
 
 	public XPathParser(Node rootNode) {

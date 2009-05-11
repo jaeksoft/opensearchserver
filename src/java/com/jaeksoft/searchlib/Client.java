@@ -57,9 +57,14 @@ import com.jaeksoft.searchlib.util.XmlInfo;
 
 public class Client extends Config implements XmlInfo {
 
-	public Client(File initFile, boolean createIndexIfNotExists)
+	public Client(File initFileOrDir, boolean createIndexIfNotExists)
 			throws SearchLibException {
-		super(initFile, createIndexIfNotExists);
+		super(initFileOrDir, null, createIndexIfNotExists);
+	}
+
+	public Client(File initFileOrDir, String resourceName,
+			boolean createIndexIfNotExists) throws SearchLibException {
+		super(initFileOrDir, resourceName, createIndexIfNotExists);
 	}
 
 	public Client(File initFile) throws SearchLibException {
@@ -67,44 +72,48 @@ public class Client extends Config implements XmlInfo {
 	}
 
 	public boolean updateDocument(IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().updateDocument(getSchema(), document);
 		} finally {
-			statisticsList.addUpdate(timer);
+			getStatisticsList().addUpdate(timer);
 		}
 	}
 
 	public boolean updateDocument(String indexName, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().updateDocument(indexName, getSchema(), document);
 		} finally {
-			statisticsList.addUpdate(timer);
+			getStatisticsList().addUpdate(timer);
 		}
 	}
 
 	public int updateDocuments(Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().updateDocuments(getSchema(), documents);
 		} finally {
-			statisticsList.addUpdate(timer);
+			getStatisticsList().addUpdate(timer);
 		}
 	}
 
 	public int updateDocuments(String indexName,
 			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex()
 					.updateDocuments(indexName, getSchema(), documents);
 		} finally {
-			statisticsList.addUpdate(timer);
+			getStatisticsList().addUpdate(timer);
 		}
 	}
 
@@ -142,109 +151,111 @@ public class Client extends Config implements XmlInfo {
 
 	public boolean deleteDocument(String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(getSchema(), uniqueField);
 		} finally {
-			statisticsList.addDelete(timer);
+			getStatisticsList().addDelete(timer);
 		}
 	}
 
 	public boolean deleteDocument(String indexName, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(indexName, getSchema(),
 					uniqueField);
 		} finally {
-			statisticsList.addDelete(timer);
+			getStatisticsList().addDelete(timer);
 		}
 	}
 
 	public boolean deleteDocument(int docId) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(docId);
 		} finally {
-			statisticsList.addDelete(timer);
+			getStatisticsList().addDelete(timer);
 		}
 	}
 
 	public boolean deleteDocument(String indexName, int docId)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(indexName, docId);
 		} finally {
-			statisticsList.addDelete(timer);
+			getStatisticsList().addDelete(timer);
 		}
 	}
 
 	public int deleteDocuments(Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocuments(getSchema(), uniqueFields);
 		} finally {
-			statisticsList.addDelete(timer);
+			getStatisticsList().addDelete(timer);
 		}
 	}
 
 	public int deleteDocuments(String indexName, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocuments(indexName, getSchema(),
 					uniqueFields);
 		} finally {
-			statisticsList.addDelete(timer);
+			getStatisticsList().addDelete(timer);
 		}
 	}
 
 	public int deleteDocumentsById(Collection<Integer> docIds)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocuments(docIds);
 		} finally {
-			statisticsList.addDelete(timer);
+			getStatisticsList().addDelete(timer);
 		}
 	}
 
 	public int deleteDocumentsbyId(String indexName, Collection<Integer> docIds)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocuments(indexName, docIds);
 		} finally {
-			statisticsList.addDelete(timer);
+			getStatisticsList().addDelete(timer);
 		}
 	}
 
 	public void optimize(String indexName) throws IOException,
-			URISyntaxException {
+			URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			getIndex().optimize(indexName);
 		} finally {
-			statisticsList.addOptimize(timer);
+			getStatisticsList().addOptimize(timer);
 		}
 	}
 
-	public void reload(String indexName) throws IOException, URISyntaxException {
+	public void reload(String indexName) throws IOException,
+			URISyntaxException, SearchLibException {
 		Timer timer = new Timer();
 		try {
 			getIndex().reload(indexName);
 		} finally {
-			statisticsList.addReload(timer);
+			getStatisticsList().addReload(timer);
 		}
 	}
 
@@ -253,22 +264,23 @@ public class Client extends Config implements XmlInfo {
 	 */
 	@Deprecated
 	public void reload(boolean deleteOld) throws IOException,
-			URISyntaxException {
+			URISyntaxException, SearchLibException {
 		reload(null);
 	}
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException, SearchLibException {
 		searchRequest.init(this);
 		Result result = getIndex().search(searchRequest);
-		statisticsList.addSearch(searchRequest.getTimer());
+		getStatisticsList().addSearch(searchRequest.getTimer());
 		return result;
 	}
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException {
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			SearchLibException {
 		return getIndex().documents(documentsRequest);
 	}
 

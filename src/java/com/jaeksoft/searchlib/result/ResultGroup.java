@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetGroup;
@@ -200,7 +201,7 @@ public class ResultGroup extends Result {
 
 	public void loadDocuments(IndexGroup indexGroup) throws ParseException,
 			SyntaxError, IOException, URISyntaxException,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException, SearchLibException {
 		DocumentsRequest documentsRequest = new DocumentsRequest(this);
 		ResultDocuments resultDocuments = indexGroup
 				.documents(documentsRequest);

@@ -52,7 +52,8 @@ public class IndexServlet extends AbstractServlet {
 	private static final long serialVersionUID = 3855116559376800406L;
 
 	private int updateDoc(Client client, String indexName, IndexDocument doc)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException {
 		if (indexName == null)
 			return client.updateDocument(doc) ? 1 : 0;
 		else
@@ -61,7 +62,8 @@ public class IndexServlet extends AbstractServlet {
 
 	private int updateDoc(Client client, String indexName,
 			Collection<IndexDocument> indexDocuments)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException {
 		if (indexName == null)
 			return client.updateDocuments(indexDocuments);
 		else
@@ -70,7 +72,7 @@ public class IndexServlet extends AbstractServlet {
 
 	private int updateDoc(Client client, String indexName,
 			IndexRequest indexRequest) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		return updateDoc(client, indexName, indexRequest.getCollection());
 	}
 

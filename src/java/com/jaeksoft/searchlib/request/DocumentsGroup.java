@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexGroup;
@@ -44,7 +45,8 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 	public DocumentsGroup(IndexGroup indexGroup,
 			DocumentsRequest documentsRequest, ExecutorService threadPool)
 			throws IOException, URISyntaxException, ParseException,
-			SyntaxError, ClassNotFoundException, InterruptedException {
+			SyntaxError, ClassNotFoundException, InterruptedException,
+			SearchLibException {
 		super(indexGroup, threadPool, 60);
 		this.documentsRequest = documentsRequest;
 		DocumentRequest[] requestedDocuments = documentsRequest

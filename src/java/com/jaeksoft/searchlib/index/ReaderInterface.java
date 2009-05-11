@@ -36,6 +36,7 @@ import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -56,11 +57,12 @@ public interface ReaderInterface extends XmlInfo {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException;
+			ClassNotFoundException, InterruptedException, SearchLibException;
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException;
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			SearchLibException;
 
 	public boolean deleteDocument(int docId) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException,

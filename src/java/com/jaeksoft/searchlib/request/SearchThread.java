@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
@@ -64,7 +65,7 @@ public class SearchThread extends AbstractGroupRequestThread {
 	@Override
 	public void runner() throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
-			InterruptedException {
+			InterruptedException, SearchLibException {
 		searchRequest.setStart(searchRequest.getEnd());
 		searchRequest.setRows(step);
 		Result result = reader.search(searchRequest);

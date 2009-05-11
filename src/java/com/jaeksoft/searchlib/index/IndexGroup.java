@@ -46,6 +46,7 @@ import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.DocumentsGroup;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
@@ -261,7 +262,7 @@ public class IndexGroup extends IndexAbstract {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException, SearchLibException {
 		String indexName = searchRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).search(searchRequest);
@@ -359,7 +360,8 @@ public class IndexGroup extends IndexAbstract {
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException {
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			SearchLibException {
 		String indexName = documentsRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).documents(documentsRequest);

@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.httpclient.HttpException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.request.DeleteRequest;
 
@@ -47,7 +48,8 @@ public class DeleteServlet extends AbstractServlet {
 	private static final long serialVersionUID = -2663934578246659291L;
 
 	private boolean deleteUniqDoc(Client client, String indexName, String uniq)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException {
 		if (indexName == null)
 			return client.deleteDocument(uniq);
 		else
@@ -55,7 +57,8 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	private boolean deleteDocById(Client client, String indexName, int docId)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException {
 		if (indexName == null)
 			return client.deleteDocument(docId);
 		else
@@ -64,7 +67,7 @@ public class DeleteServlet extends AbstractServlet {
 
 	private int deleteUniqDocs(Client client, String indexName,
 			Collection<String> uniqFields) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		if (indexName == null)
 			return client.deleteDocuments(uniqFields);
 		else
@@ -73,7 +76,7 @@ public class DeleteServlet extends AbstractServlet {
 
 	private int deleteDocsById(Client client, String indexName,
 			Collection<Integer> docIds) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, SearchLibException {
 		if (indexName == null)
 			return client.deleteDocumentsById(docIds);
 		else

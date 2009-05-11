@@ -53,6 +53,7 @@ import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
@@ -271,7 +272,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public ResultSingle search(SearchRequest searchRequest) throws IOException,
-			ParseException, SyntaxError {
+			ParseException, SyntaxError, SearchLibException {
 		return new ResultSingle(this, searchRequest);
 	}
 
@@ -489,7 +490,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public DocSetHits searchDocSet(SearchRequest searchRequest)
-			throws IOException, ParseException, SyntaxError {
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		boolean isDelete = searchRequest.isDelete();
 		boolean isFacet = searchRequest.isFacet();
 		boolean isNoCache = searchRequest.isNoCache();

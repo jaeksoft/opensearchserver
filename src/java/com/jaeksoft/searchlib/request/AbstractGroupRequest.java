@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexGroup;
@@ -61,7 +62,7 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	final private void run(List<T> threads) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException, SearchLibException {
 		for (T thread : threads)
 			thread.start(threadPool);
 		Iterator<T> iterator = threads.iterator();
@@ -99,7 +100,7 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	final protected void loop(int maxIteration) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException, SearchLibException {
 		lock.lock();
 		try {
 
@@ -117,7 +118,8 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 	}
 
 	final protected void run() throws ParseException, SyntaxError, IOException,
-			URISyntaxException, ClassNotFoundException, InterruptedException {
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			SearchLibException {
 		lock.lock();
 		try {
 			List<T> threads = initThreads();

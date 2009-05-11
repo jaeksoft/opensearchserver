@@ -39,6 +39,7 @@ import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
@@ -374,7 +375,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException, SearchLibException {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();
@@ -391,7 +392,8 @@ public class IndexSingle extends IndexAbstract {
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException {
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			SearchLibException {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();

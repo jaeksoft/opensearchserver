@@ -34,6 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 
 public abstract class AbstractGroupRequestThread implements Runnable {
@@ -48,6 +49,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 	private SyntaxError syntaxError;
 	private ClassNotFoundException classNotFound;
 	private InterruptedException interruptedException;
+	private SearchLibException searchLibException;
 
 	protected AbstractGroupRequestThread() {
 		ioException = null;
@@ -55,6 +57,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 		parseException = null;
 		syntaxError = null;
 		interruptedException = null;
+		searchLibException = null;
 		completion = false;
 	}
 
@@ -72,7 +75,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 
 	public abstract void runner() throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
-			InterruptedException;
+			InterruptedException, SearchLibException;
 
 	final public void run() {
 		lock.lock();
@@ -92,6 +95,8 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			this.classNotFound = e;
 		} catch (InterruptedException e) {
 			this.interruptedException = e;
+		} catch (SearchLibException e) {
+			this.searchLibException = e;
 		} finally {
 			lock.unlock();
 		}
@@ -108,7 +113,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 
 	final public void exception() throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
-			InterruptedException {
+			InterruptedException, SearchLibException {
 		if (ioException != null)
 			throw ioException;
 		if (parseException != null)
@@ -121,5 +126,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			throw classNotFound;
 		if (interruptedException != null)
 			throw interruptedException;
+		if (searchLibException != null)
+			throw searchLibException;
 	}
 }
