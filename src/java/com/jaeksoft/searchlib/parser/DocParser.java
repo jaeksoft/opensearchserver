@@ -31,6 +31,14 @@ import org.apache.poi.hwpf.extractor.WordExtractor;
 
 public class DocParser extends Parser {
 
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
+			ParserFieldEnum.author, ParserFieldEnum.subject,
+			ParserFieldEnum.content };
+
+	public DocParser() {
+		super(fl);
+	}
+
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
@@ -39,17 +47,16 @@ public class DocParser extends Parser {
 
 		SummaryInformation info = word.getSummaryInformation();
 		if (info != null) {
-			basketDocument.addIfNoEmpty("title", info.getTitle());
-			basketDocument.addIfNoEmpty("author", info.getAuthor());
-			basketDocument.addIfNoEmpty("subject", info.getSubject());
+			addField(ParserFieldEnum.title, info.getTitle());
+			addField(ParserFieldEnum.author, info.getAuthor());
+			addField(ParserFieldEnum.subject, info.getSubject());
 		}
 
 		String[] paragraphes = word.getParagraphText();
 		for (String paragraph : paragraphes) {
 			String[] frags = paragraph.split("\\n");
 			for (String frag : frags)
-				basketDocument.addIfNoEmpty("content", frag.replaceAll("\\s+",
-						" "));
+				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " "));
 		}
 	}
 

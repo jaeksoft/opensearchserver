@@ -1,0 +1,47 @@
+/**   
+ * License Agreement for Jaeksoft WebSearch
+ *
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.jaeksoft.com
+ * 
+ * This file is part of Jaeksoft WebSearch.
+ *
+ * Jaeksoft WebSearch is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft WebSearch is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft WebSearch. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+package com.jaeksoft.searchlib.crawler.web.process;
+
+public enum CrawlStatus {
+
+	NOT_RUNNING("Not running"), STARTING("Starting"), EXTRACTING_URLLIST(
+			"Extracting url list"), EXTRACTING_HOSTLIST("Extracting host list"), CRAWL(
+			"Crawling"), INDEXATION("Indexation"), OPTMIZING_INDEX(
+			"Optimizing index"), PUBLISH_INDEX("Publishing index"), EXTRACTING_URLS(
+			"Extracting urls"), WAITING("Waiting"), ERROR("Error"), ABORTED(
+			"Aborted"), COMPLETE("Complete");
+
+	public String name;
+
+	private CrawlStatus(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+}

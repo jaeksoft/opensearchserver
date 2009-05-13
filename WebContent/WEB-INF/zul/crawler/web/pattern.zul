@@ -35,16 +35,15 @@
 			value="@{pattern.pattern}" />
 		<button label="Add" forward="onAdd" />
 	</vbox>
-
+	<separator />
+	<hbox>
+		<label>Filter:</label>
+		<textbox cols="20" value="@{pattern.like}" />
+		<space />
+		<button label="Search" forward="onSearch" />
+	</hbox>
 	<listbox checkmark="true" multiple="true" itemRenderer="@{pattern}"
 		model="@{pattern.patternList}">
-		<listhead>
-			<listheader>
-				<textbox cols="20" value="@{pattern.like}" />
-				<space />
-				<button label="Search" forward="onSearch" />
-			</listheader>
-		</listhead>
 		<listfoot>
 			<listfooter>
 				<paging id="paging" detailed="true"

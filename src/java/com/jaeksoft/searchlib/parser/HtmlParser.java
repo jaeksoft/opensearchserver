@@ -57,7 +57,16 @@ public class HtmlParser extends Parser {
 
 	private final static TreeSet<String> sentenceTagSet = new TreeSet<String>();
 
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
+			ParserFieldEnum.body, ParserFieldEnum.meta_keywords,
+			ParserFieldEnum.meta_description, ParserFieldEnum.meta_robots,
+			ParserFieldEnum.internal_link, ParserFieldEnum.internal_nofollow,
+			ParserFieldEnum.external_link,
+			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
+			ParserFieldEnum.lang };
+
 	public HtmlParser() {
+		super(fl);
 		synchronized (this) {
 			if (sentenceTagSet.size() == 0) {
 				sentenceTagSet.add("p");
@@ -122,7 +131,7 @@ public class HtmlParser extends Parser {
 		if (bAddBlock && nodeName != null && sb.length() > 0
 				&& sb.charAt(sb.length() - 1) != '.'
 				&& sentenceTagSet.contains(nodeName.toLowerCase())) {
-			basketDocument.addIfNoEmpty("body", sb);
+			addField(ParserFieldEnum.body, sb);
 			sb.setLength(0);
 		}
 	}
@@ -226,9 +235,10 @@ public class HtmlParser extends Parser {
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
 
-		String charset = basketDocument.getFieldValue("charset", 0);
+		String charset = getDocument().getFieldValue("charset", 0);
 		if (charset == null)
 			charset = Charset.defaultCharset().name();
+		addField(ParserFieldEnum.charset, charset);
 
 		Document doc = null;
 		if (doc == null) {
@@ -275,7 +285,7 @@ public class HtmlParser extends Parser {
 		if (doc == null)
 			return;
 
-		basketDocument.addIfNoEmpty("title", getTitle(doc));
+		addField(ParserFieldEnum.title, getTitle(doc));
 
 		List<Node> metas = getMetas(doc);
 
@@ -290,11 +300,9 @@ public class HtmlParser extends Parser {
 			String attr_http_equiv = DomUtils.getAttributeText(node,
 					"http-equiv");
 			if ("keywords".equalsIgnoreCase(attr_name))
-				basketDocument.addIfNoEmpty("meta_keywords",
-						getMetaContent(node));
+				addField(ParserFieldEnum.meta_keywords, getMetaContent(node));
 			else if ("description".equalsIgnoreCase(attr_name))
-				basketDocument.addIfNoEmpty("meta_description",
-						getMetaContent(node));
+				addField(ParserFieldEnum.meta_description, getMetaContent(node));
 			else if ("robots".equalsIgnoreCase(attr_name))
 				metaRobots = getMetaContent(node);
 			else if ("dc.language".equalsIgnoreCase(attr_name))
@@ -307,16 +315,16 @@ public class HtmlParser extends Parser {
 		if (metaRobots != null) {
 			metaRobots = metaRobots.toLowerCase();
 			if (metaRobots.contains("noindex"))
-				basketDocument.add("meta_robots", "noindex");
+				addField(ParserFieldEnum.meta_robots, "noindex");
 			if (metaRobots.contains("nofollow")) {
 				metaRobotsFollow = false;
-				basketDocument.add("meta_robots", "nofollow");
+				addField(ParserFieldEnum.meta_robots, "nofollow");
 			}
 		}
 
 		List<Node> nodes = DomUtils.getAllNodes(doc, "a");
 		if (nodes != null && metaRobotsFollow) {
-			URL currentURL = new URL(basketDocument.getFieldValue("url", 0));
+			URL currentURL = new URL(getDocument().getFieldValue("url", 0));
 			for (Node node : nodes) {
 				String href = DomUtils.getAttributeText(node, "href");
 				String rel = DomUtils.getAttributeText(node, "rel");
@@ -330,14 +338,19 @@ public class HtmlParser extends Parser {
 						newUrl = LinkUtils.getLink(currentURL, href, follow,
 								false, true, true);
 				if (newUrl != null) {
-					String field = "";
-					if (newUrl.getHost().equalsIgnoreCase(currentURL.getHost()))
-						field = "internal_link";
-					else
-						field = "external_link";
-					if (!follow)
-						field += "_nofollow";
-					basketDocument.add(field, newUrl.toExternalForm());
+					ParserFieldEnum field = null;
+					if (newUrl.getHost().equalsIgnoreCase(currentURL.getHost())) {
+						if (follow)
+							field = ParserFieldEnum.internal_link;
+						else
+							field = ParserFieldEnum.internal_nofollow;
+					} else {
+						if (follow)
+							field = ParserFieldEnum.external_link;
+						else
+							field = ParserFieldEnum.external_link_nofollow;
+					}
+					addField(field, newUrl.toExternalForm());
 				}
 			}
 		}
@@ -347,7 +360,7 @@ public class HtmlParser extends Parser {
 		if (nodes != null && nodes.size() > 0) {
 			StringBuffer sb = new StringBuffer();
 			getBodyTextContent(sb, nodes.get(0), true);
-			basketDocument.addIfNoEmpty("body", sb);
+			addField(ParserFieldEnum.body, sb);
 		}
 
 		// Identification de la langue:
@@ -370,8 +383,8 @@ public class HtmlParser extends Parser {
 			lang = Lang.findLocaleISO639(metaDcLanguage);
 		}
 
-		basketDocument.setLang(lang.getISO3Language());
-		basketDocument.addIfNoEmpty("lang_method", langMethod);
+		addField(ParserFieldEnum.lang, lang.getISO3Language());
+		addField(ParserFieldEnum.lang_method, langMethod);
 	}
 
 	@Override

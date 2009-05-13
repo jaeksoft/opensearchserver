@@ -1,6 +1,7 @@
 package com.jaeksoft.searchlib.basket;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
+import com.jaeksoft.searchlib.index.IndexDocument;
 
 public class BasketKey implements CacheKeyInterface<BasketKey> {
 
@@ -10,8 +11,8 @@ public class BasketKey implements CacheKeyInterface<BasketKey> {
 		this.key = key;
 	}
 
-	public BasketKey(BasketDocument basketDocument) {
-		key = (long) Integer.MAX_VALUE * 2 - (long) basketDocument.hashCode();
+	public BasketKey(IndexDocument indexDocument) {
+		key = (long) Integer.MAX_VALUE * 2 - (long) indexDocument.hashCode();
 	}
 
 	@Override

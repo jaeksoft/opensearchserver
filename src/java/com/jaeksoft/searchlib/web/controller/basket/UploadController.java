@@ -38,8 +38,8 @@ import org.zkoss.zul.Fileupload;
 import org.zkoss.zul.Panelchildren;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.basket.BasketDocument;
 import com.jaeksoft.searchlib.basket.BasketKey;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.FileUtils;
@@ -80,7 +80,7 @@ public class UploadController extends CommonController {
 	private void setBasketComponent() {
 		synchronized (this) {
 			removeBasketComponent();
-			BasketDocument basketDocument = getCurrentDocument();
+			IndexDocument basketDocument = getCurrentDocument();
 			if (basketDocument == null)
 				return;
 			basketComponent = FieldContentModel
@@ -98,13 +98,13 @@ public class UploadController extends CommonController {
 		}
 	}
 
-	public BasketDocument getCurrentDocument() {
+	public IndexDocument getCurrentDocument() {
 		synchronized (this) {
-			return (BasketDocument) getAttribute(ScopeAttribute.BASKET_CURRENT_DOCUMENT);
+			return (IndexDocument) getAttribute(ScopeAttribute.BASKET_CURRENT_DOCUMENT);
 		}
 	}
 
-	public void setCurrentDocument(BasketDocument basketDocument) {
+	public void setCurrentDocument(IndexDocument basketDocument) {
 		synchronized (this) {
 			setAttribute(ScopeAttribute.BASKET_CURRENT_DOCUMENT, basketDocument);
 			setBasketComponent();
@@ -137,7 +137,7 @@ public class UploadController extends CommonController {
 				return;
 			}
 
-			BasketDocument basketDocument = parser.getBasketDocument();
+			IndexDocument basketDocument = parser.getDocument();
 			basketDocument.addIfNoEmpty("filename", media.getName());
 			basketDocument.addIfNoEmpty("content_type", contentType);
 

@@ -33,6 +33,13 @@ import org.apache.poi.hslf.usermodel.SlideShow;
 
 public class PptParser extends Parser {
 
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
+			ParserFieldEnum.note, ParserFieldEnum.body, ParserFieldEnum.other };
+
+	public PptParser() {
+		super(fl);
+	}
+
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
@@ -42,30 +49,29 @@ public class PptParser extends Parser {
 		for (Slide slide : slides) {
 			TextRun[] textRuns = slide.getTextRuns();
 			for (TextRun textRun : textRuns) {
-				String field;
+				ParserFieldEnum field;
 				switch (textRun.getRunType()) {
 				case TextHeaderAtom.TITLE_TYPE:
 				case TextHeaderAtom.CENTER_TITLE_TYPE:
-					field = "title";
+					field = ParserFieldEnum.title;
 					break;
 				case TextHeaderAtom.NOTES_TYPE:
-					field = "note";
+					field = ParserFieldEnum.note;
 					break;
 				case TextHeaderAtom.BODY_TYPE:
 				case TextHeaderAtom.CENTRE_BODY_TYPE:
 				case TextHeaderAtom.HALF_BODY_TYPE:
 				case TextHeaderAtom.QUARTER_BODY_TYPE:
-					field = "body";
+					field = ParserFieldEnum.body;
 					break;
 				case TextHeaderAtom.OTHER_TYPE:
 				default:
-					field = "other";
+					field = ParserFieldEnum.other;
 					break;
 				}
 				String[] frags = textRun.getText().split("\\n");
 				for (String frag : frags)
-					basketDocument.addIfNoEmpty(field, frag.replaceAll("\\s+",
-							" "));
+					addField(field, frag.replaceAll("\\s+", " "));
 			}
 		}
 

@@ -33,6 +33,17 @@ import org.pdfbox.util.PDFTextStripper;
 
 public class PdfParser extends Parser {
 
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
+			ParserFieldEnum.author, ParserFieldEnum.subject,
+			ParserFieldEnum.content, ParserFieldEnum.producer,
+			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
+			ParserFieldEnum.modification_date, ParserFieldEnum.language,
+			ParserFieldEnum.number_of_pages, ParserFieldEnum.content };
+
+	public PdfParser() {
+		super(fl);
+	}
+
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
@@ -41,24 +52,24 @@ public class PdfParser extends Parser {
 			pdf = PDDocument.load(inputStream);
 			PDDocumentInformation info = pdf.getDocumentInformation();
 			if (info != null) {
-				basketDocument.addIfNoEmpty("title", info.getTitle());
-				basketDocument.addIfNoEmpty("subject", info.getSubject());
-				basketDocument.addIfNoEmpty("author", info.getAuthor());
-				basketDocument.addIfNoEmpty("producer", info.getProducer());
-				basketDocument.addIfNoEmpty("keywords", info.getKeywords());
+				addField(ParserFieldEnum.title, info.getTitle());
+				addField(ParserFieldEnum.subject, info.getSubject());
+				addField(ParserFieldEnum.author, info.getAuthor());
+				addField(ParserFieldEnum.producer, info.getProducer());
+				addField(ParserFieldEnum.keywords, info.getKeywords());
 				if (info.getCreationDate() != null)
-					basketDocument.addIfNoEmpty("creation_date", info
+					addField(ParserFieldEnum.creation_date, info
 							.getCreationDate().getTime());
 				if (info.getModificationDate() != null)
-					basketDocument.addIfNoEmpty("modification_date", info
+					addField(ParserFieldEnum.modification_date, info
 							.getModificationDate().getTime());
 			}
 			PDDocumentCatalog catalog = pdf.getDocumentCatalog();
 			if (catalog != null) {
-				basketDocument.addIfNoEmpty("language", catalog.getLanguage());
+				addField(ParserFieldEnum.language, catalog.getLanguage());
 			}
 			int pages = pdf.getNumberOfPages();
-			basketDocument.addIfNoEmpty("number_of_pages", pages);
+			addField(ParserFieldEnum.number_of_pages, pages);
 			for (int page = 0; page < pages; page++) {
 				PDFTextStripper stripper = new PDFTextStripper();
 				stripper.setStartPage(page);
@@ -66,8 +77,8 @@ public class PdfParser extends Parser {
 				String text = stripper.getText(pdf);
 				String[] frags = text.split("\\n");
 				for (String frag : frags)
-					basketDocument.addIfNoEmpty("content", frag.replaceAll(
-							"\\s+", " ").trim());
+					addField(ParserFieldEnum.content, frag.replaceAll("\\s+",
+							" ").trim());
 			}
 		} finally {
 			if (pdf != null)

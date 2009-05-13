@@ -30,8 +30,8 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Panelchildren;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.basket.BasketDocument;
 import com.jaeksoft.searchlib.basket.BasketKey;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.model.FieldContentModel;
 
@@ -42,7 +42,7 @@ public class ListController extends CommonController {
 	 */
 	private static final long serialVersionUID = -4651293740989742211L;
 
-	private BasketDocument basketDocument;
+	private IndexDocument basketDocument;
 
 	private Panelchildren basketComponent;
 
@@ -52,7 +52,7 @@ public class ListController extends CommonController {
 		basketComponent = null;
 	}
 
-	public BasketDocument getCurrentBasketDocument() {
+	public IndexDocument getCurrentBasketDocument() {
 		synchronized (this) {
 			return basketDocument;
 		}
@@ -87,7 +87,7 @@ public class ListController extends CommonController {
 	}
 
 	public void setCurrentBasketDocument(
-			Map.Entry<BasketDocument, BasketDocument> entry) {
+			Map.Entry<IndexDocument, IndexDocument> entry) {
 		synchronized (this) {
 			basketDocument = entry == null ? null : entry.getValue();
 			setBasketComponent();

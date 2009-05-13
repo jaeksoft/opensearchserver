@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.basket.BasketDocument;
 import com.jaeksoft.searchlib.basket.BasketKey;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 
@@ -59,7 +59,7 @@ public class BasketServlet extends AbstractServlet {
 				throw new ServletException("No parser found");
 
 			parser.parseContent(request.getInputStream());
-			BasketDocument basketDocument = parser.getBasketDocument();
+			IndexDocument basketDocument = parser.getDocument();
 			BasketKey key = client.getBasketCache().put(basketDocument);
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Key", key.toString());

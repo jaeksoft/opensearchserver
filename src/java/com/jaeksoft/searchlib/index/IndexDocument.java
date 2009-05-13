@@ -42,7 +42,6 @@ import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketCache;
-import com.jaeksoft.searchlib.basket.BasketDocument;
 import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -107,7 +106,7 @@ public class IndexDocument implements Externalizable, XmlInfo,
 				long basketId = XPathParser.getAttributeLong(valueNode,
 						"basketId");
 				if (basketId != 0) {
-					BasketDocument basketDocument = basketCache
+					IndexDocument basketDocument = basketCache
 							.getAndPromote(new BasketKey(basketId));
 					if (basketDocument == null)
 						throw new SearchLibException(
@@ -123,6 +122,13 @@ public class IndexDocument implements Externalizable, XmlInfo,
 				add(fieldName, xpp.getNodeString(valueNode));
 			}
 		}
+	}
+
+	public IndexDocument(IndexDocument sourceDocument) {
+		this.lang = sourceDocument.lang;
+		for (Map.Entry<String, FieldContent> entry : sourceDocument.fields
+				.entrySet())
+			add(entry.getKey(), entry.getValue());
 	}
 
 	public void add(String field, String value) {

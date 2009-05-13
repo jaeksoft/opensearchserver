@@ -50,6 +50,8 @@ import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.crawler.web.database.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.process.CrawlMaster;
+import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
@@ -59,6 +61,7 @@ import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.plugin.IndexPluginTemplateList;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
@@ -97,6 +100,12 @@ public abstract class Config implements XmlInfo {
 	private PropertyManager propertyManager = null;
 
 	private XPathParser xppConfig = null;
+
+	private CrawlMaster webCrawlMaster = null;
+
+	private IndexPluginTemplateList indexPluginTemplateList = null;
+
+	private RobotsTxtCache robotsTxtCache = null;
 
 	private File indexDir;
 
@@ -196,6 +205,19 @@ public abstract class Config implements XmlInfo {
 		}
 	}
 
+	public CrawlMaster getWebCrawlMaster() throws SearchLibException {
+		lock.lock();
+		try {
+			if (webCrawlMaster != null)
+				return webCrawlMaster;
+			webCrawlMaster = new CrawlMaster(this);
+			return webCrawlMaster;
+		} finally {
+			lock.unlock();
+		}
+
+	}
+
 	public ParserSelector getParserSelector() throws SearchLibException {
 		lock.lock();
 		try {
@@ -219,6 +241,28 @@ public abstract class Config implements XmlInfo {
 
 	public IndexAbstract getIndex() {
 		return this.index;
+	}
+
+	public IndexPluginTemplateList getIndexPluginTemplateList()
+			throws SearchLibException {
+		lock.lock();
+		try {
+			if (indexPluginTemplateList != null)
+				return indexPluginTemplateList;
+			Node node = xppConfig.getNode("/configuration/indexPlugins");
+			if (node == null)
+				return null;
+			indexPluginTemplateList = IndexPluginTemplateList.fromXmlConfig(
+					xppConfig, node);
+			return indexPluginTemplateList;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+
 	}
 
 	public StatisticsList getStatisticsList() throws SearchLibException {
@@ -435,6 +479,18 @@ public abstract class Config implements XmlInfo {
 			render = new RenderXml(result);
 
 		return render;
+	}
+
+	public RobotsTxtCache getRobotsTxtCache() {
+		lock.lock();
+		try {
+			if (robotsTxtCache != null)
+				return robotsTxtCache;
+			robotsTxtCache = new RobotsTxtCache();
+			return robotsTxtCache;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public void xmlInfo(PrintWriter writer) {

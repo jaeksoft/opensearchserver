@@ -30,25 +30,58 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import com.jaeksoft.searchlib.basket.BasketDocument;
+import com.jaeksoft.searchlib.index.FieldContent;
+import com.jaeksoft.searchlib.index.IndexDocument;
 
 public abstract class Parser {
 
 	private long sizeLimit;
 
-	protected BasketDocument basketDocument;
+	private IndexDocument document;
 
-	protected Parser() {
+	private ParserFieldEnum[] fieldList;
+
+	protected Parser(ParserFieldEnum[] fieldList) {
+		this.fieldList = fieldList;
 		sizeLimit = 0;
-		basketDocument = new BasketDocument();
+		document = null;
 	}
 
 	public void setSizeLimit(long l) {
 		sizeLimit = l;
 	}
 
-	public BasketDocument getBasketDocument() {
-		return basketDocument;
+	public void initDocument(IndexDocument sourceDocument) {
+		if (sourceDocument != null)
+			document = new IndexDocument(sourceDocument);
+		else
+			document = new IndexDocument();
+	}
+
+	public ParserFieldEnum[] getFieldList() {
+		return fieldList;
+	}
+
+	protected void addField(ParserFieldEnum field, String value) {
+		if (value == null)
+			return;
+		if (value.length() == 0)
+			return;
+		document.add(field.name(), value);
+	}
+
+	protected void addField(ParserFieldEnum field, Object object) {
+		if (object == null)
+			return;
+		addField(field, object.toString());
+	}
+
+	public FieldContent getFieldContent(ParserFieldEnum field) {
+		return document.getField(field.name());
+	}
+
+	public IndexDocument getDocument() {
+		return document;
 	}
 
 	protected abstract void parseContent(LimitInputStream inputStream)
