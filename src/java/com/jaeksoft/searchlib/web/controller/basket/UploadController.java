@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -137,9 +138,8 @@ public class UploadController extends CommonController {
 				return;
 			}
 
-			IndexDocument basketDocument = parser.getDocument();
-			basketDocument.addIfNoEmpty("filename", media.getName());
-			basketDocument.addIfNoEmpty("content_type", contentType);
+			parser.addField(ParserFieldEnum.filename, media.getName());
+			parser.addField(ParserFieldEnum.content_type, contentType);
 
 			if (media.inMemory()) {
 				if (media.isBinary())
@@ -152,14 +152,14 @@ public class UploadController extends CommonController {
 				else
 					parser.parseContent(media.getReaderData());
 			}
-			setCurrentDocument(basketDocument);
+			setCurrentDocument(parser.getDocument());
 			reloadPage();
 		}
 	}
 
 	public void onSave() throws SearchLibException, InterruptedException {
 		synchronized (this) {
-			BasketDocument basketDocument = getCurrentDocument();
+			IndexDocument basketDocument = getCurrentDocument();
 			if (basketDocument == null)
 				return;
 			BasketKey key = getClient().getBasketCache().put(basketDocument);

@@ -96,17 +96,18 @@ public class Crawl {
 			ClassNotFoundException, IOException {
 		if (parserSelector == null)
 			return;
-		Parser parser = parserSelector.getParser(urlItem);
+		Parser parser = parserSelector.getParserFromMimeType(urlItem
+				.getContentBaseType());
 		if (parser == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
 		}
-		parser.parseContent(this, inputStream);
+		parser.parseContent(inputStream);
 		this.parser = parser;
 	}
 
 	public boolean checkRobotTxtAllow(HttpDownloader httpDownloader)
-			throws MalformedURLException {
+			throws MalformedURLException, SearchLibException {
 		RobotsTxt robotsTxt = config.getRobotsTxtCache().getRobotsTxt(
 				httpDownloader, config, urlItem.getURL(), false);
 		RobotsTxtStatus robotsTxtStatus = robotsTxt.status(userAgent);

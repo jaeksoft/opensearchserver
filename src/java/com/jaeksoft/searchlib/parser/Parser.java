@@ -44,25 +44,23 @@ public abstract class Parser {
 	protected Parser(ParserFieldEnum[] fieldList) {
 		this.fieldList = fieldList;
 		sizeLimit = 0;
-		document = null;
+		document = new IndexDocument();
 	}
 
 	public void setSizeLimit(long l) {
 		sizeLimit = l;
 	}
 
-	public void initDocument(IndexDocument sourceDocument) {
+	public void setDocument(IndexDocument sourceDocument) {
 		if (sourceDocument != null)
 			document = new IndexDocument(sourceDocument);
-		else
-			document = new IndexDocument();
 	}
 
 	public ParserFieldEnum[] getFieldList() {
 		return fieldList;
 	}
 
-	protected void addField(ParserFieldEnum field, String value) {
+	public void addField(ParserFieldEnum field, String value) {
 		if (value == null)
 			return;
 		if (value.length() == 0)

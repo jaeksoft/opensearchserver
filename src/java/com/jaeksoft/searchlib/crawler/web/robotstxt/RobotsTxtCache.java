@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -87,7 +87,7 @@ public class RobotsTxtCache {
 	 * @throws MalformedURLException
 	 * @throws SearchLibException
 	 */
-	public RobotsTxt getRobotsTxt(HttpDownloader httpDownloader, Client client,
+	public RobotsTxt getRobotsTxt(HttpDownloader httpDownloader, Config config,
 			URL url, boolean reloadRobotsTxt) throws MalformedURLException,
 			SearchLibException {
 		UrlItem urlItem = new UrlItem();
@@ -101,7 +101,7 @@ public class RobotsTxtCache {
 			if (robotsTxt != null)
 				return robotsTxt;
 		}
-		Crawl crawl = new Crawl(urlItem, client, parserSelector, null);
+		Crawl crawl = new Crawl(urlItem, config, parserSelector, null);
 		crawl.download(httpDownloader);
 		synchronized (robotsTxtList) {
 			RobotsTxt robotsTxt = new RobotsTxt(crawl);
