@@ -37,6 +37,8 @@ public class IndexPluginList {
 
 	public IndexPluginList(IndexPluginTemplateList templateList)
 			throws SearchLibException {
+		if (templateList == null)
+			return;
 		pluginList = new ArrayList<IndexPluginInterface>();
 		Iterator<IndexPluginItem> it = templateList.iterator();
 		try {
@@ -52,6 +54,8 @@ public class IndexPluginList {
 	}
 
 	public boolean run(IndexDocument indexDocument) {
+		if (pluginList == null)
+			return true;
 		Iterator<IndexPluginInterface> it = pluginList.iterator();
 		while (it.hasNext())
 			if (!it.next().run(indexDocument))

@@ -16,7 +16,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="crawlProcess"
-	use="com.jaeksoft.websearch.web.controller.CrawlProcess">
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.CrawlController">
 	<panel title="Crawl parameter" collapsible="true" border="normal">
 		<panelchildren>
 			<grid>
@@ -67,23 +67,25 @@
 		</panelchildren>
 	</panel>
 	<separator />
-	<panel title="@{crawlProcess.crawlMaster.statusInfo}"
+	<panel title="@{crawlProcess.webCrawlMaster.statusInfo}"
 		collapsible="false" border="normal">
 		<toolbar>
 			<checkbox label="Dry run" disabled="@{crawlProcess.refresh}"
 				checked="@{crawlProcess.properties.dryRun}" />
 			<space />
+			<!-- 
 			<checkbox
 				label="Publish index at the end of the crawl session"
 				disabled="@{crawlProcess.refresh}" visible="@{crawlProcess.publish}"
 				checked="@{crawlProcess.properties.publishAfterSession}" />
 			<space visible="@{crawlProcess.publish}" />
+			 -->
 			<checkbox label="Optimize at the end of the crawl session"
 				disabled="@{crawlProcess.refresh}"
 				checked="@{crawlProcess.properties.optimizeAfterSession}" />
 			<space />
 			<button id="runButton"
-				disabled="@{crawlProcess.crawlMaster.aborting}"
+				disabled="@{crawlProcess.webCrawlMaster.aborting}"
 				label="@{crawlProcess.runButtonLabel}" forward="onRun" />
 		</toolbar>
 	</panel>
@@ -91,7 +93,7 @@
 	<panel title="Last sessions statistics" collapsible="true"
 		border="normal">
 		<panelchildren>
-			<listbox model="@{crawlProcess.crawlMaster.statistics}">
+			<listbox model="@{crawlProcess.webCrawlMaster.statistics}">
 				<auxhead>
 					<auxheader label="Start time" width="130px" />
 					<auxheader label="Fetched" align="center"
@@ -134,7 +136,7 @@
 					<listcell label="@{stat.startDate}" />
 					<listcell label="@{stat.fetchedCount}" />
 					<listcell
-						label="@{stat.fetchRate, converter='com.jaeksoft.websearch.web.controller.RateConverter'}" />
+						label="@{stat.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
 					<listcell label="@{stat.oldHostCount}" />
 					<listcell label="@{stat.oldHostListSize}" />
 					<listcell label="@{stat.newHostCount}" />
@@ -160,7 +162,7 @@
 				checked="@{crawlProcess.properties.debug}" />
 		</toolbar>
 		<panelchildren>
-			<listbox model="@{crawlProcess.crawlMaster.crawlThreads}"
+			<listbox model="@{crawlProcess.webCrawlMaster.crawlThreads}"
 				mold="paging" pageSize="20">
 				<listhead sizable="true">
 					<listheader label="Current host name" />
@@ -181,7 +183,7 @@
 					<listcell
 						label="@{thread.currentStatistics.fetchedCount}" />
 					<listcell
-						label="@{thread.currentStatistics.fetchRate, converter='com.jaeksoft.websearch.web.controller.RateConverter'}" />
+						label="@{thread.currentStatistics.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
 					<listcell
 						label="@{thread.currentStatistics.pendingNewUrlCount}" />
 					<listcell
