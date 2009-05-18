@@ -1,0 +1,41 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.jaeksoft.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="mapping"
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.MappingController">
+	<hbox align="center">
+		<listbox mold="select" model="@{mapping.urlFieldList}"
+			selectedItem="@{mapping.selectedUrlField}">
+			<listitem self="@{each='urlField'}"
+				label="@{urlField.name}" />
+		</listbox>
+		<label>linked in</label>
+		<listbox mold="select" model="@{mapping.indexFieldList}"
+			selectedItem="@{mapping.selectedIndexField}">
+			<listitem self="@{each='indexField'}"
+				label="@{indexField.name}" />
+		</listbox>
+		<button label="add" forward="onAdd" />
+	</hbox>
+	<grid>
+		<columns>
+			<column label="Url field" />
+			<column label="Index field" />
+			<column label="Action" />
+		</columns>
+	</grid>
+</window>

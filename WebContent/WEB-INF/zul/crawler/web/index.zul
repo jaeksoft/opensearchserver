@@ -2,6 +2,7 @@
 	<tabs>
 		<tab id="tabCrawlerWebPattern" label="Pattern" selected="true" />
 		<tab id="tabCrawlerWebUrl" label="Url" />
+		<tab id="tabCrawlerWebMapping" label="Mapping" />
 		<tab id="tabCrawlerWebCrawl" label="Crawl" />
 	</tabs>
 	<tabpanels>
@@ -10,6 +11,9 @@
 		</tabpanel>
 		<tabpanel>
 			<include src="WEB-INF/zul/crawler/web/url.zul" />
+		</tabpanel>
+		<tabpanel>
+			<include src="WEB-INF/zul/crawler/web/mapping.zul" />
 		</tabpanel>
 		<tabpanel>
 			<include src="WEB-INF/zul/crawler/web/crawl.zul" />
