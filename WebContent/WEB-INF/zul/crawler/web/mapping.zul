@@ -31,11 +31,11 @@
 		</listbox>
 		<button label="add" forward="onAdd" />
 	</hbox>
-	<grid>
-		<columns>
-			<column label="Url field" />
-			<column label="Index field" />
-			<column label="Action" />
-		</columns>
-	</grid>
+	<listbox model="@{mapping.fieldMap.list}" itemRenderer="@{mapping}">
+		<listhead>
+			<listheader label="Url field" />
+			<listheader label="Index field" />
+			<listheader label="Action" />
+		</listhead>
+	</listbox>
 </window>

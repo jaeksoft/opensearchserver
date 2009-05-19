@@ -23,14 +23,26 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.io.IOException;
 import java.util.List;
 
+import javax.xml.transform.TransformerConfigurationException;
+
+import org.xml.sax.SAXException;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zul.Image;
+import org.zkoss.zul.Listcell;
+import org.zkoss.zul.Listitem;
+import org.zkoss.zul.ListitemRenderer;
+
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.GenericMap;
+import com.jaeksoft.searchlib.util.GenericLink;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class MappingController extends CommonController {
+public class MappingController extends CommonController implements
+		ListitemRenderer {
 
 	/**
 	 * 
@@ -41,13 +53,10 @@ public class MappingController extends CommonController {
 
 	private SchemaField selectedIndexField;
 
-	private GenericMap<String> fieldMap;
-
 	public MappingController() throws SearchLibException {
 		super();
 		selectedUrlField = null;
 		selectedIndexField = null;
-		fieldMap = new GenericMap<String>();
 	}
 
 	public List<SchemaField> getUrlFieldList() throws SearchLibException {
@@ -94,14 +103,46 @@ public class MappingController extends CommonController {
 		}
 	}
 
-	public GenericMap<String> getFieldMap() {
-		return fieldMap;
+	public FieldMap getFieldMap() {
+		synchronized (this) {
+			try {
+				return getClient().getWebCrawlerFieldMap();
+			} catch (SearchLibException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
-	public void onAdd() {
+	public void onAdd() throws SearchLibException,
+			TransformerConfigurationException, SAXException, IOException {
 		if (selectedUrlField == null || selectedIndexField == null)
 			return;
+		FieldMap fieldMap = getClient().getWebCrawlerFieldMap();
 		fieldMap.add(selectedUrlField.getName(), selectedIndexField.getName());
+		fieldMap.store();
 		reloadPage();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void onLinkRemove(Event event) throws SearchLibException,
+			TransformerConfigurationException, SAXException, IOException {
+		GenericLink<String> link = (GenericLink<String>) event.getData();
+		FieldMap fieldMap = getClient().getWebCrawlerFieldMap();
+		fieldMap.remove(link);
+		fieldMap.store();
+		reloadPage();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		GenericLink<String> link = (GenericLink<String>) data;
+		new Listcell(link.getSource()).setParent(item);
+		new Listcell(link.getTarget()).setParent(item);
+		Listcell listcell = new Listcell();
+		Image image = new Image("/images/action_delete.png");
+		image.addForward(null, this, "onLinkRemove", data);
+		image.setParent(listcell);
+		listcell.setParent(item);
 	}
 }

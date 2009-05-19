@@ -66,4 +66,17 @@ public class GenericMap<T> {
 			list = null;
 		}
 	}
+
+	public void remove(GenericLink<T> link) {
+		synchronized (this) {
+			T source = link.getSource();
+			List<T> l = map.get(source);
+			if (l == null)
+				return;
+			l.remove(link.getTarget());
+			if (l.size() == 0)
+				map.remove(source);
+			list = null;
+		}
+	}
 }

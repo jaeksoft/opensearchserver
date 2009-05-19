@@ -47,6 +47,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketCache;
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.web.database.PatternUrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
@@ -102,6 +103,8 @@ public abstract class Config implements XmlInfo {
 	private XPathParser xppConfig = null;
 
 	private CrawlMaster webCrawlMaster = null;
+
+	private FieldMap webCrawlerFieldMap = null;
 
 	private IndexPluginTemplateList indexPluginTemplateList = null;
 
@@ -216,6 +219,26 @@ public abstract class Config implements XmlInfo {
 			lock.unlock();
 		}
 
+	}
+
+	public FieldMap getWebCrawlerFieldMap() throws SearchLibException {
+		lock.lock();
+		try {
+			if (webCrawlerFieldMap == null)
+				webCrawlerFieldMap = new FieldMap(new File(indexDir,
+						"webcrawler-mapping.xml"));
+			return webCrawlerFieldMap;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public ParserSelector getParserSelector() throws SearchLibException {

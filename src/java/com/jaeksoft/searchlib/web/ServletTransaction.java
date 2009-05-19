@@ -36,15 +36,13 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ServletTransaction {
 
@@ -166,17 +164,8 @@ public class ServletTransaction {
 			return;
 		if (xmlResponse.size() == 0)
 			return;
-		PrintWriter out = getWriter("UTF-8");
-		StreamResult streamResult = new StreamResult(out);
-		SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory
-				.newInstance();
-
-		TransformerHandler hd = tf.newTransformerHandler();
-		Transformer serializer = hd.getTransformer();
-		serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-		hd.setResult(streamResult);
-		hd.startDocument();
+		XmlWriter xmlWriter = new XmlWriter(getWriter("UTF-8"), "UTF-8");
+		TransformerHandler hd = xmlWriter.getTransformerHandler();
 		AttributesImpl atts = new AttributesImpl();
 
 		hd.startElement("", "", "response", atts);
@@ -192,7 +181,8 @@ public class ServletTransaction {
 			hd.characters(chars, 0, length);
 			hd.endElement("", "", "entry");
 		}
+
 		hd.endElement("", "", "response");
-		hd.endDocument();
+		xmlWriter.endDocument();
 	}
 }
