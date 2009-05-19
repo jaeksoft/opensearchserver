@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.crawler.web.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.web.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.web.database.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
@@ -122,9 +122,9 @@ public class CrawlThread extends CrawlThreadAbstract {
 			URL url = currentUrlItem.getURL();
 
 			// Check if url is allowed by pattern list
-			PatternUrlManager patternManager = config.getPatternUrlManager();
+			PatternManager patternManager = config.getPatternManager();
 			if (url != null)
-				if (patternManager.findPatternUrl(url) == null)
+				if (patternManager.findPattern(url) == null)
 					url = null;
 			if (url == null) {
 				crawlMaster.getCrawlQueue().delete(currentUrlItem.getUrl());

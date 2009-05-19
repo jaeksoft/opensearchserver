@@ -339,4 +339,10 @@ public class CrawlMaster extends CrawlThreadAbstract {
 	public void complete() {
 	}
 
+	// UrlItem urlItem = new UrlItem();
+	// urlItem.setUrl(link);
+	// IndexDocument idxDoc = new IndexDocument();
+	// urlItem.populate(idxDoc);
+	// updateDocumentList.add(idxDoc);
+
 }

@@ -56,6 +56,14 @@ public class XmlWriter {
 		return transformerHandler;
 	}
 
+	public void textNode(Object data) throws SAXException {
+		String value = data.toString();
+		int length = value.length();
+		char[] chars = new char[length];
+		value.getChars(0, length, chars, 0);
+		transformerHandler.characters(chars, 0, length);
+	}
+
 	public void endDocument() throws SAXException {
 		transformerHandler.endDocument();
 	}

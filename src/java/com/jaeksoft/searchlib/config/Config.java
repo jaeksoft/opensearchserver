@@ -45,10 +45,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketCache;
-import com.jaeksoft.searchlib.crawler.FieldMap;
-import com.jaeksoft.searchlib.crawler.web.database.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlMaster;
@@ -96,15 +96,13 @@ public abstract class Config implements XmlInfo {
 
 	private UrlManager urlManager = null;
 
-	private PatternUrlManager patternUrlManager = null;
+	private PatternManager patternManager = null;
 
 	private PropertyManager propertyManager = null;
 
 	private XPathParser xppConfig = null;
 
 	private CrawlMaster webCrawlMaster = null;
-
-	private FieldMap webCrawlerFieldMap = null;
 
 	private IndexPluginTemplateList indexPluginTemplateList = null;
 
@@ -221,26 +219,6 @@ public abstract class Config implements XmlInfo {
 
 	}
 
-	public FieldMap getWebCrawlerFieldMap() throws SearchLibException {
-		lock.lock();
-		try {
-			if (webCrawlerFieldMap == null)
-				webCrawlerFieldMap = new FieldMap(new File(indexDir,
-						"webcrawler-mapping.xml"));
-			return webCrawlerFieldMap;
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (XPathExpressionException e) {
-			throw new SearchLibException(e);
-		} catch (ParserConfigurationException e) {
-			throw new SearchLibException(e);
-		} catch (SAXException e) {
-			throw new SearchLibException(e);
-		} finally {
-			lock.unlock();
-		}
-	}
-
 	public ParserSelector getParserSelector() throws SearchLibException {
 		lock.lock();
 		try {
@@ -348,7 +326,7 @@ public abstract class Config implements XmlInfo {
 		lock.lock();
 		try {
 			if (urlManager == null)
-				urlManager = new UrlManager(indexDir);
+				urlManager = new UrlManager((Client) this);
 			return urlManager;
 		} catch (FileNotFoundException e) {
 			throw new SearchLibException(e);
@@ -359,14 +337,12 @@ public abstract class Config implements XmlInfo {
 		}
 	}
 
-	public PatternUrlManager getPatternUrlManager() throws SearchLibException {
+	public PatternManager getPatternManager() throws SearchLibException {
 		lock.lock();
 		try {
-			if (patternUrlManager == null)
-				patternUrlManager = new PatternUrlManager(indexDir);
-			return patternUrlManager;
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
+			if (patternManager == null)
+				patternManager = new PatternManager(indexDir);
+			return patternManager;
 		} finally {
 			lock.unlock();
 		}

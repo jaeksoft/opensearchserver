@@ -111,6 +111,11 @@ public class UrlItem implements Serializable {
 		setIndexStatusInt(doc.getValue("indexStatus", 0));
 	}
 
+	public UrlItem(String sUrl) {
+		this();
+		setUrl(sUrl);
+	}
+
 	public String getHost() {
 		return host;
 	}
@@ -386,6 +391,12 @@ public class UrlItem implements Serializable {
 		indexDocument.set("fetchStatus", fetchStatus.value);
 		indexDocument.set("parserStatus", parserStatus.value);
 		indexDocument.set("indexStatus", indexStatus.value);
+	}
+
+	public IndexDocument getIndexDocument() throws MalformedURLException {
+		IndexDocument indexDocument = new IndexDocument();
+		populate(indexDocument);
+		return indexDocument;
 	}
 
 	public String getLang() {

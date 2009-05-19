@@ -26,7 +26,9 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 import java.io.IOException;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.event.Event;
@@ -61,8 +63,8 @@ public class MappingController extends CommonController implements
 
 	public List<SchemaField> getUrlFieldList() throws SearchLibException {
 		synchronized (this) {
-			List<SchemaField> list = getClient().getUrlManager().getClient()
-					.getSchema().getFieldList().getList();
+			List<SchemaField> list = getClient().getSchema().getFieldList()
+					.getList();
 			if (list.size() > 0 && selectedUrlField == null)
 				selectedUrlField = list.get(0);
 			return list;
@@ -103,21 +105,12 @@ public class MappingController extends CommonController implements
 		}
 	}
 
-	public FieldMap getFieldMap() {
-		synchronized (this) {
-			try {
-				return getClient().getWebCrawlerFieldMap();
-			} catch (SearchLibException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
-
 	public void onAdd() throws SearchLibException,
-			TransformerConfigurationException, SAXException, IOException {
+			TransformerConfigurationException, SAXException, IOException,
+			XPathExpressionException, ParserConfigurationException {
 		if (selectedUrlField == null || selectedIndexField == null)
 			return;
-		FieldMap fieldMap = getClient().getWebCrawlerFieldMap();
+		FieldMap fieldMap = new FieldMap(null); // getClient().getWebCrawlerFieldMap();
 		fieldMap.add(selectedUrlField.getName(), selectedIndexField.getName());
 		fieldMap.store();
 		reloadPage();
@@ -125,9 +118,10 @@ public class MappingController extends CommonController implements
 
 	@SuppressWarnings("unchecked")
 	public void onLinkRemove(Event event) throws SearchLibException,
-			TransformerConfigurationException, SAXException, IOException {
+			TransformerConfigurationException, SAXException, IOException,
+			XPathExpressionException, ParserConfigurationException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
-		FieldMap fieldMap = getClient().getWebCrawlerFieldMap();
+		FieldMap fieldMap = new FieldMap(null); // getClient().getWebCrawlerFieldMap();
 		fieldMap.remove(link);
 		fieldMap.store();
 		reloadPage();

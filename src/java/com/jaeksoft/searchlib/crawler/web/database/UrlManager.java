@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -45,6 +44,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.InjectUrlItem.Status;
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -110,19 +110,18 @@ public class UrlManager {
 
 	private Client client;
 
-	public UrlManager(File dataDir) throws SearchLibException,
+	public UrlManager(Client client) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
-		this.client = new Client(new File(dataDir, "url"), "/url_config.xml",
-				true);
+		this.client = client;
 	}
 
-	public void injectPrefix(List<PatternUrlItem> patternList)
+	public void injectPrefix(List<PatternItem> patternList)
 			throws SearchLibException {
-		Iterator<PatternUrlItem> it = patternList.iterator();
+		Iterator<PatternItem> it = patternList.iterator();
 		List<InjectUrlItem> urlList = new ArrayList<InjectUrlItem>();
 		while (it.hasNext()) {
-			PatternUrlItem item = it.next();
-			if (item.getStatus() == PatternUrlItem.Status.INJECTED)
+			PatternItem item = it.next();
+			if (item.getStatus() == PatternItem.Status.INJECTED)
 				urlList.add(new InjectUrlItem(item));
 		}
 		inject(urlList);
@@ -158,7 +157,7 @@ public class UrlManager {
 	}
 
 	public boolean exists(String sUrl) throws SearchLibException {
-		SearchRequest request = client.getNewSearchRequest("urlSearch");
+		SearchRequest request = getUrlSearchRequest();
 		request.setQueryString("url:\"" + sUrl + '"');
 		return (getUrls(request, null, false, 0, 0, null) > 0);
 	}
@@ -240,11 +239,40 @@ public class UrlManager {
 
 	}
 
+	private SearchRequest getHostFacetSearchRequest() {
+		SearchRequest searchRequest = client.getNewSearchRequest();
+		searchRequest.setDefaultOperator("OR");
+		searchRequest.setRows(0);
+		searchRequest.getFacetFieldList().add(new FacetField("host", 1, false));
+		return searchRequest;
+	}
+
+	private SearchRequest getUrlSearchRequest() throws SearchLibException {
+		SearchRequest searchRequest = client.getNewSearchRequest();
+		searchRequest.setDefaultOperator("OR");
+		searchRequest.setRows(0);
+		searchRequest.addReturnField("url");
+		searchRequest.addReturnField("host");
+		searchRequest.addReturnField("contentBaseType");
+		searchRequest.addReturnField("contentTypeCharset");
+		searchRequest.addReturnField("contentEncoding");
+		searchRequest.addReturnField("contentLength");
+		searchRequest.addReturnField("lang");
+		searchRequest.addReturnField("langMethod");
+		searchRequest.addReturnField("when");
+		searchRequest.addReturnField("responseCode");
+		searchRequest.addReturnField("robotsTxtStatus");
+		searchRequest.addReturnField("parserStatus");
+		searchRequest.addReturnField("fetchStatus");
+		searchRequest.addReturnField("indexStatus");
+		return searchRequest;
+	}
+
 	public void getOldHostToFetch(Date fetchIntervalDate, int limit,
 			List<NamedItem> hostList) throws SearchLibException,
 			ParseException, IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException {
-		SearchRequest searchRequest = client.getNewSearchRequest("hostFacet");
+		SearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setQueryString("*:*");
 		filterQueryToFetchOld(searchRequest, fetchIntervalDate);
 		getFacetLimit(Field.HOST, searchRequest, limit, hostList);
@@ -254,7 +282,7 @@ public class UrlManager {
 			throws SearchLibException, ParseException, IOException,
 			SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException {
-		SearchRequest searchRequest = client.getNewSearchRequest("hostFacet");
+		SearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setQueryString("*:*");
 		filterQueryToFetchNew(searchRequest);
 		getFacetLimit(Field.HOST, searchRequest, limit, hostList);
@@ -474,10 +502,6 @@ public class UrlManager {
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		}
-	}
-
-	public Client getClient() {
-		return client;
 	}
 
 }

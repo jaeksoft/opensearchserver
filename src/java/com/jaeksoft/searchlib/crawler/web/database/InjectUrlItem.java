@@ -58,7 +58,7 @@ public class InjectUrlItem {
 		badUrl = null;
 	}
 
-	public InjectUrlItem(PatternUrlItem patternUrl) {
+	public InjectUrlItem(PatternItem patternUrl) {
 		this();
 		try {
 			url = patternUrl.extractUrl(true);

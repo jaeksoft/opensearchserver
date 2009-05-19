@@ -174,11 +174,7 @@ public class ServletTransaction {
 			atts.clear();
 			atts.addAttribute("", "", "key", "CDATA", entry.getKey());
 			hd.startElement("", "", "entry", atts);
-			String value = entry.getValue();
-			int length = value.length();
-			char[] chars = new char[length];
-			value.getChars(0, length, chars, 0);
-			hd.characters(chars, 0, length);
+			xmlWriter.textNode(entry.getValue());
 			hd.endElement("", "", "entry");
 		}
 

@@ -36,9 +36,9 @@ import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
+import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternSelector;
-import com.jaeksoft.searchlib.crawler.web.database.PatternUrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.PatternUrlManager;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class PatternController extends CommonController implements
@@ -49,7 +49,7 @@ public class PatternController extends CommonController implements
 	 */
 	private static final long serialVersionUID = 6735801464584819587L;
 
-	transient private List<PatternUrlItem> patternList = null;
+	transient private List<PatternItem> patternList = null;
 
 	private String like;
 
@@ -108,16 +108,15 @@ public class PatternController extends CommonController implements
 		return like;
 	}
 
-	public List<PatternUrlItem> getPatternList() throws SearchLibException {
+	public List<PatternItem> getPatternList() throws SearchLibException {
 		synchronized (this) {
 			if (patternList != null)
 				return patternList;
-			PatternUrlManager patternUrlManager = getClient()
-					.getPatternUrlManager();
-			patternList = new ArrayList<PatternUrlItem>();
-			totalSize = patternUrlManager.getPatterns(like, getActivePage()
+			PatternManager patternManager = getClient().getPatternManager();
+			patternList = new ArrayList<PatternItem>();
+			totalSize = patternManager.getPatterns(like, getActivePage()
 					* getPageSize(), getPageSize(), patternList);
-			for (PatternUrlItem patternUrlItem : patternList)
+			for (PatternItem patternUrlItem : patternList)
 				patternUrlItem.setPatternSelector(this);
 			return patternList;
 		}
@@ -150,8 +149,7 @@ public class PatternController extends CommonController implements
 
 	public void onDelete() throws SearchLibException {
 		synchronized (this) {
-			PatternUrlManager patternManager = getClient()
-					.getPatternUrlManager();
+			PatternManager patternManager = getClient().getPatternManager();
 			try {
 				deleteSelection(patternManager);
 			} catch (SearchLibException e) {
@@ -162,25 +160,25 @@ public class PatternController extends CommonController implements
 	}
 
 	public void onSelect(Event event) {
-		PatternUrlItem patternUrlItem = (PatternUrlItem) event.getData();
-		patternUrlItem.setSelected(!patternUrlItem.isSelected());
+		PatternItem patternItem = (PatternItem) event.getData();
+		patternItem.setSelected(!patternItem.isSelected());
 		reloadPage();
 	}
 
 	public void render(Listitem item, Object data) throws Exception {
-		PatternUrlItem patternUrlItem = (PatternUrlItem) data;
-		item.setLabel(patternUrlItem.getPattern());
-		item.setSelected(patternUrlItem.isSelected());
-		item.addForward(null, this, "onSelect", patternUrlItem);
+		PatternItem patternItem = (PatternItem) data;
+		item.setLabel(patternItem.getPattern());
+		item.setSelected(patternItem.isSelected());
+		item.addForward(null, this, "onSelect", patternItem);
 	}
 
-	public void addSelection(PatternUrlItem item) {
+	public void addSelection(PatternItem item) {
 		synchronized (selection) {
 			selection.add(item.getPattern());
 		}
 	}
 
-	public void removeSelection(PatternUrlItem item) {
+	public void removeSelection(PatternItem item) {
 		synchronized (selection) {
 			selection.remove(item.getPattern());
 		}
@@ -192,13 +190,13 @@ public class PatternController extends CommonController implements
 		}
 	}
 
-	public boolean isSelected(PatternUrlItem item) {
+	public boolean isSelected(PatternItem item) {
 		synchronized (selection) {
 			return selection.contains(item.getPattern());
 		}
 	}
 
-	public void deleteSelection(PatternUrlManager patternManager)
+	public void deleteSelection(PatternManager patternManager)
 			throws SearchLibException {
 		synchronized (selection) {
 			patternManager.delPattern(selection);
@@ -220,13 +218,12 @@ public class PatternController extends CommonController implements
 
 	public void onAdd() throws SearchLibException {
 		synchronized (this) {
-			List<PatternUrlItem> list = PatternUrlManager
-					.getPatternUrlList(pattern);
+			List<PatternItem> list = PatternManager.getPatternList(pattern);
 			if (list.size() > 0) {
-				getClient().getPatternUrlManager().addList(list, false);
+				getClient().getPatternManager().addList(list, false);
 				getClient().getUrlManager().injectPrefix(list);
 			}
-			setPattern(PatternUrlManager.getStringPatternUrlList(list));
+			setPattern(PatternManager.getStringPatternList(list));
 			patternList = null;
 			reloadPage();
 		}

@@ -28,9 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import com.jaeksoft.searchlib.index.IndexDocument;
-
-public class PatternUrlItem {
+public class PatternItem {
 
 	public enum Status {
 		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(
@@ -56,25 +54,19 @@ public class PatternUrlItem {
 
 	private PatternSelector patternSelector;
 
-	public PatternUrlItem() {
+	public PatternItem() {
 		status = Status.UNDEFINED;
 		sPattern = null;
 		pattern = null;
 		patternSelector = null;
 	}
 
-	public IndexDocument getIndexDocument() {
-		IndexDocument indexDocument = new IndexDocument();
-		indexDocument.add("pattern", sPattern);
-		return indexDocument;
-	}
-
-	public PatternUrlItem(URL url) {
+	public PatternItem(URL url) {
 		this();
 		setPattern(url.toExternalForm());
 	}
 
-	public PatternUrlItem(String sPattern) {
+	public PatternItem(String sPattern) {
 		this();
 		setPattern(sPattern);
 	}

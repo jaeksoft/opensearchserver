@@ -47,7 +47,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.web.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.web.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.web.database.PatternUrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
@@ -74,7 +74,7 @@ public class Crawl {
 	private String error;
 	private CrawlStatistics currentStats;
 	private IndexDocument indexDocument;
-	private List<IndexDocument> discoverLinks;
+	private List<String> discoverLinks;
 
 	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector,
 			CrawlStatistics currentStats) throws SearchLibException {
@@ -254,41 +254,37 @@ public class Crawl {
 	}
 
 	final private static void discoverLinks(UrlManager urlManager,
-			PatternUrlManager patternManager, FieldContent urlFieldContent,
-			List<IndexDocument> updateDocumentList)
-			throws NoSuchAlgorithmException, IOException, SearchLibException {
+			PatternManager patternManager, FieldContent urlFieldContent,
+			List<String> newUrlList) throws NoSuchAlgorithmException,
+			IOException, SearchLibException {
 		if (urlFieldContent == null)
 			return;
 		List<String> links = urlFieldContent.getValues();
 		if (links == null)
 			return;
 		for (String link : links) {
-			if (patternManager.findPatternUrl(new URL(link)) != null) {
-				UrlItem urlItem = new UrlItem();
-				urlItem.setUrl(link);
-				try {
-					if (!urlManager.exists(urlItem.getUrl())) {
-						IndexDocument idxDoc = new IndexDocument();
-						urlItem.populate(idxDoc);
-						updateDocumentList.add(idxDoc);
-					}
-				} catch (MalformedURLException e) {
-					logger.log(Level.WARNING, link + " " + e.getMessage(), e);
-				}
+			try {
+				URL url = new URL(link);
+				String sUrl = url.toExternalForm();
+				if (patternManager.findPattern(url) != null)
+					if (!urlManager.exists(sUrl))
+						newUrlList.add(link);
+			} catch (MalformedURLException e) {
+				logger.log(Level.WARNING, link + " " + e.getMessage(), e);
 			}
 		}
 	}
 
-	public List<IndexDocument> getDiscoverLinks()
-			throws NoSuchAlgorithmException, IOException, SearchLibException {
+	public List<String> getDiscoverLinks() throws NoSuchAlgorithmException,
+			IOException, SearchLibException {
 		synchronized (this) {
 			if (discoverLinks != null)
 				return discoverLinks;
 			if (parser == null || !urlItem.isStatusFull())
 				return null;
-			discoverLinks = new ArrayList<IndexDocument>();
+			discoverLinks = new ArrayList<String>();
 			UrlManager urlManager = config.getUrlManager();
-			PatternUrlManager patternUrlManager = config.getPatternUrlManager();
+			PatternManager patternUrlManager = config.getPatternManager();
 			discoverLinks(urlManager, patternUrlManager, parser
 					.getFieldContent(ParserFieldEnum.internal_link),
 					discoverLinks);

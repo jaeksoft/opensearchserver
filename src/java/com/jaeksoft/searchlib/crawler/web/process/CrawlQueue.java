@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -47,9 +48,9 @@ public class CrawlQueue {
 	final private static Logger logger = Logger.getLogger(CrawlQueue.class
 			.getCanonicalName());
 
-	private List<IndexDocument> updateUrlList;
+	private List<IndexDocument> updateCrawlList;
 
-	private List<IndexDocument> newUrlList;
+	private List<IndexDocument> insertUrlList;
 
 	private List<String> deleteUrlList;
 
@@ -58,8 +59,8 @@ public class CrawlQueue {
 	protected CrawlQueue(Config config) throws SearchLibException {
 		this.config = config;
 		this.sessionStats = null;
-		this.updateUrlList = new ArrayList<IndexDocument>();
-		this.newUrlList = new ArrayList<IndexDocument>();
+		this.updateCrawlList = new ArrayList<IndexDocument>(0);
+		this.insertUrlList = new ArrayList<IndexDocument>(0);
 		this.deleteUrlList = new ArrayList<String>();
 		this.maxBufferSize = config.getPropertyManager()
 				.getIndexDocumentBufferSize();
@@ -67,14 +68,14 @@ public class CrawlQueue {
 
 	protected void add(Crawl crawl) throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
-		List<IndexDocument> discoverLinks = crawl.getDiscoverLinks();
-		synchronized (updateUrlList) {
-			updateUrlList.add(crawl.getIndexDocument());
+		synchronized (updateCrawlList) {
+			updateCrawlList.add(crawl.getIndexDocument());
 		}
-		synchronized (newUrlList) {
+		List<String> discoverLinks = crawl.getDiscoverLinks();
+		synchronized (insertUrlList) {
 			if (discoverLinks != null)
-				for (IndexDocument idxDoc : discoverLinks)
-					newUrlList.add(idxDoc);
+				for (String link : discoverLinks)
+					insertUrlList.add(new UrlItem(link).getIndexDocument());
 		}
 	}
 
@@ -86,16 +87,16 @@ public class CrawlQueue {
 	}
 
 	private boolean shouldWePersist() {
-		synchronized (updateUrlList) {
-			if (updateUrlList.size() > maxBufferSize)
+		synchronized (updateCrawlList) {
+			if (updateCrawlList.size() > maxBufferSize)
 				return true;
 		}
 		synchronized (deleteUrlList) {
 			if (deleteUrlList.size() > maxBufferSize)
 				return true;
 		}
-		synchronized (newUrlList) {
-			if (newUrlList.size() > maxBufferSize)
+		synchronized (insertUrlList) {
+			if (insertUrlList.size() > maxBufferSize)
 				return true;
 		}
 		return false;
@@ -105,20 +106,20 @@ public class CrawlQueue {
 
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException {
-		List<IndexDocument> workUpdateUrlList;
-		List<IndexDocument> workNewUrlList;
+		List<IndexDocument> workUpdateCrawlList;
+		List<IndexDocument> workInsertUrlList;
 		List<String> workDeleteUrlList;
 		synchronized (this) {
 			if (!bForce)
 				if (!shouldWePersist())
 					return;
-			synchronized (updateUrlList) {
-				workUpdateUrlList = updateUrlList;
-				updateUrlList = new ArrayList<IndexDocument>();
+			synchronized (updateCrawlList) {
+				workUpdateCrawlList = updateCrawlList;
+				updateCrawlList = new ArrayList<IndexDocument>();
 			}
-			synchronized (newUrlList) {
-				workNewUrlList = newUrlList;
-				newUrlList = new ArrayList<IndexDocument>();
+			synchronized (insertUrlList) {
+				workInsertUrlList = insertUrlList;
+				insertUrlList = new ArrayList<IndexDocument>();
 			}
 			synchronized (deleteUrlList) {
 				workDeleteUrlList = deleteUrlList;
@@ -127,8 +128,8 @@ public class CrawlQueue {
 		}
 
 		if (logger.isLoggable(Level.INFO))
-			logger.info("Real indexation starts " + workUpdateUrlList.size()
-					+ "/" + workNewUrlList.size() + "/"
+			logger.info("Real indexation starts " + workUpdateCrawlList.size()
+					+ "/" + workInsertUrlList.size() + "/"
 					+ workDeleteUrlList.size());
 		UrlManager urlManager = config.getUrlManager();
 		synchronized (indexSync) {
@@ -141,20 +142,20 @@ public class CrawlQueue {
 				sessionStats.addDeletedCount(workDeleteUrlList.size());
 				needReload = true;
 			}
-			if (workUpdateUrlList.size() > 0) {
+			if (workUpdateCrawlList.size() > 0) {
 				if (logger.isLoggable(Level.INFO))
-					logger.info("Update " + workUpdateUrlList.size()
+					logger.info("Update " + workUpdateCrawlList.size()
 							+ " document(s)");
-				urlManager.updateDocuments(workUpdateUrlList);
-				sessionStats.addUpdatedCount(workUpdateUrlList.size());
+				urlManager.updateDocuments(workUpdateCrawlList);
+				sessionStats.addUpdatedCount(workUpdateCrawlList.size());
 				needReload = true;
 			}
-			if (workNewUrlList.size() > 0) {
+			if (workInsertUrlList.size() > 0) {
 				if (logger.isLoggable(Level.INFO))
-					logger.info("Update " + workNewUrlList.size()
+					logger.info("Insert " + workInsertUrlList.size()
 							+ " document(s)");
-				urlManager.updateDocuments(workNewUrlList);
-				sessionStats.addNewUrlCount(workNewUrlList.size());
+				urlManager.updateDocuments(workInsertUrlList);
+				sessionStats.addNewUrlCount(workInsertUrlList.size());
 				needReload = true;
 			}
 			if (needReload)
