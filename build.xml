@@ -33,8 +33,8 @@
 	<property name="doc" location="doc" />
 	<property name="dist" location="dist" />
 	<property name="temp" location="temp" />
-	<property name="name-release" value="opensearchserver" />
-	<property name="name-debug" value="opensearchserver-debug" />
+	<property name="name-release" value="open-search-server" />
+	<property name="name-debug" value="open-search-server-debug" />
 
 	<path id="project.class.path">
 		<fileset dir="${lib}">
