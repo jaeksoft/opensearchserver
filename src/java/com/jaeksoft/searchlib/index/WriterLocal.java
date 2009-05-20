@@ -40,6 +40,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -56,11 +57,14 @@ public class WriterLocal extends WriterAbstract {
 
 	private ReaderLocal readerLocal;
 
+	private String similarityClass;
+
 	protected WriterLocal(IndexConfig indexConfig, ReaderLocal readerLocal)
 			throws IOException {
 		super(indexConfig);
 		this.readerLocal = readerLocal;
 		this.indexWriter = null;
+		this.similarityClass = indexConfig.getSimilarityClass();
 	}
 
 	private void close() {
@@ -86,13 +90,19 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private void open() throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		l.lock();
 		try {
 			if (indexWriter != null)
 				return;
 			indexWriter = openIndexWriter(readerLocal.getDirectory(), false);
 			indexWriter.setMaxMergeDocs(1000000);
+			if (similarityClass != null) {
+				Similarity similarity = (Similarity) Class.forName(
+						similarityClass).newInstance();
+				indexWriter.setSimilarity(similarity);
+			}
 		} finally {
 			l.unlock();
 		}
@@ -170,7 +180,8 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	public void addDocument(Document document) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		l.lock();
 		try {
 			open();
@@ -201,7 +212,9 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		l.lock();
 		try {
 			open();
@@ -215,7 +228,9 @@ public class WriterLocal extends WriterAbstract {
 
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException {
+			throws NoSuchAlgorithmException, IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		l.lock();
 		try {
 			int count = 0;
@@ -246,7 +261,8 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	public void optimize(String indexName) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		l.lock();
 		try {
 			if (!acceptNameOrEmpty(indexName))
@@ -261,7 +277,8 @@ public class WriterLocal extends WriterAbstract {
 
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		l.lock();
 		try {
 			open();
@@ -276,7 +293,8 @@ public class WriterLocal extends WriterAbstract {
 
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		String uniqueField = schema.getFieldList().getUniqueField().getName();
 		Term[] terms = new Term[uniqueFields.size()];
 		int i = 0;

@@ -53,7 +53,8 @@ public class CommandsController extends CommonController {
 
 	@Override
 	public void onReload() throws IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		synchronized (this) {
 			Date t = new Date();
 			getClient().reload(null);
@@ -64,7 +65,8 @@ public class CommandsController extends CommonController {
 
 	public void onOptimize() throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		synchronized (this) {
 			Date t = new Date();
 			getClient().optimize(null);

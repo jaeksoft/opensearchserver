@@ -66,7 +66,9 @@ public class IndexGroup extends IndexAbstract {
 
 	public IndexGroup(File homeDir, XPathParser xpp, Node parentNode,
 			boolean createIfNotExists, ExecutorService threadPool)
-			throws XPathExpressionException, IOException, URISyntaxException {
+			throws XPathExpressionException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		super();
 		this.threadPool = threadPool;
 		indices = new TreeMap<String, IndexSingle>();
@@ -106,7 +108,9 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public void optimize(String indexName) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (indexName == null || indexName.length() == 0) {
 			for (IndexAbstract index : getIndices())
 				index.optimize(null);
@@ -126,7 +130,9 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		boolean updated = false;
 		for (IndexAbstract index : getIndices())
 			if (index.updateDocument(schema, document))
@@ -136,7 +142,8 @@ public class IndexGroup extends IndexAbstract {
 
 	public boolean updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return false;
@@ -146,7 +153,9 @@ public class IndexGroup extends IndexAbstract {
 
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		int count = 0;
 		for (IndexAbstract index : getIndices())
 			count += index.updateDocuments(schema, documents);
@@ -155,7 +164,9 @@ public class IndexGroup extends IndexAbstract {
 
 	public int updateDocuments(String indexName, Schema schema,
 			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return 0;
@@ -164,7 +175,8 @@ public class IndexGroup extends IndexAbstract {
 
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		boolean deleted = false;
 		for (IndexAbstract index : getIndices())
 			if (index.deleteDocument(schema, uniqueField))
@@ -174,7 +186,9 @@ public class IndexGroup extends IndexAbstract {
 
 	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return false;
@@ -201,7 +215,8 @@ public class IndexGroup extends IndexAbstract {
 
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		int count = 0;
 		for (IndexAbstract index : getIndices())
 			count += index.deleteDocuments(schema, uniqueFields);
@@ -210,7 +225,9 @@ public class IndexGroup extends IndexAbstract {
 
 	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return 0;
@@ -248,7 +265,9 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	@Override
-	public void reload(String indexName) throws IOException, URISyntaxException {
+	public void reload(String indexName) throws IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		for (IndexAbstract index : getIndices())
 			index.reload(indexName);
 	}
@@ -262,7 +281,8 @@ public class IndexGroup extends IndexAbstract {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException, SearchLibException {
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
 		String indexName = searchRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).search(searchRequest);
@@ -348,7 +368,9 @@ public class IndexGroup extends IndexAbstract {
 
 	}
 
-	public void reload() throws IOException, URISyntaxException {
+	public void reload() throws IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		for (IndexAbstract index : getIndices())
 			index.reload();
 	}
@@ -361,7 +383,7 @@ public class IndexGroup extends IndexAbstract {
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException {
+			SearchLibException, IllegalAccessException, InstantiationException {
 		String indexName = documentsRequest.getIndexName();
 		if (indexName != null)
 			return get(indexName).documents(documentsRequest);

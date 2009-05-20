@@ -57,12 +57,13 @@ public interface ReaderInterface extends XmlInfo {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException, SearchLibException;
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException;
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException;
+			SearchLibException, IllegalAccessException, InstantiationException;
 
 	public boolean deleteDocument(int docId) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException,
@@ -84,7 +85,9 @@ public interface ReaderInterface extends XmlInfo {
 
 	public IndexStatistics getStatistics() throws IOException;
 
-	public void reload() throws IOException, URISyntaxException;
+	public void reload() throws IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException;
 
 	public void swap(long version, boolean deleteOld) throws IOException,
 			URISyntaxException;

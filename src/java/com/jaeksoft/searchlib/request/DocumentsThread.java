@@ -55,7 +55,8 @@ public class DocumentsThread extends AbstractGroupRequestThread {
 	@Override
 	public void runner() throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
-			InterruptedException, SearchLibException {
+			InterruptedException, SearchLibException, IllegalAccessException,
+			InstantiationException {
 		if (documentsRequest.isEmpty())
 			return;
 		ResultDocuments documents = reader.documents(documentsRequest);

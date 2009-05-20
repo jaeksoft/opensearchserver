@@ -181,7 +181,8 @@ public class CrawlMaster extends CrawlThreadAbstract {
 
 	private void extractHostList() throws IOException, ParseException,
 			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, SearchLibException {
+			InterruptedException, SearchLibException, InstantiationException,
+			IllegalAccessException {
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 		UrlManager urlManager = config.getUrlManager();
 		PropertyManager propertyManager = config.getPropertyManager();
@@ -230,7 +231,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 	private List<UrlItem> getNextUrlList(NamedItem host, int count)
 			throws ParseException, IOException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException {
 
 		setStatus(CrawlStatus.EXTRACTING_URLLIST);
 		setInfo(host.name);

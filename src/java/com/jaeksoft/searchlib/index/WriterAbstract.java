@@ -63,7 +63,8 @@ public abstract class WriterAbstract extends NameFilter implements
 
 	public boolean updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		if (!acceptNameOrEmpty(indexName))
 			return false;
 		return updateDocument(schema, document);
@@ -71,7 +72,9 @@ public abstract class WriterAbstract extends NameFilter implements
 
 	public int updateDocuments(String indexName, Schema schema,
 			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!acceptNameOrEmpty(indexName))
 			return 0;
 		return updateDocuments(schema, documents);
@@ -79,7 +82,9 @@ public abstract class WriterAbstract extends NameFilter implements
 
 	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!acceptNameOrEmpty(indexName))
 			return false;
 		return deleteDocument(schema, uniqueField);
@@ -87,7 +92,9 @@ public abstract class WriterAbstract extends NameFilter implements
 
 	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!acceptNameOrEmpty(indexName))
 			return 0;
 		return deleteDocuments(schema, uniqueFields);

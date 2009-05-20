@@ -60,7 +60,9 @@ public class IndexSingle extends IndexAbstract {
 	private volatile boolean readonly;
 
 	public IndexSingle(File configDir, IndexConfig indexConfig,
-			boolean createIfNotExists) throws IOException, URISyntaxException {
+			boolean createIfNotExists) throws IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		super(indexConfig);
 		online = true;
 		readonly = false;
@@ -102,7 +104,9 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public void optimize(String indexName) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -118,7 +122,8 @@ public class IndexSingle extends IndexAbstract {
 
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -136,7 +141,9 @@ public class IndexSingle extends IndexAbstract {
 
 	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -188,7 +195,8 @@ public class IndexSingle extends IndexAbstract {
 
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -206,7 +214,9 @@ public class IndexSingle extends IndexAbstract {
 
 	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -259,7 +269,9 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -277,7 +289,8 @@ public class IndexSingle extends IndexAbstract {
 
 	public boolean updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -295,7 +308,9 @@ public class IndexSingle extends IndexAbstract {
 
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -313,7 +328,9 @@ public class IndexSingle extends IndexAbstract {
 
 	public int updateDocuments(String indexName, Schema schema,
 			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -329,7 +346,9 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public void reload() throws IOException, URISyntaxException {
+	public void reload() throws IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -344,7 +363,9 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void reload(String indexName) throws IOException, URISyntaxException {
+	public void reload(String indexName) throws IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		reload();
@@ -375,7 +396,8 @@ public class IndexSingle extends IndexAbstract {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException, SearchLibException {
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();
@@ -393,7 +415,7 @@ public class IndexSingle extends IndexAbstract {
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException {
+			SearchLibException, IllegalAccessException, InstantiationException {
 		if (!online)
 			throw new IOException("Index is offline");
 		r.lock();

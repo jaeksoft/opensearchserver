@@ -49,7 +49,8 @@ public class DeleteServlet extends AbstractServlet {
 
 	private boolean deleteUniqDoc(Client client, String indexName, String uniq)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (indexName == null)
 			return client.deleteDocument(uniq);
 		else
@@ -67,7 +68,9 @@ public class DeleteServlet extends AbstractServlet {
 
 	private int deleteUniqDocs(Client client, String indexName,
 			Collection<String> uniqFields) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (indexName == null)
 			return client.deleteDocuments(uniqFields);
 		else

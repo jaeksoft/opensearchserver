@@ -62,7 +62,8 @@ public class UploadController extends CommonController {
 	public void onUpload() throws InterruptedException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			ParserConfigurationException, SAXException, IOException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		Media media = Fileupload.get();
 		if (media == null)
 			return;

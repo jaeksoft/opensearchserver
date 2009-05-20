@@ -47,6 +47,7 @@ import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.FieldCache.StringIndex;
@@ -89,13 +90,19 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private File rootDir;
 	private File dataDir;
 
-	private ReaderLocal(String name, File rootDir, File dataDir)
-			throws IOException {
+	private String similarityClass;
+
+	private ReaderLocal(String name, File rootDir, File dataDir,
+			String similarityClass) throws IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		super(name);
+		this.similarityClass = similarityClass;
 		init(rootDir, dataDir);
 	}
 
-	private void init(File rootDir, File dataDir) throws IOException {
+	private void init(File rootDir, File dataDir) throws IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		w.lock();
 		try {
 			this.rootDir = rootDir;
@@ -103,6 +110,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			this.indexDirectory = new IndexDirectory(getName(), dataDir);
 			this.indexSearcher = new IndexSearcher(indexDirectory
 					.getDirectory());
+			if (similarityClass != null) {
+				Similarity similarity = (Similarity) Class.forName(
+						similarityClass).newInstance();
+				this.indexSearcher.setSimilarity(similarity);
+			}
 			this.indexReader = indexSearcher.getIndexReader();
 		} finally {
 			w.unlock();
@@ -272,7 +284,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public ResultSingle search(SearchRequest searchRequest) throws IOException,
-			ParseException, SyntaxError, SearchLibException {
+			ParseException, SyntaxError, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		return new ResultSingle(this, searchRequest);
 	}
 
@@ -377,18 +391,26 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	private static ReaderLocal findMostRecent(String name, File rootDir) {
+	private static ReaderLocal findMostRecent(String name, File rootDir,
+			String similarityClass) {
 		ReaderLocal reader = null;
 		for (File f : rootDir.listFiles()) {
 			if (f.getName().startsWith("."))
 				continue;
 			try {
-				ReaderLocal r = new ReaderLocal(name, rootDir, f);
+				ReaderLocal r = new ReaderLocal(name, rootDir, f,
+						similarityClass);
 				if (reader == null)
 					reader = r;
 				else if (r.getVersion() > reader.getVersion())
 					reader = r;
 			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		}
@@ -396,15 +418,22 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	private static ReaderLocal findVersion(String name, File rootDir,
-			long version) {
+			long version, String similarityClass) {
 		for (File f : rootDir.listFiles()) {
 			if (f.getName().startsWith("."))
 				continue;
 			try {
-				ReaderLocal reader = new ReaderLocal(name, rootDir, f);
+				ReaderLocal reader = new ReaderLocal(name, rootDir, f,
+						similarityClass);
 				if (reader.getVersion() == version)
 					return reader;
 			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		}
@@ -423,7 +452,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	public static ReaderLocal fromConfig(File configDir,
 			IndexConfig indexConfig, boolean createIfNotExists)
-			throws IOException {
+			throws IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (indexConfig.getName() == null)
 			return null;
 		if (indexConfig.getRemoteUri() != null)
@@ -434,13 +464,14 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			indexDir.mkdirs();
 
 		ReaderLocal reader = ReaderLocal.findMostRecent(indexConfig.getName(),
-				indexDir);
+				indexDir, indexConfig.getSimilarityClass());
 
 		if (reader == null) {
 			if (!createIfNotExists)
 				return null;
 			File dataDir = WriterLocal.createIndex(indexDir);
-			reader = new ReaderLocal(indexConfig.getName(), indexDir, dataDir);
+			reader = new ReaderLocal(indexConfig.getName(), indexDir, dataDir,
+					indexConfig.getSimilarityClass());
 		}
 
 		reader.initCache(indexConfig.getSearchCache(), indexConfig
@@ -457,7 +488,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public void reload() throws IOException {
+	public void reload() throws IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		w.lock();
 		try {
 			close(false);
@@ -471,9 +503,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public void swap(long version, boolean deleteOld) throws IOException {
 		ReaderLocal newReader = null;
 		if (version > 0)
-			newReader = ReaderLocal.findVersion(getName(), rootDir, version);
+			newReader = ReaderLocal.findVersion(getName(), rootDir, version,
+					similarityClass);
 		else
-			newReader = ReaderLocal.findMostRecent(getName(), rootDir);
+			newReader = ReaderLocal.findMostRecent(getName(), rootDir,
+					similarityClass);
 		if (newReader == null)
 			return;
 		w.lock();
@@ -490,7 +524,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public DocSetHits searchDocSet(SearchRequest searchRequest)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			throws IOException, ParseException, SyntaxError,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		boolean isDelete = searchRequest.isDelete();
 		boolean isFacet = searchRequest.isFacet();
 		boolean isNoCache = searchRequest.isNoCache();

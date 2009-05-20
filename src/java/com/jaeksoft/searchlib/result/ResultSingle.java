@@ -59,9 +59,14 @@ public class ResultSingle extends Result {
 	 * @throws ParseException
 	 * @throws SyntaxError
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
 	public ResultSingle(ReaderLocal reader, SearchRequest searchRequest)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			throws IOException, ParseException, SyntaxError,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		super(searchRequest);
 
 		this.reader = reader;

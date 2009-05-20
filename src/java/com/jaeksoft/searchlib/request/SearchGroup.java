@@ -54,7 +54,8 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 	public SearchGroup(IndexGroup indexGroup, SearchRequest searchRequest,
 			ExecutorService threadPool) throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
-			InterruptedException, SearchLibException {
+			InterruptedException, SearchLibException, IllegalAccessException,
+			InstantiationException {
 		super(indexGroup, threadPool, 300);
 		newDocumentCount = 0;
 		resultGroup = new ResultGroup(searchRequest);

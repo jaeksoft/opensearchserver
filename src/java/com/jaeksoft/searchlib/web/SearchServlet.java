@@ -71,7 +71,7 @@ public class SearchServlet extends AbstractServlet {
 			HttpServletRequest httpRequest, String render, String jsp)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException {
 		SearchRequest searchRequest = client.getNewSearchRequest(httpRequest);
 		Result result = client.search(searchRequest);
 		if ("jsp".equals(render) && jsp != null)

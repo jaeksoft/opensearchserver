@@ -65,7 +65,8 @@ public class SearchThread extends AbstractGroupRequestThread {
 	@Override
 	public void runner() throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
-			InterruptedException, SearchLibException {
+			InterruptedException, SearchLibException, InstantiationException,
+			IllegalAccessException {
 		searchRequest.setStart(searchRequest.getEnd());
 		searchRequest.setRows(step);
 		Result result = reader.search(searchRequest);

@@ -102,7 +102,8 @@ public class CommonController extends Window {
 	}
 
 	public void onReload() throws IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		reloadPage();
 	}
 

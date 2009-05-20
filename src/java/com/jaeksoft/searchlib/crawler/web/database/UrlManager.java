@@ -138,6 +138,12 @@ public class UrlManager {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -152,6 +158,12 @@ public class UrlManager {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -190,6 +202,12 @@ public class UrlManager {
 				throw new SearchLibException(e);
 			} catch (URISyntaxException e) {
 				throw new SearchLibException(e);
+			} catch (InstantiationException e) {
+				throw new SearchLibException(e);
+			} catch (IllegalAccessException e) {
+				throw new SearchLibException(e);
+			} catch (ClassNotFoundException e) {
+				throw new SearchLibException(e);
 			}
 		}
 	}
@@ -219,7 +237,8 @@ public class UrlManager {
 	private void getFacetLimit(Field field, SearchRequest searchRequest,
 			int limit, List<NamedItem> list) throws IOException,
 			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException {
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
 		Result result = client.search(searchRequest);
 		Facet facet = result.getFacetList().getByField(field.name);
 		for (FacetItem facetItem : facet) {
@@ -271,7 +290,8 @@ public class UrlManager {
 	public void getOldHostToFetch(Date fetchIntervalDate, int limit,
 			List<NamedItem> hostList) throws SearchLibException,
 			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		SearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setQueryString("*:*");
 		filterQueryToFetchOld(searchRequest, fetchIntervalDate);
@@ -281,7 +301,8 @@ public class UrlManager {
 	public void getNewHostToFetch(int limit, List<NamedItem> hostList)
 			throws SearchLibException, ParseException, IOException,
 			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException {
+			InterruptedException, InstantiationException,
+			IllegalAccessException {
 		SearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setQueryString("*:*");
 		filterQueryToFetchNew(searchRequest);
@@ -291,7 +312,8 @@ public class UrlManager {
 	public void getStartingWith(String queryString, Field field, String start,
 			int limit, List<NamedItem> list) throws ParseException,
 			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException {
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
 		SearchRequest searchRequest = client.getNewSearchRequest(field
 				+ "Facet");
 		searchRequest.setQueryString(queryString);
@@ -303,7 +325,8 @@ public class UrlManager {
 	public void getOldUrlToFetch(NamedItem host, Date fetchIntervalDate,
 			long limit, List<UrlItem> urlList) throws SearchLibException,
 			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		SearchRequest searchRequest = client.getNewSearchRequest("urlSearch");
 		searchRequest.addFilter("host:\""
 				+ SearchRequest.escapeQuery(host.getName()) + "\"");
@@ -318,7 +341,8 @@ public class UrlManager {
 	public void getNewUrlToFetch(NamedItem host, long limit,
 			List<UrlItem> urlList) throws SearchLibException, ParseException,
 			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException {
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		SearchRequest searchRequest = client.getNewSearchRequest("urlSearch");
 		searchRequest.addFilter("host:\""
 				+ SearchRequest.escapeQuery(host.getName()) + "\"");
@@ -466,11 +490,16 @@ public class UrlManager {
 			throw new SearchLibException(e);
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
 	public void reload(boolean optimize) throws IOException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		if (optimize) {
 			client.reload(null);
 			client.getIndex().optimize(null);
@@ -488,6 +517,12 @@ public class UrlManager {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -500,6 +535,12 @@ public class UrlManager {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}

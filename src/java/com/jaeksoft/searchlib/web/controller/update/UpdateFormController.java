@@ -205,7 +205,9 @@ public class UpdateFormController extends CommonController implements
 	}
 
 	public void onUpdate() throws NoSuchAlgorithmException, IOException,
-			URISyntaxException, SearchLibException, InterruptedException {
+			URISyntaxException, SearchLibException, InterruptedException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		getClient().updateDocument(getIndexDocument());
 		Messagebox.show("Document updated");
 	}

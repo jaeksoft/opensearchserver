@@ -159,7 +159,8 @@ public abstract class Config implements XmlInfo {
 
 	protected IndexAbstract getIndex(File indexDir, XPathParser xpp,
 			boolean createIndexIfNotExists) throws XPathExpressionException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		lock.lock();
 		try {
 			NodeList nodeList = xpp.getNodeList("/configuration/indices/index");

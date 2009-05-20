@@ -47,6 +47,8 @@ public class IndexConfig {
 
 	private String keyMd5RegExp;
 
+	private String similarityClass;
+
 	private boolean nativeOSSE;
 
 	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
@@ -62,6 +64,8 @@ public class IndexConfig {
 		keyMd5RegExp = XPathParser.getAttributeString(node, "keyMd5RegExp");
 		nativeOSSE = "yes".equals(XPathParser.getAttributeString(node,
 				"nativeOSSE"));
+		setSimilarityClass(XPathParser.getAttributeString(node,
+				"similarityClass"));
 	}
 
 	/**
@@ -171,5 +175,20 @@ public class IndexConfig {
 	 */
 	public void setKeyMd5RegExp(String keyMd5RegExp) {
 		this.keyMd5RegExp = keyMd5RegExp;
+	}
+
+	/**
+	 * @param similarityClass
+	 *            the similarityClass to set
+	 */
+	public void setSimilarityClass(String similarityClass) {
+		this.similarityClass = similarityClass;
+	}
+
+	/**
+	 * @return the similarityClass
+	 */
+	public String getSimilarityClass() {
+		return similarityClass;
 	}
 }

@@ -46,7 +46,7 @@ public class DocumentsGroup extends AbstractGroupRequest<DocumentsThread> {
 			DocumentsRequest documentsRequest, ExecutorService threadPool)
 			throws IOException, URISyntaxException, ParseException,
 			SyntaxError, ClassNotFoundException, InterruptedException,
-			SearchLibException {
+			SearchLibException, IllegalAccessException, InstantiationException {
 		super(indexGroup, threadPool, 60);
 		this.documentsRequest = documentsRequest;
 		DocumentRequest[] requestedDocuments = documentsRequest

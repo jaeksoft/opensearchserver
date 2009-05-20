@@ -62,7 +62,8 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	final private void run(List<T> threads) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException, SearchLibException {
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			IllegalAccessException, InstantiationException {
 		for (T thread : threads)
 			thread.start(threadPool);
 		Iterator<T> iterator = threads.iterator();
@@ -100,7 +101,8 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	final protected void loop(int maxIteration) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException, SearchLibException {
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			IllegalAccessException, InstantiationException {
 		lock.lock();
 		try {
 
@@ -119,7 +121,7 @@ public abstract class AbstractGroupRequest<T extends AbstractGroupRequestThread>
 
 	final protected void run() throws ParseException, SyntaxError, IOException,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException {
+			SearchLibException, IllegalAccessException, InstantiationException {
 		lock.lock();
 		try {
 			List<T> threads = initThreads();

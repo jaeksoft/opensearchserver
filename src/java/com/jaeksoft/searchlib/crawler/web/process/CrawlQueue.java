@@ -105,7 +105,8 @@ public class CrawlQueue {
 	final private Object indexSync = new Object();
 
 	public void index(boolean bForce) throws SearchLibException, IOException,
-			URISyntaxException {
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		List<IndexDocument> workUpdateCrawlList;
 		List<IndexDocument> workInsertUrlList;
 		List<String> workDeleteUrlList;

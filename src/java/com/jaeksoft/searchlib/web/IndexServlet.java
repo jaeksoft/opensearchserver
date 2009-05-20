@@ -53,7 +53,8 @@ public class IndexServlet extends AbstractServlet {
 
 	private int updateDoc(Client client, String indexName, IndexDocument doc)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (indexName == null)
 			return client.updateDocument(doc) ? 1 : 0;
 		else
@@ -63,7 +64,8 @@ public class IndexServlet extends AbstractServlet {
 	private int updateDoc(Client client, String indexName,
 			Collection<IndexDocument> indexDocuments)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (indexName == null)
 			return client.updateDocuments(indexDocuments);
 		else
@@ -72,7 +74,9 @@ public class IndexServlet extends AbstractServlet {
 
 	private int updateDoc(Client client, String indexName,
 			IndexRequest indexRequest) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		return updateDoc(client, indexName, indexRequest.getCollection());
 	}
 
@@ -127,6 +131,12 @@ public class IndexServlet extends AbstractServlet {
 		} catch (SearchLibException e) {
 			throw new ServletException(e);
 		} catch (NamingException e) {
+			throw new ServletException(e);
+		} catch (InstantiationException e) {
+			throw new ServletException(e);
+		} catch (IllegalAccessException e) {
+			throw new ServletException(e);
+		} catch (ClassNotFoundException e) {
 			throw new ServletException(e);
 		}
 	}

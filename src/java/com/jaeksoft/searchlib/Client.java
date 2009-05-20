@@ -73,7 +73,8 @@ public class Client extends Config implements XmlInfo {
 
 	public boolean updateDocument(IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().updateDocument(getSchema(), document);
@@ -84,7 +85,8 @@ public class Client extends Config implements XmlInfo {
 
 	public boolean updateDocument(String indexName, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().updateDocument(indexName, getSchema(), document);
@@ -95,7 +97,8 @@ public class Client extends Config implements XmlInfo {
 
 	public int updateDocuments(Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().updateDocuments(getSchema(), documents);
@@ -107,7 +110,8 @@ public class Client extends Config implements XmlInfo {
 	public int updateDocuments(String indexName,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			return getIndex()
@@ -119,7 +123,9 @@ public class Client extends Config implements XmlInfo {
 
 	private int updateXmlDocuments(String indexName, XPathParser xpp)
 			throws XPathExpressionException, NoSuchAlgorithmException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		NodeList nodeList = xpp.getNodeList("/index/document");
 		int l = nodeList.getLength();
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>();
@@ -135,7 +141,8 @@ public class Client extends Config implements XmlInfo {
 	public int updateXmlDocuments(String indexName, InputSource inputSource)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		XPathParser xpp = new XPathParser(inputSource);
 		return updateXmlDocuments(indexName, xpp);
 	}
@@ -143,7 +150,8 @@ public class Client extends Config implements XmlInfo {
 	public int updateXmlDocuments(String indexName, String xmlString)
 			throws SAXException, IOException, ParserConfigurationException,
 			XPathExpressionException, NoSuchAlgorithmException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		XPathParser xpp = new XPathParser(new InputSource(new StringReader(
 				xmlString)));
 		return updateXmlDocuments(indexName, xpp);
@@ -151,7 +159,9 @@ public class Client extends Config implements XmlInfo {
 
 	public boolean deleteDocument(String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(getSchema(), uniqueField);
@@ -162,7 +172,9 @@ public class Client extends Config implements XmlInfo {
 
 	public boolean deleteDocument(String indexName, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(indexName, getSchema(),
@@ -196,7 +208,9 @@ public class Client extends Config implements XmlInfo {
 
 	public int deleteDocuments(Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocuments(getSchema(), uniqueFields);
@@ -207,7 +221,9 @@ public class Client extends Config implements XmlInfo {
 
 	public int deleteDocuments(String indexName, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocuments(indexName, getSchema(),
@@ -240,7 +256,8 @@ public class Client extends Config implements XmlInfo {
 	}
 
 	public void optimize(String indexName) throws IOException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			getIndex().optimize(indexName);
@@ -250,7 +267,8 @@ public class Client extends Config implements XmlInfo {
 	}
 
 	public void reload(String indexName) throws IOException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		Timer timer = new Timer();
 		try {
 			getIndex().reload(indexName);
@@ -264,13 +282,15 @@ public class Client extends Config implements XmlInfo {
 	 */
 	@Deprecated
 	public void reload(boolean deleteOld) throws IOException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		reload(null);
 	}
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException {
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
 		searchRequest.init(this);
 		Result result = getIndex().search(searchRequest);
 		getStatisticsList().addSearch(searchRequest.getTimer());
@@ -280,7 +300,7 @@ public class Client extends Config implements XmlInfo {
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException {
+			SearchLibException, IllegalAccessException, InstantiationException {
 		return getIndex().documents(documentsRequest);
 	}
 

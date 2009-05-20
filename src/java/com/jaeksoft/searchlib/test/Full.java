@@ -28,7 +28,9 @@ public class Full {
 	@Before
 	public void getInstance() throws SearchLibException,
 			NoSuchAlgorithmException, XPathExpressionException, IOException,
-			URISyntaxException, ParserConfigurationException, SAXException {
+			URISyntaxException, ParserConfigurationException, SAXException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		File configFile = new File("resources/test_config.xml");
 		assertTrue(configFile.exists());
 		client = Client.getFileInstance(configFile);
@@ -37,7 +39,8 @@ public class Full {
 
 	public void populate() throws SearchLibException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, XPathExpressionException,
-			ParserConfigurationException, SAXException {
+			ParserConfigurationException, SAXException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
 		FileInputStream fis = new FileInputStream(contentFile);

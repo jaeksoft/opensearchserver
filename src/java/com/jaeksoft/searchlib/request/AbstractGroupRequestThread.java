@@ -50,6 +50,8 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 	private ClassNotFoundException classNotFound;
 	private InterruptedException interruptedException;
 	private SearchLibException searchLibException;
+	private InstantiationException instantiationException;
+	private IllegalAccessException illegalAccessException;
 
 	protected AbstractGroupRequestThread() {
 		ioException = null;
@@ -58,6 +60,8 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 		syntaxError = null;
 		interruptedException = null;
 		searchLibException = null;
+		instantiationException = null;
+		illegalAccessException = null;
 		completion = false;
 	}
 
@@ -75,7 +79,8 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 
 	public abstract void runner() throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
-			InterruptedException, SearchLibException;
+			InterruptedException, SearchLibException, InstantiationException,
+			IllegalAccessException;
 
 	final public void run() {
 		lock.lock();
@@ -97,6 +102,10 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			this.interruptedException = e;
 		} catch (SearchLibException e) {
 			this.searchLibException = e;
+		} catch (InstantiationException e) {
+			this.instantiationException = e;
+		} catch (IllegalAccessException e) {
+			this.illegalAccessException = e;
 		} finally {
 			lock.unlock();
 		}
@@ -113,7 +122,8 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 
 	final public void exception() throws IOException, URISyntaxException,
 			ParseException, SyntaxError, ClassNotFoundException,
-			InterruptedException, SearchLibException {
+			InterruptedException, SearchLibException, IllegalAccessException,
+			InstantiationException {
 		if (ioException != null)
 			throw ioException;
 		if (parseException != null)
@@ -128,5 +138,9 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			throw interruptedException;
 		if (searchLibException != null)
 			throw searchLibException;
+		if (illegalAccessException != null)
+			throw illegalAccessException;
+		if (instantiationException != null)
+			throw instantiationException;
 	}
 }
