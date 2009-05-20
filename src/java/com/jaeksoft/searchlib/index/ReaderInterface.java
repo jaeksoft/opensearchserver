@@ -42,9 +42,8 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocuments;
-import com.jaeksoft.searchlib.util.XmlInfo;
 
-public interface ReaderInterface extends XmlInfo {
+public interface ReaderInterface {
 
 	public abstract boolean sameIndex(ReaderInterface reader);
 

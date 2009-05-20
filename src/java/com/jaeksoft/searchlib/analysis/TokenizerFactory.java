@@ -31,4 +31,9 @@ import org.apache.lucene.analysis.Tokenizer;
 public abstract class TokenizerFactory {
 
 	public abstract Tokenizer create(Reader reader);
+
+	public String getClassName() {
+		return this.getClass().getSimpleName();
+	}
+
 }

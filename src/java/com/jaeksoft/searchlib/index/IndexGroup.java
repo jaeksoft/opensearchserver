@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -92,13 +91,6 @@ public class IndexGroup extends IndexAbstract {
 	@Override
 	public IndexAbstract get(String name) {
 		return indices.get(name);
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<indices>");
-		for (IndexAbstract index : indices.values())
-			index.xmlInfo(writer);
-		writer.println("</indices>");
 	}
 
 	@Override

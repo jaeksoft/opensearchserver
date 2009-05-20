@@ -33,9 +33,8 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.util.XmlInfo;
 
-public interface WriterInterface extends XmlInfo {
+public interface WriterInterface {
 
 	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,

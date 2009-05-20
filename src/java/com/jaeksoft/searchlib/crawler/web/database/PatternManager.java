@@ -40,12 +40,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.DomUtils;
@@ -98,18 +96,16 @@ public class PatternManager {
 		PrintWriter pw = new PrintWriter(patternFile);
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-			AttributesImpl atts = new AttributesImpl();
-			TransformerHandler hd = xmlWriter.getTransformerHandler();
-			hd.startElement("", "", "patterns", atts);
+			xmlWriter.startElement("patterns");
 			Iterator<List<PatternItem>> it = patternMap.values().iterator();
 			while (it.hasNext()) {
 				for (PatternItem item : it.next()) {
-					hd.startElement("", "", "pattern", atts);
+					xmlWriter.startElement("pattern");
 					xmlWriter.textNode(item.getClass());
-					hd.endElement("", "", "pattern");
+					xmlWriter.endElement();
 				}
 			}
-			hd.endElement("", "", "pattern");
+			xmlWriter.endElement();
 			xmlWriter.endDocument();
 		} finally {
 			pw.close();

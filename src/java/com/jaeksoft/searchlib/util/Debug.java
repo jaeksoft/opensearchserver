@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-public class Debug implements XmlInfo {
+public class Debug {
 
 	private List<Debug> childrens;
 

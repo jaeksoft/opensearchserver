@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryParser.ParseException;
@@ -35,10 +34,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class FilterHits extends org.apache.lucene.search.Filter implements
-		XmlInfo {
+public class FilterHits extends org.apache.lucene.search.Filter {
 
 	/**
 	 * 
@@ -82,11 +79,6 @@ public class FilterHits extends org.apache.lucene.search.Filter implements
 	@Override
 	public DocIdSet getDocIdSet(IndexReader reader) throws IOException {
 		return this.docSet;
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<filterHits cardinality=\"" + this.docSet.cardinality()
-				+ "\"/>");
 	}
 
 }

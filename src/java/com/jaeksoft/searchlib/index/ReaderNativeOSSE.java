@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -141,12 +140,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	@Override
 	public void swap(long version, boolean deleteOld) throws IOException,
 			URISyntaxException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void xmlInfo(PrintWriter writer) {
 		// TODO Auto-generated method stub
 
 	}

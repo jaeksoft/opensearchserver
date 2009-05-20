@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.schema;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,13 +34,14 @@ import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class Schema implements XmlInfo {
+public class Schema {
 
 	private SchemaFieldList fieldList;
 
@@ -71,6 +71,13 @@ public class Schema implements XmlInfo {
 		return schema;
 	}
 
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("schema");
+		analyzers.writeXmlConfig(writer);
+		fieldList.writeXmlConfig(writer);
+		writer.endElement();
+	}
+
 	public AnalyzerList getAnalyzerList() {
 		return analyzers;
 	}
@@ -98,14 +105,6 @@ public class Schema implements XmlInfo {
 			langQueryAnalyzers.put(lang, pfa);
 			return pfa;
 		}
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<schema>");
-		analyzers.xmlInfo(writer);
-		fieldList.xmlInfo(writer);
-		writer.println("</schema>");
-
 	}
 
 }

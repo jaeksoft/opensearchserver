@@ -30,13 +30,11 @@ import java.io.PrintWriter;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.GenericLink;
@@ -78,19 +76,13 @@ public class FieldMap extends GenericMap<String> {
 			PrintWriter pw = new PrintWriter(mapFile);
 			try {
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-				AttributesImpl atts = new AttributesImpl();
-				TransformerHandler hd = xmlWriter.getTransformerHandler();
-				hd.startElement("", "", "map", atts);
+				xmlWriter.startElement("map");
 				for (GenericLink<String> link : getList()) {
-					atts.clear();
-					atts.addAttribute("", "", "source", "CDATA", link
-							.getSource());
-					atts.addAttribute("", "", "target", "CDATA", link
-							.getTarget());
-					hd.startElement("", "", "link", atts);
-					hd.endElement("", "", "link");
+					xmlWriter.startElement("link", "source", link.getSource(),
+							"target", link.getTarget());
+					xmlWriter.endElement();
 				}
-				hd.endElement("", "", "map");
+				xmlWriter.endElement();
 				xmlWriter.endDocument();
 			} finally {
 				pw.close();

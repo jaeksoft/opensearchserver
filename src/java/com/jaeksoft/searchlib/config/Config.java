@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.ParseException;
@@ -76,9 +77,9 @@ import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
-public abstract class Config implements XmlInfo {
+public abstract class Config {
 
 	private IndexAbstract index = null;
 
@@ -154,6 +155,36 @@ public abstract class Config implements XmlInfo {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
+		}
+	}
+
+	private void saveConfigWithoutLock() throws IOException,
+			TransformerConfigurationException, SAXException {
+		File configFile = new File(indexDir, "config_save.xml");
+		if (!configFile.exists())
+			configFile.createNewFile();
+		PrintWriter pw = new PrintWriter(configFile);
+		try {
+			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			getSchema().writeXmlConfig(xmlWriter);
+		} finally {
+			pw.close();
+		}
+
+	}
+
+	public void saveConfig() throws SearchLibException {
+		lock.lock();
+		try {
+			saveConfigWithoutLock();
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
 		}
 	}
 
@@ -491,17 +522,6 @@ public abstract class Config implements XmlInfo {
 		} finally {
 			lock.unlock();
 		}
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<configuration>");
-		if (index != null)
-			index.xmlInfo(writer);
-		if (schema != null)
-			schema.xmlInfo(writer);
-		if (searchRequests != null)
-			searchRequests.xmlInfo(writer);
-		writer.println("</configuration>");
 	}
 
 }

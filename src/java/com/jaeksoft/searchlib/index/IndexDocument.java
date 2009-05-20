@@ -28,7 +28,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -45,11 +44,10 @@ import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class IndexDocument implements Externalizable, XmlInfo,
-		Collecter<FieldContent>, Iterable<FieldContent> {
+public class IndexDocument implements Externalizable, Collecter<FieldContent>,
+		Iterable<FieldContent> {
 
 	/**
 	 * 
@@ -196,14 +194,6 @@ public class IndexDocument implements Externalizable, XmlInfo,
 		if (fc == null)
 			return null;
 		return fc.getValue(pos);
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.print("<document>");
-		for (FieldContent field : fields.values())
-			field.xmlInfo(writer);
-		writer.println("</document>");
-
 	}
 
 	public FieldContent[] getFieldContentArray() {

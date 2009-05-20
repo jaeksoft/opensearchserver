@@ -28,7 +28,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.PrintWriter;
 import java.util.Iterator;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -59,9 +58,8 @@ import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class SearchRequest implements XmlInfo, Externalizable {
+public class SearchRequest implements Externalizable {
 
 	/**
 	 * 
@@ -433,18 +431,6 @@ public class SearchRequest implements XmlInfo, Externalizable {
 
 	public int getEnd() {
 		return this.start + this.rows;
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<request name=\"" + requestName
-				+ "\" defaultOperator=\"" + defaultOperator + "\" start=\""
-				+ start + "\" rows=\"" + rows + "\">");
-		writer.println("<query>" + queryString + "</query>");
-		if (returnFieldList.size() > 0)
-			writer.println("<returnsField>" + returnFieldList.toString()
-					+ "</returnsField>");
-		writer.println("</request>");
-
 	}
 
 	@Override

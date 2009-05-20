@@ -25,15 +25,19 @@
 package com.jaeksoft.searchlib.schema;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.Field.TermVector;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SchemaField extends Field {
 
@@ -61,25 +65,25 @@ public class SchemaField extends Field {
 		super(name);
 		this.store = org.apache.lucene.document.Field.Store.NO;
 		if ("compress".equalsIgnoreCase(store))
-			this.store = org.apache.lucene.document.Field.Store.COMPRESS;
+			this.store = Store.COMPRESS;
 		else if ("yes".equalsIgnoreCase(store))
-			this.store = org.apache.lucene.document.Field.Store.YES;
+			this.store = Store.YES;
 		this.index = org.apache.lucene.document.Field.Index.NO;
 		if ("yes".equalsIgnoreCase(index)) {
 			if (defaultAnalyzer != null)
-				this.index = org.apache.lucene.document.Field.Index.ANALYZED;
+				this.index = Index.ANALYZED;
 			else
-				this.index = org.apache.lucene.document.Field.Index.NOT_ANALYZED;
+				this.index = Index.NOT_ANALYZED;
 		}
-		this.termVector = org.apache.lucene.document.Field.TermVector.NO;
+		this.termVector = TermVector.NO;
 		if ("yes".equalsIgnoreCase(termVector))
-			this.termVector = org.apache.lucene.document.Field.TermVector.YES;
+			this.termVector = TermVector.YES;
 		else if ("offsets".equalsIgnoreCase(termVector))
-			this.termVector = org.apache.lucene.document.Field.TermVector.WITH_OFFSETS;
+			this.termVector = TermVector.WITH_OFFSETS;
 		else if ("positions".equalsIgnoreCase(termVector))
-			this.termVector = org.apache.lucene.document.Field.TermVector.WITH_POSITIONS;
+			this.termVector = TermVector.WITH_POSITIONS;
 		else if ("positions_offsets".equalsIgnoreCase(termVector))
-			this.termVector = org.apache.lucene.document.Field.TermVector.WITH_POSITIONS_OFFSETS;
+			this.termVector = TermVector.WITH_POSITIONS_OFFSETS;
 		this.defaultAnalyzer = defaultAnalyzer;
 		this.indexAnalyzer = indexAnalyzer;
 	}
@@ -103,63 +107,48 @@ public class SchemaField extends Field {
 		return this.getClass().getName() + "/" + this.name + "/";
 	}
 
-	@Override
-	public void xmlInfo(PrintWriter writer) {
-		writer.print("<field name=\"" + name + "\"");
-		writer.print(" stored=\"" + store + "\"");
-		writer.print(" indexed=\"" + index + "\"");
-		writer.print(" termVector=\"" + termVector + "\"");
-		if (defaultAnalyzer != null)
-			writer.print(" defaultAnalyzer=\"" + defaultAnalyzer + "\"");
-		writer.println("/>");
+	public boolean isStored() {
+		return store == Store.YES || store == Store.COMPRESS;
 	}
 
-	public boolean isStored() {
-		return store == org.apache.lucene.document.Field.Store.YES
-				|| store == org.apache.lucene.document.Field.Store.COMPRESS;
+	public boolean isCompressed() {
+		return store == Store.COMPRESS;
 	}
 
 	public boolean isIndexed() {
-		if (index == org.apache.lucene.document.Field.Index.ANALYZED)
-			return true;
-		if (index == org.apache.lucene.document.Field.Index.NOT_ANALYZED)
-			return true;
-		return false;
+		return index == Index.ANALYZED || index == Index.NOT_ANALYZED;
 	}
 
 	public String getStoreLabel() {
-		if (org.apache.lucene.document.Field.Store.NO.equals(store))
+		if (store == Store.NO)
 			return "no";
-		if (org.apache.lucene.document.Field.Store.YES.equals(store))
+		if (store == Store.YES)
 			return "yes";
-		if (org.apache.lucene.document.Field.Store.COMPRESS.equals(store))
+		if (store == Store.COMPRESS)
 			return "compress";
 		return null;
 	}
 
 	public String getIndexLabel() {
-		if (org.apache.lucene.document.Field.Index.NO.equals(index))
+		if (index == org.apache.lucene.document.Field.Index.NO)
 			return "no";
-		if (org.apache.lucene.document.Field.Index.ANALYZED.equals(index))
+		if (index == org.apache.lucene.document.Field.Index.ANALYZED)
 			return "yes";
-		if (org.apache.lucene.document.Field.Index.NOT_ANALYZED.equals(index))
+		if (index == org.apache.lucene.document.Field.Index.NOT_ANALYZED)
 			return "yes";
 		return null;
 	}
 
 	public String getTermVectorLabel() {
-		if (org.apache.lucene.document.Field.TermVector.NO.equals(termVector))
+		if (termVector == TermVector.NO)
 			return "no";
-		if (org.apache.lucene.document.Field.TermVector.YES.equals(termVector))
+		if (termVector == TermVector.YES)
 			return "yes";
-		if (org.apache.lucene.document.Field.TermVector.WITH_OFFSETS
-				.equals(termVector))
+		if (termVector == TermVector.WITH_OFFSETS)
 			return "offsets";
-		if (org.apache.lucene.document.Field.TermVector.WITH_POSITIONS
-				.equals(termVector))
+		if (termVector == TermVector.WITH_POSITIONS)
 			return "positions";
-		if (org.apache.lucene.document.Field.TermVector.WITH_POSITIONS_OFFSETS
-				.equals(termVector))
+		if (termVector == TermVector.WITH_POSITIONS_OFFSETS)
 			return "positions_offsets";
 		return null;
 	}
@@ -211,4 +200,11 @@ public class SchemaField extends Field {
 		return fieldList;
 	}
 
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("field", "name", name, "analyzer",
+				indexAnalyzer != defaultAnalyzer ? indexAnalyzer : null,
+				"indexed", getIndexLabel(), "stored", getStoreLabel(),
+				"termVector", getTermVectorLabel());
+		writer.endElement();
+	}
 }

@@ -28,7 +28,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,12 +45,11 @@ import org.w3c.dom.Node;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
 public class FieldList<T extends Field> implements
-		CacheKeyInterface<FieldList<T>>, FieldSelector, XmlInfo,
-		Externalizable, Iterable<T>, Collecter<T> {
+		CacheKeyInterface<FieldList<T>>, FieldSelector, Externalizable,
+		Iterable<T>, Collecter<T> {
 
 	/**
 	 * 
@@ -171,13 +169,6 @@ public class FieldList<T extends Field> implements
 				s += ", " + f.name;
 		}
 		return s;
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.print("<fields>");
-		for (Field field : fieldList)
-			field.xmlInfo(writer);
-		writer.println("</fields>");
 	}
 
 	public Iterator<T> iterator() {

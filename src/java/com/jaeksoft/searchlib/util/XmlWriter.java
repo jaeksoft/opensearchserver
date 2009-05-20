@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.PrintWriter;
+import java.util.Stack;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -34,10 +35,15 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
 public class XmlWriter {
 
 	private TransformerHandler transformerHandler;
+
+	private AttributesImpl elementAttributes;
+
+	private Stack<String> startedElementStack;
 
 	public XmlWriter(PrintWriter out, String encoding)
 			throws TransformerConfigurationException, SAXException {
@@ -49,11 +55,9 @@ public class XmlWriter {
 		serializer.setOutputProperty(OutputKeys.ENCODING, encoding);
 		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformerHandler.setResult(streamResult);
+		startedElementStack = new Stack<String>();
 		transformerHandler.startDocument();
-	}
-
-	public TransformerHandler getTransformerHandler() {
-		return transformerHandler;
+		elementAttributes = new AttributesImpl();
 	}
 
 	public void textNode(Object data) throws SAXException {
@@ -65,6 +69,27 @@ public class XmlWriter {
 	}
 
 	public void endDocument() throws SAXException {
+		while (!startedElementStack.empty())
+			endElement();
 		transformerHandler.endDocument();
 	}
+
+	public void startElement(String name, String... attributes)
+			throws SAXException {
+		elementAttributes.clear();
+		for (int i = 0; i < attributes.length; i++) {
+			String attr = attributes[i];
+			String value = attributes[++i];
+			if (attr != null && value != null)
+				elementAttributes.addAttribute("", "", attr, "CDATA", value);
+		}
+		startedElementStack.push(name);
+		transformerHandler.startElement("", "", name, elementAttributes);
+
+	}
+
+	public void endElement() throws SAXException {
+		transformerHandler.endElement("", "", startedElementStack.pop());
+	}
+
 }

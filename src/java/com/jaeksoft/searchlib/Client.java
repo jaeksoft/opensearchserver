@@ -53,9 +53,8 @@ import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.util.Context;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class Client extends Config implements XmlInfo {
+public class Client extends Config {
 
 	public Client(File initFileOrDir, boolean createIndexIfNotExists)
 			throws SearchLibException {

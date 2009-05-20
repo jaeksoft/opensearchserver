@@ -25,15 +25,15 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
-public abstract class FilterFactory implements XmlInfo {
+public abstract class FilterFactory {
 
 	public void setParams(XPathParser xpp, Node node) throws IOException {
 	}
@@ -44,9 +44,9 @@ public abstract class FilterFactory implements XmlInfo {
 		return this.getClass().getSimpleName();
 	}
 
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<filter class=\"" + this.getClass().getSimpleName()
-				+ "\" />");
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("filter", "class", getClassName());
+		writer.endElement();
 	}
 
 }

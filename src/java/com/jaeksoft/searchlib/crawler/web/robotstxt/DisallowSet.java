@@ -24,16 +24,11 @@
 
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
-import com.jaeksoft.searchlib.util.XmlInfo;
-
-public class DisallowSet implements XmlInfo {
+public class DisallowSet {
 
 	/**
 	 * Contient la liste des clauses "Disallow" d'un fichier "robots.txt" pour
@@ -41,11 +36,9 @@ public class DisallowSet implements XmlInfo {
 	 */
 
 	private HashSet<String> set;
-	private String userAgent;
 
 	protected DisallowSet(String userAgent) {
 		set = null;
-		this.userAgent = userAgent;
 	}
 
 	/**
@@ -84,20 +77,4 @@ public class DisallowSet implements XmlInfo {
 		}
 	}
 
-	public void xmlInfo(PrintWriter writer) {
-		int size = (set == null) ? 0 : set.size();
-		writer.print("<disallowSet userAgent=\"" + userAgent + "\" size=\""
-				+ size + "\">");
-		if (set != null) {
-			synchronized (this) {
-				Iterator<String> i = set.iterator();
-				while (i.hasNext())
-					writer.println("<disallow>"
-							+ StringEscapeUtils.escapeXml(i.next())
-							+ "</disallow>");
-			}
-		}
-		writer.println("</disallowSet>");
-
-	}
 }

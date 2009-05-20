@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -103,12 +102,6 @@ public class WriterNativeOSSE extends WriterAbstract {
 			if (updateDocument(schema, document))
 				i++;
 		return i;
-	}
-
-	@Override
-	public void xmlInfo(PrintWriter writer) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

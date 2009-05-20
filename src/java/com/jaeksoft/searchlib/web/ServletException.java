@@ -24,13 +24,8 @@
 
 package com.jaeksoft.searchlib.web;
 
-import java.io.PrintWriter;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
-import com.jaeksoft.searchlib.util.XmlInfo;
-
-public class ServletException extends Exception implements XmlInfo {
+public class ServletException extends Exception {
 
 	/**
 	 * 
@@ -44,11 +39,6 @@ public class ServletException extends Exception implements XmlInfo {
 	public ServletException(Exception e) {
 		super(e.toString());
 		e.printStackTrace();
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<error>" + StringEscapeUtils.escapeXml(getMessage())
-				+ "</error>");
 	}
 
 }

@@ -32,10 +32,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import com.jaeksoft.searchlib.util.XmlInfo;
-
 public abstract class IndexAbstract extends NameFilter implements
-		ReaderInterface, WriterInterface, XmlInfo {
+		ReaderInterface, WriterInterface {
 
 	protected final ReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	protected final Lock r = rwl.readLock();

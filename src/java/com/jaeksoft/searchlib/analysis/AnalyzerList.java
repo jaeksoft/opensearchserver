@@ -25,9 +25,9 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -36,18 +36,19 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class AnalyzerList extends AbstractList<Analyzer> implements XmlInfo {
+public class AnalyzerList extends AbstractList<Analyzer> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1994552936047860059L;
 
-	private ArrayList<Analyzer> analyzerList;
+	private List<Analyzer> analyzerList;
 	private Map<String, Analyzer> analyzersName;
 
 	public AnalyzerList() {
@@ -101,11 +102,13 @@ public class AnalyzerList extends AbstractList<Analyzer> implements XmlInfo {
 		return analyzers;
 	}
 
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<analyzers>");
-		for (Analyzer analyzer : this.analyzerList)
-			analyzer.xmlInfo(writer);
-		writer.println("</analyzers>");
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		if (analyzerList.size() == 0)
+			return;
+		writer.startElement("analyzers");
+		for (Analyzer analyzer : analyzerList)
+			analyzer.writeXmlConfig(writer);
+		writer.endElement();
 	}
 
 }

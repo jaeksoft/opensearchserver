@@ -28,17 +28,13 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import com.jaeksoft.searchlib.util.External;
-import com.jaeksoft.searchlib.util.XmlInfo;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class FieldContent implements Externalizable, Collecter<String>, XmlInfo {
+public class FieldContent implements Externalizable, Collecter<String> {
 
 	/**
 	 * 
@@ -85,14 +81,6 @@ public class FieldContent implements Externalizable, Collecter<String>, XmlInfo 
 
 	public void remove(int index) {
 		values.remove(index);
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<field name=\"" + field + "\">");
-		for (String value : values)
-			writer.println("<value>" + StringEscapeUtils.escapeXml(value)
-					+ "</value>");
-		writer.println("</field>");
 	}
 
 	public void readExternal(ObjectInput in) throws IOException,

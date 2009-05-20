@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.request;
 
-import java.io.PrintWriter;
 import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -36,10 +35,8 @@ import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
 
-public class SearchRequestMap extends TreeMap<String, SearchRequest> implements
-		XmlInfo {
+public class SearchRequestMap extends TreeMap<String, SearchRequest> {
 
 	/**
 	 * RequestList est une liste de Request.
@@ -76,13 +73,6 @@ public class SearchRequestMap extends TreeMap<String, SearchRequest> implements
 					.put(searchRequest.getRequestName(), searchRequest);
 		}
 		return searchRequestList;
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<requests>");
-		for (SearchRequest request : this.values())
-			request.xmlInfo(writer);
-		writer.println("</requests>");
 	}
 
 }

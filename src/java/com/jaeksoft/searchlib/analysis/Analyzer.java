@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,15 +35,15 @@ import org.apache.lucene.analysis.TokenStream;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlInfo;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class Analyzer extends org.apache.lucene.analysis.Analyzer implements
-		XmlInfo {
+public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 
 	private TokenizerFactory tokenizer;
-	private ArrayList<FilterFactory> filters;
+	private List<FilterFactory> filters;
 	private String name;
 	private String lang;
 
@@ -125,21 +124,13 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer implements
 		return analyzer;
 	}
 
-	public void xmlInfo(PrintWriter writer) {
-		writer.print("<analyzer name=\"" + name + "\"");
-		if (lang != null)
-			writer.print(" lang=\"" + lang + "\"");
-		if (tokenizer != null)
-			writer.print(" tokenizer=\"" + tokenizer.getClass().getSimpleName()
-					+ "\"");
-		if (filters.size() == 0) {
-			writer.println("/>");
-			return;
-		}
-		writer.println(">");
-		for (FilterFactory filter : filters)
-			filter.xmlInfo(writer);
-		writer.println("</analyzer>");
-
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("analyzer", "name", getName(), "tokenizer",
+				tokenizer != null ? tokenizer.getClassName() : null, "lang",
+				lang != null ? lang : null);
+		if (filters != null && filters.size() > 0)
+			for (FilterFactory filter : filters)
+				filter.writeXmlConfig(writer);
+		writer.endElement();
 	}
 }

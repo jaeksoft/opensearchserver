@@ -28,15 +28,12 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
 
-import com.jaeksoft.searchlib.util.XmlInfo;
-
-public class Field implements FieldSelector, Externalizable, XmlInfo {
+public class Field implements FieldSelector, Externalizable {
 
 	private static final long serialVersionUID = -7666123998960959190L;
 
@@ -61,10 +58,6 @@ public class Field implements FieldSelector, Externalizable, XmlInfo {
 		if (this.name.equals(fieldName))
 			return FieldSelectorResult.LOAD;
 		return FieldSelectorResult.NO_LOAD;
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.print("<field name=\"" + name + "\"/>");
 	}
 
 	public String getName() {

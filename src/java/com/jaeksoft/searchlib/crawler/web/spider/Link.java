@@ -24,16 +24,11 @@
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
-import com.jaeksoft.searchlib.util.XmlInfo;
-
-public class Link implements XmlInfo {
+public class Link {
 
 	public enum Type {
 		OUTLINK, INLINK;
@@ -69,12 +64,6 @@ public class Link implements XmlInfo {
 
 	public boolean getFollow() {
 		return follow;
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		writer.println("<link count=\"" + count + "\" follow=\"" + follow
-				+ "\" href=\""
-				+ StringEscapeUtils.escapeXml(url.toExternalForm()) + "\" />");
 	}
 
 	public static Link getLink(String baseUrl, String href, boolean follow) {

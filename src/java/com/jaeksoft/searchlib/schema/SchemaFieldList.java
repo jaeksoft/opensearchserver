@@ -27,9 +27,11 @@ package com.jaeksoft.searchlib.schema;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.PrintWriter;
+
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SchemaFieldList extends FieldList<SchemaField> {
 
@@ -60,19 +62,6 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 	}
 
 	@Override
-	public void xmlInfo(PrintWriter writer) {
-		writer.print("<fields");
-		if (defaultField != null)
-			writer.print(" default=\"" + defaultField.getName() + "\"");
-		if (uniqueField != null)
-			writer.print(" unique=\"" + uniqueField.getName() + "\"");
-		writer.println(">");
-		for (Field field : this)
-			field.xmlInfo(writer);
-		writer.println("</fields>");
-	}
-
-	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		super.readExternal(in);
@@ -85,6 +74,18 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 		super.writeExternal(out);
 		External.writeObject(defaultField, out);
 		External.writeObject(uniqueField, out);
+	}
+
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		if (size() == 0)
+			return;
+		writer.startElement("fields", "default",
+				defaultField != null ? defaultField.name : null, "unique",
+				uniqueField != null ? uniqueField.name : null);
+		for (SchemaField field : this)
+			field.writeXmlConfig(writer);
+		writer.endElement();
+
 	}
 
 }

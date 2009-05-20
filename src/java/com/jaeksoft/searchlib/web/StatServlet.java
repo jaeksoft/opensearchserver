@@ -49,10 +49,12 @@ public class StatServlet extends AbstractServlet {
 			HttpServletRequest request = servletTransaction.getServletRequest();
 
 			String reload = request.getParameter("reload");
-			// boolean deleteOld = (request.getParameter("deleteOld") != null);
 
 			if (reload != null)
 				client.reload(reload);
+
+			if (request.getParameter("saveConfig") != null)
+				client.saveConfig();
 
 			PrintWriter writer = servletTransaction.getWriter("UTF-8");
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -61,7 +63,6 @@ public class StatServlet extends AbstractServlet {
 			if (values != null)
 				for (String value : values)
 					classDetail.add(value);
-			client.xmlInfo(writer);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

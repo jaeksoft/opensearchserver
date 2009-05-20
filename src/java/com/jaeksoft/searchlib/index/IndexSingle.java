@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -77,18 +76,6 @@ public class IndexSingle extends IndexAbstract {
 		} else {
 			reader = new ReaderRemote(indexConfig);
 			writer = new WriterRemote(indexConfig);
-		}
-	}
-
-	public void xmlInfo(PrintWriter pw) {
-		r.lock();
-		try {
-			if (reader != null)
-				reader.xmlInfo(pw);
-			if (writer != null)
-				writer.xmlInfo(pw);
-		} finally {
-			r.unlock();
 		}
 	}
 

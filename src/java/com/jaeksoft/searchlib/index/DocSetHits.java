@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -36,9 +35,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 
-import com.jaeksoft.searchlib.util.XmlInfo;
-
-public class DocSetHits implements XmlInfo {
+public class DocSetHits {
 
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	private final Lock r = rwl.readLock();
@@ -173,17 +170,6 @@ public class DocSetHits implements XmlInfo {
 		r.lock();
 		try {
 			return docNumFound;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	public void xmlInfo(PrintWriter writer) {
-		r.lock();
-		try {
-			writer.println("<docSetHits docFound=\"" + docNumFound
-					+ "\" fetchedDoc=\"" + scoreDocs.length + "\" maxScore=\""
-					+ maxScore + "\"/>");
 		} finally {
 			r.unlock();
 		}

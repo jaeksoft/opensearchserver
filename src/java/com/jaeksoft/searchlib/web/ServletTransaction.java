@@ -37,10 +37,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.TransformerHandler;
 
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -165,20 +163,16 @@ public class ServletTransaction {
 		if (xmlResponse.size() == 0)
 			return;
 		XmlWriter xmlWriter = new XmlWriter(getWriter("UTF-8"), "UTF-8");
-		TransformerHandler hd = xmlWriter.getTransformerHandler();
-		AttributesImpl atts = new AttributesImpl();
 
-		hd.startElement("", "", "response", atts);
+		xmlWriter.startElement("response");
 
 		for (Map.Entry<String, String> entry : xmlResponse.entrySet()) {
-			atts.clear();
-			atts.addAttribute("", "", "key", "CDATA", entry.getKey());
-			hd.startElement("", "", "entry", atts);
+			xmlWriter.startElement("entry", "key", entry.getKey());
 			xmlWriter.textNode(entry.getValue());
-			hd.endElement("", "", "entry");
+			xmlWriter.endElement();
 		}
 
-		hd.endElement("", "", "response");
+		xmlWriter.endElement();
 		xmlWriter.endDocument();
 	}
 }
