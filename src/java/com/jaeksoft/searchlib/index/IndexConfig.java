@@ -28,8 +28,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexConfig {
 
@@ -66,6 +68,17 @@ public class IndexConfig {
 				"nativeOSSE"));
 		setSimilarityClass(XPathParser.getAttributeString(node,
 				"similarityClass"));
+	}
+
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("index", "searchCache", Integer
+				.toString(searchCache), "filterCache", Integer
+				.toString(filterCache), "fieldCache", Integer
+				.toString(fieldCache), "remoteUrl",
+				remoteUri != null ? remoteUri.toString() : null, "keyField",
+				keyField, "keyMd5RegExp", keyMd5RegExp, "nativeOSSE",
+				nativeOSSE ? "yes" : "no", "similarityClass", similarityClass);
+		xmlWriter.endElement();
 	}
 
 	/**
@@ -191,4 +204,5 @@ public class IndexConfig {
 	public String getSimilarityClass() {
 		return similarityClass;
 	}
+
 }

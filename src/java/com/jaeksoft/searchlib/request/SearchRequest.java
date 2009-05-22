@@ -39,6 +39,7 @@ import org.apache.lucene.search.Query;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -54,10 +55,12 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SearchRequest implements Externalizable {
 
@@ -554,10 +557,16 @@ public class SearchRequest implements Externalizable {
 		FieldList<SchemaField> fieldList = config.getSchema().getFieldList();
 		Field.filterCopy(fieldList, xpp.getNodeString(node, "returnFields"),
 				returnFields);
+		NodeList nodes = xpp.getNodeList(node, "returnFields/field");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Field field = Field.fromXmlConfig(nodes.item(i));
+			if (field != null)
+				returnFields.add(field);
+		}
 
 		FieldList<SnippetField> snippetFields = searchRequest
 				.getSnippetFieldList();
-		NodeList nodes = xpp.getNodeList(node, "snippet/field");
+		nodes = xpp.getNodeList(node, "snippet/field");
 		for (int i = 0; i < nodes.getLength(); i++)
 			SnippetField.copySnippetFields(nodes.item(i), fieldList,
 					snippetFields);
@@ -574,9 +583,67 @@ public class SearchRequest implements Externalizable {
 
 		SortList sortList = searchRequest.getSortList();
 		nodes = xpp.getNodeList(node, "sort/field");
-		for (int i = 0; i < nodes.getLength(); i++)
-			sortList.add(xpp.getNodeString(nodes.item(i)));
+		for (int i = 0; i < nodes.getLength(); i++) {
+			node = nodes.item(i);
+			String textNode = xpp.getNodeString(node);
+			if (textNode != null)
+				sortList.add(textNode);
+			else
+				sortList.add(new SortField(node));
+		}
 		return searchRequest;
+	}
+
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("request", "name", requestName, "indexName",
+				indexName, "phraseSlop", Integer.toString(phraseSlop),
+				"defaultOperator", getDefaultOperator(), "start", Integer
+						.toString(start), "rows", Integer.toString(rows),
+				"lang", lang);
+
+		if (patternQuery != null && patternQuery.trim().length() > 0) {
+			xmlWriter.startElement("query");
+			xmlWriter.textNode(patternQuery);
+			xmlWriter.endElement();
+		}
+
+		if (returnFieldList.size() > 0) {
+			xmlWriter.startElement("returnFields");
+			returnFieldList.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
+
+		if (snippetFieldList.size() > 0) {
+			xmlWriter.startElement("snippet");
+			snippetFieldList.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
+
+		if (facetFieldList.size() > 0) {
+			xmlWriter.startElement("snippet");
+			facetFieldList.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
+
+		if (sortList.getFieldList().size() > 0) {
+			xmlWriter.startElement("sort");
+			sortList.getFieldList().writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
+
+		if (filterList.size() > 0) {
+			xmlWriter.startElement("filters");
+			filterList.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
+
+		if (scoreFunction != null && scoreFunction.trim().length() > 0) {
+			xmlWriter.startElement("scoreFunction");
+			xmlWriter.textNode(scoreFunction);
+			xmlWriter.endElement();
+		}
+
+		xmlWriter.endElement();
 	}
 
 	public void readExternal(ObjectInput in) throws IOException,

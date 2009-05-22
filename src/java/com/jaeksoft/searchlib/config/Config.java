@@ -160,23 +160,50 @@ public abstract class Config {
 
 	private void saveConfigWithoutLock() throws IOException,
 			TransformerConfigurationException, SAXException {
-		File configFile = new File(indexDir, "config_save.xml");
+		File configFile = new File(indexDir, "config_tmp.xml");
 		if (!configFile.exists())
 			configFile.createNewFile();
 		PrintWriter pw = new PrintWriter(configFile);
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			xmlWriter.startElement("configuration");
+			getIndex().writeXmlConfig(xmlWriter);
 			getSchema().writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+			xmlWriter.endDocument();
 		} finally {
 			pw.close();
 		}
 
 	}
 
+	public void saveRequests() throws IOException,
+			TransformerConfigurationException, SAXException, SearchLibException {
+		boolean success = false;
+		File file = new File(indexDir, "requests_tmp.xml");
+		if (!file.exists())
+			file.createNewFile();
+		PrintWriter pw = new PrintWriter(file);
+		try {
+			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			xmlWriter.startElement("requests");
+			for (SearchRequest request : getSearchRequestMap().values())
+				request.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+			xmlWriter.endDocument();
+			success = true;
+		} finally {
+			pw.close();
+			if (success)
+				file.renameTo(new File(indexDir, "requests.xml"));
+		}
+	}
+
 	public void saveConfig() throws SearchLibException {
 		lock.lock();
 		try {
 			saveConfigWithoutLock();
+			saveRequests();
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

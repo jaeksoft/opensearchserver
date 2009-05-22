@@ -44,6 +44,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -56,6 +57,7 @@ import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.result.ResultGroup;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexGroup extends IndexAbstract {
 
@@ -384,4 +386,9 @@ public class IndexGroup extends IndexAbstract {
 					.getDocuments();
 	}
 
+	@Override
+	protected void writeXmlConfigIndex(XmlWriter xmlWriter) throws SAXException {
+		for (IndexSingle index : getIndices())
+			index.writeXmlConfig(xmlWriter);
+	}
 }

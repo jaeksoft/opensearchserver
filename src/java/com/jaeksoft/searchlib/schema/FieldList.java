@@ -41,10 +41,12 @@ import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
 public class FieldList<T extends Field> implements
@@ -217,6 +219,13 @@ public class FieldList<T extends Field> implements
 			fieldList.remove(field);
 			fieldsName.remove(field.name);
 			cacheKey = null;
+		}
+	}
+
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		synchronized (this) {
+			for (Field field : fieldList)
+				field.writeXmlConfig(xmlWriter);
 		}
 	}
 }

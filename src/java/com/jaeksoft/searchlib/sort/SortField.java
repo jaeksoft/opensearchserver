@@ -30,10 +30,14 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SortField extends Field implements Externalizable,
 		CacheKeyInterface<SortField> {
@@ -48,6 +52,11 @@ public class SortField extends Field implements Externalizable,
 	public SortField(String name, boolean desc) {
 		super(name);
 		this.desc = desc;
+	}
+
+	public SortField(Node node) {
+		super(DomUtils.getAttributeText(node, "name"));
+		setDesc(DomUtils.getAttributeText(node, "direction"));
 	}
 
 	public boolean isDesc() {
@@ -137,6 +146,13 @@ public class SortField extends Field implements Externalizable,
 			sb.append('+');
 		sb.append(name);
 		return sb.toString();
+	}
+
+	@Override
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("field", "name", name, "direction",
+				isDesc() ? "desc" : "asc");
+		xmlWriter.endElement();
 	}
 
 }

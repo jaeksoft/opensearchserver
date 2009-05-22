@@ -200,6 +200,7 @@ public class SchemaField extends Field {
 		return fieldList;
 	}
 
+	@Override
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		writer.startElement("field", "name", name, "analyzer",
 				indexAnalyzer != defaultAnalyzer ? indexAnalyzer : null,

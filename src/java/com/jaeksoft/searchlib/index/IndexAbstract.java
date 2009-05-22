@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -32,6 +32,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.xml.sax.SAXException;
+
+import com.jaeksoft.searchlib.util.XmlWriter;
+
 public abstract class IndexAbstract extends NameFilter implements
 		ReaderInterface, WriterInterface {
 
@@ -39,7 +43,7 @@ public abstract class IndexAbstract extends NameFilter implements
 	protected final Lock r = rwl.readLock();
 	protected final Lock w = rwl.writeLock();
 
-	private IndexConfig indexConfig;
+	protected IndexConfig indexConfig;
 
 	protected IndexAbstract() {
 		super(null);
@@ -80,5 +84,14 @@ public abstract class IndexAbstract extends NameFilter implements
 
 	public abstract void swap(String indexName, long version, boolean deleteOld)
 			throws IOException, URISyntaxException;
+
+	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter)
+			throws SAXException;
+
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("indices");
+		writeXmlConfigIndex(xmlWriter);
+		xmlWriter.endElement();
+	}
 
 }

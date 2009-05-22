@@ -30,6 +30,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.result.ResultSingle;
@@ -37,6 +38,7 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class FacetField extends Field implements Externalizable {
 
@@ -148,5 +150,12 @@ public class FacetField extends Field implements Externalizable {
 		super.writeExternal(out);
 		out.writeInt(minCount);
 		out.writeBoolean(multivalued);
+	}
+
+	@Override
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("field", "name", name, "minCount", Integer
+				.toString(minCount), "multivalued", multivalued ? "yes" : "no");
+		xmlWriter.endElement();
 	}
 }

@@ -32,6 +32,11 @@ import java.util.StringTokenizer;
 
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class Field implements FieldSelector, Externalizable {
 
@@ -40,6 +45,13 @@ public class Field implements FieldSelector, Externalizable {
 	protected String name;
 
 	public Field() {
+	}
+
+	public static Field fromXmlConfig(Node node) {
+		String name = DomUtils.getAttributeText(node, "name");
+		if (name == null)
+			return null;
+		return new Field(name);
 	}
 
 	public Field(String name) {
@@ -100,4 +112,8 @@ public class Field implements FieldSelector, Externalizable {
 		out.writeUTF(name);
 	}
 
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("field", "name", name);
+		xmlWriter.endElement();
+	}
 }

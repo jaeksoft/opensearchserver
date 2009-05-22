@@ -37,6 +37,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
@@ -48,6 +49,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexSingle extends IndexAbstract {
 
@@ -585,5 +587,10 @@ public class IndexSingle extends IndexAbstract {
 		} finally {
 			r.unlock();
 		}
+	}
+
+	@Override
+	protected void writeXmlConfigIndex(XmlWriter xmlWriter) throws SAXException {
+		indexConfig.writeXmlConfig(xmlWriter);
 	}
 }

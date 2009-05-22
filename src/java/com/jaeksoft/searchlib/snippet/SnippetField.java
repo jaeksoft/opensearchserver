@@ -41,6 +41,7 @@ import org.apache.lucene.index.TermVectorOffsetInfo;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
@@ -50,6 +51,7 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SnippetField extends Field implements Externalizable {
 
@@ -388,4 +390,15 @@ public class SnippetField extends Field implements Externalizable {
 		External.writeStringArray(searchTerms, out);
 	}
 
+	@Override
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("field", "name", name, "tag", tag, "maxDocChar",
+				Integer.toString(maxDocChar), "separator", separator,
+				"maxSnippetSize", Integer.toString(maxSnippetSize),
+				"maxSnippetNumber", Integer.toString(maxSnippetNumber),
+				"fragmenterClass",
+				fragmenterTemplate != null ? fragmenterTemplate.getClass()
+						.getSimpleName() : null);
+		xmlWriter.endElement();
+	}
 }

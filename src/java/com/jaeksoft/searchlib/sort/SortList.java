@@ -114,4 +114,5 @@ public class SortList implements Externalizable, CacheKeyInterface<SortList> {
 	public void remove(SortField sortField) {
 		sortFieldList.remove(sortField);
 	}
+
 }

@@ -33,9 +33,11 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class Filter implements Externalizable {
 
@@ -95,6 +97,12 @@ public class Filter implements Externalizable {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeUTF(queryString, out);
 		External.writeUTF(source.name(), out);
+	}
+
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("filter");
+		xmlWriter.textNode(queryString);
+		xmlWriter.endElement();
 	}
 
 }

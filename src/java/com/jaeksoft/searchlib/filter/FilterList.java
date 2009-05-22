@@ -34,12 +34,14 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
 public class FilterList implements Externalizable, Collecter<Filter>,
@@ -117,6 +119,11 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 
 	public Object[] toArray() {
 		return filterList.toArray();
+	}
+
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		for (Filter filter : filterList)
+			filter.writeXmlConfig(xmlWriter);
 	}
 
 }
