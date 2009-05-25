@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.request;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -32,16 +35,20 @@ import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SearchRequestMap extends TreeMap<String, SearchRequest> {
+public class SearchRequestMap {
 
 	/**
 	 * RequestList est une liste de Request.
 	 */
 	private static final long serialVersionUID = -7165162765377426369L;
+
+	private Map<String, SearchRequest> map;
 
 	/**
 	 * Construit une liste de requ�tes � partir du fichier de config XML.
@@ -69,10 +76,39 @@ public class SearchRequestMap extends TreeMap<String, SearchRequest> {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			SearchRequest searchRequest = SearchRequest.fromXmlConfig(config,
 					xpp, nodes.item(i));
-			searchRequestList
-					.put(searchRequest.getRequestName(), searchRequest);
+			searchRequestList.put(searchRequest);
 		}
 		return searchRequestList;
 	}
 
+	private SearchRequestMap() {
+		map = new TreeMap<String, SearchRequest>();
+	}
+
+	public void put(SearchRequest searchRequest) {
+		map.put(searchRequest.getRequestName(), searchRequest);
+	}
+
+	public SearchRequest get(String requestName) {
+		return map.get(requestName);
+	}
+
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("requests");
+		for (SearchRequest request : map.values())
+			request.writeXmlConfig(xmlWriter);
+		xmlWriter.endElement();
+	}
+
+	public Set<String> getNameList() {
+		return map.keySet();
+	}
+
+	public Collection<SearchRequest> getRequests() {
+		return map.values();
+	}
+
+	public void remove(String requestName) {
+		map.remove(requestName);
+	}
 }

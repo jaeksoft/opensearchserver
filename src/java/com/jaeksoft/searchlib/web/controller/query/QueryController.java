@@ -27,15 +27,19 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
+import javax.xml.transform.TransformerConfigurationException;
+
 import org.apache.lucene.queryParser.ParseException;
+import org.xml.sax.SAXException;
+import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
@@ -78,14 +82,10 @@ public class QueryController extends CommonController {
 	}
 
 	public Set<String> getRequests() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		Map<String, SearchRequest> map = client.getSearchRequestMap();
-		if (map == null)
-			return null;
-		Set<String> set = map.keySet();
-		if (selectedRequestName == null || map.get(selectedRequestName) == null) {
+		SearchRequestMap searchRequestMap = getClient().getSearchRequestMap();
+		Set<String> set = searchRequestMap.getNameList();
+		if (selectedRequestName == null
+				|| searchRequestMap.get(selectedRequestName) == null) {
 			Iterator<String> it = set.iterator();
 			if (it.hasNext())
 				setSelectedRequest(it.next());
@@ -107,6 +107,30 @@ public class QueryController extends CommonController {
 
 	public void onLoadRequest() throws SearchLibException {
 		setRequest(getClient().getNewSearchRequest(selectedRequestName));
+		reloadDesktop();
+	}
+
+	public void onSaveRequest() throws SearchLibException,
+			TransformerConfigurationException, IOException, SAXException {
+		Client client = getClient();
+		SearchRequest request = getRequest();
+		client.getSearchRequestMap().put(request);
+		client.saveRequests();
+		setSelectedRequest(request.getRequestName());
+		reloadDesktop();
+	}
+
+	public void onRemove() throws SearchLibException,
+			TransformerConfigurationException, IOException, SAXException,
+			InterruptedException {
+		String name = getSelectedRequest();
+		if (Messagebox.show("Please, confirm you want to remove the request: "
+				+ name, "Confirmation", Messagebox.CANCEL | Messagebox.YES,
+				Messagebox.QUESTION) != Messagebox.YES)
+			return;
+		Client client = getClient();
+		client.getSearchRequestMap().remove(getSelectedRequest());
+		client.saveRequests();
 		reloadDesktop();
 	}
 

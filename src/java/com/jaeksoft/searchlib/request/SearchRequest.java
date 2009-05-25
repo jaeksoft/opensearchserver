@@ -255,6 +255,10 @@ public class SearchRequest implements Externalizable {
 		return this.requestName;
 	}
 
+	public void setRequestName(String name) {
+		this.requestName = name;
+	}
+
 	public int getPhraseSlop() {
 		return phraseSlop;
 	}

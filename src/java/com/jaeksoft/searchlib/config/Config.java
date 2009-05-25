@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
@@ -186,10 +185,7 @@ public abstract class Config {
 		PrintWriter pw = new PrintWriter(file);
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-			xmlWriter.startElement("requests");
-			for (SearchRequest request : getSearchRequestMap().values())
-				request.writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
+			getSearchRequestMap().writeXmlConfig(xmlWriter);
 			xmlWriter.endDocument();
 			success = true;
 		} finally {
@@ -355,14 +351,20 @@ public abstract class Config {
 		return new SearchRequest(getSearchRequestMap().get(requestName));
 	}
 
-	public Map<String, SearchRequest> getSearchRequestMap()
-			throws SearchLibException {
+	public SearchRequestMap getSearchRequestMap() throws SearchLibException {
 		lock.lock();
 		try {
-			if (searchRequests == null)
-				searchRequests = SearchRequestMap
-						.fromXmlConfig(this, xppConfig, xppConfig
-								.getNode("/configuration/requests"));
+			if (searchRequests == null) {
+				File requestFile = new File(indexDir, "requests.xml");
+				if (requestFile.exists()) {
+					XPathParser xpp = new XPathParser(requestFile);
+					searchRequests = SearchRequestMap.fromXmlConfig(this, xpp,
+							xpp.getNode("/requests"));
+				} else
+					searchRequests = SearchRequestMap.fromXmlConfig(this,
+							xppConfig, xppConfig
+									.getNode("/configuration/requests"));
+			}
 			return searchRequests;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -375,6 +377,12 @@ public abstract class Config {
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
 			lock.unlock();

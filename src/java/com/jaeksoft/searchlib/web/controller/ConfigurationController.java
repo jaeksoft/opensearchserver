@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -34,7 +33,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexGroup;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class ConfigurationController extends CommonController {
@@ -66,10 +64,6 @@ public class ConfigurationController extends CommonController {
 		} else
 			list.add(index);
 		return list;
-	}
-
-	public Map<String, SearchRequest> getRequests() throws SearchLibException {
-		return getClient().getSearchRequestMap();
 	}
 
 }

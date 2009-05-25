@@ -24,6 +24,11 @@
 			<listitem self="@{each=request}" label="@{request}" />
 		</listbox>
 		<button label="Load" forward="onLoadRequest" />
+		<button label="Remove" forward="onRemove" />
+		<separator />
+		<label>Request name</label>
+		<textbox value="@{query.request.requestName}" />
+		<button label="Save" forward="onSaveRequest" />
 	</hbox>
 	<tabbox>
 		<tabs>
