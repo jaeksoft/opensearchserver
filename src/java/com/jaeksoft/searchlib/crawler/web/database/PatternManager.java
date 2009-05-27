@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -60,8 +61,9 @@ public class PatternManager {
 
 	private File patternFile;
 
-	public PatternManager(File patternFile) throws SearchLibException {
-		this.patternFile = patternFile;
+	public PatternManager(File indexDir) throws SearchLibException {
+		patternFile = new File(indexDir, "patterns.xml");
+		patternMap = new TreeMap<String, List<PatternItem>>();
 		try {
 			load();
 		} catch (ParserConfigurationException e) {
