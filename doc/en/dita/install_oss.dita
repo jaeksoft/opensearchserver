@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference xml:lang="en-EN">
+	<title>Installation guide</title>
+	<prolog>
+		<author>Emmanuel Gosse</author>
+	</prolog>
+	<shortdesc>This first version of installation guide demonstrates
+		that it takes few minutes to have a oss server running and ready to
+		be
+		used.
+	</shortdesc>
+	<refbody>
+		<section spectitle="1- How to install a Apache Tomcat">
+			Apache Tomcat or another JAVA server. This
+			installation guide will be based on it.
+			Please refer to standard
+			installation of it website.
+			http://tomcat.apache.org/index.html
+			Version 5 or newer available.
+		</section>
+		<section spectitle="2- How to install OSS">
+		</section>
+		<section spectitle="2.1- OSS.war">
+			Put oss.war in 'tomcat/webapps' tomcat repertory. rename it like you
+			want (keep 'war' extension !).
+			<codeph>example : oss.war </codeph>
+		</section>
+		<section spectitle="2.2- Configuration of war in tomcat">
+			In 'tomcat/conf/Catalina/localhost/' path, create a xml file named
+			as
+			same as you have named your war at the step 2.1 (keep 'xml'
+			extension
+			!).
+
+			example : oss.xml
+			<codeblock><![CDATA[
+	<Context docbase="oss.war" debug="0" crossContext="true">
+		<Environment name="JaeksoftSearchServer/configfile" type="java.lang.String"
+			value="/mnt/all_oss/oss1/config.xml" override="true" />
+	</Context>]]>
+				</codeblock>
+		</section>
+		<section spectitle="2.3- Configuration of physical index">
+			In a repository where you would like to put it (no special needs),
+			we
+			use '/mnt/all_oss/', create the place you want to have your
+			physical
+			index.
+			I choose oos1 ( to be correct with step 2.2).
+			<ol>
+				<li>put the file config.xml in. (don't change its name !). You
+					can
+					observe that oss.xml refers to it.</li>
+				<li>create only a repository named 'index' in oss1, At server
+					start,
+					it creates an empty index automaticaly in.
+
+					/mnt/all_oss/oss1/
+					ls</li>
+			</ol>
+			<ul>
+				<li>config.xml (file)</li>
+				<li>index (rep)</li>
+			</ul>
+		</section>
+		<section spectitle="2.4- Example of a basic config.xml">
+			<codeblock><![CDATA[
+<configuration>
+	<indices>
+		<index name="index" searchCache="100" filterCache="100" fieldCache="500" />
+	</indices>
+	<schema>
+		<analyzers>
+			<analyzer name="StandardAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="en"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="SnowballEnglishFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="fr"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="FrenchStemFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="de"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballGermanFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="nl"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="DutchStemFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="es"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballSpanishFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="it"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballItalianFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="pt"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballPortugueseFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="no"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballNorwegianFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="se"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballSwedishFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="fi"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballFinnishFilter" />
+			</analyzer>
+		</analyzers>
+		<fields default="content" unique="url">
+			<field name="lang" indexed="yes" stored="yes" />
+			<field name="title" analyzer="TextAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" />
+			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" />
+			<field name="content" analyzer="TextAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" />
+			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" />
+			<field name="contentBaseType" indexed="yes" stored="yes" />
+			<field name="url" indexed="yes" stored="yes" />
+			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
+				termVector="positions_offsets" />
+			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
+				termVector="positions_offsets" />
+			<field name="metaDescription" indexed="no" stored="compress" />
+			<field name="metaKeywords" indexed="no" stored="compress" />
+			<field name="host" indexed="yes" stored="yes" />
+		</fields>
+	</schema>
+	<parsers>
+		<parser class="com.jaeksoft.searchlib.parser.HtmlParser"
+			sizeLimit="8388608">
+			<contentType>text/html</contentType>
+		</parser>
+		<parser class="com.jaeksoft.searchlib.parser.PdfParser"
+			sizeLimit="8388608">
+			<contentType>application/pdf</contentType>
+		</parser>
+		<parser class="com.jaeksoft.searchlib.parser.DocParser"
+			sizeLimit="8388608">
+			<contentType>application/msword</contentType>
+		</parser>
+		<parser class="com.jaeksoft.searchlib.parser.PptParser"
+			sizeLimit="8388608">
+			<contentType>application/vnd.ms-powerpoint</contentType>
+		</parser>
+	</parsers>
+</configuration>
+				]]></codeblock>
+		</section>
+	</refbody>
+</reference>
