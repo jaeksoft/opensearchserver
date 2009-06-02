@@ -1,10 +1,10 @@
-#Sat May 30 15:16:28 CEST 2009
+#Tue Jun 02 19:02:44 CEST 2009
 copytosourcelist=
-hreftargetslist=install_oss.dita
+hreftargetslist=install_oss.xml,api_select.xml
 fullditatopicfile=fullditatopic.list
 fullditamapandtopicfile=fullditamapandtopic.list
-fullditatopiclist=install_oss.dita
-fullditamapandtopiclist=install_oss.dita,doc_index.ditamap
+fullditatopiclist=install_oss.xml,api_select.xml
+fullditamapandtopiclist=install_oss.xml,api_select.xml,doc_index.ditamap
 hrefditatopicfile=hrefditatopic.list
 hrefditatopiclist=
 user.input.file=doc_index.ditamap
@@ -25,7 +25,7 @@ imagelist=
 htmlfile=html.list
 htmllist=
 canditopicsfile=canditopics.list
-canditopicslist=install_oss.dita
+canditopicslist=install_oss.xml,api_select.xml
 keyreffile=keyref.list
 keyreflist=
 keyfile=key.list

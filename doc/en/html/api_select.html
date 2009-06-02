@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="API Search / Select"/>
+<meta name="abstract" content="API Search/Select is the interface to query OSS search engine. The call is sent by a HTTP request, POST OR GET are both available. The engine will answer with a XML result."/>
+<meta name="description" content="API Search/Select is the interface to query OSS search engine. The call is sent by a HTTP request, POST OR GET are both available. The engine will answer with a XML result."/>
+<meta name="DC.Creator" content="Emmanuel Keller"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="en_api_select"/>
+<meta name="DC.Language" content="en-US"/>
+<link rel="stylesheet" type="text/css" href="commonltr.css"/>
+<title>API Search / Select</title>
+</head>
+<body id="en_api_select"><a name="en_api_select"><!-- --></a>
+
+
+	<h1 class="topictitle1">API Search / Select</h1>
+
+	
+	
+	<div><p>API Search/Select is the interface to query OSS search
+		engine.
+		The call is sent by a HTTP request,
+		POST OR GET are both
+		available. The engine will answer with a XML result.
+	</p>
+
+		<div class="section"><h2 class="sectiontitle">Url call</h2>
+			
+			Basic relative url is :
+			<samp class="codeph">/select</samp>
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Example</h2>
+			
+			<samp class="codeph">http://localhost:8080/OpenSearchServer/select?q=test&amp;&amp;&amp;&amp;qt=search</samp>	
+	</div>
+
+	<div class="section"><h2 class="sectiontitle">Parameters</h2>
+	
+	<div class="note"><span class="notetitle">Note:</span> Parameters have to be encoded in UTF-8.</div>
+
+		<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletableborder">
+			<tr>
+				<th valign="bottom" align="left" id="d20e49">Name</th>
+
+				<th valign="bottom" align="left" id="d20e52">Description</th>
+
+				<th valign="bottom" align="left" id="d20e55">Type</th>
+
+				<th valign="bottom" align="left" id="d20e58">Default value</th>
+
+				<th valign="bottom" align="left" id="d20e61">Needed?</th>
+
+			</tr>
+
+			<tr>
+				<td valign="top" headers="d20e49">q</td>
+
+				<td valign="top" headers="d20e52">
+					Searched keywords. Ex:
+						<samp class="codeph">q=try</samp></td>
+
+				<td valign="top" headers="d20e55">Text</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+				<td valign="top" headers="d20e61">yes (ou <var class="varname">query</var>)</td>
+
+			</tr>
+
+			<tr>
+				<td valign="top" headers="d20e49">query</td>
+
+				<td valign="top" headers="d20e52">same as parameter <var class="varname">q</var>. Ex.: <samp class="codeph">query=try</samp></td>
+
+				<td valign="top" headers="d20e55">Text</td>
+
+				<td valign="top" headers="d20e58">&#xA0;</td>
+
+				<td valign="top" headers="d20e61">yes (ou <var class="varname">q</var>)</td>
+
+			</tr>
+
+			<tr>
+				<td valign="top" headers="d20e49">qt</td>
+
+				<td valign="top" headers="d20e52">Enable you to pre-load a set query in index configuration file <var class="varname">config.xml</var>. Ex.: <samp class="codeph">qt=requestName</samp></td>
+
+                <td valign="top" headers="d20e55">Text</td>
+
+				<td valign="top" headers="d20e58">&#xA0;</td>
+
+				<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+				<td valign="top" headers="d20e49">start</td>
+
+				<td valign="top" headers="d20e52">Indicate the first result's rank shown. This parameter allows a pagination. Ex.: <samp class="codeph">start=10</samp></td>
+
+				<td valign="top" headers="d20e55">Number</td>
+
+				<td valign="top" headers="d20e58">0</td>
+
+				<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">rows</td>
+
+					<td valign="top" headers="d20e52">Indicates the number of records to return. Associated with 'start' parameter,  This parameter allows pagination. Ex.: <samp class="codeph">rows=5</samp></td>
+
+					<td valign="top" headers="d20e55">Number</td>
+
+					<td valign="top" headers="d20e58">10</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">lang</td>
+
+					<td valign="top" headers="d20e52">Indicates the language of the keywords passed to parameter <var class="varname">q</var>. The engine will use the appropriate analyzer. Ex.: <samp class="codeph">lang=fr</samp></td>
+
+					<td valign="top" headers="d20e55">Text</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">collapse.field</td>
+
+					<td valign="top" headers="d20e52">Active collapsing on the field passed as a parameter. Ex.: <samp class="codeph">collapse.field=hostname</samp></td>
+
+					<td valign="top" headers="d20e55">field's name</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">collapse.max</td>
+
+					<td valign="top" headers="d20e52">Indicates the number of document to send before collapsing activation. Ex.: <samp class="codeph">collapse.max=2</samp></td>
+
+					<td valign="top" headers="d20e55">Number</td>
+
+					<td valign="top" headers="d20e58">2</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">delete</td>
+
+					<td valign="top" headers="d20e52">If this parameter is passed, the documents returned by the query are removed. Ex.: <samp class="codeph">&amp;&amp;&amp;&amp;delete</samp></td>
+
+					<td valign="top" headers="d20e55">&#xA0;</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">noCache</td>
+
+					<td valign="top" headers="d20e52">Disable cache (for the current call only). Ex.: <samp class="codeph">&amp;&amp;&amp;&amp;noCache</samp></td>
+
+					<td valign="top" headers="d20e55">&#xA0;</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">debug</td>
+
+					<td valign="top" headers="d20e52">Enables the debug information in the result. Ex.: <samp class="codeph">&amp;&amp;&amp;&amp;debug</samp></td>
+
+					<td valign="top" headers="d20e55">&#xA0;</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">fq</td>
+
+					<td valign="top" headers="d20e52">Add a filter to the current call. The parameters can be used several times in the same call for increasing filters. Ex.: <samp class="codeph">fq=date:20101201&amp;&amp;&amp;&amp;fq=color:red</samp></td>
+
+					<td valign="top" headers="d20e55">Text</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+			<tr>
+					<td valign="top" headers="d20e49">rf</td>
+
+					<td valign="top" headers="d20e52">Add one or more fields to send. Ex.: <samp class="codeph">&amp;&amp;&amp;&amp;rf=date&amp;&amp;&amp;&amp;rf=color</samp></td>
+
+					<td valign="top" headers="d20e55">Text (field's name)</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+						<tr>
+					<td valign="top" headers="d20e49">fl</td>
+
+					<td valign="top" headers="d20e52">Same as parameter <var class="varname">rf</var></td>
+
+					<td valign="top" headers="d20e55">Texte</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+						<tr>
+					<td valign="top" headers="d20e49">sort</td>
+
+					<td valign="top" headers="d20e52">Control results order. Using the abbreviation + ou - to sort by ascending or descending.  Ex.: <samp class="codeph">&amp;&amp;&amp;&amp;sort=-date&amp;&amp;&amp;&amp;sort=color</samp></td>
+
+					<td valign="top" headers="d20e55">Texte</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+						<tr>
+					<td valign="top" headers="d20e49">facet</td>
+
+					<td valign="top" headers="d20e52">Enables faceting for the field passed as a parameter. You can add a number in parenthesis to specify the minimum count.  Ex.: <samp class="codeph">&amp;&amp;&amp;&amp;facet=color</samp> ou <samp class="codeph">&amp;&amp;&amp;&amp;facet=color(2)</samp></td>
+
+					<td valign="top" headers="d20e55">Text(Number)</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+						<tr>
+					<td valign="top" headers="d20e49">facet.multi</td>
+
+					<td valign="top" headers="d20e52">Even behavior that facet to be applied to fields containing multiple values (multi-valued fields). Ex.: <samp class="codeph">&amp;&amp;&amp;&amp;facet.multi=color</samp> ou <samp class="codeph">&amp;&amp;&amp;&amp;facet.multi=color(2)</samp></td>
+
+					<td valign="top" headers="d20e55">Text(Number)</td>
+
+					<td valign="top" headers="d20e58">&#xA0;</td>
+
+					<td valign="top" headers="d20e61">no</td>
+
+			</tr>
+
+		</table>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">XML result</h2>
+		
+		<div class="note"><span class="notetitle">Note:</span> The answer is in XML format encoded in UTF-8.</div>
+
+		</div>
+
+	</div>
+
+
+</body>
+</html>

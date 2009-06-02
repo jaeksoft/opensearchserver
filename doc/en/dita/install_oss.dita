@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
-<reference id="en_dita_install_oss" xml:lang="en-US">
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="en_dita_install_oss" xml:lang="en-US">
 	<title>Installation guide</title>
 	<shortdesc>This first version of installation guide demonstrates
 		that it takes few minutes to have a oss server running and ready to
@@ -10,56 +10,85 @@
 	<prolog>
 		<author>Emmanuel Gosse</author>
 	</prolog>
-	<refbody>
-		<section>
-			<title>Install a Apache Tomcat</title>
-			Apache Tomcat or another JAVA server. This
-			installation guide will be
-			based on it.
-			Please refer to standard
-			installation of it website.
-			http://tomcat.apache.org/index.html
-			Version 5 or newer available.
-		</section>
-		<section>
-			<title>Deploy OSS war file</title>
-			Put oss.war in 'tomcat/webapps' tomcat repertory. rename it like you
-			want (keep 'war' extension !).
-			<codeph>example : oss.war </codeph>
-		</section>
-		<section>
-			<title>Configuration of war in tomcat</title>
-			In 'tomcat/conf/Catalina/localhost/' path, create a xml file named
-			as
-			same as you have named your war at the step 2.1 (keep 'xml'
-			extension
-			!).
-
-			example : oss.xml
-			<codeblock><![CDATA[
+	<taskbody>
+		<steps>
+			<step>
+				<cmd>
+					Install Apache Tomcat or another JAVA server: This
+					installation
+					guide
+					will be
+					based on it.
+					Please refer to standard
+					installation of it
+					website.
+					http://tomcat.apache.org/index.html
+					Version 5 or newer
+					available.
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Deploy OSS war file:
+					Put oss.war in 'tomcat/webapps' tomcat
+					directory. Rename it like you
+					want (keep 'war' extension !). Ex. :
+					oss.war
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Configuration of war in tomcat:
+					In
+					'tomcat/conf/Catalina/localhost/'
+					path, create a xml file named
+					as
+					same as you have named your war at
+					the step 2.1 (keep 'xml'
+					extension
+					!).
+				</cmd>
+				<info>
+					Example : oss.xml
+					<codeblock><![CDATA[
 	<Context docbase="oss.war" debug="0" crossContext="true">
 		<Environment name="JaeksoftSearchServer/configfile" type="java.lang.String"
 			value="/mnt/all_oss/oss1/config.xml" override="true" />
 	</Context>]]>
 				</codeblock>
-		</section>
-		<section>
-			<title>Configuration of physical index</title>
-			In a repository where you would like to put it (no special needs),
-			we
-			use '/mnt/all_oss/', create the place you want to have your
-			physical
-			index. I choose oss1 ( to be correct with previous steps).
-			<ol>
-				<li>put the file config.xml in. (don't change its name !). You
-					can observe that oss.xml refers to it.</li>
-				<li>create only a repository named 'index' in oss1, At server
-					start, it creates an empty index automaticaly in.</li>
-			</ol>
-		</section>
-		<example>
-			<title>Example of a basic config.xml"</title>
-			<codeblock><![CDATA[
+				</info>
+			</step>
+			<step>
+				<cmd>
+					Configuration of physical index:
+					In a repository where you would
+					like
+					to put it (no special needs),
+					we
+					use '/mnt/all_oss/', create the
+					place
+					you want to have your
+					physical
+					index. I choose oss1 ( to be
+					correct
+					with previous steps).
+					</cmd>
+				<substeps>
+					<substep>
+						<cmd>
+							put the file config.xml in. (don't change its name !). You
+							can observe that oss.xml refers to it.
+					</cmd>
+					</substep>
+					<substep>
+						<cmd>create only a repository named 'index' in oss1, At
+							server
+							start, it creates an empty index automaticaly in.</cmd>
+					</substep>
+				</substeps>
+				<info>
+					Example of a basic config.xml:
+					<codeblock><![CDATA[
 <configuration>
 	<indices>
 		<index name="index" searchCache="100" filterCache="100" fieldCache="500" />
@@ -174,6 +203,8 @@
 	</parsers>
 </configuration>
 				]]></codeblock>
-		</example>
-	</refbody>
-</reference>
+				</info>
+			</step>
+		</steps>
+	</taskbody>
+</task>

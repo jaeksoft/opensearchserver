@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="doc">
+	<import file="/Users/ekeller/Java_Stuffs/DITA-OT1.4.3/conductor.xml" />
+
+	<target name="en" depends="use-init">
+		<antcall target="dita2xhtml">
+			<param name="args.input" value="en/dita/doc_index.ditamap" />
+			<param name="output.dir" value="en/html" />
+		</antcall>
+	</target>
+
+	<target name="fr" depends="use-init">
+		<antcall target="dita2xhtml">
+			<param name="args.input" value="fr/dita/doc_index.ditamap" />
+			<param name="output.dir" value="fr/html" />
+		</antcall>
+	</target>
+
+	<target name="all" depends="en,fr" />
+
+</project>

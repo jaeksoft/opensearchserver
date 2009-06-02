@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
-<reference xml:lang="fr-FR">
+<reference id="en_api_select" xml:lang="en-US">
 	<title>API Search / Select</title>
+	<shortdesc>API Search/Select is the interface to query OSS search
+		engine.
+		The call is sent by a HTTP request,
+		POST OR GET are both
+		available. The engine will answer with a XML result.
+	</shortdesc>
 	<prolog>
 		<author>Emmanuel Keller</author>
 	</prolog>
-	<shortdesc>API Search/Select is the interface to query OSS search engine. 
-	The call is sent by a HTTP request,
-	POST OR GET are both available. The engine will answer with a XML result.</shortdesc>
 	<refbody>
-		<section spectitle="Url d'appel">
+		<section>
+			<title>Url call</title>
 			Basic relative url is :
 			<codeph>/select</codeph>
 		</section>
-		<section spectitle="Exemple">
+		<section>
+			<title>Example</title>
 			<codeph>http://localhost:8080/OpenSearchServer/select?q=test&amp;qt=search</codeph>	
 	</section>
-	<section spectitle="Paramètres">
+	<section>
+	<title>Parameters</title>
 	<note>Parameters have to be encoded in UTF-8.</note>
-		<simpletable spectitle="Liste des paramètres">
+		<simpletable>
 			<sthead>
 				<stentry>Name</stentry>
 				<stentry>Description</stentry>
@@ -29,94 +35,92 @@
 			<strow>
 				<stentry>q</stentry>
 				<stentry>
-					Searched keywords
-					<example>
-						For example:
-						<codeph>q=try</codeph></example></stentry>
+					Searched keywords. Ex:
+						<codeph>q=try</codeph></stentry>
 				<stentry>Text</stentry>
 					<stentry></stentry>
 				<stentry>yes (ou <varname>query</varname>)</stentry>
 			</strow>
 			<strow>
 				<stentry>query</stentry>
-				<stentry>same as parameter <varname>q</varname>.<example>For example: <codeph>query=try</codeph></example></stentry>
+				<stentry>same as parameter <varname>q</varname>. Ex.: <codeph>query=try</codeph></stentry>
 				<stentry>Text</stentry>
 				<stentry></stentry>
 				<stentry>yes (ou <varname>q</varname>)</stentry>
 			</strow>
 			<strow>
 				<stentry>qt</stentry>
-				<stentry>Enable you to pre-load a set query in index configuration file <varname>config.xml</varname>.<example>For example: <codeph>qt=requestName</codeph></example></stentry>
+				<stentry>Enable you to pre-load a set query in index configuration file <varname>config.xml</varname>. Ex.: <codeph>qt=requestName</codeph></stentry>
                 <stentry>Text</stentry>
 				<stentry></stentry>
 				<stentry>no</stentry>
 			</strow>
 			<strow>
 				<stentry>start</stentry>
-				<stentry>Indicate the first result's rank shown. This parameter allows a pagination.<example>For example: <codeph>start=10</codeph></example></stentry>
+				<stentry>Indicate the first result's rank shown. This parameter allows a pagination. Ex.: <codeph>start=10</codeph></stentry>
 				<stentry>Number</stentry>
 				<stentry>0</stentry>
 				<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>rows</stentry>
-					<stentry>Indicates the number of records to return. Associated with 'start' parameter,  This parameter allows pagination.<example>For example: <codeph>rows=5</codeph></example></stentry>
+					<stentry>Indicates the number of records to return. Associated with 'start' parameter,  This parameter allows pagination. Ex.: <codeph>rows=5</codeph></stentry>
 					<stentry>Number</stentry>
 					<stentry>10</stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>lang</stentry>
-					<stentry>Indicates the language of the keywords passed to parameter <varname>q</varname>. The engine will use the appropriate analyzer.<example>For example: <codeph>lang=fr</codeph></example></stentry>
+					<stentry>Indicates the language of the keywords passed to parameter <varname>q</varname>. The engine will use the appropriate analyzer. Ex.: <codeph>lang=fr</codeph></stentry>
 					<stentry>Text</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>collapse.field</stentry>
-					<stentry>Active collapsing on the field passed as a parameter.<example>For example: <codeph>collapse.field=hostname</codeph></example></stentry>
+					<stentry>Active collapsing on the field passed as a parameter. Ex.: <codeph>collapse.field=hostname</codeph></stentry>
 					<stentry>field's name</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>collapse.max</stentry>
-					<stentry>Indicates the number of document to send before collapsing activation.<example>For example: <codeph>collapse.max=2</codeph></example></stentry>
+					<stentry>Indicates the number of document to send before collapsing activation. Ex.: <codeph>collapse.max=2</codeph></stentry>
 					<stentry>Number</stentry>
 					<stentry>2</stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>delete</stentry>
-					<stentry>If this parameter is passed, the documents returned by the query are removed.<example>For example: <codeph>&amp;delete</codeph></example></stentry>
+					<stentry>If this parameter is passed, the documents returned by the query are removed. Ex.: <codeph>&amp;delete</codeph></stentry>
 					<stentry></stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>noCache</stentry>
-					<stentry>Disable cache (for the current call only).<example><codeph>&amp;noCache</codeph></example></stentry>
+					<stentry>Disable cache (for the current call only). Ex.: <codeph>&amp;noCache</codeph></stentry>
 					<stentry></stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>debug</stentry>
-					<stentry>Enables the debug information in the result.<example>For example: <codeph>&amp;debug</codeph></example></stentry>
+					<stentry>Enables the debug information in the result. Ex.: <codeph>&amp;debug</codeph></stentry>
 					<stentry></stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>fq</stentry>
-					<stentry>Add a filter to the current call. The parameters can be used several times in the same call for increasing filters.<example>For example: <codeph>fq=date:20101201&amp;fq=color:red</codeph></example></stentry>
+					<stentry>Add a filter to the current call. The parameters can be used several times in the same call for increasing filters. Ex.: <codeph>fq=date:20101201&amp;fq=color:red</codeph></stentry>
 					<stentry>Text</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>rf</stentry>
-					<stentry>Add one or more fields to send.<example>For example: <codeph>&amp;rf=date&amp;rf=color</codeph></example></stentry>
+					<stentry>Add one or more fields to send. Ex.: <codeph>&amp;rf=date&amp;rf=color</codeph></stentry>
 					<stentry>Text (field's name)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
@@ -130,28 +134,29 @@
 			</strow>
 						<strow>
 					<stentry>sort</stentry>
-					<stentry>Control results order. Using the abbreviation + ou - to sort by ascending or descending. <example>For example: <codeph>&amp;sort=-date&amp;sort=color</codeph></example></stentry>
+					<stentry>Control results order. Using the abbreviation + ou - to sort by ascending or descending.  Ex.: <codeph>&amp;sort=-date&amp;sort=color</codeph></stentry>
 					<stentry>Texte</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 						<strow>
 					<stentry>facet</stentry>
-					<stentry>Enables faceting for the field passed as a parameter. You can add a number in parenthesis to specify the minimum count. <example>For example: <codeph>&amp;facet=color</codeph> ou <codeph>&amp;facet=color(2)</codeph></example></stentry>
+					<stentry>Enables faceting for the field passed as a parameter. You can add a number in parenthesis to specify the minimum count.  Ex.: <codeph>&amp;facet=color</codeph> ou <codeph>&amp;facet=color(2)</codeph></stentry>
 					<stentry>Text(Number)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 						<strow>
 					<stentry>facet.multi</stentry>
-					<stentry>Even behavior that facet to be applied to fields containing multiple values (multi-valued fields).<example>For example: <codeph>&amp;facet.multi=color</codeph> ou <codeph>&amp;facet.multi=color(2)</codeph></example></stentry>
+					<stentry>Even behavior that facet to be applied to fields containing multiple values (multi-valued fields). Ex.: <codeph>&amp;facet.multi=color</codeph> ou <codeph>&amp;facet.multi=color(2)</codeph></stentry>
 					<stentry>Text(Number)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 		</simpletable>
 		</section>
-		<section spectitle="Resultat XML">
+		<section>
+		<title>XML result</title>
 		<note>The answer is in XML format encoded in UTF-8.</note>
 		</section>
 	</refbody>

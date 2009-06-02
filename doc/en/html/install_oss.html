@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="task"/>
+<meta name="DC.Title" content="Installation guide"/>
+<meta name="abstract" content="This first version of installation guide demonstrates that it takes few minutes to have a oss server running and ready to be used."/>
+<meta name="description" content="This first version of installation guide demonstrates that it takes few minutes to have a oss server running and ready to be used."/>
+<meta name="DC.Creator" content="Emmanuel Gosse"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="en_dita_install_oss"/>
+<meta name="DC.Language" content="en-US"/>
+<link rel="stylesheet" type="text/css" href="commonltr.css"/>
+<title>Installation guide</title>
+</head>
+<body id="en_dita_install_oss"><a name="en_dita_install_oss"><!-- --></a>
+
+
+	<h1 class="topictitle1">Installation guide</h1>
+
+	
+	
+	<div><p>This first version of installation guide demonstrates
+		that it takes few minutes to have a oss server running and ready to
+		be
+		used.
+	</p>
+
+		<ol>
+			<li class="stepexpand">
+				<span>
+					Install Apache Tomcat or another JAVA server: This
+					installation
+					guide
+					will be
+					based on it.
+					Please refer to standard
+					installation of it
+					website.
+					http://tomcat.apache.org/index.html
+					Version 5 or newer
+					available.
+				</span>
+			</li>
+
+			<li class="stepexpand">
+				<span>
+					Deploy OSS war file:
+					Put oss.war in 'tomcat/webapps' tomcat
+					directory. Rename it like you
+					want (keep 'war' extension !). Ex. :
+					oss.war
+				</span>
+			</li>
+
+			<li class="stepexpand">
+				<span>
+					Configuration of war in tomcat:
+					In
+					'tomcat/conf/Catalina/localhost/'
+					path, create a xml file named
+					as
+					same as you have named your war at
+					the step 2.1 (keep 'xml'
+					extension
+					!).
+				</span>
+				 
+					Example : oss.xml
+					<pre class="codeblock">
+	&lt;Context docbase="oss.war" debug="0" crossContext="true"&gt;
+		&lt;Environment name="JaeksoftSearchServer/configfile" type="java.lang.String"
+			value="/mnt/all_oss/oss1/config.xml" override="true" /&gt;
+	&lt;/Context&gt;
+				</pre>
+
+				
+			</li>
+
+			<li class="stepexpand">
+				<span>
+					Configuration of physical index:
+					In a repository where you would
+					like
+					to put it (no special needs),
+					we
+					use '/mnt/all_oss/', create the
+					place
+					you want to have your
+					physical
+					index. I choose oss1 ( to be
+					correct
+					with previous steps).
+					</span>
+				<ol type="a">
+					<li>
+						<span>
+							put the file config.xml in. (don't change its name !). You
+							can observe that oss.xml refers to it.
+					</span>
+					</li>
+
+					<li>
+						<span>create only a repository named 'index' in oss1, At
+							server
+							start, it creates an empty index automaticaly in.</span>
+					</li>
+
+				</ol>
+
+				 
+					Example of a basic config.xml:
+					<pre class="codeblock">
+&lt;configuration&gt;
+	&lt;indices&gt;
+		&lt;index name="index" searchCache="100" filterCache="100" fieldCache="500" /&gt;
+	&lt;/indices&gt;
+	&lt;schema&gt;
+		&lt;analyzers&gt;
+			&lt;analyzer name="StandardAnalyzer" tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="en"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="SnowballEnglishFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="fr"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="FrenchStemFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="de"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="SnowballGermanFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="nl"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="DutchStemFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="es"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="SnowballSpanishFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="it"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="SnowballItalianFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="pt"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="SnowballPortugueseFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="no"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="SnowballNorwegianFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="se"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="SnowballSwedishFilter" /&gt;
+			&lt;/analyzer&gt;
+			&lt;analyzer name="TextAnalyzer" lang="fi"
+				tokenizer="LetterOrDigitTokenizerFactory"&gt;
+				&lt;filter class="LowerCaseFilter" /&gt;
+				&lt;filter class="ISOLatin1AccentFilter" /&gt;
+				&lt;filter class="SnowballFinnishFilter" /&gt;
+			&lt;/analyzer&gt;
+		&lt;/analyzers&gt;
+		&lt;fields default="content" unique="url"&gt;
+			&lt;field name="lang" indexed="yes" stored="yes" /&gt;
+			&lt;field name="title" analyzer="TextAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" /&gt;
+			&lt;field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" /&gt;
+			&lt;field name="content" analyzer="TextAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" /&gt;
+			&lt;field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" /&gt;
+			&lt;field name="contentBaseType" indexed="yes" stored="yes" /&gt;
+			&lt;field name="url" indexed="yes" stored="yes" /&gt;
+			&lt;field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
+				termVector="positions_offsets" /&gt;
+			&lt;field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
+				termVector="positions_offsets" /&gt;
+			&lt;field name="metaDescription" indexed="no" stored="compress" /&gt;
+			&lt;field name="metaKeywords" indexed="no" stored="compress" /&gt;
+			&lt;field name="host" indexed="yes" stored="yes" /&gt;
+		&lt;/fields&gt;
+	&lt;/schema&gt;
+	&lt;parsers&gt;
+		&lt;parser class="com.jaeksoft.searchlib.parser.HtmlParser"
+			sizeLimit="8388608"&gt;
+			&lt;contentType&gt;text/html&lt;/contentType&gt;
+		&lt;/parser&gt;
+		&lt;parser class="com.jaeksoft.searchlib.parser.PdfParser"
+			sizeLimit="8388608"&gt;
+			&lt;contentType&gt;application/pdf&lt;/contentType&gt;
+		&lt;/parser&gt;
+		&lt;parser class="com.jaeksoft.searchlib.parser.DocParser"
+			sizeLimit="8388608"&gt;
+			&lt;contentType&gt;application/msword&lt;/contentType&gt;
+		&lt;/parser&gt;
+		&lt;parser class="com.jaeksoft.searchlib.parser.PptParser"
+			sizeLimit="8388608"&gt;
+			&lt;contentType&gt;application/vnd.ms-powerpoint&lt;/contentType&gt;
+		&lt;/parser&gt;
+	&lt;/parsers&gt;
+&lt;/configuration&gt;
+				</pre>
+
+				
+			</li>
+
+		</ol>
+
+	</div>
+
+
+</body>
+</html>
