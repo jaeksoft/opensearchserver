@@ -1,10 +1,10 @@
-#Fri May 29 18:39:02 CEST 2009
+#Sat May 30 15:16:28 CEST 2009
 copytosourcelist=
 hreftargetslist=install_oss.dita
 fullditatopicfile=fullditatopic.list
 fullditamapandtopicfile=fullditamapandtopic.list
-fullditatopiclist=
-fullditamapandtopiclist=doc_index.ditamap
+fullditatopiclist=install_oss.dita
+fullditamapandtopiclist=install_oss.dita,doc_index.ditamap
 hrefditatopicfile=hrefditatopic.list
 hrefditatopiclist=
 user.input.file=doc_index.ditamap

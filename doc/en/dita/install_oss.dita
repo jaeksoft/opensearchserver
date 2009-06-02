@@ -1,32 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
-<reference xml:lang="en-EN">
+<reference id="en_dita_install_oss" xml:lang="en-US">
 	<title>Installation guide</title>
-	<prolog>
-		<author>Emmanuel Gosse</author>
-	</prolog>
 	<shortdesc>This first version of installation guide demonstrates
 		that it takes few minutes to have a oss server running and ready to
 		be
 		used.
 	</shortdesc>
+	<prolog>
+		<author>Emmanuel Gosse</author>
+	</prolog>
 	<refbody>
-		<section spectitle="1- How to install a Apache Tomcat">
+		<section>
+			<title>Install a Apache Tomcat</title>
 			Apache Tomcat or another JAVA server. This
-			installation guide will be based on it.
+			installation guide will be
+			based on it.
 			Please refer to standard
 			installation of it website.
 			http://tomcat.apache.org/index.html
 			Version 5 or newer available.
 		</section>
-		<section spectitle="2- How to install OSS">
-		</section>
-		<section spectitle="2.1- OSS.war">
+		<section>
+			<title>Deploy OSS war file</title>
 			Put oss.war in 'tomcat/webapps' tomcat repertory. rename it like you
 			want (keep 'war' extension !).
 			<codeph>example : oss.war </codeph>
 		</section>
-		<section spectitle="2.2- Configuration of war in tomcat">
+		<section>
+			<title>Configuration of war in tomcat</title>
 			In 'tomcat/conf/Catalina/localhost/' path, create a xml file named
 			as
 			same as you have named your war at the step 2.1 (keep 'xml'
@@ -41,30 +43,22 @@
 	</Context>]]>
 				</codeblock>
 		</section>
-		<section spectitle="2.3- Configuration of physical index">
+		<section>
+			<title>Configuration of physical index</title>
 			In a repository where you would like to put it (no special needs),
 			we
 			use '/mnt/all_oss/', create the place you want to have your
 			physical
-			index.
-			I choose oos1 ( to be correct with step 2.2).
+			index. I choose oss1 ( to be correct with previous steps).
 			<ol>
 				<li>put the file config.xml in. (don't change its name !). You
-					can
-					observe that oss.xml refers to it.</li>
+					can observe that oss.xml refers to it.</li>
 				<li>create only a repository named 'index' in oss1, At server
-					start,
-					it creates an empty index automaticaly in.
-
-					/mnt/all_oss/oss1/
-					ls</li>
+					start, it creates an empty index automaticaly in.</li>
 			</ol>
-			<ul>
-				<li>config.xml (file)</li>
-				<li>index (rep)</li>
-			</ul>
 		</section>
-		<section spectitle="2.4- Example of a basic config.xml">
+		<example>
+			<title>Example of a basic config.xml"</title>
 			<codeblock><![CDATA[
 <configuration>
 	<indices>
@@ -180,6 +174,6 @@
 	</parsers>
 </configuration>
 				]]></codeblock>
-		</section>
+		</example>
 	</refbody>
 </reference>

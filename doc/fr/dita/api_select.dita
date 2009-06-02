@@ -13,14 +13,17 @@
 		résultat au format
 		XML.</shortdesc>
 	<refbody>
-		<section spectitle="Url d'appel">
+		<section>
+			<title>Url d'appel</title>
 			Lʼurl relative de base est:
 			<codeph>/select</codeph>
 		</section>
-		<section spectitle="Exemple">
+		<example>
+			<title>Example</title>
 			<codeph>http://localhost:8080/OpenSearchServer/select?q=test&amp;qt=search</codeph>	
-	</section>
-	<section spectitle="Paramètres">
+	</example>
+	<section>
+	<title>Paramètres</title>
 	<note>Les paramètres doivent être url encodés en UTF-8.</note>
 		<simpletable spectitle="Liste des paramètres">
 			<sthead>
@@ -155,7 +158,8 @@
 			</strow>
 		</simpletable>
 		</section>
-		<section spectitle="Resultat XML">
+		<section>
+		<title>Resultat XML</title>
 		<note>La réponse est au format XML encodé en UTF-8.</note>
 		</section>
 	</refbody>
