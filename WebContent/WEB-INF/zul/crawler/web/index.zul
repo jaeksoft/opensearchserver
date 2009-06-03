@@ -1,8 +1,9 @@
 <tabbox>
 	<tabs>
-		<tab id="tabCrawlerWebPattern" label="Pattern" selected="true" />
-		<tab id="tabCrawlerWebUrl" label="Url" />
-		<tab id="tabCrawlerWebCrawl" label="Crawl" />
+		<tab id="tabCrawlerWebPattern" label="Pattern list" selected="true" />
+		<tab id="tabCrawlerWebUrl" label="Url browser" />
+		<tab id="tabCrawlerWebCrawl" label="Crawl process" />
+		<tab id="tabCrawlerWebMapping" label="Field mapping" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
@@ -13,6 +14,9 @@
 		</tabpanel>
 		<tabpanel>
 			<include src="WEB-INF/zul/crawler/web/crawl.zul" />
+		</tabpanel>
+		<tabpanel>
+			<include src="WEB-INF/zul/crawler/web/mapping.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

@@ -76,6 +76,7 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 		External.writeObject(uniqueField, out);
 	}
 
+	@Override
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		if (size() == 0)
 			return;

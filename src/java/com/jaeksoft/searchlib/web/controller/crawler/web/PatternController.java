@@ -108,17 +108,21 @@ public class PatternController extends CommonController implements
 		return like;
 	}
 
-	public List<PatternItem> getPatternList() throws SearchLibException {
+	public List<PatternItem> getPatternList() {
 		synchronized (this) {
 			if (patternList != null)
 				return patternList;
-			PatternManager patternManager = getClient().getPatternManager();
-			patternList = new ArrayList<PatternItem>();
-			totalSize = patternManager.getPatterns(like, getActivePage()
-					* getPageSize(), getPageSize(), patternList);
-			for (PatternItem patternUrlItem : patternList)
-				patternUrlItem.setPatternSelector(this);
-			return patternList;
+			try {
+				PatternManager patternManager = getClient().getPatternManager();
+				patternList = new ArrayList<PatternItem>();
+				totalSize = patternManager.getPatterns(like, getActivePage()
+						* getPageSize(), getPageSize(), patternList);
+				for (PatternItem patternUrlItem : patternList)
+					patternUrlItem.setPatternSelector(this);
+				return patternList;
+			} catch (SearchLibException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 

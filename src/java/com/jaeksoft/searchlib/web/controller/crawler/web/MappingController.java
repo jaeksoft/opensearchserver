@@ -105,12 +105,20 @@ public class MappingController extends CommonController implements
 		}
 	}
 
+	public FieldMap getFieldMap() {
+		try {
+			return getClient().getWebCrawlerFieldMap();
+		} catch (SearchLibException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public void onAdd() throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
 		if (selectedUrlField == null || selectedIndexField == null)
 			return;
-		FieldMap fieldMap = new FieldMap(null); // getClient().getWebCrawlerFieldMap();
+		FieldMap fieldMap = getFieldMap();
 		fieldMap.add(selectedUrlField.getName(), selectedIndexField.getName());
 		fieldMap.store();
 		reloadPage();
@@ -121,7 +129,7 @@ public class MappingController extends CommonController implements
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
-		FieldMap fieldMap = new FieldMap(null); // getClient().getWebCrawlerFieldMap();
+		FieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
 		fieldMap.store();
 		reloadPage();

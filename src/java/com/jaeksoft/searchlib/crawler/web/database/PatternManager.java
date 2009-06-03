@@ -103,7 +103,7 @@ public class PatternManager {
 			while (it.hasNext()) {
 				for (PatternItem item : it.next()) {
 					xmlWriter.startElement("pattern");
-					xmlWriter.textNode(item.getClass());
+					xmlWriter.textNode(item.getPattern());
 					xmlWriter.endElement();
 				}
 			}

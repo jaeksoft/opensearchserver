@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -110,9 +111,12 @@ public class UrlManager {
 
 	private Client client;
 
-	public UrlManager(Client client) throws SearchLibException,
+	public UrlManager(File dataDir) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
-		this.client = client;
+		dataDir = new File(dataDir, "web_crawler_url");
+		if (!dataDir.exists())
+			dataDir.mkdir();
+		this.client = new Client(dataDir, "/url_config.xml", true);
 	}
 
 	public void injectPrefix(List<PatternItem> patternList)
