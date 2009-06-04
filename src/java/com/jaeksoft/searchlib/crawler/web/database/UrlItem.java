@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -89,6 +89,7 @@ public class UrlItem implements Serializable {
 		parserStatus = ParserStatus.NOT_PARSED;
 		indexStatus = IndexStatus.NOT_INDEXED;
 		count = 0;
+
 	}
 
 	public UrlItem(ResultDocument doc) {
@@ -122,6 +123,7 @@ public class UrlItem implements Serializable {
 
 	public void setHost(String host) {
 		this.host = host;
+
 	}
 
 	public void checkHost() throws MalformedURLException {
@@ -136,10 +138,12 @@ public class UrlItem implements Serializable {
 
 	public void setParserStatus(ParserStatus status) {
 		this.parserStatus = status;
+
 	}
 
 	public void setParserStatusInt(int v) {
 		this.parserStatus = ParserStatus.find(v);
+
 	}
 
 	private void setParserStatusInt(String v) {
@@ -152,6 +156,7 @@ public class UrlItem implements Serializable {
 		ContentType contentType = new ContentType(v);
 		setContentBaseType(contentType.getBaseType());
 		setContentTypeCharset(contentType.getParameter("charset"));
+
 	}
 
 	public String getContentTypeCharset() {
@@ -160,6 +165,7 @@ public class UrlItem implements Serializable {
 
 	public void setContentTypeCharset(String v) {
 		contentTypeCharset = v;
+
 	}
 
 	public String getContentBaseType() {
@@ -168,10 +174,12 @@ public class UrlItem implements Serializable {
 
 	public void setContentBaseType(String v) {
 		contentBaseType = v;
+
 	}
 
 	public void setContentEncoding(String v) {
 		contentEncoding = v;
+
 	}
 
 	public String getContentEncoding() {
@@ -188,10 +196,12 @@ public class UrlItem implements Serializable {
 		} catch (ParseException e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
+
 	}
 
 	public void setContentLength(int v) {
 		contentLength = v;
+
 	}
 
 	public Integer getContentLength() {
@@ -200,6 +210,7 @@ public class UrlItem implements Serializable {
 
 	public void setMetaDescription(String v) {
 		metaDescription = v;
+
 	}
 
 	public String getMetaDescription() {
@@ -208,6 +219,7 @@ public class UrlItem implements Serializable {
 
 	public void setMetaKeywords(String v) {
 		metaKeywords = v;
+
 	}
 
 	public String getMetaKeywords() {
@@ -222,15 +234,18 @@ public class UrlItem implements Serializable {
 
 	public void setIndexStatus(IndexStatus status) {
 		this.indexStatus = status;
+
 	}
 
 	public void setIndexStatusInt(int v) {
 		this.indexStatus = IndexStatus.find(v);
+
 	}
 
 	private void setIndexStatusInt(String v) {
 		if (v != null)
 			setIndexStatusInt(Integer.parseInt(v));
+
 	}
 
 	public IndexStatus getIndexStatus() {
@@ -247,37 +262,45 @@ public class UrlItem implements Serializable {
 
 	public void setRobotsTxtStatus(RobotsTxtStatus status) {
 		this.robotsTxtStatus = status;
+
 	}
 
 	public void setRobotsTxtStatusInt(int v) {
 		this.robotsTxtStatus = RobotsTxtStatus.find(v);
+
 	}
 
 	private void setRobotsTxtStatusInt(String v) {
 		if (v != null)
 			setRobotsTxtStatusInt(Integer.parseInt(v));
+
 	}
 
 	public void setFetchStatus(FetchStatus status) {
 		this.fetchStatus = status;
+
 	}
 
 	public void setFetchStatusInt(int v) {
 		this.fetchStatus = FetchStatus.find(v);
+
 	}
 
 	private void setFetchStatusInt(String v) {
 		if (v != null)
 			setFetchStatusInt(Integer.parseInt(v));
+
 	}
 
 	private void setResponseCode(String v) {
 		if (v != null)
 			responseCode = new Integer(v);
+
 	}
 
 	public void setResponseCode(Integer v) {
 		responseCode = v;
+
 	}
 
 	public Integer getResponseCode() {
@@ -311,6 +334,7 @@ public class UrlItem implements Serializable {
 	public void setUrl(String url) {
 		this.url = url;
 		cachedUrl = null;
+
 	}
 
 	public Date getWhen() {
@@ -323,6 +347,7 @@ public class UrlItem implements Serializable {
 			return;
 		}
 		when = d;
+
 	}
 
 	final static SimpleDateFormat getWhenDateFormat() {
@@ -344,10 +369,12 @@ public class UrlItem implements Serializable {
 			logger.log(Level.WARNING, e.getMessage(), e);
 			setWhenNow();
 		}
+
 	}
 
 	public void setWhenNow() {
 		setWhen(new Date(System.currentTimeMillis()));
+
 	}
 
 	public String getCount() {
@@ -391,12 +418,6 @@ public class UrlItem implements Serializable {
 		indexDocument.set("fetchStatus", fetchStatus.value);
 		indexDocument.set("parserStatus", parserStatus.value);
 		indexDocument.set("indexStatus", indexStatus.value);
-	}
-
-	public IndexDocument getIndexDocument() throws MalformedURLException {
-		IndexDocument indexDocument = new IndexDocument();
-		populate(indexDocument);
-		return indexDocument;
 	}
 
 	public String getLang() {

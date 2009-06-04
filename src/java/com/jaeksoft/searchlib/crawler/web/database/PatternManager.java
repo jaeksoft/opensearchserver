@@ -155,7 +155,10 @@ public class PatternManager {
 		List<PatternItem> itemList = patternMap.get(host);
 		if (itemList == null)
 			return;
-		itemList.remove(sPattern);
+		Iterator<PatternItem> it = itemList.iterator();
+		while (it.hasNext())
+			if (it.next().sPattern.equals(sPattern))
+				it.remove();
 	}
 
 	public void delPattern(Collection<String> patterns)

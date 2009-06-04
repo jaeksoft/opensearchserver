@@ -37,23 +37,33 @@ public abstract class Parser {
 
 	private long sizeLimit;
 
-	private IndexDocument document;
+	private IndexDocument sourceDocument;
+
+	private IndexDocument indexDocument;
 
 	private ParserFieldEnum[] fieldList;
 
 	protected Parser(ParserFieldEnum[] fieldList) {
 		this.fieldList = fieldList;
 		sizeLimit = 0;
-		document = new IndexDocument();
+		sourceDocument = null;
+		indexDocument = new IndexDocument();
 	}
 
 	public void setSizeLimit(long l) {
 		sizeLimit = l;
 	}
 
-	public void setDocument(IndexDocument sourceDocument) {
-		if (sourceDocument != null)
-			document = new IndexDocument(sourceDocument);
+	public IndexDocument getSourceDocument() {
+		return sourceDocument;
+	}
+
+	public void setSourceDocument(IndexDocument sourceDocument) {
+		this.sourceDocument = sourceDocument;
+	}
+
+	public IndexDocument getIndexDocument() {
+		return indexDocument;
 	}
 
 	public ParserFieldEnum[] getFieldList() {
@@ -65,7 +75,7 @@ public abstract class Parser {
 			return;
 		if (value.length() == 0)
 			return;
-		document.add(field.name(), value);
+		indexDocument.add(field.name(), value);
 	}
 
 	protected void addField(ParserFieldEnum field, Object object) {
@@ -75,11 +85,27 @@ public abstract class Parser {
 	}
 
 	public FieldContent getFieldContent(ParserFieldEnum field) {
-		return document.getField(field.name());
+		return indexDocument.getField(field.name());
 	}
 
-	public IndexDocument getDocument() {
-		return document;
+	public String getFieldValue(ParserFieldEnum field, int pos) {
+		return indexDocument.getFieldValue(field.name(), pos);
+	}
+
+	public String getMergedBodyText(int maxChar, String sep) {
+		StringBuffer sb = new StringBuffer();
+		FieldContent fc = getFieldContent(ParserFieldEnum.body);
+		if (fc != null) {
+			for (String value : fc.getValues()) {
+				sb.append(value);
+				if (sb.length() > maxChar)
+					break;
+				sb.append(sep);
+			}
+		}
+		if (sb.length() > maxChar)
+			return sb.substring(0, maxChar);
+		return sb.toString();
 	}
 
 	protected abstract void parseContent(LimitInputStream inputStream)

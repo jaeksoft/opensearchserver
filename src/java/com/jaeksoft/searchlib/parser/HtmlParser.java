@@ -41,6 +41,7 @@ import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.DomSerializer;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
+import org.knallgrau.utils.textcat.TextCategorizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -235,7 +236,7 @@ public class HtmlParser extends Parser {
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
 
-		String charset = getDocument().getFieldValue("charset", 0);
+		String charset = getSourceDocument().getFieldValue("charset", 0);
 		if (charset == null)
 			charset = Charset.defaultCharset().name();
 		addField(ParserFieldEnum.charset, charset);
@@ -324,7 +325,8 @@ public class HtmlParser extends Parser {
 
 		List<Node> nodes = DomUtils.getAllNodes(doc, "a");
 		if (nodes != null && metaRobotsFollow) {
-			URL currentURL = new URL(getDocument().getFieldValue("url", 0));
+			URL currentURL = new URL(getSourceDocument()
+					.getFieldValue("url", 0));
 			for (Node node : nodes) {
 				String href = DomUtils.getAttributeText(node, "href");
 				String rel = DomUtils.getAttributeText(node, "rel");
@@ -382,9 +384,20 @@ public class HtmlParser extends Parser {
 			langMethod = "meta dc.language";
 			lang = Lang.findLocaleISO639(metaDcLanguage);
 		}
+		if (lang == null) {
+			String text = getMergedBodyText(1000, " ");
+			if (text != null) {
+				langMethod = "ngram recognition";
+				String textcat = new TextCategorizer().categorize(text, text
+						.length());
+				lang = Lang.findLocaleDescription(textcat);
+			}
+		}
 
-		addField(ParserFieldEnum.lang, lang.getISO3Language());
-		addField(ParserFieldEnum.lang_method, langMethod);
+		if (lang != null) {
+			addField(ParserFieldEnum.lang, lang.getISO3Language());
+			addField(ParserFieldEnum.lang_method, langMethod);
+		}
 	}
 
 	@Override

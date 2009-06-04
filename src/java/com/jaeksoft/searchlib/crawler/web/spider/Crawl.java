@@ -73,12 +73,11 @@ public class Crawl {
 	private Parser parser;
 	private String error;
 	private CrawlStatistics currentStats;
-	private IndexDocument indexDocument;
+	// private IndexDocument indexDocument;
 	private List<String> discoverLinks;
 
 	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector,
 			CrawlStatistics currentStats) throws SearchLibException {
-		this.indexDocument = null;
 		this.discoverLinks = null;
 		this.currentStats = currentStats;
 		this.urlItem = urlItem;
@@ -94,15 +93,22 @@ public class Crawl {
 	private void parseContent(InputStream inputStream)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException {
-		if (parserSelector == null)
+		if (parserSelector == null) {
+			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
+		}
 		Parser parser = parserSelector.getParserFromMimeType(urlItem
 				.getContentBaseType());
 		if (parser == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
 		}
+		IndexDocument sourceDocument = new IndexDocument();
+		urlItem.populate(sourceDocument);
+		parser.setSourceDocument(sourceDocument);
 		parser.parseContent(inputStream);
+		urlItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
+		urlItem.setParserStatus(ParserStatus.PARSED);
 		this.parser = parser;
 	}
 
@@ -229,14 +235,12 @@ public class Crawl {
 		return urlItem;
 	}
 
-	public IndexDocument getIndexDocument() throws SearchLibException,
+	public IndexDocument getTargetIndexDocument() throws SearchLibException,
 			MalformedURLException {
 		synchronized (this) {
-			if (indexDocument != null)
-				return indexDocument;
-			indexDocument = null;
+			IndexDocument indexDocument = new IndexDocument();
 			if (parser != null)
-				indexDocument = parser.getDocument();
+				indexDocument = parser.getIndexDocument();
 			if (indexDocument == null)
 				indexDocument = new IndexDocument();
 			urlItem.populate(indexDocument);

@@ -511,10 +511,11 @@ public class UrlManager {
 		client.reload(null);
 	}
 
-	public void updateDocument(IndexDocument document)
-			throws SearchLibException {
+	public void updateDocument(UrlItem urlItem) throws SearchLibException {
 		try {
-			client.updateDocument(document);
+			IndexDocument indexDocument = new IndexDocument();
+			urlItem.populate(indexDocument);
+			client.updateDocument(indexDocument);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -530,9 +531,16 @@ public class UrlManager {
 		}
 	}
 
-	public void updateDocuments(List<IndexDocument> documents)
+	public void updateDocuments(List<UrlItem> urlItems)
 			throws SearchLibException {
 		try {
+			List<IndexDocument> documents = new ArrayList<IndexDocument>(
+					urlItems.size());
+			for (UrlItem urlItem : urlItems) {
+				IndexDocument indexDocument = new IndexDocument();
+				urlItem.populate(indexDocument);
+				documents.add(indexDocument);
+			}
 			client.updateDocuments(documents);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);

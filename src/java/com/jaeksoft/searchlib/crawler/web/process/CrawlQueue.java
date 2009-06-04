@@ -37,7 +37,6 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
-import com.jaeksoft.searchlib.index.IndexDocument;
 
 public class CrawlQueue {
 
@@ -48,9 +47,9 @@ public class CrawlQueue {
 	final private static Logger logger = Logger.getLogger(CrawlQueue.class
 			.getCanonicalName());
 
-	private List<IndexDocument> updateCrawlList;
+	private List<UrlItem> updateCrawlList;
 
-	private List<IndexDocument> insertUrlList;
+	private List<UrlItem> insertUrlList;
 
 	private List<String> deleteUrlList;
 
@@ -59,9 +58,9 @@ public class CrawlQueue {
 	protected CrawlQueue(Config config) throws SearchLibException {
 		this.config = config;
 		this.sessionStats = null;
-		this.updateCrawlList = new ArrayList<IndexDocument>(0);
-		this.insertUrlList = new ArrayList<IndexDocument>(0);
-		this.deleteUrlList = new ArrayList<String>();
+		this.updateCrawlList = new ArrayList<UrlItem>(0);
+		this.insertUrlList = new ArrayList<UrlItem>(0);
+		this.deleteUrlList = new ArrayList<String>(0);
 		this.maxBufferSize = config.getPropertyManager()
 				.getIndexDocumentBufferSize();
 	}
@@ -69,13 +68,13 @@ public class CrawlQueue {
 	protected void add(Crawl crawl) throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
 		synchronized (updateCrawlList) {
-			updateCrawlList.add(crawl.getIndexDocument());
+			updateCrawlList.add(crawl.getUrlItem());
 		}
 		List<String> discoverLinks = crawl.getDiscoverLinks();
 		synchronized (insertUrlList) {
 			if (discoverLinks != null)
 				for (String link : discoverLinks)
-					insertUrlList.add(new UrlItem(link).getIndexDocument());
+					insertUrlList.add(new UrlItem(link));
 		}
 	}
 
@@ -107,8 +106,8 @@ public class CrawlQueue {
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		List<IndexDocument> workUpdateCrawlList;
-		List<IndexDocument> workInsertUrlList;
+		List<UrlItem> workUpdateCrawlList;
+		List<UrlItem> workInsertUrlList;
 		List<String> workDeleteUrlList;
 		synchronized (this) {
 			if (!bForce)
@@ -116,15 +115,15 @@ public class CrawlQueue {
 					return;
 			synchronized (updateCrawlList) {
 				workUpdateCrawlList = updateCrawlList;
-				updateCrawlList = new ArrayList<IndexDocument>();
+				updateCrawlList = new ArrayList<UrlItem>(0);
 			}
 			synchronized (insertUrlList) {
 				workInsertUrlList = insertUrlList;
-				insertUrlList = new ArrayList<IndexDocument>();
+				insertUrlList = new ArrayList<UrlItem>(0);
 			}
 			synchronized (deleteUrlList) {
 				workDeleteUrlList = deleteUrlList;
-				deleteUrlList = new ArrayList<String>();
+				deleteUrlList = new ArrayList<String>(0);
 			}
 		}
 
