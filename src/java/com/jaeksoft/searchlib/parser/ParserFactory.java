@@ -24,14 +24,34 @@
 
 package com.jaeksoft.searchlib.parser;
 
-public class ParserFactory {
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.util.XPathParser;
+
+public class ParserFactory implements Comparable<ParserFactory> {
 
 	private String className;
 	private long sizeLimit;
 
-	public ParserFactory(String className, long sizeLimit) {
+	private Set<String> mimeTypeList;
+
+	private Set<String> extensionList;
+
+	private FieldMap fieldMap;
+
+	public ParserFactory(String className, long sizeLimit, FieldMap fieldMap) {
 		this.className = className;
 		this.sizeLimit = sizeLimit;
+		this.fieldMap = fieldMap;
+		mimeTypeList = null;
+		extensionList = null;
 	}
 
 	public Parser getNewParser() throws InstantiationException,
@@ -48,4 +68,63 @@ public class ParserFactory {
 	public long getSizeLimit() {
 		return sizeLimit;
 	}
+
+	public FieldMap getFieldMap() {
+		return fieldMap;
+	}
+
+	public void addExtension(String extension) {
+		synchronized (this) {
+			if (extensionList == null)
+				extensionList = new TreeSet<String>();
+			extensionList.add(extension);
+		}
+	}
+
+	public void addMimeType(String mimeType) {
+		synchronized (this) {
+			if (mimeTypeList == null)
+				mimeTypeList = new TreeSet<String>();
+			mimeTypeList.add(mimeType);
+		}
+	}
+
+	public static ParserFactory fromXmlConfig(ParserSelector parserSelector,
+			XPathParser xpp, Node parserNode) throws XPathExpressionException {
+		String parserClassName = XPathParser.getAttributeString(parserNode,
+				"class");
+		if (parserClassName == null)
+			return null;
+		FieldMap fieldMap = new FieldMap(xpp, xpp.getNode("map"));
+		long sizeLimit = XPathParser.getAttributeValue(parserNode, "sizeLimit");
+		ParserFactory parserFactory = new ParserFactory(parserClassName,
+				sizeLimit, fieldMap);
+		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
+		for (int j = 0; j < mimeNodes.getLength(); j++) {
+			Node mimeNode = mimeNodes.item(j);
+			String contentType = xpp.getNodeString(mimeNode);
+			parserFactory.addMimeType(contentType);
+		}
+		NodeList extensionNodes = xpp.getNodeList(parserNode, "extension");
+		for (int j = 0; j < extensionNodes.getLength(); j++) {
+			Node extensionNode = extensionNodes.item(j);
+			String extension = xpp.getNodeString(extensionNode);
+			parserFactory.addExtension(extension);
+		}
+		return parserFactory;
+	}
+
+	public Set<String> getExtensionSet() {
+		return extensionList;
+	}
+
+	public Set<String> getMimeTypeSet() {
+		return mimeTypeList;
+	}
+
+	@Override
+	public int compareTo(ParserFactory parserFactory) {
+		return className.compareTo(parserFactory.className);
+	}
+
 }

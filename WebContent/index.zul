@@ -18,7 +18,7 @@
 <window id="index"
 	use="com.jaeksoft.searchlib.web.controller.IndexController">
 	<caption image="images/jaeksoft_websearch_16.png"
-		label="Jaeksoft OpenSearchServer" />
+		label="Jaeksoft Open Search Server" />
 	<tabbox>
 		<tabs>
 			<tab id="tabHome" label="Home" selected="true" />
@@ -28,8 +28,8 @@
 				label="Update" />
 			<tab id="tabCrawler" visible="@{index.instanceValid}"
 				label="Crawler" />
-			<tab id="tabBasket" visible="@{index.instanceValid}"
-				label="Basket" />
+			<tab id="tabParser" visible="@{index.instanceValid}"
+				label="Parser" />
 			<tab id="tabConfiguration" visible="@{index.instanceValid}"
 				label="Configuration" />
 			<tab id="tabRuntime" visible="@{index.instanceValid}"
@@ -48,8 +48,8 @@
 			<tabpanel fulfill="tabCrawler.onSelect">
 				<include src="WEB-INF/zul/crawler/index.zul" />
 			</tabpanel>
-			<tabpanel fulfill="tabBasket.onSelect">
-				<include src="WEB-INF/zul/basket/index.zul" />
+			<tabpanel fulfill="tabParser.onSelect">
+				<include src="WEB-INF/zul/parser/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabConfiguration.onSelect">
 				<include src="WEB-INF/zul/configuration/index.zul" />

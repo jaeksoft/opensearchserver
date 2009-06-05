@@ -16,16 +16,19 @@
 -->
 <tabbox>
 	<tabs>
-		<tab id="tabBasketUpload" label="Upload document"
-			selected="true" />
-		<tab id="tabBasketList" label="Document list" />
+		<tab id="tabParserList" label="Parser list" selected="true" />
+		<tab id="tabParserUpload" label="Upload document" />
+		<tab id="tabParserBasketList" label="Basket document list" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
-			<include src="WEB-INF/zul/basket/upload.zul" />
+			<include src="WEB-INF/zul/parser/parserList.zul" />
 		</tabpanel>
-		<tabpanel fulfill="tabBasketList.onSelect">
-			<include src="WEB-INF/zul/basket/list.zul" />
+		<tabpanel fulfill="tabParserUpload.onSelect">
+			<include src="WEB-INF/zul/parser/upload.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabParserBasketList.onSelect">
+			<include src="WEB-INF/zul/parser/basketList.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

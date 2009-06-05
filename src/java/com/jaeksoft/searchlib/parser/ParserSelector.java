@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -41,12 +42,14 @@ import com.jaeksoft.searchlib.util.XPathParser;
 public class ParserSelector {
 
 	private ParserFactory defaultParser;
-	private Map<String, ParserFactory> mimeParserList;
-	private Map<String, ParserFactory> extensionParserList;
+	private Set<ParserFactory> parserFactorySet;
+	private Map<String, ParserFactory> mimeTypeParserMap;
+	private Map<String, ParserFactory> extensionParserMap;
 
 	private ParserSelector() {
-		mimeParserList = new TreeMap<String, ParserFactory>();
-		extensionParserList = new TreeMap<String, ParserFactory>();
+		mimeTypeParserMap = new TreeMap<String, ParserFactory>();
+		extensionParserMap = new TreeMap<String, ParserFactory>();
+		parserFactorySet = new TreeSet<ParserFactory>();
 	}
 
 	public ParserSelector(ParserFactory defaultParser) {
@@ -58,21 +61,20 @@ public class ParserSelector {
 		this.defaultParser = defaultParser;
 	}
 
-	public Set<Map.Entry<String, ParserFactory>> getMimeParserSet() {
-		return mimeParserList.entrySet();
+	private void addParserFactory(ParserFactory parserFactory) {
+		Set<String> extensionSet = parserFactory.getExtensionSet();
+		if (extensionSet != null)
+			for (String extension : extensionSet)
+				extensionParserMap.put(extension, parserFactory);
+		Set<String> mimeTypeSet = parserFactory.getMimeTypeSet();
+		if (mimeTypeSet != null)
+			for (String mimeType : mimeTypeSet)
+				mimeTypeParserMap.put(mimeType, parserFactory);
+		parserFactorySet.add(parserFactory);
 	}
 
-	public Set<Map.Entry<String, ParserFactory>> getExtensionParserSet() {
-		return extensionParserList.entrySet();
-	}
-
-	protected void addMimeParser(String contentType, ParserFactory parserFactory) {
-		mimeParserList.put(contentType, parserFactory);
-	}
-
-	protected void addExtensionParser(String extension,
-			ParserFactory parserFactory) {
-		extensionParserList.put(extension, parserFactory);
+	public Set<ParserFactory> getParserFactorySet() {
+		return parserFactorySet;
 	}
 
 	private Parser getParser(ParserFactory parserFactory)
@@ -89,8 +91,8 @@ public class ParserSelector {
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, MalformedURLException {
 		ParserFactory parserFactory = null;
-		if (extensionParserList != null)
-			parserFactory = extensionParserList.get(extension);
+		if (extensionParserMap != null)
+			parserFactory = extensionParserMap.get(extension);
 		return getParser(parserFactory);
 	}
 
@@ -98,8 +100,8 @@ public class ParserSelector {
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, MalformedURLException {
 		ParserFactory parserFactory = null;
-		if (mimeParserList != null)
-			parserFactory = mimeParserList.get(contentBaseType);
+		if (mimeTypeParserMap != null)
+			parserFactory = mimeTypeParserMap.get(contentBaseType);
 		return getParser(parserFactory);
 	}
 
@@ -111,28 +113,10 @@ public class ParserSelector {
 		NodeList parserNodes = xpp.getNodeList(parentNode, "parser");
 		for (int i = 0; i < parserNodes.getLength(); i++) {
 			Node parserNode = parserNodes.item(i);
-			String parserClassName = XPathParser.getAttributeString(parserNode,
-					"class");
-			long sizeLimit = XPathParser.getAttributeValue(parserNode,
-					"sizeLimit");
-			if (parserClassName != null) {
-				ParserFactory parserFactory = new ParserFactory(
-						parserClassName, sizeLimit);
-				NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
-				for (int j = 0; j < mimeNodes.getLength(); j++) {
-					Node mimeNode = mimeNodes.item(j);
-					String contentType = xpp.getNodeString(mimeNode);
-					selector.addMimeParser(contentType, parserFactory);
-				}
-				NodeList extensionNodes = xpp.getNodeList(parserNode,
-						"extension");
-				for (int j = 0; j < extensionNodes.getLength(); j++) {
-					Node extensionNode = extensionNodes.item(j);
-					String extension = xpp.getNodeString(extensionNode);
-					selector.addExtensionParser(extension, parserFactory);
-				}
-
-			}
+			ParserFactory parserFactory = ParserFactory.fromXmlConfig(selector,
+					xpp, parserNode);
+			if (parserFactory != null)
+				selector.addParserFactory(parserFactory);
 		}
 		return selector;
 	}

@@ -81,4 +81,9 @@ public class PptParser extends Parser {
 	protected void parseContent(LimitReader reader) throws IOException {
 		throw new IOException("Unsupported");
 	}
+
+	@Override
+	public ParserFieldEnum[] getParserFieldList() {
+		return fl;
+	}
 }

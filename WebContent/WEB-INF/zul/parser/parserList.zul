@@ -1,0 +1,70 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.jaeksoft.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="parserList"
+	use="com.jaeksoft.searchlib.web.controller.parser.ParserListController">
+	<listbox mold="select" selectedItem="@{parserList.selectedParser}"
+		model="@{parserList.parserSet}">
+		<listitem self="@{each=parser}" label="@{parser.className}" />
+	</listbox>
+	<vbox width="100%" visible="@{parserList.parserSelected}">
+		<grid visible="@{parserList.parserExtension}"
+			model="@{parserList.selectedParser.extensionSet}">
+			<columns>
+				<column label="Supported extension" />
+			</columns>
+			<rows>
+				<row self="@{each=entry}">
+					<label value="@{entry}" />
+				</row>
+			</rows>
+		</grid>
+		<grid visible="@{parserList.parserMimeType}"
+			model="@{parserList.selectedParser.mimeTypeSet}">
+			<columns>
+				<column label="Supported mime type" />
+			</columns>
+			<rows>
+				<row self="@{each=entry}">
+					<label value="@{entry}" />
+				</row>
+			</rows>
+		</grid>
+		<hbox align="center">
+			<listbox mold="select" model="@{parserList.parserFieldList}"
+				selectedItem="@{parserList.selectedParserField}">
+				<listitem self="@{each='parserField'}"
+					label="@{parserField.name}" />
+			</listbox>
+			<label>linked in</label>
+			<listbox mold="select" model="@{parserList.indexFieldList}"
+				selectedItem="@{parserList.selectedIndexField}">
+				<listitem self="@{each='indexField'}"
+					label="@{indexField.name}" />
+			</listbox>
+			<button label="add" forward="onAdd" />
+		</hbox>
+		<listbox model="@{parserList.selectedParser.fieldMap.list}"
+			itemRenderer="@{parserList}">
+			<listhead>
+				<listheader label="Parser field" />
+				<listheader label="Index field" />
+				<listheader label="Action" />
+			</listhead>
+		</listbox>
+	</vbox>
+</window>

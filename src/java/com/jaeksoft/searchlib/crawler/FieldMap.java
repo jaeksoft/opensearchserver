@@ -53,7 +53,21 @@ public class FieldMap extends GenericMap<String> {
 			if (!mapFile.exists())
 				return;
 			XPathParser xpp = new XPathParser(mapFile);
-			NodeList nodeList = xpp.getNodeList("/map/link");
+			load(xpp, xpp.getNode("/map"));
+		}
+	}
+
+	public FieldMap(XPathParser xpp, Node parentNode)
+			throws XPathExpressionException {
+		load(xpp, parentNode);
+	}
+
+	private void load(XPathParser xpp, Node parentNode)
+			throws XPathExpressionException {
+		synchronized (this) {
+			if (parentNode == null)
+				return;
+			NodeList nodeList = xpp.getNodeList(parentNode, "link");
 			int l = nodeList.getLength();
 			for (int i = 0; i < l; i++) {
 				Node node = nodeList.item(i);
@@ -68,6 +82,15 @@ public class FieldMap extends GenericMap<String> {
 		}
 	}
 
+	public void store(XmlWriter xmlWriter) throws SAXException {
+		for (GenericLink<String> link : getList()) {
+			xmlWriter.startElement("link", "source", link.getSource(),
+					"target", link.getTarget());
+			xmlWriter.endElement();
+		}
+		xmlWriter.endElement();
+	}
+
 	public void store() throws TransformerConfigurationException, SAXException,
 			IOException {
 		synchronized (this) {
@@ -77,11 +100,7 @@ public class FieldMap extends GenericMap<String> {
 			try {
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 				xmlWriter.startElement("map");
-				for (GenericLink<String> link : getList()) {
-					xmlWriter.startElement("link", "source", link.getSource(),
-							"target", link.getTarget());
-					xmlWriter.endElement();
-				}
+				store(xmlWriter);
 				xmlWriter.endElement();
 				xmlWriter.endDocument();
 			} finally {

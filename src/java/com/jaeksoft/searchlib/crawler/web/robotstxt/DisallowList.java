@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import com.jaeksoft.searchlib.parser.LimitInputStream;
 import com.jaeksoft.searchlib.parser.LimitReader;
 import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 
 /**
  * Contient la liste des clauses "Disallow" d'un fichier "robots.txt" regroup�
@@ -131,6 +132,11 @@ public class DisallowList extends Parser {
 		if (list == null)
 			return 0;
 		return list.size();
+	}
+
+	@Override
+	public ParserFieldEnum[] getParserFieldList() {
+		return null;
 	}
 
 }

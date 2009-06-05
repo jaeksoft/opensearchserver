@@ -49,7 +49,7 @@ public class RobotsTxtCache {
 	public RobotsTxtCache() {
 		robotsTxtList = new TreeMap<String, RobotsTxt>();
 		parserSelector = new ParserSelector(new ParserFactory(
-				DisallowList.class.getCanonicalName(), 8388608));
+				DisallowList.class.getCanonicalName(), 8388608, null));
 	}
 
 	/**

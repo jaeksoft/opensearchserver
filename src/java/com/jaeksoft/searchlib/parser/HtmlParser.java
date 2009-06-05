@@ -405,4 +405,9 @@ public class HtmlParser extends Parser {
 		throw new IOException("Unsupported");
 	}
 
+	@Override
+	public ParserFieldEnum[] getParserFieldList() {
+		return fl;
+	}
+
 }

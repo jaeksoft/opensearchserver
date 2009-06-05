@@ -70,6 +70,8 @@ public abstract class Parser {
 		return fieldList;
 	}
 
+	public abstract ParserFieldEnum[] getParserFieldList();
+
 	public void addField(ParserFieldEnum field, String value) {
 		if (value == null)
 			return;
