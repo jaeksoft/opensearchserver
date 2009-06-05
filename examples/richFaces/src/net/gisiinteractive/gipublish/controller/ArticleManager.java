@@ -80,9 +80,12 @@ public class ArticleManager implements IndexedDocument<Document> {
 			return new IndexingDataModel<Document>(idxDoc, documentListIndex,
 					request.getRequest(filter.getRowCount()));
 
+		} catch (java.io.IOException ex) {
+			ex.printStackTrace();
 		} catch (Throwable ex) {
 			throw new SystemException(ex);
 		}
+		return null;
 	}
 
 	/**
@@ -122,9 +125,15 @@ public class ArticleManager implements IndexedDocument<Document> {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 * @throws URISyntaxException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws SearchLibException
 	 */
 	public void indexDocument(Document article)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 
 		if (documentListIndex == null)
 			return;
@@ -140,9 +149,15 @@ public class ArticleManager implements IndexedDocument<Document> {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 * @throws URISyntaxException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws SearchLibException
 	 */
 	public void indexDocuments(List<Document> lst)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 
 		if (documentListIndex == null)
 			return;
@@ -161,8 +176,15 @@ public class ArticleManager implements IndexedDocument<Document> {
 
 	/**
 	 * Reload index (as a sql commit).
+	 * 
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws SearchLibException
 	 */
-	public void reloadIndex() {
+	public void reloadIndex() throws SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 
 		if (documentListIndex == null)
 			return;

@@ -13,6 +13,8 @@ import net.gisiinteractive.gipublish.controller.session.filters.DocumentArticleF
 import net.gisiinteractive.gipublish.model.Document;
 import net.gisiinteractive.gipublishweb.controller.common.CommonJsfShortcuts;
 
+import com.jaeksoft.searchlib.SearchLibException;
+
 public class DocumentInsert extends CommonJsfShortcuts {
 
 	private static final int MAX_TO_INSERT_IN_A_ROW = 10000;
@@ -68,6 +70,18 @@ public class DocumentInsert extends CommonJsfShortcuts {
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (SearchLibException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		newDoc = new Document();
@@ -104,6 +118,18 @@ public class DocumentInsert extends CommonJsfShortcuts {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SearchLibException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

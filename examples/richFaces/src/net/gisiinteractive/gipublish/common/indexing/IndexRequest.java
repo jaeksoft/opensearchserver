@@ -8,6 +8,7 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -19,7 +20,7 @@ public abstract class IndexRequest {
 	private StringBuffer query;
 
 	protected IndexRequest(Client client, String name, IndexDocument document)
-			throws ParseException {
+			throws ParseException, SearchLibException {
 		request = client.getNewSearchRequest(name);
 		request.setWithDocument(true);
 		query = new StringBuffer();
