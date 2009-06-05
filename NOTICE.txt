@@ -1,27 +1,97 @@
-Jaeksoft SearchLib Community
-Copyright 2008 Emmanuel Keller / Jaeksoft
-http://www.jaeksoft.com
+Jaeksoft Open Search Server
+Copyright 2008-2009 Emmanuel Keller / Jaeksoft
+http://www.open-search-server.com
 
-Jaeksoft SearchLib Community is free software: you can redistribute it and/or
+Jaeksoft Open Search Server is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
  
-Jaeksoft SearchLib Community is distributed in the hope that it will be useful,
+Jaeksoft Open Search Server is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
  
 You should have received a copy of the GNU General Public License
-along with Jaeksoft SearchLib Community.
+along with Jaeksoft Open Search Server.
 If not, see <http://www.gnu.org/licenses/>.
 
 ----------------------------------------
  
-This product includes software developed by
-- The Apache Software Foundation (http://www.apache.org/).
-- The JBoss Community (http://www.jboss.org/).
-- Sun Microsystems, Inc. (http://www.sun.com/).
-- JTidy (http://jtidy.sourceforge.net).
-- Knallgrau New Media Solutions (http://sourceforge.net/projects/textcat/).
+This product includes software developed by:
 
+----------------------------------------
+The Apache Software Foundation
+http://www.apache.org/
+Rely on LICENSE-APACHE2
+
+Apache Tomcat
+http://tomcat.apache.org
+
+Apache Lucene
+http://lucene.apache.org
+
+Apache POI
+http://poi.apache.org/
+
+Apache Commons
+http://commons.apache.org/
+
+Apache Xerces
+http://xerces.apache.org
+
+----------------------------------------
+Potix Corporation
+http://www.zkoss.org/
+Rely on LICENSE-ZKOSS-GPL2
+
+ZK DirectRIA
+
+----------------------------------------
+Sun Microsystems, Inc.
+http://www.sun.com/
+Rely on LICENSE-CPL-V10
+
+Jsf-api
+Jsf-impl
+Javamail
+
+----------------------------------------
+Potix Corporation.
+http://www.zkoss.org/
+Rely on LICENSE-ZKOSS-GPL2
+
+Zkoss
+
+----------------------------------------
+JTidy
+http://jtidy.sourceforge.net
+Rely on LICENCE-JTIDY
+
+----------------------------------------
+NekoHTML by Andy Clark
+http://nekohtml.sourceforge.net/
+Rely on LICENCE-APACHE2
+
+----------------------------------------
+HTMLCleaner
+http://htmlcleaner.sourceforge.net
+Rely on LICENCE-HTMLCLEANER
+
+----------------------------------------
+Knallgrau New Media Solutions
+http://sourceforge.net/projects/textcat/
+
+Textcat
+
+----------------------------------------
+PDFBox.org
+http://www.pdfbox.org
+Licensed under the BSD License
+
+Pdfbox
+
+----------------------------------------
+BeanShell
+http://www.beanshell.org
+Rely on Gnu Lesser Public License
