@@ -269,7 +269,7 @@ public class PropertyManager {
 		if (userAgent == null)
 			userAgent = getPropertyString(Property.USER_AGENT);
 		if (userAgent == null || userAgent.trim().length() == 0)
-			userAgent = "JaeksoftWebSearchBot";
+			userAgent = "OpenSearchServer_Bot";
 		return userAgent;
 	}
 

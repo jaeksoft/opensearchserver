@@ -119,6 +119,10 @@ public class UrlManager {
 		this.client = new Client(dataDir, "/url_config.xml", true);
 	}
 
+	public Client getClient() {
+		return client;
+	}
+
 	public void injectPrefix(List<PatternItem> patternList)
 			throws SearchLibException {
 		Iterator<PatternItem> it = patternList.iterator();

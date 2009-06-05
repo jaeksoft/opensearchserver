@@ -14,7 +14,7 @@ Web site:
 http://www.open-search-server.com
 
 TO USE THIS APPLICATION :
-you will need to have external libraries referenced in application bluid path:
+you will need to have external libraries referenced in application build path:
  - commons-beanutils.jar
  - commons-codec-1.3.jar
  - commons-collections-3.2.jar
