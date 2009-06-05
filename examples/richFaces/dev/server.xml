@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !!!!! APRES RECOPIE DU server.xml dans la conf du Tomcat, redemarrer Eclispe !!!!! -->
+<Server port="8005" shutdown="SHUTDOWN">
+	<Listener SSLEngine="on"
+		className="org.apache.catalina.core.AprLifecycleListener" />
+	<Listener className="org.apache.catalina.core.JasperListener" />
+	<Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />
+	<Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+	<GlobalNamingResources>
+		<Resource auth="Container" description="User database that can be updated and saved"
+			factory="org.apache.catalina.users.MemoryUserDatabaseFactory" name="UserDatabase"
+			pathname="conf/tomcat-users.xml" type="org.apache.catalina.UserDatabase" />
+		<Resource auth="Container" driverClassName="com.mysql.jdbc.Driver"
+			maxActive="30" maxIdle="10" maxWait="10000" name="jdbc/GIPublishDS"
+			password="g1publ1sh" type="javax.sql.DataSource"
+			url="jdbc:mysql://mysql:3306/edito-lsa-20081008?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8"
+			username="gipublish" />
+		<Resource auth="Container" driverClassName="com.mysql.jdbc.Driver"
+			maxActive="30" maxIdle="10" maxWait="10000" name="jdbc/GIPublish_jpa_DS"
+			password="g1publ1sh" type="javax.sql.DataSource"
+			url="jdbc:mysql://mysql:3306/edito-lsa-20081008?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8"
+			username="gipublish_jpa" />	
+		
+	</GlobalNamingResources>
+	<Service name="Catalina">
+		<Connector connectionTimeout="20000" port="8080" protocol="HTTP/1.1"
+			redirectPort="8443" />
+		<Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+		<Engine defaultHost="localhost" name="Catalina">
+			<Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+				resourceName="UserDatabase" />
+			<Host appBase="webapps" autoDeploy="true" name="localhost"
+				unpackWARs="true" xmlNamespaceAware="false" xmlValidation="false">
+				<Context docBase="GIPublishWeb2" path="/GIPublishWeb2"
+					reloadable="true" source="org.eclipse.jst.jee.server:GIPublishWeb2" />
+			</Host>
+		</Engine>
+	</Service>
+</Server>
