@@ -1,6 +1,6 @@
 <configuration>
 	<indices>
-		<index name="index" remoteUrl="http://dedwen:8080/oss1/" />
+		<index name="index" remoteUrl="http://localhost:8080/" />
 	</indices>
 	<schema>
 		<analyzers>
