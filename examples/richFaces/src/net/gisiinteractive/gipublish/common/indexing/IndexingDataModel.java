@@ -39,7 +39,12 @@ public class IndexingDataModel<T> extends ListDataModel {
 		this.currentIndex = -1;
 		this.size = 0;
 		this.manager = manager;
-		populate(0);
+		try {
+			populate(0);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private boolean needUpdate(long index) {
@@ -101,7 +106,12 @@ public class IndexingDataModel<T> extends ListDataModel {
 			if (index == -1)
 				return;
 			if (needUpdate(index))
-				populate(index);
+				try {
+					populate(index);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 	}
 
@@ -112,7 +122,7 @@ public class IndexingDataModel<T> extends ListDataModel {
 		}
 	}
 
-	public void populate(int index) {
+	public void populate(int index) throws ClassNotFoundException {
 		// long time1 = System.currentTimeMillis();
 
 		synchronized (this) {
@@ -149,9 +159,6 @@ public class IndexingDataModel<T> extends ListDataModel {
 				throw new RuntimeException(e);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(e);
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

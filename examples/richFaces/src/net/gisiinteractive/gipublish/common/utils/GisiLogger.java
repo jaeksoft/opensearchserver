@@ -18,7 +18,6 @@ public class GisiLogger {
 	private Log logger = null;
 
 	public GisiLogger(String name) {
-		
 		logger = org.apache.commons.logging.LogFactory.getLog(typeApplication
 				+ platProperty + name);
 	}

@@ -88,7 +88,8 @@ public class GisiFilter implements Filter {
 		} catch (ServletException sEx) {
 			logger.error("unable to redirect to error page", sEx);
 		} finally {
-			logger.error("Error catched", ex);
+			System.out.println("Error catched");
+			ex.printStackTrace();
 		}
 	}
 
