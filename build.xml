@@ -22,6 +22,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <project name="OpenSearchServer" default="dist" basedir=".">
+
 	<property name="src" location="src/java" />
 	<property name="resources" location="src/resources" />
 	<property name="web" location="WebContent" />
@@ -39,7 +40,8 @@
 	<property name="name-debug" value="${product}-debug" />
 	<property name="tomcat-name" value="apache-tomcat-6.0.18" />
 	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
-
+	<property name="shell-dir" location="pkg/shell" />
+	<property name="examples" location="examples" />
 
 	<path id="project.class.path">
 		<fileset dir="${lib}">
@@ -111,9 +113,39 @@
 		<copy todir="${dist}/${product}">
 			<fileset file="NOTICE.txt" />
 			<fileset file="README.txt" />
+			<fileset dir="${shell-dir}" />
 		</copy>
-		<zip encoding="windows-1250" basedir="${dist}/${product}" destfile="${dist}/${product}.zip" />
-		<tar compression="gzip" basedir="${dist}/${product}" destfile="${dist}/${product}.tar.gz" />
+		<copy todir="${dist}/${product}/examples">
+			<fileset dir="${examples}" />
+		</copy>
+		<chmod perm="ugo+x" type="file">
+			<fileset dir="${dist}/${product}">
+				<include name="**/*.sh" />
+				<include name="**/*.bat" />
+			</fileset>
+		</chmod>
+		<tar longfile="gnu" compression="gzip" destfile="${dist}/${product}.tar.gz">
+			<tarfileset dir="${dist}/${product}" mode="755" prefix="${product}">
+				<include name="**/*.sh" />
+				<include name="**/*.bat" />
+			</tarfileset>
+			<tarfileset dir="${dist}/${product}" prefix="${product}">
+				<include name="**" />
+				<exclude name="**/*.sh" />
+				<exclude name="**/*.bat" />
+			</tarfileset>
+		</tar>
+		<zip encoding="windows-1250" destfile="${dist}/${product}.zip">
+			<zipfileset dir="${dist}/${product}" filemode="755" prefix="${product}">
+				<include name="**/*.sh" />
+				<include name="**/*.bat" />
+			</zipfileset>
+			<zipfileset dir="${dist}/${product}" prefix="${product}">
+				<include name="**" />
+				<exclude name="**/*.sh" />
+				<exclude name="**/*.bat" />
+			</zipfileset>
+		</zip>
 		<delete dir="${dist}/${product}" />
 	</target>
 
