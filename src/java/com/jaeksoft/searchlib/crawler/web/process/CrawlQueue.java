@@ -47,7 +47,7 @@ public class CrawlQueue {
 	final private static Logger logger = Logger.getLogger(CrawlQueue.class
 			.getCanonicalName());
 
-	private List<UrlItem> updateCrawlList;
+	private List<Crawl> updateCrawlList;
 
 	private List<UrlItem> insertUrlList;
 
@@ -58,7 +58,7 @@ public class CrawlQueue {
 	protected CrawlQueue(Config config) throws SearchLibException {
 		this.config = config;
 		this.sessionStats = null;
-		this.updateCrawlList = new ArrayList<UrlItem>(0);
+		this.updateCrawlList = new ArrayList<Crawl>(0);
 		this.insertUrlList = new ArrayList<UrlItem>(0);
 		this.deleteUrlList = new ArrayList<String>(0);
 		this.maxBufferSize = config.getPropertyManager()
@@ -68,7 +68,7 @@ public class CrawlQueue {
 	protected void add(Crawl crawl) throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
 		synchronized (updateCrawlList) {
-			updateCrawlList.add(crawl.getUrlItem());
+			updateCrawlList.add(crawl);
 		}
 		List<String> discoverLinks = crawl.getDiscoverLinks();
 		synchronized (insertUrlList) {
@@ -106,7 +106,7 @@ public class CrawlQueue {
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		List<UrlItem> workUpdateCrawlList;
+		List<Crawl> workUpdateCrawlList;
 		List<UrlItem> workInsertUrlList;
 		List<String> workDeleteUrlList;
 		synchronized (this) {
@@ -115,7 +115,7 @@ public class CrawlQueue {
 					return;
 			synchronized (updateCrawlList) {
 				workUpdateCrawlList = updateCrawlList;
-				updateCrawlList = new ArrayList<UrlItem>(0);
+				updateCrawlList = new ArrayList<Crawl>(0);
 			}
 			synchronized (insertUrlList) {
 				workInsertUrlList = insertUrlList;
@@ -132,35 +132,54 @@ public class CrawlQueue {
 					+ "/" + workInsertUrlList.size() + "/"
 					+ workDeleteUrlList.size());
 		UrlManager urlManager = config.getUrlManager();
+		// Synchronization to avoid simoultaneous indexation process
 		synchronized (indexSync) {
-			boolean needReload = false;
-			if (workDeleteUrlList.size() > 0) {
-				urlManager.deleteUrls(workDeleteUrlList);
-				if (logger.isLoggable(Level.INFO))
-					logger.info("Deleting " + workDeleteUrlList.size()
-							+ " document(s)");
-				sessionStats.addDeletedCount(workDeleteUrlList.size());
-				needReload = true;
-			}
-			if (workUpdateCrawlList.size() > 0) {
-				if (logger.isLoggable(Level.INFO))
-					logger.info("Update " + workUpdateCrawlList.size()
-							+ " document(s)");
-				urlManager.updateDocuments(workUpdateCrawlList);
-				sessionStats.addUpdatedCount(workUpdateCrawlList.size());
-				needReload = true;
-			}
-			if (workInsertUrlList.size() > 0) {
-				if (logger.isLoggable(Level.INFO))
-					logger.info("Insert " + workInsertUrlList.size()
-							+ " document(s)");
-				urlManager.updateDocuments(workInsertUrlList);
-				sessionStats.addNewUrlCount(workInsertUrlList.size());
-				needReload = true;
-			}
+			boolean needReload = deleteUrls(workDeleteUrlList);
+			needReload = needReload || updateCrawls(workUpdateCrawlList);
+			needReload = needReload || insertUrls(workInsertUrlList);
 			if (needReload)
 				urlManager.reload(false);
 		}
+	}
+
+	private boolean deleteUrls(List<String> workDeleteUrlList)
+			throws SearchLibException {
+		if (workDeleteUrlList.size() == 0)
+			return false;
+		if (logger.isLoggable(Level.INFO))
+			logger
+					.info("Deleting " + workDeleteUrlList.size()
+							+ " document(s)");
+		UrlManager urlManager = config.getUrlManager();
+		urlManager.deleteUrls(workDeleteUrlList);
+		sessionStats.addDeletedCount(workDeleteUrlList.size());
+		return true;
+	}
+
+	private boolean updateCrawls(List<Crawl> workUpdateCrawlList)
+			throws SearchLibException {
+		if (workUpdateCrawlList.size() == 0)
+			return false;
+		if (logger.isLoggable(Level.INFO))
+			logger
+					.info("Update " + workUpdateCrawlList.size()
+							+ " document(s)");
+		UrlManager urlManager = config.getUrlManager();
+		urlManager.updateCrawls(workUpdateCrawlList);
+		sessionStats.addUpdatedCount(workUpdateCrawlList.size());
+		return true;
+	}
+
+	private boolean insertUrls(List<UrlItem> workInsertUrlList)
+			throws SearchLibException {
+		if (workInsertUrlList.size() == 0)
+			return false;
+		if (logger.isLoggable(Level.INFO))
+			logger.info("Insert " + workInsertUrlList.size() + " document(s)");
+		UrlManager urlManager = config.getUrlManager();
+		urlManager.updateUrlItems(workInsertUrlList);
+		sessionStats.addNewUrlCount(workInsertUrlList.size());
+		return true;
 	}
 
 	public void setStatistiques(CrawlStatistics stats) {

@@ -38,7 +38,7 @@ public class PdfParser extends Parser {
 			ParserFieldEnum.content, ParserFieldEnum.producer,
 			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
 			ParserFieldEnum.modification_date, ParserFieldEnum.language,
-			ParserFieldEnum.number_of_pages, ParserFieldEnum.content };
+			ParserFieldEnum.number_of_pages };
 
 	public PdfParser() {
 		super(fl);

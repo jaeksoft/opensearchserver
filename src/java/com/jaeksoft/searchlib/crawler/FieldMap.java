@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -36,6 +37,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.index.FieldContent;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.GenericLink;
 import com.jaeksoft.searchlib.util.GenericMap;
@@ -88,7 +91,6 @@ public class FieldMap extends GenericMap<String> {
 					"target", link.getTarget());
 			xmlWriter.endElement();
 		}
-		xmlWriter.endElement();
 	}
 
 	public void store() throws TransformerConfigurationException, SAXException,
@@ -105,6 +107,19 @@ public class FieldMap extends GenericMap<String> {
 				xmlWriter.endDocument();
 			} finally {
 				pw.close();
+			}
+		}
+	}
+
+	public void mapIndexDocument(IndexDocument source, IndexDocument target) {
+		for (GenericLink<String> link : getList()) {
+			FieldContent fc = source.getField(link.getSource());
+			String targetField = link.getTarget();
+			if (fc != null) {
+				List<String> values = fc.getValues();
+				if (values != null)
+					for (String value : values)
+						target.add(targetField, value);
 			}
 		}
 	}

@@ -79,4 +79,11 @@ public class GenericMap<T> {
 			list = null;
 		}
 	}
+
+	public List<T> getLinks(T source) {
+		synchronized (this) {
+			return map.get(source);
+		}
+	}
+
 }

@@ -44,6 +44,7 @@ import org.apache.lucene.store.LockObtainFailedException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.InjectUrlItem.Status;
+import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
@@ -535,7 +536,32 @@ public class UrlManager {
 		}
 	}
 
-	public void updateDocuments(List<UrlItem> urlItems)
+	public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
+		try {
+			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
+					.size());
+			for (Crawl crawl : crawls) {
+				IndexDocument indexDocument = new IndexDocument();
+				crawl.getUrlItem().populate(indexDocument);
+				documents.add(indexDocument);
+			}
+			client.updateDocuments(documents);
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	public void updateUrlItems(List<UrlItem> urlItems)
 			throws SearchLibException {
 		try {
 			List<IndexDocument> documents = new ArrayList<IndexDocument>(
@@ -560,5 +586,4 @@ public class UrlManager {
 			throw new SearchLibException(e);
 		}
 	}
-
 }

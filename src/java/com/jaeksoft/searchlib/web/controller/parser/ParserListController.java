@@ -78,6 +78,7 @@ public class ParserListController extends CommonController implements
 
 	public void setSelectedParser(ParserFactory parser) {
 		selectedParser = parser;
+		reloadPage();
 	}
 
 	public ParserFactory getSelectedParser() {
@@ -175,7 +176,7 @@ public class ParserListController extends CommonController implements
 			return;
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.add(selectedParserField.name(), selectedIndexField.getName());
-		// Store
+		getClient().saveParsers();
 		reloadPage();
 	}
 
@@ -186,7 +187,7 @@ public class ParserListController extends CommonController implements
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
-		// store
+		getClient().saveParsers();
 		reloadPage();
 	}
 
@@ -202,4 +203,5 @@ public class ParserListController extends CommonController implements
 		image.setParent(listcell);
 		listcell.setParent(item);
 	}
+
 }

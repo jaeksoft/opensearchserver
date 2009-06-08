@@ -63,8 +63,7 @@ public class HtmlParser extends Parser {
 			ParserFieldEnum.meta_description, ParserFieldEnum.meta_robots,
 			ParserFieldEnum.internal_link, ParserFieldEnum.internal_nofollow,
 			ParserFieldEnum.external_link,
-			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
-			ParserFieldEnum.lang };
+			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang };
 
 	public HtmlParser() {
 		super(fl);

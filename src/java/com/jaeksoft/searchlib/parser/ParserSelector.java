@@ -36,8 +36,10 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ParserSelector {
 
@@ -120,4 +122,12 @@ public class ParserSelector {
 		}
 		return selector;
 	}
+
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("parsers");
+		for (ParserFactory parser : parserFactorySet)
+			parser.writeXmlConfig(xmlWriter);
+		xmlWriter.endElement();
+	}
+
 }

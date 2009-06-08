@@ -178,6 +178,25 @@ public abstract class Config {
 
 	}
 
+	public void saveParsers() throws IOException,
+			TransformerConfigurationException, SAXException, SearchLibException {
+		boolean success = false;
+		File file = new File(indexDir, "parsers_tmp.xml");
+		if (!file.exists())
+			file.createNewFile();
+		PrintWriter pw = new PrintWriter(file);
+		try {
+			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			getParserSelector().writeXmlConfig(xmlWriter);
+			xmlWriter.endDocument();
+			success = true;
+		} finally {
+			pw.close();
+			if (success)
+				file.renameTo(new File(indexDir, "parsers.xml"));
+		}
+	}
+
 	public void saveRequests() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
 		boolean success = false;
@@ -280,10 +299,17 @@ public abstract class Config {
 		lock.lock();
 		try {
 			if (parserSelector == null) {
-				Node node = xppConfig.getNode("/configuration/parsers");
-				if (node != null)
-					parserSelector = ParserSelector.fromXmlConfig(xppConfig,
-							node);
+				File parserFile = new File(indexDir, "parsers.xml");
+				if (parserFile.exists()) {
+					XPathParser xpp = new XPathParser(parserFile);
+					parserSelector = ParserSelector.fromXmlConfig(xpp, xpp
+							.getNode("/parsers"));
+				} else {
+					Node node = xppConfig.getNode("/configuration/parsers");
+					if (node != null)
+						parserSelector = ParserSelector.fromXmlConfig(
+								xppConfig, node);
+				}
 			}
 			return parserSelector;
 		} catch (XPathExpressionException e) {
@@ -291,6 +317,10 @@ public abstract class Config {
 		} catch (DOMException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
 			lock.unlock();

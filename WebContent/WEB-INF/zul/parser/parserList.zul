@@ -19,7 +19,7 @@
 	use="com.jaeksoft.searchlib.web.controller.parser.ParserListController">
 	<listbox mold="select" selectedItem="@{parserList.selectedParser}"
 		model="@{parserList.parserSet}">
-		<listitem self="@{each=parser}" label="@{parser.className}" />
+		<listitem self="@{each=parser}" label="@{parser.parserName}" />
 	</listbox>
 	<vbox width="100%" visible="@{parserList.parserSelected}">
 		<grid visible="@{parserList.parserExtension}"

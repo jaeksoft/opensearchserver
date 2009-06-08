@@ -31,12 +31,15 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ParserFactory implements Comparable<ParserFactory> {
 
+	private String parserName;
 	private String className;
 	private long sizeLimit;
 
@@ -46,8 +49,12 @@ public class ParserFactory implements Comparable<ParserFactory> {
 
 	private FieldMap fieldMap;
 
-	public ParserFactory(String className, long sizeLimit, FieldMap fieldMap) {
+	public ParserFactory(String parserName, String className, long sizeLimit,
+			FieldMap fieldMap) {
+		this.parserName = parserName;
 		this.className = className;
+		if (this.className.indexOf('.') == -1)
+			this.className = "com.jaeksoft.searchlib.parser." + className;
 		this.sizeLimit = sizeLimit;
 		this.fieldMap = fieldMap;
 		mimeTypeList = null;
@@ -61,8 +68,8 @@ public class ParserFactory implements Comparable<ParserFactory> {
 		return parser;
 	}
 
-	public String getClassName() {
-		return className;
+	public String getParserName() {
+		return parserName;
 	}
 
 	public long getSizeLimit() {
@@ -95,10 +102,13 @@ public class ParserFactory implements Comparable<ParserFactory> {
 				"class");
 		if (parserClassName == null)
 			return null;
-		FieldMap fieldMap = new FieldMap(xpp, xpp.getNode("map"));
+		String parserName = XPathParser.getAttributeString(parserNode, "name");
+		if (parserName == null)
+			parserName = parserClassName;
+		FieldMap fieldMap = new FieldMap(xpp, xpp.getNode(parserNode, "map"));
 		long sizeLimit = XPathParser.getAttributeValue(parserNode, "sizeLimit");
-		ParserFactory parserFactory = new ParserFactory(parserClassName,
-				sizeLimit, fieldMap);
+		ParserFactory parserFactory = new ParserFactory(parserName,
+				parserClassName, sizeLimit, fieldMap);
 		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
 		for (int j = 0; j < mimeNodes.getLength(); j++) {
 			Node mimeNode = mimeNodes.item(j);
@@ -127,4 +137,29 @@ public class ParserFactory implements Comparable<ParserFactory> {
 		return className.compareTo(parserFactory.className);
 	}
 
+	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("parser", "name", parserName, "class",
+				className, "sizeLimit", Long.toString(sizeLimit));
+		if (mimeTypeList != null) {
+			for (String mimeType : mimeTypeList) {
+				xmlWriter.startElement("contentType");
+				xmlWriter.textNode(mimeType);
+				xmlWriter.endElement();
+			}
+		}
+		if (extensionList != null) {
+			for (String extension : extensionList) {
+				xmlWriter.startElement("extension");
+				xmlWriter.textNode(extension);
+				xmlWriter.endElement();
+			}
+		}
+		if (fieldMap != null) {
+			xmlWriter.startElement("map");
+			fieldMap.store(xmlWriter);
+			xmlWriter.endElement();
+		}
+		xmlWriter.endElement();
+
+	}
 }
