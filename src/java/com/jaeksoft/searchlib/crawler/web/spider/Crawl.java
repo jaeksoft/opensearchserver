@@ -44,8 +44,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.web.database.FetchStatus;
-import com.jaeksoft.searchlib.crawler.web.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.web.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
@@ -59,7 +59,6 @@ import com.jaeksoft.searchlib.parser.LimitException;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
-import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class Crawl {
 
@@ -73,11 +72,12 @@ public class Crawl {
 	private Parser parser;
 	private String error;
 	private CrawlStatistics currentStats;
-	// private IndexDocument indexDocument;
 	private List<String> discoverLinks;
+	private FieldMap urlFieldMap;
 
 	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector,
 			CrawlStatistics currentStats) throws SearchLibException {
+		this.urlFieldMap = config.getWebCrawlerFieldMap();
 		this.discoverLinks = null;
 		this.currentStats = currentStats;
 		this.urlItem = urlItem;
@@ -138,6 +138,8 @@ public class Crawl {
 			try {
 				getMethod = httpDownloader.get(urlItem.getCheckedURI()
 						.toASCIIString(), userAgent);
+				if (getMethod == null)
+					throw new IOException("Method is null");
 				is = getMethod.getResponseBodyAsStream();
 				Header header = getMethod.getResponseHeader("Content-Type");
 				if (header != null)
@@ -238,21 +240,26 @@ public class Crawl {
 	public IndexDocument getTargetIndexDocument() throws SearchLibException,
 			MalformedURLException {
 		synchronized (this) {
+
 			IndexDocument indexDocument = new IndexDocument();
+
+			IndexDocument urlIndexDocument = new IndexDocument();
+			urlItem.populate(urlIndexDocument);
+			urlFieldMap.mapIndexDocument(urlIndexDocument, indexDocument);
+
 			if (parser != null)
-				indexDocument = parser.getIndexDocument();
-			if (indexDocument == null)
-				indexDocument = new IndexDocument();
-			urlItem.populate(indexDocument);
-			IndexPluginList indexPluginList = config.getWebCrawlMaster()
-					.getIndexPluginList();
-			if (indexPluginList != null && !indexPluginList.run(indexDocument)) {
-				urlItem.setIndexStatus(IndexStatus.INDEX_REJECTED);
-				indexDocument = new IndexDocument();
-				urlItem.populate(indexDocument);
-			}
-			if (currentStats != null)
-				currentStats.incPendingUpdatedCount();
+				parser.populate(indexDocument);
+
+			// TODO Plugin integration
+			// IndexPluginList indexPluginList = config.getWebCrawlMaster()
+			// .getIndexPluginList();
+			// if (indexPluginList != null &&
+			// !indexPluginList.run(indexDocument)) {
+			// urlItem.setIndexStatus(IndexStatus.INDEX_REJECTED);
+			// indexDocument = new IndexDocument();
+			// urlItem.populate(indexDocument);
+			// }
+
 			return indexDocument;
 		}
 	}
@@ -270,7 +277,7 @@ public class Crawl {
 			try {
 				URL url = new URL(link);
 				String sUrl = url.toExternalForm();
-				if (patternManager.findPattern(url) != null)
+				if (patternManager.matchPattern(url) != null)
 					if (!urlManager.exists(sUrl))
 						newUrlList.add(link);
 			} catch (MalformedURLException e) {

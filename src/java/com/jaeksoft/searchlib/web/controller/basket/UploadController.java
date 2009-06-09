@@ -152,7 +152,7 @@ public class UploadController extends CommonController {
 				else
 					parser.parseContent(media.getReaderData());
 			}
-			setCurrentDocument(parser.getIndexDocument());
+			setCurrentDocument(parser.getParserDocument());
 			reloadPage();
 		}
 	}

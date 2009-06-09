@@ -59,7 +59,7 @@ public class BasketServlet extends AbstractServlet {
 				throw new ServletException("No parser found");
 
 			parser.parseContent(request.getInputStream());
-			IndexDocument basketDocument = parser.getIndexDocument();
+			IndexDocument basketDocument = parser.getParserDocument();
 			BasketKey key = client.getBasketCache().put(basketDocument);
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Key", key.toString());

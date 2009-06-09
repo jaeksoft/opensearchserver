@@ -122,8 +122,7 @@ public class PatternManager {
 
 		// First pass: Identify already present
 		for (PatternItem item : patternList) {
-			String pattern = item.getPattern();
-			if (!bDeleteAll && findPattern(new URL(pattern)) != null)
+			if (!bDeleteAll && findPattern(item) != null)
 				item.setStatus(PatternItem.Status.ALREADY);
 			else {
 				addPatternWithoutLock(item);
@@ -235,7 +234,25 @@ public class PatternManager {
 		}
 	}
 
-	public PatternItem findPattern(URL url) {
+	private PatternItem findPattern(PatternItem pattern)
+			throws MalformedURLException {
+		r.lock();
+		try {
+			List<PatternItem> patternList = patternMap.get(pattern.extractUrl(
+					true).getHost());
+			if (patternList == null)
+				return null;
+			String sPattern = pattern.getPattern();
+			for (PatternItem patternItem : patternList)
+				if (patternItem.getPattern().equals(sPattern))
+					return patternItem;
+			return null;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public PatternItem matchPattern(URL url) {
 		r.lock();
 		try {
 			List<PatternItem> patternList = patternMap.get(url.getHost());
@@ -257,7 +274,7 @@ public class PatternManager {
 		List<PatternItem> patternList = new ArrayList<PatternItem>();
 		while (it.hasNext()) {
 			InjectUrlItem item = it.next();
-			if (findPattern(item.getURL()) != null)
+			if (matchPattern(item.getURL()) != null)
 				continue;
 			patternList.add(new PatternItem(item.getURL()));
 		}

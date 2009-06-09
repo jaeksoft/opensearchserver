@@ -86,6 +86,8 @@ public class CrawlThread extends CrawlThreadAbstract {
 		currentStats.addUrlListSize(urlList.size());
 
 		Iterator<UrlItem> iterator = urlList.iterator();
+		CrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
+
 		while (iterator.hasNext()) {
 
 			if (isAbort() || crawlMaster.isAbort())
@@ -97,8 +99,15 @@ public class CrawlThread extends CrawlThreadAbstract {
 			currentUrlItem = iterator.next();
 
 			Crawl crawl = crawl(userAgent, dryRun);
-			if (crawl != null)
-				crawlMaster.getCrawlQueue().add(crawl);
+			if (crawl != null) {
+				if (!dryRun)
+					crawlQueue.add(crawl);
+				currentStats.incPendingUpdatedCount();
+			} else {
+				if (!dryRun)
+					crawlQueue.delete(currentUrlItem.getUrl());
+				currentStats.incPendingDeletedCount();
+			}
 
 		}
 
@@ -124,13 +133,10 @@ public class CrawlThread extends CrawlThreadAbstract {
 			// Check if url is allowed by pattern list
 			PatternManager patternManager = config.getPatternManager();
 			if (url != null)
-				if (patternManager.findPattern(url) == null)
+				if (patternManager.matchPattern(url) == null)
 					url = null;
-			if (url == null) {
-				crawlMaster.getCrawlQueue().delete(currentUrlItem.getUrl());
-				currentStats.incPendingDeletedCount();
+			if (url == null)
 				return null;
-			}
 
 			// Fetch started
 			currentStats.incFetchedCount();
@@ -156,6 +162,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 			crawl.setError(e.getMessage());
 			currentUrlItem.setFetchStatus(FetchStatus.URL_ERROR);
 		}
+
 		return crawl;
 	}
 

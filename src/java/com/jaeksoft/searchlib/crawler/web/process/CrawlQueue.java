@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -29,8 +29,6 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -43,9 +41,6 @@ public class CrawlQueue {
 	private Config config;
 
 	private CrawlStatistics sessionStats;
-
-	final private static Logger logger = Logger.getLogger(CrawlQueue.class
-			.getCanonicalName());
 
 	private List<Crawl> updateCrawlList;
 
@@ -113,30 +108,24 @@ public class CrawlQueue {
 			if (!bForce)
 				if (!shouldWePersist())
 					return;
-			synchronized (updateCrawlList) {
-				workUpdateCrawlList = updateCrawlList;
-				updateCrawlList = new ArrayList<Crawl>(0);
-			}
-			synchronized (insertUrlList) {
-				workInsertUrlList = insertUrlList;
-				insertUrlList = new ArrayList<UrlItem>(0);
-			}
-			synchronized (deleteUrlList) {
-				workDeleteUrlList = deleteUrlList;
-				deleteUrlList = new ArrayList<String>(0);
-			}
+			workUpdateCrawlList = updateCrawlList;
+			updateCrawlList = new ArrayList<Crawl>(0);
+			workInsertUrlList = insertUrlList;
+			insertUrlList = new ArrayList<UrlItem>(0);
+			workDeleteUrlList = deleteUrlList;
+			deleteUrlList = new ArrayList<String>(0);
 		}
 
-		if (logger.isLoggable(Level.INFO))
-			logger.info("Real indexation starts " + workUpdateCrawlList.size()
-					+ "/" + workInsertUrlList.size() + "/"
-					+ workDeleteUrlList.size());
 		UrlManager urlManager = config.getUrlManager();
 		// Synchronization to avoid simoultaneous indexation process
 		synchronized (indexSync) {
-			boolean needReload = deleteUrls(workDeleteUrlList);
-			needReload = needReload || updateCrawls(workUpdateCrawlList);
-			needReload = needReload || insertUrls(workInsertUrlList);
+			boolean needReload = false;
+			if (deleteUrls(workDeleteUrlList))
+				needReload = true;
+			if (updateCrawls(workUpdateCrawlList))
+				needReload = true;
+			if (insertUrls(workInsertUrlList))
+				needReload = true;
 			if (needReload)
 				urlManager.reload(false);
 		}
@@ -146,10 +135,6 @@ public class CrawlQueue {
 			throws SearchLibException {
 		if (workDeleteUrlList.size() == 0)
 			return false;
-		if (logger.isLoggable(Level.INFO))
-			logger
-					.info("Deleting " + workDeleteUrlList.size()
-							+ " document(s)");
 		UrlManager urlManager = config.getUrlManager();
 		urlManager.deleteUrls(workDeleteUrlList);
 		sessionStats.addDeletedCount(workDeleteUrlList.size());
@@ -160,10 +145,6 @@ public class CrawlQueue {
 			throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
-		if (logger.isLoggable(Level.INFO))
-			logger
-					.info("Update " + workUpdateCrawlList.size()
-							+ " document(s)");
 		UrlManager urlManager = config.getUrlManager();
 		urlManager.updateCrawls(workUpdateCrawlList);
 		sessionStats.addUpdatedCount(workUpdateCrawlList.size());
@@ -174,8 +155,6 @@ public class CrawlQueue {
 			throws SearchLibException {
 		if (workInsertUrlList.size() == 0)
 			return false;
-		if (logger.isLoggable(Level.INFO))
-			logger.info("Insert " + workInsertUrlList.size() + " document(s)");
 		UrlManager urlManager = config.getUrlManager();
 		urlManager.updateUrlItems(workInsertUrlList);
 		sessionStats.addNewUrlCount(workInsertUrlList.size());

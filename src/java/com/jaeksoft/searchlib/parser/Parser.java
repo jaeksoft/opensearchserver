@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 
@@ -39,15 +40,25 @@ public abstract class Parser {
 
 	private IndexDocument sourceDocument;
 
-	private IndexDocument indexDocument;
+	private IndexDocument parserDocument;
 
 	private ParserFieldEnum[] fieldList;
+
+	private FieldMap fieldMap;
 
 	protected Parser(ParserFieldEnum[] fieldList) {
 		this.fieldList = fieldList;
 		sizeLimit = 0;
 		sourceDocument = null;
-		indexDocument = new IndexDocument();
+		parserDocument = new IndexDocument();
+	}
+
+	public void setFieldMap(FieldMap fieldMap) {
+		this.fieldMap = fieldMap;
+	}
+
+	public void populate(IndexDocument indexDocument) {
+		fieldMap.mapIndexDocument(parserDocument, indexDocument);
 	}
 
 	public void setSizeLimit(long l) {
@@ -62,8 +73,8 @@ public abstract class Parser {
 		this.sourceDocument = sourceDocument;
 	}
 
-	public IndexDocument getIndexDocument() {
-		return indexDocument;
+	public IndexDocument getParserDocument() {
+		return parserDocument;
 	}
 
 	public ParserFieldEnum[] getFieldList() {
@@ -77,7 +88,7 @@ public abstract class Parser {
 			return;
 		if (value.length() == 0)
 			return;
-		indexDocument.add(field.name(), value);
+		parserDocument.add(field.name(), value);
 	}
 
 	protected void addField(ParserFieldEnum field, Object object) {
@@ -87,11 +98,11 @@ public abstract class Parser {
 	}
 
 	public FieldContent getFieldContent(ParserFieldEnum field) {
-		return indexDocument.getField(field.name());
+		return parserDocument.getField(field.name());
 	}
 
 	public String getFieldValue(ParserFieldEnum field, int pos) {
-		return indexDocument.getFieldValue(field.name(), pos);
+		return parserDocument.getFieldValue(field.name(), pos);
 	}
 
 	public String getMergedBodyText(int maxChar, String sep) {

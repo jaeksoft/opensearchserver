@@ -65,6 +65,7 @@ public class ParserFactory implements Comparable<ParserFactory> {
 			IllegalAccessException, ClassNotFoundException {
 		Parser parser = (Parser) Class.forName(className).newInstance();
 		parser.setSizeLimit(sizeLimit);
+		parser.setFieldMap(fieldMap);
 		return parser;
 	}
 
