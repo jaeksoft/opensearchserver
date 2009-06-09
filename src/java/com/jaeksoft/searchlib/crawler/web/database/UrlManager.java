@@ -110,18 +110,21 @@ public class UrlManager {
 
 	}
 
-	private Client client;
+	private Client urlDbClient;
 
-	public UrlManager(File dataDir) throws SearchLibException,
+	private Client targetClient;
+
+	public UrlManager(Client client, File dataDir) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
 		dataDir = new File(dataDir, "web_crawler_url");
 		if (!dataDir.exists())
 			dataDir.mkdir();
-		this.client = new Client(dataDir, "/url_config.xml", true);
+		this.urlDbClient = new Client(dataDir, "/url_config.xml", true);
+		targetClient = client;
 	}
 
-	public Client getClient() {
-		return client;
+	public Client getUrlDbClient() {
+		return urlDbClient;
 	}
 
 	public void injectPrefix(List<PatternItem> patternList)
@@ -138,7 +141,8 @@ public class UrlManager {
 
 	public void deleteUrl(String sUrl) throws SearchLibException {
 		try {
-			client.deleteDocument(sUrl);
+			targetClient.deleteDocument(sUrl);
+			urlDbClient.deleteDocument(sUrl);
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -159,7 +163,8 @@ public class UrlManager {
 	public void deleteUrls(Collection<String> workDeleteUrlList)
 			throws SearchLibException {
 		try {
-			client.deleteDocuments(workDeleteUrlList);
+			targetClient.deleteDocuments(workDeleteUrlList);
+			urlDbClient.deleteDocuments(workDeleteUrlList);
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -195,7 +200,7 @@ public class UrlManager {
 				}
 				if (injectList.size() == 0)
 					return;
-				client.updateDocuments(injectList);
+				urlDbClient.updateDocuments(injectList);
 				int injected = 0;
 				for (InjectUrlItem item : list) {
 					if (item.getStatus() == Status.UNDEFINED) {
@@ -204,7 +209,7 @@ public class UrlManager {
 					}
 				}
 				if (injected > 0)
-					client.reload(null);
+					urlDbClient.reload(null);
 			} catch (NoSuchAlgorithmException e) {
 				throw new SearchLibException(e);
 			} catch (IOException e) {
@@ -248,7 +253,7 @@ public class UrlManager {
 			ParseException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
-		Result result = client.search(searchRequest);
+		Result result = urlDbClient.search(searchRequest);
 		Facet facet = result.getFacetList().getByField(field.name);
 		for (FacetItem facetItem : facet) {
 			if (limit-- == 0)
@@ -268,7 +273,7 @@ public class UrlManager {
 	}
 
 	private SearchRequest getHostFacetSearchRequest() {
-		SearchRequest searchRequest = client.getNewSearchRequest();
+		SearchRequest searchRequest = urlDbClient.getNewSearchRequest();
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		searchRequest.getFacetFieldList().add(new FacetField("host", 1, false));
@@ -276,7 +281,7 @@ public class UrlManager {
 	}
 
 	private SearchRequest getUrlSearchRequest() throws SearchLibException {
-		SearchRequest searchRequest = client.getNewSearchRequest();
+		SearchRequest searchRequest = urlDbClient.getNewSearchRequest();
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		searchRequest.addReturnField("url");
@@ -323,7 +328,7 @@ public class UrlManager {
 			IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
-		SearchRequest searchRequest = client.getNewSearchRequest(field
+		SearchRequest searchRequest = urlDbClient.getNewSearchRequest(field
 				+ "Facet");
 		searchRequest.setQueryString(queryString);
 		searchRequest.getFilterList().add(field + ":" + start + "*",
@@ -336,13 +341,14 @@ public class UrlManager {
 			ParseException, IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException,
 			InstantiationException, IllegalAccessException {
-		SearchRequest searchRequest = client.getNewSearchRequest("urlSearch");
+		SearchRequest searchRequest = urlDbClient
+				.getNewSearchRequest("urlSearch");
 		searchRequest.addFilter("host:\""
 				+ SearchRequest.escapeQuery(host.getName()) + "\"");
 		searchRequest.setQueryString("*:*");
 		filterQueryToFetchOld(searchRequest, fetchIntervalDate);
 		searchRequest.setRows((int) limit);
-		Result result = client.search(searchRequest);
+		Result result = urlDbClient.search(searchRequest);
 		for (ResultDocument item : result)
 			urlList.add(new UrlItem(item));
 	}
@@ -352,13 +358,14 @@ public class UrlManager {
 			IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException,
 			InstantiationException, IllegalAccessException {
-		SearchRequest searchRequest = client.getNewSearchRequest("urlSearch");
+		SearchRequest searchRequest = urlDbClient
+				.getNewSearchRequest("urlSearch");
 		searchRequest.addFilter("host:\""
 				+ SearchRequest.escapeQuery(host.getName()) + "\"");
 		searchRequest.setQueryString("*:*");
 		filterQueryToFetchNew(searchRequest);
 		searchRequest.setRows((int) limit);
-		Result result = client.search(searchRequest);
+		Result result = urlDbClient.search(searchRequest);
 		for (ResultDocument item : result)
 			urlList.add(new UrlItem(item));
 	}
@@ -372,7 +379,7 @@ public class UrlManager {
 			IndexStatus indexStatus, Date startDate, Date endDate)
 			throws SearchLibException {
 		try {
-			SearchRequest searchRequest = client
+			SearchRequest searchRequest = urlDbClient
 					.getNewSearchRequest("urlSearch");
 			StringBuffer query = new StringBuffer();
 			if (like != null) {
@@ -480,7 +487,7 @@ public class UrlManager {
 		try {
 			if (orderBy != null)
 				searchRequest.addSort(orderBy.name, !orderAsc);
-			Result result = client.search(searchRequest);
+			Result result = urlDbClient.search(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result)
 					list.add(new UrlItem(doc));
@@ -510,17 +517,20 @@ public class UrlManager {
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		if (optimize) {
-			client.reload(null);
-			client.getIndex().optimize(null);
+			urlDbClient.reload(null);
+			urlDbClient.getIndex().optimize(null);
+			targetClient.reload(null);
+			targetClient.getIndex().optimize(null);
 		}
-		client.reload(null);
+		urlDbClient.reload(null);
+		targetClient.reload(null);
 	}
 
-	public void updateDocument(UrlItem urlItem) throws SearchLibException {
+	public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
 		try {
 			IndexDocument indexDocument = new IndexDocument();
 			urlItem.populate(indexDocument);
-			client.updateDocument(indexDocument);
+			urlDbClient.updateDocument(indexDocument);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -538,14 +548,24 @@ public class UrlManager {
 
 	public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
 		try {
+			// Update target index
 			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
 					.size());
+			for (Crawl crawl : crawls) {
+				IndexDocument indexDocument = crawl.getTargetIndexDocument();
+				documents.add(indexDocument);
+			}
+			targetClient.updateDocuments(documents);
+
+			// Update URL DB
+			documents.clear();
 			for (Crawl crawl : crawls) {
 				IndexDocument indexDocument = new IndexDocument();
 				crawl.getUrlItem().populate(indexDocument);
 				documents.add(indexDocument);
 			}
-			client.updateDocuments(documents);
+			urlDbClient.updateDocuments(documents);
+
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -571,7 +591,7 @@ public class UrlManager {
 				urlItem.populate(indexDocument);
 				documents.add(indexDocument);
 			}
-			client.updateDocuments(documents);
+			urlDbClient.updateDocuments(documents);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

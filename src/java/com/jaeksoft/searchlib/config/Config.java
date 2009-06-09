@@ -45,6 +45,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.crawler.FieldMap;
@@ -425,7 +426,7 @@ public abstract class Config {
 		lock.lock();
 		try {
 			if (urlManager == null)
-				urlManager = new UrlManager(indexDir);
+				urlManager = new UrlManager((Client) this, indexDir);
 			return urlManager;
 		} catch (FileNotFoundException e) {
 			throw new SearchLibException(e);

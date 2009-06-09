@@ -63,8 +63,8 @@ public class MappingController extends CommonController implements
 
 	public List<SchemaField> getUrlFieldList() throws SearchLibException {
 		synchronized (this) {
-			List<SchemaField> list = getClient().getUrlManager().getClient()
-					.getSchema().getFieldList().getList();
+			List<SchemaField> list = getClient().getUrlManager()
+					.getUrlDbClient().getSchema().getFieldList().getList();
 			if (list.size() > 0 && selectedUrlField == null)
 				selectedUrlField = list.get(0);
 			return list;
