@@ -1,34 +1,56 @@
-<?xml version="1.0" encoding="UTF-8"?>
 
-	<!--   License Agreement for Jaeksoft Open Search Server -->
-	<!--   -->
-	<!--   Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft -->
-	<!--   -->
-	<!--   This file is part of Jaeksoft Open Search Server. -->
-	<!--   http://www.open-search-server.com -->
-	<!--   -->
-	<!--   Jaeksoft Open Search Server is free software: you can -->
-	<!--   redistribute it and/or modify it under the terms of  -->
-	<!--   the GNU General Public License as published by the -->
-	<!--   Free Software Foundation, either version 3 of the  -->
-	<!--   License, or (at your option) any later version. -->
-	<!--   -->
-	<!--   Jaeksoft Open Search Server is distributed in the -->
-	<!--   hope that it will be useful, but WITHOUT ANY  -->
-	<!--   WARRANTY; without even the implied warranty of -->
-	<!--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
-	<!--   -->
-	<!--   See the GNU General Public License for more details. -->
-
+	<!-- License Agreement for Jaeksoft Open Search Server  -->
+	<!-- Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft -->
+	<!-- http://www.open-search-server.com -->
+	<!--  This file is part of Jaeksoft Open Search Server. -->
+	<!-- Jaeksoft Open Search Server is free software: you can
+		redistribute it and/or modify it under the terms of the GNU General
+		Public License as published by the Free Software Foundation, either
+		version 3 of the License, or (at your option) any later version.
+		Jaeksoft Open Search Server is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		General Public License for more details. You should have received a
+		copy of the GNU General Public License along with Jaeksoft Open Search Server.
+		If not, see <http://www.gnu.org/licenses/>.
+	-->
 <configuration>
-
 	<indices>
+		<!--  One local index -->
 		<index name="index" searchCache="100" filterCache="100"
 			fieldCache="500" />
+		<!-- One remote index
+		-->
+		<!--
+			<index name="index"
+			remoteUrl="http://localhost:8080/SearchLib-Community" />
+		-->
+		<!--  Uncomment to split over 4 distributed local index -->
+		<!--
+			<index name="1" searchCache="100" filterCache="100" fieldCache="200"
+			path="${root}/index/url/1" keyField="url" keyMd5RegExp=".*[0123]+$"
+			/> <index name="2" searchCache="100" filterCache="100"
+			fieldCache="200" path="${root}/index/url/2" keyField="url"
+			keyMd5RegExp=".*[4567]+$" /> <index name="3" searchCache="100"
+			filterCache="100" fieldCache="200" path="${root}/index/url/3"
+			keyField="url" keyMd5RegExp=".*[89ab]+$" /> <index name="4"
+			searchCache="100" filterCache="100" fieldCache="200"
+			path="${root}/index/url/4" keyField="url" keyMd5RegExp=".*[cdef]+$"
+			/>
+		-->
+		<!--  Uncomment to split over 4 distributed remote index -->
+		<!--
+			<index name="1" remoteUrl="http://localhost:8080/SearchLib-Community"
+			keyField="url" keyMd5RegExp=".*[0123]+$" /> <index name="2"
+			remoteUrl="http://localhost:8080/SearchLib-Community" keyField="url"
+			keyMd5RegExp=".*[4567]+$" /> <index name="3"
+			remoteUrl="http://localhost:8080/SearchLib-Community" keyField="url"
+			keyMd5RegExp=".*[89ab]+$" /> <index name="4"
+			remoteUrl="http://localhost:8080/SearchLib-Community" keyField="url"
+			keyMd5RegExp=".*[cdef]+$" />
+		-->
 	</indices>
-
 	<schema>
-
 		<analyzers>
 			<analyzer name="StandardAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -97,7 +119,6 @@
 				<filter class="SnowballFinnishFilter" />
 			</analyzer>
 		</analyzers>
-
 		<fields default="content" unique="url">
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
@@ -118,27 +139,23 @@
 			<field name="metaKeywords" indexed="no" stored="compress" />
 			<field name="host" indexed="yes" stored="yes" />
 		</fields>
-
 	</schema>
 
-	<parsers>
-		<parser class="com.jaeksoft.searchlib.parser.HtmlParser"
-			sizeLimit="8388608">
-			<contentType>text/html</contentType>
-		</parser>
-		<parser class="com.jaeksoft.searchlib.parser.PdfParser"
-			sizeLimit="8388608">
-			<contentType>application/pdf</contentType>
-		</parser>
-		<parser class="com.jaeksoft.searchlib.parser.DocParser"
-			sizeLimit="8388608">
-			<contentType>application/msword</contentType>
-		</parser>
-		<parser class="com.jaeksoft.searchlib.parser.PptParser"
-			sizeLimit="8388608">
-			<contentType>application/vnd.ms-powerpoint
-			</contentType>
-		</parser>
-	</parsers>
+	<!--
+	<indexPlugins>
+		<indexPlugin class="com.jaeksoft.searchlib.plugin.IndexPluginBase">
+			<param name="param1">value1</param>
+			<param name="param2">value2</param>
+		</indexPlugin>
+	</indexPlugins>
+	-->
+	<!--
+		When session crawl ends, WebSearch can copy the new index on a remote
+		server
+	-->
+	<!--
+		<publish> <index name="index"
+		remote="http://localhost:8080/SearchLib-Community" /> </publish>
+	-->
 
 </configuration>
