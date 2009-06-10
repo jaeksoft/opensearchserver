@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,16 +22,10 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.crawler.web.database;
 
-import org.apache.lucene.analysis.TokenStream;
+public enum UrlItemFieldEnum {
 
-public class SnowballPortugueseFilter extends FilterFactory {
-
-	@Override
-	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.snowball.SnowballFilter(
-				tokenStream, "Portuguese");
-	}
+	url, lang, langMethod, contentBaseType, contentTypeCharset, contentEncoding, contentLength, outlink, inlink, host, when, responseCode, robotsTxtStatus, parserStatus, fetchStatus, indexStatus;
 
 }

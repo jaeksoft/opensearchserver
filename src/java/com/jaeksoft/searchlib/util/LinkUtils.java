@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
- * http://www.jaeksoft.com
+ * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
  *
@@ -145,9 +145,9 @@ public class LinkUtils {
 	public final static void main(String[] argv) {
 		try {
 			PrintWriter pw = new PrintWriter(System.out);
-			test("http://www.jaeksoft.com", "////websearch.html", pw);
+			test("http://www.open-search-server.com", "////websearch.html", pw);
 			test(
-					"http://www.jaeksoft.com/archives/copieslocales/",
+					"http://www.open-search-server.com/archives/copieslocales/",
 					"./../copieslocales/../copieslocales/./../copieslocales/../copieslocales/./tribunelibre/fr-x203.html",
 					pw);
 			// test("http://www.ledisez.net/blog/2007/03/20//archives",

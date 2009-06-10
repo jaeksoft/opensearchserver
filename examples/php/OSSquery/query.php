@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
- * http://www.jaeksoft.com
+ * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
  *

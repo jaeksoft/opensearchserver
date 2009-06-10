@@ -2,7 +2,7 @@
 <!--
 	License Agreement for Jaeksoft OpenSearchServer
 	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
-	http://www.jaeksoft.com
+	http://www.open-search-server.com
 	This file is part of Jaeksoft OpenSearchServer.
 	Jaeksoft OpenSearchServer is free software: you can
 	redistribute it and/or modify it under the terms of the GNU General
@@ -20,15 +20,15 @@
 	<vbox width="99%">
 		<label>For example:</label>
 		<label>
-			Enter http://www.jaeksoft.com if you only want to crawl the
+			Enter http://www.open-search-server.com if you only want to crawl the
 			home page
 		</label>
 		<label>
-			Enter http://www.jaeksoft.com/* if you want to crawl all the
+			Enter http://www.open-search-server.com/* if you want to crawl all the
 			content
 		</label>
 		<label>
-			Enter http://www.jaeksoft.com/*wiki* if you only want to
+			Enter http://www.open-search-server.com/*wiki* if you only want to
 			crawl the url containing the word wiki
 		</label>
 		<textbox multiline="true" rows="10" width="100%"

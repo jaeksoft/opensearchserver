@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
- * http://www.jaeksoft.com
+ * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
  *
@@ -62,8 +62,6 @@ public class UrlItem implements Serializable {
 	private URI checkedUri;
 	private String host;
 	private Date when;
-	private String metaDescription;
-	private String metaKeywords;
 	private RobotsTxtStatus robotsTxtStatus;
 	private FetchStatus fetchStatus;
 	private Integer responseCode;
@@ -94,22 +92,25 @@ public class UrlItem implements Serializable {
 
 	public UrlItem(ResultDocument doc) {
 		this();
-		setUrl(doc.getValue("url", 0));
-		setHost(doc.getValue("host", 0));
-		setContentBaseType(doc.getValue("contentBaseType", 0));
-		setContentTypeCharset(doc.getValue("contentTypeCharset", 0));
-		setContentLength(doc.getValue("contentLength", 0));
-		setContentEncoding(doc.getValue("contentEncoding", 0));
-		setMetaDescription(doc.getValue("metaDescription", 0));
-		setMetaKeywords(doc.getValue("metaKeywords", 0));
-		setLang(doc.getValue("lang", 0));
-		setLangMethod(doc.getValue("langMethod", 0));
-		setWhen(doc.getValue("when", 0));
-		setRobotsTxtStatusInt(doc.getValue("robotsTxtStatus", 0));
-		setFetchStatusInt(doc.getValue("fetchStatus", 0));
-		setResponseCode(doc.getValue("responseCode", 0));
-		setParserStatusInt(doc.getValue("parserStatus", 0));
-		setIndexStatusInt(doc.getValue("indexStatus", 0));
+		setUrl(doc.getValue(UrlItemFieldEnum.url.name(), 0));
+		setHost(doc.getValue(UrlItemFieldEnum.host.name(), 0));
+		setContentBaseType(doc.getValue(
+				UrlItemFieldEnum.contentBaseType.name(), 0));
+		setContentTypeCharset(doc.getValue(UrlItemFieldEnum.contentTypeCharset
+				.name(), 0));
+		setContentLength(doc.getValue(UrlItemFieldEnum.contentLength.name(), 0));
+		setContentEncoding(doc.getValue(
+				UrlItemFieldEnum.contentEncoding.name(), 0));
+		setLang(doc.getValue(UrlItemFieldEnum.lang.name(), 0));
+		setLangMethod(doc.getValue(UrlItemFieldEnum.langMethod.name(), 0));
+		setWhen(doc.getValue(UrlItemFieldEnum.when.name(), 0));
+		setRobotsTxtStatusInt(doc.getValue(UrlItemFieldEnum.robotsTxtStatus
+				.name(), 0));
+		setFetchStatusInt(doc.getValue(UrlItemFieldEnum.fetchStatus.name(), 0));
+		setResponseCode(doc.getValue(UrlItemFieldEnum.responseCode.name(), 0));
+		setParserStatusInt(doc
+				.getValue(UrlItemFieldEnum.parserStatus.name(), 0));
+		setIndexStatusInt(doc.getValue(UrlItemFieldEnum.indexStatus.name(), 0));
 	}
 
 	public UrlItem(String sUrl) {
@@ -206,24 +207,6 @@ public class UrlItem implements Serializable {
 
 	public Integer getContentLength() {
 		return contentLength;
-	}
-
-	public void setMetaDescription(String v) {
-		metaDescription = v;
-
-	}
-
-	public String getMetaDescription() {
-		return metaDescription;
-	}
-
-	public void setMetaKeywords(String v) {
-		metaKeywords = v;
-
-	}
-
-	public String getMetaKeywords() {
-		return metaKeywords;
 	}
 
 	public ParserStatus getParserStatus() {
@@ -389,35 +372,39 @@ public class UrlItem implements Serializable {
 
 	public void populate(IndexDocument indexDocument)
 			throws MalformedURLException {
-		indexDocument.set("url", getUrl());
-		indexDocument.set("urlSplit", getUrl());
-		indexDocument.set("when", getWhenDateFormat().format(when));
+		indexDocument.set(UrlItemFieldEnum.url.name(), getUrl());
+		indexDocument.set(UrlItemFieldEnum.when.name(), getWhenDateFormat()
+				.format(when));
 		URL url = getURL();
 		if (url != null)
-			indexDocument.set("host", url.getHost());
+			indexDocument.set(UrlItemFieldEnum.host.name(), url.getHost());
 		if (responseCode != null)
-			indexDocument.set("responseCode", responseCode);
+			indexDocument.set(UrlItemFieldEnum.responseCode.name(),
+					responseCode);
 		if (contentBaseType != null)
-			indexDocument.set("contentBaseType", contentBaseType);
+			indexDocument.set(UrlItemFieldEnum.contentBaseType.name(),
+					contentBaseType);
 		if (contentTypeCharset != null)
-			indexDocument.set("contentTypeCharset", contentTypeCharset);
+			indexDocument.set(UrlItemFieldEnum.contentTypeCharset.name(),
+					contentTypeCharset);
 		if (contentLength != null)
-			indexDocument.set("contentLength", getContentLengthFormat().format(
-					contentLength));
+			indexDocument.set(UrlItemFieldEnum.contentLength.name(),
+					getContentLengthFormat().format(contentLength));
 		if (contentEncoding != null)
-			indexDocument.set("contentEncoding", contentEncoding);
-		if (metaDescription != null)
-			indexDocument.set("metaDescription", metaDescription);
-		if (metaKeywords != null)
-			indexDocument.set("metaKeywords", metaKeywords);
+			indexDocument.set(UrlItemFieldEnum.contentEncoding.name(),
+					contentEncoding);
 		if (lang != null)
-			indexDocument.set("lang", lang);
+			indexDocument.set(UrlItemFieldEnum.lang.name(), lang);
 		if (langMethod != null)
-			indexDocument.set("langMethod", langMethod);
-		indexDocument.set("robotsTxtStatus", robotsTxtStatus.value);
-		indexDocument.set("fetchStatus", fetchStatus.value);
-		indexDocument.set("parserStatus", parserStatus.value);
-		indexDocument.set("indexStatus", indexStatus.value);
+			indexDocument.set(UrlItemFieldEnum.langMethod.name(), langMethod);
+		indexDocument.set(UrlItemFieldEnum.robotsTxtStatus.name(),
+				robotsTxtStatus.value);
+		indexDocument.set(UrlItemFieldEnum.fetchStatus.name(),
+				fetchStatus.value);
+		indexDocument.set(UrlItemFieldEnum.parserStatus.name(),
+				parserStatus.value);
+		indexDocument.set(UrlItemFieldEnum.indexStatus.name(),
+				indexStatus.value);
 	}
 
 	public String getLang() {

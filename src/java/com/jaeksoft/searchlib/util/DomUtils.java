@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
- * http://www.jaeksoft.com
+ * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
  *
@@ -26,7 +26,7 @@
  *
  * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
  * 
- * http://www.jaeksoft.com
+ * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
  *
@@ -50,7 +50,7 @@ package com.jaeksoft.searchlib.util;
  *
  * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
  * 
- * http://www.jaeksoft.com
+ * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
  *

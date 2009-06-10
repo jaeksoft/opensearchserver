@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
- * http://www.jaeksoft.com
+ * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
  *
@@ -192,9 +192,9 @@ public class UrlHref {
 	}
 
 	public final static void main(String[] argv) throws URISyntaxException {
-		test("http://www.jaeksoft.com", "////websearch.html");
+		test("http://www.open-search-server.com", "////websearch.html");
 		test(
-				"http://www.jaeksoft.com/archives/copieslocales/",
+				"http://www.open-search-server.com/archives/copieslocales/",
 				"./../copieslocales/../copieslocales/./../copieslocales/../copieslocales/./tribunelibre/fr-x203.html");
 		// test("http://www.ledisez.net/blog/2007/03/20//archives",
 		// "uriEmpty:");

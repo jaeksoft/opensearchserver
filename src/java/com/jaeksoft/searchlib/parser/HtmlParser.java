@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
- * http://www.jaeksoft.com
+ * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
  *
@@ -50,6 +50,7 @@ import org.w3c.tidy.Tidy;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -235,7 +236,11 @@ public class HtmlParser extends Parser {
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
 
-		String charset = getSourceDocument().getFieldValue("charset", 0);
+		String charset = getSourceDocument().getFieldValue(
+				UrlItemFieldEnum.contentTypeCharset.name(), 0);
+		if (charset == null)
+			getSourceDocument().getFieldValue(
+					UrlItemFieldEnum.contentEncoding.name(), 0);
 		if (charset == null)
 			charset = Charset.defaultCharset().name();
 		addField(ParserFieldEnum.charset, charset);
@@ -324,8 +329,8 @@ public class HtmlParser extends Parser {
 
 		List<Node> nodes = DomUtils.getAllNodes(doc, "a");
 		if (nodes != null && metaRobotsFollow) {
-			URL currentURL = new URL(getSourceDocument()
-					.getFieldValue("url", 0));
+			URL currentURL = new URL(getSourceDocument().getFieldValue(
+					UrlItemFieldEnum.url.name(), 0));
 			for (Node node : nodes) {
 				String href = DomUtils.getAttributeText(node, "href");
 				String rel = DomUtils.getAttributeText(node, "rel");
