@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="en_dita_quick_start" xml:lang="en-US">
+	<title>Quick start</title>
+	<shortdesc>This document shows how to install and start Open Search
+		Server.
+	</shortdesc>
+	<prolog>
+		<author>Emmanuel Keller</author>
+	</prolog>
+	<taskbody>
+		<prereq>
+			Open Search Server (OSS) requires a Java(TM) runtime environment
+			(JRE)
+			version 5 or newer.
+			<ul>
+				<li>
+					Sun Microsystems provides JRE
+					(or JDK) for Windows, Linux and
+					Solaris
+					operating
+					systems:
+					<xref format="html" href="http://java.sun.com/javase/downloads/index.jsp">Sun download page</xref>
+					.
+				</li>
+				<li>
+					IBM provides JRE for AIX and Linux operating systems:
+					<xref format="html" href="http://www.ibm.com/developerworks/java/jdk">IBM developer kits</xref>
+				</li>
+			</ul>
+		</prereq>
+		<context>
+			OSS runs on following operating system:
+			Windows
+			XP/2000/VISTA
+			(TM), Linux,
+			Max OS X 10.4 (TM), Solaris (TM) 8
+			and
+			newer, Open
+			Solaris.
+		</context>
+		<steps>
+			<step>
+				<cmd>
+					Download the appropriate package file for your environment.
+				</cmd>
+				<info>
+					Packages are available in zip and tar.gz format. They can be
+					downloaded here:
+					<xref format="html"
+						href="http://sourceforge.net/project/showfiles.php?group_id=260863">SourceForge OSS download page</xref>
+					.
+				</info>
+			</step>
+			<step>
+				<cmd>
+					Uncompress and/or unarchive the package file.
+				</cmd>
+				<stepresult>
+					<image placement="break" href="images/quick_start/oss-folder.jpg" />
+					You get a new folder named "open-search-server".
+				</stepresult>
+			</step>
+			<step>
+				<cmd>
+					Start the server by executing the start file.
+				</cmd>
+				<choices>
+					<choice>
+						On Windows, run the file start.bat as a command.
+					</choice>
+					<choice>On Unix/Linux/Mac OS, open a shell, and execute
+						start.sh.
+					</choice>
+				</choices>
+				<stepresult>
+					<image placement="break" href="images/quick_start/start.png" />
+					The server is running, listening on the tcp port
+					8080.
+				</stepresult>
+			</step>
+			<step>
+				<cmd>
+					Open an Internet navigator (Internet Explorer, Firefox/Mozilla,
+					Safari), an enter an url that can reach your server.
+					</cmd>
+				<choices>
+					<choice>
+						If the server runs on your desktop machine, you can use:
+						<xref format="html" href="http://localhost:8080">http://localhost:8080
+						</xref>
+					</choice>
+					<choice>
+						If OSS runs on a remote server, you should build the
+						appropriate
+						URL, like this:
+						<codeph>http://[server-hostname]:8080
+						</codeph>
+					</choice>
+				</choices>
+			</step>
+			<step>
+				<cmd>
+					You must provide a path to the directory where you want to
+					store the
+					index data. We recommend you to start with the
+					<b>web_crawler</b>
+					folder
+					provided in the
+					<b>examples</b>
+					folder.
+				</cmd>
+				<choices>
+					<choice>
+						On Unix/Linux/Mac systems, enter the absolute path. Eg.:
+						<codeph>/home/me/open-search-server/examples/web_crawler
+						</codeph>
+					</choice>
+					<choice>
+						On Windows systems, enter a Windows UNC pathname like
+						that:
+						<codeph>
+							\\ComputerName\SomeFolder\open-search-server\examples\web_crawler
+						</codeph>
+					</choice>
+				</choices>
+				<stepresult>
+					<image placement="break" href="images/quick_start/oss-start-page.png" />
+					You are on the start page of the admin interface.
+					All tab panel are
+					now be visible.
+				</stepresult>
+			</step>
+			<step>
+				<cmd>
+					Enter the url of the web site you want to crawl.
+				</cmd>
+				<substeps>
+					<substep>
+						<cmd>
+							Select the
+							<b>Crawler</b>
+							panel, then the
+							<b>Web</b>
+							sub panel, and finally the
+							<b>Pattern list</b>
+							sub panel
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Enter
+							<codeph>http://www.open-search-server.com*
+							</codeph>
+							and click on the
+							<b>Add</b>
+							button.
+						</cmd>
+					</substep>
+				</substeps>
+				<stepresult>
+					<image placement="break" href="images/quick_start/enter_pattern.png" />
+				</stepresult>
+			</step>
+			<step>
+				<cmd>
+					Start the crawl process.
+			</cmd>
+				<substeps>
+					<substep>
+						<cmd>
+							Select the
+							<b>Crawl process</b>
+							sub panel.
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Click on the
+							<b>Not running - Click to start</b>
+							button.
+						</cmd>
+					</substep>
+				</substeps>
+				<stepresult>
+					<image placement="break" href="images/quick_start/crawl-process.png" />
+					Open Search Server crawl the web site.
+				</stepresult>
+			</step>
+			<step>
+				<cmd>
+					Query the index.
+			</cmd>
+				<substeps>
+					<substep>
+						<cmd>
+							Select the
+							<b>Query</b>
+							panel.
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Load the already predefined
+							<b>search</b>
+							query template
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Enter a word in the field named
+							<b>Enter the query</b>
+							. Eg.:
+							<codeph>open</codeph>
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Click on the
+							<b>Search</b>
+							button
+						</cmd>
+					</substep>
+				</substeps>
+				<stepresult>
+					<image placement="break" href="images/quick_start/search.png" />
+					The
+					<b>open</b>
+					search founds 10 documents.
+				</stepresult>
+			</step>
+			<step>
+				<cmd>
+					Try the same request using the XML API. Open a new navigator with
+					the following url:
+					<codeph><![CDATA[http://localhost:8080/select?qt=search&q=open]]></codeph>
+				</cmd>
+				<stepresult>
+					<image placement="break" href="images/quick_start/xml-search.png" />
+					The
+					<b>open</b>
+					search result in XML format.
+				</stepresult>
+			</step>
+		</steps>
+	</taskbody>
+</task>

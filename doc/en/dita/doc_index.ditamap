@@ -2,5 +2,6 @@
 <!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd" >
 <map title="Document index" xml:lang="en-US">
 	<topicref href="api_select.dita" type="reference" />
-	<topicref href="install_oss.dita" type="task" />
+	<topicref href="quick_start.dita" type="task" />
+	<topicref href="war_install_oss.dita" type="task" />
 </map>

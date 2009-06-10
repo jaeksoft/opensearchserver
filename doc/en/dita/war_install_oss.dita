@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <task id="en_dita_install_oss" xml:lang="en-US">
-	<title>Installation guide</title>
+	<title>War deployment guide</title>
 	<shortdesc>This first version of installation guide demonstrates
 		that it takes few minutes to have a oss server running and ready to
 		be
