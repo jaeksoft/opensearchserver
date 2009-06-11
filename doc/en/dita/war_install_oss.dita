@@ -8,7 +8,11 @@
 		used.
 	</shortdesc>
 	<prolog>
-		<author>Emmanuel Gosse</author>
+		<author type="creator">Emmanuel Gosse</author>
+		<copyright>
+			<copyryear year="2009" />
+			<copyrholder>InfoPro Digital</copyrholder>
+		</copyright>
 	</prolog>
 	<taskbody>
 		<steps>

@@ -31,6 +31,7 @@
 	<property name="build" location="ant-build" />
 	<property name="build-release" location="${build}/release" />
 	<property name="build-debug" location="${build}/debug" />
+	<property name="build-doc" location="${build}/doc" />
 	<property name="doc" location="doc" />
 	<property name="dist" location="dist" />
 	<property name="temp" location="temp" />
@@ -56,10 +57,7 @@
 		<mkdir dir="${build}" />
 		<mkdir dir="${build-release}" />
 		<mkdir dir="${build-debug}" />
-	</target>
-
-	<target name="doc">
-		<javadoc sourcepath="${src}" destdir="${doc}" />
+		<mkdir dir="${build-doc}" />
 	</target>
 
 	<target name="compile-release" depends="init" description="compile the source ">
@@ -100,7 +98,7 @@
 		</war>
 	</target>
 
-	<target name="dist" depends="dist-war-release,dist-war-debug">
+	<target name="dist" depends="dist-war-release,dist-war-debug,doc">
 		<mkdir dir="${dist}/${product}" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/ROOT" />
@@ -110,20 +108,32 @@
 		<copy todir="${dist}/${product}/LICENSES">
 			<fileset dir="${licenses}" />
 		</copy>
+
 		<copy todir="${dist}/${product}">
 			<fileset file="NOTICE.txt" />
 			<fileset file="README.txt" />
 			<fileset dir="${shell-dir}" />
 		</copy>
+
+		<!-- Copy examples -->
 		<copy todir="${dist}/${product}/examples">
 			<fileset dir="${examples}" />
 		</copy>
+
+		<!-- Copy PDF and HTML documentation -->
+		<copy file="${build-doc}/en/doc_index.pdf" todir="${dist}/${product}/doc" />
+		<copy todir="${dist}/${product}/doc/html">
+			<fileset dir="${build-doc}/en/html" />
+		</copy>
+
+		<!-- Check executable file flag for batches -->
 		<chmod perm="ugo+x" type="file">
 			<fileset dir="${dist}/${product}">
 				<include name="**/*.sh" />
 				<include name="**/*.bat" />
 			</fileset>
 		</chmod>
+
 		<tar longfile="gnu" compression="gzip" destfile="${dist}/${product}.tar.gz">
 			<tarfileset dir="${dist}/${product}" mode="755" prefix="${product}">
 				<include name="**/*.sh" />
@@ -148,6 +158,40 @@
 		</zip>
 		<delete dir="${dist}/${product}" />
 	</target>
+
+	<import file="${dita.dir}/conductor.xml" />
+
+	<target name="doc-en" depends="use-init">
+		<antcall target="dita2xhtml">
+			<param name="args.input" value="doc/en/dita/doc_index.ditamap" />
+			<param name="output.dir" value="${build-doc}/en/html" />
+			<param name="clean.temp" value="yes" />
+		</antcall>
+		<antcall target="dita2pdf2">
+			<param name="args.input" value="doc/en/dita/doc_index.ditamap" />
+			<param name="output.dir" value="${build-doc}/en" />
+			<param name="clean.temp" value="yes" />
+		</antcall>
+	</target>
+
+	<target name="doc-fr" depends="use-init">
+		<antcall target="dita2xhtml">
+			<param name="args.input" value="doc/fr/dita/doc_index.ditamap" />
+			<param name="output.dir" value="${build-doc}/fr/html" />
+			<param name="clean.temp" value="yes" />
+		</antcall>
+		<antcall target="dita2pdf2">
+			<param name="args.input" value="doc/fr/dita/doc_index.ditamap" />
+			<param name="output.dir" value="${build-doc}/fr" />
+			<param name="clean.temp" value="yes" />
+		</antcall>
+	</target>
+
+	<target name="javadoc">
+		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" />
+	</target>
+
+	<target name="doc" depends="doc-en" />
 
 	<target name="clean" description="clean up">
 		<delete dir="${build}" />

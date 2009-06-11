@@ -6,25 +6,30 @@
 		Server.
 	</shortdesc>
 	<prolog>
-		<author>Emmanuel Keller</author>
+		<author type="creator">Emmanuel Keller</author>
+		<copyright>
+			<copyryear year="2009" />
+			<copyrholder>InfoPro Digital</copyrholder>
+		</copyright>
 	</prolog>
 	<taskbody>
 		<prereq>
-			Open Search Server (OSS) requires a Java(TM) runtime environment
+			Open Search Server (OSS) requires a Java&#x2122; runtime environment
 			(JRE)
 			version 5 or newer.
 			<ul>
 				<li>
 					Sun Microsystems provides JRE
-					(or JDK) for Windows, Linux and
-					Solaris
+					(or JDK) for Windows&#x2122;
+					, Linux and
+					Solaris&#x2122;
 					operating
 					systems:
 					<xref format="html" href="http://java.sun.com/javase/downloads/index.jsp">Sun download page</xref>
 					.
 				</li>
 				<li>
-					IBM provides JRE for AIX and Linux operating systems:
+					IBM&#x00AE; provides JRE for AIX&#x2122;, and Linux operating systems:
 					<xref format="html" href="http://www.ibm.com/developerworks/java/jdk">IBM developer kits</xref>
 				</li>
 			</ul>
@@ -32,9 +37,9 @@
 		<context>
 			OSS runs on following operating system:
 			Windows
-			XP/2000/VISTA
-			(TM), Linux,
-			Max OS X 10.4 (TM), Solaris (TM) 8
+			XP/2000/VISTA&#x2122;
+			, Linux,
+			Max OS X 10.4&#x2122;, Solaris&#x2122; 8
 			and
 			newer, Open
 			Solaris.

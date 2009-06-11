@@ -9,7 +9,11 @@
 		available. The engine will answer with a XML result.
 	</shortdesc>
 	<prolog>
-		<author>Emmanuel Keller</author>
+		<author type="creator">Emmanuel Keller</author>
+		<copyright>
+			<copyryear year="2009" />
+			<copyrholder>InfoPro Digital</copyrholder>
+		</copyright>
 	</prolog>
 	<refbody>
 		<section>
@@ -19,7 +23,7 @@
 		</section>
 		<section>
 			<title>Example</title>
-			<codeph>http://localhost:8080/OpenSearchServer/select?q=test&amp;qt=search</codeph>	
+			<codeph>http://localhost:8080/OpenSearchServer/select?q=test&#x0026;qt=search</codeph>	
 	</section>
 	<section>
 	<title>Parameters</title>
@@ -92,35 +96,35 @@
 			</strow>
 			<strow>
 					<stentry>delete</stentry>
-					<stentry>If this parameter is passed, the documents returned by the query are removed. Ex.: <codeph>&amp;delete</codeph></stentry>
+					<stentry>If this parameter is passed, the documents returned by the query are removed. Ex.: <codeph>&#x0026;delete</codeph></stentry>
 					<stentry></stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>noCache</stentry>
-					<stentry>Disable cache (for the current call only). Ex.: <codeph>&amp;noCache</codeph></stentry>
+					<stentry>Disable cache (for the current call only). Ex.: <codeph>&#x0026;noCache</codeph></stentry>
 					<stentry></stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>debug</stentry>
-					<stentry>Enables the debug information in the result. Ex.: <codeph>&amp;debug</codeph></stentry>
+					<stentry>Enables the debug information in the result. Ex.: <codeph>&#x0026;debug</codeph></stentry>
 					<stentry></stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>fq</stentry>
-					<stentry>Add a filter to the current call. The parameters can be used several times in the same call for increasing filters. Ex.: <codeph>fq=date:20101201&amp;fq=color:red</codeph></stentry>
+					<stentry>Add a filter to the current call. The parameters can be used several times in the same call for increasing filters. Ex.: <codeph>fq=date:20101201&#x0026;fq=color:red</codeph></stentry>
 					<stentry>Text</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 			<strow>
 					<stentry>rf</stentry>
-					<stentry>Add one or more fields to send. Ex.: <codeph>&amp;rf=date&amp;rf=color</codeph></stentry>
+					<stentry>Add one or more fields to send. Ex.: <codeph>&#x0026;rf=date&#x0026;rf=color</codeph></stentry>
 					<stentry>Text (field's name)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
@@ -134,21 +138,21 @@
 			</strow>
 						<strow>
 					<stentry>sort</stentry>
-					<stentry>Control results order. Using the abbreviation + ou - to sort by ascending or descending.  Ex.: <codeph>&amp;sort=-date&amp;sort=color</codeph></stentry>
+					<stentry>Control results order. Using the abbreviation + ou - to sort by ascending or descending.  Ex.: <codeph>&#x0026;sort=-date&#x0026;sort=color</codeph></stentry>
 					<stentry>Texte</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 						<strow>
 					<stentry>facet</stentry>
-					<stentry>Enables faceting for the field passed as a parameter. You can add a number in parenthesis to specify the minimum count.  Ex.: <codeph>&amp;facet=color</codeph> ou <codeph>&amp;facet=color(2)</codeph></stentry>
+					<stentry>Enables faceting for the field passed as a parameter. You can add a number in parenthesis to specify the minimum count.  Ex.: <codeph>&#x0026;facet=color</codeph> ou <codeph>&#x0026;facet=color(2)</codeph></stentry>
 					<stentry>Text(Number)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 						<strow>
 					<stentry>facet.multi</stentry>
-					<stentry>Even behavior that facet to be applied to fields containing multiple values (multi-valued fields). Ex.: <codeph>&amp;facet.multi=color</codeph> ou <codeph>&amp;facet.multi=color(2)</codeph></stentry>
+					<stentry>Even behavior that facet to be applied to fields containing multiple values (multi-valued fields). Ex.: <codeph>&#x0026;facet.multi=color</codeph> ou <codeph>&#x0026;facet.multi=color(2)</codeph></stentry>
 					<stentry>Text(Number)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
