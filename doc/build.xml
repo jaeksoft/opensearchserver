@@ -3,7 +3,7 @@
 
 	<property environment="env" />
 
-	<import file="${env.DITA_HOME}/conductor.xml" />
+	<import file="${dita.dir}/conductor.xml" />
 
 	<target name="en" depends="use-init">
 		<antcall target="dita2xhtml">
