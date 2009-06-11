@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project name="doc">
-	<import file="/Users/ekeller/Java_Stuffs/DITA-OT1.4.3/conductor.xml" />
+
+	<property environment="env" />
+
+	<import file="${env.DITA_HOME}/conductor.xml" />
 
 	<target name="en" depends="use-init">
 		<antcall target="dita2xhtml">
