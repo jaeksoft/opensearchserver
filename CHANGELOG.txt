@@ -1,1 +1,9 @@
-- Updated Apache Tomcat to version 6.0.20
+Jaeksoft Open Search Server
+http://www.open-search-server.com
+-----------------------
+ChangeLog
+
+Open Search Server 1.0 beta 2
+
+- New feature 2807080:Update Apache Tomcat to version 6.0.20
+- Fix the bug 2805843: start.bat and stop.bat requires CATALINA_HOME

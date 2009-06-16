@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
+"http://docs.oasis-open.org/dita/dtd/task.dtd">
+<task id="quick_start_query_index">
+  <title>Query the index</title>
+
+  <shortdesc>You can use the web interface to query the data in your
+  index.<image href="images/quick_start/search.png"
+  placement="break"/></shortdesc>
+
+  <taskbody>
+    <steps>
+      <step>
+        <cmd>Select the <b>Query</b> panel.</cmd>
+      </step>
+
+      <step>
+        <cmd>Load the already predefined <b>search</b> query template.</cmd>
+      </step>
+
+      <step>
+        <cmd>Enter a word in the field named <b>Enter the query</b>, for
+        example: <codeph>open</codeph></cmd>
+      </step>
+
+      <step>
+        <cmd>Click on the <b>Search</b> button</cmd>
+      </step>
+    </steps>
+  </taskbody>
+</task>

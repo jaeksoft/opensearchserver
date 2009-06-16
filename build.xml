@@ -121,7 +121,8 @@
 		</copy>
 
 		<!-- Copy PDF and HTML documentation -->
-		<copy file="${build-doc}/en/doc_index.pdf" todir="${dist}/${product}/doc" />
+		<copy file="${build-doc}/en/documentation.pdf" todir="${dist}/${product}/doc" />
+		<copy file="${build-doc}/en/documentation.pdf" todir="${dist}" />
 		<copy todir="${dist}/${product}/doc/html">
 			<fileset dir="${build-doc}/en/html" />
 		</copy>
@@ -163,12 +164,12 @@
 
 	<target name="doc-en" depends="use-init">
 		<antcall target="dita2xhtml">
-			<param name="args.input" value="doc/en/dita/doc_index.ditamap" />
+			<param name="args.input" value="doc/en/dita/documentation.ditamap" />
 			<param name="output.dir" value="${build-doc}/en/html" />
 			<param name="clean.temp" value="yes" />
 		</antcall>
 		<antcall target="dita2pdf2">
-			<param name="args.input" value="doc/en/dita/doc_index.ditamap" />
+			<param name="args.input" value="doc/en/dita/documentation.ditamap" />
 			<param name="output.dir" value="${build-doc}/en" />
 			<param name="clean.temp" value="yes" />
 		</antcall>
@@ -176,12 +177,12 @@
 
 	<target name="doc-fr" depends="use-init">
 		<antcall target="dita2xhtml">
-			<param name="args.input" value="doc/fr/dita/doc_index.ditamap" />
+			<param name="args.input" value="doc/fr/dita/documentation.ditamap" />
 			<param name="output.dir" value="${build-doc}/fr/html" />
 			<param name="clean.temp" value="yes" />
 		</antcall>
 		<antcall target="dita2pdf2">
-			<param name="args.input" value="doc/fr/dita/doc_index.ditamap" />
+			<param name="args.input" value="doc/fr/dita/documentation.ditamap" />
 			<param name="output.dir" value="${build-doc}/fr" />
 			<param name="clean.temp" value="yes" />
 		</antcall>

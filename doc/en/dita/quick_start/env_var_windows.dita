@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
+"http://docs.oasis-open.org/dita/dtd/task.dtd">
+<task id="quick_start_env_var_windows">
+  <title>Setup environment variables on a Windows System</title>
+
+  <shortdesc>On Windows, the only things to do is to add an environment
+  variable named JAVA_HOME.</shortdesc>
+
+  <taskbody>
+    <steps>
+      <step>
+        <cmd>Right click <b>My Computer</b></cmd>
+      </step>
+
+      <step>
+        <cmd>On menu contextual menu, select <b>Properties</b></cmd>
+      </step>
+
+      <step>
+        <cmd>Select the <b>Advanced</b> tab</cmd>
+      </step>
+
+      <step>
+        <cmd>Select <b>Environment Variables</b></cmd>
+      </step>
+
+      <step>
+        <cmd>Edit or create a new entry named JAVA_HOME.</cmd>
+      </step>
+
+      <step>
+        <cmd>JAVA_HOME must point to where the JDK software is located, for
+        example: <tt>C:\Program Files\Java\jdk1.6.0_14</tt></cmd>
+      </step>
+    </steps>
+  </taskbody>
+</task>

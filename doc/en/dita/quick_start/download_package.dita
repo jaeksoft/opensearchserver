@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
+"http://docs.oasis-open.org/dita/dtd/task.dtd">
+<task id="quick_start_download_package">
+	<title>Download Open Search Server</title>
+
+	<shortdesc>Download the appropriate package file for your
+		environment.</shortdesc>
+
+	<taskbody>
+		<steps>
+			<step>
+				<cmd>
+					Go to the download pages:
+					<xref format="html"
+						href="http://sourceforge.net/project/showfiles.php?group_id=260863">http://sourceforge.net/project/showfiles.php?group_id=260863
+					</xref>
+				</cmd>
+			</step>
+
+			<step>
+				<cmd>Select the release you need. Usually you will find the
+					following
+					options:</cmd>
+
+				<choices>
+					<choice>Beta : the beta version. Last stage of development
+						cycle.</choice>
+
+					<choice>Stable / Release: Stable releases are intended for
+						production use.</choice>
+
+					<choice>Unstable / Alpha: Usually the last trunk version.
+					</choice>
+				</choices>
+			</step>
+
+			<step>
+				<cmd>Choose the appropriate file / archive:</cmd>
+
+				<choicetable>
+					<chrow>
+						<choption>documentation.pdf</choption>
+
+						<chdesc>The documentation you are reading now, in PDF
+							format.</chdesc>
+					</chrow>
+
+					<chrow>
+						<choption>open-search-server-XXX.zip
+						</choption>
+
+						<chdesc>Open Search Server archive in ZIP format.</chdesc>
+					</chrow>
+
+					<chrow>
+						<choption>open-search-server-XXX.tar.gz
+						</choption>
+
+						<chdesc>Open Search Server archive in tar.gz format.</chdesc>
+					</chrow>
+
+					<chrow>
+						<choption>open-search-server-XXX.war
+						</choption>
+
+						<chdesc>You can use the war file if you want to deploy it
+							manually
+							on an application server.</chdesc>
+					</chrow>
+				</choicetable>
+			</step>
+
+			<step>
+				<cmd>The download process should start immediatly after you click
+					on
+					the name of the file.</cmd>
+			</step>
+		</steps>
+	</taskbody>
+</task>

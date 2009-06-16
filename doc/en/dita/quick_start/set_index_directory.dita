@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
+"http://docs.oasis-open.org/dita/dtd/task.dtd">
+<task id="quick_start_set_index_directory">
+  <title>Set up the index directory</title>
+
+  <shortdesc>You must provide a path to the directory where you want to store
+  the index data. We recommend you to start with the <b>web_crawler</b> folder
+  provided in the <b>examples</b> folder.<image
+  href="images/quick_start/oss-start-page.png"
+  placement="break"/></shortdesc>
+
+  <taskbody>
+    <steps>
+      <step>
+        <cmd>Enter the absolute path of the index directory.</cmd>
+
+        <choices>
+          <choice>On Unix/Linux/Mac systems, enter the absolute path, for
+          example: <codeph>/home/me/open-search-server/examples/web_crawler
+          </codeph></choice>
+
+          <choice>On Windows systems, enter a Windows UNC pathname, for
+          example:<codeph>
+          \\ComputerName\SomeFolder\open-search-server\examples\web_crawler
+          </codeph></choice>
+        </choices>
+      </step>
+    </steps>
+  </taskbody>
+</task>
