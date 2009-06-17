@@ -7,7 +7,7 @@
   <shortdesc>You must provide a path to the directory where you want to store
   the index data. We recommend you to start with the <b>web_crawler</b> folder
   provided in the <b>examples</b> folder.<image
-  href="images/quick_start/oss-start-page.png"
+  href="images/oss-start-page.png"
   placement="break"/></shortdesc>
 
   <taskbody>

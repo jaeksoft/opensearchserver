@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd" >
 <map xml:lang="en-US" collection-type="sequence">
-	<title>Quick start</title>
-	<topicmeta>
-		<author>Emmanuel Keller</author>
-	</topicmeta>
 	<topicref href="install_jdk.dita" type="task" />
 	<topicref href="env_var_windows.dita" type="task" />
 	<topicref href="env_var_unix.dita" type="task" />

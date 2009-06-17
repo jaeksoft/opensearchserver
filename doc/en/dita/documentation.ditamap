@@ -61,8 +61,10 @@
 			</bookowner>
 		</bookrights>
 	</bookmeta>
-	<chapter format="ditamap" href="quick_start/quick_start.ditamap" />
 	<chapter>
+		<topichead navtitle="Quick start">
+			<topicref href="quick_start/quick_start.ditamap" format="ditamap" />
+		</topichead>
 		<topicref href="api_select.dita" type="reference" />
 		<topicref href="war_install_oss.dita" type="task" />
 	</chapter>

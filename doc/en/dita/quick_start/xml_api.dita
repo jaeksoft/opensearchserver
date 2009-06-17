@@ -6,7 +6,7 @@
 
   <shortdesc>Try the same request using the XML API to get an XML result. Open
   a new navigator with the following url: <codeph/><image
-  href="images/quick_start/xml-search.png" placement="break"/></shortdesc>
+  href="images/xml-search.png" placement="break"/></shortdesc>
 
   <taskbody>
     <steps>
