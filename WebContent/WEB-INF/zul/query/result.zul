@@ -62,7 +62,8 @@
 	<panel title="Document(s)" visible="@{result.documentFound}"
 		collapsible="true" border="normal">
 		<panelchildren>
-			<listbox model="@{result.documents}">
+			<listbox model="@{result.documents}" mold="paging"
+				pageSize="10">
 				<listitem self="@{each='document'}">
 					<listcell>
 						<separator />

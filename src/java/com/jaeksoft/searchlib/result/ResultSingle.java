@@ -109,7 +109,7 @@ public class ResultSingle extends Result {
 		StringIndex collapseFieldStringIndex = (collapseField != null) ? reader
 				.getStringIndex(collapseField) : null;
 		return ResultScoreDoc.appendResultScoreDocArray(reader.getName(), this,
-				getDocs(), docSetHits.getScoreDocs(end),
+				getDocs(), docSetHits.getScoreDocs(end), end,
 				collapseFieldStringIndex);
 	}
 
@@ -150,11 +150,13 @@ public class ResultSingle extends Result {
 			ScoreDoc[] scoreDocs = docSetHits.getScoreDocs(rows);
 			if (scoreDocs.length == lastRows)
 				break;
+			if (rows > scoreDocs.length)
+				rows = scoreDocs.length;
 			resultScoreDocs = ResultScoreDoc.appendResultScoreDocArray(
-					indexName, this, resultScoreDocs, scoreDocs,
+					indexName, this, resultScoreDocs, scoreDocs, rows,
 					collapseFieldStringIndex);
-			collapse.run(resultScoreDocs, end);
-			lastRows = scoreDocs.length;
+			collapse.run(resultScoreDocs, rows);
+			lastRows = rows;
 			rows += searchRequest.getRows();
 		}
 		return collapse.getCollapsedDoc();

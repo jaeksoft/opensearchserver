@@ -94,13 +94,15 @@ public class ResultScoreDoc implements Externalizable {
 
 	public static ResultScoreDoc[] appendResultScoreDocArray(String indexName,
 			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
-			ScoreDoc[] scoreDocs) {
-		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[scoreDocs.length];
+			ScoreDoc[] scoreDocs, int rows) {
+		if (rows > scoreDocs.length)
+			rows = scoreDocs.length;
+		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[rows];
 		int i = 0;
 		if (oldResultScoreDocs != null)
 			for (ResultScoreDoc rsc : oldResultScoreDocs)
 				resultScoreDocs[i++] = rsc;
-		while (i < scoreDocs.length)
+		while (i < rows)
 			resultScoreDocs[i] = new ResultScoreDoc(indexName, resultSingle,
 					scoreDocs[i++]);
 		return resultScoreDocs;
@@ -108,13 +110,13 @@ public class ResultScoreDoc implements Externalizable {
 
 	public static ResultScoreDoc[] appendResultScoreDocArray(String indexName,
 			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
-			ScoreDoc[] scoreDocs, StringIndex collapseFieldStringIndex) {
+			ScoreDoc[] scoreDocs, int rows, StringIndex collapseFieldStringIndex) {
 		if (collapseFieldStringIndex == null)
 			return appendResultScoreDocArray(indexName, resultSingle,
-					oldResultScoreDocs, scoreDocs);
+					oldResultScoreDocs, scoreDocs, rows);
 		int l = oldResultScoreDocs != null ? oldResultScoreDocs.length : 0;
 		ResultScoreDoc[] resultScoreDocs = appendResultScoreDocArray(indexName,
-				resultSingle, oldResultScoreDocs, scoreDocs);
+				resultSingle, oldResultScoreDocs, scoreDocs, rows);
 		for (int i = l; i < resultScoreDocs.length; i++)
 			resultScoreDocs[i].loadCollapseTerm(collapseFieldStringIndex);
 		return resultScoreDocs;
