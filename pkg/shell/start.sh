@@ -22,7 +22,7 @@
 #	along with Jaeksoft OpenSearchServer. 
 #	If not, see <http://www.gnu.org/licenses/>.
 	
-EXECUTABLE=apache-tomcat-6.0.18/bin/startup.sh
+EXECUTABLE=apache-tomcat-6.0.20/bin/startup.sh
 
 if [ ! -x "$EXECUTABLE" ]; then
     echo "Cannot find $EXECUTABLE"

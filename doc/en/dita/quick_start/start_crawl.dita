@@ -5,8 +5,8 @@
   <title>Start the crawl process.</title>
 
   <shortdesc>The crawl process will download and index the url(s) you insert
-  in the pattern list.<image href="images/crawl-process.png"
-  placement="break"/></shortdesc>
+  in the pattern list.<image href="images/crawl-process.png" placement="break"
+  width="300"/></shortdesc>
 
   <taskbody>
     <steps>

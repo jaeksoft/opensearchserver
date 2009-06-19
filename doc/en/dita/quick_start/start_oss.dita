@@ -5,7 +5,7 @@
   <title>Start Open Search Server</title>
 
   <shortdesc>Start the server by executing the start batch file.<image
-  href="images/start.png" placement="break"/></shortdesc>
+  href="images/start.png" placement="break" width="400"/></shortdesc>
 
   <taskbody>
     <steps>
@@ -19,7 +19,7 @@
           start.sh.</choice>
         </choices>
 
-        <stepresult> The server is running, listening on the tcp port
+        <stepresult>The server is running, listening on the tcp port
         8080.</stepresult>
       </step>
     </steps>

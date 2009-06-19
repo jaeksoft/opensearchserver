@@ -6,8 +6,7 @@
 
   <shortdesc>The pattern list let you decide which url will be crawled. Only
   url who match theses patterns will be indexed.<image
-  href="images/enter_pattern.png"
-  placement="break"/></shortdesc>
+  href="images/enter_pattern.png" placement="break" width="300"/></shortdesc>
 
   <taskbody>
     <steps>

@@ -5,8 +5,8 @@
   <title>Extract the open-search-server folder from the archive</title>
 
   <shortdesc>Uncompress and/or unarchive the package file using your favorite
-  tool.<image href="images/oss-folder.jpg" placement="break"
-  width="0"/></shortdesc>
+  tool.<image href="images/oss-folder.png" placement="break"
+  width="150"/></shortdesc>
 
   <taskbody>
     <steps>

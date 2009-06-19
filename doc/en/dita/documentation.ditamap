@@ -2,70 +2,69 @@
 <!DOCTYPE bookmap PUBLIC "-//OASIS//DTD DITA BookMap//EN"
 "bookmap.dtd">
 <bookmap xml:lang="en-US">
-	<title>
-		<ph>Open Search Server documentation</ph>
-		<image href="images/logo_oss.png" placement="break" />
-	</title>
+  <title><ph>Open Search Server documentation</ph><image
+  href="images/logo_oss.png" placement="break"/></title>
 
-	<bookmeta>
-		<author />
+  <bookmeta>
+    <shortdesc>PRELIMINARY DRAFT</shortdesc>
 
-		<authorinformation>
-			<personinfo>
-				<namedetails>
-					<personname>
-						<firstname>Emmanuel</firstname>
+    <author/>
 
-						<lastname>Keller</lastname>
-					</personname>
+    <authorinformation>
+      <personinfo>
+        <namedetails>
+          <personname>
+            <firstname>Emmanuel</firstname>
 
-					<personname>
-						<firstname>Emmanuel</firstname>
+            <lastname>Keller</lastname>
+          </personname>
 
-						<lastname>Gosse</lastname>
-					</personname>
-				</namedetails>
-			</personinfo>
+          <personname>
+            <firstname>Emmanuel</firstname>
 
-			<organizationinfo>
-				<namedetails>
-					<organizationnamedetails>
-						<organizationname>InfoPro Digital</organizationname>
-					</organizationnamedetails>
-				</namedetails>
+            <lastname>Gosse</lastname>
+          </personname>
+        </namedetails>
+      </personinfo>
 
-				<addressdetails>
-					<thoroughfare> 16, rue Mederic</thoroughfare>
-					<locality>Paris</locality>
-					<country>France</country>
-				</addressdetails>
+      <organizationinfo>
+        <namedetails>
+          <organizationnamedetails>
+            <organizationname>InfoPro Digital</organizationname>
+          </organizationnamedetails>
+        </namedetails>
 
-				<urls>
-					<url>http://www.open-search-server.com
-					</url>
-				</urls>
-			</organizationinfo>
-		</authorinformation>
+        <addressdetails><thoroughfare> 12-14, rue Mederic</thoroughfare>
+        <locality>Paris</locality> <country>France</country></addressdetails>
 
-		<prodinfo>
-			<prodname>Open Search Server</prodname>
+        <urls>
+          <url>http://www.open-search-server.com</url>
+        </urls>
+      </organizationinfo>
+    </authorinformation>
 
-			<vrmlist>
-				<vrm release="Beta" rev="2" version="1.0" />
-			</vrmlist>
-		</prodinfo>
+    <prodinfo>
+      <prodname>Open Search Server</prodname>
 
-		<bookrights>
-			<bookowner>
-				<organization>© InfoPro Digital 2009</organization>
-			</bookowner>
-		</bookrights>
-	</bookmeta>
-	<chapter>
-		<topichead navtitle="Quick start">
-			<topicref href="quick_start/quick_start.ditamap" format="ditamap" />
-		</topichead>
-		<topicref href="api_select.dita" type="reference" />
-		<topicref href="war_install_oss.dita" type="task" />
-	</chapter>
+      <vrmlist>
+        <vrm release="Beta" rev="2" version="1.0"/>
+      </vrmlist>
+    </prodinfo>
+
+    <bookrights>
+      <bookowner>
+        <organization>© InfoPro Digital 2009</organization>
+      </bookowner>
+    </bookrights>
+  </bookmeta>
+
+  <chapter>
+    <topichead navtitle="Quick start">
+      <topicref format="ditamap" href="quick_start/quick_start.ditamap"/>
+    </topichead>
+
+    <topicref href="api_select.dita" type="reference"/>
+
+    <topicref href="war_install_oss.dita" type="task"/>
+  </chapter>
 </bookmap>

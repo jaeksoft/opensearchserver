@@ -5,8 +5,8 @@
   <title>Query the index</title>
 
   <shortdesc>You can use the web interface to query the data in your
-  index.<image href="images/quick_start/search.png"
-  placement="break"/></shortdesc>
+  index.<image href="images/search.png" placement="break"
+  width="300"/></shortdesc>
 
   <taskbody>
     <steps>
