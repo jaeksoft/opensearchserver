@@ -2,31 +2,41 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_extract_folder">
-  <title>Extract the open-search-server folder from the archive</title>
+	<title>Extracting the open-search-server folder from the
+		archive</title>
 
-  <shortdesc>Uncompress and/or unarchive the package file using your favorite
-  tool.<image href="images/oss-folder.png" placement="break"
-  width="150"/></shortdesc>
+	<shortdesc>
+		Uncompress and/or unarchive the package file using your favorite
+		tool.
+		<image href="images/oss-folder.png" placement="break" width="150" />
+	</shortdesc>
 
-  <taskbody>
-    <steps>
-      <step>
-        <cmd>Use your favorite tool to uncompress the archive and extract the
-        open-search-server folder.</cmd>
+	<taskbody>
+		<steps>
+			<step>
+				<cmd>Use your favorite tool to uncompress the archive and extract
+					the
+					open-search-server folder.</cmd>
 
-        <choices>
-          <choice>Windows / Mac: usually you can double click on the archive
-          to decompress it and extract the folder.</choice>
+				<choices>
+					<choice>Windows / Mac: double clicking on the archive
+						will usually decompress it and extract the folder.</choice>
 
-          <choice>ZIP archive on Unix system: You can use the unzip command
-          line utility, for example: <tt>unzip
-          open-search-server-XXX.zip</tt></choice>
+					<choice>
+						ZIP archive on Unix system: You can use the unzip command
+						line utility, for example:
+						<tt>unzip
+							open-search-server-XXX.zip</tt>
+					</choice>
 
-          <choice>TAR.GZ archive on Unix: You can use the tar command line
-          utility, for example: <tt>tar -zxvf
-          open-search-server-XXX.tar.gz</tt></choice>
-        </choices>
-      </step>
-    </steps>
-  </taskbody>
+					<choice>
+						TAR.GZ archive on Unix: You can use the tar command line
+						utility, for example:
+						<tt>tar -zxvf
+							open-search-server-XXX.tar.gz</tt>
+					</choice>
+				</choices>
+			</step>
+		</steps>
+	</taskbody>
 </task>

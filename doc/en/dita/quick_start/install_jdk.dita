@@ -2,37 +2,44 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_install_jdk">
-  <title>Install the JDK Software</title>
+	<title>Installing the JDK Software</title>
 
-  <shortdesc>Open Search Server (OSS) requires a Java™ runtime environment
-  (JRE) version 5 or newer.</shortdesc>
+	<shortdesc>Open Search Server (OSS) requires a Java™ runtime
+		environment
+		(JRE) version 5 or newer.</shortdesc>
 
-  <taskbody>
-    <steps>
-      <step>
-        <cmd>Download the JDK software from Sun Microsystems or IBM.</cmd>
+	<taskbody>
+		<steps>
+			<step>
+				<cmd>Download the JDK software from Sun Microsystems or IBM.
+				</cmd>
 
-        <choices>
-          <choice>Sun Microsystems provides JRE (or JDK) for Windows™ , Linux
-          and Solaris™ operating systems: <xref format="html"
-          href="http://java.sun.com/javase/downloads/index.jsp">Sun download
-          page</xref> .</choice>
+				<choices>
+					<choice>
+						Sun Microsystems provides its JRE (or JDK) for the Windows™ ,Linux
+						and Solaris™ operating systems:
+						<xref format="html" href="http://java.sun.com/javase/downloads/index.jsp">Sun download
+							page</xref>
+						.
+					</choice>
 
-          <choice>IBM® provides JRE for AIX™, and Linux operating systems:
-          <xref format="html"
-          href="http://www.ibm.com/developerworks/java/jdk">IBM developer
-          kit</xref></choice>
-        </choices>
-      </step>
+					<choice>
+						IBM® provides its JRE for the AIX™ and Linux operating systems:
+						<xref format="html" href="http://www.ibm.com/developerworks/java/jdk">IBM developer
+							kit</xref>
+					</choice>
+				</choices>
+			</step>
 
-      <step>
-        <cmd>Select the appropriate JRE/JDK version for your operating system
-        and download.</cmd>
-      </step>
+			<step>
+				<cmd>Select appropriate JRE/JDK version
+					and download.</cmd>
+			</step>
 
-      <step>
-        <cmd>Install the JRE/JDK using the installation instructions.</cmd>
-      </step>
-    </steps>
-  </taskbody>
+			<step>
+				<cmd>Install the JRE/JDK using the installation instructions.
+				</cmd>
+			</step>
+		</steps>
+	</taskbody>
 </task>

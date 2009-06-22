@@ -2,7 +2,7 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_xml_api">
-  <title>Test the XML api</title>
+  <title>Testing the XML API</title>
 
   <shortdesc>Try the same request using the XML API to get an XML result. Open
   a new navigator with the following url: <codeph/><image

@@ -1,9 +1,17 @@
 Jaeksoft Open Search Server
 http://www.open-search-server.com
 -----------------------
-ChangeLog
+CHANGE LOG
 
 Open Search Server 1.0 beta 2
 
-- New feature 2807080:Update Apache Tomcat to version 6.0.20
-- Fix the bug 2805843: start.bat and stop.bat requires CATALINA_HOME
+Bug fixes
+- 2805843: start.bat and stop.bat requires CATALINA_HOME
+- 2808554: Collapsing returns less rows than expected
+
+New features
+- 2807080: Update Apache Tomcat to version 6.0.20
+- 2808582: Add paging on query result
+
+Documentation updates
+- 2805848: JAVA_HOME documentation

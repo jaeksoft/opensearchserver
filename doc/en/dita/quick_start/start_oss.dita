@@ -2,26 +2,29 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_start_oss">
-  <title>Start Open Search Server</title>
+	<title>Launching Open Search Server</title>
 
-  <shortdesc>Start the server by executing the start batch file.<image
-  href="images/start.png" placement="break" width="400"/></shortdesc>
+	<shortdesc>
+		Start the server by executing the start batch file.
+		<image href="images/start.png" placement="break" width="400" />
+	</shortdesc>
 
-  <taskbody>
-    <steps>
-      <step>
-        <cmd>Start the server by executing the start batch file.</cmd>
+	<taskbody>
+		<steps>
+			<step>
+				<cmd>Start the server by executing the start batch file.</cmd>
 
-        <choices>
-          <choice>On Windows, run the file start.bat as a command.</choice>
+				<choices>
+					<choice>On Windows, run the file start.bat as a command.</choice>
 
-          <choice>On Unix/Linux/Mac OS, open a shell, and execute
-          start.sh.</choice>
-        </choices>
+					<choice>On Unix/Linux/Mac OS, open a shell, and execute
+						start.sh.</choice>
+				</choices>
 
-        <stepresult>The server is running, listening on the tcp port
-        8080.</stepresult>
-      </step>
-    </steps>
-  </taskbody>
+				<stepresult>The server is running, and will now stat listening to
+					the tcp port
+					8080.</stepresult>
+			</step>
+		</steps>
+	</taskbody>
 </task>

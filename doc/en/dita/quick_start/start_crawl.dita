@@ -2,25 +2,36 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_start_crawl">
-  <title>Start the crawl process.</title>
+	<title>Starting the crawl process.</title>
 
-  <shortdesc>The crawl process will download and index the url(s) you insert
-  in the pattern list.<image href="images/crawl-process.png" placement="break"
-  width="300"/></shortdesc>
+	<shortdesc>
+		The crawl process will download and index the url(s) you inserted
+		in the patterns list.
+		<image href="images/crawl-process.png" placement="break" width="300" />
+	</shortdesc>
 
-  <taskbody>
-    <steps>
-      <step>
-        <cmd>Select the <b>Crawl process</b> sub panel.</cmd>
-      </step>
+	<taskbody>
+		<steps>
+			<step>
+				<cmd>
+					Select the
+					<b>Crawl process</b>
+					sub-panel.
+				</cmd>
+			</step>
 
-      <step>
-        <cmd>Click on the <b>Not running - Click to start</b> button.</cmd>
-      </step>
+			<step>
+				<cmd>
+					Click on the
+					<b>Not running - Click to start</b>
+					button.
+				</cmd>
+			</step>
 
-      <step>
-        <cmd>Later, you can click on the same button to stop the crawl.</cmd>
-      </step>
-    </steps>
-  </taskbody>
+			<step>
+				<cmd>Later, you can click on the same button to stop the
+					crawl.</cmd>
+			</step>
+		</steps>
+	</taskbody>
 </task>

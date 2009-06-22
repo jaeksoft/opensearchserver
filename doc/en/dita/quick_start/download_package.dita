@@ -19,18 +19,21 @@
 			</step>
 
 			<step>
-				<cmd>Select the release you need. Usually you will find the
+				<cmd>Select the release version you need. Usually you will
+					be
+					offered the
 					following
 					options:</cmd>
 
 				<choices>
-					<choice>Beta : the beta version. Last stage of development
+					<choice>Beta : the beta version. Lastest stage of development
 						cycle.</choice>
 
-					<choice>Stable / Release: Stable releases are intended for
+					<choice>Stable / Release: Stable releases, intended for
 						production use.</choice>
 
-					<choice>Unstable / Alpha: Usually the last trunk version.
+					<choice>Unstable / Alpha: Usually the lastest trunk
+						version.
 					</choice>
 				</choices>
 			</step>
@@ -43,7 +46,8 @@
 						<choption>documentation.pdf</choption>
 
 						<chdesc>The documentation you are reading now, in PDF
-							format.</chdesc>
+							format.
+						</chdesc>
 					</chrow>
 
 					<chrow>
@@ -72,7 +76,8 @@
 			</step>
 
 			<step>
-				<cmd>The download process should start immediatly after you click
+				<cmd>The download process should start immediately after you
+					click
 					on
 					the name of the file.</cmd>
 			</step>

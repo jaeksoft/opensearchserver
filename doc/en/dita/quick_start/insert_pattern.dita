@@ -2,34 +2,55 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_insert_pattern">
-  <title>Enter the url of a web site you want to crawl</title>
+	<title>Entering the URL of the web site to be crawled</title>
+	<shortdesc>
+		The pattern list let you decide which url will be crawled. Only
+		url who
+		match theses patterns will be indexed.
+		<image href="images/enter_pattern.png" placement="break" width="300" />
+	</shortdesc>
 
-  <shortdesc>The pattern list let you decide which url will be crawled. Only
-  url who match theses patterns will be indexed.<image
-  href="images/enter_pattern.png" placement="break" width="300"/></shortdesc>
+	<taskbody>
+		<steps>
+			<step>
+				<cmd>
+					Select the
+					<b>Crawler</b>
+					panel.
+				</cmd>
+			</step>
 
-  <taskbody>
-    <steps>
-      <step>
-        <cmd>Select the <b>Crawler</b> panel.</cmd>
-      </step>
+			<step>
+				<cmd>
+					Then, select the
+					<b>Web</b>
+					sub-panel.
+				</cmd>
+			</step>
 
-      <step>
-        <cmd>Then, select the <b>Web</b> sub panel.</cmd>
-      </step>
+			<step>
+				<cmd>
+					Finally, select the
+					<b>Pattern list</b>
+					sub-panel.
+				</cmd>
+			</step>
 
-      <step>
-        <cmd>Finally, select the <b>Pattern list</b> sub panel.</cmd>
-      </step>
+			<step>
+				<cmd>
+					Enter, for example,
+					<codeph>http://www.open-search-server.com*
+					</codeph>
+				</cmd>
+			</step>
 
-      <step>
-        <cmd>Enter, for example,
-        <codeph>http://www.open-search-server.com*</codeph></cmd>
-      </step>
-
-      <step>
-        <cmd>Click on the <b>Add</b> button.</cmd>
-      </step>
-    </steps>
-  </taskbody>
+			<step>
+				<cmd>
+					Click on the
+					<b>Add</b>
+					button.
+				</cmd>
+			</step>
+		</steps>
+	</taskbody>
 </task>

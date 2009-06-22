@@ -2,10 +2,10 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_set_index_directory">
-  <title>Set up the index directory</title>
+  <title>Setting up the index directory</title>
 
   <shortdesc>You must provide a path to the directory where you want to store
-  the index data. We recommend you to start with the <b>web_crawler</b> folder
+  the index data. We recommend that you start with the <b>web_crawler</b> folder
   provided in the <b>examples</b> folder.<image
   href="images/oss-start-page.png" placement="break" width="400"/></shortdesc>
 

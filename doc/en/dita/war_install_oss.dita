@@ -2,8 +2,10 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <task id="en_dita_install_oss" xml:lang="en-US">
 	<title>War deployment guide</title>
-	<shortdesc>This first version of installation guide demonstrates
-		that it takes few minutes to have a oss server running and ready to
+	<shortdesc>This first version of the installation guide
+		demonstrates
+		that it takes few minutes to have a OSS server running and
+		ready to
 		be
 		used.
 	</shortdesc>
@@ -21,10 +23,9 @@
 					Install Apache Tomcat or another JAVA server: This
 					installation
 					guide
-					will be
-					based on it.
+					assumes that it is installed.
 					Please refer to standard
-					installation of it
+					installation procedures at the corresponding
 					website.
 					http://tomcat.apache.org/index.html
 					Version 5 or newer
@@ -33,16 +34,16 @@
 			</step>
 			<step>
 				<cmd>
-					Deploy OSS war file:
+					Deploy the OSS war file:
 					Put oss.war in 'tomcat/webapps' tomcat
-					directory. Rename it like you
-					want (keep 'war' extension !). Ex. :
+					directory. Rename it as you
+					want (but keep 'war' extension !). Ex. :
 					oss.war
 				</cmd>
 			</step>
 			<step>
 				<cmd>
-					Configuration of war in tomcat:
+					Configuration of war in Tomcat:
 					In
 					'tomcat/conf/Catalina/localhost/'
 					path, create a xml file named
@@ -64,18 +65,19 @@
 			</step>
 			<step>
 				<cmd>
-					Configuration of physical index:
-					In a repository where you would
+					Configuration of the physical index:
+					In any folder where you
+					would
 					like
 					to put it (no special needs),
-					we
-					use '/mnt/all_oss/', create the
+					use '/mnt/all_oss/', create
+					the
 					place
 					you want to have your
 					physical
-					index. I choose oss1 ( to be
-					correct
-					with previous steps).
+					index at. For instance oss1 (
+					to
+					match the previous steps).
 					</cmd>
 				<substeps>
 					<substep>
@@ -85,9 +87,10 @@
 					</cmd>
 					</substep>
 					<substep>
-						<cmd>create only a repository named 'index' in oss1, At
+						<cmd>create a single folder named 'index' in oss1, At
 							server
-							start, it creates an empty index automaticaly in.</cmd>
+							start, empty index files will automatically be added inside it.
+						</cmd>
 					</substep>
 				</substeps>
 				<info>
