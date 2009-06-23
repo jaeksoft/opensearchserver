@@ -124,7 +124,6 @@ public class RenderXml implements Render {
 		List<String> values = doc.getValueList(field);
 		if (values == null)
 			return;
-		writer.println();
 		for (String v : values) {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
@@ -141,7 +140,6 @@ public class RenderXml implements Render {
 		if (snippets == null)
 			return;
 		boolean highlighted = doc.isHighlighted(field.getName());
-		writer.println();
 		for (String snippet : snippets) {
 			writer.print("\t\t<snippet name=\"");
 			writer.print(fieldName);
