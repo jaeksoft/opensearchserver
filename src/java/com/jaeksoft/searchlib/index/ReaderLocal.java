@@ -553,6 +553,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			FilterHits filterHits = searchRequest.getFilterList()
 					.getFilterHits(this, defaultField, analyzer, isNoCache);
 			Sort sort = searchRequest.getSortList().getLuceneSort();
+
 			dsh = new DocSetHits(this, searchRequest.getQuery(), filterHits,
 					sort, isDelete, isFacet);
 			if (!isDelete && !isNoCache)

@@ -42,6 +42,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
@@ -89,7 +90,7 @@ public class SearchRequest implements Externalizable {
 	private SortList sortList;
 	private String collapseField;
 	private int collapseMax;
-	private boolean collapseActive;
+	private CollapseMode collapseMode;
 	private int start;
 	private int rows;
 	private String lang;
@@ -127,7 +128,7 @@ public class SearchRequest implements Externalizable {
 		this.facetFieldList = new FieldList<FacetField>();
 		this.collapseField = null;
 		this.collapseMax = 2;
-		this.collapseActive = false;
+		this.collapseMode = CollapseMode.COLLAPSE_OFF;
 		this.start = 0;
 		this.rows = 10;
 		this.lang = null;
@@ -168,7 +169,7 @@ public class SearchRequest implements Externalizable {
 				searchRequest.facetFieldList);
 		this.collapseField = searchRequest.collapseField;
 		this.collapseMax = searchRequest.collapseMax;
-		this.collapseActive = searchRequest.collapseActive;
+		this.collapseMode = searchRequest.collapseMode;
 		this.delete = searchRequest.delete;
 		this.withDocuments = searchRequest.withDocuments;
 		this.withSortValues = searchRequest.withSortValues;
@@ -483,12 +484,12 @@ public class SearchRequest implements Externalizable {
 			defaultOperator = Operator.OR;
 	}
 
-	public void setCollapseActive(boolean active) {
-		this.collapseActive = active;
+	public void setCollapseMode(CollapseMode mode) {
+		this.collapseMode = mode;
 	}
 
-	public boolean getCollapseActive() {
-		return this.collapseActive;
+	public CollapseMode getCollapseMode() {
+		return this.collapseMode;
 	}
 
 	public static String escapeQuery(String query) {
@@ -670,7 +671,7 @@ public class SearchRequest implements Externalizable {
 		sortList = External.readObject(in);
 		collapseField = External.readUTF(in);
 		collapseMax = in.readInt();
-		collapseActive = in.readBoolean();
+		collapseMode = CollapseMode.valueOf(in.readInt());
 		start = in.readInt();
 		rows = in.readInt();
 		lang = External.readUTF(in);
@@ -701,7 +702,7 @@ public class SearchRequest implements Externalizable {
 
 		External.writeUTF(collapseField, out);
 		out.writeInt(collapseMax);
-		out.writeBoolean(collapseActive);
+		out.writeInt(collapseMode.code);
 
 		out.writeInt(start);
 		out.writeInt(rows);

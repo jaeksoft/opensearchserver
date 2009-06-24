@@ -2,7 +2,7 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_download_package">
-	<title>Download Open Search Server</title>
+	<title>Downloading Open Search Server</title>
 
 	<shortdesc>Download the appropriate package file for your
 		environment.</shortdesc>

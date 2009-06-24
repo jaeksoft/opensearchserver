@@ -41,7 +41,7 @@
 			<strow>
 				<stentry>q</stentry>
 				<stentry>
-					Searched keywords. Ex:
+					Searches for keywords. Ex:
 						<codeph>q=try</codeph></stentry>
 				<stentry>Text</stentry>
 					<stentry></stentry>
@@ -49,7 +49,7 @@
 			</strow>
 			<strow>
 				<stentry>query</stentry>
-				<stentry>same as parameter <varname>q</varname>. Ex.: <codeph>query=try</codeph></stentry>
+				<stentry>Same as parameter <varname>q</varname>. Ex.: <codeph>query=try</codeph></stentry>
 				<stentry>Text</stentry>
 				<stentry></stentry>
 				<stentry>yes (ou <varname>q</varname>)</stentry>
@@ -70,7 +70,7 @@
 			</strow>
 			<strow>
 					<stentry>rows</stentry>
-					<stentry>Indicates the number of records to returned. Associated with the 'start' parameter,  This parameter allows for a pagination. Ex.: <codeph>rows=5</codeph></stentry>
+					<stentry>Indicates the number of records to be returned. Associated with the 'start' parameter,  This parameter allows for a pagination. Ex.: <codeph>rows=5</codeph></stentry>
 					<stentry>Number</stentry>
 					<stentry>10</stentry>
 					<stentry>no</stentry>
@@ -140,7 +140,7 @@
 			</strow>
 						<strow>
 					<stentry>sort</stentry>
-					<stentry>Controls results order. Using the abbreviation + ou - to sort by ascending or descending.  Ex.: <codeph>&#x0026;sort=-date&#x0026;sort=color</codeph></stentry>
+					<stentry>Controls results order. Using the abbreviation + ou - to sort by ascending or descending order.  Ex.: <codeph>&#x0026;sort=-date&#x0026;sort=color</codeph></stentry>
 					<stentry>Text</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
@@ -154,7 +154,7 @@
 			</strow>
 						<strow>
 					<stentry>facet.multi</stentry>
-					<stentry>Same as parameter <varname>facet</varname>, to use with fields containing multiple values (multi-valued fields). Ex.: <codeph>&#x0026;facet.multi=color</codeph> ou <codeph>&#x0026;facet.multi=color(2)</codeph></stentry>
+					<stentry>Same as parameter <varname>facet</varname>, for use with fields containing multiple values (multi-valued fields). Ex.: <codeph>&#x0026;facet.multi=color</codeph> ou <codeph>&#x0026;facet.multi=color(2)</codeph></stentry>
 					<stentry>Text(Number)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>

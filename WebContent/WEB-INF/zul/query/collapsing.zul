@@ -24,8 +24,12 @@
 		</columns>
 		<rows>
 			<row>
-				<label>Active</label>
-				<checkbox checked="@{collapse.request.collapseActive}" />
+				<label>Mode</label>
+				<listbox mold="select" model="@{collapse.collapseModes}"
+					selectedItem="@{collapse.request.collapseMode}">
+					<listitem self="@{each=mode}" label="@{mode.label}"
+						value="@{mode}" />
+				</listbox>
 			</row>
 			<row>
 				<label>Field</label>

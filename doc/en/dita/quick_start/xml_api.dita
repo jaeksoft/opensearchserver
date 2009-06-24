@@ -2,21 +2,25 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_xml_api">
-  <title>Testing the XML API</title>
+	<title>Testing the XML API</title>
 
-  <shortdesc>Try the same request using the XML API to get an XML result. Open
-  a new navigator with the following url: <codeph/><image
-  href="images/xml-search.png" placement="break" width="300"/></shortdesc>
+	<shortdesc>
+		Try the same request using the XML API to get an XML result. Open
+		a new web browser with the following url:
+		<codeph />
+		<image href="images/xml-search.png" placement="break" width="300" />
+	</shortdesc>
 
-  <taskbody>
-    <steps>
-      <step>
-        <cmd>Open a new window on your web browser</cmd>
-      </step>
+	<taskbody>
+		<steps>
+			<step>
+				<cmd>Open a new window on your web browser</cmd>
+			</step>
 
-      <step>
-        <cmd>Enter the following url:
-        <tt>http://localhost:8080/select?qt=search&amp;q=open</tt></cmd>
+			<step>
+				<cmd>
+					Enter the following url:
+					<tt>http://localhost:8080/select?qt=search&amp;q=open</tt></cmd>
       </step>
     </steps>
   </taskbody>

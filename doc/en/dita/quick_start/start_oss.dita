@@ -21,7 +21,7 @@
 						start.sh.</choice>
 				</choices>
 
-				<stepresult>The server is running, and will now stat listening to
+				<stepresult>The server is running, and will now start listening to
 					the tcp port
 					8080.</stepresult>
 			</step>

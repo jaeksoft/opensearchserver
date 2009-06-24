@@ -4,9 +4,10 @@
 <task id="quick_start_insert_pattern">
 	<title>Entering the URL of the web site to be crawled</title>
 	<shortdesc>
-		The pattern list let you decide which url will be crawled. Only
-		url who
-		match theses patterns will be indexed.
+		The pattern list lets you decide which URL will be crawled. Only
+		URLs
+		that
+		match these patterns will be indexed.
 		<image href="images/enter_pattern.png" placement="break" width="300" />
 	</shortdesc>
 

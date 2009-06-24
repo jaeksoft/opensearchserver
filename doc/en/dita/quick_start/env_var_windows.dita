@@ -5,7 +5,7 @@
 	<title>Setting up then environment variables on a Windows™
 		System</title>
 
-	<shortdesc>On Windows, the only things to do is to add an environment
+	<shortdesc>On Windows, the only thing to do is to add an environment
 		variable named JAVA_HOME.</shortdesc>
 
 	<taskbody>
@@ -45,7 +45,7 @@
 
 			<step>
 				<cmd>
-					JAVA_HOME must point to the JDK software, for
+					JAVA_HOME must point toward the JDK software, for
 					example:
 					<tt>C:\Program Files\Java\jdk1.6.0_14</tt>
 				</cmd>

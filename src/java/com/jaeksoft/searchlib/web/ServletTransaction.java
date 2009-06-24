@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -162,6 +162,7 @@ public class ServletTransaction {
 			return;
 		if (xmlResponse.size() == 0)
 			return;
+		response.setContentType("text/xml");
 		XmlWriter xmlWriter = new XmlWriter(getWriter("UTF-8"), "UTF-8");
 
 		xmlWriter.startElement("response");

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -90,6 +90,7 @@ public class DocSetHits {
 				hc = new DeleteHitCollector();
 			else if (collect)
 				hc = new ScoreHitCollector();
+
 			TopDocs topDocs = reader.search(query, filter, sort, 1);
 			if (hc != null) {
 				this.collectedDocs = new int[topDocs.totalHits];

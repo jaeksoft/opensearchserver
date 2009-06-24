@@ -33,6 +33,7 @@ import java.util.Iterator;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -43,7 +44,7 @@ public abstract class Result implements Externalizable,
 		Iterable<ResultDocument> {
 
 	transient protected SearchRequest searchRequest;
-	transient protected Collapse collapse;
+	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
 	private ResultScoreDoc[] docs;
 	protected int numFound;
@@ -68,7 +69,7 @@ public abstract class Result implements Externalizable,
 			debug = new Debug();
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
-		collapse = new Collapse(searchRequest);
+		collapse = CollapseAbstract.newInstance(searchRequest);
 	}
 
 	public SearchRequest getSearchRequest() {
@@ -138,7 +139,7 @@ public abstract class Result implements Externalizable,
 		return docs;
 	}
 
-	public Collapse getCollapse() {
+	public CollapseAbstract getCollapse() {
 		return collapse;
 	}
 

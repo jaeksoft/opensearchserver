@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.result;
 import java.io.IOException;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -78,11 +77,11 @@ public class ResultSingle extends Result {
 
 		ResultScoreDoc[] docs;
 		// Are we doing collapsing ?
-		if (collapse.isActive()) {
-			docs = fetchUntilCollapse();
+		if (collapse != null) {
+			docs = collapse.collapse(this);
 			collapsedDocCount = collapse.getDocCount();
 		} else
-			docs = fetchWithoutCollapse();
+			docs = fetch();
 
 		if (searchRequest.isWithSortValues()) {
 			sortStringIndexArray = searchRequest.getSortList()
@@ -102,8 +101,8 @@ public class ResultSingle extends Result {
 
 	}
 
-	private ResultScoreDoc[] fetchWithoutCollapse() throws IOException,
-			ParseException, SyntaxError {
+	private ResultScoreDoc[] fetch() throws IOException, ParseException,
+			SyntaxError {
 		int end = searchRequest.getEnd();
 		String collapseField = searchRequest.getCollapseField();
 		StringIndex collapseFieldStringIndex = (collapseField != null) ? reader
@@ -128,38 +127,6 @@ public class ResultSingle extends Result {
 	 */
 	public DocSetHits getDocSetHits() {
 		return this.docSetHits;
-	}
-
-	/**
-	 * Fetch new documents until collapsed results is complete.
-	 * 
-	 * @throws IOException
-	 * @throws SyntaxError
-	 * @throws ParseException
-	 */
-	private ResultScoreDoc[] fetchUntilCollapse() throws IOException,
-			ParseException, SyntaxError {
-		int end = searchRequest.getEnd();
-		int lastRows = 0;
-		int rows = end;
-		StringIndex collapseFieldStringIndex = reader
-				.getStringIndex(searchRequest.getCollapseField());
-		ResultScoreDoc[] resultScoreDocs = null;
-		String indexName = reader.getName();
-		while (collapse.getCollapsedDocsLength() < end) {
-			ScoreDoc[] scoreDocs = docSetHits.getScoreDocs(rows);
-			if (scoreDocs.length == lastRows)
-				break;
-			if (rows > scoreDocs.length)
-				rows = scoreDocs.length;
-			resultScoreDocs = ResultScoreDoc.appendResultScoreDocArray(
-					indexName, this, resultScoreDocs, scoreDocs, rows,
-					collapseFieldStringIndex);
-			collapse.run(resultScoreDocs, rows);
-			lastRows = rows;
-			rows += searchRequest.getRows();
-		}
-		return collapse.getCollapsedDoc();
 	}
 
 }

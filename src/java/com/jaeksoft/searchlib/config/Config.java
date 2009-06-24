@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketCache;
+import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
@@ -490,11 +491,12 @@ public abstract class Config {
 		if ((p = httpRequest.getParameter("lang")) != null)
 			searchRequest.setLang(p);
 
-		if ((p = httpRequest.getParameter("collapse.field")) != null) {
+		if ((p = httpRequest.getParameter("collapse.mode")) != null)
+			searchRequest.setCollapseMode(CollapseMode.valueOfLabel(p));
+
+		if ((p = httpRequest.getParameter("collapse.field")) != null)
 			searchRequest.setCollapseField(getSchema().getFieldList().get(p)
 					.getName());
-			searchRequest.setCollapseActive(true);
-		}
 
 		if ((p = httpRequest.getParameter("collapse.max")) != null)
 			searchRequest.setCollapseMax(Integer.parseInt(p));

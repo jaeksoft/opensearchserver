@@ -53,7 +53,7 @@ public class SearchThread extends AbstractGroupRequestThread {
 		this.step = step;
 
 		searchRequest = new SearchRequest(resultGroup.getSearchRequest());
-		searchRequest.setCollapseActive(false);
+		searchRequest.setCollapseMode(null);
 		searchRequest.setIndexName(index.getName());
 		searchRequest.setWithDocument(false);
 		searchRequest.setWithSortValues(true);

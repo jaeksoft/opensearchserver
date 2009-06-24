@@ -37,7 +37,7 @@ export JAVA_HOME
 					</choice>
 
 					<choice>
-						IIf you are using a C shell:
+						If you are using a C shell:
 						<tt>set env JAVA_HOME
 							[jdk-path]</tt>
 					</choice>

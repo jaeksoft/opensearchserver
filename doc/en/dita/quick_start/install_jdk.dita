@@ -11,7 +11,8 @@
 	<taskbody>
 		<steps>
 			<step>
-				<cmd>Download the JDK software from Sun Microsystems or IBM.
+				<cmd>Download the JDK software from either Sun Microsystems
+					or IBM.
 				</cmd>
 
 				<choices>
@@ -32,8 +33,9 @@
 			</step>
 
 			<step>
-				<cmd>Select appropriate JRE/JDK version
-					and download.</cmd>
+				<cmd>Select an appropriate JRE/JDK version
+					and download it.
+				</cmd>
 			</step>
 
 			<step>

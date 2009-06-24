@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,32 +22,38 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result;
+package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.ResultSingle;
 
-public class Collapse {
+public abstract class CollapseAbstract {
 
 	private int collapsedDocCount;
 	private transient int collapseMax;
 	private transient String collapseField;
-	private transient boolean collapseActive;
+	private transient CollapseMode collapseMode;
 	protected transient OpenBitSet collapsedSet;
+	protected transient SearchRequest searchRequest;
 	private transient ResultScoreDoc[] collapsedDoc;
 
-	protected Collapse(SearchRequest searchRequest) {
+	protected CollapseAbstract(SearchRequest searchRequest) {
+		this.searchRequest = searchRequest;
 		this.collapseField = searchRequest.getCollapseField();
 		this.collapseMax = searchRequest.getCollapseMax();
-		this.collapseActive = searchRequest.getCollapseActive();
+		this.collapseMode = searchRequest.getCollapseMode();
 		this.collapsedDocCount = 0;
 		this.collapsedDoc = null;
 	}
 
-	protected void run(ResultScoreDoc[] fetchedDocs, int fetchLength)
+	public void run(ResultScoreDoc[] fetchedDocs, int fetchLength)
 			throws IOException {
 
 		collapsedDoc = null;
@@ -90,11 +96,14 @@ public class Collapse {
 		}
 	}
 
+	public abstract ResultScoreDoc[] collapse(ResultSingle resultSingle)
+			throws IOException, ParseException, SyntaxError;
+
 	protected OpenBitSet getBitSet() {
 		return this.collapsedSet;
 	}
 
-	protected int getDocCount() {
+	public int getDocCount() {
 		return this.collapsedDocCount;
 	}
 
@@ -102,24 +111,27 @@ public class Collapse {
 		return collapseField;
 	}
 
-	protected ResultScoreDoc[] getCollapsedDoc() {
+	public ResultScoreDoc[] getCollapsedDoc() {
 		return collapsedDoc;
 	}
 
-	protected boolean isActive() {
-		if (!collapseActive)
-			return false;
-		if (collapseField == null)
-			return false;
-		if (collapseMax == 0)
-			return false;
-		return true;
+	public CollapseMode getCollapseMode() {
+		return collapseMode;
 	}
 
 	protected int getCollapsedDocsLength() {
 		if (collapsedDoc == null)
 			return 0;
 		return collapsedDoc.length;
+	}
+
+	public static CollapseAbstract newInstance(SearchRequest searchRequest) {
+		CollapseMode mode = searchRequest.getCollapseMode();
+		if (mode == CollapseMode.COLLAPSE_FULL)
+			return new CollapseFull(searchRequest);
+		else if (mode == CollapseMode.COLLAPSE_OPTIMIZED)
+			return new CollapseOptimized(searchRequest);
+		return null;
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetGroup;
@@ -167,7 +168,7 @@ public class ResultGroup extends Result {
 	public void setFinalDocs() throws IOException {
 		if (notCollapsedDocs == null)
 			return;
-		if (!collapse.isActive())
+		if (collapse.getCollapseMode() == CollapseMode.COLLAPSE_OFF)
 			setDocs(notCollapsedDocs);
 		else {
 			collapse.run(notCollapsedDocs, notCollapsedDocs.length);
