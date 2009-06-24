@@ -26,7 +26,7 @@
 			<row>
 				<label>Pattern query:</label>
 				<textbox value="@{general.request.patternQuery}"
-					multiline="true" width="90%" rows="2" />
+					multiline="true" width="90%" rows="5" />
 			</row>
 			<row>
 				<label>Enter the query:</label>

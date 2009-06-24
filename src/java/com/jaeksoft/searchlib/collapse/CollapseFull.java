@@ -58,7 +58,7 @@ public class CollapseFull extends CollapseAbstract {
 				.appendResultScoreDocArray(indexName, resultSingle, null,
 						scoreDocs, allRows, collapseFieldStringIndex);
 		run(resultScoreDocs, allRows);
-		return resultScoreDocs;
+		return getCollapsedDoc();
 	}
 
 }
