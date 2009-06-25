@@ -83,6 +83,13 @@
 					<stentry>no</stentry>
 			</strow>
 			<strow>
+					<stentry>collapse.mode</stentry>
+					<stentry>Choose collapsing method. Ex.: <codeph>collapse.mode=optimized</codeph></stentry>
+					<stentry>[off|optimized|full]</stentry>
+					<stentry></stentry>
+					<stentry>no</stentry>
+			</strow>
+			<strow>
 					<stentry>collapse.field</stentry>
 					<stentry>Active collapsing on the field passed as a parameter. Ex.: <codeph>collapse.field=hostname</codeph></stentry>
 					<stentry>field's name</stentry>
