@@ -187,6 +187,7 @@ public class RenderXml implements Render {
 	}
 
 	public void render(ServletTransaction servletTransaction) throws Exception {
+		servletTransaction.getServletResponse().setContentType("text/xml");
 		render(servletTransaction.getWriter("UTF-8"));
 	}
 }
