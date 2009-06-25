@@ -112,6 +112,7 @@
 		<copy todir="${dist}/${product}">
 			<fileset file="NOTICE.txt" />
 			<fileset file="README.txt" />
+			<fileset file="CHANGELOG.txt" />
 			<fileset dir="${shell-dir}" />
 		</copy>
 
