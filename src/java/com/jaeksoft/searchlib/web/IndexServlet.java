@@ -39,6 +39,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
@@ -104,8 +105,8 @@ public class IndexServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
+			Client client = ClientCatalog.getClient(request);
 			String indexName = request.getParameter("index");
 			String ct = request.getContentType();
 			Object result = null;

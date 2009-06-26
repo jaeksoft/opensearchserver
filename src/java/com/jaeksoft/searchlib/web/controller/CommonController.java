@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 
-import javax.naming.NamingException;
-
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zkplus.databind.DataBinder;
@@ -40,8 +38,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 
 public class CommonController extends Window {
 
-	private Client client;
-
 	/**
 	 * 
 	 */
@@ -49,7 +45,6 @@ public class CommonController extends Window {
 
 	public CommonController() throws SearchLibException {
 		super();
-		client = null;
 	}
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute) {
@@ -61,15 +56,7 @@ public class CommonController extends Window {
 	}
 
 	public Client getClient() throws SearchLibException {
-		synchronized (this) {
-			if (client != null)
-				return client;
-			try {
-				return Client.getWebAppInstance();
-			} catch (NamingException e) {
-				return null;
-			}
-		}
+		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
 	}
 
 	public boolean isInstanceValid() throws SearchLibException {

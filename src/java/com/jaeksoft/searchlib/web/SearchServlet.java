@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
@@ -87,7 +88,7 @@ public class SearchServlet extends AbstractServlet {
 
 			HttpServletRequest httpRequest = servletTransaction
 					.getServletRequest();
-			Client client = Client.getWebAppInstance();
+			Client client = ClientCatalog.getClient(httpRequest);
 
 			Render render = null;
 			String p = httpRequest.getParameter("render");

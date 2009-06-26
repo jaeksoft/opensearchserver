@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -47,8 +48,9 @@ public class BasketServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
+			Client client = ClientCatalog
+					.getClient(request.getParameter("use"));
 			String contentType = request.getContentType();
 			if (contentType == null)
 				throw new ServletException("Unkown content type: "

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -17,6 +18,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
@@ -30,10 +32,10 @@ public class Full {
 			NoSuchAlgorithmException, XPathExpressionException, IOException,
 			URISyntaxException, ParserConfigurationException, SAXException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, NamingException {
 		File configFile = new File("resources/test_config.xml");
 		assertTrue(configFile.exists());
-		client = Client.getFileInstance(configFile);
+		client = ClientCatalog.getClient("web_crawler");
 		populate();
 	}
 

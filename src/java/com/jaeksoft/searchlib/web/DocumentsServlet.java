@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderObject;
@@ -73,7 +74,7 @@ public class DocumentsServlet extends AbstractServlet {
 
 			HttpServletRequest httpRequest = servletTransaction
 					.getServletRequest();
-			Client client = Client.getWebAppInstance();
+			Client client = ClientCatalog.getClient(httpRequest);
 
 			Render render = doObjectRequest(client, httpRequest);
 

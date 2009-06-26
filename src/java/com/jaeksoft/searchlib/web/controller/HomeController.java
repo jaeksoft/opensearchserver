@@ -26,31 +26,45 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.io.File;
 
-import com.jaeksoft.searchlib.Client;
+import javax.naming.NamingException;
+
+import org.zkoss.zul.Image;
+import org.zkoss.zul.Listcell;
+import org.zkoss.zul.Listitem;
+import org.zkoss.zul.ListitemRenderer;
+
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class HomeController extends CommonController {
+public class HomeController extends CommonController implements
+		ListitemRenderer {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2896471240596574094L;
 
-	public HomeController() throws SearchLibException {
+	public HomeController() throws SearchLibException, NamingException {
 		super();
 	}
 
-	public void onEnterConfig() throws SearchLibException {
-		Client.getFileInstance(new File(getConfigPath()));
-		reloadDesktop();
+	public File[] getClients() throws SearchLibException {
+		return ClientCatalog.getClientCatalog();
 	}
 
-	public void setConfigPath(String configPath) {
-		setAttribute("configPath", configPath);
+	public void setClient(File file) throws SearchLibException, NamingException {
+		setAttribute(ScopeAttribute.CURRENT_CLIENT, ClientCatalog
+				.getClient(file.getName()));
+		reloadPage();
 	}
 
-	public String getConfigPath() {
-		return (String) getAttribute("configPath");
+	public void render(Listitem item, Object data) throws Exception {
+		File indexDirectory = (File) data;
+		new Listcell(indexDirectory.getName()).setParent(item);
+		Listcell listcell = new Listcell();
+		Image image = new Image("/images/action_delete.png");
+		image.addForward(null, this, "onValueRemove", indexDirectory);
+		image.setParent(listcell);
+		listcell.setParent(item);
 	}
-
 }

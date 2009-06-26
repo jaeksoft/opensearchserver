@@ -34,7 +34,9 @@ public enum ScopeAttribute {
 
 	QUERY_SEARCH_RESULT(Component.SESSION_SCOPE),
 
-	UPDATE_FORM_INDEX_DOCUMENT(Component.SESSION_SCOPE);
+	UPDATE_FORM_INDEX_DOCUMENT(Component.SESSION_SCOPE),
+
+	CURRENT_CLIENT(Component.SESSION_SCOPE);
 
 	private int scope;
 

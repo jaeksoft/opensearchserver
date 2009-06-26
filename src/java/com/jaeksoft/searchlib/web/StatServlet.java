@@ -30,6 +30,7 @@ import java.util.HashSet;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 
 @Deprecated
 public class StatServlet extends AbstractServlet {
@@ -44,9 +45,9 @@ public class StatServlet extends AbstractServlet {
 			throws ServletException {
 
 		try {
-			Client client = Client.getWebAppInstance();
 
 			HttpServletRequest request = servletTransaction.getServletRequest();
+			Client client = ClientCatalog.getClient(request);
 
 			String reload = request.getParameter("reload");
 

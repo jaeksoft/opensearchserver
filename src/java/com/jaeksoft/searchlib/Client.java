@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,7 +32,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -50,7 +49,6 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocuments;
-import com.jaeksoft.searchlib.util.Context;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 
@@ -305,29 +303,6 @@ public class Client extends Config {
 
 	public void close() {
 		getIndex().close();
-	}
-
-	private static volatile Client INSTANCE;
-
-	public static Client getFileInstance(File configFile)
-			throws SearchLibException {
-		if (INSTANCE == null) {
-			synchronized (Client.class) {
-				if (INSTANCE == null)
-					INSTANCE = new Client(configFile, true);
-			}
-		}
-		return INSTANCE;
-	}
-
-	public static Client getWebAppInstance() throws SearchLibException,
-			NamingException {
-		if (INSTANCE == null) {
-			String contextPath = "java:comp/env/JaeksoftSearchServer/configfile";
-			File configFile = new File((String) Context.get(contextPath));
-			getFileInstance(configFile);
-		}
-		return INSTANCE;
 	}
 
 }

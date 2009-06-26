@@ -26,9 +26,20 @@ package com.jaeksoft.searchlib.util;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.FileFilter;
+
 import org.junit.Test;
 
 public class FileUtils {
+
+	public static class DirectoryOnly implements FileFilter {
+
+		public boolean accept(File file) {
+			return file.isDirectory();
+		}
+
+	}
 
 	final public static String getFileNameExtension(String fileName) {
 		if (fileName == null)

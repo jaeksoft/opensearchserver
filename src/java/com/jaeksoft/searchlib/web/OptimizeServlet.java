@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 
 public class OptimizeServlet extends AbstractServlet {
 
@@ -39,8 +40,8 @@ public class OptimizeServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
+			Client client = ClientCatalog.getClient(request);
 			String index = request.getParameter("index");
 			client.getIndex().optimize(index);
 		} catch (Exception e) {

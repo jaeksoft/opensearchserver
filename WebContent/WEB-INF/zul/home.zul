@@ -17,8 +17,11 @@
 -->
 <window id="home"
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
-	<label value="Enter the path of the configuration file" />
-	<textbox cols="80" readonly="@{home.instanceValid}"
-		value="@{home.configPath}" />
-	<button label="Enter" forward="onEnterConfig" />
+	<listbox selectedItem="@{home.client}" model="@{home.clients}"
+		selectedIndex="@{home.client.indexDirectory}"
+		itemRenderer="@{home}">
+		<listhead>
+			<listheader label="Select an index" />
+		</listhead>
+	</listbox>
 </window>

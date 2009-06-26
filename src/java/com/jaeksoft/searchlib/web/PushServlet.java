@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import javax.servlet.ServletRequest;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 
 public class PushServlet extends AbstractServlet {
@@ -46,9 +47,8 @@ public class PushServlet extends AbstractServlet {
 		String indexName = request.getParameter("indexName");
 		long version = Long.parseLong(request.getParameter("version"));
 		String fileName = request.getParameter("fileName");
-		Client client;
 		try {
-			client = Client.getWebAppInstance();
+			Client client = ClientCatalog.getClient(request);
 			client.getIndex().receive(indexName, version, fileName,
 					request.getInputStream());
 		} catch (SearchLibException e) {

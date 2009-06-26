@@ -114,24 +114,20 @@ public abstract class Config {
 
 	private File indexDir;
 
-	private Lock lock;
+	private Lock lock = new ReentrantLock(true);
 
-	protected Config(File initFileOrDir, String configXmlResourceName,
+	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists) throws SearchLibException {
 
-		lock = new ReentrantLock(true);
 		try {
+			indexDir = indexDirectory;
 
-			File configFile;
-			if (initFileOrDir.isDirectory()) {
-				indexDir = initFileOrDir;
-				configFile = new File(initFileOrDir, "config.xml");
-			} else {
-				indexDir = initFileOrDir.getParentFile();
-				configFile = initFileOrDir;
-			}
+			if (!indexDir.isDirectory())
+				throw new SearchLibException("Expected to get a directory path");
+
 			if (configXmlResourceName == null)
-				xppConfig = new XPathParser(configFile);
+				xppConfig = new XPathParser(new File(indexDirectory,
+						"config.xml"));
 			else
 				xppConfig = new XPathParser(getClass().getResourceAsStream(
 						configXmlResourceName));
@@ -159,6 +155,10 @@ public abstract class Config {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public File getIndexDirectory() {
+		return indexDir;
 	}
 
 	private void saveConfigWithoutLock() throws IOException,

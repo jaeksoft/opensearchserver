@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.httpclient.HttpException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 
 public class ActionServlet extends AbstractServlet {
 	/**
@@ -44,8 +45,9 @@ public class ActionServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
+			Client client = ClientCatalog
+					.getClient(request.getParameter("use"));
 			String index = request.getParameter("index");
 			String action = request.getParameter("action");
 			if ("optimize".equalsIgnoreCase(action))

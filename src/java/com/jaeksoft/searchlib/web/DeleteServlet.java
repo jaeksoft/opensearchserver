@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.httpclient.HttpException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.request.DeleteRequest;
@@ -91,7 +92,7 @@ public class DeleteServlet extends AbstractServlet {
 			String indexName, boolean byId) throws ServletException {
 		StreamReadObject readObject = null;
 		try {
-			Client client = Client.getWebAppInstance();
+			Client client = ClientCatalog.getClient(request);
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof DeleteRequest) {
@@ -118,8 +119,8 @@ public class DeleteServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-			Client client = Client.getWebAppInstance();
 			HttpServletRequest request = transaction.getServletRequest();
+			Client client = ClientCatalog.getClient(request);
 			String indexName = request.getParameter("index");
 			String uniq = request.getParameter("uniq");
 			String docId = request.getParameter("docId");

@@ -3,6 +3,11 @@ http://www.open-search-server.com
 -----------------------
 CHANGE LOG
 
+Open Search Server 1.1
+
+New features
+- 2812808: Manage several indices
+
 Open Search Server 1.0 beta 2
 
 Bug fixes
@@ -15,6 +20,7 @@ New features
 - 2811901: adding collapsing for all documents be returned
 - 2807080: Update Apache Tomcat to version 6.0.20
 - 2808582: Add paging on query result
+- 2812149: Update Zkoss to version 3.6.2
 
 Documentation updates
 - 2805848: JAVA_HOME documentation
