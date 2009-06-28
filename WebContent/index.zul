@@ -18,7 +18,7 @@
 <window id="index"
 	use="com.jaeksoft.searchlib.web.controller.IndexController">
 	<caption image="images/oss_16x16_WEB.png"
-		label="Open Search Server 1.1dev" />
+		label="Open Search Server 1.1-dev" />
 	<tabbox>
 		<tabs>
 			<tab id="tabHome" label="Home" selected="true" />

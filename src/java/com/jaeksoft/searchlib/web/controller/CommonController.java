@@ -59,6 +59,10 @@ public class CommonController extends Window {
 		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
 	}
 
+	public void setClient(Client client) {
+		setAttribute(ScopeAttribute.CURRENT_CLIENT, client);
+	}
+
 	public boolean isInstanceValid() throws SearchLibException {
 		return getClient() != null;
 	}

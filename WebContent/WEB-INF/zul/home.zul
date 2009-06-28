@@ -17,9 +17,8 @@
 -->
 <window id="home"
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
-	<listbox selectedItem="@{home.client}" model="@{home.clients}"
-		selectedIndex="@{home.client.indexDirectory}"
-		itemRenderer="@{home}">
+	<listbox selectedItem="@{home.clientFile}"
+		model="@{home.clientCatalog}" itemRenderer="@{home}">
 		<listhead>
 			<listheader label="Select an index" />
 		</listhead>
