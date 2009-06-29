@@ -7,7 +7,7 @@
 	</tabs>
 	<tabpanels>
 		<tabpanel>
-			<include src="WEB-INF/zul/crawler/file/pattern.zul" />
+			<include src="WEB-INF/zul/crawler/file/browser.zul" />
 		</tabpanel>
 		<tabpanel>
 			<include src="WEB-INF/zul/crawler/file/url.zul" />
