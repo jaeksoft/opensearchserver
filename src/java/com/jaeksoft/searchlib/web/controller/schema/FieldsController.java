@@ -22,38 +22,27 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller;
+package com.jaeksoft.searchlib.web.controller.schema;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.IndexAbstract;
-import com.jaeksoft.searchlib.index.IndexGroup;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class ConfigurationController extends CommonController {
+public class FieldsController extends CommonController {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 9015134975380671501L;
+	private static final long serialVersionUID = -8974865544547689492L;
 
-	public ConfigurationController() throws SearchLibException {
+	public FieldsController() throws SearchLibException {
 		super();
 	}
 
-	public List<IndexAbstract> getIndices() throws SearchLibException,
-			NamingException {
-		List<IndexAbstract> list = new ArrayList<IndexAbstract>();
-		IndexAbstract index = getClient().getIndex();
-		if (index instanceof IndexGroup) {
-			for (IndexAbstract idx : ((IndexGroup) index).getIndices())
-				list.add(idx);
-		} else
-			list.add(index);
-		return list;
+	public List<SchemaField> getFields() throws SearchLibException {
+		return getClient().getSchema().getFieldList().getList();
 	}
 
 }

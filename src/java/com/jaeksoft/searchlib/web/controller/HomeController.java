@@ -116,6 +116,10 @@ public class HomeController extends CommonController implements
 		reloadPage();
 	}
 
+	public void onListRefresh() {
+		reloadPage();
+	}
+
 	public void render(Listitem item, Object data) throws Exception {
 		File indexDirectory = (File) data;
 		new Listcell(indexDirectory.getName()).setParent(item);

@@ -22,6 +22,8 @@
 	<tabbox>
 		<tabs>
 			<tab id="tabHome" label="Home" selected="true" />
+			<tab id="tabSchema" visible="@{index.instanceValid}"
+				label="Schema" />
 			<tab id="tabQuery" visible="@{index.instanceValid}"
 				label="Query" />
 			<tab id="tabUpdate" visible="@{index.instanceValid}"
@@ -38,6 +40,9 @@
 		<tabpanels>
 			<tabpanel>
 				<include src="WEB-INF/zul/home.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabSchema.onSelect">
+				<include src="WEB-INF/zul/schema/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabQuery.onSelect">
 				<include src="WEB-INF/zul/query/index.zul" />

@@ -23,4 +23,8 @@
 		<index name="index" searchCache="100" filterCache="100"
 			fieldCache="500" />
 	</indices>
+	<schema>
+		<analyzers />
+		<fields />
+	</schema>
 </configuration>

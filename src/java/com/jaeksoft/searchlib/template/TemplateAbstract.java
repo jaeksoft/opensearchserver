@@ -25,8 +25,11 @@
 package com.jaeksoft.searchlib.template;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.FileUtils;
 
 public abstract class TemplateAbstract {
 
@@ -54,11 +57,22 @@ public abstract class TemplateAbstract {
 		return description;
 	}
 
-	public void createIndex(File indexDir) throws SearchLibException {
+	public void createIndex(File indexDir) throws SearchLibException,
+			IOException {
 
 		if (!indexDir.mkdir())
 			throw new SearchLibException("directory creation failed ("
 					+ indexDir + ")");
-	}
 
+		for (String resource : resources) {
+			InputStream is = getClass().getClassLoader().getResourceAsStream(
+					"templates/" + rootPath + "/" + resource);
+			try {
+				File target = new File(indexDir, resource);
+				FileUtils.stream2file(is, target);
+			} finally {
+				is.close();
+			}
+		}
+	}
 }

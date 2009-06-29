@@ -16,7 +16,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="conf"
-	use="com.jaeksoft.searchlib.web.controller.ConfigurationController">
+	use="com.jaeksoft.searchlib.web.controller.schema.FieldsController">
 	<grid model="@{conf.fields}">
 		<columns>
 			<column label="name" />

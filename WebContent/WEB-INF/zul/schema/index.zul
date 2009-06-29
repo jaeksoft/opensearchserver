@@ -1,0 +1,14 @@
+<tabbox>
+	<tabs>
+		<tab id="tabAnalyzers" label="Analyzers" selected="true" />
+		<tab id="tabFields" label="Fields" />
+	</tabs>
+	<tabpanels>
+		<tabpanel>
+			<include src="WEB-INF/zul/schema/analyzers.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabFields.onSelect">
+			<include src="WEB-INF/zul/schema/fields.zul" />
+		</tabpanel>
+	</tabpanels>
+</tabbox>
