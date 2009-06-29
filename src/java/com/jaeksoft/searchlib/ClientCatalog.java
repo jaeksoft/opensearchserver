@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
@@ -33,6 +34,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.naming.NamingException;
 import javax.servlet.ServletRequest;
 
+import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.util.FileUtils;
 
 public class ClientCatalog {
@@ -96,5 +98,29 @@ public class ClientCatalog {
 			throw new SearchLibException("Data directory does not exists ("
 					+ dataDir + ")");
 		return dataDir.listFiles(new FileUtils.DirectoryOnly());
+	}
+
+	public static final boolean exists(String indexName)
+			throws SearchLibException {
+		for (File file : getClientCatalog())
+			if (file.getName().equals(indexName))
+				return true;
+		return false;
+	}
+
+	public static void createIndex(String indexName, TemplateAbstract template)
+			throws SearchLibException, IOException {
+		w.lock();
+		try {
+			File dataDir = new File(OPENSEARCHSERVER_DATA);
+			File indexDir = new File(dataDir, indexName);
+			if (indexDir.exists())
+				throw new SearchLibException("directory " + indexName
+						+ " already exists");
+			template.createIndex(indexDir);
+		} finally {
+			w.unlock();
+		}
+
 	}
 }

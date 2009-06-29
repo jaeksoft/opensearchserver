@@ -25,17 +25,19 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.naming.NamingException;
 
 import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.template.TemplateList;
 
 public class HomeController extends CommonController implements
 		ListitemRenderer {
@@ -45,8 +47,14 @@ public class HomeController extends CommonController implements
 	 */
 	private static final long serialVersionUID = 2896471240596574094L;
 
+	private String indexName;
+
+	private TemplateList indexTemplate;
+
 	public HomeController() throws SearchLibException, NamingException {
 		super();
+		indexName = "";
+		indexTemplate = TemplateList.EMPTY_INDEX;
 	}
 
 	public File[] getClientCatalog() throws SearchLibException {
@@ -69,10 +77,47 @@ public class HomeController extends CommonController implements
 		reloadDesktop();
 	}
 
+	public String getNewIndexName() {
+		return indexName;
+	}
+
+	public void setNewIndexName(String indexName) {
+		this.indexName = indexName;
+	}
+
+	public TemplateList[] getTemplateList() {
+		return TemplateList.values();
+	}
+
+	public TemplateList getNewIndexTemplate() {
+		return indexTemplate;
+	}
+
+	public void setNewIndexTemplate(TemplateList indexTemplate) {
+		this.indexTemplate = indexTemplate;
+	}
+
+	public void onNewIndex() throws SearchLibException, InterruptedException,
+			IOException {
+		String msg = null;
+		if (indexName == null)
+			msg = "Please enter a valid name for the new index";
+		else if (indexName.length() == 0)
+			msg = "Please enter a valid name for the new index";
+		else if (ClientCatalog.exists(indexName))
+			msg = "The name already exists";
+
+		if (msg != null) {
+			Messagebox.show(msg, "Jaeksoft OpenSearchServer", Messagebox.OK,
+					org.zkoss.zul.Messagebox.EXCLAMATION);
+			return;
+		}
+		ClientCatalog.createIndex(indexName, indexTemplate.getTemplate());
+		reloadPage();
+	}
+
 	public void render(Listitem item, Object data) throws Exception {
 		File indexDirectory = (File) data;
 		new Listcell(indexDirectory.getName()).setParent(item);
-		new Listcell(StringUtils.humanBytes(indexDirectory.length()))
-				.setParent(item);
 	}
 }

@@ -17,10 +17,42 @@
 -->
 <window id="home"
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
-	<listbox selectedItem="@{home.clientFile}"
-		model="@{home.clientCatalog}" itemRenderer="@{home}">
-		<listhead>
-			<listheader label="Select an index" />
-		</listhead>
-	</listbox>
+	<panel title="Create a new index" border="normal">
+		<panelchildren>
+			<grid>
+				<rows>
+					<row>
+						<hbox align="center">
+							<label value="Index name: " />
+							<textbox value="@{home.newIndexName}" />
+						</hbox>
+					</row>
+					<row>
+						<hbox align="center">
+							<label value="Template: " />
+							<listbox mold="select"
+								selectedItem="@{home.newIndexTemplate}"
+								model="@{home.templateList}">
+								<listitem self="@{each=telist}"
+									label="@{telist.template.publicName}" />
+							</listbox>
+							<label
+								value="@{home.newIndexTemplate.template.description}" />
+						</hbox>
+					</row>
+					<row>
+						<button label="Create" forward="onNewIndex" />
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
+	</panel>
+	<separator height="10" />
+	<panel title="Index list" border="normal">
+		<panelchildren>
+			<listbox selectedItem="@{home.clientFile}"
+				model="@{home.clientCatalog}" itemRenderer="@{home}" />
+		</panelchildren>
+	</panel>
+
 </window>

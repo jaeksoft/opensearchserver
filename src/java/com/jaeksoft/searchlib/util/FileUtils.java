@@ -28,6 +28,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.Test;
 
@@ -39,6 +42,23 @@ public class FileUtils {
 			return file.isDirectory();
 		}
 
+	}
+
+	final public static void stream2file(InputStream is, File target)
+			throws IOException {
+		FileOutputStream fos = null;
+		try {
+			target.createNewFile();
+			fos = new FileOutputStream(target);
+			byte[] buffer = new byte[4096];
+			int b;
+			while ((b = is.read(buffer)) != -1)
+				if (b > 0)
+					fos.write(buffer, 0, b);
+		} finally {
+			if (fos != null)
+				fos.close();
+		}
 	}
 
 	final public static String getFileNameExtension(String fileName) {
@@ -79,4 +99,5 @@ public class FileUtils {
 		String ext = getFileNameExtension(null);
 		assertTrue(ext == null);
 	}
+
 }
