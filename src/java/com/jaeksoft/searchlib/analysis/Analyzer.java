@@ -86,8 +86,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		return lang;
 	}
 
-	public String getTokenizer() {
-		return tokenizer.getClass().getSimpleName();
+	public TokenizerFactory getTokenizer() {
+		return tokenizer;
 	}
 
 	public List<FilterFactory> getFilters() {

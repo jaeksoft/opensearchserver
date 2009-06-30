@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,8 @@ import org.apache.lucene.analysis.Tokenizer;
 public abstract class TokenizerFactory {
 
 	public abstract Tokenizer create(Reader reader);
+
+	public abstract String getDescription();
 
 	public String getClassName() {
 		return this.getClass().getSimpleName();

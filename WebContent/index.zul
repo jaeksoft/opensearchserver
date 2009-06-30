@@ -17,11 +17,11 @@
 -->
 <window id="index"
 	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/oss_16x16_WEB.png"
-		label="Open Search Server 1.1-dev" />
+	<caption image="images/oss_16x16_WEB.png" label="Open Search Server 1.1-dev" />
 	<tabbox>
 		<tabs>
-			<tab id="tabHome" label="Home" selected="true" />
+			<tab id="tabHome" label="@{index.indexTitle}"
+				selected="true" />
 			<tab id="tabSchema" visible="@{index.instanceValid}"
 				label="Schema" />
 			<tab id="tabQuery" visible="@{index.instanceValid}"

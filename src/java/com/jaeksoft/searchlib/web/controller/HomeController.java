@@ -98,7 +98,7 @@ public class HomeController extends CommonController implements
 	}
 
 	public void onNewIndex() throws SearchLibException, InterruptedException,
-			IOException {
+			IOException, NamingException {
 		String msg = null;
 		if (indexName == null)
 			msg = "Please enter a valid name for the new index";
@@ -113,7 +113,8 @@ public class HomeController extends CommonController implements
 			return;
 		}
 		ClientCatalog.createIndex(indexName, indexTemplate.getTemplate());
-		reloadPage();
+		setClient(ClientCatalog.getClient(indexName));
+		reloadDesktop();
 	}
 
 	public void onListRefresh() {

@@ -95,10 +95,10 @@ public class Schema {
 				return pfa;
 			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer());
 			for (SchemaField field : fieldList) {
-				Analyzer analyzer = analyzers.get(field.getDefaultAnalyzer(),
+				Analyzer analyzer = analyzers.get(field.getIndexAnalyzer(),
 						lang);
 				if (analyzer == null)
-					analyzer = analyzers.get(field.getDefaultAnalyzer(), null);
+					analyzer = analyzers.get(field.getIndexAnalyzer(), null);
 				if (analyzer != null)
 					pfa.addAnalyzer(field.name, analyzer);
 			}

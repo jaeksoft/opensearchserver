@@ -35,4 +35,8 @@ public class StandardTokenizer extends TokenizerFactory {
 		return new org.apache.lucene.analysis.standard.StandardTokenizer(reader);
 	}
 
+	@Override
+	public String getDescription() {
+		return "Splits words at punctuation characters, removing punctuation.";
+	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,6 +42,12 @@ public abstract class FilterFactory {
 
 	public String getClassName() {
 		return this.getClass().getSimpleName();
+	}
+
+	public abstract String getDescription();
+
+	public String[] getParameterList() {
+		return new String[0];
 	}
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -60,6 +60,18 @@ public class StopFilter extends FilterFactory {
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
 		return new org.apache.lucene.analysis.StopFilter(tokenStream, words);
+	}
+
+	@Override
+	public String getDescription() {
+		return "Removes stop words.";
+	}
+
+	private final static String[] params = { "file" };
+
+	@Override
+	public String[] getParameterList() {
+		return params;
 	}
 
 }

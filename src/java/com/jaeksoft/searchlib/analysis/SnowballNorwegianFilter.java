@@ -34,4 +34,9 @@ public class SnowballNorwegianFilter extends FilterFactory {
 				tokenStream, "Norwegian");
 	}
 
+	@Override
+	public String getDescription() {
+		return "Stems Norwegian words using a Snowball-generated stemmer";
+	}
+
 }

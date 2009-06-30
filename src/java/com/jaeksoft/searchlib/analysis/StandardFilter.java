@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,11 @@ public class StandardFilter extends FilterFactory {
 	public TokenStream create(TokenStream tokenStream) {
 		return new org.apache.lucene.analysis.standard.StandardFilter(
 				tokenStream);
+	}
+
+	@Override
+	public String getDescription() {
+		return "Normalizes tokens extracted with StandardTokenizer.";
 	}
 
 }

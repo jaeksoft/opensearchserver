@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,11 @@ public class ISOLatin1AccentFilter extends FilterFactory {
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
 		return new org.apache.lucene.analysis.ISOLatin1AccentFilter(tokenStream);
+	}
+
+	@Override
+	public String getDescription() {
+		return "replaces accented characters in the ISO Latin 1 character set (ISO-8859-1) by their unaccented equivalent.";
 	}
 
 }

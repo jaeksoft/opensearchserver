@@ -24,7 +24,74 @@
 			fieldCache="500" />
 	</indices>
 	<schema>
-		<analyzers />
+		<analyzers>
+			<analyzer name="StandardAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="en"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="SnowballEnglishFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="fr"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="FrenchStemFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="de"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballGermanFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="nl"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="DutchStemFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="es"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballSpanishFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="it"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballItalianFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="pt"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballPortugueseFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="no"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballNorwegianFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="se"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballSwedishFilter" />
+			</analyzer>
+			<analyzer name="TextAnalyzer" lang="fi"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballFinnishFilter" />
+			</analyzer>
+		</analyzers>
 		<fields />
 	</schema>
 </configuration>

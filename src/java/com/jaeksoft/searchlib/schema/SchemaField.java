@@ -28,9 +28,6 @@ import java.io.IOException;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.Field.TermVector;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,57 +38,44 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SchemaField extends Field {
 
-	private String defaultAnalyzer;
-
 	private String indexAnalyzer;
 
-	private org.apache.lucene.document.Field.Store store;
+	private Stored stored;
 
-	private org.apache.lucene.document.Field.Index index;
+	private Indexed indexed;
 
-	private org.apache.lucene.document.Field.TermVector termVector;
+	private TermVector termVector;
+
+	public SchemaField() {
+		super("");
+		indexAnalyzer = null;
+		stored = Stored.NO;
+		indexed = Indexed.YES;
+		termVector = TermVector.NO;
+	}
 
 	public SchemaField(SchemaField field) {
 		super(field.name);
-		this.store = field.store;
-		this.index = field.index;
+		this.stored = field.stored;
+		this.indexed = field.indexed;
 		this.termVector = field.termVector;
-		this.defaultAnalyzer = field.defaultAnalyzer;
 		this.indexAnalyzer = field.indexAnalyzer;
 	}
 
-	public SchemaField(String name, String store, String index,
-			String termVector, String defaultAnalyzer, String indexAnalyzer) {
+	private SchemaField(String name, String stored, String indexed,
+			String termVector, String indexAnalyzer) {
 		super(name);
-		this.store = org.apache.lucene.document.Field.Store.NO;
-		if ("compress".equalsIgnoreCase(store))
-			this.store = Store.COMPRESS;
-		else if ("yes".equalsIgnoreCase(store))
-			this.store = Store.YES;
-		this.index = org.apache.lucene.document.Field.Index.NO;
-		if ("yes".equalsIgnoreCase(index)) {
-			if (defaultAnalyzer != null)
-				this.index = Index.ANALYZED;
-			else
-				this.index = Index.NOT_ANALYZED;
-		}
-		this.termVector = TermVector.NO;
-		if ("yes".equalsIgnoreCase(termVector))
-			this.termVector = TermVector.YES;
-		else if ("offsets".equalsIgnoreCase(termVector))
-			this.termVector = TermVector.WITH_OFFSETS;
-		else if ("positions".equalsIgnoreCase(termVector))
-			this.termVector = TermVector.WITH_POSITIONS;
-		else if ("positions_offsets".equalsIgnoreCase(termVector))
-			this.termVector = TermVector.WITH_POSITIONS_OFFSETS;
-		this.defaultAnalyzer = defaultAnalyzer;
 		this.indexAnalyzer = indexAnalyzer;
+		this.stored = Stored.fromValue(stored);
+		this.indexed = Indexed.fromValue(indexed);
+		this.termVector = TermVector.fromValue(termVector);
 	}
 
 	public org.apache.lucene.document.Field getLuceneField(String value) {
 		try {
-			return new org.apache.lucene.document.Field(name, value, store,
-					index, termVector);
+			return new org.apache.lucene.document.Field(name, value, stored
+					.getLuceneStore(), indexed.getLuceneIndex(indexAnalyzer),
+					termVector.getLuceneTermVector());
 		} catch (java.lang.NullPointerException e) {
 			throw new NullPointerException("Erreur on field " + name);
 		}
@@ -108,59 +92,50 @@ public class SchemaField extends Field {
 	}
 
 	public boolean isStored() {
-		return store == Store.YES || store == Store.COMPRESS;
+		return stored == Stored.YES || stored == Stored.COMPRESS;
 	}
 
 	public boolean isCompressed() {
-		return store == Store.COMPRESS;
+		return stored == Stored.COMPRESS;
 	}
 
 	public boolean isIndexed() {
-		return index == Index.ANALYZED || index == Index.NOT_ANALYZED;
+		return indexed == Indexed.YES;
 	}
 
-	public String getStoreLabel() {
-		if (store == Store.NO)
-			return "no";
-		if (store == Store.YES)
-			return "yes";
-		if (store == Store.COMPRESS)
-			return "compress";
-		return null;
+	public Stored getStored() {
+		return stored;
 	}
 
-	public String getIndexLabel() {
-		if (index == org.apache.lucene.document.Field.Index.NO)
-			return "no";
-		if (index == org.apache.lucene.document.Field.Index.ANALYZED)
-			return "yes";
-		if (index == org.apache.lucene.document.Field.Index.NOT_ANALYZED)
-			return "yes";
-		return null;
+	public void setStored(Stored stored) {
+		this.stored = stored;
 	}
 
-	public String getTermVectorLabel() {
-		if (termVector == TermVector.NO)
-			return "no";
-		if (termVector == TermVector.YES)
-			return "yes";
-		if (termVector == TermVector.WITH_OFFSETS)
-			return "offsets";
-		if (termVector == TermVector.WITH_POSITIONS)
-			return "positions";
-		if (termVector == TermVector.WITH_POSITIONS_OFFSETS)
-			return "positions_offsets";
-		return null;
+	public Indexed getIndexed() {
+		return indexed;
 	}
 
-	public String getDefaultAnalyzer() {
-		return defaultAnalyzer;
+	public void setIndexed(Indexed indexed) {
+		this.indexed = indexed;
+	}
+
+	public TermVector getTermVector() {
+		return termVector;
+	}
+
+	public void setTermVector(TermVector termVector) {
+		this.termVector = termVector;
 	}
 
 	public String getIndexAnalyzer() {
-		if (indexAnalyzer == null)
-			return defaultAnalyzer;
 		return indexAnalyzer;
+	}
+
+	public void setIndexAnalyzer(String indexAnalyzer) {
+		if (indexAnalyzer != null)
+			if (indexAnalyzer.length() == 0)
+				indexAnalyzer = null;
+		this.indexAnalyzer = indexAnalyzer;
 	}
 
 	/**
@@ -183,15 +158,14 @@ public class SchemaField extends Field {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
 			String name = XPathParser.getAttributeString(node, "name");
-			String analyzer = XPathParser.getAttributeString(node, "analyzer");
 			String indexAnalyzer = XPathParser.getAttributeString(node,
-					"indexAnalyzer");
+					"analyzer");
 			String stored = XPathParser.getAttributeString(node, "stored");
 			String indexed = XPathParser.getAttributeString(node, "indexed");
 			String termVector = XPathParser.getAttributeString(node,
 					"termVector");
 			fieldList.add(new SchemaField(name, stored, indexed, termVector,
-					analyzer, indexAnalyzer));
+					indexAnalyzer));
 		}
 		fieldList.setDefaultField(XPathParser.getAttributeString(parentNode,
 				"default"));
@@ -202,10 +176,9 @@ public class SchemaField extends Field {
 
 	@Override
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer.startElement("field", "name", name, "analyzer",
-				indexAnalyzer != defaultAnalyzer ? indexAnalyzer : null,
-				"indexed", getIndexLabel(), "stored", getStoreLabel(),
-				"termVector", getTermVectorLabel());
+		writer.startElement("field", "name", name, "analyzer", indexAnalyzer,
+				"indexed", getIndexed().getValue(), "stored", getStored()
+						.getValue(), "termVector", getTermVector().getValue());
 		writer.endElement();
 	}
 }

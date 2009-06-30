@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,26 +22,41 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller;
+package com.jaeksoft.searchlib.schema;
 
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.SearchLibException;
+import org.apache.lucene.document.Field.Index;
 
-public class IndexController extends CommonController {
+public enum Indexed {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7590913483471357743L;
+	YES(
+			"The content of the field is indexed, therefore a query can search on that field."),
 
-	public IndexController() throws SearchLibException {
-		super();
+	NO(
+			"The content of the field is not indexed, therefore a query cannot search on that field.");
+
+	private String description;
+
+	private Indexed(String description) {
+		this.description = description;
 	}
 
-	public String getIndexTitle() throws SearchLibException {
-		Client client = getClient();
-		if (client != null)
-			return " Index: " + client.getIndexDirectory().getName();
-		return "Indices";
+	public String getDescription() {
+		return description;
 	}
+
+	public String getValue() {
+		return name().toLowerCase();
+	}
+
+	public static Indexed fromValue(String value) {
+		for (Indexed fs : values())
+			if (fs.name().equalsIgnoreCase(value))
+				return fs;
+		return Indexed.NO;
+	}
+
+	public Index getLuceneIndex(String indexAnalyzer) {
+		return indexAnalyzer == null ? Index.NOT_ANALYZED : Index.ANALYZED;
+	}
+
 }

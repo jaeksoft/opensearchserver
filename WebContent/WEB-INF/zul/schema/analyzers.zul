@@ -18,23 +18,29 @@
 <!--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
 <!--   -->
 <!--   See the GNU General Public License for more details. -->
-<window id="schema"
+<window id="anlzr"
 	use="com.jaeksoft.searchlib.web.controller.schema.AnalyzersController">
-	<grid model="@{conf.analyzers}">
+	<grid model="@{anlzr.list}">
 		<columns>
 			<column label="name" width="100px" />
 			<column label="lang" width="50px" />
-			<column label="tokenizer" />
-			<column label="filter" />
+			<column label="tokenizer / description" />
+			<column label="filters / description" />
 		</columns>
 		<rows>
 			<row self="@{each=analyzer}">
 				<label value="@{analyzer.name}" />
 				<label value="@{analyzer.lang}" />
-				<label value="@{analyzer.tokenizer}" />
+				<vbox>
+					<label value="@{analyzer.tokenizer.className}" />
+					<label style="font-style:italic"
+						value="@{analyzer.tokenizer.description}" />
+				</vbox>
 				<listbox model="@{analyzer.filters}">
 					<listitem self="@{each=filter}">
 						<listcell label="@{filter.className}" />
+						<listcell style="font-style:italic"
+							label="@{filter.description}" />
 					</listitem>
 				</listbox>
 			</row>

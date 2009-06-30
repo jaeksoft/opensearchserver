@@ -15,24 +15,100 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="conf"
+<window id="fields"
 	use="com.jaeksoft.searchlib.web.controller.schema.FieldsController">
-	<grid model="@{conf.fields}">
-		<columns>
-			<column label="name" />
-			<column width="80px" label="indexed" />
-			<column width="80px" label="stored" />
-			<column width="80px" label="termVector" />
-			<column width="100px" label="analyzer" />
-		</columns>
-		<rows>
-			<row self="@{each=field}">
-				<label value="@{field.name}" />
-				<label value="@{field.indexLabel}" />
-				<label value="@{field.storeLabel}" />
-				<label value="@{field.termVectorLabel}" />
-				<label value="@{field.indexAnalyzer}" />
-			</row>
-		</rows>
-	</grid>
+
+	<panel title="@{fields.currentEditMode}" border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" width="100px" />
+					<column align="left" width="200px" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Name: " />
+						<textbox value="@{fields.field.name}"
+							width="95%" />
+						<label
+							value="Choose a name for the field that will be created" />
+					</row>
+					<row>
+						<label value="Indexed: " />
+						<listbox mold="select"
+							selectedItem="@{fields.field.indexed}"
+							model="@{fields.indexedList}">
+							<listitem self="@{each=indexed}"
+								label="@{indexed.value}" value="@{indexed}" />
+						</listbox>
+						<label
+							value="@{fields.field.indexed.description}" />
+					</row>
+					<row>
+						<label value="Stored: " />
+						<listbox mold="select"
+							selectedItem="@{fields.field.stored}"
+							model="@{fields.storedList}">
+							<listitem self="@{each=stored}"
+								label="@{stored.value}" value="@{stored}" />
+						</listbox>
+						<label
+							value="@{fields.field.stored.description}" />
+					</row>
+					<row>
+						<label value="TermVector: " />
+						<listbox mold="select"
+							selectedItem="@{fields.field.termVector}"
+							model="@{fields.termVectorList}">
+							<listitem self="@{each=termVector}"
+								label="@{termVector.value}" value="@{termVector}" />
+						</listbox>
+						<label
+							value="@{fields.field.termVector.description}" />
+					</row>
+					<row>
+						<label value="Analyzer: " />
+						<listbox mold="select"
+							selectedItem="@{fields.field.indexAnalyzer}"
+							model="@{fields.client.schema.analyzerList.analyzerSet}">
+							<listitem self="@{each=analyzer}"
+								label="@{analyzer}" value="@{analyzer}" />
+						</listbox>
+						<label
+							value="Choose the analyzer you need for that field." />
+					</row>
+					<row spans="3">
+						<button label="Create" forward="onNewField" />
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
+	</panel>
+
+	<separator height="10" />
+
+	<panel title="Field list" border="normal">
+		<panelchildren>
+			<grid model="@{fields.list}">
+				<columns>
+					<column label="name" />
+					<column width="80px" label="indexed" />
+					<column width="80px" label="stored" />
+					<column width="80px" label="termVector" />
+					<column width="100px" label="analyzer" />
+				</columns>
+				<rows>
+					<row self="@{each=field}">
+						<label value="@{field.name}" />
+						<label value="@{field.indexed.value}" />
+						<label value="@{field.stored.value}" />
+						<label value="@{field.termVector.value}" />
+						<label value="@{field.indexAnalyzer}" />
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
+	</panel>
+
 </window>

@@ -41,7 +41,7 @@ public class AnalyzersController extends CommonController {
 		super();
 	}
 
-	public List<Analyzer> getAnalyzers() throws SearchLibException {
+	public List<Analyzer> getList() throws SearchLibException {
 		return getClient().getSchema().getAnalyzerList();
 	}
 

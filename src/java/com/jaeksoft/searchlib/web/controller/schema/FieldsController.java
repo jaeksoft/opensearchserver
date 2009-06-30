@@ -27,7 +27,10 @@ package com.jaeksoft.searchlib.web.controller.schema;
 import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.Stored;
+import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class FieldsController extends CommonController {
@@ -37,12 +40,36 @@ public class FieldsController extends CommonController {
 	 */
 	private static final long serialVersionUID = -8974865544547689492L;
 
+	private SchemaField field;
+
 	public FieldsController() throws SearchLibException {
 		super();
+		field = new SchemaField();
 	}
 
-	public List<SchemaField> getFields() throws SearchLibException {
+	public SchemaField getField() {
+		return field;
+	}
+
+	public Stored[] getStoredList() {
+		return Stored.values();
+	}
+
+	public Indexed[] getIndexedList() {
+		return Indexed.values();
+	}
+
+	public TermVector[] getTermVectorList() {
+		return TermVector.values();
+	}
+
+	public List<SchemaField> getList() throws SearchLibException {
 		return getClient().getSchema().getFieldList().getList();
+	}
+
+	public String getCurrentEditMode() throws SearchLibException {
+		return getClient().getSchema().getFieldList().get(field.getName()) == null ? "Create a new field"
+				: "Edit the field " + field.getName();
 	}
 
 }

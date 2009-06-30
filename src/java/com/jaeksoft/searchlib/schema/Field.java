@@ -76,6 +76,10 @@ public class Field implements FieldSelector, Externalizable {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public void toString(StringBuffer sb) {
 		sb.append(name);
 	}

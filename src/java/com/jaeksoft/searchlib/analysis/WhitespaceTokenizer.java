@@ -35,4 +35,9 @@ public class WhitespaceTokenizer extends TokenizerFactory {
 		return new org.apache.lucene.analysis.WhitespaceTokenizer(reader);
 	}
 
+	@Override
+	public String getDescription() {
+		return "Splits text into word each time a white space is encountered";
+	}
+
 }

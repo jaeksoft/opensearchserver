@@ -29,7 +29,9 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -74,12 +76,12 @@ public class AnalyzerList extends AbstractList<Analyzer> {
 		return analyzersName.get(name + "_" + lang);
 	}
 
-	public AnalyzerList get(String lang) {
-		AnalyzerList anlzrList = new AnalyzerList();
-		for (Analyzer anlzr : this.analyzerList)
-			if (lang.equals(anlzr.getLang()))
-				anlzrList.add(anlzr);
-		return anlzrList;
+	public Set<String> getAnalyzerSet() {
+		Set<String> analyzerSet = new TreeSet<String>();
+		analyzerSet.add("");
+		for (Analyzer analyzer : analyzerList)
+			analyzerSet.add(analyzer.getName());
+		return analyzerSet;
 	}
 
 	@Override

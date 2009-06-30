@@ -33,6 +33,7 @@ import org.zkoss.zul.RowRenderer;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 
 public class SnippetController extends QueryController {
@@ -76,7 +77,7 @@ public class SnippetController extends QueryController {
 					.getSnippetFieldList();
 			for (SchemaField field : getClient().getSchema().getFieldList())
 				if (field.isStored())
-					if ("positions_offsets".equals(field.getTermVectorLabel()))
+					if (field.getTermVector() == TermVector.POSITIONS_OFFSETS)
 						if (snippetFields.get(field.getName()) == null) {
 							if (selectedSnippet == null)
 								selectedSnippet = field.getName();
