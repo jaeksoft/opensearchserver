@@ -33,6 +33,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -55,11 +56,16 @@ public class SchemaField extends Field {
 	}
 
 	public SchemaField(SchemaField field) {
-		super(field.name);
-		this.stored = field.stored;
-		this.indexed = field.indexed;
-		this.termVector = field.termVector;
-		this.indexAnalyzer = field.indexAnalyzer;
+		super();
+		copy(field);
+	}
+
+	public void copy(SchemaField sourceField) {
+		super.copy(sourceField);
+		this.stored = sourceField.stored;
+		this.indexed = sourceField.indexed;
+		this.termVector = sourceField.termVector;
+		this.indexAnalyzer = sourceField.indexAnalyzer;
 	}
 
 	private SchemaField(String name, String stored, String indexed,
@@ -181,4 +187,14 @@ public class SchemaField extends Field {
 						.getValue(), "termVector", getTermVector().getValue());
 		writer.endElement();
 	}
+
+	public boolean valid() throws SearchLibException {
+		if (name == null || name.trim().length() == 0)
+			throw new SearchLibException("Field name cannot be empty!");
+		if (termVector == TermVector.POSITIONS_OFFSETS && !isIndexed())
+			throw new SearchLibException(
+					"TermVector request Indexed to be set to yes!");
+		return true;
+	}
+
 }

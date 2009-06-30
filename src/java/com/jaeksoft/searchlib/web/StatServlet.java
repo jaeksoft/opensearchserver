@@ -54,9 +54,6 @@ public class StatServlet extends AbstractServlet {
 			if (reload != null)
 				client.reload(reload);
 
-			if (request.getParameter("saveConfig") != null)
-				client.saveConfig();
-
 			PrintWriter writer = servletTransaction.getWriter("UTF-8");
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			HashSet<String> classDetail = new HashSet<String>();

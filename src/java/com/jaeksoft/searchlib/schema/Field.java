@@ -47,6 +47,10 @@ public class Field implements FieldSelector, Externalizable {
 	public Field() {
 	}
 
+	public void copy(Field sourceField) {
+		this.name = sourceField.name;
+	}
+
 	public static Field fromXmlConfig(Node node) {
 		String name = DomUtils.getAttributeText(node, "name");
 		if (name == null)
@@ -120,4 +124,5 @@ public class Field implements FieldSelector, Externalizable {
 		xmlWriter.startElement("field", "name", name);
 		xmlWriter.endElement();
 	}
+
 }

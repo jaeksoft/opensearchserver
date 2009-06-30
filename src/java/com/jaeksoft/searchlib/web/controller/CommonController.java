@@ -86,6 +86,12 @@ public class CommonController extends Window {
 		}
 	}
 
+	public void reloadComponent(String compId) {
+		DataBinder binder = (DataBinder) getPage().getVariable("binder");
+		if (binder != null)
+			binder.loadComponent(getFellow(compId));
+	}
+
 	public void reloadPage() {
 		DataBinder binder = (DataBinder) getPage().getVariable("binder");
 		if (binder != null)

@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.util.List;
 
+import org.zkoss.zul.Messagebox;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -42,13 +44,42 @@ public class FieldsController extends CommonController {
 
 	private SchemaField field;
 
+	private SchemaField selectedField;
+
 	public FieldsController() throws SearchLibException {
 		super();
 		field = new SchemaField();
+		selectedField = null;
 	}
 
 	public SchemaField getField() {
 		return field;
+	}
+
+	public SchemaField getSelectedField() {
+		return selectedField;
+	}
+
+	public void onSave() throws InterruptedException, SearchLibException {
+		try {
+			field.valid();
+		} catch (SearchLibException e) {
+			Messagebox.show(e.getMessage(), "Jaeksoft OpenSearchServer",
+					Messagebox.OK, org.zkoss.zul.Messagebox.EXCLAMATION);
+			return;
+		}
+		if (selectedField != null)
+			selectedField.copy(field);
+		getClient().getSchema().getFieldList().add(field);
+		getClient().saveConfig();
+		field = new SchemaField();
+		reloadDesktop();
+	}
+
+	public void setSelectedField(SchemaField selectedField) {
+		this.selectedField = selectedField;
+		field.copy(selectedField);
+		reloadComponent("editField");
 	}
 
 	public Stored[] getStoredList() {
@@ -68,8 +99,8 @@ public class FieldsController extends CommonController {
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
-		return getClient().getSchema().getFieldList().get(field.getName()) == null ? "Create a new field"
-				: "Edit the field " + field.getName();
+		return selectedField == null ? "Create a new field" : "Edit the field "
+				+ selectedField.getName();
 	}
 
 }

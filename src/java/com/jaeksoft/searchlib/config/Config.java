@@ -163,6 +163,7 @@ public abstract class Config {
 
 	private void saveConfigWithoutLock() throws IOException,
 			TransformerConfigurationException, SAXException {
+		boolean success = false;
 		File configFile = new File(indexDir, "config_tmp.xml");
 		if (!configFile.exists())
 			configFile.createNewFile();
@@ -174,10 +175,12 @@ public abstract class Config {
 			getSchema().writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
+			success = true;
 		} finally {
 			pw.close();
+			if (success)
+				configFile.renameTo(new File(indexDir, "config.xml"));
 		}
-
 	}
 
 	public void saveParsers() throws IOException,
@@ -222,7 +225,6 @@ public abstract class Config {
 		lock.lock();
 		try {
 			saveConfigWithoutLock();
-			saveRequests();
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
