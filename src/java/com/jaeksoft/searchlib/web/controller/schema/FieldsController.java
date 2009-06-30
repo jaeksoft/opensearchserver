@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.zkoss.zul.Messagebox;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -60,6 +61,25 @@ public class FieldsController extends CommonController {
 		return selectedField;
 	}
 
+	private void reloadEditField() {
+		reloadComponent("editField");
+	}
+
+	public void onCancel() {
+		field = new SchemaField();
+		selectedField = null;
+		reloadPage();
+	}
+
+	public void onDelete() throws SearchLibException {
+		Client client = getClient();
+		client.getSchema().getFieldList().remove(selectedField);
+		client.saveConfig();
+		field = new SchemaField();
+		selectedField = null;
+		reloadDesktop();
+	}
+
 	public void onSave() throws InterruptedException, SearchLibException {
 		try {
 			field.valid();
@@ -68,18 +88,29 @@ public class FieldsController extends CommonController {
 					Messagebox.OK, org.zkoss.zul.Messagebox.EXCLAMATION);
 			return;
 		}
+		Client client = getClient();
 		if (selectedField != null)
 			selectedField.copy(field);
-		getClient().getSchema().getFieldList().add(field);
-		getClient().saveConfig();
+		else
+			client.getSchema().getFieldList().add(field);
+		client.saveConfig();
 		field = new SchemaField();
+		selectedField = null;
 		reloadDesktop();
 	}
 
 	public void setSelectedField(SchemaField selectedField) {
 		this.selectedField = selectedField;
 		field.copy(selectedField);
-		reloadComponent("editField");
+		reloadEditField();
+	}
+
+	public boolean isSelected() {
+		return getSelectedField() != null;
+	}
+
+	public boolean isNotSelected() {
+		return getSelectedField() == null;
 	}
 
 	public Stored[] getStoredList() {

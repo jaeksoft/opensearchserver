@@ -80,7 +80,22 @@
 								value="Choose the analyzer you need for that field." />
 						</row>
 						<row spans="3">
-							<button label="Save" forward="onSave" />
+							<hbox>
+								<hbox visible="@{fields.selected}">
+									<button label="Cancel"
+										forward="onCancel" />
+									<space width="10px" />
+									<button label="Save"
+										forward="onSave" />
+									<space width="30px" />
+									<button label="Delete"
+										forward="onDelete" />
+								</hbox>
+								<hbox visible="@{fields.notSelected}">
+									<button label="Add"
+										forward="onSave" />
+								</hbox>
+							</hbox>
 						</row>
 					</rows>
 				</grid>
