@@ -1,83 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE bookmap PUBLIC "-//OASIS//DTD DITA BookMap//EN"
-"bookmap.dtd">
-<bookmap xml:lang="en-US">
-	<title>
-		<ph>Open Search Server documentation</ph>
-		<image href="images/logo_oss.png" placement="break" />
-	</title>
+<!DOCTYPE bookmap PUBLIC "-//OASIS//DTD DITA BookMap//EN" "bookmap.dtd">
+	<!--
+		License Agreement for Jaeksoft OpenSearchServer Copyright (C)
+		2008-2009 Emmanuel Keller / Jaeksoft http://www.open-search-server.com
+		This file is part of Jaeksoft OpenSearchServer. Jaeksoft
+		OpenSearchServer is free software: you can redistribute it and/or
+		modify it under the terms of the GNU General Public License as
+		published by the Free Software Foundation, either version 3 of the
+		License, or (at your option) any later version. Jaeksoft
+		OpenSearchServer is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		General Public License for more details. You should have received a
+		copy of the GNU General Public License along with Jaeksoft
+		OpenSearchServer. If not, see <http://www.gnu.org/licenses/>.
+	-->
+<bookmap id="ossdoc_top" xml:lang="en-US">
+	<booktitle>
+		<mainbooktitle>
+			Open Search Server documentation
+			<image href="images/logo_oss.png" placement="break" />
+		</mainbooktitle>
+		<booktitlealt>PRELIMINARY DRAFT - Open Search Server
+			1.0.2b2
+			(beta 2)</booktitlealt>
+	</booktitle>
 
 	<bookmeta>
-		<shortdesc>PRELIMINARY DRAFT</shortdesc>
-
-		<author />
-
-		<authorinformation>
-			<personinfo>
-				<namedetails>
-					<personname>
-						<firstname>Emmanuel</firstname>
-						<lastname>Keller</lastname>
-						<otherinfo>Author</otherinfo>
-					</personname>
-
-					<personname>
-						<firstname>Emmanuel</firstname>
-
-						<lastname>Gosse</lastname>
-						<otherinfo>Author</otherinfo>
-					</personname>
-					<personname>
-						<firstname>Sebastien</firstname>
-
-						<lastname>Andrivet</lastname>
-						<otherinfo>Translator, proofreader</otherinfo>
-					</personname>
-				</namedetails>
-			</personinfo>
-
-			<organizationinfo>
-				<namedetails>
-					<organizationnamedetails>
-						<organizationname>InfoPro Digital</organizationname>
-					</organizationnamedetails>
-				</namedetails>
-
-				<addressdetails>
-					<thoroughfare> 12-14, rue Mederic</thoroughfare>
-					<locality>Paris</locality>
-					<country>France</country>
-				</addressdetails>
-
-				<urls>
-					<url>http://www.open-search-server.com
-					</url>
-				</urls>
-			</organizationinfo>
-		</authorinformation>
+		<author>Emmanuel Keller, Emmanuel Gosse, Sebastien Andrivet,
+			Laurence Beauclair</author>
 
 		<prodinfo>
 			<prodname>Open Search Server</prodname>
-
 			<vrmlist>
-				<vrm release="Beta" rev="2" version="1.0" />
+				<vrm version="1.0.2b2" />
 			</vrmlist>
 		</prodinfo>
 
 		<bookrights>
+			<copyrfirst>
+				<year>2008</year>
+			</copyrfirst>
+			<copyrlast>
+				<year>2009</year>
+			</copyrlast>
 			<bookowner>
-				<organization>© InfoPro Digital 2009</organization>
+				<organization>InfoPro Digital.</organization>
 			</bookowner>
 		</bookrights>
+
 	</bookmeta>
 
-	<chapter>
-		<topichead navtitle="Quick start">
-			<topicref format="ditamap" href="quick_start/quick_start.ditamap" />
-		</topichead>
+	<frontmatter>
+		<booklists>
+			<toc />
+		</booklists>
+		<bookabstract href="abstract.dita" />
+		<notices href="trademarks.dita" />
+	</frontmatter>
 
-		<topicref href="api_select.dita" type="reference" />
 
-		<topicref href="war_install_oss.dita" type="task" />
+	<chapter href="quickstart.dita">
+		<topicref href="quick_start/install_jdk.dita" />
+		<topicref href="quick_start/env_var_windows.dita" />
+		<topicref href="quick_start/env_var_unix.dita" />
+		<topicref href="quick_start/download_package.dita" />
+		<topicref href="quick_start/extract_folder.dita" />
+		<topicref href="quick_start/start_oss.dita" />
+		<topicref href="quick_start/launch_interface.dita" />
+		<topicref href="quick_start/set_index_directory.dita" />
+		<topicref href="quick_start/insert_pattern.dita" />
+		<topicref href="quick_start/start_crawl.dita" />
+		<topicref href="quick_start/query_index.dita" />
+		<topicref href="quick_start/xml_api.dita" />
 	</chapter>
+
+	<chapter href="xml_api.dita">
+		<topicref href="xml_api/api_select.dita" />
+	</chapter>
+
 </bookmap>

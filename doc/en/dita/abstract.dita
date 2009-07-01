@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "../dtd/topic.dtd">
+	<!--
+		License Agreement for Jaeksoft OpenSearchServer Copyright (C)
+		2008-2009 Emmanuel Keller / Jaeksoft http://www.open-search-server.com
+		This file is part of Jaeksoft OpenSearchServer. Jaeksoft
+		OpenSearchServer is free software: you can redistribute it and/or
+		modify it under the terms of the GNU General Public License as
+		published by the Free Software Foundation, either version 3 of the
+		License, or (at your option) any later version. Jaeksoft
+		OpenSearchServer is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		General Public License for more details. You should have received a
+		copy of the GNU General Public License along with Jaeksoft
+		OpenSearchServer. If not, see <http://www.gnu.org/licenses/>.
+	-->
+<topic id="ossdoc_abstract" xml:lang="en-us">
+	<title>Abstract</title>
+	<shortdesc>Authoring and publishing information for this
+		document.</shortdesc>
+	<prolog>
+		<author type="creator">Emmanuel Keller</author>
+		<publisher>Open Search Server</publisher>
+		<copyright>
+			<copyryear year="2009" />
+			<copyrholder>InfoPro Digital</copyrholder>
+		</copyright>
+		<metadata>
+			<keywords>
+				<keyword>OSS</keyword>
+				<keyword>Open Search Server</keyword>
+				<keyword>InfoPro Digital</keyword>
+				<keyword>Emmanuel Keller</keyword>
+				<keyword>Emmanuel Gosse</keyword>
+				<keyword>Sebastien Andrivet</keyword>
+			</keywords>
+			<prodinfo>
+				<prodname>Open Search Server</prodname>
+				<vrmlist>
+					<vrm version="1.0.2" />
+				</vrmlist>
+			</prodinfo>
+		</metadata>
+	</prolog>
+	<body>
+		<dl>
+			<dlentry>
+				<dt>Title</dt>
+				<dd>
+					<cite>Open Search Server documentation</cite>
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Edition, release, copyright</dt>
+				<dd>
+					Preliminary draft version. Based on release 1.0.2 of Open
+					Search
+					Server. All files copyright 2008-2009 by InfoPro Digital,
+					unless
+					otherwise indicated.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Authors</dt>
+				<dd>
+					Emmanuel Keller, Open Search Server. (
+					<xref href="http://www.open-search-server.com" format="html"
+						scope="external" />
+					). Emmanuel Gosse, InfoPro Digital. (
+					<xref href="http://www.usinenouvelle.com" format="html" scope="external" />
+					). Sebastien Andrivet (translator, proofreader)
+					) . DITA logo
+					artwork by Laurence Beauclair (
+					<xref href="http://www.lilirose.fr/book/" format="html" scope="external" />
+					)
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Open Search Server web site</dt>
+				<dd>
+					<xref href="http://www.open-search-server.com" format="html"
+						scope="external" />
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Open Server Server at SourceForge</dt>
+				<dd>
+					<xref href="http://sourceforge.net/projects/opensearchserve/"
+						format="html" scope="external" />
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Invitation to contribute to future editions</dt>
+				<dd>
+					The authors invite others in the Open Search Server community to
+					contribute to
+					future editions of this document.
+					.
+				</dd>
+			</dlentry>
+		</dl>
+	</body>
+</topic>
