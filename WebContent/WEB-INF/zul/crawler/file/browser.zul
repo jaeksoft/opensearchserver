@@ -18,39 +18,33 @@
 <window id="browser"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.BrowserController">
 
-	<vbox height="400px" width="99%">
-		<vbox width="99%" id="chooseBrowser">
-			<label>Choose a directory to crawl:</label>
-			<button label="Choose ..."
-				onClick="popupBrowser.setVisible(true);" />
-		</vbox>
+	<vbox width="99%">
 
-		<vbox id="popupBrowser" visible="false">
-			<label>Server directories :</label>
+		<listbox model="@{browser.files}"
+			selectedItem="@{browser.selectedFile}"
+			onSelect="browser.onReload()">
+			<listhead>
+				<listheader width="80px">
+					<label>Directories :</label>
+					<button label="Back" forward="onBack"
+						visible="@{browser.myRoot}" />
+					<button label="In" forward="onChoice"
+						visible="@{browser.selectedFile.directory}" />
+					<button label="Reset" forward="onReset" />
 
-			<listbox model="@{browser.files}"
-				selectedItem="@{browser.currentFile}"
-				onSelect="browser.onChoice()">
-				<listhead>
-					<listheader width="80px">
-						<button label="Back" forward="onBack" visible="@{browser.root}"/>
-					</listheader>
-					<listheader>
-						<button label="In" forward="onReload" visible="@{browser.currentFile.directory}" />
-						<button label="Add" forward="onBack" />
-						<label value="path" />
-					</listheader>
-				</listhead>
-				<listitem self="@{each='field'}">
+				</listheader>
+			</listhead>
+			<listitem self="@{each='field'}">
+				<listcell label="@{field.path}" />
+			</listitem>
+		</listbox>
 
-					<listcell label="" />
-					<listcell label="@{field.path}" />
-				</listitem>
-			</listbox>
-
-		</vbox>
 	</vbox>
-	<separator />
+	<hbox visible="@{browser.selectedFileSet}">
+		<checkbox label="With all sub-directories"
+			disabled="@{browser.selectedFile.file}" />
+		<button label="Add it" forward="onAdd" />
+	</hbox>
 
 	<listbox checkmark="true" multiple="true" itemRenderer="@{browser}"
 		model="@{browser.patternList}">

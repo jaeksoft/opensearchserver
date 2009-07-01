@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.crawler.web.database.FilePatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
@@ -99,6 +100,8 @@ public abstract class Config {
 	private UrlManager urlManager = null;
 
 	private PatternManager patternManager = null;
+	
+	private FilePatternManager filePatternManager = null;
 
 	private PropertyManager propertyManager = null;
 
@@ -446,6 +449,17 @@ public abstract class Config {
 			if (patternManager == null)
 				patternManager = new PatternManager(indexDir);
 			return patternManager;
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	public FilePatternManager getFilePatternManager() throws SearchLibException {
+		lock.lock();
+		try {
+			if (filePatternManager == null)
+				filePatternManager = new FilePatternManager(indexDir);
+			return filePatternManager;
 		} finally {
 			lock.unlock();
 		}

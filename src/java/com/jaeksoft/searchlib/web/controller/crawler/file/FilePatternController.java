@@ -23,7 +23,6 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -37,67 +36,42 @@ import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.FileItem;
-import com.jaeksoft.searchlib.crawler.web.database.FilePatternManager;
-import com.jaeksoft.searchlib.crawler.web.database.FileSelector;
+import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
+import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
+import com.jaeksoft.searchlib.crawler.web.database.PatternSelector;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class BrowserController extends CommonController implements
-		ListitemRenderer, FileSelector, AfterCompose {
+public class FilePatternController extends CommonController implements
+		ListitemRenderer, PatternSelector, AfterCompose {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6735801464584819587L;
 
-	transient private List<FileItem> patternList = null;
+	transient private List<PatternItem> patternList = null;
+
+	private String like;
+
+	private String pattern;
 
 	private int pageSize;
+
 	private int totalSize;
+
 	private int activePage;
-	private final Set<String> selection;
 
-	private File currentFile;
-	private File selectedFile;
-	private File[] list;
+	private Set<String> selection;
 
-	private String currentFilePath;
-
-	public BrowserController() throws SearchLibException {
+	public FilePatternController() throws SearchLibException {
 		super();
 		patternList = null;
+		pattern = null;
+		like = null;
 		pageSize = 10;
 		totalSize = 0;
 		activePage = 0;
 		selection = new TreeSet<String>();
-	}
-
-	public File getSelectedFile() {
-		return selectedFile;
-	}
-
-	public void setSelectedFile(File selectedFile) {
-		this.selectedFile = selectedFile;
-	}
-
-	public boolean isSelectedFileSet() {
-		return (selectedFile != null);
-	}
-
-	public File getCurrentFile() {
-		return currentFile;
-	}
-
-	public void setCurrentFile(File currentFile) {
-		this.currentFile = currentFile;
-	}
-
-	public String getCurrentFilePath() {
-		return currentFilePath;
-	}
-
-	public void setCurrentFilePath(String currentFilePath) {
-		this.currentFilePath = currentFilePath;
 	}
 
 	public void afterCompose() {
@@ -124,18 +98,27 @@ public class BrowserController extends CommonController implements
 		return totalSize;
 	}
 
-	public List<FileItem> getPatternList() {
+	public void setLike(String v) {
+		if (v == like)
+			return;
+		like = v;
+	}
+
+	public String getLike() {
+		return like;
+	}
+
+	public List<PatternItem> getPatternList() {
 		synchronized (this) {
 			if (patternList != null)
 				return patternList;
 			try {
-				FilePatternManager FilePatternManager = getClient()
-						.getFilePatternManager();
-				patternList = new ArrayList<FileItem>();
-				totalSize = FilePatternManager.getPatterns("", getActivePage()
+				PatternManager patternManager = getClient().getPatternManager();
+				patternList = new ArrayList<PatternItem>();
+				totalSize = patternManager.getPatterns(like, getActivePage()
 						* getPageSize(), getPageSize(), patternList);
-				for (FileItem patternUrlItem : patternList)
-					patternUrlItem.setFileSelector(this);
+				for (PatternItem patternUrlItem : patternList)
+					patternUrlItem.setPatternSelector(this);
 				return patternList;
 			} catch (SearchLibException e) {
 				throw new RuntimeException(e);
@@ -168,13 +151,11 @@ public class BrowserController extends CommonController implements
 		}
 	}
 
-	@Deprecated
 	public void onDelete() throws SearchLibException {
 		synchronized (this) {
-			FilePatternManager FilePatternManager = getClient()
-					.getFilePatternManager();
+			PatternManager patternManager = getClient().getPatternManager();
 			try {
-				deleteSelection(FilePatternManager);
+				deleteSelection(patternManager);
 			} catch (SearchLibException e) {
 				throw new RuntimeException(e);
 			}
@@ -183,25 +164,25 @@ public class BrowserController extends CommonController implements
 	}
 
 	public void onSelect(Event event) {
-		FileItem patternItem = (FileItem) event.getData();
+		PatternItem patternItem = (PatternItem) event.getData();
 		patternItem.setSelected(!patternItem.isSelected());
 		reloadPage();
 	}
 
 	public void render(Listitem item, Object data) throws Exception {
-		FileItem patternItem = (FileItem) data;
+		PatternItem patternItem = (PatternItem) data;
 		item.setLabel(patternItem.getPattern());
 		item.setSelected(patternItem.isSelected());
 		item.addForward(null, this, "onSelect", patternItem);
 	}
 
-	public void addSelection(FileItem item) {
+	public void addSelection(PatternItem item) {
 		synchronized (selection) {
 			selection.add(item.getPattern());
 		}
 	}
 
-	public void removeSelection(FileItem item) {
+	public void removeSelection(PatternItem item) {
 		synchronized (selection) {
 			selection.remove(item.getPattern());
 		}
@@ -213,87 +194,42 @@ public class BrowserController extends CommonController implements
 		}
 	}
 
-	public boolean isSelected(FileItem item) {
+	public boolean isSelected(PatternItem item) {
 		synchronized (selection) {
 			return selection.contains(item.getPattern());
 		}
 	}
 
-	public void deleteSelection(FilePatternManager FilePatternManager)
+	public void deleteSelection(PatternManager patternManager)
 			throws SearchLibException {
 		synchronized (selection) {
-			FilePatternManager.delPattern(selection);
+			patternManager.delPattern(selection);
 			selection.clear();
+		}
+	}
+
+	public String getPattern() {
+		synchronized (this) {
+			return pattern;
+		}
+	}
+
+	public void setPattern(String v) {
+		synchronized (this) {
+			pattern = v;
 		}
 	}
 
 	public void onAdd() throws SearchLibException {
 		synchronized (this) {
-			List<FileItem> list = FilePatternManager
-					.getPatternList(getSelectedFile().getPath());
+			List<PatternItem> list = PatternManager.getPatternList(pattern);
 			if (list.size() > 0) {
-				getClient().getFilePatternManager().addList(list, false);
+				getClient().getPatternManager().addList(list, false);
+				getClient().getUrlManager().injectPrefix(list);
 			}
+			setPattern(PatternManager.getStringPatternList(list));
 			patternList = null;
 			reloadPage();
 		}
 	}
-
-	public void onChoice() throws SearchLibException {
-		synchronized (this) {
-			if (getSelectedFile() != null)
-				setCurrentFile(getSelectedFile());
-
-			if (getCurrentFile() != null)
-				setFiles(getCurrentFile().listFiles());
-			else
-				setFiles(File.listRoots());
-		}
-		reloadPage();
-	}
-
-	@Override
-	public void onReload() throws SearchLibException {
-		synchronized (this) {
-			setCurrentFile(null);
-		}
-	}
-
-	public void onReset() throws SearchLibException {
-		synchronized (this) {
-			setSelectedFile(null);
-			setCurrentFile(null);
-			setFiles(null);
-			reloadPage();
-		}
-	}
-
-	public void onBack() throws SearchLibException {
-		synchronized (this) {
-			if (currentFile != null)
-				setCurrentFile(currentFile.getParentFile());
-
-			setFiles(currentFile.listFiles());
-			setSelectedFile(null);
-			reloadPage();
-		}
-	}
-
-	public File[] getFiles() {
-		if (list == null)
-			list = File.listRoots();
-		return list;
-
-	}
-
-	public void setFiles(File[] f) {
-		this.list = f;
-	}
-
-	public boolean isMyRoot() {
-		if (currentFile == null)
-			return false;
-		return true;
-	}
-
 }
