@@ -18,20 +18,17 @@
 <window id="browser"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.BrowserController">
 
-	<vbox width="99%">
-
+	<vbox>
 		<listbox model="@{browser.files}"
-			selectedItem="@{browser.selectedFile}"
-			onSelect="browser.onReload()">
+			selectedItem="@{browser.selectedFile}">
 			<listhead>
 				<listheader width="80px">
 					<label>Directories :</label>
-					<button label="Back" forward="onBack"
-						visible="@{browser.myRoot}" />
-					<button label="In" forward="onChoice"
-						visible="@{browser.selectedFile.directory}" />
 					<button label="Reset" forward="onReset" />
+					<button label="Back" forward="onBack" />
 
+					<button label="In" forward="onIn"
+						visible="@{browser.selectedFile.directory}" />
 				</listheader>
 			</listhead>
 			<listitem self="@{each='field'}">
@@ -40,14 +37,20 @@
 		</listbox>
 
 	</vbox>
-	<hbox visible="@{browser.selectedFileSet}">
+
+	<separator />
+
+	<hbox>
 		<checkbox label="With all sub-directories"
 			disabled="@{browser.selectedFile.file}" />
 		<button label="Add it" forward="onAdd" />
 	</hbox>
 
+	<separator />
+
 	<listbox checkmark="true" multiple="true" itemRenderer="@{browser}"
 		model="@{browser.patternList}">
+		
 		<listfoot>
 			<listfooter>
 				<paging id="paging" detailed="true"

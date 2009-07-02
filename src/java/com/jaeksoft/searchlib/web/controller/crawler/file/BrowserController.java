@@ -59,7 +59,7 @@ public class BrowserController extends CommonController implements
 
 	private File currentFile;
 	private File selectedFile;
-	private File[] list;
+	// private File[] list;
 
 	private String currentFilePath;
 
@@ -78,10 +78,6 @@ public class BrowserController extends CommonController implements
 
 	public void setSelectedFile(File selectedFile) {
 		this.selectedFile = selectedFile;
-	}
-
-	public boolean isSelectedFileSet() {
-		return (selectedFile != null);
 	}
 
 	public File getCurrentFile() {
@@ -124,6 +120,26 @@ public class BrowserController extends CommonController implements
 		return totalSize;
 	}
 
+	public File[] getFiles() {
+		if (currentFile == null)
+			return File.listRoots();
+		else
+			return currentFile.listFiles();
+
+	}
+
+	public boolean isMyRoot() {
+		if (currentFile == null)
+			return false;
+
+		for (File file : File.listRoots()) {
+			if (file.getPath().equals(currentFile.getPath()))
+				return true;
+		}
+
+		return false;
+	}
+
 	public List<FileItem> getPatternList() {
 		synchronized (this) {
 			if (patternList != null)
@@ -132,8 +148,10 @@ public class BrowserController extends CommonController implements
 				FilePatternManager FilePatternManager = getClient()
 						.getFilePatternManager();
 				patternList = new ArrayList<FileItem>();
+
 				totalSize = FilePatternManager.getPatterns("", getActivePage()
 						* getPageSize(), getPageSize(), patternList);
+
 				for (FileItem patternUrlItem : patternList)
 					patternUrlItem.setFileSelector(this);
 				return patternList;
@@ -143,49 +161,12 @@ public class BrowserController extends CommonController implements
 		}
 	}
 
-	public void onPaging(PagingEvent pagingEvent) {
-		synchronized (this) {
-			patternList = null;
-			activePage = pagingEvent.getActivePage();
-			reloadPage();
-		}
-	}
-
-	public void onSearch() {
-		synchronized (this) {
-			patternList = null;
-			activePage = 0;
-			totalSize = 0;
-			reloadPage();
-		}
-	}
-
 	public boolean isSelection() {
 		synchronized (this) {
 			if (patternList == null)
 				return false;
 			return (getSelectionCount() > 0);
 		}
-	}
-
-	@Deprecated
-	public void onDelete() throws SearchLibException {
-		synchronized (this) {
-			FilePatternManager FilePatternManager = getClient()
-					.getFilePatternManager();
-			try {
-				deleteSelection(FilePatternManager);
-			} catch (SearchLibException e) {
-				throw new RuntimeException(e);
-			}
-			onSearch();
-		}
-	}
-
-	public void onSelect(Event event) {
-		FileItem patternItem = (FileItem) event.getData();
-		patternItem.setSelected(!patternItem.isSelected());
-		reloadPage();
 	}
 
 	public void render(Listitem item, Object data) throws Exception {
@@ -229,33 +210,25 @@ public class BrowserController extends CommonController implements
 
 	public void onAdd() throws SearchLibException {
 		synchronized (this) {
-			List<FileItem> list = FilePatternManager
-					.getPatternList(getSelectedFile().getPath());
-			if (list.size() > 0) {
-				getClient().getFilePatternManager().addList(list, false);
+			if (getSelectedFile() != null) {
+				List<FileItem> list = FilePatternManager
+						.getPatternList(getSelectedFile().getPath());
+				if (list.size() > 0) {
+					getClient().getFilePatternManager().addList(list, false);
+				}
+				patternList = null;
+				reloadPage();
 			}
-			patternList = null;
-			reloadPage();
 		}
 	}
 
-	public void onChoice() throws SearchLibException {
+	public void onIn() throws SearchLibException {
 		synchronized (this) {
 			if (getSelectedFile() != null)
 				setCurrentFile(getSelectedFile());
 
-			if (getCurrentFile() != null)
-				setFiles(getCurrentFile().listFiles());
-			else
-				setFiles(File.listRoots());
-		}
-		reloadPage();
-	}
-
-	@Override
-	public void onReload() throws SearchLibException {
-		synchronized (this) {
-			setCurrentFile(null);
+			setSelectedFile(null);
+			reloadPage();
 		}
 	}
 
@@ -263,37 +236,64 @@ public class BrowserController extends CommonController implements
 		synchronized (this) {
 			setSelectedFile(null);
 			setCurrentFile(null);
-			setFiles(null);
+			// setFiles(null);
 			reloadPage();
 		}
 	}
 
 	public void onBack() throws SearchLibException {
 		synchronized (this) {
-			if (currentFile != null)
+			if (currentFile != null && !isMyRoot())
 				setCurrentFile(currentFile.getParentFile());
+			else
+				setCurrentFile(null);
 
-			setFiles(currentFile.listFiles());
 			setSelectedFile(null);
 			reloadPage();
 		}
 	}
 
-	public File[] getFiles() {
-		if (list == null)
-			list = File.listRoots();
-		return list;
-
+	public void onPaging(PagingEvent pagingEvent) {
+		synchronized (this) {
+			patternList = null;
+			activePage = pagingEvent.getActivePage();
+			reloadPage();
+		}
 	}
 
-	public void setFiles(File[] f) {
-		this.list = f;
+	public void onSearch() {
+		synchronized (this) {
+			patternList = null;
+			activePage = 0;
+			totalSize = 0;
+			reloadPage();
+		}
 	}
 
-	public boolean isMyRoot() {
-		if (currentFile == null)
-			return false;
-		return true;
+	public void onDelete() throws SearchLibException {
+		synchronized (this) {
+			FilePatternManager FilePatternManager = getClient()
+					.getFilePatternManager();
+			try {
+				deleteSelection(FilePatternManager);
+			} catch (SearchLibException e) {
+				throw new RuntimeException(e);
+			}
+			onSearch();
+			reloadPage();
+		}
+	}
+
+	public void onSelect(Event event) {
+		FileItem patternItem = (FileItem) event.getData();
+		patternItem.setSelected(!patternItem.isSelected());
+		reloadPage();
+	}
+
+	public void onSelectAll(Event event) {
+		FileItem patternItem = (FileItem) event.getData();
+		patternItem.setSelected(!patternItem.isSelected());
+		reloadPage();
 	}
 
 }
