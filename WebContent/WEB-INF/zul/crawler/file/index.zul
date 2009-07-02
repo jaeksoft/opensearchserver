@@ -1,6 +1,6 @@
 <tabbox>
 	<tabs>
-		<tab id="tabCrawlerFileBrowser" label="File browser" selected="true" />
+		<tab id="tabCrawlerFileBrowser" label="Files browser" selected="true" />
 		<tab id="tabCrawlerFileCrawled" label="Files to crawl" />
 		<tab id="tabCrawlerFileCrawl" label="Crawl process" />
 		<tab id="tabCrawlerFileMapping" label="Field mapping" />

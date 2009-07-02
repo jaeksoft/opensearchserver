@@ -24,9 +24,9 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
-import java.util.regex.Pattern;
+import com.jaeksoft.searchlib.util.GenericMap;
 
-public class FileItem {
+public class FileItem extends GenericMap<String> {
 
 	public enum Status {
 		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(
@@ -45,23 +45,21 @@ public class FileItem {
 	}
 
 	private Status status;
-
-	protected String sPattern;
-
-	private final Pattern pattern;
-
+	private String path;
 	private FileSelector fileSelector;
+	private boolean withSub;
 
 	public FileItem() {
 		status = Status.UNDEFINED;
-		sPattern = null;
-		pattern = null;
+		path = null;
 		fileSelector = null;
+		withSub = false;
 	}
 
-	public FileItem(String sPattern) {
+	public FileItem(String path, boolean withSub) {
 		this();
-		setPattern(sPattern);
+		setPath(path);
+		setWithSub(withSub);
 	}
 
 	public Status getStatus() {
@@ -83,30 +81,38 @@ public class FileItem {
 		return fileSelector.isSelected(this);
 	}
 
-	public boolean match(String sUrl) {
-		if (pattern == null)
-			return sUrl.equals(sPattern);
-		return pattern.matcher(sUrl).matches();
+	public void setPath(String s) {
+		path = s;
 	}
 
-	public void setPattern(String s) {
-		sPattern = s;
-	}
-
-	public String getPattern() {
-		return sPattern;
+	public String getPath() {
+		return path;
 	}
 
 	public void setFileSelector(FileSelector patternSelector) {
 		this.fileSelector = patternSelector;
 	}
 
-	public int compareTo(FileItem item) {
-		if (this.getPattern() != null && item != null
-				&& this.getPattern().equals(item.getPattern()))
-			return 0;
+	public boolean isWithSub() {
+		return withSub;
+	}
 
-		return 1;
+	public String isWithSubToString() {
+		return (withSub ? "yes" : "no");
+	}
+
+	public static boolean parse(String text) {
+		if (text == null)
+			return false;
+
+		if (text.equals("yes"))
+			return true;
+
+		return false;
+	}
+
+	public void setWithSub(boolean withSub) {
+		this.withSub = withSub;
 	}
 
 }

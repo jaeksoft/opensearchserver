@@ -22,35 +22,39 @@
 		<listbox model="@{browser.files}"
 			selectedItem="@{browser.selectedFile}">
 			<listhead>
-				<listheader width="80px">
-					<label>Directories :</label>
-					<button label="Reset" forward="onReset" />
-					<button label="Back" forward="onBack" />
+				<listheader>
+					<label>Select :</label>
+					<button label="Refresh" forward="onReset" />
+					<button label="Up" forward="onBack" />
 
-					<button label="In" forward="onIn"
+					<button label="Down" forward="onIn"
 						visible="@{browser.selectedFile.directory}" />
 				</listheader>
 			</listhead>
 			<listitem self="@{each='field'}">
 				<listcell label="@{field.path}" />
 			</listitem>
+			<listfoot>
+				<listfooter>
+					<hbox>
+						<button label="Add" forward="onAdd" />
+						<checkbox label="With all sub-directories"
+							checked="@{browser.selectedFileCheck}"
+							disabled="@{browser.selectedFile.file}" />
+					</hbox>
+				</listfooter>
+			</listfoot>
 		</listbox>
-
 	</vbox>
 
 	<separator />
 
-	<hbox>
-		<checkbox label="With all sub-directories"
-			disabled="@{browser.selectedFile.file}" />
-		<button label="Add it" forward="onAdd" />
-	</hbox>
-
-	<separator />
-
-	<listbox checkmark="true" multiple="true" itemRenderer="@{browser}"
-		model="@{browser.patternList}">
-		
+	<listbox itemRenderer="@{browser}" model="@{browser.patternList}">
+		<listhead>
+			<listheader label="Selection" />
+			<listheader label="With Subs" />
+			<listheader label="Action" />
+		</listhead>
 		<listfoot>
 			<listfooter>
 				<paging id="paging" detailed="true"

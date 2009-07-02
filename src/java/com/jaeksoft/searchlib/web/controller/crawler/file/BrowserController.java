@@ -32,6 +32,8 @@ import java.util.TreeSet;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
+import org.zkoss.zul.Image;
+import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
@@ -59,7 +61,7 @@ public class BrowserController extends CommonController implements
 
 	private File currentFile;
 	private File selectedFile;
-	// private File[] list;
+	private boolean selectedFileCheck;
 
 	private String currentFilePath;
 
@@ -96,12 +98,12 @@ public class BrowserController extends CommonController implements
 		this.currentFilePath = currentFilePath;
 	}
 
-	public void afterCompose() {
-		getFellow("paging").addEventListener("onPaging", new EventListener() {
-			public void onEvent(Event event) {
-				onPaging((PagingEvent) event);
-			}
-		});
+	public boolean isSelectedFileCheck() {
+		return selectedFileCheck;
+	}
+
+	public void setSelectedFileCheck(boolean selectedFileCheck) {
+		this.selectedFileCheck = selectedFileCheck;
 	}
 
 	public void setPageSize(int v) {
@@ -169,22 +171,27 @@ public class BrowserController extends CommonController implements
 		}
 	}
 
+	@Override
 	public void render(Listitem item, Object data) throws Exception {
-		FileItem patternItem = (FileItem) data;
-		item.setLabel(patternItem.getPattern());
-		item.setSelected(patternItem.isSelected());
-		item.addForward(null, this, "onSelect", patternItem);
+		FileItem file = (FileItem) data;
+		new Listcell(file.getPath());
+		new Listcell(file.isWithSubToString());
+		Listcell listcell = new Listcell();
+		Image image = new Image("/images/action_delete.png");
+		image.addForward(null, this, "onLinkRemove", data);
+		image.setParent(listcell);
+		listcell.setParent(item);
 	}
 
 	public void addSelection(FileItem item) {
 		synchronized (selection) {
-			selection.add(item.getPattern());
+			selection.add(item.getPath());
 		}
 	}
 
 	public void removeSelection(FileItem item) {
 		synchronized (selection) {
-			selection.remove(item.getPattern());
+			selection.remove(item.getPath());
 		}
 	}
 
@@ -196,7 +203,7 @@ public class BrowserController extends CommonController implements
 
 	public boolean isSelected(FileItem item) {
 		synchronized (selection) {
-			return selection.contains(item.getPattern());
+			return selection.contains(item.getPath());
 		}
 	}
 
@@ -209,14 +216,16 @@ public class BrowserController extends CommonController implements
 	}
 
 	public void onAdd() throws SearchLibException {
+
 		synchronized (this) {
 			if (getSelectedFile() != null) {
-				List<FileItem> list = FilePatternManager
-						.getPatternList(getSelectedFile().getPath());
+				List<FileItem> list = FilePatternManager.getPatternList(
+						getSelectedFile().getPath(), isSelectedFileCheck());
 				if (list.size() > 0) {
 					getClient().getFilePatternManager().addList(list, false);
 				}
 				patternList = null;
+				setSelectedFileCheck(false);
 				reloadPage();
 			}
 		}
@@ -290,10 +299,17 @@ public class BrowserController extends CommonController implements
 		reloadPage();
 	}
 
-	public void onSelectAll(Event event) {
-		FileItem patternItem = (FileItem) event.getData();
-		patternItem.setSelected(!patternItem.isSelected());
-		reloadPage();
+	public void afterCompose() {
+		getFellow("paging").addEventListener("onPaging", new EventListener() {
+			public void onEvent(Event event) {
+				onPaging((PagingEvent) event);
+			}
+		});
 	}
 
+	/*
+	 * public void onCheck(CheckEvent event) { synchronized (this) {
+	 * System.out.println("lol" + event.isChecked());
+	 * setSelectedFileCheck(event.isChecked()); } }
+	 */
 }
