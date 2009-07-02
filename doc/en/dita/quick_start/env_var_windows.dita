@@ -2,7 +2,7 @@
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN"
 "http://docs.oasis-open.org/dita/dtd/task.dtd">
 <task id="quick_start_env_var_windows">
-	<title>Setting up then environment variables on a Windows™
+	<title>Setting up the environment variables on a Windows™
 		System</title>
 
 	<shortdesc>On Windows, the only thing to do is to add an environment

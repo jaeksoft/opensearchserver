@@ -26,13 +26,13 @@
 					options:</cmd>
 
 				<choices>
-					<choice>Beta : the beta version. Lastest stage of development
+					<choice>Beta : the beta version. Latest stage of development
 						cycle.</choice>
 
 					<choice>Stable / Release: Stable releases, intended for
 						production use.</choice>
 
-					<choice>Unstable / Alpha: Usually the lastest trunk
+					<choice>Unstable / Alpha: Usually the latest trunk
 						version.
 					</choice>
 				</choices>
@@ -43,7 +43,7 @@
 
 				<choicetable>
 					<chrow>
-						<choption>documentation.pdf</choption>
+						<choption>documentation-XXX.pdf</choption>
 
 						<chdesc>The documentation you are reading now, in PDF
 							format.

@@ -17,7 +17,7 @@
 				<info>
 					Replace
 					<tt>[jdk-path]</tt>
-					by the location of you JDK. For
+					by the location of your JDK. For
 					example:
 					<tt>/usr/jdk/jdk1.6.0_14</tt>
 				</info>

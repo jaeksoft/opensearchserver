@@ -19,8 +19,8 @@
 	</prolog>
 	<refbody>
 		<section>
-			<title>Url call</title>
-			Basic relative url is :
+			<title>URL call</title>
+			Basic relative URL is :
 			<codeph>/select</codeph>
 		</section>
 		<section>
@@ -56,7 +56,7 @@
 			</strow>
 			<strow>
 				<stentry>qt</stentry>
-				<stentry>Enables you to pre-load a set query in index configuration file <varname>config.xml</varname>. Ex.: <codeph>qt=requestName</codeph></stentry>
+				<stentry>Enables you to pre-load a set query in an index configuration file <varname>config.xml</varname>. Ex.: <codeph>qt=requestName</codeph></stentry>
                 <stentry>Text</stentry>
 				<stentry></stentry>
 				<stentry>no</stentry>
@@ -70,7 +70,7 @@
 			</strow>
 			<strow>
 					<stentry>rows</stentry>
-					<stentry>Indicates the number of records to be returned. Associated with the 'start' parameter,  This parameter allows for a pagination. Ex.: <codeph>rows=5</codeph></stentry>
+					<stentry>Indicates the number of records to be returned. Associated with the 'start' parameter, this parameter allows for a pagination. Ex.: <codeph>rows=5</codeph></stentry>
 					<stentry>Number</stentry>
 					<stentry>10</stentry>
 					<stentry>no</stentry>
@@ -133,7 +133,7 @@
 			</strow>
 			<strow>
 					<stentry>rf</stentry>
-					<stentry>Adds one or more fields to send. Ex.: <codeph>&#x0026;rf=date&#x0026;rf=color</codeph></stentry>
+					<stentry>Adds one or more field to send. Ex.: <codeph>&#x0026;rf=date&#x0026;rf=color</codeph></stentry>
 					<stentry>Text (field's name)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
@@ -147,21 +147,21 @@
 			</strow>
 						<strow>
 					<stentry>sort</stentry>
-					<stentry>Controls results order. Using the abbreviation + ou - to sort by ascending or descending order.  Ex.: <codeph>&#x0026;sort=-date&#x0026;sort=color</codeph></stentry>
+					<stentry>Controls the order of the results. Use the abbreviation + ou - to sort by ascending or descending order.  Ex.: <codeph>&#x0026;sort=-date&#x0026;sort=color</codeph></stentry>
 					<stentry>Text</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 						<strow>
 					<stentry>facet</stentry>
-					<stentry>Enables faceting for the field passed as a parameter. You can add a number in parenthesis to specify the minimum count.  Ex.: <codeph>&#x0026;facet=color</codeph> ou <codeph>&#x0026;facet=color(2)</codeph></stentry>
+					<stentry>Enables faceting for the field passed as a parameter. You can add a number in parentheses to specify the minimum count.  Ex.: <codeph>&#x0026;facet=color</codeph> ou <codeph>&#x0026;facet=color(2)</codeph></stentry>
 					<stentry>Text(Number)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>
 			</strow>
 						<strow>
 					<stentry>facet.multi</stentry>
-					<stentry>Same as parameter <varname>facet</varname>, for use with fields containing multiple values (multi-valued fields). Ex.: <codeph>&#x0026;facet.multi=color</codeph> ou <codeph>&#x0026;facet.multi=color(2)</codeph></stentry>
+					<stentry>Same as with parameter <varname>facet</varname>, for use with fields containing multiple values (multi-valued fields). Ex.: <codeph>&#x0026;facet.multi=color</codeph> ou <codeph>&#x0026;facet.multi=color(2)</codeph></stentry>
 					<stentry>Text(Number)</stentry>
 					<stentry></stentry>
 					<stentry>no</stentry>

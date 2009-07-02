@@ -52,11 +52,21 @@
 				</dd>
 			</dlentry>
 			<dlentry>
-				<dt>Edition, release, copyright</dt>
+				<dt>Edition</dt>
 				<dd>
-					Preliminary draft version. Based on release 1.0.2 of Open
-					Search
-					Server. All files copyright 2008-2009 by InfoPro Digital,
+					Preliminary draft version.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Release</dt>
+				<dd>
+					Based on release 1.0.2 of Open Search Server.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Copyright</dt>
+				<dd>
+					All files copyright 2008-2009 by InfoPro Digital,
 					unless
 					otherwise indicated.
 				</dd>
@@ -64,16 +74,26 @@
 			<dlentry>
 				<dt>Authors</dt>
 				<dd>
-					Emmanuel Keller, Open Search Server. (
+					Emmanuel Keller, Open Search Server:
 					<xref href="http://www.open-search-server.com" format="html"
 						scope="external" />
-					). Emmanuel Gosse, InfoPro Digital. (
+				</dd>
+				<dd>
+					Emmanuel Gosse, InfoPro Digital:
 					<xref href="http://www.usinenouvelle.com" format="html" scope="external" />
-					). Sebastien Andrivet (translator, proofreader)
-					) . DITA logo
-					artwork by Laurence Beauclair (
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Translator, proofreader</dt>
+				<dd>
+					Sebastien Andrivet.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>OSS logo artwork</dt>
+				<dd>
+					Laurence Beauclair:
 					<xref href="http://www.lilirose.fr/book/" format="html" scope="external" />
-					)
 				</dd>
 			</dlentry>
 			<dlentry>
@@ -84,10 +104,17 @@
 				</dd>
 			</dlentry>
 			<dlentry>
-				<dt>Open Server Server at SourceForge</dt>
+				<dt>Project web site at SourceForge</dt>
 				<dd>
 					<xref href="http://sourceforge.net/projects/opensearchserve/"
 						format="html" scope="external" />
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Documentation web site</dt>
+				<dd>
+					<xref href="http://opensearchserve.sourceforge.net/" format="html"
+						scope="external" />
 				</dd>
 			</dlentry>
 			<dlentry>

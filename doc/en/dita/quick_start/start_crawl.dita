@@ -5,7 +5,7 @@
 	<title>Starting the crawl process.</title>
 
 	<shortdesc>
-		The crawl process will download and index the url(s) you inserted
+		The crawl process will download and index the URL(s) you inserted
 		in the patterns list.
 		<image href="images/crawl-process.png" placement="break" width="300" />
 	</shortdesc>

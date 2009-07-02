@@ -6,7 +6,7 @@
 
 	<shortdesc>
 		Try the same request using the XML API to get an XML result. Open
-		a new web browser with the following url:
+		a new web browser with the following URL:
 		<codeph />
 		<image href="images/xml-search.png" placement="break" width="300" />
 	</shortdesc>
@@ -19,7 +19,7 @@
 
 			<step>
 				<cmd>
-					Enter the following url:
+					Enter the following URL:
 					<tt>http://localhost:8080/select?qt=search&amp;q=open</tt></cmd>
       </step>
     </steps>

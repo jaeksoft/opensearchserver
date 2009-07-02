@@ -22,7 +22,7 @@
 				</choices>
 
 				<stepresult>The server is running, and will now start listening to
-					the tcp port
+					the TCP port
 					8080.</stepresult>
 			</step>
 		</steps>

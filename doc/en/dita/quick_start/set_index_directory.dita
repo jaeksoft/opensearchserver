@@ -4,7 +4,7 @@
 <task id="quick_start_set_index_directory">
   <title>Setting up the index directory</title>
 
-  <shortdesc>You must provide a path to the directory where you want to store
+  <shortdesc>You must provide a path to the directory where you wish to store
   the index data. We recommend that you start with the <b>web_crawler</b> folder
   provided in the <b>examples</b> folder.<image
   href="images/oss-start-page.png" placement="break" width="400"/></shortdesc>

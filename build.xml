@@ -162,32 +162,28 @@
 		<delete dir="${dist}/${product}" />
 	</target>
 
-	<import file="${dita.dir}/conductor.xml" />
-
-	<target name="doc-en" depends="use-init">
-		<antcall target="dita2xhtml">
-			<param name="args.input" value="doc/en/dita/documentation.ditamap" />
-			<param name="output.dir" value="${build-doc}/en/html" />
-			<param name="clean.temp" value="yes" />
-		</antcall>
-		<antcall target="dita2pdf2">
-			<param name="args.input" value="doc/en/dita/documentation.ditamap" />
-			<param name="output.dir" value="${build-doc}/en" />
-			<param name="clean.temp" value="yes" />
-		</antcall>
-	</target>
-
-	<target name="doc-fr" depends="use-init">
-		<antcall target="dita2xhtml">
-			<param name="args.input" value="doc/fr/dita/documentation.ditamap" />
-			<param name="output.dir" value="${build-doc}/fr/html" />
-			<param name="clean.temp" value="yes" />
-		</antcall>
-		<antcall target="dita2pdf2">
-			<param name="args.input" value="doc/fr/dita/documentation.ditamap" />
-			<param name="output.dir" value="${build-doc}/fr" />
-			<param name="clean.temp" value="yes" />
-		</antcall>
+	<target name="doc-en">
+		<ant antfile="${dita.dir}/build.xml" target="init">
+			<property name="args.input" value="doc/en/dita/documentation.ditamap" />
+			<property name="output.dir" value="${build-doc}/en/html" />
+			<property name="transtype" value="xhtml" />
+			<property name="dita.extname" value=".dita" />
+			<property name="args.draft" value="yes" />
+			<property name="args.indexshow" value="no" />
+			<property name="args.hdr" value="${doc}/en/dita/header.xml" />
+			<property name="args.ftr" value="${doc}/en/dita/footer.xml" />
+			<property name="clean.temp" value="yes" />
+			<property name="args.xhtml.toc" value="toc" />
+		</ant>
+		<copy file="${doc}/en/dita/index.html" toDir="${build-doc}/en/html" />
+		<copy file="${doc}/en/dita/images/oss_128x128b_WEB.jpg" toDir="${build-doc}/en/html/images" />
+		<copy file="${doc}/en/dita/images/oss_128x128b_WEB.jpg" toDir="${build-doc}/en/html/quick_start/images" />
+		<copy file="${doc}/en/dita/images/oss_128x128b_WEB.jpg" toDir="${build-doc}/en/html/xml_api/images" />
+		<ant antfile="${dita.dir}/build.xml" target="dita2pdf2">
+			<property name="args.input" value="doc/en/dita/documentation.ditamap" />
+			<property name="output.dir" value="${build-doc}/en" />
+			<property name="clean.temp" value="yes" />
+		</ant>
 	</target>
 
 	<target name="javadoc">
