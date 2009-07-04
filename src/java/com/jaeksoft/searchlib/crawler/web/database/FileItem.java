@@ -24,9 +24,14 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import java.util.List;
+
 import com.jaeksoft.searchlib.util.GenericMap;
 
 public class FileItem extends GenericMap<String> {
+
+	private static final String NO = "no";
+	private static final String YES = "yes";
 
 	public enum Status {
 		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(
@@ -98,14 +103,14 @@ public class FileItem extends GenericMap<String> {
 	}
 
 	public String isWithSubToString() {
-		return (withSub ? "yes" : "no");
+		return (withSub ? YES : NO);
 	}
 
 	public static boolean parse(String text) {
 		if (text == null)
 			return false;
 
-		if (text.equals("yes"))
+		if (text.equals(YES))
 			return true;
 
 		return false;
@@ -113,6 +118,12 @@ public class FileItem extends GenericMap<String> {
 
 	public void setWithSub(boolean withSub) {
 		this.withSub = withSub;
+	}
+
+	public void load(List<FileItem> items) {
+		for (FileItem current : items) {
+			add(current.getPath(), current.isWithSubToString());
+		}
 	}
 
 }

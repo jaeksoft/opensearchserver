@@ -49,20 +49,18 @@
 
 	<separator />
 
-	<listbox itemRenderer="@{browser}" model="@{browser.patternList}">
+	<listbox itemRenderer="@{browser}" model="@{browser.fileItem.list}">
 		<listhead>
 			<listheader label="Selection" />
-			<listheader label="With Subs" />
+			<listheader label="With all sub-directories" />
 			<listheader label="Action" />
 		</listhead>
 		<listfoot>
-			<listfooter>
+			<listfooter span="3">
 				<paging id="paging" detailed="true"
 					totalSize="@{browser.totalSize}" pageSize="@{browser.pageSize}"
 					activePage="@{browser.activePage}" />
 			</listfooter>
 		</listfoot>
 	</listbox>
-	<button label="delete" visible="@{browser.selection}"
-		forward="onDelete" />
 </window>
