@@ -54,13 +54,13 @@ public class FilePathManager {
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
 
-	private Map<String, List<FileItem>> pathMap = null;
+	private Map<String, List<PathItem>> pathMap = null;
 
 	private final File filePath;
 
 	public FilePathManager(File indexDir) throws SearchLibException {
 		filePath = new File(indexDir, "filePaths.xml");
-		pathMap = new TreeMap<String, List<FileItem>>();
+		pathMap = new TreeMap<String, List<PathItem>>();
 		try {
 			load();
 		} catch (ParserConfigurationException e) {
@@ -84,13 +84,13 @@ public class FilePathManager {
 
 		int l = nodeList.getLength();
 
-		List<FileItem> patternList = new ArrayList<FileItem>(l);
+		List<PathItem> patternList = new ArrayList<PathItem>(l);
 		for (int i = 0; i < l; i++) {
 			String path = DomUtils.getText(nodeList.item(i));
 
 			String withSubString = DomUtils.getAttributeText(nodeList.item(i),
 					"withSub");
-			patternList.add(new FileItem(path, FileItem.parse(withSubString)));
+			patternList.add(new PathItem(path, PathItem.parse(withSubString)));
 		}
 		addListWithoutStoreAndLock(patternList, true);
 	}
@@ -103,9 +103,9 @@ public class FilePathManager {
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("paths");
-			Iterator<List<FileItem>> it = pathMap.values().iterator();
+			Iterator<List<PathItem>> it = pathMap.values().iterator();
 			while (it.hasNext()) {
-				for (FileItem item : it.next()) {
+				for (PathItem item : it.next()) {
 					xmlWriter.startElement("path", "withSub", ""
 							+ item.isWithSubToString());
 					xmlWriter.textNode(item.getPath());
@@ -119,23 +119,23 @@ public class FilePathManager {
 		}
 	}
 
-	private void addListWithoutStoreAndLock(List<FileItem> patternList,
+	private void addListWithoutStoreAndLock(List<PathItem> patternList,
 			boolean bDeleteAll) throws SearchLibException {
 		if (bDeleteAll)
 			pathMap.clear();
 
 		// First pass: Identify already present
-		for (FileItem item : patternList) {
+		for (PathItem item : patternList) {
 			if (!bDeleteAll && findPath(item) != null)
-				item.setStatus(FileItem.Status.ALREADY);
+				item.setStatus(PathItem.Status.ALREADY);
 			else {
 				addPathWithoutLock(item);
-				item.setStatus(FileItem.Status.INJECTED);
+				item.setStatus(PathItem.Status.INJECTED);
 			}
 		}
 	}
 
-	public void addList(List<FileItem> patternList, boolean bDeleteAll)
+	public void addList(List<PathItem> patternList, boolean bDeleteAll)
 			throws SearchLibException {
 		w.lock();
 		try {
@@ -153,10 +153,10 @@ public class FilePathManager {
 	}
 
 	private void delPatternWithoutLock(String sPath) {
-		List<FileItem> itemList = pathMap.get(sPath);
+		List<PathItem> itemList = pathMap.get(sPath);
 		if (itemList == null)
 			return;
-		Iterator<FileItem> it = itemList.iterator();
+		Iterator<PathItem> it = itemList.iterator();
 		while (it.hasNext())
 			if (it.next().getPath().equals(sPath))
 				it.remove();
@@ -178,17 +178,17 @@ public class FilePathManager {
 		}
 	}
 
-	private void addPathWithoutLock(FileItem patternItem) {
+	private void addPathWithoutLock(PathItem patternItem) {
 		String host = patternItem.getPath();
-		List<FileItem> itemList = pathMap.get(host);
+		List<PathItem> itemList = pathMap.get(host);
 		if (itemList == null) {
-			itemList = new ArrayList<FileItem>();
+			itemList = new ArrayList<PathItem>();
 			pathMap.put(host, itemList);
 		}
 		itemList.add(patternItem);
 	}
 
-	public void addPath(FileItem ite) throws SearchLibException {
+	public void addPath(PathItem ite) throws SearchLibException {
 		w.lock();
 		try {
 			addPathWithoutLock(ite);
@@ -205,15 +205,15 @@ public class FilePathManager {
 	}
 
 	public int getPaths(String startsWith, long start, long rows,
-			List<FileItem> list) throws SearchLibException {
+			List<PathItem> list) throws SearchLibException {
 		r.lock();
 		try {
-			Iterator<List<FileItem>> it = pathMap.values().iterator();
+			Iterator<List<PathItem>> it = pathMap.values().iterator();
 			long end = start + rows;
 			int pos = 0;
 			int total = 0;
 			while (it.hasNext())
-				for (FileItem item : it.next()) {
+				for (PathItem item : it.next()) {
 					if (startsWith != null) {
 						if (!item.getPath().startsWith(startsWith)) {
 							pos++;
@@ -222,6 +222,7 @@ public class FilePathManager {
 					}
 					if (pos >= start && pos < end)
 						list.add(item);
+
 					total++;
 					pos++;
 				}
@@ -231,14 +232,45 @@ public class FilePathManager {
 		}
 	}
 
-	private FileItem findPath(FileItem item) {
+	public int getFiles(String startsWith, long start, long rows,
+			List<FileItem> list) throws SearchLibException {
 		r.lock();
 		try {
-			List<FileItem> patternList = pathMap.get(item.getPath());
+			Iterator<List<PathItem>> it = pathMap.values().iterator();
+			long end = start + rows;
+			int pos = 0;
+			int total = 0;
+			while (it.hasNext())
+				for (PathItem item : it.next()) {
+					if (startsWith != null) {
+						if (!item.getPath().startsWith(startsWith)) {
+							pos++;
+							continue;
+						}
+					}
+					if (pos >= start && pos < end) {
+						list
+								.add(new FileItem(item.getPath(), item
+										.isWithSub()));
+					}
+
+					total++;
+					pos++;
+				}
+			return total;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	private PathItem findPath(PathItem item) {
+		r.lock();
+		try {
+			List<PathItem> patternList = pathMap.get(item.getPath());
 			if (patternList == null)
 				return null;
 			String sPath = item.getPath();
-			for (FileItem patternItem : patternList)
+			for (PathItem patternItem : patternList)
 				if (patternItem.getPath().equals(sPath))
 					return patternItem;
 			return null;
@@ -247,34 +279,34 @@ public class FilePathManager {
 		}
 	}
 
-	private static void addLine(List<FileItem> list, String path,
+	private static void addLine(List<PathItem> list, String path,
 			boolean withSub) {
 		if (path.length() == 0)
 			return;
-		list.add(new FileItem(path, withSub));
+		list.add(new PathItem(path, withSub));
 	}
 
-	public static List<FileItem> getPathList(String path, boolean withSub) {
+	public static List<PathItem> getPathList(String path, boolean withSub) {
 		if (path == null)
 			return null;
 
-		List<FileItem> pathList = new ArrayList<FileItem>();
+		List<PathItem> pathList = new ArrayList<PathItem>();
 		addLine(pathList, path, withSub);
 		return pathList;
 	}
 
-	public static List<FileItem> getPathList(BufferedReader reader)
+	public static List<PathItem> getPathList(BufferedReader reader)
 			throws IOException {
-		List<FileItem> pathList = new ArrayList<FileItem>();
+		List<PathItem> pathList = new ArrayList<PathItem>();
 		String line;
 		while ((line = reader.readLine()) != null)
 			addLine(pathList, line, false);
 		return pathList;
 	}
 
-	public static String getStringPatternList(List<FileItem> patternList) {
+	public static String getStringPatternList(List<PathItem> patternList) {
 		StringBuffer sPath = new StringBuffer();
-		for (FileItem item : patternList) {
+		for (PathItem item : patternList) {
 			sPath.append(item.getPath());
 			sPath.append("\n");
 		}

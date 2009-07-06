@@ -15,12 +15,13 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="searchUrl"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.UrlController">
-	<listbox fixedLayout="true" model="@{searchUrl.urlList}"
+<window id="searchPath"
+	use="com.jaeksoft.searchlib.web.controller.crawler.file.FileController">
+	
+	<listbox fixedLayout="true" model="@{searchPath.fileList}"
 		multiple="false" checkmark="false">
 		<listhead sizable="true">
-			<listheader width="20%" label="Url" />
+			<listheader width="20%" label="File" />
 			<listheader width="140px" label="Date" />
 			<listheader label="Type" />
 			<listheader label="Charset" />
@@ -28,78 +29,70 @@
 			<listheader label="Content length" />
 			<listheader label="Lang" />
 			<listheader label="Lang method" />
-			<listheader label="Robots" />
 			<listheader label="Fetch" />
 			<listheader label="Code" />
 			<listheader label="Parsing" />
 			<listheader label="Index" />
-			<listheader label="Host" />
 		</listhead>
 		<auxhead>
 			<auxheader>
 				<vbox>
-					<textbox width="90%" value="@{searchUrl.like}" />
+					<textbox width="90%" value="@{searchPath.like}" />
 					<button label="Search" forward="onSearch" />
 				</vbox>
 			</auxheader>
 			<auxheader>
 				<vbox>
 					<datebox compact="true"
-						value="@{searchUrl.dateStart}" />
+						value="@{searchPath.dateStart}" />
 					<datebox compact="true"
-						value="@{searchUrl.dateEnd}" />
+						value="@{searchPath.dateEnd}" />
 				</vbox>
 			</auxheader>
 			<auxheader>
-				<textbox cols="5" value="@{searchUrl.contentBaseType}" />
+				<textbox cols="5" value="@{searchPath.contentBaseType}" />
 			</auxheader>
 			<auxheader>
 				<textbox cols="5"
-					value="@{searchUrl.contentTypeCharset}" />
+					value="@{searchPath.contentTypeCharset}" />
 			</auxheader>
 			<auxheader>
-				<textbox cols="5" value="@{searchUrl.contentEncoding}" />
+				<textbox cols="5" value="@{searchPath.contentEncoding}" />
 			</auxheader>
 			<auxheader>
 				<vbox>
 					<intbox cols="8"
-						value="@{searchUrl.minContentLength}" />
+						value="@{searchPath.minContentLength}" />
 					<intbox cols="8"
-						value="@{searchUrl.maxContentLength}" />
+						value="@{searchPath.maxContentLength}" />
 				</vbox>
 			</auxheader>
 			<auxheader>
-				<textbox cols="4" value="@{searchUrl.lang}" />
+				<textbox cols="4" value="@{searchPath.lang}" />
 			</auxheader>
 			<auxheader>
-				<textbox cols="8" value="@{searchUrl.langMethod}" />
+				<textbox cols="8" value="@{searchPath.langMethod}" />
+			</auxheader>
+			
+			<auxheader>
+				<listbox mold="select" width="50px" fixedLayout="true"
+					model="@{searchPath.fetchStatusList}"
+					selectedItem="@{searchPath.fetchStatus}" />
+			</auxheader>
+			<auxheader>
+				<textbox cols="5" value="@{searchPath.responseCode}" />
 			</auxheader>
 			<auxheader>
 				<listbox mold="select" width="50px" fixedLayout="true"
-					model="@{searchUrl.robotsTxtStatusList}"
-					selectedItem="@{searchUrl.robotsTxtStatus}" />
+					model="@{searchPath.parserStatusList}"
+					selectedItem="@{searchPath.parserStatus}" />
 			</auxheader>
 			<auxheader>
 				<listbox mold="select" width="50px" fixedLayout="true"
-					model="@{searchUrl.fetchStatusList}"
-					selectedItem="@{searchUrl.fetchStatus}" />
+					model="@{searchPath.indexStatusList}"
+					selectedItem="@{searchPath.indexStatus}" />
 			</auxheader>
-			<auxheader>
-				<textbox cols="5" value="@{searchUrl.responseCode}" />
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
-					model="@{searchUrl.parserStatusList}"
-					selectedItem="@{searchUrl.parserStatus}" />
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
-					model="@{searchUrl.indexStatusList}"
-					selectedItem="@{searchUrl.indexStatus}" />
-			</auxheader>
-			<auxheader>
-				<textbox width="90%" value="@{searchUrl.host}" />
-			</auxheader>
+			
 		</auxhead>
 		<listitem self="@{each='url'}">
 			<listcell label="@{url.url}" />
@@ -110,22 +103,20 @@
 			<listcell label="@{url.contentLength}" />
 			<listcell label="@{url.lang}" />
 			<listcell label="@{url.langMethod}" />
-			<listcell label="@{url.robotsTxtStatus}" />
 			<listcell label="@{url.fetchStatus}" />
 			<listcell label="@{url.responseCode}" />
 			<listcell label="@{url.ParserStatus}" />
 			<listcell label="@{url.IndexStatus}" />
-			<listcell label="@{url.Host}" />
 		</listitem>
 		<listfoot>
 			<listfooter span="14">
 				<paging id="paging" detailed="true"
-					totalSize="@{searchUrl.totalSize}" pageSize="@{searchUrl.pageSize}"
-					activePage="@{searchUrl.activePage}" />
+					totalSize="@{searchPath.totalSize}" pageSize="@{searchPath.pageSize}"
+					activePage="@{searchPath.activePage}" />
 				<label value="Line per page: " />
 				<intbox cols="3"
 					constraint="no negative, no zero, no negative"
-					value="@{searchUrl.pageSize}" forward="onChange=onSearch" />
+					value="@{searchPath.pageSize}" forward="onChange=onSearch" />
 			</listfooter>
 		</listfoot>
 	</listbox>

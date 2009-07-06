@@ -26,10 +26,10 @@ package com.jaeksoft.searchlib.crawler.web.database;
 
 public interface FileSelector {
 
-	void addSelection(FileItem patternItem);
+	void addSelection(PathItem patternItem);
 
-	void removeSelection(FileItem patternItem);
+	void removeSelection(PathItem patternItem);
 
-	boolean isSelected(FileItem patternItem);
+	boolean isSelected(PathItem patternItem);
 
 }

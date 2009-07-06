@@ -35,25 +35,29 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.crawler.web.spider.CrawlFile;
 
 public class CrawlQueue {
 
-	private Config config;
+	private final Config config;
 
 	private CrawlStatistics sessionStats;
 
 	private List<Crawl> updateCrawlList;
 
+	private final List<CrawlFile> updateCrawlFileList;
+
 	private List<UrlItem> insertUrlList;
 
 	private List<String> deleteUrlList;
 
-	private int maxBufferSize;
+	private final int maxBufferSize;
 
 	protected CrawlQueue(Config config) throws SearchLibException {
 		this.config = config;
 		this.sessionStats = null;
 		this.updateCrawlList = new ArrayList<Crawl>(0);
+		this.updateCrawlFileList = new ArrayList<CrawlFile>(0);
 		this.insertUrlList = new ArrayList<UrlItem>(0);
 		this.deleteUrlList = new ArrayList<String>(0);
 		this.maxBufferSize = config.getPropertyManager()
@@ -70,6 +74,13 @@ public class CrawlQueue {
 			if (discoverLinks != null)
 				for (String link : discoverLinks)
 					insertUrlList.add(new UrlItem(link));
+		}
+	}
+
+	protected void add(CrawlFile crawl) throws NoSuchAlgorithmException,
+			IOException, SearchLibException {
+		synchronized (updateCrawlFileList) {
+			updateCrawlFileList.add(crawl);
 		}
 	}
 

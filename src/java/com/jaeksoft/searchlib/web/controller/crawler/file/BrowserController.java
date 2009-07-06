@@ -43,8 +43,8 @@ import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.FileItem;
 import com.jaeksoft.searchlib.crawler.web.database.FilePathManager;
+import com.jaeksoft.searchlib.crawler.web.database.PathItem;
 import com.jaeksoft.searchlib.util.GenericLink;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -53,7 +53,7 @@ public class BrowserController extends CommonController implements
 
 	private static final long serialVersionUID = 6735801464584819587L;
 
-	transient private List<FileItem> pathList = null;
+	transient private List<PathItem> pathList = null;
 
 	private int pageSize;
 	private int totalSize;
@@ -120,16 +120,16 @@ public class BrowserController extends CommonController implements
 
 	}
 
-	public FileItem getFileItem() {
+	public PathItem getPathItem() {
 		synchronized (this) {
 			try {
-				pathList = new ArrayList<FileItem>();
+				pathList = new ArrayList<PathItem>();
 
 				totalSize = getClient().getFilePathManager().getPaths("",
 						getActivePage() * getPageSize(), getPageSize(),
 						pathList);
 
-				FileItem result = new FileItem();
+				PathItem result = new PathItem();
 				result.load(pathList);
 
 				return result;
@@ -182,10 +182,11 @@ public class BrowserController extends CommonController implements
 	public void onAdd() throws SearchLibException {
 		synchronized (this) {
 			if (getSelectedFile() != null) {
-				List<FileItem> list = FilePathManager.getPathList(
+				List<PathItem> list = FilePathManager.getPathList(
 						getSelectedFile().getPath(), isSelectedFileCheck());
 				if (list.size() > 0) {
 					getClient().getFilePathManager().addList(list, false);
+					getClient().getFileManager().injectPath(list);
 				}
 				pathList = null;
 				setSelectedFileCheck(false);

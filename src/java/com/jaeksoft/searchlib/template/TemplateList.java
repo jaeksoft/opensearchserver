@@ -26,7 +26,8 @@ package com.jaeksoft.searchlib.template;
 
 public enum TemplateList {
 
-	EMPTY_INDEX(new EmptyIndex()), WEB_CRAWLER(new WebCrawler());
+	EMPTY_INDEX(new EmptyIndex()), WEB_CRAWLER(new WebCrawler()), FILE_CRAWLER(
+			new FileCrawler());
 
 	private TemplateAbstract template;
 

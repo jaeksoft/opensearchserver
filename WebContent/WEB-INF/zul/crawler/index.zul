@@ -1,18 +1,18 @@
 <tabbox>
 	<tabs>
-		<tab id="tabWebCrawler" label="Web" selected="true" />
-		<!-- 
-			<tab id="tabFileCrawler" label="Files" />
-		-->
+		<tab id="tabWebCrawler" label="Web"  />
+
+		<tab id="tabFileCrawler" label="Files" selected="true"/>
+
 	</tabs>
 	<tabpanels>
 		<tabpanel>
 			<include src="WEB-INF/zul/crawler/web/index.zul" />
 		</tabpanel>
-		<!-- 
-			<tabpanel>
+
+		<tabpanel>
 			<include src="WEB-INF/zul/crawler/file/index.zul" />
-			</tabpanel>
-		-->
+		</tabpanel>
+
 	</tabpanels>
 </tabbox>

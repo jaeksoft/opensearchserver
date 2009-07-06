@@ -49,7 +49,7 @@
 
 	<separator />
 
-	<listbox itemRenderer="@{browser}" model="@{browser.fileItem.list}">
+	<listbox itemRenderer="@{browser}" model="@{browser.pathItem.list}">
 		<listhead>
 			<listheader label="Selection" />
 			<listheader label="With all sub-directories" />

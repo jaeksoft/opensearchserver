@@ -49,17 +49,17 @@ import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class CrawlMaster extends CrawlThreadAbstract {
 
-	private LinkedHashSet<CrawlThread> crawlThreads;
+	private final LinkedHashSet<CrawlThread> crawlThreads;
 
 	private CrawlThread[] crawlThreadArray;
 
-	private LinkedList<NamedItem> oldHostList;
+	private final LinkedList<NamedItem> oldHostList;
 
-	private LinkedList<NamedItem> newHostList;
+	private final LinkedList<NamedItem> newHostList;
 
-	private LinkedList<CrawlStatistics> statistics;
+	private final LinkedList<CrawlStatistics> statistics;
 
-	private Config config;
+	private final Config config;
 
 	private IndexPluginList indexPluginList;
 
@@ -69,7 +69,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 
 	private Date fetchIntervalDate;
 
-	private ExecutorService threadPool;
+	private final ExecutorService threadPool;
 
 	private int maxUrlPerSession;
 
@@ -266,6 +266,13 @@ public class CrawlMaster extends CrawlThreadAbstract {
 	}
 
 	protected void remove(CrawlThread crawlThread) {
+		synchronized (crawlThreads) {
+			crawlThreads.remove(crawlThread);
+			crawlThreadArray = null;
+		}
+	}
+
+	protected void remove(CrawlFileThread crawlThread) {
 		synchronized (crawlThreads) {
 			crawlThreads.remove(crawlThread);
 			crawlThreadArray = null;

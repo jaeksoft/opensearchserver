@@ -33,13 +33,13 @@ import com.jaeksoft.searchlib.util.FileUtils;
 
 public abstract class TemplateAbstract {
 
-	private String rootPath;
+	private final String rootPath;
 
-	private String[] resources;
+	private final String[] resources;
 
-	private String publicName;
+	private final String publicName;
 
-	private String description;
+	private final String description;
 
 	protected TemplateAbstract(String rootPath, String[] resources,
 			String publicName, String description) {

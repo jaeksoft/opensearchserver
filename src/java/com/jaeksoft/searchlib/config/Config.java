@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.crawler.web.database.FileManager;
 import com.jaeksoft.searchlib.crawler.web.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
@@ -100,8 +101,10 @@ public abstract class Config {
 	private UrlManager urlManager = null;
 
 	private PatternManager patternManager = null;
-	
+
 	private FilePathManager filePatternManager = null;
+
+	private FileManager fileManager = null;
 
 	private PropertyManager propertyManager = null;
 
@@ -117,23 +120,27 @@ public abstract class Config {
 
 	private File indexDir;
 
-	private Lock lock = new ReentrantLock(true);
+	private final Lock lock = new ReentrantLock(true);
 
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists) throws SearchLibException {
 
 		try {
 			indexDir = indexDirectory;
-
+			System.out.println(indexDirectory.getPath());
 			if (!indexDir.isDirectory())
 				throw new SearchLibException("Expected to get a directory path");
 
 			if (configXmlResourceName == null)
 				xppConfig = new XPathParser(new File(indexDirectory,
 						"config.xml"));
-			else
+			else {
+				System.out.println(configXmlResourceName);
+
 				xppConfig = new XPathParser(getClass().getResourceAsStream(
 						configXmlResourceName));
+
+			}
 
 			index = getIndex(indexDir, xppConfig, createIndexIfNotExists);
 			schema = Schema.fromXmlConfig(xppConfig
@@ -453,13 +460,28 @@ public abstract class Config {
 			lock.unlock();
 		}
 	}
-	
+
 	public FilePathManager getFilePathManager() throws SearchLibException {
 		lock.lock();
 		try {
 			if (filePatternManager == null)
 				filePatternManager = new FilePathManager(indexDir);
 			return filePatternManager;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public FileManager getFileManager() throws SearchLibException {
+		lock.lock();
+		try {
+			if (fileManager == null)
+				fileManager = new FileManager((Client) this, indexDir);
+			return fileManager;
+		} catch (FileNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
 			lock.unlock();
 		}
