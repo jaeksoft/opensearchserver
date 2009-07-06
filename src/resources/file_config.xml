@@ -31,7 +31,6 @@
 			<field name="path" indexed="yes" stored="yes" />
 			<field name="outlink" indexed="yes" />
 			<field name="inlink" indexed="yes" />
-			<field name="host" indexed="yes" stored="yes" />
 			<field name="when" indexed="yes" stored="yes" />
 			<field name="responseCode" indexed="yes" stored="yes" />
 			<field name="parserStatus" indexed="yes" stored="yes" />
@@ -44,9 +43,8 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				path,host,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
-				lang,langMethod,when,responseCode,
-				parserStatus,fetchStatus,indexStatus</returnFields>
+				path,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
+				lang,langMethod,when,responseCode,parserStatus,fetchStatus,indexStatus</returnFields>
 		</request>
 		<request name="hostFacet" defaultOperator="or" start="0" rows="0">
 			<query>$$</query>

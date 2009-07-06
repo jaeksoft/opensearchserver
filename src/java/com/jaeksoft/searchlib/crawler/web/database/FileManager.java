@@ -120,7 +120,7 @@ public class FileManager {
 			dataDir.mkdir();
 
 		System.out.println();
-		this.fileDbClient = new Client(dataDir, "/config.xml", true);
+		this.fileDbClient = new Client(dataDir, "/file_config.xml", true);
 		targetClient = client;
 	}
 
