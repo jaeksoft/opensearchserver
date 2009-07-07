@@ -27,7 +27,7 @@ import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
-import com.jaeksoft.searchlib.crawler.web.process.CrawlMaster;
+import com.jaeksoft.searchlib.crawler.web.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CrawlFileController extends CommonController {
@@ -53,12 +53,12 @@ public class CrawlFileController extends CommonController {
 
 	public void onRun() throws IOException, SearchLibException {
 		PropertyManager propertyManager = getClient().getPropertyManager();
-		if (getWebCrawlMaster().isRunning()) {
+		if (getFileCrawlMaster().isRunning()) {
 			propertyManager.setCrawlEnabled(false);
-			getWebCrawlMaster().abort();
+			getFileCrawlMaster().abort();
 		} else {
 			propertyManager.setCrawlEnabled(true);
-			getWebCrawlMaster().start();
+			getFileCrawlMaster().start();
 			refresh = true;
 		}
 		reloadPage();
@@ -68,8 +68,8 @@ public class CrawlFileController extends CommonController {
 		return getClient().getPropertyManager();
 	}
 
-	public CrawlMaster getWebCrawlMaster() throws SearchLibException {
-		return getClient().getWebCrawlMaster();
+	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {
+		return getClient().getFileCrawlMaster();
 	}
 
 	// TODO Publish / vs / plugin
@@ -81,15 +81,15 @@ public class CrawlFileController extends CommonController {
 
 	public boolean isRefresh() throws SearchLibException {
 		boolean r = refresh;
-		refresh = getWebCrawlMaster().isRunning()
-				|| getWebCrawlMaster().isAborting();
+		refresh = getFileCrawlMaster().isRunning()
+				|| getFileCrawlMaster().isAborting();
 		return r;
 	}
 
 	public String getRunButtonLabel() throws SearchLibException {
-		if (getWebCrawlMaster().isAborting())
+		if (getFileCrawlMaster().isAborting())
 			return "Aborting...";
-		else if (getWebCrawlMaster().isRunning())
+		else if (getFileCrawlMaster().isRunning())
 			return "Running - Click to stop";
 		else
 			return "Not running - Click to start";

@@ -55,6 +55,7 @@ import com.jaeksoft.searchlib.crawler.web.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -111,6 +112,8 @@ public abstract class Config {
 	private XPathParser xppConfig = null;
 
 	private CrawlMaster webCrawlMaster = null;
+
+	private CrawlFileMaster fileCrawlMaster = null;
 
 	private FieldMap webCrawlerFieldMap = null;
 
@@ -300,6 +303,19 @@ public abstract class Config {
 				return webCrawlMaster;
 			webCrawlMaster = new CrawlMaster(this);
 			return webCrawlMaster;
+		} finally {
+			lock.unlock();
+		}
+
+	}
+
+	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {
+		lock.lock();
+		try {
+			if (fileCrawlMaster != null)
+				return fileCrawlMaster;
+			fileCrawlMaster = new CrawlFileMaster(this);
+			return fileCrawlMaster;
 		} finally {
 			lock.unlock();
 		}

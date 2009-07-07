@@ -31,8 +31,12 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.junit.Test;
+
+import com.jaeksoft.searchlib.crawler.web.database.FileItem;
+import com.jaeksoft.searchlib.crawler.web.database.PathItem;
 
 public class FileUtils {
 
@@ -100,4 +104,33 @@ public class FileUtils {
 		assertTrue(ext == null);
 	}
 
+	public static void addChildren(List<FileItem> fileList, PathItem item) {
+		File root = new File(item.getPath());
+
+		if (root.isFile())
+			fileList.add(new FileItem(root.getPath()));
+		else if (root.isDirectory()) {
+			// Add its children and children of children
+			if (item.isWithSub())
+				addChildRec(fileList, root, true);
+
+			// Only add its children
+			else
+				addChildRec(fileList, root, false);
+		}
+	}
+
+	private static void addChildRec(List<FileItem> fileList, File file,
+			boolean recursive) {
+		File[] children = file.listFiles();
+		if (children != null && children.length > 0) {
+			for (File current : children) {
+				if (current.isDirectory() && recursive)
+					addChildRec(fileList, current, true);
+				else if (current.isFile()) {
+					fileList.add(new FileItem(current.getPath()));
+				}
+			}
+		}
+	}
 }

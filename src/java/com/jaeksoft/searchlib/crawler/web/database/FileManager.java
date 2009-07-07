@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.FileUtils;
 
 public class FileManager {
 
@@ -136,41 +137,9 @@ public class FileManager {
 			PathItem item = (PathItem) it.next();
 
 			if (item.getStatus() == PathItem.Status.INJECTED)
-				addChildren(fileList, item);
+				FileUtils.addChildren(fileList, item);
 		}
 		inject(fileList);
-	}
-
-	private void addChildren(List<FileItem> fileList, PathItem item) {
-		File root = new File(item.getPath());
-
-		// Add it
-
-		if (root.isFile())
-			fileList.add(new FileItem(root.getPath()));
-		else if (root.isDirectory()) {
-			// Add its children and children of children
-			if (item.isWithSub())
-				addChildRec(fileList, root, true);
-
-			// Only add its children
-			else
-				addChildRec(fileList, root, false);
-		}
-	}
-
-	private void addChildRec(List<FileItem> fileList, File file,
-			boolean recursive) {
-		File[] children = file.listFiles();
-		if (children != null && children.length > 0) {
-			for (File current : children) {
-				if (current.isDirectory() && recursive)
-					addChildRec(fileList, current, true);
-				else if (current.isFile()) {
-					fileList.add(new FileItem(current.getPath()));
-				}
-			}
-		}
 	}
 
 	public void deletePath(String sUrl) throws SearchLibException {

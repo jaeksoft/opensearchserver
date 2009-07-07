@@ -186,7 +186,7 @@ public class BrowserController extends CommonController implements
 						getSelectedFile().getPath(), isSelectedFileCheck());
 				if (list.size() > 0) {
 					getClient().getFilePathManager().addList(list, false);
-					getClient().getFileManager().injectPath(list);
+					// getClient().getFileManager().injectPath(list);
 				}
 				pathList = null;
 				setSelectedFileCheck(false);
