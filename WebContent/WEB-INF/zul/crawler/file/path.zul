@@ -17,11 +17,11 @@
 -->
 <window id="searchPath"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.FileController">
-	
+
 	<listbox fixedLayout="true" model="@{searchPath.fileList}"
 		multiple="false" checkmark="false">
 		<listhead sizable="true">
-			<listheader width="20%" label="File" />
+			<listheader width="40%" label="File" />
 			<listheader width="140px" label="Date" />
 			<listheader label="Type" />
 			<listheader label="Charset" />
@@ -73,7 +73,7 @@
 			<auxheader>
 				<textbox cols="8" value="@{searchPath.langMethod}" />
 			</auxheader>
-			
+
 			<auxheader>
 				<listbox mold="select" width="50px" fixedLayout="true"
 					model="@{searchPath.fetchStatusList}"
@@ -92,10 +92,10 @@
 					model="@{searchPath.indexStatusList}"
 					selectedItem="@{searchPath.indexStatus}" />
 			</auxheader>
-			
+
 		</auxhead>
 		<listitem self="@{each='url'}">
-			<listcell label="@{url.url}" />
+			<listcell label="@{url.path}" />
 			<listcell label="@{url.when}" />
 			<listcell label="@{url.contentBaseType}" />
 			<listcell label="@{url.contentTypeCharset}" />
@@ -109,10 +109,13 @@
 			<listcell label="@{url.IndexStatus}" />
 		</listitem>
 		<listfoot>
+			
 			<listfooter span="14">
 				<paging id="paging" detailed="true"
-					totalSize="@{searchPath.totalSize}" pageSize="@{searchPath.pageSize}"
+					totalSize="@{searchPath.totalSize}"
+					pageSize="@{searchPath.pageSize}"
 					activePage="@{searchPath.activePage}" />
+					<button label="Reload" forward="onReload" />
 				<label value="Line per page: " />
 				<intbox cols="3"
 					constraint="no negative, no zero, no negative"

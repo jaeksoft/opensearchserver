@@ -93,6 +93,7 @@
 			</analyzer>
 		</analyzers>
 		<fields default="content" unique="path">
+			<field name="path" indexed="yes" stored="yes" />
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
@@ -103,7 +104,6 @@
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
 			<field name="contentBaseType" indexed="yes" stored="yes" />
-			<field name="path" indexed="yes" stored="yes" />
 			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
 				termVector="positions_offsets" />
 			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"

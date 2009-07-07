@@ -145,8 +145,6 @@ public class FileManager {
 		File root = new File(item.getPath());
 
 		// Add it
-		if (root.isHidden())
-			return;
 
 		if (root.isFile())
 			fileList.add(new FileItem(root.getPath()));
@@ -168,7 +166,7 @@ public class FileManager {
 			for (File current : children) {
 				if (current.isDirectory() && recursive)
 					addChildRec(fileList, current, true);
-				else if (current.isFile() && !current.isHidden()) {
+				else if (current.isFile()) {
 					fileList.add(new FileItem(current.getPath()));
 				}
 			}
@@ -240,11 +238,14 @@ public class FileManager {
 
 				fileDbClient.updateDocuments(injectList);
 				int injected = 0;
-				/*
-				 * for (PathItem item : list) { if (item.getStatus() ==
-				 * Status.UNDEFINED) { item.setStatus(Status.INJECTED);
-				 * injected++; } }
-				 */
+
+				for (FileItem item : list) {
+					if (item.getStatus() == FileItem.Status.UNDEFINED) {
+						item.setStatus(FileItem.Status.INJECTED);
+						injected++;
+					}
+				}
+
 				if (injected > 0)
 					fileDbClient.reload(null);
 			} catch (NoSuchAlgorithmException e) {

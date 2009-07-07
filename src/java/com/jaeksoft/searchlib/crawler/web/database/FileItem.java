@@ -48,7 +48,7 @@ public class FileItem implements Serializable {
 	 */
 	private static final long serialVersionUID = -4043010587042224473L;
 
-	final private static Logger logger = Logger.getLogger(UrlItem.class
+	final private static Logger logger = Logger.getLogger(FileItem.class
 			.getCanonicalName());
 
 	public enum Status {

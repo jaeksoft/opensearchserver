@@ -39,7 +39,7 @@
 		</fields>
 	</schema>
 	<requests>
-		<request name="pathSearch" defaultOperator="and" start="0"
+		<request name="fileSearch" defaultOperator="and" start="0"
 			rows="0">
 			<query>$$</query>
 			<returnFields>

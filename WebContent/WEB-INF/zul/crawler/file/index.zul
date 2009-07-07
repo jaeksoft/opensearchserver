@@ -13,7 +13,7 @@
 			<include src="WEB-INF/zul/crawler/file/path.zul" />
 		</tabpanel>
 		<tabpanel>
-			<include src="WEB-INF/zul/crawler/file/crawl.zul" />
+			<include src="WEB-INF/zul/crawler/file/crawlfile.zul" />
 		</tabpanel>
 		<tabpanel>
 			<include src="WEB-INF/zul/crawler/file/mapping.zul" />

@@ -325,6 +325,12 @@ public class FileController extends CommonController implements AfterCompose {
 		}
 	}
 
+	public void onReload() {
+		synchronized (this) {
+			reloadPage();
+		}
+	}
+
 	public List<FileItem> getFileList() throws SearchLibException {
 		synchronized (this) {
 			if (fileList != null)

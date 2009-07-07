@@ -15,8 +15,8 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="crawlProcess"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.CrawlController">
+<window id="crawlFileProcess"
+	use="com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController">
 	<panel title="Crawl parameter" collapsible="true" border="normal">
 		<panelchildren>
 			<grid>
@@ -30,36 +30,36 @@
 					<row>
 						<label value="User-Agent: " />
 						<textbox cols="50"
-							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.userAgent}" />
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.userAgent}" />
 						<label value="Number of url to crawl: " />
 						<intbox constraint="no empty, no negative"
-							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.maxUrlPerSession}" />
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.maxUrlPerSession}" />
 
 					</row>
 					<row>
 						<label
 							value="Fetch interval between re-fetches (days): " />
 						<intbox constraint="no empty, no negative"
-							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.fetchInterval}" />
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.fetchInterval}" />
 						<label value="Maximum number of url per host: " />
 						<intbox constraint="no empty, no negative"
-							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.maxUrlPerHost}" />
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.maxUrlPerHost}" />
 
 					</row>
 					<row>
 						<label value="Number of simultaneous threads: " />
 						<intbox constraint="no empty, no negative"
-							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.maxThreadNumber}" />
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.maxThreadNumber}" />
 						<label
 							value="Delay between each accesses (seconds): " />
 						<intbox constraint="no empty, no negative"
-							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.delayBetweenAccesses}" />
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.delayBetweenAccesses}" />
 
 					</row>
 				</rows>
@@ -67,33 +67,33 @@
 		</panelchildren>
 	</panel>
 	<separator />
-	<panel title="@{crawlProcess.webCrawlMaster.statusInfo}"
+	<panel title="@{crawlFileProcess.webCrawlMaster.statusInfo}"
 		collapsible="false" border="normal">
 		<toolbar>
-			<checkbox label="Dry run" disabled="@{crawlProcess.refresh}"
-				checked="@{crawlProcess.properties.dryRun}" />
+			<checkbox label="Dry run" disabled="@{crawlFileProcess.refresh}"
+				checked="@{crawlFileProcess.properties.dryRun}" />
 			<space />
 			<!-- 
 			<checkbox
 				label="Publish index at the end of the crawl session"
-				disabled="@{crawlProcess.refresh}" visible="@{crawlProcess.publish}"
-				checked="@{crawlProcess.properties.publishAfterSession}" />
-			<space visible="@{crawlProcess.publish}" />
+				disabled="@{crawlFileProcess.refresh}" visible="@{crawlFileProcess.publish}"
+				checked="@{crawlFileProcess.properties.publishAfterSession}" />
+			<space visible="@{crawlFileProcess.publish}" />
 			 -->
 			<checkbox label="Optimize at the end of the crawl session"
-				disabled="@{crawlProcess.refresh}"
-				checked="@{crawlProcess.properties.optimizeAfterSession}" />
+				disabled="@{crawlFileProcess.refresh}"
+				checked="@{crawlFileProcess.properties.optimizeAfterSession}" />
 			<space />
 			<button id="runButton"
-				disabled="@{crawlProcess.webCrawlMaster.aborting}"
-				label="@{crawlProcess.runButtonLabel}" forward="onRun" />
+				disabled="@{crawlFileProcess.webCrawlMaster.aborting}"
+				label="@{crawlFileProcess.runButtonLabel}" forward="onRun" />
 		</toolbar>
 	</panel>
 	<separator />
 	<panel title="Last sessions statistics" collapsible="true"
 		border="normal">
 		<panelchildren>
-			<listbox model="@{crawlProcess.webCrawlMaster.statistics}">
+			<listbox model="@{crawlFileProcess.webCrawlMaster.statistics}">
 				<auxhead>
 					<auxheader label="Start time" width="130px" />
 					<auxheader label="Fetched" align="center"
@@ -159,10 +159,10 @@
 	<panel title="Thread list" collapsible="true" border="normal">
 		<toolbar>
 			<checkbox label="Show debug information"
-				checked="@{crawlProcess.properties.debug}" />
+				checked="@{crawlFileProcess.properties.debug}" />
 		</toolbar>
 		<panelchildren>
-			<listbox model="@{crawlProcess.webCrawlMaster.crawlThreads}"
+			<listbox model="@{crawlFileProcess.webCrawlMaster.crawlThreads}"
 				mold="paging" pageSize="20">
 				<listhead sizable="true">
 					<listheader label="Current host name" />
@@ -176,7 +176,7 @@
 					<listheader width="50px" label="Total" />
 					<listheader label="Status" />
 					<listheader
-						visible="@{crawlProcess.properties.debug}" label="Debug" />
+						visible="@{crawlFileProcess.properties.debug}" label="Debug" />
 				</listhead>
 				<listitem self="@{each=thread}">
 					<listcell label="@{thread.host.name}" />
@@ -197,12 +197,12 @@
 					<listcell
 						label="@{thread.currentStatistics.urlListSize}" />
 					<listcell label="@{thread.statusInfo}" />
-					<listcell visible="@{crawlProcess.properties.debug}"
+					<listcell visible="@{crawlFileProcess.properties.debug}"
 						label="@{thread.debugInfo}" />
 				</listitem>
 			</listbox>
 		</panelchildren>
 	</panel>
-	<timer delay="5000" repeats="true" onTimer="crawlProcess.onTimer()"
-		running="@{crawlProcess.refresh}" />
+	<timer delay="5000" repeats="true" onTimer="crawlFileProcess.onTimer()"
+		running="@{crawlFileProcess.refresh}" />
 </window>
