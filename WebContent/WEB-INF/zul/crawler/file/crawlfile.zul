@@ -45,7 +45,7 @@
 		</panelchildren>
 	</panel>
 	<separator />
-	<panel title="@{crawlFileProcess.webCrawlMaster.statusInfo}"
+	<panel title="@{crawlFileProcess.fileCrawlMaster.statusInfo}"
 		collapsible="false" border="normal">
 		<toolbar>
 			<checkbox label="Dry run"
@@ -64,7 +64,7 @@
 				checked="@{crawlFileProcess.properties.optimizeAfterSession}" />
 			<space />
 			<button id="runButton"
-				disabled="@{crawlFileProcess.webCrawlMaster.aborting}"
+				disabled="@{crawlFileProcess.fileCrawlMaster.aborting}"
 				label="@{crawlFileProcess.runButtonLabel}" forward="onRun" />
 		</toolbar>
 	</panel>
@@ -73,7 +73,7 @@
 		border="normal">
 		<panelchildren>
 			<listbox
-				model="@{crawlFileProcess.webCrawlMaster.statistics}">
+				model="@{crawlFileProcess.fileCrawlMaster.statistics}">
 				<auxhead>
 					<auxheader label="Start time" width="130px" />
 					<auxheader label="Fetched" align="center"

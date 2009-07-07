@@ -16,20 +16,21 @@
 -->
 <tabbox>
 	<tabs>
-		<tab id="tabCrawlerFileBrowser" label="File and folder list" selected="true"  />
-		<tab id="tabCrawlerFileCrawled" label="File browser" />
+		<tab id="tabCrawlerFileBrowser" label="File and folder list"
+			selected="true" />
 		<tab id="tabCrawlerFileCrawl" label="Crawl process" />
+		<tab id="tabCrawlerFileCrawled" label="File browser" />
 		<tab id="tabCrawlerFileMapping" label="Field mapping" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
 			<include src="WEB-INF/zul/crawler/file/browser.zul" />
 		</tabpanel>
-		<tabpanel fulfill="tabCrawlerFileCrawled.onSelect">
-			<include src="WEB-INF/zul/crawler/file/path.zul" />
-		</tabpanel>
 		<tabpanel fulfill="tabCrawlerFileCrawl.onSelect">
 			<include src="WEB-INF/zul/crawler/file/crawlfile.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabCrawlerFileCrawled.onSelect">
+			<include src="WEB-INF/zul/crawler/file/path.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tabCrawlerFileMapping.onSelect">
 			<include src="WEB-INF/zul/crawler/file/mapping.zul" />

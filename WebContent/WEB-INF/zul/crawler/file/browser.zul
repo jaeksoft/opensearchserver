@@ -26,13 +26,13 @@
 					<label>Select :</label>
 					<button label="Refresh" forward="onReset" />
 					<button label="Up" forward="onBack" />
-
-					<button label="Down" forward="onIn"
-						visible="@{browser.selectedFile.directory}" />
 				</listheader>
 			</listhead>
-			<listitem self="@{each='field'}">
-				<listcell label="@{field.path}" />
+			<listitem>
+				<listcell label=".." onDoubleClick="browser.onBack()" />
+			</listitem>
+			<listitem self="@{each='field'}" >
+				<listcell label="@{field.path}" onDoubleClick="browser.onIn()" />
 			</listitem>
 			<listfoot>
 				<listfooter>
@@ -42,6 +42,9 @@
 							checked="@{browser.selectedFileCheck}"
 							disabled="@{browser.selectedFile.file}" />
 					</hbox>
+					<paging id="pagingFirst" detailed="true"
+					totalSize="@{browser.totalSizeFirst}" pageSize="@{browser.pageSizeFirst}"
+					activePage="@{browser.activePageFirst}" />
 				</listfooter>
 			</listfoot>
 		</listbox>

@@ -55,6 +55,10 @@ public class BrowserController extends CommonController implements
 
 	transient private List<PathItem> pathList = null;
 
+	private int pageSizeFirst;
+	private int totalSizeFirst;
+	private int activePageFirst;
+	
 	private int pageSize;
 	private int totalSize;
 	private int activePage;
@@ -68,8 +72,11 @@ public class BrowserController extends CommonController implements
 		super();
 		pathList = null;
 		pageSize = 10;
+		pageSizeFirst = 10;
 		totalSize = 0;
 		activePage = 0;
+		totalSizeFirst = 0;
+		activePageFirst = 0;
 	}
 
 	public File getSelectedFile() {
@@ -104,6 +111,19 @@ public class BrowserController extends CommonController implements
 		return pageSize;
 	}
 
+	public int getPageSizeFirst() {
+		return pageSizeFirst;
+	}
+
+	public int getTotalSizeFirst() {
+		return totalSizeFirst;
+	}
+
+	public int getActivePageFirst() {
+		return activePageFirst;
+	}
+
+	
 	public int getActivePage() {
 		return activePage;
 	}
@@ -186,7 +206,6 @@ public class BrowserController extends CommonController implements
 						getSelectedFile().getPath(), isSelectedFileCheck());
 				if (list.size() > 0) {
 					getClient().getFilePathManager().addList(list, false);
-					// getClient().getFileManager().injectPath(list);
 				}
 				pathList = null;
 				setSelectedFileCheck(false);
@@ -197,11 +216,11 @@ public class BrowserController extends CommonController implements
 
 	public void onIn() throws SearchLibException {
 		synchronized (this) {
-			if (getSelectedFile() != null)
+			if (getSelectedFile() != null && getSelectedFile().isDirectory()) {
 				setCurrentFile(getSelectedFile());
-
-			setSelectedFile(null);
-			reloadPage();
+				setSelectedFile(null);
+				reloadPage();
+			}		
 		}
 	}
 
