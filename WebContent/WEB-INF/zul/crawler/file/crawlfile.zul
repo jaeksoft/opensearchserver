@@ -28,39 +28,17 @@
 				</columns>
 				<rows>
 					<row>
-						<label value="User-Agent: " />
-						<textbox cols="50"
-							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.userAgent}" />
-						<label value="Number of url to crawl: " />
-						<intbox constraint="no empty, no negative"
-							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.maxUrlPerSession}" />
-
-					</row>
-					<row>
 						<label
 							value="Fetch interval between re-fetches (days): " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlFileProcess.refresh}"
 							value="@{crawlFileProcess.properties.fetchInterval}" />
-						<label value="Maximum number of url per host: " />
-						<intbox constraint="no empty, no negative"
-							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.maxUrlPerHost}" />
 
-					</row>
-					<row>
-						<label value="Number of simultaneous threads: " />
-						<intbox constraint="no empty, no negative"
-							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.maxThreadNumber}" />
 						<label
 							value="Delay between each accesses (seconds): " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlFileProcess.refresh}"
 							value="@{crawlFileProcess.properties.delayBetweenAccesses}" />
-
 					</row>
 				</rows>
 			</grid>
@@ -70,16 +48,17 @@
 	<panel title="@{crawlFileProcess.webCrawlMaster.statusInfo}"
 		collapsible="false" border="normal">
 		<toolbar>
-			<checkbox label="Dry run" disabled="@{crawlFileProcess.refresh}"
+			<checkbox label="Dry run"
+				disabled="@{crawlFileProcess.refresh}"
 				checked="@{crawlFileProcess.properties.dryRun}" />
 			<space />
 			<!-- 
-			<checkbox
+				<checkbox
 				label="Publish index at the end of the crawl session"
 				disabled="@{crawlFileProcess.refresh}" visible="@{crawlFileProcess.publish}"
 				checked="@{crawlFileProcess.properties.publishAfterSession}" />
-			<space visible="@{crawlFileProcess.publish}" />
-			 -->
+				<space visible="@{crawlFileProcess.publish}" />
+			-->
 			<checkbox label="Optimize at the end of the crawl session"
 				disabled="@{crawlFileProcess.refresh}"
 				checked="@{crawlFileProcess.properties.optimizeAfterSession}" />
@@ -93,7 +72,8 @@
 	<panel title="Last sessions statistics" collapsible="true"
 		border="normal">
 		<panelchildren>
-			<listbox model="@{crawlFileProcess.webCrawlMaster.statistics}">
+			<listbox
+				model="@{crawlFileProcess.webCrawlMaster.statistics}">
 				<auxhead>
 					<auxheader label="Start time" width="130px" />
 					<auxheader label="Fetched" align="center"
@@ -155,54 +135,7 @@
 			</listbox>
 		</panelchildren>
 	</panel>
-	<separator />
-	<panel title="Thread list" collapsible="true" border="normal">
-		<toolbar>
-			<checkbox label="Show debug information"
-				checked="@{crawlFileProcess.properties.debug}" />
-		</toolbar>
-		<panelchildren>
-			<listbox model="@{crawlFileProcess.webCrawlMaster.crawlThreads}"
-				mold="paging" pageSize="20">
-				<listhead sizable="true">
-					<listheader label="Current host name" />
-					<listheader width="50px" label="Fetched" />
-					<listheader width="50px" label="Fetch rate" />
-					<listheader width="50px" label="New url" />
-					<listheader width="50px" label="Updated" />
-					<listheader width="50px" label="Ignored" />
-					<listheader width="50px" label="Deleted" />
-					<listheader width="50px" label="Url" />
-					<listheader width="50px" label="Total" />
-					<listheader label="Status" />
-					<listheader
-						visible="@{crawlFileProcess.properties.debug}" label="Debug" />
-				</listhead>
-				<listitem self="@{each=thread}">
-					<listcell label="@{thread.host.name}" />
-					<listcell
-						label="@{thread.currentStatistics.fetchedCount}" />
-					<listcell
-						label="@{thread.currentStatistics.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
-					<listcell
-						label="@{thread.currentStatistics.pendingNewUrlCount}" />
-					<listcell
-						label="@{thread.currentStatistics.pendingUpdatedCount}" />
-					<listcell
-						label="@{thread.currentStatistics.ignoredCount}" />
-					<listcell
-						label="@{thread.currentStatistics.pendingDeletedCount}" />
-					<listcell
-						label="@{thread.currentStatistics.urlCount}" />
-					<listcell
-						label="@{thread.currentStatistics.urlListSize}" />
-					<listcell label="@{thread.statusInfo}" />
-					<listcell visible="@{crawlFileProcess.properties.debug}"
-						label="@{thread.debugInfo}" />
-				</listitem>
-			</listbox>
-		</panelchildren>
-	</panel>
-	<timer delay="5000" repeats="true" onTimer="crawlFileProcess.onTimer()"
+	<timer delay="5000" repeats="true"
+		onTimer="crawlFileProcess.onTimer()"
 		running="@{crawlFileProcess.refresh}" />
 </window>
