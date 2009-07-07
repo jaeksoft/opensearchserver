@@ -127,7 +127,6 @@ public abstract class Config {
 
 		try {
 			indexDir = indexDirectory;
-			System.out.println(indexDirectory.getPath());
 			if (!indexDir.isDirectory())
 				throw new SearchLibException("Expected to get a directory path");
 
@@ -135,8 +134,6 @@ public abstract class Config {
 				xppConfig = new XPathParser(new File(indexDirectory,
 						"config.xml"));
 			else {
-				System.out.println(configXmlResourceName);
-
 				xppConfig = new XPathParser(getClass().getResourceAsStream(
 						configXmlResourceName));
 

@@ -24,7 +24,11 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import java.io.File;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,9 +51,23 @@ public class FileItem implements Serializable {
 	final private static Logger logger = Logger.getLogger(UrlItem.class
 			.getCanonicalName());
 
-	private String path;
-	private boolean withSub;
+	public enum Status {
+		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(
+				"Already injected"), ERROR("Unknown Error");
 
+		private String name;
+
+		private Status(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	private String path;
 	private String contentBaseType;
 	private String contentTypeCharset;
 	private Integer contentLength;
@@ -57,29 +75,27 @@ public class FileItem implements Serializable {
 	private String lang;
 	private String langMethod;
 	private String cachedPath;
-	// private final URI checkedUri;
-	// private String host;
+	private URI checkedUri;
 	private Date when;
-	// private final RobotsTxtStatus robotsTxtStatus;
 	private FetchStatus fetchStatus;
 	private Integer responseCode;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
 	private final int count;
+	private Status status;
 
 	public FileItem() {
+		status = Status.UNDEFINED;
 		path = null;
 		cachedPath = null;
-		// checkedUri = null;
+		checkedUri = null;
 		contentBaseType = null;
 		contentTypeCharset = null;
 		contentLength = null;
 		contentEncoding = null;
 		lang = null;
 		langMethod = null;
-		// host = null;
 		when = new Date();
-		// robotsTxtStatus = RobotsTxtStatus.UNKNOWN;
 		fetchStatus = FetchStatus.UN_FETCHED;
 		responseCode = null;
 		parserStatus = ParserStatus.NOT_PARSED;
@@ -117,20 +133,6 @@ public class FileItem implements Serializable {
 	public FileItem(String path) {
 		this();
 		setPath(path);
-	}
-
-	public FileItem(String path, boolean withSub) {
-		this();
-		setPath(path);
-		setWithSub(withSub);
-	}
-
-	public boolean isWithSub() {
-		return withSub;
-	}
-
-	public void setWithSub(boolean withSub) {
-		this.withSub = withSub;
 	}
 
 	public FetchStatus getFetchStatus() {
@@ -239,27 +241,6 @@ public class FileItem implements Serializable {
 		return indexStatus;
 	}
 
-	/*
-	 * public RobotsTxtStatus getRobotsTxtStatus() { if (robotsTxtStatus ==
-	 * null) return RobotsTxtStatus.UNKNOWN; return robotsTxtStatus; }
-	 * 
-	 * public void setRobotsTxtStatus(RobotsTxtStatus status) {
-	 * this.robotsTxtStatus = status;
-	 * 
-	 * }
-	 * 
-	 * 
-	 * public void setRobotsTxtStatusInt(int v) { this.robotsTxtStatus =
-	 * RobotsTxtStatus.find(v);
-	 * 
-	 * }
-	 * 
-	 * private void setRobotsTxtStatusInt(String v) { if (v != null)
-	 * setRobotsTxtStatusInt(Integer.parseInt(v));
-	 * 
-	 * }
-	 */
-
 	public void setFetchStatus(FetchStatus status) {
 		this.fetchStatus = status;
 
@@ -279,12 +260,18 @@ public class FileItem implements Serializable {
 	private void setResponseCode(String v) {
 		if (v != null)
 			responseCode = new Integer(v);
-
 	}
 
 	public void setResponseCode(Integer v) {
 		responseCode = v;
+	}
 
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status v) {
+		status = v;
 	}
 
 	public Integer getResponseCode() {
@@ -299,13 +286,15 @@ public class FileItem implements Serializable {
 		}
 	}
 
-	/*
-	 * public URI getCheckedURI() throws MalformedURLException,
-	 * URISyntaxException { synchronized (this) { if (checkedUri != null) return
-	 * checkedUri; URL url = getURL(); checkedUri = new URI(url.getProtocol(),
-	 * url.getUserInfo(), url .getHost(), url.getPort(), url.getPath(),
-	 * url.getQuery(), url.getRef()); return checkedUri; } }
-	 */
+	public URI getCheckedURI() throws MalformedURLException, URISyntaxException {
+		synchronized (this) {
+			if (checkedUri != null)
+				return checkedUri;
+
+			checkedUri = (new File(getPath())).toURI();
+			return checkedUri;
+		}
+	}
 
 	public String getPath() {
 		return path;
@@ -430,4 +419,9 @@ public class FileItem implements Serializable {
 		this.langMethod = langMethod;
 	}
 
+	public IndexDocument getIndexDocument() {
+		IndexDocument indexDocument = new IndexDocument();
+		populate(indexDocument);
+		return indexDocument;
+	}
 }

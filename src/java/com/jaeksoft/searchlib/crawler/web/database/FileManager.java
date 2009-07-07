@@ -129,14 +129,50 @@ public class FileManager {
 	}
 
 	public void injectPath(List<PathItem> pathList) throws SearchLibException {
+		List<FileItem> fileList = new ArrayList<FileItem>();
+
 		Iterator<PathItem> it = pathList.iterator();
-		List<PathItem> urlList = new ArrayList<PathItem>();
 		while (it.hasNext()) {
-			PathItem item = it.next();
+			PathItem item = (PathItem) it.next();
+
 			if (item.getStatus() == PathItem.Status.INJECTED)
-				urlList.add(item);
+				addChildren(fileList, item);
 		}
-		inject(urlList);
+		inject(fileList);
+	}
+
+	private void addChildren(List<FileItem> fileList, PathItem item) {
+		File root = new File(item.getPath());
+
+		// Add it
+		if (root.isHidden())
+			return;
+
+		if (root.isFile())
+			fileList.add(new FileItem(root.getPath()));
+		else if (root.isDirectory()) {
+			// Add its children and children of children
+			if (item.isWithSub())
+				addChildRec(fileList, root, true);
+
+			// Only add its children
+			else
+				addChildRec(fileList, root, false);
+		}
+	}
+
+	private void addChildRec(List<FileItem> fileList, File file,
+			boolean recursive) {
+		File[] children = file.listFiles();
+		if (children != null && children.length > 0) {
+			for (File current : children) {
+				if (current.isDirectory() && recursive)
+					addChildRec(fileList, current, true);
+				else if (current.isFile() && !current.isHidden()) {
+					fileList.add(new FileItem(current.getPath()));
+				}
+			}
+		}
 	}
 
 	public void deletePath(String sUrl) throws SearchLibException {
@@ -183,18 +219,18 @@ public class FileManager {
 	}
 
 	public boolean exists(String sUrl) throws SearchLibException {
-		SearchRequest request = getUrlSearchRequest();
+		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("url:\"" + sUrl + '"');
 		return (getFiles(request, null, false, 0, 0, null) > 0);
 	}
 
-	public void inject(List<PathItem> list) throws SearchLibException {
+	public void inject(List<FileItem> list) throws SearchLibException {
 		synchronized (this) {
 			try {
 				List<IndexDocument> injectList = new ArrayList<IndexDocument>();
-				for (PathItem item : list) {
+				for (FileItem item : list) {
 					if (exists(item.getPath()))
-						item.setStatus(PathItem.Status.ALREADY);
+						item.setStatus(FileItem.Status.ALREADY);
 					else
 						injectList.add(item.getIndexDocument());
 				}
@@ -281,11 +317,11 @@ public class FileManager {
 	 * return searchRequest; }
 	 */
 
-	private SearchRequest getUrlSearchRequest() throws SearchLibException {
+	private SearchRequest getPathSearchRequest() throws SearchLibException {
 		SearchRequest searchRequest = fileDbClient.getNewSearchRequest();
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
-		searchRequest.addReturnField("url");
+		searchRequest.addReturnField("path");
 		// searchRequest.addReturnField("host");
 		searchRequest.addReturnField("contentBaseType");
 		searchRequest.addReturnField("contentTypeCharset");
@@ -379,8 +415,10 @@ public class FileManager {
 			IndexStatus indexStatus, Date startDate, Date endDate)
 			throws SearchLibException {
 		try {
+
 			SearchRequest searchRequest = fileDbClient
 					.getNewSearchRequest(FILE_SEARCH);
+
 			StringBuffer query = new StringBuffer();
 			if (like != null) {
 				like = like.trim();

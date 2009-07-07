@@ -129,7 +129,7 @@ public class PathItem extends GenericMap<String> {
 	}
 
 	public void populate(IndexDocument indexDocument) {
-		indexDocument.set("url", getPath());
+		indexDocument.set("path", getPath());
 		indexDocument.set("when", UrlItem.getWhenDateFormat()
 				.format(new Date()));
 

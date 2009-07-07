@@ -159,7 +159,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			crawlQueue.index(true);
 			if (sessionStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
-				config.getUrlManager().reload(
+				config.getFileManager().reload(
 						propertyManager.isOptimizeAfterSession());
 				// TEMP publishIndexList disabled
 				/*

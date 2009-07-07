@@ -249,9 +249,7 @@ public class FilePathManager {
 						}
 					}
 					if (pos >= start && pos < end) {
-						list
-								.add(new FileItem(item.getPath(), item
-										.isWithSub()));
+						list.add(new FileItem(item.getPath()));
 					}
 
 					total++;
