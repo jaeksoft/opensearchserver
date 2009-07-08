@@ -57,9 +57,10 @@ public class BrowserController extends CommonController implements
 	transient private List<PathItem> pathList = null;
 	transient private List<String> files;
 
-	private int pageSizeFirst;
-	private int totalSizeFirst;
-	private int activePageFirst;
+	/*
+	 * private int pageSizeFirst; private int totalSizeFirst; private int
+	 * activePageFirst;
+	 */
 
 	private int pageSize;
 	private int totalSize;
@@ -74,11 +75,11 @@ public class BrowserController extends CommonController implements
 		super();
 		pathList = null;
 		pageSize = 10;
-		pageSizeFirst = 10;
+		// pageSizeFirst = 10;
 		totalSize = 0;
 		activePage = 0;
-		totalSizeFirst = 10;
-		activePageFirst = 0;
+		// totalSizeFirst = 10;
+		// activePageFirst = 0;
 		files = null;
 	}
 
@@ -114,19 +115,6 @@ public class BrowserController extends CommonController implements
 		return pageSize;
 	}
 
-	public int getPageSizeFirst() {
-		return pageSizeFirst;
-	}
-
-	public int getTotalSizeFirst() {
-		System.out.println(totalSizeFirst);
-		return totalSizeFirst;
-	}
-
-	public int getActivePageFirst() {
-		return activePageFirst;
-	}
-
 	public int getActivePage() {
 		return activePage;
 	}
@@ -150,41 +138,22 @@ public class BrowserController extends CommonController implements
 
 	public List<String> getFiles() {
 		synchronized (this) {
-			List<File> dataToInsert = getFilesList();
+			File[] dataToInsert = null;
+			if (currentFile == null)
+				dataToInsert = File.listRoots();
+			else
+				dataToInsert = currentFile.listFiles();
 
 			files = new ArrayList<String>();
-			files.add("..");
 
-			for (File cur : dataToInsert) {
-				files.add(cur.getPath());
+			if (dataToInsert != null && dataToInsert.length > 0) {
+				for (int i = 0; i < dataToInsert.length; i++) {
+					files.add(dataToInsert[i].getPath());
+				}
 			}
+
 			return files;
 		}
-	}
-
-	private List<File> getFilesList() {
-		File[] dataToInsert = null;
-		if (currentFile == null)
-			dataToInsert = File.listRoots();
-		else
-			dataToInsert = currentFile.listFiles();
-
-		List<File> result = new ArrayList<File>();
-
-		totalSizeFirst = dataToInsert.length / getPageSizeFirst();
-
-		if (dataToInsert != null && dataToInsert.length > 0) {
-			int j = 0;
-			for (int i = getActivePageFirst(); i < getPageSizeFirst(); i++) {
-				if (dataToInsert.length > i)
-					result.add(dataToInsert[i]);
-				else
-					break;
-				j++;
-			}
-		}
-
-		return result;
 	}
 
 	public PathItem getPathItem() {
@@ -275,17 +244,13 @@ public class BrowserController extends CommonController implements
 			if (path == null)
 				return;
 
-			// Back
-			if (ROOT.equals(path)) {
-				onBack();
-			} else {
-				File currentFile = new File(path);
-				if (currentFile != null && currentFile.isDirectory()) {
-					setCurrentFile(currentFile);
-					setSelectedFile(null);
-					reloadPage();
-				}
+			File currentFile = new File(path);
+			if (currentFile != null && currentFile.isDirectory()) {
+				setCurrentFile(currentFile);
+				setSelectedFile(null);
+				reloadPage();
 			}
+
 		}
 	}
 
@@ -315,13 +280,6 @@ public class BrowserController extends CommonController implements
 				onPaging((PagingEvent) event);
 			}
 		});
-
-		getFellow("pagingFirst").addEventListener("onPagingFirst",
-				new EventListener() {
-					public void onEvent(Event event) {
-						onPaging((PagingEvent) event);
-					}
-				});
 	}
 
 	public void onPaging(PagingEvent pagingEvent) {
@@ -332,11 +290,4 @@ public class BrowserController extends CommonController implements
 		}
 	}
 
-	public void onPagingFirst(PagingEvent pagingEvent) {
-		synchronized (this) {
-			files = null;
-			activePageFirst = pagingEvent.getActivePage();
-			reloadPage();
-		}
-	}
 }

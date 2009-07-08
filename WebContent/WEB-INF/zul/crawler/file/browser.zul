@@ -20,10 +20,11 @@
 
 	<vbox width="100%">
 		<listbox model="@{browser.files}"  mold="paging"
-			selectedItem="@{browser.selectedFilePath}" >
+			selectedItem="@{browser.selectedFilePath}" pageSize="25" >
 			<listhead>
 				<listheader>
 					<button label="Refresh" forward="onReset" />
+					<button label="Parent" forward="onBack" />
 				</listheader>
 			</listhead>
 
@@ -40,10 +41,6 @@
 							checked="@{browser.selectedFileCheck}"
 							disabled="@{browser.selectedFile.file}" />
 					</hbox>
-					<paging id="pagingFirst" detailed="true"
-						totalSize="@{browser.totalSizeFirst}"
-						pageSize="@{browser.pageSizeFirst}"
-						activePage="@{browser.activePageFirst}" />
 				</listfooter>
 			</listfoot>
 		</listbox>
