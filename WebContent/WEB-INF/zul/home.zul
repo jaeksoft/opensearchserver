@@ -15,7 +15,7 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="home"
+<window id="home" 
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
 	<panel title="Create a new index" border="normal">
 		<panelchildren>
