@@ -52,20 +52,22 @@ public class BrowserController extends CommonController implements
 		ListitemRenderer, AfterCompose {
 
 	private static final long serialVersionUID = 6735801464584819587L;
+	private final String ROOT = "..";
 
 	transient private List<PathItem> pathList = null;
+	transient private List<String> files;
 
 	private int pageSizeFirst;
 	private int totalSizeFirst;
 	private int activePageFirst;
-	
+
 	private int pageSize;
 	private int totalSize;
 	private int activePage;
 
 	private File currentFile;
 	private File selectedFile;
-
+	private String selectedFilePath;
 	private boolean selectedFileCheck;
 
 	public BrowserController() throws SearchLibException {
@@ -75,8 +77,9 @@ public class BrowserController extends CommonController implements
 		pageSizeFirst = 10;
 		totalSize = 0;
 		activePage = 0;
-		totalSizeFirst = 0;
+		totalSizeFirst = 10;
 		activePageFirst = 0;
+		files = null;
 	}
 
 	public File getSelectedFile() {
@@ -116,6 +119,7 @@ public class BrowserController extends CommonController implements
 	}
 
 	public int getTotalSizeFirst() {
+		System.out.println(totalSizeFirst);
 		return totalSizeFirst;
 	}
 
@@ -123,7 +127,6 @@ public class BrowserController extends CommonController implements
 		return activePageFirst;
 	}
 
-	
 	public int getActivePage() {
 		return activePage;
 	}
@@ -132,12 +135,56 @@ public class BrowserController extends CommonController implements
 		return totalSize;
 	}
 
-	public File[] getFiles() {
-		if (currentFile == null)
-			return File.listRoots();
-		else
-			return currentFile.listFiles();
+	public String getSelectedFilePath() {
+		return selectedFilePath;
+	}
 
+	public void setSelectedFilePath(String selectedFilePath) {
+		this.selectedFilePath = selectedFilePath;
+
+		if (selectedFilePath.equals(ROOT))
+			selectedFile = new File("");
+		else
+			selectedFile = new File(selectedFilePath);
+	}
+
+	public List<String> getFiles() {
+		synchronized (this) {
+			List<File> dataToInsert = getFilesList();
+
+			files = new ArrayList<String>();
+			files.add("..");
+
+			for (File cur : dataToInsert) {
+				files.add(cur.getPath());
+			}
+			return files;
+		}
+	}
+
+	private List<File> getFilesList() {
+		File[] dataToInsert = null;
+		if (currentFile == null)
+			dataToInsert = File.listRoots();
+		else
+			dataToInsert = currentFile.listFiles();
+
+		List<File> result = new ArrayList<File>();
+
+		totalSizeFirst = dataToInsert.length / getPageSizeFirst();
+
+		if (dataToInsert != null && dataToInsert.length > 0) {
+			int j = 0;
+			for (int i = getActivePageFirst(); i < getPageSizeFirst(); i++) {
+				if (dataToInsert.length > i)
+					result.add(dataToInsert[i]);
+				else
+					break;
+				j++;
+			}
+		}
+
+		return result;
 	}
 
 	public PathItem getPathItem() {
@@ -178,14 +225,22 @@ public class BrowserController extends CommonController implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render(Listitem item, Object data) throws Exception {
-		GenericLink<String> link = (GenericLink<String>) data;
-		new Listcell(link.getSource()).setParent(item);
-		new Listcell(link.getTarget()).setParent(item);
-		Listcell listcell = new Listcell();
-		Image image = new Image("/images/action_delete.png");
-		image.addForward(null, this, "onRemove", data);
-		image.setParent(listcell);
-		listcell.setParent(item);
+
+		if (data instanceof GenericLink) {
+			GenericLink<String> link = (GenericLink<String>) data;
+			new Listcell(link.getSource()).setParent(item);
+			new Listcell(link.getTarget()).setParent(item);
+
+			Listcell listcell = new Listcell();
+			Image image = new Image("/images/action_delete.png");
+			image.addForward(null, this, "onRemove", data);
+			image.setParent(listcell);
+			listcell.setParent(item);
+		} else if (data instanceof String) {
+			new Listcell((String) data).setParent(item);
+			Listcell listcell = new Listcell();
+			listcell.setParent(item);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -214,13 +269,23 @@ public class BrowserController extends CommonController implements
 		}
 	}
 
-	public void onIn() throws SearchLibException {
+	public void onDoubleClick(Listcell cell) throws SearchLibException {
 		synchronized (this) {
-			if (getSelectedFile() != null && getSelectedFile().isDirectory()) {
-				setCurrentFile(getSelectedFile());
-				setSelectedFile(null);
-				reloadPage();
-			}		
+			String path = cell.getLabel();
+			if (path == null)
+				return;
+
+			// Back
+			if (ROOT.equals(path)) {
+				onBack();
+			} else {
+				File currentFile = new File(path);
+				if (currentFile != null && currentFile.isDirectory()) {
+					setCurrentFile(currentFile);
+					setSelectedFile(null);
+					reloadPage();
+				}
+			}
 		}
 	}
 
@@ -250,12 +315,27 @@ public class BrowserController extends CommonController implements
 				onPaging((PagingEvent) event);
 			}
 		});
+
+		getFellow("pagingFirst").addEventListener("onPagingFirst",
+				new EventListener() {
+					public void onEvent(Event event) {
+						onPaging((PagingEvent) event);
+					}
+				});
 	}
 
 	public void onPaging(PagingEvent pagingEvent) {
 		synchronized (this) {
 			pathList = null;
 			activePage = pagingEvent.getActivePage();
+			reloadPage();
+		}
+	}
+
+	public void onPagingFirst(PagingEvent pagingEvent) {
+		synchronized (this) {
+			files = null;
+			activePageFirst = pagingEvent.getActivePage();
 			reloadPage();
 		}
 	}

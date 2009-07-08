@@ -19,21 +19,19 @@
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.BrowserController">
 
 	<vbox width="100%">
-		<listbox model="@{browser.files}"
-			selectedItem="@{browser.selectedFile}">
+		<listbox model="@{browser.files}"  mold="paging"
+			selectedItem="@{browser.selectedFilePath}" >
 			<listhead>
 				<listheader>
-					<label>Select :</label>
 					<button label="Refresh" forward="onReset" />
-					<button label="Up" forward="onBack" />
 				</listheader>
 			</listhead>
-			<listitem>
-				<listcell label=".." onDoubleClick="browser.onBack()" />
+
+			<listitem self="@{each='field'}">
+				<listcell label="@{field}"
+					onDoubleClick="browser.onDoubleClick(self)" />
 			</listitem>
-			<listitem self="@{each='field'}" >
-				<listcell label="@{field.path}" onDoubleClick="browser.onIn()" />
-			</listitem>
+
 			<listfoot>
 				<listfooter>
 					<hbox>
@@ -43,8 +41,9 @@
 							disabled="@{browser.selectedFile.file}" />
 					</hbox>
 					<paging id="pagingFirst" detailed="true"
-					totalSize="@{browser.totalSizeFirst}" pageSize="@{browser.pageSizeFirst}"
-					activePage="@{browser.activePageFirst}" />
+						totalSize="@{browser.totalSizeFirst}"
+						pageSize="@{browser.pageSizeFirst}"
+						activePage="@{browser.activePageFirst}" />
 				</listfooter>
 			</listfoot>
 		</listbox>
@@ -52,7 +51,8 @@
 
 	<separator />
 
-	<listbox itemRenderer="@{browser}" model="@{browser.pathItem.list}">
+	<listbox itemRenderer="@{browser}"
+		model="@{browser.pathItem.list}">
 		<listhead>
 			<listheader label="Selection" />
 			<listheader label="With all sub-directories" />
