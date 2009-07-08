@@ -32,7 +32,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -43,10 +42,6 @@ import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
-import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -111,7 +106,6 @@ public class FileManager {
 	}
 
 	private final Client fileDbClient;
-
 	private final Client targetClient;
 
 	public FileManager(Client client, File dataDir) throws SearchLibException,
@@ -129,7 +123,7 @@ public class FileManager {
 		return fileDbClient;
 	}
 
-	public void injectPath(List<PathItem> pathList) throws SearchLibException {
+	public void injectPaths(List<PathItem> pathList) throws SearchLibException {
 		List<FileItem> fileList = new ArrayList<FileItem>();
 
 		Iterator<PathItem> it = pathList.iterator();
@@ -142,10 +136,10 @@ public class FileManager {
 		inject(fileList);
 	}
 
-	public void deletePath(String sUrl) throws SearchLibException {
+	public void deletePath(String path) throws SearchLibException {
 		try {
-			targetClient.deleteDocument(sUrl);
-			fileDbClient.deleteDocument(sUrl);
+			targetClient.deleteDocument(path);
+			fileDbClient.deleteDocument(path);
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -163,7 +157,7 @@ public class FileManager {
 		}
 	}
 
-	public void deleteUrls(Collection<String> workDeleteUrlList)
+	/*public void deleteUrls(Collection<String> workDeleteUrlList)
 			throws SearchLibException {
 		try {
 			targetClient.deleteDocuments(workDeleteUrlList);
@@ -183,11 +177,11 @@ public class FileManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
-	}
+	}*/
 
-	public boolean exists(String sUrl) throws SearchLibException {
+	public boolean exists(String path) throws SearchLibException {
 		SearchRequest request = getPathSearchRequest();
-		request.setQueryString("url:\"" + sUrl + '"');
+		request.setQueryString("path:\"" + path + '"');
 		return (getFiles(request, null, false, 0, 0, null) > 0);
 	}
 
@@ -233,51 +227,39 @@ public class FileManager {
 		}
 	}
 
-	private void filterQueryToFetchOld(SearchRequest request,
-			Date fetchIntervalDate) throws ParseException {
-		StringBuffer query = new StringBuffer();
-		query.append("when:[00000000000000 TO ");
-		query.append(UrlItem.getWhenDateFormat().format(fetchIntervalDate));
-		query.append("]");
-		request.addFilter(query.toString());
-	}
+	/*
+	 * private void filterQueryToFetchOld(SearchRequest request, Date
+	 * fetchIntervalDate) throws ParseException { StringBuffer query = new
+	 * StringBuffer(); query.append("when:[00000000000000 TO ");
+	 * query.append(UrlItem.getWhenDateFormat().format(fetchIntervalDate));
+	 * query.append("]"); request.addFilter(query.toString()); }
+	 * 
+	 * private void filterQueryToFetchNew(SearchRequest request) throws
+	 * ParseException { StringBuffer query = new StringBuffer();
+	 * query.append("fetchStatus:"); query.append(FetchStatus.UN_FETCHED.value);
+	 * request.addFilter(query.toString()); }
+	 */
 
-	private void filterQueryToFetchNew(SearchRequest request)
-			throws ParseException {
-		StringBuffer query = new StringBuffer();
-		query.append("fetchStatus:");
-		query.append(FetchStatus.UN_FETCHED.value);
-		request.addFilter(query.toString());
-	}
+	/*
+	 * public Date getPastDate(int fetchInterval) { return new
+	 * Date(System.currentTimeMillis() - (long) fetchInterval 1000 * 86400); }
+	 */
 
-	public Date getPastDate(int fetchInterval) {
-		return new Date(System.currentTimeMillis() - (long) fetchInterval
-				* 1000 * 86400);
-	}
-
-	private void getFacetLimit(Field field, SearchRequest searchRequest,
-			int limit, List<NamedItem> list) throws IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException {
-		Result result = fileDbClient.search(searchRequest);
-		Facet facet = result.getFacetList().getByField(field.name);
-		for (FacetItem facetItem : facet) {
-			if (limit-- == 0)
-				break;
-			if (facetItem.getCount() == 0)
-				continue;
-			String term = facetItem.getTerm();
-			if (term == null)
-				continue;
-			if (term.length() == 0)
-				continue;
-			synchronized (list) {
-				list.add(new NamedItem(term, facetItem.getCount()));
-			}
-		}
-
-	}
+	/*
+	 * private void getFacetLimit(Field field, SearchRequest searchRequest, int
+	 * limit, List<NamedItem> list) throws IOException, ParseException,
+	 * SyntaxError, URISyntaxException, ClassNotFoundException,
+	 * InterruptedException, SearchLibException, InstantiationException,
+	 * IllegalAccessException { Result result =
+	 * fileDbClient.search(searchRequest); Facet facet =
+	 * result.getFacetList().getByField(field.name); for (FacetItem facetItem :
+	 * facet) { if (limit-- == 0) break; if (facetItem.getCount() == 0)
+	 * continue; String term = facetItem.getTerm(); if (term == null) continue;
+	 * if (term.length() == 0) continue; synchronized (list) { list.add(new
+	 * NamedItem(term, facetItem.getCount())); } }
+	 * 
+	 * }
+	 */
 
 	/*
 	 * private SearchRequest getHostFacetSearchRequest() { SearchRequest
@@ -292,7 +274,6 @@ public class FileManager {
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		searchRequest.addReturnField("path");
-		// searchRequest.addReturnField("host");
 		searchRequest.addReturnField("contentBaseType");
 		searchRequest.addReturnField("contentTypeCharset");
 		searchRequest.addReturnField("contentEncoding");
@@ -301,7 +282,6 @@ public class FileManager {
 		searchRequest.addReturnField("langMethod");
 		searchRequest.addReturnField("when");
 		searchRequest.addReturnField("responseCode");
-		// searchRequest.addReturnField("robotsTxtStatus");
 		searchRequest.addReturnField("parserStatus");
 		searchRequest.addReturnField("fetchStatus");
 		searchRequest.addReturnField("indexStatus");
@@ -330,51 +310,49 @@ public class FileManager {
 	 * searchRequest, limit, hostList); }
 	 */
 
-	public void getStartingWith(String queryString, Field field, String start,
-			int limit, List<NamedItem> list) throws ParseException,
-			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException {
-		SearchRequest searchRequest = fileDbClient.getNewSearchRequest(field
-				+ "Facet");
-		searchRequest.setQueryString(queryString);
-		searchRequest.getFilterList().add(field + ":" + start + "*",
-				Source.REQUEST);
-		getFacetLimit(field, searchRequest, limit, list);
-	}
+	/*
+	 * public void getStartingWith(String queryString, Field field, String
+	 * start, int limit, List<NamedItem> list) throws ParseException,
+	 * IOException, SyntaxError, URISyntaxException, ClassNotFoundException,
+	 * InterruptedException, SearchLibException, InstantiationException,
+	 * IllegalAccessException { SearchRequest searchRequest =
+	 * fileDbClient.getNewSearchRequest(field + "Facet");
+	 * searchRequest.setQueryString(queryString);
+	 * searchRequest.getFilterList().add(field + ":" + start + "*",
+	 * Source.REQUEST); getFacetLimit(field, searchRequest, limit, list); }
+	 */
 
-	public void getOldUrlToFetch(NamedItem host, Date fetchIntervalDate,
-			long limit, List<UrlItem> urlList) throws SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
-		SearchRequest searchRequest = fileDbClient
-				.getNewSearchRequest(FILE_SEARCH);
-		searchRequest.addFilter("host:\""
-				+ SearchRequest.escapeQuery(host.getName()) + "\"");
-		searchRequest.setQueryString("*:*");
-		filterQueryToFetchOld(searchRequest, fetchIntervalDate);
-		searchRequest.setRows((int) limit);
-		Result result = fileDbClient.search(searchRequest);
-		for (ResultDocument item : result)
-			urlList.add(new UrlItem(item));
-	}
+	/*
+	 * public void getOldUrlToFetch(NamedItem host, Date fetchIntervalDate, long
+	 * limit, List<UrlItem> urlList) throws SearchLibException, ParseException,
+	 * IOException, SyntaxError, URISyntaxException, ClassNotFoundException,
+	 * InterruptedException, InstantiationException, IllegalAccessException {
+	 * SearchRequest searchRequest = fileDbClient
+	 * .getNewSearchRequest(FILE_SEARCH); searchRequest.addFilter("host:\"" +
+	 * SearchRequest.escapeQuery(host.getName()) + "\"");
+	 * searchRequest.setQueryString("*:*"); filterQueryToFetchOld(searchRequest,
+	 * fetchIntervalDate); searchRequest.setRows((int) limit); Result result =
+	 * fileDbClient.search(searchRequest); for (ResultDocument item : result)
+	 * urlList.add(new UrlItem(item)); }
+	 */
 
-	public void getNewUrlToFetch(NamedItem host, long limit,
-			List<UrlItem> urlList) throws SearchLibException, ParseException,
-			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
-		SearchRequest searchRequest = fileDbClient
-				.getNewSearchRequest(FILE_SEARCH);
-		searchRequest.addFilter("host:\""
-				+ SearchRequest.escapeQuery(host.getName()) + "\"");
-		searchRequest.setQueryString("*:*");
-		filterQueryToFetchNew(searchRequest);
-		searchRequest.setRows((int) limit);
-		Result result = fileDbClient.search(searchRequest);
-		for (ResultDocument item : result)
-			urlList.add(new UrlItem(item));
+	/*
+	 * public void getNewUrlToFetch(NamedItem host, long limit, List<UrlItem>
+	 * urlList) throws SearchLibException, ParseException, IOException,
+	 * SyntaxError, URISyntaxException, ClassNotFoundException,
+	 * InterruptedException, InstantiationException, IllegalAccessException {
+	 * SearchRequest searchRequest = fileDbClient
+	 * .getNewSearchRequest(FILE_SEARCH); searchRequest.addFilter("host:\"" +
+	 * SearchRequest.escapeQuery(host.getName()) + "\"");
+	 * searchRequest.setQueryString("*:*");
+	 * filterQueryToFetchNew(searchRequest); searchRequest.setRows((int) limit);
+	 * Result result = fileDbClient.search(searchRequest); for (ResultDocument
+	 * item : result) urlList.add(new UrlItem(item)); }
+	 */
+
+	public SearchRequest fileQuery() throws SearchLibException {
+		return fileQuery(null, null, null, null, null, null, null, null, null,
+				null, null, null, null, null);
 	}
 
 	public SearchRequest fileQuery(String like, String lang, String langMethod,
@@ -397,11 +375,7 @@ public class FileManager {
 					query.append("*");
 				}
 			}
-			/*
-			 * if (host != null) { host = host.trim(); if (host.length() > 0)
-			 * Field.HOST.addFilterQuery(searchRequest, SearchRequest
-			 * .escapeQuery(host)); }
-			 */
+
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
@@ -433,12 +407,6 @@ public class FileManager {
 							SearchRequest.escapeQuery(contentEncoding));
 			}
 
-			/*
-			 * if (robotsTxtStatus != null && robotsTxtStatus !=
-			 * RobotsTxtStatus.ALL)
-			 * Field.ROBOTSTXTSTATUS.addFilterQuery(searchRequest,
-			 * robotsTxtStatus.value);
-			 */
 			if (responseCode != null)
 				Field.RESPONSECODE.addFilterQuery(searchRequest, responseCode);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
@@ -488,6 +456,7 @@ public class FileManager {
 		}
 	}
 
+	
 	public long getFiles(SearchRequest searchRequest, Field orderBy,
 			boolean orderAsc, long start, long rows, List<FileItem> list)
 			throws SearchLibException {
@@ -535,7 +504,7 @@ public class FileManager {
 		targetClient.reload(null);
 	}
 
-	public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
+	/*public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
 		try {
 			IndexDocument indexDocument = new IndexDocument();
 			urlItem.populate(indexDocument);
@@ -553,9 +522,9 @@ public class FileManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
-	}
+	}*/
 
-	public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
+	/*public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
 		try {
 			// Update target index
 			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
@@ -588,9 +557,9 @@ public class FileManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
-	}
+	}*/
 
-	public void updateUrlItems(List<UrlItem> urlItems)
+	/*public void updateUrlItems(List<UrlItem> urlItems)
 			throws SearchLibException {
 		try {
 			List<IndexDocument> documents = new ArrayList<IndexDocument>(
@@ -614,5 +583,5 @@ public class FileManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
-	}
+	}*/
 }

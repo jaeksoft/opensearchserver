@@ -35,7 +35,7 @@
 							value="@{crawlFileProcess.properties.fetchInterval}" />
 
 						<label
-							value="Delay between each accesses (seconds): " />
+							value="Delay between each accesses (milliseconds): " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlFileProcess.refresh}"
 							value="@{crawlFileProcess.properties.delayBetweenAccesses}" />

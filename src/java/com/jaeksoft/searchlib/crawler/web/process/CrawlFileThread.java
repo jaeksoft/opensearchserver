@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.process;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.jaeksoft.searchlib.crawler.web.database.FileItem;
 import com.jaeksoft.searchlib.crawler.web.database.FileManager;
 import com.jaeksoft.searchlib.crawler.web.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.web.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.web.database.PathItem;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.CrawlFile;
 
@@ -44,16 +46,12 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	private FileItem currentFileItem;
 	private final CrawlStatistics currentStats;
 	private final long delayBetweenAccesses;
-	// private final HttpDownloader httpDownloader;
 	private long nextTimeTarget;
-	private final List<FileItem> urlList;
-
-	// private final NamedItem host;
+	private final List<PathItem> pathList;
 
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
-			CrawlStatistics sessionStats, List<FileItem> urlList)
+			CrawlStatistics sessionStats, List<PathItem> urlList)
 			throws SearchLibException {
-		// this.host = host;
 		this.config = config;
 		this.crawlMaster = crawlMaster;
 		this.currentFileItem = null;
@@ -61,9 +59,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		delayBetweenAccesses = config.getPropertyManager()
 				.getDelayBetweenAccesses();
 		nextTimeTarget = 0;
-		this.urlList = urlList;
+		this.pathList = urlList;
 
-		// httpDownloader = new HttpDownloader();
 	}
 
 	private void sleepInterval() {
@@ -75,16 +72,20 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
-
 		PropertyManager propertyManager = config.getPropertyManager();
 		String userAgent = propertyManager.getUserAgent();
 		boolean dryRun = propertyManager.isDryRun();
 
-		currentStats.addUrlListSize(urlList.size());
+		currentStats.addListSize(pathList.size());
 
-		Iterator<FileItem> iterator = urlList.iterator();
+		FileManager fileManager = config.getFileManager();
+		fileManager.injectPaths(pathList);
+
+		List<FileItem> files = new ArrayList<FileItem>();
+		fileManager.getFiles(fileManager.fileQuery(), null, false, 0, 0, files);
+
 		CrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
-
+		Iterator<FileItem> iterator = files.iterator();
 		while (iterator.hasNext()) {
 
 			if (isAbort() || crawlMaster.isAbort())
@@ -143,8 +144,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		setStatus(CrawlStatus.CRAWL);
 		// if (crawl.checkRobotTxtAllow(httpDownloader))
 		// crawl.download(httpDownloader);
-		nextTimeTarget = System.currentTimeMillis() + delayBetweenAccesses
-				* 1000;
+		nextTimeTarget = System.currentTimeMillis() + delayBetweenAccesses;
 
 		if (currentFileItem.getFetchStatus() == FetchStatus.FETCHED
 				&& currentFileItem.getParserStatus() == ParserStatus.PARSED

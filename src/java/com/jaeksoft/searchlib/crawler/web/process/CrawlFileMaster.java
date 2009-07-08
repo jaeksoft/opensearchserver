@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.lang.Thread.State;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -40,9 +39,8 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.web.database.FileItem;
 import com.jaeksoft.searchlib.crawler.web.database.FilePathManager;
-import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
+import com.jaeksoft.searchlib.crawler.web.database.PathItem;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
@@ -53,9 +51,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private CrawlThread[] crawlThreadArray;
 
-	private final LinkedList<NamedItem> oldHostList;
-
-	private final LinkedList<NamedItem> newHostList;
+	
 
 	private final LinkedList<CrawlStatistics> statistics;
 
@@ -67,7 +63,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private CrawlQueue crawlQueue;
 
-	private Date fetchIntervalDate;
+	//private Date fetchIntervalDate;
 
 	private final ExecutorService threadPool;
 
@@ -81,8 +77,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		crawlThreads = new LinkedHashSet<CrawlFileThread>();
 		crawlThreadArray = null;
 		crawlQueue = null;
-		oldHostList = new LinkedList<NamedItem>();
-		newHostList = new LinkedList<NamedItem>();
 		statistics = new LinkedList<CrawlStatistics>();
 		sessionStats = null;
 		if (config.getPropertyManager().isCrawlEnabled())
@@ -127,26 +121,18 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			maxUrlPerSession = propertyManager.getMaxUrlPerSession();
 			maxUrlPerHost = propertyManager.getMaxUrlPerHost();
 
-			synchronized (newHostList) {
-				newHostList.clear();
-			}
-			synchronized (oldHostList) {
-				oldHostList.clear();
-			}
-			// extractHostList();
-
 			while (!isAbort()) {
 
 				int howMany = urlLeftPerHost();
 				if (howMany <= 0)
 					break;
 				int first = 0;
-				List<FileItem> urlList = getNextUrlList(first, howMany);
-				if (urlList == null)
+				List<PathItem> pathList = getAllPathList(first, howMany);
+				if (pathList == null)
 					continue;
 
 				CrawlFileThread crawlThread = new CrawlFileThread(config, this,
-						sessionStats, urlList);
+						sessionStats, pathList);
 
 				add(crawlThread);
 
@@ -216,7 +202,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		return leftCount;
 	}
 
-	private List<FileItem> getNextUrlList(int first, int rows)
+	private List<PathItem> getAllPathList(int first, int rows)
 			throws ParseException, IOException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, InstantiationException, IllegalAccessException {
@@ -225,7 +211,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		// setInfo(host.name);
 		FilePathManager filePathManager = config.getFilePathManager();
 
-		List<FileItem> pathList = new ArrayList<FileItem>();
+		List<PathItem> pathList = new ArrayList<PathItem>();
 		filePathManager.getFiles("", first, rows, pathList);
 
 		setInfo(null);

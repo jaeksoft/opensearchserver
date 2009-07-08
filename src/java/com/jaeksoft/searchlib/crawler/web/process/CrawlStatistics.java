@@ -149,12 +149,12 @@ public class CrawlStatistics {
 			parent.addUpdatedCount(value);
 	}
 
-	public void addUrlListSize(long value) {
+	public void addListSize(long value) {
 		synchronized (this) {
 			this.urlListSize += value;
 		}
 		if (parent != null)
-			parent.addUrlListSize(value);
+			parent.addListSize(value);
 	}
 
 	protected void incIgnoredCount() {

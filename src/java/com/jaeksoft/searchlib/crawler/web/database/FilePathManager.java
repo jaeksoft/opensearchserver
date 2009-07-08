@@ -233,7 +233,7 @@ public class FilePathManager {
 	}
 
 	public int getFiles(String startsWith, long start, long rows,
-			List<FileItem> list) throws SearchLibException {
+			List<PathItem> list) throws SearchLibException {
 		r.lock();
 		try {
 			Iterator<List<PathItem>> it = pathMap.values().iterator();
@@ -249,7 +249,7 @@ public class FilePathManager {
 						}
 					}
 					if (pos >= start && pos < end) {
-						list.add(new FileItem(item.getPath()));
+						list.add(item);
 					}
 
 					total++;

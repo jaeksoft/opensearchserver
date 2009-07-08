@@ -83,7 +83,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 		String userAgent = propertyManager.getUserAgent();
 		boolean dryRun = propertyManager.isDryRun();
 
-		currentStats.addUrlListSize(urlList.size());
+		currentStats.addListSize(urlList.size());
 
 		Iterator<UrlItem> iterator = urlList.iterator();
 		CrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
