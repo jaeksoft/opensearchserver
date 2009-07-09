@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.process;
+package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.lang.Thread.State;
 import java.util.Iterator;
@@ -34,7 +34,12 @@ import java.util.concurrent.Executors;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlQueue;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.web.process.CrawlThread;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class CrawlFileMaster extends CrawlThreadAbstract {

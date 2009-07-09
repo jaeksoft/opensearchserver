@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.File;
 import java.io.Serializable;
@@ -38,6 +38,9 @@ import java.util.logging.Logger;
 
 import javax.mail.internet.ContentType;
 
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 

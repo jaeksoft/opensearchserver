@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.process;
+package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,14 +30,18 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.web.database.FetchStatus;
-import com.jaeksoft.searchlib.crawler.web.database.FileItem;
-import com.jaeksoft.searchlib.crawler.web.database.FileManager;
-import com.jaeksoft.searchlib.crawler.web.database.IndexStatus;
-import com.jaeksoft.searchlib.crawler.web.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.web.database.PathItem;
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlQueue;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileManager;
+import com.jaeksoft.searchlib.crawler.file.database.PathItem;
+import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
-import com.jaeksoft.searchlib.crawler.web.spider.CrawlFile;
 
 public class CrawlFileThread extends CrawlThreadAbstract {
 
@@ -78,11 +82,15 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		config.getFilePathManager().getPaths("", 0, 1000, pathList);
 
 		FileManager fileManager = config.getFileManager();
+		
 		fileManager.injectPaths(pathList);
-
 		List<FileItem> files = new ArrayList<FileItem>();
 		fileManager.getFiles(fileManager.fileQuery(), null, false, 0, 100000,
 				files);
+		
+		// delete removed files
+		fileManager.deleteFiles(files);
+
 
 		CrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
 
@@ -93,8 +101,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 				break;
 
 			currentFileItem = iterator.next();
-			System.out.println("Search in " + currentFileItem.getPath());
-
+			System.out.println("Working on " + currentFileItem.getPath());
+			
 			CrawlFile crawl = crawlFile(userAgent, dryRun);
 			if (crawl != null) {
 				if (!dryRun)
@@ -107,6 +115,9 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			}
 
 		}
+		
+		// add new files
+		fileManager.inject(files);
 
 		setStatus(CrawlStatus.INDEXATION);
 		if (!dryRun)

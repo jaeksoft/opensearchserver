@@ -22,18 +22,21 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.common.database;
 
-public enum ParserStatus {
+public enum FetchStatus {
 
-	NOT_PARSED(0, "Not parsed"), PARSED(1, "Parsed"), PARSER_ERROR(2,
-			"Parser Error"), NOPARSER(3, "No parser"), ALL(99, "All");
+	UN_FETCHED(0, "Unfetched"), FETCHED(1, "Fetched"), GONE(2, "Gone"), REDIR_TEMP(
+			3, "Temporary redirect"), REDIR_PERM(4, "Permanent redirect"), ERROR(
+			5, "Error"), HTTP_ERROR(6, "HTTP Error"), NOT_ALLOWED(7,
+			"Not allowed"), SIZE_EXCEED(8, "Size exceed"), ALL(99, "All"), URL_ERROR(
+			9, "Url error");
 
 	public int value;
 
 	public String name;
 
-	private ParserStatus(int value, String name) {
+	private FetchStatus(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
@@ -43,8 +46,8 @@ public enum ParserStatus {
 		return name;
 	}
 
-	public static ParserStatus find(int v) {
-		for (ParserStatus status : values())
+	public static FetchStatus find(int v) {
+		for (FetchStatus status : values())
 			if (status.value == v)
 				return status;
 		return null;

@@ -21,7 +21,7 @@
 	<listbox fixedLayout="true" model="@{searchPath.fileList}"
 		multiple="false" checkmark="false">
 		<listhead sizable="true">
-			<listheader width="40%" label="File" />
+			<listheader width="30%" label="File" />
 			<listheader width="140px" label="Date" />
 			<listheader label="Type" />
 			<listheader label="Charset" />
@@ -36,10 +36,10 @@
 		</listhead>
 		<auxhead>
 			<auxheader>
-				<vbox>
+				<hbox>
 					<textbox width="90%" value="@{searchPath.like}" />
 					<button label="Search" forward="onSearch" />
-				</vbox>
+				</hbox>
 			</auxheader>
 			<auxheader>
 				<vbox>

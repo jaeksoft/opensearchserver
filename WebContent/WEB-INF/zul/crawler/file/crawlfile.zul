@@ -78,29 +78,21 @@
 					<auxheader label="Start time" width="130px" />
 					<auxheader label="Fetched" align="center"
 						colspan="2" width="60px" />
-					<auxheader align="center" colspan="2"
-						label="Old url host" width="80px" />
-					<auxheader align="center" colspan="2"
-						label="New url host" width="80px" />
 					<auxheader label="Parsed" width="40px" />
 					<auxheader align="center" colspan="2"
-						label="New url" width="80px" />
+						label="New file" width="80px" />
 					<auxheader align="center" colspan="2"
 						label="Updated" width="80px" />
 					<auxheader label="Ignored" width="40px" />
 					<auxheader align="center" colspan="2"
 						label="Deleted" width="80px" />
-					<auxheader align="center" colspan="2" label="Url(s)"
+					<auxheader align="center" colspan="2" label="File(s)"
 						width="80px" />
 				</auxhead>
 				<listhead sizable="true">
 					<listheader width="130px" />
 					<listheader label="Count" width="40px" />
 					<listheader label="Rate" width="40px" />
-					<listheader label="Processed" width="40px" />
-					<listheader label="Total" width="40px" />
-					<listheader label="Processed" width="40px" />
-					<listheader label="Total" width="40px" />
 					<listheader width="40px" />
 					<listheader label="Pending" width="40px" />
 					<listheader label="Committed" width="40px" />
@@ -117,10 +109,6 @@
 					<listcell label="@{stat.fetchedCount}" />
 					<listcell
 						label="@{stat.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
-					<listcell label="@{stat.oldHostCount}" />
-					<listcell label="@{stat.oldHostListSize}" />
-					<listcell label="@{stat.newHostCount}" />
-					<listcell label="@{stat.newHostListSize}" />
 					<listcell label="@{stat.parsedCount}" />
 					<listcell label="@{stat.pendingNewUrlCount}" />
 					<listcell label="@{stat.newUrlCount}" />

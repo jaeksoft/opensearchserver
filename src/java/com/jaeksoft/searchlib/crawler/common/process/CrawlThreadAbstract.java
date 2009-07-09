@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.process;
+package com.jaeksoft.searchlib.crawler.common.process;
 
 import java.lang.Thread.State;
 import java.util.concurrent.ExecutorService;
@@ -178,7 +178,7 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		return running;
 	}
 
-	protected State getThreadState() {
+	public State getThreadState() {
 		synchronized (this) {
 			if (thread == null)
 				return null;

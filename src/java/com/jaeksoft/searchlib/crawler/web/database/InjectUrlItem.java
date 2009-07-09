@@ -28,6 +28,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 
 public class InjectUrlItem {

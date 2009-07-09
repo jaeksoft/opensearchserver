@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,35 +22,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.file.database;
 
-public enum FetchStatus {
+public interface FileSelector {
 
-	UN_FETCHED(0, "Unfetched"), FETCHED(1, "Fetched"), GONE(2, "Gone"), REDIR_TEMP(
-			3, "Temporary redirect"), REDIR_PERM(4, "Permanent redirect"), ERROR(
-			5, "Error"), HTTP_ERROR(6, "HTTP Error"), NOT_ALLOWED(7,
-			"Not allowed"), SIZE_EXCEED(8, "Size exceed"), ALL(99, "All"), URL_ERROR(
-			9, "Url error");
+	void addSelection(PathItem patternItem);
 
-	public int value;
+	void removeSelection(PathItem patternItem);
 
-	public String name;
-
-	private FetchStatus(int value, String name) {
-		this.value = value;
-		this.name = name;
-	}
-
-	@Override
-	public String toString() {
-		return name;
-	}
-
-	public static FetchStatus find(int v) {
-		for (FetchStatus status : values())
-			if (status.value == v)
-				return status;
-		return null;
-	}
+	boolean isSelected(PathItem patternItem);
 
 }

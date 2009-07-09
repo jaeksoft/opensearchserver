@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,6 +43,9 @@ import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -134,7 +137,6 @@ public class FileManager {
 				FileUtils.addChildren(fileList, item);
 		}
 
-		deleteFiles(fileList);
 		inject(fileList);
 	}
 
@@ -451,7 +453,7 @@ public class FileManager {
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
-				DecimalFormat df = UrlItem.getContentLengthFormat();
+				DecimalFormat df = FileItem.getContentLengthFormat();
 				if (minContentLength == null)
 					from = df.format(0);
 				else
@@ -465,7 +467,7 @@ public class FileManager {
 
 			if (startDate != null || endDate != null) {
 				String from, to;
-				SimpleDateFormat df = UrlItem.getWhenDateFormat();
+				SimpleDateFormat df = FileItem.getWhenDateFormat();
 				if (startDate == null)
 					from = "00000000000000";
 				else

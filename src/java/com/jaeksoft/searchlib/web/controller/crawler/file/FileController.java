@@ -33,11 +33,11 @@ import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.FetchStatus;
-import com.jaeksoft.searchlib.crawler.web.database.FileItem;
-import com.jaeksoft.searchlib.crawler.web.database.FileManager;
-import com.jaeksoft.searchlib.crawler.web.database.IndexStatus;
-import com.jaeksoft.searchlib.crawler.web.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.web.controller.CommonController;

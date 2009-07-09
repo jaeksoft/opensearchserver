@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,26 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.process;
+package com.jaeksoft.searchlib.crawler.common.database;
 
-public enum CrawlStatus {
+public enum ParserStatus {
 
-	NOT_RUNNING("Not running"), STARTING("Starting"), EXTRACTING_URLLIST(
-			"Extracting url list"), EXTRACTING_HOSTLIST("Extracting host list"), CRAWL(
-			"Crawling"), INDEXATION("Indexation"), OPTMIZING_INDEX(
-			"Optimizing index"), PUBLISH_INDEX("Publishing index"), EXTRACTING_URLS(
-			"Extracting urls"), WAITING("Waiting"), ERROR("Error"), ABORTED(
-			"Aborted"), COMPLETE("Complete");
+	NOT_PARSED(0, "Not parsed"), PARSED(1, "Parsed"), PARSER_ERROR(2,
+			"Parser Error"), NOPARSER(3, "No parser"), ALL(99, "All");
+
+	public int value;
 
 	public String name;
 
-	private CrawlStatus(String name) {
+	private ParserStatus(int value, String name) {
+		this.value = value;
 		this.name = name;
 	}
 
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	public static ParserStatus find(int v) {
+		for (ParserStatus status : values())
+			if (status.value == v)
+				return status;
+		return null;
 	}
 
 }

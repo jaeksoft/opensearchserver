@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,10 +22,33 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.common.database;
 
-public enum FileItemFieldEnum {
+public enum IndexStatus {
 
-	path, lang, langMethod, contentBaseType, contentTypeCharset, contentEncoding, contentLength, when, responseCode, parserStatus, fetchStatus, indexStatus;
+	NOT_INDEXED(0, "Not indexed"), INDEXED(1, "Indexed"), META_NOINDEX(2,
+			"Meta No Index"), INDEX_ERROR(3, "Index error"), INDEX_REJECTED(4,
+			"Rejected"), ALL(99, "All");
+
+	public int value;
+
+	public String name;
+
+	private IndexStatus(int value, String name) {
+		this.value = value;
+		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	public static IndexStatus find(int v) {
+		for (IndexStatus status : values())
+			if (status.value == v)
+				return status;
+		return null;
+	}
 
 }

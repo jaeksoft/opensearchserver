@@ -35,8 +35,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.jaeksoft.searchlib.crawler.web.database.FileItem;
-import com.jaeksoft.searchlib.crawler.web.database.PathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.PathItem;
+
 
 public class FileUtils {
 

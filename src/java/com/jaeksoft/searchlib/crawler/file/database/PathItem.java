@@ -22,11 +22,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.util.Date;
 import java.util.List;
 
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.GenericMap;
 
@@ -130,7 +133,7 @@ public class PathItem extends GenericMap<String> {
 
 	public void populate(IndexDocument indexDocument) {
 		indexDocument.set("path", getPath());
-		indexDocument.set("when", UrlItem.getWhenDateFormat()
+		indexDocument.set("when", FileItem.getWhenDateFormat()
 				.format(new Date()));
 
 		indexDocument.set("fetchStatus", FetchStatus.UN_FETCHED.value);

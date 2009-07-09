@@ -43,8 +43,8 @@ import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.FilePathManager;
-import com.jaeksoft.searchlib.crawler.web.database.PathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
+import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.util.GenericLink;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 

@@ -22,14 +22,10 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.file.database;
 
-public interface FileSelector {
+public enum FileItemFieldEnum {
 
-	void addSelection(PathItem patternItem);
-
-	void removeSelection(PathItem patternItem);
-
-	boolean isSelected(PathItem patternItem);
+	path, lang, langMethod, contentBaseType, contentTypeCharset, contentEncoding, contentLength, when, responseCode, parserStatus, fetchStatus, indexStatus;
 
 }

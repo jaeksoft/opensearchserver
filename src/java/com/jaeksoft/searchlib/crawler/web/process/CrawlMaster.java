@@ -40,6 +40,11 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlQueue;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.CrawlFileThread;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;

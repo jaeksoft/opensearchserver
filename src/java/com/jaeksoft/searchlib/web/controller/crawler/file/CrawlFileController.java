@@ -26,8 +26,8 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
-import com.jaeksoft.searchlib.crawler.web.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CrawlFileController extends CommonController {

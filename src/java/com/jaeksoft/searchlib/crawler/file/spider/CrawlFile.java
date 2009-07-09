@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.spider;
+package com.jaeksoft.searchlib.crawler.file.spider;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,10 +33,10 @@ import java.util.logging.Logger;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
-import com.jaeksoft.searchlib.crawler.web.database.FetchStatus;
-import com.jaeksoft.searchlib.crawler.web.database.FileItem;
-import com.jaeksoft.searchlib.crawler.web.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.web.process.CrawlStatistics;
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
+import com.jaeksoft.searchlib.crawler.file.database.FileItem;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.LimitException;
 import com.jaeksoft.searchlib.parser.Parser;
@@ -120,7 +120,7 @@ public class CrawlFile {
 			} catch (IOException e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
-				setError(e.getMessage());
+				setError(e.getMessage() + "  " + fileItem.getPath());
 			} catch (Exception e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);

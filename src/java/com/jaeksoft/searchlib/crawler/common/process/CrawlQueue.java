@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.process;
+package com.jaeksoft.searchlib.crawler.common.process;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -32,10 +32,10 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
-import com.jaeksoft.searchlib.crawler.web.spider.CrawlFile;
 
 public class CrawlQueue {
 
@@ -53,7 +53,7 @@ public class CrawlQueue {
 
 	private final int maxBufferSize;
 
-	protected CrawlQueue(Config config) throws SearchLibException {
+	public CrawlQueue(Config config) throws SearchLibException {
 		this.config = config;
 		this.sessionStats = null;
 		this.updateCrawlList = new ArrayList<Crawl>(0);
@@ -64,7 +64,7 @@ public class CrawlQueue {
 				.getIndexDocumentBufferSize();
 	}
 
-	protected void add(Crawl crawl) throws NoSuchAlgorithmException,
+	public void add(Crawl crawl) throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
 		synchronized (updateCrawlList) {
 			updateCrawlList.add(crawl);
@@ -77,7 +77,7 @@ public class CrawlQueue {
 		}
 	}
 
-	protected void add(CrawlFile crawl) throws NoSuchAlgorithmException,
+	public void add(CrawlFile crawl) throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
 		synchronized (updateCrawlFileList) {
 			updateCrawlFileList.add(crawl);

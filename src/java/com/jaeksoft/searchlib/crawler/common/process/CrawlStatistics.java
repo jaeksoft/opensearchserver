@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.process;
+package com.jaeksoft.searchlib.crawler.common.process;
 
 import java.util.Date;
 
@@ -122,7 +122,7 @@ public class CrawlStatistics {
 			parent.addNewUrlCount(value);
 	}
 
-	protected void incFetchedCount() {
+	public void incFetchedCount() {
 		synchronized (this) {
 			fetchedCount++;
 			fetchRate = (float) fetchedCount
@@ -132,7 +132,7 @@ public class CrawlStatistics {
 			parent.incFetchedCount();
 	}
 
-	protected void incParsedCount() {
+	public void incParsedCount() {
 		synchronized (this) {
 			parsedCount++;
 		}
@@ -157,7 +157,7 @@ public class CrawlStatistics {
 			parent.addListSize(value);
 	}
 
-	protected void incIgnoredCount() {
+	public void incIgnoredCount() {
 		synchronized (this) {
 			ignoredCount++;
 		}
@@ -165,7 +165,7 @@ public class CrawlStatistics {
 			parent.incIgnoredCount();
 	}
 
-	protected void incUrlCount() {
+	public void incUrlCount() {
 		synchronized (this) {
 			urlCount++;
 		}
