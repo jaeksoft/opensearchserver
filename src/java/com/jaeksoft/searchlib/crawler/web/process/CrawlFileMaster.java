@@ -24,10 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.process;
 
-import java.io.IOException;
 import java.lang.Thread.State;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -35,14 +32,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.lucene.queryParser.ParseException;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.web.database.FilePathManager;
-import com.jaeksoft.searchlib.crawler.web.database.PathItem;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class CrawlFileMaster extends CrawlThreadAbstract {
@@ -50,8 +42,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	private final LinkedHashSet<CrawlFileThread> crawlThreads;
 
 	private CrawlThread[] crawlThreadArray;
-
-	
 
 	private final LinkedList<CrawlStatistics> statistics;
 
@@ -63,13 +53,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private CrawlQueue crawlQueue;
 
-	//private Date fetchIntervalDate;
-
 	private final ExecutorService threadPool;
-
-	private int maxUrlPerSession;
-
-	private int maxUrlPerHost;
 
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		this.config = config;
@@ -117,28 +101,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			addStatistics(sessionStats);
 			crawlQueue.setStatistiques(sessionStats);
 
-			int threadNumber = propertyManager.getMaxThreadNumber();
-			maxUrlPerSession = propertyManager.getMaxUrlPerSession();
-			maxUrlPerHost = propertyManager.getMaxUrlPerHost();
-
-			while (!isAbort()) {
-
-				int howMany = urlLeftPerHost();
-				if (howMany <= 0)
-					break;
-				int first = 0;
-				List<PathItem> pathList = getAllPathList(first, howMany);
-				if (pathList == null)
-					continue;
-
-				CrawlFileThread crawlThread = new CrawlFileThread(config, this,
-						sessionStats, pathList);
-
-				add(crawlThread);
-
-				while (crawlThreadsSize() >= threadNumber && !isAbort())
-					sleepSec(5);
-			}
+			add(new CrawlFileThread(config, this, sessionStats));
 
 			waitForChild();
 			setStatus(CrawlStatus.INDEXATION);
@@ -147,75 +110,10 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getFileManager().reload(
 						propertyManager.isOptimizeAfterSession());
-				// TEMP publishIndexList disabled
-				/*
-				 * PublishIndexList publishIndexList = client
-				 * .getPublishIndexList(); if (publishIndexList != null &&
-				 * publishIndexList.size() > 0 &&
-				 * propertyManager.isPublishAfterSession()) {
-				 * setStatus(CrawlStatus.PUBLISH_INDEX);
-				 * publishIndexList.publish(); }
-				 */
 			}
 			sleepSec(5);
 		}
 		setStatus(CrawlStatus.NOT_RUNNING);
-	}
-
-	/*
-	 * private void extractHostList() throws IOException, ParseException,
-	 * SyntaxError, ClassNotFoundException, InterruptedException,
-	 * SearchLibException, InstantiationException, IllegalAccessException {
-	 * setStatus(CrawlStatus.EXTRACTING_HOSTLIST); FilePathManager
-	 * filePathManager = config.getFilePathManager(); PropertyManager
-	 * propertyManager = config.getPropertyManager();
-	 * 
-	 * fetchIntervalDate = filePathManager.getPastDate(propertyManager
-	 * .getFetchInterval());
-	 * 
-	 * config.getUrlManager().getOldHostToFetch(fetchIntervalDate,
-	 * maxUrlPerSession, oldHostList);
-	 * sessionStats.addOldHostListSize(oldHostList.size());
-	 * config.getUrlManager().getNewHostToFetch(maxUrlPerSession, newHostList);
-	 * sessionStats.addNewHostListSize(newHostList.size()); }
-	 */
-
-	/*
-	 * private NamedItem getNextHost() { synchronized (oldHostList) { NamedItem
-	 * host = oldHostList.poll(); if (host != null) { host.setList(oldHostList);
-	 * sessionStats.incOldHostCount(); return host; } } synchronized
-	 * (newHostList) { NamedItem host = newHostList.poll(); if (host != null) {
-	 * host.setList(newHostList); sessionStats.incNewHostCount(); return host; }
-	 * } return null; }
-	 */
-
-	protected int urlLeft() {
-		return (int) (maxUrlPerSession - sessionStats.getFetchedCount());
-	}
-
-	private int urlLeftPerHost() {
-		int leftCount = urlLeft();
-		if (leftCount < 0)
-			return leftCount;
-		if (leftCount > maxUrlPerHost)
-			leftCount = maxUrlPerHost;
-		return leftCount;
-	}
-
-	private List<PathItem> getAllPathList(int first, int rows)
-			throws ParseException, IOException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException, InstantiationException, IllegalAccessException {
-
-		setStatus(CrawlStatus.EXTRACTING_URLLIST);
-		// setInfo(host.name);
-		FilePathManager filePathManager = config.getFilePathManager();
-
-		List<PathItem> pathList = new ArrayList<PathItem>();
-		filePathManager.getFiles("", first, rows, pathList);
-
-		setInfo(null);
-		return pathList;
 	}
 
 	public List<CrawlStatistics> getStatistics() {
@@ -317,11 +215,5 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	@Override
 	public void complete() {
 	}
-
-	// UrlItem urlItem = new UrlItem();
-	// urlItem.setUrl(link);
-	// IndexDocument idxDoc = new IndexDocument();
-	// urlItem.populate(idxDoc);
-	// updateDocumentList.add(idxDoc);
 
 }

@@ -99,29 +99,35 @@ public class ParserFactory implements Comparable<ParserFactory> {
 
 	public static ParserFactory fromXmlConfig(ParserSelector parserSelector,
 			XPathParser xpp, Node parserNode) throws XPathExpressionException {
+
 		String parserClassName = XPathParser.getAttributeString(parserNode,
 				"class");
 		if (parserClassName == null)
 			return null;
+
 		String parserName = XPathParser.getAttributeString(parserNode, "name");
 		if (parserName == null)
 			parserName = parserClassName;
+
 		FieldMap fieldMap = new FieldMap(xpp, xpp.getNode(parserNode, "map"));
 		long sizeLimit = XPathParser.getAttributeValue(parserNode, "sizeLimit");
 		ParserFactory parserFactory = new ParserFactory(parserName,
 				parserClassName, sizeLimit, fieldMap);
+
 		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
 		for (int j = 0; j < mimeNodes.getLength(); j++) {
 			Node mimeNode = mimeNodes.item(j);
 			String contentType = xpp.getNodeString(mimeNode);
 			parserFactory.addMimeType(contentType);
 		}
+
 		NodeList extensionNodes = xpp.getNodeList(parserNode, "extension");
 		for (int j = 0; j < extensionNodes.getLength(); j++) {
 			Node extensionNode = extensionNodes.item(j);
 			String extension = xpp.getNodeString(extensionNode);
 			parserFactory.addExtension(extension);
 		}
+
 		return parserFactory;
 	}
 

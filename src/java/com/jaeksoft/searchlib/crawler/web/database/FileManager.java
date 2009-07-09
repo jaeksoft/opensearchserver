@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -114,7 +115,6 @@ public class FileManager {
 		if (!dataDir.exists())
 			dataDir.mkdir();
 
-		System.out.println();
 		this.fileDbClient = new Client(dataDir, "/file_config.xml", true);
 		targetClient = client;
 	}
@@ -133,7 +133,37 @@ public class FileManager {
 			if (item.getStatus() == PathItem.Status.INJECTED)
 				FileUtils.addChildren(fileList, item);
 		}
+
+		deleteFiles(fileList);
 		inject(fileList);
+	}
+
+	public void deleteFiles(List<FileItem> theNew) throws SearchLibException {
+		List<String> toDelete = new ArrayList<String>();
+
+		List<FileItem> files = new ArrayList<FileItem>();
+		getFiles(fileQuery(), null, false, 0, 100000, files);
+		Iterator<FileItem> iterator = files.iterator();
+
+		while (iterator.hasNext()) {
+			FileItem item = (FileItem) iterator.next();
+			String current = item.getPath();
+
+			boolean keep = false;
+			for (FileItem currentPath : theNew) {
+				if (currentPath.getPath() != null
+						&& currentPath.getPath().contains(current)) {
+					keep = true;
+					break;
+				}
+			}
+
+			if (!keep)
+				toDelete.add(current);
+		}
+
+		deleteFiles(toDelete);
+
 	}
 
 	public void deletePath(String path) throws SearchLibException {
@@ -157,7 +187,7 @@ public class FileManager {
 		}
 	}
 
-	/*public void deleteUrls(Collection<String> workDeleteUrlList)
+	private void deleteFiles(Collection<String> workDeleteUrlList)
 			throws SearchLibException {
 		try {
 			targetClient.deleteDocuments(workDeleteUrlList);
@@ -177,12 +207,12 @@ public class FileManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
-	}*/
+	}
 
 	public boolean exists(String path) throws SearchLibException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("path:\"" + path + '"');
-		return (getFiles(request, null, false, 0, 0, null) > 0);
+		return (getFiles(request, null, false, 0, 10, null) > 0);
 	}
 
 	public void inject(List<FileItem> list) throws SearchLibException {
@@ -351,7 +381,7 @@ public class FileManager {
 	 */
 
 	public SearchRequest fileQuery() throws SearchLibException {
-		return fileQuery(null, null, null, null, null, null, null, null, null,
+		return fileQuery("", null, null, null, null, null, null, null, null,
 				null, null, null, null, null);
 	}
 
@@ -456,7 +486,6 @@ public class FileManager {
 		}
 	}
 
-	
 	public long getFiles(SearchRequest searchRequest, Field orderBy,
 			boolean orderAsc, long start, long rows, List<FileItem> list)
 			throws SearchLibException {
@@ -504,84 +533,52 @@ public class FileManager {
 		targetClient.reload(null);
 	}
 
-	/*public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
-		try {
-			IndexDocument indexDocument = new IndexDocument();
-			urlItem.populate(indexDocument);
-			fileDbClient.updateDocument(indexDocument);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		}
-	}*/
+	/*
+	 * public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
+	 * try { IndexDocument indexDocument = new IndexDocument();
+	 * urlItem.populate(indexDocument);
+	 * fileDbClient.updateDocument(indexDocument); } catch
+	 * (NoSuchAlgorithmException e) { throw new SearchLibException(e); } catch
+	 * (IOException e) { throw new SearchLibException(e); } catch
+	 * (URISyntaxException e) { throw new SearchLibException(e); } catch
+	 * (InstantiationException e) { throw new SearchLibException(e); } catch
+	 * (IllegalAccessException e) { throw new SearchLibException(e); } catch
+	 * (ClassNotFoundException e) { throw new SearchLibException(e); } }
+	 */
 
-	/*public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
-		try {
-			// Update target index
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
-					.size());
-			for (Crawl crawl : crawls) {
-				IndexDocument indexDocument = crawl.getTargetIndexDocument();
-				documents.add(indexDocument);
-			}
-			targetClient.updateDocuments(documents);
+	/*
+	 * public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
+	 * try { // Update target index List<IndexDocument> documents = new
+	 * ArrayList<IndexDocument>(crawls .size()); for (Crawl crawl : crawls) {
+	 * IndexDocument indexDocument = crawl.getTargetIndexDocument();
+	 * documents.add(indexDocument); } targetClient.updateDocuments(documents);
+	 * 
+	 * // Update URL DB documents.clear(); for (Crawl crawl : crawls) {
+	 * IndexDocument indexDocument = new IndexDocument();
+	 * crawl.getUrlItem().populate(indexDocument); documents.add(indexDocument);
+	 * } fileDbClient.updateDocuments(documents);
+	 * 
+	 * } catch (NoSuchAlgorithmException e) { throw new SearchLibException(e); }
+	 * catch (IOException e) { throw new SearchLibException(e); } catch
+	 * (URISyntaxException e) { throw new SearchLibException(e); } catch
+	 * (InstantiationException e) { throw new SearchLibException(e); } catch
+	 * (IllegalAccessException e) { throw new SearchLibException(e); } catch
+	 * (ClassNotFoundException e) { throw new SearchLibException(e); } }
+	 */
 
-			// Update URL DB
-			documents.clear();
-			for (Crawl crawl : crawls) {
-				IndexDocument indexDocument = new IndexDocument();
-				crawl.getUrlItem().populate(indexDocument);
-				documents.add(indexDocument);
-			}
-			fileDbClient.updateDocuments(documents);
+	/*
+	 * public void updateUrlItems(List<UrlItem> urlItems) throws
+	 * SearchLibException { try { List<IndexDocument> documents = new
+	 * ArrayList<IndexDocument>( urlItems.size()); for (UrlItem urlItem :
+	 * urlItems) { IndexDocument indexDocument = new IndexDocument();
+	 * urlItem.populate(indexDocument); documents.add(indexDocument); }
+	 * fileDbClient.updateDocuments(documents); } catch
+	 * (NoSuchAlgorithmException e) { throw new SearchLibException(e); } catch
+	 * (IOException e) { throw new SearchLibException(e); } catch
+	 * (URISyntaxException e) { throw new SearchLibException(e); } catch
+	 * (InstantiationException e) { throw new SearchLibException(e); } catch
+	 * (IllegalAccessException e) { throw new SearchLibException(e); } catch
+	 * (ClassNotFoundException e) { throw new SearchLibException(e); } }
+	 */
 
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		}
-	}*/
-
-	/*public void updateUrlItems(List<UrlItem> urlItems)
-			throws SearchLibException {
-		try {
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(
-					urlItems.size());
-			for (UrlItem urlItem : urlItems) {
-				IndexDocument indexDocument = new IndexDocument();
-				urlItem.populate(indexDocument);
-				documents.add(indexDocument);
-			}
-			fileDbClient.updateDocuments(documents);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		}
-	}*/
 }

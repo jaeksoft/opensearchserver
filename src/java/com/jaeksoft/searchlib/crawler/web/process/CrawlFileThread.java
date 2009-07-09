@@ -47,11 +47,10 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	private final CrawlStatistics currentStats;
 	private final long delayBetweenAccesses;
 	private long nextTimeTarget;
-	private final List<PathItem> pathList;
 
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
-			CrawlStatistics sessionStats, List<PathItem> urlList)
-			throws SearchLibException {
+			CrawlStatistics sessionStats) throws SearchLibException {
+
 		this.config = config;
 		this.crawlMaster = crawlMaster;
 		this.currentFileItem = null;
@@ -59,7 +58,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		delayBetweenAccesses = config.getPropertyManager()
 				.getDelayBetweenAccesses();
 		nextTimeTarget = 0;
-		this.pathList = urlList;
 
 	}
 
@@ -76,25 +74,26 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		String userAgent = propertyManager.getUserAgent();
 		boolean dryRun = propertyManager.isDryRun();
 
-		currentStats.addListSize(pathList.size());
+		List<PathItem> pathList = new ArrayList<PathItem>();
+		config.getFilePathManager().getPaths("", 0, 1000, pathList);
 
 		FileManager fileManager = config.getFileManager();
 		fileManager.injectPaths(pathList);
 
 		List<FileItem> files = new ArrayList<FileItem>();
-		fileManager.getFiles(fileManager.fileQuery(), null, false, 0, 0, files);
+		fileManager.getFiles(fileManager.fileQuery(), null, false, 0, 100000,
+				files);
 
 		CrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
+
 		Iterator<FileItem> iterator = files.iterator();
 		while (iterator.hasNext()) {
 
 			if (isAbort() || crawlMaster.isAbort())
 				break;
 
-			if (crawlMaster.urlLeft() < 0)
-				break;
-
 			currentFileItem = iterator.next();
+			System.out.println("Search in " + currentFileItem.getPath());
 
 			CrawlFile crawl = crawlFile(userAgent, dryRun);
 			if (crawl != null) {
@@ -121,19 +120,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
-		CrawlFile crawl = new CrawlFile(currentFileItem, config, config
-				.getParserSelector(), currentStats);
-
-		// Check the url
-		String path = currentFileItem.getPath();
-
-		// Check if url is allowed by pattern list
-		FileManager patternManager = config.getFileManager();
-		if (path != null && !patternManager.exists(path))
-			path = null;
-
-		if (path == null)
-			return null;
+		CrawlFile crawl = new CrawlFile(currentFileItem, config, currentStats);
 
 		// Fetch started
 		currentStats.incFetchedCount();
@@ -142,8 +129,9 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 		sleepInterval();
 		setStatus(CrawlStatus.CRAWL);
-		// if (crawl.checkRobotTxtAllow(httpDownloader))
-		// crawl.download(httpDownloader);
+
+		crawl.download(currentFileItem);
+
 		nextTimeTarget = System.currentTimeMillis() + delayBetweenAccesses;
 
 		if (currentFileItem.getFetchStatus() == FetchStatus.FETCHED
@@ -160,10 +148,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	@Override
 	public void abort() {
 		super.abort();
-		/*
-		 * synchronized (this) { if (httpDownloader != null)
-		 * httpDownloader.release(); }
-		 */
 	}
 
 	public boolean getCrawlTimeOutExhausted(int seconds) {
@@ -179,10 +163,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			return currentFileItem;
 		}
 	}
-
-	/*
-	 * public NamedItem getHost() { synchronized (this) { return host; } }
-	 */
 
 	public void setCurrentFileItem(FileItem item) {
 		synchronized (this) {

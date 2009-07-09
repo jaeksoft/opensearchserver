@@ -21,7 +21,7 @@
 <parsers>
 	<parser name="DOC parser" class="com.jaeksoft.searchlib.parser.DocParser"
 		sizeLimit="8388608">
-		<contentType>application/msword</contentType>
+		<extension>doc</extension>
 		<map>
 			<link source="author" target="content" />
 			<link source="author" target="contentExact" />
@@ -35,7 +35,7 @@
 	</parser>
 	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser"
 		sizeLimit="8388608">
-		<contentType>text/html</contentType>
+		<extension>html</extension>
 		<map>
 			<link source="body" target="content" />
 			<link source="body" target="contentExact" />
@@ -47,7 +47,7 @@
 	</parser>
 	<parser name="PDF parser" class="com.jaeksoft.searchlib.parser.PdfParser"
 		sizeLimit="8388608">
-		<contentType>application/pdf</contentType>
+		<extension>pdf</extension>
 		<map>
 			<link source="author" target="content" />
 			<link source="author" target="contentExact" />
@@ -61,8 +61,7 @@
 	</parser>
 	<parser name="PPT parser" class="com.jaeksoft.searchlib.parser.PptParser"
 		sizeLimit="8388608">
-		<contentType>application/vnd.ms-powerpoint
-		</contentType>
+		<extension>ppt</extension>
 		<map>
 			<link source="body" target="content" />
 			<link source="body" target="contentExact" />

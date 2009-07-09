@@ -64,14 +64,17 @@ public class ParserSelector {
 	}
 
 	private void addParserFactory(ParserFactory parserFactory) {
+
 		Set<String> extensionSet = parserFactory.getExtensionSet();
 		if (extensionSet != null)
 			for (String extension : extensionSet)
 				extensionParserMap.put(extension, parserFactory);
+
 		Set<String> mimeTypeSet = parserFactory.getMimeTypeSet();
 		if (mimeTypeSet != null)
 			for (String mimeType : mimeTypeSet)
 				mimeTypeParserMap.put(mimeType, parserFactory);
+
 		parserFactorySet.add(parserFactory);
 	}
 

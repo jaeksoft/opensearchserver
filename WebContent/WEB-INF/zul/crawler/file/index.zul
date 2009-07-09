@@ -33,7 +33,7 @@
 			<include src="WEB-INF/zul/crawler/file/path.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tabCrawlerFileMapping.onSelect">
-			<include src="WEB-INF/zul/crawler/file/mapping.zul" />
+			<include src="WEB-INF/zul/crawler/file/mappingfile.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

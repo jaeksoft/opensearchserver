@@ -232,35 +232,6 @@ public class FilePathManager {
 		}
 	}
 
-	public int getFiles(String startsWith, long start, long rows,
-			List<PathItem> list) throws SearchLibException {
-		r.lock();
-		try {
-			Iterator<List<PathItem>> it = pathMap.values().iterator();
-			long end = start + rows;
-			int pos = 0;
-			int total = 0;
-			while (it.hasNext())
-				for (PathItem item : it.next()) {
-					if (startsWith != null) {
-						if (!item.getPath().startsWith(startsWith)) {
-							pos++;
-							continue;
-						}
-					}
-					if (pos >= start && pos < end) {
-						list.add(item);
-					}
-
-					total++;
-					pos++;
-				}
-			return total;
-		} finally {
-			r.unlock();
-		}
-	}
-
 	private PathItem findPath(PathItem item) {
 		r.lock();
 		try {
