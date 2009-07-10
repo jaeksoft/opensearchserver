@@ -40,13 +40,13 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlQueue;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileThread;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -70,7 +70,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 
 	private CrawlStatistics sessionStats;
 
-	private CrawlQueue crawlQueue;
+	private UrlCrawlQueue crawlQueue;
 
 	private Date fetchIntervalDate;
 
@@ -98,7 +98,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 		if (isRunning())
 			return;
 		try {
-			crawlQueue = new CrawlQueue(config);
+			crawlQueue = new UrlCrawlQueue(config);
 			setStatus(CrawlStatus.STARTING);
 			indexPluginList = new IndexPluginList(config
 					.getIndexPluginTemplateList());
@@ -344,7 +344,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 		return indexPluginList;
 	}
 
-	protected CrawlQueue getCrawlQueue() {
+	protected UrlCrawlQueue getCrawlQueue() {
 		return crawlQueue;
 	}
 

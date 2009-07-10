@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.file.spider;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,10 +98,14 @@ public class CrawlFile {
 
 				fileItem.setFetchStatus(FetchStatus.FETCHED);
 
+			} catch (MalformedURLException e) {
+				// logger.info("MalformedURLException: " + fileItem.getPath());
+				fileItem.setFetchStatus(FetchStatus.ERROR);
+				// setError("FileNotFound: " + fileItem.getPath());
 			} catch (FileNotFoundException e) {
-				logger.info("FileNotFound: " + fileItem.getPath());
+				// logger.info("FileNotFound: " + fileItem.getPath());
 				fileItem.setFetchStatus(FetchStatus.GONE);
-				setError("FileNotFound: " + fileItem.getPath());
+				// setError("FileNotFound: " + fileItem.getPath());
 			} catch (LimitException e) {
 				logger.warning(e.toString() + " (" + fileItem.getPath() + ")");
 				fileItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
@@ -155,6 +160,7 @@ public class CrawlFile {
 			IndexDocument indexDocument = new IndexDocument();
 
 			IndexDocument urlIndexDocument = new IndexDocument();
+
 			fileItem.populate(urlIndexDocument);
 			urlFieldMap.mapIndexDocument(urlIndexDocument, indexDocument);
 

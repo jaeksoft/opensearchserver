@@ -33,13 +33,11 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlQueue;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileManager;
-import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 
@@ -48,21 +46,36 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	private final Config config;
 	private final CrawlFileMaster crawlMaster;
 	private FileItem currentFileItem;
+	private List<FileItem> files;
 	private final CrawlStatistics currentStats;
 	private final long delayBetweenAccesses;
 	private long nextTimeTarget;
 
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
-			CrawlStatistics sessionStats) throws SearchLibException {
+			CrawlStatistics sessionStats, List<FileItem> listFile)
+			throws SearchLibException {
 
 		this.config = config;
 		this.crawlMaster = crawlMaster;
-		this.currentFileItem = null;
 		currentStats = new CrawlStatistics(sessionStats);
 		delayBetweenAccesses = config.getPropertyManager()
 				.getDelayBetweenAccesses();
 		nextTimeTarget = 0;
+		this.files = listFile;
+	}
 
+	public CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
+			CrawlStatistics sessionStats, FileItem item)
+			throws SearchLibException {
+
+		this.config = config;
+		this.crawlMaster = crawlMaster;
+		currentStats = new CrawlStatistics(sessionStats);
+		delayBetweenAccesses = config.getPropertyManager()
+				.getDelayBetweenAccesses();
+		nextTimeTarget = 0;
+		this.files = new ArrayList<FileItem>();
+		this.files.add(item);
 	}
 
 	private void sleepInterval() {
@@ -74,35 +87,21 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
+
 		PropertyManager propertyManager = config.getPropertyManager();
 		String userAgent = propertyManager.getUserAgent();
 		boolean dryRun = propertyManager.isDryRun();
-
-		List<PathItem> pathList = new ArrayList<PathItem>();
-		config.getFilePathManager().getPaths("", 0, 1000, pathList);
-
-		FileManager fileManager = config.getFileManager();
-		
-		fileManager.injectPaths(pathList);
-		List<FileItem> files = new ArrayList<FileItem>();
-		fileManager.getFiles(fileManager.fileQuery(), null, false, 0, 100000,
-				files);
-		
-		// delete removed files
-		fileManager.deleteFiles(files);
-
-
-		CrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
+		FileCrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
 
 		Iterator<FileItem> iterator = files.iterator();
+
 		while (iterator.hasNext()) {
 
 			if (isAbort() || crawlMaster.isAbort())
 				break;
 
-			currentFileItem = iterator.next();
-			System.out.println("Working on " + currentFileItem.getPath());
-			
+			this.currentFileItem = iterator.next();
+
 			CrawlFile crawl = crawlFile(userAgent, dryRun);
 			if (crawl != null) {
 				if (!dryRun)
@@ -113,16 +112,13 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 					crawlQueue.delete(currentFileItem.getPath());
 				currentStats.incPendingDeletedCount();
 			}
-
 		}
-		
-		// add new files
-		fileManager.inject(files);
+
+		config.getFileManager().inject(files);
 
 		setStatus(CrawlStatus.INDEXATION);
 		if (!dryRun)
 			crawlMaster.getCrawlQueue().index(false);
-
 	}
 
 	private CrawlFile crawlFile(String userAgent, boolean dryRun)

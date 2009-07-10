@@ -34,13 +34,13 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlQueue;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -90,7 +90,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 		currentStats.addListSize(urlList.size());
 
 		Iterator<UrlItem> iterator = urlList.iterator();
-		CrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
+		UrlCrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
 
 		while (iterator.hasNext()) {
 

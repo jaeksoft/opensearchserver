@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.common.process;
+package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -32,40 +32,24 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
-import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 
-public class CrawlQueue {
-
-	private final Config config;
-
-	private CrawlStatistics sessionStats;
+public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 
 	private List<Crawl> updateCrawlList;
-
-	private final List<CrawlFile> updateCrawlFileList;
-
 	private List<UrlItem> insertUrlList;
-
 	private List<String> deleteUrlList;
 
-	private final int maxBufferSize;
-
-	public CrawlQueue(Config config) throws SearchLibException {
-		this.config = config;
-		this.sessionStats = null;
+	public UrlCrawlQueue(Config config) throws SearchLibException {
+		setConfig(config);
 		this.updateCrawlList = new ArrayList<Crawl>(0);
-		this.updateCrawlFileList = new ArrayList<CrawlFile>(0);
 		this.insertUrlList = new ArrayList<UrlItem>(0);
 		this.deleteUrlList = new ArrayList<String>(0);
-		this.maxBufferSize = config.getPropertyManager()
-				.getIndexDocumentBufferSize();
 	}
 
-	public void add(Crawl crawl) throws NoSuchAlgorithmException,
-			IOException, SearchLibException {
+	public void add(Crawl crawl) throws NoSuchAlgorithmException, IOException,
+			SearchLibException {
 		synchronized (updateCrawlList) {
 			updateCrawlList.add(crawl);
 		}
@@ -77,31 +61,24 @@ public class CrawlQueue {
 		}
 	}
 
-	public void add(CrawlFile crawl) throws NoSuchAlgorithmException,
-			IOException, SearchLibException {
-		synchronized (updateCrawlFileList) {
-			updateCrawlFileList.add(crawl);
-		}
-	}
-
 	public void delete(String url) {
 		synchronized (deleteUrlList) {
 			deleteUrlList.add(url);
-			sessionStats.incPendingDeletedCount();
+			getSessionStats().incPendingDeletedCount();
 		}
 	}
 
 	private boolean shouldWePersist() {
 		synchronized (updateCrawlList) {
-			if (updateCrawlList.size() > maxBufferSize)
+			if (updateCrawlList.size() > getMaxBufferSize())
 				return true;
 		}
 		synchronized (deleteUrlList) {
-			if (deleteUrlList.size() > maxBufferSize)
+			if (deleteUrlList.size() > getMaxBufferSize())
 				return true;
 		}
 		synchronized (insertUrlList) {
-			if (insertUrlList.size() > maxBufferSize)
+			if (insertUrlList.size() > getMaxBufferSize())
 				return true;
 		}
 		return false;
@@ -120,60 +97,54 @@ public class CrawlQueue {
 				if (!shouldWePersist())
 					return;
 			workUpdateCrawlList = updateCrawlList;
-			updateCrawlList = new ArrayList<Crawl>(0);
 			workInsertUrlList = insertUrlList;
 			insertUrlList = new ArrayList<UrlItem>(0);
 			workDeleteUrlList = deleteUrlList;
 			deleteUrlList = new ArrayList<String>(0);
 		}
 
-		UrlManager urlManager = config.getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 		// Synchronization to avoid simoultaneous indexation process
 		synchronized (indexSync) {
 			boolean needReload = false;
-			if (deleteUrls(workDeleteUrlList))
+			if (deleteCollection(workDeleteUrlList))
 				needReload = true;
 			if (updateCrawls(workUpdateCrawlList))
 				needReload = true;
-			if (insertUrls(workInsertUrlList))
+			if (insertCollection(workInsertUrlList))
 				needReload = true;
 			if (needReload)
 				urlManager.reload(false);
 		}
 	}
 
-	private boolean deleteUrls(List<String> workDeleteUrlList)
+	protected boolean deleteCollection(List<String> workDeleteUrlList)
 			throws SearchLibException {
 		if (workDeleteUrlList.size() == 0)
 			return false;
-		UrlManager urlManager = config.getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 		urlManager.deleteUrls(workDeleteUrlList);
-		sessionStats.addDeletedCount(workDeleteUrlList.size());
+		getSessionStats().addDeletedCount(workDeleteUrlList.size());
 		return true;
 	}
 
-	private boolean updateCrawls(List<Crawl> workUpdateCrawlList)
+	protected boolean updateCrawls(List<Crawl> workUpdateCrawlList)
 			throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
-		UrlManager urlManager = config.getUrlManager();
+		UrlManager urlManager = (UrlManager) getConfig().getUrlManager();
 		urlManager.updateCrawls(workUpdateCrawlList);
-		sessionStats.addUpdatedCount(workUpdateCrawlList.size());
+		getSessionStats().addUpdatedCount(workUpdateCrawlList.size());
 		return true;
 	}
 
-	private boolean insertUrls(List<UrlItem> workInsertUrlList)
+	protected boolean insertCollection(List<UrlItem> workInsertUrlList)
 			throws SearchLibException {
 		if (workInsertUrlList.size() == 0)
 			return false;
-		UrlManager urlManager = config.getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 		urlManager.updateUrlItems(workInsertUrlList);
-		sessionStats.addNewUrlCount(workInsertUrlList.size());
+		getSessionStats().addNewUrlCount(workInsertUrlList.size());
 		return true;
 	}
-
-	public void setStatistiques(CrawlStatistics stats) {
-		this.sessionStats = stats;
-	}
-
 }

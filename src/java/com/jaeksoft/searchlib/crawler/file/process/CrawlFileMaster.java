@@ -24,7 +24,12 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.Thread.State;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -32,14 +37,21 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.lucene.queryParser.ParseException;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlQueue;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
+import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileManager;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
+import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlThread;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class CrawlFileMaster extends CrawlThreadAbstract {
@@ -56,9 +68,11 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private CrawlStatistics sessionStats;
 
-	private CrawlQueue crawlQueue;
+	private FileCrawlQueue crawlQueue;
 
 	private final ExecutorService threadPool;
+
+	private Date fetchIntervalDate;
 
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		this.config = config;
@@ -70,13 +84,19 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		sessionStats = null;
 		if (config.getPropertyManager().isCrawlEnabled())
 			start();
+
+		FileManager manager = config.getFileManager();
+		PropertyManager propertyManager = config.getPropertyManager();
+
+		fetchIntervalDate = manager.getPastDate(propertyManager
+				.getFetchInterval());
 	}
 
 	public void start() {
 		if (isRunning())
 			return;
 		try {
-			crawlQueue = new CrawlQueue(config);
+			crawlQueue = new FileCrawlQueue(config);
 			setStatus(CrawlStatus.STARTING);
 			indexPluginList = new IndexPluginList(config
 					.getIndexPluginTemplateList());
@@ -102,11 +122,27 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		PropertyManager propertyManager = config.getPropertyManager();
 		while (!isAbort()) {
 
+			int threadNumber = propertyManager.getMaxThreadNumber();
+
 			sessionStats = new CrawlStatistics();
 			addStatistics(sessionStats);
 			crawlQueue.setStatistiques(sessionStats);
 
-			add(new CrawlFileThread(config, this, sessionStats));
+			List<PathItem> pathList = getNextPathList(10);
+			if (pathList == null)
+				continue;
+
+			config.getFileManager().reload(true);
+
+			Iterator<PathItem> it = pathList.iterator();
+			while (!isAbort() && it.hasNext()) {
+
+				PathItem item = (PathItem) it.next();
+				addChildrenToCrawl(item);
+
+				while (crawlThreadsSize() >= threadNumber && !isAbort())
+					sleepSec(5);
+			}
 
 			waitForChild();
 			setStatus(CrawlStatus.INDEXATION);
@@ -213,7 +249,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		return indexPluginList;
 	}
 
-	protected CrawlQueue getCrawlQueue() {
+	protected FileCrawlQueue getCrawlQueue() {
 		return crawlQueue;
 	}
 
@@ -221,4 +257,53 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	public void complete() {
 	}
 
+	private List<PathItem> getNextPathList(int count) throws ParseException,
+			IOException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
+
+		setStatus(CrawlStatus.EXTRACTING_FILELIST);
+
+		FilePathManager pathManager = config.getFilePathManager();
+		List<PathItem> fileList = new ArrayList<PathItem>();
+		pathManager.getPaths("", 0, count, fileList);
+
+		setInfo(null);
+		return fileList;
+	}
+
+	private void addChildrenToCrawl(PathItem item) throws SearchLibException {
+		File root = new File(item.getPath());
+
+		if (root.isFile()) {
+			CrawlFileThread crawlThread = new CrawlFileThread(config, this,
+					sessionStats, new FileItem(root.getPath()));
+			add(crawlThread);
+
+		} else if (root.isDirectory()) {
+			// Add its children and children of children
+			if (item.isWithSub())
+				addChildRec(root, true);
+
+			// Only add its children
+			else
+				addChildRec(root, false);
+		}
+	}
+
+	private void addChildRec(File file, boolean recursive)
+			throws SearchLibException {
+		File[] children = file.listFiles();
+		if (children != null && children.length > 0) {
+			for (File current : children) {
+				if (current.isDirectory() && recursive)
+					addChildRec(current, true);
+				else if (current.isFile()) {
+					CrawlFileThread crawlThread = new CrawlFileThread(config,
+							this, sessionStats, new FileItem(current.getPath()));
+					add(crawlThread);
+				}
+			}
+		}
+	}
 }

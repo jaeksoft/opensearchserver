@@ -246,6 +246,7 @@ public class UrlManager {
 		request.addFilter(query.toString());
 	}
 
+	// TODO : can be mutualised
 	public Date getPastDate(int fetchInterval) {
 		return new Date(System.currentTimeMillis() - (long) fetchInterval
 				* 1000 * 86400);

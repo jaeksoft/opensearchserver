@@ -299,6 +299,19 @@ public class FileItem implements Serializable {
 		}
 	}
 
+	public String getCheckedURIString() {
+		try {
+			return getCheckedURI().getRawPath();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public String getPath() {
 		return path;
 	}
@@ -360,7 +373,7 @@ public class FileItem implements Serializable {
 	}
 
 	public void populate(IndexDocument indexDocument) {
-		indexDocument.set(FileItemFieldEnum.path.name(), getPath());
+		indexDocument.set(FileItemFieldEnum.path.name(), getCheckedURIString());
 		indexDocument.set(FileItemFieldEnum.when.name(), getWhenDateFormat()
 				.format(when));
 		String path = getCachedPath();

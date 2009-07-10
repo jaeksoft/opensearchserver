@@ -1,0 +1,97 @@
+/**   
+ * License Agreement for Jaeksoft OpenSearchServer
+ *
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.open-search-server.com
+ * 
+ * This file is part of Jaeksoft OpenSearchServer.
+ *
+ * Jaeksoft OpenSearchServer is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft OpenSearchServer. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+package com.jaeksoft.searchlib.crawler.common.process;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
+
+public abstract class CrawlQueueAbstract<T, Z> {
+
+	private Config config;
+	private CrawlStatistics sessionStats;
+	private int maxBufferSize;
+
+	public CrawlQueueAbstract() {
+	}
+
+	public CrawlQueueAbstract(Config config) throws SearchLibException {
+		this.config = config;
+
+		this.setSessionStats(null);
+		this.setMaxBufferSize(config.getPropertyManager()
+				.getIndexDocumentBufferSize());
+	}
+
+	public abstract void index(boolean bForce) throws SearchLibException,
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException;
+
+	public abstract void add(T crawl) throws NoSuchAlgorithmException,
+			IOException, SearchLibException;
+
+	public abstract void delete(String url);
+
+	protected abstract boolean deleteCollection(List<String> workDeleteUrlList)
+			throws SearchLibException;
+
+	protected abstract boolean insertCollection(List<Z> workInsertUrlList)
+			throws SearchLibException;
+
+	protected abstract boolean updateCrawls(List<T> workUpdateCrawlList)
+			throws SearchLibException;
+
+	public void setStatistiques(CrawlStatistics stats) {
+		this.sessionStats = stats;
+	}
+
+	public CrawlStatistics getSessionStats() {
+		return sessionStats;
+	}
+
+	public void setSessionStats(CrawlStatistics sessionStats) {
+		this.sessionStats = sessionStats;
+	}
+
+	public int getMaxBufferSize() {
+		return maxBufferSize;
+	}
+
+	public void setMaxBufferSize(int maxBufferSize) {
+		this.maxBufferSize = maxBufferSize;
+	}
+
+	public Config getConfig() {
+		return config;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
+	}
+}
