@@ -23,6 +23,7 @@
 	<schema>
 		<fields default="path" unique="path">
 			<field name="path" indexed="yes" stored="yes" />
+			<field name="originalPath" indexed="yes" stored="yes" />
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="langMethod" indexed="yes" stored="yes" />
 			<field name="contentBaseType" indexed="yes" stored="yes" />
@@ -43,7 +44,7 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				path,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
+				path,originalPath,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
 				lang,langMethod,when,responseCode,parserStatus,fetchStatus,indexStatus
 			</returnFields>
 		</request>

@@ -34,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.lucene.index.CorruptIndexException;
@@ -125,32 +124,20 @@ public class FileManager {
 		return fileDbClient;
 	}
 
-	public void deleteFiles(List<FileItem> theNew) throws SearchLibException {
-		List<String> toDelete = new ArrayList<String>();
-
-		List<FileItem> files = new ArrayList<FileItem>();
-		getFiles(fileQuery(), null, false, 0, 100000, files);
-		Iterator<FileItem> iterator = files.iterator();
-
-		while (iterator.hasNext()) {
-			FileItem item = (FileItem) iterator.next();
-			String current = item.getPath();
-
-			boolean keep = false;
-			for (FileItem currentPath : theNew) {
-				if (currentPath.getPath() != null
-						&& currentPath.getPath().contains(current)) {
-					keep = true;
-					break;
-				}
-			}
-
-			if (!keep)
-				toDelete.add(current);
+	public void deleteByOriginalPath(String originalPath, String value)
+			throws SearchLibException {
+		try {
+			targetClient.deleteDocumentByOriginalPath(originalPath, value);
+			fileDbClient.deleteDocumentByOriginalPath(originalPath, value);
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		}
-
-		deleteFiles(toDelete);
-
 	}
 
 	public void deleteFiles(Collection<String> workDeleteUrlList)
@@ -234,6 +221,7 @@ public class FileManager {
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		searchRequest.addReturnField("path");
+		searchRequest.addReturnField("originalPath");
 		searchRequest.addReturnField("contentBaseType");
 		searchRequest.addReturnField("contentTypeCharset");
 		searchRequest.addReturnField("contentEncoding");
@@ -367,8 +355,10 @@ public class FileManager {
 				for (ResultDocument doc : result)
 					list.add(new FileItem(doc));
 			return result.getNumFound();
+
 		} catch (ParseException e) {
-			throw new SearchLibException(e);
+			System.out.println("Parsing error");
+			// throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (RuntimeException e) {
@@ -386,6 +376,7 @@ public class FileManager {
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		}
+		return -1;
 	}
 
 	public void reload(boolean optimize) throws IOException,
@@ -408,15 +399,9 @@ public class FileManager {
 			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
 					.size());
 			for (CrawlFile crawl : crawls) {
-				IndexDocument indexDocument = crawl.getTargetIndexDocument();
-				documents.add(indexDocument);
-
 				targetClient.updateDocuments(documents);
 
-				// Update URL DB documents.clear(); for (Crawl crawl : crawls) {
-				// IndexDocument indexDocument = new IndexDocument();
-				crawl.getFileItem().populate(indexDocument);
-				documents.add(indexDocument);
+				crawl.getFileItem().populate(crawl.getTargetIndexDocument());
 			}
 			fileDbClient.updateDocuments(documents);
 

@@ -94,6 +94,7 @@
 		</analyzers>
 		<fields default="content" unique="path">
 			<field name="path" indexed="yes" stored="yes" />
+			<field name="originalPath" indexed="yes" stored="yes" />
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />

@@ -72,7 +72,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private final ExecutorService threadPool;
 
-	private Date fetchIntervalDate;
+	private final Date fetchIntervalDate;
 
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		this.config = config;
@@ -92,21 +92,60 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 				.getFetchInterval());
 	}
 
-	public void start() {
-		if (isRunning())
-			return;
-		try {
-			crawlQueue = new FileCrawlQueue(config);
-			setStatus(CrawlStatus.STARTING);
-			indexPluginList = new IndexPluginList(config
-					.getIndexPluginTemplateList());
-		} catch (SearchLibException e) {
-			e.printStackTrace();
-			setStatus(CrawlStatus.ERROR);
-			setInfo(e.getMessage());
-			return;
+	@Override
+	public void abort() {
+		synchronized (this) {
+			synchronized (crawlThreads) {
+				for (CrawlFileThread crawlThread : crawlThreads)
+					crawlThread.abort();
+			}
+			super.abort();
 		}
-		super.start(threadPool);
+	}
+
+	private void add(CrawlFileThread crawlThread) {
+		synchronized (crawlThreads) {
+			crawlThreads.add(crawlThread);
+			crawlThreadArray = null;
+		}
+		crawlThread.start(threadPool);
+	}
+
+	private void addChildRec(File file, String originalPath, boolean recursive)
+			throws SearchLibException {
+		File[] children = file.listFiles();
+		if (children != null && children.length > 0) {
+			for (File current : children) {
+				if (current.isDirectory() && recursive)
+					addChildRec(current, originalPath, true);
+				else if (current.isFile()) {
+					CrawlFileThread crawlThread = new CrawlFileThread(config,
+							this, sessionStats, new FileItem(current.getPath(),
+									originalPath));
+					add(crawlThread);
+				}
+			}
+		}
+	}
+
+	private void addChildrenToCrawl(PathItem item) throws SearchLibException {
+		String originalPath = item.getPath();
+		File root = new File(item.getPath());
+
+		if (root.isFile()) {
+			CrawlFileThread crawlThread = new CrawlFileThread(config, this,
+					sessionStats, new FileItem(root.getPath(), originalPath));
+			add(crawlThread);
+
+		} else if (root.isDirectory()) {
+			// Add its children and children of children
+			if (item.isWithSub())
+				addChildRec(root, originalPath, true);
+
+			// Only add its children
+			else
+				addChildRec(root, originalPath, false);
+		}
 	}
 
 	private void addStatistics(CrawlStatistics stats) {
@@ -114,6 +153,71 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			if (statistics.size() >= 10)
 				statistics.removeLast();
 			statistics.addFirst(stats);
+		}
+	}
+
+	@Override
+	public void complete() {
+	}
+
+	private int crawlThreadsSize() {
+		synchronized (crawlThreads) {
+			return crawlThreads.size();
+		}
+	}
+
+	protected FileCrawlQueue getCrawlQueue() {
+		return crawlQueue;
+	}
+
+	public CrawlThread[] getCrawlThreads() {
+		synchronized (crawlThreads) {
+			if (crawlThreadArray != null)
+				return crawlThreadArray;
+			crawlThreadArray = new CrawlThread[crawlThreads.size()];
+			return crawlThreads.toArray(crawlThreadArray);
+		}
+	}
+
+	public IndexPluginList getIndexPluginList() {
+		return indexPluginList;
+	}
+
+	private List<PathItem> getNextPathList(int count) throws ParseException,
+			IOException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
+
+		setStatus(CrawlStatus.EXTRACTING_FILELIST);
+
+		FilePathManager pathManager = config.getFilePathManager();
+		List<PathItem> fileList = new ArrayList<PathItem>();
+		pathManager.getPaths("", 0, count, fileList);
+
+		setInfo(null);
+		return fileList;
+	}
+
+	public List<CrawlStatistics> getStatistics() {
+		return statistics;
+	}
+
+	public boolean isFull() throws SearchLibException {
+		return sessionStats.getFetchedCount() >= config.getPropertyManager()
+				.getMaxUrlPerSession();
+	}
+
+	protected void remove(CrawlFileThread crawlThread) {
+		synchronized (crawlThreads) {
+			crawlThreads.remove(crawlThread);
+			crawlThreadArray = null;
+		}
+	}
+
+	protected void remove(CrawlThread crawlThread) {
+		synchronized (crawlThreads) {
+			crawlThreads.remove(crawlThread);
+			crawlThreadArray = null;
 		}
 	}
 
@@ -137,7 +241,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			Iterator<PathItem> it = pathList.iterator();
 			while (!isAbort() && it.hasNext()) {
 
-				PathItem item = (PathItem) it.next();
+				PathItem item = it.next();
 				addChildrenToCrawl(item);
 
 				while (crawlThreadsSize() >= threadNumber && !isAbort())
@@ -157,36 +261,21 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
-	public List<CrawlStatistics> getStatistics() {
-		return statistics;
-	}
-
-	private int crawlThreadsSize() {
-		synchronized (crawlThreads) {
-			return crawlThreads.size();
+	public void start() {
+		if (isRunning())
+			return;
+		try {
+			crawlQueue = new FileCrawlQueue(config);
+			setStatus(CrawlStatus.STARTING);
+			indexPluginList = new IndexPluginList(config
+					.getIndexPluginTemplateList());
+		} catch (SearchLibException e) {
+			e.printStackTrace();
+			setStatus(CrawlStatus.ERROR);
+			setInfo(e.getMessage());
+			return;
 		}
-	}
-
-	private void add(CrawlFileThread crawlThread) {
-		synchronized (crawlThreads) {
-			crawlThreads.add(crawlThread);
-			crawlThreadArray = null;
-		}
-		crawlThread.start(threadPool);
-	}
-
-	protected void remove(CrawlThread crawlThread) {
-		synchronized (crawlThreads) {
-			crawlThreads.remove(crawlThread);
-			crawlThreadArray = null;
-		}
-	}
-
-	protected void remove(CrawlFileThread crawlThread) {
-		synchronized (crawlThreads) {
-			crawlThreads.remove(crawlThread);
-			crawlThreadArray = null;
-		}
+		super.start(threadPool);
 	}
 
 	private void waitForChild() {
@@ -217,93 +306,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 				e.printStackTrace();
 			}
 			sleepSec(1);
-		}
-	}
-
-	@Override
-	public void abort() {
-		synchronized (this) {
-			synchronized (crawlThreads) {
-				for (CrawlFileThread crawlThread : crawlThreads)
-					crawlThread.abort();
-			}
-			super.abort();
-		}
-	}
-
-	public CrawlThread[] getCrawlThreads() {
-		synchronized (crawlThreads) {
-			if (crawlThreadArray != null)
-				return crawlThreadArray;
-			crawlThreadArray = new CrawlThread[crawlThreads.size()];
-			return crawlThreads.toArray(crawlThreadArray);
-		}
-	}
-
-	public boolean isFull() throws SearchLibException {
-		return sessionStats.getFetchedCount() >= config.getPropertyManager()
-				.getMaxUrlPerSession();
-	}
-
-	public IndexPluginList getIndexPluginList() {
-		return indexPluginList;
-	}
-
-	protected FileCrawlQueue getCrawlQueue() {
-		return crawlQueue;
-	}
-
-	@Override
-	public void complete() {
-	}
-
-	private List<PathItem> getNextPathList(int count) throws ParseException,
-			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException {
-
-		setStatus(CrawlStatus.EXTRACTING_FILELIST);
-
-		FilePathManager pathManager = config.getFilePathManager();
-		List<PathItem> fileList = new ArrayList<PathItem>();
-		pathManager.getPaths("", 0, count, fileList);
-
-		setInfo(null);
-		return fileList;
-	}
-
-	private void addChildrenToCrawl(PathItem item) throws SearchLibException {
-		File root = new File(item.getPath());
-
-		if (root.isFile()) {
-			CrawlFileThread crawlThread = new CrawlFileThread(config, this,
-					sessionStats, new FileItem(root.getPath()));
-			add(crawlThread);
-
-		} else if (root.isDirectory()) {
-			// Add its children and children of children
-			if (item.isWithSub())
-				addChildRec(root, true);
-
-			// Only add its children
-			else
-				addChildRec(root, false);
-		}
-	}
-
-	private void addChildRec(File file, boolean recursive)
-			throws SearchLibException {
-		File[] children = file.listFiles();
-		if (children != null && children.length > 0) {
-			for (File current : children) {
-				if (current.isDirectory() && recursive)
-					addChildRec(current, true);
-				else if (current.isFile()) {
-					CrawlFileThread crawlThread = new CrawlFileThread(config,
-							this, sessionStats, new FileItem(current.getPath()));
-					add(crawlThread);
-				}
-			}
 		}
 	}
 }

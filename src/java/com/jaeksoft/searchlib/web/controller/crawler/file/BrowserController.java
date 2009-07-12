@@ -43,6 +43,7 @@ import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.file.database.FileItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.util.GenericLink;
@@ -218,7 +219,11 @@ public class BrowserController extends CommonController implements
 			XPathExpressionException, ParserConfigurationException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
+			System.out.println("coin");
 			getClient().getFilePathManager().delPath(link.getSource());
+			getClient().getFileManager().deleteByOriginalPath(
+					FileItemFieldEnum.originalPath.name(),
+					link.getSource());
 		}
 		reloadPage();
 	}

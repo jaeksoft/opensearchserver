@@ -317,6 +317,18 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	public int deleteDocumentsbyField(String fieldName,
+			String value) throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException {
+		r.lock();
+		try {
+			fastDeleteDocument(fieldName, value);
+			return 0;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public void search(Query query, Filter filter, HitCollector collector)
 			throws IOException {
 		r.lock();
@@ -357,6 +369,12 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	protected void fastDeleteDocument(int docNum) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException {
 		indexReader.deleteDocument(docNum);
+	}
+
+	protected void fastDeleteDocument(String fieldName, String value)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException {
+		indexReader.deleteDocuments(new Term(fieldName, value));
 	}
 
 	private Document getDocFields(int docId, FieldSelector selector)

@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutorService;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
@@ -245,6 +246,15 @@ public class IndexGroup extends IndexAbstract {
 			return 0;
 		return index.deleteDocuments(docIds);
 	}
+	
+	public int deleteDocumentsbyField(String fieldName, String value)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
+		int count = 0;
+		for (IndexAbstract index : getIndices())
+			count += index.deleteDocumentsbyField(fieldName, value);
+		return count;
+	}
 
 	public int getDocFreq(Term term) throws IOException {
 		int r = 0;
@@ -391,4 +401,5 @@ public class IndexGroup extends IndexAbstract {
 		for (IndexSingle index : getIndices())
 			index.writeXmlConfig(xmlWriter);
 	}
+
 }

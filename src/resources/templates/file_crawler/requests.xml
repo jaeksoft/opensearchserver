@@ -25,19 +25,7 @@
 	<request name="fileSearch" phraseSlop="2" defaultOperator="OR"
 		start="0" rows="10" lang="fr">
 
-		<query>title:($$)^10 OR title:("$$")^10
-			OR
-			titleExact:($$)^10 OR titleExact:("$$")^10
-			OR path:($$)^5 OR
-			path:("$$")^5
-			OR urlSplit:($$)^5 OR urlSplit:("$$")^5
-			OR
-			urlExact:($$)^5
-			OR urlExact:("$$")^5
-			OR content:($$) OR
-			content:("$$")
-			OR
-			contentExact:($$) OR contentExact:("$$")</query>
+		<query>title:($$)</query>
 
 		<returnFields>
 			<field name="path" />

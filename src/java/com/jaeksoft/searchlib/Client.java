@@ -252,6 +252,18 @@ public class Client extends Config {
 		}
 	}
 
+	public int deleteDocumentByOriginalPath(String fieldName, String value)
+			throws CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException,
+			SearchLibException {
+		Timer timer = new Timer();
+		try {
+			return getIndex().deleteDocumentsbyField(fieldName, value);
+		} finally {
+			getStatisticsList().addDelete(timer);
+		}
+	}
+
 	public void optimize(String indexName) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {

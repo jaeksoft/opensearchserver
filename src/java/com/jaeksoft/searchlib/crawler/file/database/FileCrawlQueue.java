@@ -121,6 +121,14 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		return true;
 	}
 
+	// TODO : reactive stats
+	protected boolean deleteByOriginalPath(String originalPath, String value)
+			throws SearchLibException {
+		getConfig().getFileManager().deleteByOriginalPath(originalPath, value);
+		// getSessionStats().addDeletedCount(workDeleteUrlList.size());
+		return true;
+	}
+
 	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList)
 			throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)

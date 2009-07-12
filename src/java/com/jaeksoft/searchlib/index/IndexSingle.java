@@ -33,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
@@ -250,6 +251,25 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (reader != null)
 				return reader.deleteDocuments(indexName, docIds);
+			else
+				return 0;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public int deleteDocumentsbyField(String fieldName,
+			String value) throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException {
+		if (!online)
+			throw new IOException("Index is offline");
+		if (readonly)
+			throw new IOException("Index is read only");
+		r.lock();
+		try {
+			if (reader != null)
+				return reader.deleteDocumentsbyField(fieldName,
+						value);
 			else
 				return 0;
 		} finally {

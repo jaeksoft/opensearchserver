@@ -80,6 +80,10 @@ public interface ReaderInterface {
 			throws StaleReaderException, CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException;
 
+	public int deleteDocumentsbyField(String fieldName, String value)
+			throws StaleReaderException, CorruptIndexException,
+			LockObtainFailedException, IOException, URISyntaxException;
+
 	public String getName();
 
 	public IndexStatistics getStatistics() throws IOException;

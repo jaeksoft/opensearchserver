@@ -192,6 +192,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
+	// TODO : patch with null value
 	private boolean updateDoc(Schema schema, IndexDocument document)
 			throws CorruptIndexException, IOException, NoSuchAlgorithmException {
 		if (!acceptDocument(document))
@@ -203,9 +204,10 @@ public class WriterLocal extends WriterAbstract {
 		Field uniqueField = schema.getFieldList().getUniqueField();
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
-			Term updateTerm = new Term(uniqueFieldName, doc
-					.get(uniqueFieldName));
-			indexWriter.updateDocument(updateTerm, doc, pfa);
+			String value = doc.get(uniqueFieldName);
+			if (uniqueFieldName != null && value != null)
+				indexWriter.updateDocument(new Term(uniqueFieldName, value),
+						doc, pfa);
 		} else
 			indexWriter.addDocument(doc, pfa);
 		return true;

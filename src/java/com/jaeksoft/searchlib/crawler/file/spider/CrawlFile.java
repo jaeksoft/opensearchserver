@@ -55,7 +55,7 @@ public class CrawlFile {
 	private Parser parser;
 	private String error;
 	private final FieldMap urlFieldMap;
-	private Config config;
+	private final Config config;
 
 	public CrawlFile(FileItem fileItem, Config config,
 			CrawlStatistics currentStats) throws SearchLibException {
@@ -78,7 +78,6 @@ public class CrawlFile {
 		synchronized (this) {
 			try {
 				ParserSelector parserSelector = config.getParserSelector();
-
 				Parser parser = parserSelector.getParserFromExtension(FileUtils
 						.getFileNameExtension(item.getPath()));
 
@@ -134,18 +133,6 @@ public class CrawlFile {
 		}
 	}
 
-	public void setError(String error) {
-		this.error = error;
-	}
-
-	public String getUserAgent() {
-		return userAgent;
-	}
-
-	public Parser getParser() {
-		return parser;
-	}
-
 	public String getError() {
 		return error;
 	}
@@ -154,13 +141,15 @@ public class CrawlFile {
 		return fileItem;
 	}
 
+	public Parser getParser() {
+		return parser;
+	}
+
 	public IndexDocument getTargetIndexDocument() throws SearchLibException {
 		synchronized (this) {
 
 			IndexDocument indexDocument = new IndexDocument();
-
 			IndexDocument urlIndexDocument = new IndexDocument();
-
 			fileItem.populate(urlIndexDocument);
 			urlFieldMap.mapIndexDocument(urlIndexDocument, indexDocument);
 
@@ -169,5 +158,13 @@ public class CrawlFile {
 
 			return indexDocument;
 		}
+	}
+
+	public String getUserAgent() {
+		return userAgent;
+	}
+
+	public void setError(String error) {
+		this.error = error;
 	}
 }
