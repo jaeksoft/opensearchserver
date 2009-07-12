@@ -94,7 +94,7 @@ public class UpdateFormController extends CommonController implements
 			if (selectedField == null)
 				return;
 			IndexDocument idxDoc = getIndexDocument();
-			idxDoc.add(selectedField.getName(), "");
+			idxDoc.addEmptyField(selectedField.getName());
 			reloadPage();
 		}
 	}

@@ -129,12 +129,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			add(entry.getKey(), entry.getValue());
 	}
 
-	public void add(String field, String value) {
-		if (value == null)
-			throw new java.lang.NullPointerException("Null value on field "
-					+ field);
-		if (value.length() == 0)
-			return;
+	private void addField(String field, String value) {
 		FieldContent fc = fields.get(field);
 		if (fc == null) {
 			fc = new FieldContent(field);
@@ -142,6 +137,16 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		}
 		fc.add(value);
 		fieldContentArray = null;
+	}
+
+	public void addEmptyField(String field) {
+		addField(field, "");
+	}
+
+	public void add(String field, String value) {
+		if (value.length() == 0)
+			return;
+		addField(field, value);
 	}
 
 	public void add(String field, List<String> values) {
