@@ -219,7 +219,6 @@ public class BrowserController extends CommonController implements
 			XPathExpressionException, ParserConfigurationException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
-			System.out.println("coin");
 			getClient().getFilePathManager().delPath(link.getSource());
 			getClient().getFileManager().deleteByOriginalPath(
 					FileItemFieldEnum.originalPath.name(),
