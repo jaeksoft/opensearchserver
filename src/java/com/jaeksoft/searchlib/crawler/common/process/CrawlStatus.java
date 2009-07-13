@@ -31,8 +31,7 @@ public enum CrawlStatus {
 			"Crawling"), INDEXATION("Indexation"), OPTMIZING_INDEX(
 			"Optimizing index"), PUBLISH_INDEX("Publishing index"), EXTRACTING_URLS(
 			"Extracting urls"), WAITING("Waiting"), ERROR("Error"), ABORTED(
-			"Aborted"), COMPLETE("Complete"), EXTRACTING_FILELIST(
-			"Extracting file list");
+			"Aborted"), COMPLETE("Complete");
 
 	public String name;
 

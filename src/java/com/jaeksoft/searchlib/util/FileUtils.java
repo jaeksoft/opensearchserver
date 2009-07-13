@@ -100,4 +100,7 @@ public class FileUtils {
 		assertTrue(ext == null);
 	}
 
+	public static String rewriteURIFilePath(String path) {
+		return path.replace("\\", "\\\\");
+	}
 }

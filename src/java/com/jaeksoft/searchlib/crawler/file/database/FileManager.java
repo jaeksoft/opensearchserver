@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.FileUtils;
 
 public class FileManager {
 
@@ -124,11 +125,14 @@ public class FileManager {
 		return fileDbClient;
 	}
 
-	public void deleteByOriginalPath(String originalPath, String value)
-			throws SearchLibException {
+	public void deleteByOriginalPath(String value) throws SearchLibException {
 		try {
-			targetClient.deleteDocumentByOriginalPath(originalPath, value);
-			fileDbClient.deleteDocumentByOriginalPath(originalPath, value);
+			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
+			deleteRequest.setQueryString(FileItemFieldEnum.originalPath.name()
+					+ ":\"" + FileUtils.rewriteURIFilePath(value) + '"');
+			deleteRequest.setDelete(true);
+
+			fileDbClient.search(deleteRequest);
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -137,7 +141,20 @@ public class FileManager {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
 		}
+
 	}
 
 	public void deleteFiles(Collection<String> workDeleteUrlList)

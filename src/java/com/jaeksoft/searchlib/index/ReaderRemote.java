@@ -95,13 +95,6 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 		return DeleteServlet.deleteDocuments(uri, getName(), docIds);
 	}
 
-	public int deleteDocumentsbyField(String fieldName,
-			String value) throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
-		return DeleteServlet.deleteDocumentsbyField(uri, getName(), fieldName,
-				value);
-	}
-
 	public boolean sameIndex(ReaderInterface reader) {
 		if (reader == this)
 			return true;

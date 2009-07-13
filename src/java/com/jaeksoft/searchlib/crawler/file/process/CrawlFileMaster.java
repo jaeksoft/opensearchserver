@@ -47,7 +47,6 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlThread;
@@ -188,11 +187,8 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
 
-		setStatus(CrawlStatus.EXTRACTING_FILELIST);
-
-		FilePathManager pathManager = config.getFilePathManager();
 		List<PathItem> fileList = new ArrayList<PathItem>();
-		pathManager.getPaths("", 0, count, fileList);
+		config.getFilePathManager().getPaths("", 0, count, fileList);
 
 		setInfo(null);
 		return fileList;
@@ -232,10 +228,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			addStatistics(sessionStats);
 			crawlQueue.setStatistiques(sessionStats);
 
+			setStatus(CrawlStatus.STARTING);
+
 			List<PathItem> pathList = getNextPathList(10);
 			if (pathList == null)
 				continue;
 
+			setStatus(CrawlStatus.CRAWL);
 			config.getFileManager().reload(true);
 
 			Iterator<PathItem> it = pathList.iterator();
@@ -243,7 +242,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 				PathItem item = it.next();
 				addChildrenToCrawl(item);
-
+				System.out.println("Crawl size " + crawlThreadsSize());
 				while (crawlThreadsSize() >= threadNumber && !isAbort())
 					sleepSec(5);
 			}

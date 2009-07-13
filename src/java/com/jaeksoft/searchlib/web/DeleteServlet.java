@@ -169,12 +169,4 @@ public class DeleteServlet extends AbstractServlet {
 		return Integer.parseInt(msg.trim());
 	}
 
-	public static int deleteDocumentsbyField(URI uri, String indexName,
-			String fieldName, String value) throws IOException,
-			URISyntaxException {
-		String msg = call(buildUri(uri, "/delete", indexName, fieldName + "="
-				+ value));
-		return Integer.parseInt(msg.trim());
-	}
-
 }

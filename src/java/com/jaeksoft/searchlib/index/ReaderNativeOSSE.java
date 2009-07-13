@@ -79,14 +79,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public int deleteDocumentsbyField(String fieldName, String value)
-			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException {
