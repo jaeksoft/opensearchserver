@@ -112,17 +112,17 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		if (children != null && children.length > 0 && !isAbort()) {
 
 			for (File current : children) {
-
-				if (current.isDirectory() && recursive && !isAbort())
+				if (current.isDirectory() && recursive)
 					addChildRec(current, originalPath, true);
 
-				else if (current.isFile() && !isAbort()) {
+				else if (current.isFile()) {
 
 					if (config.getFileManager().isNewCrawlNeeded(
 							current.getPath(), intervalDate)
 							&& !isAbort()) {
 						add(new CrawlFileThread(config, this, sessionStats,
 								new FileItem(current.getPath(), originalPath)));
+						sleepMs(100);
 					}
 				}
 			}
@@ -134,12 +134,12 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		String originalPath = item.getPath();
 		File root = new File(item.getPath());
 
-		if (root.isFile() && !isAbort()) {
+		if (root.isFile()) {
 			CrawlFileThread crawlThread = new CrawlFileThread(config, this,
 					sessionStats, new FileItem(root.getPath(), originalPath));
 			add(crawlThread);
 
-		} else if (root.isDirectory() && !isAbort()) {
+		} else if (root.isDirectory()) {
 			// Add its children and children of children
 			if (item.isWithSub())
 				addChildRec(root, originalPath, true);
