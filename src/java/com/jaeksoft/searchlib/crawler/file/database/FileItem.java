@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.FileUtils;
 
 public class FileItem implements Serializable {
 
@@ -147,7 +148,7 @@ public class FileItem implements Serializable {
 
 	public FileItem(String path, String originalPath) {
 		this();
-		setPath(path);
+		setPath(FileUtils.rewriteURIFilePath(path));
 		setOriginalPath(originalPath);
 	}
 

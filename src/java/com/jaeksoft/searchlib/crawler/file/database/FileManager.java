@@ -133,6 +133,8 @@ public class FileManager {
 			deleteRequest.setDelete(true);
 
 			fileDbClient.search(deleteRequest);
+			targetClient.search(deleteRequest);
+
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -183,6 +185,19 @@ public class FileManager {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("path:\"" + path + '"');
 		return (getFiles(request, null, false, 0, 0, null) > 0);
+	}
+
+	public FileItem find(String path) throws SearchLibException,
+			CorruptIndexException {
+		SearchRequest request = getPathSearchRequest();
+		request.setQueryString("path:\"" + path + '"');
+		List<FileItem> listFileItem = new ArrayList<FileItem>();
+		getFiles(request, null, false, 0, 10, listFileItem);
+
+		if (listFileItem.size() > 0)
+			return listFileItem.get(0);
+
+		return null;
 	}
 
 	/**
@@ -253,11 +268,6 @@ public class FileManager {
 		return searchRequest;
 	}
 
-	public SearchRequest fileQuery() throws SearchLibException {
-		return fileQuery("", null, null, null, null, null, null, null, null,
-				null, null, null, null, null);
-	}
-
 	public SearchRequest fileQuery(String like, String lang, String langMethod,
 			String contentBaseType, String contentTypeCharset,
 			String contentEncoding, Integer minContentLength,
@@ -278,7 +288,6 @@ public class FileManager {
 					query.append("*");
 				}
 			}
-
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
@@ -374,7 +383,6 @@ public class FileManager {
 			return result.getNumFound();
 
 		} catch (ParseException e) {
-			System.out.println("Parsing error");
 			// throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -463,36 +471,20 @@ public class FileManager {
 		}
 	}
 
-	public void getNextFilesToFetch(Date fetchIntervalDate, long limit,
-			List<FileItem> urlList) throws SearchLibException, ParseException,
-			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	public boolean isNewCrawlNeeded(String path, int delayDay)
+			throws CorruptIndexException, SearchLibException {
+		FileItem fileItem = find(path);
 
-		SearchRequest searchRequest = fileDbClient
-				.getNewSearchRequest("fileSearch");
-		searchRequest.setQueryString("*:*");
+		if (fileItem == null)
+			return true;
 
-		filterQueryToFetchOld(searchRequest, fetchIntervalDate);
-		searchRequest.setRows((int) limit);
+		if (fileItem.getWhen() == null)
+			return true;
 
-		Result result = fileDbClient.search(searchRequest);
-		for (ResultDocument item : result)
-			urlList.add(new FileItem(item));
+		if ((fileItem.getWhen().getTime() + delayDay * 86400 * 1000) > System
+				.currentTimeMillis())
+			return true;
+
+		return false;
 	}
-
-	private void filterQueryToFetchOld(SearchRequest request,
-			Date fetchIntervalDate) throws ParseException {
-		StringBuffer query = new StringBuffer();
-		query.append("when:[00000000000000 TO ");
-		query.append(FileItem.getWhenDateFormat().format(fetchIntervalDate));
-		query.append("]");
-		request.addFilter(query.toString());
-	}
-
-	public Date getPastDate(int fetchInterval) {
-		return new Date(System.currentTimeMillis() - (long) fetchInterval
-				* 1000 * 86400);
-	}
-
 }

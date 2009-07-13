@@ -83,32 +83,25 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		List<CrawlFile> workUpdateCrawlList;
 		List<FileItem> workInsertUrlList;
-		List<String> workDeleteUrlList;
 		synchronized (this) {
 			if (!bForce)
 				if (!shouldWePersist())
 					return;
-			workUpdateCrawlList = updateCrawlList;
 			workInsertUrlList = insertFileList;
 			insertFileList = new ArrayList<FileItem>(0);
-			workDeleteUrlList = deleteFileList;
 			deleteFileList = new ArrayList<String>(0);
 		}
 
-		FileManager urlManager = getConfig().getFileManager();
+		FileManager fileManager = getConfig().getFileManager();
+
 		// Synchronization to avoid simoultaneous indexation process
 		synchronized (indexSync) {
 			boolean needReload = false;
-			if (deleteCollection(workDeleteUrlList))
-				needReload = true;
-			if (updateCrawls(workUpdateCrawlList))
-				needReload = true;
 			if (insertCollection(workInsertUrlList))
 				needReload = true;
 			if (needReload)
-				urlManager.reload(false);
+				fileManager.reload(false);
 		}
 	}
 

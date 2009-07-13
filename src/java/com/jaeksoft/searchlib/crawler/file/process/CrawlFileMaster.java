@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.lang.Thread.State;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -46,7 +46,6 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlThread;
@@ -54,6 +53,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class CrawlFileMaster extends CrawlThreadAbstract {
+
+	private static final int MAX_FILE_BROWSED = 10000;
 
 	private final LinkedHashSet<CrawlFileThread> crawlThreads;
 
@@ -71,7 +72,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private final ExecutorService threadPool;
 
-	private final Date fetchIntervalDate;
+	private int intervalDate;
 
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		this.config = config;
@@ -83,12 +84,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		sessionStats = null;
 		if (config.getPropertyManager().isCrawlEnabled())
 			start();
-
-		FileManager manager = config.getFileManager();
-		PropertyManager propertyManager = config.getPropertyManager();
-
-		fetchIntervalDate = manager.getPastDate(propertyManager
-				.getFetchInterval());
+		intervalDate = 0;
 	}
 
 	@Override
@@ -111,32 +107,39 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	}
 
 	private void addChildRec(File file, String originalPath, boolean recursive)
-			throws SearchLibException {
+			throws SearchLibException, CorruptIndexException {
 		File[] children = file.listFiles();
-		if (children != null && children.length > 0) {
+		if (children != null && children.length > 0 && !isAbort()) {
+
 			for (File current : children) {
-				if (current.isDirectory() && recursive)
+
+				if (current.isDirectory() && recursive && !isAbort())
 					addChildRec(current, originalPath, true);
-				else if (current.isFile()) {
-					CrawlFileThread crawlThread = new CrawlFileThread(config,
-							this, sessionStats, new FileItem(current.getPath(),
-									originalPath));
-					add(crawlThread);
+
+				else if (current.isFile() && !isAbort()) {
+
+					if (config.getFileManager().isNewCrawlNeeded(
+							current.getPath(), intervalDate)
+							&& !isAbort()) {
+						add(new CrawlFileThread(config, this, sessionStats,
+								new FileItem(current.getPath(), originalPath)));
+					}
 				}
 			}
 		}
 	}
 
-	private void addChildrenToCrawl(PathItem item) throws SearchLibException {
+	private void addChildrenToCrawl(PathItem item) throws SearchLibException,
+			CorruptIndexException {
 		String originalPath = item.getPath();
 		File root = new File(item.getPath());
 
-		if (root.isFile()) {
+		if (root.isFile() && !isAbort()) {
 			CrawlFileThread crawlThread = new CrawlFileThread(config, this,
 					sessionStats, new FileItem(root.getPath(), originalPath));
 			add(crawlThread);
 
-		} else if (root.isDirectory()) {
+		} else if (root.isDirectory() && !isAbort()) {
 			// Add its children and children of children
 			if (item.isWithSub())
 				addChildRec(root, originalPath, true);
@@ -182,13 +185,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		return indexPluginList;
 	}
 
-	private List<PathItem> getNextPathList(int count) throws ParseException,
+	private List<PathItem> getNextPathList() throws ParseException,
 			IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
 
 		List<PathItem> fileList = new ArrayList<PathItem>();
-		config.getFilePathManager().getPaths("", 0, count, fileList);
+		config.getFilePathManager().getPaths("", 0, MAX_FILE_BROWSED, fileList);
 
 		setInfo(null);
 		return fileList;
@@ -230,19 +233,19 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 			setStatus(CrawlStatus.STARTING);
 
-			List<PathItem> pathList = getNextPathList(10);
+			List<PathItem> pathList = getNextPathList();
 			if (pathList == null)
 				continue;
+
+			intervalDate = propertyManager.getFetchInterval();
 
 			setStatus(CrawlStatus.CRAWL);
 			config.getFileManager().reload(true);
 
 			Iterator<PathItem> it = pathList.iterator();
 			while (!isAbort() && it.hasNext()) {
+				addChildrenToCrawl((PathItem) it.next());
 
-				PathItem item = it.next();
-				addChildrenToCrawl(item);
-				System.out.println("Crawl size " + crawlThreadsSize());
 				while (crawlThreadsSize() >= threadNumber && !isAbort())
 					sleepSec(5);
 			}

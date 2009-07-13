@@ -20,9 +20,6 @@
 	<!--   See the GNU General Public License for more details. -->
 <map>
 	<link source="contentBaseType" target="contentBaseType" />
-	<link source="host" target="host" />
-	<link source="lang" target="lang" />
-	<link source="url" target="url" />
-	<link source="url" target="urlSplit" />
-	<link source="url" target="urlExact" />
+	<link source="path" target="path" />
+	<link source="originalPath" target="originalPath" />
 </map>
