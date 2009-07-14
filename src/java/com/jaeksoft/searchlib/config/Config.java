@@ -116,6 +116,8 @@ public abstract class Config {
 	private CrawlFileMaster fileCrawlMaster = null;
 
 	private FieldMap webCrawlerFieldMap = null;
+	
+	private FieldMap fileCrawlerFieldMap = null;
 
 	private IndexPluginTemplateList indexPluginTemplateList = null;
 
@@ -652,6 +654,26 @@ public abstract class Config {
 				webCrawlerFieldMap = new FieldMap(new File(indexDir,
 						"webcrawler-mapping.xml"));
 			return webCrawlerFieldMap;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	public FieldMap getFileCrawlerFieldMap() throws SearchLibException {
+		lock.lock();
+		try {
+			if (fileCrawlerFieldMap == null)
+				fileCrawlerFieldMap = new FieldMap(new File(indexDir,
+						"filecrawler-mapping.xml"));
+			return fileCrawlerFieldMap;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {

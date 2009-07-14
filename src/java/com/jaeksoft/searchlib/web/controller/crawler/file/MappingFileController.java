@@ -107,7 +107,7 @@ public class MappingFileController extends CommonController implements
 
 	public FieldMap getFieldMap() {
 		try {
-			return getClient().getWebCrawlerFieldMap();
+			return getClient().getFileCrawlerFieldMap();
 		} catch (SearchLibException e) {
 			throw new RuntimeException(e);
 		}
