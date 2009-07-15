@@ -40,6 +40,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	private List<CrawlFile> updateCrawlList;
 	private List<FileItem> insertFileList;
 	private List<String> deleteFileList;
+	final private Object indexSync = new Object();
 
 	public FileCrawlQueue(Config config) throws SearchLibException {
 		setConfig(config);
@@ -78,8 +79,6 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		return false;
 	}
 
-	final private Object indexSync = new Object();
-
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
@@ -100,27 +99,10 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 			boolean needReload = false;
 			if (insertCollection(workInsertUrlList))
 				needReload = true;
+
 			if (needReload)
 				fileManager.reload(false);
 		}
-	}
-
-	protected boolean deleteCollection(List<String> workDeleteUrlList)
-			throws SearchLibException {
-		if (workDeleteUrlList.size() == 0)
-			return false;
-		getConfig().getFileManager().deleteFiles(workDeleteUrlList);
-		getSessionStats().addDeletedCount(workDeleteUrlList.size());
-		return true;
-	}
-
-	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList)
-			throws SearchLibException {
-		if (workUpdateCrawlList.size() == 0)
-			return false;
-		getConfig().getFileManager().updateCrawls(workUpdateCrawlList);
-		getSessionStats().addUpdatedCount(workUpdateCrawlList.size());
-		return true;
 	}
 
 	protected boolean insertCollection(List<FileItem> workInsertUrlList)
@@ -130,5 +112,17 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		getConfig().getFileManager().updateFileItems(workInsertUrlList);
 		getSessionStats().addNewUrlCount(workInsertUrlList.size());
 		return true;
+	}
+
+	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList)
+			throws SearchLibException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	protected boolean deleteCollection(List<String> workDeleteUrlList)
+			throws SearchLibException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

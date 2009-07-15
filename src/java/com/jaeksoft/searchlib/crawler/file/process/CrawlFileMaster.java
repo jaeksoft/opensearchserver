@@ -68,11 +68,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private CrawlStatistics sessionStats;
 
+	private long startCrawlDate;;
+
 	private FileCrawlQueue crawlQueue;
 
 	private final ExecutorService threadPool;
 
-	private int intervalDate;
+	private int delayBetweenAccess;
 
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		this.config = config;
@@ -84,7 +86,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		sessionStats = null;
 		if (config.getPropertyManager().isCrawlEnabled())
 			start();
-		intervalDate = 0;
+		delayBetweenAccess = 100;
 	}
 
 	@Override
@@ -106,47 +108,65 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		crawlThread.start(threadPool);
 	}
 
-	private void addChildRec(File file, String originalPath, boolean recursive)
-			throws SearchLibException, CorruptIndexException {
+	private void sendToCrawl(File current, String originalPath,
+			List<FileItem> updateList) throws CorruptIndexException,
+			SearchLibException, ParseException {
+
+		FileItem fileItem = config.getFileManager().find(current.getPath());
+
+		// Crawl
+		if (isNewCrawlNeeded(current, fileItem)) {
+			fileItem = new FileItem(current.getPath(), originalPath,
+					startCrawlDate, current.lastModified());
+
+			add(new CrawlFileThread(config, this, sessionStats, fileItem));
+			sleepMs(delayBetweenAccess, false);
+
+		} else {
+			// No need to reindex only update crawl Date
+			fileItem.setCrawlDate(startCrawlDate);
+			updateList.add(fileItem);
+		}
+	}
+
+	private void addChildrenToCrawl(PathItem item) throws SearchLibException,
+			CorruptIndexException, ParseException {
+
+		String originalPath = item.getPath();
+		File current = new File(item.getPath());
+
+		List<FileItem> updateList = new ArrayList<FileItem>();
+
+		if (current.isFile()) {
+			sendToCrawl(current, originalPath, updateList);
+
+		} else if (current.isDirectory()) {
+			// Add its children and children of children
+			if (item.isWithSub())
+				addChildRec(current, originalPath, true, updateList);
+
+			// Only add its children
+			else
+				addChildRec(current, originalPath, false, updateList);
+		}
+
+		config.getFileManager().updateFileItems(updateList);
+	}
+
+	private void addChildRec(File file, String originalPath, boolean recursive,
+			List<FileItem> updateList) throws SearchLibException,
+			CorruptIndexException, ParseException {
 		File[] children = file.listFiles();
 		if (children != null && children.length > 0 && !isAbort()) {
 
 			for (File current : children) {
 				if (current.isDirectory() && recursive)
-					addChildRec(current, originalPath, true);
+					addChildRec(current, originalPath, true, updateList);
 
 				else if (current.isFile()) {
-
-					if (config.getFileManager().isNewCrawlNeeded(
-							current.getPath(), intervalDate)
-							&& !isAbort()) {
-						add(new CrawlFileThread(config, this, sessionStats,
-								new FileItem(current.getPath(), originalPath)));
-						sleepMs(100);
-					}
+					sendToCrawl(current, originalPath, updateList);
 				}
 			}
-		}
-	}
-
-	private void addChildrenToCrawl(PathItem item) throws SearchLibException,
-			CorruptIndexException {
-		String originalPath = item.getPath();
-		File root = new File(item.getPath());
-
-		if (root.isFile()) {
-			CrawlFileThread crawlThread = new CrawlFileThread(config, this,
-					sessionStats, new FileItem(root.getPath(), originalPath));
-			add(crawlThread);
-
-		} else if (root.isDirectory()) {
-			// Add its children and children of children
-			if (item.isWithSub())
-				addChildRec(root, originalPath, true);
-
-			// Only add its children
-			else
-				addChildRec(root, originalPath, false);
 		}
 	}
 
@@ -223,6 +243,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	@Override
 	public void runner() throws Exception {
 		PropertyManager propertyManager = config.getPropertyManager();
+
 		while (!isAbort()) {
 
 			int threadNumber = propertyManager.getMaxThreadNumber();
@@ -233,11 +254,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 			setStatus(CrawlStatus.STARTING);
 
+			startCrawlDate = System.currentTimeMillis();
+
 			List<PathItem> pathList = getNextPathList();
 			if (pathList == null)
 				continue;
 
-			intervalDate = propertyManager.getFetchInterval();
+			delayBetweenAccess = propertyManager.getDelayBetweenAccesses();
 
 			setStatus(CrawlStatus.CRAWL);
 			config.getFileManager().reload(true);
@@ -253,12 +276,22 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			waitForChild();
 			setStatus(CrawlStatus.INDEXATION);
 			crawlQueue.index(true);
+
+			if (!isAbort()) {
+				setStatus(CrawlStatus.DELETE_REMOVED);
+				config.getFileManager().deleteNotFoundByCrawlDate(
+						startCrawlDate);
+				sleepSec(2, false);
+			}
+
 			if (sessionStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getFileManager().reload(
 						propertyManager.isOptimizeAfterSession());
 			}
+
 			sleepSec(5);
+
 		}
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
@@ -309,5 +342,16 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			}
 			sleepSec(1);
 		}
+	}
+
+	public boolean isNewCrawlNeeded(File file, FileItem item)
+			throws CorruptIndexException, SearchLibException, ParseException {
+		if (item == null)
+			return true;
+
+		if (item.getFileSystemDate() != file.lastModified())
+			return true;
+
+		return false;
 	}
 }

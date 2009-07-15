@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.util.FileUtils;
 
 public class FileItem implements Serializable {
 
@@ -94,6 +93,8 @@ public class FileItem implements Serializable {
 	private Integer responseCode;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
+	private long fileSystemDate;
+	private long crawlDate;
 
 	private final int count;
 
@@ -117,13 +118,14 @@ public class FileItem implements Serializable {
 		parserStatus = ParserStatus.NOT_PARSED;
 		indexStatus = IndexStatus.NOT_INDEXED;
 		count = 0;
+		crawlDate = 0;
+		fileSystemDate = 0;
 	}
 
 	public FileItem(ResultDocument doc) {
 		this();
 		setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
 		setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(), 0));
-		// setHost(doc.getValue(FileItemFieldEnum.host.name(), 0));
 		setContentBaseType(doc.getValue(FileItemFieldEnum.contentBaseType
 				.name(), 0));
 		setContentTypeCharset(doc.getValue(FileItemFieldEnum.contentTypeCharset
@@ -135,21 +137,23 @@ public class FileItem implements Serializable {
 		setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
 		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
 		setWhen(doc.getValue(FileItemFieldEnum.when.name(), 0));
-		/*
-		 * setRobotsTxtStatusInt(doc.getValue(FileItemFieldEnum.robotsTxtStatus
-		 * .name(), 0));
-		 */
 		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
 		setResponseCode(doc.getValue(FileItemFieldEnum.responseCode.name(), 0));
 		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
 				0));
 		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.name(), 0));
+		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
+		setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate.name(),
+				0));
 	}
 
-	public FileItem(String path, String originalPath) {
+	public FileItem(String path, String originalPath, long crawlDate,
+			long fileSystemDate) {
 		this();
-		setPath(FileUtils.rewriteURIFilePath(path));
+		setPath(path);
 		setOriginalPath(originalPath);
+		setCrawlDate(crawlDate);
+		setFileSystemDate(fileSystemDate);
 	}
 
 	public String getCachedPath() {
@@ -274,16 +278,18 @@ public class FileItem implements Serializable {
 	}
 
 	public void populate(IndexDocument indexDocument) {
-		indexDocument.set(FileItemFieldEnum.path.name(), getCheckedURIString());
+		indexDocument.set(FileItemFieldEnum.path.name(), getPath());
 		indexDocument.set(FileItemFieldEnum.originalPath.name(),
 				getOriginalPath());
 
-		indexDocument.set(FileItemFieldEnum.when.name(), getWhenDateFormat()
-				.format(when));
-		/*
-		 * String path = getCachedPath(); if (path != null)
-		 * indexDocument.set(FileItemFieldEnum.path.name(), path);
-		 */
+		if (when != null)
+			indexDocument.set(FileItemFieldEnum.when.name(),
+					getWhenDateFormat().format(when));
+
+		indexDocument.set(FileItemFieldEnum.crawlDate.name(), crawlDate);
+		indexDocument.set(FileItemFieldEnum.fileSystemDate.name(),
+				fileSystemDate);
+
 		if (responseCode != null)
 			indexDocument.set(FileItemFieldEnum.responseCode.name(),
 					responseCode);
@@ -454,5 +460,40 @@ public class FileItem implements Serializable {
 
 	public void setWhenNow() {
 		setWhen(new Date(System.currentTimeMillis()));
+	}
+
+	public void setCrawlDate(long d) {
+		crawlDate = d;
+	}
+
+	public void setCrawlDate(String d) {
+		if (d == null)
+			return;
+
+		try {
+			crawlDate = Long.parseLong(d);
+		} catch (NumberFormatException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+			setWhenNow();
+		}
+	}
+
+	public void setFileSystemDate(long d) {
+		fileSystemDate = d;
+	}
+
+	public long getFileSystemDate() {
+		return fileSystemDate;
+	}
+
+	public void setFileSystemDate(String d) {
+		if (d == null)
+			return;
+
+		try {
+			fileSystemDate = Long.parseLong(d);
+		} catch (NumberFormatException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+		}
 	}
 }

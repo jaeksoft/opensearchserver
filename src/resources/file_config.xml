@@ -37,6 +37,8 @@
 			<field name="parserStatus" indexed="yes" stored="yes" />
 			<field name="fetchStatus" indexed="yes" stored="yes" />
 			<field name="indexStatus" indexed="yes" stored="yes" />
+			<field name="fileSystemDate" indexed="yes" stored="yes" />
+			<field name="crawlDate" indexed="yes" stored="yes" />
 		</fields>
 	</schema>
 	<requests>
@@ -45,7 +47,7 @@
 			<query>$$</query>
 			<returnFields>
 				path,originalPath,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
-				lang,langMethod,when,responseCode,parserStatus,fetchStatus,indexStatus
+				lang,langMethod,when,responseCode,parserStatus,fetchStatus,indexStatus,fileSystemDate,crawlDate
 			</returnFields>
 		</request>
 	</requests>

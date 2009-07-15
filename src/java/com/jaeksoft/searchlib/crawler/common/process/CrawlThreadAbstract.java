@@ -105,8 +105,13 @@ public abstract class CrawlThreadAbstract implements Runnable {
 	}
 
 	protected void sleepMs(long ms) {
+		sleepMs(ms, true);
+	}
+
+	protected void sleepMs(long ms, boolean withStatus) {
 		try {
-			setStatus(CrawlStatus.WAITING);
+			if (withStatus)
+				setStatus(CrawlStatus.WAITING);
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -114,9 +119,14 @@ public abstract class CrawlThreadAbstract implements Runnable {
 	}
 
 	protected void sleepSec(int sec) {
+		sleepSec(sec, true);
+	}
+
+	protected void sleepSec(int sec, boolean withStatus) {
 		if (sec == 0)
 			return;
-		setStatus(CrawlStatus.WAITING);
+		if (withStatus)
+			setStatus(CrawlStatus.WAITING);
 		while (!abort && sec-- > 0)
 			sleepMs(1000);
 	}

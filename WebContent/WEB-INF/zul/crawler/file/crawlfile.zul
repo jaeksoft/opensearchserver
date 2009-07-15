@@ -21,19 +21,11 @@
 		<panelchildren>
 			<grid>
 				<columns>
-					<column align="right" />
-					<column />
-					<column align="right" />
-					<column />
+					<column/>
+					<column/>
 				</columns>
 				<rows>
 					<row>
-						<label
-							value="Fetch interval between re-fetches (days): " />
-						<intbox constraint="no empty, no negative"
-							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.fetchInterval}" />
-
 						<label
 							value="Delay between each accesses (milliseconds): " />
 						<intbox constraint="no empty, no negative"

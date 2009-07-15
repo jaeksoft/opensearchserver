@@ -93,23 +93,37 @@
 			</analyzer>
 		</analyzers>
 		<fields default="content" unique="path">
+		    <!-- mandatory parameters -->
 			<field name="path" indexed="yes" stored="yes" />
 			<field name="originalPath" indexed="yes" stored="yes" />
+			<field name="crawlDate" indexed="yes" stored="yes" />
+			 <field name="fileSystemDate" indexed="yes" stored="yes" />
+			<field name="when" indexed="yes" stored="yes" />
+			<!-- mandatory parameters -->
+			
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
+			
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
+			
 			<field name="content" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
+			
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
+			
 			<field name="contentBaseType" indexed="yes" stored="yes" />
+			
 			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
 				termVector="positions_offsets" />
+			
 			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
 				termVector="positions_offsets" />
+			
 			<field name="metaDescription" indexed="no" stored="compress" />
+			
 			<field name="metaKeywords" indexed="no" stored="compress" />
 		</fields>
 	</schema>

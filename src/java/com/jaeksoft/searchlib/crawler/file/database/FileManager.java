@@ -32,7 +32,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -45,7 +44,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -134,7 +132,6 @@ public class FileManager {
 
 			fileDbClient.search(deleteRequest);
 			targetClient.search(deleteRequest);
-
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -159,11 +156,15 @@ public class FileManager {
 
 	}
 
-	public void deleteFiles(Collection<String> workDeleteUrlList)
-			throws SearchLibException {
+	public void deleteNotFoundByCrawlDate(long date) throws SearchLibException {
 		try {
-			targetClient.deleteDocuments(workDeleteUrlList);
-			fileDbClient.deleteDocuments(workDeleteUrlList);
+			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
+			deleteRequest.setQueryString("*:* AND NOT "
+					+ FileItemFieldEnum.crawlDate.name() + ":" + date);
+			deleteRequest.setDelete(true);
+
+			fileDbClient.search(deleteRequest);
+			targetClient.search(deleteRequest);
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -172,11 +173,17 @@ public class FileManager {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -188,9 +195,13 @@ public class FileManager {
 	}
 
 	public FileItem find(String path) throws SearchLibException,
-			CorruptIndexException {
+			CorruptIndexException, ParseException {
 		SearchRequest request = getPathSearchRequest();
-		request.setQueryString("path:\"" + path + '"');
+		// request.setQueryString("path:\"" + path + "\"");
+		request.setQueryString("*:* and path:\"" + path + "\"");
+		/*
+		 * request.addFilter("path:" + path);
+		 */
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
 		getFiles(request, null, false, 0, 10, listFileItem);
 
@@ -264,7 +275,8 @@ public class FileManager {
 		searchRequest.addReturnField("responseCode");
 		searchRequest.addReturnField("parserStatus");
 		searchRequest.addReturnField("fetchStatus");
-		searchRequest.addReturnField("indexStatus");
+		searchRequest.addReturnField("crawlDate");
+		searchRequest.addReturnField("fileSystemDate");
 		return searchRequest;
 	}
 
@@ -417,45 +429,19 @@ public class FileManager {
 		targetClient.reload(null);
 	}
 
-	public synchronized void updateCrawls(List<CrawlFile> crawls)
-			throws SearchLibException {
-		try {
-			// Update target index
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
-					.size());
-			for (CrawlFile crawl : crawls) {
-				targetClient.updateDocuments(documents);
-
-				crawl.getFileItem().populate(crawl.getTargetIndexDocument());
-			}
-			fileDbClient.updateDocuments(documents);
-
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		}
-	}
-
-	public void updateFileItems(List<FileItem> urlItems)
+	public void updateFileItems(List<FileItem> fileItems)
 			throws SearchLibException {
 		try {
 			List<IndexDocument> documents = new ArrayList<IndexDocument>(
-					urlItems.size());
-			for (FileItem urlItem : urlItems) {
+					fileItems.size());
+			for (FileItem urlItem : fileItems) {
 				IndexDocument indexDocument = new IndexDocument();
 				urlItem.populate(indexDocument);
 				documents.add(indexDocument);
 			}
 			fileDbClient.updateDocuments(documents);
+			targetClient.updateDocuments(documents);
+
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -469,22 +455,5 @@ public class FileManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
-	}
-
-	public boolean isNewCrawlNeeded(String path, int delayDay)
-			throws CorruptIndexException, SearchLibException {
-		FileItem fileItem = find(path);
-
-		if (fileItem == null)
-			return true;
-
-		if (fileItem.getWhen() == null)
-			return true;
-
-		if ((fileItem.getWhen().getTime() + delayDay * 86400 * 1000) > System
-				.currentTimeMillis())
-			return true;
-
-		return false;
 	}
 }
