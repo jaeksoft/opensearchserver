@@ -419,6 +419,7 @@ public class FileManager {
 	public void reload(boolean optimize) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+
 		if (optimize) {
 			fileDbClient.reload(null);
 			fileDbClient.getIndex().optimize(null);

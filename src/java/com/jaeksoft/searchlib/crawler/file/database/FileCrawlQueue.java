@@ -49,6 +49,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		this.deleteFileList = new ArrayList<String>(0);
 	}
 
+	@Override
 	public void add(CrawlFile crawl) throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
 		synchronized (updateCrawlList) {
@@ -56,6 +57,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		}
 	}
 
+	@Override
 	public void delete(String url) {
 		synchronized (deleteFileList) {
 			deleteFileList.add(url);
@@ -79,6 +81,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		return false;
 	}
 
+	@Override
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
@@ -105,6 +108,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		}
 	}
 
+	@Override
 	protected boolean insertCollection(List<FileItem> workInsertUrlList)
 			throws SearchLibException {
 		if (workInsertUrlList.size() == 0)
@@ -114,12 +118,14 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		return true;
 	}
 
+	@Override
 	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList)
 			throws SearchLibException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	protected boolean deleteCollection(List<String> workDeleteUrlList)
 			throws SearchLibException {
 		// TODO Auto-generated method stub
