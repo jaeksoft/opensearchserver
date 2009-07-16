@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.file.spider;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -145,7 +146,7 @@ public class CrawlFile {
 		return parser;
 	}
 
-	public IndexDocument getTargetIndexDocument() throws SearchLibException {
+	public IndexDocument getTargetIndexDocument() throws SearchLibException, UnsupportedEncodingException {
 		synchronized (this) {
 
 			IndexDocument indexDocument = new IndexDocument();

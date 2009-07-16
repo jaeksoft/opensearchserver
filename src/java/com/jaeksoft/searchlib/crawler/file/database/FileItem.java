@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -114,10 +117,12 @@ public class FileItem implements Serializable {
 		fileSystemDate = 0;
 	}
 
-	public FileItem(ResultDocument doc) {
+	public FileItem(ResultDocument doc) throws UnsupportedEncodingException {
 		this();
-		setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
-		setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(), 0));
+		setPath(URLDecoder.decode(doc
+				.getValue(FileItemFieldEnum.path.name(), 0), "UTF-8"));
+		setOriginalPath(URLDecoder.decode(doc.getValue(
+				FileItemFieldEnum.originalPath.name(), 0), "UTF-8"));
 		setContentBaseType(doc.getValue(FileItemFieldEnum.contentBaseType
 				.name(), 0));
 		setContentTypeCharset(doc.getValue(FileItemFieldEnum.contentTypeCharset
@@ -140,10 +145,10 @@ public class FileItem implements Serializable {
 	}
 
 	public FileItem(String path, String originalPath, long crawlDate,
-			long fileSystemDate) {
+			long fileSystemDate) throws UnsupportedEncodingException {
 		this();
-		setPath(path);
-		setOriginalPath(originalPath);
+		setPath(URLDecoder.decode(path, "UTF-8"));
+		setOriginalPath(URLDecoder.decode(originalPath, "UTF-8"));
 		setCrawlDate(crawlDate);
 		setFileSystemDate(fileSystemDate);
 	}
@@ -186,7 +191,7 @@ public class FileItem implements Serializable {
 		return sb.toString();
 	}
 
-	public IndexDocument getIndexDocument() {
+	public IndexDocument getIndexDocument() throws UnsupportedEncodingException {
 		IndexDocument indexDocument = new IndexDocument();
 		populate(indexDocument);
 		return indexDocument;
@@ -238,10 +243,12 @@ public class FileItem implements Serializable {
 				&& indexStatus == IndexStatus.INDEXED;
 	}
 
-	public void populate(IndexDocument indexDocument) {
-		indexDocument.set(FileItemFieldEnum.path.name(), getPath());
-		indexDocument.set(FileItemFieldEnum.originalPath.name(),
-				getOriginalPath());
+	public void populate(IndexDocument indexDocument)
+			throws UnsupportedEncodingException {
+		indexDocument.set(FileItemFieldEnum.path.name(), URLEncoder.encode(
+				getPath(), "UTF-8"));
+		indexDocument.set(FileItemFieldEnum.originalPath.name(), URLEncoder
+				.encode(getOriginalPath(), "UTF-8"));
 
 		if (when != null)
 			indexDocument.set(FileItemFieldEnum.when.name(),

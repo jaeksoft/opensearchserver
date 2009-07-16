@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.Thread.State;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -108,12 +109,14 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private void sendToCrawl(File current, String originalPath,
 			List<FileItem> updateList) throws CorruptIndexException,
-			SearchLibException, ParseException {
+			SearchLibException, ParseException, UnsupportedEncodingException {
 
 		FileItem fileItem = config.getFileManager().find(current.getPath());
 
 		// Crawl
-		if (fileItem.isNewCrawlNeeded(current.lastModified())) {
+		if (fileItem == null
+				|| (fileItem != null && fileItem.isNewCrawlNeeded(current
+						.lastModified()))) {
 			fileItem = new FileItem(current.getPath(), originalPath,
 					startCrawlDate, current.lastModified());
 
@@ -125,10 +128,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			fileItem.setCrawlDate(startCrawlDate);
 			updateList.add(fileItem);
 		}
+		
+		if (updateList.size()> 1000)
+			config.getFileManager().updateFileItems(updateList);
 	}
 
 	private void addChildrenToCrawl(PathItem item) throws SearchLibException,
-			CorruptIndexException, ParseException {
+			CorruptIndexException, ParseException, UnsupportedEncodingException {
 
 		String originalPath = item.getPath();
 		File current = new File(item.getPath());
@@ -149,12 +155,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		}
 
 		// Update unmodified files
-		config.getFileManager().updateFileItems(updateList);
+		if (!updateList.isEmpty())
+			config.getFileManager().updateFileItems(updateList);
 	}
 
 	private void addChildRec(File file, String originalPath, boolean recursive,
 			List<FileItem> updateList) throws SearchLibException,
-			CorruptIndexException, ParseException {
+			CorruptIndexException, ParseException, UnsupportedEncodingException {
 		File[] children = file.listFiles();
 		if (children != null && children.length > 0 && !isAbort()) {
 
