@@ -27,7 +27,9 @@ package com.jaeksoft.searchlib.crawler.file.database;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -208,21 +210,24 @@ public class FileManager {
 		}
 	}
 
-	public boolean exists(String path) throws SearchLibException {
+	public boolean exists(String path) throws SearchLibException, UnsupportedEncodingException, ParseException {
 		SearchRequest request = getPathSearchRequest();
-		request.setQueryString("path:\"" + path + '"');
+		request.setQueryString("*:*");
+		request.addFilter("path:" + URLEncoder.encode(path, "UTF-8"));
 		return (getFiles(request, null, false, 0, 0, null) > 0);
 	}
 
 	public FileItem find(String path) throws SearchLibException,
-			CorruptIndexException, ParseException {
+			CorruptIndexException, ParseException, UnsupportedEncodingException {
 		SearchRequest request = getPathSearchRequest();
-		request.setQueryString("*:* and path:\"" + path + "\"");
-
+		request.setQueryString("*:*");
+		request.addFilter("path:" + URLEncoder.encode(path, "UTF-8"));
+		
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
 		getFiles(request, null, false, 0, 10, listFileItem);
 
-		if (listFileItem.size() > 0)
+	
+		if (listFileItem.size() > 0) 
 			return listFileItem.get(0);
 
 		return null;
@@ -233,8 +238,9 @@ public class FileManager {
 	 * 
 	 * @param list
 	 * @throws SearchLibException
+	 * @throws ParseException 
 	 */
-	public void inject(List<FileItem> list) throws SearchLibException {
+	public void inject(List<FileItem> list) throws SearchLibException, ParseException {
 		synchronized (this) {
 			try {
 				List<IndexDocument> injectList = new ArrayList<IndexDocument>();
