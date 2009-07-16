@@ -125,13 +125,22 @@ public class FileManager {
 
 	public void deleteByOriginalPath(String value) throws SearchLibException {
 		try {
+			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 			deleteRequest.setQueryString(FileItemFieldEnum.originalPath.name()
 					+ ":\"" + FileUtils.rewriteURIFilePath(value) + '"');
 			deleteRequest.setDelete(true);
-
 			fileDbClient.search(deleteRequest);
-			targetClient.search(deleteRequest);
+
+			// Delete in final index if a mapping is found
+			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
+					.getLinks(FileItemFieldEnum.originalPath.name());
+			SearchRequest deleteRequestTarget = targetClient
+					.getNewSearchRequest();
+			deleteRequestTarget.setQueryString(mappedField.get(0) + ":\""
+					+ FileUtils.rewriteURIFilePath(value) + '"');
+			deleteRequestTarget.setDelete(true);
+			targetClient.search(deleteRequestTarget);
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -158,13 +167,24 @@ public class FileManager {
 
 	public void deleteNotFoundByCrawlDate(long date) throws SearchLibException {
 		try {
+			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 			deleteRequest.setQueryString("*:* AND NOT "
 					+ FileItemFieldEnum.crawlDate.name() + ":\"" + date + '"');
 			deleteRequest.setDelete(true);
-
 			fileDbClient.search(deleteRequest);
-			targetClient.search(deleteRequest);
+
+			// Delete in final index if a mapping is found
+			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
+					.getLinks(FileItemFieldEnum.originalPath.name());
+
+			SearchRequest deleteRequestTarget = targetClient
+					.getNewSearchRequest();
+			deleteRequestTarget.setQueryString("*:* AND NOT "
+					+ mappedField.get(0) + ":\"" + date + '"');
+			deleteRequestTarget.setDelete(true);
+			targetClient.search(deleteRequestTarget);
+
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
