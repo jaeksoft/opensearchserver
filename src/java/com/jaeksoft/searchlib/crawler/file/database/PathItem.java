@@ -30,6 +30,7 @@ import java.util.List;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.common.database.Selector;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.GenericMap;
 
@@ -56,7 +57,7 @@ public class PathItem extends GenericMap<String> {
 
 	private Status status;
 	private String path;
-	private FileSelector fileSelector;
+	private Selector<PathItem> fileSelector;
 	private boolean withSub;
 
 	public PathItem() {
@@ -99,7 +100,7 @@ public class PathItem extends GenericMap<String> {
 		return path;
 	}
 
-	public void setFileSelector(FileSelector patternSelector) {
+	public void setFileSelector(Selector<PathItem> patternSelector) {
 		this.fileSelector = patternSelector;
 	}
 
@@ -133,8 +134,8 @@ public class PathItem extends GenericMap<String> {
 
 	public void populate(IndexDocument indexDocument) {
 		indexDocument.set("path", getPath());
-		indexDocument.set("when", FileItem.getWhenDateFormat()
-				.format(new Date()));
+		indexDocument.set("when", FileItem.getWhenDateFormat().format(
+				new Date()));
 
 		indexDocument.set("fetchStatus", FetchStatus.UN_FETCHED.value);
 		indexDocument.set("parserStatus", ParserStatus.NOT_PARSED.value);

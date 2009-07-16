@@ -160,7 +160,7 @@ public class FileManager {
 		try {
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 			deleteRequest.setQueryString("*:* AND NOT "
-					+ FileItemFieldEnum.crawlDate.name() + ":" + date);
+					+ FileItemFieldEnum.crawlDate.name() + ":\"" + date + '"');
 			deleteRequest.setDelete(true);
 
 			fileDbClient.search(deleteRequest);
@@ -197,11 +197,8 @@ public class FileManager {
 	public FileItem find(String path) throws SearchLibException,
 			CorruptIndexException, ParseException {
 		SearchRequest request = getPathSearchRequest();
-		// request.setQueryString("path:\"" + path + "\"");
 		request.setQueryString("*:* and path:\"" + path + "\"");
-		/*
-		 * request.addFilter("path:" + path);
-		 */
+
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
 		getFiles(request, null, false, 0, 10, listFileItem);
 
@@ -395,7 +392,7 @@ public class FileManager {
 			return result.getNumFound();
 
 		} catch (ParseException e) {
-			// throw new SearchLibException(e);
+			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (RuntimeException e) {
@@ -413,7 +410,6 @@ public class FileManager {
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		}
-		return -1;
 	}
 
 	public void reload(boolean optimize) throws IOException,

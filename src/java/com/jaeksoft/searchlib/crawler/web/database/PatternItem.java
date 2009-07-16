@@ -28,6 +28,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
+import com.jaeksoft.searchlib.crawler.common.database.Selector;
+
 public class PatternItem {
 
 	public enum Status {
@@ -52,7 +54,7 @@ public class PatternItem {
 
 	private Pattern pattern;
 
-	private PatternSelector patternSelector;
+	private Selector<PatternItem> patternSelector;
 
 	public PatternItem() {
 		status = Status.UNDEFINED;
@@ -116,7 +118,7 @@ public class PatternItem {
 		return sPattern;
 	}
 
-	public void setPatternSelector(PatternSelector patternSelector) {
+	public void setPatternSelector(Selector<PatternItem> patternSelector) {
 		this.patternSelector = patternSelector;
 	}
 

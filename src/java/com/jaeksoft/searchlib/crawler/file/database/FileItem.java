@@ -24,11 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-import java.io.File;
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -86,8 +82,6 @@ public class FileItem implements Serializable {
 	private String contentEncoding;
 	private String lang;
 	private String langMethod;
-	private String cachedPath;
-	private URI checkedUri;
 	private Date when;
 	private FetchStatus fetchStatus;
 	private Integer responseCode;
@@ -104,8 +98,6 @@ public class FileItem implements Serializable {
 		status = Status.UNDEFINED;
 		path = null;
 		originalPath = null;
-		cachedPath = null;
-		checkedUri = null;
 		contentBaseType = null;
 		contentTypeCharset = null;
 		contentLength = null;
@@ -154,37 +146,6 @@ public class FileItem implements Serializable {
 		setOriginalPath(originalPath);
 		setCrawlDate(crawlDate);
 		setFileSystemDate(fileSystemDate);
-	}
-
-	public String getCachedPath() {
-		synchronized (this) {
-			if (cachedPath == null)
-				cachedPath = path;
-			return cachedPath;
-		}
-	}
-
-	public URI getCheckedURI() throws MalformedURLException, URISyntaxException {
-		synchronized (this) {
-			if (checkedUri != null)
-				return checkedUri;
-
-			checkedUri = (new File(getPath())).toURI();
-			return checkedUri;
-		}
-	}
-
-	public String getCheckedURIString() {
-		try {
-			return getCheckedURI().getRawPath();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	public String getContentBaseType() {
@@ -320,17 +281,14 @@ public class FileItem implements Serializable {
 
 	public void setContentBaseType(String v) {
 		contentBaseType = v;
-
 	}
 
 	public void setContentEncoding(String v) {
 		contentEncoding = v;
-
 	}
 
 	public void setContentLength(int v) {
 		contentLength = v;
-
 	}
 
 	private void setContentLength(String v) {
@@ -343,7 +301,6 @@ public class FileItem implements Serializable {
 		} catch (ParseException e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
-
 	}
 
 	public void setContentType(String v)
@@ -351,28 +308,23 @@ public class FileItem implements Serializable {
 		ContentType contentType = new ContentType(v);
 		setContentBaseType(contentType.getBaseType());
 		setContentTypeCharset(contentType.getParameter("charset"));
-
 	}
 
 	public void setContentTypeCharset(String v) {
 		contentTypeCharset = v;
-
 	}
 
 	public void setFetchStatus(FetchStatus status) {
 		this.fetchStatus = status;
-
 	}
 
 	public void setFetchStatusInt(int v) {
 		this.fetchStatus = FetchStatus.find(v);
-
 	}
 
 	private void setFetchStatusInt(String v) {
 		if (v != null)
 			setFetchStatusInt(Integer.parseInt(v));
-
 	}
 
 	public void setIndexStatus(IndexStatus status) {
@@ -388,7 +340,6 @@ public class FileItem implements Serializable {
 	private void setIndexStatusInt(String v) {
 		if (v != null)
 			setIndexStatusInt(Integer.parseInt(v));
-
 	}
 
 	public void setLang(String lang) {
@@ -405,12 +356,10 @@ public class FileItem implements Serializable {
 
 	public void setParserStatus(ParserStatus status) {
 		this.parserStatus = status;
-
 	}
 
 	public void setParserStatusInt(int v) {
 		this.parserStatus = ParserStatus.find(v);
-
 	}
 
 	private void setParserStatusInt(String v) {
@@ -420,8 +369,6 @@ public class FileItem implements Serializable {
 
 	public void setPath(String path) {
 		this.path = path;
-		cachedPath = null;
-
 	}
 
 	public void setResponseCode(Integer v) {
@@ -495,5 +442,14 @@ public class FileItem implements Serializable {
 		} catch (NumberFormatException e) {
 			logger.log(Level.WARNING, e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Test if a new crawl is needed
+	 */
+	public boolean isNewCrawlNeeded(long dateModified) {
+		if (this.getFileSystemDate() != dateModified)
+			return true;
+		return false;
 	}
 }

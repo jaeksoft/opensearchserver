@@ -54,8 +54,6 @@ import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class CrawlFileMaster extends CrawlThreadAbstract {
 
-	private static final int MAX_FILE_BROWSED = 10000;
-
 	private final LinkedHashSet<CrawlFileThread> crawlThreads;
 
 	private CrawlThread[] crawlThreadArray;
@@ -115,7 +113,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		FileItem fileItem = config.getFileManager().find(current.getPath());
 
 		// Crawl
-		if (isNewCrawlNeeded(current, fileItem)) {
+		if (fileItem.isNewCrawlNeeded(current.lastModified())) {
 			fileItem = new FileItem(current.getPath(), originalPath,
 					startCrawlDate, current.lastModified());
 
@@ -150,6 +148,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 				addChildRec(current, originalPath, false, updateList);
 		}
 
+		// Update unmodified files
 		config.getFileManager().updateFileItems(updateList);
 	}
 
@@ -211,7 +210,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			InstantiationException, IllegalAccessException {
 
 		List<PathItem> fileList = new ArrayList<PathItem>();
-		config.getFilePathManager().getPaths("", 0, MAX_FILE_BROWSED, fileList);
+		config.getFilePathManager().getAllPaths(fileList);
 
 		setInfo(null);
 		return fileList;
@@ -247,6 +246,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		while (!isAbort()) {
 
 			int threadNumber = propertyManager.getMaxThreadNumber();
+			delayBetweenAccess = propertyManager.getDelayBetweenAccesses();
 
 			sessionStats = new CrawlStatistics();
 			addStatistics(sessionStats);
@@ -259,8 +259,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			List<PathItem> pathList = getNextPathList();
 			if (pathList == null)
 				continue;
-
-			delayBetweenAccess = propertyManager.getDelayBetweenAccesses();
 
 			setStatus(CrawlStatus.CRAWL);
 			config.getFileManager().reload(true);
@@ -291,7 +289,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			}
 
 			sleepSec(5);
-
 		}
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
@@ -344,14 +341,4 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		}
 	}
 
-	public boolean isNewCrawlNeeded(File file, FileItem item)
-			throws CorruptIndexException, SearchLibException, ParseException {
-		if (item == null)
-			return true;
-
-		if (item.getFileSystemDate() != file.lastModified())
-			return true;
-
-		return false;
-	}
 }

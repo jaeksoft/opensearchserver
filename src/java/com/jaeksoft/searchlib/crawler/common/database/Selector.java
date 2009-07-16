@@ -22,14 +22,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.common.database;
 
-public interface PatternSelector {
+public interface Selector<E> {
 
-	void addSelection(PatternItem patternUrlItem);
+	void addSelection(E item);
 
-	void removeSelection(PatternItem patternUrlItem);
+	void removeSelection(E item);
 
-	boolean isSelected(PatternItem patternUrlItem);
+	boolean isSelected(E item);
 
 }

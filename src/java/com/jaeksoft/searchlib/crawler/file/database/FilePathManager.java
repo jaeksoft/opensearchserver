@@ -54,6 +54,8 @@ public class FilePathManager {
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
 
+	private static final int MAX_FILE_BROWSED = 10000;
+
 	private Map<String, List<PathItem>> pathMap = null;
 
 	private final File filePath;
@@ -202,6 +204,10 @@ public class FilePathManager {
 		} finally {
 			w.unlock();
 		}
+	}
+
+	public int getAllPaths(List<PathItem> list) throws SearchLibException {
+		return getPaths("", 0, MAX_FILE_BROWSED, list);
 	}
 
 	public int getPaths(String startsWith, long start, long rows,
