@@ -119,10 +119,9 @@ public class FileItem implements Serializable {
 
 	public FileItem(ResultDocument doc) throws UnsupportedEncodingException {
 		this();
-		setPath(URLDecoder.decode(doc
-				.getValue(FileItemFieldEnum.path.name(), 0), "UTF-8"));
-		setOriginalPath(URLDecoder.decode(doc.getValue(
-				FileItemFieldEnum.originalPath.name(), 0), "UTF-8"));
+		setPathEncoded(doc.getValue(FileItemFieldEnum.path.name(), 0));
+		setOriginalPathEncoded(doc.getValue(FileItemFieldEnum.originalPath
+				.name(), 0));
 		setContentBaseType(doc.getValue(FileItemFieldEnum.contentBaseType
 				.name(), 0));
 		setContentTypeCharset(doc.getValue(FileItemFieldEnum.contentTypeCharset
@@ -144,11 +143,12 @@ public class FileItem implements Serializable {
 				0));
 	}
 
-	public FileItem(String path, String originalPath, long crawlDate,
-			long fileSystemDate) throws UnsupportedEncodingException {
+	public FileItem(String pathEncoded, String originalPathEncoded,
+			long crawlDate, long fileSystemDate)
+			throws UnsupportedEncodingException {
 		this();
-		setPath(URLDecoder.decode(path, "UTF-8"));
-		setOriginalPath(URLDecoder.decode(originalPath, "UTF-8"));
+		setPathEncoded(pathEncoded);
+		setOriginalPathEncoded(originalPathEncoded);
 		setCrawlDate(crawlDate);
 		setFileSystemDate(fileSystemDate);
 	}
@@ -215,6 +215,10 @@ public class FileItem implements Serializable {
 		return originalPath;
 	}
 
+	public String getOriginalPathEncoded() throws UnsupportedEncodingException {
+		return URLEncoder.encode(originalPath, "UTF-8");
+	}
+
 	public ParserStatus getParserStatus() {
 		if (parserStatus == null)
 			return ParserStatus.NOT_PARSED;
@@ -223,6 +227,10 @@ public class FileItem implements Serializable {
 
 	public String getPath() {
 		return path;
+	}
+
+	public String getPathEncoded() throws UnsupportedEncodingException {
+		return URLEncoder.encode(path, "UTF-8");
 	}
 
 	public Integer getResponseCode() {
@@ -245,10 +253,9 @@ public class FileItem implements Serializable {
 
 	public void populate(IndexDocument indexDocument)
 			throws UnsupportedEncodingException {
-		indexDocument.set(FileItemFieldEnum.path.name(), URLEncoder.encode(
-				getPath(), "UTF-8"));
-		indexDocument.set(FileItemFieldEnum.originalPath.name(), URLEncoder
-				.encode(getOriginalPath(), "UTF-8"));
+		indexDocument.set(FileItemFieldEnum.path.name(), getPathEncoded());
+		indexDocument.set(FileItemFieldEnum.originalPath.name(),
+				getOriginalPathEncoded());
 
 		if (when != null)
 			indexDocument.set(FileItemFieldEnum.when.name(),
@@ -361,6 +368,11 @@ public class FileItem implements Serializable {
 		this.originalPath = originalPath;
 	}
 
+	public void setOriginalPathEncoded(String encoded)
+			throws UnsupportedEncodingException {
+		this.originalPath = URLDecoder.decode(encoded, "UTF-8");
+	}
+
 	public void setParserStatus(ParserStatus status) {
 		this.parserStatus = status;
 	}
@@ -376,6 +388,11 @@ public class FileItem implements Serializable {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public void setPathEncoded(String encoded)
+			throws UnsupportedEncodingException {
+		this.path = URLDecoder.decode(encoded, "UTF-8");
 	}
 
 	public void setResponseCode(Integer v) {

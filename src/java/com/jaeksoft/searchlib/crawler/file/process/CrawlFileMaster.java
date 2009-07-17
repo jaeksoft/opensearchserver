@@ -128,9 +128,12 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			fileItem.setCrawlDate(startCrawlDate);
 			updateList.add(fileItem);
 		}
-		
-		if (updateList.size()> 1000)
+
+		if (updateList.size() > config.getPropertyManager()
+				.getIndexDocumentBufferSize()) {
 			config.getFileManager().updateFileItems(updateList);
+			updateList.clear();
+		}
 	}
 
 	private void addChildrenToCrawl(PathItem item) throws SearchLibException,
@@ -155,8 +158,10 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		}
 
 		// Update unmodified files
-		if (!updateList.isEmpty())
+		if (!updateList.isEmpty()) {
 			config.getFileManager().updateFileItems(updateList);
+			updateList.clear();
+		}
 	}
 
 	private void addChildRec(File file, String originalPath, boolean recursive,

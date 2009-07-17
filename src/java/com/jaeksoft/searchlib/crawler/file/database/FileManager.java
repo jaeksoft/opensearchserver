@@ -210,10 +210,12 @@ public class FileManager {
 		}
 	}
 
-	public boolean exists(String path) throws SearchLibException, UnsupportedEncodingException, ParseException {
+	public boolean exists(String path) throws SearchLibException,
+			UnsupportedEncodingException, ParseException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
-		request.addFilter("path:" + URLEncoder.encode(path, "UTF-8"));
+		request.addFilter(FileItemFieldEnum.path.name() + ":"
+				+ URLEncoder.encode(path, "UTF-8"));
 		return (getFiles(request, null, false, 0, 0, null) > 0);
 	}
 
@@ -221,13 +223,13 @@ public class FileManager {
 			CorruptIndexException, ParseException, UnsupportedEncodingException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
-		request.addFilter("path:" + URLEncoder.encode(path, "UTF-8"));
-		
+		request.addFilter(FileItemFieldEnum.path.name() + ":"
+				+ URLEncoder.encode(path, "UTF-8"));
+
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
 		getFiles(request, null, false, 0, 10, listFileItem);
 
-	
-		if (listFileItem.size() > 0) 
+		if (listFileItem.size() > 0)
 			return listFileItem.get(0);
 
 		return null;
@@ -238,9 +240,10 @@ public class FileManager {
 	 * 
 	 * @param list
 	 * @throws SearchLibException
-	 * @throws ParseException 
+	 * @throws ParseException
 	 */
-	public void inject(List<FileItem> list) throws SearchLibException, ParseException {
+	public void inject(List<FileItem> list) throws SearchLibException,
+			ParseException {
 		synchronized (this) {
 			try {
 				List<IndexDocument> injectList = new ArrayList<IndexDocument>();
