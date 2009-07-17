@@ -107,6 +107,10 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		crawlThread.start(threadPool);
 	}
 
+	/**
+	 * Add to crawl queue if needed
+	 * 
+	 */
 	private void sendToCrawl(File current, String originalPath,
 			List<FileItem> updateList) throws CorruptIndexException,
 			SearchLibException, ParseException, UnsupportedEncodingException {
@@ -127,34 +131,38 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			// No need to reindex only update crawl Date
 			fileItem.setCrawlDate(startCrawlDate);
 			updateList.add(fileItem);
-		}
 
-		if (updateList.size() > config.getPropertyManager()
-				.getIndexDocumentBufferSize()) {
-			config.getFileManager().updateFileItems(updateList);
-			updateList.clear();
+			// partial update of unmodified files
+			if (updateList.size() > config.getPropertyManager()
+					.getIndexDocumentBufferSize()) {
+				config.getFileManager().updateFileItems(updateList);
+				updateList.clear();
+			}
 		}
 	}
 
+	/**
+	 * Start of the recursive crawl
+	 * 
+	 */
 	private void addChildrenToCrawl(PathItem item) throws SearchLibException,
 			CorruptIndexException, ParseException, UnsupportedEncodingException {
 
-		String originalPath = item.getPath();
 		File current = new File(item.getPath());
 
 		List<FileItem> updateList = new ArrayList<FileItem>();
 
 		if (current.isFile()) {
-			sendToCrawl(current, originalPath, updateList);
+			sendToCrawl(current, item.getPath(), updateList);
 
 		} else if (current.isDirectory()) {
 			// Add its children and children of children
 			if (item.isWithSub())
-				addChildRec(current, originalPath, true, updateList);
+				addChildRec(current, item.getPath(), true, updateList);
 
 			// Only add its children
 			else
-				addChildRec(current, originalPath, false, updateList);
+				addChildRec(current, item.getPath(), false, updateList);
 		}
 
 		// Update unmodified files
@@ -164,9 +172,14 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		}
 	}
 
+	/**
+	 * Recursive loop to crawl directories to leaves
+	 * 
+	 */
 	private void addChildRec(File file, String originalPath, boolean recursive,
 			List<FileItem> updateList) throws SearchLibException,
 			CorruptIndexException, ParseException, UnsupportedEncodingException {
+
 		File[] children = file.listFiles();
 		if (children != null && children.length > 0 && !isAbort()) {
 
@@ -223,8 +236,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 		List<PathItem> fileList = new ArrayList<PathItem>();
 		config.getFilePathManager().getAllPaths(fileList);
-
-		setInfo(null);
 		return fileList;
 	}
 
