@@ -169,6 +169,11 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		add(field, value.toString());
 	}
 
+	public void add(Map<?, ?> fieldMap) {
+		for (Map.Entry<?, ?> entry : fieldMap.entrySet())
+			add(entry.getKey().toString(), entry.getValue());
+	}
+
 	public void set(String field, String value) {
 		FieldContent fc = fields.get(field);
 		if (fc != null)
