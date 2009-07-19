@@ -96,7 +96,7 @@ public class ParserSelector {
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, MalformedURLException {
 		ParserFactory parserFactory = null;
-		if (extensionParserMap != null)
+		if (extensionParserMap != null && extension != null)
 			parserFactory = extensionParserMap.get(extension);
 		return getParser(parserFactory);
 	}

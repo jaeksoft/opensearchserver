@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -46,7 +44,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	private final Config config;
 	private final CrawlFileMaster crawlMaster;
 	private FileItem currentFileItem;
-	private List<FileItem> files;
 	private final CrawlStatistics currentStats;
 	private final long delayBetweenAccesses;
 	private long nextTimeTarget;
@@ -61,7 +58,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		delayBetweenAccesses = config.getPropertyManager()
 				.getDelayBetweenAccesses();
 		nextTimeTarget = 0;
-		this.files = listFile;
 	}
 
 	public CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
@@ -74,8 +70,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		delayBetweenAccesses = config.getPropertyManager()
 				.getDelayBetweenAccesses();
 		nextTimeTarget = 0;
-		this.files = new ArrayList<FileItem>();
-		this.files.add(item);
+		currentFileItem = item;
 	}
 
 	private void sleepInterval() {
@@ -93,28 +88,21 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		boolean dryRun = propertyManager.isDryRun();
 		FileCrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
 
-		Iterator<FileItem> iterator = files.iterator();
+		if (isAbort() || crawlMaster.isAbort())
+			return;
 
-		while (iterator.hasNext()) {
-
-			if (isAbort() || crawlMaster.isAbort())
-				break;
-
-			this.currentFileItem = iterator.next();
-
-			CrawlFile crawl = crawlFile(userAgent, dryRun);
-			if (crawl != null) {
-				if (!dryRun)
-					crawlQueue.add(crawl);
-				currentStats.incPendingUpdatedCount();
-			} else {
-				if (!dryRun)
-					crawlQueue.delete(currentFileItem.getPath());
-				currentStats.incPendingDeletedCount();
-			}
+		CrawlFile crawl = crawlFile(userAgent, dryRun);
+		if (crawl != null) {
+			if (!dryRun)
+				crawlQueue.add(crawl);
+			currentStats.incPendingUpdatedCount();
+		} else {
+			if (!dryRun)
+				crawlQueue.delete(currentFileItem.getPath());
+			currentStats.incPendingDeletedCount();
 		}
 
-		config.getFileManager().inject(files);
+		config.getFileManager().inject(currentFileItem);
 
 		setStatus(CrawlStatus.INDEXATION);
 		if (!dryRun)

@@ -242,17 +242,15 @@ public class FileManager {
 	 * @throws SearchLibException
 	 * @throws ParseException
 	 */
-	public void inject(List<FileItem> list) throws SearchLibException,
-			ParseException {
+	public void inject(FileItem item) throws SearchLibException, ParseException {
 		synchronized (this) {
 			try {
 				List<IndexDocument> injectList = new ArrayList<IndexDocument>();
-				for (FileItem item : list) {
-					if (exists(item.getPath()))
-						item.setStatus(FileItem.Status.ALREADY);
-					else
-						injectList.add(item.getIndexDocument());
-				}
+
+				if (exists(item.getPath()))
+					item.setStatus(FileItem.Status.ALREADY);
+				else
+					injectList.add(item.getIndexDocument());
 
 				if (injectList.size() == 0)
 					return;
@@ -260,11 +258,9 @@ public class FileManager {
 				fileDbClient.updateDocuments(injectList);
 				int injected = 0;
 
-				for (FileItem item : list) {
-					if (item.getStatus() == FileItem.Status.UNDEFINED) {
-						item.setStatus(FileItem.Status.INJECTED);
-						injected++;
-					}
+				if (item.getStatus() == FileItem.Status.UNDEFINED) {
+					item.setStatus(FileItem.Status.INJECTED);
+					injected++;
 				}
 
 				if (injected > 0)
