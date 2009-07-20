@@ -71,7 +71,7 @@ public class IndexConfig {
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("index", "searchCache", Integer
+		xmlWriter.startElement("index", "name", name, "searchCache", Integer
 				.toString(searchCache), "filterCache", Integer
 				.toString(filterCache), "fieldCache", Integer
 				.toString(fieldCache), "remoteUrl",
