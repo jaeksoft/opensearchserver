@@ -19,7 +19,8 @@
 	<!--   -->
 	<!--   See the GNU General Public License for more details. -->
 <map>
-	<link source="contentBaseType" target="contentBaseType" />
 	<link source="path" target="path" />
+	<link source="content" target="content" />
 	<link source="originalPath" target="originalPath" />
+	<link source="fileSystemDate" target="fileSystemDate" />
 </map>

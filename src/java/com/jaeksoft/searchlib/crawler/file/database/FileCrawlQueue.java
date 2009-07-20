@@ -38,15 +38,11 @@ import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 	private List<CrawlFile> updateCrawlList;
-	private List<FileItem> insertFileList;
-	private List<String> deleteFileList;
 	final private Object indexSync = new Object();
 
 	public FileCrawlQueue(Config config) throws SearchLibException {
 		setConfig(config);
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
-		this.insertFileList = new ArrayList<FileItem>(0);
-		this.deleteFileList = new ArrayList<String>(0);
 	}
 
 	@Override
@@ -59,10 +55,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 	@Override
 	public void delete(String url) {
-		synchronized (deleteFileList) {
-			deleteFileList.add(url);
-			getSessionStats().incPendingDeletedCount();
-		}
+		// TODO Auto-generated method stub
 	}
 
 	private boolean shouldWePersist() {
@@ -70,14 +63,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 			if (updateCrawlList.size() > getMaxBufferSize())
 				return true;
 		}
-		synchronized (deleteFileList) {
-			if (deleteFileList.size() > getMaxBufferSize())
-				return true;
-		}
-		synchronized (insertFileList) {
-			if (insertFileList.size() > getMaxBufferSize())
-				return true;
-		}
+
 		return false;
 	}
 
@@ -85,14 +71,13 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		List<FileItem> workInsertUrlList;
+		List<CrawlFile> workUpdateCrawlList;
 		synchronized (this) {
 			if (!bForce)
 				if (!shouldWePersist())
 					return;
-			workInsertUrlList = insertFileList;
-			insertFileList = new ArrayList<FileItem>(0);
-			deleteFileList = new ArrayList<String>(0);
+
+			workUpdateCrawlList = updateCrawlList;
 		}
 
 		FileManager fileManager = getConfig().getFileManager();
@@ -100,9 +85,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		// Synchronization to avoid simoultaneous indexation process
 		synchronized (indexSync) {
 			boolean needReload = false;
-			if (insertCollection(workInsertUrlList))
+			if (updateCrawls(workUpdateCrawlList))
 				needReload = true;
-
 			if (needReload)
 				fileManager.reload(false);
 		}

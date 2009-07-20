@@ -96,10 +96,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			if (!dryRun)
 				crawlQueue.add(crawl);
 			currentStats.incPendingUpdatedCount();
-		} else {
-			if (!dryRun)
-				crawlQueue.delete(currentFileItem.getPath());
-			currentStats.incPendingDeletedCount();
 		}
 
 		config.getFileManager().inject(currentFileItem);
