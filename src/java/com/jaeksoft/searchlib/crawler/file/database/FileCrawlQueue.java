@@ -58,7 +58,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		// TODO Auto-generated method stub
 	}
 
-	private boolean shouldWePersist() {
+	public boolean shouldWePersist() {
 		synchronized (updateCrawlList) {
 			if (updateCrawlList.size() > getMaxBufferSize())
 				return true;
