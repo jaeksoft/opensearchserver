@@ -370,6 +370,8 @@ public class FileItem implements Serializable {
 
 	public void setOriginalPathEncoded(String encoded)
 			throws UnsupportedEncodingException {
+		if (encoded == null)
+			return;
 		this.originalPath = URLDecoder.decode(encoded, "UTF-8");
 	}
 
@@ -392,6 +394,8 @@ public class FileItem implements Serializable {
 
 	public void setPathEncoded(String encoded)
 			throws UnsupportedEncodingException {
+		if (encoded == null)
+			return;
 		this.path = URLDecoder.decode(encoded, "UTF-8");
 	}
 

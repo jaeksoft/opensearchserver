@@ -57,11 +57,6 @@ public class BrowserController extends CommonController implements
 	transient private List<PathItem> pathList = null;
 	transient private List<String> files;
 
-	/*
-	 * private int pageSizeFirst; private int totalSizeFirst; private int
-	 * activePageFirst;
-	 */
-
 	private int pageSize;
 	private int totalSize;
 	private int activePage;
@@ -75,11 +70,8 @@ public class BrowserController extends CommonController implements
 		super();
 		pathList = null;
 		pageSize = 10;
-		// pageSizeFirst = 10;
 		totalSize = 0;
 		activePage = 0;
-		// totalSizeFirst = 10;
-		// activePageFirst = 0;
 		files = null;
 	}
 

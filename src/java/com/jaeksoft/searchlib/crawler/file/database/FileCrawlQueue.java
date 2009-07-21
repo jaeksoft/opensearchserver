@@ -55,9 +55,10 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		/*
 		 * System.out.println("Total : " + Runtime.getRuntime().totalMemory());
 		 * System.out.println("Max : " + Runtime.getRuntime().maxMemory());
-		 * System.out.println("Free : " + Runtime.getRuntime().freeMemory());
-		 * System.out.println("List size " + updateCrawlList.size());
 		 */
+		// System.out.println("Free : " + Runtime.getRuntime().freeMemory());
+
+		// System.out.println("List size " + updateCrawlList.size());
 
 	}
 
@@ -67,7 +68,6 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	}
 
 	public boolean shouldWePersist() {
-		System.out.println("max " + getMaxBufferSize());
 		synchronized (updateCrawlList) {
 			if (updateCrawlList.size() > getMaxBufferSize())
 				return true;

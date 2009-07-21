@@ -128,12 +128,21 @@ public class FileManager {
 
 	public void deleteByOriginalPath(String value) throws SearchLibException {
 		try {
+			//System.out.println(FileUtils.rewriteURIFilePath(value));
+
 			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 			deleteRequest.setQueryString(FileItemFieldEnum.originalPath.name()
 					+ ":\"" + FileUtils.rewriteURIFilePath(value) + '"');
 			deleteRequest.setDelete(true);
-			fileDbClient.search(deleteRequest);
+			/*
+			 * deleteRequest.setQueryString("*:*"); Result result =
+			 * fileDbClient.search(deleteRequest); for (ResultDocument doc :
+			 * result) { FileItem item = new FileItem(doc);
+			 * System.out.println("path " + item.getPath());
+			 * System.out.println("orig " + item.getOriginalPath());
+			 * System.out.println(""); }
+			 */
 
 			// Delete in final index if a mapping is found
 			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
@@ -144,6 +153,8 @@ public class FileManager {
 					+ FileUtils.rewriteURIFilePath(value) + '"');
 			deleteRequestTarget.setDelete(true);
 			targetClient.search(deleteRequestTarget);
+
+			reload(true);
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -188,6 +199,7 @@ public class FileManager {
 			deleteRequestTarget.setDelete(true);
 			targetClient.search(deleteRequestTarget);
 
+			reload(true);
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -489,16 +501,16 @@ public class FileManager {
 				IndexDocument indexDocument = crawl.getTargetIndexDocument();
 				documents.add(indexDocument);
 			}
-			fileDbClient.updateDocuments(documents);
+			targetClient.updateDocuments(documents);
 
-			// Update URL DB
+			// Update FilePath DB
 			documents.clear();
 			for (CrawlFile crawl : crawls) {
 				IndexDocument indexDocument = new IndexDocument();
 				crawl.getFileItem().populate(indexDocument);
 				documents.add(indexDocument);
 			}
-			targetClient.updateDocuments(documents);
+			fileDbClient.updateDocuments(documents);
 
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);

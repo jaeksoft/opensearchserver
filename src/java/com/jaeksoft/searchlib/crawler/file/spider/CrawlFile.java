@@ -55,12 +55,12 @@ public class CrawlFile {
 	private final String userAgent;
 	private Parser parser;
 	private String error;
-	private final FieldMap urlFieldMap;
+	private final FieldMap fileFieldMap;
 	private final Config config;
 
 	public CrawlFile(FileItem fileItem, Config config,
 			CrawlStatistics currentStats) throws SearchLibException {
-		this.urlFieldMap = config.getWebCrawlerFieldMap();
+		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileItem = fileItem;
 		this.fileItem.setWhenNow();
 		this.userAgent = config.getPropertyManager().getUserAgent()
@@ -146,13 +146,14 @@ public class CrawlFile {
 		return parser;
 	}
 
-	public IndexDocument getTargetIndexDocument() throws SearchLibException, UnsupportedEncodingException {
+	public IndexDocument getTargetIndexDocument() throws SearchLibException,
+			UnsupportedEncodingException {
 		synchronized (this) {
 
 			IndexDocument indexDocument = new IndexDocument();
 			IndexDocument urlIndexDocument = new IndexDocument();
 			fileItem.populate(urlIndexDocument);
-			urlFieldMap.mapIndexDocument(urlIndexDocument, indexDocument);
+			fileFieldMap.mapIndexDocument(urlIndexDocument, indexDocument);
 
 			if (parser != null)
 				parser.populate(indexDocument);
