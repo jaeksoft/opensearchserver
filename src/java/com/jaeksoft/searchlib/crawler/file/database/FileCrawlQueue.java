@@ -51,6 +51,14 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		synchronized (updateCrawlList) {
 			updateCrawlList.add(crawl);
 		}
+
+		/*
+		 * System.out.println("Total : " + Runtime.getRuntime().totalMemory());
+		 * System.out.println("Max : " + Runtime.getRuntime().maxMemory());
+		 * System.out.println("Free : " + Runtime.getRuntime().freeMemory());
+		 * System.out.println("List size " + updateCrawlList.size());
+		 */
+
 	}
 
 	@Override
@@ -59,6 +67,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	}
 
 	public boolean shouldWePersist() {
+		System.out.println("max " + getMaxBufferSize());
 		synchronized (updateCrawlList) {
 			if (updateCrawlList.size() > getMaxBufferSize())
 				return true;
@@ -78,6 +87,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 					return;
 
 			workUpdateCrawlList = updateCrawlList;
+			updateCrawlList = new ArrayList<CrawlFile>(0);
 		}
 
 		FileManager fileManager = getConfig().getFileManager();
@@ -95,18 +105,20 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	@Override
 	protected boolean insertCollection(List<FileItem> workInsertUrlList)
 			throws SearchLibException {
-		if (workInsertUrlList.size() == 0)
-			return false;
-		getConfig().getFileManager().updateFileItems(workInsertUrlList);
-		getSessionStats().addNewUrlCount(workInsertUrlList.size());
-		return true;
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
 	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList)
 			throws SearchLibException {
-		// TODO Auto-generated method stub
-		return false;
+		if (workUpdateCrawlList.size() == 0)
+			return false;
+
+		FileManager manager = (FileManager) getConfig().getFileManager();
+		manager.updateCrawls(workUpdateCrawlList);
+		getSessionStats().addUpdatedCount(workUpdateCrawlList.size());
+		return true;
 	}
 
 	@Override

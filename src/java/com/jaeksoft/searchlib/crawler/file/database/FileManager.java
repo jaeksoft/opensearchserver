@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -478,4 +479,40 @@ public class FileManager {
 			throw new SearchLibException(e);
 		}
 	}
+
+	public void updateCrawls(List<CrawlFile> crawls) throws SearchLibException {
+		try {
+			// Update target index
+			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
+					.size());
+			for (CrawlFile crawl : crawls) {
+				IndexDocument indexDocument = crawl.getTargetIndexDocument();
+				documents.add(indexDocument);
+			}
+			fileDbClient.updateDocuments(documents);
+
+			// Update URL DB
+			documents.clear();
+			for (CrawlFile crawl : crawls) {
+				IndexDocument indexDocument = new IndexDocument();
+				crawl.getFileItem().populate(indexDocument);
+				documents.add(indexDocument);
+			}
+			targetClient.updateDocuments(documents);
+
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
 }

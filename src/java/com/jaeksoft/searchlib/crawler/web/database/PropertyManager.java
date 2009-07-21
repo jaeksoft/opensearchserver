@@ -39,7 +39,8 @@ public class PropertyManager {
 				"userAgent"), DELAY_BETWEEN_ACCESSES("delayBetweenAccesses"), CRAWL_ENABLED(
 				"crawlEnabled"), OPTIMIZE_AFTER_SESSION("optimizeAfterSession"), PUBLISH_AFTER_SESSION(
 				"PublishAfterSession"), DRY_RUN("dryRun"), DEBUG("debug"), INDEX_DOCUMENT_BUFFER_SIZE(
-				"indexDocumentBufferSize");
+				"indexDocumentBufferSize"), INDEX_DOCUMENT_BUFFER_SIZE_FILE(
+				"indexDocumentBufferSizeFile");
 
 		private String name;
 
@@ -235,6 +236,16 @@ public class PropertyManager {
 		return indexDocumentBufferSize;
 	}
 
+	private Integer indexDocumentBufferSizeFile = null;
+
+	public int getIndexDocumentBufferSizeFile() {
+		if (indexDocumentBufferSizeFile == null)
+			indexDocumentBufferSizeFile = getPropertyInteger(Property.INDEX_DOCUMENT_BUFFER_SIZE);
+		if (indexDocumentBufferSizeFile == null)
+			indexDocumentBufferSizeFile = 1000;
+		return indexDocumentBufferSizeFile;
+	}
+
 	public void setIndexDocumentBufferSize(int v) throws IOException {
 		if (indexDocumentBufferSize != null)
 			if (indexDocumentBufferSize.intValue() == v)
@@ -242,6 +253,16 @@ public class PropertyManager {
 		indexDocumentBufferSize = v;
 		setProperty(new PropertyItem(Property.INDEX_DOCUMENT_BUFFER_SIZE.name,
 				indexDocumentBufferSize));
+	}
+
+	public void setIndexDocumentBufferSizeFile(int v) throws IOException {
+		if (indexDocumentBufferSizeFile != null)
+			if (indexDocumentBufferSizeFile.intValue() == v)
+				return;
+		indexDocumentBufferSizeFile = v;
+		setProperty(new PropertyItem(
+				Property.INDEX_DOCUMENT_BUFFER_SIZE_FILE.name,
+				indexDocumentBufferSizeFile));
 	}
 
 	private Integer delayBetweenAccesses = null;

@@ -101,6 +101,9 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 			insertUrlList = new ArrayList<UrlItem>(0);
 			workDeleteUrlList = deleteUrlList;
 			deleteUrlList = new ArrayList<String>(0);
+
+			// TODO : should or not?
+			updateCrawlList = new ArrayList<Crawl>(0);
 		}
 
 		UrlManager urlManager = getConfig().getUrlManager();

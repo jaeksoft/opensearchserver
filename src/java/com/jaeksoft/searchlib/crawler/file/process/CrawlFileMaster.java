@@ -266,6 +266,9 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	public void runner() throws Exception {
 		PropertyManager propertyManager = config.getPropertyManager();
 
+		crawlQueue.setMaxBufferSize(propertyManager
+				.getIndexDocumentBufferSizeFile());
+
 		while (!isAbort()) {
 
 			int threadNumber = propertyManager.getMaxThreadNumber();
