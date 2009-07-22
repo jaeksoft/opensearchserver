@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -52,7 +51,6 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.util.FileUtils;
 
 public class FileManager {
 
@@ -131,7 +129,7 @@ public class FileManager {
 			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 			deleteRequest.setQueryString(FileItemFieldEnum.originalPath.name()
-					+ ":\"" + FileUtils.rewriteUTF8(value) + '"');
+					+ ":\"" + SearchRequest.escapeQuery(value) + '"');
 			deleteRequest.setDelete(true);
 			fileDbClient.search(deleteRequest);
 
@@ -141,7 +139,7 @@ public class FileManager {
 			SearchRequest deleteRequestTarget = targetClient
 					.getNewSearchRequest();
 			deleteRequestTarget.setQueryString(mappedField.get(0) + ":\""
-					+ FileUtils.rewriteUTF8(value) + '"');
+					+ SearchRequest.escapeQuery(value) + '"');
 			deleteRequestTarget.setDelete(true);
 			targetClient.search(deleteRequestTarget);
 
@@ -218,8 +216,8 @@ public class FileManager {
 			UnsupportedEncodingException, ParseException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
-		request.addFilter(FileItemFieldEnum.path.name() + ":"
-				+ URLEncoder.encode(path, "UTF-8"));
+		request.addFilter(FileItemFieldEnum.path.name() + ":\""
+				+ SearchRequest.escapeQuery(path) + '"');
 		return (getFiles(request, null, false, 0, 0, null) > 0);
 	}
 
@@ -227,8 +225,8 @@ public class FileManager {
 			CorruptIndexException, ParseException, UnsupportedEncodingException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
-		request.addFilter(FileItemFieldEnum.path.name() + ":"
-				+ URLEncoder.encode(path, "UTF-8"));
+		request.addFilter(FileItemFieldEnum.path.name() + ":\""
+				+ SearchRequest.escapeQuery(path) + '"');
 
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
 		getFiles(request, null, false, 0, 10, listFileItem);
@@ -339,7 +337,7 @@ public class FileManager {
 
 			if (startDate != null || endDate != null) {
 				String from, to;
-				SimpleDateFormat df = FileItem.getWhenDateFormat();
+				SimpleDateFormat df = FileItem.getDateFormat();
 				if (startDate == null)
 					from = "00000000000000";
 				else
@@ -414,13 +412,13 @@ public class FileManager {
 		try {
 			List<IndexDocument> documents = new ArrayList<IndexDocument>(
 					fileItems.size());
-			for (FileItem urlItem : fileItems) {
+			for (FileItem item : fileItems) {
 				IndexDocument indexDocument = new IndexDocument();
-				urlItem.populate(indexDocument);
+				item.populate(indexDocument);
 				documents.add(indexDocument);
 			}
-			fileDbClient.updateDocuments(documents);
 			targetClient.updateDocuments(documents);
+			fileDbClient.updateDocuments(documents);
 
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);

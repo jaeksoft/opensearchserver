@@ -25,9 +25,6 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -73,8 +70,16 @@ public class FileItem implements Serializable {
 		return new DecimalFormat("00000000000000");
 	}
 
-	final static SimpleDateFormat getWhenDateFormat() {
+	final static SimpleDateFormat getDateFormat() {
 		return new SimpleDateFormat("yyyyMMddHHmmss");
+	}
+
+	final static SimpleDateFormat getTecnhicalDateFormat() {
+		return new SimpleDateFormat("yyyyMMddHHmmssSSS");
+	}
+
+	public final static SimpleDateFormat getNiceDateFormat() {
+		return new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
 	}
 
 	private String path;
@@ -90,7 +95,7 @@ public class FileItem implements Serializable {
 	private Integer responseCode;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
-	private long fileSystemDate;
+	private String fileSystemDate;
 	private long crawlDate;
 
 	private final int count;
@@ -114,14 +119,13 @@ public class FileItem implements Serializable {
 		indexStatus = IndexStatus.NOT_INDEXED;
 		count = 0;
 		crawlDate = 0;
-		fileSystemDate = 0;
+		fileSystemDate = "0";
 	}
 
-	public FileItem(ResultDocument doc) throws UnsupportedEncodingException {
+	public FileItem(ResultDocument doc) {
 		this();
-		setPathEncoded(doc.getValue(FileItemFieldEnum.path.name(), 0));
-		setOriginalPathEncoded(doc.getValue(FileItemFieldEnum.originalPath
-				.name(), 0));
+		setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
+		setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(), 0));
 		setContentBaseType(doc.getValue(FileItemFieldEnum.contentBaseType
 				.name(), 0));
 		setContentTypeCharset(doc.getValue(FileItemFieldEnum.contentTypeCharset
@@ -144,7 +148,7 @@ public class FileItem implements Serializable {
 	}
 
 	public FileItem(String path, String original, long crawlDate,
-			long fileSystemDate) throws UnsupportedEncodingException {
+			long fileSystemDate) {
 		this();
 		setPath(path);
 		setOriginalPath(original);
@@ -190,7 +194,7 @@ public class FileItem implements Serializable {
 		return sb.toString();
 	}
 
-	public IndexDocument getIndexDocument() throws UnsupportedEncodingException {
+	public IndexDocument getIndexDocument() {
 		IndexDocument indexDocument = new IndexDocument();
 		populate(indexDocument);
 		return indexDocument;
@@ -214,10 +218,6 @@ public class FileItem implements Serializable {
 		return originalPath;
 	}
 
-	public String getOriginalPathEncoded() throws UnsupportedEncodingException {
-		return URLEncoder.encode(originalPath, "UTF-8");
-	}
-
 	public ParserStatus getParserStatus() {
 		if (parserStatus == null)
 			return ParserStatus.NOT_PARSED;
@@ -226,10 +226,6 @@ public class FileItem implements Serializable {
 
 	public String getPath() {
 		return path;
-	}
-
-	public String getPathEncoded() throws UnsupportedEncodingException {
-		return URLEncoder.encode(path, "UTF-8");
 	}
 
 	public Integer getResponseCode() {
@@ -250,15 +246,14 @@ public class FileItem implements Serializable {
 				&& indexStatus == IndexStatus.INDEXED;
 	}
 
-	public void populate(IndexDocument indexDocument)
-			throws UnsupportedEncodingException {
-		indexDocument.set(FileItemFieldEnum.path.name(), getPathEncoded());
+	public void populate(IndexDocument indexDocument) {
+		indexDocument.set(FileItemFieldEnum.path.name(), getPath());
 		indexDocument.set(FileItemFieldEnum.originalPath.name(),
-				getOriginalPathEncoded());
+				getOriginalPath());
 
 		if (when != null)
-			indexDocument.set(FileItemFieldEnum.when.name(),
-					getWhenDateFormat().format(when));
+			indexDocument.set(FileItemFieldEnum.when.name(), getDateFormat()
+					.format(when));
 
 		indexDocument.set(FileItemFieldEnum.crawlDate.name(), crawlDate);
 		indexDocument.set(FileItemFieldEnum.fileSystemDate.name(),
@@ -367,14 +362,6 @@ public class FileItem implements Serializable {
 		this.originalPath = originalPath;
 	}
 
-	public void setOriginalPathEncoded(String encoded)
-			throws UnsupportedEncodingException {
-		if (encoded == null)
-			this.originalPath = "default";
-		else
-			this.originalPath = URLDecoder.decode(encoded, "UTF-8");
-	}
-
 	public void setParserStatus(ParserStatus status) {
 		this.parserStatus = status;
 	}
@@ -390,14 +377,6 @@ public class FileItem implements Serializable {
 
 	public void setPath(String path) {
 		this.path = path;
-	}
-
-	public void setPathEncoded(String encoded)
-			throws UnsupportedEncodingException {
-		if (encoded == null)
-			this.path = "default";
-		else
-			this.path = URLDecoder.decode(encoded, "UTF-8");
 	}
 
 	public void setResponseCode(Integer v) {
@@ -427,7 +406,7 @@ public class FileItem implements Serializable {
 			return;
 		}
 		try {
-			when = getWhenDateFormat().parse(d);
+			when = getDateFormat().parse(d);
 		} catch (ParseException e) {
 			logger.log(Level.WARNING, e.getMessage(), e);
 			setWhenNow();
@@ -454,31 +433,24 @@ public class FileItem implements Serializable {
 		}
 	}
 
-	public void setFileSystemDate(long d) {
-		fileSystemDate = d;
-	}
-
-	public long getFileSystemDate() {
+	public String getFileSystemDate() {
 		return fileSystemDate;
 	}
 
 	public void setFileSystemDate(String d) {
-		if (d == null)
-			return;
+		fileSystemDate = d;
+	}
 
-		try {
-			fileSystemDate = Long.parseLong(d);
-		} catch (NumberFormatException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-		}
+	public void setFileSystemDate(long d) {
+		fileSystemDate = getTecnhicalDateFormat().format(new Date(d));
 	}
 
 	/**
 	 * Test if a new crawl is needed
+	 * 
+	 * @throws ParseException
 	 */
-	public boolean isNewCrawlNeeded(long dateModified) {
-		if (this.getFileSystemDate() != dateModified)
-			return true;
-		return false;
+	public boolean isNewCrawlNeeded(long dateModified) throws ParseException {
+		return getTecnhicalDateFormat().parse(fileSystemDate).getTime() != dateModified;
 	}
 }

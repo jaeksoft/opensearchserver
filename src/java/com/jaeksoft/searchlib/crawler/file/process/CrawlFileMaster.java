@@ -110,10 +110,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	/**
 	 * Add to crawl queue if needed
 	 * 
+	 * @throws java.text.ParseException
+	 * 
 	 */
 	private void sendToCrawl(File current, String originalPath,
 			List<FileItem> updateList) throws CorruptIndexException,
-			SearchLibException, ParseException, UnsupportedEncodingException {
+			SearchLibException, ParseException, UnsupportedEncodingException,
+			java.text.ParseException {
 
 		FileItem fileItem = config.getFileManager().find(current.getPath());
 
@@ -144,9 +147,12 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	/**
 	 * Start of the recursive crawl
 	 * 
+	 * @throws java.text.ParseException
+	 * 
 	 */
 	private void addChildrenToCrawl(PathItem item) throws SearchLibException,
-			CorruptIndexException, ParseException, UnsupportedEncodingException {
+			CorruptIndexException, ParseException,
+			UnsupportedEncodingException, java.text.ParseException {
 
 		File current = new File(item.getPath());
 
@@ -175,10 +181,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	/**
 	 * Recursive loop to crawl directories to leaves
 	 * 
+	 * @throws java.text.ParseException
+	 * 
 	 */
 	private void addChildRec(File file, String originalPath, boolean recursive,
 			List<FileItem> updateList) throws SearchLibException,
-			CorruptIndexException, ParseException, UnsupportedEncodingException {
+			CorruptIndexException, ParseException,
+			UnsupportedEncodingException, java.text.ParseException {
 
 		File[] children = file.listFiles();
 		if (children != null && children.length > 0 && !isAbort()) {

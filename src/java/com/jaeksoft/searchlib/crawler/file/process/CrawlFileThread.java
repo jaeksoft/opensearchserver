@@ -87,6 +87,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		boolean dryRun = propertyManager.isDryRun();
 		FileCrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
 
+		currentStats.addListSize(1);
+
 		if (isAbort() || crawlMaster.isAbort())
 			return;
 

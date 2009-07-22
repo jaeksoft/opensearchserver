@@ -134,7 +134,7 @@ public class PathItem extends GenericMap<String> {
 
 	public void populate(IndexDocument indexDocument) {
 		indexDocument.set("path", getPath());
-		indexDocument.set("when", FileItem.getWhenDateFormat().format(
+		indexDocument.set("when", FileItem.getDateFormat().format(
 				new Date()));
 
 		indexDocument.set("fetchStatus", FetchStatus.UN_FETCHED.value);

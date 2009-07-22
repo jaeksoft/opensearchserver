@@ -98,12 +98,11 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 					return;
 			workUpdateCrawlList = updateCrawlList;
 			workInsertUrlList = insertUrlList;
-			insertUrlList = new ArrayList<UrlItem>(0);
 			workDeleteUrlList = deleteUrlList;
-			deleteUrlList = new ArrayList<String>(0);
 
-			// TODO : should or not?
 			updateCrawlList = new ArrayList<Crawl>(0);
+			insertUrlList = new ArrayList<UrlItem>(0);
+			deleteUrlList = new ArrayList<String>(0);
 		}
 
 		UrlManager urlManager = getConfig().getUrlManager();

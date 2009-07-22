@@ -60,7 +60,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 	public boolean shouldWePersist() {
 		synchronized (updateCrawlList) {
-			if (updateCrawlList.size() > getMaxBufferSize())
+			if (updateCrawlList.size() >= getMaxBufferSize())
 				return true;
 		}
 
