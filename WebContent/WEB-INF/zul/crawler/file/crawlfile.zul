@@ -21,8 +21,8 @@
 		<panelchildren>
 			<grid>
 				<columns>
-					<column/>
-					<column/>
+					<column />
+					<column />
 				</columns>
 				<rows>
 					<row>
@@ -30,7 +30,13 @@
 							value="Delay between each accesses (milliseconds): " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.delayBetweenAccesses}" />
+							value="@{crawlFileProcess.properties.delayBetweenAccessesFile}" />
+							
+						<label
+							value="Number of file to crawl between each add: " />
+						<intbox constraint="no empty, no negative"
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.indexDocumentBufferSizeFile}" />
 					</row>
 				</rows>
 			</grid>
@@ -78,8 +84,8 @@
 					<auxheader label="Ignored" width="40px" />
 					<auxheader align="center" colspan="2"
 						label="Deleted" width="80px" />
-					<auxheader align="center" colspan="2" label="File(s)"
-						width="80px" />
+					<auxheader align="center" colspan="2"
+						label="File(s)" width="80px" />
 				</auxhead>
 				<listhead sizable="true">
 					<listheader width="130px" />

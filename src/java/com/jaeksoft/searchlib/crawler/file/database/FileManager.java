@@ -128,21 +128,12 @@ public class FileManager {
 
 	public void deleteByOriginalPath(String value) throws SearchLibException {
 		try {
-			//System.out.println(FileUtils.rewriteURIFilePath(value));
-
 			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 			deleteRequest.setQueryString(FileItemFieldEnum.originalPath.name()
-					+ ":\"" + FileUtils.rewriteURIFilePath(value) + '"');
+					+ ":\"" + FileUtils.rewriteUTF8(value) + '"');
 			deleteRequest.setDelete(true);
-			/*
-			 * deleteRequest.setQueryString("*:*"); Result result =
-			 * fileDbClient.search(deleteRequest); for (ResultDocument doc :
-			 * result) { FileItem item = new FileItem(doc);
-			 * System.out.println("path " + item.getPath());
-			 * System.out.println("orig " + item.getOriginalPath());
-			 * System.out.println(""); }
-			 */
+			fileDbClient.search(deleteRequest);
 
 			// Delete in final index if a mapping is found
 			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
@@ -150,7 +141,7 @@ public class FileManager {
 			SearchRequest deleteRequestTarget = targetClient
 					.getNewSearchRequest();
 			deleteRequestTarget.setQueryString(mappedField.get(0) + ":\""
-					+ FileUtils.rewriteURIFilePath(value) + '"');
+					+ FileUtils.rewriteUTF8(value) + '"');
 			deleteRequestTarget.setDelete(true);
 			targetClient.search(deleteRequestTarget);
 
@@ -246,52 +237,6 @@ public class FileManager {
 			return listFileItem.get(0);
 
 		return null;
-	}
-
-	/**
-	 * Inject files in file index
-	 * 
-	 * @param list
-	 * @throws SearchLibException
-	 * @throws ParseException
-	 */
-	public void inject(FileItem item) throws SearchLibException, ParseException {
-		synchronized (this) {
-			try {
-				List<IndexDocument> injectList = new ArrayList<IndexDocument>();
-
-				if (exists(item.getPath()))
-					item.setStatus(FileItem.Status.ALREADY);
-				else
-					injectList.add(item.getIndexDocument());
-
-				if (injectList.size() == 0)
-					return;
-
-				fileDbClient.updateDocuments(injectList);
-				int injected = 0;
-
-				if (item.getStatus() == FileItem.Status.UNDEFINED) {
-					item.setStatus(FileItem.Status.INJECTED);
-					injected++;
-				}
-
-				if (injected > 0)
-					fileDbClient.reload(null);
-			} catch (NoSuchAlgorithmException e) {
-				throw new SearchLibException(e);
-			} catch (IOException e) {
-				throw new SearchLibException(e);
-			} catch (URISyntaxException e) {
-				throw new SearchLibException(e);
-			} catch (InstantiationException e) {
-				throw new SearchLibException(e);
-			} catch (IllegalAccessException e) {
-				throw new SearchLibException(e);
-			} catch (ClassNotFoundException e) {
-				throw new SearchLibException(e);
-			}
-		}
 	}
 
 	private SearchRequest getPathSearchRequest() throws SearchLibException {

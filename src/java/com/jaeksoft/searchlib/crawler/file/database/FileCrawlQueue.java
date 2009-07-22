@@ -51,15 +51,6 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		synchronized (updateCrawlList) {
 			updateCrawlList.add(crawl);
 		}
-
-		/*
-		 * System.out.println("Total : " + Runtime.getRuntime().totalMemory());
-		 * System.out.println("Max : " + Runtime.getRuntime().maxMemory());
-		 */
-		// System.out.println("Free : " + Runtime.getRuntime().freeMemory());
-
-		// System.out.println("List size " + updateCrawlList.size());
-
 	}
 
 	@Override
@@ -97,6 +88,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 			boolean needReload = false;
 			if (updateCrawls(workUpdateCrawlList))
 				needReload = true;
+
 			if (needReload)
 				fileManager.reload(false);
 		}

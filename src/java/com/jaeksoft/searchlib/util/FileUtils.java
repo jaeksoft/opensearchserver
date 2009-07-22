@@ -31,6 +31,8 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import org.junit.Test;
 
@@ -100,7 +102,11 @@ public class FileUtils {
 		assertTrue(ext == null);
 	}
 
-	public static String rewriteURIFilePath(String path) {
-		return path.replace("\\", "\\\\");
+	public static String rewriteUTF8(String path)
+			throws UnsupportedEncodingException {
+		if (path == null)
+			return null;
+
+		return URLEncoder.encode(path, "UTF-8");
 	}
 }

@@ -82,7 +82,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
-
 		PropertyManager propertyManager = config.getPropertyManager();
 		String userAgent = propertyManager.getUserAgent();
 		boolean dryRun = propertyManager.isDryRun();
@@ -101,8 +100,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 			currentStats.incPendingUpdatedCount();
 		}
-
-		config.getFileManager().inject(currentFileItem);
 
 		setStatus(CrawlStatus.INDEXATION);
 		if (!dryRun)

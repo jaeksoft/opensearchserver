@@ -40,7 +40,8 @@ public class PropertyManager {
 				"crawlEnabled"), OPTIMIZE_AFTER_SESSION("optimizeAfterSession"), PUBLISH_AFTER_SESSION(
 				"PublishAfterSession"), DRY_RUN("dryRun"), DEBUG("debug"), INDEX_DOCUMENT_BUFFER_SIZE(
 				"indexDocumentBufferSize"), INDEX_DOCUMENT_BUFFER_SIZE_FILE(
-				"indexDocumentBufferSizeFile");
+				"indexDocumentBufferSizeFile"), DELAY_BETWEEN_ACCESSES_FILE(
+				"delayBetweenAccessesFile");
 
 		private String name;
 
@@ -357,6 +358,16 @@ public class PropertyManager {
 		publishAfterSession = v;
 		setProperty(new PropertyItem(Property.PUBLISH_AFTER_SESSION.name,
 				publishAfterSession));
+	}
+
+	private Integer delayBetweenAccessesFile = null;
+
+	public int getDelayBetweenAccessesFile() {
+		if (delayBetweenAccessesFile == null)
+			delayBetweenAccessesFile = getPropertyInteger(Property.DELAY_BETWEEN_ACCESSES_FILE);
+		if (delayBetweenAccessesFile == null)
+			delayBetweenAccessesFile = 100;
+		return delayBetweenAccessesFile;
 	}
 
 }

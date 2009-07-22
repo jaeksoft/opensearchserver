@@ -143,12 +143,11 @@ public class FileItem implements Serializable {
 				0));
 	}
 
-	public FileItem(String pathEncoded, String originalPathEncoded,
-			long crawlDate, long fileSystemDate)
-			throws UnsupportedEncodingException {
+	public FileItem(String path, String original, long crawlDate,
+			long fileSystemDate) throws UnsupportedEncodingException {
 		this();
-		setPathEncoded(pathEncoded);
-		setOriginalPathEncoded(originalPathEncoded);
+		setPath(path);
+		setOriginalPath(original);
 		setCrawlDate(crawlDate);
 		setFileSystemDate(fileSystemDate);
 	}
@@ -371,8 +370,9 @@ public class FileItem implements Serializable {
 	public void setOriginalPathEncoded(String encoded)
 			throws UnsupportedEncodingException {
 		if (encoded == null)
-			return;
-		this.originalPath = URLDecoder.decode(encoded, "UTF-8");
+			this.originalPath = "default";
+		else
+			this.originalPath = URLDecoder.decode(encoded, "UTF-8");
 	}
 
 	public void setParserStatus(ParserStatus status) {
@@ -395,8 +395,9 @@ public class FileItem implements Serializable {
 	public void setPathEncoded(String encoded)
 			throws UnsupportedEncodingException {
 		if (encoded == null)
-			return;
-		this.path = URLDecoder.decode(encoded, "UTF-8");
+			this.path = "default";
+		else
+			this.path = URLDecoder.decode(encoded, "UTF-8");
 	}
 
 	public void setResponseCode(Integer v) {
