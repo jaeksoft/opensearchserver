@@ -19,8 +19,8 @@
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.BrowserController">
 
 	<vbox width="100%">
-		<listbox model="@{browser.files}"  mold="paging"
-			selectedItem="@{browser.selectedFilePath}" pageSize="25" >
+		<listbox model="@{browser.files}" mold="paging"
+			selectedItem="@{browser.selectedFilePath}" pageSize="25">
 			<listhead>
 				<listheader>
 					<button label="Refresh" forward="onReset" />
