@@ -312,8 +312,9 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 			if (!isAbort()) {
 				setStatus(CrawlStatus.DELETE_REMOVED);
-				config.getFileManager().deleteNotFoundByCrawlDate(
+				int count = config.getFileManager().deleteNotFoundByCrawlDate(
 						startCrawlDate);
+				sessionStats.addDeletedCount(count);
 				sleepSec(2, false);
 			}
 

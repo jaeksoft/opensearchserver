@@ -168,14 +168,14 @@ public class FileManager {
 
 	}
 
-	public void deleteNotFoundByCrawlDate(long date) throws SearchLibException {
+	public int deleteNotFoundByCrawlDate(long date) throws SearchLibException {
 		try {
 			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 			deleteRequest.setQueryString("*:* AND NOT "
 					+ FileItemFieldEnum.crawlDate.name() + ":\"" + date + '"');
 			deleteRequest.setDelete(true);
-			fileDbClient.search(deleteRequest);
+			Result result = fileDbClient.search(deleteRequest);
 
 			// Delete in final index if a mapping is found
 			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
@@ -189,6 +189,10 @@ public class FileManager {
 			targetClient.search(deleteRequestTarget);
 
 			reload(true);
+			if (result != null)
+				return result.getNumFound();
+
+			return 0;
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {

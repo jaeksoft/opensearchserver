@@ -31,7 +31,7 @@
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlFileProcess.refresh}"
 							value="@{crawlFileProcess.properties.delayBetweenAccessesFile}" />
-							
+
 						<label
 							value="Number of files to crawl between each add: " />
 						<intbox constraint="no empty, no negative"
@@ -77,11 +77,11 @@
 					<auxheader label="Fetched" align="center"
 						colspan="2" width="60px" />
 					<auxheader label="Parsed" width="40px" />
-				
 					<auxheader align="center" colspan="2"
 						label="Added or Updated" width="80px" />
 					<auxheader label="Ignored" width="40px" />
-				
+					<auxheader align="center" label="Deleted"
+						width="80px" />
 					<auxheader align="center" colspan="2"
 						label="File(s)" width="80px" />
 				</auxhead>
@@ -90,11 +90,10 @@
 					<listheader label="Count" width="40px" />
 					<listheader label="Rate" width="40px" />
 					<listheader width="40px" />
-					
 					<listheader label="Pending" width="40px" />
 					<listheader label="Committed" width="40px" />
 					<listheader width="40px" />
-					
+					<listheader width="40px" />
 					<listheader label="Processed" width="40px" />
 					<listheader label="Total" width="40px" />
 				</listhead>
@@ -104,11 +103,10 @@
 					<listcell
 						label="@{stat.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
 					<listcell label="@{stat.parsedCount}" />
-				
 					<listcell label="@{stat.pendingUpdatedCount}" />
 					<listcell label="@{stat.updatedCount}" />
 					<listcell label="@{stat.ignoredCount}" />
-					
+					<listcell label="@{stat.deletedCount}" />
 					<listcell label="@{stat.urlCount}" />
 					<listcell label="@{stat.urlListSize}" />
 				</listitem>
