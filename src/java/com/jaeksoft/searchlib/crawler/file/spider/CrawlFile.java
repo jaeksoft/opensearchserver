@@ -82,21 +82,27 @@ public class CrawlFile {
 				Parser parser = parserSelector.getParserFromExtension(FileUtils
 						.getFileNameExtension(item.getPath()));
 
+				// Parser Choice
 				if (parser == null) {
 					item.setParserStatus(ParserStatus.NOPARSER);
 					return;
+				} else if (parser.equals(parserSelector.getDefaultParser()
+						.getNewParser())) {
+					item.setParserStatus(ParserStatus.DEFAULTPARSER);
+				} else {
+					item.setParserStatus(ParserStatus.PARSED);
 				}
-
 				IndexDocument sourceDocument = new IndexDocument();
 				fileItem.populate(sourceDocument);
 
 				parser.setSourceDocument(sourceDocument);
 				parser.parseContent(new FileInputStream(item.getPath()));
-				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
-				fileItem.setParserStatus(ParserStatus.PARSED);
-				this.parser = parser;
 
+				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
+				fileItem.setParserStatus(item.getParserStatus());
 				fileItem.setFetchStatus(FetchStatus.FETCHED);
+
+				this.parser = parser;
 
 			} catch (MalformedURLException e) {
 				fileItem.setFetchStatus(FetchStatus.ERROR);

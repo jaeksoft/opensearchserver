@@ -156,4 +156,7 @@ public abstract class Parser {
 		}
 	}
 
+	public boolean equals(Parser one) {
+		return this.getClass().getName().equals(one.getClass().getName());
+	}
 }

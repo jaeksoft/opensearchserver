@@ -72,7 +72,6 @@ public class ParserSelector {
 	}
 
 	private void addParserFactory(ParserFactory parserFactory) {
-
 		Set<String> extensionSet = parserFactory.getExtensionSet();
 		if (extensionSet != null)
 			for (String extension : extensionSet)
@@ -82,6 +81,9 @@ public class ParserSelector {
 		if (mimeTypeSet != null)
 			for (String mimeType : mimeTypeSet)
 				mimeTypeParserMap.put(mimeType, parserFactory);
+
+		if (extensionSet == null && mimeTypeSet == null)
+			setDefaultParser(parserFactory);
 
 		parserFactorySet.add(parserFactory);
 	}
