@@ -63,6 +63,14 @@ public class ParserSelector {
 		this.defaultParser = defaultParser;
 	}
 
+	public ParserFactory getDefaultParser() {
+		return defaultParser;
+	}
+
+	public boolean hasDefautParser() {
+		return defaultParser != null;
+	}
+
 	private void addParserFactory(ParserFactory parserFactory) {
 
 		Set<String> extensionSet = parserFactory.getExtensionSet();
@@ -98,6 +106,7 @@ public class ParserSelector {
 		ParserFactory parserFactory = null;
 		if (extensionParserMap != null && extension != null)
 			parserFactory = extensionParserMap.get(extension);
+
 		return getParser(parserFactory);
 	}
 
@@ -120,9 +129,11 @@ public class ParserSelector {
 			Node parserNode = parserNodes.item(i);
 			ParserFactory parserFactory = ParserFactory.fromXmlConfig(selector,
 					xpp, parserNode);
+
 			if (parserFactory != null)
 				selector.addParserFactory(parserFactory);
 		}
+
 		return selector;
 	}
 
