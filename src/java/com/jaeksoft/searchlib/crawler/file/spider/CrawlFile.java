@@ -121,11 +121,11 @@ public class CrawlFile {
 			} catch (IOException e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
-				setError(e.getMessage() + "  " + fileItem.getPath());
+				// setError(e.getMessage() + "  " + fileItem.getPath());
 			} catch (Exception e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
-				setError(e.getMessage());
+				// setError(e.getMessage());
 			}
 		}
 	}
