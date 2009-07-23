@@ -443,7 +443,8 @@ public class FileManager {
 					.size());
 			for (CrawlFile crawl : crawls) {
 				IndexDocument indexDocument = crawl.getTargetIndexDocument();
-				documents.add(indexDocument);
+				if (indexDocument != null)
+					documents.add(indexDocument);
 			}
 			targetClient.updateDocuments(documents);
 

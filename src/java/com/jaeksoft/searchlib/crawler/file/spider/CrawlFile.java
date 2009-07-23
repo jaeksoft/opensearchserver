@@ -99,13 +99,9 @@ public class CrawlFile {
 				fileItem.setFetchStatus(FetchStatus.FETCHED);
 
 			} catch (MalformedURLException e) {
-				// logger.info("MalformedURLException: " + fileItem.getPath());
 				fileItem.setFetchStatus(FetchStatus.ERROR);
-				// setError("FileNotFound: " + fileItem.getPath());
 			} catch (FileNotFoundException e) {
-				// logger.info("FileNotFound: " + fileItem.getPath());
 				fileItem.setFetchStatus(FetchStatus.GONE);
-				// setError("FileNotFound: " + fileItem.getPath());
 			} catch (LimitException e) {
 				logger.warning(e.toString() + " (" + fileItem.getPath() + ")");
 				fileItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
@@ -149,11 +145,14 @@ public class CrawlFile {
 	public IndexDocument getTargetIndexDocument() throws SearchLibException,
 			UnsupportedEncodingException {
 		synchronized (this) {
+			// No parser found
+			if (parser == null)
+				return null;
 
 			IndexDocument indexDocument = new IndexDocument();
-			IndexDocument urlIndexDocument = new IndexDocument();
-			fileItem.populate(urlIndexDocument);
-			fileFieldMap.mapIndexDocument(urlIndexDocument, indexDocument);
+			IndexDocument fileIndexDocument = new IndexDocument();
+			fileItem.populate(fileIndexDocument);
+			fileFieldMap.mapIndexDocument(fileIndexDocument, indexDocument);
 
 			if (parser != null)
 				parser.populate(indexDocument);
