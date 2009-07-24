@@ -40,28 +40,18 @@ http://commons.apache.org/
 Apache Xerces
 http://xerces.apache.org
 
+Apache XML-RPC
+http://ws.apache.org/xmlrpc/
+
 ----------------------------------------
-Potix Corporation
+ZK DirectRIA by Potix Corporation
 http://www.zkoss.org/
 Rely on LICENSE-ZKOSS-GPL2
 
-ZK DirectRIA
-
 ----------------------------------------
-Sun Microsystems, Inc.
+Javamail by Sun Microsystems, Inc.
 http://www.sun.com/
 Rely on LICENSE-CPL-V10
-
-Jsf-api
-Jsf-impl
-Javamail
-
-----------------------------------------
-Potix Corporation.
-http://www.zkoss.org/
-Rely on LICENSE-ZKOSS-GPL2
-
-Zkoss
 
 ----------------------------------------
 JTidy
@@ -79,19 +69,30 @@ http://htmlcleaner.sourceforge.net
 Rely on LICENCE-HTMLCLEANER
 
 ----------------------------------------
-Knallgrau New Media Solutions
+Textcat by Knallgrau New Media Solutions
 http://sourceforge.net/projects/textcat/
 
-Textcat
-
 ----------------------------------------
-PDFBox.org
+Pdfbox by PDFBox.org
 http://www.pdfbox.org
 Licensed under the BSD License
-
-Pdfbox
 
 ----------------------------------------
 BeanShell
 http://www.beanshell.org
 Rely on Gnu Lesser Public License
+
+----------------------------------------
+Google-gson by Google Inc.
+http://code.google.com/p/google-gson
+Rely on LICENSE-APACHE2
+
+----------------------------------------
+jOpenDocument from ILM Informatique
+http://www.jopendocument.org
+Rely on GPL License
+
+----------------------------------------
+Java Native Access (JNA)
+https://jna.dev.java.net/
+Rely on LGPL license 2.1
