@@ -242,7 +242,7 @@ public class FileItem implements Serializable {
 
 	public boolean isStatusFull() {
 		return fetchStatus == FetchStatus.FETCHED
-				&& (parserStatus == ParserStatus.PARSED || parserStatus == ParserStatus.DEFAULTPARSER)
+				&& parserStatus == ParserStatus.PARSED
 				&& indexStatus == IndexStatus.INDEXED;
 	}
 

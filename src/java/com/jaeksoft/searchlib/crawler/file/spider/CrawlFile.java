@@ -86,12 +86,10 @@ public class CrawlFile {
 				if (parser == null) {
 					item.setParserStatus(ParserStatus.NOPARSER);
 					return;
-				} else if (parser.equals(parserSelector.getDefaultParser()
-						.getNewParser())) {
-					item.setParserStatus(ParserStatus.DEFAULTPARSER);
-				} else {
-					item.setParserStatus(ParserStatus.PARSED);
 				}
+
+				item.setParserStatus(ParserStatus.PARSED);
+
 				IndexDocument sourceDocument = new IndexDocument();
 				fileItem.populate(sourceDocument);
 

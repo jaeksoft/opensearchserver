@@ -129,8 +129,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		nextTimeTarget = System.currentTimeMillis() + delayBetweenAccesses;
 
 		if (currentFileItem.getFetchStatus() == FetchStatus.FETCHED
-				&& (currentFileItem.getParserStatus() == ParserStatus.PARSED || currentFileItem
-						.getParserStatus() == ParserStatus.DEFAULTPARSER)
+				&& currentFileItem.getParserStatus() == ParserStatus.PARSED
 				&& currentFileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 			currentFileItem.setIndexStatus(IndexStatus.INDEXED);
 			currentStats.incParsedCount();

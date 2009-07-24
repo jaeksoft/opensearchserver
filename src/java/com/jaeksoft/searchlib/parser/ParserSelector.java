@@ -82,9 +82,6 @@ public class ParserSelector {
 			for (String mimeType : mimeTypeSet)
 				mimeTypeParserMap.put(mimeType, parserFactory);
 
-		if (extensionSet == null && mimeTypeSet == null)
-			setDefaultParser(parserFactory);
-
 		parserFactorySet.add(parserFactory);
 	}
 
@@ -126,14 +123,24 @@ public class ParserSelector {
 		ParserSelector selector = new ParserSelector();
 		if (parentNode == null)
 			return selector;
+
+		String defaultParserName = XPathParser.getAttributeString(parentNode,
+				"default");
+
 		NodeList parserNodes = xpp.getNodeList(parentNode, "parser");
 		for (int i = 0; i < parserNodes.getLength(); i++) {
 			Node parserNode = parserNodes.item(i);
 			ParserFactory parserFactory = ParserFactory.fromXmlConfig(selector,
 					xpp, parserNode);
 
-			if (parserFactory != null)
+			if (parserFactory != null) {
 				selector.addParserFactory(parserFactory);
+				if (defaultParserName != null
+						&& parserFactory.getParserName().equals(
+								defaultParserName))
+					selector.setDefaultParser(parserFactory);
+			}
+
 		}
 
 		return selector;

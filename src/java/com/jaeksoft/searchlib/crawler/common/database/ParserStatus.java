@@ -27,8 +27,7 @@ package com.jaeksoft.searchlib.crawler.common.database;
 public enum ParserStatus {
 
 	NOT_PARSED(0, "Not parsed"), PARSED(1, "Parsed"), PARSER_ERROR(2,
-			"Parser Error"), NOPARSER(3, "No parser"), ALL(99, "All"), DEFAULTPARSER(
-			4, "Default parser");
+			"Parser Error"), NOPARSER(3, "No parser"), ALL(99, "All");
 
 	public int value;
 

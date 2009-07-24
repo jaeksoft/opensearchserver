@@ -26,11 +26,11 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 
-public class DefaultFileParser extends Parser {
+public class FileSystemParser extends Parser {
 
 	private static ParserFieldEnum[] fl = {};
 
-	public DefaultFileParser() {
+	public FileSystemParser() {
 		super(fl);
 	}
 
