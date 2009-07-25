@@ -73,11 +73,11 @@ public class SynonymMap {
 					continue;
 				termSet.clear();
 				for (String term : termList) {
-					String[] words = term.split("\\s*");
+					String[] words = term.split("\\s");
 					for (String word : words)
 						termSet.add(word);
 				}
-				String[] termArray = new String[termList.size()];
+				String[] termArray = new String[termSet.size()];
 				termSet.toArray(termArray);
 				spm.put(key, termArray);
 			}

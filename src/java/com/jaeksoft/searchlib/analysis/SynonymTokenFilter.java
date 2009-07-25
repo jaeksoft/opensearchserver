@@ -55,18 +55,20 @@ public class SynonymTokenFilter extends TokenFilter {
 
 	@Override
 	public Token next(Token reusableToken) throws IOException {
-		while (index < synonyms.length) { // pop from stack
-			Token nextToken = createToken(synonyms[index++], current,
-					reusableToken);
-			if (nextToken != null)
-				return nextToken;
+		if (synonyms != null) {
+			while (index < synonyms.length) {
+				Token nextToken = createToken(synonyms[index++], current,
+						reusableToken);
+				if (nextToken != null)
+					return nextToken;
+			}
 		}
 
 		Token nextToken = input.next(reusableToken);
 		if (nextToken == null)
-			return null; // EOS; iterator exhausted
+			return null;
 
-		synonyms = synonymMap.getSynonyms(nextToken.term()); // push onto stack
+		synonyms = synonymMap.getSynonyms(nextToken.term());
 		index = 0;
 		current = (Token) nextToken.clone();
 		return nextToken;
