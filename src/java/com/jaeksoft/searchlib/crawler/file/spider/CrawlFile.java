@@ -88,6 +88,8 @@ public class CrawlFile {
 					return;
 				}
 
+				System.out.println("Parser chosen" + parser.toString());
+
 				item.setParserStatus(ParserStatus.PARSED);
 
 				IndexDocument sourceDocument = new IndexDocument();

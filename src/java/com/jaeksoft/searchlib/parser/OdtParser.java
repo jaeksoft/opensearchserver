@@ -27,15 +27,19 @@ package com.jaeksoft.searchlib.parser;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.jdom.Document;
 import org.jopendocument.dom.ODMeta;
 import org.jopendocument.dom.ODPackage;
+import org.jopendocument.model.OpenDocument;
+import org.jopendocument.model.office.OfficeBody;
 
 public class OdtParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
 			ParserFieldEnum.author, ParserFieldEnum.subject,
-			ParserFieldEnum.content };
+			ParserFieldEnum.content, ParserFieldEnum.producer,
+			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
+			ParserFieldEnum.modification_date, ParserFieldEnum.language,
+			ParserFieldEnum.number_of_pages };
 
 	public OdtParser() {
 		super(fl);
@@ -52,14 +56,29 @@ public class OdtParser extends Parser {
 			addField(ParserFieldEnum.title, meta.getTitle());
 			addField(ParserFieldEnum.author, meta.getInitialCreator());
 			addField(ParserFieldEnum.subject, meta.getSubject());
+			addField(ParserFieldEnum.creation_date, meta.getCreationDate());
+			addField(ParserFieldEnum.modification_date, meta.getModifDate());
+			addField(ParserFieldEnum.language, meta.getLanguage());
+
+			for (Iterator<String> ite = meta.getKeywords().iterator(); ite
+					.hasNext();) {
+				addField(ParserFieldEnum.keywords, ite.next());
+			}
+
 		}
 
-		Document doc = pkg.getContent().getDocument();
-		Iterator<Document> descendants = doc.getDescendants();
-		while (descendants.hasNext()) {
-			Document descendant = (Document) descendants.next();
-			descendant.getContent();
-		}
+		OpenDocument doc = new OpenDocument();
+		doc.loadFrom("template/invoice.ods");
+
+		OfficeBody body = doc.getBody();
+
+		/*
+		 * Document doc = pkg.getContent().getDocument(); Iterator<Object>
+		 * descendants = doc.getDescendants(); while (descendants.hasNext()) {
+		 * 
+		 * Text descendant = (Text) descendants.next();
+		 * System.out.println("ele " + descendant.getTextNormalize()); }
+		 */
 	}
 
 	@Override
