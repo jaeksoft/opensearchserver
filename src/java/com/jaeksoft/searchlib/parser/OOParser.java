@@ -24,7 +24,11 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 
 import org.jopendocument.dom.ODMeta;
@@ -77,5 +81,17 @@ public abstract class OOParser extends Parser {
 	@Override
 	public ParserFieldEnum[] getParserFieldList() {
 		return fl;
+	}
+
+	protected static File getFile(InputStream stream) throws IOException {
+		File f = new File("currentOO.oo");
+		OutputStream out = new FileOutputStream(f);
+		byte buf[] = new byte[1024];
+		int len;
+		while ((len = stream.read(buf)) > 0)
+			out.write(buf, 0, len);
+		out.close();
+		stream.close();
+		return f;
 	}
 }

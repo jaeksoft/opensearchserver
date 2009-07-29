@@ -73,6 +73,7 @@
 	</parser>
 	<parser name="ODT parser" class="com.jaeksoft.searchlib.parser.OdtParser"
 		sizeLimit="8388608">
+		<extension>ods</extension>
 		<extension>odt</extension>
 		<map>
 			<link source="author" target="content" />

@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.jopendocument.model.OpenDocument;
 import org.jopendocument.model.office.OfficeBody;
@@ -42,10 +43,13 @@ public class OdtParser extends OOParser {
 		// Parse meta
 		super.parseContent(inputStream);
 
+		// Get data
 		OpenDocument doc = new OpenDocument();
-		doc.loadFrom("template/invoice.ods");
+		doc.loadFrom(getFile(inputStream));
 
 		OfficeBody body = doc.getBody();
+		List<Object> list = body
+				.getTextHOrTextPOrTextOrderedListOrTextUnorderedListOrTableTableOrDrawPageOrDrawAOrDrawRectOrDrawLineOrDrawPolylineOrDrawPolygonOrDrawPathOrDrawCircleOrDrawEllipseOrDrawGOrDrawPageThumbnailOrDrawTextBoxOrDrawImageOrDrawObjectOrDrawObjectOleOrDrawAppletOrDrawFloatingFrameOrDrawPluginOrDrawMeasureOrDrawCaptionOrDrawConnectorOrChartChartOrDr3DSceneOrDrawControlOrDrawCustomShapeOrTextSectionOrTextTableOfContentOrTextIllustrationIndexOrTextTableIndexOrTextObjectIndexOrTextUserIndexOrTextAlphabeticalIndexOrTextBibliographyOrTextChangeOrTextChangeStartOrTextChangeEnd();
 
 		/*
 		 * Document doc = pkg.getContent().getDocument(); Iterator<Object>
