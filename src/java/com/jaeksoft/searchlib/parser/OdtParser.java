@@ -25,47 +25,22 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
-import java.util.Iterator;
 
-import org.jopendocument.dom.ODMeta;
-import org.jopendocument.dom.ODPackage;
 import org.jopendocument.model.OpenDocument;
 import org.jopendocument.model.office.OfficeBody;
 
-public class OdtParser extends Parser {
-
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.author, ParserFieldEnum.subject,
-			ParserFieldEnum.content, ParserFieldEnum.producer,
-			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
-			ParserFieldEnum.modification_date, ParserFieldEnum.language,
-			ParserFieldEnum.number_of_pages };
+public class OdtParser extends OOParser {
 
 	public OdtParser() {
-		super(fl);
+		super();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
 
-		ODPackage pkg = new ODPackage(inputStream);
-		ODMeta meta = pkg.getMeta();
-		if (meta != null) {
-			addField(ParserFieldEnum.title, meta.getTitle());
-			addField(ParserFieldEnum.author, meta.getInitialCreator());
-			addField(ParserFieldEnum.subject, meta.getSubject());
-			addField(ParserFieldEnum.creation_date, meta.getCreationDate());
-			addField(ParserFieldEnum.modification_date, meta.getModifDate());
-			addField(ParserFieldEnum.language, meta.getLanguage());
-
-			for (Iterator<String> ite = meta.getKeywords().iterator(); ite
-					.hasNext();) {
-				addField(ParserFieldEnum.keywords, ite.next());
-			}
-
-		}
+		// Parse meta
+		super.parseContent(inputStream);
 
 		OpenDocument doc = new OpenDocument();
 		doc.loadFrom("template/invoice.ods");
@@ -86,8 +61,4 @@ public class OdtParser extends Parser {
 		throw new IOException("Unsupported");
 	}
 
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
-	}
 }
