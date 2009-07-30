@@ -154,7 +154,7 @@ public class FacetField extends Field implements Externalizable {
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("field", "name", name, "minCount", Integer
+		xmlWriter.startElement("facetField", "name", name, "minCount", Integer
 				.toString(minCount), "multivalued", multivalued ? "yes" : "no");
 		xmlWriter.endElement();
 	}

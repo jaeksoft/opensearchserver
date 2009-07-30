@@ -625,7 +625,7 @@ public class SearchRequest implements Externalizable {
 		}
 
 		if (facetFieldList.size() > 0) {
-			xmlWriter.startElement("snippet");
+			xmlWriter.startElement("facetFields");
 			facetFieldList.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 		}
