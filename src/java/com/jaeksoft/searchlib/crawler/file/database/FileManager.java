@@ -253,6 +253,7 @@ public class FileManager {
 		searchRequest.addReturnField("when");
 		searchRequest.addReturnField("responseCode");
 		searchRequest.addReturnField("parserStatus");
+		searchRequest.addReturnField("indexStatus");
 		searchRequest.addReturnField("fetchStatus");
 		searchRequest.addReturnField("crawlDate");
 		searchRequest.addReturnField("fileSystemDate");

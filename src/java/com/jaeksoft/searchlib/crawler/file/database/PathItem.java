@@ -24,14 +24,9 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-import java.util.Date;
 import java.util.List;
 
-import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
-import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
-import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.database.Selector;
-import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.GenericMap;
 
 public class PathItem extends GenericMap<String> {
@@ -130,22 +125,6 @@ public class PathItem extends GenericMap<String> {
 		for (PathItem current : items) {
 			add(current.getPath(), current.isWithSubToString());
 		}
-	}
-
-	public void populate(IndexDocument indexDocument) {
-		indexDocument.set("path", getPath());
-		indexDocument.set("when", FileItem.getDateFormat().format(
-				new Date()));
-
-		indexDocument.set("fetchStatus", FetchStatus.UN_FETCHED.value);
-		indexDocument.set("parserStatus", ParserStatus.NOT_PARSED.value);
-		indexDocument.set("indexStatus", IndexStatus.NOT_INDEXED.value);
-	}
-
-	public IndexDocument getIndexDocument() {
-		IndexDocument indexDocument = new IndexDocument();
-		populate(indexDocument);
-		return indexDocument;
 	}
 
 }

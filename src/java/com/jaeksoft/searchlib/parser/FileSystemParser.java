@@ -49,4 +49,5 @@ public class FileSystemParser extends Parser {
 	public ParserFieldEnum[] getParserFieldList() {
 		return fl;
 	}
+
 }

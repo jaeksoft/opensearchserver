@@ -24,15 +24,7 @@
 
 package com.jaeksoft.searchlib.parser;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Iterator;
-
-import org.jopendocument.dom.ODMeta;
-import org.jopendocument.dom.ODPackage;
 
 public abstract class OOParser extends Parser {
 
@@ -56,21 +48,6 @@ public abstract class OOParser extends Parser {
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
 
-		ODPackage pkg = new ODPackage(inputStream);
-		ODMeta meta = pkg.getMeta();
-		if (meta != null) {
-			addField(ParserFieldEnum.title, meta.getTitle());
-			addField(ParserFieldEnum.author, meta.getInitialCreator());
-			addField(ParserFieldEnum.subject, meta.getSubject());
-			addField(ParserFieldEnum.creation_date, meta.getCreationDate());
-			addField(ParserFieldEnum.modification_date, meta.getModifDate());
-			addField(ParserFieldEnum.language, meta.getLanguage());
-
-			for (Iterator<String> ite = meta.getKeywords().iterator(); ite
-					.hasNext();) {
-				addField(ParserFieldEnum.keywords, ite.next());
-			}
-		}
 	}
 
 	@Override
@@ -83,15 +60,4 @@ public abstract class OOParser extends Parser {
 		return fl;
 	}
 
-	protected static File getFile(InputStream stream) throws IOException {
-		File f = new File("currentOO.oo");
-		OutputStream out = new FileOutputStream(f);
-		byte buf[] = new byte[1024];
-		int len;
-		while ((len = stream.read(buf)) > 0)
-			out.write(buf, 0, len);
-		out.close();
-		stream.close();
-		return f;
-	}
 }

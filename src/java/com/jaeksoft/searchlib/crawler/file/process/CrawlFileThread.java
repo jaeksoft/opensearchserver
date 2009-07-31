@@ -131,6 +131,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		if (currentFileItem.getFetchStatus() == FetchStatus.FETCHED
 				&& currentFileItem.getParserStatus() == ParserStatus.PARSED
 				&& currentFileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
+			crawl.getFileItem().setIndexStatus(IndexStatus.INDEXED);
 			currentFileItem.setIndexStatus(IndexStatus.INDEXED);
 			currentStats.incParsedCount();
 		} else

@@ -25,39 +25,58 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
-import java.util.List;
 
-import org.jopendocument.model.OpenDocument;
-import org.jopendocument.model.office.OfficeBody;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public class OdtParser extends OOParser {
+	StringBuffer textBuffer;
 
 	public OdtParser() {
 		super();
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(LimitInputStream inputStream) {
 
 		// Parse meta
-		super.parseContent(inputStream);
+		try {
+			super.parseContent(inputStream);
 
-		// Get data
-		OpenDocument doc = new OpenDocument();
-		doc.loadFrom(getFile(inputStream));
+			DocumentBuilder builder = null;
+			Document inputDocument = null;
+			try {
+				builder = DocumentBuilderFactory.newInstance()
+						.newDocumentBuilder();
+				inputDocument = builder.parse(inputStream);
+			} catch (IOException e) {
+				System.err.println("Unable to read input file.");
+				System.err.println(e.getMessage());
+			} catch (Exception e) {
+				System.err.println("Unable to parse input file.");
+				System.err.println(e.getMessage());
+			}
 
-		OfficeBody body = doc.getBody();
-		List<Object> list = body
-				.getTextHOrTextPOrTextOrderedListOrTextUnorderedListOrTableTableOrDrawPageOrDrawAOrDrawRectOrDrawLineOrDrawPolylineOrDrawPolygonOrDrawPathOrDrawCircleOrDrawEllipseOrDrawGOrDrawPageThumbnailOrDrawTextBoxOrDrawImageOrDrawObjectOrDrawObjectOleOrDrawAppletOrDrawFloatingFrameOrDrawPluginOrDrawMeasureOrDrawCaptionOrDrawConnectorOrChartChartOrDr3DSceneOrDrawControlOrDrawCustomShapeOrTextSectionOrTextTableOfContentOrTextIllustrationIndexOrTextTableIndexOrTextObjectIndexOrTextUserIndexOrTextAlphabeticalIndexOrTextBibliographyOrTextChangeOrTextChangeStartOrTextChangeEnd();
+			if (inputDocument != null) {
+				Node childNode = inputDocument.getFirstChild();
 
-		/*
-		 * Document doc = pkg.getContent().getDocument(); Iterator<Object>
-		 * descendants = doc.getDescendants(); while (descendants.hasNext()) {
-		 * 
-		 * Text descendant = (Text) descendants.next();
-		 * System.out.println("ele " + descendant.getTextNormalize()); }
-		 */
+				while (childNode != null) {
+					inputDocument.removeChild(childNode);
+					childNode = inputDocument.getFirstChild();
+					System.out.println(childNode.getNodeValue());
+				}
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

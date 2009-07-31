@@ -69,4 +69,5 @@ public class DocParser extends Parser {
 	public ParserFieldEnum[] getParserFieldList() {
 		return fl;
 	}
+
 }
