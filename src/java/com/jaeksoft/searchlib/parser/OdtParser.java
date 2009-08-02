@@ -26,12 +26,17 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
+import org.odftoolkit.odfdom.doc.OdfDocument;
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
+import org.odftoolkit.odfdom.dom.element.office.OfficeTextElement;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+/**
+ * 
+ * @author Emmanuel Gosse (philCube)
+ * 
+ */
 public class OdtParser extends OOParser {
 	StringBuffer textBuffer;
 
@@ -41,34 +46,16 @@ public class OdtParser extends OOParser {
 
 	@Override
 	protected void parseContent(LimitInputStream inputStream) {
-
-		// Parse meta
 		try {
 			super.parseContent(inputStream);
 
-			DocumentBuilder builder = null;
-			Document inputDocument = null;
-			try {
-				builder = DocumentBuilderFactory.newInstance()
-						.newDocumentBuilder();
-				inputDocument = builder.parse(inputStream);
-			} catch (IOException e) {
-				System.err.println("Unable to read input file.");
-				System.err.println(e.getMessage());
-			} catch (Exception e) {
-				System.err.println("Unable to parse input file.");
-				System.err.println(e.getMessage());
-			}
+			// Load file
+			OdfTextDocument odt = (OdfTextDocument) OdfDocument
+					.loadDocument(inputStream);
 
-			if (inputDocument != null) {
-				Node childNode = inputDocument.getFirstChild();
-
-				while (childNode != null) {
-					inputDocument.removeChild(childNode);
-					childNode = inputDocument.getFirstChild();
-					System.out.println(childNode.getNodeValue());
-				}
-			}
+			// get root of all content of a text document
+			OfficeTextElement officeText = odt.getContentRoot();
+			scanNodes(officeText.getChildNodes());
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -76,6 +63,25 @@ public class OdtParser extends OOParser {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	private void scanNodes(NodeList nodeList) {
+		if (nodeList.getLength() > 0) {
+			for (int i = 0; i < nodeList.getLength(); i++) {
+				Node lode = nodeList.item(i);
+
+				if (lode.getNodeType() == Node.TEXT_NODE)
+					addField(ParserFieldEnum.content, lode.getNodeValue());
+
+				if (lode.getNodeType() == Node.CDATA_SECTION_NODE)
+					addField(ParserFieldEnum.content, lode.getNodeValue());
+
+				if (lode.getNodeType() == Node.NOTATION_NODE)
+					addField(ParserFieldEnum.content, lode.getNodeValue());
+
+				scanNodes(lode.getChildNodes());
+			}
 		}
 	}
 

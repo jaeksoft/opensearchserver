@@ -53,10 +53,11 @@
 		<listhead>
 			<listheader label="Selection" />
 			<listheader label="With all sub-directories" />
-			<listheader label="Action" />
+			<listheader label="Reset" width="50px"/>
+			<listheader label="Delete" width="50px"/>
 		</listhead>
 		<listfoot>
-			<listfooter span="3">
+			<listfooter span="4">
 				<paging id="paging" detailed="true"
 					totalSize="@{browser.totalSize}" pageSize="@{browser.pageSize}"
 					activePage="@{browser.activePage}" />

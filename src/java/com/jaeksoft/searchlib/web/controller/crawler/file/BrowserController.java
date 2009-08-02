@@ -192,11 +192,18 @@ public class BrowserController extends CommonController implements
 			new Listcell(link.getSource()).setParent(item);
 			new Listcell(link.getTarget()).setParent(item);
 
+			Listcell listcellRest = new Listcell();
+			Image imageValid = new Image("/images/action_valid.png");
+			imageValid.addForward(null, this, "onResetChosen", data);
+			imageValid.setParent(listcellRest);
+			listcellRest.setParent(item);
+
 			Listcell listcell = new Listcell();
 			Image image = new Image("/images/action_delete.png");
 			image.addForward(null, this, "onRemove", data);
 			image.setParent(listcell);
 			listcell.setParent(item);
+
 		} else if (data instanceof String) {
 			new Listcell((String) data).setParent(item);
 			Listcell listcell = new Listcell();
@@ -214,6 +221,16 @@ public class BrowserController extends CommonController implements
 			getClient().getFileManager().deleteByOriginalPath(link.getSource());
 		}
 		reloadPage();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void onResetChosen(Event event) throws SearchLibException,
+			TransformerConfigurationException, SAXException, IOException,
+			XPathExpressionException, ParserConfigurationException {
+		GenericLink<String> link = (GenericLink<String>) event.getData();
+		synchronized (link) {
+			getClient().getFileManager().deleteByOriginalPath(link.getSource());
+		}
 	}
 
 	public void onAdd() throws SearchLibException {
