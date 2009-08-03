@@ -33,6 +33,8 @@ goto end
 
 :okExec
 
+set OPENSEARCHSERVER_DATA=%cd%\data
+
 cd %cd%\apache-tomcat-6.0.20
 call "%EXECUTABLE%"
 
