@@ -30,4 +30,7 @@ if [ ! -x "$EXECUTABLE" ]; then
     exit 1
 fi
 
+OPENSEARCHSERVER_DATA=`pwd`/data
+export OPENSEARCHSERVER_DATA
+
 exec "$EXECUTABLE"

@@ -30,7 +30,7 @@ public class WebCrawler extends TemplateAbstract {
 
 	public final static String description = "Index with predefined field, analyzers, parsers. Ready for web site crawl and indexation";
 
-	public final static String root = "/web_crawler";
+	public final static String root = "web_crawler";
 
 	public final static String[] resources = { "config.xml", "parsers.xml",
 			"requests.xml", "webcrawler-mapping.xml" };

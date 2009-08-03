@@ -65,8 +65,11 @@ public abstract class TemplateAbstract {
 					+ indexDir + ")");
 
 		for (String resource : resources) {
-			InputStream is = getClass().getClassLoader().getResourceAsStream(
-					"templates/" + rootPath + "/" + resource);
+
+			String res = rootPath + "/" + resource;
+			InputStream is = getClass().getResourceAsStream(res);
+			if (is == null)
+				throw new SearchLibException("Unable to find resource " + res);
 			try {
 				File target = new File(indexDir, resource);
 				FileUtils.stream2file(is, target);

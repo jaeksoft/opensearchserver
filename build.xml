@@ -101,6 +101,7 @@
 
 	<target name="dist" depends="dist-war-release,dist-war-debug,doc">
 		<mkdir dir="${dist}/${product}" />
+		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/ROOT" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/examples" />
@@ -137,6 +138,7 @@
 			</fileset>
 		</chmod>
 
+		<!-- Create the tar.gz archive -->
 		<tar longfile="gnu" compression="gzip" destfile="${dist}/${product}.tar.gz">
 			<tarfileset dir="${dist}/${product}" mode="755" prefix="${product}">
 				<include name="**/*.sh" />
@@ -148,6 +150,8 @@
 				<exclude name="**/*.bat" />
 			</tarfileset>
 		</tar>
+
+		<!-- Create the zip archive -->
 		<zip encoding="windows-1250" destfile="${dist}/${product}.zip">
 			<zipfileset dir="${dist}/${product}" filemode="755" prefix="${product}">
 				<include name="**/*.sh" />
@@ -159,7 +163,10 @@
 				<exclude name="**/*.bat" />
 			</zipfileset>
 		</zip>
+
+		<!-- Clean the temporary product directory -->
 		<delete dir="${dist}/${product}" />
+
 	</target>
 
 	<target name="doc-en">

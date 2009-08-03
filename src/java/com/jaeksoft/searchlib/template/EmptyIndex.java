@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.template;
 
 public class EmptyIndex extends TemplateAbstract {
 
-	public final static String root = "/empty_index";
+	public final static String root = "empty_index";
 
 	public final static String[] resources = { "config.xml", "parsers.xml" };
 
