@@ -27,19 +27,15 @@
 			<field name="content" indexed="yes" stored="yes" />
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="langMethod" indexed="yes" stored="yes" />
-			<field name="contentBaseType" indexed="yes" stored="yes" />
-			<field name="contentTypeCharset" indexed="yes" stored="yes" />
-			<field name="contentEncoding" indexed="yes" stored="yes" />
 			<field name="contentLength" indexed="yes" stored="yes" />
-			<field name="outlink" indexed="yes" />
-			<field name="inlink" indexed="yes" />
 			<field name="when" indexed="yes" stored="yes" />
-			<field name="responseCode" indexed="yes" stored="yes" />
 			<field name="parserStatus" indexed="yes" stored="yes" />
 			<field name="fetchStatus" indexed="yes" stored="yes" />
 			<field name="indexStatus" indexed="yes" stored="yes" />
 			<field name="fileSystemDate" indexed="yes" stored="yes" />
 			<field name="crawlDate" indexed="yes" stored="yes" />
+			<field name="fileSize" indexed="yes" stored="yes" />
+			<field name="fileExtension" indexed="yes" stored="yes" />
 		</fields>
 	</schema>
 	<requests>
@@ -47,8 +43,8 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				path,originalPath,content,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
-				lang,langMethod,when,responseCode,parserStatus,fetchStatus,indexStatus,fileSystemDate,crawlDate
+				path,originalPath,content,contentLength,
+				lang,langMethod,when,parserStatus,fetchStatus,indexStatus,fileSystemDate,crawlDate,fileSize,fileExtension
 			</returnFields>
 		</request>
 	</requests>

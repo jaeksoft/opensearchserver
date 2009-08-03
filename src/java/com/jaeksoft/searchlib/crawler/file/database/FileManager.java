@@ -244,27 +244,23 @@ public class FileManager {
 		searchRequest.setRows(0);
 		searchRequest.addReturnField("path");
 		searchRequest.addReturnField("originalPath");
-		searchRequest.addReturnField("contentBaseType");
-		searchRequest.addReturnField("contentTypeCharset");
-		searchRequest.addReturnField("contentEncoding");
 		searchRequest.addReturnField("contentLength");
 		searchRequest.addReturnField("lang");
 		searchRequest.addReturnField("langMethod");
 		searchRequest.addReturnField("when");
-		searchRequest.addReturnField("responseCode");
 		searchRequest.addReturnField("parserStatus");
 		searchRequest.addReturnField("indexStatus");
 		searchRequest.addReturnField("fetchStatus");
 		searchRequest.addReturnField("crawlDate");
 		searchRequest.addReturnField("fileSystemDate");
+		searchRequest.addReturnField("fileSize");
+		searchRequest.addReturnField("fileExtension");
 		return searchRequest;
 	}
 
 	public SearchRequest fileQuery(String like, String lang, String langMethod,
-			String contentBaseType, String contentTypeCharset,
-			String contentEncoding, Integer minContentLength,
-			Integer maxContentLength, FetchStatus fetchStatus,
-			Integer responseCode, ParserStatus parserStatus,
+			Integer minContentLength, Integer maxContentLength,
+			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate)
 			throws SearchLibException {
 		try {
@@ -292,27 +288,7 @@ public class FileManager {
 					Field.LANGMETHOD.addFilterQuery(searchRequest,
 							SearchRequest.escapeQuery(langMethod));
 			}
-			if (contentBaseType != null) {
-				contentBaseType = contentBaseType.trim();
-				if (contentBaseType.length() > 0)
-					Field.CONTENTBASETYPE.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(contentBaseType));
-			}
-			if (contentTypeCharset != null) {
-				contentTypeCharset = contentTypeCharset.trim();
-				if (contentTypeCharset.length() > 0)
-					Field.CONTENTTYPECHARSET.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(contentTypeCharset));
-			}
-			if (contentEncoding != null) {
-				contentEncoding = contentEncoding.trim();
-				if (contentEncoding.length() > 0)
-					Field.CONTENTENCODING.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(contentEncoding));
-			}
 
-			if (responseCode != null)
-				Field.RESPONSECODE.addFilterQuery(searchRequest, responseCode);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
 				Field.FETCHSTATUS.addFilterQuery(searchRequest,
 						fetchStatus.value);

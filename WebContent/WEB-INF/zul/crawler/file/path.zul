@@ -23,14 +23,11 @@
 		<listhead sizable="true">
 			<listheader width="30%" label="File" />
 			<listheader width="140px" label="Date" />
-			<listheader label="Type" />
-			<listheader label="Charset" />
-			<listheader label="Encoding" />
-			<listheader label="Content length" />
+			<listheader label="Extension" />
+			<listheader label="File size (octets)" />
 			<listheader label="Lang" />
 			<listheader label="Lang method" />
 			<listheader label="Fetch" />
-			<listheader label="Code" />
 			<listheader label="Parsing" />
 			<listheader label="Index" />
 		</listhead>
@@ -49,24 +46,8 @@
 						value="@{searchPath.dateEnd}" />
 				</vbox>
 			</auxheader>
-			<auxheader>
-				<textbox cols="5" value="@{searchPath.contentBaseType}" />
-			</auxheader>
-			<auxheader>
-				<textbox cols="5"
-					value="@{searchPath.contentTypeCharset}" />
-			</auxheader>
-			<auxheader>
-				<textbox cols="5" value="@{searchPath.contentEncoding}" />
-			</auxheader>
-			<auxheader>
-				<vbox>
-					<intbox cols="8"
-						value="@{searchPath.minContentLength}" />
-					<intbox cols="8"
-						value="@{searchPath.maxContentLength}" />
-				</vbox>
-			</auxheader>
+			<auxheader />
+			<auxheader />
 			<auxheader>
 				<textbox cols="4" value="@{searchPath.lang}" />
 			</auxheader>
@@ -79,9 +60,7 @@
 					model="@{searchPath.fetchStatusList}"
 					selectedItem="@{searchPath.fetchStatus}" />
 			</auxheader>
-			<auxheader>
-				<textbox cols="5" value="@{searchPath.responseCode}" />
-			</auxheader>
+			
 			<auxheader>
 				<listbox mold="select" width="50px" fixedLayout="true"
 					model="@{searchPath.parserStatusList}"
@@ -94,19 +73,16 @@
 			</auxheader>
 
 		</auxhead>
-		<listitem self="@{each='url'}">
-			<listcell label="@{url.path}" />
-			<listcell label="@{url.when}" />
-			<listcell label="@{url.contentBaseType}" />
-			<listcell label="@{url.contentTypeCharset}" />
-			<listcell label="@{url.contentEncoding}" />
-			<listcell label="@{url.contentLength}" />
-			<listcell label="@{url.lang}" />
-			<listcell label="@{url.langMethod}" />
-			<listcell label="@{url.fetchStatus}" />
-			<listcell label="@{url.responseCode}" />
-			<listcell label="@{url.ParserStatus}" />
-			<listcell label="@{url.IndexStatus}" />
+		<listitem self="@{each='file'}">
+			<listcell label="@{file.path}" />
+			<listcell label="@{file.when}" />
+			<listcell label="@{file.extension}" />
+			<listcell label="@{file.size}" />
+			<listcell label="@{file.lang}" />
+			<listcell label="@{file.langMethod}" />
+			<listcell label="@{file.fetchStatus}" />
+			<listcell label="@{file.ParserStatus}" />
+			<listcell label="@{file.IndexStatus}" />
 		</listitem>
 		<listfoot>
 			

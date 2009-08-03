@@ -78,31 +78,6 @@ public class FileController extends CommonController implements AfterCompose {
 		return totalSize;
 	}
 
-	public void setHost(String v) {
-		synchronized (this) {
-			setAttribute("searchUrlHost", v, SESSION_SCOPE);
-		}
-	}
-
-	public String getHost() {
-		synchronized (this) {
-			return (String) getAttribute("searchUrlHost", SESSION_SCOPE);
-		}
-	}
-
-	public void setResponseCode(Integer v) {
-		synchronized (this) {
-			setAttribute("searchUrlResponseCode", v, SESSION_SCOPE);
-		}
-	}
-
-	public Integer getResponseCode() {
-		synchronized (this) {
-			return (Integer) getAttribute("searchUrlResponseCode",
-					SESSION_SCOPE);
-		}
-	}
-
 	public void setLang(String v) {
 		synchronized (this) {
 			setAttribute("searchUrlLang", v, SESSION_SCOPE);
@@ -124,45 +99,6 @@ public class FileController extends CommonController implements AfterCompose {
 	public String getLangMethod() {
 		synchronized (this) {
 			return (String) getAttribute("searchUrlMethod", SESSION_SCOPE);
-		}
-	}
-
-	public void setContentBaseType(String v) {
-		synchronized (this) {
-			setAttribute("searchUrlContentBaseType", v, SESSION_SCOPE);
-		}
-	}
-
-	public String getContentBaseType() {
-		synchronized (this) {
-			return (String) getAttribute("searchUrlContentBaseType",
-					SESSION_SCOPE);
-		}
-	}
-
-	public void setContentTypeCharset(String v) {
-		synchronized (this) {
-			setAttribute("searchUrlContentCharset", v, SESSION_SCOPE);
-		}
-	}
-
-	public String getContentTypeCharset() {
-		synchronized (this) {
-			return (String) getAttribute("searchUrlContentCharset",
-					SESSION_SCOPE);
-		}
-	}
-
-	public void setContentEncoding(String v) {
-		synchronized (this) {
-			setAttribute("searchUrlContentEncoding", v, SESSION_SCOPE);
-		}
-	}
-
-	public String getContentEncoding() {
-		synchronized (this) {
-			return (String) getAttribute("searchUrlContentEncoding",
-					SESSION_SCOPE);
 		}
 	}
 
@@ -236,22 +172,6 @@ public class FileController extends CommonController implements AfterCompose {
 					"searchUrlIndexStatus", SESSION_SCOPE);
 			if (status == null)
 				return IndexStatus.ALL;
-			return status;
-		}
-	}
-
-	public void setRobotsTxtStatus(RobotsTxtStatus v) {
-		synchronized (this) {
-			setAttribute("searchUrlRobotsTxtStatus", v, SESSION_SCOPE);
-		}
-	}
-
-	public RobotsTxtStatus getRobotsTxtStatus() {
-		synchronized (this) {
-			RobotsTxtStatus status = (RobotsTxtStatus) getAttribute(
-					"searchUrlRobotsTxtStatus", SESSION_SCOPE);
-			if (status == null)
-				return RobotsTxtStatus.ALL;
 			return status;
 		}
 	}
@@ -339,10 +259,8 @@ public class FileController extends CommonController implements AfterCompose {
 			fileList = new ArrayList<FileItem>();
 			FileManager fileManager = getClient().getFileManager();
 			SearchRequest searchRequest = fileManager.fileQuery(getLike(),
-					getLang(), getLangMethod(), getContentBaseType(),
-					getContentTypeCharset(), getContentEncoding(),
-					getMinContentLength(), getMaxContentLength(),
-					getFetchStatus(), getResponseCode(), getParserStatus(),
+					getLang(), getLangMethod(), getMinContentLength(),
+					getMaxContentLength(), getFetchStatus(), getParserStatus(),
 					getIndexStatus(), getDateStart(), getDateEnd());
 
 			totalSize = (int) fileManager.getFiles(searchRequest, null, false,

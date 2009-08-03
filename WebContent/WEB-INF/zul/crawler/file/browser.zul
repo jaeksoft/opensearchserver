@@ -23,14 +23,14 @@
 			selectedItem="@{browser.selectedFilePath}" pageSize="25">
 			<listhead>
 				<listheader>
-					<button label="Refresh" forward="onReset" />
-					<button label="Parent" forward="onBack" />
+					<button label="Back to root" forward="onReset" />
+					<button label="Back to parent" forward="onBack" />
+					<button label="Refresh" forward="onRefresh" />
 				</listheader>
 			</listhead>
 
-			<listitem self="@{each='field'}">
-				<listcell label="@{field}"
-					onDoubleClick="browser.onDoubleClick(self)" />
+			<listitem self="@{each='field'}" popup="dealsPopup">
+				<listcell label="@{field}" />
 			</listitem>
 
 			<listfoot>
@@ -44,6 +44,23 @@
 				</listfooter>
 			</listfoot>
 		</listbox>
+		<popup id="dealsPopup" width="300px">
+			<vbox>
+				<button label="Open" forward="onSelect"
+					onClick="dealsPopup.close()"
+					disabled="@{browser.selectedFile.file}" />
+				<button label="Close this box"
+					onClick="dealsPopup.close()" />
+
+				<hbox>
+					<button label="Add" forward="onAdd"
+						onClick="dealsPopup.close()" />
+					<checkbox label="With all sub-directories"
+						checked="@{browser.selectedFileCheck}"
+						disabled="@{browser.selectedFile.file}" left="true" />
+				</hbox>
+			</vbox>
+		</popup>
 	</vbox>
 
 	<separator />
@@ -53,8 +70,8 @@
 		<listhead>
 			<listheader label="Selection" />
 			<listheader label="With all sub-directories" />
-			<listheader label="Reset" width="50px"/>
-			<listheader label="Delete" width="50px"/>
+			<listheader label="Reset" width="50px" />
+			<listheader label="Delete" width="50px" />
 		</listhead>
 		<listfoot>
 			<listfooter span="4">

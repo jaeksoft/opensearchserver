@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.xml.sax.SAXException;
+import org.zkoss.zhtml.Messagebox;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
@@ -131,9 +134,9 @@ public class BrowserController extends CommonController implements
 	public List<String> getFiles() {
 		synchronized (this) {
 			File[] dataToInsert = null;
-			if (currentFile == null)
+			if (currentFile == null) {
 				dataToInsert = File.listRoots();
-			else
+			} else
 				dataToInsert = currentFile.listFiles();
 
 			files = new ArrayList<String>();
@@ -233,17 +236,43 @@ public class BrowserController extends CommonController implements
 		}
 	}
 
-	public void onAdd() throws SearchLibException {
+	public void onAdd() throws SearchLibException,
+			UnsupportedEncodingException, ParseException, InterruptedException {
 		synchronized (this) {
 			if (getSelectedFile() != null) {
-				List<PathItem> list = FilePathManager.getPathList(
-						getSelectedFile().getPath(), isSelectedFileCheck());
-				if (list.size() > 0) {
-					getClient().getFilePathManager().addList(list, false);
+				// Already In
+				if (getClient().getFilePathManager().getPaths(
+						getSelectedFile().getPath(), 0, 0, null) > 0)
+					Messagebox
+							.show("Already In.", "Jaeksoft OpenSearchServer",
+									Messagebox.OK,
+									org.zkoss.zul.Messagebox.INFORMATION);
+				else {
+					List<PathItem> list = FilePathManager.addPath(
+							getSelectedFile().getPath(), isSelectedFileCheck());
+
+					if (list.size() > 0) {
+						getClient().getFilePathManager().addList(list, false);
+					}
+
+					pathList = null;
+					setSelectedFileCheck(false);
+					reloadPage();
 				}
-				pathList = null;
-				setSelectedFileCheck(false);
-				reloadPage();
+			}
+		}
+	}
+
+	public void onSelect() throws SearchLibException {
+		synchronized (this) {
+			if (getSelectedFile() != null) {
+
+				File currentFile = getSelectedFile();
+				if (currentFile != null && currentFile.isDirectory()) {
+					setCurrentFile(currentFile);
+					setSelectedFile(null);
+					reloadPage();
+				}
 			}
 		}
 	}
@@ -280,6 +309,12 @@ public class BrowserController extends CommonController implements
 				setCurrentFile(null);
 
 			setSelectedFile(null);
+			reloadPage();
+		}
+	}
+
+	public void onRefresh() throws SearchLibException {
+		synchronized (this) {
 			reloadPage();
 		}
 	}

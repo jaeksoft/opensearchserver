@@ -32,13 +32,12 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.mail.internet.ContentType;
-
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.FileUtils;
 
 public class FileItem implements Serializable {
 
@@ -84,19 +83,17 @@ public class FileItem implements Serializable {
 
 	private String path;
 	private String originalPath;
-	private String contentBaseType;
-	private String contentTypeCharset;
 	private Integer contentLength;
-	private String contentEncoding;
 	private String lang;
 	private String langMethod;
 	private Date when;
 	private FetchStatus fetchStatus;
-	private Integer responseCode;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
 	private String fileSystemDate;
 	private long crawlDate;
+	private String size;
+	private String extension;
 
 	private final int count;
 
@@ -106,70 +103,54 @@ public class FileItem implements Serializable {
 		status = Status.UNDEFINED;
 		path = null;
 		originalPath = null;
-		contentBaseType = null;
-		contentTypeCharset = null;
 		contentLength = null;
-		contentEncoding = null;
 		lang = null;
 		langMethod = null;
 		when = new Date();
 		fetchStatus = FetchStatus.UN_FETCHED;
-		responseCode = null;
 		parserStatus = ParserStatus.NOT_PARSED;
 		indexStatus = IndexStatus.NOT_INDEXED;
 		count = 0;
 		crawlDate = 0;
 		fileSystemDate = "0";
+		size = "0";
+		extension = "";
 	}
 
 	public FileItem(ResultDocument doc) {
 		this();
 		setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
 		setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(), 0));
-		setContentBaseType(doc.getValue(FileItemFieldEnum.contentBaseType
-				.name(), 0));
-		setContentTypeCharset(doc.getValue(FileItemFieldEnum.contentTypeCharset
-				.name(), 0));
 		setContentLength(doc
 				.getValue(FileItemFieldEnum.contentLength.name(), 0));
-		setContentEncoding(doc.getValue(FileItemFieldEnum.contentEncoding
-				.name(), 0));
+
 		setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
 		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
 		setWhen(doc.getValue(FileItemFieldEnum.when.name(), 0));
 		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
-		setResponseCode(doc.getValue(FileItemFieldEnum.responseCode.name(), 0));
 		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
 				0));
 		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.name(), 0));
 		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
 		setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate.name(),
 				0));
+		setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
+		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.name(), 0));
 	}
 
 	public FileItem(String path, String original, long crawlDate,
-			long fileSystemDate) {
+			long fileSystemDate, long size) {
 		this();
 		setPath(path);
 		setOriginalPath(original);
 		setCrawlDate(crawlDate);
 		setFileSystemDate(fileSystemDate);
-	}
-
-	public String getContentBaseType() {
-		return contentBaseType;
-	}
-
-	public String getContentEncoding() {
-		return contentEncoding;
+		setSize(String.valueOf(size));
+		setExtension(FileUtils.getFileNameExtension(path));
 	}
 
 	public Integer getContentLength() {
 		return contentLength;
-	}
-
-	public String getContentTypeCharset() {
-		return contentTypeCharset;
 	}
 
 	public String getCount() {
@@ -228,10 +209,6 @@ public class FileItem implements Serializable {
 		return path;
 	}
 
-	public Integer getResponseCode() {
-		return responseCode;
-	}
-
 	public Status getStatus() {
 		return status;
 	}
@@ -259,21 +236,9 @@ public class FileItem implements Serializable {
 		indexDocument.set(FileItemFieldEnum.fileSystemDate.name(),
 				fileSystemDate);
 
-		if (responseCode != null)
-			indexDocument.set(FileItemFieldEnum.responseCode.name(),
-					responseCode);
-		if (contentBaseType != null)
-			indexDocument.set(FileItemFieldEnum.contentBaseType.name(),
-					contentBaseType);
-		if (contentTypeCharset != null)
-			indexDocument.set(FileItemFieldEnum.contentTypeCharset.name(),
-					contentTypeCharset);
 		if (contentLength != null)
 			indexDocument.set(FileItemFieldEnum.contentLength.name(),
 					getContentLengthFormat().format(contentLength));
-		if (contentEncoding != null)
-			indexDocument.set(FileItemFieldEnum.contentEncoding.name(),
-					contentEncoding);
 		if (lang != null)
 			indexDocument.set(FileItemFieldEnum.lang.name(), lang);
 		if (langMethod != null)
@@ -285,14 +250,9 @@ public class FileItem implements Serializable {
 				parserStatus.value);
 		indexDocument.set(FileItemFieldEnum.indexStatus.name(),
 				indexStatus.value);
-	}
-
-	public void setContentBaseType(String v) {
-		contentBaseType = v;
-	}
-
-	public void setContentEncoding(String v) {
-		contentEncoding = v;
+		indexDocument.set(FileItemFieldEnum.fileSize.name(), getSize());
+		indexDocument.set(FileItemFieldEnum.fileExtension.name(),
+				getExtension());
 	}
 
 	public void setContentLength(int v) {
@@ -309,17 +269,6 @@ public class FileItem implements Serializable {
 		} catch (ParseException e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
-	}
-
-	public void setContentType(String v)
-			throws javax.mail.internet.ParseException {
-		ContentType contentType = new ContentType(v);
-		setContentBaseType(contentType.getBaseType());
-		setContentTypeCharset(contentType.getParameter("charset"));
-	}
-
-	public void setContentTypeCharset(String v) {
-		contentTypeCharset = v;
 	}
 
 	public void setFetchStatus(FetchStatus status) {
@@ -379,15 +328,6 @@ public class FileItem implements Serializable {
 		this.path = path;
 	}
 
-	public void setResponseCode(Integer v) {
-		responseCode = v;
-	}
-
-	private void setResponseCode(String v) {
-		if (v != null)
-			responseCode = new Integer(v);
-	}
-
 	public void setStatus(Status v) {
 		status = v;
 	}
@@ -443,6 +383,22 @@ public class FileItem implements Serializable {
 
 	public void setFileSystemDate(long d) {
 		fileSystemDate = getTecnhicalDateFormat().format(new Date(d));
+	}
+
+	public String getSize() {
+		return size;
+	}
+
+	public void setSize(String size) {
+		this.size = size;
+	}
+
+	public String getExtension() {
+		return extension;
+	}
+
+	public void setExtension(String extension) {
+		this.extension = extension;
 	}
 
 	/**

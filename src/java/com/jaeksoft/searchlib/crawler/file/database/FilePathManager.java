@@ -261,7 +261,7 @@ public class FilePathManager {
 		list.add(new PathItem(path, withSub));
 	}
 
-	public static List<PathItem> getPathList(String path, boolean withSub) {
+	public static List<PathItem> addPath(String path, boolean withSub) {
 		if (path == null)
 			return null;
 

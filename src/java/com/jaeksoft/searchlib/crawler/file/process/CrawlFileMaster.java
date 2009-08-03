@@ -125,7 +125,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 				|| (fileItem != null && fileItem.isNewCrawlNeeded(current
 						.lastModified()))) {
 			fileItem = new FileItem(current.getPath(), originalPath,
-					startCrawlDate, current.lastModified());
+					startCrawlDate, current.lastModified(), current.length());
 
 			add(new CrawlFileThread(config, this, sessionStats, fileItem));
 			sleepMs(delayBetweenAccess, false);
@@ -160,7 +160,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 		if (current.isFile()) {
 			sendToCrawl(current, item.getPath(), updateList);
-
+			sleepMs(delayBetweenAccess, false);
 		} else if (current.isDirectory()) {
 			// Add its children and children of children
 			if (item.isWithSub())
@@ -198,6 +198,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 				else if (current.isFile()) {
 					sendToCrawl(current, originalPath, updateList);
+					sleepMs(delayBetweenAccess, false);
 				}
 			}
 		}
@@ -337,6 +338,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			setStatus(CrawlStatus.STARTING);
 			indexPluginList = new IndexPluginList(config
 					.getIndexPluginTemplateList());
+			setInfo(null);
 		} catch (SearchLibException e) {
 			e.printStackTrace();
 			setStatus(CrawlStatus.ERROR);

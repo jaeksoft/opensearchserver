@@ -272,7 +272,7 @@ public class PropertyManager {
 		if (delayBetweenAccesses == null)
 			delayBetweenAccesses = getPropertyInteger(Property.DELAY_BETWEEN_ACCESSES);
 		if (delayBetweenAccesses == null)
-			delayBetweenAccesses = 10;
+			delayBetweenAccesses = 100;
 		return delayBetweenAccesses;
 	}
 

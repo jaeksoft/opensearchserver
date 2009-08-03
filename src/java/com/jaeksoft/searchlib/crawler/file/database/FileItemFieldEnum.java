@@ -25,5 +25,5 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 public enum FileItemFieldEnum {
-	path, originalPath, lang, langMethod, contentBaseType, contentTypeCharset, contentEncoding, contentLength, when, responseCode, parserStatus, fetchStatus, indexStatus, crawlDate, fileSystemDate;
+	path, originalPath, lang, langMethod, contentLength, when, parserStatus, fetchStatus, indexStatus, crawlDate, fileSystemDate, fileSize, fileExtension;
 }
