@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.FileUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileItem implements Serializable {
 
@@ -92,7 +93,7 @@ public class FileItem implements Serializable {
 	private IndexStatus indexStatus;
 	private String fileSystemDate;
 	private long crawlDate;
-	private String size;
+	private long size;
 	private String extension;
 
 	private final int count;
@@ -113,7 +114,7 @@ public class FileItem implements Serializable {
 		count = 0;
 		crawlDate = 0;
 		fileSystemDate = "0";
-		size = "0";
+		size = 0;
 		extension = "";
 	}
 
@@ -145,7 +146,7 @@ public class FileItem implements Serializable {
 		setOriginalPath(original);
 		setCrawlDate(crawlDate);
 		setFileSystemDate(fileSystemDate);
-		setSize(String.valueOf(size));
+		setSize(size);
 		setExtension(FileUtils.getFileNameExtension(path));
 	}
 
@@ -251,8 +252,9 @@ public class FileItem implements Serializable {
 		indexDocument.set(FileItemFieldEnum.indexStatus.name(),
 				indexStatus.value);
 		indexDocument.set(FileItemFieldEnum.fileSize.name(), getSize());
-		indexDocument.set(FileItemFieldEnum.fileExtension.name(),
-				getExtension());
+		if (getExtension() != null)
+			indexDocument.set(FileItemFieldEnum.fileExtension.name(),
+					getExtension());
 	}
 
 	public void setContentLength(int v) {
@@ -385,12 +387,20 @@ public class FileItem implements Serializable {
 		fileSystemDate = getTecnhicalDateFormat().format(new Date(d));
 	}
 
-	public String getSize() {
+	public long getSize() {
 		return size;
 	}
 
-	public void setSize(String size) {
+	public String getHumanSize() {
+		return StringUtils.humanBytes(size);
+	}
+
+	public void setSize(long size) {
 		this.size = size;
+	}
+
+	public void setSize(String size) {
+		this.size = Long.parseLong(size);
 	}
 
 	public String getExtension() {

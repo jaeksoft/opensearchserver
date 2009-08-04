@@ -28,8 +28,8 @@ import java.text.DecimalFormat;
 public class StringUtils {
 
 	private enum SizeUnit {
-		BYTE("B", 1), KILOBYTE("KB", 1024), MEGABYTE("MB", 1024 ^ 2), TERABYTE(
-				"TB", 1024 ^ 3);
+		BYTE("B", 1), KILOBYTE("KB", 1024), MEGABYTE("MB", 1024 * 1024), GIGABYTE(
+				"GB", 1024 * 1024 * 1024);
 
 		private String unit;
 		private float div;

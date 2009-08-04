@@ -32,26 +32,17 @@
 			<listitem self="@{each='field'}" popup="dealsPopup">
 				<listcell label="@{field}" />
 			</listitem>
-
-			<listfoot>
-				<listfooter>
-					<hbox>
-						<button label="Add" forward="onAdd" />
-						<checkbox label="With all sub-directories"
-							checked="@{browser.selectedFileCheck}"
-							disabled="@{browser.selectedFile.file}" />
-					</hbox>
-				</listfooter>
-			</listfoot>
 		</listbox>
-		<popup id="dealsPopup" width="300px">
+		<popup id="dealsPopup" >
 			<vbox>
-				<button label="Open" forward="onSelect"
-					onClick="dealsPopup.close()"
-					disabled="@{browser.selectedFile.file}" />
-				<button label="Close this box"
-					onClick="dealsPopup.close()" />
-
+				<hbox>
+					<button label="Open" forward="onSelect"
+						onClick="dealsPopup.close()"
+						disabled="@{browser.selectedFile.file}" />
+						
+					<button label="Cancel" image="/images/action_delete.png"
+						onClick="dealsPopup.close()" />
+				</hbox>
 				<hbox>
 					<button label="Add" forward="onAdd"
 						onClick="dealsPopup.close()" />

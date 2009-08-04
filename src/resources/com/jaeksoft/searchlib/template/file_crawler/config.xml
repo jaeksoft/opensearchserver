@@ -114,16 +114,7 @@
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
 			
-			<field name="contentBaseType" indexed="yes" stored="yes" />
-			
-			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
-				termVector="positions_offsets" />
-			
-			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
-				termVector="positions_offsets" />
-			
 			<field name="metaDescription" indexed="no" stored="compress" />
-			
 			<field name="metaKeywords" indexed="no" stored="compress" />
 		</fields>
 	</schema>

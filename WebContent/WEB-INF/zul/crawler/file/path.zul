@@ -24,7 +24,7 @@
 			<listheader width="30%" label="File" />
 			<listheader width="140px" label="Date" />
 			<listheader label="Extension" />
-			<listheader label="File size (octets)" />
+			<listheader label="Size" />
 			<listheader label="Lang" />
 			<listheader label="Lang method" />
 			<listheader label="Fetch" />
@@ -77,7 +77,7 @@
 			<listcell label="@{file.path}" />
 			<listcell label="@{file.when}" />
 			<listcell label="@{file.extension}" />
-			<listcell label="@{file.size}" />
+			<listcell label="@{file.humanSize}" />
 			<listcell label="@{file.lang}" />
 			<listcell label="@{file.langMethod}" />
 			<listcell label="@{file.fetchStatus}" />
