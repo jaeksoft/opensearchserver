@@ -25,8 +25,8 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -51,7 +51,8 @@ public class SynonymMap {
 	private void loadFromFile(File file) throws FileNotFoundException,
 			IOException {
 		Properties props = new Properties();
-		props.load(new FileReader(file));
+		FileInputStream fis = new FileInputStream(file);
+		props.load(fis);
 		Enumeration<Object> e = props.keys();
 		while (e.hasMoreElements()) {
 			String key = e.nextElement().toString();
@@ -61,6 +62,7 @@ public class SynonymMap {
 				addSourceMap(key, term.trim());
 		}
 		updatePerfMap();
+		fis.close();
 	}
 
 	private void updatePerfMap() {
