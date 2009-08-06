@@ -101,6 +101,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			int valuesCount = valueNodes.getLength();
 			for (int j = 0; j < valuesCount; j++) {
 				Node valueNode = valueNodes.item(j);
+				boolean removeTag = "yes".equalsIgnoreCase(XPathParser
+						.getAttributeString(valueNode, "removeTag"));
 				long basketId = XPathParser.getAttributeLong(valueNode,
 						"basketId");
 				if (basketId != 0) {
@@ -117,7 +119,10 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 					} else
 						add(fieldName, basketDocument.getField(basketField));
 				}
-				add(fieldName, xpp.getNodeString(valueNode));
+				String textContent = xpp.getNodeString(valueNode);
+				if (removeTag)
+					textContent = textContent.replaceAll("<[^>]*>", "");
+				add(fieldName, textContent);
 			}
 		}
 	}
