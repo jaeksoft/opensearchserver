@@ -39,6 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -175,10 +176,12 @@ public abstract class Config {
 
 	private void saveConfigWithoutLock() throws IOException,
 			TransformerConfigurationException, SAXException {
-		File configFile = new File(indexDir, "config_tmp.xml");
-		if (!configFile.exists())
-			configFile.createNewFile();
-		PrintWriter pw = new PrintWriter(configFile);
+		File configTmpFile = new File(indexDir, "config_tmp.xml");
+		File configXmlFile = new File(indexDir, "config.xml");
+		File configOldFile = new File(indexDir, "config_old.xml");
+		if (!configTmpFile.exists())
+			configTmpFile.createNewFile();
+		PrintWriter pw = new PrintWriter(configTmpFile);
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("configuration");
@@ -188,7 +191,9 @@ public abstract class Config {
 			xmlWriter.endDocument();
 			pw.close();
 			pw = null;
-			configFile.renameTo(new File(indexDir, "config.xml"));
+			configOldFile.delete();
+			FileUtils.moveFile(configXmlFile, configOldFile);
+			FileUtils.moveFile(configTmpFile, configXmlFile);
 		} finally {
 			if (pw != null)
 				pw.close();
