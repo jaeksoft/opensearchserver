@@ -25,11 +25,13 @@
 package com.jaeksoft.searchlib.template;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
+
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.FileUtils;
 
 public abstract class TemplateAbstract {
 
@@ -64,17 +66,22 @@ public abstract class TemplateAbstract {
 			throw new SearchLibException("directory creation failed ("
 					+ indexDir + ")");
 
+		InputStream is = null;
+		FileWriter target = null;
 		for (String resource : resources) {
 
 			String res = rootPath + "/" + resource;
-			InputStream is = getClass().getResourceAsStream(res);
+			is = getClass().getResourceAsStream(res);
 			if (is == null)
 				throw new SearchLibException("Unable to find resource " + res);
 			try {
-				File target = new File(indexDir, resource);
-				FileUtils.stream2file(is, target);
+				target = new FileWriter(new File(indexDir, resource));
+				IOUtils.copy(is, target);
 			} finally {
-				is.close();
+				if (target != null)
+					target.close();
+				if (is != null)
+					is.close();
 			}
 		}
 	}

@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
 import org.zkoss.zhtml.Messagebox;
@@ -43,7 +44,6 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
-import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.model.FieldContentModel;
@@ -128,8 +128,7 @@ public class UploadController extends CommonController {
 			if (contentType != null)
 				parser = parserSelector.getParserFromMimeType(contentType);
 			if (parser == null) {
-				String extension = FileUtils.getFileNameExtension(media
-						.getName());
+				String extension = FilenameUtils.getExtension(media.getName());
 				parser = parserSelector.getParserFromExtension(extension);
 			}
 			if (parser == null) {

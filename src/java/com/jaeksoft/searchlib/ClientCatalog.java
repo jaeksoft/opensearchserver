@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,8 +35,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.naming.NamingException;
 import javax.servlet.ServletRequest;
 
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+
 import com.jaeksoft.searchlib.template.TemplateAbstract;
-import com.jaeksoft.searchlib.util.FileUtils;
 
 public class ClientCatalog {
 
@@ -97,7 +99,7 @@ public class ClientCatalog {
 		if (!dataDir.exists())
 			throw new SearchLibException("Data directory does not exists ("
 					+ dataDir + ")");
-		return dataDir.listFiles(new FileUtils.DirectoryOnly());
+		return dataDir.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
 	}
 
 	public static final boolean exists(String indexName)

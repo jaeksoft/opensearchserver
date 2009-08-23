@@ -39,7 +39,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -81,6 +80,7 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
+import com.jaeksoft.searchlib.util.ConfigFileRotation;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -176,12 +176,10 @@ public abstract class Config {
 
 	private void saveConfigWithoutLock() throws IOException,
 			TransformerConfigurationException, SAXException {
-		File configTmpFile = new File(indexDir, "config_tmp.xml");
-		File configXmlFile = new File(indexDir, "config.xml");
-		File configOldFile = new File(indexDir, "config_old.xml");
-		if (!configTmpFile.exists())
-			configTmpFile.createNewFile();
-		PrintWriter pw = new PrintWriter(configTmpFile);
+		ConfigFileRotation cfr = new ConfigFileRotation(indexDir, "config.xml");
+		if (!cfr.getTempFile().exists())
+			cfr.getTempFile().createNewFile();
+		PrintWriter pw = new PrintWriter(cfr.getTempFile());
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("configuration");
@@ -191,9 +189,7 @@ public abstract class Config {
 			xmlWriter.endDocument();
 			pw.close();
 			pw = null;
-			configOldFile.delete();
-			FileUtils.moveFile(configXmlFile, configOldFile);
-			FileUtils.moveFile(configTmpFile, configXmlFile);
+			cfr.rotate();
 		} finally {
 			if (pw != null)
 				pw.close();
@@ -202,39 +198,30 @@ public abstract class Config {
 
 	public void saveParsers() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
-		boolean success = false;
-		File file = new File(indexDir, "parsers_tmp.xml");
-		if (!file.exists())
-			file.createNewFile();
-		PrintWriter pw = new PrintWriter(file);
+		ConfigFileRotation cfr = new ConfigFileRotation(indexDir, "parsers.xml");
+		PrintWriter pw = cfr.getTempPrintWriter();
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			getParserSelector().writeXmlConfig(xmlWriter);
 			xmlWriter.endDocument();
-			success = true;
+			cfr.rotate();
 		} finally {
 			pw.close();
-			if (success)
-				file.renameTo(new File(indexDir, "parsers.xml"));
 		}
 	}
 
 	public void saveRequests() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
-		boolean success = false;
-		File file = new File(indexDir, "requests_tmp.xml");
-		if (!file.exists())
-			file.createNewFile();
-		PrintWriter pw = new PrintWriter(file);
+		ConfigFileRotation cfr = new ConfigFileRotation(indexDir,
+				"requests.xml");
+		PrintWriter pw = cfr.getTempPrintWriter();
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			getSearchRequestMap().writeXmlConfig(xmlWriter);
 			xmlWriter.endDocument();
-			success = true;
+			cfr.rotate();
 		} finally {
 			pw.close();
-			if (success)
-				file.renameTo(new File(indexDir, "requests.xml"));
 		}
 	}
 

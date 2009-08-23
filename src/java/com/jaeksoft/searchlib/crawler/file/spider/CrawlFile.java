@@ -32,6 +32,8 @@ import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
@@ -44,7 +46,6 @@ import com.jaeksoft.searchlib.parser.LimitException;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
-import com.jaeksoft.searchlib.util.FileUtils;
 
 public class CrawlFile {
 
@@ -79,8 +80,9 @@ public class CrawlFile {
 		synchronized (this) {
 			try {
 				ParserSelector parserSelector = config.getParserSelector();
-				Parser parser = parserSelector.getParserFromExtension(FileUtils
-						.getFileNameExtension(item.getPath()));
+				Parser parser = parserSelector
+						.getParserFromExtension(FilenameUtils.getExtension(item
+								.getPath()));
 
 				// Parser Choice
 				if (parser == null) {

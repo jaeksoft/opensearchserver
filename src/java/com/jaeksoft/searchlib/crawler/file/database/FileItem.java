@@ -32,12 +32,13 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileItem implements Serializable {
@@ -147,7 +148,7 @@ public class FileItem implements Serializable {
 		setCrawlDate(crawlDate);
 		setFileSystemDate(fileSystemDate);
 		setSize(size);
-		setExtension(FileUtils.getFileNameExtension(path));
+		setExtension(FilenameUtils.getExtension(path));
 	}
 
 	public Integer getContentLength() {

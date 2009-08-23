@@ -1,1 +1,4 @@
-1.1
+# File used by hudson to manage publication
+VERSION=1.1
+TARGET_FTP=1
+TARGET_SOURCEFORGE=0
