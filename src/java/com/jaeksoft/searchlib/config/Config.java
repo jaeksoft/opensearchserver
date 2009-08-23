@@ -116,7 +116,7 @@ public abstract class Config {
 	private CrawlFileMaster fileCrawlMaster = null;
 
 	private FieldMap webCrawlerFieldMap = null;
-	
+
 	private FieldMap fileCrawlerFieldMap = null;
 
 	private IndexPluginTemplateList indexPluginTemplateList = null;
@@ -175,7 +175,6 @@ public abstract class Config {
 
 	private void saveConfigWithoutLock() throws IOException,
 			TransformerConfigurationException, SAXException {
-		boolean success = false;
 		File configFile = new File(indexDir, "config_tmp.xml");
 		if (!configFile.exists())
 			configFile.createNewFile();
@@ -187,11 +186,12 @@ public abstract class Config {
 			getSchema().writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
-			success = true;
-		} finally {
 			pw.close();
-			if (success)
-				configFile.renameTo(new File(indexDir, "config.xml"));
+			pw = null;
+			configFile.renameTo(new File(indexDir, "config.xml"));
+		} finally {
+			if (pw != null)
+				pw.close();
 		}
 	}
 
@@ -666,7 +666,7 @@ public abstract class Config {
 			lock.unlock();
 		}
 	}
-	
+
 	public FieldMap getFileCrawlerFieldMap() throws SearchLibException {
 		lock.lock();
 		try {
