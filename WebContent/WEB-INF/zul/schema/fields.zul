@@ -18,7 +18,32 @@
 <window id="fields"
 	use="com.jaeksoft.searchlib.web.controller.schema.FieldsController">
 
-	<hbox id="editField" width="100%">
+	<vbox id="editField" width="100%">
+		<hbox width="100%">
+			<panel title="Select default field" border="normal">
+				<panelchildren>
+					<listbox mold="select"
+						selectedItem="@{fields.selectedDefault}"
+						model="@{fields.indexedFields}">
+						<listitem self="@{each=indexedField}"
+							label="@{indexedField}" />
+					</listbox>
+				</panelchildren>
+			</panel>
+			<panel title="Select unique field" border="normal">
+				<panelchildren>
+					<listbox mold="select"
+						selectedItem="@{fields.selectedUnique}"
+						model="@{fields.indexedFields}">
+						<listitem self="@{each=indexedField}"
+							label="@{indexedField}" />
+					</listbox>
+				</panelchildren>
+			</panel>
+		</hbox>
+
+		<separator height="5" />
+
 		<panel title="@{fields.currentEditMode}" border="normal">
 			<panelchildren>
 				<grid>
@@ -101,30 +126,31 @@
 				</grid>
 			</panelchildren>
 		</panel>
-	</hbox>
 
-	<separator height="10" />
+		<separator height="5" />
 
-	<panel title="Field list" border="normal">
-		<panelchildren>
-			<listbox model="@{fields.list}"
-				selectedItem="@{fields.selectedField}">
-				<listhead>
-					<listheader label="name" />
-					<listheader label="indexed" />
-					<listheader label="stored" />
-					<listheader label="termVector" />
-					<listheader label="analyzer" />
-				</listhead>
-				<listitem self="@{each=field}">
-					<listcell label="@{field.name}" />
-					<listcell label="@{field.indexed.value}" />
-					<listcell label="@{field.stored.value}" />
-					<listcell label="@{field.termVector.value}" />
-					<listcell label="@{field.indexAnalyzer}" />
-				</listitem>
-			</listbox>
-		</panelchildren>
-	</panel>
+		<panel title="Field list" border="normal">
+			<panelchildren>
+				<listbox model="@{fields.list}"
+					selectedItem="@{fields.selectedField}">
+					<listhead>
+						<listheader label="name" />
+						<listheader label="indexed" />
+						<listheader label="stored" />
+						<listheader label="termVector" />
+						<listheader label="analyzer" />
+					</listhead>
+					<listitem self="@{each=field}">
+						<listcell label="@{field.name}" />
+						<listcell label="@{field.indexed.value}" />
+						<listcell label="@{field.stored.value}" />
+						<listcell label="@{field.termVector.value}" />
+						<listcell label="@{field.indexAnalyzer}" />
+					</listitem>
+				</listbox>
+			</panelchildren>
+		</panel>
+
+	</vbox>
 
 </window>

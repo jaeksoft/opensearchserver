@@ -43,12 +43,12 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 		uniqueField = null;
 	}
 
-	protected void setDefaultField(String fieldName) {
+	public void setDefaultField(String fieldName) {
 		if (fieldName != null)
 			this.defaultField = this.get(fieldName);
 	}
 
-	protected void setUniqueField(String fieldName) {
+	public void setUniqueField(String fieldName) {
 		if (fieldName != null)
 			this.uniqueField = this.get(fieldName);
 	}

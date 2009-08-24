@@ -24,12 +24,14 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
@@ -46,6 +48,8 @@ public class FieldsController extends CommonController {
 	private SchemaField field;
 
 	private SchemaField selectedField;
+
+	private List<String> indexedFields;
 
 	public FieldsController() throws SearchLibException {
 		super();
@@ -132,6 +136,60 @@ public class FieldsController extends CommonController {
 	public String getCurrentEditMode() throws SearchLibException {
 		return selectedField == null ? "Create a new field" : "Edit the field "
 				+ selectedField.getName();
+	}
+
+	public List<String> getIndexedFields() throws SearchLibException {
+		synchronized (this) {
+			if (indexedFields != null)
+				return indexedFields;
+			indexedFields = new ArrayList<String>();
+			for (SchemaField field : getClient().getSchema().getFieldList())
+				if (field.isIndexed())
+					indexedFields.add(field.getName());
+			return indexedFields;
+		}
+	}
+
+	public String getSelectedUnique() throws SearchLibException {
+		Field field = getClient().getSchema().getFieldList().getUniqueField();
+		if (field == null)
+			return null;
+		return field.getName();
+	}
+
+	public void setSelectedUnique(String field) throws SearchLibException,
+			InterruptedException {
+		if (field == null)
+			return;
+		Client client = getClient();
+		client.getSchema().getFieldList().setUniqueField(field);
+		client.saveConfig();
+		reloadDesktop();
+	}
+
+	public String getSelectedDefault() throws SearchLibException {
+		Field field = getClient().getSchema().getFieldList().getDefaultField();
+		if (field == null)
+			return null;
+		return field.getName();
+	}
+
+	public void setSelectedDefault(String field) throws SearchLibException,
+			InterruptedException {
+		if (field == null)
+			return;
+		Client client = getClient();
+		client.getSchema().getFieldList().setDefaultField(field);
+		client.saveConfig();
+		reloadDesktop();
+	}
+
+	@Override
+	public void reloadPage() {
+		synchronized (this) {
+			indexedFields = null;
+			super.reloadPage();
+		}
 	}
 
 }
