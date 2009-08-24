@@ -131,7 +131,7 @@
 
 		<panel title="Field list" border="normal">
 			<panelchildren>
-				<listbox model="@{fields.list}"
+				<listbox model="@{fields.sortedList}"
 					selectedItem="@{fields.selectedField}">
 					<listhead>
 						<listheader label="name" />

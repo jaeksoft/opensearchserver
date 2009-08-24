@@ -51,10 +51,13 @@ public class FieldsController extends CommonController {
 
 	private List<String> indexedFields;
 
+	private List<SchemaField> schemaFieldList;
+
 	public FieldsController() throws SearchLibException {
 		super();
 		field = new SchemaField();
 		selectedField = null;
+		schemaFieldList = null;
 	}
 
 	public SchemaField getField() {
@@ -129,8 +132,13 @@ public class FieldsController extends CommonController {
 		return TermVector.values();
 	}
 
-	public List<SchemaField> getList() throws SearchLibException {
-		return getClient().getSchema().getFieldList().getList();
+	public List<SchemaField> getSortedList() throws SearchLibException {
+		synchronized (this) {
+			if (schemaFieldList == null)
+				schemaFieldList = getClient().getSchema().getFieldList()
+						.getSortedList();
+			return schemaFieldList;
+		}
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
@@ -188,6 +196,7 @@ public class FieldsController extends CommonController {
 	public void reloadPage() {
 		synchronized (this) {
 			indexedFields = null;
+			schemaFieldList = null;
 			super.reloadPage();
 		}
 	}

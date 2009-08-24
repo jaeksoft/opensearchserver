@@ -67,7 +67,7 @@ public class FieldList<T extends Field> implements
 	 */
 	public FieldList() {
 		this.fieldsName = new TreeMap<String, T>();
-		this.fieldList = new ArrayList<T>();
+		this.fieldList = new ArrayList<T>(0);
 		cacheKey = null;
 	}
 
@@ -115,7 +115,7 @@ public class FieldList<T extends Field> implements
 		synchronized (this) {
 			if (!this.fieldList.add(field))
 				return false;
-			this.fieldsName.put(field.name, field);
+			fieldsName.put(field.name, field);
 			cacheKey = null;
 			return true;
 		}
@@ -179,6 +179,16 @@ public class FieldList<T extends Field> implements
 
 	public List<T> getList() {
 		return fieldList;
+	}
+
+	public List<T> getSortedList() {
+		synchronized (this) {
+			List<T> list = new ArrayList<T>(fieldsName.size());
+			Iterator<T> it = fieldsName.values().iterator();
+			while (it.hasNext())
+				list.add(it.next());
+			return list;
+		}
 	}
 
 	public void readExternal(ObjectInput in) throws IOException,
