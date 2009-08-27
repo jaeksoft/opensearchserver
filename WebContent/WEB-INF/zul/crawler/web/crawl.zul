@@ -17,7 +17,7 @@
 -->
 <window id="crawlProcess"
 	use="com.jaeksoft.searchlib.web.controller.crawler.web.CrawlController">
-	<panel title="Crawl parameter" collapsible="true" border="normal">
+	<panel title="Crawling parameters" collapsible="true" border="normal">
 		<panelchildren>
 			<grid>
 				<columns>
@@ -32,7 +32,7 @@
 						<textbox cols="50"
 							readonly="@{crawlProcess.refresh}"
 							value="@{crawlProcess.properties.userAgent}" />
-						<label value="Number of url to crawl: " />
+						<label value="Number of URLs to crawl: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
 							value="@{crawlProcess.properties.maxUrlPerSession}" />
@@ -44,7 +44,7 @@
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
 							value="@{crawlProcess.properties.fetchInterval}" />
-						<label value="Maximum number of url per host: " />
+						<label value="Maximum number of URLs per host: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
 							value="@{crawlProcess.properties.maxUrlPerHost}" />
@@ -56,7 +56,7 @@
 							readonly="@{crawlProcess.refresh}"
 							value="@{crawlProcess.properties.maxThreadNumber}" />
 						<label
-							value="Delay between each accesses (seconds): " />
+							value="Delay between each successive access, in seconds: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
 							value="@{crawlProcess.properties.delayBetweenAccesses}" />
@@ -90,7 +90,7 @@
 		</toolbar>
 	</panel>
 	<separator />
-	<panel title="Last sessions statistics" collapsible="true"
+	<panel title="Statistics for prior sessions" collapsible="true"
 		border="normal">
 		<panelchildren>
 			<listbox model="@{crawlProcess.webCrawlMaster.statistics}">

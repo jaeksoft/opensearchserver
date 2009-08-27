@@ -17,7 +17,7 @@
 -->
 <window id="crawlFileProcess"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController">
-	<panel title="Crawl parameter" collapsible="true" border="normal">
+	<panel title="Parameters for crawling" collapsible="true" border="normal">
 		<panelchildren>
 			<grid>
 				<columns>
@@ -27,7 +27,7 @@
 				<rows>
 					<row>
 						<label
-							value="Delay between each accesses (milliseconds): " />
+							value="Delay between each successive access, in milliseconds: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlFileProcess.refresh}"
 							value="@{crawlFileProcess.properties.delayBetweenAccessesFile}" />
@@ -67,7 +67,7 @@
 		</toolbar>
 	</panel>
 	<separator />
-	<panel title="Last sessions statistics" collapsible="true"
+	<panel title="Statistics for prior sessions" collapsible="true"
 		border="normal">
 		<panelchildren>
 			<listbox

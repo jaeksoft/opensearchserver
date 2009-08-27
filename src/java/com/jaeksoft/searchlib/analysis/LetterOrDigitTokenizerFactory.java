@@ -37,7 +37,7 @@ public class LetterOrDigitTokenizerFactory extends TokenizerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Splits text into word each time a character is not a letter or a digit.";
+		return "This tokenizer considers each non-digit, non-letter character to be a separator between words";
 	}
 
 }

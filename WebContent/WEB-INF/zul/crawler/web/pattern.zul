@@ -20,16 +20,17 @@
 	<vbox width="99%">
 		<label>For example:</label>
 		<label>
-			Enter http://www.open-search-server.com if you only want to crawl the
-			home page
+			Enter http://www.open-search-server.com if you only want to
+			crawl the home page
 		</label>
 		<label>
-			Enter http://www.open-search-server.com/* if you want to crawl all the
-			content
+			Enter http://www.open-search-server.com/* if you want to
+			crawl all the content
 		</label>
 		<label>
-			Enter http://www.open-search-server.com/*wiki* if you only want to
-			crawl the url containing the word wiki
+			Enter http://www.open-search-server.com/*wiki* if you only
+			wish to crawl URLs containing the word "wiki" within the
+			open-search-server.com domain.
 		</label>
 		<textbox multiline="true" rows="10" width="100%"
 			value="@{pattern.pattern}" />

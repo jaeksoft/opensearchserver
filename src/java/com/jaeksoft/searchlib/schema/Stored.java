@@ -28,16 +28,14 @@ import org.apache.lucene.document.Field.Store;
 
 public enum Stored {
 
-	YES(
-			"The content of the field is stored, therefore it can be returned by a query.",
+	YES("The content of this field is stored, and queries can thus return it.",
 			Store.YES),
 
-	NO(
-			"The content of the field is not stored and cannot be returned by a query.",
+	NO("The content of this field is not stored, and no query can return it.",
 			Store.NO),
 
 	COMPRESS(
-			"The content of the field is stored and compressed. It can be returned by a query. Useful for large text.",
+			"The content of this field is stored, and queries can thus return it. This setting is useful for large bodies of text.",
 			Store.COMPRESS);
 
 	private String description;

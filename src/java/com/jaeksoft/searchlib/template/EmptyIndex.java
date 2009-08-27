@@ -32,7 +32,10 @@ public class EmptyIndex extends TemplateAbstract {
 
 	public final static String publicName = "Empty index";
 
-	public final static String description = "An empty index. You have to set up a schema (fields, analyzers, parser mapping) before populate data.";
+	public final static String description = "This is an empty index - "
+			+ "if you use this setting you will have to set a schema up "
+			+ "(fields, analysers, parser mapping) before "
+			+ "it can be populated with data.";
 
 	protected EmptyIndex() {
 		super(root, resources, publicName, description);

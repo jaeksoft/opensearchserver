@@ -16,7 +16,7 @@
 -->
 <tabbox>
 	<tabs>
-		<tab id="tabCrawlerFileBrowser" label="File and folder list"
+		<tab id="tabCrawlerFileBrowser" label="Files and folders list"
 			selected="true" />
 		<tab id="tabCrawlerFileCrawl" label="Crawl process" />
 		<tab id="tabCrawlerFileCrawled" label="File browser" />

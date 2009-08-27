@@ -35,7 +35,7 @@ public class LowerCaseFilter extends FilterFactory {
 
 	@Override
 	public String getDescription() {
-		return "Normalizes text to lower case";
+		return "This filter normalises text into lower case characters";
 	}
 
 }

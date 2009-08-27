@@ -34,7 +34,7 @@
 	<separator />
 	<panel id="basketDocumentPanel" border="normal"
 		visible="@{basketList.currentBasketDocumentValid}"
-		title="Basket document">
+		title="List of documents in the basket">
 		<toolbar>
 			<button label="Remove document" forward="onRemoveDocument" />
 		</toolbar>

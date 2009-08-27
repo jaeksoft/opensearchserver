@@ -129,16 +129,16 @@
 
 		<separator height="5" />
 
-		<panel title="Field list" border="normal">
+		<panel title="List of existing fields and their settings" border="normal">
 			<panelchildren>
 				<listbox model="@{fields.sortedList}"
 					selectedItem="@{fields.selectedField}">
 					<listhead>
-						<listheader label="name" />
-						<listheader label="indexed" />
-						<listheader label="stored" />
-						<listheader label="termVector" />
-						<listheader label="analyzer" />
+						<listheader label="Name" />
+						<listheader width="140px" label="Indexation of content" />
+						<listheader width="140px" label="Storage for queries" />
+						<listheader width="140px" label="TermVector" />
+						<listheader width="240px" label="Analyser" />
 					</listhead>
 					<listitem self="@{each=field}">
 						<listcell label="@{field.name}" />

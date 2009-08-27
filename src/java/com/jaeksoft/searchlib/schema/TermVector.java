@@ -27,10 +27,11 @@ package com.jaeksoft.searchlib.schema;
 public enum TermVector {
 
 	POSITIONS_OFFSETS(
-			"The positions and offset of the tokens (words) are stored. This is mandatory to extract snippets from fields.",
+			"The position and offsets of the words/token are recorded. This allows for extracting snippets from this field.",
 			org.apache.lucene.document.Field.TermVector.WITH_POSITIONS_OFFSETS),
 
-	NO("No term vector is stored (only mandatory for snippets).",
+	NO(
+			"Term vectors are not recorded. This prevents using snippets in this field.",
 			org.apache.lucene.document.Field.TermVector.NO);
 
 	private String description;

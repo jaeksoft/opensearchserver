@@ -31,7 +31,7 @@
 					<listitem self="@{each=returnField}"
 						label="@{returnField}" />
 				</listbox>
-				<button label="add return field" forward="onReturnAdd" />
+				<button label="add field" forward="onReturnAdd" />
 			</footer>
 		</foot>
 	</grid>

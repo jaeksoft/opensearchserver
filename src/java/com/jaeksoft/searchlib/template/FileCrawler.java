@@ -28,7 +28,9 @@ public class FileCrawler extends TemplateAbstract {
 
 	public final static String publicName = "file crawler";
 
-	public final static String description = "Index with predefined field, analyzers, parsers. Ready for web site crawl and indexation";
+	public final static String description = "This is an index with predefined fields, "
+			+ " analysers and parsers. "
+			+ "This template is suited to parsing and indexing files (.doc, .pdf, etc.)";
 
 	public final static String root = "file_crawler";
 

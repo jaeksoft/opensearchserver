@@ -35,7 +35,7 @@ public class ISOLatin1AccentFilter extends FilterFactory {
 
 	@Override
 	public String getDescription() {
-		return "replaces accented characters in the ISO Latin 1 character set (ISO-8859-1) by their unaccented equivalent.";
+		return "This filter replaces accented characters (characters with diacritics) in the ISO latin 1 character set (ISO-8859-1) with the unaccented (no diacritics) equivalent.";
 	}
 
 }

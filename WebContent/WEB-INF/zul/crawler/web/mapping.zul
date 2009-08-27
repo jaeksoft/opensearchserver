@@ -33,7 +33,7 @@
 	</hbox>
 	<listbox model="@{mapping.fieldMap.list}" itemRenderer="@{mapping}">
 		<listhead>
-			<listheader label="Url field" />
+			<listheader label="URL field" />
 			<listheader label="Index field" />
 			<listheader label="Action" />
 		</listhead>

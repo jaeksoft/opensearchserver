@@ -29,10 +29,10 @@ import org.apache.lucene.document.Field.Index;
 public enum Indexed {
 
 	YES(
-			"The content of the field is indexed, therefore a query can search on that field."),
+			"The content of the field is indexed, allowing queries to be executed within that field."),
 
 	NO(
-			"The content of the field is not indexed, therefore a query cannot search on that field.");
+			"The content of the field is not indexed, and queries cannot be executed within that field.");
 
 	private String description;
 

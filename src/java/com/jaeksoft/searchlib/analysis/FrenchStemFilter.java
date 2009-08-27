@@ -35,7 +35,7 @@ public class FrenchStemFilter extends FilterFactory {
 
 	@Override
 	public String getDescription() {
-		return "A filter that stems french words";
+		return "A filter that stems French words";
 	}
 
 }

@@ -15,7 +15,7 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="home" 
+<window id="home"
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
 	<panel title="Create a new index" border="normal">
 		<panelchildren>
@@ -52,7 +52,9 @@
 		</panelchildren>
 	</panel>
 	<separator height="10" />
-	<panel title="Index list" border="normal">
+	<panel
+		title="List of existing indices - click on an index to work with it"
+		border="normal">
 		<toolbar>
 			<button label="Refresh" forward="onListRefresh" />
 		</toolbar>
