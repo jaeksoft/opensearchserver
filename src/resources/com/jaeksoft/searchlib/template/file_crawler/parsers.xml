@@ -73,8 +73,21 @@
 	</parser>
 	<parser name="ODT parser" class="com.jaeksoft.searchlib.parser.OdtParser"
 		sizeLimit="8388608">
-		<extension>ods</extension>
 		<extension>odt</extension>
+		<map>
+			<link source="author" target="content" />
+			<link source="author" target="contentExact" />
+			<link source="content" target="content" />
+			<link source="content" target="contentExact" />
+			<link source="subject" target="content" />
+			<link source="subject" target="contentExact" />
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
+		</map>
+	</parser>
+	<parser name="ODF parser" class="com.jaeksoft.searchlib.parser.OdfParser"
+		sizeLimit="8388608">
+		<extension>odf</extension>
 		<map>
 			<link source="author" target="content" />
 			<link source="author" target="contentExact" />
