@@ -33,7 +33,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public abstract class FilterFactory {
+public abstract class FilterFactory implements ParamsInterface {
 
 	public void setParams(XPathParser xpp, Node node) throws IOException {
 	}

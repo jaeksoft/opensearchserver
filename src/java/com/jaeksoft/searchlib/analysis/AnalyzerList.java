@@ -62,8 +62,8 @@ public class AnalyzerList extends AbstractList<Analyzer> {
 	public boolean add(Analyzer analyzer) {
 		if (!analyzerList.add(analyzer))
 			return false;
-		analyzersName.put(analyzer.getName() + "_" + analyzer.getLang(),
-				analyzer);
+		analyzersName.put(analyzer.getName() + "_"
+				+ analyzer.getLang().getCode(), analyzer);
 		return true;
 	}
 
@@ -72,8 +72,10 @@ public class AnalyzerList extends AbstractList<Analyzer> {
 		return analyzerList.get(index);
 	}
 
-	public Analyzer get(String name, String lang) {
-		return analyzersName.get(name + "_" + lang);
+	public Analyzer get(String name, LanguageEnum lang) {
+		if (lang == null)
+			lang = LanguageEnum.UNDEFINED;
+		return analyzersName.get(name + "_" + lang.getCode());
 	}
 
 	public Set<String> getAnalyzerSet() {

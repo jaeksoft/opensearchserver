@@ -35,6 +35,7 @@ import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
 public class CommonController extends Window {
 
@@ -102,6 +103,10 @@ public class CommonController extends Window {
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		reloadPage();
+	}
+
+	public LanguageEnum[] getLanguageEnum() {
+		return LanguageEnum.values();
 	}
 
 }

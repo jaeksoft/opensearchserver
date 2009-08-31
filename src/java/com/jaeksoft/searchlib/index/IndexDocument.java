@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.util.External;
@@ -55,7 +56,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	private static final long serialVersionUID = 3144413917081822065L;
 
 	private Map<String, FieldContent> fields;
-	private String lang;
+	private LanguageEnum lang;
 	private FieldContent[] fieldContentArray;
 
 	public IndexDocument() {
@@ -64,7 +65,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		fieldContentArray = null;
 	}
 
-	public IndexDocument(String lang) {
+	public IndexDocument(LanguageEnum lang) {
 		this();
 		this.lang = lang;
 	}
@@ -72,7 +73,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	public IndexDocument(Locale lang) {
 		this();
 		if (lang != null)
-			this.lang = lang.getLanguage();
+			this.lang = LanguageEnum.findByCode(lang.getLanguage());
 	}
 
 	/**
@@ -90,7 +91,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	public IndexDocument(XPathParser xpp, Node documentNode,
 			BasketCache basketCache) throws XPathExpressionException,
 			SearchLibException {
-		this(XPathParser.getAttributeString(documentNode, "lang"));
+		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
+				documentNode, "lang")));
 		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
 		int fieldsCount = fieldNodes.getLength();
 		for (int i = 0; i < fieldsCount; i++) {
@@ -190,11 +192,11 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		set(field, value.toString());
 	}
 
-	public String getLang() {
+	public LanguageEnum getLang() {
 		return lang;
 	}
 
-	public void setLang(String lang) {
+	public void setLang(LanguageEnum lang) {
 		this.lang = lang;
 	}
 
@@ -222,12 +224,12 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
-		lang = External.readUTF(in);
+		lang = LanguageEnum.findByCode(External.readUTF(in));
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(fields.values(), out);
-		External.writeUTF(lang, out);
+		External.writeUTF(lang.getCode(), out);
 	}
 
 	public void addObject(FieldContent fieldContent) {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,25 +24,20 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
-import org.w3c.dom.Node;
 
-import com.jaeksoft.searchlib.util.XPathParser;
+public class ChineseTokenizer extends TokenizerFactory {
 
-public abstract class TokenizerFactory implements ParamsInterface {
-
-	public abstract Tokenizer create(Reader reader);
-
-	public abstract String getDescription();
-
-	public String getClassName() {
-		return this.getClass().getSimpleName();
+	@Override
+	public Tokenizer create(Reader reader) {
+		return new org.apache.lucene.analysis.cn.ChineseTokenizer(reader);
 	}
 
-	public void setParams(XPathParser xpp, Node node) throws IOException {
+	@Override
+	public String getDescription() {
+		return "Chinese tokenizer";
 	}
 
 }

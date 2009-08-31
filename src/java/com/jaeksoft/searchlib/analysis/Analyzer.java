@@ -45,19 +45,23 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 	private TokenizerFactory tokenizer;
 	private List<FilterFactory> filters;
 	private String name;
-	private String lang;
+	private LanguageEnum lang;
 
-	public Analyzer(String name, String lang, String tokenizerFactoryClassName)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	private Analyzer(XPathParser xpp, Node node) throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException, IOException {
+		this.name = XPathParser.getAttributeString(node, "name");
+		this.lang = LanguageEnum.findByCode(XPathParser.getAttributeString(
+				node, "lang"));
+		String tokenizerFactoryClassName = XPathParser.getAttributeString(node,
+				"tokenizer");
+
 		if (tokenizerFactoryClassName == null)
 			tokenizerFactoryClassName = "StandardTokenizer";
 		this.tokenizer = (TokenizerFactory) Class.forName(
 				"com.jaeksoft.searchlib.analysis." + tokenizerFactoryClassName)
 				.newInstance();
+		this.tokenizer.setParams(xpp, node);
 		this.filters = new ArrayList<FilterFactory>();
-		this.name = name;
-		this.lang = lang;
 	}
 
 	public void add(String filterFactoryClassName, XPathParser xpp, Node node)
@@ -82,7 +86,7 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		return name;
 	}
 
-	public String getLang() {
+	public LanguageEnum getLang() {
 		return lang;
 	}
 
@@ -113,9 +117,7 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 			IOException {
 		if (node == null)
 			return null;
-		Analyzer analyzer = new Analyzer(XPathParser.getAttributeString(node,
-				"name"), XPathParser.getAttributeString(node, "lang"),
-				XPathParser.getAttributeString(node, "tokenizer"));
+		Analyzer analyzer = new Analyzer(xpp, node);
 		NodeList nodes = xpp.getNodeList(node, "filter");
 		for (int i = 0; i < nodes.getLength(); i++)
 			analyzer.add(
@@ -127,7 +129,7 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		writer.startElement("analyzer", "name", getName(), "tokenizer",
 				tokenizer != null ? tokenizer.getClassName() : null, "lang",
-				lang != null ? lang : null);
+				lang != null ? lang.getCode() : null);
 		if (filters != null && filters.size() > 0)
 			for (FilterFactory filter : filters)
 				filter.writeXmlConfig(writer);

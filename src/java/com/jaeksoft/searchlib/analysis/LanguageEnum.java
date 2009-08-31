@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,25 +24,58 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.IOException;
-import java.io.Reader;
+public enum LanguageEnum {
 
-import org.apache.lucene.analysis.Tokenizer;
-import org.w3c.dom.Node;
+	UNDEFINED("Undefined", ""),
 
-import com.jaeksoft.searchlib.util.XPathParser;
+	CHINESE("Chinese", "zh"),
 
-public abstract class TokenizerFactory implements ParamsInterface {
+	DUTCH("Dutch", "nl"),
 
-	public abstract Tokenizer create(Reader reader);
+	ENGLISH("English", "en"),
 
-	public abstract String getDescription();
+	FINNISH("Finnish", "fi"),
 
-	public String getClassName() {
-		return this.getClass().getSimpleName();
+	FRENCH("French", "fr"),
+
+	GERMAN("German", "de"),
+
+	ITALIAN("Italian", "it"),
+
+	NORWEGIAN("Norwegian", "no"),
+
+	PORTUGUESE("Portuguese", "pt"),
+
+	RUSSIAN("Russian", "ru"),
+
+	SPANISH("Spanish", "es"),
+
+	SWEDISH("Swedish", "sv");
+
+	private String name;
+
+	private String code;
+
+	private LanguageEnum(String name, String code) {
+		this.name = name;
+		this.code = code;
 	}
 
-	public void setParams(XPathParser xpp, Node node) throws IOException {
+	public String getName() {
+		return name;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public static LanguageEnum findByCode(String code) {
+		if (code == null)
+			return UNDEFINED;
+		for (LanguageEnum lang : LanguageEnum.values())
+			if (code.equalsIgnoreCase(lang.getCode()))
+				return lang;
+		return UNDEFINED;
 	}
 
 }

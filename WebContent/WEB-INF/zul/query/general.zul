@@ -58,7 +58,12 @@
 			</row>
 			<row>
 				<label>Language:</label>
-				<textbox cols="10" value="@{general.request.lang}" />
+				<listbox mold="select"
+					selectedItem="@{general.request.lang}"
+					model="@{general.languageEnum}">
+					<listitem self="@{each=langEnum}"
+						label="@{langEnum.name}" value="@{langEnum}" />
+				</listbox>
 			</row>
 		</rows>
 	</grid>

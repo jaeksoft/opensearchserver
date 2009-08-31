@@ -24,25 +24,18 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.IOException;
-import java.io.Reader;
+import org.apache.lucene.analysis.TokenStream;
 
-import org.apache.lucene.analysis.Tokenizer;
-import org.w3c.dom.Node;
+public class ChineseFilter extends FilterFactory {
 
-import com.jaeksoft.searchlib.util.XPathParser;
-
-public abstract class TokenizerFactory implements ParamsInterface {
-
-	public abstract Tokenizer create(Reader reader);
-
-	public abstract String getDescription();
-
-	public String getClassName() {
-		return this.getClass().getSimpleName();
+	@Override
+	public TokenStream create(TokenStream tokenStream) {
+		return new org.apache.lucene.analysis.cn.ChineseFilter(tokenStream);
 	}
 
-	public void setParams(XPathParser xpp, Node node) throws IOException {
+	@Override
+	public String getDescription() {
+		return "A filter that filter Chinese words.";
 	}
 
 }

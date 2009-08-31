@@ -25,24 +25,37 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
-import java.io.Reader;
 
-import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.ru.RussianCharsets;
 import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.util.XPathParser;
 
-public abstract class TokenizerFactory implements ParamsInterface {
+public class RussianStemFilter extends FilterFactory {
 
-	public abstract Tokenizer create(Reader reader);
+	private char[] charset = null;
 
-	public abstract String getDescription();
-
-	public String getClassName() {
-		return this.getClass().getSimpleName();
+	@Override
+	public void setParams(XPathParser xpp, Node node) throws IOException {
+		String cs = XPathParser.getAttributeString(node, "charset");
+		if ("cp1251".equalsIgnoreCase(cs))
+			charset = RussianCharsets.CP1251;
+		else if ("koi8".equalsIgnoreCase(cs))
+			charset = RussianCharsets.KOI8;
+		else
+			charset = RussianCharsets.UnicodeRussian;
 	}
 
-	public void setParams(XPathParser xpp, Node node) throws IOException {
+	@Override
+	public TokenStream create(TokenStream tokenStream) {
+		return new org.apache.lucene.analysis.ru.RussianStemFilter(tokenStream,
+				charset);
+	}
+
+	@Override
+	public String getDescription() {
+		return "A filter that stems Russian words.";
 	}
 
 }

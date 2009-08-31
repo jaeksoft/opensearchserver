@@ -36,11 +36,12 @@ import javax.naming.NamingException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 
 public class UpdateXmlRpc extends AbstractXmlRpc {
 
-	public Map<String, ?> updateDocument(String index, String lang,
+	public Map<String, ?> updateDocument(String index, LanguageEnum lang,
 			Map<?, ?> document) throws SearchLibException, NamingException,
 			NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
@@ -52,7 +53,7 @@ public class UpdateXmlRpc extends AbstractXmlRpc {
 		return newInfoMap("Updated");
 	}
 
-	public Map<String, ?> updateDocuments(String index, String lang,
+	public Map<String, ?> updateDocuments(String index, LanguageEnum lang,
 			List<Map<?, ?>> documents) throws SearchLibException,
 			NamingException, NoSuchAlgorithmException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,

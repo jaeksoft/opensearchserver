@@ -47,6 +47,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
@@ -534,7 +535,7 @@ public abstract class Config {
 			searchRequest.setRows(Integer.parseInt(p));
 
 		if ((p = httpRequest.getParameter("lang")) != null)
-			searchRequest.setLang(p);
+			searchRequest.setLang(LanguageEnum.findByCode(p));
 
 		if ((p = httpRequest.getParameter("collapse.mode")) != null)
 			searchRequest.setCollapseMode(CollapseMode.valueOfLabel(p));

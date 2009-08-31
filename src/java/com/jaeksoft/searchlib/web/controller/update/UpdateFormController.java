@@ -40,6 +40,7 @@ import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Textbox;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -122,6 +123,14 @@ public class UpdateFormController extends CommonController implements
 				fieldDocumentList.add(new FieldDocument(fieldContent));
 			return fieldDocumentList;
 		}
+	}
+
+	public LanguageEnum getLang() {
+		return getIndexDocument().getLang();
+	}
+
+	public void setLang(LanguageEnum lang) {
+		getIndexDocument().setLang(lang);
 	}
 
 	public class FieldDocument {

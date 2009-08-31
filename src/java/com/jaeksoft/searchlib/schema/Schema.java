@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -86,11 +87,12 @@ public class Schema {
 		return fieldList;
 	}
 
-	public PerFieldAnalyzerWrapper getQueryPerFieldAnalyzer(String lang) {
+	public PerFieldAnalyzerWrapper getQueryPerFieldAnalyzer(LanguageEnum lang) {
 		synchronized (langQueryAnalyzers) {
 			if (lang == null)
-				lang = "";
-			PerFieldAnalyzerWrapper pfa = langQueryAnalyzers.get(lang);
+				lang = LanguageEnum.UNDEFINED;
+			PerFieldAnalyzerWrapper pfa = langQueryAnalyzers
+					.get(lang.getCode());
 			if (pfa != null)
 				return pfa;
 			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer());
@@ -102,7 +104,7 @@ public class Schema {
 				if (analyzer != null)
 					pfa.addAnalyzer(field.name, analyzer);
 			}
-			langQueryAnalyzers.put(lang, pfa);
+			langQueryAnalyzers.put(lang.getCode(), pfa);
 			return pfa;
 		}
 	}

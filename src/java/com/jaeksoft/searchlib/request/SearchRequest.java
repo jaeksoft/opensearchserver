@@ -42,6 +42,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -93,7 +94,7 @@ public class SearchRequest implements Externalizable {
 	private CollapseMode collapseMode;
 	private int start;
 	private int rows;
-	private String lang;
+	private LanguageEnum lang;
 	private String queryString;
 	private String patternQuery;
 	private String scoreFunction;
@@ -195,7 +196,7 @@ public class SearchRequest implements Externalizable {
 	private SearchRequest(Config config, String indexName, String requestName,
 			boolean allowLeadingWildcard, int phraseSlop,
 			QueryParser.Operator defaultOperator, int start, int rows,
-			String lang, String patternQuery, String queryString,
+			String codeLang, String patternQuery, String queryString,
 			String scoreFunction, boolean delete, boolean withDocuments,
 			boolean withSortValues, boolean noCache, boolean debug) {
 		this(config);
@@ -206,7 +207,7 @@ public class SearchRequest implements Externalizable {
 		this.defaultOperator = defaultOperator;
 		this.start = start;
 		this.rows = rows;
-		this.lang = lang;
+		this.lang = LanguageEnum.findByCode(codeLang);
 		this.queryString = queryString;
 		this.patternQuery = patternQuery;
 		if (scoreFunction != null)
@@ -429,7 +430,7 @@ public class SearchRequest implements Externalizable {
 		return this.rows;
 	}
 
-	public String getLang() {
+	public LanguageEnum getLang() {
 		return this.lang;
 	}
 
@@ -459,8 +460,8 @@ public class SearchRequest implements Externalizable {
 		return sb.toString();
 	}
 
-	public void setLang(String p) {
-		this.lang = p;
+	public void setLang(LanguageEnum lang) {
+		this.lang = lang;
 	}
 
 	public FieldList<Field> getDocumentFieldList() {
@@ -604,7 +605,7 @@ public class SearchRequest implements Externalizable {
 				indexName, "phraseSlop", Integer.toString(phraseSlop),
 				"defaultOperator", getDefaultOperator(), "start", Integer
 						.toString(start), "rows", Integer.toString(rows),
-				"lang", lang);
+				"lang", lang != null ? lang.getCode() : null);
 
 		if (patternQuery != null && patternQuery.trim().length() > 0) {
 			xmlWriter.startElement("query");
@@ -674,7 +675,7 @@ public class SearchRequest implements Externalizable {
 		collapseMode = CollapseMode.valueOf(in.readInt());
 		start = in.readInt();
 		rows = in.readInt();
-		lang = External.readUTF(in);
+		lang = LanguageEnum.findByCode(External.readUTF(in));
 		queryString = External.readUTF(in);
 		patternQuery = External.readUTF(in);
 		scoreFunction = External.readUTF(in);
@@ -707,7 +708,7 @@ public class SearchRequest implements Externalizable {
 		out.writeInt(start);
 		out.writeInt(rows);
 
-		External.writeUTF(lang, out);
+		External.writeUTF(lang.getCode(), out);
 		External.writeUTF(queryString, out);
 		External.writeUTF(patternQuery, out);
 		External.writeUTF(scoreFunction, out);
