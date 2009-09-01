@@ -308,8 +308,8 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			}
 
 			waitForChild();
-			setStatus(CrawlStatus.INDEXATION);
 			crawlQueue.index(true);
+			setStatus(CrawlStatus.INDEXATION);
 
 			if (!isAbort()) {
 				setStatus(CrawlStatus.DELETE_REMOVED);
@@ -327,6 +327,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 			sleepSec(5);
 		}
+		crawlQueue.index(true);
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
