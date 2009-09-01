@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.web.robotstxt;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 public class DisallowSet {
 
@@ -77,4 +78,7 @@ public class DisallowSet {
 		}
 	}
 
+	public Set<String> getSet() {
+		return set;
+	}
 }

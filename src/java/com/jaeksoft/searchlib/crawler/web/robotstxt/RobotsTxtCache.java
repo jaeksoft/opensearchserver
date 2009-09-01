@@ -66,7 +66,7 @@ public class RobotsTxtCache {
 			ArrayList<String> keyToRemove = null;
 			while (it.hasNext()) {
 				Entry<String, RobotsTxt> e = it.next();
-				if (t > e.getValue().getExpiredTime()) {
+				if (t > e.getValue().getExpirationTime()) {
 					if (keyToRemove == null)
 						keyToRemove = new ArrayList<String>();
 					keyToRemove.add(e.getKey());
@@ -112,4 +112,7 @@ public class RobotsTxtCache {
 		}
 	}
 
+	public Map<String, RobotsTxt> getRobotsTxtMap() {
+		return robotsTxtList;
+	}
 }

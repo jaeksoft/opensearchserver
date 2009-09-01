@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
@@ -33,14 +34,17 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 
 public class RobotsTxt {
 
-	private long expiredTime;
+	private long crawlTime;
+
+	private long expirationTime;
 
 	private DisallowList disallowList;
 
 	private Crawl crawl;
 
 	protected RobotsTxt(Crawl crawl) {
-		this.expiredTime = System.currentTimeMillis() + 1000 * 60 * 60 * 24;
+		this.crawlTime = System.currentTimeMillis();
+		this.expirationTime = this.crawlTime + 1000 * 60 * 60 * 24;
 		this.disallowList = (DisallowList) crawl.getParser();
 		this.crawl = crawl;
 	}
@@ -68,7 +72,7 @@ public class RobotsTxt {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public RobotsTxtStatus status(String userAgent)
+	public RobotsTxtStatus getStatus(String userAgent)
 			throws MalformedURLException {
 		UrlItem urlItem = crawl.getUrlItem();
 		Integer code = urlItem.getResponseCode();
@@ -100,12 +104,24 @@ public class RobotsTxt {
 	 * 
 	 * @return
 	 */
-	protected long getExpiredTime() {
-		return this.expiredTime;
+	protected long getExpirationTime() {
+		return expirationTime;
 	}
 
-	protected Crawl getCrawl() {
+	public Date getCrawlDate() {
+		return new Date(crawlTime);
+	}
+
+	public Date getExpirationDate() {
+		return new Date(expirationTime);
+	}
+
+	public Crawl getCrawl() {
 		return crawl;
+	}
+
+	public DisallowList getDisallowList() {
+		return disallowList;
 	}
 
 }

@@ -21,6 +21,7 @@
 		<tab id="tabCrawlerWebUrl" label="Url browser" />
 		<tab id="tabCrawlerWebCrawl" label="Crawl process" />
 		<tab id="tabCrawlerWebMapping" label="Field mapping" />
+		<tab id="tabCrawlerWebRobotsTxt" label="Robots.txt" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
@@ -34,6 +35,9 @@
 		</tabpanel>
 		<tabpanel fulfill="tabCrawlerWebMapping.onSelect">
 			<include src="WEB-INF/zul/crawler/web/mapping.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabCrawlerWebRobotsTxt.onSelect">
+			<include src="WEB-INF/zul/crawler/web/robotstxt.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

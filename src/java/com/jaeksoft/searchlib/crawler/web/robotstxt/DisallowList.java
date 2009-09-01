@@ -52,6 +52,10 @@ public class DisallowList extends Parser {
 		list = null;
 	}
 
+	public Map<String, DisallowSet> getMap() {
+		return list;
+	}
+
 	/**
 	 * Retourne l'objet DisallowSet correspondant au User-agent pass� en
 	 * param�tre.
