@@ -100,7 +100,6 @@ public class SynonymMap {
 				sourceMap.put(key, termList);
 			}
 			termList.add(value);
-			System.out.println("KeyPair added: " + key + " - " + value);
 		}
 	}
 
