@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -52,7 +53,8 @@ public class SynonymMap {
 			IOException {
 		Properties props = new Properties();
 		FileInputStream fis = new FileInputStream(file);
-		props.load(fis);
+		InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+		props.load(isr);
 		Enumeration<Object> e = props.keys();
 		while (e.hasMoreElements()) {
 			String key = e.nextElement().toString();
@@ -98,6 +100,7 @@ public class SynonymMap {
 				sourceMap.put(key, termList);
 			}
 			termList.add(value);
+			System.out.println("KeyPair added: " + key + " - " + value);
 		}
 	}
 

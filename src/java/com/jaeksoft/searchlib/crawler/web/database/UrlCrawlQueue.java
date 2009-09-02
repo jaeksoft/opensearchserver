@@ -48,6 +48,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		this.deleteUrlList = new ArrayList<String>(0);
 	}
 
+	@Override
 	public void add(Crawl crawl) throws NoSuchAlgorithmException, IOException,
 			SearchLibException {
 		synchronized (updateCrawlList) {
@@ -61,6 +62,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 	}
 
+	@Override
 	public void delete(String url) {
 		synchronized (deleteUrlList) {
 			deleteUrlList.add(url);
@@ -86,6 +88,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 
 	final private Object indexSync = new Object();
 
+	@Override
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
@@ -120,6 +123,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 	}
 
+	@Override
 	protected boolean deleteCollection(List<String> workDeleteUrlList)
 			throws SearchLibException {
 		if (workDeleteUrlList.size() == 0)
@@ -130,6 +134,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		return true;
 	}
 
+	@Override
 	protected boolean updateCrawls(List<Crawl> workUpdateCrawlList)
 			throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
@@ -140,6 +145,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		return true;
 	}
 
+	@Override
 	protected boolean insertCollection(List<UrlItem> workInsertUrlList)
 			throws SearchLibException {
 		if (workInsertUrlList.size() == 0)

@@ -245,6 +245,7 @@ public class FileController extends CommonController implements AfterCompose {
 		}
 	}
 
+	@Override
 	public void onReload() {
 		synchronized (this) {
 			reloadPage();

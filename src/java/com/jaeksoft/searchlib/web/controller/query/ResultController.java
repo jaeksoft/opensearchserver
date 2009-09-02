@@ -168,7 +168,7 @@ public class ResultController extends QueryController implements
 		}
 
 		public Object getChild(Object parent, int index) {
-			if (parent instanceof FieldList) {
+			if (parent instanceof FieldList<?>) {
 				FieldList<?> fieldList = (FieldList<?>) parent;
 				return fieldList.get(index);
 			} else if (parent instanceof FieldValue) {
@@ -179,7 +179,7 @@ public class ResultController extends QueryController implements
 		}
 
 		public int getChildCount(Object parent) {
-			if (parent instanceof FieldList) {
+			if (parent instanceof FieldList<?>) {
 				FieldList<?> fieldList = (FieldList<?>) parent;
 				return fieldList.size();
 			} else if (parent instanceof FieldValue) {
