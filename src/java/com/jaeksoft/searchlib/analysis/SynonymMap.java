@@ -105,4 +105,8 @@ public class SynonymMap {
 		return perfMap.get(term);
 	}
 
+	public int getSize() {
+		return perfMap.size();
+	}
+
 }

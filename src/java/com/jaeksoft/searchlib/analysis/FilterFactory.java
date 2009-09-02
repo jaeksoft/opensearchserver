@@ -46,10 +46,6 @@ public abstract class FilterFactory implements ParamsInterface {
 
 	public abstract String getDescription();
 
-	public String[] getParameterList() {
-		return new String[0];
-	}
-
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		writer.startElement("filter", "class", getClassName());
 		writer.endElement();

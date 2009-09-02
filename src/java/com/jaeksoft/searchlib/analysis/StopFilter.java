@@ -33,18 +33,22 @@ import java.io.InputStreamReader;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class StopFilter extends FilterFactory {
 
 	private CharArraySet words;
 
+	private String filePath;
+
 	@Override
 	public void setParams(XPathParser xpp, Node node) throws IOException {
 		words = new CharArraySet(0, true);
-		File file = new File(xpp.getCurrentFile().getParentFile(), XPathParser
-				.getAttributeString(node, "file"));
+		filePath = XPathParser.getAttributeString(node, "file");
+		File file = new File(xpp.getCurrentFile().getParentFile(), filePath);
 		BufferedReader br = new BufferedReader(new InputStreamReader(
 				new FileInputStream(file), "UTF-8"));
 		String line;
@@ -64,14 +68,16 @@ public class StopFilter extends FilterFactory {
 
 	@Override
 	public String getDescription() {
-		return "Removes stop words.";
+		return "Removes stop words. Stop file: " + filePath + ". "
+				+ words.size() + " words.";
 	}
 
-	private final static String[] params = { "file" };
-
 	@Override
-	public String[] getParameterList() {
-		return params;
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer
+				.startElement("filter", "class", getClassName(), "file",
+						filePath);
+		writer.endElement();
 	}
 
 }
