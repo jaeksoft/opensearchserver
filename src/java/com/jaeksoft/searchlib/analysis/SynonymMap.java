@@ -24,15 +24,14 @@
 
 package com.jaeksoft.searchlib.analysis;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -51,19 +50,25 @@ public class SynonymMap {
 
 	private void loadFromFile(File file) throws FileNotFoundException,
 			IOException {
-		Properties props = new Properties();
 		FileInputStream fis = new FileInputStream(file);
 		InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
-		props.load(isr);
-		Enumeration<Object> e = props.keys();
-		while (e.hasMoreElements()) {
-			String key = e.nextElement().toString();
-			String value = props.getProperty(key);
+		BufferedReader br = new BufferedReader(isr);
+		String line;
+		while ((line = br.readLine()) != null) {
+			String[] keyValue = line.split("[:=]", 2);
+			if (keyValue == null)
+				continue;
+			if (keyValue.length != 2)
+				continue;
+			String key = keyValue[0].trim();
+			String value = keyValue[1];
 			String[] terms = value.split(",");
 			for (String term : terms)
 				addSourceMap(key, term.trim());
 		}
 		updatePerfMap();
+		br.close();
+		isr.close();
 		fis.close();
 	}
 
