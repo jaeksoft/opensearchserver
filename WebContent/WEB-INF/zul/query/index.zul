@@ -40,6 +40,7 @@
 			<tab id="tabFilter" label="Filters" />
 			<tab id="tabCollapsing" label="Collapsing" />
 			<tab id="tabScoreFunction" label="Score function" />
+			<tab id="tabSpellCheck" label="SpellCheck" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -65,6 +66,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabScoreFunction.onSelect">
 				<include src="WEB-INF/zul/query/scoreFunction.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabSpellCheck.onSelect">
+				<include src="WEB-INF/zul/query/spellCheck.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

@@ -55,6 +55,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.cache.DictionaryCache;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
@@ -82,6 +83,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private SearchCache searchCache;
 	private FilterCache filterCache;
 	private FieldCache fieldCache;
+	private DictionaryCache dictionaryCache;
 
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	private final Lock r = rwl.readLock();

@@ -59,6 +59,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortList;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -88,6 +89,7 @@ public class SearchRequest implements Externalizable {
 	private FieldList<Field> returnFieldList;
 	private FieldList<Field> documentFieldList;
 	private FieldList<FacetField> facetFieldList;
+	private FieldList<SpellCheckField> spellCheckFieldList;
 	private SortList sortList;
 	private String collapseField;
 	private int collapseMax;
@@ -127,6 +129,7 @@ public class SearchRequest implements Externalizable {
 		this.sortList = new SortList();
 		this.documentFieldList = null;
 		this.facetFieldList = new FieldList<FacetField>();
+		this.spellCheckFieldList = new FieldList<SpellCheckField>();
 		this.collapseField = null;
 		this.collapseMax = 2;
 		this.collapseMode = CollapseMode.COLLAPSE_OFF;
@@ -168,6 +171,8 @@ public class SearchRequest implements Externalizable {
 					searchRequest.documentFieldList);
 		this.facetFieldList = new FieldList<FacetField>(
 				searchRequest.facetFieldList);
+		this.spellCheckFieldList = new FieldList<SpellCheckField>(
+				searchRequest.spellCheckFieldList);
 		this.collapseField = searchRequest.collapseField;
 		this.collapseMax = searchRequest.collapseMax;
 		this.collapseMode = searchRequest.collapseMode;
@@ -361,6 +366,10 @@ public class SearchRequest implements Externalizable {
 		return this.facetFieldList;
 	}
 
+	public FieldList<SpellCheckField> getSpellCheckFieldList() {
+		return this.spellCheckFieldList;
+	}
+
 	public void setCollapseField(String collapseField) {
 		this.collapseField = collapseField;
 	}
@@ -507,6 +516,12 @@ public class SearchRequest implements Externalizable {
 		return facetFieldList.size() > 0;
 	}
 
+	public boolean isSpellCheck() {
+		if (spellCheckFieldList == null)
+			return false;
+		return spellCheckFieldList.size() > 0;
+	}
+
 	public long getFinalTime() {
 		if (finalTime != 0)
 			return finalTime;
@@ -631,6 +646,12 @@ public class SearchRequest implements Externalizable {
 			xmlWriter.endElement();
 		}
 
+		if (spellCheckFieldList.size() > 0) {
+			xmlWriter.startElement("spellCheckFields");
+			spellCheckFieldList.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
+
 		if (sortList.getFieldList().size() > 0) {
 			xmlWriter.startElement("sort");
 			sortList.getFieldList().writeXmlConfig(xmlWriter);
@@ -669,6 +690,7 @@ public class SearchRequest implements Externalizable {
 		returnFieldList = External.readObject(in);
 		documentFieldList = External.readObject(in);
 		facetFieldList = External.readObject(in);
+		spellCheckFieldList = External.readObject(in);
 		sortList = External.readObject(in);
 		collapseField = External.readUTF(in);
 		collapseMax = in.readInt();
@@ -699,6 +721,7 @@ public class SearchRequest implements Externalizable {
 		External.writeObject(returnFieldList, out);
 		External.writeObject(documentFieldList, out);
 		External.writeObject(facetFieldList, out);
+		External.writeObject(spellCheckFieldList, out);
 		External.writeObject(sortList, out);
 
 		External.writeUTF(collapseField, out);
