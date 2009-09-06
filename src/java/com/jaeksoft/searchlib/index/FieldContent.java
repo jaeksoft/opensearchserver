@@ -99,4 +99,17 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		add(value);
 	}
 
+	public String toString() {
+		StringBuffer result = new StringBuffer();
+
+		result.append("key : ").append(field);
+		if (getValues() != null) {
+			for (String value : getValues()) {
+				result.append("value : ").append(value).append("\n");
+			}
+		}
+
+		return result.toString();
+	}
+
 }

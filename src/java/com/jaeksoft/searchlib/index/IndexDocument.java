@@ -241,4 +241,18 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		return fields.values().iterator();
 	}
 
+	public String toString() {
+		StringBuffer result = new StringBuffer();
+		if (fields != null) {
+			for (String key : fields.keySet()) {
+				FieldContent value = (FieldContent) fields.get(key);
+				result.append("key : ").append(key).append("  -- value :")
+						.append(value.toString()).append("\n");
+
+			}
+		}
+
+		return result.toString();
+	}
+
 }
