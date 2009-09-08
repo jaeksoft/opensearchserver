@@ -26,5 +26,6 @@
 	<link source="title" target="titleExact" />
 	<link source="originalPath" target="originalPath" />
 	<link source="fileSystemDate" target="fileSystemDate" />
+	<link source="lang" target="lang" />
 	
 </map>

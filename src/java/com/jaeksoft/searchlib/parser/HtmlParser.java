@@ -389,7 +389,7 @@ public class HtmlParser extends Parser {
 			lang = Lang.findLocaleISO639(metaDcLanguage);
 		}
 		if (lang == null) {
-			String text = getMergedBodyText(1000, " ");
+			String text = getMergedBodyText(1000, " ", ParserFieldEnum.body);
 			if (text != null) {
 				langMethod = "ngram recognition";
 				String textcat = new TextCategorizer().categorize(text, text

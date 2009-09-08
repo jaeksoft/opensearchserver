@@ -105,9 +105,10 @@ public abstract class Parser {
 		return parserDocument.getFieldValue(field.name(), pos);
 	}
 
-	public String getMergedBodyText(int maxChar, String sep) {
+	public String getMergedBodyText(int maxChar, String sep,
+			ParserFieldEnum field) {
 		StringBuffer sb = new StringBuffer();
-		FieldContent fc = getFieldContent(ParserFieldEnum.body);
+		FieldContent fc = getFieldContent(field);
 		if (fc != null) {
 			for (String value : fc.getValues()) {
 				sb.append(value);

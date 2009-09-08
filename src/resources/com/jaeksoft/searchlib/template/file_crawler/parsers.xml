@@ -33,6 +33,7 @@
 			<link source="subject" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="lang" target="lang" />
 		</map>
 	</parser>
 	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser"
