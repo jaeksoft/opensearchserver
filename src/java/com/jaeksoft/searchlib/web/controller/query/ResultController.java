@@ -46,6 +46,8 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
+import com.jaeksoft.searchlib.spellcheck.SpellCheck;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 
 public class ResultController extends QueryController implements
 		TreeitemRenderer {
@@ -238,6 +240,25 @@ public class ResultController extends QueryController implements
 		synchronized (this) {
 			return getFacetList() != null;
 		}
+	}
+
+	public List<SpellCheck> getSpellCheckList() {
+		synchronized (this) {
+			Result result = getResult();
+			if (result == null)
+				return null;
+			SpellCheckList spellChecklist = result.getSpellCheckList();
+			if (spellChecklist == null)
+				return null;
+			return spellChecklist.getList();
+		}
+	}
+
+	public boolean isSpellCheckValid() {
+		synchronized (this) {
+			return getSpellCheckList() != null;
+		}
+
 	}
 
 	@Override

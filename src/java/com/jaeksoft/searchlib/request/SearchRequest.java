@@ -104,7 +104,6 @@ public class SearchRequest implements Externalizable {
 	private boolean delete;
 	private boolean withDocuments;
 	private boolean withSortValues;
-	private boolean noCache;
 	private boolean debug;
 
 	public SearchRequest() {
@@ -147,7 +146,6 @@ public class SearchRequest implements Externalizable {
 		this.queryParsed = null;
 		this.timer = new Timer();
 		this.finalTime = 0;
-		this.noCache = false;
 		this.debug = false;
 	}
 
@@ -188,7 +186,6 @@ public class SearchRequest implements Externalizable {
 		this.scoreFunction = searchRequest.scoreFunction;
 		this.reader = searchRequest.reader;
 		this.queryParsed = null;
-		this.noCache = searchRequest.noCache;
 		this.debug = searchRequest.debug;
 	}
 
@@ -222,7 +219,6 @@ public class SearchRequest implements Externalizable {
 		this.delete = delete;
 		this.withDocuments = withDocuments;
 		this.withSortValues = withSortValues;
-		this.noCache = noCache;
 		this.debug = debug;
 	}
 
@@ -238,7 +234,7 @@ public class SearchRequest implements Externalizable {
 
 	protected QueryParser getNewQueryParser() {
 		synchronized (this) {
-			Schema schema = this.getConfig().getSchema();
+			Schema schema = getConfig().getSchema();
 			return new QueryParser(schema.getFieldList().getDefaultField()
 					.getName(), schema.getQueryPerFieldAnalyzer(getLang()));
 		}
@@ -274,30 +270,40 @@ public class SearchRequest implements Externalizable {
 		phraseSlop = value;
 	}
 
+	private String getFinalQuery() throws SyntaxError {
+		String finalQuery;
+		if (patternQuery != null && patternQuery.length() > 0)
+			finalQuery = patternQuery.replace("$$", queryString);
+		else
+			finalQuery = queryString;
+
+		if (finalQuery == null || finalQuery.length() == 0)
+			throw new SyntaxError("No query");
+		return finalQuery;
+	}
+
 	public Query getQuery() throws ParseException, SyntaxError {
 		synchronized (this) {
 			if (query != null)
 				return query;
-			if (queryParser == null) {
-				queryParser = getNewQueryParser();
-				setQueryParser(this, queryParser);
-			}
+			getQueryParser();
 			synchronized (queryParser) {
-
-				String finalQuery;
-				if (patternQuery != null && patternQuery.length() > 0)
-					finalQuery = patternQuery.replace("$$", queryString);
-				else
-					finalQuery = queryString;
-
-				if (finalQuery == null || finalQuery.length() == 0)
-					throw new SyntaxError("No query");
-				query = queryParser.parse(finalQuery);
+				query = queryParser.parse(getFinalQuery());
 				queryParsed = query.toString();
 				if (scoreFunction != null)
 					query = RootExpression.getQuery(query, scoreFunction);
 			}
 			return query;
+		}
+	}
+
+	public QueryParser getQueryParser() throws ParseException {
+		synchronized (this) {
+			if (queryParser != null)
+				return queryParser;
+			queryParser = getNewQueryParser();
+			setQueryParser(this, queryParser);
+			return queryParser;
 		}
 	}
 
@@ -418,17 +424,8 @@ public class SearchRequest implements Externalizable {
 		this.withSortValues = withSortValues;
 	}
 
-	public void setNoCache(boolean noCache) {
-		this.noCache = noCache;
-
-	}
-
 	public void setDebug(boolean debug) {
 		this.debug = debug;
-	}
-
-	public boolean isNoCache() {
-		return noCache;
 	}
 
 	public boolean isDebug() {
@@ -596,6 +593,13 @@ public class SearchRequest implements Externalizable {
 		nodes = xpp.getNodeList(node, "facetFields/facetField");
 		for (int i = 0; i < nodes.getLength(); i++)
 			FacetField.copyFacetFields(nodes.item(i), fieldList, facetFields);
+
+		FieldList<SpellCheckField> spellCheckFields = searchRequest
+				.getSpellCheckFieldList();
+		nodes = xpp.getNodeList(node, "spellCheckFields/spellCheckField");
+		for (int i = 0; i < nodes.getLength(); i++)
+			SpellCheckField.copySpellCheckFields(nodes.item(i), fieldList,
+					spellCheckFields);
 
 		FilterList filterList = searchRequest.getFilterList();
 		nodes = xpp.getNodeList(node, "filters/filter");

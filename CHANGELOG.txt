@@ -6,21 +6,21 @@ CHANGE LOG
 Open Search Server 1.1
 
 New features
-- 2812808: Manage several indices
+- 2812808: Management of several indices
 
 Open Search Server 1.0 beta 2
 
 Bug fixes
-- 2811902: No content type in XML API responses
-- 2810881: Useless empty line on xml result
-- 2805843: start.bat and stop.bat requires CATALINA_HOME
-- 2808554: Collapsing returns less rows than expected
+- 2811902: Content type is now provided in XML API responses
+- 2810881: Useless empty lines within XML results deleted
+- 2805843: start.bat and stop.bat no longer require CATALINA_HOME
+- 2808554: Collapsing now returns as many rows as expected
 
 New features
-- 2811901: adding collapsing for all documents be returned
-- 2807080: Update Apache Tomcat to version 6.0.20
-- 2808582: Add paging on query result
-- 2812149: Update Zkoss to version 3.6.2
+- 2811901: Added collapsing for all documents to be returned
+- 2807080: Updated Apache Tomcat to version 6.0.20
+- 2808582: Added paging for query results
+- 2812149: Updated Zkoss to version 3.6.2
 
 Documentation updates
-- 2805848: JAVA_HOME documentation
+- 2805848: Added JAVA_HOME documentation

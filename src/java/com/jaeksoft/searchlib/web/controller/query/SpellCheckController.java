@@ -110,7 +110,7 @@ public class SpellCheckController extends QueryController {
 			if (selectedField == null)
 				return;
 			getRequest().getSpellCheckFieldList().add(
-					new SpellCheckField(selectedField, 0.5F));
+					new SpellCheckField(selectedField, 0.5F, 5));
 			reloadPage();
 		}
 	}

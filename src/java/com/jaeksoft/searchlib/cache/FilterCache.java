@@ -24,12 +24,40 @@
 
 package com.jaeksoft.searchlib.cache;
 
+import java.io.IOException;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Query;
+
+import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterCacheKey;
 import com.jaeksoft.searchlib.filter.FilterHits;
+import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.schema.Field;
 
 public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 
 	public FilterCache(int maxSize) {
 		super(maxSize);
+	}
+
+	public FilterHits get(ReaderLocal reader, Field defaultField,
+			Analyzer analyzer, Filter filter) throws ParseException,
+			IOException {
+		w.lock();
+		try {
+			FilterCacheKey filterCacheKey = null;
+			filterCacheKey = new FilterCacheKey(filter, defaultField, analyzer);
+			FilterHits filterHits = getAndPromote(filterCacheKey);
+			if (filterHits != null)
+				return filterHits;
+			Query query = filter.getQuery(defaultField, analyzer);
+			filterHits = new FilterHits(query, reader);
+			put(filterCacheKey, filterHits);
+			return filterHits;
+		} finally {
+			w.unlock();
+		}
 	}
 }

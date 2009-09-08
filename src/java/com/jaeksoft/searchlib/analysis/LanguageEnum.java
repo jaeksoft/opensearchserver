@@ -30,6 +30,8 @@ public enum LanguageEnum {
 
 	CHINESE("Chinese", "zh"),
 
+	DANISH("Danish", "da"),
+
 	DUTCH("Dutch", "nl"),
 
 	ENGLISH("English", "en"),
@@ -40,17 +42,23 @@ public enum LanguageEnum {
 
 	GERMAN("German", "de"),
 
+	HUNGARIAN("Hungarian", "hu"),
+
 	ITALIAN("Italian", "it"),
 
 	NORWEGIAN("Norwegian", "no"),
 
 	PORTUGUESE("Portuguese", "pt"),
 
+	ROMANIAN("Romanian", "ro"),
+
 	RUSSIAN("Russian", "ru"),
 
 	SPANISH("Spanish", "es"),
 
-	SWEDISH("Swedish", "sv");
+	SWEDISH("Swedish", "sv"),
+
+	TURKISH("Turkish", "tr");
 
 	private String name;
 

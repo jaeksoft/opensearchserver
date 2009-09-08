@@ -103,16 +103,15 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 	}
 
 	public FilterHits getFilterHits(ReaderLocal reader, Field defaultField,
-			Analyzer analyzer, boolean noCache) throws IOException,
-			ParseException {
+			Analyzer analyzer) throws IOException, ParseException {
 
 		if (size() == 0)
 			return null;
 
 		FilterHits filterHits = new FilterHits();
 		for (Filter filter : filterList)
-			filterHits.and(reader.getFilterHits(defaultField, analyzer, filter,
-					noCache));
+			filterHits
+					.and(reader.getFilterHits(defaultField, analyzer, filter));
 
 		return filterHits;
 	}

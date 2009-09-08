@@ -36,6 +36,8 @@ import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.spellcheck.SpellCheck;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 
 public class ResultSingle extends Result {
 
@@ -74,6 +76,11 @@ public class ResultSingle extends Result {
 		maxScore = docSetHits.getMaxScore();
 		for (FacetField facetField : searchRequest.getFacetFieldList())
 			this.facetList.addObject(facetField.getFacet(this));
+
+		for (SpellCheckField spellCheckField : searchRequest
+				.getSpellCheckFieldList())
+			this.spellCheckList
+					.addObject(new SpellCheck(this, spellCheckField));
 
 		ResultScoreDoc[] docs;
 		// Are we doing collapsing ?

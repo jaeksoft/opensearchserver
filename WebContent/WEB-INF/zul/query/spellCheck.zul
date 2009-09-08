@@ -22,9 +22,11 @@
 		<columns>
 			<column label="Field" />
 			<column label="Minimal score" />
+			<column label="Number of suggestions" />
+			<column />
 		</columns>
 		<foot visible="@{spellcheck.fieldLeft}">
-			<footer span="2">
+			<footer span="4">
 				<listbox mold="select"
 					selectedItem="@{spellcheck.selectedField}"
 					model="@{spellcheck.spellCheckFieldLeft}">

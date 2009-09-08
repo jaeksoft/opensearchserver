@@ -138,4 +138,37 @@
 			</listbox>
 		</panelchildren>
 	</panel>
+	<panel title="SpellCheck(s)" collapsible="true"
+		visible="@{result.spellCheckValid}">
+		<panelchildren>
+			<listbox model="@{result.spellCheckList}">
+				<listitem self="@{each='spellCheck'}">
+					<listcell>
+						<separator />
+						<panel title="@{spellCheck.fieldName}"
+							collapsible="true">
+							<panelchildren>
+								<listbox model="@{spellCheck.list}">
+									<listitem self="@{each=item}">
+										<listcell>
+											<panel
+												title="@{item.word}">
+												<panelchildren>
+													<listbox
+														model="@{item.suggestions}">
+														<listitem
+															self="@{each=suggest}" label="@{suggest}" />
+													</listbox>
+												</panelchildren>
+											</panel>
+										</listcell>
+									</listitem>
+								</listbox>
+							</panelchildren>
+						</panel>
+					</listcell>
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
 </window>

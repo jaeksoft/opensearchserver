@@ -22,24 +22,21 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.basket;
+package com.jaeksoft.searchlib.analysis;
 
-import com.jaeksoft.searchlib.cache.LRUCache;
-import com.jaeksoft.searchlib.index.IndexDocument;
+import org.apache.lucene.analysis.TokenStream;
 
-public class BasketCache extends LRUCache<BasketKey, IndexDocument> {
+public class SnowballDanishFilter extends FilterFactory {
 
-	public BasketCache(int maxSize) {
-		super(maxSize);
+	@Override
+	public TokenStream create(TokenStream tokenStream) {
+		return new org.apache.lucene.analysis.snowball.SnowballFilter(
+				tokenStream, "Danish");
 	}
 
-	public BasketKey put(IndexDocument indexDocument) {
-		BasketKey key = new BasketKey(indexDocument);
-		put(key, indexDocument);
-		return key;
+	@Override
+	public String getDescription() {
+		return "Stems Danish words using a Snowball-generated stemmer";
 	}
 
-	public IndexDocument get(BasketKey key) {
-		return getAndPromote(key);
-	}
 }

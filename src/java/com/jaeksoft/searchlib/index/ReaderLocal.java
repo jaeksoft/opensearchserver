@@ -51,15 +51,16 @@ import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.FieldCache.StringIndex;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.cache.DictionaryCache;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
-import com.jaeksoft.searchlib.filter.FilterCacheKey;
+import com.jaeksoft.searchlib.cache.SpellCheckerCache;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
@@ -83,7 +84,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private SearchCache searchCache;
 	private FilterCache filterCache;
 	private FieldCache fieldCache;
-	private DictionaryCache dictionaryCache;
+	private SpellCheckerCache spellCheckerCache;
 
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	private final Lock r = rwl.readLock();
@@ -142,6 +143,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			this.searchCache = new SearchCache(searchCache);
 			this.filterCache = new FilterCache(filterCache);
 			this.fieldCache = new FieldCache(fieldCache);
+			// TODO replace value 100 by number of field in schema
+			this.spellCheckerCache = new SpellCheckerCache(100);
 		} finally {
 			w.unlock();
 		}
@@ -153,6 +156,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			searchCache.clear();
 			filterCache.clear();
 			fieldCache.clear();
+			spellCheckerCache.clear();
 		} finally {
 			w.unlock();
 		}
@@ -333,24 +337,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public FilterHits getFilterHits(Field defaultField, Analyzer analyzer,
-			com.jaeksoft.searchlib.filter.Filter filter, boolean noCache)
-			throws ParseException, IOException {
+			com.jaeksoft.searchlib.filter.Filter filter) throws ParseException,
+			IOException {
 		r.lock();
 		try {
-			FilterHits filterHits;
-			FilterCacheKey filterCacheKey = null;
-			if (!noCache) {
-				filterCacheKey = new FilterCacheKey(filter, defaultField,
-						analyzer);
-				filterHits = filterCache.getAndPromote(filterCacheKey);
-				if (filterHits != null)
-					return filterHits;
-			}
-			Query query = filter.getQuery(defaultField, analyzer);
-			filterHits = new FilterHits(query, this);
-			if (!noCache)
-				filterCache.put(filterCacheKey, filterHits);
-			return filterHits;
+			return filterCache.get(this, defaultField, analyzer, filter);
 		} finally {
 			r.unlock();
 		}
@@ -367,7 +358,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		indexReader.deleteDocuments(new Term(fieldName, value));
 	}
 
-	private Document getDocFields(int docId, FieldSelector selector)
+	public Document getDocFields(int docId, FieldSelector selector)
 			throws CorruptIndexException, IOException {
 		r.lock();
 		try {
@@ -384,6 +375,15 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		try {
 			return org.apache.lucene.search.FieldCache.DEFAULT.getStringIndex(
 					indexReader, fieldName);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public LuceneDictionary getLuceneDirectionary(String fieldName) {
+		r.lock();
+		try {
+			return new LuceneDictionary(indexReader, fieldName);
 		} finally {
 			r.unlock();
 		}
@@ -536,8 +536,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		boolean isDelete = searchRequest.isDelete();
-		boolean isFacet = searchRequest.isFacet();
-		boolean isNoCache = searchRequest.isNoCache();
 		if (isDelete)
 			w.lock();
 		else
@@ -548,27 +546,15 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			Field defaultField = schema.getFieldList().getDefaultField();
 			Analyzer analyzer = schema.getQueryPerFieldAnalyzer(searchRequest
 					.getLang());
-			DocSetHitCacheKey key = new DocSetHitCacheKey(searchRequest,
-					defaultField, analyzer);
 
-			DocSetHits dsh = null;
-			if (!isDelete && !isNoCache) {
-				dsh = searchCache.getAndPromote(key);
-				if (dsh != null)
-					return dsh;
-			}
+			if (!isDelete)
+				return searchCache.get(this, searchRequest, schema,
+						defaultField, analyzer);
 
-			FilterHits filterHits = searchRequest.getFilterList()
-					.getFilterHits(this, defaultField, analyzer, isNoCache);
-			Sort sort = searchRequest.getSortList().getLuceneSort();
+			else
+				return newDocSetHits(searchRequest, schema, defaultField,
+						analyzer);
 
-			dsh = new DocSetHits(this, searchRequest.getQuery(), filterHits,
-					sort, isDelete, isFacet);
-			if (!isDelete && !isNoCache)
-				searchCache.put(key, dsh);
-			if (isDelete && dsh.getDocNumFound() > 0)
-				reload();
-			return dsh;
 		} finally {
 			if (isDelete)
 				w.unlock();
@@ -577,40 +563,31 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	public DocSetHits newDocSetHits(SearchRequest searchRequest, Schema schema,
+			Field defaultField, Analyzer analyzer) throws IOException,
+			ParseException, SyntaxError, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		boolean isDelete = searchRequest.isDelete();
+
+		boolean isFacet = searchRequest.isFacet();
+
+		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
+				this, defaultField, analyzer);
+		Sort sort = searchRequest.getSortList().getLuceneSort();
+
+		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
+				filterHits, sort, isDelete, isFacet);
+		if (isDelete && dsh.getDocNumFound() > 0)
+			reload();
+		return dsh;
+	}
+
 	public FieldList<FieldValue> getDocumentFields(int docId,
 			FieldList<Field> fieldList) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
 		r.lock();
 		try {
-
-			FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
-
-			FieldList<Field> missingField = new FieldList<Field>();
-
-			for (Field field : fieldList) {
-				FieldContentCacheKey key = new FieldContentCacheKey(field
-						.getName(), docId);
-				String[] values = fieldCache.getAndPromote(key);
-				if (values != null)
-					documentFields.add(new FieldValue(field, values));
-				else
-					missingField.add(field);
-			}
-
-			if (missingField.size() > 0) {
-				Document document = getDocFields(docId, missingField);
-				for (Field field : missingField) {
-					FieldContentCacheKey key = new FieldContentCacheKey(field
-							.getName(), docId);
-					String[] values = document.getValues(field.getName());
-					if (values != null) {
-						documentFields.add(new FieldValue(field, values));
-						fieldCache.put(key, values);
-					}
-				}
-			}
-			return documentFields;
-
+			return fieldCache.get(this, docId, fieldList);
 		} finally {
 			r.unlock();
 		}
@@ -691,6 +668,15 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			r.unlock();
 		}
 
+	}
+
+	public SpellChecker getSpellChecker(String fieldName) throws IOException {
+		r.lock();
+		try {
+			return spellCheckerCache.get(this, fieldName);
+		} finally {
+			r.unlock();
+		}
 	}
 
 	protected SearchCache getSearchCache() {

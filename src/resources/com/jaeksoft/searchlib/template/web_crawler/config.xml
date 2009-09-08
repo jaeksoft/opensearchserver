@@ -43,6 +43,14 @@
 				<filter class="ChineseFilter" />
 			</analyzer>
 
+			<!--  Danish -->
+			<analyzer name="TextAnalyzer" lang="da"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballDanishFilter" />
+			</analyzer>
+
 			<!--  Dutch -->
 			<analyzer name="TextAnalyzer" lang="nl"
 				tokenizer="LetterOrDigitTokenizerFactory">
@@ -106,6 +114,14 @@
 				<filter class="SnowballPortugueseFilter" />
 			</analyzer>
 
+			<!--  Romanian -->
+			<analyzer name="TextAnalyzer" lang="ro"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballRomanianFilter" />
+			</analyzer>
+
 			<!--  Russian -->
 			<analyzer name="TextAnalyzer" lang="ru" tokenizer="RussianLetterTokenizer">
 				<filter class="RussianStemFilter" />
@@ -125,6 +141,14 @@
 				<filter class="LowerCaseFilter" />
 				<filter class="ISOLatin1AccentFilter" />
 				<filter class="SnowballSwedishFilter" />
+			</analyzer>
+
+			<!--  Turkish -->
+			<analyzer name="TextAnalyzer" lang="tr"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballTurkishFilter" />
 			</analyzer>
 
 		</analyzers>

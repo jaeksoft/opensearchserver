@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,15 +22,21 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.cache;
+package com.jaeksoft.searchlib.analysis;
 
-import com.jaeksoft.searchlib.spellcheck.SpellCheck;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
+import org.apache.lucene.analysis.TokenStream;
 
-public class SpellCheckCache extends LRUCache<SpellCheckField, SpellCheck> {
+public class SnowballTurkishFilter extends FilterFactory {
 
-	public SpellCheckCache(int maxSize) {
-		super(maxSize);
+	@Override
+	public TokenStream create(TokenStream tokenStream) {
+		return new org.apache.lucene.analysis.snowball.SnowballFilter(
+				tokenStream, "Turkish");
+	}
+
+	@Override
+	public String getDescription() {
+		return "Stems Turkish words using a Snowball-generated stemmer";
 	}
 
 }

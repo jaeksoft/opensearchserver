@@ -45,17 +45,23 @@ public class SpellCheckField extends Field implements Externalizable,
 
 	private float minScore;
 
+	private int suggestionNumber;
+
 	public SpellCheckField() {
+		minScore = 0.5F;
+		suggestionNumber = 5;
 	}
 
 	protected SpellCheckField(SpellCheckField field) {
 		super(field);
 		this.minScore = field.minScore;
+		this.suggestionNumber = field.suggestionNumber;
 	}
 
-	public SpellCheckField(String name, float minScore) {
+	public SpellCheckField(String name, float minScore, int suggestionNumber) {
 		super(name);
 		this.minScore = minScore;
+		this.suggestionNumber = suggestionNumber;
 	}
 
 	@Override
@@ -71,6 +77,14 @@ public class SpellCheckField extends Field implements Externalizable,
 		minScore = score;
 	}
 
+	public int getSuggestionNumber() {
+		return suggestionNumber;
+	}
+
+	public void setSuggestionNumber(int n) {
+		suggestionNumber = n;
+	}
+
 	public static void copySpellCheckFields(Node node,
 			FieldList<SchemaField> source, FieldList<SpellCheckField> target) {
 		String fieldName = XPathParser.getAttributeString(node, "name");
@@ -79,14 +93,17 @@ public class SpellCheckField extends Field implements Externalizable,
 		if (p != null)
 			if (p.length() > 0)
 				minScore = Float.parseFloat(p);
+		int suggestionNumber = XPathParser.getAttributeValue(node,
+				"suggestionNumber");
 		SpellCheckField spellCheckField = new SpellCheckField(source.get(
-				fieldName).getName(), minScore);
+				fieldName).getName(), minScore, suggestionNumber);
 		target.add(spellCheckField);
 	}
 
 	public static SpellCheckField buildSpellCheckField(String value,
 			boolean multivalued) throws SyntaxError {
 		float minScore = 0.5F;
+		int suggestionNumber = 5;
 		String fieldName = null;
 
 		int i1 = value.indexOf('(');
@@ -95,11 +112,15 @@ public class SpellCheckField extends Field implements Externalizable,
 			int i2 = value.indexOf(')', i1);
 			if (i2 == -1)
 				throw new SyntaxError("closed braket missing");
+			int i3 = value.indexOf(',', i2);
+			if (i3 == -1)
+				throw new SyntaxError("suggestion number missing");
 			minScore = Float.parseFloat(value.substring(i1 + 1, i2));
+			suggestionNumber = Integer.parseInt(value.substring(i2 + 1, i3));
 		} else
 			fieldName = value;
 
-		return new SpellCheckField(fieldName, minScore);
+		return new SpellCheckField(fieldName, minScore, suggestionNumber);
 	}
 
 	@Override
@@ -107,18 +128,22 @@ public class SpellCheckField extends Field implements Externalizable,
 			ClassNotFoundException {
 		super.readExternal(in);
 		minScore = in.readFloat();
+		suggestionNumber = in.readInt();
+
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
 		out.writeFloat(minScore);
+		out.writeInt(suggestionNumber);
 	}
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("spellCheckField", "name", name, "minScore",
-				Float.toString(minScore));
+				Float.toString(minScore), "suggestionNumber", Integer
+						.toString(suggestionNumber));
 		xmlWriter.endElement();
 	}
 

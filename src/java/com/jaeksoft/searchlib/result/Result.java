@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 import com.jaeksoft.searchlib.util.Debug;
 import com.jaeksoft.searchlib.util.External;
 
@@ -46,6 +47,7 @@ public abstract class Result implements Externalizable,
 	transient protected SearchRequest searchRequest;
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
+	protected SpellCheckList spellCheckList;
 	private ResultScoreDoc[] docs;
 	protected int numFound;
 	protected float maxScore;
@@ -69,6 +71,8 @@ public abstract class Result implements Externalizable,
 			debug = new Debug();
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
+		if (searchRequest.getSpellCheckFieldList().size() > 0)
+			this.spellCheckList = new SpellCheckList();
 		collapse = CollapseAbstract.newInstance(searchRequest);
 	}
 
@@ -86,6 +90,10 @@ public abstract class Result implements Externalizable,
 
 	public FacetList getFacetList() {
 		return this.facetList;
+	}
+
+	public SpellCheckList getSpellCheckList() {
+		return this.spellCheckList;
 	}
 
 	protected void setDocuments(ResultDocuments resultDocuments) {
@@ -182,6 +190,9 @@ public abstract class Result implements Externalizable,
 
 		// Reading ResultDocument if any
 		resultDocuments = External.readObject(in);
+
+		// Reading SpellCheckList if any
+		spellCheckList = (SpellCheckList) External.readObject(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -206,6 +217,10 @@ public abstract class Result implements Externalizable,
 
 		// Writing ResultDocument if any
 		External.writeObject(resultDocuments, out);
+
+		// Writing FacetList if any
+		External.writeObject(spellCheckList, out);
+
 	}
 
 	@Override

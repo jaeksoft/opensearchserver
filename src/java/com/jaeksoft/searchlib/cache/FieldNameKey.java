@@ -24,12 +24,21 @@
 
 package com.jaeksoft.searchlib.cache;
 
-import org.apache.lucene.search.spell.LuceneDictionary;
+public class FieldNameKey implements CacheKeyInterface<FieldNameKey> {
 
-public class DictionaryCache extends LRUCache<DictionaryKey, LuceneDictionary> {
+	private String fieldName;
 
-	public DictionaryCache(int maxSize) {
-		super(maxSize);
+	public FieldNameKey(String fieldName) {
+		this.fieldName = fieldName;
+	}
+
+	public String getFieldName() {
+		return fieldName;
+	}
+
+	@Override
+	public int compareTo(FieldNameKey comp) {
+		return fieldName.compareTo(comp.fieldName);
 	}
 
 }

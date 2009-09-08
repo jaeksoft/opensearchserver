@@ -28,6 +28,7 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Doublebox;
+import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
@@ -53,6 +54,21 @@ public class SpellCheckFieldRenderer implements RowRenderer {
 
 	}
 
+	public class SuggestionNumberListener extends MinScoreListener {
+
+		public SuggestionNumberListener(SpellCheckField spellCheckField) {
+			super(spellCheckField);
+		}
+
+		@Override
+		public void onEvent(Event event) throws Exception {
+			Intbox intBox = (Intbox) event.getTarget();
+			if (intBox != null)
+				spellCheckField.setSuggestionNumber(intBox.getValue()
+						.intValue());
+		}
+	}
+
 	public void render(Row row, Object data) throws Exception {
 		SpellCheckField spellCheckField = (SpellCheckField) data;
 		new Label(spellCheckField.getName()).setParent(row);
@@ -61,8 +77,13 @@ public class SpellCheckFieldRenderer implements RowRenderer {
 		doublebox.setParent(row);
 		doublebox.addEventListener("onChange", new MinScoreListener(
 				spellCheckField));
+		Intbox intbox = new Intbox(spellCheckField.getSuggestionNumber());
+		intbox.setConstraint("no empty, no negative");
+		intbox.setParent(row);
+		intbox.addEventListener("onChange", new SuggestionNumberListener(
+				spellCheckField));
 		Button button = new Button("Remove");
-		button.addForward(null, "query", "onFacetRemove", spellCheckField);
+		button.addForward(null, "query", "onFieldRemove", spellCheckField);
 		button.setParent(row);
 	}
 }

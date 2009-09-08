@@ -22,24 +22,42 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.basket;
+package com.jaeksoft.searchlib.spellcheck;
 
-import com.jaeksoft.searchlib.cache.LRUCache;
-import com.jaeksoft.searchlib.index.IndexDocument;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-public class BasketCache extends LRUCache<BasketKey, IndexDocument> {
+public class SpellCheckItem implements Externalizable {
 
-	public BasketCache(int maxSize) {
-		super(maxSize);
+	private String word;
+	private String[] suggestions;
+
+	public SpellCheckItem(String word, String[] suggestions) {
+		this.word = word;
+		this.suggestions = suggestions;
 	}
 
-	public BasketKey put(IndexDocument indexDocument) {
-		BasketKey key = new BasketKey(indexDocument);
-		put(key, indexDocument);
-		return key;
+	public String getWord() {
+		return word;
 	}
 
-	public IndexDocument get(BasketKey key) {
-		return getAndPromote(key);
+	public String[] getSuggestions() {
+		return suggestions;
 	}
+
+	@Override
+	public void readExternal(ObjectInput arg0) throws IOException,
+			ClassNotFoundException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput arg0) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
 }

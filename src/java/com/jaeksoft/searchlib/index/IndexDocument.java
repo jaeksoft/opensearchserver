@@ -109,7 +109,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 						"basketId");
 				if (basketId != 0) {
 					IndexDocument basketDocument = basketCache
-							.getAndPromote(new BasketKey(basketId));
+							.get(new BasketKey(basketId));
 					if (basketDocument == null)
 						throw new SearchLibException(
 								"No basket document found: " + basketId);

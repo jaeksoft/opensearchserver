@@ -24,13 +24,38 @@
 
 package com.jaeksoft.searchlib.cache;
 
-public class DictionaryKey implements CacheKeyInterface<DictionaryKey> {
+import java.io.IOException;
 
-	private String fieldName;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
+import org.apache.lucene.store.RAMDirectory;
 
-	@Override
-	public int compareTo(DictionaryKey comp) {
-		return fieldName.compareTo(comp.fieldName);
+import com.jaeksoft.searchlib.index.ReaderLocal;
+
+public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
+
+	public SpellCheckerCache(int maxSize) {
+		super(maxSize);
+	}
+
+	public SpellChecker get(ReaderLocal reader, String field)
+			throws IOException {
+		w.lock();
+		try {
+			FieldNameKey key = new FieldNameKey(field);
+			SpellChecker spellChecker = getAndPromote(key);
+			if (spellChecker != null)
+				return spellChecker;
+			LuceneDictionary dict = reader.getLuceneDirectionary(key
+					.getFieldName());
+			SpellChecker spellchecker = new SpellChecker(new RAMDirectory());
+			spellchecker.indexDictionary(dict);
+
+			put(key, spellchecker);
+			return spellchecker;
+		} finally {
+			w.unlock();
+		}
 	}
 
 }

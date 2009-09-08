@@ -24,7 +24,88 @@
 
 package com.jaeksoft.searchlib.spellcheck;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-public class SpellCheck {
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.spell.SpellChecker;
+
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.ResultSingle;
+import com.jaeksoft.searchlib.util.External;
+
+public class SpellCheck implements Externalizable, Iterable<SpellCheckItem>,
+		External.Collecter<SpellCheckItem> {
+
+	private List<SpellCheckItem> spellCheckItems;
+
+	private String fieldName;
+
+	public SpellCheck(ResultSingle result, SpellCheckField spellCheckField)
+			throws ParseException, SyntaxError, IOException {
+		SearchRequest searchRequest = result.getSearchRequest();
+		ReaderLocal reader = result.getReader();
+		fieldName = spellCheckField.getName();
+		SpellChecker spellchecker = reader.getSpellChecker(fieldName);
+		Set<Term> set = new LinkedHashSet<Term>();
+		Set<String> wordSet = new LinkedHashSet<String>();
+		searchRequest.getQuery().extractTerms(set);
+		for (Term term : set)
+			if (term.field().equals(fieldName))
+				wordSet.add(term.text());
+		int suggestionNumber = spellCheckField.getSuggestionNumber();
+		float minScore = spellCheckField.getMinScore();
+		spellchecker.setAccuracy(minScore);
+		spellCheckItems = new ArrayList<SpellCheckItem>();
+		for (String word : wordSet) {
+			String[] suggestions = spellchecker.suggestSimilar(word,
+					suggestionNumber);
+			if (suggestions != null)
+				if (suggestions.length > 0)
+					spellCheckItems.add(new SpellCheckItem(word, suggestions));
+		}
+	}
+
+	public String getFieldName() {
+		return fieldName;
+	}
+
+	public List<SpellCheckItem> getList() {
+		return spellCheckItems;
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Iterator<SpellCheckItem> iterator() {
+		return spellCheckItems.iterator();
+	}
+
+	@Override
+	public void addObject(SpellCheckItem object) {
+		// TODO Auto-generated method stub
+
+	}
 
 }

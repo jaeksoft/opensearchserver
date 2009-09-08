@@ -24,7 +24,18 @@
 
 package com.jaeksoft.searchlib.cache;
 
+import java.io.IOException;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.queryParser.ParseException;
+
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldContentCacheKey;
+import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.FieldValue;
 
 public class FieldCache extends LRUCache<FieldContentCacheKey, String[]> {
 
@@ -32,4 +43,43 @@ public class FieldCache extends LRUCache<FieldContentCacheKey, String[]> {
 		super(maxSize);
 	}
 
+	public FieldList<FieldValue> get(ReaderLocal reader, int docId,
+			FieldList<Field> fieldList) throws CorruptIndexException,
+			IOException, ParseException, SyntaxError {
+		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
+		FieldList<Field> missingField = new FieldList<Field>();
+
+		w.lock();
+		try {
+
+			// Getting available fields
+			for (Field field : fieldList) {
+				FieldContentCacheKey key = new FieldContentCacheKey(field
+						.getName(), docId);
+				String[] values = getAndPromote(key);
+				if (values != null)
+					documentFields.add(new FieldValue(field, values));
+				else
+					missingField.add(field);
+			}
+
+			// Check missing fields
+			if (missingField.size() > 0) {
+				Document document = reader.getDocFields(docId, missingField);
+				for (Field field : missingField) {
+					FieldContentCacheKey key = new FieldContentCacheKey(field
+							.getName(), docId);
+					String[] values = document.getValues(field.getName());
+					if (values != null) {
+						documentFields.add(new FieldValue(field, values));
+						putNoLock(key, values);
+					}
+				}
+			}
+			return documentFields;
+
+		} finally {
+			w.unlock();
+		}
+	}
 }

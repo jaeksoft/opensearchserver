@@ -42,6 +42,9 @@ import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.spellcheck.SpellCheck;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 import com.jaeksoft.searchlib.util.Debug;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
@@ -177,11 +180,41 @@ public class RenderXml implements Render {
 		writer.println("</faceting>");
 	}
 
+	private void renderSpellCheck(SpellCheck spellCheck) throws Exception {
+		String fieldName = spellCheck.getFieldName();
+		writer.print("\t\t<field name=\"");
+		writer.print(fieldName);
+		writer.println("\">");
+		for (SpellCheckItem spellCheckItem : spellCheck) {
+			writer.print("\t\t\t<word name=\"");
+			writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
+			writer.println("\">");
+			for (String suggest : spellCheckItem.getSuggestions()) {
+				writer.print("\t\t\t\t<suggest>");
+				writer.print(StringEscapeUtils.escapeXml(suggest));
+				writer.println("</suggest>");
+			}
+			writer.println("\t\t\t</word>");
+		}
+		writer.println("\t\t</field>");
+	}
+
+	private void renderSpellChecks() throws Exception {
+		SpellCheckList spellChecklist = result.getSpellCheckList();
+		if (spellChecklist == null)
+			return;
+		writer.println("<spellcheck>");
+		for (SpellCheck spellCheck : spellChecklist)
+			renderSpellCheck(spellCheck);
+		writer.println("</spellcheck>");
+	}
+
 	public void render(PrintWriter writer) throws Exception {
 		this.writer = writer;
 		renderPrefix();
 		renderDocuments();
 		renderFacets();
+		renderSpellChecks();
 		renderSuffix();
 
 	}
