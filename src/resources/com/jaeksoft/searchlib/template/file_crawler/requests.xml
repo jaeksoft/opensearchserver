@@ -22,7 +22,7 @@
 
 <requests>
 	<request name="fileSearch" phraseSlop="2" defaultOperator="OR"
-		start="0" rows="10" lang="fr">
+		start="0" rows="10" lang="en">
 
 		<query>path:($$)^10 OR path:("$$")^10 OR
 			content:($$)^10 OR content:("$$")^10 OR

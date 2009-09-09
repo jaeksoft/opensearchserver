@@ -156,11 +156,15 @@ public class UploadDocumentController extends CommonController {
 	}
 
 	// TODO index document
-	public void onSave() throws SearchLibException, InterruptedException {
+	public void onSave() throws SearchLibException, InterruptedException,
+			NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		synchronized (this) {
 			IndexDocument basketDocument = getCurrentDocument();
 			if (basketDocument == null)
 				return;
+			getClient().updateDocument(basketDocument);
 			setCurrentDocument(null);
 			Messagebox.show("Document updated", "Jaeksoft OpenSearchServer",
 					Messagebox.OK, org.zkoss.zul.Messagebox.INFORMATION);
