@@ -16,7 +16,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="parserList"
-	use="com.jaeksoft.searchlib.web.controller.parser.ParserListController">
+	use="com.jaeksoft.searchlib.web.controller.schema.ParserListController">
 	<hbox align="center">
 		<label value="Type of parser: " />
 		<listbox mold="select"

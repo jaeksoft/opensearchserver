@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller.basket;
+package com.jaeksoft.searchlib.web.controller.update;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -39,7 +39,6 @@ import org.zkoss.zul.Fileupload;
 import org.zkoss.zul.Panelchildren;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
@@ -48,7 +47,7 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.model.FieldContentModel;
 
-public class UploadController extends CommonController {
+public class UploadDocumentController extends CommonController {
 
 	/**
 	 * 
@@ -57,7 +56,7 @@ public class UploadController extends CommonController {
 
 	private Panelchildren basketComponent;
 
-	public UploadController() throws SearchLibException {
+	public UploadDocumentController() throws SearchLibException {
 		super();
 		basketComponent = null;
 	}
@@ -156,16 +155,15 @@ public class UploadController extends CommonController {
 		}
 	}
 
+	// TODO index document
 	public void onSave() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			IndexDocument basketDocument = getCurrentDocument();
 			if (basketDocument == null)
 				return;
-			BasketKey key = getClient().getBasketCache().put(basketDocument);
 			setCurrentDocument(null);
-			Messagebox.show("Document added with id " + key,
-					"Jaeksoft OpenSearchServer", Messagebox.OK,
-					org.zkoss.zul.Messagebox.INFORMATION);
+			Messagebox.show("Document updated", "Jaeksoft OpenSearchServer",
+					Messagebox.OK, org.zkoss.zul.Messagebox.INFORMATION);
 			reloadDesktop();
 		}
 	}

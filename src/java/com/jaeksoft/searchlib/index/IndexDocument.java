@@ -41,8 +41,6 @@ import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.basket.BasketCache;
-import com.jaeksoft.searchlib.basket.BasketKey;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.External.Collecter;
@@ -88,9 +86,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	 * @throws XPathExpressionException
 	 * @throws SearchLibException
 	 */
-	public IndexDocument(XPathParser xpp, Node documentNode,
-			BasketCache basketCache) throws XPathExpressionException,
-			SearchLibException {
+	public IndexDocument(XPathParser xpp, Node documentNode)
+			throws XPathExpressionException, SearchLibException {
 		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				documentNode, "lang")));
 		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
@@ -105,22 +102,6 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 				Node valueNode = valueNodes.item(j);
 				boolean removeTag = "yes".equalsIgnoreCase(XPathParser
 						.getAttributeString(valueNode, "removeTag"));
-				long basketId = XPathParser.getAttributeLong(valueNode,
-						"basketId");
-				if (basketId != 0) {
-					IndexDocument basketDocument = basketCache
-							.get(new BasketKey(basketId));
-					if (basketDocument == null)
-						throw new SearchLibException(
-								"No basket document found: " + basketId);
-					String basketField = XPathParser.getAttributeString(
-							valueNode, "basketField");
-					if (basketField == null) {
-						for (FieldContent fieldContent : basketDocument)
-							add(fieldName, fieldContent);
-					} else
-						add(fieldName, basketDocument.getField(basketField));
-				}
 				String textContent = xpp.getNodeString(valueNode);
 				if (removeTag)
 					textContent = textContent.replaceAll("<[^>]*>", "");
@@ -229,7 +210,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(fields.values(), out);
-		External.writeUTF(lang.getCode(), out);
+		External.writeUTF(lang == null ? LanguageEnum.UNDEFINED.getCode()
+				: lang.getCode(), out);
 	}
 
 	public void addObject(FieldContent fieldContent) {
@@ -241,6 +223,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		return fields.values().iterator();
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 		if (fields != null) {
@@ -251,7 +234,6 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 
 			}
 		}
-
 		return result.toString();
 	}
 

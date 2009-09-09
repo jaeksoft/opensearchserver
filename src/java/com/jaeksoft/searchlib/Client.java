@@ -127,8 +127,7 @@ public class Client extends Config {
 		int l = nodeList.getLength();
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>();
 		for (int i = 0; i < l; i++)
-			docList.add(new IndexDocument(xpp, nodeList.item(i),
-					getBasketCache()));
+			docList.add(new IndexDocument(xpp, nodeList.item(i)));
 		if (indexName == null)
 			return updateDocuments(docList);
 		else

@@ -1,3 +1,4 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
 <!--
 	License Agreement for Jaeksoft OpenSearchServer
 	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
@@ -14,21 +15,13 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<tabbox>
-	<tabs>
-		<tab id="tabParserList" label="Parser list" selected="true" />
-		<tab id="tabParserUpload" label="Upload document" />
-		<tab id="tabParserBasketList" label="Basket document list" />
-	</tabs>
-	<tabpanels>
-		<tabpanel>
-			<include src="WEB-INF/zul/parser/parserList.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabParserUpload.onSelect">
-			<include src="WEB-INF/zul/parser/upload.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabParserBasketList.onSelect">
-			<include src="WEB-INF/zul/parser/basketList.zul" />
-		</tabpanel>
-	</tabpanels>
-</tabbox>
+<window id="upload"
+	use="com.jaeksoft.searchlib.web.controller.update.UploadXmlController">
+	<vbox width="100%" align="center">
+		<button label="Upload" forward="onUpload" />
+		<hbox visible="@{upload.updatedCount}">
+			<label value="@{upload.updatedCount}" />
+			<label>document(s) updated</label>
+		</hbox>
+	</vbox>
+</window>

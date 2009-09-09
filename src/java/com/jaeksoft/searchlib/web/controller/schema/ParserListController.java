@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller.parser;
+package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.io.IOException;
 import java.util.List;

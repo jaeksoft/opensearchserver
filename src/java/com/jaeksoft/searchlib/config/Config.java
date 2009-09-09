@@ -48,7 +48,6 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.basket.BasketCache;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
@@ -96,8 +95,6 @@ public abstract class Config {
 	private ExecutorService threadPool = null;
 
 	private StatisticsList statisticsList = null;
-
-	private BasketCache basketCache = null;
 
 	private ParserSelector parserSelector = null;
 
@@ -278,17 +275,6 @@ public abstract class Config {
 
 	public Schema getSchema() {
 		return schema;
-	}
-
-	public BasketCache getBasketCache() {
-		lock.lock();
-		try {
-			if (basketCache == null)
-				basketCache = new BasketCache(100);
-			return basketCache;
-		} finally {
-			lock.unlock();
-		}
 	}
 
 	public CrawlMaster getWebCrawlMaster() throws SearchLibException {

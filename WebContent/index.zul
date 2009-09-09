@@ -31,10 +31,6 @@
 				label="Update" />
 			<tab id="tabCrawler" visible="@{index.instanceValid}"
 				label="Crawler" />
-			<tab id="tabParser" visible="@{index.instanceValid}"
-				label="Parser" />
-			<tab id="tabConfiguration" visible="@{index.instanceValid}"
-				label="Configuration" />
 			<tab id="tabRuntime" visible="@{index.instanceValid}"
 				label="Runtime" />
 		</tabs>
@@ -53,12 +49,6 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawler.onSelect">
 				<include src="WEB-INF/zul/crawler/index.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tabParser.onSelect">
-				<include src="WEB-INF/zul/parser/index.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tabConfiguration.onSelect">
-				<include src="WEB-INF/zul/configuration/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabRuntime.onSelect">
 				<include src="WEB-INF/zul/runtime/index.zul" />

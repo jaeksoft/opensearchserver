@@ -133,6 +133,15 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 		}
 	}
 
+	final public Map<K, V> getMap() {
+		r.lock();
+		try {
+			return tree;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	@Override
 	final public String toString() {
 		r.lock();

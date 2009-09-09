@@ -39,7 +39,7 @@ import org.zkoss.zul.Fileupload;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class UploadController extends CommonController {
+public class UploadXmlController extends CommonController {
 
 	/**
 	 * 
@@ -48,7 +48,7 @@ public class UploadController extends CommonController {
 
 	private Integer updatedCount;
 
-	public UploadController() throws SearchLibException {
+	public UploadXmlController() throws SearchLibException {
 		super();
 		updatedCount = null;
 	}
