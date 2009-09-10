@@ -18,7 +18,13 @@
 <window id="index"
 	use="com.jaeksoft.searchlib.web.controller.IndexController">
 	<caption image="images/oss_16x16_WEB.png"
-		label="Open Search Server 1.1-dev" />
+		label="Open Search Server 1.1-dev">
+		<toolbarbutton label="Visit OSS web site" target="_blank"
+			href="http://www.open-search-server.com" />
+		<space width="10px" />
+		<toolbarbutton label="Wiki documentation" target="_blank"
+			href="http://sourceforge.net/apps/mediawiki/opensearchserve" />
+	</caption>
 	<tabbox>
 		<tabs>
 			<tab id="tabHome" label="@{index.indexTitle}"

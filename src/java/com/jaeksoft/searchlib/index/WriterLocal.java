@@ -271,7 +271,7 @@ public class WriterLocal extends WriterAbstract {
 			if (!acceptNameOrEmpty(indexName))
 				return;
 			open();
-			indexWriter.optimize(10, true);
+			indexWriter.optimize(true);
 			close();
 		} finally {
 			l.unlock();

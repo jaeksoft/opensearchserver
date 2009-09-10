@@ -17,19 +17,23 @@
 -->
 <tabbox>
 	<tabs>
-		<tab id="tabStatistics" label="Statistics" selected="true" />
-		<tab id="tabCommands" label="Commands" />
-		<tab id="tabCache" label="Cache" />
+		<tab id="tabRuntimeStatistics" label="Statistics" selected="true" />
+		<tab id="tabRuntimeCommands" label="Commands" />
+		<tab id="tabRuntimeCache" label="Cache" />
+		<tab id="tabRuntimeIndex" label="Index" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
 			<include src="WEB-INF/zul/runtime/statistics.zul" />
 		</tabpanel>
-		<tabpanel fulfill="tabCommands.onSelect">
+		<tabpanel fulfill="tabRuntimeCommands.onSelect">
 			<include src="WEB-INF/zul/runtime/commands.zul" />
 		</tabpanel>
-		<tabpanel fulfill="tabCache.onSelect">
+		<tabpanel fulfill="tabRuntimeCache.onSelect">
 			<include src="WEB-INF/zul/runtime/cache.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabRuntimeIndex.onSelect">
+			<include src="WEB-INF/zul/runtime/indices.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

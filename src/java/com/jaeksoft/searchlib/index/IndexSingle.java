@@ -107,6 +107,7 @@ public class IndexSingle extends IndexAbstract {
 		} finally {
 			r.unlock();
 		}
+		reload(indexName);
 	}
 
 	public boolean deleteDocument(Schema schema, String uniqueField)
