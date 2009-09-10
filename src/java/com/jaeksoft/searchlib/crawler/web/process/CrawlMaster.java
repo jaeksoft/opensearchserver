@@ -181,6 +181,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 			}
 			sleepSec(5);
 		}
+		crawlQueue.index(true);
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 

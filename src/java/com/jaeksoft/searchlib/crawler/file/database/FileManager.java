@@ -172,7 +172,7 @@ public class FileManager {
 		try {
 			// Delete in final index if a mapping is found
 			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
-					.getLinks(FileItemFieldEnum.originalPath.name());
+					.getLinks(FileItemFieldEnum.crawlDate.name());
 			SearchRequest deleteRequestTarget = targetClient
 					.getNewSearchRequest();
 			deleteRequestTarget.setQueryString("*:* AND NOT "
@@ -433,7 +433,6 @@ public class FileManager {
 				documents.add(indexDocument);
 			}
 			fileDbClient.updateDocuments(documents);
-
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

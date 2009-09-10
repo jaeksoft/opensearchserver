@@ -105,7 +105,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 		setStatus(CrawlStatus.INDEXATION);
 		if (!dryRun)
-			crawlMaster.getCrawlQueue().index(false);
+			crawlQueue.index(false);
 	}
 
 	private CrawlFile crawlFile(String userAgent, boolean dryRun)

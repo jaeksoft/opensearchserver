@@ -27,5 +27,6 @@
 	<link source="originalPath" target="originalPath" />
 	<link source="fileSystemDate" target="fileSystemDate" />
 	<link source="lang" target="lang" />
+	<link source="crawlDate" target="crawlDate" />
 	
 </map>
