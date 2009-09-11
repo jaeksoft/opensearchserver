@@ -210,8 +210,18 @@ public class FilePathManager {
 		return getPaths("", 0, MAX_FILE_BROWSED, list);
 	}
 
+	public int getStrictPaths(String startsWith, long start, long rows,
+			List<PathItem> list) throws SearchLibException {
+		return getPaths(startsWith, start, rows, list, true);
+	}
+
 	public int getPaths(String startsWith, long start, long rows,
 			List<PathItem> list) throws SearchLibException {
+		return getPaths(startsWith, start, rows, list, false);
+	}
+
+	public int getPaths(String startsWith, long start, long rows,
+			List<PathItem> list, boolean strict) throws SearchLibException {
 		r.lock();
 		try {
 			Iterator<List<PathItem>> it = pathMap.values().iterator();
@@ -220,12 +230,19 @@ public class FilePathManager {
 			int total = 0;
 			while (it.hasNext())
 				for (PathItem item : it.next()) {
-					if (startsWith != null) {
-						if (!item.getPath().startsWith(startsWith)) {
-							pos++;
-							continue;
-						}
+
+					if (strict && startsWith != null
+							&& !item.getPath().equals(startsWith)) {
+						pos++;
+						continue;
 					}
+
+					if (!strict && startsWith != null
+							&& !item.getPath().startsWith(startsWith)) {
+						pos++;
+						continue;
+					}
+
 					if (pos >= start && pos < end)
 						list.add(item);
 

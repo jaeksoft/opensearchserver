@@ -241,13 +241,13 @@ public class BrowserController extends CommonController implements
 		synchronized (this) {
 			if (getSelectedFile() != null) {
 				// Already In
-				if (getClient().getFilePathManager().getPaths(
-						getSelectedFile().getPath(), 0, 0, null) > 0)
+				if (getClient().getFilePathManager().getStrictPaths(
+						getSelectedFile().getPath(), 0, 0, null) > 0) {
 					Messagebox
 							.show("Already In.", "Jaeksoft OpenSearchServer",
 									Messagebox.OK,
 									org.zkoss.zul.Messagebox.INFORMATION);
-				else {
+				} else {
 					List<PathItem> list = FilePathManager.addPath(
 							getSelectedFile().getPath(), isSelectedFileCheck());
 
