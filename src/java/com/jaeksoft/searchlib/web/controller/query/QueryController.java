@@ -139,6 +139,10 @@ public class QueryController extends CommonController {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		SearchRequest request = getRequest();
+		
+		if (request.getQueryString() == null)
+			request.setQueryString("*:*");
+		
 		request.reset();
 		setResult(getClient().search(request));
 		reloadDesktop();
