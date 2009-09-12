@@ -88,6 +88,8 @@ public class RenderXml implements Render {
 		writer.print(result.getCollapseDocCount());
 		writer.print("\" start=\"");
 		writer.print(searchRequest.getStart());
+		writer.print("\" rows=\"");
+		writer.print(searchRequest.getRows());
 		writer.print("\" maxScore=\"");
 		writer.print(result.getMaxScore());
 		writer.print("\" time=\"");
