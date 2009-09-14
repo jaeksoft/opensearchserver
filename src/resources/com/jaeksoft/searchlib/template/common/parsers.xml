@@ -92,7 +92,7 @@
 				<link source="title" target="titleExact" />
 			</map>
 		</parser>
-		<parser name="ODS/ODF parser" class="com.jaeksoft.searchlib.parser.OdfParser"
+		<parser name="ODS/ODF parser" class="com.jaeksoft.searchlib.parser.OdsParser"
 			sizeLimit="8388608">
 			<extension>odf</extension>
 			<extension>ods</extension>
