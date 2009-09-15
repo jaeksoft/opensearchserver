@@ -26,6 +26,9 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 public abstract class OOParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
@@ -58,6 +61,31 @@ public abstract class OOParser extends Parser {
 	@Override
 	public ParserFieldEnum[] getParserFieldList() {
 		return fl;
+	}
+
+	protected void scanNodes(NodeList nodeList, ParserFieldEnum selectedField) {
+		if (nodeList.getLength() > 0) {
+			for (int i = 0; i < nodeList.getLength(); i++) {
+				Node lode = nodeList.item(i);
+
+				if (lode.getNodeType() == Node.TEXT_NODE)
+					addField(selectedField, lode.getNodeValue());
+
+				if (lode.getNodeType() == Node.CDATA_SECTION_NODE)
+					addField(selectedField, lode.getNodeValue());
+
+				if (lode.getNodeType() == Node.NOTATION_NODE)
+					addField(selectedField, lode.getNodeValue());
+
+				if (lode.getNodeType() == Node.COMMENT_NODE)
+					addField(selectedField, lode.getNodeValue());
+
+				if (lode.getNodeType() == Node.NOTATION_NODE)
+					addField(selectedField, lode.getNodeValue());
+				
+				scanNodes(lode.getChildNodes(), selectedField);
+			}
+		}
 	}
 
 }

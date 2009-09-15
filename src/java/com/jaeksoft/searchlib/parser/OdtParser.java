@@ -29,8 +29,7 @@ import java.io.IOException;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.office.OfficeTextElement;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
 
 /**
  * 
@@ -55,8 +54,12 @@ public class OdtParser extends OOParser {
 
 			// get root of all content of a text document
 			OfficeTextElement officeText = odt.getContentRoot();
-			scanNodes(officeText.getChildNodes());
-
+			scanNodes(officeText.getChildNodes(), ParserFieldEnum.content);
+			
+			Document docOwner = officeText.getOwnerDocument();
+			if (docOwner != null)
+				scanNodes(docOwner.getChildNodes(), ParserFieldEnum.author);
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -66,24 +69,6 @@ public class OdtParser extends OOParser {
 		}
 	}
 
-	private void scanNodes(NodeList nodeList) {
-		if (nodeList.getLength() > 0) {
-			for (int i = 0; i < nodeList.getLength(); i++) {
-				Node lode = nodeList.item(i);
-
-				if (lode.getNodeType() == Node.TEXT_NODE)
-					addField(ParserFieldEnum.content, lode.getNodeValue());
-
-				if (lode.getNodeType() == Node.CDATA_SECTION_NODE)
-					addField(ParserFieldEnum.content, lode.getNodeValue());
-
-				if (lode.getNodeType() == Node.NOTATION_NODE)
-					addField(ParserFieldEnum.content, lode.getNodeValue());
-
-				scanNodes(lode.getChildNodes());
-			}
-		}
-	}
 
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
