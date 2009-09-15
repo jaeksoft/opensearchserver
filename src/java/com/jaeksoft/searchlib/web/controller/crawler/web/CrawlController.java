@@ -26,7 +26,8 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlMaster;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -52,12 +53,13 @@ public class CrawlController extends CommonController {
 	}
 
 	public void onRun() throws IOException, SearchLibException {
-		PropertyManager propertyManager = getClient().getPropertyManager();
+		WebPropertyManager propertyManager = getClient()
+				.getWebPropertyManager();
 		if (getWebCrawlMaster().isRunning()) {
-			propertyManager.setCrawlEnabled(false);
+			propertyManager.getCrawlEnabled().setValue(false);
 			getWebCrawlMaster().abort();
 		} else {
-			propertyManager.setCrawlEnabled(true);
+			propertyManager.getCrawlEnabled().setValue(true);
 			getWebCrawlMaster().start();
 			refresh = true;
 		}
@@ -65,7 +67,7 @@ public class CrawlController extends CommonController {
 	}
 
 	public PropertyManager getProperties() throws SearchLibException {
-		return getClient().getPropertyManager();
+		return getClient().getWebPropertyManager();
 	}
 
 	public CrawlMaster getWebCrawlMaster() throws SearchLibException {

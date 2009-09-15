@@ -47,8 +47,8 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.database.PathItem;
-import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
@@ -83,7 +83,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		crawlQueue = null;
 		statistics = new LinkedList<CrawlStatistics>();
 		sessionStats = null;
-		if (config.getPropertyManager().isCrawlEnabled())
+		if (config.getFilePropertyManager().getCrawlEnabled().getValue())
 			start();
 		delayBetweenAccess = 100;
 	}
@@ -136,8 +136,8 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			updateList.add(fileItem);
 
 			// partial update of unmodified files
-			if (updateList.size() > config.getPropertyManager()
-					.getIndexDocumentBufferSize()) {
+			if (updateList.size() > config.getFilePropertyManager()
+					.getIndexDocumentBufferSize().getValue()) {
 				config.getFileManager().updateFileItems(updateList);
 				updateList.clear();
 			}
@@ -253,11 +253,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		return statistics;
 	}
 
-	public boolean isFull() throws SearchLibException {
-		return sessionStats.getFetchedCount() >= config.getPropertyManager()
-				.getMaxUrlPerSession();
-	}
-
 	protected void remove(CrawlFileThread crawlThread) {
 		synchronized (crawlThreads) {
 			crawlThreads.remove(crawlThread);
@@ -274,15 +269,16 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
-		PropertyManager propertyManager = config.getPropertyManager();
+		FilePropertyManager propertyManager = config.getFilePropertyManager();
 
 		crawlQueue.setMaxBufferSize(propertyManager
-				.getIndexDocumentBufferSizeFile());
+				.getIndexDocumentBufferSize().getValue());
 
 		while (!isAbort()) {
 
-			int threadNumber = propertyManager.getMaxThreadNumber();
-			delayBetweenAccess = propertyManager.getDelayBetweenAccesses();
+			int threadNumber = 1;
+			delayBetweenAccess = propertyManager.getDelayBetweenAccesses()
+					.getValue();
 
 			sessionStats = new CrawlStatistics();
 			addStatistics(sessionStats);
@@ -322,7 +318,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			if (sessionStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getFileManager().reload(
-						propertyManager.isOptimizeAfterSession());
+						propertyManager.getOptimizeAfterSession().getValue());
 			}
 
 			sleepSec(5);

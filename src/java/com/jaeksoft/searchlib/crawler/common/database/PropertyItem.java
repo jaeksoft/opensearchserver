@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,35 +22,23 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.common.database;
 
-public class PropertyItem {
+import java.io.IOException;
+import java.util.Properties;
+
+public class PropertyItem<T> {
+
+	private PropertyManager propertyManager;
 
 	private String name;
 
-	private String value;
+	private T value;
 
-	public PropertyItem() {
-		name = null;
-		value = null;
-	}
-
-	public PropertyItem(String name) {
-		this.name = name;
-		value = null;
-	}
-
-	public PropertyItem(String name, String value) {
+	public PropertyItem(PropertyManager propertyManager, String name, T value) {
+		this.propertyManager = propertyManager;
 		this.name = name;
 		this.value = value;
-	}
-
-	public PropertyItem(String name, Integer value) {
-		this(name, value.toString());
-	}
-
-	public PropertyItem(String name, Boolean value) {
-		this(name, value ? "1" : "0");
 	}
 
 	public String getName() {
@@ -61,16 +49,29 @@ public class PropertyItem {
 		this.name = name;
 	}
 
-	public String getValue() {
+	public T getValue() {
 		return value;
 	}
 
-	public void setValue(String value) {
+	public void initValue(T value) {
 		this.value = value;
 	}
 
-	public void setValue(int value) {
-		this.value = Integer.toString(value);
+	public void setValue(T value) throws IOException {
+		if (value != null && this.value != null)
+			if (value.equals(this.value))
+				return;
+		this.value = value;
+		propertyManager.put(this);
 	}
 
+	public boolean isValue() {
+		if (value instanceof Boolean)
+			return (Boolean) value;
+		return false;
+	}
+
+	public void put(Properties properties) {
+		properties.put(name, value.toString());
+	}
 }

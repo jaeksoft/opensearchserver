@@ -53,7 +53,6 @@ public class CrawlFile {
 			.getCanonicalName());
 
 	private final FileItem fileItem;
-	private final String userAgent;
 	private Parser parser;
 	private String error;
 	private final FieldMap fileFieldMap;
@@ -64,8 +63,6 @@ public class CrawlFile {
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileItem = fileItem;
 		this.fileItem.setWhenNow();
-		this.userAgent = config.getPropertyManager().getUserAgent()
-				.toLowerCase();
 		this.parser = null;
 		this.error = null;
 		this.config = config;
@@ -167,10 +164,6 @@ public class CrawlFile {
 
 			return indexDocument;
 		}
-	}
-
-	public String getUserAgent() {
-		return userAgent;
 	}
 
 	public void setError(String error) {

@@ -17,7 +17,8 @@
 -->
 <window id="crawlProcess"
 	use="com.jaeksoft.searchlib.web.controller.crawler.web.CrawlController">
-	<panel title="Crawling parameters" collapsible="true" border="normal">
+	<panel title="Crawling parameters" collapsible="true"
+		border="normal">
 		<panelchildren>
 			<grid>
 				<columns>
@@ -31,11 +32,11 @@
 						<label value="User-Agent: " />
 						<textbox cols="50"
 							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.userAgent}" />
+							value="@{crawlProcess.properties.userAgent.value}" />
 						<label value="Number of URLs to crawl: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.maxUrlPerSession}" />
+							value="@{crawlProcess.properties.maxUrlPerSession.value}" />
 
 					</row>
 					<row>
@@ -43,23 +44,24 @@
 							value="Fetch interval between re-fetches (days): " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.fetchInterval}" />
-						<label value="Maximum number of URLs per host: " />
+							value="@{crawlProcess.properties.fetchInterval.value}" />
+						<label
+							value="Maximum number of URLs per host: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.maxUrlPerHost}" />
+							value="@{crawlProcess.properties.maxUrlPerHost.value}" />
 
 					</row>
 					<row>
 						<label value="Number of simultaneous threads: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.maxThreadNumber}" />
+							value="@{crawlProcess.properties.maxThreadNumber.value}" />
 						<label
 							value="Delay between each successive access, in seconds: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.delayBetweenAccesses}" />
+							value="@{crawlProcess.properties.delayBetweenAccesses.value}" />
 
 					</row>
 				</rows>
@@ -67,22 +69,24 @@
 		</panelchildren>
 	</panel>
 	<separator />
-	<panel title="@{crawlProcess.webCrawlMaster.statusInfo}"
-		collapsible="false" border="normal">
+	<panel title="Current status" collapsible="false" border="normal">
 		<toolbar>
+			<textbox readonly="true"
+				value="@{crawlProcess.webCrawlMaster.statusInfo}" />
+			<space />
 			<checkbox label="Dry run" disabled="@{crawlProcess.refresh}"
-				checked="@{crawlProcess.properties.dryRun}" />
+				checked="@{crawlProcess.properties.dryRun.value}" />
 			<space />
 			<!-- 
-			<checkbox
+				<checkbox
 				label="Publish index at the end of the crawl session"
 				disabled="@{crawlProcess.refresh}" visible="@{crawlProcess.publish}"
-				checked="@{crawlProcess.properties.publishAfterSession}" />
-			<space visible="@{crawlProcess.publish}" />
-			 -->
+				checked="@{crawlProcess.properties.publishAfterSession.value}" />
+				<space visible="@{crawlProcess.publish}" />
+			-->
 			<checkbox label="Optimize at the end of the crawl session"
 				disabled="@{crawlProcess.refresh}"
-				checked="@{crawlProcess.properties.optimizeAfterSession}" />
+				checked="@{crawlProcess.properties.optimizeAfterSession.value}" />
 			<space />
 			<button id="runButton"
 				disabled="@{crawlProcess.webCrawlMaster.aborting}"
@@ -93,7 +97,8 @@
 	<panel title="Statistics for prior sessions" collapsible="true"
 		border="normal">
 		<panelchildren>
-			<listbox model="@{crawlProcess.webCrawlMaster.statistics}">
+			<listbox
+				model="@{crawlProcess.webCrawlMaster.statistics}">
 				<auxhead>
 					<auxheader label="Start time" width="130px" />
 					<auxheader label="Fetched" align="center"
@@ -159,7 +164,7 @@
 	<panel title="Thread list" collapsible="true" border="normal">
 		<toolbar>
 			<checkbox label="Show debug information"
-				checked="@{crawlProcess.properties.debug}" />
+				checked="@{crawlProcess.properties.debug.value}" />
 		</toolbar>
 		<panelchildren>
 			<listbox model="@{crawlProcess.webCrawlMaster.crawlThreads}"
@@ -176,7 +181,7 @@
 					<listheader width="50px" label="Total" />
 					<listheader label="Status" />
 					<listheader
-						visible="@{crawlProcess.properties.debug}" label="Debug" />
+						visible="@{crawlProcess.properties.debug.value}" label="Debug" />
 				</listhead>
 				<listitem self="@{each=thread}">
 					<listcell label="@{thread.host.name}" />
@@ -197,7 +202,7 @@
 					<listcell
 						label="@{thread.currentStatistics.urlListSize}" />
 					<listcell label="@{thread.statusInfo}" />
-					<listcell visible="@{crawlProcess.properties.debug}"
+					<listcell visible="@{crawlProcess.properties.debug.value}"
 						label="@{thread.debugInfo}" />
 				</listitem>
 			</listbox>

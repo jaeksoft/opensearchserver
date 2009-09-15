@@ -52,10 +52,11 @@ import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
+import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
-import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -106,7 +107,9 @@ public abstract class Config {
 
 	private FileManager fileManager = null;
 
-	private PropertyManager propertyManager = null;
+	private WebPropertyManager webPropertyManager = null;
+
+	private FilePropertyManager filePropertyManager = null;
 
 	private XPathParser xppConfig = null;
 
@@ -481,13 +484,28 @@ public abstract class Config {
 		}
 	}
 
-	public PropertyManager getPropertyManager() throws SearchLibException {
+	public WebPropertyManager getWebPropertyManager() throws SearchLibException {
 		lock.lock();
 		try {
-			if (propertyManager == null)
-				propertyManager = new PropertyManager(new File(indexDir,
-						"crawler-properties.xml"));
-			return propertyManager;
+			if (webPropertyManager == null)
+				webPropertyManager = new WebPropertyManager(new File(indexDir,
+						"webcrawler-properties.xml"));
+			return webPropertyManager;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public FilePropertyManager getFilePropertyManager()
+			throws SearchLibException {
+		lock.lock();
+		try {
+			if (filePropertyManager == null)
+				filePropertyManager = new FilePropertyManager(new File(
+						indexDir, "filecrawler-properties.xml"));
+			return filePropertyManager;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {

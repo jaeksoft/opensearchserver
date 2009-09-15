@@ -45,10 +45,10 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileThread;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
-import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
@@ -90,7 +90,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 		newHostList = new LinkedList<NamedItem>();
 		statistics = new LinkedList<CrawlStatistics>();
 		sessionStats = null;
-		if (config.getPropertyManager().isCrawlEnabled())
+		if (config.getWebPropertyManager().getCrawlEnabled().getValue())
 			start();
 	}
 
@@ -121,16 +121,16 @@ public class CrawlMaster extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
-		PropertyManager propertyManager = config.getPropertyManager();
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		while (!isAbort()) {
 
 			sessionStats = new CrawlStatistics();
 			addStatistics(sessionStats);
 			crawlQueue.setStatistiques(sessionStats);
 
-			int threadNumber = propertyManager.getMaxThreadNumber();
-			maxUrlPerSession = propertyManager.getMaxUrlPerSession();
-			maxUrlPerHost = propertyManager.getMaxUrlPerHost();
+			int threadNumber = propertyManager.getMaxThreadNumber().getValue();
+			maxUrlPerSession = propertyManager.getMaxUrlPerSession().getValue();
+			maxUrlPerHost = propertyManager.getMaxUrlPerHost().getValue();
 
 			synchronized (newHostList) {
 				newHostList.clear();
@@ -168,7 +168,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 			if (sessionStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getUrlManager().reload(
-						propertyManager.isOptimizeAfterSession());
+						propertyManager.getOptimizeAfterSession().getValue());
 				// TEMP publishIndexList disabled
 				/*
 				 * PublishIndexList publishIndexList = client
@@ -191,9 +191,9 @@ public class CrawlMaster extends CrawlThreadAbstract {
 			IllegalAccessException {
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 		UrlManager urlManager = config.getUrlManager();
-		PropertyManager propertyManager = config.getPropertyManager();
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		fetchIntervalDate = urlManager.getPastDate(propertyManager
-				.getFetchInterval());
+				.getFetchInterval().getValue());
 		config.getUrlManager().getOldHostToFetch(fetchIntervalDate,
 				maxUrlPerSession, oldHostList);
 		sessionStats.addOldHostListSize(oldHostList.size());
@@ -337,8 +337,8 @@ public class CrawlMaster extends CrawlThreadAbstract {
 	}
 
 	public boolean isFull() throws SearchLibException {
-		return sessionStats.getFetchedCount() >= config.getPropertyManager()
-				.getMaxUrlPerSession();
+		return sessionStats.getFetchedCount() >= config.getWebPropertyManager()
+				.getMaxUrlPerSession().getValue();
 	}
 
 	public IndexPluginList getIndexPluginList() {

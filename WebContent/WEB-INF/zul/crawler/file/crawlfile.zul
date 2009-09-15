@@ -30,13 +30,13 @@
 							value="Delay between each successive access, in milliseconds: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.delayBetweenAccessesFile}" />
+							value="@{crawlFileProcess.properties.delayBetweenAccesses.value}" />
 
 						<label
 							value="Number of files to crawl between each add: " />
 						<intbox constraint="no empty, no negative"
 							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.indexDocumentBufferSizeFile}" />
+							value="@{crawlFileProcess.properties.indexDocumentBufferSize.value}" />
 					</row>
 				</rows>
 			</grid>
@@ -48,18 +48,18 @@
 		<toolbar>
 			<checkbox label="Dry run"
 				disabled="@{crawlFileProcess.refresh}"
-				checked="@{crawlFileProcess.properties.dryRun}" />
+				checked="@{crawlFileProcess.properties.dryRun.value}" />
 			<space />
 			<!-- 
 				<checkbox
 				label="Publish index at the end of the crawl session"
 				disabled="@{crawlFileProcess.refresh}" visible="@{crawlFileProcess.publish}"
-				checked="@{crawlFileProcess.properties.publishAfterSession}" />
+				checked="@{crawlFileProcess.properties.publishAfterSession.value}" />
 				<space visible="@{crawlFileProcess.publish}" />
 			-->
 			<checkbox label="Optimize at the end of the crawl session"
 				disabled="@{crawlFileProcess.refresh}"
-				checked="@{crawlFileProcess.properties.optimizeAfterSession}" />
+				checked="@{crawlFileProcess.properties.optimizeAfterSession.value}" />
 			<space />
 			<button id="runButton"
 				disabled="@{crawlFileProcess.fileCrawlMaster.aborting}"

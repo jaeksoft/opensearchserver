@@ -31,6 +31,7 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 
 public abstract class CrawlQueueAbstract<T, Z> {
 
@@ -41,12 +42,12 @@ public abstract class CrawlQueueAbstract<T, Z> {
 	public CrawlQueueAbstract() {
 	}
 
-	public CrawlQueueAbstract(Config config) throws SearchLibException {
+	public CrawlQueueAbstract(Config config, PropertyManager propertyManager)
+			throws SearchLibException {
 		this.config = config;
-
 		this.setSessionStats(null);
-		this.setMaxBufferSize(config.getPropertyManager()
-				.getIndexDocumentBufferSize());
+		this.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize()
+				.getValue());
 	}
 
 	public abstract void index(boolean bForce) throws SearchLibException,

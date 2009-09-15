@@ -26,8 +26,8 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
-import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CrawlFileController extends CommonController {
@@ -52,20 +52,20 @@ public class CrawlFileController extends CommonController {
 	}
 
 	public void onRun() throws IOException, SearchLibException {
-		PropertyManager propertyManager = getClient().getPropertyManager();
+		FilePropertyManager propertyManager = getProperties();
 		if (getFileCrawlMaster().isRunning()) {
-			propertyManager.setCrawlEnabled(false);
+			propertyManager.getCrawlEnabled().setValue(false);
 			getFileCrawlMaster().abort();
 		} else {
-			propertyManager.setCrawlEnabled(true);
+			propertyManager.getCrawlEnabled().setValue(true);
 			getFileCrawlMaster().start();
 			refresh = true;
 		}
 		reloadPage();
 	}
 
-	public PropertyManager getProperties() throws SearchLibException {
-		return getClient().getPropertyManager();
+	public FilePropertyManager getProperties() throws SearchLibException {
+		return getClient().getFilePropertyManager();
 	}
 
 	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {

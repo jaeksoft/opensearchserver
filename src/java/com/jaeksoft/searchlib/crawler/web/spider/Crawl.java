@@ -82,8 +82,8 @@ public class Crawl {
 		this.currentStats = currentStats;
 		this.urlItem = urlItem;
 		this.urlItem.setWhenNow();
-		this.userAgent = config.getPropertyManager().getUserAgent()
-				.toLowerCase();
+		this.userAgent = config.getWebPropertyManager().getUserAgent()
+				.getValue().toLowerCase();
 		this.parser = null;
 		this.parserSelector = parserSelector;
 		this.config = config;

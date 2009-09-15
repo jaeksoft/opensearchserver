@@ -36,8 +36,8 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
-import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 
 public class CrawlFileThread extends CrawlThreadAbstract {
 
@@ -55,8 +55,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		this.config = config;
 		this.crawlMaster = crawlMaster;
 		currentStats = new CrawlStatistics(sessionStats);
-		delayBetweenAccesses = config.getPropertyManager()
-				.getDelayBetweenAccesses();
+		delayBetweenAccesses = config.getFilePropertyManager()
+				.getDelayBetweenAccesses().getValue();
 		nextTimeTarget = 0;
 	}
 
@@ -67,8 +67,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		this.config = config;
 		this.crawlMaster = crawlMaster;
 		currentStats = new CrawlStatistics(sessionStats);
-		delayBetweenAccesses = config.getPropertyManager()
-				.getDelayBetweenAccesses();
+		delayBetweenAccesses = config.getFilePropertyManager()
+				.getDelayBetweenAccesses().getValue();
 		nextTimeTarget = 0;
 		currentFileItem = item;
 	}
@@ -82,9 +82,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
-		PropertyManager propertyManager = config.getPropertyManager();
-		String userAgent = propertyManager.getUserAgent();
-		boolean dryRun = propertyManager.isDryRun();
+		FilePropertyManager propertyManager = config.getFilePropertyManager();
+		boolean dryRun = propertyManager.getDryRun().getValue();
 		FileCrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
 
 		currentStats.addListSize(1);
@@ -92,7 +91,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		if (isAbort() || crawlMaster.isAbort())
 			return;
 
-		CrawlFile crawl = crawlFile(userAgent, dryRun);
+		CrawlFile crawl = crawlFile(dryRun);
 		if (crawl != null) {
 			if (!dryRun) {
 				crawlQueue.add(crawl);
@@ -108,8 +107,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			crawlQueue.index(false);
 	}
 
-	private CrawlFile crawlFile(String userAgent, boolean dryRun)
-			throws SearchLibException {
+	private CrawlFile crawlFile(boolean dryRun) throws SearchLibException {
 
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();

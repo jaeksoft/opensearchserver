@@ -39,9 +39,9 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
-import com.jaeksoft.searchlib.crawler.web.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
@@ -65,8 +65,8 @@ public class CrawlThread extends CrawlThreadAbstract {
 		this.crawlMaster = crawlMaster;
 		this.currentUrlItem = null;
 		currentStats = new CrawlStatistics(sessionStats);
-		delayBetweenAccesses = config.getPropertyManager()
-				.getDelayBetweenAccesses();
+		delayBetweenAccesses = config.getWebPropertyManager()
+				.getDelayBetweenAccesses().getValue();
 		nextTimeTarget = 0;
 		this.urlList = urlList;
 
@@ -83,9 +83,9 @@ public class CrawlThread extends CrawlThreadAbstract {
 	@Override
 	public void runner() throws Exception {
 
-		PropertyManager propertyManager = config.getPropertyManager();
-		String userAgent = propertyManager.getUserAgent();
-		boolean dryRun = propertyManager.isDryRun();
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		String userAgent = propertyManager.getUserAgent().getValue();
+		boolean dryRun = propertyManager.getDryRun().getValue();
 
 		currentStats.addListSize(urlList.size());
 
