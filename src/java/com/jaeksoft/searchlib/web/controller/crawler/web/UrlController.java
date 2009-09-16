@@ -369,4 +369,11 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
+	@Override
+	public void reloadPage() {
+		synchronized (this) {
+			urlList = null;
+			super.reloadPage();
+		}
+	}
 }

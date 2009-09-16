@@ -232,4 +232,13 @@ public class PatternController extends CommonController implements
 			reloadPage();
 		}
 	}
+
+	@Override
+	public void reloadPage() {
+		synchronized (this) {
+			patternList = null;
+			super.reloadPage();
+		}
+	}
+
 }
