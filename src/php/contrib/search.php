@@ -35,7 +35,9 @@ if (isset($_REQUEST['query'])) {
 				<input id="submit" type="submit" />
 				<div class="errors">
 				</div>
+				<?php if (isset($search)): ?>
 				<a class="lastQueryQtring" href="<?php echo $search->getLastQueryString(); ?>"><?php echo $search->getLastQueryString(); ?></a>
+				<?php endif; ?>
 			</fieldset>
 		</form>
 		<?php if (isset($resultCount)): ?>

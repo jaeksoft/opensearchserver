@@ -74,6 +74,8 @@ class OSS_Search {
 		$this->filter	= array();
 		$this->sort		= array();
 		$this->facets	= array();
+		$this->collapse	= array('field' => null, 'max' => null, 'mode' => null);
+
 	}
 
 	/**
@@ -152,8 +154,24 @@ class OSS_Search {
 	/**
 	 * @return OSS_Search
 	 */
-	public function collapse($field, $max = null, $mode = null) {
-		$this->collapse = array('field' => $field, 'max' => $max, 'mode' => $mode);
+	public function collapseField($field) {
+		$this->collapse['field'] = $field;
+		return $this;
+	}
+
+	/**
+	 * @return OSS_Search
+	 */
+	public function collapseMode($mode) {
+		$this->collapse['mode'] = $mode;
+		return $this;
+	}
+
+	/**
+	 * @return OSS_Search
+	 */
+	public function collapseMax($max) {
+		$this->collapse['max'] = $max;
 		return $this;
 	}
 
@@ -241,13 +259,12 @@ class OSS_Search {
 		}
 
 		// Collapsing
-		if (count($this->collapse)) {
+		if ($this->collapse['field'])
 			$queryChunks[] = 'collapse.field='.$this->collapse['field'];
-			if ($this->collapse['mode'] !== null)
-				$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
-			if ($this->collapse['max'] !== null)
-				$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
-		}
+		if ($this->collapse['mode'] !== null)
+			$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
+		if ($this->collapse['max'] !== null)
+			$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
 
 		return $this->enginePath
 				.(strpos($this->searchEngineQueryPath,'?') === false ? '?' : '&')
