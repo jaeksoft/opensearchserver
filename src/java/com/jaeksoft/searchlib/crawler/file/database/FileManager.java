@@ -385,21 +385,63 @@ public class FileManager {
 		targetClient.reload(null);
 	}
 
-	public void updateFileItems(List<FileItem> fileItems)
+	public void removeDeletedFiles(String originalPath, List<String> children)
 			throws SearchLibException {
-		try {
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(
-					fileItems.size());
-			for (FileItem item : fileItems) {
-				IndexDocument indexDocument = new IndexDocument();
-				item.populate(indexDocument);
-				documents.add(indexDocument);
-			}
-			targetClient.updateDocuments(documents);
-			fileDbClient.updateDocuments(documents);
+		if (children == null || originalPath == null)
+			return;
 
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
+		if (children.isEmpty())
+			return;
+
+		StringBuffer query = new StringBuffer();
+
+		List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
+				.getLinks(FileItemFieldEnum.path.name());
+		List<String> mappedOriginalPath = targetClient.getFileCrawlerFieldMap()
+				.getLinks(FileItemFieldEnum.originalPath.name());
+		
+		if (!mappedPath.isEmpty() && !mappedOriginalPath.isEmpty()) {
+			query.append(":(");
+			for (String name : children) {
+				query.append("\"").append(SearchRequest.escapeQuery(name))
+						.append("\" OR ");
+			}
+			query.replace(query.length() - 3, query.length(), ")");
+			
+		}
+
+		try {
+			// Delete in final index if a mapping is found
+			if (query.length() > 0) {
+				SearchRequest deleteRequestTarget = targetClient
+						.getNewSearchRequest();
+				
+				deleteRequestTarget.setQueryString("*:* AND NOT "
+						+ mappedPath.get(0) + query.toString());
+				
+				deleteRequestTarget.addFilter(mappedOriginalPath.get(0) + ":\""
+						+ SearchRequest.escapeQuery(originalPath) + "\"");
+								
+				deleteRequestTarget.setDelete(true);
+				targetClient.search(deleteRequestTarget);
+
+			}
+
+			// Delete in file index
+			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
+			deleteRequest.setQueryString("*:* AND NOT "
+					+ FileItemFieldEnum.path.name() + query.toString());
+
+			// System.out.println(deleteRequest.getQueryString());
+			
+			deleteRequest.addFilter(FileItemFieldEnum.originalPath.name()
+					+ ":\""
+					+ SearchRequest.escapeQuery(originalPath) + "\"");
+			deleteRequest.setDelete(true);
+			fileDbClient.search(deleteRequest);
+			
+			reload(true);
+			
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
@@ -409,6 +451,12 @@ public class FileManager {
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}
 	}

@@ -113,10 +113,9 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	 * @throws java.text.ParseException
 	 * 
 	 */
-	private void sendToCrawl(File current, String originalPath,
-			List<FileItem> updateList) throws CorruptIndexException,
-			SearchLibException, ParseException, UnsupportedEncodingException,
-			java.text.ParseException {
+	private void sendToCrawl(File current, String originalPath)
+			throws CorruptIndexException, SearchLibException, ParseException,
+			UnsupportedEncodingException, java.text.ParseException {
 
 		FileItem fileItem = config.getFileManager().find(current.getPath());
 
@@ -129,18 +128,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 			add(new CrawlFileThread(config, this, sessionStats, fileItem));
 			sleepMs(delayBetweenAccess, false);
-
-		} else {
-			// No need to reindex only update crawl Date
-			fileItem.setCrawlDate(startCrawlDate);
-			updateList.add(fileItem);
-
-			// partial update of unmodified files
-			if (updateList.size() > config.getFilePropertyManager()
-					.getIndexDocumentBufferSize().getValue()) {
-				config.getFileManager().updateFileItems(updateList);
-				updateList.clear();
-			}
 		}
 	}
 
@@ -156,26 +143,15 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 		File current = new File(item.getPath());
 
-		List<FileItem> updateList = new ArrayList<FileItem>();
-
 		if (current.isFile()) {
-			sendToCrawl(current, item.getPath(), updateList);
+			sendToCrawl(current, item.getPath());
 			sleepMs(delayBetweenAccess, false);
 		} else if (current.isDirectory()) {
-			// Add its children and children of children
-			if (item.isWithSub())
-				addChildRec(current, item.getPath(), true, updateList);
-
-			// Only add its children
-			else
-				addChildRec(current, item.getPath(), false, updateList);
+			// Add its children
+			sendToCrawl(current, item.getPath());
+			addChildRec(current, item.getPath(), item.isWithSub());
 		}
 
-		// Update unmodified files
-		if (!updateList.isEmpty()) {
-			config.getFileManager().updateFileItems(updateList);
-			updateList.clear();
-		}
 	}
 
 	/**
@@ -184,23 +160,30 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	 * @throws java.text.ParseException
 	 * 
 	 */
-	private void addChildRec(File file, String originalPath, boolean recursive,
-			List<FileItem> updateList) throws SearchLibException,
+	private void addChildRec(File file, String originalPath, boolean recursive)
+			throws SearchLibException,
 			CorruptIndexException, ParseException,
 			UnsupportedEncodingException, java.text.ParseException {
 
+		List<String> fileName = null;
 		File[] children = file.listFiles();
+		fileName = new ArrayList<String>();
+		fileName.add(file.getAbsolutePath());
+		
 		if (children != null && children.length > 0 && !isAbort()) {
-
 			for (File current : children) {
-				if (current.isDirectory() && recursive)
-					addChildRec(current, originalPath, true, updateList);
-
+				if (current.isDirectory() && recursive) {
+					sendToCrawl(current, originalPath);
+					addChildRec(current, originalPath, true);
+				}
 				else if (current.isFile()) {
-					sendToCrawl(current, originalPath, updateList);
+					sendToCrawl(current, originalPath);
 					sleepMs(delayBetweenAccess, false);
+					fileName.add(current.getAbsolutePath());
 				}
 			}
+			
+			config.getFileManager().removeDeletedFiles(originalPath, fileName); 
 		}
 	}
 
@@ -307,13 +290,12 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			crawlQueue.index(true);
 			setStatus(CrawlStatus.INDEXATION);
 
-			if (!isAbort()) {
-				setStatus(CrawlStatus.DELETE_REMOVED);
-				int count = config.getFileManager().deleteNotFoundByCrawlDate(
-						startCrawlDate);
-				sessionStats.addDeletedCount(count);
-				sleepSec(2, false);
-			}
+			/*
+			 * if (!isAbort()) { setStatus(CrawlStatus.DELETE_REMOVED); int
+			 * count = config.getFileManager().deleteNotFoundByCrawlDate(
+			 * startCrawlDate); sessionStats.addDeletedCount(count); sleepSec(2,
+			 * false); }
+			 */
 
 			if (sessionStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
