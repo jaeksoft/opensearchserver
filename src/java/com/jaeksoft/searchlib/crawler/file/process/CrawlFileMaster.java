@@ -67,8 +67,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private CrawlStatistics sessionStats;
 
-	private long startCrawlDate;;
-
 	private FileCrawlQueue crawlQueue;
 
 	private final ExecutorService threadPool;
@@ -123,8 +121,8 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		if (fileItem == null
 				|| (fileItem != null && fileItem.isNewCrawlNeeded(current
 						.lastModified()))) {
-			fileItem = new FileItem(current.getPath(), originalPath,
-					startCrawlDate, current.lastModified(), current.length());
+			fileItem = new FileItem(current.getPath(), current.getParent(),
+					originalPath, current.lastModified(), current.length());
 
 			add(new CrawlFileThread(config, this, sessionStats, fileItem));
 			sleepMs(delayBetweenAccess, false);
@@ -161,29 +159,30 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	 * 
 	 */
 	private void addChildRec(File file, String originalPath, boolean recursive)
-			throws SearchLibException,
-			CorruptIndexException, ParseException,
+			throws SearchLibException, CorruptIndexException, ParseException,
 			UnsupportedEncodingException, java.text.ParseException {
 
 		List<String> fileName = null;
 		File[] children = file.listFiles();
 		fileName = new ArrayList<String>();
 		fileName.add(file.getAbsolutePath());
-		
+
 		if (children != null && children.length > 0 && !isAbort()) {
 			for (File current : children) {
 				if (current.isDirectory() && recursive) {
 					sendToCrawl(current, originalPath);
 					addChildRec(current, originalPath, true);
-				}
-				else if (current.isFile()) {
+				} else if (current.isFile()) {
 					sendToCrawl(current, originalPath);
 					sleepMs(delayBetweenAccess, false);
 					fileName.add(current.getAbsolutePath());
 				}
 			}
-			
-			config.getFileManager().removeDeletedFiles(originalPath, fileName); 
+
+			/*
+			 * config.getFileManager().deleteByPath(file.getAbsolutePath(),
+			 * fileName);
+			 */
 		}
 	}
 
@@ -268,8 +267,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			crawlQueue.setStatistiques(sessionStats);
 
 			setStatus(CrawlStatus.STARTING);
-
-			startCrawlDate = System.currentTimeMillis();
 
 			List<PathItem> pathList = getNextPathList();
 			if (pathList == null)

@@ -385,21 +385,17 @@ public class FileManager {
 		targetClient.reload(null);
 	}
 
-	public void removeDeletedFiles(String originalPath, List<String> children)
+	public void deleteByPath(String parentPath, List<String> children)
 			throws SearchLibException {
-		if (children == null || originalPath == null)
-			return;
-
-		if (children.isEmpty())
-			return;
 
 		StringBuffer query = new StringBuffer();
 
 		List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
 				.getLinks(FileItemFieldEnum.path.name());
+
 		List<String> mappedOriginalPath = targetClient.getFileCrawlerFieldMap()
 				.getLinks(FileItemFieldEnum.originalPath.name());
-		
+
 		if (!mappedPath.isEmpty() && !mappedOriginalPath.isEmpty()) {
 			query.append(":(");
 			for (String name : children) {
@@ -407,7 +403,7 @@ public class FileManager {
 						.append("\" OR ");
 			}
 			query.replace(query.length() - 3, query.length(), ")");
-			
+
 		}
 
 		try {
@@ -415,13 +411,13 @@ public class FileManager {
 			if (query.length() > 0) {
 				SearchRequest deleteRequestTarget = targetClient
 						.getNewSearchRequest();
-				
+
 				deleteRequestTarget.setQueryString("*:* AND NOT "
 						+ mappedPath.get(0) + query.toString());
-				
+
 				deleteRequestTarget.addFilter(mappedOriginalPath.get(0) + ":\""
-						+ SearchRequest.escapeQuery(originalPath) + "\"");
-								
+						+ SearchRequest.escapeQuery(parentPath) + "\"");
+
 				deleteRequestTarget.setDelete(true);
 				targetClient.search(deleteRequestTarget);
 
@@ -433,15 +429,14 @@ public class FileManager {
 					+ FileItemFieldEnum.path.name() + query.toString());
 
 			// System.out.println(deleteRequest.getQueryString());
-			
+
 			deleteRequest.addFilter(FileItemFieldEnum.originalPath.name()
-					+ ":\""
-					+ SearchRequest.escapeQuery(originalPath) + "\"");
+					+ ":\"" + SearchRequest.escapeQuery(parentPath) + "\"");
 			deleteRequest.setDelete(true);
 			fileDbClient.search(deleteRequest);
-			
+
 			reload(true);
-			
+
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {

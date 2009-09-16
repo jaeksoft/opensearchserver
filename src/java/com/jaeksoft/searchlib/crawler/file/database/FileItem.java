@@ -85,6 +85,7 @@ public class FileItem implements Serializable {
 
 	private String path;
 	private String originalPath;
+	private String directoryPath;
 	private Integer contentLength;
 	private String lang;
 	private String langMethod;
@@ -105,6 +106,7 @@ public class FileItem implements Serializable {
 		status = Status.UNDEFINED;
 		path = null;
 		originalPath = null;
+		directoryPath = null;
 		contentLength = null;
 		lang = null;
 		langMethod = null;
@@ -123,6 +125,9 @@ public class FileItem implements Serializable {
 		this();
 		setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
 		setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(), 0));
+		setDirectoryPath(doc
+				.getValue(FileItemFieldEnum.directoryPath.name(), 0));
+
 		setContentLength(doc
 				.getValue(FileItemFieldEnum.contentLength.name(), 0));
 
@@ -140,12 +145,13 @@ public class FileItem implements Serializable {
 		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.name(), 0));
 	}
 
-	public FileItem(String path, String original, long crawlDate,
+	public FileItem(String path, String directory, String original,
 			long fileSystemDate, long size) {
 		this();
 		setPath(path);
 		setOriginalPath(original);
-		setCrawlDate(crawlDate);
+		setDirectoryPath(directory);
+		setCrawlDate(System.currentTimeMillis());
 		setFileSystemDate(fileSystemDate);
 		setSize(size);
 		setExtension(FilenameUtils.getExtension(path));
@@ -201,6 +207,10 @@ public class FileItem implements Serializable {
 		return originalPath;
 	}
 
+	public String getDirectoryPath() {
+		return directoryPath;
+	}
+
 	public ParserStatus getParserStatus() {
 		if (parserStatus == null)
 			return ParserStatus.NOT_PARSED;
@@ -229,6 +239,9 @@ public class FileItem implements Serializable {
 		indexDocument.set(FileItemFieldEnum.path.name(), getPath());
 		indexDocument.set(FileItemFieldEnum.originalPath.name(),
 				getOriginalPath());
+
+		indexDocument.set(FileItemFieldEnum.directoryPath.name(),
+				getDirectoryPath());
 
 		if (when != null)
 			indexDocument.set(FileItemFieldEnum.when.name(), getDateFormat()
@@ -289,12 +302,10 @@ public class FileItem implements Serializable {
 
 	public void setIndexStatus(IndexStatus status) {
 		this.indexStatus = status;
-
 	}
 
 	public void setIndexStatusInt(int v) {
 		this.indexStatus = IndexStatus.find(v);
-
 	}
 
 	private void setIndexStatusInt(String v) {
@@ -312,6 +323,10 @@ public class FileItem implements Serializable {
 
 	public void setOriginalPath(String originalPath) {
 		this.originalPath = originalPath;
+	}
+
+	public void setDirectoryPath(String directoryPath) {
+		this.directoryPath = directoryPath;
 	}
 
 	public void setParserStatus(ParserStatus status) {
