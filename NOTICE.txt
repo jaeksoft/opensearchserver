@@ -88,9 +88,9 @@ http://code.google.com/p/google-gson
 Rely on LICENSE-APACHE2
 
 ----------------------------------------
-jOpenDocument from ILM Informatique
-http://www.jopendocument.org
-Rely on GPL License
+ODFToolkit by Sun Microsystems, Inc.
+http://odftoolkit.org/
+Rely on LICENSE-APACHE2
 
 ----------------------------------------
 Java Native Access (JNA)
