@@ -121,6 +121,14 @@ class OSS_Search {
 	/**
 	 * @return OSS_Search
 	 */
+	public function filter($filter = null) {
+		$this->filter[] = $filter;
+		return $this;
+	}
+
+	/**
+	 * @return OSS_Search
+	 */
 	public function lang($lang = null) {
 		$this->lang = $lang;
 		return $this;
