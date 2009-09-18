@@ -24,6 +24,7 @@
 		<fields default="content" unique="path">
 			<field name="path" indexed="yes" stored="yes" />
 			<field name="originalPath" indexed="yes" stored="yes" />
+			<field name="directoryPath" indexed="yes" stored="yes" />
 			<field name="content" indexed="yes" stored="yes" />
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="langMethod" indexed="yes" stored="yes" />

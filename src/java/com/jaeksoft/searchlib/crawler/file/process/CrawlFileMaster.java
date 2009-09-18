@@ -146,7 +146,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			sleepMs(delayBetweenAccess, false);
 		} else if (current.isDirectory()) {
 			// Add its children
-			sendToCrawl(current, item.getPath());
 			addChildRec(current, item.getPath(), item.isWithSub());
 		}
 
@@ -165,13 +164,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		List<String> fileName = null;
 		File[] children = file.listFiles();
 		fileName = new ArrayList<String>();
-		fileName.add(file.getAbsolutePath());
 
 		if (children != null && children.length > 0 && !isAbort()) {
 			for (File current : children) {
 				if (current.isDirectory() && recursive) {
 					sendToCrawl(current, originalPath);
 					addChildRec(current, originalPath, true);
+
 				} else if (current.isFile()) {
 					sendToCrawl(current, originalPath);
 					sleepMs(delayBetweenAccess, false);
@@ -179,10 +178,9 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 				}
 			}
 
-			/*
-			 * config.getFileManager().deleteByPath(file.getAbsolutePath(),
-			 * fileName);
-			 */
+			// Looking for deleted files
+			checkDeleteFiles(file.getAbsolutePath(),
+					fileName);
 		}
 	}
 
@@ -287,13 +285,6 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			crawlQueue.index(true);
 			setStatus(CrawlStatus.INDEXATION);
 
-			/*
-			 * if (!isAbort()) { setStatus(CrawlStatus.DELETE_REMOVED); int
-			 * count = config.getFileManager().deleteNotFoundByCrawlDate(
-			 * startCrawlDate); sessionStats.addDeletedCount(count); sleepSec(2,
-			 * false); }
-			 */
-
 			if (sessionStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getFileManager().reload(
@@ -304,6 +295,59 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		}
 		crawlQueue.index(true);
 		setStatus(CrawlStatus.NOT_RUNNING);
+	}
+
+	public final void checkDeleteFiles(String parentPath, List<String> children)
+			throws SearchLibException, CorruptIndexException,
+			UnsupportedEncodingException, ParseException {
+
+		if (parentPath == null)
+			return;
+
+		List<FileItem> indexFiles = config.getFileManager()
+				.findAllByDirectoryPath(parentPath);
+
+		Iterator<FileItem> indexIterator = indexFiles.iterator();
+		Iterator<String> fileIterator = children.iterator();
+
+		String file = null;
+		FileItem indexFile = null;
+
+		while (indexIterator.hasNext() && fileIterator.hasNext()) {
+
+			if (file == null && fileIterator.hasNext())
+				file = fileIterator.next();
+
+			if (indexFile == null && indexIterator.hasNext())
+				indexFile = indexIterator.next();
+
+			if (file != null && indexFile != null && indexFile.path != null) {
+
+				// indexFile before file
+				if (indexFile.path.compareTo(file) < 0) {
+					getCrawlQueue().delete(indexFile.path);
+					indexFile = null;
+				}
+				// indexFile after file
+				else if (indexFile.path.compareTo(file) > 0) {
+					file = null;
+				}
+				// equals : both next
+				else {
+					indexFile = null;
+					file = null;
+				}
+			}
+			// Only files in index
+			else if (file == null && indexFile != null
+					&& indexFile.path != null) {
+				getCrawlQueue().delete(indexFile.path);
+				indexFile = null;
+
+			} else {
+				break;
+			}
+		}
 	}
 
 	public void start() {

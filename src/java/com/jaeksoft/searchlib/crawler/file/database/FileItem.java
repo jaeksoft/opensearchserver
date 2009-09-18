@@ -83,9 +83,9 @@ public class FileItem implements Serializable {
 		return new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
 	}
 
-	private String path;
-	private String originalPath;
-	private String directoryPath;
+	public String path;
+	public String originalPath;
+	public String directoryPath;
 	private Integer contentLength;
 	private String lang;
 	private String langMethod;
@@ -123,25 +123,50 @@ public class FileItem implements Serializable {
 
 	public FileItem(ResultDocument doc) {
 		this();
-		setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
+		if (FileItemFieldEnum.path.name() != null)
+			setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
+
+		if (FileItemFieldEnum.originalPath.name() != null)
 		setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(), 0));
+		
+		if (FileItemFieldEnum.directoryPath.name() != null)
 		setDirectoryPath(doc
 				.getValue(FileItemFieldEnum.directoryPath.name(), 0));
 
+		if (FileItemFieldEnum.contentLength.name() != null)
 		setContentLength(doc
 				.getValue(FileItemFieldEnum.contentLength.name(), 0));
 
+		if (FileItemFieldEnum.path.name() != null)
 		setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
+		
+		if (FileItemFieldEnum.langMethod.name() != null)
 		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
+		
+		if (FileItemFieldEnum.when.name() != null)
 		setWhen(doc.getValue(FileItemFieldEnum.when.name(), 0));
+		
+		if (FileItemFieldEnum.fetchStatus.name() != null)
 		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
+		
+		if (FileItemFieldEnum.parserStatus.name() != null)
 		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
 				0));
+		
+		if (FileItemFieldEnum.indexStatus.name() != null)
 		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.name(), 0));
+		
+		if (FileItemFieldEnum.crawlDate.name() != null)
 		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
+		
+		if (FileItemFieldEnum.fileSystemDate.name() != null)
 		setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate.name(),
 				0));
+		
+		if (FileItemFieldEnum.fileSize.name() != null)
 		setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
+		
+		if (FileItemFieldEnum.fileExtension.name() != null)
 		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.name(), 0));
 	}
 
@@ -416,7 +441,11 @@ public class FileItem implements Serializable {
 	}
 
 	public void setSize(String size) {
-		this.size = Long.parseLong(size);
+		try {
+			this.size = Long.parseLong(size);
+		} catch (NumberFormatException e) {
+			this.size = 0;
+		}
 	}
 
 	public String getExtension() {

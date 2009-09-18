@@ -38,11 +38,13 @@ import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 	private List<CrawlFile> updateCrawlList;
+	private List<String> deleteFileNameList;
 	final private Object indexSync = new Object();
 
 	public FileCrawlQueue(Config config) throws SearchLibException {
 		setConfig(config);
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
+		this.deleteFileNameList = new ArrayList<String>(0);
 	}
 
 	@Override
@@ -54,13 +56,17 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	}
 
 	@Override
-	public void delete(String url) {
-		// TODO Auto-generated method stub
+	public void delete(String fileName) {
+		synchronized (updateCrawlList) {
+			deleteFileNameList.add(fileName);
+		}
 	}
 
 	public boolean shouldWePersist() {
 		synchronized (updateCrawlList) {
 			if (updateCrawlList.size() >= getMaxBufferSize())
+				return true;
+			if (deleteFileNameList.size() >= getMaxBufferSize())
 				return true;
 		}
 
@@ -72,6 +78,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		List<CrawlFile> workUpdateCrawlList;
+		List<String> workDeleteFilenameList;
 		synchronized (this) {
 			if (!bForce)
 				if (!shouldWePersist())
@@ -79,6 +86,9 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 			workUpdateCrawlList = updateCrawlList;
 			updateCrawlList = new ArrayList<CrawlFile>(0);
+
+			workDeleteFilenameList = deleteFileNameList;
+			deleteFileNameList = new ArrayList<String>(0);
 		}
 
 		FileManager fileManager = getConfig().getFileManager();
@@ -86,7 +96,13 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		// Synchronization to avoid simoultaneous indexation process
 		synchronized (indexSync) {
 			boolean needReload = false;
+
+			// Update
 			if (updateCrawls(workUpdateCrawlList))
+				needReload = true;
+
+			// Delete
+			if (deleteCollection(workDeleteFilenameList))
 				needReload = true;
 
 			if (needReload)
@@ -116,7 +132,12 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	@Override
 	protected boolean deleteCollection(List<String> workDeleteUrlList)
 			throws SearchLibException {
-		// TODO Auto-generated method stub
-		return false;
+		if (workDeleteUrlList.size() == 0)
+			return false;
+
+		FileManager manager = (FileManager) getConfig().getFileManager();
+		int nbFilesDeleted = manager.deleteByFilename(workDeleteUrlList);
+		getSessionStats().addDeletedCount(nbFilesDeleted);
+		return true;
 	}
 }

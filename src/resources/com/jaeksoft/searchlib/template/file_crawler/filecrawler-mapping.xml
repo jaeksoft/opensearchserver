@@ -25,8 +25,8 @@
 	<link source="title" target="title" />
 	<link source="title" target="titleExact" />
 	<link source="originalPath" target="originalPath" />
+	<link source="directoryPath" target="directoryPath" />
 	<link source="fileSystemDate" target="fileSystemDate" />
 	<link source="lang" target="lang" />
 	<link source="crawlDate" target="crawlDate" />
-	
 </map>

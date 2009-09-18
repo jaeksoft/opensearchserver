@@ -48,4 +48,27 @@
 				fragmenterClass="SentenceFragmenter" />
 		</snippet>
 	</request>
+	<request name="search" phraseSlop="2" defaultOperator="OR"
+		start="0" rows="10" lang="en">
+
+		<query>$$</query>
+        
+		<returnFields>
+			<field name="path" />
+			<field name="content" />
+			<field name="originalPath" />
+			<field name="fileSystemDate" />
+		</returnFields>
+
+		<snippet>
+			<field name="path" tag="b" maxDocChar="2147483647" separator="..."
+				maxSnippetSize="200" maxSnippetNumber="1" fragmenterClass="NoFragmenter" />
+			<field name="title" tag="b" maxDocChar="2147483647"
+				separator="..." maxSnippetSize="50" maxSnippetNumber="1"
+				fragmenterClass="SentenceFragmenter" />
+			<field name="content" tag="b" maxDocChar="2147483647"
+				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
+				fragmenterClass="SentenceFragmenter" />
+		</snippet>
+	</request>
 </requests>

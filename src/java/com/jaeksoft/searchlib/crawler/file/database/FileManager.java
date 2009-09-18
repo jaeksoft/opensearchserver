@@ -54,6 +54,7 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 
 public class FileManager {
 
+	private static final int MAX_FILE_RETURN = 10000;
 	private static final String FILE_SEARCH = "fileSearch";
 
 	public enum Field {
@@ -258,6 +259,32 @@ public class FileManager {
 		return searchRequest;
 	}
 
+	private SearchRequest getDirectoryPathSearchRequest()
+			throws SearchLibException {
+		SearchRequest searchRequest = fileDbClient.getNewSearchRequest();
+		searchRequest.setDefaultOperator("OR");
+		searchRequest.setRows(MAX_FILE_RETURN);
+		searchRequest.addReturnField("path");
+
+		return searchRequest;
+	}
+
+	public List<FileItem> findAllByDirectoryPath(String directoryPath)
+			throws SearchLibException, CorruptIndexException, ParseException,
+			UnsupportedEncodingException {
+
+		SearchRequest request = getDirectoryPathSearchRequest();
+		request.setQueryString("*:*");
+		request.addFilter(FileItemFieldEnum.directoryPath.name() + ":\""
+				+ SearchRequest.escapeQuery(directoryPath) + '"');
+		request.addSort(FileItemFieldEnum.path.name(), false);
+
+		List<FileItem> listFileItem = new ArrayList<FileItem>();
+		getFiles(request, null, false, 0, MAX_FILE_RETURN, listFileItem);
+
+		return listFileItem;
+	}
+
 	public SearchRequest fileQuery(String like, String lang, String langMethod,
 			Integer minContentLength, Integer maxContentLength,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
@@ -385,57 +412,57 @@ public class FileManager {
 		targetClient.reload(null);
 	}
 
-	public void deleteByPath(String parentPath, List<String> children)
+	
+
+	/**
+	 * Send delete order to both index for Filename list given
+	 * 
+	 * @param rowToDelete
+	 */
+	public final int deleteByFilename(List<String> rowToDelete)
 			throws SearchLibException {
+		int nbDelete = 0;
+		try {
+			List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
+					.getLinks(FileItemFieldEnum.path.name());
 
-		StringBuffer query = new StringBuffer();
+			if (mappedPath.isEmpty())
+				return nbDelete;
 
-		List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(FileItemFieldEnum.path.name());
-
-		List<String> mappedOriginalPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(FileItemFieldEnum.originalPath.name());
-
-		if (!mappedPath.isEmpty() && !mappedOriginalPath.isEmpty()) {
-			query.append(":(");
-			for (String name : children) {
+			// Build query
+			boolean somethingToDelete = false;
+			StringBuffer query = new StringBuffer(":(");
+			for (String name : rowToDelete) {
 				query.append("\"").append(SearchRequest.escapeQuery(name))
 						.append("\" OR ");
+				if (!somethingToDelete)
+					somethingToDelete = true;
 			}
 			query.replace(query.length() - 3, query.length(), ")");
 
-		}
+			if (!somethingToDelete)
+				return nbDelete;
 
-		try {
 			// Delete in final index if a mapping is found
-			if (query.length() > 0) {
-				SearchRequest deleteRequestTarget = targetClient
-						.getNewSearchRequest();
+			SearchRequest deleteRequestTarget = targetClient
+					.getNewSearchRequest();
 
-				deleteRequestTarget.setQueryString("*:* AND NOT "
-						+ mappedPath.get(0) + query.toString());
+			deleteRequestTarget.setQueryString(mappedPath.get(0)
+					+ query.toString());
+			
+			System.out.println(mappedPath.get(0) + query.toString());
 
-				deleteRequestTarget.addFilter(mappedOriginalPath.get(0) + ":\""
-						+ SearchRequest.escapeQuery(parentPath) + "\"");
-
-				deleteRequestTarget.setDelete(true);
-				targetClient.search(deleteRequestTarget);
-
-			}
+			deleteRequestTarget.setDelete(true);
+			nbDelete = targetClient.search(deleteRequestTarget)
+					.getNumFound();
 
 			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
-			deleteRequest.setQueryString("*:* AND NOT "
-					+ FileItemFieldEnum.path.name() + query.toString());
+			deleteRequest.setQueryString(FileItemFieldEnum.path.name()
+					+ query.toString());
 
-			// System.out.println(deleteRequest.getQueryString());
-
-			deleteRequest.addFilter(FileItemFieldEnum.originalPath.name()
-					+ ":\"" + SearchRequest.escapeQuery(parentPath) + "\"");
 			deleteRequest.setDelete(true);
 			fileDbClient.search(deleteRequest);
-
-			reload(true);
 
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -453,7 +480,8 @@ public class FileManager {
 			throw new SearchLibException(e);
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
-		}
+		} 
+		return nbDelete;
 	}
 
 	public void updateCrawls(List<CrawlFile> crawls) throws SearchLibException {

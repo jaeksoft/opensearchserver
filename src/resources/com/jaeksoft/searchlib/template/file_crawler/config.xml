@@ -24,7 +24,6 @@
 			fieldCache="500" />
 	</indices>
 	<schema>
-
 		<analyzers>
 
 			<!--  Default standard analyzer -->
@@ -150,34 +149,28 @@
 				<filter class="ISOLatin1AccentFilter" />
 				<filter class="SnowballTurkishFilter" />
 			</analyzer>
-
 		</analyzers>
-
 		<fields default="content" unique="path">
 			<!-- mandatory parameters -->
-			<field name="path" indexed="yes" stored="yes" />
+			<field name="path" indexed="yes" analyzer="TextAnalyzer"
+				stored="compress" termVector="positions_offsets" />
 			<field name="originalPath" indexed="yes" stored="yes" />
+			<field name="directoryPath" indexed="yes" stored="yes" />
 			<field name="crawlDate" indexed="yes" stored="yes" />
 			<field name="fileSystemDate" indexed="yes" stored="yes" />
 			<field name="when" indexed="yes" stored="yes" />
 			<!-- mandatory parameters -->
-
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
-
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
-
 			<field name="content" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
-
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
-
 			<field name="metaDescription" indexed="no" stored="compress" />
 			<field name="metaKeywords" indexed="no" stored="compress" />
 		</fields>
 	</schema>
-
 </configuration>
