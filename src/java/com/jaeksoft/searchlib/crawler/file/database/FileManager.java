@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -169,57 +170,12 @@ public class FileManager {
 
 	}
 
-	public int deleteNotFoundByCrawlDate(long date) throws SearchLibException {
-		try {
-			// Delete in final index if a mapping is found
-			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
-					.getLinks(FileItemFieldEnum.crawlDate.name());
-			SearchRequest deleteRequestTarget = targetClient
-					.getNewSearchRequest();
-			deleteRequestTarget.setQueryString("*:* AND NOT "
-					+ mappedField.get(0) + ":\"" + date + '"');
-			deleteRequestTarget.setDelete(true);
-			targetClient.search(deleteRequestTarget);
-
-			// Delete in file index
-			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
-			deleteRequest.setQueryString("*:* AND NOT "
-					+ FileItemFieldEnum.crawlDate.name() + ":\"" + date + '"');
-			deleteRequest.setDelete(true);
-			Result result = fileDbClient.search(deleteRequest);
-			if (result != null)
-				return result.getNumFound();
-
-			return 0;
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		}
-	}
-
 	public boolean exists(String path) throws SearchLibException,
 			UnsupportedEncodingException, ParseException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
 		request.addFilter(FileItemFieldEnum.path.name() + ":\""
-				+ SearchRequest.escapeQuery(path) + '"');
+				+ URLEncoder.encode(path, FileItem.UTF_8_ENCODING) + '"');
 		return (getFiles(request, null, false, 0, 0, null) > 0);
 	}
 
@@ -228,7 +184,7 @@ public class FileManager {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
 		request.addFilter(FileItemFieldEnum.path.name() + ":\""
-				+ SearchRequest.escapeQuery(path) + '"');
+				+ SearchRequest.escapeQuery(URLEncoder.encode(path, FileItem.UTF_8_ENCODING)) + '"');
 
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
 		getFiles(request, null, false, 0, 10, listFileItem);
@@ -412,8 +368,6 @@ public class FileManager {
 		targetClient.reload(null);
 	}
 
-	
-
 	/**
 	 * Send delete order to both index for Filename list given
 	 * 
@@ -433,7 +387,8 @@ public class FileManager {
 			boolean somethingToDelete = false;
 			StringBuffer query = new StringBuffer(":(");
 			for (String name : rowToDelete) {
-				query.append("\"").append(SearchRequest.escapeQuery(name))
+				query.append("\"").append(
+						SearchRequest.escapeQuery(URLEncoder.encode(name, FileItem.UTF_8_ENCODING)))
 						.append("\" OR ");
 				if (!somethingToDelete)
 					somethingToDelete = true;
@@ -449,12 +404,11 @@ public class FileManager {
 
 			deleteRequestTarget.setQueryString(mappedPath.get(0)
 					+ query.toString());
-			
+
 			System.out.println(mappedPath.get(0) + query.toString());
 
 			deleteRequestTarget.setDelete(true);
-			nbDelete = targetClient.search(deleteRequestTarget)
-					.getNumFound();
+			nbDelete = targetClient.search(deleteRequestTarget).getNumFound();
 
 			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
@@ -480,7 +434,7 @@ public class FileManager {
 			throw new SearchLibException(e);
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
-		} 
+		}
 		return nbDelete;
 	}
 

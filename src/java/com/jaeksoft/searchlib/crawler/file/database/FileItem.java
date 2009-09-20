@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,6 +45,8 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileItem implements Serializable {
+
+	public static final String UTF_8_ENCODING = "UTF-8";
 
 	public enum Status {
 		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(
@@ -121,53 +126,58 @@ public class FileItem implements Serializable {
 		extension = "";
 	}
 
-	public FileItem(ResultDocument doc) {
+	public FileItem(ResultDocument doc) throws UnsupportedEncodingException {
 		this();
 		if (FileItemFieldEnum.path.name() != null)
-			setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
+			setPath(URLDecoder.decode(doc.getValue(FileItemFieldEnum.path
+					.name(), 0), UTF_8_ENCODING));
 
 		if (FileItemFieldEnum.originalPath.name() != null)
-		setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(), 0));
-		
+			setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(),
+					0));
+
 		if (FileItemFieldEnum.directoryPath.name() != null)
-		setDirectoryPath(doc
-				.getValue(FileItemFieldEnum.directoryPath.name(), 0));
+			setDirectoryPath(doc.getValue(FileItemFieldEnum.directoryPath
+					.name(), 0));
 
 		if (FileItemFieldEnum.contentLength.name() != null)
-		setContentLength(doc
-				.getValue(FileItemFieldEnum.contentLength.name(), 0));
+			setContentLength(doc.getValue(FileItemFieldEnum.contentLength
+					.name(), 0));
 
 		if (FileItemFieldEnum.path.name() != null)
-		setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
-		
+			setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
+
 		if (FileItemFieldEnum.langMethod.name() != null)
-		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
-		
+			setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
+
 		if (FileItemFieldEnum.when.name() != null)
-		setWhen(doc.getValue(FileItemFieldEnum.when.name(), 0));
-		
+			setWhen(doc.getValue(FileItemFieldEnum.when.name(), 0));
+
 		if (FileItemFieldEnum.fetchStatus.name() != null)
-		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
-		
+			setFetchStatusInt(doc.getValue(
+					FileItemFieldEnum.fetchStatus.name(), 0));
+
 		if (FileItemFieldEnum.parserStatus.name() != null)
-		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
-				0));
-		
+			setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus
+					.name(), 0));
+
 		if (FileItemFieldEnum.indexStatus.name() != null)
-		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.name(), 0));
-		
+			setIndexStatusInt(doc.getValue(
+					FileItemFieldEnum.indexStatus.name(), 0));
+
 		if (FileItemFieldEnum.crawlDate.name() != null)
-		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
-		
+			setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
+
 		if (FileItemFieldEnum.fileSystemDate.name() != null)
-		setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate.name(),
-				0));
-		
+			setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate
+					.name(), 0));
+
 		if (FileItemFieldEnum.fileSize.name() != null)
-		setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
-		
+			setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
+
 		if (FileItemFieldEnum.fileExtension.name() != null)
-		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.name(), 0));
+			setExtension(doc
+					.getValue(FileItemFieldEnum.fileExtension.name(), 0));
 	}
 
 	public FileItem(String path, String directory, String original,
@@ -208,7 +218,7 @@ public class FileItem implements Serializable {
 		return sb.toString();
 	}
 
-	public IndexDocument getIndexDocument() {
+	public IndexDocument getIndexDocument() throws UnsupportedEncodingException {
 		IndexDocument indexDocument = new IndexDocument();
 		populate(indexDocument);
 		return indexDocument;
@@ -260,8 +270,12 @@ public class FileItem implements Serializable {
 				&& indexStatus == IndexStatus.INDEXED;
 	}
 
-	public void populate(IndexDocument indexDocument) {
-		indexDocument.set(FileItemFieldEnum.path.name(), getPath());
+	public void populate(IndexDocument indexDocument)
+			throws UnsupportedEncodingException {
+
+		indexDocument.set(FileItemFieldEnum.path.name(), URLEncoder.encode(
+				getPath(), UTF_8_ENCODING));
+
 		indexDocument.set(FileItemFieldEnum.originalPath.name(),
 				getOriginalPath());
 
@@ -369,6 +383,14 @@ public class FileItem implements Serializable {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public void setPathForIndex(String path) {
+		try {
+			setPath(URLDecoder.decode(path, UTF_8_ENCODING));
+		} catch (UnsupportedEncodingException e) {
+			setPath(null);
+		}
 	}
 
 	public void setStatus(Status v) {
