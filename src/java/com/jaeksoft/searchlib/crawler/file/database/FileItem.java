@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -129,8 +127,12 @@ public class FileItem implements Serializable {
 	public FileItem(ResultDocument doc) throws UnsupportedEncodingException {
 		this();
 		if (FileItemFieldEnum.path.name() != null)
-			setPath(URLDecoder.decode(doc.getValue(FileItemFieldEnum.path
-					.name(), 0), UTF_8_ENCODING));
+			/*
+			 * setPath(URLDecoder.decode(doc.getValue(FileItemFieldEnum.path
+			 * .name(), 0), UTF_8_ENCODING));
+			 */
+
+			setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
 
 		if (FileItemFieldEnum.originalPath.name() != null)
 			setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(),
@@ -273,8 +275,11 @@ public class FileItem implements Serializable {
 	public void populate(IndexDocument indexDocument)
 			throws UnsupportedEncodingException {
 
-		indexDocument.set(FileItemFieldEnum.path.name(), URLEncoder.encode(
-				getPath(), UTF_8_ENCODING));
+		/*
+		 * indexDocument.set(FileItemFieldEnum.path.name(), URLEncoder.encode(
+		 * getPath(), UTF_8_ENCODING));
+		 */
+		indexDocument.set(FileItemFieldEnum.path.name(), getPath());
 
 		indexDocument.set(FileItemFieldEnum.originalPath.name(),
 				getOriginalPath());
@@ -383,14 +388,6 @@ public class FileItem implements Serializable {
 
 	public void setPath(String path) {
 		this.path = path;
-	}
-
-	public void setPathForIndex(String path) {
-		try {
-			setPath(URLDecoder.decode(path, UTF_8_ENCODING));
-		} catch (UnsupportedEncodingException e) {
-			setPath(null);
-		}
 	}
 
 	public void setStatus(Status v) {

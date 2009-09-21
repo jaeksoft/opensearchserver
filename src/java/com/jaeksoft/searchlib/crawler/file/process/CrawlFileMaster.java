@@ -168,14 +168,12 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		if (children != null && children.length > 0 && !isAbort()) {
 			for (File current : children) {
 				if (current.isDirectory() && recursive) {
-					sendToCrawl(current, originalPath);
 					addChildRec(current, originalPath, true);
-
 				} else if (current.isFile()) {
-					sendToCrawl(current, originalPath);
-					sleepMs(delayBetweenAccess, false);
-					fileName.add(current.getAbsolutePath());
+					sleepMs(delayBetweenAccess, false);		
 				}
+				fileName.add(current.getAbsolutePath());
+				sendToCrawl(current, originalPath);
 			}
 
 			// Looking for deleted files

@@ -152,8 +152,7 @@
 		</analyzers>
 		<fields default="content" unique="path">
 			<!-- mandatory parameters -->
-			<field name="path" indexed="yes" analyzer="TextAnalyzer"
-				stored="compress" termVector="positions_offsets" />
+			<field name="path" indexed="yes" stored="yes" />
 			<field name="originalPath" indexed="yes" stored="yes" />
 			<field name="directoryPath" indexed="yes" stored="yes" />
 			<field name="crawlDate" indexed="yes" stored="yes" />
