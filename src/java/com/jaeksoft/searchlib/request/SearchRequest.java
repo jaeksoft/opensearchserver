@@ -247,6 +247,7 @@ public class SearchRequest implements Externalizable {
 					.setAllowLeadingWildcard(searchRequest.allowLeadingWildcard);
 			queryParser.setPhraseSlop(searchRequest.phraseSlop);
 			queryParser.setDefaultOperator(searchRequest.defaultOperator);
+			queryParser.setLowercaseExpandedTerms(false);
 		}
 	}
 

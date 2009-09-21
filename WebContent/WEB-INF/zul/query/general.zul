@@ -31,7 +31,7 @@
 			<row>
 				<label>Enter the query:</label>
 				<textbox value="@{general.request.queryString}"
-					width="90%" constraint="no empty" />
+					width="90%" />
 			</row>
 			<row>
 				<label>Default operator:</label>
