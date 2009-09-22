@@ -46,6 +46,26 @@ class OSS_API {
 	/** @var int Timeout (specified in seconds) for CURLOPT_CONNECTTIMEOUT option. See curl documentation */
 	const DEFAULT_CONNEXION_TIMEOUT = 5;
 
+	protected static $supportedLanguages = array(
+			""   => "Undefined",
+			"zh" => "Chinese",
+			"da" => "Danish",
+			"nl" => "Dutch",
+			"en" => "English",
+			"fi" => "Finnish",
+			"fr" => "French",
+			"de" => "German",
+			"hu" => "Hungarian",
+			"it" => "Italian",
+			"no" => "Norwegian",
+			"pt" => "Portuguese",
+			"ro" => "Romanian",
+			"ru" => "Russian",
+			"es" => "Spanish",
+			"sv" => "Swedish",
+			"tr" => "Turkish"
+	);
+
 	protected $enginePath;
 	protected $index;
 
@@ -97,10 +117,45 @@ class OSS_API {
 		return ($return !== false);
 	}
 
+
+
+	/**
+	 * Send an xml list of documents to be indexed by the search engine
+	 * @param mixed $xml Can be an xml string, a OSS_IndexDocument, a SimpleXMLElement,
+	 *                   a DOMDocument or any object that implement the __toString
+	 *                   magic method
+	 * @return boolean True on success
+	 */
+	public function update($xml) {
+
+		if (!is_string($xml)) {
+			if ($xml instanceof DOMDocument) {
+				$xml = $xml->saveXML();
+			}
+			elseif (is_object($xml)) {
+				if (method_exists($xml, '__toString') || $xml instanceof SimpleXMLElement) {
+					$xml = (string)$xml;
+				}
+			}
+		}
+
+		if (!is_string($xml)) {
+			if (class_exists('OSSException'))
+				throw new UnexpectedValueException('String, SimpleXMLElement or DOMDocument was expected for $xml.');
+			trigger_error(__CLASS__.'::'.__METHOD__.'($xml): String, SimpleXMLElement or DOMDocument was expected for $xml.', E_USER_ERROR);
+			return false;
+		}
+
+		$return = $this->queryServer($this->getQueryURL(OSSAPI::API_UPDATE), $xml);
+		return ($return !== false);
+
+	}
+
 	/**
 	 * Post data to an URL
 	 * @param string $url
-	 * @param string $data Optional. If provided will use a POST method. Only accept data as POST encoded string or raw XML string.
+	 * @param string $data Optional. If provided will use a POST method. Only accept
+	 *                     data as POST encoded string or raw XML string.
 	 * @param int $timeout Optional. Number of seconds before the query fail
 	 * @return false|string
 	 *
@@ -201,14 +256,22 @@ class OSS_API {
 	}
 
 	/**
+	 * Return a list of supported language. Array is indexed by ISO 639-1 format (en, de, fr, ...)
+	 * @return Array<String>
+	 */
+	public function supportedLanguages() {
+		return OSS_API::$supportedLanguages;
+	}
+
+	/**
 	 * Escape special chars for lucene
 	 * @param $string
 	 * @return string
 	 */
 	public static function escape($string) {
 		static $escaping = array(
-			array("+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\"),
-			array("\\+", "\\-", "\\&\\&", "\\|\\|", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\\"", "\\~", "\\*", "\\?", "\\:", "\\\\")
+			array("+",   "-",   "&&",   "||",  "!",  "(",  ")",  "{",  "}",  "[",  "]",  "^", "\"",  "~",  "*",  "?",  ":", '\\'),
+			array('\+', '\-', '\&\&', '\|\|', '\!', '\(', '\)', '\{', '\}', '\[', '\]', '\^', '\"', '\~', '\*', '\?', '\:', '\\\\')
 		);
 		return str_replace($escaping[0], $escaping[1], $string);
 	}
