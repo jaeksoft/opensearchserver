@@ -74,7 +74,7 @@
 
 		</auxhead>
 		<listitem self="@{each='file'}">
-			<listcell label="@{file.path}" />
+			<listcell label="@{file.uri}" />
 			<listcell label="@{file.when}" />
 			<listcell label="@{file.extension}" />
 			<listcell label="@{file.humanSize}" />

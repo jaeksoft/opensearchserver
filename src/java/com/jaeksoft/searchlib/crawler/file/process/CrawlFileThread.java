@@ -182,7 +182,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			sb.append(getThreadStatus());
 			sb.append(' ');
 			if (currentFileItem != null)
-				sb.append(currentFileItem.getPath());
+				sb.append(currentFileItem.getURI().toASCIIString());
 			return sb.toString();
 		}
 	}

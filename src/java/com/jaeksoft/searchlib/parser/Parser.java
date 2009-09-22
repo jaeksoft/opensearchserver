@@ -130,7 +130,7 @@ public abstract class Parser {
 	public void parseContent(InputStream inputStream) throws IOException {
 		parseContent(new LimitInputStream(inputStream, sizeLimit));
 	}
-
+	
 	public void parseContent(Reader reader) throws IOException {
 		parseContent(new LimitReader(reader, sizeLimit));
 	}

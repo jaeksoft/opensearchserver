@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.file.spider;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -79,7 +78,7 @@ public class CrawlFile {
 				ParserSelector parserSelector = config.getParserSelector();
 				Parser parser = parserSelector
 						.getParserFromExtension(FilenameUtils.getExtension(item
-								.getPath()));
+								.getURI().toASCIIString()));
 
 				// Parser Choice
 				if (parser == null) {
@@ -93,7 +92,7 @@ public class CrawlFile {
 				fileItem.populate(sourceDocument);
 
 				parser.setSourceDocument(sourceDocument);
-				parser.parseContent(new FileInputStream(item.getPath()));
+				parser.parseContent(item.getFileInputStream());
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
 				fileItem.setParserStatus(item.getParserStatus());
@@ -106,7 +105,8 @@ public class CrawlFile {
 			} catch (FileNotFoundException e) {
 				fileItem.setFetchStatus(FetchStatus.GONE);
 			} catch (LimitException e) {
-				logger.warning(e.toString() + " (" + fileItem.getPath() + ")");
+				logger.warning(e.toString() + " ("
+						+ fileItem.getURI().toString() + ")");
 				fileItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
 				setError(e.getMessage());
 			} catch (InstantiationException e) {

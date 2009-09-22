@@ -24,8 +24,13 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -86,9 +91,9 @@ public class FileItem implements Serializable {
 		return new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
 	}
 
-	public String path;
-	public String originalPath;
-	public String directoryPath;
+	public URI uri;
+	public URI originalUri;
+	public URI directoryUri;
 	private Integer contentLength;
 	private String lang;
 	private String langMethod;
@@ -107,9 +112,9 @@ public class FileItem implements Serializable {
 
 	protected FileItem() {
 		status = Status.UNDEFINED;
-		path = null;
-		originalPath = null;
-		directoryPath = null;
+		uri = null;
+		originalUri = null;
+		directoryUri = null;
 		contentLength = null;
 		lang = null;
 		langMethod = null;
@@ -124,23 +129,15 @@ public class FileItem implements Serializable {
 		extension = "";
 	}
 
-	public FileItem(ResultDocument doc) throws UnsupportedEncodingException {
+	public FileItem(ResultDocument doc) throws UnsupportedEncodingException,
+			URISyntaxException {
 		this();
-		if (FileItemFieldEnum.path.name() != null)
-			/*
-			 * setPath(URLDecoder.decode(doc.getValue(FileItemFieldEnum.path
-			 * .name(), 0), UTF_8_ENCODING));
-			 */
 
-			setPath(doc.getValue(FileItemFieldEnum.path.name(), 0));
-
-		if (FileItemFieldEnum.originalPath.name() != null)
-			setOriginalPath(doc.getValue(FileItemFieldEnum.originalPath.name(),
-					0));
-
-		if (FileItemFieldEnum.directoryPath.name() != null)
-			setDirectoryPath(doc.getValue(FileItemFieldEnum.directoryPath
-					.name(), 0));
+		setURI(parseValueToURI(doc.getValue(FileItemFieldEnum.path.name(), 0)));
+		setOriginalURI(parseValueToURI(doc.getValue(
+				FileItemFieldEnum.originalPath.name(), 0)));
+		setDirectoryURI(parseValueToURI(doc.getValue(
+				FileItemFieldEnum.directoryPath.name(), 0)));
 
 		if (FileItemFieldEnum.contentLength.name() != null)
 			setContentLength(doc.getValue(FileItemFieldEnum.contentLength
@@ -182,17 +179,19 @@ public class FileItem implements Serializable {
 					.getValue(FileItemFieldEnum.fileExtension.name(), 0));
 	}
 
-	public FileItem(String path, String directory, String original,
-			long fileSystemDate, long size) {
+	public FileItem(URI uri, URI directory, URI original, long fileSystemDate,
+			long size) {
 		this();
-		setPath(path);
-		setOriginalPath(original);
-		setDirectoryPath(directory);
+		setURI(uri);
+		setOriginalURI(original);
+		setDirectoryURI(directory);
 		setCrawlDate(System.currentTimeMillis());
 		setFileSystemDate(fileSystemDate);
 		setSize(size);
-		setExtension(FilenameUtils.getExtension(path));
+		setExtension(FilenameUtils.getExtension(uri.toASCIIString()));
 	}
+
+	
 
 	public Integer getContentLength() {
 		return contentLength;
@@ -240,12 +239,12 @@ public class FileItem implements Serializable {
 		return langMethod;
 	}
 
-	public String getOriginalPath() {
-		return originalPath;
+	public URI getOriginalURI() {
+		return originalUri;
 	}
 
-	public String getDirectoryPath() {
-		return directoryPath;
+	public URI getDirectoryURI() {
+		return directoryUri;
 	}
 
 	public ParserStatus getParserStatus() {
@@ -254,8 +253,8 @@ public class FileItem implements Serializable {
 		return parserStatus;
 	}
 
-	public String getPath() {
-		return path;
+	public URI getURI() {
+		return uri;
 	}
 
 	public Status getStatus() {
@@ -275,17 +274,14 @@ public class FileItem implements Serializable {
 	public void populate(IndexDocument indexDocument)
 			throws UnsupportedEncodingException {
 
-		/*
-		 * indexDocument.set(FileItemFieldEnum.path.name(), URLEncoder.encode(
-		 * getPath(), UTF_8_ENCODING));
-		 */
-		indexDocument.set(FileItemFieldEnum.path.name(), getPath());
+		indexDocument.set(FileItemFieldEnum.path.name(), getURI()
+				.toASCIIString());
 
 		indexDocument.set(FileItemFieldEnum.originalPath.name(),
-				getOriginalPath());
+				getOriginalURI().toASCIIString());
 
 		indexDocument.set(FileItemFieldEnum.directoryPath.name(),
-				getDirectoryPath());
+				getDirectoryURI().toASCIIString());
 
 		if (when != null)
 			indexDocument.set(FileItemFieldEnum.when.name(), getDateFormat()
@@ -365,12 +361,12 @@ public class FileItem implements Serializable {
 		this.langMethod = langMethod;
 	}
 
-	public void setOriginalPath(String originalPath) {
-		this.originalPath = originalPath;
+	public void setOriginalURI(URI originalUri) {
+		this.originalUri = originalUri;
 	}
 
-	public void setDirectoryPath(String directoryPath) {
-		this.directoryPath = directoryPath;
+	public void setDirectoryURI(URI directoryUri) {
+		this.directoryUri = directoryUri;
 	}
 
 	public void setParserStatus(ParserStatus status) {
@@ -386,8 +382,8 @@ public class FileItem implements Serializable {
 			setParserStatusInt(Integer.parseInt(v));
 	}
 
-	public void setPath(String path) {
-		this.path = path;
+	public void setURI(URI uri) {
+		this.uri = uri;
 	}
 
 	public void setStatus(Status v) {
@@ -482,5 +478,24 @@ public class FileItem implements Serializable {
 	 */
 	public boolean isNewCrawlNeeded(long dateModified) throws ParseException {
 		return getTecnhicalDateFormat().parse(fileSystemDate).getTime() != dateModified;
+	}
+
+	public File getFile() {
+		if (this.getURI() != null)
+			return new File(this.getURI());
+		return null;
+	}
+
+	public FileInputStream getFileInputStream() throws FileNotFoundException {
+		if (this.getURI() != null)
+			return new FileInputStream(getFile());
+		return null;
+	}
+	
+	public final static URI parseValueToURI(String value)
+			throws URISyntaxException {
+		if (value != null)
+			return new URI(value);
+		return null;
 	}
 }

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -127,10 +128,13 @@ public class FileManager {
 
 	public void deleteByOriginalPath(String value) throws SearchLibException {
 		try {
+			URI uri = (new File(value)).toURI();
+
 			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 			deleteRequest.setQueryString(FileItemFieldEnum.originalPath.name()
-					+ ":\"" + SearchRequest.escapeQuery(value) + '"');
+					+ ":\"" + SearchRequest.escapeQuery(uri.toASCIIString())
+					+ '"');
 			deleteRequest.setDelete(true);
 			fileDbClient.search(deleteRequest);
 
@@ -140,7 +144,7 @@ public class FileManager {
 			SearchRequest deleteRequestTarget = targetClient
 					.getNewSearchRequest();
 			deleteRequestTarget.setQueryString(mappedField.get(0) + ":\""
-					+ SearchRequest.escapeQuery(value) + '"');
+					+ SearchRequest.escapeQuery(uri.toASCIIString()) + '"');
 			deleteRequestTarget.setDelete(true);
 			targetClient.search(deleteRequestTarget);
 
@@ -169,28 +173,19 @@ public class FileManager {
 
 	}
 
-	public boolean exists(String path) throws SearchLibException,
-			UnsupportedEncodingException, ParseException {
-		SearchRequest request = getPathSearchRequest();
-		request.setQueryString("*:*");
-		/*
-		 * request.addFilter(FileItemFieldEnum.path.name() + ":\"" +
-		 * URLEncoder.encode(path, FileItem.UTF_8_ENCODING) + '"');
-		 */
-
-		request.addFilter(FileItemFieldEnum.path.name() + ":\"" + path + '"');
-		return (getFiles(request, null, false, 0, 0, null) > 0);
-	}
+	/*
+	 * public boolean exists(String path) throws SearchLibException,
+	 * UnsupportedEncodingException, ParseException { SearchRequest request =
+	 * getPathSearchRequest(); request.setQueryString("*:*");
+	 * request.addFilter(FileItemFieldEnum.path.name() + ":\"" + path + '"');
+	 * return (getFiles(request, null, false, 0, 0, null) > 0); }
+	 */
 
 	public FileItem find(String path) throws SearchLibException,
 			CorruptIndexException, ParseException, UnsupportedEncodingException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
-		/*
-		 * request.addFilter(FileItemFieldEnum.path.name() + ":\"" +
-		 * SearchRequest.escapeQuery(URLEncoder.encode(path,
-		 * FileItem.UTF_8_ENCODING)) + '"');
-		 */
+		
 		request.addFilter(FileItemFieldEnum.path.name() + ":\""
 				+ SearchRequest.escapeQuery(path) + '"');
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
@@ -381,7 +376,7 @@ public class FileManager {
 			int nbDeleted = deleteByFilenameFromTargetIndex(rowToDelete);
 			deleteByFilenameFromFileDBIndex(rowToDelete);
 			return nbDeleted;
-			
+
 		} catch (SearchLibException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -442,11 +437,11 @@ public class FileManager {
 			SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
-		
+
 		if (rowToDelete == null
 				|| (rowToDelete != null && rowToDelete.isEmpty()))
 			return 0;
-		
+
 		List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
 				.getLinks(FileItemFieldEnum.path.name());
 
