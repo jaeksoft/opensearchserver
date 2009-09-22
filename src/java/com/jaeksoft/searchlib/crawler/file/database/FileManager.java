@@ -126,29 +126,38 @@ public class FileManager {
 		return fileDbClient;
 	}
 
-	public void deleteByOriginalUri(String value) throws SearchLibException {
+	public int deleteByOriginalUri(List<URI> list) throws SearchLibException {
 		try {
-			URI uri = (new File(value)).toURI();
-
 			// Delete in file index
-			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
+			StringBuffer query = new StringBuffer(":(");
+			for (URI name : list) {
+				query.append(SearchRequest.escapeQuery(name.toASCIIString()))
+						.append(" OR ");
+			}
+			query.replace(query.length() - 4, query.length(), ")");
+
+			SearchRequest deleteRequest = getPathSearchRequest();
 			deleteRequest.setQueryString(FileItemFieldEnum.originalUri.name()
-					+ ":\"" + SearchRequest.escapeQuery(uri.toASCIIString())
-					+ '"');
+					+ query.toString());
+
 			deleteRequest.setDelete(true);
 			fileDbClient.search(deleteRequest);
 
 			// Delete in final index if a mapping is found
 			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
 					.getLinks(FileItemFieldEnum.originalUri.name());
-			SearchRequest deleteRequestTarget = targetClient
-					.getNewSearchRequest();
-			deleteRequestTarget.setQueryString(mappedField.get(0) + ":\""
-					+ SearchRequest.escapeQuery(uri.toASCIIString()) + '"');
-			deleteRequestTarget.setDelete(true);
-			targetClient.search(deleteRequestTarget);
 
-			reload(true);
+			if (mappedField.isEmpty())
+				return 0;
+
+			SearchRequest deleteRequestTarget = getDBSearchRequest();
+			deleteRequest.setQueryString(mappedField.get(0) + query.toString());
+
+			System.out.println(mappedField.get(0) + query.toString());
+
+			deleteRequestTarget.setDelete(true);
+			return targetClient.search(deleteRequestTarget).getNumFound();
+
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -177,7 +186,7 @@ public class FileManager {
 			CorruptIndexException, ParseException, UnsupportedEncodingException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
-		
+
 		request.addFilter(FileItemFieldEnum.uri.name() + ":\""
 				+ SearchRequest.escapeQuery(path) + '"');
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
@@ -209,12 +218,13 @@ public class FileManager {
 		return searchRequest;
 	}
 
-	private SearchRequest getDirectoryUriSearchRequest()
-			throws SearchLibException {
-		SearchRequest searchRequest = fileDbClient.getNewSearchRequest();
+	private SearchRequest getDBSearchRequest() throws SearchLibException {
+		SearchRequest searchRequest = targetClient.getNewSearchRequest();
 		searchRequest.setDefaultOperator("OR");
+		searchRequest.setRows(0);
 		searchRequest.setRows(MAX_FILE_RETURN);
 		searchRequest.addReturnField("uri");
+		searchRequest.addReturnField("originalUri");
 		return searchRequest;
 	}
 
@@ -222,7 +232,7 @@ public class FileManager {
 			throws SearchLibException, CorruptIndexException, ParseException,
 			UnsupportedEncodingException {
 
-		SearchRequest request = getDirectoryUriSearchRequest();
+		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
 		request.addFilter(FileItemFieldEnum.directoryUri.name() + ":\""
 				+ SearchRequest.escapeQuery(parentUri.toASCIIString()) + '"');
@@ -405,11 +415,9 @@ public class FileManager {
 		// Build query
 		StringBuffer query = new StringBuffer(":(");
 		for (String name : rowToDelete) {
-			query.append("").append(SearchRequest.escapeQuery(name)).append(
-					"* OR ");
-			System.out.println(SearchRequest.escapeQuery(name));
+			query.append(SearchRequest.escapeQuery(name)).append("* OR ");
 		}
-		query.replace(query.length() - 3, query.length(), ")");
+		query.replace(query.length() - 4, query.length(), ")");
 
 		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 		deleteRequest.setQueryString(FileItemFieldEnum.uri.name()
@@ -417,7 +425,6 @@ public class FileManager {
 
 		deleteRequest.setDelete(true);
 		fileDbClient.search(deleteRequest);
-		// fileDbClient.reload(null);
 	}
 
 	/**
@@ -443,11 +450,9 @@ public class FileManager {
 		// Build query
 		StringBuffer query = new StringBuffer(":(");
 		for (String name : rowToDelete) {
-			query.append("").append(SearchRequest.escapeQuery(name)).append(
-					"* OR ");
-			System.out.println(SearchRequest.escapeQuery(name));
+			query.append(SearchRequest.escapeQuery(name)).append("* OR ");
 		}
-		query.replace(query.length() - 3, query.length(), ")");
+		query.replace(query.length() - 4, query.length(), ")");
 
 		// Delete in final index if a mapping is found
 		SearchRequest deleteRequestTarget = targetClient.getNewSearchRequest();

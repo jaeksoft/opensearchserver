@@ -149,8 +149,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			sleepMs(delayBetweenAccess, false);
 		} else if (current.isDirectory()) {
 			// Add its children
-			addChildRec(current, current.toURI(), item
-					.isWithSub());
+			addChildRec(current, current.toURI(), item.isWithSub());
 		}
 
 	}
@@ -396,6 +395,17 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			}
 			sleepSec(1);
 		}
+	}
+
+	/*
+	 * public access to crawlQueue
+	 */
+	public boolean deleteToCrawlQueue(URI uri) {
+		if (crawlQueue != null) {
+			crawlQueue.deleteByOriginalUri(uri);
+			return true;
+		}
+		return false;
 	}
 
 }

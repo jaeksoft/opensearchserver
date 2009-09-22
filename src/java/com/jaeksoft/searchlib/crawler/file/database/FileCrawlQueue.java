@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -39,12 +40,14 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 	private List<CrawlFile> updateCrawlList;
 	private List<String> deleteFileNameList;
+	private List<URI> deleteOriginalUriList;
 	final private Object indexSync = new Object();
 
 	public FileCrawlQueue(Config config) throws SearchLibException {
 		setConfig(config);
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
 		this.deleteFileNameList = new ArrayList<String>(0);
+		this.deleteOriginalUriList = new ArrayList<URI>(0);
 	}
 
 	@Override
@@ -57,8 +60,14 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 	@Override
 	public void delete(String fileName) {
-		synchronized (updateCrawlList) {
+		synchronized (deleteFileNameList) {
 			deleteFileNameList.add(fileName);
+		}
+	}
+
+	public void deleteByOriginalUri(URI originalUri) {
+		synchronized (deleteOriginalUriList) {
+			deleteOriginalUriList.add(originalUri);
 		}
 	}
 
@@ -67,6 +76,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 			if (updateCrawlList.size() >= getMaxBufferSize())
 				return true;
 			if (deleteFileNameList.size() >= getMaxBufferSize())
+				return true;
+			if (deleteOriginalUriList.size() >= 1)
 				return true;
 		}
 
@@ -79,6 +90,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 			ClassNotFoundException {
 		List<CrawlFile> workUpdateCrawlList;
 		List<String> workDeleteFilenameList;
+		List<URI> workDeleteOriginalUriList;
 		synchronized (this) {
 			if (!bForce)
 				if (!shouldWePersist())
@@ -89,6 +101,9 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 			workDeleteFilenameList = deleteFileNameList;
 			deleteFileNameList = new ArrayList<String>(0);
+
+			workDeleteOriginalUriList = deleteOriginalUriList;
+			deleteOriginalUriList = new ArrayList<URI>(0);
 		}
 
 		FileManager fileManager = getConfig().getFileManager();
@@ -103,6 +118,10 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 			// Delete
 			if (deleteCollection(workDeleteFilenameList))
+				needReload = true;
+
+			// Delete by original URI
+			if (deleteCollectionByOriginalURI(workDeleteOriginalUriList))
 				needReload = true;
 
 			if (needReload)
@@ -137,6 +156,18 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 		FileManager manager = (FileManager) getConfig().getFileManager();
 		int nbFilesDeleted = manager.deleteByFilename(workDeleteUrlList);
+		getSessionStats().addDeletedCount(nbFilesDeleted);
+		return true;
+	}
+
+	protected boolean deleteCollectionByOriginalURI(
+			List<URI> workDeleteOriginalUriList) throws SearchLibException {
+		if (workDeleteOriginalUriList.size() == 0)
+			return false;
+
+		FileManager manager = (FileManager) getConfig().getFileManager();
+		int nbFilesDeleted = manager
+				.deleteByOriginalUri(workDeleteOriginalUriList);
 		getSessionStats().addDeletedCount(nbFilesDeleted);
 		return true;
 	}

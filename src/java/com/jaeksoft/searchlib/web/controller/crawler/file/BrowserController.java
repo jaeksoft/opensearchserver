@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +48,7 @@ import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.util.GenericLink;
@@ -217,11 +220,22 @@ public class BrowserController extends CommonController implements
 	@SuppressWarnings("unchecked")
 	public void onRemove(Event event) throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
-			XPathExpressionException, ParserConfigurationException {
+			XPathExpressionException, ParserConfigurationException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
 			getClient().getFilePathManager().delPath(link.getSource());
-			getClient().getFileManager().deleteByOriginalUri(link.getSource());
+			URI uri = (new File(link.getSource())).toURI();
+
+			if (getClient().getFileCrawlMaster().getStatus() == CrawlStatus.NOT_RUNNING) {
+				List<URI> listUri = new ArrayList<URI>();
+				listUri.add(uri);
+				getClient().getFileManager().deleteByOriginalUri(listUri);
+				getClient().getFileManager().reload(true);
+			} else {
+				getClient().getFileCrawlMaster().deleteToCrawlQueue(uri);
+			}
 		}
 		reloadPage();
 	}
@@ -229,10 +243,21 @@ public class BrowserController extends CommonController implements
 	@SuppressWarnings("unchecked")
 	public void onResetChosen(Event event) throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
-			XPathExpressionException, ParserConfigurationException {
+			XPathExpressionException, ParserConfigurationException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
-			getClient().getFileManager().deleteByOriginalUri(link.getSource());
+			URI uri = (new File(link.getSource())).toURI();
+
+			if (getClient().getFileCrawlMaster().getStatus() == CrawlStatus.NOT_RUNNING) {
+				List<URI> listUri = new ArrayList<URI>();
+				listUri.add(uri);
+				getClient().getFileManager().deleteByOriginalUri(listUri);
+				getClient().getFileManager().reload(true);
+			} else {
+				getClient().getFileCrawlMaster().deleteToCrawlQueue(uri);
+			}
 		}
 	}
 
