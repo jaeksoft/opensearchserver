@@ -19,13 +19,13 @@
 	<!--   -->
 	<!--   See the GNU General Public License for more details. -->
 <map>
-	<link source="path" target="path" />
+	<link source="uri" target="uri" />
 	<link source="content" target="content" />
 	<link source="content" target="contentExact" />
 	<link source="title" target="title" />
 	<link source="title" target="titleExact" />
-	<link source="originalPath" target="originalPath" />
-	<link source="directoryPath" target="directoryPath" />
+	<link source="originalUri" target="originalUri" />
+	<link source="directoryUri" target="directoryUri" />
 	<link source="fileSystemDate" target="fileSystemDate" />
 	<link source="lang" target="lang" />
 	<link source="crawlDate" target="crawlDate" />

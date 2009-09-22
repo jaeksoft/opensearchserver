@@ -60,7 +60,7 @@ public class FileManager {
 
 	public enum Field {
 
-		FILE("path"), WHEN("when"), CONTENTBASETYPE("contentBaseType"), CONTENTTYPECHARSET(
+		FILE("uri"), WHEN("when"), CONTENTBASETYPE("contentBaseType"), CONTENTTYPECHARSET(
 				"contentTypeCharset"), CONTENTENCODING("contentEncoding"), CONTENTLENGTH(
 				"contentLength"), LANG("lang"), LANGMETHOD("langMethod"), FETCHSTATUS(
 				"fetchStatus"), RESPONSECODE("responseCode"), PARSERSTATUS(
@@ -126,13 +126,13 @@ public class FileManager {
 		return fileDbClient;
 	}
 
-	public void deleteByOriginalPath(String value) throws SearchLibException {
+	public void deleteByOriginalUri(String value) throws SearchLibException {
 		try {
 			URI uri = (new File(value)).toURI();
 
 			// Delete in file index
 			SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
-			deleteRequest.setQueryString(FileItemFieldEnum.originalPath.name()
+			deleteRequest.setQueryString(FileItemFieldEnum.originalUri.name()
 					+ ":\"" + SearchRequest.escapeQuery(uri.toASCIIString())
 					+ '"');
 			deleteRequest.setDelete(true);
@@ -140,7 +140,7 @@ public class FileManager {
 
 			// Delete in final index if a mapping is found
 			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
-					.getLinks(FileItemFieldEnum.originalPath.name());
+					.getLinks(FileItemFieldEnum.originalUri.name());
 			SearchRequest deleteRequestTarget = targetClient
 					.getNewSearchRequest();
 			deleteRequestTarget.setQueryString(mappedField.get(0) + ":\""
@@ -173,20 +173,12 @@ public class FileManager {
 
 	}
 
-	/*
-	 * public boolean exists(String path) throws SearchLibException,
-	 * UnsupportedEncodingException, ParseException { SearchRequest request =
-	 * getPathSearchRequest(); request.setQueryString("*:*");
-	 * request.addFilter(FileItemFieldEnum.path.name() + ":\"" + path + '"');
-	 * return (getFiles(request, null, false, 0, 0, null) > 0); }
-	 */
-
 	public FileItem find(String path) throws SearchLibException,
 			CorruptIndexException, ParseException, UnsupportedEncodingException {
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
 		
-		request.addFilter(FileItemFieldEnum.path.name() + ":\""
+		request.addFilter(FileItemFieldEnum.uri.name() + ":\""
 				+ SearchRequest.escapeQuery(path) + '"');
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
 		getFiles(request, null, false, 0, 10, listFileItem);
@@ -201,8 +193,8 @@ public class FileManager {
 		SearchRequest searchRequest = fileDbClient.getNewSearchRequest();
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
-		searchRequest.addReturnField("path");
-		searchRequest.addReturnField("originalPath");
+		searchRequest.addReturnField("uri");
+		searchRequest.addReturnField("originalUri");
 		searchRequest.addReturnField("contentLength");
 		searchRequest.addReturnField("lang");
 		searchRequest.addReturnField("langMethod");
@@ -217,25 +209,24 @@ public class FileManager {
 		return searchRequest;
 	}
 
-	private SearchRequest getDirectoryPathSearchRequest()
+	private SearchRequest getDirectoryUriSearchRequest()
 			throws SearchLibException {
 		SearchRequest searchRequest = fileDbClient.getNewSearchRequest();
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(MAX_FILE_RETURN);
-		searchRequest.addReturnField("path");
-
+		searchRequest.addReturnField("uri");
 		return searchRequest;
 	}
 
-	public List<FileItem> findAllByDirectoryPath(String directoryPath)
+	public List<FileItem> findAllByDirectoryURI(URI parentUri)
 			throws SearchLibException, CorruptIndexException, ParseException,
 			UnsupportedEncodingException {
 
-		SearchRequest request = getDirectoryPathSearchRequest();
+		SearchRequest request = getDirectoryUriSearchRequest();
 		request.setQueryString("*:*");
-		request.addFilter(FileItemFieldEnum.directoryPath.name() + ":\""
-				+ SearchRequest.escapeQuery(directoryPath) + '"');
-		request.addSort(FileItemFieldEnum.path.name(), false);
+		request.addFilter(FileItemFieldEnum.directoryUri.name() + ":\""
+				+ SearchRequest.escapeQuery(parentUri.toASCIIString()) + '"');
+		request.addSort(FileItemFieldEnum.uri.name(), false);
 
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
 		getFiles(request, null, false, 0, MAX_FILE_RETURN, listFileItem);
@@ -414,18 +405,19 @@ public class FileManager {
 		// Build query
 		StringBuffer query = new StringBuffer(":(");
 		for (String name : rowToDelete) {
-			query.append("\"").append(SearchRequest.escapeQuery(name)).append(
-					"*\" OR ");
+			query.append("").append(SearchRequest.escapeQuery(name)).append(
+					"* OR ");
+			System.out.println(SearchRequest.escapeQuery(name));
 		}
 		query.replace(query.length() - 3, query.length(), ")");
 
 		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
-		deleteRequest.setQueryString(FileItemFieldEnum.path.name()
+		deleteRequest.setQueryString(FileItemFieldEnum.uri.name()
 				+ query.toString());
 
 		deleteRequest.setDelete(true);
 		fileDbClient.search(deleteRequest);
-		fileDbClient.reload(null);
+		// fileDbClient.reload(null);
 	}
 
 	/**
@@ -443,7 +435,7 @@ public class FileManager {
 			return 0;
 
 		List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(FileItemFieldEnum.path.name());
+				.getLinks(FileItemFieldEnum.uri.name());
 
 		if (mappedPath.isEmpty())
 			return 0;
@@ -451,8 +443,9 @@ public class FileManager {
 		// Build query
 		StringBuffer query = new StringBuffer(":(");
 		for (String name : rowToDelete) {
-			query.append("\"").append(SearchRequest.escapeQuery(name)).append(
-					"*\" OR ");
+			query.append("").append(SearchRequest.escapeQuery(name)).append(
+					"* OR ");
+			System.out.println(SearchRequest.escapeQuery(name));
 		}
 		query.replace(query.length() - 3, query.length(), ")");
 

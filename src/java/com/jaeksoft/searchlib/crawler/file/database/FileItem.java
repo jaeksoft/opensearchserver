@@ -133,17 +133,17 @@ public class FileItem implements Serializable {
 			URISyntaxException {
 		this();
 
-		setURI(parseValueToURI(doc.getValue(FileItemFieldEnum.path.name(), 0)));
+		setURI(parseValueToURI(doc.getValue(FileItemFieldEnum.uri.name(), 0)));
 		setOriginalURI(parseValueToURI(doc.getValue(
-				FileItemFieldEnum.originalPath.name(), 0)));
+				FileItemFieldEnum.originalUri.name(), 0)));
 		setDirectoryURI(parseValueToURI(doc.getValue(
-				FileItemFieldEnum.directoryPath.name(), 0)));
+				FileItemFieldEnum.directoryUri.name(), 0)));
 
 		if (FileItemFieldEnum.contentLength.name() != null)
 			setContentLength(doc.getValue(FileItemFieldEnum.contentLength
 					.name(), 0));
 
-		if (FileItemFieldEnum.path.name() != null)
+		if (FileItemFieldEnum.uri.name() != null)
 			setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
 
 		if (FileItemFieldEnum.langMethod.name() != null)
@@ -274,13 +274,13 @@ public class FileItem implements Serializable {
 	public void populate(IndexDocument indexDocument)
 			throws UnsupportedEncodingException {
 
-		indexDocument.set(FileItemFieldEnum.path.name(), getURI()
+		indexDocument.set(FileItemFieldEnum.uri.name(), getURI()
 				.toASCIIString());
 
-		indexDocument.set(FileItemFieldEnum.originalPath.name(),
+		indexDocument.set(FileItemFieldEnum.originalUri.name(),
 				getOriginalURI().toASCIIString());
 
-		indexDocument.set(FileItemFieldEnum.directoryPath.name(),
+		indexDocument.set(FileItemFieldEnum.directoryUri.name(),
 				getDirectoryURI().toASCIIString());
 
 		if (when != null)

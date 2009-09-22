@@ -22,9 +22,9 @@
 	</indices>
 	<schema>
 		<fields default="content" unique="path">
-			<field name="path" indexed="yes" stored="yes" />
-			<field name="originalPath" indexed="yes" stored="yes" />
-			<field name="directoryPath" indexed="yes" stored="yes" />
+			<field name="uri" indexed="yes" stored="yes" />
+			<field name="originalUri" indexed="yes" stored="yes" />
+			<field name="directoryUri" indexed="yes" stored="yes" />
 			<field name="content" indexed="yes" stored="yes" />
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="langMethod" indexed="yes" stored="yes" />
@@ -44,7 +44,7 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				path,originalPath,content,contentLength,
+				uri,directoryUri,content,contentLength,
 				lang,langMethod,when,parserStatus,fetchStatus,indexStatus,fileSystemDate,crawlDate,fileSize,fileExtension
 			</returnFields>
 		</request>

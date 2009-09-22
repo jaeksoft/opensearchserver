@@ -221,7 +221,7 @@ public class BrowserController extends CommonController implements
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
 			getClient().getFilePathManager().delPath(link.getSource());
-			getClient().getFileManager().deleteByOriginalPath(link.getSource());
+			getClient().getFileManager().deleteByOriginalUri(link.getSource());
 		}
 		reloadPage();
 	}
@@ -232,7 +232,7 @@ public class BrowserController extends CommonController implements
 			XPathExpressionException, ParserConfigurationException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
-			getClient().getFileManager().deleteByOriginalPath(link.getSource());
+			getClient().getFileManager().deleteByOriginalUri(link.getSource());
 		}
 	}
 

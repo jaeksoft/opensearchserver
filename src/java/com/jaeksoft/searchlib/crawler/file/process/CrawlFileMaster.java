@@ -112,7 +112,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	 * @throws java.text.ParseException
 	 * 
 	 */
-	private void sendToCrawl(File current, URI originalPath)
+	private void sendToCrawl(File current, URI originalUri)
 			throws CorruptIndexException, SearchLibException, ParseException,
 			UnsupportedEncodingException, java.text.ParseException {
 
@@ -124,7 +124,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 				|| (fileItem != null && fileItem.isNewCrawlNeeded(current
 						.lastModified()))) {
 			fileItem = new FileItem(current.toURI(), current.getParentFile()
-					.toURI(), originalPath, current.lastModified(), current
+					.toURI(), originalUri, current.lastModified(), current
 					.length());
 
 			add(new CrawlFileThread(config, this, sessionStats, fileItem));
@@ -180,7 +180,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			}
 
 			// Looking for deleted files
-			checkDeleteFiles(file.toURI().toASCIIString(), uriName);
+			checkDeleteFiles(file.toURI(), uriName);
 		}
 	}
 
@@ -297,15 +297,15 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
-	public final void checkDeleteFiles(String parentPath, List<URI> children)
+	public final void checkDeleteFiles(URI parentUri, List<URI> children)
 			throws SearchLibException, CorruptIndexException,
 			UnsupportedEncodingException, ParseException {
 
-		if (parentPath == null)
+		if (parentUri == null)
 			return;
 
 		List<FileItem> indexFiles = config.getFileManager()
-				.findAllByDirectoryPath(parentPath);
+				.findAllByDirectoryURI(parentUri);
 
 		Iterator<FileItem> indexIterator = indexFiles.iterator();
 		Iterator<URI> fileIterator = children.iterator();

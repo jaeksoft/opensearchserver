@@ -152,9 +152,9 @@
 		</analyzers>
 		<fields default="content" unique="path">
 			<!-- mandatory parameters -->
-			<field name="path" indexed="yes" stored="yes" />
-			<field name="originalPath" indexed="yes" stored="yes" />
-			<field name="directoryPath" indexed="yes" stored="yes" />
+			<field name="uri" indexed="yes" stored="yes" />
+			<field name="originalUri" indexed="yes" stored="yes" />
+			<field name="directoryUri" indexed="yes" stored="yes" />
 			<field name="crawlDate" indexed="yes" stored="yes" />
 			<field name="fileSystemDate" indexed="yes" stored="yes" />
 			<field name="when" indexed="yes" stored="yes" />
