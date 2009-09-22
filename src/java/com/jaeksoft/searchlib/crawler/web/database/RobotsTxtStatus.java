@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,18 +24,32 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import com.jaeksoft.searchlib.crawler.TargetStatus;
+
 public enum RobotsTxtStatus {
 
-	UNKNOWN(0, "Unknown"), DISALLOW(1, "Disallow"), ALLOW(2, "Allow"), NO_ROBOTSTXT(
-			3, "No file"), ERROR(4, "Error"), ALL(99, "All");
+	UNKNOWN(0, "Unknown", TargetStatus.TARGET_DO_NOTHING),
+
+	DISALLOW(1, "Disallow", TargetStatus.TARGET_DELETE),
+
+	ALLOW(2, "Allow", TargetStatus.TARGET_UPDATE),
+
+	NO_ROBOTSTXT(3, "No file", TargetStatus.TARGET_UPDATE),
+
+	ERROR(4, "Error", TargetStatus.TARGET_DO_NOTHING),
+
+	ALL(99, "All", null);
 
 	public int value;
 
 	public String name;
 
-	private RobotsTxtStatus(int value, String name) {
+	public TargetStatus targetStatus;
+
+	private RobotsTxtStatus(int value, String name, TargetStatus targetStatus) {
 		this.value = value;
 		this.name = name;
+		this.targetStatus = targetStatus;
 	}
 
 	@Override

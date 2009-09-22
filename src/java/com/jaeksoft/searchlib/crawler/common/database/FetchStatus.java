@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,21 +24,42 @@
 
 package com.jaeksoft.searchlib.crawler.common.database;
 
+import com.jaeksoft.searchlib.crawler.TargetStatus;
+
 public enum FetchStatus {
 
-	UN_FETCHED(0, "Unfetched"), FETCHED(1, "Fetched"), GONE(2, "Gone"), REDIR_TEMP(
-			3, "Temporary redirect"), REDIR_PERM(4, "Permanent redirect"), ERROR(
-			5, "Error"), HTTP_ERROR(6, "HTTP Error"), NOT_ALLOWED(7,
-			"Not allowed"), SIZE_EXCEED(8, "Size exceed"), ALL(99, "All"), URL_ERROR(
-			9, "Url error");
+	UN_FETCHED(0, "Unfetched", TargetStatus.TARGET_DO_NOTHING),
+
+	FETCHED(1, "Fetched", TargetStatus.TARGET_UPDATE),
+
+	GONE(2, "Gone", TargetStatus.TARGET_DELETE),
+
+	REDIR_TEMP(3, "Temporary redirect", TargetStatus.TARGET_DELETE),
+
+	REDIR_PERM(4, "Permanent redirect", TargetStatus.TARGET_DELETE),
+
+	ERROR(5, "Error", TargetStatus.TARGET_DO_NOTHING),
+
+	HTTP_ERROR(6, "HTTP Error", TargetStatus.TARGET_DELETE),
+
+	NOT_ALLOWED(7, "Not allowed", TargetStatus.TARGET_DELETE),
+
+	SIZE_EXCEED(8, "Size exceed", TargetStatus.TARGET_DELETE),
+
+	URL_ERROR(9, "Url error", TargetStatus.TARGET_DELETE),
+
+	ALL(99, "All", null);
 
 	public int value;
 
 	public String name;
 
-	private FetchStatus(int value, String name) {
+	public TargetStatus targetStatus;
+
+	private FetchStatus(int value, String name, TargetStatus targetStatus) {
 		this.value = value;
 		this.name = name;
+		this.targetStatus = targetStatus;
 	}
 
 	@Override

@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
@@ -59,6 +60,7 @@ import com.jaeksoft.searchlib.parser.LimitException;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class Crawl {
 
@@ -250,15 +252,12 @@ public class Crawl {
 			if (parser != null)
 				parser.populate(indexDocument);
 
-			// TODO Plugin integration
-			// IndexPluginList indexPluginList = config.getWebCrawlMaster()
-			// .getIndexPluginList();
-			// if (indexPluginList != null &&
-			// !indexPluginList.run(indexDocument)) {
-			// urlItem.setIndexStatus(IndexStatus.INDEX_REJECTED);
-			// indexDocument = new IndexDocument();
-			// urlItem.populate(indexDocument);
-			// }
+			IndexPluginList indexPluginList = config.getWebCrawlMaster()
+					.getIndexPluginList();
+			if (indexPluginList != null && !indexPluginList.run(indexDocument)) {
+				urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
+				urlItem.populate(urlIndexDocument);
+			}
 
 			return indexDocument;
 		}

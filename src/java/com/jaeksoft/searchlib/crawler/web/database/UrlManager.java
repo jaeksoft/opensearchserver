@@ -43,6 +43,7 @@ import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -553,22 +554,32 @@ public class UrlManager {
 	public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
 		try {
 			// Update target index
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
+			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
+					crawls.size());
+			List<String> documentsToDelete = new ArrayList<String>(crawls
 					.size());
 			for (Crawl crawl : crawls) {
 				IndexDocument indexDocument = crawl.getTargetIndexDocument();
-				documents.add(indexDocument);
+				TargetStatus targetStatus = crawl.getUrlItem()
+						.getTargetResult();
+				if (targetStatus == TargetStatus.TARGET_UPDATE)
+					documentsToUpdate.add(indexDocument);
+				else if (targetStatus == TargetStatus.TARGET_DELETE)
+					documentsToDelete.add(crawl.getUrlItem().getUrl());
 			}
-			targetClient.updateDocuments(documents);
+			if (documentsToUpdate.size() > 0)
+				targetClient.updateDocuments(documentsToUpdate);
+			if (documentsToDelete.size() > 0)
+				targetClient.deleteDocuments(documentsToDelete);
 
 			// Update URL DB
-			documents.clear();
+			documentsToUpdate.clear();
 			for (Crawl crawl : crawls) {
 				IndexDocument indexDocument = new IndexDocument();
 				crawl.getUrlItem().populate(indexDocument);
-				documents.add(indexDocument);
+				documentsToUpdate.add(indexDocument);
 			}
-			urlDbClient.updateDocuments(documents);
+			urlDbClient.updateDocuments(documentsToUpdate);
 
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);

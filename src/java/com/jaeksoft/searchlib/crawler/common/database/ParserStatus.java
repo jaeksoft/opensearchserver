@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,18 +24,30 @@
 
 package com.jaeksoft.searchlib.crawler.common.database;
 
+import com.jaeksoft.searchlib.crawler.TargetStatus;
+
 public enum ParserStatus {
 
-	NOT_PARSED(0, "Not parsed"), PARSED(1, "Parsed"), PARSER_ERROR(2,
-			"Parser Error"), NOPARSER(3, "No parser"), ALL(99, "All");
+	NOT_PARSED(0, "Not parsed", TargetStatus.TARGET_DO_NOTHING),
 
-	public int value;
+	PARSED(1, "Parsed", TargetStatus.TARGET_UPDATE),
 
-	public String name;
+	PARSER_ERROR(2, "Parser Error", TargetStatus.TARGET_DO_NOTHING),
 
-	private ParserStatus(int value, String name) {
+	NOPARSER(3, "No parser", TargetStatus.TARGET_DELETE),
+
+	ALL(99, "All", null);
+
+	final public int value;
+
+	final public String name;
+
+	final public TargetStatus targetStatus;
+
+	private ParserStatus(int value, String name, TargetStatus targetStatus) {
 		this.value = value;
 		this.name = name;
+		this.targetStatus = targetStatus;
 	}
 
 	@Override

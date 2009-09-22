@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,19 +24,32 @@
 
 package com.jaeksoft.searchlib.crawler.common.database;
 
+import com.jaeksoft.searchlib.crawler.TargetStatus;
+
 public enum IndexStatus {
 
-	NOT_INDEXED(0, "Not indexed"), INDEXED(1, "Indexed"), META_NOINDEX(2,
-			"Meta No Index"), INDEX_ERROR(3, "Index error"), INDEX_REJECTED(4,
-			"Rejected"), ALL(99, "All");
+	NOT_INDEXED(0, "Not indexed", TargetStatus.TARGET_DO_NOTHING),
+
+	INDEXED(1, "Indexed", TargetStatus.TARGET_UPDATE),
+
+	META_NOINDEX(2, "Meta No Index", TargetStatus.TARGET_DELETE),
+
+	INDEX_ERROR(3, "Index error", TargetStatus.TARGET_DO_NOTHING),
+
+	PLUGIN_REJECTED(4, "Rejected", TargetStatus.TARGET_DELETE),
+
+	ALL(99, "All", null);
 
 	public int value;
 
 	public String name;
 
-	private IndexStatus(int value, String name) {
+	public TargetStatus targetStatus;
+
+	private IndexStatus(int value, String name, TargetStatus targetStatus) {
 		this.value = value;
 		this.name = name;
+		this.targetStatus = targetStatus;
 	}
 
 	@Override

@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 
 import javax.mail.internet.ContentType;
 
+import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -436,6 +437,16 @@ public class UrlItem implements Serializable {
 
 	public void setLangMethod(String langMethod) {
 		this.langMethod = langMethod;
+	}
+
+	public TargetStatus getTargetResult() {
+		if (robotsTxtStatus.targetStatus != TargetStatus.TARGET_UPDATE)
+			return robotsTxtStatus.targetStatus;
+		if (fetchStatus.targetStatus != TargetStatus.TARGET_UPDATE)
+			return fetchStatus.targetStatus;
+		if (parserStatus.targetStatus != TargetStatus.TARGET_UPDATE)
+			return parserStatus.targetStatus;
+		return indexStatus.targetStatus;
 	}
 
 }
