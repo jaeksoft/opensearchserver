@@ -80,6 +80,10 @@ public class CrawlFile {
 						.getParserFromExtension(FilenameUtils.getExtension(item
 								.getURI().toASCIIString()));
 
+				// Get default parser
+				if (parser == null)
+					parser = parserSelector.getFileCrawlerDefaultParser();
+				
 				// Parser Choice
 				if (parser == null) {
 					item.setParserStatus(ParserStatus.NOPARSER);
@@ -150,7 +154,7 @@ public class CrawlFile {
 		synchronized (this) {
 			// No parser found
 			if (parser == null) {
-				System.out.println("No parser at end");
+				// System.out.println("No parser at end");
 				return null;
 			}
 
