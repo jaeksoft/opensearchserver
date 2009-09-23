@@ -48,7 +48,8 @@ public class RobotsTxtCache {
 
 	public RobotsTxtCache() {
 		robotsTxtList = new TreeMap<String, RobotsTxt>();
-		parserSelector = new ParserSelector(new ParserFactory(
+		parserSelector = new ParserSelector();
+		parserSelector.setWebCrawlerDefaultParserFactory(new ParserFactory(
 				"RobotsTxt parser", DisallowList.class.getCanonicalName(),
 				8388608, null));
 	}

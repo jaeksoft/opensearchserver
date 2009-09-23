@@ -18,7 +18,7 @@
 	<!--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
 	<!--   -->
 	<!--   See the GNU General Public License for more details. -->
-<parsers>
+<parsers fileCrawlerDefault="FileSytem parser">
 	<parser name="FileSytem parser" class="com.jaeksoft.searchlib.parser.FileSystemParser"
 		sizeLimit="0" />
 	<parser name="DOC parser" class="com.jaeksoft.searchlib.parser.DocParser"

@@ -101,6 +101,8 @@ public class Crawl {
 		}
 		Parser parser = parserSelector.getParserFromMimeType(urlItem
 				.getContentBaseType());
+		if (parser == null)
+			parser = parserSelector.getWebCrawlerDefaultParser();
 		if (parser == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;

@@ -43,32 +43,38 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ParserSelector {
 
-	private ParserFactory defaultParser;
+	private ParserFactory fileCrawlerDefaultParserFactory;
+	private ParserFactory webCrawlerDefaultParserFactory;
 	private Set<ParserFactory> parserFactorySet;
 	private Map<String, ParserFactory> mimeTypeParserMap;
 	private Map<String, ParserFactory> extensionParserMap;
 
-	private ParserSelector() {
+	public ParserSelector() {
+		fileCrawlerDefaultParserFactory = null;
+		webCrawlerDefaultParserFactory = null;
 		mimeTypeParserMap = new TreeMap<String, ParserFactory>();
 		extensionParserMap = new TreeMap<String, ParserFactory>();
 		parserFactorySet = new TreeSet<ParserFactory>();
 	}
 
-	public ParserSelector(ParserFactory defaultParser) {
-		this();
-		setDefaultParser(defaultParser);
+	public void setFileCrawlerDefaultParserFactory(
+			ParserFactory fileCrawlerDefaultParserFactory) {
+		this.fileCrawlerDefaultParserFactory = fileCrawlerDefaultParserFactory;
 	}
 
-	public void setDefaultParser(ParserFactory defaultParser) {
-		this.defaultParser = defaultParser;
+	public Parser getFileCrawlerDefaultParser() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		return fileCrawlerDefaultParserFactory.getNewParser();
 	}
 
-	public ParserFactory getDefaultParser() {
-		return defaultParser;
+	public void setWebCrawlerDefaultParserFactory(
+			ParserFactory webCrawlerDefaultParserFactory) {
+		this.webCrawlerDefaultParserFactory = webCrawlerDefaultParserFactory;
 	}
 
-	public boolean hasDefautParser() {
-		return defaultParser != null;
+	public Parser getWebCrawlerDefaultParser() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		return webCrawlerDefaultParserFactory.getNewParser();
 	}
 
 	private void addParserFactory(ParserFactory parserFactory) {
@@ -92,8 +98,6 @@ public class ParserSelector {
 	private Parser getParser(ParserFactory parserFactory)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		if (parserFactory == null)
-			parserFactory = defaultParser;
 		if (parserFactory == null)
 			return null;
 		return parserFactory.getNewParser();
@@ -124,8 +128,11 @@ public class ParserSelector {
 		if (parentNode == null)
 			return selector;
 
-		String defaultParserName = XPathParser.getAttributeString(parentNode,
-				"default");
+		String fileCrawlerDefaultParserName = XPathParser.getAttributeString(
+				parentNode, "fileCrawlerDefault");
+
+		String webCrawlerDefaultParserName = XPathParser.getAttributeString(
+				parentNode, "webCrawlerDefault");
 
 		NodeList parserNodes = xpp.getNodeList(parentNode, "parser");
 		for (int i = 0; i < parserNodes.getLength(); i++) {
@@ -135,10 +142,14 @@ public class ParserSelector {
 
 			if (parserFactory != null) {
 				selector.addParserFactory(parserFactory);
-				if (defaultParserName != null
+				if (fileCrawlerDefaultParserName != null
 						&& parserFactory.getParserName().equals(
-								defaultParserName))
-					selector.setDefaultParser(parserFactory);
+								fileCrawlerDefaultParserName))
+					selector.setFileCrawlerDefaultParserFactory(parserFactory);
+				if (webCrawlerDefaultParserName != null
+						&& parserFactory.getParserName().equals(
+								webCrawlerDefaultParserName))
+					selector.setWebCrawlerDefaultParserFactory(parserFactory);
 			}
 
 		}
