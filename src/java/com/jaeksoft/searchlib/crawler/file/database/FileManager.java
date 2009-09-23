@@ -126,76 +126,18 @@ public class FileManager {
 		return fileDbClient;
 	}
 
-	public int deleteByOriginalUri(List<URI> list) throws SearchLibException {
-		try {
-			// Delete in file index
-			StringBuffer query = new StringBuffer(":(");
-			for (URI name : list) {
-				query.append(SearchRequest.escapeQuery(name.toASCIIString()))
-						.append(" OR ");
-			}
-			query.replace(query.length() - 4, query.length(), ")");
+	public void reload(boolean optimize) throws IOException,
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 
-			SearchRequest deleteRequest = getPathSearchRequest();
-			deleteRequest.setQueryString(FileItemFieldEnum.originalUri.name()
-					+ query.toString());
-
-			deleteRequest.setDelete(true);
-			fileDbClient.search(deleteRequest);
-
-			// Delete in final index if a mapping is found
-			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
-					.getLinks(FileItemFieldEnum.originalUri.name());
-
-			if (mappedField.isEmpty())
-				return 0;
-
-			SearchRequest deleteRequestTarget = getDBSearchRequest();
-			deleteRequest.setQueryString(mappedField.get(0) + query.toString());
-
-			System.out.println(mappedField.get(0) + query.toString());
-
-			deleteRequestTarget.setDelete(true);
-			return targetClient.search(deleteRequestTarget).getNumFound();
-
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
+		if (optimize) {
+			fileDbClient.reload(null);
+			fileDbClient.getIndex().optimize(null);
+			targetClient.reload(null);
+			targetClient.getIndex().optimize(null);
 		}
-
-	}
-
-	public FileItem find(String path) throws SearchLibException,
-			CorruptIndexException, ParseException, UnsupportedEncodingException {
-		SearchRequest request = getPathSearchRequest();
-		request.setQueryString("*:*");
-
-		request.addFilter(FileItemFieldEnum.uri.name() + ":\""
-				+ SearchRequest.escapeQuery(path) + '"');
-		List<FileItem> listFileItem = new ArrayList<FileItem>();
-		getFiles(request, null, false, 0, 10, listFileItem);
-
-		if (listFileItem.size() > 0)
-			return listFileItem.get(0);
-
-		return null;
+		fileDbClient.reload(null);
+		targetClient.reload(null);
 	}
 
 	private SearchRequest getPathSearchRequest() throws SearchLibException {
@@ -226,6 +168,22 @@ public class FileManager {
 		searchRequest.addReturnField("uri");
 		searchRequest.addReturnField("originalUri");
 		return searchRequest;
+	}
+
+	public FileItem find(String path) throws SearchLibException,
+			CorruptIndexException, ParseException, UnsupportedEncodingException {
+		SearchRequest request = getPathSearchRequest();
+		request.setQueryString("*:*");
+
+		request.addFilter(FileItemFieldEnum.uri.name() + ":\""
+				+ SearchRequest.escapeQuery(path) + '"');
+		List<FileItem> listFileItem = new ArrayList<FileItem>();
+		getFiles(request, null, false, 0, 10, listFileItem);
+
+		if (listFileItem.size() > 0)
+			return listFileItem.get(0);
+
+		return null;
 	}
 
 	public List<FileItem> findAllByDirectoryURI(URI parentUri)
@@ -357,26 +315,15 @@ public class FileManager {
 		}
 	}
 
-	public void reload(boolean optimize) throws IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-
-		if (optimize) {
-			fileDbClient.reload(null);
-			fileDbClient.getIndex().optimize(null);
-			targetClient.reload(null);
-			targetClient.getIndex().optimize(null);
-		}
-		fileDbClient.reload(null);
-		targetClient.reload(null);
-	}
-
 	public final int deleteByFilename(List<String> rowToDelete)
 			throws SearchLibException {
 		try {
-			int nbDeleted = deleteByFilenameFromTargetIndex(rowToDelete);
+			if (rowToDelete == null
+					|| (rowToDelete != null && rowToDelete.isEmpty()))
+				return 0;
+
 			deleteByFilenameFromFileDBIndex(rowToDelete);
-			return nbDeleted;
+			return deleteByFilenameFromTargetIndex(rowToDelete);
 
 		} catch (SearchLibException e) {
 			throw new SearchLibException(e);
@@ -402,27 +349,27 @@ public class FileManager {
 	/**
 	 * Send delete order to DB index for Filename list given
 	 * 
+	 * @param rowToDelete
+	 * @throws SearchLibException
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws SyntaxError
+	 * @throws URISyntaxException
+	 * @throws ClassNotFoundException
+	 * @throws InterruptedException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
 	 */
-	public final void deleteByFilenameFromFileDBIndex(List<String> rowToDelete)
+	private final void deleteByFilenameFromFileDBIndex(List<String> rowToDelete)
 			throws SearchLibException, IOException, ParseException,
 			SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
-		if (rowToDelete == null
-				|| (rowToDelete != null && rowToDelete.isEmpty()))
-			return;
-
-		// Build query
-		StringBuffer query = new StringBuffer(":(");
-		for (String name : rowToDelete) {
-			query.append(SearchRequest.escapeQuery(name)).append("* OR ");
-		}
-		query.replace(query.length() - 4, query.length(), ")");
 
 		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
-		deleteRequest.setQueryString(FileItemFieldEnum.uri.name()
-				+ query.toString());
-
+		
+		deleteRequest.setQueryString(buildQueryString(FileItemFieldEnum.uri.name(),
+				rowToDelete, true));
 		deleteRequest.setDelete(true);
 		fileDbClient.search(deleteRequest);
 	}
@@ -430,16 +377,23 @@ public class FileManager {
 	/**
 	 * Send delete order to final index for Filename list given
 	 * 
+	 * @param rowToDelete
+	 * @return
+	 * @throws SearchLibException
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws SyntaxError
+	 * @throws URISyntaxException
+	 * @throws ClassNotFoundException
+	 * @throws InterruptedException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
 	 */
-	public final int deleteByFilenameFromTargetIndex(List<String> rowToDelete)
+	private final int deleteByFilenameFromTargetIndex(List<String> rowToDelete)
 			throws SearchLibException, IOException, ParseException,
 			SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
-
-		if (rowToDelete == null
-				|| (rowToDelete != null && rowToDelete.isEmpty()))
-			return 0;
 
 		List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
 				.getLinks(FileItemFieldEnum.uri.name());
@@ -447,20 +401,63 @@ public class FileManager {
 		if (mappedPath.isEmpty())
 			return 0;
 
-		// Build query
-		StringBuffer query = new StringBuffer(":(");
-		for (String name : rowToDelete) {
-			query.append(SearchRequest.escapeQuery(name)).append("* OR ");
-		}
-		query.replace(query.length() - 4, query.length(), ")");
-
-		// Delete in final index if a mapping is found
 		SearchRequest deleteRequestTarget = targetClient.getNewSearchRequest();
-		deleteRequestTarget
-				.setQueryString(mappedPath.get(0) + query.toString());
+		deleteRequestTarget.setQueryString(buildQueryString(mappedPath.get(0),
+				rowToDelete, true));
 		deleteRequestTarget.setDelete(true);
 
 		return targetClient.search(deleteRequestTarget).getNumFound();
+	}
+
+	public int deleteByOriginalUri(List<String> list) throws SearchLibException {
+		try {
+
+			if (list == null || (list != null && list.isEmpty()))
+				return 0;
+
+			SearchRequest deleteRequest = getPathSearchRequest();
+			deleteRequest.setQueryString(buildQueryString(
+					FileItemFieldEnum.originalUri.name(), list, false));
+
+			deleteRequest.setDelete(true);
+			fileDbClient.search(deleteRequest);
+
+			// Delete in final index if a mapping is found
+			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
+					.getLinks(FileItemFieldEnum.originalUri.name());
+
+			if (mappedField.isEmpty())
+				return 0;
+
+			SearchRequest deleteRequestTarget = getDBSearchRequest();
+			deleteRequestTarget.setQueryString(buildQueryString(
+					mappedField.get(0), list, false));
+
+			deleteRequestTarget.setDelete(true);
+			return targetClient.search(deleteRequestTarget).getNumFound();
+
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		}
+
 	}
 
 	public void updateCrawls(List<CrawlFile> crawls) throws SearchLibException {
@@ -497,5 +494,25 @@ public class FileManager {
 			throw new SearchLibException(e);
 		}
 	}
+
+	/**
+	 * Build query from a String list
+	 * 
+	 * @param rows
+	 * @return
+	 */
+	private String buildQueryString(String parameter, List<String> rows, boolean fuzzy) {
+		StringBuffer query = new StringBuffer(parameter);
+		query.append(":(");
+		for (String name : rows) {
+			query.append(SearchRequest.escapeQuery(name));
+			if (fuzzy)
+				query.append("*");
+			query.append(" OR ");
+		}
+		query.replace(query.length() - 4, query.length(), ")");
+		return query.toString();
+	}
+		
 
 }

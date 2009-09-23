@@ -397,12 +397,15 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		}
 	}
 
-	/*
-	 * public access to crawlQueue
+	/**
+	 * Delete order to crawlQueue.
+	 * 
+	 * @param uri
+	 * @return
 	 */
 	public boolean deleteToCrawlQueue(URI uri) {
 		if (crawlQueue != null) {
-			crawlQueue.deleteByOriginalUri(uri);
+			crawlQueue.deleteByOriginalUri(uri.toASCIIString());
 			return true;
 		}
 		return false;

@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -39,15 +38,15 @@ import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 
 	private List<CrawlFile> updateCrawlList;
-	private List<String> deleteFileNameList;
-	private List<URI> deleteOriginalUriList;
+	private List<String> deleteUriList;
+	private List<String> deleteOriginalUriList;
 	final private Object indexSync = new Object();
 
 	public FileCrawlQueue(Config config) throws SearchLibException {
 		setConfig(config);
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
-		this.deleteFileNameList = new ArrayList<String>(0);
-		this.deleteOriginalUriList = new ArrayList<URI>(0);
+		this.deleteUriList = new ArrayList<String>(0);
+		this.deleteOriginalUriList = new ArrayList<String>(0);
 	}
 
 	@Override
@@ -59,13 +58,13 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	}
 
 	@Override
-	public void delete(String fileName) {
-		synchronized (deleteFileNameList) {
-			deleteFileNameList.add(fileName);
+	public void delete(String uri) {
+		synchronized (deleteUriList) {
+			deleteUriList.add(uri);
 		}
 	}
 
-	public void deleteByOriginalUri(URI originalUri) {
+	public void deleteByOriginalUri(String originalUri) {
 		synchronized (deleteOriginalUriList) {
 			deleteOriginalUriList.add(originalUri);
 		}
@@ -75,7 +74,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		synchronized (updateCrawlList) {
 			if (updateCrawlList.size() >= getMaxBufferSize())
 				return true;
-			if (deleteFileNameList.size() >= getMaxBufferSize())
+			if (deleteUriList.size() >= getMaxBufferSize())
 				return true;
 			if (deleteOriginalUriList.size() >= 1)
 				return true;
@@ -89,8 +88,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		List<CrawlFile> workUpdateCrawlList;
-		List<String> workDeleteFilenameList;
-		List<URI> workDeleteOriginalUriList;
+		List<String> workDeleteUriList;
+		List<String> workDeleteOriginalUriList;
 		synchronized (this) {
 			if (!bForce)
 				if (!shouldWePersist())
@@ -99,11 +98,11 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 			workUpdateCrawlList = updateCrawlList;
 			updateCrawlList = new ArrayList<CrawlFile>(0);
 
-			workDeleteFilenameList = deleteFileNameList;
-			deleteFileNameList = new ArrayList<String>(0);
+			workDeleteUriList = deleteUriList;
+			deleteUriList = new ArrayList<String>(0);
 
 			workDeleteOriginalUriList = deleteOriginalUriList;
-			deleteOriginalUriList = new ArrayList<URI>(0);
+			deleteOriginalUriList = new ArrayList<String>(0);
 		}
 
 		FileManager fileManager = getConfig().getFileManager();
@@ -117,7 +116,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 				needReload = true;
 
 			// Delete
-			if (deleteCollection(workDeleteFilenameList))
+			if (deleteCollection(workDeleteUriList))
 				needReload = true;
 
 			// Delete by original URI
@@ -149,19 +148,19 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	}
 
 	@Override
-	protected boolean deleteCollection(List<String> workDeleteUrlList)
+	protected boolean deleteCollection(List<String> workDeleteUriList)
 			throws SearchLibException {
-		if (workDeleteUrlList.size() == 0)
+		if (workDeleteUriList.size() == 0)
 			return false;
 
 		FileManager manager = (FileManager) getConfig().getFileManager();
-		int nbFilesDeleted = manager.deleteByFilename(workDeleteUrlList);
+		int nbFilesDeleted = manager.deleteByFilename(workDeleteUriList);
 		getSessionStats().addDeletedCount(nbFilesDeleted);
 		return true;
 	}
 
 	protected boolean deleteCollectionByOriginalURI(
-			List<URI> workDeleteOriginalUriList) throws SearchLibException {
+			List<String> workDeleteOriginalUriList) throws SearchLibException {
 		if (workDeleteOriginalUriList.size() == 0)
 			return false;
 

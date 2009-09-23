@@ -226,16 +226,7 @@ public class BrowserController extends CommonController implements
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
 			getClient().getFilePathManager().delPath(link.getSource());
-			URI uri = (new File(link.getSource())).toURI();
-
-			if (getClient().getFileCrawlMaster().getStatus() == CrawlStatus.NOT_RUNNING) {
-				List<URI> listUri = new ArrayList<URI>();
-				listUri.add(uri);
-				getClient().getFileManager().deleteByOriginalUri(listUri);
-				getClient().getFileManager().reload(true);
-			} else {
-				getClient().getFileCrawlMaster().deleteToCrawlQueue(uri);
-			}
+			deleteOriginalPath(link.getSource());
 		}
 		reloadPage();
 	}
@@ -248,16 +239,7 @@ public class BrowserController extends CommonController implements
 			ClassNotFoundException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
-			URI uri = (new File(link.getSource())).toURI();
-
-			if (getClient().getFileCrawlMaster().getStatus() == CrawlStatus.NOT_RUNNING) {
-				List<URI> listUri = new ArrayList<URI>();
-				listUri.add(uri);
-				getClient().getFileManager().deleteByOriginalUri(listUri);
-				getClient().getFileManager().reload(true);
-			} else {
-				getClient().getFileCrawlMaster().deleteToCrawlQueue(uri);
-			}
+			deleteOriginalPath(link.getSource());
 		}
 	}
 
@@ -357,6 +339,24 @@ public class BrowserController extends CommonController implements
 			pathList = null;
 			activePage = pagingEvent.getActivePage();
 			reloadPage();
+		}
+	}
+
+	private void deleteOriginalPath(String path) throws SearchLibException,
+			IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+
+		URI uri = (new File(path)).toURI();
+		CrawlStatus status = getClient().getFileCrawlMaster().getStatus();
+
+		if (status.equals(CrawlStatus.NOT_RUNNING)
+				|| status.equals(CrawlStatus.ABORTED)) {
+			List<String> listUri = new ArrayList<String>();
+			listUri.add(uri.toASCIIString());
+			getClient().getFileManager().deleteByOriginalUri(listUri);
+			getClient().getFileManager().reload(true);
+		} else {
+			getClient().getFileCrawlMaster().deleteToCrawlQueue(uri);
 		}
 	}
 
