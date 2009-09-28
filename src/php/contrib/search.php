@@ -64,23 +64,9 @@ if (isset($_REQUEST['query'])) {
 <html>
 	<head>
 		<title>Open Search Server - contrib/search</title>
+		<script type="text/javascript" src="common.js"></script>
+		<link type="text/css" rel="stylesheet" href="common.css" />
 		<style type="text/css">
-			html, body { height:100%; margin:0; }
-			body { font-size: 12px; font-family: arial,sans-serif; }
-			a { color:#2200CC; font-size: 12px; }
-
-			#bodywrap {
-				width:810px;
-				height:100%;
-				margin:0 auto;
-				margin-bottom: 15px;
-			}
-			.lateralBorders { border: 1px solid #FF0000; border-width: 0 1px 1px 1px;}
-			#submit { width: 10%;  }
-			.errors { color: red; }
-			.errors span { display: block; }
-
-
 			#query_fieldset { border: 0; background: url(search.png) no-repeat; width: 495px; height: 60px; padding: 26px 0 10px 110px; margin:0 auto; }
 			#query { margin-left: 0; width: 318px; border: 0; background: transparent; font-size: 20px; height: 30px; }
 			#submit { background: transparent; border: 0px; width: 160px; height: 29px; cursor: pointer; }
@@ -103,40 +89,6 @@ if (isset($_REQUEST['query'])) {
 				font-family: arial,sans-serif;
 			}
 			li code { font-weight: bold; }
-
-			#options {
-				border: 1px solid #95D2E7;
-				margin: -16px 0 15px;
-				-moz-border-radius: 0 0 5px 5px;
-				-webkit-border-radius:5px;
-				-webkit-border-top-left-radius:0;
-				-webkit-border-top-right-radius:0;
-				border-radius: 0 0 5px 5px;
-				border-top-left-radius:0;
-				border-top-right-radius:0;
-			}
-			#options form  { display: none; margin: 0; padding: 0; border: 0; }
-			#options:hover form { display: inherit; }
-			#options_title {
-				color: white;
-				background: #95D2E7;
-				padding: 3px;
-			}
-			#option_fieldset {
-				border: 0px;
-				margin: 0px;
-			}
-			#option_fieldset input {
-				display: block;
-				width: 320px;
-				border: 1px solid #E8E8E8;
-				border-top-width: 0;
-			}
-			#option_fieldset label {
-				display: block;
-				width: 180px;
-				float: left;
-			}
 		</style>
 	</head>
 	<body>
@@ -154,7 +106,7 @@ if (isset($_REQUEST['query'])) {
 							<label>&nbsp;</label><input type="submit" value="save">
 						</fieldset>
 					</form>
-					<div id="options_title">Options</div>
+					<div id="options_title" onclick="javascript:toggleClass(this.parentNode, 'show'); return false;">Options</div>
 				</div>
 				<form action="<?php echo basename(__FILE__); ?>" method="GET">
 

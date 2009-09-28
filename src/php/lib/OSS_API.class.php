@@ -103,7 +103,7 @@ class OSS_API {
 	 * See the OSS Wiki [Web API optimize] documentation before using this method
 	 */
 	public function optimize() {
-		$return = $this->queryServer($this->getQueryURL(OSSAPI::API_OPTIMIZE));
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_OPTIMIZE));
 		return ($return !== false);
 	}
 
@@ -113,11 +113,20 @@ class OSS_API {
 	 * See the OSS Wiki [Web API reload] documentation before using this method
 	 */
 	public function reload() {
-		$return = $this->queryServer($this->getQueryURL(OSSAPI::API_RELOAD));
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_RELOAD));
 		return ($return !== false);
 	}
 
-
+	/**
+	 * Return the url to use with curl
+	 * @param string $apiCall The Web API to call. Refer to the OSS Wiki documentation of [Web API]
+	 * @return string
+	 */
+	protected function getQueryURL($apiCall) {
+		$path = $this->enginePath.'/'.$apiCall;
+		if (!empty($this->index)) $path .= '?use='.$this->index;
+		return $path;
+	}
 
 	/**
 	 * Send an xml list of documents to be indexed by the search engine
@@ -132,9 +141,12 @@ class OSS_API {
 			if ($xml instanceof DOMDocument) {
 				$xml = $xml->saveXML();
 			}
+			elseif ($xml instanceof SimpleXMLElement) {
+				$xml = $xml->asXML();
+			}
 			elseif (is_object($xml)) {
 				if (method_exists($xml, '__toString') || $xml instanceof SimpleXMLElement) {
-					$xml = (string)$xml;
+					$xml = $xml->__toString();
 				}
 			}
 		}
@@ -146,7 +158,7 @@ class OSS_API {
 			return false;
 		}
 
-		$return = $this->queryServer($this->getQueryURL(OSSAPI::API_UPDATE), $xml);
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_UPDATE), $xml);
 		return ($return !== false);
 
 	}
@@ -259,7 +271,7 @@ class OSS_API {
 	 * Return a list of supported language. Array is indexed by ISO 639-1 format (en, de, fr, ...)
 	 * @return Array<String>
 	 */
-	public function supportedLanguages() {
+	public static function supportedLanguages() {
 		return OSS_API::$supportedLanguages;
 	}
 

@@ -30,7 +30,7 @@ class OSS_IndexDocument extends ArrayObject {
 
 	/**
 	 * @param string $language ISO 639-1 format (en, de, fr, ...)
-	 * @return OSS_DocumentNode
+	 * @return OSS_IndexDocument_Document
 	 */
 	public function newDocument($language = '') {
 		$document = new OSS_IndexDocument_Document($this, $language);
@@ -42,30 +42,35 @@ class OSS_IndexDocument extends ArrayObject {
 	 * @param mixed $offset
 	 * @param OSS_IndexDocument_Document $document
 	 */
-	public function offsetSet($offset, OSS_IndexDocument_Document $document) {
+	public function offsetSet($offset, $document) {
+		if (!$document instanceof OSS_IndexDocument_Document)
+			throw new UnexpectedValueException("OSS_IndexDocument_Document was expected.");
 		parent::offsetSet($offset, $documentNode);
 	}
 
 	/**
 	 * @param OSS_IndexDocument_Document $document
 	 */
-	public function append(OSS_IndexDocument_Document $document) {
+	public function append($document) {
+		if (!$document instanceof OSS_IndexDocument_Document)
+			throw new UnexpectedValueException("OSS_IndexDocument_Document was expected.");
 		parent::append($document);
+	}
+
+	/**
+	 * @return string XML
+	 */
+	public function toXML() {
+		return $this->__toString();
 	}
 
 	public function __toString() {
 		$return  = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<index>";
 		foreach ($this as $document)
-			$return .= (string)$document;
+			$return .= $document->__toString();
 		return $return.'</index>';
 	}
 
-	/*
-	 * @todo Implement me
-	public function fromQueryResult(SimpleXMLElement $xmlResult) {
-
-	}
-	*/
 }
 
 /**
@@ -130,14 +135,17 @@ class OSS_IndexDocument_Document extends ArrayObject {
 	/**
 	 * Create a new field inside the document
 	 * @param string $name The name of the field
+	 * @param mixed $values The string to append. Can be an Array<String>
 	 * @return OSS_IndexDocument_Field
 	 * Note: If the field by that name already exist, it'll be returned
 	 */
-	public function newField($name) {
+	public function newField($name, $values = null) {
 		if (isset($this->fieldByName[$name]))
 			return $this->fieldByName[$name];
 		$field = new OSS_IndexDocument_Field($this, $name);
 		$this->append($field);
+		if ($values !== null)
+			$field->addValues($values);
 		return $field;
 	}
 
@@ -156,7 +164,9 @@ class OSS_IndexDocument_Document extends ArrayObject {
 	 * @param mixed $offset
 	 * @param OSS_IndexDocument_Field $field
 	 */
-	public function offsetSet($offset, OSS_IndexDocument_Field $field) {
+	public function offsetSet($offset, $field) {
+		if (!$field instanceof OSS_IndexDocument_Field)
+			throw new UnexpectedValueException("OSS_IndexDocument_Field was expected.");
 		parent::offsetSet($offset, $field);
 		$this->fieldByName[$field->getName()] = $field;
 	}
@@ -164,7 +174,9 @@ class OSS_IndexDocument_Document extends ArrayObject {
 	/**
 	 * @param OSS_IndexDocument_Field $field
 	 */
-	public function append(OSS_IndexDocument_Field $field) {
+	public function append($field) {
+		if (!$field instanceof OSS_IndexDocument_Field)
+			throw new UnexpectedValueException("OSS_IndexDocument_Field was expected.");
 		$fieldName = $field->getName();
 		if (isset($this->fieldByName[$fieldName])) {
 			$storedField = $this->fieldByName[$fieldName];
@@ -179,13 +191,18 @@ class OSS_IndexDocument_Document extends ArrayObject {
 	}
 
 	public function __toString() {
+		$data = '';
+		foreach ($this as $field) {
+			$field = $field->__toString();
+			$data .= $field;
+		}
+		if (empty($data)) return null;
 		$return = '<document';
 		if ($this->language !== null)
 			$return .= ' lang="'.$this->language.'"';
 		$return .= '>';
-		foreach ($this as $field)
-			$return .= (string)$field;
-		return $return.'</document>';
+
+		return $return.$data.'</document>';
 	}
 
 }
@@ -234,10 +251,21 @@ class OSS_IndexDocument_Field extends ArrayObject {
 	}
 
 	/**
+	 * Add one or many values to the field
+	 * @param mixed $values The string to append. Can be an Array<String>
+	 */
+	public function addValues($values) {
+		foreach ((array)$values as $value)
+			$this->append(new OSS_IndexDocument_Value($this, $value));
+	}
+
+	/**
 	 * @param mixed $offset
 	 * @param OSS_IndexDocument_Value $value
 	 */
-	public function offsetSet($offset, OSS_IndexDocument_Value $value) {
+	public function offsetSet($offset, $value) {
+		if (!$value instanceof OSS_IndexDocument_Value)
+			throw new UnexpectedValueException("OSS_IndexDocument_Value was expected.");
 		parent::offsetSet($offset, $value);
 	}
 
@@ -245,15 +273,21 @@ class OSS_IndexDocument_Field extends ArrayObject {
 	 * @param mixed $offset
 	 * @param OSS_IndexDocument_Value $value
 	 */
-	public function append(OSS_IndexDocument_Value $value) {
+	public function append($value) {
+		if (!$value instanceof OSS_IndexDocument_Value)
+			throw new UnexpectedValueException("OSS_IndexDocument_Value was expected.");
 		parent::append($value);
 	}
 
 	public function __toString() {
-		$return = '<field name="'.$this->name.'">';
-		foreach ($this as $value)
-			$return .= (string)$value;
-		return $return.'</field>';
+		$return = '';
+		foreach ($this as $value) {
+			$value = $value->__toString();
+			if ($value !== false)
+				$return .= $value;
+		}
+		if (empty($return)) return null;
+		return '<field name="'.$this->name.'">'.$return.'</field>';
 	}
 
 }
@@ -316,9 +350,11 @@ class OSS_IndexDocument_Value {
 	}
 
 	public function __toString() {
-		$return  = '<value';
+		$data = str_replace(']]>', ']]]]><![CDATA[>', $this->value);
+		if (empty($data)) return null;
+		$return = '<value';
 		if ($this->removeTag) $return .= ' removeTag="yes"';
-		return $return.'><[CDATA[!'.replace(']]>', ']]]]><![CDATA[>', $this->value).']]></value>';
+		return $return.'><![CDATA['.$data.']]></value>';
 	}
 
 }
