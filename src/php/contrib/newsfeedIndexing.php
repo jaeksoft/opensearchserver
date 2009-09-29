@@ -64,7 +64,7 @@ if (isset($_REQUEST['feed'])) {
 			$document->newField('channel_home', $newsFeedParser->getChannelHome());
 			$document->newField('channel_title', $newsFeedParser->getChannelTitle());
 			$document->newField('channel_subtitle', $newsFeedParser->getChannelSubtitle());
-
+			
 			$document->newField('id',		 $newsEntry->getId());
 			$document->newField('author',	 $newsEntry->getAuthor());
 			$document->newField('link',		 $newsEntry->getLink());
@@ -72,11 +72,9 @@ if (isset($_REQUEST['feed'])) {
 			$document->newField('content',	 strip_tags($newsEntry->getContent()));
 			$document->newField('summary',	 strip_tags($newsEntry->getSummary()));
 			$document->newField('title',	 strip_tags($newsEntry->getTitle()));
-
+			
 		}
-
-		file_put_contents('test.xml', $index->__toString());
-
+		
 		// Send the IndexDocument to the search server
 		$server = new OSS_API($ossEnginePath, $ossEngineIndex);
 		if ($server->update($index) === false) {
@@ -85,7 +83,7 @@ if (isset($_REQUEST['feed'])) {
 		else {
 			$feedIsIndexed = true;
 		}
-
+		
 	}
 
 }

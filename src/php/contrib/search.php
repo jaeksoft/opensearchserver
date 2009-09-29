@@ -36,7 +36,7 @@ require BASE_DIR.'/../lib/OSS_Search.class.php';
 
 $ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
 $ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
-$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_search', 'myCrawler', 'engineIndex');
+$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_search', 'myWebCrawler', 'engineIndex');
 
 if (isset($_REQUEST['query'])) {
 

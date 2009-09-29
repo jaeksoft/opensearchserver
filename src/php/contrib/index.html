@@ -39,12 +39,14 @@ author              no              yes             no
 channel_home        yes             yes             no
 channel title       no              yes             no
 channel_subtitle    no              yes             no
-id                  no              yes             no
+id                  yes             yes             no
 link                no              yes             no
 title               yes             yes             position_offsets    TextAnalyzer
 published           yes             yes             no
-summary             yes             yes             position_offsets    TextAnalyzer
-content             yes             yes             position_offsets    TextAnalyzer
+summary             yes             compress        position_offsets    TextAnalyzer
+content             yes             compress        position_offsets    TextAnalyzer
+
+Default field will be <em>summary</em> and the uniq field is <em>id</em>.
 
 To submit a feed (RSS or Atom), enter the url to the feed, set the feed language
 and submit. Some feed are provided for testing purpose.
