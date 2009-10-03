@@ -185,11 +185,11 @@ class OSS_API {
 		curl_setopt($rCurl, CURLOPT_MAXREDIRS, 16);
 		curl_setopt($rCurl, CURLOPT_VERBOSE, true);
 
-		if (is_integer($connectTimeOut) && $connectTimeOut >= 0)
-			curl_setopt($rCurl, CURLOPT_CONNECTTIMEOUT, $connectTimeOut);
+		if (is_integer($connexionTimeout) && $connexionTimeout >= 0)
+			curl_setopt($rCurl, CURLOPT_CONNECTTIMEOUT, $connexionTimeout);
 
-		if (is_integer($timeOut) && $timeOut >= 0)
-			curl_setopt($rCurl, CURLOPT_TIMEOUT, $timeOut);
+		if (is_integer($timeout) && $timeout >= 0)
+			curl_setopt($rCurl, CURLOPT_TIMEOUT, $timeout);
 
 		// Send provided string as POST data. Must be encoded to meet POST specification
 		if ($data !== null) {

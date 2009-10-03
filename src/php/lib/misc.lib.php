@@ -5,12 +5,14 @@
  * @return unknown_type
  */
 function configRequestValue($key, $default, $requestField = null) {
+	$value = null;
 	if (!empty($_REQUEST[$requestField])) {
 		$value = $_REQUEST[$requestField];
 		setcookie($key, $value, time() + 3600 * 365);
 	}
-	if (!$value) $value = $_COOKIE[$key];
-	if (!$value) $value  = $default;
+	if (!$value && isset($_COOKIE[$key]))
+		$value = $_COOKIE[$key];
+	if (!$value) $value = $default;
 	return $value;
 }
 
@@ -45,6 +47,15 @@ function retrieveXML($url, &$curlInfo = null) {
 
 	return (!$xml instanceof SimpleXMLElement) ? false : $xml;
 
+}
+
+/**
+ * Wrapper for reset to use arrays returned from functions and methods
+ * @param $array
+ * @return mixed
+ */
+function array_first($array) {
+	return reset($array);
 }
 
 /**

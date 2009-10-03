@@ -34,6 +34,8 @@ require BASE_DIR.'/../lib/misc.lib.php';
 require BASE_DIR.'/../lib/OSS_API.class.php';
 require BASE_DIR.'/../lib/OSS_Search.class.php';
 
+define('MAX_PAGE_TO_LINK', 10);
+
 $ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
 $ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
 $ossEngineIndex = configRequestValue('ossEngineIndex_contrib_search', 'myWebCrawler', 'engineIndex');
@@ -47,14 +49,44 @@ if (isset($_REQUEST['query'])) {
 			   ->filter('lang:'.$_REQUEST['lang']);
 	}
 
+	// Restrict row count between 5 and 50
+	$rows  = isset($_REQUEST['rows']) ? max(5, min($_REQUEST['rows'], 50)) : 10;
+	$start = isset($_REQUEST['p'])    ? max(0, $_REQUEST['p']) * $rows : 0;
+
 	$result = $search->query($_REQUEST['query'])
 					 ->facet('lang', 0)
+					 ->field(array('url', 'contentBaseType', 'metaDescription', 'metaKeywords', 'host', 'lang'))
+					 ->start($start)
+					 ->rows(15)
 					 ->execute($ossEngineConnectTimeOut);
 
 	if ($result instanceof SimpleXMLElement) {
-		$resultCount   = $result->result['numFound'];
-		$resultTime    = $result->result['numFound'] / 1000;
+
+		$resultFound   = (int)$result->result['numFound'];
+		$resultTime    = (float)$result->result['time'] / 1000;
+		$resultRows    = (int)$result->result['rows'];
+		$resultStart   = (int)$result->result['start'];
+
 		$resultEntries = $result->xpath('result/doc');
+
+		// Navigation between pages
+		$resultCurrentPage = floor($resultStart / $resultRows);
+		$resultTotalPages  = floor($resultFound / $resultRows);
+		if ($resultTotalPages > 1) {
+			$low  = $resultCurrentPage - (MAX_PAGE_TO_LINK / 2);
+			$high = $resultCurrentPage + (MAX_PAGE_TO_LINK / 2 - 1);
+			if ($low < 0) {
+				$high += $low * -1;
+			}
+			if ($high > $resultTotalPages) {
+				$low -= $high - $resultTotalPages;
+			}
+			$resultLowPage  = max($low, 0);
+			$resultHighPage = min($resultTotalPages, $high);
+			$resultLowPrev  = max($resultCurrentPage - MAX_PAGE_TO_LINK, 0);
+			$resultHighNext = min($resultCurrentPage + MAX_PAGE_TO_LINK, $resultTotalPages);
+			$pageBaseURI = preg_replace('/&(?:p|rows)=[\d]+/', '', $_SERVER['REQUEST_URI']).'&rows='.$resultRows.'&p=';
+		}
 
 		$langFacets = $result->xpath('faceting/field[@name="lang"]/facet');
 		if ($langFacets === false) $langFacets = array();
@@ -72,23 +104,42 @@ if (isset($_REQUEST['query'])) {
 			#submit { background: transparent; border: 0px; width: 160px; height: 29px; cursor: pointer; }
 			#info { margin-bottom: 15px; text-align: center; }
 			#langs { border: 0; width: 510px; padding: 0; margin:0 auto; text-align: center; }
+
 			ul {
 				list-style: none;
 				border-top: 1px solid #E8E8E8;
 				margin: 0px;
 				padding: 0px;
 			}
-			li { margin-bottom: 15px; }
-			li h2 {
+
+			/** RESULTS *******************************************************/
+			.result li {
+				margin-bottom: 15px;
+			}
+			.result li h2 {
 				font-size: 12px;
 				font-weight: normal;
 				margin-bottom: 2px;
 			}
-			li cite, li code {
+			.result li cite, li code {
 				color: green;
 				font-family: arial,sans-serif;
 			}
-			li code { font-weight: bold; }
+			.result li code {
+				font-weight: bold;
+			}
+
+			/** PAGINATION ****************************************************/
+			ul.pagination {
+				text-align: right;
+			}
+			ul.pagination li {
+				display: inline;
+				padding-right: 5px;
+			}
+			ul.pagination .currentPage {
+				font-weight: bold;
+			}
 		</style>
 	</head>
 	<body>
@@ -127,7 +178,7 @@ if (isset($_REQUEST['query'])) {
 							foreach ($langFacets as $langFacet):
 								$lang = $langFacet['name'];
 						?>
-						<input type="radio" name="lang" value="<?php echo $lang; ?>" id="<?php echo $lang; ?>" <?php if($_REQUEST['lang'] == $lang) echo 'checked="checked"'; ?>>
+						<input type="radio" name="lang" value="<?php echo $lang; ?>" id="<?php echo $lang; ?>" <?php if(isset($_REQUEST['lang'])) if($_REQUEST['lang'] == $lang) echo 'checked="checked"'; ?>>
 						<label for="<?php echo $lang; ?>"><?php echo ucfirst($lang); ?></label>
 						<?php endforeach; ?>
 					</div>
@@ -139,17 +190,17 @@ if (isset($_REQUEST['query'])) {
 					<?php endif; ?>
 				</form>
 				<?php
-				if (isset($resultCount)):
-				if ($resultCount): ?>
-				<div id="result">
-					<span>Found <?php if ($resultCount == 1): ?>1 result<?php else: echo $resultCount; ?> results<?php endif; ?></span>
+				if (isset($resultFound)):
+				if ($resultFound): ?>
+				<div class="result">
+					<span>Found <?php if ($resultFound == 1): ?>1 result<?php else: echo $resultFound; ?> results<?php endif; ?></span>
 					<span>(<?php printf('%0.2fs', $resultTime); ?>)</span>
 					<ul><?php
 						foreach ($resultEntries as $entry):
 
-							$url	 = implode('', $entry->xpath('*[@name="url"]'));
-							$host	 = implode('', $entry->xpath('*[@name="host"]'));
-							$type	 = implode('', $entry->xpath('field[@name="contentBaseType"]'));
+							$url	 = array_first($entry->xpath('*[@name="url"]'));
+							$host	 = array_first($entry->xpath('*[@name="host"]'));
+							$type	 = array_first($entry->xpath('field[@name="contentBaseType"]'));
 							$content = implode('', $entry->xpath('*[@name="content"]'));
 
 							$subType = preg_replace('/^[^\/]+\//', '', $type);
@@ -180,6 +231,27 @@ if (isset($_REQUEST['query'])) {
 					<?php endforeach; ?>
 					</ul>
 				</div>
+				<?php if ($resultTotalPages > 1): ?>
+				<div>
+					<ul class="pagination">
+						<?php if ($resultLowPage > 2):?>
+						<li><a href="<?php echo $pageBaseURI, 0; ?>">First&lt;&lt;</a></li>
+						<?php endif;?>
+						<?php if ($resultLowPrev < $resultLowPage):?>
+						<li><a href="<?php echo $pageBaseURI, $resultLowPrev; ?>">Prev&lt;&lt;</a></li>
+						<?php endif;?>
+						<?php for ($i = $resultLowPage; $i <= $resultHighPage; $i++): ?>
+						<li><a href="<?php echo $pageBaseURI, $i; ?>" <?php if ($i == $resultCurrentPage): ?>class="currentPage"<?php endif; ?>><?php echo $i + 1; ?></a></li>
+						<?php endfor;?>
+						<?php if ($resultHighNext > $resultHighPage):?>
+						<li><a href="<?php echo $pageBaseURI, $resultHighNext; ?>">&gt;&gt;Next</a></li>
+						<?php endif;?>
+						<?php if ($resultHighPage < $resultTotalPages):?>
+						<li><a href="<?php echo $pageBaseURI, $resultTotalPages; ?>">&gt;&gt;Last</a></li>
+						<?php endif;?>
+					</ul>
+				</div>
+				<?php endif; ?>
 				<?php else: ?>
 				<div id="result">
 					No result

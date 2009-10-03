@@ -40,6 +40,7 @@ class OSS_Search {
 	protected $sort;
 	protected $collapse;
 	protected $facet;
+	protected $sortBy;
 
 	protected $lastQueryString;
 
@@ -275,7 +276,7 @@ class OSS_Search {
 			$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
 
 		return $this->enginePath
-				.(strpos($this->searchEngineQueryPath,'?') === false ? '?' : '&')
+				.(strpos($this->enginePath,'?') === false ? '?' : '&')
 				.implode('&', $queryChunks);
 
 	}
