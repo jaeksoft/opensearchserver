@@ -100,6 +100,11 @@
 		<servlet-name>Action</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.ActionServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>Pattern</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.PatternServlet</servlet-class>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>Basket</servlet-name>
 		<url-pattern>/basket</url-pattern>
@@ -133,6 +138,10 @@
 	<servlet-mapping>
 		<servlet-name>Push</servlet-name>
 		<url-pattern>/push</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Pattern</servlet-name>
+		<url-pattern>/pattern</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Action</servlet-name>
