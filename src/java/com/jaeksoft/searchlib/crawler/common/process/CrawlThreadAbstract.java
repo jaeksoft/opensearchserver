@@ -109,6 +109,7 @@ public abstract class CrawlThreadAbstract implements Runnable {
 	}
 
 	protected void sleepMs(long ms, boolean withStatus) {
+
 		try {
 			if (withStatus)
 				setStatus(CrawlStatus.WAITING);

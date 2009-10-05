@@ -367,9 +367,9 @@ public class FileManager {
 			IllegalAccessException {
 
 		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
-		
-		deleteRequest.setQueryString(buildQueryString(FileItemFieldEnum.uri.name(),
-				rowToDelete, true));
+
+		deleteRequest.setQueryString(buildQueryString(
+				FileItemFieldEnum.directoryUri.name(), rowToDelete, true));
 		deleteRequest.setDelete(true);
 		fileDbClient.search(deleteRequest);
 	}
@@ -396,7 +396,7 @@ public class FileManager {
 			IllegalAccessException {
 
 		List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(FileItemFieldEnum.uri.name());
+				.getLinks(FileItemFieldEnum.directoryUri.name());
 
 		if (mappedPath.isEmpty())
 			return 0;
@@ -430,8 +430,8 @@ public class FileManager {
 				return 0;
 
 			SearchRequest deleteRequestTarget = getDBSearchRequest();
-			deleteRequestTarget.setQueryString(buildQueryString(
-					mappedField.get(0), list, false));
+			deleteRequestTarget.setQueryString(buildQueryString(mappedField
+					.get(0), list, false));
 
 			deleteRequestTarget.setDelete(true);
 			return targetClient.search(deleteRequestTarget).getNumFound();
@@ -501,7 +501,8 @@ public class FileManager {
 	 * @param rows
 	 * @return
 	 */
-	private String buildQueryString(String parameter, List<String> rows, boolean fuzzy) {
+	private String buildQueryString(String parameter, List<String> rows,
+			boolean fuzzy) {
 		StringBuffer query = new StringBuffer(parameter);
 		query.append(":(");
 		for (String name : rows) {
@@ -513,6 +514,5 @@ public class FileManager {
 		query.replace(query.length() - 4, query.length(), ")");
 		return query.toString();
 	}
-		
 
 }

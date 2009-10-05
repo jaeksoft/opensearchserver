@@ -142,16 +142,15 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			CorruptIndexException, ParseException,
 			UnsupportedEncodingException, java.text.ParseException {
 
-		File current = new File(item.getPath());
-
-		if (current.isFile()) {
-			sendToCrawl(current, current.toURI());
-			sleepMs(delayBetweenAccess, false);
-		} else if (current.isDirectory()) {
-			// Add its children
-			addChildRec(current, current.toURI(), item.isWithSub());
+		if (!isAbort()) {
+			File current = new File(item.getPath());
+			if (current.isFile()) {
+				sendToCrawl(current, current.toURI());
+			} else if (current.isDirectory()) {
+				// Add its children
+				addChildRec(current, current.toURI(), item.isWithSub());
+			}
 		}
-
 	}
 
 	/**
@@ -164,22 +163,27 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			throws SearchLibException, CorruptIndexException, ParseException,
 			UnsupportedEncodingException, java.text.ParseException {
 
-		List<URI> uriName = new ArrayList<URI>();
-		File[] children = file.listFiles();
+		if (!isAbort()) {
+			sleepMs(delayBetweenAccess, false);
 
-		if (children != null && children.length > 0 && !isAbort()) {
-			for (File current : children) {
-				if (current.isDirectory() && recursive) {
-					addChildRec(current, originalUri, true);
-				} else if (current.isFile()) {
-					sleepMs(delayBetweenAccess, false);
+			List<URI> uriName = new ArrayList<URI>();
+			File[] children = file.listFiles();
+
+			if (children != null && children.length > 0) {
+				for (File current : children) {
+					if (current.isDirectory() && recursive) {
+						addChildRec(current, originalUri, true);
+					}
+
+					if (!isAbort()) {
+						uriName.add(current.toURI());
+						sendToCrawl(current, originalUri);
+					}
 				}
-				uriName.add(current.toURI());
-				sendToCrawl(current, originalUri);
-			}
 
-			// Looking for deleted files
-			checkDeleteFiles(file.toURI(), uriName);
+				// Looking for deleted files
+				checkDeleteFiles(file.toURI(), uriName);
+			}
 		}
 	}
 
@@ -312,7 +316,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		URI file = null;
 		FileItem indexFile = null;
 
-		while (indexIterator.hasNext() && fileIterator.hasNext()) {
+		while (indexIterator.hasNext() && fileIterator.hasNext() && !isAbort()) {
 
 			if (file == null && fileIterator.hasNext())
 				file = fileIterator.next();

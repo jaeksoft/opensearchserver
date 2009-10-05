@@ -17,7 +17,8 @@
 -->
 <window id="crawlFileProcess"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController">
-	<panel title="Parameters for crawling" collapsible="true" border="normal">
+	<panel title="Parameters for crawling" collapsible="true"
+		border="normal">
 		<panelchildren>
 			<grid>
 				<columns>
@@ -43,9 +44,11 @@
 		</panelchildren>
 	</panel>
 	<separator />
-	<panel title="@{crawlFileProcess.fileCrawlMaster.statusInfo}"
-		collapsible="false" border="normal">
+	<panel title="Current status" collapsible="false" border="normal">
 		<toolbar>
+			<textbox readonly="true"
+				value="@{crawlFileProcess.fileCrawlMaster.statusInfo}" />
+			<space />
 			<checkbox label="Dry run"
 				disabled="@{crawlFileProcess.refresh}"
 				checked="@{crawlFileProcess.properties.dryRun.value}" />
