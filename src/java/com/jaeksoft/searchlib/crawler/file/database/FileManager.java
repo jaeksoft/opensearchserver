@@ -145,6 +145,7 @@ public class FileManager {
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		searchRequest.addReturnField("uri");
+		searchRequest.addReturnField("directoryUri");
 		searchRequest.addReturnField("originalUri");
 		searchRequest.addReturnField("contentLength");
 		searchRequest.addReturnField("lang");

@@ -21,7 +21,7 @@
 			fieldCache="500" />
 	</indices>
 	<schema>
-		<fields default="content" unique="path">
+		<fields default="content" unique="uri">
 			<field name="uri" indexed="yes" stored="yes" />
 			<field name="originalUri" indexed="yes" stored="yes" />
 			<field name="directoryUri" indexed="yes" stored="yes" />

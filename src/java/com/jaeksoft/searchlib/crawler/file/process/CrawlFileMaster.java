@@ -121,8 +121,9 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 		// Crawl
 		if (fileItem == null
-				|| (fileItem != null && fileItem.isNewCrawlNeeded(current
-						.lastModified()))) {
+				|| (fileItem != null && current != null && fileItem
+						.isNewCrawlNeeded(current.lastModified()))) {
+
 			fileItem = new FileItem(current.toURI(), current.getParentFile()
 					.toURI(), originalUri, current.lastModified(), current
 					.length());
@@ -144,6 +145,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 		if (!isAbort()) {
 			File current = new File(item.getPath());
+
 			if (current.isFile()) {
 				sendToCrawl(current, current.toURI());
 			} else if (current.isDirectory()) {
@@ -184,6 +186,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 				// Looking for deleted files
 				checkDeleteFiles(file.toURI(), uriName);
 			}
+			children = null;
 		}
 	}
 
@@ -328,7 +331,8 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 				// indexFile before file
 				if (indexFile.uri.compareTo(file) < 0) {
-					getCrawlQueue().delete(indexFile.uri.toASCIIString());
+					getCrawlQueue().delete(
+							indexFile.directoryUri.toASCIIString());
 					indexFile = null;
 				}
 				// indexFile after file
@@ -343,7 +347,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			}
 			// Only files in index
 			else if (file == null && indexFile != null && indexFile.uri != null) {
-				getCrawlQueue().delete(indexFile.uri.toASCIIString());
+				getCrawlQueue().delete(indexFile.directoryUri.toASCIIString());
 				indexFile = null;
 
 			} else {
