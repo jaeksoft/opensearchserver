@@ -133,10 +133,13 @@ public class BrowserController extends CommonController implements
 	public void setSelectedFilePath(File selectedFilePath) {
 		this.selectedFilePath = selectedFilePath;
 
-		if (selectedFilePath.equals(ROOT))
-			selectedFile = new File("");
-		else
-			selectedFile = new File(selectedFilePath.getAbsolutePath());
+		if (selectedFilePath != null) {
+			if (selectedFilePath.equals(ROOT))
+				selectedFile = new File("");
+			else
+				selectedFile = new File(selectedFilePath.getAbsolutePath());
+		} else
+			selectedFile = null;
 	}
 
 	public List<File> getFiles() {
@@ -280,6 +283,7 @@ public class BrowserController extends CommonController implements
 
 					pathList = null;
 					setSelectedFileCheck(false);
+					setSelectedFilePath(null);
 					reloadPage();
 				}
 			}

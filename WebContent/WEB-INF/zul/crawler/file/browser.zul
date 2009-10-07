@@ -48,15 +48,15 @@
 
 		<vbox>
 			<grid>
-				<rows height="500px">
+				<rows>
 					<row height="80px">
 						<checkbox checked="@{browser.selectedFileCheck}"
 							label="With all sub-directories"
 							disabled="@{browser.selectedFile.file}" />
 					</row>
 					<row>
-						<button label="Add" forward="onAdd" width="80px"
-							height="400px" />
+						<button label="Add" forward="onAdd"
+							width="80px" />
 					</row>
 				</rows>
 			</grid>
@@ -67,10 +67,9 @@
 				model="@{browser.pathItem.list}" height="500px">
 				<listhead>
 					<listheader label="Selection" />
-					<listheader label="With all sub-directories"
-						width="50px" />
+					<listheader label="With all" width="50px" />
 					<listheader label="Reset" width="50px" />
-					<listheader label="Remove" width="50px" />
+					<listheader label="Remove" width="60px" />
 				</listhead>
 				<listfoot>
 					<listfooter span="4">

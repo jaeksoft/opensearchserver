@@ -72,18 +72,10 @@ public class CrawlFileController extends CommonController {
 		return getClient().getFileCrawlMaster();
 	}
 
-	// TODO Publish / vs / plugin
-	/*
-	 * public boolean isPublish() { PublishIndexList publishList =
-	 * getClient().getPublishIndexList(); if (publishList == null) return false;
-	 * return publishList.size() > 0; }
-	 */
-
 	public boolean isRefresh() throws SearchLibException {
-		boolean r = refresh;
 		refresh = getFileCrawlMaster().isRunning()
 				|| getFileCrawlMaster().isAborting();
-		return r;
+		return refresh;
 	}
 
 	public String getRunButtonLabel() throws SearchLibException {
