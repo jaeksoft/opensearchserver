@@ -18,58 +18,68 @@
 <window id="browser"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.BrowserController">
 
-	<vbox width="100%">
-		<listbox model="@{browser.files}" mold="paging"
-			selectedItem="@{browser.selectedFilePath}" pageSize="25">
-			<listhead>
-				<listheader>
-					<button label="Back to root" forward="onReset" />
-					<button label="Back to parent" forward="onBack" />
-					<button label="Refresh" forward="onRefresh" />
-				</listheader>
-			</listhead>
+	<hbox>
+		<vbox>
+			<listbox model="@{browser.files}"
+				selectedItem="@{browser.selectedFilePath}" height="500px">
+				<auxhead>
+					<auxheader colspan="2">
+						<button label="Back" forward="onBack" />
+						<button label="Refresh" forward="onRefresh" />
+					</auxheader>
 
-			<listitem self="@{each='field'}" popup="dealsPopup">
-				<listcell label="@{field}" />
-			</listitem>
-		</listbox>
-		<popup id="dealsPopup" >
-			<vbox>
-				<hbox>
-					<button label="Open" forward="onSelect"
-						onClick="dealsPopup.close()"
-						disabled="@{browser.selectedFile.file}" />
-						
-					<button label="Cancel" image="/images/action_delete.png"
-						onClick="dealsPopup.close()" />
-				</hbox>
-				<hbox>
-					<button label="Add" forward="onAdd"
-						onClick="dealsPopup.close()" />
-					<checkbox label="With all sub-directories"
-						checked="@{browser.selectedFileCheck}"
-						disabled="@{browser.selectedFile.file}" left="true" />
-				</hbox>
-			</vbox>
-		</popup>
-	</vbox>
+				</auxhead>
+				<listhead>
+					<listheader align="center" width="25px" label="" />
+					<listheader align="left" label="Name" />
+				</listhead>
 
-	<separator />
+				<listitem self="@{each='field'}">
+					<listcell image="/images/file.png"
+						visible="@{field.file}" />
+					<listcell image="/images/directory.png"
+						visible="@{field.directory}" />
+					<listcell label="@{field}"
+						onDoubleClick="browser.onDoubleClick(self)" />
+				</listitem>
+			</listbox>
 
-	<listbox itemRenderer="@{browser}"
-		model="@{browser.pathItem.list}">
-		<listhead>
-			<listheader label="Selection" />
-			<listheader label="With all sub-directories" />
-			<listheader label="Reset" width="50px" />
-			<listheader label="Delete" width="50px" />
-		</listhead>
-		<listfoot>
-			<listfooter span="4">
-				<paging id="paging" detailed="true"
-					totalSize="@{browser.totalSize}" pageSize="@{browser.pageSize}"
-					activePage="@{browser.activePage}" />
-			</listfooter>
-		</listfoot>
-	</listbox>
+		</vbox>
+
+		<vbox>
+			<grid>
+				<rows height="500px">
+					<row height="80px">
+						<checkbox checked="@{browser.selectedFileCheck}"
+							label="With all sub-directories"
+							disabled="@{browser.selectedFile.file}" />
+					</row>
+					<row>
+						<button label="Add" forward="onAdd" width="80px"
+							height="400px" />
+					</row>
+				</rows>
+			</grid>
+		</vbox>
+
+		<vbox>
+			<listbox itemRenderer="@{browser}"
+				model="@{browser.pathItem.list}" height="500px">
+				<listhead>
+					<listheader label="Selection" />
+					<listheader label="With all sub-directories"
+						width="50px" />
+					<listheader label="Reset" width="50px" />
+					<listheader label="Remove" width="50px" />
+				</listhead>
+				<listfoot>
+					<listfooter span="4">
+						<paging id="paging" detailed="true"
+							totalSize="@{browser.totalSize}" pageSize="@{browser.pageSize}"
+							activePage="@{browser.activePage}" />
+					</listfooter>
+				</listfoot>
+			</listbox>
+		</vbox>
+	</hbox>
 </window>

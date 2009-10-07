@@ -61,7 +61,7 @@ public class BrowserController extends CommonController implements
 	private final String ROOT = "..";
 
 	transient private List<PathItem> pathList = null;
-	transient private List<String> files;
+	transient private List<File> files;
 
 	private int pageSize;
 	private int totalSize;
@@ -69,7 +69,7 @@ public class BrowserController extends CommonController implements
 
 	private File currentFile;
 	private File selectedFile;
-	private String selectedFilePath;
+	private File selectedFilePath;
 	private boolean selectedFileCheck;
 
 	public BrowserController() throws SearchLibException {
@@ -98,11 +98,16 @@ public class BrowserController extends CommonController implements
 	}
 
 	public boolean isSelectedFileCheck() {
+		if (getSelectedFile() != null && getSelectedFile().isFile())
+			selectedFileCheck = false;
 		return selectedFileCheck;
 	}
 
 	public void setSelectedFileCheck(boolean selectedFileCheck) {
-		this.selectedFileCheck = selectedFileCheck;
+		if (getSelectedFile() != null && getSelectedFile().isFile())
+			this.selectedFileCheck = false;
+		else
+			this.selectedFileCheck = selectedFileCheck;
 	}
 
 	public void setPageSize(int v) {
@@ -121,33 +126,42 @@ public class BrowserController extends CommonController implements
 		return totalSize;
 	}
 
-	public String getSelectedFilePath() {
+	public File getSelectedFilePath() {
 		return selectedFilePath;
 	}
 
-	public void setSelectedFilePath(String selectedFilePath) {
+	public void setSelectedFilePath(File selectedFilePath) {
 		this.selectedFilePath = selectedFilePath;
 
 		if (selectedFilePath.equals(ROOT))
 			selectedFile = new File("");
 		else
-			selectedFile = new File(selectedFilePath);
+			selectedFile = new File(selectedFilePath.getAbsolutePath());
 	}
 
-	public List<String> getFiles() {
+	public List<File> getFiles() {
 		synchronized (this) {
 			File[] dataToInsert = null;
 			if (currentFile == null) {
 				dataToInsert = File.listRoots();
-			} else
+			} else {
 				dataToInsert = currentFile.listFiles();
+			}
 
-			files = new ArrayList<String>();
+			List<File> onlyFile = new ArrayList<File>();
+			List<File> onlyDir = new ArrayList<File>();
 
 			if (dataToInsert != null && dataToInsert.length > 0) {
 				for (int i = 0; i < dataToInsert.length; i++) {
-					files.add(dataToInsert[i].getPath());
+					File current = dataToInsert[i];
+					if (current.isDirectory())
+						onlyDir.add(current);
+					else
+						onlyFile.add(current);
 				}
+				files = new ArrayList<File>();
+				files.addAll(onlyDir);
+				files.addAll(onlyFile);
 			}
 
 			return files;
@@ -256,7 +270,9 @@ public class BrowserController extends CommonController implements
 									org.zkoss.zul.Messagebox.INFORMATION);
 				} else {
 					List<PathItem> list = FilePathManager.addPath(
-							getSelectedFile().getPath(), isSelectedFileCheck());
+							getSelectedFile().getPath(), getSelectedFile()
+									.isDirectory()
+									&& isSelectedFileCheck());
 
 					if (list.size() > 0) {
 						getClient().getFilePathManager().addList(list, false);
@@ -264,20 +280,6 @@ public class BrowserController extends CommonController implements
 
 					pathList = null;
 					setSelectedFileCheck(false);
-					reloadPage();
-				}
-			}
-		}
-	}
-
-	public void onSelect() throws SearchLibException {
-		synchronized (this) {
-			if (getSelectedFile() != null) {
-
-				File currentFile = getSelectedFile();
-				if (currentFile != null && currentFile.isDirectory()) {
-					setCurrentFile(currentFile);
-					setSelectedFile(null);
 					reloadPage();
 				}
 			}
@@ -297,14 +299,6 @@ public class BrowserController extends CommonController implements
 				reloadPage();
 			}
 
-		}
-	}
-
-	public void onReset() throws SearchLibException {
-		synchronized (this) {
-			setSelectedFile(null);
-			setCurrentFile(null);
-			reloadPage();
 		}
 	}
 
