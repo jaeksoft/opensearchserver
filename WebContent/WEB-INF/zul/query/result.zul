@@ -59,116 +59,25 @@
 		</panelchildren>
 	</panel>
 	<separator />
-	<panel title="Document(s)" visible="@{result.documentFound}"
-		collapsible="true" border="normal">
-		<panelchildren>
-			<listbox model="@{result.documents}" mold="paging"
-				pageSize="10">
-				<listitem self="@{each='document'}">
-					<listcell>
-						<separator />
-						<panel title="@{document.title}"
-							collapsible="true">
-							<panelchildren>
-								<grid>
-									<columns>
-										<column
-											width="@{document.returnPercent}" />
-										<column
-											width="@{document.snippetPercent}" />
-									</columns>
-									<rows>
-										<row valign="top">
-											<tree
-												model="@{document.returnTree}" treeitemRenderer="@{result}"
-												visible="@{document.returnValid}" width="99%">
-												<treecols>
-													<treecol width="30%"
-														label="Returned field(s)" />
-													<treecol
-														label="First value" width="69%" />
-												</treecols>
-											</tree>
-											<tree
-												model="@{document.snippetTree}" treeitemRenderer="@{result}"
-												visible="@{document.snippetValid}" width="100%">
-												<treecols>
-													<treecol width="30%"
-														label="Snippet field(s)" />
-													<treecol
-														label="First value" width="69%" />
-												</treecols>
-											</tree>
-										</row>
-									</rows>
-								</grid>
-							</panelchildren>
-						</panel>
-					</listcell>
-				</listitem>
-			</listbox>
-		</panelchildren>
-	</panel>
-	<separator />
-	<panel title="Facet(s)" collapsible="true"
-		visible="@{result.facetValid}">
-		<panelchildren>
-			<listbox model="@{result.facetList}">
-				<listitem self="@{each='facet'}">
-					<listcell>
-						<separator />
-						<panel title="@{facet.facetField.name}"
-							collapsible="true">
-							<panelchildren>
-								<listbox model="@{facet.array}"
-									mold="paging" pageSize="100" fixedLayout="true">
-									<listhead>
-										<listheader align="right" />
-										<listheader />
-									</listhead>
-									<listitem self="@{each=item}">
-										<listcell label="@{item.count}" />
-										<listcell label="@{item.term}" />
-									</listitem>
-								</listbox>
-							</panelchildren>
-						</panel>
-					</listcell>
-				</listitem>
-			</listbox>
-		</panelchildren>
-	</panel>
-	<panel title="SpellCheck(s)" collapsible="true"
-		visible="@{result.spellCheckValid}">
-		<panelchildren>
-			<listbox model="@{result.spellCheckList}">
-				<listitem self="@{each='spellCheck'}">
-					<listcell>
-						<separator />
-						<panel title="@{spellCheck.fieldName}"
-							collapsible="true">
-							<panelchildren>
-								<listbox model="@{spellCheck.list}">
-									<listitem self="@{each=item}">
-										<listcell>
-											<panel
-												title="@{item.word}">
-												<panelchildren>
-													<listbox
-														model="@{item.suggestions}">
-														<listitem
-															self="@{each=suggest}" label="@{suggest}" />
-													</listbox>
-												</panelchildren>
-											</panel>
-										</listcell>
-									</listitem>
-								</listbox>
-							</panelchildren>
-						</panel>
-					</listcell>
-				</listitem>
-			</listbox>
-		</panelchildren>
-	</panel>
+	<tabbox>
+		<tabs>
+			<tab id="tabDocuments" label="Document(s)"
+				visible="@{result.documentFound}" selected="true" />
+			<tab id="tabFacets" label="Facet(s)"
+				visible="@{result.facetValid}" />
+			<tab id="tabSpellChecks" label="SpellCheck(s)"
+				visible="@{result.spellCheckValid}" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/query/result/documents.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabFacets.onSelect">
+				<include src="WEB-INF/zul/query/result/facets.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabSpellChecks.onSelect">
+				<include src="WEB-INF/zul/query/result/spellchecks.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
 </window>

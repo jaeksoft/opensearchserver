@@ -27,7 +27,7 @@
 	</desktop-config>
 	<device-config>
 		<device-type>ajax</device-type>
-		<timeout-uri>/index.zul</timeout-uri>
+		<timeout-uri>/timeout.zul</timeout-uri>
 	</device-config>
 
 </zk>

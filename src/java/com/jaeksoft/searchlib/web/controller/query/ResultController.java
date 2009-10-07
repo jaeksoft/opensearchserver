@@ -59,9 +59,12 @@ public class ResultController extends QueryController implements
 
 	private List<Document> documents;
 
+	private Facet selectedFacet;
+
 	public ResultController() throws SearchLibException {
 		super();
 		documents = null;
+		selectedFacet = null;
 	}
 
 	public class Document {
@@ -224,7 +227,7 @@ public class ResultController extends QueryController implements
 		}
 	}
 
-	public List<Facet> getFacetList() {
+	public FacetList getFacetList() {
 		synchronized (this) {
 			Result result = getResult();
 			if (result == null)
@@ -232,7 +235,10 @@ public class ResultController extends QueryController implements
 			FacetList facetList = result.getFacetList();
 			if (facetList == null)
 				return null;
-			return facetList.getList();
+			if (facetList.getList().size() > 0)
+				if (selectedFacet == null)
+					selectedFacet = facetList.getList().get(0);
+			return result.getFacetList();
 		}
 	}
 
@@ -261,10 +267,23 @@ public class ResultController extends QueryController implements
 
 	}
 
+	public void setSelectedFacet(Facet facet) {
+		synchronized (this) {
+			selectedFacet = facet;
+		}
+	}
+
+	public Facet getSelectedFacet() {
+		synchronized (this) {
+			return selectedFacet;
+		}
+	}
+
 	@Override
 	public void reloadPage() {
 		synchronized (this) {
 			documents = null;
+			selectedFacet = null;
 			super.reloadPage();
 		}
 	}
@@ -285,6 +304,7 @@ public class ResultController extends QueryController implements
 		treecell.setParent(treerow);
 	}
 
+	@Override
 	public void render(Treeitem item, Object data) throws Exception {
 		Treerow treerow = new Treerow();
 		if (data instanceof String)

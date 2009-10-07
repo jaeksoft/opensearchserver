@@ -105,6 +105,12 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 		}
 	}
 
+	public Map<String, FacetItem> getMap() {
+		synchronized (this) {
+			return facetMap;
+		}
+	}
+
 	private FacetItem get(int i) {
 		return (FacetItem) getArray()[i];
 	}

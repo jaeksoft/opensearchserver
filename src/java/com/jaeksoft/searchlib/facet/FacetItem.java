@@ -69,4 +69,9 @@ public class FacetItem implements Externalizable {
 		out.writeInt(count);
 	}
 
+	@Override
+	public String toString() {
+		return this.count + ": " + this.term;
+	}
+
 }

@@ -1,0 +1,47 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="result"
+	use="com.jaeksoft.searchlib.web.controller.query.ResultController"
+	border="none">
+	<hbox align="center">
+		<label value="Select a facet" />
+		<listbox model="@{result.facetList.list}" mold="select"
+			selectedItem="@{result.selectedFacet}">
+			<listitem self="@{each=facet}">
+				<listcell label="@{facet.facetField.name}" />
+			</listitem>
+		</listbox>
+	</hbox>
+
+	<panel title="@{result.selectedFacet.facetField.name}" collapsible="true">
+		<panelchildren>
+			<listbox model="@{result.selectedFacet.array}" mold="paging"
+				pageSize="10">
+				<listhead>
+					<listheader align="right" />
+					<listheader />
+				</listhead>
+				<listitem self="@{each=item}">
+					<listcell label="@{item.count}" />
+					<listcell label="@{item.term}" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+
+</window>
