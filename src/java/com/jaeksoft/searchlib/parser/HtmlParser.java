@@ -399,7 +399,7 @@ public class HtmlParser extends Parser {
 		}
 
 		if (lang != null) {
-			addField(ParserFieldEnum.lang, lang.getISO3Language());
+			addField(ParserFieldEnum.lang, lang.getLanguage());
 			addField(ParserFieldEnum.lang_method, langMethod);
 		}
 	}
