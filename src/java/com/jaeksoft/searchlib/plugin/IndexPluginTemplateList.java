@@ -9,8 +9,10 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexPluginTemplateList {
 
@@ -38,6 +40,13 @@ public class IndexPluginTemplateList {
 		for (int i = 0; i < nodes.getLength(); i++)
 			indexPluginList.add(new IndexPluginItem(xpp, nodes.item(i)));
 		return indexPluginList;
+	}
+
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("indexPlugins");
+		for (IndexPluginItem item : pluginList)
+			item.writeXmlConfig(writer);
+		writer.endElement();
 	}
 
 }

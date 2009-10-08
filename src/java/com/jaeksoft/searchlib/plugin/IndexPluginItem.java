@@ -25,13 +25,16 @@
 package com.jaeksoft.searchlib.plugin;
 
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexPluginItem {
 
@@ -49,6 +52,16 @@ public class IndexPluginItem {
 			String value = xpp.getNodeString(node);
 			properties.put(name, value);
 		}
+	}
+
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("indexPlugin", "class", className);
+		for (Entry<Object, Object> entry : properties.entrySet()) {
+			writer.startElement("param", "name", entry.getKey().toString());
+			writer.textNode(entry.getValue());
+			writer.endElement();
+		}
+		writer.endElement();
 	}
 
 	public IndexPluginInterface newInstance() throws InstantiationException,

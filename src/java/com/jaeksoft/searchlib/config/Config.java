@@ -176,7 +176,7 @@ public abstract class Config {
 	}
 
 	private void saveConfigWithoutLock() throws IOException,
-			TransformerConfigurationException, SAXException {
+			TransformerConfigurationException, SAXException, SearchLibException {
 		ConfigFileRotation cfr = new ConfigFileRotation(indexDir, "config.xml");
 		if (!cfr.getTempFile().exists())
 			cfr.getTempFile().createNewFile();
@@ -186,6 +186,7 @@ public abstract class Config {
 			xmlWriter.startElement("configuration");
 			getIndex().writeXmlConfig(xmlWriter);
 			getSchema().writeXmlConfig(xmlWriter);
+			getIndexPluginTemplateList().writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
 			pw.close();
