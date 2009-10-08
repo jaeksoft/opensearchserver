@@ -39,12 +39,9 @@ public class CrawlFileController extends CommonController {
 
 	private int sheetRows;
 
-	private boolean refresh;
-
 	public CrawlFileController() throws SearchLibException {
 		super();
 		sheetRows = 20;
-		refresh = false;
 	}
 
 	public int getSheetRows() {
@@ -59,7 +56,6 @@ public class CrawlFileController extends CommonController {
 		} else {
 			propertyManager.getCrawlEnabled().setValue(true);
 			getFileCrawlMaster().start();
-			refresh = true;
 		}
 		reloadPage();
 	}
@@ -73,9 +69,8 @@ public class CrawlFileController extends CommonController {
 	}
 
 	public boolean isRefresh() throws SearchLibException {
-		refresh = getFileCrawlMaster().isRunning()
+		return getFileCrawlMaster().isRunning()
 				|| getFileCrawlMaster().isAborting();
-		return refresh;
 	}
 
 	public String getRunButtonLabel() throws SearchLibException {
