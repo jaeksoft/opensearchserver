@@ -42,6 +42,7 @@
 	<property name="name-debug" value="${product}-debug" />
 	<property name="tomcat-name" value="apache-tomcat-6.0.20" />
 	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
+	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
 
@@ -103,6 +104,9 @@
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
+		<copy todir="${dist}/${product}/${tomcat-name}/conf">
+			<fileset dir="${tomcat-config}" />
+		</copy>
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/ROOT" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/examples" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/docs" />
