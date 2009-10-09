@@ -33,7 +33,6 @@
 	<property name="build-release" location="${build}/release" />
 	<property name="build-debug" location="${build}/debug" />
 	<property name="build-doc" location="${build}/doc" />
-	<property name="doc" location="doc" />
 	<property name="dist" location="dist" />
 	<property name="temp" location="temp" />
 	<property name="licenses" location="licenses" />
@@ -45,6 +44,13 @@
 	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
+	<property name="doc.src" location="src/doc" />
+	<property name="docbook.xsl.dir" location="${docbook.dir}/docbook-xsl-1.72.0" />
+	<property name="html.stylesheet" location="${docbook.xsl.dir}/html/docbook.xsl" />
+	<property name="fop.home" location="${docbook.dir}/fop-0.95" />
+
+
+
 
 	<path id="project.class.path">
 		<fileset dir="${lib}">
@@ -100,7 +106,7 @@
 		</war>
 	</target>
 
-	<target name="dist" depends="dist-war-release,dist-war-debug,doc">
+	<target name="dist" depends="dist-war-release,dist-war-debug">
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
@@ -128,11 +134,13 @@
 		</copy>
 
 		<!-- Copy PDF and HTML documentation -->
+		<!--
 		<copy file="${build-doc}/en/documentation.pdf" todir="${dist}/${product}/doc" />
 		<copy file="${build-doc}/en/documentation.pdf" todir="${dist}" />
 		<copy todir="${dist}/${product}/doc/html">
 			<fileset dir="${build-doc}/en/html" />
 		</copy>
+		-->
 
 		<!-- Check executable file flag for batches -->
 		<chmod perm="ugo+x" type="file">
@@ -173,7 +181,7 @@
 
 	</target>
 
-	<target name="doc-en">
+	<target name="dita-doc-en">
 		<ant antfile="${dita.dir}/build.xml" target="init">
 			<property name="args.input" value="doc/en/dita/documentation.ditamap" />
 			<property name="output.dir" value="${build-doc}/en/html" />
@@ -201,7 +209,33 @@
 		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" />
 	</target>
 
-	<target name="doc" depends="doc-en" />
+	<target name="doc-html">
+		<xslt style="${html.stylesheet}" extension=".html" basedir="${doc.src}" destdir="${build-doc}">
+			<include name="**/*book.xml" />
+			<param name="html.stylesheet" expression="style.css" />
+		</xslt>
+	</target>
+
+	<target name="doc-pdf">
+		<xslt style="${fo.stylesheet}" extension=".fo" basedir="${source.dir}" destdir="${fo.dir}">
+			<classpath refid="xalan.classpath" />
+			<include name="book.xml" />
+		</xslt>
+
+		<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop">
+			<classpath>
+				<fileset dir="${fop.home}/lib">
+					<include name="*.jar" />
+				</fileset>
+				<fileset dir="${fop.home}/build">
+					<include name="fop.jar" />
+					<include name="fop-hyph.jar" />
+				</fileset>
+			</classpath>
+		</taskdef>
+
+		<fop format="application/pdf" fofile="${fo.dir}/book.fo" outfile="${dist.dir}/book.pdf" />
+	</target>
 
 	<target name="clean" description="clean up">
 		<delete dir="${build}" />
