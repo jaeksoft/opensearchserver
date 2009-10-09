@@ -18,22 +18,20 @@
 <window id="browser"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.BrowserController">
 
-	<grid>
-		<columns>
+	<grid width="100%">
+		<columns width="100%">
 			<column width="43%">
 				<listbox model="@{browser.files}"
-					selectedItem="@{browser.selectedFilePath}" height="500px"
-					width="100%">
+					selectedItem="@{browser.selectedFilePath}" height="500px">
 					<auxhead>
 						<auxheader colspan="2">
 							<button label="Back" forward="onBack" />
 							<button label="Refresh" forward="onRefresh" />
 						</auxheader>
-
 					</auxhead>
+
 					<listhead>
-						<listheader align="center" width="25px"
-							label="" />
+						<listheader align="center" width="25px" />
 						<listheader align="left" label="Name" />
 					</listhead>
 
@@ -49,47 +47,35 @@
 			</column>
 
 			<column>
-				<grid align="center" width="100%" fixedLayout="true">
-					<rows>
-						<row align="center">
-							<label>With all sub-directories</label>
-						</row>
-						<row align="center">
-							<checkbox
-								checked="@{browser.selectedFileCheck}"
-								disabled="@{browser.selectedFile.file}" />
-						</row>
-						<row align="center">
-							<button label="Add" forward="onAdd"
-								width="80px" />
-						</row>
-					</rows>
-				</grid>
+				<vbox align="center">
+					<label>With all sub-directories</label>
+
+					<checkbox checked="@{browser.selectedFileCheck}"
+						disabled="@{browser.selectedFile.file}" />
+
+					<button label="Add" forward="onAdd" width="80px" />
+				</vbox>
 			</column>
 
 			<column width="43%">
-				<vbox width="100%">
-					<listbox itemRenderer="@{browser}"
-						model="@{browser.pathItem.list}" height="500px">
-						<listhead>
-							<listheader label="Selection" />
-							<listheader label="With all" width="50px" />
-							<listheader label="Reset" width="50px" />
-							<listheader label="Remove" width="60px" />
-						</listhead>
-						<listfoot>
-							<listfooter span="4">
-								<paging id="paging" detailed="true"
-									totalSize="@{browser.totalSize}" pageSize="@{browser.pageSize}"
-									activePage="@{browser.activePage}" />
-							</listfooter>
-						</listfoot>
-					</listbox>
-				</vbox>
+				<listbox itemRenderer="@{browser}"
+					model="@{browser.pathItem.list}" height="500px">
+					<listhead>
+						<listheader label="Selection" />
+						<listheader label="With all" width="50px" />
+						<listheader label="Reset" width="50px" />
+						<listheader label="Remove" width="60px" />
+					</listhead>
+					<listfoot>
+						<listfooter span="4">
+							<paging id="paging" detailed="true"
+								totalSize="@{browser.totalSize}" pageSize="@{browser.pageSize}"
+								activePage="@{browser.activePage}" />
+						</listfooter>
+					</listfoot>
+				</listbox>
+
 			</column>
 		</columns>
 	</grid>
-
-
-
 </window>
