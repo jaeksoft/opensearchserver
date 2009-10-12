@@ -49,9 +49,6 @@
 	<property name="html.stylesheet" location="${docbook.xsl.dir}/html/docbook.xsl" />
 	<property name="fop.home" location="${docbook.dir}/fop-0.95" />
 
-
-
-
 	<path id="project.class.path">
 		<fileset dir="${lib}">
 			<include name="**.jar" />
@@ -106,7 +103,7 @@
 		</war>
 	</target>
 
-	<target name="dist" depends="dist-war-release,dist-war-debug">
+	<target name="dist" depends="dist-war-release,dist-war-debug,doc-html,doc-pdf">
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
@@ -211,15 +208,14 @@
 
 	<target name="doc-html">
 		<xslt style="${html.stylesheet}" extension=".html" basedir="${doc.src}" destdir="${build-doc}">
-			<include name="**/*book.xml" />
+			<include name="*.xml" />
 			<param name="html.stylesheet" expression="style.css" />
 		</xslt>
 	</target>
 
 	<target name="doc-pdf">
-		<xslt style="${fo.stylesheet}" extension=".fo" basedir="${source.dir}" destdir="${fo.dir}">
-			<classpath refid="xalan.classpath" />
-			<include name="book.xml" />
+		<xslt style="${docbook.xsl.dir}/fo/docbook.xsl" extension=".fo" basedir="${doc.src}" destdir="${build-doc}">
+			<include name="*.xml" />
 		</xslt>
 
 		<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop">
@@ -234,7 +230,7 @@
 			</classpath>
 		</taskdef>
 
-		<fop format="application/pdf" fofile="${fo.dir}/book.fo" outfile="${dist.dir}/book.pdf" />
+		<fop format="application/pdf" fofile="${build-doc}/guide.fo" outfile="${build-doc}/guide.pdf" />
 	</target>
 
 	<target name="clean" description="clean up">
