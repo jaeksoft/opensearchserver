@@ -56,10 +56,13 @@ public class IndexController extends CommonController {
 				String version = properties.getProperty("VERSION");
 				String stage = properties.getProperty("STAGE");
 				String revision = properties.getProperty("REVISION");
+				String build = properties.getProperty("BUILD");
 
 				release = "Open Search Server v" + version + " - " + stage;
 				if (revision != null)
-					release += " r" + properties.getProperty("REVISION");
+					release += " - rev " + revision;
+				if (build != null)
+					release += " - build " + build;
 			} finally {
 				if (is != null)
 					is.close();
