@@ -32,7 +32,6 @@
 	<property name="build" location="ant-build" />
 	<property name="build-release" location="${build}/release" />
 	<property name="build-debug" location="${build}/debug" />
-	<property name="build-doc" location="${build}/doc" />
 	<property name="dist" location="dist" />
 	<property name="temp" location="temp" />
 	<property name="licenses" location="licenses" />
@@ -44,10 +43,6 @@
 	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
-	<property name="doc.src" location="src/doc" />
-	<property name="docbook.xsl.dir" location="${docbook.dir}/docbook-xsl-1.72.0" />
-	<property name="html.stylesheet" location="${docbook.xsl.dir}/html/docbook.xsl" />
-	<property name="fop.home" location="${docbook.dir}/fop-0.95" />
 
 	<path id="project.class.path">
 		<fileset dir="${lib}">
@@ -103,7 +98,7 @@
 		</war>
 	</target>
 
-	<target name="dist" depends="dist-war-release,dist-war-debug,doc-html,doc-pdf">
+	<target name="dist" depends="dist-war-release,dist-war-debug">
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
@@ -178,59 +173,8 @@
 
 	</target>
 
-	<target name="dita-doc-en">
-		<ant antfile="${dita.dir}/build.xml" target="init">
-			<property name="args.input" value="doc/en/dita/documentation.ditamap" />
-			<property name="output.dir" value="${build-doc}/en/html" />
-			<property name="transtype" value="xhtml" />
-			<property name="dita.extname" value=".dita" />
-			<property name="args.draft" value="yes" />
-			<property name="args.indexshow" value="no" />
-			<property name="args.hdr" value="${doc}/en/dita/header.xml" />
-			<property name="args.ftr" value="${doc}/en/dita/footer.xml" />
-			<property name="clean.temp" value="yes" />
-			<property name="args.xhtml.toc" value="toc" />
-		</ant>
-		<copy file="${doc}/en/dita/index.html" toDir="${build-doc}/en/html" />
-		<copy file="${doc}/en/dita/images/oss_128x128b_WEB.jpg" toDir="${build-doc}/en/html/images" />
-		<copy file="${doc}/en/dita/images/oss_128x128b_WEB.jpg" toDir="${build-doc}/en/html/quick_start/images" />
-		<copy file="${doc}/en/dita/images/oss_128x128b_WEB.jpg" toDir="${build-doc}/en/html/xml_api/images" />
-		<ant antfile="${dita.dir}/build.xml" target="dita2pdf2">
-			<property name="args.input" value="doc/en/dita/documentation.ditamap" />
-			<property name="output.dir" value="${build-doc}/en" />
-			<property name="clean.temp" value="yes" />
-		</ant>
-	</target>
-
 	<target name="javadoc">
 		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" />
-	</target>
-
-	<target name="doc-html">
-		<xslt style="${html.stylesheet}" extension=".html" basedir="${doc.src}" destdir="${build-doc}">
-			<include name="*.xml" />
-			<param name="html.stylesheet" expression="style.css" />
-		</xslt>
-	</target>
-
-	<target name="doc-pdf">
-		<xslt style="${docbook.xsl.dir}/fo/docbook.xsl" extension=".fo" basedir="${doc.src}" destdir="${build-doc}">
-			<include name="*.xml" />
-		</xslt>
-
-		<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop">
-			<classpath>
-				<fileset dir="${fop.home}/lib">
-					<include name="*.jar" />
-				</fileset>
-				<fileset dir="${fop.home}/build">
-					<include name="fop.jar" />
-					<include name="fop-hyph.jar" />
-				</fileset>
-			</classpath>
-		</taskdef>
-
-		<fop format="application/pdf" fofile="${build-doc}/guide.fo" outfile="${build-doc}/guide.pdf" />
 	</target>
 
 	<target name="clean" description="clean up">
