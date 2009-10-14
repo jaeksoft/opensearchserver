@@ -24,6 +24,10 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 
@@ -34,8 +38,34 @@ public class IndexController extends CommonController {
 	 */
 	private static final long serialVersionUID = -7590913483471357743L;
 
+	private String release = null;
+
 	public IndexController() throws SearchLibException {
 		super();
+	}
+
+	public String getRelease() throws IOException {
+		synchronized (this) {
+			if (release != null)
+				return release;
+			InputStream is = null;
+			try {
+				is = getDesktop().getWebApp().getResourceAsStream("/version");
+				Properties properties = new Properties();
+				properties.load(is);
+				String version = properties.getProperty("VERSION");
+				String stage = properties.getProperty("STAGE");
+				String revision = properties.getProperty("REVISION");
+
+				release = "Open Search Server v" + version + " - " + stage;
+				if (revision != null)
+					release += " r" + properties.getProperty("REVISION");
+			} finally {
+				if (is != null)
+					is.close();
+			}
+			return release;
+		}
 	}
 
 	public String getIndexTitle() throws SearchLibException {

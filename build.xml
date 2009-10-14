@@ -125,15 +125,6 @@
 			<fileset dir="${examples}" />
 		</copy>
 
-		<!-- Copy PDF and HTML documentation -->
-		<!--
-		<copy file="${build-doc}/en/documentation.pdf" todir="${dist}/${product}/doc" />
-		<copy file="${build-doc}/en/documentation.pdf" todir="${dist}" />
-		<copy todir="${dist}/${product}/doc/html">
-			<fileset dir="${build-doc}/en/html" />
-		</copy>
-		-->
-
 		<!-- Check executable file flag for batches -->
 		<chmod perm="ugo+x" type="file">
 			<fileset dir="${dist}/${product}">
