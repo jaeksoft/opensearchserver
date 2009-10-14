@@ -24,6 +24,7 @@
 -->
 <project name="OpenSearchServer" default="dist" basedir=".">
 
+	<property environment="env" />
 	<property name="src" location="src/java" />
 	<property name="resources" location="src/resources" />
 	<property name="web" location="WebContent" />
@@ -34,6 +35,7 @@
 	<property name="build-debug" location="${build}/debug" />
 	<property name="dist" location="dist" />
 	<property name="temp" location="temp" />
+	<property name="temp-version" location="${temp}/version" />
 	<property name="licenses" location="licenses" />
 	<property name="product" value="open-search-server" />
 	<property name="name-release" value="${product}" />
@@ -43,6 +45,7 @@
 	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
+	<loadproperties srcfile="version" />
 
 	<path id="project.class.path">
 		<fileset dir="${lib}">
@@ -58,6 +61,11 @@
 		<mkdir dir="${build-release}" />
 		<mkdir dir="${build-debug}" />
 		<mkdir dir="${build-doc}" />
+		<mkdir dir="${temp}" />
+		<echo file="${temp-version}" append="false" message="VERSION = ${VERSION}${line.separator}" />
+		<echo file="${temp-version}" append="true" message="STAGE = ${STAGE}${line.separator}" />
+		<echo file="${temp-version}" append="true" message="REVISION = ${env.SVN_REVISION}${line.separator}" />
+		<echo file="${temp-version}" append="true" message="BUILD = ${env.BUILD_NUMBER}${line.separator}" />
 	</target>
 
 	<target name="compile-release" depends="init" description="compile the source ">
@@ -80,6 +88,7 @@
 		<mkdir dir="${dist}" />
 		<war destfile="${dist}/${name-release}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
 			<lib file="${dist}/${name-release}.jar" />
+			<fileset file="${temp-version}" />
 		</war>
 	</target>
 
@@ -95,6 +104,7 @@
 		<mkdir dir="${dist}" />
 		<war destfile="${dist}/${name-debug}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
 			<lib file="${dist}/${name-debug}.jar" />
+			<fileset file="${temp-version}" />
 		</war>
 	</target>
 
