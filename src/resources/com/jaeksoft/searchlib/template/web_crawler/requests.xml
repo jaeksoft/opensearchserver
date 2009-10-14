@@ -22,7 +22,7 @@
 
 <requests>
 
-	<request name="search" phraseSlop="2" defaultOperator="OR"
+	<request name="search" phraseSlop="2" defaultOperator="AND"
 		start="0" rows="10" lang="en">
 
 		<query>title:($$)^10 OR title:("$$")^10

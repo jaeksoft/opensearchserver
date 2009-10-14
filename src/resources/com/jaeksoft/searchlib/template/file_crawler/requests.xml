@@ -21,7 +21,7 @@
 	<!--   See the GNU General Public License for more details. -->
 
 <requests>
-	<request name="fileSearch" phraseSlop="2" defaultOperator="OR"
+	<request name="fileSearch" phraseSlop="2" defaultOperator="AND"
 		start="0" rows="10" lang="en">
 
 		<query>uri:($$)^10 OR uri:("$$")^10 OR
