@@ -274,7 +274,8 @@ public class SearchRequest implements Externalizable {
 	private String getFinalQuery() throws SyntaxError {
 		String finalQuery;
 		if (patternQuery != null && patternQuery.length() > 0)
-			finalQuery = patternQuery.replace("$$", queryString);
+			finalQuery = patternQuery.replace("$$", queryString).replace(
+					"\"\"", "\"");
 		else
 			finalQuery = queryString;
 
@@ -612,7 +613,7 @@ public class SearchRequest implements Externalizable {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			node = nodes.item(i);
 			String textNode = xpp.getNodeString(node);
-			if (textNode != null)
+			if (textNode != null && textNode.length() > 0)
 				sortList.add(textNode);
 			else
 				sortList.add(new SortField(node));
