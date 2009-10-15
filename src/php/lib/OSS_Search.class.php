@@ -20,6 +20,8 @@
  *  along with Jaeksoft OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+if (!class_exists('OSS_API')) { trigger_error("OSS_Search won't work whitout OSS_API", E_USER_ERROR); die(); }
+
 /**
  * @author pmercier <pmercier-oss@nkubz.net>
  * @package OpenSearchServer
@@ -44,32 +46,16 @@ class OSS_Search {
 
 	protected $lastQueryString;
 
+	/**
+	 * @param $enginePath The URL to access the OSS Engine
+	 * @param $index The index name
+	 * @return OSS_Search
+	 */
 	public function __construct($enginePath, $index = null) {
-
-		$urlParams = array();
-		// Extract the use param in the query part if any
-		if (strpos($enginePath, '?') !== false) {
-			$parsedURL = parse_url($enginePath);
-			parse_str($parsedURL['query'], $urlParams);
-			if (isset($urlParams['use'])) {
-				$index = $urlParams['use'];
-				$enginePath = str_replace('&&', '&', str_replace("use=".$urlParams['use'], '', $enginePath));
-				if (substr($enginePath, -1) == '?')
-					$enginePath = substr($enginePath, 0, -1);
-			}
-		}
-
-		if (!preg_match('/\/'.OSS_API::API_SELECT.'\/?(?:$|\?|#)/', $enginePath)) {
-			$enginePath = preg_replace('/\/?($|\?|#)/', '/'.OSS_API::API_SELECT.'/$1', $enginePath, 1);
-			$enginePath = str_replace(array('://', '//', '?&', '/?', '/#'), array(':///', '/', '?', '?'), $enginePath);
-			if (substr($enginePath, -1) == '/')
-				$enginePath = substr($enginePath, 0, -1);
-		}
-
-		$this->enginePath	= $enginePath;
-		$this->index		= $index;
-		$this->enginePath	= $enginePath;
-		$this->index		= $index;
+		
+		$parsedPath = OSS_API::parseEnginePath($enginePath, $index);
+		$this->enginePath	= $parsedPath['enginePath']);
+		$this->index		= $parsedPath['index'];
 
 		$this->field	= array();
 		$this->filter	= array();

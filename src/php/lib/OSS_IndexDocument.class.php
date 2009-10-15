@@ -107,12 +107,14 @@ class OSS_IndexDocument_Document extends ArrayObject {
 	public function setLanguage($language) {
 		static $supportedLanguages = null;
 
-		if ($lang === null) {
+		if ($language === null) {
 			$this->language = $language;
 			return null;
 		}
 
-		if ($supportedLanguages === null) OSS_API::supportedLanguages();
+		if ($supportedLanguages === null)
+			$supportedLanguages = OSS_API::supportedLanguages();
+		
 		if (isset($supportedLanguages[$language]))
 			$this->language = (string)$language;
 		else {
