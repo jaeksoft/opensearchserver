@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,34 +27,15 @@ package com.jaeksoft.searchlib.remote;
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpException;
+import org.apache.http.client.methods.HttpGet;
 
-public class UriRead {
-
-	protected GetMethod getMethod = null;
+public class UriRead extends UriHttp {
 
 	public UriRead(URI uri) throws HttpException, IOException {
-		HttpClient httpClient = new HttpClient();
-		getMethod = new GetMethod(uri.toASCIIString());
-		getMethod.addRequestHeader("Connection", "close");
-		httpClient.executeMethod(getMethod);
-	}
-
-	public int getResponseCode() throws IOException {
-		return getMethod.getStatusCode();
-	}
-
-	public String getResponseMessage() throws IOException {
-		return getMethod.getStatusText();
-	}
-
-	public void close() {
-		if (getMethod != null) {
-			getMethod.releaseConnection();
-			getMethod = null;
-		}
+		HttpGet httpGet = new HttpGet(uri.toASCIIString());
+		httpGet.addHeader("Connection", "close");
+		execute(httpGet);
 	}
 
 }

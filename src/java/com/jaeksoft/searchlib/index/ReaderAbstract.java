@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -41,7 +42,8 @@ public abstract class ReaderAbstract extends NameFilter implements
 
 	public boolean deleteDocument(String indexName, int docId)
 			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			HttpException {
 		if (!acceptNameOrEmpty(indexName))
 			return false;
 		return deleteDocument(docId);

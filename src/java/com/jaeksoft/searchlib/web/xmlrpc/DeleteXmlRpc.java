@@ -32,6 +32,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
@@ -45,7 +46,7 @@ public class DeleteXmlRpc extends AbstractXmlRpc {
 			throws SearchLibException, NamingException,
 			NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		Client client = ClientCatalog.getClient(index);
 		if (client.deleteDocument(docId))
 			return newInfoMap("Document deleted");
@@ -66,7 +67,7 @@ public class DeleteXmlRpc extends AbstractXmlRpc {
 			throws SearchLibException, NamingException, CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		Client client = ClientCatalog.getClient(index);
 		if (client.deleteDocument(uniqueKey))
 			return newInfoMap("Document deleted");

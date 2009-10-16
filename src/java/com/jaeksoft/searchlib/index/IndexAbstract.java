@@ -32,6 +32,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.http.HttpException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -80,10 +81,10 @@ public abstract class IndexAbstract extends NameFilter implements
 
 	public abstract void reload(String indexName) throws IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
+			ClassNotFoundException, HttpException;
 
 	public abstract void swap(String indexName, long version, boolean deleteOld)
-			throws IOException, URISyntaxException;
+			throws IOException, URISyntaxException, HttpException;
 
 	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter)
 			throws SAXException;

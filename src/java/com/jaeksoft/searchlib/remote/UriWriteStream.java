@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,35 +28,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.FileRequestEntity;
-import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.FileEntity;
 
-public class UriWriteStream {
-
-	private PutMethod putMethod;
+public class UriWriteStream extends UriHttp {
 
 	public UriWriteStream(URI uri, File file) throws IOException {
-		putMethod = new PutMethod(uri.toASCIIString());
-		FileRequestEntity fre = new FileRequestEntity(file,
-				"application/octet-stream");
-		putMethod.setRequestEntity(fre);
-		HttpClient httpClient = new HttpClient();
-		httpClient.executeMethod(putMethod);
+		HttpPut httpPut = new HttpPut(uri.toASCIIString());
+		FileEntity fre = new FileEntity(file, "application/octet-stream");
+		httpPut.setEntity(fre);
+		execute(httpPut);
 	}
 
-	public int getResponseCode() throws IOException {
-		return putMethod.getStatusCode();
-	}
-
-	public String getResponseMessage() throws IOException {
-		return putMethod.getResponseBodyAsString();
-	}
-
-	public void close() {
-		if (putMethod != null) {
-			putMethod.releaseConnection();
-			putMethod = null;
-		}
-	}
 }

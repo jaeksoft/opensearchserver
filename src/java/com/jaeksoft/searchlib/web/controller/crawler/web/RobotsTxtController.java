@@ -28,6 +28,8 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.http.HttpException;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -59,7 +61,7 @@ public class RobotsTxtController extends CommonController {
 
 	public void onSearch() throws IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		super.onReload();
 	}
 

@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 
+import org.apache.http.HttpException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zkplus.databind.DataBinder;
@@ -101,7 +102,7 @@ public class CommonController extends Window {
 
 	public void onReload() throws IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		reloadPage();
 	}
 

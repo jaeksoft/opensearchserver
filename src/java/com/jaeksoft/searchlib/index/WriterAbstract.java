@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
@@ -84,7 +85,7 @@ public abstract class WriterAbstract extends NameFilter implements
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		if (!acceptNameOrEmpty(indexName))
 			return false;
 		return deleteDocument(schema, uniqueField);

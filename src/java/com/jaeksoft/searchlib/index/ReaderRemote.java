@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
@@ -58,13 +59,13 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 	}
 
 	// TODO Implementation
-	public void reload() throws IOException, URISyntaxException {
+	public void reload() throws IOException, URISyntaxException, HttpException {
 		ActionServlet.reload(uri, getName());
 	}
 
 	// TODO Propagate version information
 	public void swap(long version, boolean deleteOld) throws IOException,
-			URISyntaxException {
+			URISyntaxException, HttpException {
 		ActionServlet.swap(uri, getName(), version, deleteOld);
 	}
 
@@ -85,7 +86,7 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 
 	public boolean deleteDocument(int docId) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException,
-			URISyntaxException {
+			URISyntaxException, HttpException {
 		return DeleteServlet.deleteDocument(uri, getName(), docId);
 	}
 

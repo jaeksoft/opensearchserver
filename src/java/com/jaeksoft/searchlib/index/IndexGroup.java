@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutorService;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
@@ -104,7 +105,7 @@ public class IndexGroup extends IndexAbstract {
 	public void optimize(String indexName) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		if (indexName == null || indexName.length() == 0) {
 			for (IndexAbstract index : getIndices())
 				index.optimize(null);
@@ -170,7 +171,7 @@ public class IndexGroup extends IndexAbstract {
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		boolean deleted = false;
 		for (IndexAbstract index : getIndices())
 			if (index.deleteDocument(schema, uniqueField))
@@ -182,7 +183,7 @@ public class IndexGroup extends IndexAbstract {
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return false;
@@ -191,7 +192,7 @@ public class IndexGroup extends IndexAbstract {
 
 	public boolean deleteDocument(String indexName, int docId)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, HttpException {
 		IndexAbstract index = get(indexName);
 		if (index == null)
 			return false;
@@ -199,7 +200,8 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	public boolean deleteDocument(int docId) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+			LockObtainFailedException, IOException, URISyntaxException,
+			HttpException {
 		boolean deleted = false;
 		for (IndexAbstract index : getIndices())
 			if (index.deleteDocument(docId))
@@ -261,14 +263,14 @@ public class IndexGroup extends IndexAbstract {
 	@Override
 	public void reload(String indexName) throws IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		for (IndexAbstract index : getIndices())
 			index.reload(indexName);
 	}
 
 	@Override
 	public void swap(String indexName, long version, boolean deleteOld)
-			throws IOException, URISyntaxException {
+			throws IOException, URISyntaxException, HttpException {
 		for (IndexAbstract index : getIndices())
 			index.swap(indexName, version, deleteOld);
 	}
@@ -364,7 +366,7 @@ public class IndexGroup extends IndexAbstract {
 
 	public void reload() throws IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		for (IndexAbstract index : getIndices())
 			index.reload();
 	}

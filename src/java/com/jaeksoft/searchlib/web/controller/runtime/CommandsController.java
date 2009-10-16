@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Date;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
@@ -54,7 +55,7 @@ public class CommandsController extends CommonController {
 	@Override
 	public void onReload() throws IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		synchronized (this) {
 			Date t = new Date();
 			getClient().reload(null);
@@ -66,7 +67,7 @@ public class CommandsController extends CommonController {
 	public void onOptimize() throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		synchronized (this) {
 			Date t = new Date();
 			getClient().optimize(null);

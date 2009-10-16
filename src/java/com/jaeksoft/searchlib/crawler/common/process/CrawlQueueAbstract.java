@@ -29,6 +29,8 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import org.apache.http.HttpException;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
@@ -52,7 +54,7 @@ public abstract class CrawlQueueAbstract<T, Z> {
 
 	public abstract void index(boolean bForce) throws SearchLibException,
 			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException;
+			IllegalAccessException, ClassNotFoundException, HttpException;
 
 	public abstract void add(T crawl) throws NoSuchAlgorithmException,
 			IOException, SearchLibException;

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,13 +27,15 @@ package com.jaeksoft.searchlib.remote;
 import java.io.IOException;
 import java.net.URI;
 
+import org.apache.http.HttpException;
+
 public class UriReadObject extends UriRead {
 
 	private StreamReadObject sro;
 
-	public UriReadObject(URI uri) throws IOException {
+	public UriReadObject(URI uri) throws IOException, HttpException {
 		super(uri);
-		sro = new StreamReadObject(getMethod.getResponseBodyAsStream());
+		sro = new StreamReadObject(httpEntity.getContent());
 	}
 
 	public Object read() throws IOException, ClassNotFoundException {

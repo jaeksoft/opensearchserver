@@ -35,6 +35,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.queryParser.ParseException;
 import org.xml.sax.SAXException;
 import org.zkoss.zhtml.Messagebox;
@@ -239,7 +240,7 @@ public class BrowserController extends CommonController implements
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
 			getClient().getFilePathManager().delPath(link.getSource());
@@ -253,7 +254,7 @@ public class BrowserController extends CommonController implements
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		synchronized (link) {
 			deleteOriginalPath(link.getSource());
@@ -342,7 +343,7 @@ public class BrowserController extends CommonController implements
 
 	private void deleteOriginalPath(String path) throws SearchLibException,
 			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 
 		URI uri = (new File(path)).toURI();
 		CrawlStatus status = getClient().getFileCrawlMaster().getStatus();

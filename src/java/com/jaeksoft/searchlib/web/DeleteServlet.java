@@ -33,7 +33,7 @@ import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.httpclient.HttpException;
+import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -51,7 +51,7 @@ public class DeleteServlet extends AbstractServlet {
 	private boolean deleteUniqDoc(Client client, String indexName, String uniq)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		if (indexName == null)
 			return client.deleteDocument(uniq);
 		else
@@ -60,7 +60,7 @@ public class DeleteServlet extends AbstractServlet {
 
 	private boolean deleteDocById(Client client, String indexName, int docId)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, HttpException {
 		if (indexName == null)
 			return client.deleteDocument(docId);
 		else
@@ -141,7 +141,7 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	public static boolean delete(URI uri, String indexName, String uniqueField)
-			throws IOException, URISyntaxException {
+			throws IOException, URISyntaxException, HttpException {
 		String msg = call(buildUri(uri, "/delete", indexName, "uniq="
 				+ uniqueField));
 		return Boolean.parseBoolean(msg.trim());

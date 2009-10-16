@@ -65,12 +65,13 @@ public class CrawlThread extends CrawlThreadAbstract {
 		this.crawlMaster = crawlMaster;
 		this.currentUrlItem = null;
 		currentStats = new CrawlStatistics(sessionStats);
-		delayBetweenAccesses = config.getWebPropertyManager()
-				.getDelayBetweenAccesses().getValue();
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		delayBetweenAccesses = propertyManager.getDelayBetweenAccesses()
+				.getValue();
 		nextTimeTarget = 0;
 		this.urlList = urlList;
-
-		httpDownloader = new HttpDownloader();
+		httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
+				.getValue());
 	}
 
 	private void sleepInterval() {
@@ -84,7 +85,6 @@ public class CrawlThread extends CrawlThreadAbstract {
 	public void runner() throws Exception {
 
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		String userAgent = propertyManager.getUserAgent().getValue();
 		boolean dryRun = propertyManager.getDryRun().getValue();
 
 		currentStats.addListSize(urlList.size());
@@ -102,7 +102,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 
 			currentUrlItem = iterator.next();
 
-			Crawl crawl = crawl(userAgent, dryRun);
+			Crawl crawl = crawl(dryRun);
 			if (crawl != null) {
 				if (!dryRun)
 					crawlQueue.add(crawl);
@@ -121,8 +121,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 
 	}
 
-	private Crawl crawl(String userAgent, boolean dryRun)
-			throws SearchLibException {
+	private Crawl crawl(boolean dryRun) throws SearchLibException {
 
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();

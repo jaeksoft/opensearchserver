@@ -25,47 +25,81 @@
 package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.IOException;
+import java.net.URI;
 
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.RedirectHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultRedirectHandler;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParamBean;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
 public class HttpDownloader {
 
 	private HttpClient httpClient = null;
-	private GetMethod currentMethod = null;
+	private HttpGet httpGet = null;
+	private HttpContext httpContext = null;
+	private HttpResponse httpResponse = null;
+	private RedirectHandler redirectHandler;
 
-	public HttpDownloader() {
-		HttpClientParams params = new HttpClientParams();
-		params.setConnectionManagerTimeout(60000);
-		params.setSoTimeout(5000);
-		params.setParameter(HttpMethodParams.RETRY_HANDLER,
-				new DefaultHttpMethodRetryHandler(0, false));
-		httpClient = new HttpClient(params);
+	public HttpDownloader(String userAgent) {
+		redirectHandler = new DefaultRedirectHandler();
+		HttpParams params = new BasicHttpParams();
+		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
+		paramsBean.setVersion(HttpVersion.HTTP_1_1);
+		paramsBean.setContentCharset("UTF-8");
+		paramsBean.setUserAgent(userAgent);
+		HttpClientParams.setRedirecting(params, false);
+		httpClient = new DefaultHttpClient(params);
+		// TIMEOUT ?
+		// RETRY HANDLER ?
 	}
 
 	public void release() {
-		try {
-			if (currentMethod != null) {
-				currentMethod.releaseConnection();
-				currentMethod = null;
+		synchronized (this) {
+			try {
+				httpContext = null;
+				httpGet = null;
+				httpResponse = null;
+				if (httpClient != null)
+					httpClient.getConnectionManager().shutdown();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
-	public GetMethod get(String url, String userAgent) throws IOException {
+	public void get(String url) throws IOException {
 		synchronized (this) {
-			if (currentMethod != null)
-				throw new IOException("Another GET method is running");
-			currentMethod = new GetMethod(url);
-			if (userAgent != null)
-				currentMethod.addRequestHeader("User-agent", userAgent);
-			httpClient.executeMethod(currentMethod);
-			return currentMethod;
+			httpGet = new HttpGet(url);
+			httpContext = new BasicHttpContext();
+			httpResponse = httpClient.execute(httpGet, httpContext);
+		}
+	}
+
+	public HttpResponse getResponse() {
+		synchronized (this) {
+			return httpResponse;
+		}
+	}
+
+	public URI getRedirectLocation() throws ProtocolException {
+		synchronized (this) {
+			if (httpResponse == null)
+				return null;
+			if (httpContext == null)
+				return null;
+			if (!redirectHandler.isRedirectRequested(httpResponse, httpContext))
+				return null;
+			return redirectHandler.getLocationURI(httpResponse, httpContext);
 		}
 	}
 }

@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -161,6 +162,8 @@ public class UrlManager {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
+		} catch (HttpException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -225,6 +228,8 @@ public class UrlManager {
 			} catch (IllegalAccessException e) {
 				throw new SearchLibException(e);
 			} catch (ClassNotFoundException e) {
+				throw new SearchLibException(e);
+			} catch (HttpException e) {
 				throw new SearchLibException(e);
 			}
 		}
@@ -520,7 +525,7 @@ public class UrlManager {
 
 	public void reload(boolean optimize) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		if (optimize) {
 			urlDbClient.reload(null);
 			urlDbClient.getIndex().optimize(null);

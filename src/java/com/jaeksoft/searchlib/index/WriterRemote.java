@@ -31,7 +31,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
-import org.apache.commons.httpclient.HttpException;
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
@@ -52,8 +52,8 @@ public class WriterRemote extends WriterAbstract {
 	public void xmlInfo(PrintWriter writer) {
 	}
 
-	public void optimize(String indexName) throws HttpException, IOException,
-			URISyntaxException {
+	public void optimize(String indexName) throws IOException,
+			URISyntaxException, HttpException {
 		ActionServlet.optimize(uri, getName());
 	}
 
@@ -72,7 +72,7 @@ public class WriterRemote extends WriterAbstract {
 
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+			IOException, URISyntaxException, HttpException {
 		return DeleteServlet.delete(uri, getName(), uniqueField);
 	}
 

@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -38,9 +39,10 @@ import java.util.logging.Logger;
 
 import javax.mail.internet.ParseException;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -76,6 +78,7 @@ public class Crawl {
 	private CrawlStatistics currentStats;
 	private List<String> discoverLinks;
 	private FieldMap urlFieldMap;
+	private URI redirectUrlLocation;
 
 	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector,
 			CrawlStatistics currentStats) throws SearchLibException {
@@ -90,6 +93,7 @@ public class Crawl {
 		this.parserSelector = parserSelector;
 		this.config = config;
 		this.error = null;
+		this.redirectUrlLocation = null;
 	}
 
 	private void parseContent(InputStream inputStream)
@@ -137,24 +141,40 @@ public class Crawl {
 	 */
 	public void download(HttpDownloader httpDownloader) {
 		synchronized (this) {
-			GetMethod getMethod = null;
+			HttpResponse httpResponse = null;
+			HttpEntity httpEntity = null;
 			InputStream is = null;
 			try {
-				getMethod = httpDownloader.get(urlItem.getCheckedURI()
-						.toASCIIString(), userAgent);
-				if (getMethod == null)
-					throw new IOException("Method is null");
-				is = getMethod.getResponseBodyAsStream();
-				Header header = getMethod.getResponseHeader("Content-Type");
+				httpDownloader.get(urlItem.getCheckedURI().toASCIIString());
+				httpResponse = httpDownloader.getResponse();
+				if (httpResponse == null)
+					throw new IOException("Http response is null");
+
+				httpEntity = httpResponse.getEntity();
+				if (httpEntity == null)
+					throw new IOException("Http entity is null");
+
+				Header header = httpEntity.getContentType();
 				if (header != null)
 					urlItem.setContentType(header.getValue());
-				urlItem.setContentEncoding(getMethod.getResponseCharSet());
-				urlItem.setContentLength((int) getMethod
-						.getResponseContentLength());
+
+				header = httpEntity.getContentEncoding();
+				if (header != null)
+					urlItem.setContentEncoding(header.getValue());
+
+				urlItem.setContentLength(httpEntity.getContentLength());
+
 				urlItem.setFetchStatus(FetchStatus.FETCHED);
-				int code = getMethod.getStatusCode();
+
+				StatusLine statusLine = httpResponse.getStatusLine();
+				if (statusLine == null)
+					throw new IOException("Http status is null");
+
+				int code = httpResponse.getStatusLine().getStatusCode();
 				urlItem.setResponseCode(code);
+				redirectUrlLocation = httpDownloader.getRedirectLocation();
 				if (code >= 200 && code < 300) {
+					is = httpEntity.getContent();
 					parseContent(is);
 				} else if ("301".equals(code)) {
 					urlItem.setFetchStatus(FetchStatus.REDIR_PERM);
@@ -197,10 +217,6 @@ public class Crawl {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
 				setError(e.getMessage());
-			} catch (HttpException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-				urlItem.setFetchStatus(FetchStatus.HTTP_ERROR);
-				setError(e.getMessage());
 			} catch (IOException e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
@@ -215,8 +231,16 @@ public class Crawl {
 					is.close();
 			} catch (IOException e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
+				e.printStackTrace();
 			} finally {
-				httpDownloader.release();
+				if (httpEntity != null) {
+					try {
+						httpEntity.consumeContent();
+					} catch (IOException e) {
+						logger.log(Level.WARNING, e.getMessage(), e);
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}
@@ -292,9 +316,13 @@ public class Crawl {
 		synchronized (this) {
 			if (discoverLinks != null)
 				return discoverLinks;
-			if (parser == null || !urlItem.isStatusFull())
-				return null;
 			discoverLinks = new ArrayList<String>();
+			if (redirectUrlLocation != null) {
+				discoverLinks.add(redirectUrlLocation.toString());
+				return discoverLinks;
+			}
+			if (parser == null || !urlItem.isStatusFull())
+				return discoverLinks;
 			UrlManager urlManager = config.getUrlManager();
 			PatternManager patternUrlManager = config.getPatternManager();
 			discoverLinks(urlManager, patternUrlManager, parser
@@ -308,5 +336,4 @@ public class Crawl {
 			return discoverLinks;
 		}
 	}
-
 }

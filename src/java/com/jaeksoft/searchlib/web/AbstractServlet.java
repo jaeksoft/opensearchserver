@@ -33,8 +33,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.HttpException;
-
 import com.jaeksoft.searchlib.remote.UriRead;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
@@ -114,8 +112,8 @@ public abstract class AbstractServlet extends HttpServlet {
 
 	}
 
-	protected static String call(URI uri) throws HttpException, IOException,
-			URISyntaxException {
+	protected static String call(URI uri) throws org.apache.http.HttpException,
+			IOException, URISyntaxException {
 		UriRead uriRead = null;
 		try {
 			uriRead = new UriRead(uri);

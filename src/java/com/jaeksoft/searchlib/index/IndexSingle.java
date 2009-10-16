@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
@@ -95,7 +96,7 @@ public class IndexSingle extends IndexAbstract {
 	public void optimize(String indexName) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -113,7 +114,7 @@ public class IndexSingle extends IndexAbstract {
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -133,7 +134,7 @@ public class IndexSingle extends IndexAbstract {
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -150,7 +151,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public boolean deleteDocument(int docId) throws IOException,
-			URISyntaxException {
+			URISyntaxException, HttpException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -167,7 +168,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public boolean deleteDocument(String indexName, int docId)
-			throws IOException, URISyntaxException {
+			throws IOException, URISyntaxException, HttpException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -338,7 +339,7 @@ public class IndexSingle extends IndexAbstract {
 
 	public void reload() throws IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -355,14 +356,14 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public void reload(String indexName) throws IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		reload();
 	}
 
 	public void swap(long version, boolean deleteOld) throws IOException,
-			URISyntaxException {
+			URISyntaxException, HttpException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -378,7 +379,7 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public void swap(String indexName, long version, boolean deleteOld)
-			throws IOException, URISyntaxException {
+			throws IOException, URISyntaxException, HttpException {
 		if (!acceptNameOrEmpty(indexName))
 			return;
 		swap(version, deleteOld);

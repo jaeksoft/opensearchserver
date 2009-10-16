@@ -35,6 +35,7 @@ import java.util.Collection;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -157,7 +158,7 @@ public class Client extends Config {
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(getSchema(), uniqueField);
@@ -170,7 +171,7 @@ public class Client extends Config {
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(indexName, getSchema(),
@@ -182,7 +183,7 @@ public class Client extends Config {
 
 	public boolean deleteDocument(int docId) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, HttpException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(docId);
@@ -193,7 +194,7 @@ public class Client extends Config {
 
 	public boolean deleteDocument(String indexName, int docId)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException, HttpException {
 		Timer timer = new Timer();
 		try {
 			return getIndex().deleteDocument(indexName, docId);
@@ -253,7 +254,7 @@ public class Client extends Config {
 
 	public void optimize(String indexName) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		Timer timer = new Timer();
 		try {
 			getIndex().optimize(indexName);
@@ -264,7 +265,7 @@ public class Client extends Config {
 
 	public void reload(String indexName) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		Timer timer = new Timer();
 		try {
 			getIndex().reload(indexName);
@@ -279,7 +280,7 @@ public class Client extends Config {
 	@Deprecated
 	public void reload(boolean deleteOld) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		reload(null);
 	}
 

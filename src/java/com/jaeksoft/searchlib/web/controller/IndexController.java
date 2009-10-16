@@ -48,21 +48,24 @@ public class IndexController extends CommonController {
 		synchronized (this) {
 			if (release != null)
 				return release;
+			release = "Open Search Server";
 			InputStream is = null;
 			try {
 				is = getDesktop().getWebApp().getResourceAsStream("/version");
-				Properties properties = new Properties();
-				properties.load(is);
-				String version = properties.getProperty("VERSION");
-				String stage = properties.getProperty("STAGE");
-				String revision = properties.getProperty("REVISION");
-				String build = properties.getProperty("BUILD");
+				if (is != null) {
+					Properties properties = new Properties();
+					properties.load(is);
+					String version = properties.getProperty("VERSION");
+					String stage = properties.getProperty("STAGE");
+					String revision = properties.getProperty("REVISION");
+					String build = properties.getProperty("BUILD");
 
-				release = "Open Search Server v" + version + " - " + stage;
-				if (revision != null)
-					release += " - rev " + revision;
-				if (build != null)
-					release += " - build " + build;
+					release += " v" + version + " - " + stage;
+					if (revision != null)
+						release += " - rev " + revision;
+					if (build != null)
+						release += " - build " + build;
+				}
 			} finally {
 				if (is != null)
 					is.close();

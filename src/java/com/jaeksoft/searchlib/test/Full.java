@@ -12,6 +12,7 @@ import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.http.HttpException;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.InputSource;
@@ -32,7 +33,7 @@ public class Full {
 			NoSuchAlgorithmException, XPathExpressionException, IOException,
 			URISyntaxException, ParserConfigurationException, SAXException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, NamingException {
+			ClassNotFoundException, NamingException, HttpException {
 		File configFile = new File("resources/test_config.xml");
 		assertTrue(configFile.exists());
 		client = ClientCatalog.getClient("web_crawler");
@@ -42,7 +43,7 @@ public class Full {
 	public void populate() throws SearchLibException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, XPathExpressionException,
 			ParserConfigurationException, SAXException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
 		FileInputStream fis = new FileInputStream(contentFile);

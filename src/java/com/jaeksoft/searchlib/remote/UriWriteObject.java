@@ -29,44 +29,33 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ByteArrayEntity;
 
-public class UriWriteObject {
+public class UriWriteObject extends UriHttp {
 
-	private PutMethod putMethod;
-	private StreamWriteObject swo;
-	private StreamReadObject sro;
+	private StreamWriteObject swo = null;
+	private StreamReadObject sro = null;
 
 	public UriWriteObject(URI uri, Externalizable object) throws IOException {
-		putMethod = new PutMethod(uri.toASCIIString());
+		HttpPut httpPut = new HttpPut(uri.toASCIIString());
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		swo = new StreamWriteObject(baos);
 		swo.write(object);
 		swo.close(true);
 		swo = null;
 		sro = null;
-		putMethod.setRequestEntity(new ByteArrayRequestEntity(baos
-				.toByteArray()));
-		HttpClient httpClient = new HttpClient();
-		httpClient.executeMethod(putMethod);
-	}
-
-	public int getResponseCode() throws IOException {
-		return putMethod.getStatusCode();
-	}
-
-	public String getResponseMessage() throws IOException {
-		return putMethod.getResponseBodyAsString();
+		httpPut.setEntity(new ByteArrayEntity(baos.toByteArray()));
+		execute(httpPut);
 	}
 
 	public Externalizable getResponseObject() throws IOException,
 			ClassNotFoundException {
-		sro = new StreamReadObject(putMethod.getResponseBodyAsStream());
+		sro = new StreamReadObject(httpResponse.getEntity().getContent());
 		return sro.read();
 	}
 
+	@Override
 	public void close() {
 		if (sro != null) {
 			sro.close();
@@ -76,9 +65,6 @@ public class UriWriteObject {
 			swo.close(false);
 			swo = null;
 		}
-		if (putMethod != null) {
-			putMethod.releaseConnection();
-			putMethod = null;
-		}
+		super.close();
 	}
 }

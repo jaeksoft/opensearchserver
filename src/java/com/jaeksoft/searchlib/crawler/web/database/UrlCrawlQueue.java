@@ -30,6 +30,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpException;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
@@ -91,7 +93,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 	@Override
 	public void index(boolean bForce) throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, HttpException {
 		List<Crawl> workUpdateCrawlList;
 		List<UrlItem> workInsertUrlList;
 		List<String> workDeleteUrlList;

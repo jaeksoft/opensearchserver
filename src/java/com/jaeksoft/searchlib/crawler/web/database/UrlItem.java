@@ -58,7 +58,7 @@ public class UrlItem implements Serializable {
 	private String url;
 	private String contentBaseType;
 	private String contentTypeCharset;
-	private Integer contentLength;
+	private Long contentLength;
 	private String contentEncoding;
 	private String lang;
 	private String langMethod;
@@ -197,19 +197,19 @@ public class UrlItem implements Serializable {
 		if (v.length() == 0)
 			return;
 		try {
-			contentLength = getContentLengthFormat().parse(v).intValue();
+			contentLength = getContentLengthFormat().parse(v).longValue();
 		} catch (ParseException e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 
 	}
 
-	public void setContentLength(int v) {
+	public void setContentLength(long v) {
 		contentLength = v;
 
 	}
 
-	public Integer getContentLength() {
+	public Long getContentLength() {
 		return contentLength;
 	}
 

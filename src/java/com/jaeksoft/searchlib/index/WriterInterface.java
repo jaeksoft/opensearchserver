@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
@@ -40,12 +41,12 @@ public interface WriterInterface {
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
+			ClassNotFoundException, HttpException;
 
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException;
+			IllegalAccessException, ClassNotFoundException, HttpException;
 
 	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
@@ -83,6 +84,6 @@ public interface WriterInterface {
 	public void optimize(String indexName) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
+			ClassNotFoundException, HttpException;
 
 }

@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
+import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
@@ -66,11 +67,12 @@ public interface ReaderInterface {
 
 	public boolean deleteDocument(int docId) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException,
-			URISyntaxException;
+			URISyntaxException, HttpException;
 
 	public boolean deleteDocument(String indexName, int docId)
 			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException;
+			LockObtainFailedException, IOException, URISyntaxException,
+			HttpException;
 
 	public int deleteDocuments(Collection<Integer> docIds)
 			throws StaleReaderException, CorruptIndexException,
@@ -86,10 +88,10 @@ public interface ReaderInterface {
 
 	public void reload() throws IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
+			ClassNotFoundException, HttpException;
 
 	public void swap(long version, boolean deleteOld) throws IOException,
-			URISyntaxException;
+			URISyntaxException, HttpException;
 
 	public void push(URI dest) throws URISyntaxException, IOException;
 
