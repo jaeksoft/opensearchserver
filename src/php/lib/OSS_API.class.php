@@ -66,7 +66,9 @@ class OSS_API {
 			"tr" => "Turkish"
 	);
 
+	/* @var string */
 	protected $enginePath;
+	/* @var string */
 	protected $index;
 
 	/**
@@ -76,7 +78,7 @@ class OSS_API {
 	 */
 	public function __construct($enginePath, $index = null) {
 		$parsedPath = OSS_API::parseEnginePath($enginePath, $index);
-		$this->enginePath	= $parsedPath['enginePath']);
+		$this->enginePath	= $parsedPath['enginePath'];
 		$this->index		= $parsedPath['index'];
 	}
 
@@ -172,7 +174,7 @@ class OSS_API {
 	 * Will fail if more than 16 HTTP redirection
 	 * FIXME Explain Exceptions
 	 */
-	public static function queryServer($url, $data = null, $connexionTimeout = OSS_API::DEFAULT_CONNEXION_TIMEOUT, $timeout = OSS_API::DEFAULT_TIMEOUT) {
+	public static function queryServer($url, $data = null, $connexionTimeout = OSS_API::DEFAULT_CONNEXION_TIMEOUT, $timeout = OSS_API::DEFAULT_QUERY_TIMEOUT) {
 
 		// Use CURL to post the data
 		$rCurl = curl_init($url);
@@ -282,13 +284,6 @@ class OSS_API {
 				if (substr($enginePath, -1) == '?')
 					$enginePath = substr($enginePath, 0, -1);
 			}
-		}
-
-		if (!preg_match('/\/'.OSS_API::API_SELECT.'\/?(?:$|\?|#)/', $enginePath)) {
-			$enginePath = preg_replace('/\/?($|\?|#)/', '/'.OSS_API::API_SELECT.'/$1', $enginePath, 1);
-			$enginePath = str_replace(array('://', '//', '?&', '/?', '/#'), array(':///', '/', '?', '?'), $enginePath);
-			if (substr($enginePath, -1) == '/')
-				$enginePath = substr($enginePath, 0, -1);
 		}
 		
 		return array('enginePath' => $enginePath, 'index' => $index);

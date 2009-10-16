@@ -20,6 +20,7 @@
  *  along with Jaeksoft OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+if (!class_exists('OSS_API')) { trigger_error("OSS_Search won't work whitout OSS_API", E_USER_ERROR); die(); }
 if (!class_exists('ArrayObject')) { trigger_error("OSS_IndexDocument won't work whitout SPL ArrayObject", E_USER_ERROR); die(); }
 
 /**
@@ -45,7 +46,7 @@ class OSS_IndexDocument extends ArrayObject {
 	public function offsetSet($offset, $document) {
 		if (!$document instanceof OSS_IndexDocument_Document)
 			throw new UnexpectedValueException("OSS_IndexDocument_Document was expected.");
-		parent::offsetSet($offset, $documentNode);
+		parent::offsetSet($offset, $document);
 	}
 
 	/**

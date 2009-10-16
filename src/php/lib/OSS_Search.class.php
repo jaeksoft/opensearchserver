@@ -54,7 +54,7 @@ class OSS_Search {
 	public function __construct($enginePath, $index = null) {
 		
 		$parsedPath = OSS_API::parseEnginePath($enginePath, $index);
-		$this->enginePath	= $parsedPath['enginePath']);
+		$this->enginePath	= $parsedPath['enginePath'];
 		$this->index		= $parsedPath['index'];
 
 		$this->field	= array();
@@ -66,6 +66,8 @@ class OSS_Search {
 	}
 
 	/**
+	 * Specify the index name to query
+	 * @param $index string
 	 * @return OSS_Search
 	 */
 	public function index($index = null) {
@@ -74,6 +76,8 @@ class OSS_Search {
 	}
 
 	/**
+	 * Specify the query
+	 * @param $query string
 	 * @return OSS_Search
 	 */
 	public function query($query = null) {
@@ -260,10 +264,8 @@ class OSS_Search {
 			$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
 		if ($this->collapse['max'] !== null)
 			$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
-
-		return $this->enginePath
-				.(strpos($this->enginePath,'?') === false ? '?' : '&')
-				.implode('&', $queryChunks);
+		
+		return $this->enginePath.'/'.OSS_API::API_SELECT.'?'.implode('&', $queryChunks);
 
 	}
 }

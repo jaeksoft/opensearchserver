@@ -38,7 +38,7 @@ define('MAX_PAGE_TO_LINK', 10);
 
 $ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
 $ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
-$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_search', 'myWebCrawler', 'engineIndex');
+$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_search', 'myCrawler', 'engineIndex');
 
 if (isset($_REQUEST['query'])) {
 
@@ -163,7 +163,7 @@ if (isset($_REQUEST['query'])) {
 
 
 					<fieldset id="query_fieldset">
-						<input id="query" name="query" value="<?php if (isset($_REQUEST['query'])) echo $_REQUEST['query']; ?>" />
+						<input id="query" name="query" value="<?php if (isset($_REQUEST['query'])) echo htmlspecialchars($_REQUEST['query']); ?>" />
 						<input id="submit" type="submit" value=""/>
 					</fieldset>
 					<?php

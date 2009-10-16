@@ -45,6 +45,8 @@ $sampleFeed = array(
 	'MAKE Magazine [en, RSS2.0]' => array('http://blog.makezine.com/index.xml', 'en')
 );
 
+$errors = array();
+
 if (isset($_REQUEST['feed'])) {
 
 	$curlInfos = array();
@@ -197,15 +199,15 @@ if (isset($_REQUEST['feed'])) {
 						<input id="feed" name="feed" value="<?php if(isset($_REQUEST['feed'])) echo $_REQUEST['feed']; ?>" />
 						<select id="lang" name="lang">
 							<?php foreach (OSS_API::supportedLanguages() as $langISO => $langLabel): ?>
-							<option value="<?php echo $langISO; ?>"<?php if ((string)$_REQUEST['lang'] == $langISO): ?> selected="true"<?php endif; ?>><?php echo $langLabel; ?></option>
+							<option value="<?php echo $langISO; ?>"<?php if (isset($_REQUEST['lang']) && (string)$_REQUEST['lang'] == $langISO): ?> selected="true"<?php endif; ?>><?php echo $langLabel; ?></option>
 							<?php endforeach; ?>
 						</select>
 						<input id="submit" type="submit" />
 						<div class="errors">
-							<?php if (in_array('feedNotFoundOrInvalid', (array)$errors)): ?>
+							<?php if (in_array('feedNotFoundOrInvalid', $errors)): ?>
 							<span>The feed was not found or is an invalid XML</span>
 							<?php endif; ?>
-							<?php if (in_array('failedToUpdate', (array)$errors)): ?>
+							<?php if (in_array('failedToUpdate', $errors)): ?>
 							<span>The feed couldn't be sent to the search engine</span>
 							<?php endif; ?>
 						</div>
@@ -242,3 +244,4 @@ if (isset($_REQUEST['feed'])) {
 		</div>
 	</body>
 </html>
+<?php echo $index->__toString(); ?>
