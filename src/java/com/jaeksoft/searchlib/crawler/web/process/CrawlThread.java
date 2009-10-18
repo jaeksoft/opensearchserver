@@ -53,6 +53,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 	private CrawlStatistics currentStats;
 	private long delayBetweenAccesses;
 	private HttpDownloader httpDownloader;
+	private HttpDownloader httpDownloaderRobotsTxt;
 	private long nextTimeTarget;
 	private List<UrlItem> urlList;
 	private NamedItem host;
@@ -71,7 +72,10 @@ public class CrawlThread extends CrawlThreadAbstract {
 		nextTimeTarget = 0;
 		this.urlList = urlList;
 		httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
-				.getValue());
+				.getValue(), false);
+		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
+				.getUserAgent().getValue(), true);
+
 	}
 
 	private void sleepInterval() {
@@ -148,7 +152,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 
 			sleepInterval();
 			setStatus(CrawlStatus.CRAWL);
-			if (crawl.checkRobotTxtAllow(httpDownloader))
+			if (crawl.checkRobotTxtAllow(httpDownloaderRobotsTxt))
 				crawl.download(httpDownloader);
 			nextTimeTarget = System.currentTimeMillis() + delayBetweenAccesses
 					* 1000;
@@ -208,6 +212,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 	public void complete() {
 		crawlMaster.remove(this);
 		httpDownloader.release();
+		httpDownloaderRobotsTxt.release();
 		synchronized (crawlMaster) {
 			crawlMaster.notify();
 		}

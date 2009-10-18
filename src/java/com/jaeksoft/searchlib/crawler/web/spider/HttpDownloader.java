@@ -56,14 +56,14 @@ public class HttpDownloader {
 	private StatusLine statusLine = null;
 	private RedirectHandler redirectHandler;
 
-	public HttpDownloader(String userAgent) {
+	public HttpDownloader(String userAgent, boolean bFollowRedirect) {
 		redirectHandler = new DefaultRedirectHandler();
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
 		paramsBean.setVersion(HttpVersion.HTTP_1_1);
 		paramsBean.setContentCharset("UTF-8");
 		paramsBean.setUserAgent(userAgent);
-		HttpClientParams.setRedirecting(params, false);
+		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		httpClient = new DefaultHttpClient(params);
 		// TIMEOUT ?
 		// RETRY HANDLER ?
