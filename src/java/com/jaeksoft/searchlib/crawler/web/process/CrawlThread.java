@@ -172,10 +172,6 @@ public class CrawlThread extends CrawlThreadAbstract {
 	@Override
 	public void abort() {
 		super.abort();
-		synchronized (this) {
-			if (httpDownloader != null)
-				httpDownloader.release();
-		}
 	}
 
 	public boolean getCrawlTimeOutExhausted(int seconds) {
@@ -211,6 +207,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 	@Override
 	public void complete() {
 		crawlMaster.remove(this);
+		httpDownloader.release();
 		synchronized (crawlMaster) {
 			crawlMaster.notify();
 		}

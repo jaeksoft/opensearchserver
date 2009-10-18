@@ -39,11 +39,6 @@ import java.util.logging.Logger;
 
 import javax.mail.internet.ParseException;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
@@ -116,6 +111,10 @@ public class Crawl {
 		parser.setSourceDocument(sourceDocument);
 		parser.parseContent(inputStream);
 		urlItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
+		urlItem.setLangMethod(parser.getFieldValue(ParserFieldEnum.lang_method,
+				0));
+		urlItem.setContentTypeCharset(parser.getFieldValue(
+				ParserFieldEnum.charset, 0));
 		urlItem.setParserStatus(ParserStatus.PARSED);
 		this.parser = parser;
 	}
@@ -141,40 +140,33 @@ public class Crawl {
 	 */
 	public void download(HttpDownloader httpDownloader) {
 		synchronized (this) {
-			HttpResponse httpResponse = null;
-			HttpEntity httpEntity = null;
 			InputStream is = null;
 			try {
 				httpDownloader.get(urlItem.getCheckedURI().toASCIIString());
-				httpResponse = httpDownloader.getResponse();
-				if (httpResponse == null)
-					throw new IOException("Http response is null");
 
-				httpEntity = httpResponse.getEntity();
-				if (httpEntity == null)
-					throw new IOException("Http entity is null");
+				String contentType = httpDownloader.getContentType();
+				if (contentType != null)
+					urlItem.setContentType(contentType);
 
-				Header header = httpEntity.getContentType();
-				if (header != null)
-					urlItem.setContentType(header.getValue());
+				String encoding = httpDownloader.getContentEncoding();
+				if (encoding != null)
+					urlItem.setContentEncoding(encoding);
 
-				header = httpEntity.getContentEncoding();
-				if (header != null)
-					urlItem.setContentEncoding(header.getValue());
-
-				urlItem.setContentLength(httpEntity.getContentLength());
+				Long contentLength = httpDownloader.getContentLength();
+				if (contentLength != null)
+					urlItem.setContentLength(contentLength);
 
 				urlItem.setFetchStatus(FetchStatus.FETCHED);
 
-				StatusLine statusLine = httpResponse.getStatusLine();
-				if (statusLine == null)
+				Integer code = httpDownloader.getStatusCode();
+				if (code == null)
 					throw new IOException("Http status is null");
 
-				int code = httpResponse.getStatusLine().getStatusCode();
 				urlItem.setResponseCode(code);
 				redirectUrlLocation = httpDownloader.getRedirectLocation();
+
 				if (code >= 200 && code < 300) {
-					is = httpEntity.getContent();
+					is = httpDownloader.getContent();
 					parseContent(is);
 				} else if ("301".equals(code)) {
 					urlItem.setFetchStatus(FetchStatus.REDIR_PERM);
@@ -232,15 +224,6 @@ public class Crawl {
 			} catch (IOException e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				e.printStackTrace();
-			} finally {
-				if (httpEntity != null) {
-					try {
-						httpEntity.consumeContent();
-					} catch (IOException e) {
-						logger.log(Level.WARNING, e.getMessage(), e);
-						e.printStackTrace();
-					}
-				}
 			}
 		}
 	}

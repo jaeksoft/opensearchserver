@@ -186,7 +186,9 @@ public abstract class Config {
 			xmlWriter.startElement("configuration");
 			getIndex().writeXmlConfig(xmlWriter);
 			getSchema().writeXmlConfig(xmlWriter);
-			getIndexPluginTemplateList().writeXmlConfig(xmlWriter);
+			IndexPluginTemplateList iptl = getIndexPluginTemplateList();
+			if (iptl != null)
+				iptl.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
 			pw.close();

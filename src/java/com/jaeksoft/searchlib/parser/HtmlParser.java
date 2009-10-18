@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
@@ -239,10 +238,10 @@ public class HtmlParser extends Parser {
 		String charset = getSourceDocument().getFieldValue(
 				UrlItemFieldEnum.contentTypeCharset.name(), 0);
 		if (charset == null)
-			getSourceDocument().getFieldValue(
+			charset = getSourceDocument().getFieldValue(
 					UrlItemFieldEnum.contentEncoding.name(), 0);
 		if (charset == null)
-			charset = Charset.defaultCharset().name();
+			charset = "US-ASCII";
 		addField(ParserFieldEnum.charset, charset);
 
 		Document doc = null;

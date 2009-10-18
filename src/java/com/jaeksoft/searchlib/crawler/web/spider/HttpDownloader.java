@@ -25,11 +25,15 @@
 package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.methods.HttpGet;
@@ -48,6 +52,8 @@ public class HttpDownloader {
 	private HttpGet httpGet = null;
 	private HttpContext httpContext = null;
 	private HttpResponse httpResponse = null;
+	private HttpEntity httpEntity = null;
+	private StatusLine statusLine = null;
 	private RedirectHandler redirectHandler;
 
 	public HttpDownloader(String userAgent) {
@@ -66,9 +72,8 @@ public class HttpDownloader {
 	public void release() {
 		synchronized (this) {
 			try {
+				reset();
 				httpContext = null;
-				httpGet = null;
-				httpResponse = null;
 				if (httpClient != null)
 					httpClient.getConnectionManager().shutdown();
 			} catch (Exception e) {
@@ -77,17 +82,33 @@ public class HttpDownloader {
 		}
 	}
 
-	public void get(String url) throws IOException {
+	private void reset() {
 		synchronized (this) {
-			httpGet = new HttpGet(url);
-			httpContext = new BasicHttpContext();
-			httpResponse = httpClient.execute(httpGet, httpContext);
+			if (httpEntity != null) {
+				try {
+					httpEntity.consumeContent();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				httpEntity = null;
+			}
+			httpGet = null;
+			httpResponse = null;
+			httpEntity = null;
+			statusLine = null;
 		}
 	}
 
-	public HttpResponse getResponse() {
+	public void get(String url) throws IOException {
 		synchronized (this) {
-			return httpResponse;
+			reset();
+			httpGet = new HttpGet(url);
+			httpContext = new BasicHttpContext();
+			httpResponse = httpClient.execute(httpGet, httpContext);
+			if (httpResponse != null) {
+				statusLine = httpResponse.getStatusLine();
+				httpEntity = httpResponse.getEntity();
+			}
 		}
 	}
 
@@ -100,6 +121,54 @@ public class HttpDownloader {
 			if (!redirectHandler.isRedirectRequested(httpResponse, httpContext))
 				return null;
 			return redirectHandler.getLocationURI(httpResponse, httpContext);
+		}
+	}
+
+	public Long getContentLength() {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			return httpEntity.getContentLength();
+		}
+	}
+
+	public String getContentType() {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			Header header = httpEntity.getContentType();
+			if (header == null)
+				return null;
+			return header.getValue();
+		}
+
+	}
+
+	public String getContentEncoding() {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			Header header = httpEntity.getContentEncoding();
+			if (header == null)
+				return null;
+			return header.getValue();
+		}
+
+	}
+
+	public InputStream getContent() throws IllegalStateException, IOException {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			return httpEntity.getContent();
+		}
+	}
+
+	public Integer getStatusCode() {
+		synchronized (this) {
+			if (statusLine == null)
+				return null;
+			return statusLine.getStatusCode();
 		}
 	}
 }
