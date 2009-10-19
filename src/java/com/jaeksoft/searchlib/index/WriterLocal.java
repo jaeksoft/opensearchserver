@@ -59,12 +59,16 @@ public class WriterLocal extends WriterAbstract {
 
 	private String similarityClass;
 
+	private int maxNumSegments;
+
 	protected WriterLocal(IndexConfig indexConfig, ReaderLocal readerLocal)
 			throws IOException {
 		super(indexConfig);
 		this.readerLocal = readerLocal;
 		this.indexWriter = null;
 		this.similarityClass = indexConfig.getSimilarityClass();
+		this.maxNumSegments = indexConfig.getMaxNumSegments();
+
 	}
 
 	private void close() {
@@ -271,7 +275,7 @@ public class WriterLocal extends WriterAbstract {
 			if (!acceptNameOrEmpty(indexName))
 				return;
 			open();
-			indexWriter.optimize(true);
+			indexWriter.optimize(maxNumSegments, true);
 			close();
 		} finally {
 			l.unlock();

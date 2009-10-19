@@ -53,7 +53,10 @@ public class IndexConfig {
 
 	private boolean nativeOSSE;
 
+	private int maxNumSegments;
+
 	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
+		maxNumSegments = 1;
 		name = XPathParser.getAttributeString(node, "name");
 		searchCache = XPathParser.getAttributeValue(node, "searchCache");
 		filterCache = XPathParser.getAttributeValue(node, "filterCache");
@@ -68,6 +71,9 @@ public class IndexConfig {
 				"nativeOSSE"));
 		setSimilarityClass(XPathParser.getAttributeString(node,
 				"similarityClass"));
+		maxNumSegments = XPathParser.getAttributeValue(node, "maxNumSegments");
+		if (maxNumSegments == 0)
+			maxNumSegments = 1;
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
@@ -77,7 +83,8 @@ public class IndexConfig {
 				.toString(fieldCache), "remoteUrl",
 				remoteUri != null ? remoteUri.toString() : null, "keyField",
 				keyField, "keyMd5RegExp", keyMd5RegExp, "nativeOSSE",
-				nativeOSSE ? "yes" : "no", "similarityClass", similarityClass);
+				nativeOSSE ? "yes" : "no", "similarityClass", similarityClass,
+				"maxNumSegments", Integer.toString(maxNumSegments));
 		xmlWriter.endElement();
 	}
 
@@ -203,6 +210,21 @@ public class IndexConfig {
 	 */
 	public String getSimilarityClass() {
 		return similarityClass;
+	}
+
+	/**
+	 * @return the maxNumSegments
+	 */
+	public int getMaxNumSegments() {
+		return maxNumSegments;
+	}
+
+	/**
+	 * @param maxNumSegments
+	 *            the maxNumSegments to set
+	 */
+	public void setMaxNumSegments(int maxNumSegments) {
+		this.maxNumSegments = maxNumSegments;
 	}
 
 }
