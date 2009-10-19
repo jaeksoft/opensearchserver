@@ -25,6 +25,7 @@
  * @author pmercier <pmercier-oss@nkubz.net>
  * @package OpenSearchServer
  * @todo Some documentation ?
+ * @todo Add sort params
  */
 header('Content-type: text/html; charset=UTF-8');
 
