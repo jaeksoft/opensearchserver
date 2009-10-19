@@ -18,11 +18,17 @@ Click on the blue bar at the top to make it appear. All values are stored in
 cookies and shared between the contributions (except the name of the index).</pre></div>
 		<div>
 			<h3>Search a typical WebCrawler index</h3>
-			<a href="search.php">Search</a>
+			<a href="webSearch.php">Search for webCrawler</a>
 			<pre>A simple search engine showing you the basic usage of the select API connector
 to query an Open Search Server having a WebCrawler index.
 
 If you don't have one refer to the <a href="http://sourceforge.net/apps/mediawiki/opensearchserve/index.php?title=Quick_start_guide_to_crawl_the_web">OSS WiKi here</a> to help you.</pre>
+		</div>
+		<div>
+			<h3>Searching a FileCrawler type index</h3>
+			<a href="fileSearch.php">Search for fileCrawler</a>
+			<pre>A simple search engine showing you the basic usage of the select API connector
+to query an Open Search Server having a FileCrawler index.
 		</div>
 		<div>
 			<h3>Adding documents in OSS</h3>
@@ -30,6 +36,9 @@ If you don't have one refer to the <a href="http://sourceforge.net/apps/mediawik
 			<pre>OpenSearchServer is not limited to crawling web pages, pdf, doc or text only.
 You can feed him with your own data. With this contribution you'll see how to
 create your document index to be send to OSS for indexation.
+
+This contribution come without a search page. You'll have to use the OSS interface
+or create your own search page.
 
 To use this contribution you'll need to create an emtpy index in OSS.
 Name it <em>newsFeed</em> and add these fields:

@@ -59,6 +59,15 @@ function array_first($array) {
 }
 
 /**
+ * Wrapper for end to use arrays returned from functions and methods
+ * @param $array
+ * @return mixed
+ */
+function array_last($array) {
+	return end($array);
+}
+
+/**
  * Misc classes to parse and simplify usage of different feed format during the indexation
  */
 abstract class NewsFeedParser extends ArrayObject {

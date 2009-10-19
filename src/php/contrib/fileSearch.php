@@ -25,7 +25,6 @@
  * @author pmercier <pmercier-oss@nkubz.net>
  * @package OpenSearchServer
  * @todo Some documentation ?
- * FIXME Ask the engine to return specific fields by programmation
  */
 header('Content-type: text/html; charset=UTF-8');
 
@@ -38,7 +37,7 @@ define('MAX_PAGE_TO_LINK', 10);
 
 $ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
 $ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
-$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_search', 'myCrawler', 'engineIndex');
+$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_filesearch', 'fileCrawler', 'engineIndex');
 
 if (isset($_REQUEST['query'])) {
 
@@ -54,10 +53,11 @@ if (isset($_REQUEST['query'])) {
 	$start = isset($_REQUEST['p'])    ? max(0, $_REQUEST['p']) * $rows : 0;
 
 	$result = $search->query($_REQUEST['query'])
+					 ->template('fileSearch')
 					 ->facet('lang', 0)
-					 ->field(array('url', 'contentBaseType', 'metaDescription', 'metaKeywords', 'host', 'lang'))
+					 ->field(array('uri', 'crawlDate', 'directoryUri', 'fileSystemDate', 'metaDescription', 'metaKeywords', 'lang', 'originalUri', 'title', 'when'))
 					 ->start($start)
-					 ->rows(15)
+					 ->rows(10)
 					 ->execute($ossEngineConnectTimeOut);
 
 	if ($result instanceof SimpleXMLElement) {
@@ -98,6 +98,7 @@ if (isset($_REQUEST['query'])) {
 		<title>Open Search Server - contrib/search</title>
 		<script type="text/javascript" src="common.js"></script>
 		<link type="text/css" rel="stylesheet" href="common.css" />
+		<link type="text/css" rel="stylesheet" href="mime.css" />
 		<style type="text/css">
 			#query_fieldset { border: 0; background: url(search.png) no-repeat; width: 495px; height: 60px; padding: 26px 0 10px 110px; margin:0 auto; }
 			#query { margin-left: 0; width: 318px; border: 0; background: transparent; font-size: 20px; height: 30px; }
@@ -128,7 +129,19 @@ if (isset($_REQUEST['query'])) {
 			.result li code {
 				font-weight: bold;
 			}
-
+			.result li .content em,
+			.result li .content strong,
+			.result li .content b {
+				color: #A03030;
+			}
+			.fileext {
+				float:left;
+				margin-right: 5px;
+			}
+			.time {
+				color: #A0A0A0;
+				font-style: italic;
+			}
 			/** PAGINATION ****************************************************/
 			ul.pagination {
 				text-align: right;
@@ -184,7 +197,7 @@ if (isset($_REQUEST['query'])) {
 					</div>
 					<?php endif; endif; ?>
 					<?php if (isset($search)): ?>
-					<p>You queried the search engine with the following call:<br/>
+					<p>You queried the file search engine with the following call:<br/>
 					<a style="padding-left: 15px;" class="lastQueryQtring" href="<?php echo $search->getLastQueryString(); ?>"><?php echo htmlentities(urldecode($search->getLastQueryString())); ?></a>
 					</p>
 					<?php endif; ?>
@@ -198,36 +211,24 @@ if (isset($_REQUEST['query'])) {
 					<ul><?php
 						foreach ($resultEntries as $entry):
 
-							$url	 = array_first($entry->xpath('*[@name="url"]'));
-							$host	 = array_first($entry->xpath('*[@name="host"]'));
-							$type	 = array_first($entry->xpath('field[@name="contentBaseType"]'));
-							$content = implode('', $entry->xpath('*[@name="content"]'));
+							$uri	   = array_first($entry->xpath('*[@name="uri"]'));
+							$directory = array_first($entry->xpath('*[@name="directoryUri"]'));
+							$file	   = str_replace($directory, '', $uri);
+							$date	   = array_first($entry->xpath('*[@name="fileSystemDate"]'));
+							$dateTS    = strtotime(preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})\d+$/', '$1-$2-$3 $4:$5:$6', $date));
+							$crawlDate = array_first($entry->xpath('*[@name="crawlDate"]'));
+							$extension = array_last(explode('.', $file));
+							$content   = implode('', $entry->xpath('*[@name="content"]'));
 
 							$subType = preg_replace('/^[^\/]+\//', '', $type);
 
-							if ($type == 'text/html' && !empty($content)): ?>
-								<li>
-									<h2><a href="<?php echo $url; ?>" target="_new"><?php echo implode('', $entry->xpath('*[@name="title"]')); ?></a></h2>
-									<div><?php echo $content; ?></div>
-									<cite><?php echo $host; ?></cite>
-								</li>
-								<?php
-							elseif ($type == 'text/html'):
-								?>
-								<li>
-									<h2><a href="<?php echo $url; ?>" target="_new"><?php echo $url; ?></a></h2>
-									<cite><?php echo $host; ?></cite>
-								</li>
-								<?php
-							else: ?>
-								<li>
-									<h2><code><?php echo "[".$subType."] "; ?></code> <a href="<?php echo $url; ?>" target="_new"><?php echo $url; ?></a></h2>
-									<div><?php echo $content; ?></div>
-									<cite><?php echo $host; ?></cite>
-								</li>
-								<?php
-							endif;
 							?>
+								<li>
+									<div class="fileext fileext-<?php echo $extension; ?>">&nbsp;</div>
+									<h2><code><?php echo "[".$extension."] "; ?></code> <a href="<?php echo $uri; ?>" target="_new"><?php echo $file; ?></a> - <span class="time"><?php echo strftime("%a %e %b %y %H:%M:%S", $dateTS); ?></span></h2>
+									<div class="content"><?php echo $content; ?></div>
+									<cite><?php echo $directory; ?></cite>
+								</li>
 					<?php endforeach; ?>
 					</ul>
 				</div>
@@ -264,7 +265,8 @@ if (isset($_REQUEST['query'])) {
 			</div>
 			</div>
 			<div id="info">
-				Powered by <a href="http://www.open-search-server.com/">Open Search Server</a>. Copyright Jaeksoft.
+				Powered by <a href="http://www.open-search-server.com/">Open Search Server</a>. Copyright Jaeksoft.<br/>
+				The file icons from <a href="http://www.everaldo.com/crystal/">Everaldo</a> are released under LGPL.
 			</div>
 		</div>
 	</body>
