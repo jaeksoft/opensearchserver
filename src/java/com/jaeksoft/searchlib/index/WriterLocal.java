@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class WriterLocal extends WriterAbstract {
 
-	private ReentrantLock l = new ReentrantLock(true);
+	private final ReentrantLock l = new ReentrantLock(true);
 
 	private IndexWriter indexWriter;
 
@@ -74,19 +74,15 @@ public class WriterLocal extends WriterAbstract {
 	private void close() {
 		l.lock();
 		try {
-			if (l.getQueueLength() > 0)
-				return;
 			if (indexWriter != null) {
 				try {
 					indexWriter.close();
-					indexWriter = null;
 				} catch (CorruptIndexException e) {
 					e.printStackTrace();
-					indexWriter = null;
 				} catch (IOException e) {
 					e.printStackTrace();
-					indexWriter = null;
 				}
+				indexWriter = null;
 			}
 		} finally {
 			l.unlock();

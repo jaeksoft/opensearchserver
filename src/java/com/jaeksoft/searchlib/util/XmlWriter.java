@@ -61,6 +61,8 @@ public class XmlWriter {
 	}
 
 	public void textNode(Object data) throws SAXException {
+		if (data == null)
+			return;
 		String value = data.toString();
 		int length = value.length();
 		char[] chars = new char[length];

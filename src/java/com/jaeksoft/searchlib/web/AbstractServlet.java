@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.Externalizable;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -58,6 +60,11 @@ public abstract class AbstractServlet extends HttpServlet {
 		} catch (Exception e) {
 			transaction.addXmlResponse("Status", "Error");
 			transaction.addXmlResponse("Exception", e.getMessage());
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			transaction.addXmlResponse("Trace", sw.toString());
+			pw.close();
 		} finally {
 			try {
 				transaction.writeXmlResponse();
