@@ -54,6 +54,11 @@ http://www.sun.com/
 Rely on LICENSE-CPL-V10
 
 ----------------------------------------
+TagSoup
+http://home.ccil.org/~cowan/XML/tagsoup/
+Rely on LICENCE-APACHE2
+
+----------------------------------------
 JTidy
 http://jtidy.sourceforge.net
 Rely on LICENCE-JTIDY

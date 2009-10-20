@@ -26,6 +26,7 @@
 
 	<property environment="env" />
 	<property name="src" location="src/java" />
+	<property name="src.php" location="src/php" />
 	<property name="resources" location="src/resources" />
 	<property name="web" location="WebContent" />
 	<property name="lib" location="lib" />
@@ -33,6 +34,7 @@
 	<property name="build" location="ant-build" />
 	<property name="build-release" location="${build}/release" />
 	<property name="build-debug" location="${build}/debug" />
+	<property name="build-doc" location="${build}/doc" />
 	<property name="dist" location="dist" />
 	<property name="temp" location="temp" />
 	<property name="temp-version" location="${temp}/version" />
@@ -45,6 +47,7 @@
 	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
+
 	<loadproperties srcfile="version" />
 
 	<path id="project.class.path">
@@ -60,7 +63,6 @@
 		<mkdir dir="${build}" />
 		<mkdir dir="${build-release}" />
 		<mkdir dir="${build-debug}" />
-		<mkdir dir="${build-doc}" />
 		<mkdir dir="${temp}" />
 		<echo file="${temp-version}" append="false" message="VERSION = ${VERSION}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="STAGE = ${STAGE}${line.separator}" />
@@ -135,6 +137,12 @@
 			<fileset dir="${examples}" />
 		</copy>
 
+		<!-- Copy PHP source -->
+		<copy todir="${dist}/${product}/php">
+			<fileset dir="${src.php}" />
+		</copy>
+
+
 		<!-- Check executable file flag for batches -->
 		<chmod perm="ugo+x" type="file">
 			<fileset dir="${dist}/${product}">
@@ -168,6 +176,13 @@
 				<exclude name="**/*.bat" />
 			</zipfileset>
 		</zip>
+
+		<!-- Copy Txt Files -->
+		<copy todir="${dist}">
+			<fileset file="NOTICE.txt" />
+			<fileset file="README.txt" />
+			<fileset file="CHANGELOG.txt" />
+		</copy>
 
 		<!-- Clean the temporary product directory -->
 		<delete dir="${dist}/${product}" />
