@@ -219,7 +219,10 @@ if (isset($_REQUEST['query'])) {
 							$dateTS    = strtotime(preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})\d+$/', '$1-$2-$3 $4:$5:$6', $date));
 							$crawlDate = array_first($entry->xpath('*[@name="crawlDate"]'));
 							$extension = array_last(explode('.', $file));
-							$content   = implode('', $entry->xpath('*[@name="content"]'));
+							$content   = implode('', $entry->xpath('snippet[@name="content"]'));
+							if (empty($content)) {
+								$content   = implode('', $entry->xpath('field[@name="content"]'));
+							}
 
 							$subType = preg_replace('/^[^\/]+\//', '', $type);
 

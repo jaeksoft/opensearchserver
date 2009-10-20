@@ -205,7 +205,10 @@ if (isset($_REQUEST['query'])) {
 							$url	 = array_first($entry->xpath('*[@name="url"]'));
 							$host	 = array_first($entry->xpath('*[@name="host"]'));
 							$type	 = array_first($entry->xpath('field[@name="contentBaseType"]'));
-							$content = implode('', $entry->xpath('*[@name="content"]'));
+							$content   = implode('', $entry->xpath('snippet[@name="content"]'));
+							if (empty($content)) {
+								$content   = implode('', $entry->xpath('field[@name="content"]'));
+							}
 
 							$subType = preg_replace('/^[^\/]+\//', '', $type);
 

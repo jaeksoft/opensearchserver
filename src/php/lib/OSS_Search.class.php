@@ -191,10 +191,10 @@ class OSS_Search {
 		$this->lastQueryString = $this->prepareQueryString();
 		$result = OSS_API::queryServer($this->lastQueryString, null, $connectTimeOut, $timeOut);
 		if ($result === false) return false;
-
+		
 		// Check if we have a valid XML string from the engine
 		$lastErrorLevel = error_reporting(0);
-		$xmlResult = simplexml_load_string($result);
+		$xmlResult = simplexml_load_string(OSS_API::cleanUTF8($result));
 		error_reporting($lastErrorLevel);
 		if (!$xmlResult instanceof SimpleXMLElement) {
 			if (class_exists('OSSException'))
