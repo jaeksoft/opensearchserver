@@ -1,0 +1,25 @@
+@charset "utf-8";
+/* CSS Document */
+
+#pagination ul {
+ margin:0;
+ padding:0;
+ list-style-type:none;
+ text-align:center;
+ }
+#pagination li {
+ float:left;
+ margin:auto;
+ padding:0;
+ background-color:black;
+ }
+#pagination li a {
+ display:block;
+ width:100px;
+ color:white;
+ text-decoration:none;
+ padding:5px;
+ }
+#pagination li a:hover {
+ color:#FFD700;
+ }
