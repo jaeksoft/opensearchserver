@@ -1,0 +1,23 @@
+<div class="formulaire_spip formulaire_indexation_article formulaire_#FORM">
+	[<p class="reponse_formulaire reponse_formulaire_ok">(#ENV*{message_ok})</p>]
+	[<p class="reponse_formulaire reponse_formulaire_erreur">(#ENV*{message_erreur})</p>]
+	[(#ENV{editable})
+	<form method='post' action='#ENV{action}'><div>
+		#ACTION_FORMULAIRE{#ENV{action}}
+		<ul>
+	  	#SET{fl,oss}
+	  	#SET{name,champ}
+		#SET{erreurs,#ENV**{erreurs}|table_valeur{#GET{name}}}
+		#SET{obli,obligatoire}
+	    <li class="editer_[(#GET{name})][ (#GET{obli})][ (#GET{erreurs}|oui)erreur]">
+	    	<label for="#GET{name}">[(#GET{fl}|concat{':label_',#GET{name}}|_T)]</label>
+				[<span class='erreur_message'>(#GET{erreurs})</span>]
+				<input type='text' class='text' name='#GET{name}' id='#GET{name}' value="#ENV{#GET{name}}" />
+	    </li>
+		</ul>
+		[(#REM) ajouter les saisies supplementaires : extra et autre, a cet endroit ]
+		<!--extra-->
+		<p class='boutons'><input type='submit' class='submit' value='<:bouton_valider:>' /></p>
+	</div></form>
+	]
+</div>

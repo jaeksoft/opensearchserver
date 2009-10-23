@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<plugin>
+    <version>0.1</version>
+    <nom>OpenSearchServer</nom>
+    <prefix>oss</prefix>
+    <auteur>Pascal MERCIER [contact->mailto:pmercier@open-search-server.com]
+ _ [mon site->http://www.open-search-server.com]</auteur>
+    <etat>experimental</etat>
+    <description>Ce plugin est une démonstration. Il est distribué sous licence GNU/GPL</description>
+    <lien>http://www.nkubz.net/</lien>
+    <necessite id="SPIP" version="[2.0;)" />
+    
+    <fonctions>inc/OSS_API.class.php</fonctions>
+    <fonctions>inc/OSS_IndexDocument.class.php</fonctions>
+    
+    <options>oss_options.php</options>
+    
+    <pipeline>
+    	<nom>post_edition</nom>
+    	<action>indexation</action>
+    	<inclure>base/indexation.php</inclure>
+    </pipeline>
+    
+	<bouton id="oss" parent="configuration">
+		<icone>images/icon_oss.png</icone>
+		<titre>oss:gestion_indexation</titre>
+	</bouton>
+
+</plugin>
