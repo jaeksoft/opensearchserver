@@ -58,6 +58,10 @@ public class UploadDocumentController extends CommonController {
 
 	public UploadDocumentController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		basketComponent = null;
 	}
 

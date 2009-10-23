@@ -63,6 +63,10 @@ public class UpdateFormController extends CommonController implements
 
 	public UpdateFormController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		indexDocument = null;
 		fieldDocumentList = null;
 		selectedField = null;

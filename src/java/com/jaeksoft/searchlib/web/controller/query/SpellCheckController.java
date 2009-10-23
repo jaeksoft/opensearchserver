@@ -42,14 +42,22 @@ public class SpellCheckController extends QueryController {
 	 */
 	private static final long serialVersionUID = -5132791474383971273L;
 
-	private String selectedField = null;
+	private String selectedField;
 
-	private List<String> fieldLeft = null;
+	private List<String> fieldLeft;
 
-	private RowRenderer rowRenderer = null;
+	private RowRenderer rowRenderer;
 
 	public SpellCheckController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		selectedField = null;
+		fieldLeft = null;
+		rowRenderer = null;
 	}
 
 	public RowRenderer getSpellCheckFieldRenderer() {

@@ -125,4 +125,8 @@ public class HomeController extends CommonController implements
 		File indexDirectory = (File) data;
 		new Listcell(indexDirectory.getName()).setParent(item);
 	}
+
+	@Override
+	public void reset() {
+	}
 }

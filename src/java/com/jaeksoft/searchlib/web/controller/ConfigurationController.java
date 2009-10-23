@@ -56,4 +56,8 @@ public class ConfigurationController extends CommonController {
 		return list;
 	}
 
+	@Override
+	public void reset() {
+	}
+
 }

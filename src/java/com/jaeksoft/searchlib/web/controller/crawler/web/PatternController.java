@@ -65,6 +65,10 @@ public class PatternController extends CommonController implements
 
 	public PatternController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		patternList = null;
 		pattern = null;
 		like = null;

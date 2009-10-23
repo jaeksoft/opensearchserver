@@ -38,10 +38,15 @@ public class IndexController extends CommonController {
 	 */
 	private static final long serialVersionUID = -7590913483471357743L;
 
-	private String release = null;
+	private String release;
 
 	public IndexController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
+		release = null;
 	}
 
 	public String getRelease() throws IOException {
@@ -80,4 +85,5 @@ public class IndexController extends CommonController {
 			return " Index: " + client.getIndexDirectory().getName();
 		return "Indices";
 	}
+
 }

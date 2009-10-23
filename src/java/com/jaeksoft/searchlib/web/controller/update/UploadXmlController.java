@@ -50,6 +50,10 @@ public class UploadXmlController extends CommonController {
 
 	public UploadXmlController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		updatedCount = null;
 	}
 

@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
-public class CommonController extends Window {
+public abstract class CommonController extends Window {
 
 	/**
 	 * 
@@ -47,6 +47,7 @@ public class CommonController extends Window {
 
 	public CommonController() throws SearchLibException {
 		super();
+		reset();
 	}
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute) {
@@ -78,9 +79,11 @@ public class CommonController extends Window {
 		while (it.hasNext()) {
 			Page page = (Page) it.next();
 			Component component = page.getFirstRoot();
-			if (component != null && component instanceof CommonController)
-				((CommonController) component).reloadPage();
-			else {
+			if (component != null && component instanceof CommonController) {
+				CommonController cc = (CommonController) component;
+				cc.reset();
+				cc.reloadPage();
+			} else {
 				DataBinder binder = (DataBinder) page.getVariable("binder");
 				if (binder != null)
 					binder.loadAll();
@@ -93,6 +96,8 @@ public class CommonController extends Window {
 		if (binder != null)
 			binder.loadComponent(getFellow(compId));
 	}
+
+	public abstract void reset();
 
 	public void reloadPage() {
 		DataBinder binder = (DataBinder) getPage().getVariable("binder");

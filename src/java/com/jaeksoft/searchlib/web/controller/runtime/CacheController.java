@@ -47,6 +47,10 @@ public class CacheController extends CommonController {
 
 	public CacheController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		searchCacheList = null;
 		filterCacheList = null;
 		fieldCacheList = null;

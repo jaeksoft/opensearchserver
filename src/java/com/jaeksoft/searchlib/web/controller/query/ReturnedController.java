@@ -45,12 +45,19 @@ public class ReturnedController extends QueryController implements RowRenderer {
 	 */
 	private static final long serialVersionUID = -9118404394554950556L;
 
-	private String selectedReturn = null;
+	private String selectedReturn;
 
-	private List<String> fieldLeft = null;
+	private List<String> fieldLeft;
 
 	public ReturnedController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		selectedReturn = null;
+		fieldLeft = null;
 	}
 
 	public void setSelectedReturn(String value) {

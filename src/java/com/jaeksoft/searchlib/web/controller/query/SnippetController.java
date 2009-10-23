@@ -43,14 +43,22 @@ public class SnippetController extends QueryController {
 	 */
 	private static final long serialVersionUID = -1641413871487856522L;
 
-	private String selectedSnippet = null;
+	private String selectedSnippet;
 
-	private List<String> snippetFieldLeft = null;
+	private List<String> snippetFieldLeft;
 
-	private RowRenderer rowRenderer = null;
+	private RowRenderer rowRenderer;
 
 	public SnippetController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		selectedSnippet = null;
+		snippetFieldLeft = null;
+		rowRenderer = null;
 	}
 
 	public RowRenderer getSnippetFieldRenderer() {

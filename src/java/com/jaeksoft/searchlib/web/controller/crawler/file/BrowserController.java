@@ -75,11 +75,19 @@ public class BrowserController extends CommonController implements
 
 	public BrowserController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		pathList = null;
 		pageSize = 10;
 		totalSize = 0;
 		activePage = 0;
 		files = null;
+		currentFile = null;
+		selectedFile = null;
+		selectedFilePath = null;
+		selectedFileCheck = false;
 	}
 
 	public File getSelectedFile() {

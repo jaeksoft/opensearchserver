@@ -45,4 +45,8 @@ public class AnalyzersController extends CommonController {
 		return getClient().getSchema().getAnalyzerList();
 	}
 
+	@Override
+	public void reset() {
+	}
+
 }
