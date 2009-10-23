@@ -74,7 +74,7 @@ public class HomeController extends CommonController implements
 		if (client == null)
 			return;
 		setClient(client);
-		reloadDesktop();
+		resetDesktop();
 	}
 
 	public String getNewIndexName() {

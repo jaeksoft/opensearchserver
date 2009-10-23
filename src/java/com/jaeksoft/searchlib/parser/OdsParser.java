@@ -61,10 +61,8 @@ public class OdsParser extends OOParser {
 				scanNodes(docOwner.getChildNodes(), ParserFieldEnum.author);
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

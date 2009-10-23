@@ -60,6 +60,7 @@ public class QueryController extends CommonController {
 	@Override
 	public void reset() {
 		selectedRequestName = null;
+		setAttribute(ScopeAttribute.QUERY_SEARCH_REQUEST, null);
 	}
 
 	public SearchRequest getRequest() throws SearchLibException {

@@ -45,10 +45,13 @@ public enum ScopeAttribute {
 	}
 
 	public void set(Component component, Object value) {
-		component.setAttribute(name(), value, scope);
+		if (component != null)
+			component.setAttribute(name(), value, scope);
 	}
 
 	public Object get(Component component) {
+		if (component == null)
+			return null;
 		return component.getAttribute(name(), scope);
 	}
 

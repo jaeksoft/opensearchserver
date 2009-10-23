@@ -78,7 +78,9 @@ public class PatternController extends CommonController implements
 		selection = new TreeSet<String>();
 	}
 
+	@Override
 	public void afterCompose() {
+		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
 			public void onEvent(Event event) {
 				onPaging((PagingEvent) event);
