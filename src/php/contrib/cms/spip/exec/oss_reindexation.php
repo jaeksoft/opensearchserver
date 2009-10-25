@@ -4,8 +4,9 @@ if (!defined("_ECRIRE_INC_VERSION")) return;
 
 include_spip('inc/presentation');
 include_spip('inc/texte');
+include_spip('base/indexation');
 
-function exec_oss_dist() {
+function exec_oss_reindexation_dist() {
 	
 	pipeline('exec_init', array('args' => array('exec' => 'oss'), 'data' => ''));
 	
@@ -29,11 +30,7 @@ function exec_oss_dist() {
 	
 	echo debut_droite('DEBUT COL DDROITE', true);
 	
-	echo recuperer_fond('squelettes/config_indexation', array(
-		'titre' => _T('oss:titre_cfg_champs'),
-		'redirect' => generer_url_ecrire("oss"),
-		'icone_retour' => icone_inline(_T('icone_retour'), generer_url_ecrire('oss'), find_in_path("images/icon_oss.png"), "rien.gif", $GLOBALS['spip_lang_left']),
-	));
+	oss_reindexation('all');
 	
 	echo pipeline('affiche_milieu', array('args' => array('exec' => 'oss'), 'data' => ''));
 	echo fin_gauche(), fin_page();

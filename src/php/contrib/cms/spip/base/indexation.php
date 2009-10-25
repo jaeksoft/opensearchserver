@@ -1,7 +1,8 @@
 <?php
-include_spip('inc/article_select'); // necessaire si appel de l'espace public
-include_spip('inc/OSS_API.class'); // necessaire si appel de l'espace public
-include_spip('inc/OSS_IndexDocument.class'); // necessaire si appel de l'espace public
+include_spip('inc/oss');
+include_spip('inc/OSS_API.class');
+include_spip('inc/OSS_IndexDocument.class');
+include_spip('inc/OSS_Search.class');
 
 // Store date in GMT ?
 // Provide user the ability to change the field affectations
@@ -18,20 +19,83 @@ function oss_indexation($param) {
 	// On récupère je l'id du document a indéxer sur oss
 	$load = $param['args'];
 	$data = $param['data'];
-	$type = $param['args']['type'];
-	$idObjet = intval($load['id_objet']);
+	$type = oss_get_type_from_table($param['args']['table']);
+	$id = intval($load['id_objet']);
 
-	$index = new OSS_IndexDocument();
+	$object = oss_load_object($type, $id);
+	
+	if (!$object) return;
+	
+	$oss = new OSS_API('http://localhost:8080/oss', 'spip_index');
+	
+	// Not published ? Removing from the index
+	if ($object['statut'] == 'publie') {
+		oss_update($oss, $type, $object);
+	}
+	else {
+		$engineId = oss_construct_uniqid($type, $object);
+		oss_delete($oss, $engineId);
+	}
+	
+}
+
+
+// Réindexe TOUT les articles ou autres
+// FIXME Push and delete documents by parts
+function oss_reindexation($type = 'all') {
+	
+	
+	$tables = (array)explode(',', oss_get_table_from_type($type));
+	$oss = new OSS_API('http://localhost:8080/oss', 'spip_index');
+	
+	foreach ($tables as $table) {
+		
+		$type = oss_get_type_from_table($table);
+		$index = new OSS_IndexDocument();
+		
+		$toDelete = array();
+		
+		$idName = 'id_'.$type;
+		$dataList = sql_allfetsel($idName.', statut', $table);
+		foreach ($dataList as $data) {
+			
+			$object = oss_load_object($type, $data[$idName]);
+			
+			// Desindexation
+			if ($data['statut'] != 'publie') {
+				$toDelete[] = oss_construct_uniqid($type, $object);
+				continue;
+			}
+			else {
+				oss_update($oss, $type, $object, $index);
+			}
+			
+		}
+		var_dump($toDelete);
+		oss_delete($oss, $toDelete);
+		$oss->update($index);
+		
+	}
+	
+}
+
+function oss_update($oss, $type, $object, $index = null) {
+
+	$doUpdate = !(bool)$index;
+	
+	if (!$index) $index = new OSS_IndexDocument();
 	
 	$document = $index->newDocument($object['lang']);
 	
-	$document->newField('id', 	 	 	 $type.'_'.$idObjet);
-	$document->newField('spip_id', 	 	 $idObjet);
-	$document->newField('spip_type', 	 $type);
-
-	// Récupération du document
+	$engineId = oss_construct_uniqid($type, $object);
+	
+	// Chargement des object
+	$document->newField('id', 	 	 $engineId);
+	$document->newField('spip_id', 	 $object['id_'.$type]);
+	$document->newField('spip_type', $type);
+	
+	// Récupération des données spécifiques
 	if ($type == 'articles') {
-		$object = inc_article_select_dist($idObjet);
 		
 		// Récupération des auteurs
 		$authors = (array)sql_allfetsel("SA.id_auteur, SA.nom", "spip_auteurs_articles AS SAA INNER JOIN spip_auteurs AS SA ON SA.id_auteur = SAA.id_auteur", "SAA.id_article=".$idObjet);
@@ -39,32 +103,42 @@ function oss_indexation($param) {
 		foreach ($authors as $key => $author)
 			$authors[$key] = $author['id_auteur'].'|'.$author['nom'];
 		$document->newField('spip_author', $authors);
-	}
-	elseif ($type == 'breves') {
-		
-		$object = (array)sql_fetsel("*", "spip_breves", "id_breve=".$idObjet);
-		
-		$document->newField('spip_suptitle', $object['surtitre']);
-		$document->newField('spip_title',    $object['titre']);
 		
 	}
-
-	$document->newField('spip_suptitle', $object['surtitre']);
-	$document->newField('spip_title',    $object['titre']);
-	$document->newField('spip_subtitle', $object['surtitre']);
-	$document->newField('spip_header',   $object['chapo']);
-	$document->newField('spip_body',     $object['texte']);
+	elseif ($type == 'breve') {
+		
+	}
+	elseif ($type == 'rubrique') {
+		
+		$document->newField('spip_header',   $object['descriptif']);
+		
+	}
+	
+	$document->newField('spip_suptitle', strip_tags($object['surtitre']));
+	$document->newField('spip_title',    strip_tags($object['titre']));
+	$document->newField('spip_subtitle', strip_tags($object['surtitre']));
+	$document->newField('spip_header',   strip_tags($object['chapo']));
+	$document->newField('spip_body',     strip_tags($object['texte']));
 	$document->newField('spip_date',     preg_replace('/[^\d]+/', '', isset($object['date_heure']) ? $object['date_heure'] : $object['date']));
 	$document->newField('spip_up',       preg_replace('/[^\d]+/', '', $object['maj']));
 	$document->newField('spip_site',	 $object['nom_site']);
 	$document->newField('spip_url',		 $object['url_site']);
+	$document->newField('spip_lang',     $object['lang']);
 	
-	$oss = new OSS_API('http://localhost:8080/oss', 'spip_index');
-	$oss->update($index);
-	
-	var_dump($type, $idObjet, $load, $data);
-	
-	die();
+	if ($doUpdate) $oss->update($index);
 	
 }
+
+function oss_delete(OSS_API $oss, $engineIds) {
+	
+	$engineIds = (array)$engineIds;
+	if (!count($engineIds)) return;
+	
+	$query = $oss->search();
+	return $query->filter('id:('.implode(" OR ", $engineIds).")")
+		  		 ->delete(true)
+				 ->execute();
+	
+}
+
 ?>
