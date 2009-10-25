@@ -199,7 +199,7 @@ class OSS_API {
 		}
 
 		$content = curl_exec($rCurl);
-
+		
 		if ($content === false) {
 			if (class_exists('OSSException'))
 				throw new RuntimeException('CURL failed to execute on URL "'.$url.'"');
@@ -224,7 +224,7 @@ class OSS_API {
 			trigger_error('OSS Returned an error: "'.trim(strip_tags($content)).'"', E_USER_WARNING);
 			return false;
 		}
-
+		
 		return $content;
 	}
 
@@ -272,7 +272,7 @@ class OSS_API {
 	 * @param 
 	 */
 	public static function parseEnginePath($enginePath, $index = null) {
-
+		
 		$urlParams = array();
 		// Extract the use param in the query part if any
 		if (strpos($enginePath, '?') !== false) {
@@ -310,5 +310,21 @@ class OSS_API {
 		);
 		return str_replace($escaping[0], $escaping[1], $string);
 	}
+	
+	/**
+	 * Clean an UTF-8 string to prevent simpleXMLElement to fail on some characters (remove them)
+	 * @param string $string
+	 * @return string
+	 */
+	public static function cleanUTF8($string, $replacement = '') {
 
+		static $remove = array(	"\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
+								"\x08",                 "\x0B", "\x0C",         "0x0E", "\x0F",
+								"\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17",
+								"\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D", "\x1E", "\x1F"
+		);
+		return str_replace($remove, $replacement, $string);
+		
+	}
+	
 }
