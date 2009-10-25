@@ -18,36 +18,53 @@ function oss_indexation($param) {
 	// On récupère je l'id du document a indéxer sur oss
 	$load = $param['args'];
 	$data = $param['data'];
+	$type = $param['args']['type'];
 	$idObjet = intval($load['id_objet']);
-	
-	// Récupération du document
-	$object = inc_article_select_dist($idObjet);
-	
-	// Récupération des auteurs
-	$authors = (array)sql_allfetsel("SA.id_auteur, SA.nom", "spip_auteurs_articles AS SAA INNER JOIN spip_auteurs AS SA ON SA.id_auteur = SAA.id_auteur", "SAA.id_article=".$idObjet);
-	
+
 	$index = new OSS_IndexDocument();
 	
 	$document = $index->newDocument($object['lang']);
 	
-	$document->newField('spip_id', 	 	 $object['id_article']);
-	$document->newField('spip_type', 	 $param['surtitre']);
+	$document->newField('id', 	 	 	 $type.'_'.$idObjet);
+	$document->newField('spip_id', 	 	 $idObjet);
+	$document->newField('spip_type', 	 $type);
+
+	// Récupération du document
+	if ($type == 'articles') {
+		$object = inc_article_select_dist($idObjet);
+		
+		// Récupération des auteurs
+		$authors = (array)sql_allfetsel("SA.id_auteur, SA.nom", "spip_auteurs_articles AS SAA INNER JOIN spip_auteurs AS SA ON SA.id_auteur = SAA.id_auteur", "SAA.id_article=".$idObjet);
+		
+		foreach ($authors as $key => $author)
+			$authors[$key] = $author['id_auteur'].'|'.$author['nom'];
+		$document->newField('spip_author', $authors);
+	}
+	elseif ($type == 'breves') {
+		
+		$object = (array)sql_fetsel("*", "spip_breves", "id_breve=".$idObjet);
+		
+		$document->newField('spip_suptitle', $object['surtitre']);
+		$document->newField('spip_title',    $object['titre']);
+		
+	}
+
 	$document->newField('spip_suptitle', $object['surtitre']);
 	$document->newField('spip_title',    $object['titre']);
 	$document->newField('spip_subtitle', $object['surtitre']);
 	$document->newField('spip_header',   $object['chapo']);
 	$document->newField('spip_body',     $object['texte']);
-	$document->newField('spip_date',     preg_replace('/[^\d]+/', '', $object['date']));
+	$document->newField('spip_date',     preg_replace('/[^\d]+/', '', isset($object['date_heure']) ? $object['date_heure'] : $object['date']));
 	$document->newField('spip_up',       preg_replace('/[^\d]+/', '', $object['maj']));
 	$document->newField('spip_site',	 $object['nom_site']);
 	$document->newField('spip_url',		 $object['url_site']);
 	
-	foreach ($authors as $key => $author)
-		$authors[$key] = $author['id_auteur'].'|'.$author['nom'];
-	$document->newField('spip_author', $authors);
-	
 	$oss = new OSS_API('http://localhost:8080/oss', 'spip_index');
 	$oss->update($index);
+	
+	var_dump($type, $idObjet, $load, $data);
+	
+	die();
 	
 }
 ?>

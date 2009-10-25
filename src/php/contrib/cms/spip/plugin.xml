@@ -12,6 +12,7 @@
     
     <fonctions>inc/OSS_API.class.php</fonctions>
     <fonctions>inc/OSS_IndexDocument.class.php</fonctions>
+    <fonctions>inc/prepare_recherche.php</fonctions>
     
     <options>oss_options.php</options>
     
