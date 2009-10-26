@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 import javax.mail.internet.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
@@ -252,7 +253,8 @@ public class Crawl {
 			MalformedURLException {
 		synchronized (this) {
 
-			IndexDocument indexDocument = new IndexDocument();
+			IndexDocument indexDocument = new IndexDocument(LanguageEnum
+					.findByCode(urlItem.getLang()));
 
 			IndexDocument urlIndexDocument = new IndexDocument();
 			urlItem.populate(urlIndexDocument);
