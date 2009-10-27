@@ -26,15 +26,13 @@ function oss_indexation($param) {
 	
 	if (!$object) return;
 	
-	$oss = new OSS_API('http://localhost:8080/oss', 'spip_index');
-	
 	// Not published ? Removing from the index
 	if ($object['statut'] == 'publie') {
-		oss_update($oss, $type, $object);
+		oss_update($type, $object);
 	}
 	else {
 		$engineId = oss_construct_uniqid($type, $object);
-		oss_delete($oss, $engineId);
+		oss_delete($engineId);
 	}
 	
 }
@@ -46,7 +44,6 @@ function oss_reindexation($type = 'all') {
 	
 	
 	$tables = (array)explode(',', oss_get_table_from_type($type));
-	$oss = new OSS_API('http://localhost:8080/oss', 'spip_index');
 	
 	foreach ($tables as $table) {
 		
@@ -67,19 +64,21 @@ function oss_reindexation($type = 'all') {
 				continue;
 			}
 			else {
-				oss_update($oss, $type, $object, $index);
+				oss_update($type, $object, $index);
 			}
 			
 		}
-		var_dump($toDelete);
-		oss_delete($oss, $toDelete);
+
+		oss_delete($toDelete);
+		
+		$oss = oss_get_api_instance();
 		$oss->update($index);
 		
 	}
 	
 }
 
-function oss_update($oss, $type, $object, $index = null) {
+function oss_update($type, $object, $index = null) {
 
 	$doUpdate = !(bool)$index;
 	
@@ -125,11 +124,17 @@ function oss_update($oss, $type, $object, $index = null) {
 	$document->newField('spip_url',		 $object['url_site']);
 	$document->newField('spip_lang',     $object['lang']);
 	
-	if ($doUpdate) $oss->update($index);
+	
+	if ($doUpdate) {
+		$oss = oss_get_api_instance();
+		$oss->update($index);
+	}
 	
 }
 
-function oss_delete(OSS_API $oss, $engineIds) {
+function oss_delete($engineIds) {
+	
+	$oss = oss_get_api_instance();
 	
 	$engineIds = (array)$engineIds;
 	if (!count($engineIds)) return;

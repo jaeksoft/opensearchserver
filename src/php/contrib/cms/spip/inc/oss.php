@@ -39,3 +39,15 @@ function oss_get_table_from_type($table) {
 function oss_construct_uniqid($type, $object) {
 	return $type.'_'.$object['id_'.$type];
 }
+
+/**
+ * @return OSS_API
+ */
+function oss_get_api_instance() {
+	static $oss_api = null;
+	if ($oss_api === null) {
+		lire_metas();
+		$oss_api = new OSS_API($GLOBALS['meta']['oss_engine_path'], $GLOBALS['meta']['oss_engine_index']);
+	}
+	return $oss_api;
+}
