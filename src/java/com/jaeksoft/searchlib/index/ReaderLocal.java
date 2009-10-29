@@ -43,8 +43,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Similarity;
@@ -112,7 +112,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			this.dataDir = dataDir;
 			this.indexDirectory = new IndexDirectory(getName(), dataDir);
 			this.indexSearcher = new IndexSearcher(indexDirectory
-					.getDirectory());
+					.getDirectory(), false);
 			if (similarityClass != null) {
 				Similarity similarity = (Similarity) Class.forName(
 						similarityClass).newInstance();
@@ -323,7 +323,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public void search(Query query, Filter filter, HitCollector collector)
+	public void search(Query query, Filter filter, Collector collector)
 			throws IOException {
 		r.lock();
 		try {

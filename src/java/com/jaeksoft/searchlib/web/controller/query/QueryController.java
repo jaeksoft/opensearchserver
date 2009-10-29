@@ -51,10 +51,16 @@ public class QueryController extends CommonController {
 	 */
 	private static final long serialVersionUID = 3182630816725436838L;
 
-	private String selectedRequestName = null;
+	private String selectedRequestName;
 
 	public QueryController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
+		selectedRequestName = null;
+		setAttribute(ScopeAttribute.QUERY_SEARCH_REQUEST, null);
 	}
 
 	public SearchRequest getRequest() throws SearchLibException {
@@ -139,10 +145,10 @@ public class QueryController extends CommonController {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		SearchRequest request = getRequest();
-		
+
 		if (request.getQueryString() == null)
 			request.setQueryString("*:*");
-		
+
 		request.reset();
 		setResult(getClient().search(request));
 		reloadDesktop();

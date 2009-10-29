@@ -24,33 +24,13 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.IOException;
-
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.ru.RussianCharsets;
-import org.w3c.dom.Node;
-
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class RussianStemFilter extends FilterFactory {
 
-	private char[] charset = null;
-
-	@Override
-	public void setParams(XPathParser xpp, Node node) throws IOException {
-		String cs = XPathParser.getAttributeString(node, "charset");
-		if ("cp1251".equalsIgnoreCase(cs))
-			charset = RussianCharsets.CP1251;
-		else if ("koi8".equalsIgnoreCase(cs))
-			charset = RussianCharsets.KOI8;
-		else
-			charset = RussianCharsets.UnicodeRussian;
-	}
-
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.ru.RussianStemFilter(tokenStream,
-				charset);
+		return new org.apache.lucene.analysis.ru.RussianStemFilter(tokenStream);
 	}
 
 	@Override

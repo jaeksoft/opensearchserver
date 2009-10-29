@@ -58,6 +58,11 @@ public class FileController extends CommonController implements AfterCompose {
 
 	public FileController() throws SearchLibException {
 		super();
+		reset();
+	}
+
+	@Override
+	public void reset() {
 		fileList = null;
 		totalSize = 0;
 		activePage = 0;

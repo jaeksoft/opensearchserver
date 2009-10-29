@@ -63,8 +63,14 @@ public class ResultController extends QueryController implements
 
 	public ResultController() throws SearchLibException {
 		super();
-		documents = null;
+		reset();
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
 		selectedFacet = null;
+		documents = null;
 	}
 
 	public class Document {

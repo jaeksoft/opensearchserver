@@ -3,10 +3,20 @@ http://www.open-search-server.com
 -----------------------
 CHANGE LOG
 
-Open Search Server 1.1
-
 All new features and bugs are described here:
 http://sourceforge.net/tracker/?group_id=260863
+
+Open Search Server 1.2
+
+- 2888788: Upgrade Lucene to release 2.9.0
+
+Open Search Server 1.1.1
+
+Bug fixes
+- 2886651: Default operator is not preserved when saving query
+- 2886645: Issue with lemmatisation using the web crawler
+
+Open Search Server 1.1
 
 New features
 - 2882224: Stress test for insertion

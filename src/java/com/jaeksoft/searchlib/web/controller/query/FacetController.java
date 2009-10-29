@@ -42,14 +42,23 @@ public class FacetController extends QueryController {
 	 */
 	private static final long serialVersionUID = 5748867672639969504L;
 
-	private String selectedFacet = null;
+	private String selectedFacet;
 
-	private List<String> fieldLeft = null;
+	private List<String> fieldLeft;
 
-	private RowRenderer rowRenderer = null;
+	private RowRenderer rowRenderer;
 
 	public FacetController() throws SearchLibException {
 		super();
+		reset();
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		selectedFacet = null;
+		fieldLeft = null;
+		rowRenderer = null;
 	}
 
 	public RowRenderer getFacetFieldRenderer() {

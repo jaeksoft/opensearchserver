@@ -74,7 +74,7 @@ public class HomeController extends CommonController implements
 		if (client == null)
 			return;
 		setClient(client);
-		reloadDesktop();
+		resetDesktop();
 	}
 
 	public String getNewIndexName() {
@@ -124,5 +124,11 @@ public class HomeController extends CommonController implements
 	public void render(Listitem item, Object data) throws Exception {
 		File indexDirectory = (File) data;
 		new Listcell(indexDirectory.getName()).setParent(item);
+	}
+
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+
 	}
 }

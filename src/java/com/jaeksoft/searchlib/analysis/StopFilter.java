@@ -63,7 +63,8 @@ public class StopFilter extends FilterFactory {
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.StopFilter(tokenStream, words);
+		return new org.apache.lucene.analysis.StopFilter(false, tokenStream,
+				words);
 	}
 
 	@Override

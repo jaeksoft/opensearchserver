@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,39 +24,20 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.ru.RussianCharsets;
-import org.w3c.dom.Node;
-
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class RussianLetterTokenizer extends TokenizerFactory {
 
-	protected char[] charset = null;
-
-	@Override
-	public void setParams(XPathParser xpp, Node node) throws IOException {
-		String cs = XPathParser.getAttributeString(node, "charset");
-		if ("cp1251".equalsIgnoreCase(cs))
-			charset = RussianCharsets.CP1251;
-		else if ("koi8".equalsIgnoreCase(cs))
-			charset = RussianCharsets.KOI8;
-		else
-			charset = RussianCharsets.UnicodeRussian;
-	}
-
 	@Override
 	public Tokenizer create(Reader reader) {
-		return new org.apache.lucene.analysis.ru.RussianLetterTokenizer(reader,
-				charset);
+		return new org.apache.lucene.analysis.ru.RussianLetterTokenizer(reader);
 	}
 
 	@Override
 	public String getDescription() {
-		return "Chinese tokenizer";
+		return "Russian tokenizer";
 	}
 
 }

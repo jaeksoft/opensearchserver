@@ -63,6 +63,10 @@ public class ParserListController extends CommonController implements
 
 	public ParserListController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		selectedParser = null;
 		selectedIndexField = null;
 		selectedParserField = null;

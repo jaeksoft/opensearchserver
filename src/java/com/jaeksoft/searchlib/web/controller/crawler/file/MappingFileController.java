@@ -57,6 +57,11 @@ public class MappingFileController extends CommonController implements
 
 	public MappingFileController() throws SearchLibException {
 		super();
+		reset();
+	}
+
+	@Override
+	public void reset() {
 		selectedUrlField = null;
 		selectedIndexField = null;
 	}

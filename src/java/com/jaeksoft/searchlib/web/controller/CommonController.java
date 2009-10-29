@@ -31,6 +31,7 @@ import java.util.Iterator;
 import org.apache.http.HttpException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Page;
+import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zkplus.databind.DataBinder;
 import org.zkoss.zul.Window;
 
@@ -38,15 +39,23 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
-public class CommonController extends Window {
+public abstract class CommonController extends Window implements AfterCompose {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3581269068713587866L;
 
+	private boolean isComposed;
+
 	public CommonController() throws SearchLibException {
 		super();
+		isComposed = false;
+		reset();
+	}
+
+	public void afterCompose() {
+		isComposed = true;
 	}
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute) {
@@ -54,7 +63,8 @@ public class CommonController extends Window {
 	}
 
 	protected void setAttribute(ScopeAttribute scopeAttribute, Object value) {
-		scopeAttribute.set(this, value);
+		if (isComposed)
+			scopeAttribute.set(this, value);
 	}
 
 	public Client getClient() throws SearchLibException {
@@ -73,14 +83,17 @@ public class CommonController extends Window {
 		return getClient() == null;
 	}
 
-	protected void reloadDesktop() {
+	private void reloadDesktop(boolean bReset) {
 		Iterator<?> it = getDesktop().getPages().iterator();
 		while (it.hasNext()) {
 			Page page = (Page) it.next();
 			Component component = page.getFirstRoot();
-			if (component != null && component instanceof CommonController)
-				((CommonController) component).reloadPage();
-			else {
+			if (component != null && component instanceof CommonController) {
+				CommonController cc = (CommonController) component;
+				if (bReset)
+					cc.reset();
+				cc.reloadPage();
+			} else {
 				DataBinder binder = (DataBinder) page.getVariable("binder");
 				if (binder != null)
 					binder.loadAll();
@@ -88,11 +101,21 @@ public class CommonController extends Window {
 		}
 	}
 
+	protected void reloadDesktop() {
+		reloadDesktop(false);
+	}
+
+	protected void resetDesktop() {
+		reloadDesktop(true);
+	}
+
 	public void reloadComponent(String compId) {
 		DataBinder binder = (DataBinder) getPage().getVariable("binder");
 		if (binder != null)
 			binder.loadComponent(getFellow(compId));
 	}
+
+	public abstract void reset();
 
 	public void reloadPage() {
 		DataBinder binder = (DataBinder) getPage().getVariable("binder");

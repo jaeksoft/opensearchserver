@@ -26,52 +26,54 @@ package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
 
-import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
+import org.apache.lucene.analysis.tokenattributes.TermAttribute;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
+import org.apache.lucene.util.AttributeSource;
 
 public class SynonymTokenFilter extends TokenFilter {
 
-	public static final String TOKEN_TYPE = "SYNONYM";
+	public static final String SYNONYM_TOKEN_TYPE = "SYNONYM";
 
 	private String[] synonyms = null;
 	private int index = 0;
-	private Token current = null;
 	private SynonymMap synonymMap = null;
+
+	private TermAttribute termAtt;
+	private TypeAttribute typeAtt;
+	private PositionIncrementAttribute posIncrAtt;
+
+	private AttributeSource.State current = null;
 
 	protected SynonymTokenFilter(TokenStream input, SynonymMap synonymMap) {
 		super(input);
 		this.synonymMap = synonymMap;
+		this.termAtt = (TermAttribute) addAttribute(TermAttribute.class);
+		this.typeAtt = (TypeAttribute) addAttribute(TypeAttribute.class);
+		this.posIncrAtt = (PositionIncrementAttribute) addAttribute(PositionIncrementAttribute.class);
 	}
 
-	private final Token createToken(String synonym, Token current,
-			final Token reusableToken) {
-		reusableToken.reinit(current, synonym);
-		reusableToken.setTermBuffer(synonym);
-		reusableToken.setType(TOKEN_TYPE);
-		reusableToken.setPositionIncrement(0);
-		return reusableToken;
+	private final void createToken(String synonym, State current) {
+		restoreState(current);
+		termAtt.setTermBuffer(synonym);
+		typeAtt.setType(SYNONYM_TOKEN_TYPE);
+		posIncrAtt.setPositionIncrement(0);
 	}
 
 	@Override
-	public Token next(Token reusableToken) throws IOException {
-		if (synonyms != null) {
-			while (index < synonyms.length) {
-				Token nextToken = createToken(synonyms[index++], current,
-						reusableToken);
-				if (nextToken != null)
-					return nextToken;
-			}
-		}
+	public final boolean incrementToken() throws IOException {
+		if (synonyms != null)
+			while (index < synonyms.length)
+				createToken(synonyms[index++], current);
 
-		Token nextToken = input.next(reusableToken);
-		if (nextToken == null)
-			return null;
+		if (!input.incrementToken())
+			return false;
 
-		synonyms = synonymMap.getSynonyms(nextToken.term());
+		synonyms = synonymMap.getSynonyms(termAtt.term());
 		index = 0;
-		current = (Token) nextToken.clone();
-		return nextToken;
+		current = captureState();
+		return true;
 	}
-
 }

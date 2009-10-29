@@ -30,7 +30,7 @@ public class ISOLatin1AccentFilter extends FilterFactory {
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.ISOLatin1AccentFilter(tokenStream);
+		return new org.apache.lucene.analysis.ASCIIFoldingFilter(tokenStream);
 	}
 
 	@Override

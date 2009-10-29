@@ -47,6 +47,10 @@ public class RobotsTxtController extends CommonController {
 
 	public RobotsTxtController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		pageSize = 20;
 		selectedEntry = null;
 	}

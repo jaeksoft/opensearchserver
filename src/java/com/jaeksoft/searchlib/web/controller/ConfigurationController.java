@@ -44,6 +44,10 @@ public class ConfigurationController extends CommonController {
 		super();
 	}
 
+	@Override
+	public void reset() {
+	}
+
 	public List<IndexAbstract> getIndices() throws SearchLibException,
 			NamingException {
 		List<IndexAbstract> list = new ArrayList<IndexAbstract>();

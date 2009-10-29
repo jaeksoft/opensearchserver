@@ -126,7 +126,7 @@ public class WriterLocal extends WriterAbstract {
 		IndexWriter indexWriter = null;
 		try {
 			dataDir.mkdirs();
-			directory = FSDirectory.getDirectory(dataDir);
+			directory = FSDirectory.open(dataDir);
 			indexWriter = openIndexWriter(directory, true);
 			return dataDir;
 		} catch (IOException e) {

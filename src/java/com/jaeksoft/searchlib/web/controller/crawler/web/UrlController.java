@@ -57,6 +57,10 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public UrlController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		urlList = null;
 		totalSize = 0;
 		activePage = 0;

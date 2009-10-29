@@ -28,10 +28,12 @@ import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 
@@ -50,19 +52,35 @@ public class DocSetHits {
 	private int docNumFound;
 	private float maxScore;
 
-	private class ScoreHitCollector extends HitCollector {
+	private class ScoreHitCollector extends Collector {
 		@Override
-		public void collect(int docId, float sc) {
+		public void collect(int docId) {
 			collectedDocs[docNumFound++] = docId;
+		}
+
+		@Override
+		public boolean acceptsDocsOutOfOrder() {
+			return true;
+		}
+
+		@Override
+		public void setNextReader(IndexReader reader, int docId)
+				throws IOException {
+		}
+
+		@Override
+		public void setScorer(Scorer scorer) throws IOException {
+			float sc = scorer.score();
 			if (sc > maxScore)
 				maxScore = sc;
+
 		}
 	}
 
 	private class DeleteHitCollector extends ScoreHitCollector {
 		@Override
-		public void collect(int docId, float sc) {
-			super.collect(docId, sc);
+		public void collect(int docId) {
+			super.collect(docId);
 			try {
 				reader.fastDeleteDocument(docId);
 			} catch (Exception e) {
@@ -83,18 +101,18 @@ public class DocSetHits {
 			this.scoreDocs = new ScoreDoc[0];
 			this.reader = reader;
 			this.collectedDocs = new int[0];
-			HitCollector hc = null;
+			Collector collector = null;
 			if (reader.numDocs() == 0)
 				return;
 			if (delete)
-				hc = new DeleteHitCollector();
+				collector = new DeleteHitCollector();
 			else if (collect)
-				hc = new ScoreHitCollector();
+				collector = new ScoreHitCollector();
 
 			TopDocs topDocs = reader.search(query, filter, sort, 1);
-			if (hc != null) {
+			if (collector != null) {
 				this.collectedDocs = new int[topDocs.totalHits];
-				reader.search(query, filter, hc);
+				reader.search(query, filter, collector);
 			} else {
 				docNumFound = topDocs.totalHits;
 				maxScore = topDocs.getMaxScore();

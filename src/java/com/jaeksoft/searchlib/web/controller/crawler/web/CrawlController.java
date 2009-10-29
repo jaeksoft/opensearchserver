@@ -42,6 +42,10 @@ public class CrawlController extends CommonController {
 
 	public CrawlController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		sheetRows = 20;
 	}
 
@@ -94,4 +98,5 @@ public class CrawlController extends CommonController {
 	public void onTimer() {
 		reloadPage();
 	}
+
 }

@@ -92,7 +92,8 @@ public class SortField extends Field implements Externalizable,
 			return new org.apache.lucene.search.SortField(name,
 					org.apache.lucene.search.SortField.SCORE, desc);
 		else
-			return new org.apache.lucene.search.SortField(name, desc);
+			return new org.apache.lucene.search.SortField(name,
+					org.apache.lucene.search.SortField.STRING, desc);
 	}
 
 	@Override

@@ -48,12 +48,20 @@ public class SortedController extends QueryController implements RowRenderer {
 	 */
 	private static final long serialVersionUID = -6525895947880411384L;
 
-	private String selectedSort = null;
+	private String selectedSort;
 
-	private List<String> sortFieldLeft = null;
+	private List<String> sortFieldLeft;
 
 	public SortedController() throws SearchLibException {
 		super();
+		reset();
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		selectedSort = null;
+		sortFieldLeft = null;
 	}
 
 	public void setSelectedSort(String value) {

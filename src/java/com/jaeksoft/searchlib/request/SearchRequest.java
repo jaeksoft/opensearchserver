@@ -564,7 +564,7 @@ public class SearchRequest implements Externalizable {
 		String indexName = XPathParser.getAttributeString(node, "indexName");
 		SearchRequest searchRequest = new SearchRequest(config, indexName,
 				name, false, XPathParser.getAttributeValue(node, "phraseSlop"),
-				("and".equals(XPathParser.getAttributeString(node,
+				("and".equalsIgnoreCase(XPathParser.getAttributeString(node,
 						"defaultOperator"))) ? QueryParser.AND_OPERATOR
 						: QueryParser.OR_OPERATOR, XPathParser
 						.getAttributeValue(node, "start"), XPathParser

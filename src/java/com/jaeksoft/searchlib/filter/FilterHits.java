@@ -28,9 +28,10 @@ import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.DocIdSet;
-import org.apache.lucene.search.HitCollector;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Scorer;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
@@ -57,22 +58,36 @@ public class FilterHits extends org.apache.lucene.search.Filter {
 
 	public FilterHits(Query query, ReaderLocal reader) throws IOException,
 			ParseException {
-		Collector collector = new Collector(reader.maxDoc());
+		FilterCollector collector = new FilterCollector(reader.maxDoc());
 		reader.search(query, null, collector);
 		docSet = collector.bitSet;
 	}
 
-	private class Collector extends HitCollector {
+	private class FilterCollector extends Collector {
 
 		private OpenBitSet bitSet;
 
-		private Collector(int size) {
+		private FilterCollector(int size) {
 			this.bitSet = new OpenBitSet(size);
 		}
 
 		@Override
-		public void collect(int docId, float score) {
+		public void collect(int docId) {
 			bitSet.set(docId);
+		}
+
+		@Override
+		public boolean acceptsDocsOutOfOrder() {
+			return true;
+		}
+
+		@Override
+		public void setNextReader(IndexReader reader, int id)
+				throws IOException {
+		}
+
+		@Override
+		public void setScorer(Scorer arg0) throws IOException {
 		}
 	}
 

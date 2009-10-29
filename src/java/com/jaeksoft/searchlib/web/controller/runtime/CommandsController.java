@@ -48,6 +48,11 @@ public class CommandsController extends CommonController {
 
 	public CommandsController() throws SearchLibException {
 		super();
+		reset();
+	}
+
+	@Override
+	public void reset() {
 		lastReload = null;
 		lastOptimize = null;
 	}

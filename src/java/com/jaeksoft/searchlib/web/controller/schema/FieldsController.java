@@ -55,9 +55,14 @@ public class FieldsController extends CommonController {
 
 	public FieldsController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() {
 		field = new SchemaField();
 		selectedField = null;
 		schemaFieldList = null;
+		indexedFields = null;
 	}
 
 	public SchemaField getField() {

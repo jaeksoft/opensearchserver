@@ -39,7 +39,7 @@ public class IndexDirectory {
 	protected IndexDirectory(String name, File indexDir) throws IOException {
 		this.indexDir = indexDir;
 		this.name = name;
-		directory = FSDirectory.getDirectory(indexDir);
+		directory = FSDirectory.open(indexDir);
 	}
 
 	public Directory getDirectory() {

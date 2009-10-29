@@ -57,4 +57,8 @@ public class IndexController extends CommonController {
 		return list;
 	}
 
+	@Override
+	public void reset() {
+	}
+
 }

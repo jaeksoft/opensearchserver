@@ -38,10 +38,17 @@ public class CollapsingController extends QueryController {
 	 */
 	private static final long serialVersionUID = 4269436181925550723L;
 
-	private List<String> indexedFields = null;
+	private List<String> indexedFields;
 
 	public CollapsingController() throws SearchLibException {
 		super();
+		reset();
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		indexedFields = null;
 	}
 
 	public CollapseMode[] getCollapseModes() {
