@@ -123,6 +123,7 @@ function oss_update($type, $object, $index = null) {
 	$document->newField('spip_site',	 $object['nom_site']);
 	$document->newField('spip_url',		 $object['url_site']);
 	$document->newField('spip_lang',     $object['lang']);
+	$document->newField('date_indexation', date('YmdHis'));
 	
 	
 	if ($doUpdate) {

@@ -163,6 +163,16 @@ class OSS_API {
 
 	}
 
+	// FIXME
+	public function getEngineInformations() {
+		return OSS_API::queryServerXML($this->enginePath.'/'.OSS_API::API_ENGINE);
+	}
+	
+	// FIXME
+	public function getIndexInformations() {
+		return $this->queryServerXML($this->getQueryURL(OSS_API::API_INDEX));
+	}
+	
 	/**
 	 * Post data to an URL
 	 * @param string $url
@@ -228,6 +238,33 @@ class OSS_API {
 		return $content;
 	}
 
+	/**
+	 * Post data to an URL and retrieve an XML
+	 * @param string $url
+	 * @param string $data Optional. If provided will use a POST method. Only accept
+	 *                     data as POST encoded string or raw XML string.
+	 * @param int $timeout Optional. Number of seconds before the query fail
+	 * @return SimpleXMLElement
+	 * Use OSS_API::queryServerto retrieve an XML and check its validity
+	 */
+	public function queryServerXML($url, $data = null, $connexionTimeout = OSS_API::DEFAULT_CONNEXION_TIMEOUT, $timeout = OSS_API::DEFAULT_QUERY_TIMEOUT) {
+		$result = OSS_API::queryServer($url, $data, $connexionTimeout, $timeout);
+		if ($result === false) return false;
+		
+		// Check if we have a valid XML string from the engine
+		$lastErrorLevel = error_reporting(0);
+		$xmlResult = simplexml_load_string(OSS_API::cleanUTF8($result));
+		error_reporting($lastErrorLevel);
+		if (!$xmlResult instanceof SimpleXMLElement) {
+			if (class_exists('OSSException'))
+				throw new RuntimeException("The search engine didn't return a valid XML");
+			trigger_error("The search engine didn't return a valid XML", E_USER_WARNING);
+			return false;
+		}
+
+		return $xmlResult;
+	}
+	
 	/**
 	 * Check if the answer is an error returned by OSS
 	 * @param $xml string, DOMDocument or SimpleXMLElement

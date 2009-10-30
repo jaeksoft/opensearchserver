@@ -23,9 +23,29 @@
     	<inclure>base/indexation.php</inclure>
     </pipeline>
     
-	<bouton id="oss" parent="configuration">
+	<bouton id="oss_info" parent="configuration">
 		<icone>images/icon_oss.png</icone>
 		<titre>oss:gestion_indexation</titre>
 	</bouton>
+
+	<onglet id="oss_info" parent="onglet_oss">
+		<icone>images/information.png</icone>
+		<titre>Informations</titre>
+	</onglet>
+	
+	<onglet id="oss_moteur" parent="onglet_oss">
+		<icone>images/cog.png</icone>
+		<titre>Moteur</titre>
+	</onglet>
+	
+	<onglet id="oss_indexation" parent="onglet_oss">
+		<icone>images/application_form_edit.png</icone>
+		<titre>Indexation</titre>
+	</onglet>
+	
+	<onglet id="oss_maintenance" parent="onglet_oss">
+		<icone>images/brick.png</icone>
+		<titre>Maintenance</titre>
+	</onglet>
 
 </plugin>

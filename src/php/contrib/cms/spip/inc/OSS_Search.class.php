@@ -186,25 +186,11 @@ class OSS_Search {
 	 * @return SimpleXMLElement False if the query produced an error
 	 */
 	public function execute($connectTimeOut = null, $timeOut = null) {
-
 		// Do the query
 		$this->lastQueryString = $this->prepareQueryString();
-		$result = OSS_API::queryServer($this->lastQueryString, null, $connectTimeOut, $timeOut);
+		$result = OSS_API::queryServerXML($this->lastQueryString, null, $connectTimeOut, $timeOut);
 		if ($result === false) return false;
-		
-		// Check if we have a valid XML string from the engine
-		$lastErrorLevel = error_reporting(0);
-		$xmlResult = simplexml_load_string(OSS_API::cleanUTF8($result));
-		error_reporting($lastErrorLevel);
-		if (!$xmlResult instanceof SimpleXMLElement) {
-			if (class_exists('OSSException'))
-				throw new RuntimeException("The search engine didn't return a valid XML");
-			trigger_error("The search engine didn't return a valid XML", E_USER_WARNING);
-			return false;
-		}
-
-		return $xmlResult;
-
+		return $result;
 	}
 
 	/**

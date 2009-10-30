@@ -1,5 +1,10 @@
 <?php
 
+include_spip('inc/oss');
+include_spip('inc/OSS_API.class');
+include_spip('inc/OSS_IndexDocument.class');
+include_spip('inc/OSS_Search.class');
+
 function oss_load_object($type, $id) {
 	// Chargement des object
 	switch ($type) {
@@ -50,4 +55,26 @@ function oss_get_api_instance() {
 		$oss_api = new OSS_API($GLOBALS['meta']['oss_engine_path'], $GLOBALS['meta']['oss_engine_index']);
 	}
 	return $oss_api;
+}
+
+/**
+ * Return the number of documents known in the index by types
+ * @return array<int>
+ */
+function oss_get_count() {
+	$oss = oss_get_api_instance();
+	$search = $oss->search();
+	$results = $search->facet('spip_type', 0)->rows(0)->execute();
+	if (!$results) return false;
+	
+	// Return the overall count
+	$count = array('all' => (int)$results->result['numFound']);
+	
+	// Get the facets
+	$types = $results->faceting->xpath('field[@name="spip_type"]');
+	$types = reset($types);
+	foreach ($types->facet as $facet)
+		$count[(string)$facet['name']] = (int)$facet;
+	ksort($count);
+	return $count;
 }
