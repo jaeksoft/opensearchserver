@@ -8,46 +8,60 @@ include_spip('inc/oss');
 
 function exec_oss_info_dist() {
 	
+	$oss = oss_get_api_instance();
+	$isRunning = $oss->isEngineRunning();
+	$isIndexAvailable = ($isRunning) ? $oss->isIndexAvailable() : false;
+	
 	pipeline('exec_init', array('args' => array('exec' => 'oss'), 'data' => ''));
 	
 	$commencer_page = charger_fonction('commencer_page', 'inc');
-	echo $commencer_page(_T('oss:titre_page_iextra'), "configuration", "configuration");
+	echo $commencer_page(_T('oss:page_title_info'), "configuration", "configuration");
     
-	echo "<br/><br/><br/>";
-	echo gros_titre(_T('oss:titre_cfg_moteur'), '', false);
+	echo "<br/>";
+	echo gros_titre('Open Search Server', '', false);
+	echo "<br/>";
 	echo barre_onglets("onglet_oss", "oss_info");
+	echo "<br/>";
+
 	
 	echo debut_gauche('COLONE GAUCHE', true);
 	echo pipeline('affiche_gauche', array('args' => array('exec' => 'oss'), 'data' => ''));
 	
-	// Cadre gauche
-	echo debut_cadre_sous_rub('', true, false, _T('oss:documents_indexes'));
-	//echo recuperer_fond('squelettes/cadre_gauche_info', array());
-	$counts = oss_get_count();
-	if (count($counts)) {
-		echo '<table width="100%" cellspacing="1" cellpadding="3" border="0"><tbody>';
-		foreach ($counts as $type => $count) {
-			if ($type == 'all') continue;
-			echo "<tr><td>", $type, "</td><td>", $count, "</td></tr>";
-		}
-		echo "</tbody><tfoot><tr><td>", _T('oss:nombre_de_documents_indexes'), "</td><td>", $counts['all'], "</td></tr></tfoot></table>";
-	}
-	echo fin_cadre_sous_rub(true);
 	
-	// Corp principal
+	// *** Indexed documents ************************************************
+	if ($isIndexAvailable) {
+	echo debut_cadre_sous_rub('', true, false, _T('oss:indexed_documents'));
+		$counts = oss_get_count();
+		if (count($counts)) {
+			echo '<table width="100%" cellspacing="1" cellpadding="3" border="0"><tbody>';
+			foreach ($counts as $type => $count) {
+				if ($type == 'all') continue;
+				echo "<tr><td>", $type, "</td><td>", $count, "</td></tr>";
+			}
+			echo "</tbody><tfoot><tr><td>", _T('oss:indexed_document_count'), "</td><td>", $counts['all'], "</td></tr></tfoot></table>";
+		}
+		echo fin_cadre_sous_rub(true);
+	}
+	
 	echo creer_colonne_droite('COLONEDROITE', true);
 	echo pipeline('affiche_droite', array('args' => array('exec' => 'oss'), 'data' => ''));
-	
 	echo debut_droite('DEBUT COL DDROITE', true);
 
 	
-	echo debut_cadre_sous_rub('', true, false, _T('oss:moteur'));
-	$infos = array(
-		'oss_engine_url' => $GLOBALS['meta']['oss_engine_path'],
-		'version_moteur' => '1.1.1beta',
-		'utilisateur' => 'pmercier',
-		'password' => '*******',
-	);
+	// *** Engine ***********************************************************
+	if ($isRunning)
+		echo debut_cadre_sous_rub('', true, false, _T('oss:engine'), null, 'available');
+	else
+		echo debut_cadre_sous_rub('', true, false, _T('oss:engine_unavailabe'), null, 'unavailable');
+	
+	if (!$isRunning)
+		echo '<img style="margin: 10px; width: 48px; height: 48px; float: right;" alt="Avertissement" src="../prive/images/warning.gif"/>';
+	if ($isRunning === null)
+		echo _T('oss:text_server_unavailable'), "<br/><br/>";
+	elseif ($isRunning === false)
+		echo _T('oss:text_engine_unavailable'), "<br/><br/>";
+	
+	$infos = $oss->getEngineInformations();
 	echo '<table width="100%" cellspacing="1" cellpadding="3" border="0"><tbody>';
 	foreach ($infos as $k => $v) {
 		echo "<tr><td>", _T('oss:'.$k), "</td><td>", $v, "</td></tr>";
@@ -55,22 +69,25 @@ function exec_oss_info_dist() {
 	echo "</tbody></table>";
 	echo fin_cadre_sous_rub(true);
 	
-	echo debut_cadre_sous_rub('', true, false, _T('oss:index'));
-	$infos = array(
-		'oss_engine_index' => $GLOBALS['meta']['oss_engine_index'],
-		'taille_indexes' => 'pas lourd',
-		'nombre_de_documents_indexes' => $counts['all'],
-		'dernier_document_indexe' => 'blabla',
-		'date_derniere_indexation' => 'bling bling',
-		'status_writer' => 'fermé',
-	);
-	echo '<table width="100%" cellspacing="1" cellpadding="3" border="0"><tbody>';
-	foreach ($infos as $k => $v) {
-		echo "<tr><td>", _T('oss:'.$k), "</td><td>", $v, "</td></tr>";
-	}
-	echo "</tbody></table>";
 	
-	echo fin_cadre_sous_rub(true);
+	// *** Index ************************************************************
+	if ($isRunning) {
+		if ($isIndexAvailable) {
+			echo debut_cadre_sous_rub('', true, false, _T('oss:index'), null, 'available');
+			$infos = $oss->getIndexInformations();
+			echo '<table width="100%" cellspacing="1" cellpadding="3" border="0"><tbody>';
+			foreach ($infos as $k => $v) {
+				echo "<tr><td>", _T('oss:'.$k), "</td><td>", $v, "</td></tr>";
+			}
+			echo "</tbody></table>";
+		}
+		else {
+			echo debut_cadre_sous_rub('', true, false, _T('oss:index_unavailable'), null, 'unavailable');
+			echo '<img style="margin: 10px; width: 48px; height: 48px; float: right;" alt="Avertissement" src="../prive/images/warning.gif"/>';
+			echo _T('oss:text_index_unavailable');
+		}
+		echo fin_cadre_sous_rub(true);
+	}
 	
 	echo pipeline('affiche_milieu', array('args' => array('exec' => 'oss'), 'data' => ''));
 	echo fin_gauche(), fin_page();

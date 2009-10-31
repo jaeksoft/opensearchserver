@@ -24,7 +24,7 @@ if (!class_exists('OSS_API')) { trigger_error("OSS_Search won't work whitout OSS
 if (!class_exists('ArrayObject')) { trigger_error("OSS_IndexDocument won't work whitout SPL ArrayObject", E_USER_ERROR); die(); }
 
 /**
- * @author pmercier <pmercier-oss@nkubz.net>
+ * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  */
 class OSS_IndexDocument extends ArrayObject {
@@ -75,7 +75,7 @@ class OSS_IndexDocument extends ArrayObject {
 }
 
 /**
- * @author pmercier <pmercier-oss@nkubz.net>
+ * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  */
 class OSS_IndexDocument_Document extends ArrayObject {
@@ -211,7 +211,7 @@ class OSS_IndexDocument_Document extends ArrayObject {
 }
 
 /**
- * @author pmercier <pmercier-oss@nkubz.net>
+ * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  */
 class OSS_IndexDocument_Field extends ArrayObject {
@@ -296,7 +296,7 @@ class OSS_IndexDocument_Field extends ArrayObject {
 }
 
 /**
- * @author pmercier <pmercier-oss@nkubz.net>
+ * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  */
 class OSS_IndexDocument_Value {

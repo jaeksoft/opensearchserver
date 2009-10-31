@@ -29,7 +29,8 @@ if (!class_exists('InvalidArgumentException')) { class InvalidArgumentException 
 if (!class_exists('OutOfRangeException')) { class OutOfRangeException extends LogicException {} }
 
 /**
- * @author pmercier <pmercier-oss@nkubz.net>
+ * Class to access OpenSearchServer API
+ * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  */
 class OSS_API {
@@ -39,6 +40,8 @@ class OSS_API {
 	const API_DELETE   = 'delete';
 	const API_OPTIMIZE = 'optimize';
 	const API_RELOAD   = 'reload';
+	const API_INDEX    = 'index';
+	const API_ENGINE   = 'engine';
 
 	/** @var int Default timeout (specified in seconds) for CURLOPT_TIMEOUT option. See curl documentation */
 	const DEFAULT_QUERY_TIMEOUT = 0;
@@ -46,6 +49,11 @@ class OSS_API {
 	/** @var int Timeout (specified in seconds) for CURLOPT_CONNECTTIMEOUT option. See curl documentation */
 	const DEFAULT_CONNEXION_TIMEOUT = 5;
 
+	/**
+	 * List of supported languages
+	 * @todo Provide an API to request the supported languages from the engine (if possible)
+	 * @var array
+	 */
 	protected static $supportedLanguages = array(
 			""   => "Undefined",
 			"zh" => "Chinese",
@@ -68,6 +76,7 @@ class OSS_API {
 
 	/* @var string */
 	protected $enginePath;
+	
 	/* @var string */
 	protected $index;
 
@@ -77,30 +86,39 @@ class OSS_API {
 	 * @return OSS_API
 	 */
 	public function __construct($enginePath, $index = null) {
+		
 		$parsedPath = OSS_API::parseEnginePath($enginePath, $index);
 		$this->enginePath	= $parsedPath['enginePath'];
 		$this->index		= $parsedPath['index'];
+		
+		if (!function_exists('OSS_API_Dummy_Function')) { function OSS_API_Dummy_Function() {} }
 	}
 
 	/**
+	 * Return an OSS_Search using the current engine path and index
 	 * @return OSS_Search
+	 * This method require the file OSS_Search.class.php. It'll be included if the OSS_Search class don't exist.
+	 * It's expected to be in the same directory as OSS_API.class.php.
 	 */
 	public function select() {
-		return $this->search();
-	}
-
-	/**
-	 * @return OSS_Search
-	 */
-	public function search() {
 		if (!class_exists('OSS_Search')) require (dirname(__FILE__).'/OSS_Search.class.php');
 		return new OSS_Search($this->enginePath, $this->index);
 	}
 
 	/**
-	 * Launch an optimize of the index
+	 * Return an OSS_Search using the current engine path and index
+	 * @return OSS_Search
+	 * @deprecated Use OSS_API::select
+	 */
+	public function search() {
+		return $this->select();
+	}
+
+	/**
+	 * Optimize the index
 	 * @return boolean True on success
-	 * See the OSS Wiki [Web API optimize] documentation before using this method
+	 * @see OSS Wiki [Web API optimize] documentation before using this method
+	 * FIXME Provide a link to the OSS WiKi
 	 */
 	public function optimize() {
 		$return = $this->queryServer($this->getQueryURL(OSS_API::API_OPTIMIZE));
@@ -110,7 +128,8 @@ class OSS_API {
 	/**
 	 * Reload the index
 	 * @return boolean True on success
-	 * See the OSS Wiki [Web API reload] documentation before using this method
+	 * @see OSS Wiki [Web API reload] documentation before using this method
+	 * FIXME Provide a link to the OSS WiKi
 	 */
 	public function reload() {
 		$return = $this->queryServer($this->getQueryURL(OSS_API::API_RELOAD));
@@ -118,9 +137,33 @@ class OSS_API {
 	}
 
 	/**
+	 * Not implemented yet
+	 * @todo Next release
+	 * @ignore
+	 * @param array<string> $ids
+	 * @return null
+	 * FIXME See with ekeller if this's api won't be deprecated soon
+	 */
+	public function delete($ids) {
+		// http://localhost:8080/oss/delete?use=spip_index&uniq=article_2
+	}
+	
+	/**
+	 * @todo Next release
+	 * @ignore
+	 * @param string $file
+	 * @return null
+	 * FIXME See with ekeller if this's api won't be deprecated soon
+	 */
+	public function push($file) {
+		// http://localhost:8080/oss/push?use=fileNiet&fileName=test.pdf&version=1
+	}
+	
+	/**
 	 * Return the url to use with curl
 	 * @param string $apiCall The Web API to call. Refer to the OSS Wiki documentation of [Web API]
 	 * @return string
+	 * Use OSS_API::API_* constants for $apiCall
 	 */
 	protected function getQueryURL($apiCall) {
 		$path = $this->enginePath.'/'.$apiCall;
@@ -137,6 +180,7 @@ class OSS_API {
 	 */
 	public function update($xml) {
 
+		// Cast $xml to a string
 		if (!is_string($xml)) {
 			if ($xml instanceof DOMDocument) {
 				$xml = $xml->saveXML();
@@ -163,6 +207,84 @@ class OSS_API {
 
 	}
 
+
+	/**
+	 * Return informations about the OSS Engine
+	 * @todo Finish implementation once API is availabe
+	 * @return array
+	 */
+	public function getEngineInformations() {
+		$infos = array(
+			'engine_url'     => $this->enginePath,
+			'engine_version' => 'unknown',
+			'user'           => '',
+			'password'       => ''
+		);
+		return $infos;
+		//return OSS_API::queryServerXML($this->enginePath.'/'.OSS_API::API_ENGINE);
+	}
+	
+	/**
+	 * Return informations about the index
+	 * @todo Finish implementation once API is availabe
+	 * @return array
+	 */
+	public function getIndexInformations() {
+		
+		$infos  = array(
+			'name'  => $this->index,
+			'size'  => null
+		);
+		
+		set_error_handler('OSS_API_Dummy_Function', E_ALL);
+		try { $result = $this->queryServerXML($this->getQueryURL(OSS_API::API_SELECT).'&q=*:*&rows=0'); }
+		catch (Exception $e) { $result = false; }
+		restore_error_handler();
+		if ($result instanceof SimpleXMLElement) {
+			$infos['count'] = $result->result['numFound']; 
+		}
+		
+		return $infos;
+		//return $this->queryServerXML($this->getQueryURL(OSS_API::API_INDEX));
+	}
+	
+	/**
+	 * Check if the engine is running. Don't check the existance of the index.
+	 * @return boolean Return null if can't connect to tomcat. Return false if engine fail to answer. Return true if the engine is running.
+	 * @todo Recode this method once API is provided
+	 */
+	public function isEngineRunning() {
+		
+		// Check if the select api is answering
+		$rCurl = curl_init($this->getQueryURL(OSS_API::API_SELECT).'&q=!*:*&rows=0');
+		curl_setopt($rCurl, CURLOPT_HTTP_VERSION, '1.0');
+		curl_setopt($rCurl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($rCurl, CURLOPT_CONNECTTIMEOUT, 5);
+		set_error_handler('OSS_API_Dummy_Function', E_ALL);
+		curl_exec($rCurl);
+		restore_error_handler();
+		$infos = curl_getinfo($rCurl);
+		if ($infos['http_code'] >= 200 && $infos['http_code'] < 300) return true;
+		if ($infos['http_code'] == 0) return null;
+		return false;
+		
+	}
+	
+	/**
+	 * Check if the index is available
+	 * @return boolean True if exist.
+	 * @todo Recode this method once API is provided 
+	 */
+	public function isIndexAvailable() {
+		// Check if the select api is answering
+		set_error_handler('OSS_API_Dummy_Function', E_ALL);
+		try { $result = $this->queryServerXML($this->getQueryURL(OSS_API::API_SELECT).'&q=!*:*&rows=0'); }
+		catch (Exception $e) { $result = false; }
+		restore_error_handler();
+		return (bool)$result;
+	}
+	
+	
 	/**
 	 * Post data to an URL
 	 * @param string $url
@@ -172,7 +294,6 @@ class OSS_API {
 	 * @return false|string
 	 *
 	 * Will fail if more than 16 HTTP redirection
-	 * FIXME Explain Exceptions
 	 */
 	public static function queryServer($url, $data = null, $connexionTimeout = OSS_API::DEFAULT_CONNEXION_TIMEOUT, $timeout = OSS_API::DEFAULT_QUERY_TIMEOUT) {
 
@@ -198,7 +319,9 @@ class OSS_API {
 			curl_setopt($rCurl, CURLOPT_HTTPHEADER, array("Content-type: text/xml; charset=utf-8"));
 		}
 
+		set_error_handler('OSS_API_Dummy_Function', E_ALL);
 		$content = curl_exec($rCurl);
+		restore_error_handler();
 		
 		if ($content === false) {
 			if (class_exists('OSSException'))
@@ -228,6 +351,33 @@ class OSS_API {
 		return $content;
 	}
 
+	/**
+	 * Post data to an URL and retrieve an XML
+	 * @param string $url
+	 * @param string $data Optional. If provided will use a POST method. Only accept
+	 *                     data as POST encoded string or raw XML string.
+	 * @param int $timeout Optional. Number of seconds before the query fail
+	 * @return SimpleXMLElement
+	 * Use OSS_API::queryServerto retrieve an XML and check its validity
+	 */
+	public function queryServerXML($url, $data = null, $connexionTimeout = OSS_API::DEFAULT_CONNEXION_TIMEOUT, $timeout = OSS_API::DEFAULT_QUERY_TIMEOUT) {
+		$result = OSS_API::queryServer($url, $data, $connexionTimeout, $timeout);
+		if ($result === false) return false;
+		
+		// Check if we have a valid XML string from the engine
+		$lastErrorLevel = error_reporting(0);
+		$xmlResult = simplexml_load_string(OSS_API::cleanUTF8($result));
+		error_reporting($lastErrorLevel);
+		if (!$xmlResult instanceof SimpleXMLElement) {
+			if (class_exists('OSSException'))
+				throw new RuntimeException("The search engine didn't return a valid XML");
+			trigger_error("The search engine didn't return a valid XML", E_USER_WARNING);
+			return false;
+		}
+
+		return $xmlResult;
+	}
+	
 	/**
 	 * Check if the answer is an error returned by OSS
 	 * @param $xml string, DOMDocument or SimpleXMLElement
@@ -268,8 +418,9 @@ class OSS_API {
 	}
 
 	/**
-	 * Parse the enginePath parameter to extract the index
-	 * @param 
+	 * Parse the enginePath parameter to extract the index name
+	 * @param $enginePath The URL to access the OSS Engine
+	 * @param $index The index name
 	 */
 	public static function parseEnginePath($enginePath, $index = null) {
 		
@@ -293,14 +444,15 @@ class OSS_API {
 	/**
 	 * Return a list of supported language. Array is indexed by ISO 639-1 format (en, de, fr, ...)
 	 * @return Array<String>
+	 * @see OSS_API::$supportedLanguages
 	 */
 	public static function supportedLanguages() {
 		return OSS_API::$supportedLanguages;
 	}
 
 	/**
-	 * Escape special chars for lucene
-	 * @param $string
+	 * Escape Lucene's special chars
+	 * @param string $string
 	 * @return string
 	 */
 	public static function escape($string) {

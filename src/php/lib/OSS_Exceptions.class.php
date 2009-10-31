@@ -27,7 +27,7 @@ if (!class_exists('OutOfRangeException')) { class OutOfRangeException extends Lo
 
 /**
  * Open Search Server Exception
- * @author pmercier <pmercier-oss@nkubz.net>
+ * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  * FIXME Complete this documentation
  */
@@ -74,7 +74,7 @@ class OSSException extends RuntimeException {
 
 /**
  * Open Search Server Tomcat Exception
- * @author pmercier <pmercier-oss@nkubz.net>
+ * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  * FIXME Complete this documentation
  */

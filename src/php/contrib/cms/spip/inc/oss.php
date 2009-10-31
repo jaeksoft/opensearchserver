@@ -5,6 +5,12 @@ include_spip('inc/OSS_API.class');
 include_spip('inc/OSS_IndexDocument.class');
 include_spip('inc/OSS_Search.class');
 
+if (!defined('_DIR_PLUGIN_OSS')) {
+	define('_DIR_PLUGIN_OSS', preg_replace(',/[^/]+$,', '', str_replace(str_replace('/ecrire', '', dirname($_SERVER['SCRIPT_FILENAME'])), '', dirname(__FILE__))));
+}
+
+function oss_dummy_function() {}
+
 function oss_load_object($type, $id) {
 	// Chargement des object
 	switch ($type) {
@@ -64,8 +70,11 @@ function oss_get_api_instance() {
 function oss_get_count() {
 	$oss = oss_get_api_instance();
 	$search = $oss->search();
-	$results = $search->facet('spip_type', 0)->rows(0)->execute();
-	if (!$results) return false;
+	set_error_handler('oss_dummy_function', E_ALL);
+	try { $results = $search->facet('spip_type', 0)->rows(0)->execute(); }
+	catch (Exception $e) { $results = false; } 
+	restore_error_handler();
+	if (!$results) return array();
 	
 	// Return the overall count
 	$count = array('all' => (int)$results->result['numFound']);
@@ -77,4 +86,9 @@ function oss_get_count() {
 		$count[(string)$facet['name']] = (int)$facet;
 	ksort($count);
 	return $count;
+}
+
+function oss_header_prive($head) {
+	$head .= '<link id="cssoss" href="'._DIR_PLUGIN_OSS.'/squelettes/style.css" type="text/css" rel="stylesheet">';
+	return $head."\n";
 }

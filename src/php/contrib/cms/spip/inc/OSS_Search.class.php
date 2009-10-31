@@ -23,7 +23,7 @@
 if (!class_exists('OSS_API')) { trigger_error("OSS_Search won't work whitout OSS_API", E_USER_ERROR); die(); }
 
 /**
- * @author pmercier <pmercier-oss@nkubz.net>
+ * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  * FIXME Complete this documentations
  */

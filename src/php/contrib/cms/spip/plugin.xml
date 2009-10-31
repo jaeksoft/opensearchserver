@@ -23,6 +23,11 @@
     	<inclure>base/indexation.php</inclure>
     </pipeline>
     
+    <pipeline>
+    	<nom>header_prive</nom>
+    	<inclure>inc/oss.php</inclure>
+    </pipeline>
+    
 	<bouton id="oss_info" parent="configuration">
 		<icone>images/icon_oss.png</icone>
 		<titre>oss:gestion_indexation</titre>
