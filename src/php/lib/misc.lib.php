@@ -8,7 +8,7 @@ function configRequestValue($key, $default, $requestField = null) {
 	$value = null;
 	if (!empty($_REQUEST[$requestField])) {
 		$value = $_REQUEST[$requestField];
-		setcookie($key, $value, time() + 3600 * 365);
+		setcookie($key, $value, time() + 3600 * 365, '/');
 	}
 	if (!$value && isset($_COOKIE[$key]))
 		$value = $_COOKIE[$key];
