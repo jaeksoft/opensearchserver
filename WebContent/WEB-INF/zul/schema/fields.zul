@@ -56,7 +56,7 @@
 						<row>
 							<label value="Name: " />
 							<textbox value="@{fields.field.name}"
-								width="95%" />
+								width="95%" readonly="@{fields.selected}" />
 							<label
 								value="Choose a name for the field that will be created" />
 						</row>
@@ -129,14 +129,17 @@
 
 		<separator height="5" />
 
-		<panel title="List of existing fields and their settings" border="normal">
+		<panel title="List of existing fields and their settings"
+			border="normal">
 			<panelchildren>
 				<listbox model="@{fields.sortedList}"
 					selectedItem="@{fields.selectedField}">
 					<listhead>
 						<listheader label="Name" />
-						<listheader width="140px" label="Indexation of content" />
-						<listheader width="140px" label="Storage for queries" />
+						<listheader width="140px"
+							label="Indexation of content" />
+						<listheader width="140px"
+							label="Storage for queries" />
 						<listheader width="140px" label="TermVector" />
 						<listheader width="240px" label="Analyser" />
 					</listhead>
