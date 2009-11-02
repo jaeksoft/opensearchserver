@@ -156,6 +156,7 @@ public class FieldsController extends CommonController {
 			if (indexedFields != null)
 				return indexedFields;
 			indexedFields = new ArrayList<String>();
+			indexedFields.add(null);
 			for (SchemaField field : getClient().getSchema().getFieldList())
 				if (field.isIndexed())
 					indexedFields.add(field.getName());
@@ -172,8 +173,6 @@ public class FieldsController extends CommonController {
 
 	public void setSelectedUnique(String field) throws SearchLibException,
 			InterruptedException {
-		if (field == null)
-			return;
 		Client client = getClient();
 		client.getSchema().getFieldList().setUniqueField(field);
 		client.saveConfig();
@@ -189,8 +188,6 @@ public class FieldsController extends CommonController {
 
 	public void setSelectedDefault(String field) throws SearchLibException,
 			InterruptedException {
-		if (field == null)
-			return;
 		Client client = getClient();
 		client.getSchema().getFieldList().setDefaultField(field);
 		client.saveConfig();
