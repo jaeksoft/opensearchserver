@@ -79,7 +79,7 @@ class OSS_API {
 	
 	/* @var string */
 	protected $index;
-
+	
 	/**
 	 * @param $enginePath The URL to access the OSS Engine
 	 * @param $index The index name

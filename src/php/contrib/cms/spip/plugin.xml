@@ -3,16 +3,19 @@
     <version>0.1</version>
     <nom>OpenSearchServer</nom>
     <prefix>oss</prefix>
-    <auteur>Pascal MERCIER [contact->mailto:pmercier@open-search-server.com]
- _ [mon site->http://www.open-search-server.com]</auteur>
-    <etat>experimental</etat>
-    <description>Ce plugin est une démonstration. Il est distribué sous licence GNU/GPL</description>
-    <lien>http://www.nkubz.net/</lien>
+    <auteur>Pascal MERCIER [contact->mailto:pmercier@open-search-server.com], [NKubz->http://nkubz.net]</auteur>
+    <etat>dev</etat>
+    <licence>&#169; 2009 - <strong style="color:red">En attente de réponse</strong></licence>
+    <description>
+    	<multi>
+[fr]Etablie OpenSearchServer comme moteur de recherche au sein de SPIP. 
+[en]Set Open-Search-Server as the default search engine for SPIP.
+		</multi>
+	</description>
+    <lien>http://www.open-search-server.com</lien>
     <necessite id="SPIP" version="[2.0;)" />
     
-    <fonctions>inc/OSS_API.class.php</fonctions>
-    <fonctions>inc/OSS_IndexDocument.class.php</fonctions>
-    <fonctions>inc/oss.php</fonctions>
+    <fonctions>inc/base.php</fonctions>
     <fonctions>inc/prepare_recherche.php</fonctions>
     
     <options>oss_options.php</options>
@@ -20,35 +23,35 @@
     <pipeline>
     	<nom>post_edition</nom>
     	<action>indexation</action>
-    	<inclure>base/indexation.php</inclure>
+    	<inclure>base/pipelines.php</inclure>
     </pipeline>
     
     <pipeline>
     	<nom>header_prive</nom>
-    	<inclure>inc/oss.php</inclure>
+    	<inclure>base/pipelines.php</inclure>
     </pipeline>
     
-	<bouton id="oss_info" parent="configuration">
+	<bouton id="oss_info_engine" parent="configuration">
 		<icone>images/icon_oss.png</icone>
 		<titre>oss:gestion_indexation</titre>
 	</bouton>
 
-	<onglet id="oss_info" parent="onglet_oss">
+	<onglet id="oss_info_engine" parent="onglet_oss">
 		<icone>images/information.png</icone>
 		<titre>Informations</titre>
 	</onglet>
 	
-	<onglet id="oss_moteur" parent="onglet_oss">
+	<onglet id="oss_config_engine" parent="onglet_oss">
 		<icone>images/cog.png</icone>
 		<titre>Moteur</titre>
 	</onglet>
 	
-	<onglet id="oss_indexation" parent="onglet_oss">
+	<onglet id="oss_config_indexation" parent="onglet_oss">
 		<icone>images/application_form_edit.png</icone>
 		<titre>Indexation</titre>
 	</onglet>
 	
-	<onglet id="oss_maintenance" parent="onglet_oss">
+	<onglet id="oss_index_maintenance" parent="onglet_oss">
 		<icone>images/brick.png</icone>
 		<titre>Maintenance</titre>
 	</onglet>

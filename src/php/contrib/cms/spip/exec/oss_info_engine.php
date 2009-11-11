@@ -4,9 +4,9 @@ if (!defined("_ECRIRE_INC_VERSION")) return;
 
 include_spip('inc/presentation');
 include_spip('inc/texte');
-include_spip('inc/oss');
+include_spip('inc/base');
 
-function exec_oss_info_dist() {
+function exec_oss_info_engine_dist() {
 	
 	$oss = oss_get_api_instance();
 	$isRunning = $oss->isEngineRunning();
@@ -20,7 +20,7 @@ function exec_oss_info_dist() {
 	echo "<br/>";
 	echo gros_titre('Open Search Server', '', false);
 	echo "<br/>";
-	echo barre_onglets("onglet_oss", "oss_info");
+	echo barre_onglets("onglet_oss", $_GET['exec']);
 	echo "<br/>";
 
 	
@@ -92,8 +92,4 @@ function exec_oss_info_dist() {
 	echo pipeline('affiche_milieu', array('args' => array('exec' => 'oss'), 'data' => ''));
 	echo fin_gauche(), fin_page();
 	
-}
-
-function autoriser_oss_configuration_bouton_dist($faire, $type, $id, $qui, $opt) {
-	return ($qui['statut'] == '0minirezo');
 }

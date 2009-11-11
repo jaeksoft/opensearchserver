@@ -4,9 +4,9 @@ if (!defined("_ECRIRE_INC_VERSION")) return;
 
 include_spip('inc/presentation');
 include_spip('inc/texte');
-include_spip('inc/oss');
+include_spip('inc/base');
 
-function exec_oss_moteur_dist() {
+function exec_oss_config_indexation_dist() {
 	
 	pipeline('exec_init', array('args' => array('exec' => 'oss'), 'data' => ''));
 	
@@ -14,8 +14,8 @@ function exec_oss_moteur_dist() {
 	echo $commencer_page(_T('oss:titre_page_iextra'), "configuration", "configuration");
     
 	echo "<br/><br/><br/>";
-	echo gros_titre(_T('oss:titre_cfg_moteur'), '', false);
-	echo barre_onglets("onglet_oss", "oss_moteur");
+	echo gros_titre(_T('oss:titre_cfg_indexation'), '', false);
+	echo barre_onglets("onglet_oss", $_GET['exec']);
 	
 	echo debut_gauche('COLONE GAUCHE', true);
 	echo pipeline('affiche_gauche', array('args' => array('exec' => 'oss'), 'data' => ''));
@@ -40,8 +40,4 @@ function exec_oss_moteur_dist() {
 	echo pipeline('affiche_milieu', array('args' => array('exec' => 'oss'), 'data' => ''));
 	echo fin_gauche(), fin_page();
 	
-}
-
-function autoriser_oss_configuration_bouton_dist($faire, $type, $id, $qui, $opt) {
-	return ($qui['statut'] == '0minirezo');
 }

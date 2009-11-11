@@ -4,9 +4,9 @@ if (!defined("_ECRIRE_INC_VERSION")) return;
 
 include_spip('inc/presentation');
 include_spip('inc/texte');
-include_spip('inc/oss');
+include_spip('inc/base');
 
-function exec_oss_maintenance_dist() {
+function exec_oss_index_maintenance_dist() {
 	
 	pipeline('exec_init', array('args' => array('exec' => 'oss'), 'data' => ''));
 	
@@ -15,7 +15,7 @@ function exec_oss_maintenance_dist() {
     
 	echo "<br/><br/><br/>";
 	echo gros_titre(_T('oss:titre_cfg_maintenance'), '', false);
-	echo barre_onglets("onglet_oss", "oss_maintenance");
+	echo barre_onglets("onglet_oss", $_GET['exec']);
 	
 	echo debut_gauche('COLONE GAUCHE', true);
 	echo pipeline('affiche_gauche', array('args' => array('exec' => 'oss'), 'data' => ''));
@@ -108,8 +108,4 @@ function exec_oss_maintenance_dist() {
 	echo pipeline('affiche_milieu', array('args' => array('exec' => 'oss'), 'data' => ''));
 	echo fin_gauche(), fin_page();
 	
-}
-
-function autoriser_oss_configuration_bouton_dist($faire, $type, $id, $qui, $opt) {
-	return ($qui['statut'] == '0minirezo');
 }
