@@ -12,7 +12,7 @@ Bug fixes
 - 2886651: Default operator is not preserved when saving query
 - 2886645: Issue with lemmatisation using the web crawler
 - 2884347: Field seem to be lost if renamed
-- 2884344: Renaming a field then deleting: not removed from the bo
+- 2884344: Renaming a field then deleting: not removed from the back-office
 - 2884275: Duplicated documents when using empty index template
 
 Open Search Server 1.1
