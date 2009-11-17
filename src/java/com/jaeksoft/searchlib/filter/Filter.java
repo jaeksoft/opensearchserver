@@ -70,8 +70,10 @@ public class Filter implements Externalizable {
 			throws ParseException {
 		if (query != null)
 			return query;
-		query = new QueryParser(defaultField.getName(), analyzer)
-				.parse(queryString);
+		QueryParser queryParser = new QueryParser(defaultField.getName(),
+				analyzer);
+		queryParser.setLowercaseExpandedTerms(false);
+		query = queryParser.parse(queryString);
 		return query;
 	}
 

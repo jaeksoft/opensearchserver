@@ -6,6 +6,11 @@ CHANGE LOG
 All new features and bugs are described here:
 http://sourceforge.net/tracker/?group_id=260863
 
+Open Search Server 1.1.2
+
+Bug fixes
+- 2898343: Behaviour problem of wildcard function
+
 Open Search Server 1.1.1
 
 Bug fixes
