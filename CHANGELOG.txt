@@ -10,6 +10,11 @@ Open Search Server 1.2
 
 - 2888788: Upgrade Lucene to release 2.9.0
 
+Open Search Server 1.1.2
+
+Bug fixes
+- 2898343: Behaviour problem of wildcard function
+
 Open Search Server 1.1.1
 
 Bug fixes
