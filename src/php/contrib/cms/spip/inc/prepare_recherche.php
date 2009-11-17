@@ -1,7 +1,7 @@
 <?php
 
 if (!defined("_ECRIRE_INC_VERSION")) return;
-include_spip('inc/oss');
+include_spip('inc/base');
 include_spip('inc/OSS_API.class');
 include_spip('inc/OSS_Search.class');
 

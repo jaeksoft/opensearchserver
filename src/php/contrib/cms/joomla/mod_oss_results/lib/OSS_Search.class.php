@@ -29,6 +29,8 @@ if (!class_exists('OSS_API')) { trigger_error("OSS_Search won't work whitout OSS
  */
 class OSS_Search {
 
+	const VERSION = '1.1';
+	
 	protected $enginePath;
 	protected $index;
 	protected $query;

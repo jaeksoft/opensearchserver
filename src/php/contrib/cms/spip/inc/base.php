@@ -158,7 +158,11 @@ function oss_get_indexable_fields() {
 
 
 function oss_update($type, $object, $index = null) {
-
+	
+	// Type is indexable ?
+	if (!$GLOBALS['meta']['oss_indexation_global_enabled'] || !$GLOBALS['meta']['oss_indexation_'.$type.'_enabled'])
+		return;
+	
 	$doUpdate = !(bool)$index;
 	
 	if (!$index) $index = new OSS_IndexDocument();
@@ -175,12 +179,14 @@ function oss_update($type, $object, $index = null) {
 	// Récupération des données spécifiques
 	if ($type == 'articles') {
 		
-		// Récupération des auteurs
-		$authors = (array)sql_allfetsel("SA.id_auteur, SA.nom", "spip_auteurs_articles AS SAA INNER JOIN spip_auteurs AS SA ON SA.id_auteur = SAA.id_auteur", "SAA.id_article=".$idObjet);
-		
-		foreach ($authors as $key => $author)
-			$authors[$key] = $author['id_auteur'].'|'.$author['nom'];
-		$document->newField('spip_author', $authors);
+		if ($GLOBALS['meta']['oss_indexation_article_nom_auteur']) {
+			// Récupération des auteurs
+			$authors = (array)sql_allfetsel("SA.id_auteur, SA.nom", "spip_auteurs_articles AS SAA INNER JOIN spip_auteurs AS SA ON SA.id_auteur = SAA.id_auteur", "SAA.id_article=".$idObjet);
+			
+			foreach ($authors as $key => $author)
+				$authors[$key] = $author['id_auteur'].'|'.$author['nom'];
+			$document->newField('spip_author', $authors);
+		}
 		
 	}
 	elseif ($type == 'breve') {
@@ -188,20 +194,34 @@ function oss_update($type, $object, $index = null) {
 	}
 	elseif ($type == 'rubrique') {
 		
-		$document->newField('spip_header',   $object['descriptif']);
+		if ($GLOBALS['meta']['oss_indexation_rubrique_descriptif']) {
+			$document->newField('spip_header',   $object['descriptif']);
+		}
 		
 	}
 	
-	$document->newField('spip_suptitle', strip_tags($object['surtitre']));
-	$document->newField('spip_title',    strip_tags($object['titre']));
-	$document->newField('spip_subtitle', strip_tags($object['surtitre']));
-	$document->newField('spip_header',   strip_tags($object['chapo']));
-	$document->newField('spip_body',     strip_tags($object['texte']));
-	$document->newField('spip_date',     preg_replace('/[^\d]+/', '', isset($object['date_heure']) ? $object['date_heure'] : $object['date']));
-	$document->newField('spip_up',       preg_replace('/[^\d]+/', '', $object['maj']));
-	$document->newField('spip_site',	 $object['nom_site']);
-	$document->newField('spip_url',		 $object['url_site']);
-	$document->newField('spip_lang',     $object['lang']);
+	
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_surtitre'])
+		$document->newField('spip_suptitle', strip_tags($object['surtitre']));
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_titre'])
+		$document->newField('spip_title',    strip_tags($object['titre']));
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_soustitre'])
+		$document->newField('spip_subtitle', strip_tags($object['soustitre']));
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_chapo'])
+		$document->newField('spip_header',   strip_tags($object['chapo']));
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_texte'])
+		$document->newField('spip_body',     strip_tags($object['texte']));
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_date_heure'] || $GLOBALS['meta']['oss_indexation_'.$type.'_date'])
+		$document->newField('spip_date',     preg_replace('/[^\d]+/', '', isset($object['date_heure']) ? $object['date_heure'] : $object['date']));
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_maj'])
+		$document->newField('spip_up',       preg_replace('/[^\d]+/', '', $object['maj']));
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_nom_site'])
+		$document->newField('spip_site',	 $object['nom_site']);
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_url_site'])
+		$document->newField('spip_url',		 $object['url_site']);
+	if ($GLOBALS['meta']['oss_indexation_'.$type.'_lang'])
+		$document->newField('spip_lang',     $object['lang']);
+	
 	$document->newField('date_indexation', date('YmdHis'));
 	
 	

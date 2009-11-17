@@ -28,6 +28,8 @@ if (!class_exists('OSS_API')) { trigger_error("OSS_Search won't work whitout OSS
  * FIXME Complete this documentations
  */
 class OSS_Search {
+	
+	const VERSION = '1.2b';
 
 	protected $enginePath;
 	protected $index;

@@ -34,6 +34,8 @@ if (!class_exists('OutOfRangeException')) { class OutOfRangeException extends Lo
  */
 class OSS_API {
 
+	const VERSION = '1.1';
+	
 	const API_SELECT   = 'select';
 	const API_UPDATE   = 'update';
 	const API_DELETE   = 'delete';
