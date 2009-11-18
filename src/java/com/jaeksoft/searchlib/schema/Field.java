@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,7 +38,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class Field implements FieldSelector, Externalizable {
+public class Field implements FieldSelector, Externalizable, Comparable<Field> {
 
 	private static final long serialVersionUID = -7666123998960959190L;
 
@@ -123,6 +123,11 @@ public class Field implements FieldSelector, Externalizable {
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("field", "name", name);
 		xmlWriter.endElement();
+	}
+
+	@Override
+	public int compareTo(Field o) {
+		return name.compareTo(o.name);
 	}
 
 }
