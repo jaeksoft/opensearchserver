@@ -41,7 +41,7 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SpellCheckField extends Field implements Externalizable,
-		CacheKeyInterface<SpellCheckField> {
+		CacheKeyInterface<Field> {
 
 	private float minScore;
 
@@ -148,10 +148,15 @@ public class SpellCheckField extends Field implements Externalizable,
 	}
 
 	@Override
-	public int compareTo(SpellCheckField o) {
-		int i = name.compareTo(o.name);
+	public int compareTo(Field o) {
+		int i = super.compareTo(o);
 		if (i != 0)
 			return i;
-		return Float.compare(minScore, o.minScore);
+		SpellCheckField f = (SpellCheckField) o;
+		i = Float.compare(minScore, f.minScore);
+		if (i != 0)
+			return i;
+		return suggestionNumber - f.suggestionNumber;
 	}
+
 }

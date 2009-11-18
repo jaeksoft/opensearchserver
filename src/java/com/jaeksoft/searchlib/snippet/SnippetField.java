@@ -401,4 +401,26 @@ public class SnippetField extends Field implements Externalizable {
 						.getSimpleName() : null);
 		xmlWriter.endElement();
 	}
+
+	@Override
+	public int compareTo(Field o) {
+		int c = super.compareTo(o);
+		if (c != 0)
+			return c;
+		SnippetField f = (SnippetField) o;
+		if ((c = fragmenterTemplate.getClass().getName().compareTo(
+				f.fragmenterTemplate.getClass().getName())) != 0)
+			return c;
+		if ((c = tag.compareTo(f.tag)) != 0)
+			return c;
+		if ((c = maxDocChar - f.maxDocChar) != 0)
+			return c;
+		if ((c = separator.compareTo(f.separator)) != 0)
+			return c;
+		if ((c = maxSnippetSize - f.maxSnippetSize) != 0)
+			return c;
+		if ((c = maxSnippetNumber - f.maxSnippetNumber) != 0)
+			return c;
+		return 0;
+	}
 }

@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SortField extends Field implements Externalizable,
-		CacheKeyInterface<SortField> {
+		CacheKeyInterface<Field> {
 
 	private static final long serialVersionUID = -476489382677039069L;
 
@@ -128,11 +128,13 @@ public class SortField extends Field implements Externalizable,
 			return reader.getStringIndex(name);
 	}
 
-	public int compareTo(SortField o) {
-		int c = name.compareTo(o.name);
+	@Override
+	public int compareTo(Field o) {
+		int c = super.compareTo(o);
 		if (c != 0)
 			return c;
-		if (desc == o.desc)
+		SortField f = (SortField) o;
+		if (desc == f.desc)
 			return 0;
 		return desc ? -1 : 1;
 	}

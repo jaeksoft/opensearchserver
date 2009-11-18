@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -59,6 +60,7 @@ public class FieldList<T extends Field> implements
 	private static final long serialVersionUID = -3706856755116432969L;
 
 	private List<T> fieldList;
+	private transient Set<T> fieldSet;
 	private transient Map<String, T> fieldsName;
 	private transient String cacheKey;
 
@@ -67,6 +69,7 @@ public class FieldList<T extends Field> implements
 	 */
 	public FieldList() {
 		this.fieldsName = new TreeMap<String, T>();
+		this.fieldSet = new TreeSet<T>();
 		this.fieldList = new ArrayList<T>(0);
 		cacheKey = null;
 	}
@@ -113,8 +116,9 @@ public class FieldList<T extends Field> implements
 	 */
 	public boolean add(T field) {
 		synchronized (this) {
-			if (!this.fieldList.add(field))
-				return false;
+			if (!fieldSet.add(field))
+				return true;
+			fieldList.add(field);
 			fieldsName.put(field.name, field);
 			cacheKey = null;
 			return true;
@@ -184,7 +188,7 @@ public class FieldList<T extends Field> implements
 	public List<T> getSortedList() {
 		synchronized (this) {
 			List<T> list = new ArrayList<T>(fieldsName.size());
-			Iterator<T> it = fieldsName.values().iterator();
+			Iterator<T> it = fieldSet.iterator();
 			while (it.hasNext())
 				list.add(it.next());
 			return list;
@@ -202,9 +206,7 @@ public class FieldList<T extends Field> implements
 
 	public void addObject(T field) {
 		synchronized (this) {
-			fieldList.add(field);
-			fieldsName.put(field.name, field);
-			cacheKey = null;
+			add(field);
 		}
 	}
 
@@ -226,6 +228,7 @@ public class FieldList<T extends Field> implements
 
 	public void remove(Field field) {
 		synchronized (this) {
+			fieldSet.remove(field);
 			fieldList.remove(field);
 			fieldsName.remove(field.name);
 			cacheKey = null;

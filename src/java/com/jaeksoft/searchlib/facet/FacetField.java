@@ -158,4 +158,16 @@ public class FacetField extends Field implements Externalizable {
 				.toString(minCount), "multivalued", multivalued ? "yes" : "no");
 		xmlWriter.endElement();
 	}
+
+	@Override
+	public int compareTo(Field o) {
+		int c = super.compareTo(o);
+		if (c != 0)
+			return c;
+		FacetField f = (FacetField) o;
+		if ((c = minCount - f.minCount) != 0)
+			return c;
+		return multivalued == f.multivalued ? 0 : -1;
+	}
+
 }
