@@ -131,7 +131,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 		currentStats.incUrlCount();
 
 		Crawl crawl = new Crawl(currentUrlItem, config, config
-				.getParserSelector(), currentStats);
+				.getParserSelector());
 
 		try {
 			// Check the url

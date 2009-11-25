@@ -103,7 +103,7 @@ public class RobotsTxtCache {
 			if (robotsTxt != null)
 				return robotsTxt;
 		}
-		Crawl crawl = new Crawl(urlItem, config, parserSelector, null);
+		Crawl crawl = new Crawl(urlItem, config, parserSelector);
 		crawl.download(httpDownloader);
 		synchronized (robotsTxtList) {
 			RobotsTxt robotsTxt = new RobotsTxt(crawl);
