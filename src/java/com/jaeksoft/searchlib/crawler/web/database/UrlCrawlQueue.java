@@ -58,9 +58,11 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 		List<String> discoverLinks = crawl.getDiscoverLinks();
 		synchronized (insertUrlList) {
-			if (discoverLinks != null)
+			if (discoverLinks != null) {
+				getSessionStats().addPendingNewUrlCount(discoverLinks.size());
 				for (String link : discoverLinks)
 					insertUrlList.add(new UrlItem(link));
+			}
 		}
 	}
 

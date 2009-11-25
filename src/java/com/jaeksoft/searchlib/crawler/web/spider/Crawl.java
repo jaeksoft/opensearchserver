@@ -46,7 +46,6 @@ import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
@@ -71,16 +70,14 @@ public class Crawl {
 	private Config config;
 	private Parser parser;
 	private String error;
-	private CrawlStatistics currentStats;
 	private List<String> discoverLinks;
 	private FieldMap urlFieldMap;
 	private URI redirectUrlLocation;
 
-	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector,
-			CrawlStatistics currentStats) throws SearchLibException {
+	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector)
+			throws SearchLibException {
 		this.urlFieldMap = config.getWebCrawlerFieldMap();
 		this.discoverLinks = null;
-		this.currentStats = currentStats;
 		this.urlItem = urlItem;
 		this.urlItem.setWhenNow();
 		this.userAgent = config.getWebPropertyManager().getUserAgent()
@@ -316,8 +313,6 @@ public class Crawl {
 			discoverLinks(urlManager, patternUrlManager, parser
 					.getFieldContent(ParserFieldEnum.external_link),
 					discoverLinks);
-			if (currentStats != null)
-				currentStats.addPendingNewUrlCount(discoverLinks.size());
 			return discoverLinks;
 		}
 	}

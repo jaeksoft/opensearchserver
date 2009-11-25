@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.1.2
 
 Bug fixes
+- 2903935: Negative value on web crawler statistics
 - 2898343: Behaviour problem of wildcard function
 - 2899784: duplication of returned field in returned xml
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,6 @@ import org.apache.lucene.document.FieldSelectorResult;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -129,11 +128,6 @@ public class Field implements FieldSelector, Externalizable, Comparable<Field> {
 	@Override
 	public int compareTo(Field o) {
 		return name.compareTo(o.name);
-	}
-
-	public int compareTo(SpellCheckField o) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 }
