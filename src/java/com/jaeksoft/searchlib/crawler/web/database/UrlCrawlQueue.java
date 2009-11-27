@@ -30,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.http.HttpException;
@@ -52,6 +53,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
+	private final ReentrantLock rl = new ReentrantLock(true);
 
 	public UrlCrawlQueue(Config config) throws SearchLibException {
 		setConfig(config);
@@ -92,32 +94,38 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 	}
 
 	private boolean shouldWePersist() {
-		if (updateCrawlList.size() > getMaxBufferSize())
-			return true;
-		if (deleteUrlList.size() > getMaxBufferSize())
-			return true;
-		if (insertUrlList.size() > getMaxBufferSize())
-			return true;
-		return false;
+		r.lock();
+		try {
+			if (updateCrawlList.size() > getMaxBufferSize())
+				return true;
+			if (deleteUrlList.size() > getMaxBufferSize())
+				return true;
+			if (insertUrlList.size() > getMaxBufferSize())
+				return true;
+			return false;
+		} finally {
+			r.unlock();
+		}
 	}
 
-	final private Object indexSync = new Object();
+	private boolean workingInProgress() {
+		r.lock();
+		try {
+			if (workingUpdateCrawlList != null)
+				return true;
+			if (workingInsertUrlList != null)
+				return true;
+			if (workingDeleteUrlList != null)
+				return true;
+			return false;
+		} finally {
+			r.unlock();
+		}
+	}
 
-	@Override
-	public void index(boolean bForce) throws SearchLibException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	private void initWorking() {
 		w.lock();
 		try {
-			if (!bForce)
-				if (!shouldWePersist())
-					return;
-			if (workingUpdateCrawlList != null)
-				return;
-			if (workingInsertUrlList != null)
-				return;
-			if (workingDeleteUrlList != null)
-				return;
 			workingUpdateCrawlList = updateCrawlList;
 			workingInsertUrlList = insertUrlList;
 			workingDeleteUrlList = deleteUrlList;
@@ -128,18 +136,19 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		} finally {
 			w.unlock();
 		}
+	}
 
-		UrlManager urlManager = getConfig().getUrlManager();
-		boolean needReload = false;
-		if (deleteCollection(workingDeleteUrlList))
-			needReload = true;
-		if (updateCrawls(workingUpdateCrawlList))
-			needReload = true;
-		if (insertCollection(workingInsertUrlList))
-			needReload = true;
-		if (needReload)
-			urlManager.reload(false);
+	private boolean weMustIndexNow() {
+		synchronized (this) {
+			if (!shouldWePersist())
+				return false;
+			if (workingInProgress())
+				return false;
+			return true;
+		}
+	}
 
+	private void resetWork() {
 		w.lock();
 		try {
 			workingUpdateCrawlList = null;
@@ -148,6 +157,38 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		} finally {
 			w.unlock();
 		}
+	}
+
+	private void indexWork() throws SearchLibException, IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
+		rl.lock();
+		try {
+			initWorking();
+			UrlManager urlManager = getConfig().getUrlManager();
+			boolean needReload = false;
+			if (deleteCollection(workingDeleteUrlList))
+				needReload = true;
+			if (updateCrawls(workingUpdateCrawlList))
+				needReload = true;
+			if (insertCollection(workingInsertUrlList))
+				needReload = true;
+			if (needReload)
+				urlManager.reload(false);
+			resetWork();
+		} finally {
+			rl.unlock();
+		}
+	}
+
+	@Override
+	public void index(boolean bForce) throws SearchLibException, IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
+		if (!bForce)
+			if (!weMustIndexNow())
+				return;
+		indexWork();
 	}
 
 	@Override
