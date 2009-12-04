@@ -49,37 +49,31 @@ public class FieldCache extends LRUCache<FieldContentCacheKey, String[]> {
 		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
 		FieldList<Field> missingField = new FieldList<Field>();
 
-		w.lock();
-		try {
+		// Getting available fields
+		for (Field field : fieldList) {
+			FieldContentCacheKey key = new FieldContentCacheKey(
+					field.getName(), docId);
+			String[] values = getAndPromote(key);
+			if (values != null)
+				documentFields.add(new FieldValue(field, values));
+			else
+				missingField.add(field);
+		}
 
-			// Getting available fields
-			for (Field field : fieldList) {
+		// Check missing fields
+		if (missingField.size() > 0) {
+			Document document = reader.getDocFields(docId, missingField);
+			for (Field field : missingField) {
 				FieldContentCacheKey key = new FieldContentCacheKey(field
 						.getName(), docId);
-				String[] values = getAndPromote(key);
-				if (values != null)
+				String[] values = document.getValues(field.getName());
+				if (values != null) {
 					documentFields.add(new FieldValue(field, values));
-				else
-					missingField.add(field);
-			}
-
-			// Check missing fields
-			if (missingField.size() > 0) {
-				Document document = reader.getDocFields(docId, missingField);
-				for (Field field : missingField) {
-					FieldContentCacheKey key = new FieldContentCacheKey(field
-							.getName(), docId);
-					String[] values = document.getValues(field.getName());
-					if (values != null) {
-						documentFields.add(new FieldValue(field, values));
-						putNoLock(key, values);
-					}
+					put(key, values);
 				}
 			}
-			return documentFields;
-
-		} finally {
-			w.unlock();
 		}
+		return documentFields;
+
 	}
 }

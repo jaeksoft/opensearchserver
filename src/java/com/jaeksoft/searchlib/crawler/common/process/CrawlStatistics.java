@@ -80,29 +80,38 @@ public class CrawlStatistics {
 		}
 	}
 
-	public void incPendingDeletedCount() {
+	public void resetPending() {
 		synchronized (this) {
-			pendingDeleteCount++;
+			pendingDeleteCount = 0;
+			pendingUpdatedCount = 0;
+			pendingDeleteCount = 0;
 		}
 		if (parent != null)
-			parent.incPendingDeletedCount();
-	}
-
-	public void incPendingUpdatedCount() {
-		synchronized (this) {
-			pendingUpdatedCount++;
-		}
-		if (parent != null)
-			parent.incPendingUpdatedCount();
+			parent.resetPending();
 	}
 
 	public void addDeletedCount(long value) {
 		synchronized (this) {
 			this.deletedCount += value;
-			this.pendingDeleteCount -= value;
 		}
 		if (parent != null)
 			parent.addDeletedCount(value);
+	}
+
+	public void incPendingUpdateCount() {
+		synchronized (this) {
+			this.pendingUpdatedCount++;
+		}
+		if (parent != null)
+			parent.incPendingUpdateCount();
+	}
+
+	public void incPendingDeleteCount() {
+		synchronized (this) {
+			this.pendingDeleteCount++;
+		}
+		if (parent != null)
+			parent.incPendingDeleteCount();
 	}
 
 	public void addPendingNewUrlCount(long value) {
@@ -116,7 +125,6 @@ public class CrawlStatistics {
 	public void addNewUrlCount(long value) {
 		synchronized (this) {
 			this.newUrlCount += value;
-			this.pendingNewUrlCount -= value;
 		}
 		if (parent != null)
 			parent.addNewUrlCount(value);
@@ -143,7 +151,6 @@ public class CrawlStatistics {
 	public void addUpdatedCount(long value) {
 		synchronized (this) {
 			this.updatedCount += value;
-			this.pendingUpdatedCount -= value;
 		}
 		if (parent != null)
 			parent.addUpdatedCount(value);

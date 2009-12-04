@@ -56,10 +56,10 @@ public abstract class CrawlQueueAbstract<T, Z> {
 			IOException, URISyntaxException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException;
 
-	public abstract void add(T crawl) throws NoSuchAlgorithmException,
-			IOException, SearchLibException;
+	public abstract void add(CrawlStatistics currentStats, T crawl)
+			throws NoSuchAlgorithmException, IOException, SearchLibException;
 
-	public abstract void delete(String url);
+	public abstract void delete(CrawlStatistics currentStats, String url);
 
 	protected abstract boolean deleteCollection(List<String> workDeleteUrlList)
 			throws SearchLibException;

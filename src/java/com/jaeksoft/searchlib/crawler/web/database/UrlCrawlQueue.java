@@ -38,6 +38,7 @@ import org.apache.http.HttpException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 
 public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
@@ -66,16 +67,17 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 	}
 
 	@Override
-	public void add(Crawl crawl) throws NoSuchAlgorithmException, IOException,
-			SearchLibException {
+	public void add(CrawlStatistics currentStats, Crawl crawl)
+			throws NoSuchAlgorithmException, IOException, SearchLibException {
 		r.lock();
 		try {
 			updateCrawlList.add(crawl);
+			currentStats.incPendingUpdateCount();
 			List<String> discoverLinks = crawl.getDiscoverLinks();
 			if (discoverLinks != null) {
-				getSessionStats().addPendingNewUrlCount(discoverLinks.size());
 				for (String link : discoverLinks)
 					insertUrlList.add(new UrlItem(link));
+				currentStats.addPendingNewUrlCount(discoverLinks.size());
 			}
 		} finally {
 			r.unlock();
@@ -83,11 +85,11 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 	}
 
 	@Override
-	public void delete(String url) {
+	public void delete(CrawlStatistics currentStats, String url) {
 		r.lock();
 		try {
 			deleteUrlList.add(url);
-			getSessionStats().incPendingDeletedCount();
+			currentStats.incPendingDeleteCount();
 		} finally {
 			r.unlock();
 		}
@@ -133,6 +135,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 			updateCrawlList = new ArrayList<Crawl>(0);
 			insertUrlList = new ArrayList<UrlItem>(0);
 			deleteUrlList = new ArrayList<String>(0);
+
+			getSessionStats().resetPending();
 		} finally {
 			w.unlock();
 		}

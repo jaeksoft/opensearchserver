@@ -94,12 +94,11 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		CrawlFile crawl = crawlFile(dryRun);
 		if (crawl != null) {
 			if (!dryRun) {
-				crawlQueue.add(crawl);
+				crawlQueue.add(currentStats, crawl);
 				if (crawlQueue.shouldWePersist())
 					crawlQueue.index(false);
 			}
 
-			currentStats.incPendingUpdatedCount();
 		}
 
 		setStatus(CrawlStatus.INDEXATION);

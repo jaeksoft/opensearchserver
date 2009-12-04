@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.1.2
 
 Bug fixes
+- 2908345: Performance issue with large field cache
 - 2905076: Issue with performance of web crawler
 - 2903935: Negative value on web crawler statistics
 - 2898343: Behaviour problem of wildcard function

@@ -109,12 +109,10 @@ public class CrawlThread extends CrawlThreadAbstract {
 			Crawl crawl = crawl(dryRun);
 			if (crawl != null) {
 				if (!dryRun)
-					crawlQueue.add(crawl);
-				currentStats.incPendingUpdatedCount();
+					crawlQueue.add(currentStats, crawl);
 			} else {
 				if (!dryRun)
-					crawlQueue.delete(currentUrlItem.getUrl());
-				currentStats.incPendingDeletedCount();
+					crawlQueue.delete(currentStats, currentUrlItem.getUrl());
 			}
 
 		}
