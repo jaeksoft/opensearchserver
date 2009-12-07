@@ -48,8 +48,12 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
 		@Override
 		protected boolean removeLRU(LinkEntry entry) {
+			if (entry == null)
+				return true;
 			evictions++;
-			tree.remove(entry.getKey());
+			Object key = entry.getKey();
+			if (key != null)
+				tree.remove(key);
 			return true;
 		}
 	}
