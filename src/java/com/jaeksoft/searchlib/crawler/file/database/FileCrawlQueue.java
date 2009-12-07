@@ -35,6 +35,7 @@ import org.apache.http.HttpException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 
 public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
@@ -52,15 +53,15 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 	}
 
 	@Override
-	public void add(CrawlFile crawl) throws NoSuchAlgorithmException,
-			IOException, SearchLibException {
+	public void add(CrawlStatistics crawlStats, CrawlFile crawl)
+			throws NoSuchAlgorithmException, IOException, SearchLibException {
 		synchronized (updateCrawlList) {
 			updateCrawlList.add(crawl);
 		}
 	}
 
 	@Override
-	public void delete(String uri) {
+	public void delete(CrawlStatistics crawlStats, String uri) {
 		synchronized (deleteUriList) {
 			deleteUriList.add(uri);
 		}

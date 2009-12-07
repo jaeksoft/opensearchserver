@@ -51,6 +51,8 @@ public class IndexConfig {
 
 	private String similarityClass;
 
+	private boolean readOnly;
+
 	private boolean nativeOSSE;
 
 	private int maxNumSegments;
@@ -74,6 +76,8 @@ public class IndexConfig {
 		maxNumSegments = XPathParser.getAttributeValue(node, "maxNumSegments");
 		if (maxNumSegments == 0)
 			maxNumSegments = 1;
+		readOnly = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node,
+				"readOnly"));
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
@@ -84,7 +88,8 @@ public class IndexConfig {
 				remoteUri != null ? remoteUri.toString() : null, "keyField",
 				keyField, "keyMd5RegExp", keyMd5RegExp, "nativeOSSE",
 				nativeOSSE ? "yes" : "no", "similarityClass", similarityClass,
-				"maxNumSegments", Integer.toString(maxNumSegments));
+				"readOnly", readOnly ? "yes" : "no", "maxNumSegments", Integer
+						.toString(maxNumSegments));
 		xmlWriter.endElement();
 	}
 
@@ -203,6 +208,10 @@ public class IndexConfig {
 	 */
 	public void setSimilarityClass(String similarityClass) {
 		this.similarityClass = similarityClass;
+	}
+
+	public boolean getReadOnly() {
+		return readOnly;
 	}
 
 	/**

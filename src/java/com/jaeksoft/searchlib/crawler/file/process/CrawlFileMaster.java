@@ -331,7 +331,7 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 				// indexFile before file
 				if (indexFile.uri.compareTo(file) < 0) {
-					getCrawlQueue().delete(
+					getCrawlQueue().delete(sessionStats,
 							indexFile.directoryUri.toASCIIString());
 					indexFile = null;
 				}
@@ -347,7 +347,8 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 			}
 			// Only files in index
 			else if (file == null && indexFile != null && indexFile.uri != null) {
-				getCrawlQueue().delete(indexFile.directoryUri.toASCIIString());
+				getCrawlQueue().delete(sessionStats,
+						indexFile.directoryUri.toASCIIString());
 				indexFile = null;
 
 			} else {

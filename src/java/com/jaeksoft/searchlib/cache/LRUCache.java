@@ -26,11 +26,11 @@ package com.jaeksoft.searchlib.cache;
 
 import java.io.PrintWriter;
 import java.text.NumberFormat;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.apache.commons.collections.map.LRUMap;
 
 public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
@@ -38,25 +38,23 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	protected final Lock r = rwl.readLock();
 	protected final Lock w = rwl.writeLock();
 
-	private class EvictionQueue extends LinkedHashMap<K, V> {
+	private class EvictionQueue extends LRUMap {
 
 		private static final long serialVersionUID = -2384951296369306995L;
 
-		public EvictionQueue(int maxSize) {
+		protected EvictionQueue(int maxSize) {
 			super(maxSize);
 		}
 
 		@Override
-		protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-			if (size() <= maxSize)
-				return false;
-			tree.remove(eldest.getKey());
+		protected boolean removeLRU(LinkEntry entry) {
 			evictions++;
+			tree.remove(entry.getKey());
 			return true;
 		}
 	}
 
-	private TreeMap<K, V> tree;
+	private TreeMap<K, K> tree;
 	private EvictionQueue queue;
 
 	private int size;
@@ -67,8 +65,8 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	private long inserts;
 
 	protected LRUCache(int maxSize) {
-		queue = new EvictionQueue(maxSize);
-		tree = new TreeMap<K, V>();
+		queue = (maxSize == 0) ? null : new EvictionQueue(maxSize);
+		tree = new TreeMap<K, K>();
 		this.maxSize = maxSize;
 		this.evictions = 0;
 		this.lookups = 0;
@@ -77,16 +75,19 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 		this.size = 0;
 	}
 
+	@SuppressWarnings("unchecked")
 	final protected V getAndPromote(K key) {
+		if (queue == null)
+			return null;
 		r.lock();
 		try {
 			lookups++;
-			V value = tree.get(key);
-			if (value == null)
+			K key2 = tree.get(key);
+			if (key2 == null)
 				return null;
 			hits++;
-			queue.remove(key);
-			queue.put(key, value);
+			V value = (V) queue.remove(key2);
+			queue.put(key2, value);
 			return value;
 		} finally {
 			r.unlock();
@@ -94,10 +95,12 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	}
 
 	final public void remove(K key) {
+		if (queue == null)
+			return;
 		w.lock();
 		try {
-			queue.remove(key);
-			tree.remove(key);
+			K key2 = tree.remove(key);
+			queue.remove(key2);
 			evictions++;
 		} finally {
 			w.unlock();
@@ -105,24 +108,23 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
 	}
 
-	final protected void putNoLock(K key, V value) {
-		inserts++;
-		queue.put(key, value);
-		tree.put(key, value);
-		size = queue.size();
-
-	}
-
 	final protected void put(K key, V value) {
+		if (queue == null)
+			return;
 		w.lock();
 		try {
-			putNoLock(key, value);
+			inserts++;
+			queue.put(key, value);
+			tree.put(key, key);
+			size = queue.size();
 		} finally {
 			w.unlock();
 		}
 	}
 
 	final public void clear() {
+		if (queue == null)
+			return;
 		w.lock();
 		try {
 			queue.clear();
@@ -133,21 +135,11 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 		}
 	}
 
-	final public Map<K, V> getMap() {
-		r.lock();
-		try {
-			return tree;
-		} finally {
-			r.unlock();
-		}
-	}
-
 	@Override
 	final public String toString() {
 		r.lock();
 		try {
-			return getClass().getSimpleName() + " " + queue.size() + "/"
-					+ maxSize;
+			return getClass().getSimpleName() + " " + size + "/" + maxSize;
 		} finally {
 			r.unlock();
 		}
@@ -158,11 +150,10 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 		try {
 			float hitRatio = getHitRatio();
 			writer.println("<cache class=\"" + this.getClass().getName()
-					+ "\" maxSize=\"" + this.maxSize + "\" size=\""
-					+ queue.size() + "\" hitRatio=\"" + hitRatio
-					+ "\" lookups=\"" + lookups + "\" hits=\"" + hits
-					+ "\" inserts=\"" + inserts + "\" evictions=\"" + evictions
-					+ "\">");
+					+ "\" maxSize=\"" + this.maxSize + "\" size=\"" + size
+					+ "\" hitRatio=\"" + hitRatio + "\" lookups=\"" + lookups
+					+ "\" hits=\"" + hits + "\" inserts=\"" + inserts
+					+ "\" evictions=\"" + evictions + "\">");
 			writer.println("</cache>");
 		} finally {
 			r.unlock();
