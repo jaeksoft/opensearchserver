@@ -32,6 +32,7 @@
 			<column label="maxDoc" />
 			<column label="deletions?" />
 			<column label="optimized?" />
+			<column label="readOnly?" />
 		</columns>
 		<rows>
 			<row self="@{each=index}">
@@ -46,6 +47,7 @@
 				<label value="@{index.statistics.maxDoc}" />
 				<label value="@{index.statistics.deletions}" />
 				<label value="@{index.statistics.optimized}" />
+				<label value="@{index.indexConfig.readOnly}" />
 			</row>
 		</rows>
 	</grid>

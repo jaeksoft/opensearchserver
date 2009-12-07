@@ -93,13 +93,16 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private File rootDir;
 	private File dataDir;
 
+	private boolean readOnly;
 	private String similarityClass;
 
 	private ReaderLocal(String name, File rootDir, File dataDir,
-			String similarityClass) throws IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			String similarityClass, boolean readOnly) throws IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		super(name);
 		this.similarityClass = similarityClass;
+		this.readOnly = readOnly;
 		init(rootDir, dataDir);
 	}
 
@@ -111,14 +114,14 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			this.rootDir = rootDir;
 			this.dataDir = dataDir;
 			this.indexDirectory = new IndexDirectory(getName(), dataDir);
-			this.indexSearcher = new IndexSearcher(indexDirectory
-					.getDirectory());
+			this.indexReader = IndexReader.open(indexDirectory.getDirectory(),
+					readOnly);
+			this.indexSearcher = new IndexSearcher(indexReader);
 			if (similarityClass != null) {
 				Similarity similarity = (Similarity) Class.forName(
 						similarityClass).newInstance();
 				this.indexSearcher.setSimilarity(similarity);
 			}
-			this.indexReader = indexSearcher.getIndexReader();
 		} finally {
 			w.unlock();
 		}
@@ -400,14 +403,14 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	private static ReaderLocal findMostRecent(String name, File rootDir,
-			String similarityClass) {
+			String similarityClass, boolean readOnly) {
 		ReaderLocal reader = null;
 		for (File f : rootDir.listFiles()) {
 			if (f.getName().startsWith("."))
 				continue;
 			try {
 				ReaderLocal r = new ReaderLocal(name, rootDir, f,
-						similarityClass);
+						similarityClass, readOnly);
 				if (reader == null)
 					reader = r;
 				else if (r.getVersion() > reader.getVersion())
@@ -426,13 +429,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	private static ReaderLocal findVersion(String name, File rootDir,
-			long version, String similarityClass) {
+			long version, String similarityClass, boolean readOnly) {
 		for (File f : rootDir.listFiles()) {
 			if (f.getName().startsWith("."))
 				continue;
 			try {
 				ReaderLocal reader = new ReaderLocal(name, rootDir, f,
-						similarityClass);
+						similarityClass, readOnly);
 				if (reader.getVersion() == version)
 					return reader;
 			} catch (IOException e) {
@@ -472,14 +475,15 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			indexDir.mkdirs();
 
 		ReaderLocal reader = ReaderLocal.findMostRecent(indexConfig.getName(),
-				indexDir, indexConfig.getSimilarityClass());
+				indexDir, indexConfig.getSimilarityClass(), indexConfig
+						.getReadOnly());
 
 		if (reader == null) {
 			if (!createIfNotExists)
 				return null;
 			File dataDir = WriterLocal.createIndex(indexDir);
 			reader = new ReaderLocal(indexConfig.getName(), indexDir, dataDir,
-					indexConfig.getSimilarityClass());
+					indexConfig.getSimilarityClass(), indexConfig.getReadOnly());
 		}
 
 		reader.initCache(indexConfig.getSearchCache(), indexConfig
@@ -512,10 +516,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		ReaderLocal newReader = null;
 		if (version > 0)
 			newReader = ReaderLocal.findVersion(getName(), rootDir, version,
-					similarityClass);
+					similarityClass, readOnly);
 		else
 			newReader = ReaderLocal.findMostRecent(getName(), rootDir,
-					similarityClass);
+					similarityClass, readOnly);
 		if (newReader == null)
 			return;
 		w.lock();
