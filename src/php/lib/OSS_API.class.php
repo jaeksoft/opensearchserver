@@ -42,6 +42,7 @@ class OSS_API {
 	const API_RELOAD   = 'reload';
 	const API_INDEX    = 'index';
 	const API_ENGINE   = 'engine';
+	const API_PATTERN  = 'pattern';
 
 	/** @var int Default timeout (specified in seconds) for CURLOPT_TIMEOUT option. See curl documentation */
 	const DEFAULT_QUERY_TIMEOUT = 0;
@@ -157,6 +158,17 @@ class OSS_API {
 	 */
 	public function push($file) {
 		// http://localhost:8080/oss/push?use=fileNiet&fileName=test.pdf&version=1
+	}
+	
+	/**
+	 * Add one or many pattern to crawl
+	 * @param string|string[] $patterns
+	 * @return boolean True on success
+	 */
+	public function pushPattern($patterns) {
+		if (is_array($patterns)) $patterns = implode("\n", $patterns);
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_PATTERN), $patterns);
+		return ($return !== false);
 	}
 	
 	/**
