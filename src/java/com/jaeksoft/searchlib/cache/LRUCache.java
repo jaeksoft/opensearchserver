@@ -26,11 +26,12 @@ package com.jaeksoft.searchlib.cache;
 
 import java.io.PrintWriter;
 import java.text.NumberFormat;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.apache.commons.collections.map.LRUMap;
 
 public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
@@ -38,35 +39,47 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	protected final Lock r = rwl.readLock();
 	protected final Lock w = rwl.writeLock();
 
-	private class EvictionQueue extends LRUMap {
+	private class EvictionQueue extends LinkedHashMap<K, V> {
 
 		private static final long serialVersionUID = -2384951296369306995L;
+
+		private final ReentrantLock queueLock = new ReentrantLock(true);
 
 		protected EvictionQueue(int maxSize) {
 			super(maxSize);
 		}
 
 		@Override
-		protected boolean removeLRU(LinkEntry entry) {
-			if (entry == null)
-				return true;
+		protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+			if (size() <= maxSize)
+				return false;
+			tree.remove(eldest.getKey());
 			evictions++;
-			Object key = entry.getKey();
-			if (key != null)
-				tree.remove(key);
 			return true;
+		}
+
+		final private V promote(K key) {
+			queueLock.lock();
+			try {
+				V value = queue.remove(key);
+				queue.put(key, value);
+				return value;
+			} finally {
+				queueLock.unlock();
+			}
+
 		}
 	}
 
 	private TreeMap<K, K> tree;
 	private EvictionQueue queue;
 
-	private int size;
-	private int maxSize;
-	private long evictions;
-	private long lookups;
-	private long hits;
-	private long inserts;
+	private volatile int size;
+	private volatile int maxSize;
+	private volatile long evictions;
+	private volatile long lookups;
+	private volatile long hits;
+	private volatile long inserts;
 
 	protected LRUCache(int maxSize) {
 		queue = (maxSize == 0) ? null : new EvictionQueue(maxSize);
@@ -79,7 +92,6 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 		this.size = 0;
 	}
 
-	@SuppressWarnings("unchecked")
 	final protected V getAndPromote(K key) {
 		if (queue == null)
 			return null;
@@ -90,9 +102,7 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 			if (key2 == null)
 				return null;
 			hits++;
-			V value = (V) queue.remove(key2);
-			queue.put(key2, value);
-			return value;
+			return queue.promote(key2);
 		} finally {
 			r.unlock();
 		}
@@ -141,93 +151,48 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
 	@Override
 	final public String toString() {
-		r.lock();
-		try {
-			return getClass().getSimpleName() + " " + size + "/" + maxSize;
-		} finally {
-			r.unlock();
-		}
+		return getClass().getSimpleName() + " " + size + "/" + maxSize;
 	}
 
 	final public void xmlInfo(PrintWriter writer) {
-		r.lock();
-		try {
-			float hitRatio = getHitRatio();
-			writer.println("<cache class=\"" + this.getClass().getName()
-					+ "\" maxSize=\"" + this.maxSize + "\" size=\"" + size
-					+ "\" hitRatio=\"" + hitRatio + "\" lookups=\"" + lookups
-					+ "\" hits=\"" + hits + "\" inserts=\"" + inserts
-					+ "\" evictions=\"" + evictions + "\">");
-			writer.println("</cache>");
-		} finally {
-			r.unlock();
-		}
+		float hitRatio = getHitRatio();
+		writer.println("<cache class=\"" + this.getClass().getName()
+				+ "\" maxSize=\"" + this.maxSize + "\" size=\"" + size
+				+ "\" hitRatio=\"" + hitRatio + "\" lookups=\"" + lookups
+				+ "\" hits=\"" + hits + "\" inserts=\"" + inserts
+				+ "\" evictions=\"" + evictions + "\">");
+		writer.println("</cache>");
 	}
 
 	final public int getSize() {
-		r.lock();
-		try {
-			return size;
-		} finally {
-			r.unlock();
-		}
+		return size;
 	}
 
 	final public int getMaxSize() {
-		r.lock();
-		try {
-			return maxSize;
-		} finally {
-			r.unlock();
-		}
+		return maxSize;
 	}
 
 	final public long getEvictions() {
-		r.lock();
-		try {
-			return evictions;
-		} finally {
-			r.unlock();
-		}
+		return evictions;
 	}
 
 	final public long getLookups() {
-		r.lock();
-		try {
-			return lookups;
-		} finally {
-			r.unlock();
-		}
+		return lookups;
 	}
 
 	final public long getHits() {
-		r.lock();
-		try {
-			return hits;
-		} finally {
-			r.unlock();
-		}
+		return hits;
 	}
 
 	final public long getInserts() {
-		r.lock();
-		try {
-			return inserts;
-		} finally {
-			r.unlock();
-		}
+		return inserts;
 	}
 
 	final public float getHitRatio() {
-		r.lock();
-		try {
-			if (hits > 0 && lookups > 0)
-				return (float) (((float) hits) / ((float) lookups));
-			else
-				return 0;
-		} finally {
-			r.unlock();
-		}
+		if (hits > 0 && lookups > 0)
+			return (float) (((float) hits) / ((float) lookups));
+		else
+			return 0;
 	}
 
 	final public String getHitRatioPercent() {

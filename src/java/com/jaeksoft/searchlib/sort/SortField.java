@@ -141,13 +141,18 @@ public class SortField extends Field implements Externalizable,
 	}
 
 	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
+	public void toString(StringBuffer sb) {
 		if (desc)
 			sb.append('-');
 		else
 			sb.append('+');
 		sb.append(name);
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		toString(sb);
 		return sb.toString();
 	}
 

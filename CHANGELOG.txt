@@ -18,6 +18,7 @@ New features:
 - 2910029: Lucene read only support
 
 Bug fixes
+- 2911906: Sort functionnality seem to ignore sort order
 - 2908345: Performance issue with large field cache
 - 2905076: Issue with performance of web crawler
 - 2903935: Negative value on web crawler statistics

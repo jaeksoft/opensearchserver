@@ -142,10 +142,12 @@ public class SortedController extends QueryController implements RowRenderer {
 		public void onEvent(Event event) throws Exception {
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();
-			if (listitem != null)
+			if (listitem != null) {
+				getRequest().getSortList().remove(sortField);
 				sortField.setDesc(listitem.getValue().toString());
+				getRequest().getSortList().add(sortField);
+			}
 		}
-
 	}
 
 	public void render(Row row, Object data) throws Exception {
