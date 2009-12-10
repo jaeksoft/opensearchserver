@@ -26,11 +26,12 @@ package com.jaeksoft.searchlib.cache;
 
 import java.io.PrintWriter;
 import java.text.NumberFormat;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.apache.commons.collections.map.LRUMap;
 
 public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
@@ -38,19 +39,35 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	protected final Lock r = rwl.readLock();
 	protected final Lock w = rwl.writeLock();
 
-	private class EvictionQueue extends LRUMap {
+	private class EvictionQueue extends LinkedHashMap<K, V> {
 
 		private static final long serialVersionUID = -2384951296369306995L;
+
+		private final ReentrantLock queueLock = new ReentrantLock(true);
 
 		protected EvictionQueue(int maxSize) {
 			super(maxSize);
 		}
 
 		@Override
-		protected boolean removeLRU(LinkEntry entry) {
+		protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+			if (size() <= maxSize)
+				return false;
+			tree.remove(eldest.getKey());
 			evictions++;
-			tree.remove(entry.getKey());
 			return true;
+		}
+
+		final private V promote(K key) {
+			queueLock.lock();
+			try {
+				V value = queue.remove(key);
+				queue.put(key, value);
+				return value;
+			} finally {
+				queueLock.unlock();
+			}
+
 		}
 	}
 
@@ -75,7 +92,6 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 		this.size = 0;
 	}
 
-	@SuppressWarnings("unchecked")
 	final protected V getAndPromote(K key) {
 		if (queue == null)
 			return null;
@@ -86,9 +102,7 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 			if (key2 == null)
 				return null;
 			hits++;
-			V value = (V) queue.remove(key2);
-			queue.put(key2, value);
-			return value;
+			return queue.promote(key2);
 		} finally {
 			r.unlock();
 		}
