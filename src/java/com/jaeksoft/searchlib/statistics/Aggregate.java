@@ -40,7 +40,7 @@ public class Aggregate {
 
 	private volatile float avg;
 
-	private volatile long nextStart;
+	protected volatile long nextStart;
 
 	protected Aggregate(long startTime, long nextStart) {
 		this.startTime = new Date(startTime);

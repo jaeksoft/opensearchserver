@@ -39,8 +39,7 @@ public class MinuteStatistics extends StatisticsAbstract {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		cal.roll(Calendar.MINUTE, true);
-		long nextStart = cal.getTimeInMillis();
-		return new Aggregate(startTime, nextStart);
+		return new Aggregate(startTime, cal.getTimeInMillis());
 	}
 
 	@Override
