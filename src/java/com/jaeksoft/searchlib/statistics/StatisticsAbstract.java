@@ -39,13 +39,11 @@ public abstract class StatisticsAbstract {
 
 	private LinkedList<Aggregate> aggregateList;
 
-	private Aggregate aggregate;
+	private Aggregate currentAggregate;
 
 	private Aggregate[] aggregateArray;
 
 	private int maxRetention;
-
-	private long nextStart;
 
 	private boolean writeToLog;
 
@@ -57,9 +55,8 @@ public abstract class StatisticsAbstract {
 		this.writeToLog = writeToLog;
 		this.maxRetention = maxRetention;
 		aggregateList = new LinkedList<Aggregate>();
-		aggregate = null;
+		currentAggregate = null;
 		aggregateArray = null;
-		nextStart = 0;
 	}
 
 	public abstract Aggregate newAggregate(long startTime);
@@ -69,18 +66,18 @@ public abstract class StatisticsAbstract {
 	public void add(Timer timer) {
 		synchronized (aggregateList) {
 			long startTime = timer.getStartTime();
-			if (startTime > nextStart) {
-				if (aggregate != null && writeToLog)
+			if (currentAggregate == null
+					|| startTime > currentAggregate.nextStart) {
+				if (currentAggregate != null && writeToLog)
 					System.out.println(type + " - " + getPeriod().getName()
-							+ " - " + aggregate);
-				aggregate = newAggregate(timer.getStartTime());
-				nextStart = aggregate.getNextStart();
-				aggregateList.add(aggregate);
+							+ " - " + currentAggregate);
+				currentAggregate = newAggregate(timer.getStartTime());
+				aggregateList.addLast(currentAggregate);
 				if (aggregateList.size() > maxRetention)
-					aggregateList.poll();
+					aggregateList.removeFirst();
 				aggregateArray = null;
 			}
-			aggregate.add(timer);
+			currentAggregate.add(timer);
 		}
 	}
 
@@ -89,13 +86,11 @@ public abstract class StatisticsAbstract {
 	}
 
 	public Aggregate[] getArray() {
-		synchronized (this) {
+		synchronized (aggregateList) {
 			if (aggregateArray != null)
 				return aggregateArray;
-			synchronized (aggregateList) {
-				aggregateArray = new Aggregate[aggregateList.size()];
-				return aggregateList.toArray(aggregateArray);
-			}
+			aggregateArray = new Aggregate[aggregateList.size()];
+			return aggregateList.toArray(aggregateArray);
 		}
 	}
 

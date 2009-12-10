@@ -40,8 +40,7 @@ public class HourStatistics extends StatisticsAbstract {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		cal.roll(Calendar.HOUR, true);
-		long nextStart = cal.getTimeInMillis();
-		return new Aggregate(startTime, nextStart);
+		return new Aggregate(startTime, cal.getTimeInMillis());
 	}
 
 	@Override
