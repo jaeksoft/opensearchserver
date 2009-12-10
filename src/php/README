@@ -3,6 +3,10 @@ OSS API Connector for PHP
 This API connector is intended to be used with PHP5 with any version >= 5.0.1
 For some part it would have been easier to use native functions of latests PHP5.
 
+You can find more about the OSS API on the OSS WiKi
+
+http://sourceforge.net/apps/mediawiki/opensearchserve
+
 I) Error handling
 
  We know that some of you hate exceptions and some others won't work without
