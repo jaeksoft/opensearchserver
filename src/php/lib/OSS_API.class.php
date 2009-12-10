@@ -163,11 +163,12 @@ class OSS_API {
 	/**
 	 * Add one or many pattern to crawl
 	 * @param string|string[] $patterns
+	 * @param boolean $deleteAll The provided patterns will replace the patterns already in the search engine
 	 * @return boolean True on success
 	 */
-	public function pushPattern($patterns) {
+	public function pattern($patterns, $deleteAll = false) {
 		if (is_array($patterns)) $patterns = implode("\n", $patterns);
-		$return = $this->queryServer($this->getQueryURL(OSS_API::API_PATTERN), $patterns);
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_PATTERN).($deleteAll?'&deleteAll=yes':'&deleteAll=no'), $patterns);
 		return ($return !== false);
 	}
 	
