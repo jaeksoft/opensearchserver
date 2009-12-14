@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.web;
 
-
 public class ServletException extends Exception {
 
 	/**
@@ -37,7 +36,7 @@ public class ServletException extends Exception {
 	}
 
 	public ServletException(Exception e) {
-		super(e.toString());
+		super(e);
 		e.printStackTrace();
 	}
 
