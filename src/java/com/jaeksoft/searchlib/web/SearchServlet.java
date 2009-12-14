@@ -101,7 +101,6 @@ public class SearchServlet extends AbstractServlet {
 			render.render(servletTransaction);
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ServletException(e);
 		}
 

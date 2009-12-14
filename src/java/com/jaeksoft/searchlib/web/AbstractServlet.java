@@ -63,6 +63,11 @@ public abstract class AbstractServlet extends HttpServlet {
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
+			Throwable t = e;
+			while ((t = t.getCause()) != null) {
+				pw.println("Caused by...");
+				t.printStackTrace(pw);
+			}
 			transaction.addXmlResponse("Trace", sw.toString());
 			pw.close();
 		} finally {
@@ -70,11 +75,11 @@ public abstract class AbstractServlet extends HttpServlet {
 				transaction.writeXmlResponse();
 			} catch (Exception e) {
 				try {
+					e.printStackTrace();
 					response.sendError(500, e.getMessage());
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				e.printStackTrace();
 			}
 		}
 	}

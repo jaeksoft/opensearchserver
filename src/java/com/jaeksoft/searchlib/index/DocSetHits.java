@@ -53,8 +53,12 @@ public class DocSetHits {
 	private float maxScore;
 
 	private class ScoreHitCollector extends Collector {
+
+		private int lastDocId = 0;
+
 		@Override
 		public void collect(int docId) {
+			lastDocId = docId;
 			collectedDocs[docNumFound++] = docId;
 		}
 
@@ -70,6 +74,8 @@ public class DocSetHits {
 
 		@Override
 		public void setScorer(Scorer scorer) throws IOException {
+			if (lastDocId <= 0)
+				return;
 			float sc = scorer.score();
 			if (sc > maxScore)
 				maxScore = sc;
