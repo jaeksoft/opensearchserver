@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.render;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
@@ -53,10 +55,18 @@ public class RenderXml implements Render {
 	private PrintWriter writer;
 	private Result result;
 	private SearchRequest searchRequest;
+	private Matcher controlMatcher;
 
 	public RenderXml(Result result) {
 		this.result = result;
 		this.searchRequest = result.getSearchRequest();
+		Pattern p = Pattern.compile("\\p{Cntrl}");
+		controlMatcher = p.matcher("");
+	}
+
+	private String xmlTextRender(String text) {
+		controlMatcher.reset(text);
+		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
 	}
 
 	private void renderPrefix() throws ParseException, SyntaxError {
@@ -133,7 +143,7 @@ public class RenderXml implements Render {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
 			writer.print("\">");
-			writer.print(StringEscapeUtils.escapeXml(v));
+			writer.print(xmlTextRender(v));
 			writer.println("</field>");
 		}
 	}
@@ -152,7 +162,7 @@ public class RenderXml implements Render {
 			if (highlighted)
 				writer.print(" highlighted=\"yes\"");
 			writer.print('>');
-			writer.print(StringEscapeUtils.escapeXml(snippet));
+			writer.print(xmlTextRender(snippet));
 			writer.println("\t\t</snippet>");
 		}
 	}
