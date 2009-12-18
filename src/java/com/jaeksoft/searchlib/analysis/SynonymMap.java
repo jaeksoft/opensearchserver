@@ -32,18 +32,41 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class SynonymMap {
 
 	private TreeMap<String, List<String>> sourceMap;
-	private volatile TreeMap<String, String[]> perfMap;
+
+	private class SynNode {
+
+		private TreeMap<String, SynNode> map = null;
+
+		private SynNode getWord(String word) {
+			if (map == null)
+				map = new TreeMap<String, SynNode>();
+			SynNode node = map.get(word);
+			if (node != null)
+				return node;
+			return map.put(word, new SynNode());
+		}
+
+		private void addWords(String[] words, int pos) {
+			if (pos == words.length)
+				return;
+			getWord(words[pos]).addWords(words, ++pos);
+		}
+
+		private void addWords(String[] words) {
+			addWords(words, 0);
+		}
+	}
+
+	private volatile SynNode synMap;
 
 	public SynonymMap(File file) throws FileNotFoundException, IOException {
 		sourceMap = new TreeMap<String, List<String>>();
-		perfMap = null;
+		synMap = null;
 		loadFromFile(file);
 		updatePerfMap();
 	}
@@ -74,23 +97,17 @@ public class SynonymMap {
 
 	private void updatePerfMap() {
 		synchronized (sourceMap) {
-			TreeMap<String, String[]> spm = new TreeMap<String, String[]>();
-			Set<String> termSet = new TreeSet<String>();
+			SynNode tn = new SynNode();
 			for (String key : sourceMap.keySet()) {
 				List<String> termList = sourceMap.get(key);
 				if (termList == null || termList.size() == 0)
 					continue;
-				termSet.clear();
 				for (String term : termList) {
 					String[] words = term.split("\\s");
-					for (String word : words)
-						termSet.add(word);
+					tn.getWord(key).addWords(words);
 				}
-				String[] termArray = new String[termSet.size()];
-				termSet.toArray(termArray);
-				spm.put(key, termArray);
 			}
-			perfMap = spm;
+			synMap = tn;
 		}
 
 	}
@@ -105,15 +122,19 @@ public class SynonymMap {
 				sourceMap.put(key, termList);
 			}
 			termList.add(value);
+			System.out.println(key + "=>" + value);
 		}
 	}
 
 	public String[] getSynonyms(String term) {
-		return perfMap.get(term);
+		System.out.println("getSynonyms");
+		List<String> terms = sourceMap.get(term);
+		String[] termArray = new String[terms.size()];
+		return terms.toArray(termArray);
 	}
 
 	public int getSize() {
-		return perfMap.size();
+		return sourceMap.size();
 	}
 
 }

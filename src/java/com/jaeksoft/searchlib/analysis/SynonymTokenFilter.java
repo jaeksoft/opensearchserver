@@ -60,6 +60,7 @@ public class SynonymTokenFilter extends TokenFilter {
 		termAtt.setTermBuffer(synonym);
 		typeAtt.setType(SYNONYM_TOKEN_TYPE);
 		posIncrAtt.setPositionIncrement(0);
+		System.out.println("Create token: " + synonym);
 	}
 
 	@Override

@@ -18,6 +18,7 @@ New features:
 - 2910029: Lucene read only support
 
 Bug fixes
+- 2885897: PHP API fail on some query with wrong xml chars
 - 2820286: Issue with statistics aggregation
 - 2911906: Sort functionnality seem to ignore sort order
 - 2908345: Performance issue with large field cache
