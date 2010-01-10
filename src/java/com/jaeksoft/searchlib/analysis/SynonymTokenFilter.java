@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
@@ -37,22 +38,25 @@ public class SynonymTokenFilter extends TokenFilter {
 
 	public static final String SYNONYM_TOKEN_TYPE = "SYNONYM";
 
-	private String[] synonyms = null;
-	private int index = 0;
-	private SynonymMap synonymMap = null;
-
 	private TermAttribute termAtt;
 	private TypeAttribute typeAtt;
 	private PositionIncrementAttribute posIncrAtt;
 
 	private AttributeSource.State current = null;
 
+	private List<String> synonyms;
+	private int index;
+
+	private SynonymQueues synonymQueues;
+
 	protected SynonymTokenFilter(TokenStream input, SynonymMap synonymMap) {
 		super(input);
-		this.synonymMap = synonymMap;
 		this.termAtt = (TermAttribute) addAttribute(TermAttribute.class);
 		this.typeAtt = (TypeAttribute) addAttribute(TypeAttribute.class);
 		this.posIncrAtt = (PositionIncrementAttribute) addAttribute(PositionIncrementAttribute.class);
+		this.synonyms = null;
+		index = 0;
+		this.synonymQueues = synonymMap.getSynonymQueues();
 	}
 
 	private final void createToken(String synonym, State current) {
@@ -65,15 +69,19 @@ public class SynonymTokenFilter extends TokenFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		if (synonyms != null)
-			while (index < synonyms.length)
-				createToken(synonyms[index++], current);
+		if (synonyms != null) {
+			createToken(synonyms.get(index++), current);
+			if (index == synonyms.size()) {
+				synonyms = null;
+				index = 0;
+			}
+			return true;
+		}
 
 		if (!input.incrementToken())
 			return false;
 
-		synonyms = synonymMap.getSynonyms(termAtt.term());
-		index = 0;
+		synonyms = synonymQueues.getSynonym(termAtt.term());
 		current = captureState();
 		return true;
 	}

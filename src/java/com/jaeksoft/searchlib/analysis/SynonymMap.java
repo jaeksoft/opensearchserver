@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,45 +30,83 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeMap;
 
 public class SynonymMap {
 
-	private TreeMap<String, List<String>> sourceMap;
+	private class Expression implements Comparable<Expression> {
 
-	private class SynNode {
+		private String[] words;
 
-		private TreeMap<String, SynNode> map = null;
-
-		private SynNode getWord(String word) {
-			if (map == null)
-				map = new TreeMap<String, SynNode>();
-			SynNode node = map.get(word);
-			if (node != null)
-				return node;
-			return map.put(word, new SynNode());
+		private Expression(String w) {
+			this.words = w.split("\\p{Space}+");
 		}
 
-		private void addWords(String[] words, int pos) {
-			if (pos == words.length)
-				return;
-			getWord(words[pos]).addWords(words, ++pos);
+		private Expression(String[] w) {
+			this.words = w;
 		}
 
-		private void addWords(String[] words) {
-			addWords(words, 0);
+		private int getSize() {
+			return words.length;
+		}
+
+		@Override
+		public int compareTo(Expression o) {
+			int i = 0;
+			for (String word : words) {
+				if (i >= o.words.length)
+					return -1;
+				int n;
+				if ((n = word.compareToIgnoreCase(o.words[i])) != 0)
+					return n;
+				i++;
+			}
+			return 0;
+		}
+
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			sb.append('_');
+			boolean space = false;
+			for (String word : words) {
+				if (space)
+					sb.append('_');
+				else
+					space = true;
+				sb.append(word);
+			}
+			sb.append('_');
+			return sb.toString();
+		}
+
+	}
+
+	protected class ExpressionMap {
+
+		TreeMap<Expression, String> map;
+
+		private ExpressionMap() {
+			map = new TreeMap<Expression, String>();
+		}
+
+		private void add(Expression words, Expression key) {
+			map.put(words, key.toString());
+		}
+
+		protected String find(String[] words) {
+			return map.get(new Expression(words));
 		}
 	}
 
-	private volatile SynNode synMap;
+	private TreeMap<Integer, ExpressionMap> expressionMaps;
+
+	private int size;
 
 	public SynonymMap(File file) throws FileNotFoundException, IOException {
-		sourceMap = new TreeMap<String, List<String>>();
-		synMap = null;
+		size = 0;
+		expressionMaps = new TreeMap<Integer, ExpressionMap>();
 		loadFromFile(file);
-		updatePerfMap();
 	}
 
 	private void loadFromFile(File file) throws FileNotFoundException,
@@ -86,55 +124,36 @@ public class SynonymMap {
 			String key = keyValue[0].trim();
 			String value = keyValue[1];
 			String[] terms = value.split(",");
+			addSourceMap(key, key);
 			for (String term : terms)
 				addSourceMap(key, term.trim());
 		}
-		updatePerfMap();
 		br.close();
 		isr.close();
 		fis.close();
 	}
 
-	private void updatePerfMap() {
-		synchronized (sourceMap) {
-			SynNode tn = new SynNode();
-			for (String key : sourceMap.keySet()) {
-				List<String> termList = sourceMap.get(key);
-				if (termList == null || termList.size() == 0)
-					continue;
-				for (String term : termList) {
-					String[] words = term.split("\\s");
-					tn.getWord(key).addWords(words);
-				}
-			}
-			synMap = tn;
-		}
-
-	}
-
-	private void addSourceMap(String key, String value) {
-		if (value == null || value.length() == 0)
+	private void addSourceMap(String key, String words) {
+		if (words == null || words.length() == 0)
 			return;
-		synchronized (sourceMap) {
-			List<String> termList = sourceMap.get(key);
-			if (termList == null) {
-				termList = new ArrayList<String>(1);
-				sourceMap.put(key, termList);
-			}
-			termList.add(value);
-			System.out.println(key + "=>" + value);
+		size++;
+		Expression expKey = new Expression(key);
+		Expression expression = new Expression(words);
+		int i = expression.getSize();
+		ExpressionMap expressionMap = expressionMaps.get(i);
+		if (expressionMap == null) {
+			expressionMap = new ExpressionMap();
+			expressionMaps.put(i, expressionMap);
 		}
-	}
-
-	public String[] getSynonyms(String term) {
-		System.out.println("getSynonyms");
-		List<String> terms = sourceMap.get(term);
-		String[] termArray = new String[terms.size()];
-		return terms.toArray(termArray);
+		expressionMap.add(expression, expKey);
+		System.out.println(expKey + " => " + expression);
 	}
 
 	public int getSize() {
-		return sourceMap.size();
+		return size;
 	}
 
+	public SynonymQueues getSynonymQueues() {
+		return new SynonymQueues(expressionMaps);
+	}
 }
