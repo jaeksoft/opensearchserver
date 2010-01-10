@@ -40,7 +40,6 @@ public abstract class CollapseAbstract {
 	private transient int collapseMax;
 	private transient String collapseField;
 	private transient CollapseMode collapseMode;
-	protected transient OpenBitSet collapsedSet;
 	protected transient SearchRequest searchRequest;
 	private transient ResultScoreDoc[] collapsedDoc;
 
@@ -64,7 +63,7 @@ public abstract class CollapseAbstract {
 		if (fetchLength > fetchedDocs.length)
 			fetchLength = fetchedDocs.length;
 
-		collapsedSet = new OpenBitSet(fetchLength);
+		OpenBitSet collapsedSet = new OpenBitSet(fetchLength);
 
 		String lastTerm = null;
 		int adjacent = 0;
@@ -98,10 +97,6 @@ public abstract class CollapseAbstract {
 
 	public abstract ResultScoreDoc[] collapse(ResultSingle resultSingle)
 			throws IOException, ParseException, SyntaxError;
-
-	protected OpenBitSet getBitSet() {
-		return this.collapsedSet;
-	}
 
 	public int getDocCount() {
 		return this.collapsedDocCount;

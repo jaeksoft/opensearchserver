@@ -55,6 +55,8 @@ public class ResultScoreDoc implements Externalizable {
 
 	public String[] sortValues;
 
+	public String[] facetValues;
+
 	public ResultScoreDoc() {
 	}
 
@@ -88,8 +90,26 @@ public class ResultScoreDoc implements Externalizable {
 		}
 	}
 
+	public void loadFacetValues(StringIndex[] facetStringIndexArray) {
+		if (facetValues != null)
+			return;
+		int i = 0;
+		facetValues = new String[facetStringIndexArray.length];
+		for (StringIndex stringIndex : facetStringIndexArray) {
+			if (stringIndex == null)
+				facetValues[i] = null;
+			else
+				facetValues[i] = stringIndex.lookup[stringIndex.order[doc]];
+			i++;
+		}
+	}
+
 	public String[] getSortValues() {
 		return sortValues;
+	}
+
+	public String[] getFacetValues() {
+		return facetValues;
 	}
 
 	public static ResultScoreDoc[] appendResultScoreDocArray(String indexName,
@@ -131,6 +151,7 @@ public class ResultScoreDoc implements Externalizable {
 		score = in.readFloat();
 		collapseTerm = External.readUTF(in);
 		sortValues = External.readStringArray(in);
+		facetValues = External.readStringArray(in);
 	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -139,6 +160,7 @@ public class ResultScoreDoc implements Externalizable {
 		out.writeFloat(score);
 		External.writeUTF(collapseTerm, out);
 		External.writeStringArray(sortValues, out);
+		External.writeStringArray(facetValues, out);
 	}
 
 	@Override

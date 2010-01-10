@@ -606,12 +606,22 @@ public abstract class Config {
 		if ((values = httpRequest.getParameterValues("facet")) != null) {
 			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
 			for (String value : values)
-				facetList.add(FacetField.buildFacetField(value, false));
+				facetList.add(FacetField.buildFacetField(value, false, false));
+		}
+		if ((values = httpRequest.getParameterValues("facet.collapse")) != null) {
+			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
+			for (String value : values)
+				facetList.add(FacetField.buildFacetField(value, false, true));
 		}
 		if ((values = httpRequest.getParameterValues("facet.multi")) != null) {
 			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
 			for (String value : values)
-				facetList.add(FacetField.buildFacetField(value, true));
+				facetList.add(FacetField.buildFacetField(value, true, false));
+		}
+		if ((values = httpRequest.getParameterValues("facet.multi.collapse")) != null) {
+			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
+			for (String value : values)
+				facetList.add(FacetField.buildFacetField(value, true, true));
 		}
 		return searchRequest;
 	}

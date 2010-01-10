@@ -119,7 +119,7 @@ public class FacetController extends QueryController {
 			if (selectedFacet == null)
 				return;
 			getRequest().getFacetFieldList().add(
-					new FacetField(selectedFacet, 0, false));
+					new FacetField(selectedFacet, 0, false, false));
 			reloadPage();
 		}
 	}

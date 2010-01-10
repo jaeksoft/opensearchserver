@@ -36,6 +36,9 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.util.OpenBitSet;
+
+import com.jaeksoft.searchlib.facet.Facet;
 
 public class DocSetHits {
 
@@ -44,6 +47,7 @@ public class DocSetHits {
 	private final Lock w = rwl.writeLock();
 
 	private int[] collectedDocs;
+	private OpenBitSet bitset;
 	private ReaderLocal reader;
 	private Query query;
 	private Filter filter;
@@ -60,6 +64,7 @@ public class DocSetHits {
 		public void collect(int docId) {
 			lastDocId = docId;
 			collectedDocs[docNumFound++] = docId;
+			bitset.fastSet(docId);
 		}
 
 		@Override
@@ -107,6 +112,7 @@ public class DocSetHits {
 			this.scoreDocs = new ScoreDoc[0];
 			this.reader = reader;
 			this.collectedDocs = new int[0];
+			this.bitset = new OpenBitSet(reader.maxDoc());
 			Collector collector = null;
 			if (reader.numDocs() == 0)
 				return;
@@ -161,22 +167,19 @@ public class DocSetHits {
 		}
 	}
 
-	public boolean contains(int docId) {
+	public int[] facetMultivalued(String fieldName) throws IOException {
 		r.lock();
 		try {
-			for (int id : collectedDocs)
-				if (id == docId)
-					return true;
-			return false;
+			return Facet.computeMultivalued(reader, fieldName, bitset);
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public int[] getCollectedDocs() {
+	public int[] facetSinglevalue(String fieldName) throws IOException {
 		r.lock();
 		try {
-			return collectedDocs;
+			return Facet.computeSinglevalued(reader, fieldName, collectedDocs);
 		} finally {
 			r.unlock();
 		}

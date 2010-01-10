@@ -55,6 +55,22 @@ public class FacetFieldRenderer implements RowRenderer {
 
 	}
 
+	public class PostCollapsingListener extends MultivaluedListener {
+
+		public PostCollapsingListener(FacetField facetField) {
+			super(facetField);
+		}
+
+		@Override
+		public void onEvent(Event event) throws Exception {
+			Listbox listbox = (Listbox) event.getTarget();
+			Listitem listitem = listbox.getSelectedItem();
+			if (listitem != null)
+				facetField.setPostCollapsing(listitem.getValue().toString());
+		}
+
+	}
+
 	public class MinCountListener extends MultivaluedListener {
 
 		public MinCountListener(FacetField facetField) {
@@ -80,6 +96,16 @@ public class FacetFieldRenderer implements RowRenderer {
 		listbox.addEventListener("onSelect",
 				new MultivaluedListener(facetField));
 		listbox.setParent(row);
+
+		listbox = new Listbox();
+		listbox.setMold("select");
+		listbox.appendItem("no", "no");
+		listbox.appendItem("yes", "yes");
+		listbox.setSelectedIndex(facetField.isPostCollapsing() ? 1 : 0);
+		listbox.addEventListener("onSelect", new PostCollapsingListener(
+				facetField));
+		listbox.setParent(row);
+
 		Intbox intbox = new Intbox(facetField.getMinCount());
 		intbox.setConstraint("no empty, no negative");
 		intbox.setParent(row);

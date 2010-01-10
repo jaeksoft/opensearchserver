@@ -45,6 +45,7 @@ public class ResultSingle extends Result {
 
 	transient private ReaderLocal reader;
 	transient private StringIndex[] sortStringIndexArray;
+	transient private StringIndex[] facetStringIndexArray;
 	transient private DocSetHits docSetHits;
 
 	public ResultSingle() {
@@ -74,8 +75,6 @@ public class ResultSingle extends Result {
 		docSetHits = reader.searchDocSet(searchRequest);
 		numFound = docSetHits.getDocNumFound();
 		maxScore = docSetHits.getMaxScore();
-		for (FacetField facetField : searchRequest.getFacetFieldList())
-			this.facetList.addObject(facetField.getFacet(this));
 
 		for (SpellCheckField spellCheckField : searchRequest
 				.getSpellCheckFieldList())
@@ -89,6 +88,15 @@ public class ResultSingle extends Result {
 			collapsedDocCount = collapse.getDocCount();
 		} else
 			docs = fetch();
+
+		facetStringIndexArray = FacetField.newStringIndexArrayForCollapsing(
+				searchRequest.getFacetFieldList(), reader);
+		if (facetStringIndexArray != null)
+			for (ResultScoreDoc doc : docs)
+				doc.loadFacetValues(facetStringIndexArray);
+
+		for (FacetField facetField : searchRequest.getFacetFieldList())
+			this.facetList.addObject(facetField.getFacet(this));
 
 		if (searchRequest.isWithSortValues()) {
 			sortStringIndexArray = searchRequest.getSortList()

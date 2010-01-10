@@ -286,7 +286,8 @@ public class UrlManager {
 		SearchRequest searchRequest = urlDbClient.getNewSearchRequest();
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
-		searchRequest.getFacetFieldList().add(new FacetField("host", 1, false));
+		searchRequest.getFacetFieldList().add(
+				new FacetField("host", 1, false, false));
 		return searchRequest;
 	}
 

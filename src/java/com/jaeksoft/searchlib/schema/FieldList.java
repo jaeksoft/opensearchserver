@@ -241,4 +241,5 @@ public class FieldList<T extends Field> implements
 				field.writeXmlConfig(xmlWriter);
 		}
 	}
+
 }

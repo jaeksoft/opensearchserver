@@ -28,11 +28,15 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.lucene.search.FieldCache.StringIndex;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -51,6 +55,8 @@ public class FacetField extends Field implements Externalizable {
 
 	private boolean multivalued;
 
+	private boolean postCollapsing;
+
 	public FacetField() {
 	}
 
@@ -58,12 +64,15 @@ public class FacetField extends Field implements Externalizable {
 		super(field);
 		this.minCount = field.minCount;
 		this.multivalued = field.multivalued;
+		this.postCollapsing = field.postCollapsing;
 	}
 
-	public FacetField(String name, int minCount, boolean multivalued) {
+	public FacetField(String name, int minCount, boolean multivalued,
+			boolean postCollapsing) {
 		super(name);
 		this.minCount = minCount;
 		this.multivalued = multivalued;
+		this.postCollapsing = postCollapsing;
 	}
 
 	@Override
@@ -93,11 +102,32 @@ public class FacetField extends Field implements Externalizable {
 				|| "1".equalsIgnoreCase(value);
 	}
 
+	public boolean isPostCollapsing() {
+		return postCollapsing;
+	}
+
+	public String getPostCollapsing() {
+		return postCollapsing ? "yes" : "no";
+	}
+
+	public void setPostCollapsing(String value) {
+		postCollapsing = "yes".equalsIgnoreCase(value)
+				|| "true".equalsIgnoreCase(value)
+				|| "1".equalsIgnoreCase(value);
+	}
+
 	public Facet getFacet(ResultSingle result) throws IOException {
-		if (multivalued)
-			return Facet.facetMultivalued(result, this);
-		else
-			return Facet.facetSingleValue(result, this);
+		if (multivalued) {
+			if (postCollapsing && result.getCollapseDocCount() > 0)
+				return Facet.facetMultivaluedCollapsed(result, this);
+			else
+				return Facet.facetMultivaluedNonCollapsed(result, this);
+		} else {
+			if (postCollapsing && result.getCollapseDocCount() > 0)
+				return Facet.facetSingleValueCollapsed(result, this);
+			else
+				return Facet.facetSingleValueNonCollapsed(result, this);
+		}
 	}
 
 	public static void copyFacetFields(Node node,
@@ -106,8 +136,10 @@ public class FacetField extends Field implements Externalizable {
 		int minCount = XPathParser.getAttributeValue(node, "minCount");
 		boolean multivalued = "yes".equals(XPathParser.getAttributeString(node,
 				"multivalued"));
+		boolean postCollapsing = "yes".equals(XPathParser.getAttributeString(
+				node, "postCollapsing"));
 		FacetField facetField = new FacetField(source.get(fieldName).getName(),
-				minCount, multivalued);
+				minCount, multivalued, postCollapsing);
 		target.add(facetField);
 	}
 
@@ -119,8 +151,8 @@ public class FacetField extends Field implements Externalizable {
 	 * @return
 	 * @throws SyntaxError
 	 */
-	public static FacetField buildFacetField(String value, boolean multivalued)
-			throws SyntaxError {
+	public static FacetField buildFacetField(String value, boolean multivalued,
+			boolean postCollapsing) throws SyntaxError {
 		int minCount = 1;
 		String fieldName = null;
 
@@ -134,7 +166,7 @@ public class FacetField extends Field implements Externalizable {
 		} else
 			fieldName = value;
 
-		return new FacetField(fieldName, minCount, multivalued);
+		return new FacetField(fieldName, minCount, multivalued, postCollapsing);
 	}
 
 	@Override
@@ -143,6 +175,7 @@ public class FacetField extends Field implements Externalizable {
 		super.readExternal(in);
 		minCount = in.readInt();
 		multivalued = in.readBoolean();
+		postCollapsing = in.readBoolean();
 	}
 
 	@Override
@@ -150,12 +183,14 @@ public class FacetField extends Field implements Externalizable {
 		super.writeExternal(out);
 		out.writeInt(minCount);
 		out.writeBoolean(multivalued);
+		out.writeBoolean(postCollapsing);
 	}
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("facetField", "name", name, "minCount", Integer
-				.toString(minCount), "multivalued", multivalued ? "yes" : "no");
+				.toString(minCount), "multivalued", multivalued ? "yes" : "no",
+				"postCollapsing", postCollapsing ? "yes" : "no");
 		xmlWriter.endElement();
 	}
 
@@ -167,6 +202,29 @@ public class FacetField extends Field implements Externalizable {
 		FacetField f = (FacetField) o;
 		if ((c = minCount - f.minCount) != 0)
 			return c;
-		return multivalued == f.multivalued ? 0 : -1;
+		if (multivalued != f.multivalued)
+			return multivalued == f.multivalued ? 0 : -1;
+		return postCollapsing == f.postCollapsing ? 0 : -1;
+	}
+
+	public StringIndex getStringIndex(ReaderLocal reader) throws IOException {
+		if (name.equals("score"))
+			return null;
+		else
+			return reader.getStringIndex(name);
+	}
+
+	public static StringIndex[] newStringIndexArrayForCollapsing(
+			FieldList<FacetField> facetFieldList, ReaderLocal reader)
+			throws IOException {
+		if (facetFieldList.size() == 0)
+			return null;
+		List<StringIndex> facetFieldArray = new ArrayList<StringIndex>(0);
+		for (FacetField facetField : facetFieldList)
+			if (facetField.isPostCollapsing())
+				facetFieldArray.add(facetField.getStringIndex(reader));
+
+		StringIndex[] stringIndexArray = new StringIndex[facetFieldArray.size()];
+		return facetFieldArray.toArray(stringIndexArray);
 	}
 }

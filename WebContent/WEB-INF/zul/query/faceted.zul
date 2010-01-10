@@ -22,6 +22,7 @@
 		<columns>
 			<column label="Field" />
 			<column label="Multivalued" />
+			<column label="Post collapsing" />
 			<column label="Minimal count" />
 			<column label="Action" />
 		</columns>
