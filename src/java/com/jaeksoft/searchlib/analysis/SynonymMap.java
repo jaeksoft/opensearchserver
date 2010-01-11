@@ -146,7 +146,7 @@ public class SynonymMap {
 			expressionMaps.put(i, expressionMap);
 		}
 		expressionMap.add(expression, expKey);
-		System.out.println(expKey + " => " + expression);
+		// System.out.println(expKey + " => " + expression);
 	}
 
 	public int getSize() {

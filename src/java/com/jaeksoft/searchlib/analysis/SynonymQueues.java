@@ -95,11 +95,11 @@ public class SynonymQueues {
 	}
 
 	public List<String> getSynonym(String token) {
-		System.out.println("Add " + token);
+		// System.out.println("Add " + token);
 		List<String> synonymList = new ArrayList<String>();
 		for (SynonymQueue queue : queues) {
 			queue.addToken(token);
-			System.out.println(queue);
+			// System.out.println(queue);
 			String synonym = queue.findSynonym();
 			if (synonym != null) {
 				synonymList.add(synonym);
