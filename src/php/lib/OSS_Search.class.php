@@ -51,11 +51,16 @@ class OSS_Search {
 	 * @param $index The index name
 	 * @return OSS_Search
 	 */
-	public function __construct($enginePath, $index = null) {
-		
-		$parsedPath = OSS_API::parseEnginePath($enginePath, $index);
-		$this->enginePath	= $parsedPath['enginePath'];
-		$this->index		= $parsedPath['index'];
+	public function __construct($enginePath, $index = null, $rows = null, $start = null, $max_per_page = null) {
+		$ossAPI = new OSS_API($enginePath, $index);
+
+		$this->enginePath	= $ossAPI->getEnginePath();
+		$this->index		= $ossAPI->getIndex();
+
+		// Restrict row count at 50 max 
+		$this->rows  = isset($rows) ? max(1, min($rows, 50)) : $max_per_page;
+		$this->start = isset($start)    ? max(0, $start-1) * $rows : 0;
+
 
 		$this->field	= array();
 		$this->filter	= array();
@@ -117,14 +122,7 @@ class OSS_Search {
 		return $this;
 	}
 
-	/**
-	 * @return OSS_Search
-	 */
-	public function lang($lang = null) {
-		$this->lang = $lang;
-		return $this;
-	}
-
+	
 	/**
 	 * @return OSS_Search
 	 */
@@ -146,7 +144,7 @@ class OSS_Search {
 	 */
 	public function sort($fields) {
 		foreach ((array)$fields as $field)
-			$this->sort[] = $field;
+		$this->sort[] = $field;
 		return $this;
 	}
 
@@ -239,18 +237,18 @@ class OSS_Search {
 			$facet  = $options['multi'] ? 'facet.multi=' : 'facet=';
 			$facet .= $field;
 			if ($options['min'] !== null)
-				$facet .= '('.$options['min'].')';
+			$facet .= '('.$options['min'].')';
 			$queryChunks[] = $facet;
 		}
 
 		// Collapsing
 		if ($this->collapse['field'])
-			$queryChunks[] = 'collapse.field='.$this->collapse['field'];
+		$queryChunks[] = 'collapse.field='.$this->collapse['field'];
 		if ($this->collapse['mode'] !== null)
-			$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
+		$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
 		if ($this->collapse['max'] !== null)
-			$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
-		
+		$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
+
 		return $this->enginePath.'/'.OSS_API::API_SELECT.'?'.implode('&', $queryChunks);
 
 	}

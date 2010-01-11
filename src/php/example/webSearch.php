@@ -32,8 +32,11 @@ define('BASE_DIR', dirname(__FILE__));
 require BASE_DIR.'/../lib/misc.lib.php';
 require BASE_DIR.'/../lib/OSS_API.class.php';
 require BASE_DIR.'/../lib/OSS_Search.class.php';
+require BASE_DIR.'/../lib/OSS_Results.class.php';
+require BASE_DIR.'/../lib/OSS_Paging.class.php';
 
 define('MAX_PAGE_TO_LINK', 10);
+define('MAX_RESULT_PER_PAGE', 1);
 
 $ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
 $ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
@@ -41,238 +44,263 @@ $ossEngineIndex = configRequestValue('ossEngineIndex_contrib_websearch', 'webCra
 
 if (isset($_REQUEST['query'])) {
 
-	$search = new OSS_Search($ossEnginePath, $ossEngineIndex);
+	$rows  = isset($_REQUEST['rows']) ? $_REQUEST['rows'] : null;
+	$start = isset($_REQUEST['p'])    ? $_REQUEST['p'] : null;
+
+	$search = new OSS_Search($ossEnginePath, $ossEngineIndex, $rows, $start, MAX_RESULT_PER_PAGE);
 
 	if (!empty($_REQUEST['lang'])) {
-		$search->lang($_REQUEST['lang'])
-			   ->filter('lang:'.$_REQUEST['lang']);
+		$search->filter('lang:'.$_REQUEST['lang']);
+	}
+	if (!empty($_REQUEST['host'])) {
+		$search->filter('host:'.$_REQUEST['host']);
 	}
 
-	// Restrict row count between 5 and 50
-	$rows  = isset($_REQUEST['rows']) ? max(5, min($_REQUEST['rows'], 50)) : 10;
-	$start = isset($_REQUEST['p'])    ? max(0, $_REQUEST['p']) * $rows : 0;
-
 	$result = $search->query($_REQUEST['query'])
-					 ->facet('lang', 0)
-					 ->field(array('url', 'contentBaseType', 'metaDescription', 'metaKeywords', 'host', 'lang'))
-					 ->start($start)
-					 ->rows(15)
-					 ->execute($ossEngineConnectTimeOut);
+	->facet('lang', 1)
+	->facet('host', 1)
+	->field(array('url', 'contentBaseType', 'metaDescription', 'metaKeywords', 'host', 'lang'))
+	->execute($ossEngineConnectTimeOut);
 
 	if ($result instanceof SimpleXMLElement) {
-
-		$resultFound   = (int)$result->result['numFound'];
-		$resultTime    = (float)$result->result['time'] / 1000;
-		$resultRows    = (int)$result->result['rows'];
-		$resultStart   = (int)$result->result['start'];
-
-		$resultEntries = $result->xpath('result/doc');
-
-		// Navigation between pages
-		$resultCurrentPage = floor($resultStart / $resultRows);
-		$resultTotalPages  = floor($resultFound / $resultRows);
-		if ($resultTotalPages > 1) {
-			$low  = $resultCurrentPage - (MAX_PAGE_TO_LINK / 2);
-			$high = $resultCurrentPage + (MAX_PAGE_TO_LINK / 2 - 1);
-			if ($low < 0) {
-				$high += $low * -1;
-			}
-			if ($high > $resultTotalPages) {
-				$low -= $high - $resultTotalPages;
-			}
-			$resultLowPage  = max($low, 0);
-			$resultHighPage = min($resultTotalPages, $high);
-			$resultLowPrev  = max($resultCurrentPage - MAX_PAGE_TO_LINK, 0);
-			$resultHighNext = min($resultCurrentPage + MAX_PAGE_TO_LINK, $resultTotalPages);
-			$pageBaseURI = preg_replace('/&(?:p|rows)=[\d]+/', '', $_SERVER['REQUEST_URI']).'&rows='.$resultRows.'&p=';
-		}
-
-		$langFacets = $result->xpath('faceting/field[@name="lang"]/facet');
-		if ($langFacets === false) $langFacets = array();
+		$ossResults = new OSS_Results($result);
+		$ossPaging = new OSS_Paging($ossResults);
 	}
 }
 ?>
 <html>
-	<head>
-		<title>Open Search Server - contrib/search</title>
-		<script type="text/javascript" src="common.js"></script>
-		<link type="text/css" rel="stylesheet" href="common.css" />
-		<style type="text/css">
-			#query_fieldset { border: 0; background: url(search.png) no-repeat; width: 495px; height: 60px; padding: 26px 0 10px 110px; margin:0 auto; }
-			#query { margin-left: 0; width: 318px; border: 0; background: transparent; font-size: 20px; height: 30px; }
-			#submit { background: transparent; border: 0px; width: 160px; height: 29px; cursor: pointer; }
-			#info { margin-bottom: 15px; text-align: center; }
-			#langs { border: 0; width: 510px; padding: 0; margin:0 auto; text-align: center; }
+<head>
+<title>Open Search Server - contrib/search</title>
+<script type="text/javascript" src="common.js"></script>
+<link type="text/css" rel="stylesheet" href="common.css" />
+<style type="text/css">
+#query_fieldset {
+	border: 0;
+	background: url(search.png) no-repeat;
+	width: 495px;
+	height: 60px;
+	padding: 26px 0 10px 110px;
+	margin: 0 auto;
+}
 
-			ul {
-				list-style: none;
-				border-top: 1px solid #E8E8E8;
-				margin: 0px;
-				padding: 0px;
-			}
+#query {
+	margin-left: 0;
+	width: 318px;
+	border: 0;
+	background: transparent;
+	font-size: 20px;
+	height: 30px;
+}
 
-			/** RESULTS *******************************************************/
-			.result li {
-				margin-bottom: 15px;
-			}
-			.result li h2 {
-				font-size: 12px;
-				font-weight: normal;
-				margin-bottom: 2px;
-			}
-			.result li cite, li code {
-				color: green;
-				font-family: arial,sans-serif;
-			}
-			.result li code {
-				font-weight: bold;
-			}
-			.result li .content em,
-			.result li .content strong,
-			.result li .content b {
-				color: #A03030;
-			}
+#submit {
+	background: transparent;
+	border: 0px;
+	width: 160px;
+	height: 29px;
+	cursor: pointer;
+}
 
-			/** PAGINATION ****************************************************/
-			ul.pagination {
-				text-align: right;
-			}
-			ul.pagination li {
-				display: inline;
-				padding-right: 5px;
-			}
-			ul.pagination .currentPage {
-				font-weight: bold;
-			}
-		</style>
-	</head>
-	<body>
-		<div id="bodywrap">
-			<div class="lateralBorders" style="margin-bottom: 15px; border-color: #F8F8F8;">
-			<div class="lateralBorders" style="border-color: #EDEDED;">
-			<div class="lateralBorders" style="border-color: #E0E0E0;">
-			<div class="lateralBorders" style="padding: 15px; border-color: #B8B8B8;">
-				<div id="options">
-					<form action="<?php echo basename(__FILE__); ?>" method="POST">
-						<fieldset id="option_fieldset">
-							<label>Engine URL</label><input name="engineURL" value="<?php echo $ossEnginePath; ?>" style="border-top-width:1px"/>
-							<label>Index</label><input name="engineIndex" value="<?php echo $ossEngineIndex; ?>" />
-							<label>ConnectTimeOut (s)</label><input name="engineConnectTimeOut" value="<?php echo $ossEngineConnectTimeOut; ?>" />
-							<label>&nbsp;</label><input type="submit" value="save">
-						</fieldset>
-					</form>
-					<div id="options_title" onclick="javascript:toggleClass(this.parentNode, 'show'); return false;">Options</div>
-				</div>
-				<form action="<?php echo basename(__FILE__); ?>" method="GET">
+#info {
+	margin-bottom: 15px;
+	text-align: center;
+}
 
+#langs {
+	display: block;
+	border: 1;
+	width: 200px;
+	height: 100%;
+	padding: 0;
+	margin: 0 auto;
+	text-align: left;
+	float: left;
+}
 
-					<fieldset id="query_fieldset">
-						<input id="query" name="query" value="<?php if (isset($_REQUEST['query'])) echo htmlspecialchars($_REQUEST['query']); ?>" />
-						<input id="submit" type="submit" value=""/>
-					</fieldset>
-					<?php
-						if (isset($langFacets)):
-						if (count($langFacets)):
-					?>
-					<div id="langs">
-						Languages:
-						<input type="radio" name="lang" value="" id="lang_all" <?php if(!isset($_REQUEST['lang']) || $_REQUEST['lang'] == '') echo 'checked="checked"'; ?>>
-						<label for="lang_all">All</label>
-						<?php
-							foreach ($langFacets as $langFacet):
-								$lang = $langFacet['name'];
-						?>
-						<input type="radio" name="lang" value="<?php echo $lang; ?>" id="<?php echo $lang; ?>" <?php if(isset($_REQUEST['lang'])) if($_REQUEST['lang'] == $lang) echo 'checked="checked"'; ?>>
-						<label for="<?php echo $lang; ?>"><?php echo ucfirst($lang); ?></label>
-						<?php endforeach; ?>
-					</div>
-					<?php endif; endif; ?>
-					<?php if (isset($search)): ?>
-					<p>You queried the search engine with the following call:<br/>
-					<a style="padding-left: 15px;" class="lastQueryQtring" href="<?php echo $search->getLastQueryString(); ?>"><?php echo htmlentities(urldecode($search->getLastQueryString())); ?></a>
-					</p>
-					<?php endif; ?>
-				</form>
-				<?php
-				if (isset($resultFound)):
-				if ($resultFound): ?>
-				<div class="result">
-					<span>Found <?php if ($resultFound == 1): ?>1 result<?php else: echo $resultFound; ?> results<?php endif; ?></span>
-					<span>(<?php printf('%0.2fs', $resultTime); ?>)</span>
-					<ul><?php
-						foreach ($resultEntries as $entry):
+ul {
+	list-style: none;
+	border-top: 1px solid #E8E8E8;
+	margin: 0px;
+	padding: 0px;
+}
 
-							$url	 = array_first($entry->xpath('*[@name="url"]'));
-							$host	 = array_first($entry->xpath('*[@name="host"]'));
-							$type	 = array_first($entry->xpath('field[@name="contentBaseType"]'));
-							$content   = implode('', $entry->xpath('snippet[@name="content"]'));
-							if (empty($content)) {
-								$content   = implode('', $entry->xpath('field[@name="content"]'));
-							}
+/** RESULTS *******************************************************/
+.result li {
+	margin-bottom: 15px;
+}
 
-							$subType = preg_replace('/^[^\/]+\//', '', $type);
+.result li h2 {
+	font-size: 12px;
+	font-weight: normal;
+	margin-bottom: 2px;
+}
 
-							if ($type == 'text/html' && !empty($content)): ?>
-								<li>
-									<h2><a href="<?php echo $url; ?>" target="_new"><?php echo implode('', $entry->xpath('*[@name="title"]')); ?></a></h2>
-									<div><?php echo $content; ?></div>
-									<cite><?php echo $host; ?></cite>
-								</li>
-								<?php
-							elseif ($type == 'text/html'):
-								?>
-								<li>
-									<h2><a href="<?php echo $url; ?>" target="_new"><?php echo $url; ?></a></h2>
-									<cite><?php echo $host; ?></cite>
-								</li>
-								<?php
-							else: ?>
-								<li>
-									<h2><code><?php echo "[".$subType."] "; ?></code> <a href="<?php echo $url; ?>" target="_new"><?php echo $url; ?></a></h2>
-									<div><?php echo $content; ?></div>
-									<cite><?php echo $host; ?></cite>
-								</li>
-								<?php
-							endif;
-							?>
+.result li cite,li code {
+	color: green;
+	font-family: arial, sans-serif;
+}
+
+.result li code {
+	font-weight: bold;
+}
+
+.result li .content em,.result li .content strong,.result li .content b
+	{
+	color: #A03030;
+}
+
+/** PAGINATION ****************************************************/
+ul.pagination {
+	text-align: center;
+}
+
+ul.pagination li {
+	display: inline;
+	padding-right: 5px;
+}
+
+ul.pagination .currentPage {
+	font-weight: bold;
+}
+</style>
+<script language="javascript">
+function fsubmit()
+{
+	window.document.forms['search'].submit();
+}
+</script>
+</head>
+<body>
+<div id="bodywrap">
+<div class="lateralBorders"
+	style="margin-bottom: 15px; border-color: #F8F8F8;">
+<div class="lateralBorders" style="border-color: #EDEDED;">
+<div class="lateralBorders" style="border-color: #E0E0E0;">
+<div class="lateralBorders"
+	style="padding: 15px; border-color: #B8B8B8;">
+
+<div id="options">
+	<form action="<?php echo basename(__FILE__); ?>" method="POST">
+		<fieldset id="option_fieldset">
+			<label>Engine URL</label><input	name="engineURL" value="<?php echo $ossEnginePath; ?>"	style="border-top-width: 1px" /> 
+			<label>Index</label><input name="engineIndex" value="<?php echo $ossEngineIndex; ?>" /> 
+			<label>ConnectTimeOut(s)</label><input name="engineConnectTimeOut"	value="<?php echo $ossEngineConnectTimeOut; ?>" /> 
+			<label>&nbsp;</label><input	type="submit" value="save"></fieldset>
+	</form>
+	<div id="options_title"	onclick="javascript:toggleClass(this.parentNode, 'show'); return false;">Options</div>
+</div>
+
+<form action="<?php echo basename(__FILE__); ?>" name="search"	method="GET">
+	<fieldset id="query_fieldset"><input id="query" name="query"
+		value="<?php if (isset($_REQUEST['query'])) echo htmlspecialchars($_REQUEST['query']); ?>" />
+	<input id="submit" type="submit" value="" /></fieldset>
+	
+	<?php if (isset($search)): ?>
+	<p>You queried the search engine with the following call:<br />
+		<a style="padding-left: 15px;" class="lastQueryQtring"
+			href="<?php echo $search->getLastQueryString(); ?>" target="_blank"><?php echo htmlentities(urldecode($search->getLastQueryString())); ?></a>
+	</p>
+	<?php endif; ?> <?php
+	if (isset($ossResults)):
+		if ($ossResults->getResultFound()): ?>
+	
+			<div class="result">
+				<span>Found <?php if ($ossResults->getResultFound() == 1): ?>1 result<?php else: echo $ossResults->getResultFound(); ?> results<?php endif; ?></span>
+				<span>(<?php printf('%0.2fs', $ossResults->getResultTime()); ?>)</span>
+			</div>
+				
+			<?php if (isset($ossResults) && count($ossResults->getFacets())): ?>
+				<div id="langs">
+				
+					<?php foreach ($ossResults->getFacets() as $facet): ?> <br />
+						<?php echo $facet; ?> : <br />
+						<input type="radio" name="<?php echo $facet; ?>" value="" id="<?php echo $facet; ?>_all"
+						<?php if(!isset($_REQUEST[''.$facet]) || $_REQUEST[''.$facet] == '') echo 'checked="checked"'; ?>>
+						<label for="<?php echo $facet; ?>_all">All</label><br />
+					
+						<?php foreach ($ossResults->getFacet($facet) as $values):
+							$value = $values['name']; ?> 
+							<input type="radio"	name="<?php echo $facet; ?>" value="<?php echo $value; ?>" id="<?php echo $value; ?>"
+							<?php if(isset($_REQUEST[''.$facet]) && $_REQUEST[''.$facet] == $value) echo 'checked="checked"'; ?>>
+							<label for="<?php echo $value; ?>"><?php echo ucfirst($value); ?></label>
+							&nbsp;(<?php echo $values; ?>) <br />
+						<?php endforeach; ?> 
 					<?php endforeach; ?>
-					</ul>
-				</div>
-				<?php if ($resultTotalPages > 1): ?>
-				<div>
-					<ul class="pagination">
-						<?php if ($resultLowPage > 2):?>
-						<li><a href="<?php echo $pageBaseURI, 0; ?>">First&lt;&lt;</a></li>
-						<?php endif;?>
-						<?php if ($resultLowPrev < $resultLowPage):?>
-						<li><a href="<?php echo $pageBaseURI, $resultLowPrev; ?>">Prev&lt;&lt;</a></li>
-						<?php endif;?>
-						<?php for ($i = $resultLowPage; $i <= $resultHighPage; $i++): ?>
-						<li><a href="<?php echo $pageBaseURI, $i; ?>" <?php if ($i == $resultCurrentPage): ?>class="currentPage"<?php endif; ?>><?php echo $i + 1; ?></a></li>
-						<?php endfor;?>
-						<?php if ($resultHighNext > $resultHighPage):?>
-						<li><a href="<?php echo $pageBaseURI, $resultHighNext; ?>">&gt;&gt;Next</a></li>
-						<?php endif;?>
-						<?php if ($resultHighPage < $resultTotalPages):?>
-						<li><a href="<?php echo $pageBaseURI, $resultTotalPages; ?>">&gt;&gt;Last</a></li>
-						<?php endif;?>
-					</ul>
-				</div>
-				<?php endif; ?>
-				<?php else: ?>
-				<div id="result">
-					No result
-					<span>(<?php printf('%0.2fs', $resultTime); ?>)</span>
-				</div>
-				<?php endif; ?>
-				<?php endif; ?>
 			</div>
+	<?php endif; ?>
+</form>
+
+	<div class="result">
+	<ul>
+		<?php 
+		$max = ($ossResults->getResultStart() + $ossResults->getResultRows()> $ossResults->getResultFound())?$ossResults->getResultFound():$ossResults->getResultStart() + $ossResults->getResultRows();
+		for ($i = $ossResults->getResultStart(); $i < $max; $i++):
+		
+			$indice = $i +1;
+			$title	 = $ossResults->getField($i, 'title', true);
+			$url	 = $ossResults->getField($i, 'url');
+			$host	 = $ossResults->getField($i, 'host'); 
+			$type	 = $ossResults->getField($i, 'contentBaseType'); 
+			$content = $ossResults->getField($i, 'content', true);
+			
+			$subType = preg_replace('/^[^\/]+\//', '', $type);
+		
+			if ($type == 'text/html' && !empty($content)): ?>
+				<li>
+				<h2><?php echo $indice; ?>- <a href="<?php echo $url; ?>"
+					target="_new"><?php echo $title; ?></a></h2>
+				<div><?php echo $content; ?></div>
+				<cite><?php echo $host; ?></cite></li>
+			<?php elseif ($type == 'text/html'): ?>
+				<li>
+				<h2><?php echo $indice; ?>- <a href="<?php echo $url; ?>"
+					target="_new"><?php echo $url; ?></a></h2>
+				<cite><?php echo $host; ?></cite></li>
+			<?php else: ?>
+				<li>
+				<h2><code><?php echo $indice; ?>- <?php echo "[".$subType."] "; ?></code>
+				<a href="<?php echo $url; ?>" target="_new"><?php echo $url; ?></a></h2>
+				<div><?php echo $content; ?></div>
+				<cite><?php echo $host; ?></cite></li>
+			<?php endif; ?>
+		<?php endfor; ?>
+	</ul>
+
+	</div>
+		<?php if (isset($ossPaging) && $ossPaging->getResultTotalPages() >= 1): ?>
+			<div>
+				<ul class="pagination">
+					<?php if ($ossPaging->getResultLowPage() > 0):?>
+						<li><a href="<?php echo $ossPaging->getPageBaseURI(), 0; ?>">First&lt;&lt;</a></li>
+					<?php endif;?>
+					
+					<?php if ($ossPaging->getResultLowPrev() < $ossPaging->getResultLowPage()):?>
+						<li><a	href="<?php echo $ossPaging->getPageBaseURI(), $ossPaging->getResultLowPrev(); ?>">Prev&lt;&lt;</a></li>
+					<?php endif;?>
+					
+					<?php for ($i = $ossPaging->getResultLowPage(); $i < $ossPaging->getResultHighPage(); $i++): ?>
+						<li><a href="<?php echo $ossPaging->getPageBaseURI(), $i+1; ?>"
+						<?php if ($i == $ossPaging->getResultCurrentPage()): ?>	class="currentPage" <?php endif; ?>><?php echo $i + 1; ?></a></li>
+					<?php endfor;?>
+						
+					<?php if ($ossPaging->getResultHighNext() > $ossPaging->getResultHighPage()):?>
+						<li><a	href="<?php echo $ossPaging->getPageBaseURI(), $ossPaging->getResultHighNext(); ?>">&gt;&gt;Next</a></li>
+					<?php endif;?>
+					
+					<?php if ($ossPaging->getResultHighPage()+1 < $ossPaging->getResultTotalPages()):?>
+						<li><a	href="<?php echo $ossPaging->getPageBaseURI(), $ossPaging->getResultTotalPages(); ?>">&gt;&gt;Last</a></li>
+					<?php endif;?>
+				</ul>
 			</div>
-			</div>
-			</div>
-			<div id="info">
-				Powered by <a href="http://www.open-search-server.com/">Open Search Server</a>. Copyright Jaeksoft.
-			</div>
-		</div>
-	</body>
+		<?php endif; ?> 
+	<?php else: ?>
+		<div id="result">No result <span>(<?php printf('%0.2fs', $ossPaging->getResultTime()); ?>)</span></div>
+	<?php endif; ?> 
+<?php endif; ?></div>
+</div>
+</div>
+</div>
+<div id="info">Powered by <a href="http://www.open-search-server.com/">OpenSearch
+Server</a>. Copyright Jaeksoft.</div>
+</div>
+</body>
 </html>
