@@ -30,12 +30,12 @@ if (!extension_loaded('SimpleXML')) { trigger_error("OSS_API won't work whitout 
  */
 class OSS_Paging {
 
-	protected $oss_results;
-	protected $resultTotalPages;
-	protected $resultLowPage;
-	protected $resultHighPage;
-	protected $resultLowPrev;
-	protected $resultHighNext;
+	protected $oss_result;
+	protected $resultTotal;
+	protected $resultLow;
+	protected $resultHigh;
+	protected $resultPrev;
+	protected $resultNext;
 	protected $pageBaseURI;
 
 
@@ -44,8 +44,8 @@ class OSS_Paging {
 	 * @param $model The list of fields
 	 * @return OSS_API
 	 */
-	public function __construct(OSS_Results $oss_results) {
-		$this->oss_results	= $oss_results;
+	public function __construct(SimpleXMLElement $result) {
+		$this->oss_result	= $result;
 		self::compute();
 
 		if (!function_exists('OSS_API_Dummy_Function')) { function OSS_API_Dummy_Function() {} }
@@ -57,20 +57,20 @@ class OSS_Paging {
 	public function getResultCurrentPage() {
 		return $this->resultCurrentPage;
 	}
-	public function getResultTotalPages() {
-		return $this->resultTotalPages;
+	public function getResultTotal() {
+		return $this->resultTotal;
 	}
-	public function getResultLowPage() {
-		return $this->resultLowPage;
+	public function getResultLow() {
+		return $this->resultLow;
 	}
-	public function getResultHighPage() {
-		return $this->resultHighPage;
+	public function getResultHigh() {
+		return $this->resultHigh;
 	}
-	public function getResultLowPrev() {
-		return $this->resultLowPrev;
+	public function getResultPrev() {
+		return $this->resultPrev;
 	}
-	public function getResultHighNext() {
-		return $this->resultHighNext;
+	public function getResultNext() {
+		return $this->resultNext;
 	}
 	public function getPageBaseURI() {
 		return $this->pageBaseURI;
@@ -78,35 +78,30 @@ class OSS_Paging {
 
 
 	public function compute() {
-		$this->resultFound   = (int)$this->oss_results->getResult()->result['numFound'];
-		$this->resultTime    = (float)$this->oss_results->getResult()->result['time'] / 1000;
-		$this->resultRows    = (int)$this->oss_results->getResult()->result['rows'];
-		$this->resultStart   = (int)$this->oss_results->getResult()->result['start'];
+		$this->resultFound   = (int)$this->oss_result->result['numFound'];
+		$this->resultTime    = (float)$this->oss_result->result['time'] / 1000;
+		$this->resultRows    = (int)$this->oss_result->result['rows'];
+		$this->resultStart   = (int)$this->oss_result->result['start'];
 
 		$this->resultCurrentPage = floor($this->resultStart / $this->resultRows);
-		$this->resultTotalPages  = ceil($this->resultFound / $this->resultRows);
+		$this->resultTotal  = ceil($this->resultFound / $this->resultRows);
 
-		if ($this->resultTotalPages > 1) {
+		if ($this->resultTotal > 1) {
 			$low  = $this->resultCurrentPage - (MAX_PAGE_TO_LINK / 2);
 			$high = $this->resultCurrentPage + (MAX_PAGE_TO_LINK / 2 - 1);
 			if ($low < 0) {
 				$high += $low * -1;
 			}
-			if ($high > $this->resultTotalPages) {
-				$low -= $high - $this->resultTotalPages;
+			if ($high > $this->resultTotal) {
+				$low -= $high - $this->resultTotal;
 			}
 
-			$this->resultLowPage  = max($low, 0);
-			$this->resultHighPage = min($this->resultTotalPages, $high);
-			$this->resultLowPrev  = max($this->resultCurrentPage - MAX_PAGE_TO_LINK, 0);
-			$this->resultHighNext = min($this->resultCurrentPage + MAX_PAGE_TO_LINK, $this->resultTotalPages);
+			$this->resultLow  = max($low, 0);
+			$this->resultHigh = min($this->resultTotal, $high);
+			$this->resultPrev = max($this->resultCurrentPage - MAX_PAGE_TO_LINK, 0);
+			$this->resultNext = min($this->resultCurrentPage + MAX_PAGE_TO_LINK, $this->resultTotal);
 			$this->pageBaseURI = preg_replace('/&(?:p|rows)=[\d]+/', '', $_SERVER['REQUEST_URI']).'&rows='.$this->resultRows.'&p=';
 		}
 	}
-
-
-
-
-
 
 }
