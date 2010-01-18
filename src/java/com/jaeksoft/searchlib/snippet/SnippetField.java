@@ -325,7 +325,7 @@ public class SnippetField extends Field implements Externalizable {
 			if (value != null) {
 				// VectorOffset++ depends of EndOffset bug #patch Lucene 579 and
 				// 1458
-				fragmenter.getFragments(value, fragments, vectorOffset);
+				fragmenter.getFragments(value, fragments, vectorOffset++);
 				if (fragments.getTotalSize() > maxDocChar)
 					break;
 			}
