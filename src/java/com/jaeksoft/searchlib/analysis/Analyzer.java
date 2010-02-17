@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,5 +135,12 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 			for (FilterFactory filter : filters)
 				filter.writeXmlConfig(writer);
 		writer.endElement();
+	}
+
+	public boolean isAnyToken(String fieldName, String value)
+			throws IOException {
+		boolean anyToken = tokenStream(fieldName, new StringReader(value))
+				.incrementToken();
+		return anyToken;
 	}
 }

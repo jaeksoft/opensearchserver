@@ -68,6 +68,7 @@ public class FileController extends CommonController implements AfterCompose {
 		activePage = 0;
 	}
 
+	@Override
 	public void afterCompose() {
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
 			public void onEvent(Event event) {

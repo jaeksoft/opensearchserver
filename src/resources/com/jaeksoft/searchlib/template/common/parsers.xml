@@ -37,7 +37,7 @@
 		</map>
 	</parser>
 	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser"
-		sizeLimit="8388608">
+		sizeLimit="8388608" defaultCharset="iso-8859-1">
 		<contentType>text/html</contentType>
 		<extension>htm</extension>
 		<extension>html</extension>

@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -32,24 +34,37 @@ public class LimitInputStream extends InputStream {
 	private boolean isComplete;
 	private InputStream inputStream;
 	private long limit;
+	private ByteArrayOutputStream outputCache;
+	private ByteArrayInputStream inputCache;
 
 	public LimitInputStream(InputStream inputStream, long limit) {
 		this.inputStream = inputStream;
 		this.limit = limit;
-		this.isComplete = true;
+		this.isComplete = false;
+		outputCache = new ByteArrayOutputStream();
+		inputCache = null;
 	}
 
 	@Override
 	public int read() throws IOException {
-		if (limit-- == 0) {
-			isComplete = false;
+		if (inputCache != null)
+			return inputCache.read();
+		if (limit-- == 0)
 			throw new LimitException();
+		int i = inputStream.read();
+		if (i == -1) {
+			isComplete = true;
+			return -1;
 		}
-		return inputStream.read();
+		outputCache.write(i);
+		return i;
 	}
 
 	public boolean isComplete() {
 		return isComplete;
 	}
 
+	public void restartFromCache() {
+		inputCache = new ByteArrayInputStream(outputCache.toByteArray());
+	}
 }

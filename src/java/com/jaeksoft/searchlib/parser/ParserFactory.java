@@ -42,6 +42,7 @@ public class ParserFactory implements Comparable<ParserFactory> {
 	private String parserName;
 	private String className;
 	private long sizeLimit;
+	private String defaultCharset;
 
 	private Set<String> mimeTypeList;
 
@@ -50,13 +51,15 @@ public class ParserFactory implements Comparable<ParserFactory> {
 	private FieldMap fieldMap;
 
 	public ParserFactory(String parserName, String className, long sizeLimit,
-			FieldMap fieldMap) {
+			FieldMap fieldMap, String defaultCharset) {
 		this.parserName = parserName;
 		this.className = className;
 		if (this.className.indexOf('.') == -1)
 			this.className = "com.jaeksoft.searchlib.parser." + className;
 		this.sizeLimit = sizeLimit;
 		this.fieldMap = fieldMap;
+		this.defaultCharset = defaultCharset == null ? "US-ASCII"
+				: defaultCharset;
 		mimeTypeList = null;
 		extensionList = null;
 	}
@@ -66,6 +69,7 @@ public class ParserFactory implements Comparable<ParserFactory> {
 		Parser parser = (Parser) Class.forName(className).newInstance();
 		parser.setSizeLimit(sizeLimit);
 		parser.setFieldMap(fieldMap);
+		parser.setDefaultCharset(defaultCharset);
 		return parser;
 	}
 
@@ -79,6 +83,10 @@ public class ParserFactory implements Comparable<ParserFactory> {
 
 	public FieldMap getFieldMap() {
 		return fieldMap;
+	}
+
+	public String getDefaultCharset() {
+		return this.defaultCharset;
 	}
 
 	public void addExtension(String extension) {
@@ -111,8 +119,10 @@ public class ParserFactory implements Comparable<ParserFactory> {
 
 		FieldMap fieldMap = new FieldMap(xpp, xpp.getNode(parserNode, "map"));
 		long sizeLimit = XPathParser.getAttributeValue(parserNode, "sizeLimit");
+		String defaultCharset = XPathParser.getAttributeString(parserNode,
+				"defaultCharset");
 		ParserFactory parserFactory = new ParserFactory(parserName,
-				parserClassName, sizeLimit, fieldMap);
+				parserClassName, sizeLimit, fieldMap, defaultCharset);
 
 		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
 		for (int j = 0; j < mimeNodes.getLength(); j++) {

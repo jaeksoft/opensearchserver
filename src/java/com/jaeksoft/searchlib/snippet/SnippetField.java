@@ -311,6 +311,7 @@ public class SnippetField extends Field implements Externalizable {
 
 		if (values == null)
 			return false;
+
 		FragmenterAbstract fragmenter = fragmenterTemplate.newInstance();
 		TermVectorOffsetInfo currentVector = null;
 		Iterator<TermVectorOffsetInfo> vectorIterator = extractTermVectorIterator(
@@ -328,6 +329,7 @@ public class SnippetField extends Field implements Externalizable {
 				fragmenter.getFragments(value, fragments, vectorOffset++);
 				if (fragments.getTotalSize() > maxDocChar)
 					break;
+
 			}
 		}
 		if (fragments.size() == 0)

@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
 
+import javax.mail.internet.ContentType;
+import javax.mail.internet.ParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -231,23 +233,23 @@ public class HtmlParser extends Parser {
 		return StringEscapeUtils.unescapeHtml(content);
 	}
 
-	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	private static String getMetaHttpEquiv(List<Node> metas, String name) {
+		for (Node node : metas) {
+			String attr_http_equiv = DomUtils.getAttributeText(node,
+					"http-equiv");
+			if (name.equalsIgnoreCase(attr_http_equiv))
+				return getMetaContent(node);
+		}
+		return null;
+	}
 
-		String charset = getSourceDocument().getFieldValue(
-				UrlItemFieldEnum.contentTypeCharset.name(), 0);
-		if (charset == null)
-			charset = getSourceDocument().getFieldValue(
-					UrlItemFieldEnum.contentEncoding.name(), 0);
-		if (charset == null)
-			charset = "US-ASCII";
-		addField(ParserFieldEnum.charset, charset);
-
+	private Document htmlParserLine(String charset, LimitInputStream inputStream)
+			throws LimitException {
 		Document doc = null;
 		if (doc == null) {
 			try {
 				doc = tagSoupDomDocument(charset, inputStream);
+
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
@@ -285,13 +287,47 @@ public class HtmlParser extends Parser {
 				doc = null;
 			}
 		}
+		return doc;
+	}
 
+	@Override
+	protected void parseContent(LimitInputStream inputStream)
+			throws IOException {
+
+		String charset = getSourceDocument().getFieldValue(
+				UrlItemFieldEnum.contentTypeCharset.name(), 0);
+		if (charset == null)
+			charset = getSourceDocument().getFieldValue(
+					UrlItemFieldEnum.contentEncoding.name(), 0);
+		boolean charsetWasNull = charset == null;
+		if (charsetWasNull)
+			charset = getDefaultCharset();
+
+		Document doc = htmlParserLine(charset, inputStream);
 		if (doc == null)
 			return;
 
-		addField(ParserFieldEnum.title, getTitle(doc));
-
 		List<Node> metas = getMetas(doc);
+
+		if (charsetWasNull) {
+			String contentType = getMetaHttpEquiv(metas, "content-type");
+			if (contentType != null) {
+				try {
+					ContentType ct = new ContentType(contentType);
+					charset = ct.getParameter("charset");
+					if (charset != null) {
+						inputStream.restartFromCache();
+						doc = htmlParserLine(charset, inputStream);
+					}
+				} catch (ParseException e) {
+					throw new IOException(e);
+				}
+			}
+		}
+
+		addField(ParserFieldEnum.charset, charset);
+
+		addField(ParserFieldEnum.title, getTitle(doc));
 
 		String metaRobots = null;
 

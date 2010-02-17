@@ -45,6 +45,8 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.analysis.Analyzer;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -250,14 +252,21 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private static Document getLuceneDocument(Schema schema,
-			IndexDocument document) {
+			IndexDocument document) throws IOException {
+		schema.getQueryPerFieldAnalyzer(document.getLang());
 		org.apache.lucene.document.Document doc = new Document();
+		LanguageEnum lang = document.getLang();
 		for (FieldContent fieldContent : document) {
 			String fieldName = fieldContent.getField();
+			SchemaField field = schema.getFieldList().get(fieldName);
+			Analyzer analyzer = schema.getAnalyzer(field, lang);
 			for (String value : fieldContent.getValues()) {
-				SchemaField field = schema.getFieldList().get(fieldName);
-				if (field != null)
+				if (field != null) {
+					if (analyzer != null)
+						if (!analyzer.isAnyToken(fieldName, value))
+							continue;
 					doc.add(field.getLuceneField(value));
+				}
 			}
 		}
 		return doc;

@@ -46,11 +46,14 @@ public abstract class Parser {
 
 	private FieldMap fieldMap;
 
+	private String defaultCharset;
+
 	protected Parser(ParserFieldEnum[] fieldList) {
 		this.fieldList = fieldList;
 		sizeLimit = 0;
 		sourceDocument = null;
 		parserDocument = new IndexDocument();
+		defaultCharset = null;
 	}
 
 	public void setFieldMap(FieldMap fieldMap) {
@@ -130,7 +133,7 @@ public abstract class Parser {
 	public void parseContent(InputStream inputStream) throws IOException {
 		parseContent(new LimitInputStream(inputStream, sizeLimit));
 	}
-	
+
 	public void parseContent(Reader reader) throws IOException {
 		parseContent(new LimitReader(reader, sizeLimit));
 	}
@@ -159,6 +162,14 @@ public abstract class Parser {
 
 	public boolean equals(Parser one) {
 		return this.getClass().getName().equals(one.getClass().getName());
+	}
+
+	public void setDefaultCharset(String defaultCharset) {
+		this.defaultCharset = defaultCharset;
+	}
+
+	public String getDefaultCharset() {
+		return defaultCharset;
 	}
 
 }

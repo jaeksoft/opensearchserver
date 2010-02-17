@@ -31,7 +31,6 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 
@@ -42,7 +41,7 @@ public class SearchXmlRpc extends AbstractXmlRpc {
 			NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Client client = ClientCatalog.getClient(index);
+		ClientCatalog.getClient(index);
 		return null;
 	}
 

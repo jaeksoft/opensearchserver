@@ -87,6 +87,16 @@ public class Schema {
 		return fieldList;
 	}
 
+	public Analyzer getAnalyzer(SchemaField schemaField, LanguageEnum lang) {
+		String analyzerName = schemaField.getIndexAnalyzer();
+		if (analyzerName == null)
+			return null;
+		Analyzer analyzer = analyzers.get(analyzerName, lang);
+		if (analyzer == null)
+			analyzer = analyzers.get(analyzerName, null);
+		return analyzer;
+	}
+
 	public PerFieldAnalyzerWrapper getQueryPerFieldAnalyzer(LanguageEnum lang) {
 		synchronized (langQueryAnalyzers) {
 			if (lang == null)
@@ -97,14 +107,7 @@ public class Schema {
 				return pfa;
 			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer());
 			for (SchemaField field : fieldList) {
-				Analyzer analyzer = null;
-				String analyzerName = field.getIndexAnalyzer();
-				if (analyzerName != null) {
-					analyzer = analyzers.get(field.getIndexAnalyzer(), lang);
-					if (analyzer == null)
-						analyzer = analyzers
-								.get(field.getIndexAnalyzer(), null);
-				}
+				Analyzer analyzer = getAnalyzer(field, lang);
 				if (analyzer != null)
 					pfa.addAnalyzer(field.name, analyzer);
 			}
