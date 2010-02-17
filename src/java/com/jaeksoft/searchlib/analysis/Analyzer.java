@@ -139,6 +139,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 
 	public boolean isAnyToken(String fieldName, String value)
 			throws IOException {
+		if (tokenizer == null)
+			return false;
 		boolean anyToken = tokenStream(fieldName, new StringReader(value))
 				.incrementToken();
 		return anyToken;

@@ -91,6 +91,8 @@ public class Schema {
 		String analyzerName = schemaField.getIndexAnalyzer();
 		if (analyzerName == null)
 			return null;
+		if (analyzers == null)
+			return null;
 		Analyzer analyzer = analyzers.get(analyzerName, lang);
 		if (analyzer == null)
 			analyzer = analyzers.get(analyzerName, null);
