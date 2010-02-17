@@ -36,6 +36,7 @@ public class DayStatistics extends StatisticsAbstract {
 	@Override
 	public Aggregate newAggregate(long startTime) {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(startTime);
 		cal.set(Calendar.HOUR, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);

@@ -36,6 +36,7 @@ public class MinuteStatistics extends StatisticsAbstract {
 	@Override
 	public Aggregate newAggregate(long startTime) {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(startTime);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		startTime = cal.getTimeInMillis();
