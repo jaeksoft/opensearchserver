@@ -67,7 +67,7 @@ public abstract class StatisticsAbstract {
 		synchronized (aggregateList) {
 			long startTime = timer.getStartTime();
 			if (currentAggregate == null
-					|| startTime > currentAggregate.nextStart) {
+					|| startTime >= currentAggregate.nextStart) {
 				if (currentAggregate != null && writeToLog)
 					System.out.println(type + " - " + getPeriod().getName()
 							+ " - " + currentAggregate);

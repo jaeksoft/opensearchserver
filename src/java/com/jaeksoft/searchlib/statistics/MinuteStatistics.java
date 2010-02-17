@@ -38,6 +38,7 @@ public class MinuteStatistics extends StatisticsAbstract {
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
+		startTime = cal.getTimeInMillis();
 		cal.roll(Calendar.MINUTE, true);
 		return new Aggregate(startTime, cal.getTimeInMillis());
 	}

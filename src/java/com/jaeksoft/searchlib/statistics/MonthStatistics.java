@@ -41,6 +41,7 @@ public class MonthStatistics extends StatisticsAbstract {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
+		startTime = cal.getTimeInMillis();
 		cal.roll(Calendar.MONTH, true);
 		return new Aggregate(startTime, cal.getTimeInMillis());
 	}
