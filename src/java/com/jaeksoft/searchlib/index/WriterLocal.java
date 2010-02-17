@@ -259,9 +259,11 @@ public class WriterLocal extends WriterAbstract {
 		for (FieldContent fieldContent : document) {
 			String fieldName = fieldContent.getField();
 			SchemaField field = schema.getFieldList().get(fieldName);
-			Analyzer analyzer = schema.getAnalyzer(field, lang);
-			for (String value : fieldContent.getValues()) {
-				if (field != null) {
+			if (field != null) {
+				Analyzer analyzer = schema.getAnalyzer(field, lang);
+				for (String value : fieldContent.getValues()) {
+					if (value == null)
+						continue;
 					if (analyzer != null)
 						if (!analyzer.isAnyToken(fieldName, value))
 							continue;
