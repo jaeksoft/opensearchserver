@@ -42,7 +42,7 @@ public class DayStatistics extends StatisticsAbstract {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		startTime = cal.getTimeInMillis();
-		cal.roll(Calendar.DAY_OF_MONTH, true);
+		cal.add(Calendar.DAY_OF_MONTH, 1);
 		return new Aggregate(startTime, cal.getTimeInMillis());
 	}
 

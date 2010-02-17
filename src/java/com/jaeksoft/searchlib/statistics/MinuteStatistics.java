@@ -40,7 +40,7 @@ public class MinuteStatistics extends StatisticsAbstract {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		startTime = cal.getTimeInMillis();
-		cal.roll(Calendar.MINUTE, true);
+		cal.add(Calendar.MINUTE, 1);
 		return new Aggregate(startTime, cal.getTimeInMillis());
 	}
 
