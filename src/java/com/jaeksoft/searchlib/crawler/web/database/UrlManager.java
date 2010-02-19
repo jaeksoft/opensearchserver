@@ -146,6 +146,8 @@ public class UrlManager {
 
 	public void deleteUrl(String sUrl) throws SearchLibException {
 		try {
+			if (sUrl == null)
+				return;
 			targetClient.deleteDocument(sUrl);
 			urlDbClient.deleteDocument(sUrl);
 		} catch (CorruptIndexException e) {
