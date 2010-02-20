@@ -88,6 +88,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 	public void delete(CrawlStatistics currentStats, String url) {
 		r.lock();
 		try {
+			if (url == null)
+				return;
 			deleteUrlList.add(url);
 			currentStats.incPendingDeleteCount();
 		} finally {
