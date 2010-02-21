@@ -24,11 +24,16 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public class Timer {
 
 	private long startTime;
 	private long endTime;
 	private String info;
+	private String error;
 
 	public Timer(String info) {
 		reset();
@@ -37,6 +42,8 @@ public class Timer {
 	public void reset() {
 		startTime = System.currentTimeMillis();
 		endTime = 0;
+		info = null;
+		error = null;
 	}
 
 	public long getStartTime() {
@@ -63,6 +70,23 @@ public class Timer {
 		if (this.endTime == 0)
 			this.setEnd();
 		return this.endTime - this.startTime;
+	}
+
+	public void setError(Exception exception) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		exception.printStackTrace(pw);
+		pw.close();
+		try {
+			sw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.error = sw.toString();
+	}
+
+	public String getError() {
+		return this.error;
 	}
 
 }

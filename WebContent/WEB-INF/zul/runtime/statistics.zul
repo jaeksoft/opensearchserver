@@ -37,6 +37,9 @@
 						<listitem self="@{each='stat'}"
 							label="@{stat.period.name}" />
 					</listbox>
+					<space />
+					<checkbox label="Show last error"
+						checked="@{stats.showLastError}" />
 				</hbox>
 				<button label="refresh data" forward="onReload" />
 			</row>
@@ -49,7 +52,10 @@
 			<listheader width="50px" label="average" />
 			<listheader width="50px" label="min" />
 			<listheader width="50px" label="max" />
+			<listheader width="50px" label="error" />
 			<listheader label="max info" />
+			<listheader visible="@{stats.showLastError}"
+				label="last error" />
 		</listhead>
 		<listitem self="@{each='item'}">
 			<listcell label="@{item.startTime}" />
@@ -57,8 +63,12 @@
 			<listcell label="@{item.average}" />
 			<listcell label="@{item.min}" />
 			<listcell label="@{item.max}" />
+			<listcell label="@{item.error}" />
 			<listcell>
 				<label multiline="true" value="@{item.maxInfo}" />
+			</listcell>
+			<listcell visible="@{stats.showLastError}">
+				<label multiline="true" value="@{item.lastError}" />
 			</listcell>
 		</listitem>
 	</listbox>

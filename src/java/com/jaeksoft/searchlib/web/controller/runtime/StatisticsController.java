@@ -44,6 +44,8 @@ public class StatisticsController extends CommonController {
 
 	private List<StatisticsAbstract> statList;
 
+	private Boolean showLastError;
+
 	public StatisticsController() throws SearchLibException {
 		super();
 		reset();
@@ -53,6 +55,7 @@ public class StatisticsController extends CommonController {
 	public void reset() {
 		this.selectedType = StatisticTypeEnum.SEARCH;
 		selectedStat = null;
+		showLastError = null;
 		statList = null;
 	}
 
@@ -108,13 +111,26 @@ public class StatisticsController extends CommonController {
 		}
 	}
 
+	public boolean getShowLastError() {
+		synchronized (this) {
+			if (showLastError != null)
+				return showLastError;
+			showLastError = false;
+			return showLastError;
+		}
+	}
+
+	public void setShowLastError(boolean showLastError) {
+		synchronized (this) {
+			this.showLastError = showLastError;
+			reloadPage();
+		}
+	}
+
 	@Override
 	public void reloadPage() {
-		synchronized (this) {
-			selectedStat = null;
-			statList = null;
-			super.reloadPage();
-		}
+		statList = null;
+		super.reloadPage();
 	}
 
 }

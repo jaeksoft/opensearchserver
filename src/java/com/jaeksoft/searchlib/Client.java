@@ -288,10 +288,47 @@ public class Client extends Config {
 			ParseException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
-		searchRequest.init(this);
-		Result result = getIndex().search(searchRequest);
-		getStatisticsList().addSearch(searchRequest.getTimer());
-		return result;
+		Timer timer = null;
+		Exception exception = null;
+		try {
+			searchRequest.init(this);
+			timer = searchRequest.getTimer();
+			Result result = getIndex().search(searchRequest);
+			return result;
+		} catch (IOException e) {
+			exception = e;
+			throw e;
+		} catch (ParseException e) {
+			exception = e;
+			throw e;
+		} catch (SyntaxError e) {
+			exception = e;
+			throw e;
+		} catch (URISyntaxException e) {
+			exception = e;
+			throw e;
+		} catch (ClassNotFoundException e) {
+			exception = e;
+			throw e;
+		} catch (InterruptedException e) {
+			exception = e;
+			throw e;
+		} catch (SearchLibException e) {
+			exception = e;
+			throw e;
+		} catch (InstantiationException e) {
+			exception = e;
+			throw e;
+		} catch (IllegalAccessException e) {
+			exception = e;
+			throw e;
+		} finally {
+			if (timer != null) {
+				if (exception != null)
+					timer.setError(exception);
+				getStatisticsList().addSearch(timer);
+			}
+		}
 	}
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)

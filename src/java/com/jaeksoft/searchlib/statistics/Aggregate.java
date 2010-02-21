@@ -44,10 +44,15 @@ public class Aggregate {
 
 	protected volatile long nextStart;
 
+	private volatile long error;
+
+	private volatile String lastError;
+
 	protected Aggregate(long startTime, long nextStart) {
 		this.startTime = new Date(startTime);
 		this.nextStart = nextStart;
 		count = 0;
+		error = 0;
 		max = 0;
 		min = Long.MAX_VALUE;
 		avg = 0;
@@ -70,6 +75,11 @@ public class Aggregate {
 				avg = duration;
 				count++;
 			}
+			String err = timer.getError();
+			if (err != null) {
+				lastError = err;
+				error++;
+			}
 		}
 	}
 
@@ -79,6 +89,14 @@ public class Aggregate {
 
 	public long getMax() {
 		return max;
+	}
+
+	public long getError() {
+		return error;
+	}
+
+	public String getLastError() {
+		return lastError;
 	}
 
 	public String getMaxInfo() {
