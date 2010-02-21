@@ -561,12 +561,16 @@ public class UrlManager {
 
 	public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
 		try {
+			if (crawls == null)
+				return;
 			// Update target index
 			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
 					crawls.size());
 			List<String> documentsToDelete = new ArrayList<String>(crawls
 					.size());
 			for (Crawl crawl : crawls) {
+				if (crawl == null)
+					continue;
 				IndexDocument indexDocument = crawl.getTargetIndexDocument();
 				TargetStatus targetStatus = crawl.getUrlItem()
 						.getTargetResult();
@@ -583,6 +587,8 @@ public class UrlManager {
 			// Update URL DB
 			documentsToUpdate.clear();
 			for (Crawl crawl : crawls) {
+				if (crawl == null)
+					continue;
 				IndexDocument indexDocument = new IndexDocument();
 				crawl.getUrlItem().populate(indexDocument);
 				documentsToUpdate.add(indexDocument);
@@ -607,14 +613,19 @@ public class UrlManager {
 	public void updateUrlItems(List<UrlItem> urlItems)
 			throws SearchLibException {
 		try {
+			if (urlItems == null)
+				return;
 			List<IndexDocument> documents = new ArrayList<IndexDocument>(
 					urlItems.size());
 			for (UrlItem urlItem : urlItems) {
+				if (urlItem == null)
+					continue;
 				IndexDocument indexDocument = new IndexDocument();
 				urlItem.populate(indexDocument);
 				documents.add(indexDocument);
 			}
-			urlDbClient.updateDocuments(documents);
+			if (documents.size() > 0)
+				urlDbClient.updateDocuments(documents);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

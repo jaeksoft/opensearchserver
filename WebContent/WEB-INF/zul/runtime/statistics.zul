@@ -44,11 +44,12 @@
 	</grid>
 	<listbox model="@{stats.selectedStat.array}">
 		<listhead>
-			<listheader label="Period start time" />
-			<listheader label="count" />
-			<listheader label="average" />
-			<listheader label="min" />
-			<listheader label="max" />
+			<listheader width="150px" label="Period start time" />
+			<listheader width="50px" label="count" />
+			<listheader width="50px" label="average" />
+			<listheader width="50px" label="min" />
+			<listheader width="50px" label="max" />
+			<listheader label="max info" />
 		</listhead>
 		<listitem self="@{each='item'}">
 			<listcell label="@{item.startTime}" />
@@ -56,6 +57,9 @@
 			<listcell label="@{item.average}" />
 			<listcell label="@{item.min}" />
 			<listcell label="@{item.max}" />
+			<listcell>
+				<label multiline="true" value="@{item.maxInfo}" />
+			</listcell>
 		</listitem>
 	</listbox>
 </window>

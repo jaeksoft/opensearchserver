@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,8 @@ public class Aggregate {
 
 	private volatile long max;
 
+	private volatile String maxInfo;
+
 	private volatile long min;
 
 	private volatile float avg;
@@ -54,8 +56,10 @@ public class Aggregate {
 	protected void add(Timer timer) {
 		synchronized (this) {
 			long duration = timer.duration();
-			if (duration > max)
+			if (duration > max) {
 				max = duration;
+				maxInfo = timer.getInfo();
+			}
 			if (duration < min)
 				min = duration;
 			if (count != 0) {
@@ -75,6 +79,10 @@ public class Aggregate {
 
 	public long getMax() {
 		return max;
+	}
+
+	public String getMaxInfo() {
+		return maxInfo;
 	}
 
 	public long getCount() {

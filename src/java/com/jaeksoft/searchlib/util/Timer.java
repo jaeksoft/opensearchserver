@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,13 +28,10 @@ public class Timer {
 
 	private long startTime;
 	private long endTime;
+	private String info;
 
-	public Timer() {
+	public Timer(String info) {
 		reset();
-	}
-
-	public Timer(String name) {
-		this();
 	}
 
 	public void reset() {
@@ -52,6 +49,14 @@ public class Timer {
 
 	public void setEnd() {
 		this.endTime = System.currentTimeMillis();
+	}
+
+	public String getInfo() {
+		return info;
+	}
+
+	public void setInfo(String info) {
+		this.info = info;
 	}
 
 	public long duration() {

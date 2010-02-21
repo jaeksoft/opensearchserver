@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -144,7 +144,7 @@ public class SearchRequest implements Externalizable {
 		this.withSortValues = false;
 		this.reader = null;
 		this.queryParsed = null;
-		this.timer = new Timer();
+		this.timer = new Timer("Search request");
 		this.finalTime = 0;
 		this.debug = false;
 	}
@@ -228,7 +228,7 @@ public class SearchRequest implements Externalizable {
 			finalTime = 0;
 			if (timer != null)
 				timer.reset();
-			timer = new Timer();
+			timer = new Timer("Search request");
 		}
 	}
 
@@ -465,6 +465,10 @@ public class SearchRequest implements Externalizable {
 		sb.append(query);
 		sb.append(" IndexName: ");
 		sb.append(indexName);
+		sb.append(" Facet: " + getFacetFieldList().toString());
+		if (getCollapseMode() != CollapseMode.COLLAPSE_OFF)
+			sb.append(" Collapsing: " + getCollapseMode() + " "
+					+ getCollapseField() + "(" + getCollapseMax() + ")");
 		return sb.toString();
 	}
 

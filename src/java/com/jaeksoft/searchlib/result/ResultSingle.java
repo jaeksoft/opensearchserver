@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -110,6 +110,8 @@ public class ResultSingle extends Result {
 
 		if (searchRequest.isWithDocument())
 			setDocuments(reader.documents(new DocumentsRequest(this)));
+
+		searchRequest.getTimer().setInfo(searchRequest.toString());
 
 		if (debug != null)
 			debug.setInfo(this);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -73,7 +73,7 @@ public class Client extends Config {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Update document " + document.toString());
 		try {
 			return getIndex().updateDocument(getSchema(), document);
 		} finally {
@@ -85,7 +85,7 @@ public class Client extends Config {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Update document " + document.toString());
 		try {
 			return getIndex().updateDocument(indexName, getSchema(), document);
 		} finally {
@@ -97,7 +97,7 @@ public class Client extends Config {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Update " + documents.size() + " documents");
 		try {
 			return getIndex().updateDocuments(getSchema(), documents);
 		} finally {
@@ -110,7 +110,7 @@ public class Client extends Config {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Update " + documents.size() + " documents");
 		try {
 			return getIndex()
 					.updateDocuments(indexName, getSchema(), documents);
@@ -159,7 +159,7 @@ public class Client extends Config {
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Delete document " + uniqueField);
 		try {
 			return getIndex().deleteDocument(getSchema(), uniqueField);
 		} finally {
@@ -172,7 +172,7 @@ public class Client extends Config {
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Delete document " + uniqueField);
 		try {
 			return getIndex().deleteDocument(indexName, getSchema(),
 					uniqueField);
@@ -184,7 +184,7 @@ public class Client extends Config {
 	public boolean deleteDocument(int docId) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			SearchLibException, HttpException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Delete document " + docId);
 		try {
 			return getIndex().deleteDocument(docId);
 		} finally {
@@ -195,7 +195,7 @@ public class Client extends Config {
 	public boolean deleteDocument(String indexName, int docId)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, SearchLibException, HttpException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Delete document " + docId);
 		try {
 			return getIndex().deleteDocument(indexName, docId);
 		} finally {
@@ -208,7 +208,7 @@ public class Client extends Config {
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Delete " + uniqueFields.size() + " documents");
 		try {
 			return getIndex().deleteDocuments(getSchema(), uniqueFields);
 		} finally {
@@ -221,7 +221,7 @@ public class Client extends Config {
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Delete " + uniqueFields.size() + " documents");
 		try {
 			return getIndex().deleteDocuments(indexName, getSchema(),
 					uniqueFields);
@@ -233,7 +233,7 @@ public class Client extends Config {
 	public int deleteDocumentsById(Collection<Integer> docIds)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, SearchLibException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Delete " + docIds.size() + " documents");
 		try {
 			return getIndex().deleteDocuments(docIds);
 		} finally {
@@ -244,7 +244,7 @@ public class Client extends Config {
 	public int deleteDocumentsbyId(String indexName, Collection<Integer> docIds)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, SearchLibException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Delete " + docIds.size() + " documents");
 		try {
 			return getIndex().deleteDocuments(indexName, docIds);
 		} finally {
@@ -255,7 +255,7 @@ public class Client extends Config {
 	public void optimize(String indexName) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Optimize " + indexName);
 		try {
 			getIndex().optimize(indexName);
 		} finally {
@@ -266,7 +266,7 @@ public class Client extends Config {
 	public void reload(String indexName) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException {
-		Timer timer = new Timer();
+		Timer timer = new Timer("Reload " + indexName);
 		try {
 			getIndex().reload(indexName);
 		} finally {
