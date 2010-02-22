@@ -84,6 +84,8 @@ public class Mailer {
 	}
 
 	public static Mailer fromXmlConfig(Node node) {
+		if (node == null)
+			return null;
 		String smtp_host = XPathParser.getAttributeString(node, "smtp_host");
 		String username = XPathParser.getAttributeString(node, "username");
 		String password = XPathParser.getAttributeString(node, "password");
