@@ -26,8 +26,10 @@ package com.jaeksoft.searchlib.config;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class Mailer {
 
@@ -54,7 +56,8 @@ public class Mailer {
 			throws EmailException {
 		HtmlEmail htmlEmail = new HtmlEmail();
 		htmlEmail.setHostName(smtp_host);
-		if (username != null && password != null)
+		if (username != null && password != null && username.length() > 0
+				&& password.length() > 0)
 			htmlEmail.setAuthentication(username, password);
 		htmlEmail.setSSL(use_ssl);
 		htmlEmail.setSmtpPort(smtp_port);
@@ -67,6 +70,17 @@ public class Mailer {
 		if (subject != null)
 			htmlEmail.setSubject(subject);
 		return htmlEmail;
+	}
+
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("mailer", "smtp_host", smtp_host, "username",
+				username == null ? "" : username, "password",
+				password == null ? "" : password, "use_ssl", use_ssl ? "yes"
+						: "no", "smtp_port", smtp_port == 0 ? "25" : Integer
+						.toString(smtp_port), "from_email",
+				from_email == null ? "" : from_email, "from_name",
+				from_name == null ? "" : from_name);
+		writer.endElement();
 	}
 
 	public static Mailer fromXmlConfig(Node node) {

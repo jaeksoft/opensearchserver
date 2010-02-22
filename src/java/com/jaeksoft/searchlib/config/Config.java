@@ -178,7 +178,8 @@ public abstract class Config {
 	}
 
 	private void saveConfigWithoutLock() throws IOException,
-			TransformerConfigurationException, SAXException, SearchLibException {
+			TransformerConfigurationException, SAXException,
+			SearchLibException, XPathExpressionException {
 		ConfigFileRotation cfr = new ConfigFileRotation(indexDir, "config.xml");
 		if (!cfr.getTempFile().exists())
 			cfr.getTempFile().createNewFile();
@@ -191,6 +192,9 @@ public abstract class Config {
 			IndexPluginTemplateList iptl = getIndexPluginTemplateList();
 			if (iptl != null)
 				iptl.writeXmlConfig(xmlWriter);
+			getMailer();
+			if (mailer != null)
+				mailer.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
 			pw.close();
@@ -240,6 +244,8 @@ public abstract class Config {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
 			lock.unlock();
