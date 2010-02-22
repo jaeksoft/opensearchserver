@@ -125,6 +125,17 @@ public class StatisticsList {
 			return null;
 	}
 
+	public StatisticsAbstract getStat(StatisticTypeEnum type,
+			StatisticPeriodEnum period) {
+		List<StatisticsAbstract> stats = getStatList(type);
+		if (stats == null)
+			return null;
+		for (StatisticsAbstract stat : stats)
+			if (stat.getPeriod() == period)
+				return stat;
+		return null;
+	}
+
 	public static StatisticsList fromXmlConfig(XPathParser xpp, Node parentNode)
 			throws XPathExpressionException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, DOMException,

@@ -104,6 +104,10 @@
 		<servlet-name>Pattern</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.PatternServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>Report</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.ReportServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>Basket</servlet-name>
@@ -146,6 +150,10 @@
 	<servlet-mapping>
 		<servlet-name>Action</servlet-name>
 		<url-pattern>/action</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Report</servlet-name>
+		<url-pattern>/report</url-pattern>
 	</servlet-mapping>
 
 	<!--  XML RPC -->

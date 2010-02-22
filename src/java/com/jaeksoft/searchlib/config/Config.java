@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -128,6 +128,8 @@ public abstract class Config {
 	private File indexDir;
 
 	private final Lock lock = new ReentrantLock(true);
+
+	private Mailer mailer = null;
 
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists) throws SearchLibException {
@@ -339,6 +341,20 @@ public abstract class Config {
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	public Mailer getMailer() throws XPathExpressionException {
+		lock.lock();
+		try {
+			if (mailer != null)
+				return mailer;
+			mailer = Mailer.fromXmlConfig(xppConfig
+					.getNode("/configuration/mailer"));
+			return mailer;
+		} finally {
+			lock.unlock();
+		}
+
 	}
 
 	public IndexAbstract getIndex() {
