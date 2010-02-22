@@ -24,16 +24,12 @@
 
 package com.jaeksoft.searchlib.web;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.mail.HtmlEmail;
-import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -65,6 +61,7 @@ public class ReportServlet extends AbstractServlet {
 				statType, statPeriod);
 		if (statistics == null)
 			return;
+		pw.println("<html>");
 		pw.println("<p>" + statType + " - " + statPeriod.getName() + "</p>");
 		pw.println("<table cellpadding=\"1\" cellspacing=\"0\" border=\"1\">");
 		pw
@@ -80,6 +77,7 @@ public class ReportServlet extends AbstractServlet {
 			pw.println("</tr>");
 		}
 		pw.println("</table>");
+		pw.println("</html>");
 	}
 
 	@Override
@@ -101,42 +99,21 @@ public class ReportServlet extends AbstractServlet {
 				doStatistics(client, request.getParameter("stat"), request
 						.getParameter("period"), pw);
 			}
-			htmlEmail.setHtmlMsg(sw.toString());
-			htmlEmail.send();
+			pw.close();
+			sw.close();
+			String html = sw.toString();
+			if (html == null || html.length() == 0) {
+				transaction.addXmlResponse("Result", "Nothing to send");
+			} else {
+				htmlEmail.setHtmlMsg(sw.toString());
+				htmlEmail
+						.setTextMsg("Your email client does not support HTML messages");
+				htmlEmail.send();
+			}
 			transaction.addXmlResponse("MailSent", emails);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
-	public static void optimize(URI uri, String indexName)
-			throws HttpException, IOException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, "action=optimize"));
-	}
-
-	public static void reload(URI uri, String indexName) throws HttpException,
-			IOException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, "action=reload"));
-	}
-
-	public static void swap(URI uri, String indexName, long version,
-			boolean deleteOld) throws URISyntaxException, HttpException,
-			IOException {
-		StringBuffer query = new StringBuffer("action=swap");
-		query.append("&version=");
-		query.append(version);
-		if (deleteOld)
-			query.append("&deleteOld");
-		call(buildUri(uri, "/action", indexName, query.toString()));
-	}
-
-	public static void online(URI uri, String indexName) throws HttpException,
-			IOException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, "action=online"));
-	}
-
-	public static void offline(URI uri, String indexName) throws HttpException,
-			IOException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, "action=offline"));
-	}
 }
