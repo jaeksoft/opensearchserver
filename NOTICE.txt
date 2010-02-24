@@ -1,5 +1,5 @@
 Jaeksoft Open Search Server
-Copyright 2008-2009 Emmanuel Keller / Jaeksoft
+Copyright 2008-2010 Emmanuel Keller / Jaeksoft
 http://www.open-search-server.com
 
 Jaeksoft Open Search Server is free software: you can redistribute it and/or
@@ -46,7 +46,7 @@ http://ws.apache.org/xmlrpc/
 ----------------------------------------
 ZK DirectRIA by Potix Corporation
 http://www.zkoss.org/
-Rely on LICENSE-ZKOSS-GPL2
+Rely on GNU General Public License
 
 ----------------------------------------
 Javamail by Sun Microsystems, Inc.

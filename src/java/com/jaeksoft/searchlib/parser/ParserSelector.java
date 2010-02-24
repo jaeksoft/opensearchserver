@@ -64,6 +64,8 @@ public class ParserSelector {
 
 	public Parser getFileCrawlerDefaultParser() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+		if (fileCrawlerDefaultParserFactory == null)
+			return null;
 		return fileCrawlerDefaultParserFactory.getNewParser();
 	}
 
@@ -74,6 +76,8 @@ public class ParserSelector {
 
 	public Parser getWebCrawlerDefaultParser() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+		if (webCrawlerDefaultParserFactory == null)
+			return null;
 		return webCrawlerDefaultParserFactory.getNewParser();
 	}
 

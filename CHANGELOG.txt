@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.1.2
 
 New features:
+- 2958015: Add source archive
 - 2910029: Lucene read only support
 
 Bug fixes

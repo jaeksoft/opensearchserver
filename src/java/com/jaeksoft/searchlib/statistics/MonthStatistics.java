@@ -36,12 +36,14 @@ public class MonthStatistics extends StatisticsAbstract {
 	@Override
 	public Aggregate newAggregate(long startTime) {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(startTime);
 		cal.set(Calendar.DAY_OF_MONTH, 1);
 		cal.set(Calendar.HOUR, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
-		cal.roll(Calendar.MONTH, true);
+		startTime = cal.getTimeInMillis();
+		cal.add(Calendar.MONTH, 1);
 		return new Aggregate(startTime, cal.getTimeInMillis());
 	}
 
