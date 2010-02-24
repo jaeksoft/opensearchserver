@@ -2,7 +2,7 @@
 <!--   
 	License Agreement for Jaeksoft Open Search Server
 	
-	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
 	
 	http://www.open-search-server.com
 	
@@ -190,6 +190,7 @@
 	</target>
 
 	<target name="dist-src">
+		<mkdir dir="${dist}" />
 		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**" />
 	</target>
 

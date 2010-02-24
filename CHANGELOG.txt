@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 2958015: Add source archive
 - 2958005: Upgrade Apache HttpClient library to 4.0.1	
 - 2956498: Provide a way to send statistics report by email
 - 2953803: Upgrade to PDFBox 1.0	
