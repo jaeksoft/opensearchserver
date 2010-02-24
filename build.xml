@@ -189,6 +189,10 @@
 
 	</target>
 
+	<target name="dist-src">
+		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**" />
+	</target>
+
 	<target name="javadoc">
 		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" />
 	</target>

@@ -46,7 +46,7 @@ http://ws.apache.org/xmlrpc/
 ----------------------------------------
 ZK DirectRIA by Potix Corporation
 http://www.zkoss.org/
-Rely on LICENSE-ZKOSS-GPL2
+Rely on GPL
 
 ----------------------------------------
 Javamail by Sun Microsystems, Inc.
