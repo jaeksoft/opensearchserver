@@ -48,7 +48,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 public class CrawlThread extends CrawlThreadAbstract {
 
 	private Config config;
-	private CrawlMaster crawlMaster;
+	private WebCrawlMaster crawlMaster;
 	private UrlItem currentUrlItem;
 	private CrawlStatistics currentStats;
 	private long delayBetweenAccesses;
@@ -58,7 +58,7 @@ public class CrawlThread extends CrawlThreadAbstract {
 	private List<UrlItem> urlList;
 	private NamedItem host;
 
-	protected CrawlThread(Config config, CrawlMaster crawlMaster,
+	protected CrawlThread(Config config, WebCrawlMaster crawlMaster,
 			CrawlStatistics sessionStats, List<UrlItem> urlList, NamedItem host)
 			throws SearchLibException {
 		this.host = host;

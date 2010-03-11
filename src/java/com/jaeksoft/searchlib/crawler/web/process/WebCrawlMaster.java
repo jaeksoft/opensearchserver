@@ -52,7 +52,7 @@ import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
-public class CrawlMaster extends CrawlThreadAbstract {
+public class WebCrawlMaster extends CrawlThreadAbstract {
 
 	private final LinkedHashSet<CrawlThread> crawlThreads;
 
@@ -80,7 +80,7 @@ public class CrawlMaster extends CrawlThreadAbstract {
 
 	private int maxUrlPerHost;
 
-	public CrawlMaster(Config config) throws SearchLibException {
+	public WebCrawlMaster(Config config) throws SearchLibException {
 		this.config = config;
 		threadPool = Executors.newCachedThreadPool();
 		crawlThreads = new LinkedHashSet<CrawlThread>();
@@ -90,8 +90,11 @@ public class CrawlMaster extends CrawlThreadAbstract {
 		newHostList = new LinkedList<NamedItem>();
 		statistics = new LinkedList<CrawlStatistics>();
 		sessionStats = null;
-		if (config.getWebPropertyManager().getCrawlEnabled().getValue())
+		if (config.getWebPropertyManager().getCrawlEnabled().getValue()) {
+			System.out.println("Webcrawler is starting for "
+					+ config.getIndexDirectory().getName());
 			start();
+		}
 	}
 
 	public void start() {
@@ -352,11 +355,5 @@ public class CrawlMaster extends CrawlThreadAbstract {
 	@Override
 	public void complete() {
 	}
-
-	// UrlItem urlItem = new UrlItem();
-	// urlItem.setUrl(link);
-	// IndexDocument idxDoc = new IndexDocument();
-	// urlItem.populate(idxDoc);
-	// updateDocumentList.add(idxDoc);
 
 }

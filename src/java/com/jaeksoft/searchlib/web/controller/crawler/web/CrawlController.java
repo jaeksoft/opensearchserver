@@ -28,7 +28,7 @@ import java.io.IOException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
-import com.jaeksoft.searchlib.crawler.web.process.CrawlMaster;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CrawlController extends CommonController {
@@ -70,7 +70,7 @@ public class CrawlController extends CommonController {
 		return getClient().getWebPropertyManager();
 	}
 
-	public CrawlMaster getWebCrawlMaster() throws SearchLibException {
+	public WebCrawlMaster getWebCrawlMaster() throws SearchLibException {
 		return getClient().getWebCrawlMaster();
 	}
 

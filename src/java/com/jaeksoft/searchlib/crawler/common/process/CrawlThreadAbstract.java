@@ -104,6 +104,11 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		return isRunning() && isAbort();
 	}
 
+	public void waitForEnd() {
+		while (isRunning())
+			sleepMs(100);
+	}
+
 	protected void sleepMs(long ms) {
 		sleepMs(ms, true);
 	}

@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocuments;
+import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 
@@ -339,7 +340,26 @@ public class Client extends Config {
 	}
 
 	public void close() {
-		getIndex().close();
+		try {
+			getFileCrawlMaster().abort();
+			getWebCrawlMaster().abort();
+			getFileCrawlMaster().waitForEnd();
+			getWebCrawlMaster().waitForEnd();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			getIndex().close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			StatisticsList statList = getStatisticsList();
+			if (statList != null)
+				statList.save(getStatStorage());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

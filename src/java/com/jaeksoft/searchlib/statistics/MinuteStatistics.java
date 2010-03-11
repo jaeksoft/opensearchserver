@@ -24,13 +24,16 @@
 
 package com.jaeksoft.searchlib.statistics;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 
 public class MinuteStatistics extends StatisticsAbstract {
 
 	public MinuteStatistics(StatisticTypeEnum type, boolean writeToLog,
-			int maxRetention) {
-		super(type, writeToLog, maxRetention);
+			int maxRetention, File statDir) throws IOException,
+			ClassNotFoundException {
+		super(type, writeToLog, maxRetention, statDir);
 	}
 
 	@Override

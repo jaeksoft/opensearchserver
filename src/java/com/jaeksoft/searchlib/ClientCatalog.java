@@ -81,6 +81,36 @@ public class ClientCatalog {
 		}
 	}
 
+	public static final void openAll() {
+		w.lock();
+		try {
+
+			for (File indexFile : getClientCatalog()) {
+				System.out.println("OSS load index " + indexFile.getName());
+				getClient(indexFile);
+			}
+		} catch (SearchLibException e) {
+			e.printStackTrace();
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} finally {
+			w.unlock();
+		}
+	}
+
+	public static final void closeAll() {
+		w.lock();
+		try {
+			for (Client client : CLIENTS.values()) {
+				System.out.println("OSS unload index "
+						+ client.getIndexDirectory().getName());
+				client.close();
+			}
+		} finally {
+			w.unlock();
+		}
+	}
+
 	public static final Client getClient(String indexDirectoryName)
 			throws SearchLibException, NamingException {
 		return getClient(new File(OPENSEARCHSERVER_DATA, indexDirectoryName));

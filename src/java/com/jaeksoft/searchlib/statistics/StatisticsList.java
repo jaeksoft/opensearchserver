@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.statistics;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -136,10 +137,10 @@ public class StatisticsList {
 		return null;
 	}
 
-	public static StatisticsList fromXmlConfig(XPathParser xpp, Node parentNode)
-			throws XPathExpressionException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, DOMException,
-			IOException {
+	public static StatisticsList fromXmlConfig(XPathParser xpp,
+			Node parentNode, File statDir) throws XPathExpressionException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, DOMException, IOException {
 		StatisticsList stats = new StatisticsList();
 		if (parentNode == null)
 			return stats;
@@ -147,8 +148,24 @@ public class StatisticsList {
 		if (nodes == null)
 			return stats;
 		for (int i = 0; i < nodes.getLength(); i++)
-			stats.add(StatisticsAbstract.fromXmlConfig(xpp, nodes.item(i)));
+			stats.add(StatisticsAbstract.fromXmlConfig(xpp, nodes.item(i),
+					statDir));
 		return stats;
 	}
 
+	private void writeStatList(File statDir, List<StatisticsAbstract> list)
+			throws IOException {
+		for (StatisticsAbstract stat : list)
+			stat.save(statDir);
+	}
+
+	public void save(File statDir) throws IOException {
+		if (!statDir.exists())
+			statDir.mkdir();
+		writeStatList(statDir, searchList);
+		writeStatList(statDir, updateList);
+		writeStatList(statDir, deleteList);
+		writeStatList(statDir, optimizeList);
+		writeStatList(statDir, reloadList);
+	}
 }

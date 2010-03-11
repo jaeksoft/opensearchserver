@@ -57,7 +57,7 @@ import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
-import com.jaeksoft.searchlib.crawler.web.process.CrawlMaster;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
@@ -113,7 +113,7 @@ public abstract class Config {
 
 	private XPathParser xppConfig = null;
 
-	private CrawlMaster webCrawlMaster = null;
+	private WebCrawlMaster webCrawlMaster = null;
 
 	private CrawlFileMaster fileCrawlMaster = null;
 
@@ -151,6 +151,9 @@ public abstract class Config {
 			index = getIndex(indexDir, xppConfig, createIndexIfNotExists);
 			schema = Schema.fromXmlConfig(xppConfig
 					.getNode("/configuration/schema"), xppConfig);
+
+			getFileCrawlMaster();
+			getWebCrawlMaster();
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -291,12 +294,12 @@ public abstract class Config {
 		return schema;
 	}
 
-	public CrawlMaster getWebCrawlMaster() throws SearchLibException {
+	public WebCrawlMaster getWebCrawlMaster() throws SearchLibException {
 		lock.lock();
 		try {
 			if (webCrawlMaster != null)
 				return webCrawlMaster;
-			webCrawlMaster = new CrawlMaster(this);
+			webCrawlMaster = new WebCrawlMaster(this);
 			return webCrawlMaster;
 		} finally {
 			lock.unlock();
@@ -389,23 +392,34 @@ public abstract class Config {
 
 	}
 
+	protected File getStatStorage() {
+		return new File(getIndexDirectory(), "statstore");
+	}
+
 	public StatisticsList getStatisticsList() throws SearchLibException {
 		try {
 			if (statisticsList == null)
 				statisticsList = StatisticsList.fromXmlConfig(xppConfig,
-						xppConfig.getNode("/configuration/statistics"));
+						xppConfig.getNode("/configuration/statistics"),
+						getStatStorage());
 			return statisticsList;
 		} catch (XPathExpressionException e) {
+			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (DOMException e) {
+			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
+			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
+			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new SearchLibException(e);
 		}
 	}

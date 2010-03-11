@@ -24,11 +24,16 @@
 
 package com.jaeksoft.searchlib.statistics;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Date;
 
+import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class Aggregate {
+public class Aggregate implements Externalizable {
 
 	private volatile Date startTime;
 
@@ -47,6 +52,10 @@ public class Aggregate {
 	private volatile long error;
 
 	private volatile String lastError;
+
+	protected Aggregate() {
+
+	}
 
 	protected Aggregate(long startTime, long nextStart) {
 		this.startTime = new Date(startTime);
@@ -132,5 +141,32 @@ public class Aggregate {
 		sb.append(" - Max:");
 		sb.append(max);
 		return sb.toString();
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		startTime = new Date(in.readLong());
+		count = in.readLong();
+		max = in.readLong();
+		maxInfo = External.readUTF(in);
+		min = in.readLong();
+		avg = in.readFloat();
+		nextStart = in.readLong();
+		error = in.readLong();
+		lastError = External.readUTF(in);
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeLong(startTime.getTime());
+		out.writeLong(count);
+		out.writeLong(max);
+		External.writeUTF(maxInfo, out);
+		out.writeLong(min);
+		out.writeFloat(avg);
+		out.writeLong(nextStart);
+		out.writeLong(error);
+		External.writeUTF(lastError, out);
 	}
 }

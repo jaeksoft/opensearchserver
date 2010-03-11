@@ -155,6 +155,9 @@
 		<servlet-name>Report</servlet-name>
 		<url-pattern>/report</url-pattern>
 	</servlet-mapping>
+	<listener>
+		<listener-class>com.jaeksoft.searchlib.web.StartStopListener</listener-class>
+	</listener>
 
 	<!--  XML RPC -->
 	<servlet>
