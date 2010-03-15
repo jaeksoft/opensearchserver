@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
@@ -34,10 +35,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.NamingException;
 import javax.servlet.ServletRequest;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.template.TemplateAbstract;
+import com.jaeksoft.searchlib.user.UserList;
+import com.jaeksoft.searchlib.util.ConfigFileRotation;
+import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ClientCatalog {
 
@@ -50,6 +59,8 @@ public class ClientCatalog {
 			true);
 	private static final Lock r = rwl.readLock();
 	private static final Lock w = rwl.writeLock();
+
+	private UserList userList = null;
 
 	private static final Client getClient(File indexDirectory)
 			throws SearchLibException, NamingException {
@@ -113,7 +124,7 @@ public class ClientCatalog {
 
 	public static final Client getClient(String indexDirectoryName)
 			throws SearchLibException, NamingException {
-		return getClient(new File(OPENSEARCHSERVER_DATA, indexDirectoryName));
+		return getClient(new File(getDataDir(), indexDirectoryName));
 	}
 
 	public static final Client getClient(ServletRequest request)
@@ -122,13 +133,18 @@ public class ClientCatalog {
 
 	}
 
-	public static final File[] getClientCatalog() throws SearchLibException {
+	public static File getDataDir() throws SearchLibException {
 		if (OPENSEARCHSERVER_DATA == null)
 			throw new SearchLibException("OPENSEARCHSERVER_DATA is not defined");
 		File dataDir = new File(OPENSEARCHSERVER_DATA);
 		if (!dataDir.exists())
 			throw new SearchLibException("Data directory does not exists ("
 					+ dataDir + ")");
+		return dataDir;
+	}
+
+	public static final File[] getClientCatalog() throws SearchLibException {
+		File dataDir = getDataDir();
 		return dataDir.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
 	}
 
@@ -144,8 +160,7 @@ public class ClientCatalog {
 			throws SearchLibException, IOException {
 		w.lock();
 		try {
-			File dataDir = new File(OPENSEARCHSERVER_DATA);
-			File indexDir = new File(dataDir, indexName);
+			File indexDir = new File(getDataDir(), indexName);
 			if (indexDir.exists())
 				throw new SearchLibException("directory " + indexName
 						+ " already exists");
@@ -155,4 +170,45 @@ public class ClientCatalog {
 		}
 
 	}
+
+	public UserList getUserList() throws ParserConfigurationException,
+			SAXException, IOException, XPathExpressionException,
+			SearchLibException {
+		r.lock();
+		try {
+			if (userList == null) {
+				File userFile = new File(getDataDir(), "users.xml");
+				if (userFile.exists()) {
+					XPathParser xpp = new XPathParser(userFile);
+					userList = UserList.fromXml(xpp, xpp.getNode("/users"));
+				}
+			}
+			return userList;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void saveUserList() throws IOException,
+			TransformerConfigurationException, SAXException,
+			XPathExpressionException, ParserConfigurationException,
+			SearchLibException {
+		PrintWriter pw = null;
+		w.lock();
+		try {
+			ConfigFileRotation cfr = new ConfigFileRotation(getDataDir(),
+					"users.xml");
+			pw = cfr.getTempPrintWriter();
+			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			getUserList().writeXml(xmlWriter);
+			xmlWriter.endDocument();
+			cfr.rotate();
+		} finally {
+			w.unlock();
+			if (pw != null)
+				pw.close();
+		}
+
+	}
+
 }

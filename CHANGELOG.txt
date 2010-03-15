@@ -9,7 +9,9 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 2970747: Upgrade Tomcat to version 6.0.26
 - 2966139: Statistics lost when OSS restart
+- 2964704: Upgrade to Lucene 2.9.2
 - 2958015: Add source archive
 - 2958005: Upgrade Apache HttpClient library to 4.0.1	
 - 2956498: Provide a way to send statistics report by email
@@ -21,9 +23,8 @@ New features:
 - 2929332: Faceting post collapsing
 - 2900462: Upgrade POI to 3.5 for xlsx and docs support
 - 2900449: Upgrade PDFBox to 0.8
-- 2888788: Upgrade Lucene to release 2.9.x
 
-Buf fixes:
+Bug fixes:
 - 2934214: Shifted highlighting on snippet
 
 Open Search Server 1.1.2
