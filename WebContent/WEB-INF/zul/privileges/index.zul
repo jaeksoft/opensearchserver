@@ -1,0 +1,105 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="privileges"
+	use="com.jaeksoft.searchlib.web.controller.PrivilegesController">
+	<panel title="@{privileges.currentEditMode}" border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" width="100px" />
+					<column align="left" width="200px" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="User name: " />
+						<textbox value="@{privileges.user.name}"
+							readonly="@{privileges.selected}" width="95%" />
+						<label
+							value="Choose a name for the user that will be created" />
+					</row>
+					<row>
+						<label value="Password: " />
+						<textbox type="password"
+							value="@{privileges.user.password}" width="95%" />
+						<label
+							value="Choose a password for the user that will be created" />
+					</row>
+					<row>
+						<label value="Confirm password: " />
+						<textbox type="password"
+							value="@{privileges.confirmPassword}" width="95%" />
+						<label value="Retype the password" />
+					</row>
+					<row>
+						<label value="Is admin: " />
+						<checkbox checked="@{privileges.user.admin}" />
+						<label
+							value="Check the box if the user is admin" />
+					</row>
+					<row>
+						<label
+							value="Add privileges on following index: " />
+						<hbox>
+							<listbox mold="select"
+								selectedItem="@{privileges.selectedIndex}"
+								model="@{privileges.indexList}" />
+							<listbox mold="select"
+								selectedItem="@{privileges.selectedRole}"
+								model="@{privileges.roles}" />
+						</hbox>
+						<button label="Add" forward="onAddPrivilege" />
+					</row>
+				</rows>
+			</grid>
+			<listbox model="@{privileges.user.roles}"
+				itemRenderer="@{privileges}"
+				selectedItem="@{privileges.selectedIndexRole}">
+				<listhead>
+					<listheader label="Index" />
+					<listheader label="Role" />
+					<listheader />
+				</listhead>
+			</listbox>
+			<vbox width="100%" align="right">
+				<hbox visible="@{privileges.selected}">
+					<button label="Cancel" forward="onCancel" />
+					<space width="10px" />
+					<button label="Save" forward="onSave" />
+					<space width="30px" />
+					<button label="Delete" forward="onDelete" />
+				</hbox>
+				<hbox visible="@{privileges.notSelected}">
+					<button label="Create" forward="onSave" />
+				</hbox>
+			</vbox>
+		</panelchildren>
+	</panel>
+	<separator height="10" />
+	<panel title="List of existing users - click on an user to edit it"
+		border="normal">
+		<toolbar>
+			<button label="Refresh" forward="onListRefresh" />
+		</toolbar>
+		<panelchildren>
+			<listbox selectedItem="@{privileges.selectedUserName}"
+				model="@{privileges.userNameSet}" />
+		</panelchildren>
+	</panel>
+
+</window>

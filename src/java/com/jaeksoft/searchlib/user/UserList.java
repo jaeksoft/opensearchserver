@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.user;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -46,29 +47,44 @@ public class UserList {
 
 	private Map<String, User> users;
 
-	private UserList() {
+	public UserList() {
 		users = new TreeMap<String, User>();
 	}
 
-	private void add(User user) {
+	public boolean add(User user) {
 		w.lock();
 		try {
+			if (users.containsKey(user.getName()))
+				return false;
 			users.put(user.getName(), user);
+			return true;
 		} finally {
 			w.unlock();
 		}
 	}
 
-	public User create(String name, String password) {
-		User user = new User(name, password);
-		add(user);
-		return user;
+	public boolean remove(String selectedUserName) {
+		w.lock();
+		try {
+			return users.remove(selectedUserName) != null;
+		} finally {
+			w.unlock();
+		}
 	}
 
 	public User get(String name) {
 		r.lock();
 		try {
 			return users.get(name);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public Set<String> getUserNameSet() {
+		r.lock();
+		try {
+			return users.keySet();
 		} finally {
 			r.unlock();
 		}
@@ -86,7 +102,7 @@ public class UserList {
 			User user = User.fromXml(xpp, nodes.item(i));
 			userList.add(user);
 		}
-		return null;
+		return userList;
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
@@ -100,4 +116,5 @@ public class UserList {
 			r.unlock();
 		}
 	}
+
 }

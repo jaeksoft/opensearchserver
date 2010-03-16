@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -60,7 +60,7 @@ public class ClientCatalog {
 	private static final Lock r = rwl.readLock();
 	private static final Lock w = rwl.writeLock();
 
-	private UserList userList = null;
+	private static UserList userList = null;
 
 	private static final Client getClient(File indexDirectory)
 			throws SearchLibException, NamingException {
@@ -171,9 +171,7 @@ public class ClientCatalog {
 
 	}
 
-	public UserList getUserList() throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException,
-			SearchLibException {
+	public static UserList getUserList() throws SearchLibException {
 		r.lock();
 		try {
 			if (userList == null) {
@@ -181,18 +179,24 @@ public class ClientCatalog {
 				if (userFile.exists()) {
 					XPathParser xpp = new XPathParser(userFile);
 					userList = UserList.fromXml(xpp, xpp.getNode("/users"));
-				}
+				} else
+					userList = new UserList();
 			}
 			return userList;
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void saveUserList() throws IOException,
-			TransformerConfigurationException, SAXException,
-			XPathExpressionException, ParserConfigurationException,
-			SearchLibException {
+	public static void saveUserList() throws SearchLibException {
 		PrintWriter pw = null;
 		w.lock();
 		try {
@@ -203,12 +207,17 @@ public class ClientCatalog {
 			getUserList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
 		} finally {
 			w.unlock();
 			if (pw != null)
 				pw.close();
 		}
-
 	}
 
 }

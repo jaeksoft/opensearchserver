@@ -23,8 +23,8 @@
  **/
 package com.jaeksoft.searchlib.user;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -46,47 +46,77 @@ public class User implements Comparable<User> {
 
 	private String name;
 	private String password;
-	private Map<String, Roles> rolesMap;
+	private Set<IndexRole> indexRoles;
+	private boolean isAdmin;
 
-	public User(String name, String password) {
-		this.name = name;
-		this.password = password;
-		this.rolesMap = new TreeMap<String, Roles>();
+	public User() {
+		indexRoles = new TreeSet<IndexRole>();
 	}
 
-	public boolean hasRole(Client client, Role role) {
+	public User(String name, String password, boolean isAdmin) {
+		this();
+		this.name = name;
+		this.password = password;
+		this.isAdmin = isAdmin;
+	}
+
+	public User(User user) {
+		this();
+		user.copyTo(this);
+	}
+
+	public void copyTo(User user) {
 		r.lock();
 		try {
-			Roles roles = rolesMap.get(client.getIndexDirectory().getName());
-			if (roles == null)
-				return false;
-			return roles.get(role);
+			user.setName(name);
+			user.setPassword(password);
+			user.setAdmin(isAdmin);
+			for (IndexRole indexRole : indexRoles)
+				user.addRole(indexRole);
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public void addRole(Client client, Role role) {
+	public boolean hasRole(Client client, Role role) {
+		r.lock();
+		try {
+			if (isAdmin)
+				return true;
+			return indexRoles.contains(new IndexRole(client, role));
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void addRole(IndexRole indexRole) {
 		w.lock();
 		try {
-			String indexName = client.getIndexDirectory().getName();
-			Roles roles = rolesMap.get(indexName);
-			if (roles == null) {
-				roles = new Roles(null);
-				rolesMap.put(indexName, roles);
-			}
-			roles.add(role);
+			indexRoles.add(indexRole);
 		} finally {
 			w.unlock();
 		}
 	}
 
-	private void setRoles(Roles roles) {
+	public void removeRole(IndexRole indexRole) {
 		w.lock();
 		try {
-			rolesMap.put(roles.getIndexName(), roles);
+			indexRoles.remove(indexRole);
 		} finally {
 			w.unlock();
+		}
+	}
+
+	public void addRole(String indexName, String roleName) {
+		addRole(new IndexRole(indexName, roleName));
+	}
+
+	public Set<IndexRole> getRoles() {
+		r.lock();
+		try {
+			return indexRoles;
+		} finally {
+			r.unlock();
 		}
 	}
 
@@ -98,14 +128,16 @@ public class User implements Comparable<User> {
 		String password = XPathParser.getAttributeString(node, "password");
 		if (name == null || password == null)
 			return null;
-		User user = new User(name, password);
+		boolean isAdmin = "yes".equalsIgnoreCase(XPathParser
+				.getAttributeString(node, "isAdmin"));
+		User user = new User(name, password, isAdmin);
 		NodeList nodes = xpp.getNodeList(node, "roles");
 		if (nodes != null) {
 			int l = nodes.getLength();
 			for (int i = 0; i < l; i++) {
-				Roles roles = Roles.fromXml(xpp, nodes.item(i));
-				if (roles != null)
-					user.setRoles(roles);
+				IndexRole indexRole = IndexRole.fromXml(xpp, nodes.item(i));
+				if (indexRole != null)
+					user.addRole(indexRole);
 			}
 		}
 		return user;
@@ -114,9 +146,10 @@ public class User implements Comparable<User> {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		r.lock();
 		try {
-			xmlWriter.startElement("user", "name", name, "password", password);
-			for (Roles roles : rolesMap.values())
-				roles.writeXml(xmlWriter);
+			xmlWriter.startElement("user", "name", name, "password", password,
+					"isAdmin", isAdmin ? "yes" : "no");
+			for (IndexRole indexRole : indexRoles)
+				indexRole.writeXml(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
 			r.unlock();
@@ -134,6 +167,51 @@ public class User implements Comparable<User> {
 			return name;
 		} finally {
 			r.unlock();
+		}
+	}
+
+	public void setName(String name) {
+		w.lock();
+		try {
+			this.name = name;
+		} finally {
+			w.unlock();
+		}
+	}
+
+	public String getPassword() {
+		r.lock();
+		try {
+			return password;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void setPassword(String password) {
+		w.lock();
+		try {
+			this.password = password;
+		} finally {
+			w.unlock();
+		}
+	}
+
+	public boolean isAdmin() {
+		r.lock();
+		try {
+			return isAdmin;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void setAdmin(boolean isAdmin) {
+		w.lock();
+		try {
+			this.isAdmin = isAdmin;
+		} finally {
+			w.unlock();
 		}
 	}
 
