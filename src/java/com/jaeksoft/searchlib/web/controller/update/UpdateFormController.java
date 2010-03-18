@@ -39,6 +39,7 @@ import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Textbox;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.FieldContent;
@@ -74,7 +75,10 @@ public class UpdateFormController extends CommonController implements
 
 	public List<SchemaField> getFieldList() throws SearchLibException {
 		synchronized (this) {
-			List<SchemaField> list = getClient().getSchema().getFieldList()
+			Client client = getClient();
+			if (client == null)
+				return null;
+			List<SchemaField> list = client.getSchema().getFieldList()
 					.getList();
 			if (list.size() > 0 && selectedField == null)
 				selectedField = list.get(0);

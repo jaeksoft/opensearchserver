@@ -30,6 +30,7 @@ import java.util.List;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.RowRenderer;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -72,7 +73,10 @@ public class SpellCheckController extends QueryController {
 
 	public boolean isFieldLeft() throws SearchLibException {
 		synchronized (this) {
-			return getSpellCheckFieldLeft().size() > 0;
+			List<String> list = getSpellCheckFieldLeft();
+			if (list == null)
+				return false;
+			return list.size() > 0;
 		}
 	}
 
@@ -80,10 +84,13 @@ public class SpellCheckController extends QueryController {
 		synchronized (this) {
 			if (fieldLeft != null)
 				return fieldLeft;
+			Client client = getClient();
+			if (client == null)
+				return null;
 			fieldLeft = new ArrayList<String>();
 			FieldList<SpellCheckField> spellCheckFields = getRequest()
 					.getSpellCheckFieldList();
-			for (SchemaField field : getClient().getSchema().getFieldList())
+			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
 					if (spellCheckFields.get(field.getName()) == null) {
 						if (selectedField == null)

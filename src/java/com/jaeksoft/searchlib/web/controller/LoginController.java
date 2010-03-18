@@ -24,44 +24,47 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.zkoss.zk.ui.WrongValueException;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zul.Messagebox;
+import org.zkoss.zul.Textbox;
 
-import javax.naming.NamingException;
-
-import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.IndexAbstract;
-import com.jaeksoft.searchlib.index.IndexGroup;
+import com.jaeksoft.searchlib.user.User;
 
-public class ConfigurationController extends CommonController {
+public class LoginController extends CommonController {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 9015134975380671501L;
+	private static final long serialVersionUID = 2918395323961861472L;
 
-	public ConfigurationController() throws SearchLibException {
+	public LoginController() throws SearchLibException {
 		super();
+		reset();
+	}
+
+	public void onLogin(Event event) throws WrongValueException,
+			SearchLibException, InterruptedException {
+		Textbox teLogin = (Textbox) getFellow("login");
+		Textbox tePassword = (Textbox) getFellow("password");
+		User user = ClientCatalog.authenticate(teLogin.getValue(), tePassword
+				.getValue());
+		if (user == null) {
+			Thread.sleep(2000);
+			Messagebox.show("Authentication failed",
+					"Jaeksoft OpenSearchServer", Messagebox.OK,
+					org.zkoss.zul.Messagebox.EXCLAMATION);
+			return;
+		}
+		setAttribute(ScopeAttribute.LOGGED_USER, user);
+		reloadDesktop();
 	}
 
 	@Override
 	public void reset() {
-	}
+		// TODO Auto-generated method stub
 
-	public List<IndexAbstract> getIndices() throws SearchLibException,
-			NamingException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		List<IndexAbstract> list = new ArrayList<IndexAbstract>();
-		IndexAbstract index = client.getIndex();
-		if (index instanceof IndexGroup) {
-			for (IndexAbstract idx : ((IndexGroup) index).getIndices())
-				list.add(idx);
-		} else
-			list.add(index);
-		return list;
 	}
-
 }

@@ -30,6 +30,7 @@ import java.util.List;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.RowRenderer;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -73,18 +74,24 @@ public class SnippetController extends QueryController {
 
 	public boolean isFieldLeft() throws SearchLibException {
 		synchronized (this) {
-			return getSnippetFieldLeft().size() > 0;
+			List<String> list = getSnippetFieldLeft();
+			if (list == null)
+				return false;
+			return list.size() > 0;
 		}
 	}
 
 	public List<String> getSnippetFieldLeft() throws SearchLibException {
 		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
 			if (snippetFieldLeft != null)
 				return snippetFieldLeft;
 			snippetFieldLeft = new ArrayList<String>();
 			FieldList<SnippetField> snippetFields = getRequest()
 					.getSnippetFieldList();
-			for (SchemaField field : getClient().getSchema().getFieldList())
+			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isStored())
 					if (field.getTermVector() == TermVector.POSITIONS_OFFSETS)
 						if (snippetFields.get(field.getName()) == null) {

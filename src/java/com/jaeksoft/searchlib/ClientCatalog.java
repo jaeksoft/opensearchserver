@@ -43,6 +43,7 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.template.TemplateAbstract;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
 import com.jaeksoft.searchlib.util.ConfigFileRotation;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -220,4 +221,18 @@ public class ClientCatalog {
 		}
 	}
 
+	public static User authenticate(String login, String password)
+			throws SearchLibException {
+		r.lock();
+		try {
+			User user = getUserList().get(login);
+			if (user == null)
+				return null;
+			if (!user.authenticate(password))
+				return null;
+			return user;
+		} finally {
+			r.unlock();
+		}
+	}
 }

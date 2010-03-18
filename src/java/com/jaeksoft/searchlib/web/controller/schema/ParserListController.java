@@ -39,6 +39,7 @@ import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.parser.ParserFactory;
@@ -74,7 +75,10 @@ public class ParserListController extends CommonController implements
 
 	public Set<ParserFactory> getParserSet() {
 		try {
-			return getClient().getParserSelector().getParserFactorySet();
+			Client client = getClient();
+			if (client == null)
+				return null;
+			return client.getParserSelector().getParserFactorySet();
 		} catch (SearchLibException e) {
 			throw new RuntimeException(e);
 		}
@@ -119,7 +123,10 @@ public class ParserListController extends CommonController implements
 
 	public List<SchemaField> getIndexFieldList() throws SearchLibException {
 		synchronized (this) {
-			List<SchemaField> list = getClient().getSchema().getFieldList()
+			Client client = getClient();
+			if (client == null)
+				return null;
+			List<SchemaField> list = client.getSchema().getFieldList()
 					.getList();
 			if (list.size() > 0 && selectedIndexField == null)
 				selectedIndexField = list.get(0);

@@ -35,6 +35,7 @@ import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.Selector;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
@@ -119,7 +120,10 @@ public class PatternController extends CommonController implements
 			if (patternList != null)
 				return patternList;
 			try {
-				PatternManager patternManager = getClient().getPatternManager();
+				Client client = getClient();
+				if (client == null)
+					return null;
+				PatternManager patternManager = client.getPatternManager();
 				patternList = new ArrayList<PatternItem>();
 				totalSize = patternManager.getPatterns(like, getActivePage()
 						* getPageSize(), getPageSize(), patternList);

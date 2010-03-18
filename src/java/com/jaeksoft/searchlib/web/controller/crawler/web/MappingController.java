@@ -37,6 +37,7 @@ import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -67,8 +68,11 @@ public class MappingController extends CommonController implements
 
 	public List<SchemaField> getUrlFieldList() throws SearchLibException {
 		synchronized (this) {
-			List<SchemaField> list = getClient().getUrlManager()
-					.getUrlDbClient().getSchema().getFieldList().getList();
+			Client client = getClient();
+			if (client == null)
+				return null;
+			List<SchemaField> list = client.getUrlManager().getUrlDbClient()
+					.getSchema().getFieldList().getList();
 			if (list.size() > 0 && selectedUrlField == null)
 				selectedUrlField = list.get(0);
 			return list;
@@ -77,7 +81,10 @@ public class MappingController extends CommonController implements
 
 	public List<SchemaField> getIndexFieldList() throws SearchLibException {
 		synchronized (this) {
-			List<SchemaField> list = getClient().getSchema().getFieldList()
+			Client client = getClient();
+			if (client == null)
+				return null;
+			List<SchemaField> list = client.getSchema().getFieldList()
 					.getList();
 			if (list.size() > 0 && selectedIndexField == null)
 				selectedIndexField = list.get(0);
@@ -111,7 +118,10 @@ public class MappingController extends CommonController implements
 
 	public FieldMap getFieldMap() {
 		try {
-			return getClient().getWebCrawlerFieldMap();
+			Client client = getClient();
+			if (client == null)
+				return null;
+			return client.getWebCrawlerFieldMap();
 		} catch (SearchLibException e) {
 			throw new RuntimeException(e);
 		}

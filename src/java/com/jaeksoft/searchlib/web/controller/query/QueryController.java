@@ -88,7 +88,10 @@ public class QueryController extends CommonController {
 	}
 
 	public Set<String> getRequests() throws SearchLibException {
-		SearchRequestMap searchRequestMap = getClient().getSearchRequestMap();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		SearchRequestMap searchRequestMap = client.getSearchRequestMap();
 		Set<String> set = searchRequestMap.getNameList();
 		if (selectedRequestName == null
 				|| searchRequestMap.get(selectedRequestName) == null) {

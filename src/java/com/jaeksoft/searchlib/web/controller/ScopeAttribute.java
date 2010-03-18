@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Sessions;
 
 public enum ScopeAttribute {
 
@@ -36,7 +37,9 @@ public enum ScopeAttribute {
 
 	UPDATE_FORM_INDEX_DOCUMENT(Component.SESSION_SCOPE),
 
-	CURRENT_CLIENT(Component.SESSION_SCOPE);
+	CURRENT_CLIENT(Component.SESSION_SCOPE),
+
+	LOGGED_USER(Component.SESSION_SCOPE);
 
 	private int scope;
 
@@ -45,11 +48,29 @@ public enum ScopeAttribute {
 	}
 
 	public void set(Component component, Object value) {
-		component.setAttribute(name(), value, scope);
+		switch (scope) {
+		case Component.SESSION_SCOPE:
+			if (value == null)
+				Sessions.getCurrent().removeAttribute(name());
+			else
+				Sessions.getCurrent().setAttribute(name(), value);
+			break;
+		default:
+			if (value == null)
+				component.removeAttribute(name());
+			else
+				component.setAttribute(name(), value, scope);
+			break;
+		}
 	}
 
 	public Object get(Component component) {
-		return component.getAttribute(name(), scope);
+		switch (scope) {
+		case Component.SESSION_SCOPE:
+			return Sessions.getCurrent().getAttribute(name());
+		default:
+			return component.getAttribute(name(), scope);
+		}
 	}
 
 }

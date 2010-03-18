@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
@@ -66,11 +67,17 @@ public class CrawlFileController extends CommonController {
 	}
 
 	public FilePropertyManager getProperties() throws SearchLibException {
-		return getClient().getFilePropertyManager();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getFilePropertyManager();
 	}
 
 	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {
-		return getClient().getFileCrawlMaster();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getFileCrawlMaster();
 	}
 
 	public boolean isRefresh() throws SearchLibException {

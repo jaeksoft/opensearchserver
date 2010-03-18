@@ -139,8 +139,11 @@ public class FieldsController extends CommonController {
 
 	public List<SchemaField> getSortedList() throws SearchLibException {
 		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
 			if (schemaFieldList == null)
-				schemaFieldList = getClient().getSchema().getFieldList()
+				schemaFieldList = client.getSchema().getFieldList()
 						.getSortedList();
 			return schemaFieldList;
 		}
@@ -153,11 +156,14 @@ public class FieldsController extends CommonController {
 
 	public List<String> getIndexedFields() throws SearchLibException {
 		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
 			if (indexedFields != null)
 				return indexedFields;
 			indexedFields = new ArrayList<String>();
 			indexedFields.add(null);
-			for (SchemaField field : getClient().getSchema().getFieldList())
+			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
 					indexedFields.add(field.getName());
 			return indexedFields;
@@ -165,7 +171,10 @@ public class FieldsController extends CommonController {
 	}
 
 	public String getSelectedUnique() throws SearchLibException {
-		Field field = getClient().getSchema().getFieldList().getUniqueField();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		Field field = client.getSchema().getFieldList().getUniqueField();
 		if (field == null)
 			return null;
 		return field.getName();
@@ -180,7 +189,10 @@ public class FieldsController extends CommonController {
 	}
 
 	public String getSelectedDefault() throws SearchLibException {
-		Field field = getClient().getSchema().getFieldList().getDefaultField();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		Field field = client.getSchema().getFieldList().getDefaultField();
 		if (field == null)
 			return null;
 		return field.getName();

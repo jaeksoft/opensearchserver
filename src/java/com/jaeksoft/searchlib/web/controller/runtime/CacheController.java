@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.runtime;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
@@ -59,7 +60,10 @@ public class CacheController extends CommonController {
 
 	private Object[] getIndexList() throws SearchLibException {
 		synchronized (this) {
-			IndexAbstract index = getClient().getIndex();
+			Client client = getClient();
+			if (client == null)
+				return null;
+			IndexAbstract index = client.getIndex();
 			if (index == null)
 				return null;
 			if (index instanceof IndexGroup)

@@ -32,6 +32,7 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zul.event.PagingEvent;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
@@ -334,9 +335,11 @@ public class UrlController extends CommonController implements AfterCompose {
 		synchronized (this) {
 			if (urlList != null)
 				return urlList;
-
+			Client client = getClient();
+			if (client == null)
+				return null;
 			urlList = new ArrayList<UrlItem>();
-			UrlManager urlManager = getClient().getUrlManager();
+			UrlManager urlManager = client.getUrlManager();
 			SearchRequest searchRequest = urlManager.urlQuery(getLike(),
 					getHost(), getLang(), getLangMethod(),
 					getContentBaseType(), getContentTypeCharset(),

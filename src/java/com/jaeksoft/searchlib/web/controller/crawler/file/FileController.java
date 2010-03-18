@@ -32,6 +32,7 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zul.event.PagingEvent;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
@@ -261,11 +262,14 @@ public class FileController extends CommonController implements AfterCompose {
 
 	public List<FileItem> getFileList() throws SearchLibException {
 		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
 			if (fileList != null)
 				return fileList;
 
 			fileList = new ArrayList<FileItem>();
-			FileManager fileManager = getClient().getFileManager();
+			FileManager fileManager = client.getFileManager();
 			SearchRequest searchRequest = fileManager.fileQuery(getLike(),
 					getLang(), getLangMethod(), getMinContentLength(),
 					getMaxContentLength(), getFetchStatus(), getParserStatus(),

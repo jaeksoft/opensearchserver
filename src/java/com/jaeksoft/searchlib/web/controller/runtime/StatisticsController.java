@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.util.List;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.statistics.StatisticTypeEnum;
 import com.jaeksoft.searchlib.statistics.StatisticsAbstract;
@@ -69,8 +70,10 @@ public class StatisticsController extends CommonController {
 		synchronized (this) {
 			if (statList != null)
 				return statList;
-			statList = getClient().getStatisticsList()
-					.getStatList(selectedType);
+			Client client = getClient();
+			if (client == null)
+				return null;
+			statList = client.getStatisticsList().getStatList(selectedType);
 			if (statList == null)
 				return null;
 			if (selectedStat == null && statList.size() > 0)

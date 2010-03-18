@@ -33,7 +33,9 @@ import org.zkoss.zul.Label;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -92,17 +94,26 @@ public class ReturnedController extends QueryController implements RowRenderer {
 
 	public boolean isFieldLeft() throws SearchLibException {
 		synchronized (this) {
-			return getReturnFieldLeft().size() > 0;
+			List<String> list = getReturnFieldLeft();
+			if (list == null)
+				return false;
+			return list.size() > 0;
 		}
 	}
 
 	public List<String> getReturnFieldLeft() throws SearchLibException {
 		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
 			if (fieldLeft != null)
 				return fieldLeft;
 			fieldLeft = new ArrayList<String>();
-			FieldList<Field> fields = getRequest().getReturnFieldList();
-			for (SchemaField field : getClient().getSchema().getFieldList())
+			SearchRequest request = getRequest();
+			if (request == null)
+				return null;
+			FieldList<Field> fields = request.getReturnFieldList();
+			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isStored())
 					if (fields.get(field.getName()) == null) {
 						if (selectedReturn == null)

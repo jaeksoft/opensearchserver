@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.util.List;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -42,7 +43,10 @@ public class AnalyzersController extends CommonController {
 	}
 
 	public List<Analyzer> getList() throws SearchLibException {
-		return getClient().getSchema().getAnalyzerList();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getSchema().getAnalyzerList();
 	}
 
 	@Override

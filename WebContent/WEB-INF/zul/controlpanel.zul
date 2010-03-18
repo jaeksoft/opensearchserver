@@ -1,0 +1,59 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="index" border="none"
+	use="com.jaeksoft.searchlib.web.controller.IndexController">
+	<tabbox>
+		<tabs>
+			<tab id="tabHome" label="@{index.indexTitle}"
+				selected="true" />
+			<tab id="tabSchema" visible="@{index.instanceValid}"
+				label="Schema" />
+			<tab id="tabQuery" visible="@{index.instanceValid}"
+				label="Query" />
+			<tab id="tabUpdate" visible="@{index.instanceValid}"
+				label="Update" />
+			<tab id="tabCrawler" visible="@{index.instanceValid}"
+				label="Crawler" />
+			<tab id="tabRuntime" visible="@{index.instanceValid}"
+				label="Runtime" />
+			<tab id="tabPrivileges" label="Privileges" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/home.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabSchema.onSelect">
+				<include src="WEB-INF/zul/schema/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabQuery.onSelect">
+				<include src="WEB-INF/zul/query/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabUpdate.onSelect">
+				<include src="WEB-INF/zul/update/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntime.onSelect">
+				<include src="WEB-INF/zul/runtime/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabPrivileges.onSelect">
+				<include src="WEB-INF/zul/privileges/index.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

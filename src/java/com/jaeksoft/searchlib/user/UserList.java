@@ -117,4 +117,12 @@ public class UserList {
 		}
 	}
 
+	public boolean isEmpty() {
+		r.lock();
+		try {
+			return users.size() == 0;
+		} finally {
+			r.unlock();
+		}
+	}
 }

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for Jaeksoft OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of Jaeksoft OpenSearchServer.
 	Jaeksoft OpenSearchServer is free software: you can
@@ -14,20 +14,32 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="index" border="normal"
-	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/oss_16x16_WEB.png"
-		label="@{index.release}">
-		<label visible="@{index.logged}"
-			value="@{index.loggedUser.name}" />
-		<space width="10px" />
-		<toolbarbutton label="logout" forward="onLogout" />
-		<space width="50px" />
-		<toolbarbutton label="Visit the OSS web site" target="_blank"
-			href="http://www.open-search-server.com" />
-		<space width="10px" />
-		<toolbarbutton label="Wiki documentation" target="_blank"
-			href="http://sourceforge.net/apps/mediawiki/opensearchserve" />
-	</caption>
-	<include src="@{index.currentPage}" />
+<window id="index" border="normal" title="Login"
+	use="com.jaeksoft.searchlib.web.controller.LoginController">
+	<vbox align="center" width="100%">
+		<grid width="500px" fixedLayout="true">
+			<columns>
+				<column width="120px" align="right" />
+				<column />
+			</columns>
+			<rows>
+				<row>
+					<label value="Login: " />
+					<textbox id="login" cols="40" constraint="no empty" />
+				</row>
+				<row>
+					<label value="Password: " />
+					<textbox id="password" cols="16" type="password"
+						constraint="no empty" />
+				</row>
+			</rows>
+			<foot>
+				<footer span="2">
+					<vbox width="100%" align="center">
+						<button label="Login" forward="onLogin" />
+					</vbox>
+				</footer>
+			</foot>
+		</grid>
+	</vbox>
 </window>

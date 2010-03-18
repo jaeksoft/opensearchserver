@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,18 +26,23 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.http.HttpException;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zk.ui.ext.AfterCompose;
-import org.zkoss.zkplus.databind.DataBinder;
+import org.zkoss.zkplus.databind.AnnotateDataBinder;
 import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.user.User;
 
 public abstract class CommonController extends Window implements AfterCompose {
 
@@ -48,6 +53,8 @@ public abstract class CommonController extends Window implements AfterCompose {
 
 	private boolean isComposed;
 
+	private AnnotateDataBinder binder = null;
+
 	public CommonController() throws SearchLibException {
 		super();
 		isComposed = false;
@@ -55,6 +62,8 @@ public abstract class CommonController extends Window implements AfterCompose {
 	}
 
 	public void afterCompose() {
+		binder = new AnnotateDataBinder(this);
+		binder.loadAll();
 		isComposed = true;
 	}
 
@@ -83,21 +92,55 @@ public abstract class CommonController extends Window implements AfterCompose {
 		return getClient() == null;
 	}
 
+	public String getCurrentPage() throws SearchLibException {
+		String page = isLogged() ? "controlpanel.zul" : "login.zul";
+		return "WEB-INF/zul/" + page;
+	}
+
+	public User getLoggedUser() {
+		return (User) getAttribute(ScopeAttribute.LOGGED_USER);
+
+	}
+
+	public boolean isLogged() throws SearchLibException {
+		if (ClientCatalog.getUserList().isEmpty())
+			return true;
+		return getLoggedUser() != null;
+	}
+
+	private static void reloadComponent(Component component, boolean bReset) {
+		if (component == null)
+			return;
+		if (component instanceof CommonController) {
+			CommonController controller = (CommonController) component;
+			if (bReset)
+				controller.reset();
+			controller.reloadPage();
+		}
+		List<?> children = component.getChildren();
+		if (children != null)
+			for (Object child : children)
+				reloadComponent((Component) child, bReset);
+	}
+
+	private Iterator<?> getPagesIterator() {
+		Desktop desktop = getDesktop();
+		if (desktop == null)
+			return null;
+		Collection<?> pages = desktop.getPages();
+		if (pages == null)
+			return null;
+		return pages.iterator();
+	}
+
 	private void reloadDesktop(boolean bReset) {
-		Iterator<?> it = getDesktop().getPages().iterator();
+		Iterator<?> it = getPagesIterator();
+		if (it == null)
+			return;
 		while (it.hasNext()) {
 			Page page = (Page) it.next();
-			Component component = page.getFirstRoot();
-			if (component != null && component instanceof CommonController) {
-				CommonController cc = (CommonController) component;
-				if (bReset)
-					cc.reset();
-				cc.reloadPage();
-			} else {
-				DataBinder binder = (DataBinder) page.getVariable("binder");
-				if (binder != null)
-					binder.loadAll();
-			}
+			if (page != null)
+				reloadComponent(page.getFirstRoot(), bReset);
 		}
 	}
 
@@ -110,7 +153,6 @@ public abstract class CommonController extends Window implements AfterCompose {
 	}
 
 	public void reloadComponent(String compId) {
-		DataBinder binder = (DataBinder) getPage().getVariable("binder");
 		if (binder != null)
 			binder.loadComponent(getFellow(compId));
 	}
@@ -118,7 +160,6 @@ public abstract class CommonController extends Window implements AfterCompose {
 	public abstract void reset();
 
 	public void reloadPage() {
-		DataBinder binder = (DataBinder) getPage().getVariable("binder");
 		if (binder != null)
 			binder.loadAll();
 	}

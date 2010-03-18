@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 
 import org.apache.http.HttpException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -60,7 +61,10 @@ public class RobotsTxtController extends CommonController {
 	}
 
 	public Map<String, RobotsTxt> getRobotsTxtMap() throws SearchLibException {
-		return getClient().getRobotsTxtCache().getRobotsTxtMap();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getRobotsTxtCache().getRobotsTxtMap();
 	}
 
 	public void onSearch() throws IOException, URISyntaxException,

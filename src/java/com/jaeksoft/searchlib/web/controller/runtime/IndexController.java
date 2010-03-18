@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexGroup;
@@ -48,7 +49,10 @@ public class IndexController extends CommonController {
 	public List<IndexAbstract> getIndices() throws SearchLibException,
 			NamingException {
 		List<IndexAbstract> list = new ArrayList<IndexAbstract>();
-		IndexAbstract index = getClient().getIndex();
+		Client client = getClient();
+		if (client == null)
+			return list;
+		IndexAbstract index = client.getIndex();
 		if (index instanceof IndexGroup) {
 			for (IndexAbstract idx : ((IndexGroup) index).getIndices())
 				list.add(idx);

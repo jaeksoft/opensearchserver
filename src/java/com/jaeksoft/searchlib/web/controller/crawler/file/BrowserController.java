@@ -48,6 +48,7 @@ import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
@@ -184,9 +185,13 @@ public class BrowserController extends CommonController implements
 	public PathItem getPathItem() {
 		synchronized (this) {
 			try {
+				Client client = getClient();
+				if (client == null)
+					return null;
+
 				pathList = new ArrayList<PathItem>();
 
-				totalSize = getClient().getFilePathManager().getPaths("",
+				totalSize = client.getFilePathManager().getPaths("",
 						getActivePage() * getPageSize(), getPageSize(),
 						pathList);
 

@@ -36,6 +36,7 @@ import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.api.Listitem;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -95,7 +96,10 @@ public class SortedController extends QueryController implements RowRenderer {
 
 	public boolean isFieldLeft() throws SearchLibException {
 		synchronized (this) {
-			return getSortFieldLeft().size() > 0;
+			List<String> list = getSortFieldLeft();
+			if (list == null)
+				return false;
+			return list.size() > 0;
 		}
 	}
 
@@ -103,10 +107,13 @@ public class SortedController extends QueryController implements RowRenderer {
 		synchronized (this) {
 			if (sortFieldLeft != null)
 				return sortFieldLeft;
+			Client client = getClient();
+			if (client == null)
+				return null;
 			sortFieldLeft = new ArrayList<String>();
 			FieldList<SortField> sortFields = getRequest().getSortList()
 					.getFieldList();
-			for (SchemaField field : getClient().getSchema().getFieldList())
+			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
 					if (sortFields.get(field.getName()) == null) {
 						if (selectedSort == null)

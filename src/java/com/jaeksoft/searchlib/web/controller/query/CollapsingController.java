@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -57,11 +58,14 @@ public class CollapsingController extends QueryController {
 
 	public List<String> getIndexedFields() throws SearchLibException {
 		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
 			if (indexedFields != null)
 				return indexedFields;
 			indexedFields = new ArrayList<String>();
 			indexedFields.add(null);
-			for (SchemaField field : getClient().getSchema().getFieldList())
+			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
 					indexedFields.add(field.getName());
 			return indexedFields;

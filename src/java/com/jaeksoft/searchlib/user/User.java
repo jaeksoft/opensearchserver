@@ -30,6 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -125,7 +126,10 @@ public class User implements Comparable<User> {
 		if (node == null)
 			return null;
 		String name = XPathParser.getAttributeString(node, "name");
-		String password = XPathParser.getAttributeString(node, "password");
+		String encodedPassword = XPathParser.getAttributeString(node,
+				"password");
+		String password = new String(Base64.decodeBase64(encodedPassword
+				.getBytes()));
 		if (name == null || password == null)
 			return null;
 		boolean isAdmin = "yes".equalsIgnoreCase(XPathParser
@@ -146,8 +150,10 @@ public class User implements Comparable<User> {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		r.lock();
 		try {
-			xmlWriter.startElement("user", "name", name, "password", password,
-					"isAdmin", isAdmin ? "yes" : "no");
+			String encodedPassword = new String(Base64.encodeBase64(password
+					.getBytes()));
+			xmlWriter.startElement("user", "name", name, "password",
+					encodedPassword, "isAdmin", isAdmin ? "yes" : "no");
 			for (IndexRole indexRole : indexRoles)
 				indexRole.writeXml(xmlWriter);
 			xmlWriter.endElement();
@@ -212,6 +218,15 @@ public class User implements Comparable<User> {
 			this.isAdmin = isAdmin;
 		} finally {
 			w.unlock();
+		}
+	}
+
+	public boolean authenticate(String password) {
+		r.lock();
+		try {
+			return this.password.equals(password);
+		} finally {
+			r.unlock();
 		}
 	}
 

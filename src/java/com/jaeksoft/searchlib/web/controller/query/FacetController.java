@@ -30,8 +30,10 @@ import java.util.List;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.RowRenderer;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
@@ -72,6 +74,9 @@ public class FacetController extends QueryController {
 
 	public boolean isFieldLeft() throws SearchLibException {
 		synchronized (this) {
+			List<String> list = getFacetFieldLeft();
+			if (list == null)
+				return false;
 			return getFacetFieldLeft().size() > 0;
 		}
 	}
@@ -80,10 +85,15 @@ public class FacetController extends QueryController {
 		synchronized (this) {
 			if (fieldLeft != null)
 				return fieldLeft;
+			Client client = getClient();
+			if (client == null)
+				return null;
+			SearchRequest request = getRequest();
+			if (request == null)
+				return null;
 			fieldLeft = new ArrayList<String>();
-			FieldList<FacetField> facetFields = getRequest()
-					.getFacetFieldList();
-			for (SchemaField field : getClient().getSchema().getFieldList())
+			FieldList<FacetField> facetFields = request.getFacetFieldList();
+			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
 					if (facetFields.get(field.getName()) == null) {
 						if (selectedFacet == null)
