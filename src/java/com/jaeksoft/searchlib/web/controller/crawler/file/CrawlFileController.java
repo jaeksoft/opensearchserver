@@ -81,14 +81,19 @@ public class CrawlFileController extends CommonController {
 	}
 
 	public boolean isRefresh() throws SearchLibException {
-		return getFileCrawlMaster().isRunning()
-				|| getFileCrawlMaster().isAborting();
+		CrawlFileMaster crawlFileMaster = getFileCrawlMaster();
+		if (crawlFileMaster == null)
+			return false;
+		return crawlFileMaster.isRunning() || crawlFileMaster.isAborting();
 	}
 
 	public String getRunButtonLabel() throws SearchLibException {
-		if (getFileCrawlMaster().isAborting())
+		CrawlFileMaster crawlFileMaster = getFileCrawlMaster();
+		if (crawlFileMaster == null)
+			return null;
+		if (crawlFileMaster.isAborting())
 			return "Aborting...";
-		else if (getFileCrawlMaster().isRunning())
+		else if (crawlFileMaster.isRunning())
 			return "Running - Click to stop";
 		else
 			return "Not running - Click to start";

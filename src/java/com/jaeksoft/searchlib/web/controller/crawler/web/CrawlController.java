@@ -75,7 +75,10 @@ public class CrawlController extends CommonController {
 	}
 
 	public WebCrawlMaster getWebCrawlMaster() throws SearchLibException {
-		return getClient().getWebCrawlMaster();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getWebCrawlMaster();
 	}
 
 	// TODO Publish / vs / plugin
@@ -86,14 +89,19 @@ public class CrawlController extends CommonController {
 	 */
 
 	public boolean isRefresh() throws SearchLibException {
-		return getWebCrawlMaster().isRunning()
-				|| getWebCrawlMaster().isAborting();
+		WebCrawlMaster webCrawlMaster = getWebCrawlMaster();
+		if (webCrawlMaster == null)
+			return false;
+		return webCrawlMaster.isRunning() || webCrawlMaster.isAborting();
 	}
 
 	public String getRunButtonLabel() throws SearchLibException {
-		if (getWebCrawlMaster().isAborting())
+		WebCrawlMaster webCrawlMaster = getWebCrawlMaster();
+		if (webCrawlMaster == null)
+			return null;
+		if (webCrawlMaster.isAborting())
 			return "Aborting...";
-		else if (getWebCrawlMaster().isRunning())
+		else if (webCrawlMaster.isRunning())
 			return "Running - Click to stop";
 		else
 			return "Not running - Click to start";
