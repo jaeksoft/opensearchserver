@@ -29,7 +29,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -42,10 +41,6 @@ public class IndexRole implements Comparable<IndexRole> {
 	protected IndexRole(String indexName, Role role) {
 		this.indexName = indexName;
 		this.role = role;
-	}
-
-	protected IndexRole(Client client, Role role) {
-		this(client.getIndexDirectory().getName(), role);
 	}
 
 	protected IndexRole(String indexName, String roleName) {

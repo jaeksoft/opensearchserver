@@ -26,5 +26,15 @@ package com.jaeksoft.searchlib.user;
 
 public enum Role {
 
-	Web_Crawler_Pattern_Read, Web_Crawler_Pattern_Write;
+	WEB_CRAWLER_PATTERN_READ,
+
+	WEB_CRAWLER_PATTERN_WRITE,
+
+	FILE_CRAWLER_PATTERN_READ,
+
+	FILE_CRAWLER_PATTERN_WRITE,
+
+	INDEX_READ,
+
+	INDEX_WRITE;
 }

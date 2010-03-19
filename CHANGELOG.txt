@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 2973374: Upgrade to ZKoss 5.0.x	
 - 2970747: Upgrade Tomcat to version 6.0.26
 - 2966139: Statistics lost when OSS restart
 - 2964704: Upgrade to Lucene 2.9.2
@@ -17,7 +18,6 @@ New features:
 - 2956498: Provide a way to send statistics report by email
 - 2953803: Upgrade to PDFBox 1.0	
 - 2953802: Upgrade to POI 3.6
-- 2953577: Upgrade to Zkoss version 3.6.3
 - 2953575: Charset detection should look at meta http-equiv
 - 2953524: Specify default charset for parser
 - 2929332: Faceting post collapsing

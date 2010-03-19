@@ -19,12 +19,7 @@
 -->
 
 <zk>
-	<desktop-config>
-		<disable-theme-uri>~./zul/css/norm*.css.dsp*
-		</disable-theme-uri>
-		<theme-uri>~./zul/css/normsm*.css.dsp*
-		</theme-uri>
-	</desktop-config>
+
 	<device-config>
 		<device-type>ajax</device-type>
 		<timeout-uri>/timeout.zul</timeout-uri>

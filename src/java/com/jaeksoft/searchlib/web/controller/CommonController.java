@@ -33,7 +33,11 @@ import java.util.List;
 import org.apache.http.HttpException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Desktop;
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Page;
+import org.zkoss.zk.ui.UiException;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zkplus.databind.AnnotateDataBinder;
 import org.zkoss.zul.Window;
@@ -44,7 +48,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.user.User;
 
-public abstract class CommonController extends Window implements AfterCompose {
+public abstract class CommonController extends Window implements AfterCompose,
+		EventListener {
 
 	/**
 	 * 
@@ -64,6 +69,7 @@ public abstract class CommonController extends Window implements AfterCompose {
 	public void afterCompose() {
 		binder = new AnnotateDataBinder(this);
 		binder.loadAll();
+		PushEvent.FLUSH_PRIVILEGES.subscribe(this);
 		isComposed = true;
 	}
 
@@ -99,7 +105,15 @@ public abstract class CommonController extends Window implements AfterCompose {
 
 	public User getLoggedUser() {
 		return (User) getAttribute(ScopeAttribute.LOGGED_USER);
+	}
 
+	public boolean isAdmin() throws SearchLibException {
+		if (ClientCatalog.getUserList().isEmpty())
+			return true;
+		User user = getLoggedUser();
+		if (user == null)
+			return false;
+		return user.isAdmin();
 	}
 
 	public boolean isLogged() throws SearchLibException {
@@ -174,4 +188,30 @@ public abstract class CommonController extends Window implements AfterCompose {
 		return LanguageEnum.values();
 	}
 
+	protected void flushPrivileges(User user) {
+		PushEvent.FLUSH_PRIVILEGES.publish(user);
+	}
+
+	public void onLogout() {
+		for (ScopeAttribute attr : ScopeAttribute.values())
+			setAttribute(attr, null);
+		resetDesktop();
+		Executions.sendRedirect("/");
+	}
+
+	public void onEvent(Event event) throws UiException {
+		PushEvent pushEvent = PushEvent.isEvent(event);
+		if (pushEvent == PushEvent.FLUSH_PRIVILEGES) {
+			User user = (User) event.getData();
+			try {
+				ClientCatalog.flushPrivileges();
+				if (isLogged()) {
+					if (user.equals(getLoggedUser()))
+						onLogout();
+				}
+			} catch (SearchLibException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

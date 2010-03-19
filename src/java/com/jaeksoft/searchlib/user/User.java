@@ -35,7 +35,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -79,12 +78,12 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public boolean hasRole(Client client, Role role) {
+	public boolean hasRole(String indexName, Role role) {
 		r.lock();
 		try {
 			if (isAdmin)
 				return true;
-			return indexRoles.contains(new IndexRole(client, role));
+			return indexRoles.contains(new IndexRole(indexName, role));
 		} finally {
 			r.unlock();
 		}
@@ -165,6 +164,12 @@ public class User implements Comparable<User> {
 	@Override
 	public int compareTo(User u) {
 		return name.compareTo(u.name);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		User u = (User) o;
+		return name.equals(u.name);
 	}
 
 	public String getName() {

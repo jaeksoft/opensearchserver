@@ -30,7 +30,8 @@
 				label="Crawler" />
 			<tab id="tabRuntime" visible="@{index.instanceValid}"
 				label="Runtime" />
-			<tab id="tabPrivileges" label="Privileges" />
+			<tab id="tabPrivileges" visible="@{index.admin}"
+				label="Privileges" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>

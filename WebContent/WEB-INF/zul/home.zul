@@ -16,7 +16,8 @@
 -->
 <window id="home"
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
-	<panel title="Create a new index" border="normal">
+	<panel title="Create a new index" border="normal"
+		visible="@{home.admin}">
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
@@ -58,8 +59,8 @@
 			<button label="Refresh" forward="onListRefresh" />
 		</toolbar>
 		<panelchildren>
-			<listbox selectedItem="@{home.clientFile}"
-				model="@{home.clientCatalog}" itemRenderer="@{home}" />
+			<listbox selectedItem="@{home.clientName}"
+				model="@{home.clientCatalog}" />
 		</panelchildren>
 	</panel>
 

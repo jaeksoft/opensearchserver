@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,14 +24,11 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.zkoss.zul.Listcell;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -39,8 +36,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.template.TemplateList;
 
-public class HomeController extends CommonController implements
-		ListitemRenderer {
+public class HomeController extends CommonController {
 
 	/**
 	 * 
@@ -57,20 +53,20 @@ public class HomeController extends CommonController implements
 		indexTemplate = TemplateList.EMPTY_INDEX;
 	}
 
-	public File[] getClientCatalog() throws SearchLibException {
-		return ClientCatalog.getClientCatalog();
+	public Set<String> getClientCatalog() throws SearchLibException {
+		return ClientCatalog.getClientCatalog(getLoggedUser());
 	}
 
-	public File getClientFile() throws SearchLibException {
+	public String getClientName() throws SearchLibException {
 		Client client = super.getClient();
 		if (client == null)
 			return null;
-		return client.getIndexDirectory();
+		return client.getIndexDirectory().getName();
 	}
 
-	public void setClientFile(File file) throws SearchLibException,
+	public void setClientName(String name) throws SearchLibException,
 			NamingException {
-		Client client = ClientCatalog.getClient(file.getName());
+		Client client = ClientCatalog.getClient(name);
 		if (client == null)
 			return;
 		setClient(client);
@@ -104,7 +100,7 @@ public class HomeController extends CommonController implements
 			msg = "Please enter a valid name for the new index";
 		else if (indexName.length() == 0)
 			msg = "Please enter a valid name for the new index";
-		else if (ClientCatalog.exists(indexName))
+		else if (ClientCatalog.exists(getLoggedUser(), indexName))
 			msg = "The name already exists";
 
 		if (msg != null) {
@@ -112,18 +108,14 @@ public class HomeController extends CommonController implements
 					org.zkoss.zul.Messagebox.EXCLAMATION);
 			return;
 		}
-		ClientCatalog.createIndex(indexName, indexTemplate.getTemplate());
+		ClientCatalog.createIndex(getLoggedUser(), indexName, indexTemplate
+				.getTemplate());
 		setClient(ClientCatalog.getClient(indexName));
 		reloadDesktop();
 	}
 
 	public void onListRefresh() {
 		reloadPage();
-	}
-
-	public void render(Listitem item, Object data) throws Exception {
-		File indexDirectory = (File) data;
-		new Listcell(indexDirectory.getName()).setParent(item);
 	}
 
 	@Override

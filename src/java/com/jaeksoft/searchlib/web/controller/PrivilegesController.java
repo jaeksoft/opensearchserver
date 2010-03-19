@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import java.io.File;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -62,7 +61,7 @@ public class PrivilegesController extends CommonController implements
 
 	private String selectedRole;
 
-	private String[] indexList;
+	private Set<String> indexList;
 
 	public PrivilegesController() throws SearchLibException, NamingException {
 		super();
@@ -79,16 +78,10 @@ public class PrivilegesController extends CommonController implements
 		return ClientCatalog.getUserList().getUserNameSet();
 	}
 
-	public String[] getIndexList() throws SearchLibException {
+	public Set<String> getIndexList() throws SearchLibException {
 		if (indexList != null)
 			return indexList;
-		File[] files = ClientCatalog.getClientCatalog();
-		if (files == null)
-			return null;
-		indexList = new String[files.length];
-		int i = 0;
-		for (File file : files)
-			indexList[i++] = file.getName();
+		indexList = ClientCatalog.getClientCatalog(getLoggedUser());
 		return indexList;
 
 	}
@@ -174,6 +167,7 @@ public class PrivilegesController extends CommonController implements
 		else
 			ClientCatalog.getUserList().add(user);
 		ClientCatalog.saveUserList();
+		flushPrivileges(user);
 		onCancel();
 	}
 

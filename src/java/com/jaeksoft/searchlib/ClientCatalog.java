@@ -29,7 +29,9 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -43,6 +45,7 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.template.TemplateAbstract;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
 import com.jaeksoft.searchlib.util.ConfigFileRotation;
@@ -97,9 +100,9 @@ public class ClientCatalog {
 		w.lock();
 		try {
 
-			for (File indexFile : getClientCatalog()) {
-				System.out.println("OSS load index " + indexFile.getName());
-				getClient(indexFile);
+			for (String indexName : getClientCatalog(null)) {
+				System.out.println("OSS load index " + indexName);
+				getClient(indexName);
 			}
 		} catch (SearchLibException e) {
 			e.printStackTrace();
@@ -144,21 +147,36 @@ public class ClientCatalog {
 		return dataDir;
 	}
 
-	public static final File[] getClientCatalog() throws SearchLibException {
+	public static final Set<String> getClientCatalog(User user)
+			throws SearchLibException {
 		File dataDir = getDataDir();
-		return dataDir.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
+		File[] files = dataDir
+				.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
+		Set<String> set = new TreeSet<String>();
+		for (File file : files) {
+			if (!file.isDirectory())
+				continue;
+			String indexName = file.getName();
+			if (user == null || user.hasRole(indexName, Role.INDEX_READ))
+				set.add(indexName);
+		}
+		return set;
 	}
 
-	public static final boolean exists(String indexName)
+	public static final boolean exists(User user, String indexName)
 			throws SearchLibException {
-		for (File file : getClientCatalog())
-			if (file.getName().equals(indexName))
+		if (user == null || !user.isAdmin())
+			throw new SearchLibException("Operation not permitted");
+		for (String index : getClientCatalog(null))
+			if (index.equals(indexName))
 				return true;
 		return false;
 	}
 
-	public static void createIndex(String indexName, TemplateAbstract template)
-			throws SearchLibException, IOException {
+	public static void createIndex(User user, String indexName,
+			TemplateAbstract template) throws SearchLibException, IOException {
+		if (user == null || !user.isAdmin())
+			throw new SearchLibException("Operation not permitted");
 		w.lock();
 		try {
 			File indexDir = new File(getDataDir(), indexName);
@@ -194,6 +212,15 @@ public class ClientCatalog {
 			throw new SearchLibException(e);
 		} finally {
 			r.unlock();
+		}
+	}
+
+	public static void flushPrivileges() {
+		w.lock();
+		try {
+			userList = null;
+		} finally {
+			w.unlock();
 		}
 	}
 
