@@ -84,6 +84,8 @@ public class FieldsController extends CommonController {
 	}
 
 	public void onDelete() throws SearchLibException {
+		if (!isSchemaRights())
+			throw new SearchLibException("Not allowed");
 		Client client = getClient();
 		client.getSchema().getFieldList().remove(selectedField);
 		client.saveConfig();
@@ -93,6 +95,8 @@ public class FieldsController extends CommonController {
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException {
+		if (!isSchemaRights())
+			throw new SearchLibException("Not allowed");
 		try {
 			field.valid();
 		} catch (SearchLibException e) {

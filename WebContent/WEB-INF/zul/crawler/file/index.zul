@@ -14,26 +14,30 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<tabbox>
-	<tabs>
-		<tab id="tabCrawlerFileBrowser" label="Files and folders list"
-			selected="true" />
-		<tab id="tabCrawlerFileCrawl" label="Crawl process" />
-		<tab id="tabCrawlerFileCrawled" label="File browser" />
-		<tab id="tabCrawlerFileMapping" label="Field mapping" />
-	</tabs>
-	<tabpanels>
-		<tabpanel>
-			<include src="WEB-INF/zul/crawler/file/browser.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabCrawlerFileCrawl.onSelect">
-			<include src="WEB-INF/zul/crawler/file/crawlfile.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabCrawlerFileCrawled.onSelect">
-			<include src="WEB-INF/zul/crawler/file/path.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabCrawlerFileMapping.onSelect">
-			<include src="WEB-INF/zul/crawler/file/mappingfile.zul" />
-		</tabpanel>
-	</tabpanels>
-</tabbox>
+<window id="filecrawler" border="none"
+	use="com.jaeksoft.searchlib.web.controller.crawler.CrawlerController">
+	<tabbox>
+		<tabs>
+			<tab id="tabCrawlerFileBrowser"
+				label="Files and folders list" selected="true" />
+			<tab id="tabCrawlerFileCrawl" label="Crawl process" />
+			<tab id="tabCrawlerFileCrawled" label="File browser" />
+			<tab id="tabCrawlerFileMapping" label="Field mapping"
+				visible="@{filecrawler.fileCrawlerParametersRights}" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/crawler/file/browser.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerFileCrawl.onSelect">
+				<include src="WEB-INF/zul/crawler/file/crawlfile.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerFileCrawled.onSelect">
+				<include src="WEB-INF/zul/crawler/file/path.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerFileMapping.onSelect">
+				<include src="WEB-INF/zul/crawler/file/mappingfile.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

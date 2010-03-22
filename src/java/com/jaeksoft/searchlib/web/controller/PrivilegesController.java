@@ -28,11 +28,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.Button;
-import org.zkoss.zul.Listcell;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -41,8 +37,7 @@ import com.jaeksoft.searchlib.user.IndexRole;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
-public class PrivilegesController extends CommonController implements
-		ListitemRenderer {
+public class PrivilegesController extends CommonController {
 
 	/**
 	 * 
@@ -82,6 +77,8 @@ public class PrivilegesController extends CommonController implements
 		if (indexList != null)
 			return indexList;
 		indexList = ClientCatalog.getClientCatalog(getLoggedUser());
+		if (selectedIndex == null && indexList.size() > 0)
+			selectedIndex = indexList.iterator().next();
 		return indexList;
 
 	}
@@ -128,7 +125,7 @@ public class PrivilegesController extends CommonController implements
 	public Role getSelectedRole() {
 		if (selectedRole == null)
 			return null;
-		return Role.valueOf(selectedRole);
+		return Role.find(selectedRole);
 	}
 
 	public void setSelectedRole(Role role) throws SearchLibException {
@@ -136,7 +133,10 @@ public class PrivilegesController extends CommonController implements
 	}
 
 	public Role[] getRoles() {
-		return Role.values();
+		Role[] roles = Role.values();
+		if (selectedRole == null)
+			selectedRole = roles[0].name();
+		return roles;
 	}
 
 	public String getConfirmPassword() {
@@ -190,8 +190,9 @@ public class PrivilegesController extends CommonController implements
 		reloadPage();
 	}
 
-	public void onRoleRemove(Event event) {
-		user.removeRole((IndexRole) event.getData());
+	public void onRoleRemove(Component comp) {
+		IndexRole indexRole = (IndexRole) comp.getAttribute("indexrole");
+		user.removeRole(indexRole);
 		reloadPage();
 	}
 
@@ -208,18 +209,6 @@ public class PrivilegesController extends CommonController implements
 
 	@Override
 	public void reset() {
-	}
-
-	@Override
-	public void render(Listitem listitem, Object data) throws Exception {
-		IndexRole indexRole = (IndexRole) data;
-		new Listcell(indexRole.getIndexName()).setParent(listitem);
-		new Listcell(indexRole.getRole().name()).setParent(listitem);
-		Listcell listcell = new Listcell();
-		Button button = new Button("remove");
-		button.addForward(null, "privileges", "onRoleRemove", indexRole);
-		button.setParent(listcell);
-		listcell.setParent(listitem);
 	}
 
 }

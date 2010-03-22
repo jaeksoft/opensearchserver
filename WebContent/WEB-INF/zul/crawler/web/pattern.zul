@@ -16,7 +16,8 @@
 -->
 <window id="pattern"
 	use="com.jaeksoft.searchlib.web.controller.crawler.web.PatternController">
-	<vbox width="99%">
+	<vbox width="99%"
+		visible="@{pattern.webCrawlerEditPatternsRights}">
 		<label>For example:</label>
 		<label>
 			Enter http://www.open-search-server.com if you only want to
@@ -42,8 +43,10 @@
 		<space />
 		<button label="Search" forward="onSearch" />
 	</hbox>
-	<listbox checkmark="true" multiple="true" itemRenderer="@{pattern}"
-		model="@{pattern.patternList}">
+	<separator />
+	<listbox checkmark="@{pattern.WebCrawlerEditPatternsRights}"
+		multiple="@{pattern.WebCrawlerEditPatternsRights}"
+		model="@{pattern.patternList}" itemRenderer="@{pattern}">
 		<listfoot>
 			<listfooter>
 				<paging id="paging" detailed="true"
@@ -52,6 +55,6 @@
 			</listfooter>
 		</listfoot>
 	</listbox>
-	<button label="delete" visible="@{pattern.selection}"
+	<button label="delete" visible="@{pattern.selectionRemovable}"
 		forward="onDelete" />
 </window>

@@ -14,25 +14,30 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<tabbox>
-	<tabs>
-		<tab id="tabRuntimeStatistics" label="Statistics" selected="true" />
-		<tab id="tabRuntimeCommands" label="Commands" />
-		<tab id="tabRuntimeCache" label="Cache" />
-		<tab id="tabRuntimeIndex" label="Index" />
-	</tabs>
-	<tabpanels>
-		<tabpanel>
-			<include src="WEB-INF/zul/runtime/statistics.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabRuntimeCommands.onSelect">
-			<include src="WEB-INF/zul/runtime/commands.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabRuntimeCache.onSelect">
-			<include src="WEB-INF/zul/runtime/cache.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabRuntimeIndex.onSelect">
-			<include src="WEB-INF/zul/runtime/indices.zul" />
-		</tabpanel>
-	</tabpanels>
-</tabbox>
+<window id="runtime"
+	use="com.jaeksoft.searchlib.web.controller.runtime.RuntimeController">
+	<tabbox>
+		<tabs>
+			<tab id="tabRuntimeStatistics" label="Statistics"
+				selected="true" />
+			<tab id="tabRuntimeCommands" label="Commands"
+				visible="@{runtime.admin}" />
+			<tab id="tabRuntimeCache" label="Cache" />
+			<tab id="tabRuntimeIndex" label="Index" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/runtime/statistics.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntimeCommands.onSelect">
+				<include src="WEB-INF/zul/runtime/commands.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntimeCache.onSelect">
+				<include src="WEB-INF/zul/runtime/cache.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntimeIndex.onSelect">
+				<include src="WEB-INF/zul/runtime/indices.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

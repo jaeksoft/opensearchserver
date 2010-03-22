@@ -29,9 +29,9 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
-import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class CrawlFileController extends CommonController {
+public class CrawlFileController extends CrawlerController {
 
 	/**
 	 * 
@@ -55,6 +55,8 @@ public class CrawlFileController extends CommonController {
 	}
 
 	public void onRun() throws IOException, SearchLibException {
+		if (!isFileCrawlerStartStopRights())
+			throw new SearchLibException("Not allowed");
 		FilePropertyManager propertyManager = getProperties();
 		if (getFileCrawlMaster().isRunning()) {
 			propertyManager.getCrawlEnabled().setValue(false);

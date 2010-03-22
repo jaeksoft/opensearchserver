@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -50,7 +50,7 @@ public class RobotsTxt {
 	}
 
 	/**
-	 * Construit l'URL d'acc�s au fichier robots.txt � partir d'une URL donn�e
+	 * Construit l'URL d'accès au fichier robots.txt à partir d'une URL donnée
 	 * 
 	 * @param url
 	 * @return
@@ -99,8 +99,8 @@ public class RobotsTxt {
 	}
 
 	/**
-	 * Retourne la date d'expiration. Lorsque la date est expir�e, le robots.txt
-	 * est � nouveau t�l�charg�.
+	 * Retourne la date d'expiration. Lorsque la date est expirée, le robots.txt
+	 * est à nouveau téléchargé.
 	 * 
 	 * @return
 	 */
@@ -122,6 +122,12 @@ public class RobotsTxt {
 
 	public DisallowList getDisallowList() {
 		return disallowList;
+	}
+
+	public String getHostname() {
+		if (crawl == null)
+			return null;
+		return crawl.getUrlItem().getHost();
 	}
 
 }

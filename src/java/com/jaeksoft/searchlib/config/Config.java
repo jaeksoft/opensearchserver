@@ -366,6 +366,10 @@ public abstract class Config {
 
 	}
 
+	protected String getIndexName() {
+		return getIndexDirectory().getName();
+	}
+
 	public IndexAbstract getIndex() {
 		return this.index;
 	}

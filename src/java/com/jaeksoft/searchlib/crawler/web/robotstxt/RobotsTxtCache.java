@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -55,7 +55,7 @@ public class RobotsTxtCache {
 	}
 
 	/**
-	 * Retire les robotsTxt dont la date d'expiration est inf�rieure ou �gale �
+	 * Retire les robotsTxt dont la date d'expiration est inférieure ou égale à
 	 * t
 	 * 
 	 * @param t
@@ -113,7 +113,27 @@ public class RobotsTxtCache {
 		}
 	}
 
-	public Map<String, RobotsTxt> getRobotsTxtMap() {
-		return robotsTxtList;
+	public RobotsTxt[] getRobotsTxtList() {
+		synchronized (robotsTxtList) {
+			RobotsTxt[] array = new RobotsTxt[robotsTxtList.size()];
+			robotsTxtList.values().toArray(array);
+			return array;
+		}
+	}
+
+	private static String getRobotsUrlKey(String pattern)
+			throws MalformedURLException {
+		pattern = pattern.trim();
+		if (pattern.length() == 0)
+			return null;
+		if (pattern.indexOf(':') == -1)
+			pattern = "http://" + pattern;
+		return RobotsTxt.getRobotsUrl(new URL(pattern)).toExternalForm();
+	}
+
+	public RobotsTxt findRobotsTxt(String pattern) throws MalformedURLException {
+		synchronized (robotsTxtList) {
+			return robotsTxtList.get(getRobotsUrlKey(pattern));
+		}
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,9 +40,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.Selector;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
-import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class PatternController extends CommonController implements
+public class PatternController extends CrawlerController implements
 		ListitemRenderer, Selector<PatternItem>, AfterCompose {
 
 	/**
@@ -153,9 +153,11 @@ public class PatternController extends CommonController implements
 		}
 	}
 
-	public boolean isSelection() {
+	public boolean isSelectionRemovable() throws SearchLibException {
 		synchronized (this) {
 			if (patternList == null)
+				return false;
+			if (!isWebCrawlerEditPatternsRights())
 				return false;
 			return (getSelectionCount() > 0);
 		}
@@ -163,6 +165,8 @@ public class PatternController extends CommonController implements
 
 	public void onDelete() throws SearchLibException {
 		synchronized (this) {
+			if (!isWebCrawlerEditPatternsRights())
+				throw new SearchLibException("Not allowed");
 			PatternManager patternManager = getClient().getPatternManager();
 			try {
 				deleteSelection(patternManager);
@@ -213,6 +217,8 @@ public class PatternController extends CommonController implements
 	public void deleteSelection(PatternManager patternManager)
 			throws SearchLibException {
 		synchronized (selection) {
+			if (!isWebCrawlerEditPatternsRights())
+				throw new SearchLibException("Not allowed");
 			patternManager.delPattern(selection);
 			selection.clear();
 		}
@@ -232,6 +238,8 @@ public class PatternController extends CommonController implements
 
 	public void onAdd() throws SearchLibException {
 		synchronized (this) {
+			if (!isWebCrawlerEditPatternsRights())
+				throw new SearchLibException("Not allowed");
 			List<PatternItem> list = PatternManager.getPatternList(pattern);
 			if (list.size() > 0) {
 				getClient().getPatternManager().addList(list, false);

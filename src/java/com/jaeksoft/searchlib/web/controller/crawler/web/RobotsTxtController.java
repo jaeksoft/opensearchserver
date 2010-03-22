@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,18 +24,17 @@
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
-import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class RobotsTxtController extends CommonController {
+public class RobotsTxtController extends CrawlerController {
 
 	/**
 	 * 
@@ -44,45 +43,84 @@ public class RobotsTxtController extends CommonController {
 
 	private int pageSize;
 
-	private Entry<String, RobotsTxt> selectedEntry;
+	private String searchString;
+
+	private RobotsTxt[] robotsTxtList;
+
+	private RobotsTxt selectedRobotsTxt;
 
 	public RobotsTxtController() throws SearchLibException {
 		super();
+		searchString = null;
+		robotsTxtList = null;
+		selectedRobotsTxt = null;
 	}
 
 	@Override
 	public void reset() {
 		pageSize = 20;
-		selectedEntry = null;
+		robotsTxtList = null;
+		selectedRobotsTxt = null;
 	}
 
 	public int getPageSize() {
 		return pageSize;
 	}
 
-	public Map<String, RobotsTxt> getRobotsTxtMap() throws SearchLibException {
+	public RobotsTxt[] getRobotsTxtList() throws SearchLibException,
+			MalformedURLException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getRobotsTxtCache().getRobotsTxtMap();
+		if (robotsTxtList != null)
+			return robotsTxtList;
+		if (searchString == null || searchString.length() == 0) {
+			robotsTxtList = client.getRobotsTxtCache().getRobotsTxtList();
+			return robotsTxtList;
+		}
+		RobotsTxt robotsTxt = client.getRobotsTxtCache().findRobotsTxt(
+				searchString);
+		if (robotsTxt == null)
+			return null;
+		selectedRobotsTxt = robotsTxt;
+		robotsTxtList = new RobotsTxt[1];
+		robotsTxtList[0] = robotsTxt;
+		return robotsTxtList;
 	}
 
 	public void onSearch() throws IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		super.onReload();
+		selectedRobotsTxt = null;
+		robotsTxtList = null;
+		onReload();
 	}
 
-	public void setSelectedItem(Entry<String, RobotsTxt> entry) {
-		selectedEntry = entry;
+	public void onReset() throws IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
+		searchString = null;
+		onSearch();
 	}
 
-	public Entry<String, RobotsTxt> getSelectedItem() {
-		return selectedEntry;
+	public void setSearchString(String search) {
+		searchString = search;
+	}
+
+	public String getSearchString() {
+		return searchString;
+	}
+
+	public void setSelectedItem(RobotsTxt robotsTxt) {
+		selectedRobotsTxt = robotsTxt;
+	}
+
+	public RobotsTxt getSelectedItem() {
+		return selectedRobotsTxt;
 	}
 
 	public boolean isSelectedEntry() {
-		return selectedEntry != null;
+		return selectedRobotsTxt != null;
 	}
 
 }

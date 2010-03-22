@@ -121,6 +121,8 @@ public class QueryController extends CommonController {
 
 	public void onSaveRequest() throws SearchLibException,
 			TransformerConfigurationException, IOException, SAXException {
+		if (!isSchemaRights())
+			throw new SearchLibException("Not allowed");
 		Client client = getClient();
 		SearchRequest request = getRequest();
 		client.getSearchRequestMap().put(request);
@@ -132,6 +134,8 @@ public class QueryController extends CommonController {
 	public void onRemove() throws SearchLibException,
 			TransformerConfigurationException, IOException, SAXException,
 			InterruptedException {
+		if (!isSchemaRights())
+			throw new SearchLibException("Not allowed");
 		String name = getSelectedRequest();
 		if (Messagebox.show("Please, confirm you want to remove the request: "
 				+ name, "Confirmation", Messagebox.CANCEL | Messagebox.YES,

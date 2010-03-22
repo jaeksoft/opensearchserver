@@ -54,9 +54,9 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.util.GenericLink;
-import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class BrowserController extends CommonController implements
+public class BrowserController extends CrawlerController implements
 		ListitemRenderer, AfterCompose {
 
 	private static final long serialVersionUID = 6735801464584819587L;

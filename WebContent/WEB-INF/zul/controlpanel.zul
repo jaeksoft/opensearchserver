@@ -20,17 +20,17 @@
 		<tabs>
 			<tab id="tabHome" label="@{index.indexTitle}"
 				selected="true" />
-			<tab id="tabSchema" visible="@{index.instanceValid}"
+			<tab id="tabSchema" visible="@{index.schemaRights}"
 				label="Schema" />
-			<tab id="tabQuery" visible="@{index.instanceValid}"
+			<tab id="tabQuery" visible="@{index.queryRights}"
 				label="Query" />
-			<tab id="tabUpdate" visible="@{index.instanceValid}"
+			<tab id="tabUpdate" visible="@{index.updateRights}"
 				label="Update" />
-			<tab id="tabCrawler" visible="@{index.instanceValid}"
+			<tab id="tabCrawler" visible="@{index.crawlerRights}"
 				label="Crawler" />
-			<tab id="tabRuntime" visible="@{index.instanceValid}"
+			<tab id="tabRuntime" visible="@{index.runtimeRights}"
 				label="Runtime" />
-			<tab id="tabPrivileges" visible="@{index.admin}"
+			<tab id="tabPrivileges" visible="@{index.privilegeRights}"
 				label="Privileges" />
 		</tabs>
 		<tabpanels>

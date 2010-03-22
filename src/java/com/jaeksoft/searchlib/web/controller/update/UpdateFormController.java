@@ -225,6 +225,8 @@ public class UpdateFormController extends CommonController implements
 			URISyntaxException, SearchLibException, InterruptedException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
+		if (!isUpdateRights())
+			throw new SearchLibException("Not allowed");
 		getClient().updateDocument(getIndexDocument());
 		Messagebox.show("Document updated");
 	}

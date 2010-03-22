@@ -15,9 +15,10 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="crawlProcess"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.CrawlController">
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.CrawlWebController">
 	<panel title="Crawling parameters" collapsible="true"
-		border="normal">
+		border="normal"
+		visible="@{crawlProcess.webCrawlerParametersRights}">
 		<panelchildren>
 			<grid>
 				<columns>
@@ -74,6 +75,7 @@
 				value="@{crawlProcess.webCrawlMaster.statusInfo}" />
 			<space />
 			<checkbox label="Dry run" disabled="@{crawlProcess.refresh}"
+				visible="@{crawlProcess.webCrawlerParametersRights}"
 				checked="@{crawlProcess.properties.dryRun.value}" />
 			<space />
 			<!-- 
@@ -84,10 +86,12 @@
 				<space visible="@{crawlProcess.publish}" />
 			-->
 			<checkbox label="Optimize at the end of the crawl session"
+				visible="@{crawlProcess.webCrawlerParametersRights}"
 				disabled="@{crawlProcess.refresh}"
 				checked="@{crawlProcess.properties.optimizeAfterSession.value}" />
 			<space />
 			<button id="runButton"
+				visible="@{crawlProcess.webCrawlerStartStopRights}"
 				disabled="@{crawlProcess.webCrawlMaster.aborting}"
 				label="@{crawlProcess.runButtonLabel}" forward="onRun" />
 		</toolbar>
@@ -163,6 +167,7 @@
 	<panel title="Thread list" collapsible="true" border="normal">
 		<toolbar>
 			<checkbox label="Show debug information"
+				visible="@{crawlProcess.admin}"
 				checked="@{crawlProcess.properties.debug.value}" />
 		</toolbar>
 		<panelchildren>
@@ -201,7 +206,8 @@
 					<listcell
 						label="@{thread.currentStatistics.urlListSize}" />
 					<listcell label="@{thread.statusInfo}" />
-					<listcell visible="@{crawlProcess.properties.debug.value}"
+					<listcell
+						visible="@{crawlProcess.properties.debug.value}"
 						label="@{thread.debugInfo}" />
 				</listitem>
 			</listbox>

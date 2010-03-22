@@ -71,6 +71,7 @@ public class User implements Comparable<User> {
 			user.setName(name);
 			user.setPassword(password);
 			user.setAdmin(isAdmin);
+			user.removeRoles();
 			for (IndexRole indexRole : indexRoles)
 				user.addRole(indexRole);
 		} finally {
@@ -89,6 +90,48 @@ public class User implements Comparable<User> {
 		}
 	}
 
+	public boolean hasAnyRole(String indexName, Role... roles) {
+		r.lock();
+		try {
+			if (isAdmin)
+				return true;
+			for (Role role : roles)
+				if (indexRoles.contains(new IndexRole(indexName, role)))
+					return true;
+			return false;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public boolean hasAnyRole(String indexName, Role[]... groupRoles) {
+		for (Role[] roles : groupRoles)
+			if (hasAnyRole(indexName, roles))
+				return true;
+		return false;
+	}
+
+	public boolean hasAllRole(String indexName, Role... roles) {
+		r.lock();
+		try {
+			if (isAdmin)
+				return true;
+			for (Role role : roles)
+				if (!indexRoles.contains(new IndexRole(indexName, role)))
+					return false;
+			return true;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public boolean hasAllRole(String indexName, Role[]... groupRoles) {
+		for (Role[] roles : groupRoles)
+			if (!hasAllRole(indexName, roles))
+				return false;
+		return true;
+	}
+
 	public void addRole(IndexRole indexRole) {
 		w.lock();
 		try {
@@ -102,6 +145,15 @@ public class User implements Comparable<User> {
 		w.lock();
 		try {
 			indexRoles.remove(indexRole);
+		} finally {
+			w.unlock();
+		}
+	}
+
+	protected void removeRoles() {
+		w.lock();
+		try {
+			indexRoles.clear();
 		} finally {
 			w.unlock();
 		}
@@ -134,7 +186,7 @@ public class User implements Comparable<User> {
 		boolean isAdmin = "yes".equalsIgnoreCase(XPathParser
 				.getAttributeString(node, "isAdmin"));
 		User user = new User(name, password, isAdmin);
-		NodeList nodes = xpp.getNodeList(node, "roles");
+		NodeList nodes = xpp.getNodeList(node, "role");
 		if (nodes != null) {
 			int l = nodes.getLength();
 			for (int i = 0; i < l; i++) {

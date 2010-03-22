@@ -26,15 +26,49 @@ package com.jaeksoft.searchlib.user;
 
 public enum Role {
 
-	WEB_CRAWLER_PATTERN_READ,
+	INDEX_QUERY("Index: query the index"),
 
-	WEB_CRAWLER_PATTERN_WRITE,
+	INDEX_UPDATE("Index: insert data"),
 
-	FILE_CRAWLER_PATTERN_READ,
+	INDEX_SCHEMA("Index: edit the schema"),
 
-	FILE_CRAWLER_PATTERN_WRITE,
+	WEB_CRAWLER_EDIT_PATTERN_LIST("Web crawler: edit then pattern list"),
 
-	INDEX_READ,
+	WEB_CRAWLER_EDIT_PARAMETERS("Web crawler: edit parameters"),
 
-	INDEX_WRITE;
+	WEB_CRAWLER_START_STOP("Web crawler: start and stop"),
+
+	FILE_CRAWLER_EDIT_PATTERN_LIST("File crawler: edit the pattern list"),
+
+	FILE_CRAWLER_EDIT_PARAMETERS("File crawler: edit parameters"),
+
+	FILE_CRAWLER_START_STOP("File crawler: start  and stop");
+
+	private String label;
+
+	public static Role[] GROUP_INDEX = { INDEX_QUERY, INDEX_UPDATE,
+			INDEX_SCHEMA };
+
+	public static Role[] GROUP_WEB_CRAWLER = { WEB_CRAWLER_EDIT_PATTERN_LIST,
+			WEB_CRAWLER_EDIT_PARAMETERS, WEB_CRAWLER_START_STOP };
+
+	public static Role[] GROUP_FILE_CRAWLER = { FILE_CRAWLER_EDIT_PATTERN_LIST,
+			FILE_CRAWLER_EDIT_PARAMETERS, FILE_CRAWLER_START_STOP };
+
+	private Role(String label) {
+		this.label = label;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public static Role find(String roleName) {
+		try {
+			return Role.valueOf(roleName);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
 }

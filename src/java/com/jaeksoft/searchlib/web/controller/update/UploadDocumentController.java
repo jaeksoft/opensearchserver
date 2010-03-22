@@ -120,6 +120,8 @@ public class UploadDocumentController extends CommonController {
 			ParserConfigurationException, SAXException, IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+		if (!isUpdateRights())
+			throw new SearchLibException("Not allowed");
 		Media media = Fileupload.get();
 		if (media == null)
 			return;

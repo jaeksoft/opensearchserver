@@ -61,7 +61,8 @@ public class IndexRole implements Comparable<IndexRole> {
 			return null;
 		String indexName = XPathParser.getAttributeString(node, "indexName");
 		String roleName = XPathParser.getAttributeString(node, "role");
-		Role role = Role.valueOf(roleName);
+
+		Role role = Role.find(roleName);
 		if (role == null)
 			return null;
 		return new IndexRole(indexName, role);

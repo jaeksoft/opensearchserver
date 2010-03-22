@@ -18,16 +18,19 @@
 	use="com.jaeksoft.searchlib.web.controller.IndexController">
 	<caption image="images/oss_16x16_WEB.png"
 		label="@{index.release}">
-		<label visible="@{index.logged}"
-			value="@{index.loggedUser.name}" />
-		<space width="10px" />
-		<toolbarbutton label="logout" forward="onLogout" />
-		<space width="50px" />
-		<toolbarbutton label="Visit the OSS web site" target="_blank"
-			href="http://www.open-search-server.com" />
-		<space width="10px" />
-		<toolbarbutton label="Wiki documentation" target="_blank"
-			href="http://sourceforge.net/apps/mediawiki/opensearchserve" />
+		<hbox align="center">
+			<label visible="@{index.logged}" value="Connected as: " />
+			<label visible="@{index.logged}"
+				value="@{index.loggedUser.name}" />
+			<toolbarbutton visible="@{index.logged}" label=" (logout)"
+				forward="onLogout" />
+			<space width="50px" />
+			<toolbarbutton label="Visit the OSS web site"
+				target="_blank" href="http://www.open-search-server.com" />
+			<space width="10px" />
+			<toolbarbutton label="Wiki documentation" target="_blank"
+				href="http://www.open-search-server.com/wiki/en" />
+		</hbox>
 	</caption>
 	<include src="@{index.currentPage}" />
 </window>

@@ -23,11 +23,14 @@
 			<listitem self="@{each=request}" label="@{request}" />
 		</listbox>
 		<button label="Load" forward="onLoadRequest" />
-		<button label="Remove" forward="onRemove" />
+		<button label="Remove" visible="@{query.schemaRights}"
+			forward="onRemove" />
 		<separator />
-		<label>Query name</label>
-		<textbox value="@{query.request.requestName}" />
-		<button label="Save" forward="onSaveRequest" />
+		<label visible="@{query.schemaRights}" value="Query name" />
+		<textbox visible="@{query.schemaRights}"
+			value="@{query.request.requestName}" />
+		<button label="Save" visible="@{query.schemaRights}"
+			forward="onSaveRequest" />
 	</hbox>
 	<tabbox>
 		<tabs>

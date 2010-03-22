@@ -157,7 +157,7 @@ public class ClientCatalog {
 			if (!file.isDirectory())
 				continue;
 			String indexName = file.getName();
-			if (user == null || user.hasRole(indexName, Role.INDEX_READ))
+			if (user == null || user.hasAnyRole(indexName, Role.GROUP_INDEX))
 				set.add(indexName);
 		}
 		return set;

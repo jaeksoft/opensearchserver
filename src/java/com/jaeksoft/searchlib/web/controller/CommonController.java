@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
 public abstract class CommonController extends Window implements AfterCompose,
@@ -108,8 +109,6 @@ public abstract class CommonController extends Window implements AfterCompose,
 	}
 
 	public boolean isAdmin() throws SearchLibException {
-		if (ClientCatalog.getUserList().isEmpty())
-			return true;
 		User user = getLoggedUser();
 		if (user == null)
 			return false;
@@ -214,4 +213,24 @@ public abstract class CommonController extends Window implements AfterCompose,
 			}
 		}
 	}
+
+	protected String getIndexName() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return getClient().getIndexDirectory().getName();
+	}
+
+	public boolean isUpdateRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		return getLoggedUser().hasAnyRole(getIndexName(), Role.INDEX_UPDATE);
+	}
+
+	public boolean isSchemaRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		return getLoggedUser().hasAnyRole(getIndexName(), Role.INDEX_SCHEMA);
+	}
+
 }

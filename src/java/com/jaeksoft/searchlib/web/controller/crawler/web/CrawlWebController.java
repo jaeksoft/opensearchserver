@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,9 +30,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
-import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class CrawlController extends CommonController {
+public class CrawlWebController extends CrawlerController {
 
 	/**
 	 * 
@@ -41,7 +41,7 @@ public class CrawlController extends CommonController {
 
 	private int sheetRows;
 
-	public CrawlController() throws SearchLibException {
+	public CrawlWebController() throws SearchLibException {
 		super();
 	}
 
@@ -55,6 +55,8 @@ public class CrawlController extends CommonController {
 	}
 
 	public void onRun() throws IOException, SearchLibException {
+		if (!isWebCrawlerStartStopRights())
+			throw new SearchLibException("Not allowed");
 		WebPropertyManager propertyManager = getClient()
 				.getWebPropertyManager();
 		if (getWebCrawlMaster().isRunning()) {

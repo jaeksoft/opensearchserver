@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,9 +42,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.GenericLink;
-import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class MappingFileController extends CommonController implements
+public class MappingFileController extends CrawlerController implements
 		ListitemRenderer {
 
 	/**
@@ -131,6 +131,8 @@ public class MappingFileController extends CommonController implements
 	public void onAdd() throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
+		if (!isFileCrawlerParametersRights())
+			throw new SearchLibException("Not allowed");
 		if (selectedUrlField == null || selectedIndexField == null)
 			return;
 		FieldMap fieldMap = getFieldMap();
@@ -143,6 +145,8 @@ public class MappingFileController extends CommonController implements
 	public void onLinkRemove(Event event) throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
+		if (!isFileCrawlerParametersRights())
+			throw new SearchLibException("Not allowed");
 		GenericLink<String> link = (GenericLink<String>) event.getData();
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);

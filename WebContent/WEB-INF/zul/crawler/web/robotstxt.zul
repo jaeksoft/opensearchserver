@@ -16,9 +16,9 @@
 -->
 <window id="robotsTxtCtrl"
 	use="com.jaeksoft.searchlib.web.controller.crawler.web.RobotsTxtController">
-	<listbox fixedLayout="true" model="@{robotsTxtCtrl.robotsTxtMap}"
-		selectedItem="@{robotsTxtCtrl.selectedItem}" multiple="false"
-		checkmark="false" mold="paging"
+	<listbox fixedLayout="true" model="@{robotsTxtCtrl.robotsTxtList}"
+		multiple="false" checkmark="false" mold="paging"
+		selectedItem="@{robotsTxtCtrl.selectedItem}"
 		pageSize="@{robotsTxtCtrl.pageSize}">
 		<listhead sizable="true">
 			<listheader label="Hostname" />
@@ -26,17 +26,20 @@
 			<listheader label="Expiration date" />
 		</listhead>
 		<auxhead>
-			<auxheader>
-				<hbox>
-					<textbox width="90%" value="" />
+			<auxheader colspan="3">
+				<hbox width="100%">
+					<textbox cols="70"
+						value="@{robotsTxtCtrl.searchString}" />
 					<button label="Search / Refresh" forward="onSearch" />
+					<space />
+					<button label="Reset" forward="onReset" />
 				</hbox>
 			</auxheader>
 		</auxhead>
-		<listitem self="@{each='entry'}">
-			<listcell label="@{entry.value.crawl.urlItem.URL.host}" />
-			<listcell label="@{entry.value.crawlDate}" />
-			<listcell label="@{entry.value.expirationDate}" />
+		<listitem self="@{each='robotsTxt'}">
+			<listcell label="@{robotsTxt.crawl.urlItem.URL}" />
+			<listcell label="@{robotsTxt.crawlDate}" />
+			<listcell label="@{robotsTxt.expirationDate}" />
 		</listitem>
 	</listbox>
 	<separator height="10px" />
@@ -44,13 +47,12 @@
 		<panel title="RobotsTxt content" border="normal">
 			<panelchildren>
 				<listbox
-					model="@{robotsTxtCtrl.selectedItem.value.disallowList.map}">
-					<listitem self="@{each='entry1'}">
+					model="@{robotsTxtCtrl.selectedItem.disallowList.map}">
+					<listitem self="@{each='entry'}">
 						<listcell>
-							<panel title="@{entry1.key}">
+							<panel title="@{entry.key}">
 								<panelchildren>
-									<listbox
-										model="@{entry1.value.set}">
+									<listbox model="@{entry.value.set}">
 										<listitem
 											self="@{each='entry2'}">
 											<listcell label="@{entry2}" />

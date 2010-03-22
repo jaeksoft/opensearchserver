@@ -14,21 +14,26 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<tabbox>
-	<tabs>
-		<tab id="tabWebCrawler" label="Web" selected="true"/>
-		<tab id="tabFileCrawler" label="Files" />
-	</tabs>
+<window id="crawler" border="none"
+	use="com.jaeksoft.searchlib.web.controller.crawler.CrawlerController">
+	<tabbox>
+		<tabs>
+			<tab id="tabWebCrawler" label="Web" selected="true"
+				visible="@{crawler.webCrawlerRights}" />
+			<tab id="tabFileCrawler" label="Files"
+				visible="@{crawler.fileCrawlerRights}" />
+		</tabs>
 
-	<tabpanels>
+		<tabpanels>
 
-		<tabpanel>
-			<include src="WEB-INF/zul/crawler/web/index.zul" />
-		</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/crawler/web/index.zul" />
+			</tabpanel>
 
-		<tabpanel fulfill="tabFileCrawler.onSelect">
-			<include src="WEB-INF/zul/crawler/file/index.zul" />
-		</tabpanel>
+			<tabpanel fulfill="tabFileCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/file/index.zul" />
+			</tabpanel>
 
-	</tabpanels>
-</tabbox>
+		</tabpanels>
+	</tabbox>
+</window>
