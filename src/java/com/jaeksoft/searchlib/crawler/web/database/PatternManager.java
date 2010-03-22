@@ -57,6 +57,7 @@ public class PatternManager {
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
 
+	// For better performances, pattern are grouped by hostname in a map
 	private Map<String, List<PatternItem>> patternMap = null;
 
 	private File patternFile;

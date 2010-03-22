@@ -48,8 +48,8 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
-import com.jaeksoft.searchlib.crawler.file.database.PathItem;
 import com.jaeksoft.searchlib.crawler.web.process.CrawlThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
@@ -139,12 +139,12 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 	 * @throws java.text.ParseException
 	 * 
 	 */
-	private void addChildrenToCrawl(PathItem item) throws SearchLibException,
-			CorruptIndexException, ParseException,
+	private void addChildrenToCrawl(FilePathItem item)
+			throws SearchLibException, CorruptIndexException, ParseException,
 			UnsupportedEncodingException, java.text.ParseException {
 
 		if (!isAbort()) {
-			File current = new File(item.getPath());
+			File current = item.getFilePath();
 
 			if (current.isFile()) {
 				sendToCrawl(current, current.toURI());
@@ -225,13 +225,13 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 		return indexPluginList;
 	}
 
-	private List<PathItem> getNextPathList() throws ParseException,
+	private List<FilePathItem> getNextPathList() throws ParseException,
 			IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
 
-		List<PathItem> fileList = new ArrayList<PathItem>();
-		config.getFilePathManager().getAllPaths(fileList);
+		List<FilePathItem> fileList = new ArrayList<FilePathItem>();
+		config.getFilePathManager().getAllFilePaths(fileList);
 		return fileList;
 	}
 
@@ -272,16 +272,16 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 			setStatus(CrawlStatus.STARTING);
 
-			List<PathItem> pathList = getNextPathList();
+			List<FilePathItem> pathList = getNextPathList();
 			if (pathList == null)
 				continue;
 
 			setStatus(CrawlStatus.CRAWL);
 			config.getFileManager().reload(true);
 
-			Iterator<PathItem> it = pathList.iterator();
+			Iterator<FilePathItem> it = pathList.iterator();
 			while (!isAbort() && it.hasNext()) {
-				addChildrenToCrawl((PathItem) it.next());
+				addChildrenToCrawl((FilePathItem) it.next());
 
 				while (crawlThreadsSize() >= threadNumber && !isAbort())
 					sleepSec(5);

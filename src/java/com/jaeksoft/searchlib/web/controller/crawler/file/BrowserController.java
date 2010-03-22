@@ -51,8 +51,7 @@ import org.zkoss.zul.event.PagingEvent;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
-import com.jaeksoft.searchlib.crawler.file.database.PathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.util.GenericLink;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -60,9 +59,11 @@ public class BrowserController extends CrawlerController implements
 		ListitemRenderer, AfterCompose {
 
 	private static final long serialVersionUID = 6735801464584819587L;
+
 	private final String ROOT = "..";
 
-	transient private List<PathItem> pathList = null;
+	transient private List<FilePathItem> pathList = null;
+
 	transient private List<File> files;
 
 	private int pageSize;
@@ -155,6 +156,11 @@ public class BrowserController extends CrawlerController implements
 
 	public List<File> getFiles() {
 		synchronized (this) {
+			if (files != null)
+				return files;
+
+			files = null;
+
 			File[] dataToInsert = null;
 			if (currentFile == null) {
 				dataToInsert = File.listRoots();
@@ -182,23 +188,20 @@ public class BrowserController extends CrawlerController implements
 		}
 	}
 
-	public PathItem getPathItem() {
+	public FilePathItem getFilePathItem() {
 		synchronized (this) {
 			try {
 				Client client = getClient();
 				if (client == null)
 					return null;
 
-				pathList = new ArrayList<PathItem>();
+				pathList = new ArrayList<FilePathItem>();
 
-				totalSize = client.getFilePathManager().getPaths("",
+				totalSize = client.getFilePathManager().getFilePaths(null,
 						getActivePage() * getPageSize(), getPageSize(),
 						pathList);
 
-				PathItem result = new PathItem();
-				result.load(pathList);
-
-				return result;
+				return null;
 			} catch (SearchLibException e) {
 				throw new RuntimeException(e);
 			}
@@ -280,22 +283,21 @@ public class BrowserController extends CrawlerController implements
 		synchronized (this) {
 			if (getSelectedFile() != null) {
 				// Already In
-				if (getClient().getFilePathManager().getStrictPaths(
+				if (getClient().getFilePathManager().getFilePaths(
 						getSelectedFile().getPath(), 0, 0, null) > 0) {
 					Messagebox
 							.show("Already In.", "Jaeksoft OpenSearchServer",
 									Messagebox.OK,
 									org.zkoss.zul.Messagebox.INFORMATION);
 				} else {
-					List<PathItem> list = FilePathManager.addPath(
-							getSelectedFile().getPath(), getSelectedFile()
-									.isDirectory()
-									&& isSelectedFileCheck());
-
-					if (list.size() > 0) {
-						getClient().getFilePathManager().addList(list, false);
-					}
-
+					/*
+					 * List<FilePathItem> list = FilePathManager(
+					 * getSelectedFile().getPath(), getSelectedFile()
+					 * .isDirectory() && isSelectedFileCheck());
+					 * 
+					 * if (list.size() > 0) {
+					 * getClient().getFilePathManager().addList(list, false); }
+					 */
 					pathList = null;
 					setSelectedFileCheck(false);
 					setSelectedFilePath(null);

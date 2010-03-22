@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,12 +24,11 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-import java.util.List;
+import java.io.File;
 
 import com.jaeksoft.searchlib.crawler.common.database.Selector;
-import com.jaeksoft.searchlib.util.GenericMap;
 
-public class PathItem extends GenericMap<String> {
+public class FilePathItem {
 
 	private static final String NO = "no";
 	private static final String YES = "yes";
@@ -51,20 +50,20 @@ public class PathItem extends GenericMap<String> {
 	}
 
 	private Status status;
-	private String path;
-	private Selector<PathItem> fileSelector;
+	private File filePath;
+	private Selector<FilePathItem> filePathSelector;
 	private boolean withSub;
 
-	public PathItem() {
+	public FilePathItem() {
 		status = Status.UNDEFINED;
-		path = null;
-		fileSelector = null;
+		filePath = null;
+		filePathSelector = null;
 		withSub = false;
 	}
 
-	public PathItem(String path, boolean withSub) {
+	public FilePathItem(File filePath, boolean withSub) {
 		this();
-		setPath(path);
+		setFilePath(filePath);
 		setWithSub(withSub);
 	}
 
@@ -78,25 +77,25 @@ public class PathItem extends GenericMap<String> {
 
 	public void setSelected(boolean v) {
 		if (v)
-			fileSelector.addSelection(this);
+			filePathSelector.addSelection(this);
 		else
-			fileSelector.removeSelection(this);
+			filePathSelector.removeSelection(this);
 	}
 
 	public boolean isSelected() {
-		return fileSelector.isSelected(this);
+		return filePathSelector.isSelected(this);
 	}
 
-	public void setPath(String s) {
-		path = s;
+	public void setFilePath(File filePath) {
+		this.filePath = filePath;
 	}
 
-	public String getPath() {
-		return path;
+	public File getFilePath() {
+		return filePath;
 	}
 
-	public void setFileSelector(Selector<PathItem> patternSelector) {
-		this.fileSelector = patternSelector;
+	public void setFilePathSelector(Selector<FilePathItem> patternSelector) {
+		this.filePathSelector = patternSelector;
 	}
 
 	public boolean isWithSub() {
@@ -119,12 +118,6 @@ public class PathItem extends GenericMap<String> {
 
 	public void setWithSub(boolean withSub) {
 		this.withSub = withSub;
-	}
-
-	public void load(List<PathItem> items) {
-		for (PathItem current : items) {
-			add(current.getPath(), current.isWithSubToString());
-		}
 	}
 
 }
