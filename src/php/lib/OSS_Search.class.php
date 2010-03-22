@@ -212,7 +212,7 @@ class OSS_Search {
 		if ($this->delete) $queryChunks[] = 'delete';
 
 		// Sorting
-		foreach ((array)$this->sortBy as $sort) {
+		foreach ((array)$this->sort as $sort) {
 			if (empty($sort)) continue;
 			$queryChunks[] = 'sort='.$sort;
 		}
