@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
 
@@ -91,12 +90,16 @@ public class IndexController extends CommonController {
 	public boolean isQueryRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
+		if (isNoUserList())
+			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(), Role.GROUP_INDEX);
 	}
 
 	public boolean isCrawlerRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
+		if (isNoUserList())
+			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(),
 				Role.GROUP_WEB_CRAWLER, Role.GROUP_FILE_CRAWLER);
 	}
@@ -104,13 +107,15 @@ public class IndexController extends CommonController {
 	public boolean isRuntimeRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
+		if (isNoUserList())
+			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(), Role.GROUP_INDEX);
 	}
 
 	public boolean isPrivilegeRights() throws SearchLibException {
 		if (isAdmin())
 			return true;
-		if (ClientCatalog.getUserList().isEmpty())
+		if (isNoUserList())
 			return true;
 		return false;
 	}

@@ -115,8 +115,12 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return user.isAdmin();
 	}
 
+	public boolean isNoUserList() throws SearchLibException {
+		return ClientCatalog.getUserList().isEmpty();
+	}
+
 	public boolean isLogged() throws SearchLibException {
-		if (ClientCatalog.getUserList().isEmpty())
+		if (isNoUserList())
 			return true;
 		return getLoggedUser() != null;
 	}
@@ -224,12 +228,16 @@ public abstract class CommonController extends Window implements AfterCompose,
 	public boolean isUpdateRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
+		if (isNoUserList())
+			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(), Role.INDEX_UPDATE);
 	}
 
 	public boolean isSchemaRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
+		if (isNoUserList())
+			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(), Role.INDEX_SCHEMA);
 	}
 
