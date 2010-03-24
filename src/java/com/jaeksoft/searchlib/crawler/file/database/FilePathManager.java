@@ -105,7 +105,7 @@ public class FilePathManager {
 			xmlWriter.startElement("paths");
 			for (FilePathItem item : filePathMap.values()) {
 				xmlWriter.startElement("path", "withSub", ""
-						+ item.isWithSubToString());
+						+ item.getWithSubToString());
 				xmlWriter.textNode(item.getFilePath().getAbsolutePath());
 				xmlWriter.endElement();
 			}
@@ -189,6 +189,10 @@ public class FilePathManager {
 		}
 	}
 
+	public void add(File file, boolean withSubDir) throws SearchLibException {
+		addPath(new FilePathItem(file, withSubDir));
+	}
+
 	public int getFilePaths(String startsWith, long start, long rows,
 			List<FilePathItem> list) throws SearchLibException {
 		r.lock();
@@ -196,19 +200,29 @@ public class FilePathManager {
 			long end = start + rows;
 			int pos = 0;
 			int total = 0;
-			for (FilePathItem item : filePathMap.values())
+			for (FilePathItem item : filePathMap.values()) {
 				if (startsWith != null) {
 					if (!item.getFilePath().getAbsolutePath().startsWith(
 							startsWith)) {
 						pos++;
 						continue;
 					}
-					if (pos >= start && pos < end)
-						list.add(item);
-					total++;
-					pos++;
 				}
+				if (pos >= start && pos < end)
+					list.add(item);
+				total++;
+				pos++;
+			}
 			return total;
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public FilePathItem getFilePath(File file) {
+		r.lock();
+		try {
+			return filePathMap.get(file);
 		} finally {
 			r.unlock();
 		}

@@ -17,64 +17,86 @@
 <window id="browser"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.BrowserController">
 
-	<grid width="100%">
-		<columns width="100%">
-			<column width="43%">
-				<listbox model="@{browser.files}"
-					selectedItem="@{browser.selectedFilePath}" height="500px">
-					<auxhead>
-						<auxheader colspan="2">
-							<button label="Back" forward="onBack" />
-							<button label="Refresh" forward="onRefresh" />
-						</auxheader>
-					</auxhead>
+	<vbox width="100%">
+		<listbox id="filebrowser" model="@{browser.currentFileList}"
+			selectedItem="@{browser.selectedFile}" height="250px"
+			onSelect="browser.onReload()">
+			<listhead>
+				<listheader label="Local file system">
+					<space width="30px" />
+					<label value="Path: " />
+					<listbox model="@{browser.folderTree}"
+						selectedItem="@{browser.currentFile}" mold="select"
+						onSelect="browser.onReload()">
+						<listitem self="@{each='filepath'}"
+							value="@{filepath}">
+							<listcell label="@{filepath.name}" />
+						</listitem>
+					</listbox>
+					<button visible="@{browser.isNotRoot}"
+						label="Parent folder" forward="onParentFolder" />
+					<space width="30px" />
+					<button label="Refresh the list"
+						forward="onRefresh" />
+				</listheader>
+			</listhead>
+			<listitem self="@{each='file'}">
+				<listcell image="/images/file.png"
+					visible="@{file.file}" label="@{file.name}"
+					onDoubleClick="browser.onOpenFile(self)">
+					<custom-attributes file="@{file}" />
+				</listcell>
+				<listcell image="/images/directory.png"
+					visible="@{file.directory}" label="@{file.name}"
+					onDoubleClick="browser.onOpenFile(self)">
+					<custom-attributes file="@{file}" />
+				</listcell>
+			</listitem>
+			<listfoot>
+				<listfooter>
+					<hbox width="100%" align="center">
+						<label value="@{browser.selectedFile}" />
+						<space width="20px" />
+						<checkbox disabled="@{browser.noSelectedDir}"
+							checked="@{browser.withSubDir}" />
+						<label value="with sub-directory" />
+						<space width="20px" />
+						<button disabled="@{browser.noSelectedFile}"
+							label="Add" forward="onAdd" />
+					</hbox>
+				</listfooter>
+			</listfoot>
+		</listbox>
+	</vbox>
 
-					<listhead>
-						<listheader align="center" width="25px" />
-						<listheader align="left" label="Name" />
-					</listhead>
+	<separator />
 
-					<listitem self="@{each='field'}">
-						<listcell image="/images/file.png"
-							visible="@{field.file}" />
-						<listcell image="/images/directory.png"
-							visible="@{field.directory}" />
-						<listcell label="@{field}"
-							onDoubleClick="browser.onDoubleClick(self)" />
-					</listitem>
-				</listbox>
-			</column>
+	<listbox model="@{browser.filePathItemList}"
+		selectedItem="@{browser.selectedFilePath}" mold="paging"
+		pageSize="20">
+		<listhead>
+			<listheader label="Selection" />
+			<listheader label="With subdir" width="80px" />
+			<listheader width="100px" />
+		</listhead>
+		<listitem self="@{each='filepath'}">
+			<listcell>
+				<custom-attributes file="@{filepath}" />
+				<image src="/images/file.png"
+					visible="@{filepath.filePath.file}" />
+				<image src="/images/directory.png"
+					visible="@{filepath.filePath.directory}" />
+				<label value="@{filepath.filePath}" />
+			</listcell>
+			<listcell>
+				<label value="@{filepath.withSubToString}" />
+			</listcell>
+			<listcell>
+				<button label="remove">
+					<custom-attributes filepath="@{filepath}" />
+				</button>
+			</listcell>
+		</listitem>
+	</listbox>
 
-			<column>
-				<vbox align="center">
-					<label>With all sub-directories</label>
-
-					<checkbox checked="@{browser.selectedFileCheck}"
-						disabled="@{browser.selectedFile.file}" />
-
-					<button label="Add" forward="onAdd" width="80px" />
-				</vbox>
-			</column>
-
-			<column width="43%">
-				<listbox itemRenderer="@{browser}"
-					model="@{browser.pathItem.list}" height="500px">
-					<listhead>
-						<listheader label="Selection" />
-						<listheader label="With all" width="50px" />
-						<listheader label="Reset" width="50px" />
-						<listheader label="Remove" width="60px" />
-					</listhead>
-					<listfoot>
-						<listfooter span="4">
-							<paging id="paging" detailed="true"
-								totalSize="@{browser.totalSize}" pageSize="@{browser.pageSize}"
-								activePage="@{browser.activePage}" />
-						</listfooter>
-					</listfoot>
-				</listbox>
-
-			</column>
-		</columns>
-	</grid>
 </window>

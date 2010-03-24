@@ -102,7 +102,7 @@ public class FilePathItem {
 		return withSub;
 	}
 
-	public String isWithSubToString() {
+	public String getWithSubToString() {
 		return (withSub ? YES : NO);
 	}
 

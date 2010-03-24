@@ -155,6 +155,8 @@ public class StatisticsList {
 
 	private void writeStatList(File statDir, List<StatisticsAbstract> list)
 			throws IOException {
+		if (list == null)
+			return;
 		for (StatisticsAbstract stat : list)
 			stat.save(statDir);
 	}
