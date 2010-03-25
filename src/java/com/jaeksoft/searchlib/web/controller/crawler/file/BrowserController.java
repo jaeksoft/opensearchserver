@@ -155,16 +155,6 @@ public class BrowserController extends CrawlerController implements
 		this.selectedFilePathItem = selectedFilePathItem;
 	}
 
-	private void resetSelectedFilePathItem() throws SearchLibException {
-		selectedFilePathItem = null;
-		if (selectedFile != null)
-			selectedFilePathItem = getClient().getFilePathManager()
-					.getFilePath(selectedFile);
-		if (currentFile != null && selectedFilePathItem == null)
-			selectedFilePathItem = getClient().getFilePathManager()
-					.getFilePath(currentFile);
-	}
-
 	public List<FilePathItem> getFilePathItemList() throws SearchLibException {
 		synchronized (this) {
 			if (filePathItemList != null)
@@ -178,7 +168,6 @@ public class BrowserController extends CrawlerController implements
 			client.getFilePathManager().getFilePaths(null, 0, 1000000,
 					filePathItemList);
 
-			System.out.println("filePathItemList: " + filePathItemList.size());
 			return filePathItemList;
 		}
 	}
@@ -214,6 +203,23 @@ public class BrowserController extends CrawlerController implements
 		}
 	}
 
+	public void onRemoveFilePath(Component component) throws SearchLibException {
+		synchronized (this) {
+			FilePathItem filePathItem = (FilePathItem) component
+					.getAttribute("filepath");
+
+			Client client = getClient();
+			if (client == null)
+				return;
+			FilePathManager filePathManager = client.getFilePathManager();
+			if (filePathManager == null)
+				return;
+			filePathManager.remove(filePathItem.getFilePath());
+			filePathItemList = null;
+			reloadPage();
+		}
+	}
+
 	public void onOpenFile(Component component) throws SearchLibException {
 		synchronized (this) {
 			File file = (File) component.getAttribute("file");
@@ -242,11 +248,27 @@ public class BrowserController extends CrawlerController implements
 		}
 	}
 
+	public void onSelectFilePathItem() {
+		if (selectedFilePathItem == null)
+			return;
+		File f = selectedFilePathItem.getFilePath();
+		if (f == null)
+			return;
+		setCurrentFile(f.getParentFile());
+		setSelectedFile(f);
+		reloadPage();
+	}
+
+	private void invalidateFileBrowserListBox() {
+		Listbox listbox = (Listbox) getFellow("filebrowser");
+		listbox.invalidate();
+
+	}
+
 	@Override
 	public void reloadPage() {
 		synchronized (this) {
-			Listbox listbox = (Listbox) getFellow("filebrowser");
-			listbox.invalidate();
+			invalidateFileBrowserListBox();
 			super.reloadPage();
 		}
 	}

@@ -238,4 +238,14 @@ public class FilePathManager {
 		}
 	}
 
+	public void remove(File file) {
+		w.lock();
+		try {
+			filePathMap.remove(file);
+		} finally {
+			w.unlock();
+		}
+
+	}
+
 }

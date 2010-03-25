@@ -19,15 +19,14 @@
 
 	<vbox width="100%">
 		<listbox id="filebrowser" model="@{browser.currentFileList}"
-			selectedItem="@{browser.selectedFile}" height="250px"
-			onSelect="browser.onReload()">
+			selectedItem="@{browser.selectedFile}" height="250px">
 			<listhead>
 				<listheader label="Local file system">
 					<space width="30px" />
 					<label value="Path: " />
 					<listbox model="@{browser.folderTree}"
 						selectedItem="@{browser.currentFile}" mold="select"
-						onSelect="browser.onReload()">
+						onSelect="browser.reloadPage()">
 						<listitem self="@{each='filepath'}"
 							value="@{filepath}">
 							<listcell label="@{filepath.name}" />
@@ -72,28 +71,30 @@
 	<separator />
 
 	<listbox model="@{browser.filePathItemList}"
-		selectedItem="@{browser.selectedFilePath}" mold="paging"
+		onSelect="browser.onSelectFilePathItem()"
+		selectedItem="@{browser.selectedFilePathItem}" mold="paging"
 		pageSize="20">
 		<listhead>
 			<listheader label="Selection" />
 			<listheader label="With subdir" width="80px" />
 			<listheader width="100px" />
 		</listhead>
-		<listitem self="@{each='filepath'}">
+		<listitem self="@{each='filepathitem'}">
 			<listcell>
-				<custom-attributes file="@{filepath}" />
+				<custom-attributes file="@{filepathitem}" />
 				<image src="/images/file.png"
-					visible="@{filepath.filePath.file}" />
+					visible="@{filepathitem.filePath.file}" />
 				<image src="/images/directory.png"
-					visible="@{filepath.filePath.directory}" />
-				<label value="@{filepath.filePath}" />
+					visible="@{filepathitem.filePath.directory}" />
+				<label value="@{filepathitem.filePath}" />
 			</listcell>
 			<listcell>
-				<label value="@{filepath.withSubToString}" />
+				<label value="@{filepathitem.withSubToString}" />
 			</listcell>
 			<listcell>
-				<button label="remove">
-					<custom-attributes filepath="@{filepath}" />
+				<button label="remove"
+					onClick="browser.onRemoveFilePath(self)">
+					<custom-attributes filepath="@{filepathitem}" />
 				</button>
 			</listcell>
 		</listitem>
