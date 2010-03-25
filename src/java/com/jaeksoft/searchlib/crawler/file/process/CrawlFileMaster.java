@@ -74,6 +74,8 @@ public class CrawlFileMaster extends CrawlThreadAbstract {
 
 	private int delayBetweenAccess;
 
+	private CrawlFileIterator crawlFileIterator;
+
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		this.config = config;
 		threadPool = Executors.newCachedThreadPool();
