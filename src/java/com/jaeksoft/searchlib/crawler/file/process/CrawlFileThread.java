@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.util.List;
+import java.io.File;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -41,64 +41,39 @@ import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 
 public class CrawlFileThread extends CrawlThreadAbstract {
 
-	private final Config config;
-	private final CrawlFileMaster crawlMaster;
 	private FileItem currentFileItem;
-	private final CrawlStatistics currentStats;
-	private final long delayBetweenAccesses;
-	private long nextTimeTarget;
 
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
-			CrawlStatistics sessionStats, List<FileItem> listFile)
-			throws SearchLibException {
-
-		this.config = config;
-		this.crawlMaster = crawlMaster;
+			CrawlStatistics sessionStats) throws SearchLibException {
+		super(config, crawlMaster);
 		currentStats = new CrawlStatistics(sessionStats);
-		delayBetweenAccesses = config.getFilePropertyManager()
-				.getDelayBetweenAccesses().getValue();
-		nextTimeTarget = 0;
-	}
-
-	public CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
-			CrawlStatistics sessionStats, FileItem item)
-			throws SearchLibException {
-
-		this.config = config;
-		this.crawlMaster = crawlMaster;
-		currentStats = new CrawlStatistics(sessionStats);
-		delayBetweenAccesses = config.getFilePropertyManager()
-				.getDelayBetweenAccesses().getValue();
-		nextTimeTarget = 0;
-		currentFileItem = item;
-	}
-
-	private void sleepInterval() {
-		long ms = nextTimeTarget - System.currentTimeMillis();
-		if (ms < 0)
-			return;
-		sleepMs(ms);
+		currentFileItem = null;
 	}
 
 	@Override
 	public void runner() throws Exception {
 		FilePropertyManager propertyManager = config.getFilePropertyManager();
 		boolean dryRun = propertyManager.getDryRun().getValue();
-		FileCrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
+
+		CrawlFileMaster crawlMaster = (CrawlFileMaster) getCrawlMaster();
+		FileCrawlQueue crawlQueue = (FileCrawlQueue) crawlMaster
+				.getCrawlQueue();
 
 		currentStats.addListSize(1);
 
-		if (isAbort() || crawlMaster.isAbort())
-			return;
+		File file;
 
-		CrawlFile crawl = crawlFile(dryRun);
-		if (crawl != null) {
-			if (!dryRun) {
-				crawlQueue.add(currentStats, crawl);
-				if (crawlQueue.shouldWePersist())
-					crawlQueue.index(false);
-			}
+		while ((file = crawlMaster.getNextFile()) != null) {
 
+			if (isAbort() || crawlMaster.isAbort())
+				return;
+
+			currentFileItem = new FileItem(file);
+
+			CrawlFile crawl = crawl(dryRun);
+			if (crawl != null)
+				if (!dryRun)
+					crawlQueue.add(currentStats, crawl);
 		}
 
 		setStatus(CrawlStatus.INDEXATION);
@@ -106,7 +81,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			crawlQueue.index(false);
 	}
 
-	private CrawlFile crawlFile(boolean dryRun) throws SearchLibException {
+	private CrawlFile crawl(boolean dryRun) throws SearchLibException {
 
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
@@ -118,12 +93,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		if (dryRun)
 			return crawl;
 
-		sleepInterval();
-		setStatus(CrawlStatus.CRAWL);
-
-		crawl.download(currentFileItem);
-
-		nextTimeTarget = System.currentTimeMillis() + delayBetweenAccesses;
+		crawl.download();
 
 		if (currentFileItem.getFetchStatus() == FetchStatus.FETCHED
 				&& currentFileItem.getParserStatus() == ParserStatus.PARSED
@@ -135,19 +105,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			currentStats.incIgnoredCount();
 
 		return crawl;
-	}
-
-	@Override
-	public void abort() {
-		super.abort();
-	}
-
-	public boolean getCrawlTimeOutExhausted(int seconds) {
-		synchronized (this) {
-			if (getStatus() != CrawlStatus.CRAWL)
-				return false;
-			return getStatusTimeElapsed() > seconds;
-		}
 	}
 
 	public FileItem getCurrentFileItem() {
@@ -162,28 +119,15 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		}
 	}
 
-	public CrawlStatistics getCurrentStatistics() {
-		return currentStats;
+	@Override
+	public String getCurrentInfo() {
+		if (currentFileItem != null)
+			return currentFileItem.getURI().toASCIIString();
+		return "";
 	}
 
 	@Override
-	public void complete() {
-		crawlMaster.remove(this);
-		synchronized (crawlMaster) {
-			crawlMaster.notify();
-		}
-
-	}
-
-	public String getDebugInfo() {
-		synchronized (this) {
-			StringBuffer sb = new StringBuffer();
-			sb.append(getThreadStatus());
-			sb.append(' ');
-			if (currentFileItem != null)
-				sb.append(currentFileItem.getURI().toASCIIString());
-			return sb.toString();
-		}
+	public void release() {
 	}
 
 }

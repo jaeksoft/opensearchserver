@@ -42,9 +42,12 @@ public class CrawlFileIterator {
 
 	private final Lock lock = new ReentrantLock(true);
 
+	private boolean hasNext;
+
 	protected CrawlFileIterator(FilePathManager filePathManager) {
 		lock.lock();
 		try {
+			hasNext = true;
 			List<FilePathItem> filePathItemList = new ArrayList<FilePathItem>();
 			filePathManager.getAllFilePaths(filePathItemList);
 			filePathItemListIterator = filePathItemList.iterator();
@@ -59,18 +62,28 @@ public class CrawlFileIterator {
 		try {
 			for (;;) {
 				if (filePathItemIterator == null) {
-					FilePathItem filePathItem = filePathItemListIterator.next();
-					if (filePathItem == null)
+					if (!filePathItemListIterator.hasNext())
 						return null;
+					FilePathItem filePathItem = filePathItemListIterator.next();
 					filePathItemIterator = new FilePathItemIterator(
 							filePathItem);
 				} else {
 					File next = filePathItemIterator.next();
 					if (next != null)
 						return next;
+					hasNext = false;
 					filePathItemIterator = null;
 				}
 			}
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public boolean hasNext() {
+		lock.lock();
+		try {
+			return hasNext;
 		} finally {
 			lock.unlock();
 		}

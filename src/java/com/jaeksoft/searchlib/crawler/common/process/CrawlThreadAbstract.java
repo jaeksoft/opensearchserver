@@ -27,7 +27,13 @@ package com.jaeksoft.searchlib.crawler.common.process;
 import java.lang.Thread.State;
 import java.util.concurrent.ExecutorService;
 
+import com.jaeksoft.searchlib.config.Config;
+
 public abstract class CrawlThreadAbstract implements Runnable {
+
+	protected Config config;
+
+	private CrawlMasterAbstract crawlMaster;
 
 	private CrawlStatus status;
 
@@ -41,7 +47,12 @@ public abstract class CrawlThreadAbstract implements Runnable {
 
 	private volatile boolean running;
 
-	protected CrawlThreadAbstract() {
+	protected CrawlStatistics currentStats;
+
+	protected CrawlThreadAbstract(Config config, CrawlMasterAbstract crawlMaster) {
+		this.config = config;
+		this.crawlMaster = crawlMaster;
+		currentStats = null;
 		setStatus(CrawlStatus.NOT_RUNNING);
 		abort = false;
 		thread = null;
@@ -77,6 +88,14 @@ public abstract class CrawlThreadAbstract implements Runnable {
 
 	public long getStatusTimeElapsed() {
 		return (System.currentTimeMillis() - statusTime) / 1000;
+	}
+
+	public boolean getCrawlTimeOutExhausted(int seconds) {
+		synchronized (this) {
+			if (getStatus() != CrawlStatus.CRAWL)
+				return false;
+			return getStatusTimeElapsed() > seconds;
+		}
 	}
 
 	public void setStatus(CrawlStatus status) {
@@ -160,7 +179,7 @@ public abstract class CrawlThreadAbstract implements Runnable {
 
 	public abstract void runner() throws Exception;
 
-	public abstract void complete();
+	public abstract void release();
 
 	final public void run() {
 		abort = false;
@@ -180,7 +199,13 @@ public abstract class CrawlThreadAbstract implements Runnable {
 				setStatus(CrawlStatus.COMPLETE);
 		}
 		setThread(null);
-		complete();
+		if (crawlMaster != null) {
+			crawlMaster.remove(this);
+			synchronized (crawlMaster) {
+				crawlMaster.notify();
+			}
+		}
+		release();
 		running = false;
 	}
 
@@ -220,4 +245,25 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		running = true;
 		threadPool.execute(this);
 	}
+
+	protected CrawlMasterAbstract getCrawlMaster() {
+		return crawlMaster;
+	}
+
+	public String getDebugInfo() {
+		synchronized (this) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(getThreadStatus());
+			sb.append(' ');
+			sb.append(getCurrentInfo());
+			return sb.toString();
+		}
+	}
+
+	protected abstract String getCurrentInfo();
+
+	public CrawlStatistics getCurrentStatistics() {
+		return currentStats;
+	}
+
 }

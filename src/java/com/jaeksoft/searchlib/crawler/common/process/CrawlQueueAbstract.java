@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,49 +26,27 @@ package com.jaeksoft.searchlib.crawler.common.process;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 
-public abstract class CrawlQueueAbstract<T, Z> {
+public abstract class CrawlQueueAbstract {
 
 	private Config config;
 	private CrawlStatistics sessionStats;
 	private int maxBufferSize;
 
-	public CrawlQueueAbstract() {
-	}
+	private final ReentrantLock rl = new ReentrantLock(true);
 
-	public CrawlQueueAbstract(Config config, PropertyManager propertyManager)
+	protected CrawlQueueAbstract(Config config, int maxBufferSize)
 			throws SearchLibException {
+		this.sessionStats = null;
 		this.config = config;
-		this.setSessionStats(null);
-		this.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize()
-				.getValue());
+		this.maxBufferSize = maxBufferSize;
 	}
-
-	public abstract void index(boolean bForce) throws SearchLibException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException;
-
-	public abstract void add(CrawlStatistics currentStats, T crawl)
-			throws NoSuchAlgorithmException, IOException, SearchLibException;
-
-	public abstract void delete(CrawlStatistics currentStats, String url);
-
-	protected abstract boolean deleteCollection(List<String> workDeleteUrlList)
-			throws SearchLibException;
-
-	protected abstract boolean insertCollection(List<Z> workInsertUrlList)
-			throws SearchLibException;
-
-	protected abstract boolean updateCrawls(List<T> workUpdateCrawlList)
-			throws SearchLibException;
 
 	public void setStatistiques(CrawlStatistics stats) {
 		this.sessionStats = stats;
@@ -86,15 +64,45 @@ public abstract class CrawlQueueAbstract<T, Z> {
 		return maxBufferSize;
 	}
 
-	public void setMaxBufferSize(int maxBufferSize) {
-		this.maxBufferSize = maxBufferSize;
-	}
-
 	public Config getConfig() {
 		return config;
 	}
 
-	public void setConfig(Config config) {
-		this.config = config;
+	protected abstract boolean workingInProgress();
+
+	protected abstract boolean shouldWePersist();
+
+	private boolean weMustIndexNow() {
+		synchronized (this) {
+			if (!shouldWePersist())
+				return false;
+			if (workingInProgress())
+				return false;
+			return true;
+		}
+	}
+
+	protected abstract void indexWork() throws SearchLibException, IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException;
+
+	protected abstract void initWorking();
+
+	protected abstract void resetWork();
+
+	public void index(boolean bForce) throws SearchLibException, IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
+		if (!bForce)
+			if (!weMustIndexNow())
+				return;
+		rl.lock();
+		try {
+			initWorking();
+			indexWork();
+			resetWork();
+		} finally {
+			rl.unlock();
+		}
 	}
 }

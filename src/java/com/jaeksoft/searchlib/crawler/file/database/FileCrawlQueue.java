@@ -29,6 +29,8 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.http.HttpException;
 
@@ -38,107 +40,113 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 
-public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
+public class FileCrawlQueue extends CrawlQueueAbstract {
 
 	private List<CrawlFile> updateCrawlList;
 	private List<String> deleteUriList;
-	private List<String> deleteOriginalUriList;
-	final private Object indexSync = new Object();
 
-	public FileCrawlQueue(Config config) throws SearchLibException {
-		setConfig(config);
+	private List<CrawlFile> workingUpdateCrawlList;
+	private List<String> workingDeleteUriList;
+
+	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
+	private final Lock r = rwl.readLock();
+	private final Lock w = rwl.writeLock();
+
+	public FileCrawlQueue(Config config, FilePropertyManager propertyManager)
+			throws SearchLibException {
+		super(config, propertyManager.getIndexDocumentBufferSize().getValue());
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
 		this.deleteUriList = new ArrayList<String>(0);
-		this.deleteOriginalUriList = new ArrayList<String>(0);
 	}
 
-	@Override
 	public void add(CrawlStatistics crawlStats, CrawlFile crawl)
 			throws NoSuchAlgorithmException, IOException, SearchLibException {
-		synchronized (updateCrawlList) {
+		r.lock();
+		try {
 			updateCrawlList.add(crawl);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public void delete(CrawlStatistics crawlStats, String uri) {
+		r.lock();
+		try {
+			deleteUriList.add(uri);
+		} finally {
+			r.unlock();
 		}
 	}
 
 	@Override
-	public void delete(CrawlStatistics crawlStats, String uri) {
-		synchronized (deleteUriList) {
-			deleteUriList.add(uri);
-		}
-	}
-
-	public void deleteByOriginalUri(String originalUri) {
-		synchronized (deleteOriginalUriList) {
-			deleteOriginalUriList.add(originalUri);
-		}
-	}
-
-	public boolean shouldWePersist() {
-		synchronized (updateCrawlList) {
+	protected boolean shouldWePersist() {
+		r.lock();
+		try {
 			if (updateCrawlList.size() >= getMaxBufferSize())
 				return true;
 			if (deleteUriList.size() >= getMaxBufferSize())
 				return true;
-			if (deleteOriginalUriList.size() >= 1)
-				return true;
+			return false;
+		} finally {
+			r.unlock();
 		}
-
-		return false;
 	}
 
 	@Override
-	public void index(boolean bForce) throws SearchLibException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		List<CrawlFile> workUpdateCrawlList;
-		List<String> workDeleteUriList;
-		List<String> workDeleteOriginalUriList;
-		synchronized (this) {
-			if (!bForce)
-				if (!shouldWePersist())
-					return;
+	protected boolean workingInProgress() {
+		r.lock();
+		try {
+			if (workingUpdateCrawlList != null)
+				return true;
+			if (workingDeleteUriList != null)
+				return true;
+			return false;
+		} finally {
+			r.unlock();
+		}
+	}
 
-			workUpdateCrawlList = updateCrawlList;
+	@Override
+	protected void initWorking() {
+		w.lock();
+		try {
+			workingUpdateCrawlList = updateCrawlList;
+			workingDeleteUriList = deleteUriList;
+
 			updateCrawlList = new ArrayList<CrawlFile>(0);
-
-			workDeleteUriList = deleteUriList;
 			deleteUriList = new ArrayList<String>(0);
 
-			workDeleteOriginalUriList = deleteOriginalUriList;
-			deleteOriginalUriList = new ArrayList<String>(0);
+			getSessionStats().resetPending();
+		} finally {
+			w.unlock();
 		}
+	}
 
+	@Override
+	protected void resetWork() {
+		w.lock();
+		try {
+			workingUpdateCrawlList = null;
+			workingDeleteUriList = null;
+		} finally {
+			w.unlock();
+		}
+	}
+
+	@Override
+	protected void indexWork() throws SearchLibException, IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
 		FileManager fileManager = getConfig().getFileManager();
-
-		// Synchronization to avoid simoultaneous indexation process
-		synchronized (indexSync) {
-			boolean needReload = false;
-
-			// Update
-			if (updateCrawls(workUpdateCrawlList))
-				needReload = true;
-
-			// Delete
-			if (deleteCollection(workDeleteUriList))
-				needReload = true;
-
-			// Delete by original URI
-			if (deleteCollectionByOriginalURI(workDeleteOriginalUriList))
-				needReload = true;
-
-			if (needReload)
-				fileManager.reload(false);
-		}
+		boolean needReload = false;
+		if (deleteCollection(workingDeleteUriList))
+			needReload = true;
+		if (updateCrawls(workingUpdateCrawlList))
+			needReload = true;
+		if (needReload)
+			fileManager.reload(false);
 	}
 
-	@Override
-	protected boolean insertCollection(List<FileItem> workInsertUrlList)
-			throws SearchLibException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList)
 			throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
@@ -150,7 +158,6 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		return true;
 	}
 
-	@Override
 	protected boolean deleteCollection(List<String> workDeleteUriList)
 			throws SearchLibException {
 		if (workDeleteUriList.size() == 0)
@@ -162,15 +169,4 @@ public class FileCrawlQueue extends CrawlQueueAbstract<CrawlFile, FileItem> {
 		return true;
 	}
 
-	protected boolean deleteCollectionByOriginalURI(
-			List<String> workDeleteOriginalUriList) throws SearchLibException {
-		if (workDeleteOriginalUriList.size() == 0)
-			return false;
-
-		FileManager manager = (FileManager) getConfig().getFileManager();
-		int nbFilesDeleted = manager
-				.deleteByOriginalUri(workDeleteOriginalUriList);
-		getSessionStats().addDeletedCount(nbFilesDeleted);
-		return true;
-	}
 }

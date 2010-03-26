@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,12 +45,9 @@ import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
-public class CrawlThread extends CrawlThreadAbstract {
+public class WebCrawlThread extends CrawlThreadAbstract {
 
-	private Config config;
-	private WebCrawlMaster crawlMaster;
 	private UrlItem currentUrlItem;
-	private CrawlStatistics currentStats;
 	private long delayBetweenAccesses;
 	private HttpDownloader httpDownloader;
 	private HttpDownloader httpDownloaderRobotsTxt;
@@ -58,12 +55,11 @@ public class CrawlThread extends CrawlThreadAbstract {
 	private List<UrlItem> urlList;
 	private NamedItem host;
 
-	protected CrawlThread(Config config, WebCrawlMaster crawlMaster,
+	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
 			CrawlStatistics sessionStats, List<UrlItem> urlList, NamedItem host)
 			throws SearchLibException {
+		super(config, crawlMaster);
 		this.host = host;
-		this.config = config;
-		this.crawlMaster = crawlMaster;
 		this.currentUrlItem = null;
 		currentStats = new CrawlStatistics(sessionStats);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
@@ -94,7 +90,8 @@ public class CrawlThread extends CrawlThreadAbstract {
 		currentStats.addListSize(urlList.size());
 
 		Iterator<UrlItem> iterator = urlList.iterator();
-		UrlCrawlQueue crawlQueue = crawlMaster.getCrawlQueue();
+		WebCrawlMaster crawlMaster = (WebCrawlMaster) getCrawlMaster();
+		UrlCrawlQueue crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 
 		while (iterator.hasNext()) {
 
@@ -171,19 +168,6 @@ public class CrawlThread extends CrawlThreadAbstract {
 		return crawl;
 	}
 
-	@Override
-	public void abort() {
-		super.abort();
-	}
-
-	public boolean getCrawlTimeOutExhausted(int seconds) {
-		synchronized (this) {
-			if (getStatus() != CrawlStatus.CRAWL)
-				return false;
-			return getStatusTimeElapsed() > seconds;
-		}
-	}
-
 	public UrlItem getCurrentUrlItem() {
 		synchronized (this) {
 			return currentUrlItem;
@@ -202,30 +186,17 @@ public class CrawlThread extends CrawlThreadAbstract {
 		}
 	}
 
-	public CrawlStatistics getCurrentStatistics() {
-		return currentStats;
+	@Override
+	public void release() {
+		httpDownloader.release();
+		httpDownloaderRobotsTxt.release();
 	}
 
 	@Override
-	public void complete() {
-		crawlMaster.remove(this);
-		httpDownloader.release();
-		httpDownloaderRobotsTxt.release();
-		synchronized (crawlMaster) {
-			crawlMaster.notify();
-		}
-
-	}
-
-	public String getDebugInfo() {
-		synchronized (this) {
-			StringBuffer sb = new StringBuffer();
-			sb.append(getThreadStatus());
-			sb.append(' ');
-			if (currentUrlItem != null)
-				sb.append(currentUrlItem.getUrl());
-			return sb.toString();
-		}
+	protected String getCurrentInfo() {
+		if (currentUrlItem == null)
+			return "";
+		return currentUrlItem.getUrl();
 	}
 
 }

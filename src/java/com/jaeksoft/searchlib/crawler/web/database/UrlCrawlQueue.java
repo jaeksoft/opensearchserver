@@ -30,7 +30,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.http.HttpException;
@@ -41,7 +40,7 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 
-public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
+public class UrlCrawlQueue extends CrawlQueueAbstract {
 
 	private List<Crawl> updateCrawlList;
 	private List<UrlItem> insertUrlList;
@@ -54,10 +53,10 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
-	private final ReentrantLock rl = new ReentrantLock(true);
 
-	public UrlCrawlQueue(Config config) throws SearchLibException {
-		setConfig(config);
+	public UrlCrawlQueue(Config config, WebPropertyManager propertyManager)
+			throws SearchLibException {
+		super(config, propertyManager.getIndexDocumentBufferSize().getValue());
 		updateCrawlList = new ArrayList<Crawl>(0);
 		insertUrlList = new ArrayList<UrlItem>(0);
 		deleteUrlList = new ArrayList<String>(0);
@@ -66,7 +65,6 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		workingDeleteUrlList = null;
 	}
 
-	@Override
 	public void add(CrawlStatistics currentStats, Crawl crawl)
 			throws NoSuchAlgorithmException, IOException, SearchLibException {
 		r.lock();
@@ -84,7 +82,6 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 	}
 
-	@Override
 	public void delete(CrawlStatistics currentStats, String url) {
 		r.lock();
 		try {
@@ -97,7 +94,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 	}
 
-	private boolean shouldWePersist() {
+	@Override
+	protected boolean shouldWePersist() {
 		r.lock();
 		try {
 			if (updateCrawlList.size() > getMaxBufferSize())
@@ -112,7 +110,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 	}
 
-	private boolean workingInProgress() {
+	@Override
+	protected boolean workingInProgress() {
 		r.lock();
 		try {
 			if (workingUpdateCrawlList != null)
@@ -127,7 +126,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 	}
 
-	private void initWorking() {
+	@Override
+	protected void initWorking() {
 		w.lock();
 		try {
 			workingUpdateCrawlList = updateCrawlList;
@@ -144,17 +144,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 	}
 
-	private boolean weMustIndexNow() {
-		synchronized (this) {
-			if (!shouldWePersist())
-				return false;
-			if (workingInProgress())
-				return false;
-			return true;
-		}
-	}
-
-	private void resetWork() {
+	@Override
+	protected void resetWork() {
 		w.lock();
 		try {
 			workingUpdateCrawlList = null;
@@ -165,40 +156,23 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		}
 	}
 
-	private void indexWork() throws SearchLibException, IOException,
+	@Override
+	protected void indexWork() throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		rl.lock();
-		try {
-			initWorking();
-			UrlManager urlManager = getConfig().getUrlManager();
-			boolean needReload = false;
-			if (deleteCollection(workingDeleteUrlList))
-				needReload = true;
-			if (updateCrawls(workingUpdateCrawlList))
-				needReload = true;
-			if (insertCollection(workingInsertUrlList))
-				needReload = true;
-			if (needReload)
-				urlManager.reload(false);
-			resetWork();
-		} finally {
-			rl.unlock();
-		}
+		UrlManager urlManager = getConfig().getUrlManager();
+		boolean needReload = false;
+		if (deleteCollection(workingDeleteUrlList))
+			needReload = true;
+		if (updateCrawls(workingUpdateCrawlList))
+			needReload = true;
+		if (insertCollection(workingInsertUrlList))
+			needReload = true;
+		if (needReload)
+			urlManager.reload(false);
 	}
 
-	@Override
-	public void index(boolean bForce) throws SearchLibException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		if (!bForce)
-			if (!weMustIndexNow())
-				return;
-		indexWork();
-	}
-
-	@Override
-	protected boolean deleteCollection(List<String> workDeleteUrlList)
+	private boolean deleteCollection(List<String> workDeleteUrlList)
 			throws SearchLibException {
 		if (workDeleteUrlList.size() == 0)
 			return false;
@@ -208,8 +182,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		return true;
 	}
 
-	@Override
-	protected boolean updateCrawls(List<Crawl> workUpdateCrawlList)
+	private boolean updateCrawls(List<Crawl> workUpdateCrawlList)
 			throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
@@ -219,8 +192,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract<Crawl, UrlItem> {
 		return true;
 	}
 
-	@Override
-	protected boolean insertCollection(List<UrlItem> workInsertUrlList)
+	private boolean insertCollection(List<UrlItem> workInsertUrlList)
 			throws SearchLibException {
 		if (workInsertUrlList.size() == 0)
 			return false;

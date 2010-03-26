@@ -25,100 +25,48 @@
 package com.jaeksoft.searchlib.crawler.web.process;
 
 import java.io.IOException;
-import java.lang.Thread.State;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
-import com.jaeksoft.searchlib.crawler.file.process.CrawlFileThread;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
-public class WebCrawlMaster extends CrawlThreadAbstract {
-
-	private final LinkedHashSet<CrawlThread> crawlThreads;
-
-	private CrawlThread[] crawlThreadArray;
+public class WebCrawlMaster extends CrawlMasterAbstract {
 
 	private final LinkedList<NamedItem> oldHostList;
 
 	private final LinkedList<NamedItem> newHostList;
 
-	private final LinkedList<CrawlStatistics> statistics;
-
-	private final Config config;
-
-	private IndexPluginList indexPluginList;
-
-	private CrawlStatistics sessionStats;
-
-	private UrlCrawlQueue crawlQueue;
-
 	private Date fetchIntervalDate;
-
-	private final ExecutorService threadPool;
 
 	private int maxUrlPerSession;
 
 	private int maxUrlPerHost;
 
 	public WebCrawlMaster(Config config) throws SearchLibException {
-		this.config = config;
-		threadPool = Executors.newCachedThreadPool();
-		crawlThreads = new LinkedHashSet<CrawlThread>();
-		crawlThreadArray = null;
+		super(config);
 		crawlQueue = null;
 		oldHostList = new LinkedList<NamedItem>();
 		newHostList = new LinkedList<NamedItem>();
-		statistics = new LinkedList<CrawlStatistics>();
-		sessionStats = null;
 		if (config.getWebPropertyManager().getCrawlEnabled().getValue()) {
 			System.out.println("Webcrawler is starting for "
 					+ config.getIndexDirectory().getName());
 			start();
-		}
-	}
-
-	public void start() {
-		if (isRunning())
-			return;
-		try {
-			crawlQueue = new UrlCrawlQueue(config);
-			setStatus(CrawlStatus.STARTING);
-			indexPluginList = new IndexPluginList(config
-					.getIndexPluginTemplateList());
-		} catch (SearchLibException e) {
-			e.printStackTrace();
-			setStatus(CrawlStatus.ERROR);
-			setInfo(e.getMessage());
-			return;
-		}
-		super.start(threadPool);
-	}
-
-	private void addStatistics(CrawlStatistics stats) {
-		synchronized (statistics) {
-			if (statistics.size() >= 10)
-				statistics.removeLast();
-			statistics.addFirst(stats);
 		}
 	}
 
@@ -127,9 +75,11 @@ public class WebCrawlMaster extends CrawlThreadAbstract {
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		while (!isAbort()) {
 
-			sessionStats = new CrawlStatistics();
-			addStatistics(sessionStats);
-			crawlQueue.setStatistiques(sessionStats);
+			crawlQueue = new UrlCrawlQueue(config, propertyManager);
+
+			currentStats = new CrawlStatistics();
+			addStatistics(currentStats);
+			crawlQueue.setStatistiques(currentStats);
 
 			int threadNumber = propertyManager.getMaxThreadNumber().getValue();
 			maxUrlPerSession = propertyManager.getMaxUrlPerSession().getValue();
@@ -157,8 +107,8 @@ public class WebCrawlMaster extends CrawlThreadAbstract {
 				if (urlList == null)
 					continue;
 
-				CrawlThread crawlThread = new CrawlThread(config, this,
-						sessionStats, urlList, host);
+				CrawlThreadAbstract crawlThread = new WebCrawlThread(config,
+						this, currentStats, urlList, host);
 				add(crawlThread);
 
 				while (crawlThreadsSize() >= threadNumber && !isAbort())
@@ -168,7 +118,7 @@ public class WebCrawlMaster extends CrawlThreadAbstract {
 			waitForChild();
 			setStatus(CrawlStatus.INDEXATION);
 			crawlQueue.index(true);
-			if (sessionStats.getUrlCount() > 0) {
+			if (currentStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getUrlManager().reload(
 						propertyManager.getOptimizeAfterSession().getValue());
@@ -199,9 +149,9 @@ public class WebCrawlMaster extends CrawlThreadAbstract {
 				.getFetchInterval().getValue());
 		config.getUrlManager().getOldHostToFetch(fetchIntervalDate,
 				maxUrlPerSession, oldHostList);
-		sessionStats.addOldHostListSize(oldHostList.size());
+		currentStats.addOldHostListSize(oldHostList.size());
 		config.getUrlManager().getNewHostToFetch(maxUrlPerSession, newHostList);
-		sessionStats.addNewHostListSize(newHostList.size());
+		currentStats.addNewHostListSize(newHostList.size());
 	}
 
 	private NamedItem getNextHost() {
@@ -209,7 +159,7 @@ public class WebCrawlMaster extends CrawlThreadAbstract {
 			NamedItem host = oldHostList.poll();
 			if (host != null) {
 				host.setList(oldHostList);
-				sessionStats.incOldHostCount();
+				currentStats.incOldHostCount();
 				return host;
 			}
 		}
@@ -217,7 +167,7 @@ public class WebCrawlMaster extends CrawlThreadAbstract {
 			NamedItem host = newHostList.poll();
 			if (host != null) {
 				host.setList(newHostList);
-				sessionStats.incNewHostCount();
+				currentStats.incNewHostCount();
 				return host;
 			}
 		}
@@ -225,7 +175,7 @@ public class WebCrawlMaster extends CrawlThreadAbstract {
 	}
 
 	protected int urlLeft() {
-		return (int) (maxUrlPerSession - sessionStats.getFetchedCount());
+		return (int) (maxUrlPerSession - currentStats.getFetchedCount());
 	}
 
 	private int urlLeftPerHost() {
@@ -256,104 +206,9 @@ public class WebCrawlMaster extends CrawlThreadAbstract {
 		return urlList;
 	}
 
-	public List<CrawlStatistics> getStatistics() {
-		return statistics;
-	}
-
-	private int crawlThreadsSize() {
-		synchronized (crawlThreads) {
-			return crawlThreads.size();
-		}
-	}
-
-	private void add(CrawlThread crawlThread) {
-		synchronized (crawlThreads) {
-			crawlThreads.add(crawlThread);
-			crawlThreadArray = null;
-		}
-		crawlThread.start(threadPool);
-	}
-
-	protected void remove(CrawlThread crawlThread) {
-		synchronized (crawlThreads) {
-			crawlThreads.remove(crawlThread);
-			crawlThreadArray = null;
-		}
-	}
-
-	protected void remove(CrawlFileThread crawlThread) {
-		synchronized (crawlThreads) {
-			crawlThreads.remove(crawlThread);
-			crawlThreadArray = null;
-		}
-	}
-
-	private void waitForChild() {
-		while (crawlThreadsSize() > 0) {
-			try {
-				synchronized (this) {
-					wait(5000);
-				}
-				// Remove terminated thread
-				synchronized (crawlThreads) {
-					boolean remove = false;
-					Iterator<CrawlThread> it = crawlThreads.iterator();
-					while (it.hasNext()) {
-						CrawlThread crawlThread = it.next();
-						if (crawlThread.getThreadState() == State.TERMINATED) {
-							it.remove();
-							remove = true;
-						} else if (crawlThread.getCrawlTimeOutExhausted(300)) {
-							crawlThread.abort();
-							it.remove();
-							remove = true;
-						}
-					}
-					if (remove)
-						crawlThreadArray = null;
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			sleepSec(1);
-		}
-	}
-
-	@Override
-	public void abort() {
-		synchronized (this) {
-			synchronized (crawlThreads) {
-				for (CrawlThread crawlThread : crawlThreads)
-					crawlThread.abort();
-			}
-			super.abort();
-		}
-	}
-
-	public CrawlThread[] getCrawlThreads() {
-		synchronized (crawlThreads) {
-			if (crawlThreadArray != null)
-				return crawlThreadArray;
-			crawlThreadArray = new CrawlThread[crawlThreads.size()];
-			return crawlThreads.toArray(crawlThreadArray);
-		}
-	}
-
 	public boolean isFull() throws SearchLibException {
-		return sessionStats.getFetchedCount() >= config.getWebPropertyManager()
+		return currentStats.getFetchedCount() >= config.getWebPropertyManager()
 				.getMaxUrlPerSession().getValue();
-	}
-
-	public IndexPluginList getIndexPluginList() {
-		return indexPluginList;
-	}
-
-	protected UrlCrawlQueue getCrawlQueue() {
-		return crawlQueue;
-	}
-
-	@Override
-	public void complete() {
 	}
 
 }

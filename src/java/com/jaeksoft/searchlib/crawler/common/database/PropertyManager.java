@@ -41,6 +41,7 @@ public abstract class PropertyManager {
 	private PropertyItem<Boolean> crawlEnabled;
 	private PropertyItem<Boolean> optimizeAfterSession;
 	private PropertyItem<Boolean> dryRun;
+	private PropertyItem<Integer> maxThreadNumber;
 
 	protected PropertyManager(File file) throws IOException {
 		propFile = file;
@@ -59,6 +60,7 @@ public abstract class PropertyManager {
 		}
 		indexDocumentBufferSize = new PropertyItem<Integer>(this,
 				"indexDocumentBufferSize", 1000);
+		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10);
 		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 10);
 		crawlEnabled = newBooleanProperty("crawlEnabled", false);
 		optimizeAfterSession = newBooleanProperty("optimizeAfterSession", true);
@@ -134,4 +136,9 @@ public abstract class PropertyManager {
 	public PropertyItem<Integer> getIndexDocumentBufferSize() {
 		return indexDocumentBufferSize;
 	}
+
+	public PropertyItem<Integer> getMaxThreadNumber() {
+		return maxThreadNumber;
+	}
+
 }

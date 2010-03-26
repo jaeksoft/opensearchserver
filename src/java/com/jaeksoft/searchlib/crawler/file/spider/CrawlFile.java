@@ -31,8 +31,6 @@ import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FilenameUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
@@ -72,34 +70,32 @@ public class CrawlFile {
 	 * 
 	 * @param userAgent
 	 */
-	public void download(FileItem item) {
+	public void download() {
 		synchronized (this) {
 			try {
 				ParserSelector parserSelector = config.getParserSelector();
-				Parser parser = parserSelector
-						.getParserFromExtension(FilenameUtils.getExtension(item
-								.getURI().toASCIIString()));
+				Parser parser = parserSelector.getParserFromExtension(fileItem
+						.getExtension());
 
 				// Get default parser
 				if (parser == null)
 					parser = parserSelector.getFileCrawlerDefaultParser();
-				
+
 				// Parser Choice
 				if (parser == null) {
-					item.setParserStatus(ParserStatus.NOPARSER);
+					fileItem.setParserStatus(ParserStatus.NOPARSER);
 					return;
 				}
 
-				item.setParserStatus(ParserStatus.PARSED);
+				fileItem.setParserStatus(ParserStatus.PARSED);
 
 				IndexDocument sourceDocument = new IndexDocument();
 				fileItem.populate(sourceDocument);
 
 				parser.setSourceDocument(sourceDocument);
-				parser.parseContent(item.getFileInputStream());
+				parser.parseContent(fileItem.getFileInputStream());
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
-				fileItem.setParserStatus(item.getParserStatus());
 				fileItem.setFetchStatus(FetchStatus.FETCHED);
 
 				this.parser = parser;

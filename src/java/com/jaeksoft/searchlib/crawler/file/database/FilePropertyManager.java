@@ -33,7 +33,6 @@ public class FilePropertyManager extends PropertyManager {
 
 	public FilePropertyManager(File file) throws IOException {
 		super(file);
-		// Change default value to 100
 		getDelayBetweenAccesses().setValue(100);
 	}
 

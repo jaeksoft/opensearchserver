@@ -179,19 +179,16 @@ public class FileItem implements Serializable {
 					.getValue(FileItemFieldEnum.fileExtension.name(), 0));
 	}
 
-	public FileItem(URI uri, URI directory, URI original, long fileSystemDate,
-			long size) {
+	public FileItem(File file) {
 		this();
-		setURI(uri);
-		setOriginalURI(original);
-		setDirectoryURI(directory);
+		setURI(file.toURI());
+		setOriginalURI(file.toURI());
+		setDirectoryURI(file.getParentFile().toURI());
 		setCrawlDate(System.currentTimeMillis());
-		setFileSystemDate(fileSystemDate);
-		setSize(size);
+		setFileSystemDate(file.lastModified());
+		setSize(file.length());
 		setExtension(FilenameUtils.getExtension(uri.toASCIIString()));
 	}
-
-	
 
 	public Integer getContentLength() {
 		return contentLength;
@@ -491,7 +488,7 @@ public class FileItem implements Serializable {
 			return new FileInputStream(getFile());
 		return null;
 	}
-	
+
 	public final static URI parseValueToURI(String value)
 			throws URISyntaxException {
 		if (value != null)
