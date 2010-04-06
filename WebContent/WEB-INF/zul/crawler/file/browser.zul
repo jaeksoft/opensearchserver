@@ -40,15 +40,13 @@
 				</listheader>
 			</listhead>
 			<listitem self="@{each='file'}">
-				<listcell image="/images/file.png"
-					visible="@{file.file}" label="@{file.name}"
-					onDoubleClick="browser.onOpenFile(self)">
+				<listcell onDoubleClick="browser.onOpenFile(self)">
 					<custom-attributes file="@{file}" />
-				</listcell>
-				<listcell image="/images/directory.png"
-					visible="@{file.directory}" label="@{file.name}"
-					onDoubleClick="browser.onOpenFile(self)">
-					<custom-attributes file="@{file}" />
+					<image src="/images/file.png"
+						visible="@{file.file}" />
+					<image src="/images/directory.png"
+						visible="@{file.directory}" />
+					<label value="@{file.name}" />
 				</listcell>
 			</listitem>
 			<listfoot>
@@ -56,12 +54,13 @@
 					<hbox width="100%" align="center">
 						<label value="@{browser.selectedFile}" />
 						<space width="20px" />
-						<checkbox disabled="@{browser.noSelectedDir}"
+						<checkbox id="filebrowsercheckboxsubdir"
+							disabled="@{browser.noSelectedDir}"
 							checked="@{browser.withSubDir}" />
 						<label value="with sub-directory" />
 						<space width="20px" />
-						<button disabled="@{browser.noSelectedFile}"
-							label="Add" forward="onAdd" />
+						<button id="filebrowserbuttonadd"
+							disabled="@{browser.noSelectedFile}" label="Add" forward="onAdd" />
 					</hbox>
 				</listfooter>
 			</listfoot>

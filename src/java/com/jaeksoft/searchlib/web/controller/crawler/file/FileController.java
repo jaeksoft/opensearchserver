@@ -71,6 +71,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	@Override
 	public void afterCompose() {
+		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
 			public void onEvent(Event event) {
 				onPaging((PagingEvent) event);

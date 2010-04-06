@@ -17,7 +17,7 @@
 <window id="home"
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
 	<panel title="Create a new index" border="normal"
-		visible="@{home.admin}">
+		visible="@{home.adminOrNoUser}">
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
@@ -35,9 +35,9 @@
 					</row>
 					<row>
 						<label value="Template: " />
-						<listbox mold="select" fixedLayout="true"
+						<listbox mold="select"
 							selectedItem="@{home.newIndexTemplate}"
-							model="@{home.templateList}">
+							model="@{home.templateList}" onSelect="home.onReload()">
 							<listitem self="@{each=telist}"
 								label="@{telist.template.publicName}" />
 						</listbox>

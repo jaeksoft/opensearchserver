@@ -99,6 +99,10 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return getClient() == null;
 	}
 
+	public void invalidate(String id) {
+		getFellow(id).invalidate();
+	}
+
 	public String getCurrentPage() throws SearchLibException {
 		String page = isLogged() ? "controlpanel.zul" : "login.zul";
 		return "WEB-INF/zul/" + page;
@@ -117,6 +121,12 @@ public abstract class CommonController extends Window implements AfterCompose,
 
 	public boolean isNoUserList() throws SearchLibException {
 		return ClientCatalog.getUserList().isEmpty();
+	}
+
+	public boolean isAdminOrNoUser() throws SearchLibException {
+		if (isNoUserList())
+			return true;
+		return isAdmin();
 	}
 
 	public boolean isLogged() throws SearchLibException {

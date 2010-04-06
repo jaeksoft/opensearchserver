@@ -85,6 +85,10 @@
 		<servlet-class>com.jaeksoft.searchlib.web.SearchServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>Schema</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.SchemaServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>Documents</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.DocumentsServlet</servlet-class>
 	</servlet>
@@ -130,6 +134,10 @@
 		<servlet-name>Search</servlet-name>
 		<url-pattern>/select</url-pattern>
 		<url-pattern>/search</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Schema</servlet-name>
+		<url-pattern>/schema</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Documents</servlet-name>

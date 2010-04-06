@@ -32,7 +32,8 @@ import org.apache.lucene.queryParser.ParseException;
 import org.zkoss.zhtml.Messagebox;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.ext.AfterCompose;
-import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Button;
+import org.zkoss.zul.Checkbox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -82,6 +83,10 @@ public class BrowserController extends CrawlerController implements
 	public void setSelectedFile(File selectedFile) {
 		this.selectedFile = selectedFile;
 		withSubDir = false;
+		((Button) getFellow("filebrowserbuttonadd"))
+				.setDisabled(isNoSelectedFile());
+		((Checkbox) getFellow("filebrowsercheckboxsubdir"))
+				.setDisabled(isNoSelectedFile());
 	}
 
 	public void setWithSubDir(boolean b) {
@@ -225,6 +230,7 @@ public class BrowserController extends CrawlerController implements
 			File file = (File) component.getAttribute("file");
 			if (file.isDirectory()) {
 				setCurrentFile(file);
+				invalidate("filebrowser");
 				reloadPage();
 			}
 
@@ -257,20 +263,6 @@ public class BrowserController extends CrawlerController implements
 		setCurrentFile(f.getParentFile());
 		setSelectedFile(f);
 		reloadPage();
-	}
-
-	private void invalidateFileBrowserListBox() {
-		Listbox listbox = (Listbox) getFellow("filebrowser");
-		listbox.invalidate();
-
-	}
-
-	@Override
-	public void reloadPage() {
-		synchronized (this) {
-			invalidateFileBrowserListBox();
-			super.reloadPage();
-		}
 	}
 
 }

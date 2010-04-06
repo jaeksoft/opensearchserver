@@ -1,8 +1,8 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
- * 
+ * Copyright (C) 2008-200 Emmanuel Keller / Jaeksoft
+ * 9
  * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.

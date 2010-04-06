@@ -125,6 +125,17 @@ public class FieldList<T extends Field> implements
 		}
 	}
 
+	public boolean addOrSet(T field) {
+		synchronized (this) {
+			T f = fieldsName.get(field.name);
+			if (f == null)
+				return add(field);
+			f.copy(field);
+			cacheKey = null;
+			return true;
+		}
+	}
+
 	/**
 	 * Renvoie le champ � la position "index"
 	 */

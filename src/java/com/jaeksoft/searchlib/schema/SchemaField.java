@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.schema;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.DOMException;
@@ -60,12 +61,14 @@ public class SchemaField extends Field {
 		copy(field);
 	}
 
-	public void copy(SchemaField sourceField) {
+	@Override
+	public void copy(Field sourceField) {
 		super.copy(sourceField);
-		this.stored = sourceField.stored;
-		this.indexed = sourceField.indexed;
-		this.termVector = sourceField.termVector;
-		this.indexAnalyzer = sourceField.indexAnalyzer;
+		SchemaField sc = (SchemaField) sourceField;
+		this.stored = sc.stored;
+		this.indexed = sc.indexed;
+		this.termVector = sc.termVector;
+		this.indexAnalyzer = sc.indexAnalyzer;
 	}
 
 	private SchemaField(String name, String stored, String indexed,
@@ -178,6 +181,18 @@ public class SchemaField extends Field {
 		fieldList.setUniqueField(XPathParser.getAttributeString(parentNode,
 				"unique"));
 		return fieldList;
+	}
+
+	public static SchemaField fromHttpRequest(HttpServletRequest request)
+			throws SearchLibException {
+		String name = request.getParameter("field.name");
+		if (name == null)
+			throw new SearchLibException("No field name");
+		String indexAnalyzer = request.getParameter("field.analyzer");
+		String stored = request.getParameter("field.stored");
+		String indexed = request.getParameter("field.indexed");
+		String termVector = request.getParameter("field.termVector");
+		return new SchemaField(name, stored, indexed, termVector, indexAnalyzer);
 	}
 
 	@Override

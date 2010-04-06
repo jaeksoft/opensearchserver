@@ -165,7 +165,7 @@ public class ClientCatalog {
 
 	public static final boolean exists(User user, String indexName)
 			throws SearchLibException {
-		if (user == null || !user.isAdmin())
+		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		for (String index : getClientCatalog(null))
 			if (index.equals(indexName))
@@ -175,7 +175,7 @@ public class ClientCatalog {
 
 	public static void createIndex(User user, String indexName,
 			TemplateAbstract template) throws SearchLibException, IOException {
-		if (user == null || !user.isAdmin())
+		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		w.lock();
 		try {
