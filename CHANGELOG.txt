@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 2881385: API to retrieve the available indice
 - 2887376: Enhancement for the index page - dropping indexes
 - 2881388: API to list/create/modify fields in a specified schema
 - 2973374: Upgrade to ZKoss 5.0.x	

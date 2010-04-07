@@ -118,6 +118,14 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
+	private boolean indexList(HttpServletRequest request,
+			ServletTransaction transaction) throws SearchLibException {
+		for (String indexName : ClientCatalog.getClientCatalog(null))
+			transaction.addXmlResponse("index", indexName);
+		transaction.addXmlResponse("Status", "OK");
+		return true;
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
@@ -139,6 +147,8 @@ public class SchemaServlet extends AbstractServlet {
 			} else if ("deleteindex".equalsIgnoreCase(cmd)) {
 				done = deleteIndex(request, transaction);
 				transaction.addXmlResponse("Status", "OK");
+			} else if ("indexlist".equalsIgnoreCase(cmd)) {
+				done = indexList(request, transaction);
 			}
 			if (!done)
 				transaction.addXmlResponse("Info", "Nothing to do");
