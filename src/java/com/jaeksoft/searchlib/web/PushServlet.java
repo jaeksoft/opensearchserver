@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,8 +30,8 @@ import javax.naming.NamingException;
 import javax.servlet.ServletRequest;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.user.User;
 
 public class PushServlet extends AbstractServlet {
 
@@ -44,21 +44,25 @@ public class PushServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		ServletRequest request = transaction.getServletRequest();
-		String indexName = request.getParameter("indexName");
 		long version = Long.parseLong(request.getParameter("version"));
 		String fileName = request.getParameter("fileName");
 		try {
-			Client client = ClientCatalog.getClient(request);
-			client.getIndex().receive(indexName, version, fileName,
-					request.getInputStream());
+
+			User user = transaction.getLoggedUser();
+			if (user != null && !user.isAdmin())
+				throw new SearchLibException("Not permitted");
+
+			Client client = transaction.getClient();
+
+			client.getIndex().receive(transaction.getIndexName(), version,
+					fileName, request.getInputStream());
 		} catch (SearchLibException e) {
-			e.printStackTrace();
 			throw new ServletException(e);
 		} catch (NamingException e) {
-			e.printStackTrace();
 			throw new ServletException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new ServletException(e);
+		} catch (InterruptedException e) {
 			throw new ServletException(e);
 		}
 

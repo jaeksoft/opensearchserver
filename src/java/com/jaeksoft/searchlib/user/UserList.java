@@ -75,6 +75,8 @@ public class UserList {
 	public User get(String name) {
 		r.lock();
 		try {
+			if (name == null)
+				return null;
 			return users.get(name);
 		} finally {
 			r.unlock();

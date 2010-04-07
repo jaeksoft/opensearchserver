@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,12 +31,14 @@ import java.net.URISyntaxException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderObject;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.result.ResultDocuments;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
 public class DocumentsServlet extends AbstractServlet {
 
@@ -74,7 +76,14 @@ public class DocumentsServlet extends AbstractServlet {
 
 			HttpServletRequest httpRequest = servletTransaction
 					.getServletRequest();
-			Client client = ClientCatalog.getClient(httpRequest);
+
+			User user = servletTransaction.getLoggedUser();
+			if (user != null
+					&& !user.hasRole(servletTransaction.getIndexName(),
+							Role.INDEX_QUERY))
+				throw new SearchLibException("Not permitted");
+
+			Client client = servletTransaction.getClient();
 
 			Render render = doObjectRequest(client, httpRequest);
 

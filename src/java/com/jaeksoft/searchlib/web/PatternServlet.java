@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -34,11 +34,12 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
 public class PatternServlet extends AbstractServlet {
@@ -100,8 +101,16 @@ public class PatternServlet extends AbstractServlet {
 			throws ServletException {
 
 		try {
+
+			User user = transaction.getLoggedUser();
+			if (user != null
+					&& !user.hasRole(transaction.getIndexName(),
+							Role.WEB_CRAWLER_EDIT_PATTERN_LIST))
+				throw new SearchLibException("Not permitted");
+
+			Client client = transaction.getClient();
+
 			HttpServletRequest request = transaction.getServletRequest();
-			Client client = ClientCatalog.getClient(request);
 
 			PatternManager patternManager = client.getPatternManager();
 			UrlManager urlManager = client.getUrlManager();

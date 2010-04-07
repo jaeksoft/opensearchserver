@@ -40,6 +40,8 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.template.TemplateList;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SchemaServlet extends AbstractServlet {
@@ -49,12 +51,16 @@ public class SchemaServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 2904843916773570688L;
 
-	private boolean getSchema(HttpServletRequest request,
+	private boolean getSchema(User user, HttpServletRequest request,
 			ServletTransaction transaction)
 			throws TransformerConfigurationException, SAXException,
 			IOException, SearchLibException, NamingException {
 
-		Client client = ClientCatalog.getClient(request);
+		if (user != null
+				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
+			throw new SearchLibException("Not permitted");
+
+		Client client = transaction.getClient();
 		Schema schema = client.getSchema();
 
 		transaction.getServletResponse().setContentType("text/xml");
@@ -66,10 +72,15 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
-	private boolean setField(HttpServletRequest request,
+	private boolean setField(User user, HttpServletRequest request,
 			ServletTransaction transaction) throws SearchLibException,
 			NamingException {
-		Client client = ClientCatalog.getClient(request);
+
+		if (user != null
+				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
+			throw new SearchLibException("Not permitted");
+
+		Client client = transaction.getClient();
 		Schema schema = client.getSchema();
 
 		SchemaField schemaField = SchemaField.fromHttpRequest(request);
@@ -78,10 +89,15 @@ public class SchemaServlet extends AbstractServlet {
 		return schema.getFieldList().addOrSet(schemaField);
 	}
 
-	private boolean deleteField(HttpServletRequest request,
+	private boolean deleteField(User user, HttpServletRequest request,
 			ServletTransaction transaction) throws SearchLibException,
 			NamingException {
-		Client client = ClientCatalog.getClient(request);
+
+		if (user != null
+				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
+			throw new SearchLibException("Not permitted");
+
+		Client client = transaction.getClient();
 		Schema schema = client.getSchema();
 
 		String name = request.getParameter("field.name");
@@ -94,7 +110,7 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
-	private boolean createIndex(HttpServletRequest request,
+	private boolean createIndex(User user, HttpServletRequest request,
 			ServletTransaction transaction) throws SearchLibException,
 			IOException {
 		String indexName = request.getParameter("index.name");
@@ -105,7 +121,7 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
-	private boolean deleteIndex(HttpServletRequest request,
+	private boolean deleteIndex(User user, HttpServletRequest request,
 			ServletTransaction transaction) throws SearchLibException,
 			IOException, NamingException {
 		String indexName = request.getParameter("index.name");
@@ -115,19 +131,19 @@ public class SchemaServlet extends AbstractServlet {
 		if (!indexName.equals(indexDeleteName))
 			throw new SearchLibException(
 					"parameters index.name and index.delete.name do not match");
-		ClientCatalog.eraseIndex(null, indexName);
+		ClientCatalog.eraseIndex(user, indexName);
 		transaction.addXmlResponse("Info", "Index deleted: " + indexName);
 		return true;
 	}
 
-	private boolean indexList(HttpServletRequest request,
+	private boolean indexList(User user, HttpServletRequest request,
 			ServletTransaction transaction) throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException {
 		transaction.getServletResponse().setContentType("text/xml");
 		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
 				"UTF-8");
 		xmlWriter.startElement("response");
-		for (String indexName : ClientCatalog.getClientCatalog(null)) {
+		for (String indexName : ClientCatalog.getClientCatalog(user)) {
 			xmlWriter.startElement("index", "name", indexName);
 			xmlWriter.endElement();
 		}
@@ -139,25 +155,26 @@ public class SchemaServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
+			User user = transaction.getLoggedUser();
 			HttpServletRequest request = transaction.getServletRequest();
 			String cmd = request.getParameter("cmd");
 			boolean done = false;
 			if ("setfield".equalsIgnoreCase(cmd)) {
-				done = setField(request, transaction);
+				done = setField(user, request, transaction);
 				transaction.addXmlResponse("Status", "OK");
 			} else if ("deletefield".equalsIgnoreCase(cmd)) {
-				done = deleteField(request, transaction);
+				done = deleteField(user, request, transaction);
 				transaction.addXmlResponse("Status", "OK");
 			} else if ("getschema".equalsIgnoreCase(cmd))
-				done = getSchema(request, transaction);
+				done = getSchema(user, request, transaction);
 			else if ("createindex".equalsIgnoreCase(cmd)) {
-				done = createIndex(request, transaction);
+				done = createIndex(user, request, transaction);
 				transaction.addXmlResponse("Status", "OK");
 			} else if ("deleteindex".equalsIgnoreCase(cmd)) {
-				done = deleteIndex(request, transaction);
+				done = deleteIndex(user, request, transaction);
 				transaction.addXmlResponse("Status", "OK");
 			} else if ("indexlist".equalsIgnoreCase(cmd)) {
-				done = indexList(request, transaction);
+				done = indexList(user, request, transaction);
 			}
 			if (!done)
 				transaction.addXmlResponse("Info", "Nothing to do");
@@ -170,6 +187,8 @@ public class SchemaServlet extends AbstractServlet {
 		} catch (SAXException e) {
 			throw new ServletException(e);
 		} catch (IOException e) {
+			throw new ServletException(e);
+		} catch (InterruptedException e) {
 			throw new ServletException(e);
 		}
 	}

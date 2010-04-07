@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
@@ -44,6 +43,8 @@ import com.jaeksoft.searchlib.render.RenderObject;
 import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
 public class SearchServlet extends AbstractServlet {
 
@@ -81,24 +82,28 @@ public class SearchServlet extends AbstractServlet {
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction servletTransaction)
+	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 
 		try {
 
-			HttpServletRequest httpRequest = servletTransaction
-					.getServletRequest();
-			Client client = ClientCatalog.getClient(httpRequest);
+			User user = transaction.getLoggedUser();
+			if (user != null
+					&& !user.hasRole(transaction.getIndexName(),
+							Role.INDEX_QUERY))
+				throw new SearchLibException("Not permitted");
 
+			Client client = transaction.getClient();
+			HttpServletRequest request = transaction.getServletRequest();
 			Render render = null;
-			String p = httpRequest.getParameter("render");
+			String p = request.getParameter("render");
 			if ("object".equalsIgnoreCase(p))
-				render = doObjectRequest(client, httpRequest);
+				render = doObjectRequest(client, request);
 			else
-				render = doQueryRequest(client, httpRequest, p, httpRequest
+				render = doQueryRequest(client, request, p, request
 						.getParameter("jsp"));
 
-			render.render(servletTransaction);
+			render.render(transaction);
 
 		} catch (Exception e) {
 			throw new ServletException(e);

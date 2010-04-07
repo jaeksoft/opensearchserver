@@ -52,6 +52,12 @@
 							value="Check the box if the user is admin" />
 					</row>
 					<row>
+						<label value="API Key: " />
+						<textbox readonly="true"
+							value="@{privileges.user.apiKey}" width="95%" />
+						<label value="Key to be used with API" />
+					</row>
+					<row>
 						<label
 							value="Add privileges on following index: " />
 						<vbox width="100%">
@@ -81,7 +87,8 @@
 					<listcell label="@{indexRole.indexName}" />
 					<listcell label="@{indexRole.role.label}" />
 					<listcell>
-						<button label="remove" onClick="privileges.onRoleRemove(self)">
+						<button label="remove"
+							onClick="privileges.onRoleRemove(self)">
 							<custom-attributes indexrole="@{indexRole}" />
 						</button>
 					</listcell>

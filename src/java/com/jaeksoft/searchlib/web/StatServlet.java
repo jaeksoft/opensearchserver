@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,7 +30,9 @@ import java.util.HashSet;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
 @Deprecated
 public class StatServlet extends AbstractServlet {
@@ -41,20 +43,26 @@ public class StatServlet extends AbstractServlet {
 	private static final long serialVersionUID = 6835267443840241748L;
 
 	@Override
-	protected void doRequest(ServletTransaction servletTransaction)
+	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 
 		try {
 
-			HttpServletRequest request = servletTransaction.getServletRequest();
-			Client client = ClientCatalog.getClient(request);
+			User user = transaction.getLoggedUser();
+			if (user != null
+					&& !user.hasRole(transaction.getIndexName(),
+							Role.INDEX_QUERY))
+				throw new SearchLibException("Not permitted");
 
+			Client client = transaction.getClient();
+
+			HttpServletRequest request = transaction.getServletRequest();
 			String reload = request.getParameter("reload");
 
 			if (reload != null)
 				client.reload(reload);
 
-			PrintWriter writer = servletTransaction.getWriter("UTF-8");
+			PrintWriter writer = transaction.getWriter("UTF-8");
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			HashSet<String> classDetail = new HashSet<String>();
 			String[] values = request.getParameterValues("details");

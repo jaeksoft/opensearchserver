@@ -24,10 +24,9 @@
 
 package com.jaeksoft.searchlib.web;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
 public class OptimizeServlet extends AbstractServlet {
 
@@ -40,10 +39,11 @@ public class OptimizeServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-			HttpServletRequest request = transaction.getServletRequest();
-			Client client = ClientCatalog.getClient(request);
-			String index = request.getParameter("index");
-			client.getIndex().optimize(index);
+			String indexName = transaction.getIndexName();
+			User user = transaction.getLoggedUser();
+			if (user != null && !user.hasRole(indexName, Role.INDEX_UPDATE))
+				throw new SearchLibException("Not permitted");
+			transaction.getClient().optimize(null);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

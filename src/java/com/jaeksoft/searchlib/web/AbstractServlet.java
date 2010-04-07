@@ -59,7 +59,7 @@ public abstract class AbstractServlet extends HttpServlet {
 			doRequest(transaction);
 		} catch (Exception e) {
 			transaction.addXmlResponse("Status", "Error");
-			transaction.addXmlResponse("Exception", e.getMessage());
+			transaction.addXmlResponse("Exception", e.toString());
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);

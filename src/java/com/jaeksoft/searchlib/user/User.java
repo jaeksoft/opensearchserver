@@ -31,6 +31,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -46,6 +47,7 @@ public class User implements Comparable<User> {
 
 	private String name;
 	private String password;
+	private String apiKey;
 	private Set<IndexRole> indexRoles;
 	private boolean isAdmin;
 
@@ -57,6 +59,7 @@ public class User implements Comparable<User> {
 		this();
 		this.name = name;
 		this.password = password;
+		this.apiKey = null;
 		this.isAdmin = isAdmin;
 	}
 
@@ -237,6 +240,7 @@ public class User implements Comparable<User> {
 		w.lock();
 		try {
 			this.name = name;
+			this.apiKey = null;
 		} finally {
 			w.unlock();
 		}
@@ -251,10 +255,27 @@ public class User implements Comparable<User> {
 		}
 	}
 
+	public String getApiKey() {
+		r.lock();
+		try {
+			if (apiKey != null)
+				return apiKey;
+			apiKey = "";
+			if (name != null || password != null)
+				if (name.length() > 0 && password.length() > 0)
+					apiKey = DigestUtils.md5Hex("ossacc" + name + password);
+			return apiKey;
+		} finally {
+			r.unlock();
+		}
+
+	}
+
 	public void setPassword(String password) {
 		w.lock();
 		try {
 			this.password = password;
+			this.apiKey = null;
 		} finally {
 			w.unlock();
 		}
@@ -282,6 +303,15 @@ public class User implements Comparable<User> {
 		r.lock();
 		try {
 			return this.password.equals(password);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	public boolean authenticateKey(String key) {
+		r.lock();
+		try {
+			return getApiKey().equals(key);
 		} finally {
 			r.unlock();
 		}

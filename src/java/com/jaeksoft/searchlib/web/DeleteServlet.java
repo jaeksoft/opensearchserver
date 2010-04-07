@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,10 +36,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.request.DeleteRequest;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
 public class DeleteServlet extends AbstractServlet {
 
@@ -88,11 +89,11 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Object doObjectRequest(HttpServletRequest request,
+	private Object doObjectRequest(Client client, HttpServletRequest request,
 			String indexName, boolean byId) throws ServletException {
 		StreamReadObject readObject = null;
 		try {
-			Client client = ClientCatalog.getClient(request);
+
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof DeleteRequest) {
@@ -119,9 +120,14 @@ public class DeleteServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
+			String indexName = transaction.getIndexName();
+			User user = transaction.getLoggedUser();
+			if (user != null && !user.hasRole(indexName, Role.INDEX_UPDATE))
+				throw new SearchLibException("Not permitted");
+
+			Client client = transaction.getClient();
+
 			HttpServletRequest request = transaction.getServletRequest();
-			Client client = ClientCatalog.getClient(request);
-			String indexName = request.getParameter("index");
 			String uniq = request.getParameter("uniq");
 			String docId = request.getParameter("docId");
 			boolean byId = request.getParameter("byId") != null;
@@ -132,7 +138,7 @@ public class DeleteServlet extends AbstractServlet {
 				result = deleteDocById(client, indexName, Integer
 						.parseInt(docId));
 			else
-				result = doObjectRequest(request, indexName, byId);
+				result = doObjectRequest(client, request, indexName, byId);
 			PrintWriter pw = transaction.getWriter("UTF-8");
 			pw.println(result);
 		} catch (Exception e) {

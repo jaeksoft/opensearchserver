@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,11 +39,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.request.IndexRequest;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
 public class IndexServlet extends AbstractServlet {
 
@@ -105,9 +106,15 @@ public class IndexServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
+
 			HttpServletRequest request = transaction.getServletRequest();
-			Client client = ClientCatalog.getClient(request);
-			String indexName = request.getParameter("index");
+			String indexName = transaction.getIndexName();
+
+			User user = transaction.getLoggedUser();
+			if (user != null && !user.hasRole(indexName, Role.INDEX_UPDATE))
+				throw new SearchLibException("Not permitted");
+
+			Client client = transaction.getClient();
 			String ct = request.getContentType();
 			Object result = null;
 			if (ct != null && ct.toLowerCase().contains("xml"))
@@ -138,6 +145,8 @@ public class IndexServlet extends AbstractServlet {
 		} catch (IllegalAccessException e) {
 			throw new ServletException(e);
 		} catch (ClassNotFoundException e) {
+			throw new ServletException(e);
+		} catch (InterruptedException e) {
 			throw new ServletException(e);
 		}
 	}

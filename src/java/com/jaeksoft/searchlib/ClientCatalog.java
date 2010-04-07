@@ -36,7 +36,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.NamingException;
-import javax.servlet.ServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -130,12 +129,6 @@ public class ClientCatalog {
 	public static final Client getClient(String indexDirectoryName)
 			throws SearchLibException, NamingException {
 		return getClient(new File(getDataDir(), indexDirectoryName));
-	}
-
-	public static final Client getClient(ServletRequest request)
-			throws SearchLibException, NamingException {
-		return getClient(request.getParameter("use"));
-
 	}
 
 	public static File getDataDir() throws SearchLibException {
@@ -272,4 +265,20 @@ public class ClientCatalog {
 			r.unlock();
 		}
 	}
+
+	public static User authenticateKey(String login, String key)
+			throws SearchLibException {
+		r.lock();
+		try {
+			User user = getUserList().get(login);
+			if (user == null)
+				return null;
+			if (!user.authenticateKey(key))
+				return null;
+			return user;
+		} finally {
+			r.unlock();
+		}
+	}
+
 }

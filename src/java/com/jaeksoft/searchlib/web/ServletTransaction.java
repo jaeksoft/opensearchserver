@@ -1,8 +1,8 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-200 Emmanuel Keller / Jaeksoft
- * 9
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * 
  * http://www.open-search-server.com
  * 
  * This file is part of Jaeksoft OpenSearchServer.
@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
@@ -40,6 +41,10 @@ import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ServletTransaction {
@@ -47,6 +52,12 @@ public class ServletTransaction {
 	public enum Method {
 		PUT, POST, GET, HEAD;
 	}
+
+	private User loggedUser;
+
+	private Client client;
+
+	private String indexName;
 
 	private AbstractServlet servlet;
 
@@ -73,6 +84,7 @@ public class ServletTransaction {
 		this.servlet = servlet;
 		this.response = response;
 		this.request = request;
+		indexName = null;
 		xmlResponse = null;
 		writer = null;
 		reader = null;
@@ -90,6 +102,37 @@ public class ServletTransaction {
 
 	public HttpServletResponse getServletResponse() {
 		return this.response;
+	}
+
+	public User getLoggedUser() throws SearchLibException, InterruptedException {
+		if (loggedUser != null)
+			return loggedUser;
+		if (ClientCatalog.getUserList().isEmpty())
+			return null;
+		String login = request.getParameter("login");
+		String key = request.getParameter("key");
+		loggedUser = ClientCatalog.authenticateKey(login, key);
+		if (loggedUser == null) {
+			Thread.sleep(500);
+			throw new SearchLibException("Bad credential");
+		}
+		return loggedUser;
+	}
+
+	public String getIndexName() {
+		if (indexName != null)
+			return indexName;
+		indexName = request.getParameter("use");
+		if (indexName == null)
+			indexName = request.getParameter("index");
+		return indexName;
+	}
+
+	public Client getClient() throws SearchLibException, NamingException {
+		if (client != null)
+			return client;
+		client = ClientCatalog.getClient(getIndexName());
+		return client;
 	}
 
 	public void addXmlResponse(String key, String value) {
