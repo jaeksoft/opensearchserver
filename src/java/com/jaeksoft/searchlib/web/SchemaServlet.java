@@ -60,7 +60,9 @@ public class SchemaServlet extends AbstractServlet {
 		transaction.getServletResponse().setContentType("text/xml");
 		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
 				"UTF-8");
+		xmlWriter.startElement("response");
 		schema.writeXmlConfig(xmlWriter);
+		xmlWriter.endElement();
 		return true;
 	}
 
@@ -119,10 +121,17 @@ public class SchemaServlet extends AbstractServlet {
 	}
 
 	private boolean indexList(HttpServletRequest request,
-			ServletTransaction transaction) throws SearchLibException {
-		for (String indexName : ClientCatalog.getClientCatalog(null))
-			transaction.addXmlResponse("index", indexName);
-		transaction.addXmlResponse("Status", "OK");
+			ServletTransaction transaction) throws SearchLibException,
+			TransformerConfigurationException, SAXException, IOException {
+		transaction.getServletResponse().setContentType("text/xml");
+		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
+				"UTF-8");
+		xmlWriter.startElement("response");
+		for (String indexName : ClientCatalog.getClientCatalog(null)) {
+			xmlWriter.startElement("index", "name", indexName);
+			xmlWriter.endElement();
+		}
+		xmlWriter.endElement();
 		return true;
 	}
 
