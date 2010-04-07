@@ -223,18 +223,25 @@ public abstract class Config {
 		}
 	}
 
-	public void saveRequests() throws IOException,
-			TransformerConfigurationException, SAXException, SearchLibException {
+	public void saveRequests() throws SearchLibException {
 		ConfigFileRotation cfr = new ConfigFileRotation(indexDir,
 				"requests.xml");
-		PrintWriter pw = cfr.getTempPrintWriter();
+		PrintWriter pw = null;
 		try {
+			pw = cfr.getTempPrintWriter();
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			getSearchRequestMap().writeXmlConfig(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
 		} finally {
-			pw.close();
+			if (pw != null)
+				pw.close();
 		}
 	}
 

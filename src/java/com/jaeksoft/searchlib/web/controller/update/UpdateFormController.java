@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,6 @@ import org.zkoss.zul.Image;
 import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
-import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Textbox;
 
 import com.jaeksoft.searchlib.Client;
@@ -45,6 +44,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -228,7 +228,7 @@ public class UpdateFormController extends CommonController implements
 		if (!isUpdateRights())
 			throw new SearchLibException("Not allowed");
 		getClient().updateDocument(getIndexDocument());
-		Messagebox.show("Document updated");
+		new AlertController("Document updated");
 	}
 
 	/*

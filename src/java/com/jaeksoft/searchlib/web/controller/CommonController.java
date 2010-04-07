@@ -214,7 +214,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 
 	public void onEvent(Event event) throws UiException {
 		PushEvent pushEvent = PushEvent.isEvent(event);
-		if (pushEvent == PushEvent.FLUSH_PRIVILEGES) {
+		if (pushEvent != null && pushEvent == PushEvent.FLUSH_PRIVILEGES) {
 			User user = (User) event.getData();
 			try {
 				ClientCatalog.flushPrivileges();

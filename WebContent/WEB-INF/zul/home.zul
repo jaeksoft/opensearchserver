@@ -57,10 +57,13 @@
 		border="normal">
 		<toolbar>
 			<button label="Refresh" forward="onListRefresh" />
+			<space width="20px" />
+			<button label="Erase" forward="onEraseIndex"
+				visible="@{home.selectedIndex}" />
 		</toolbar>
 		<panelchildren>
-			<listbox selectedItem="@{home.clientName}"
-				model="@{home.clientCatalog}" />
+			<listbox id="indexlist" selectedItem="@{home.clientName}"
+				mold="paging" pageSize="20" model="@{home.clientCatalog}" />
 		</panelchildren>
 	</panel>
 

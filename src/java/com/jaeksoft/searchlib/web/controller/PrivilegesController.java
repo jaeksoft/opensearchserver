@@ -158,8 +158,7 @@ public class PrivilegesController extends CommonController {
 		try {
 			validUser();
 		} catch (SearchLibException e) {
-			Messagebox.show(e.getMessage(), "Jaeksoft OpenSearchServer",
-					Messagebox.OK, org.zkoss.zul.Messagebox.EXCLAMATION);
+			new AlertController(e.getMessage(), Messagebox.OK, Messagebox.ERROR);
 			return;
 		}
 		if (selectedUserName != null)

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class FieldsController extends CommonController {
@@ -100,8 +101,7 @@ public class FieldsController extends CommonController {
 		try {
 			field.valid();
 		} catch (SearchLibException e) {
-			Messagebox.show(e.getMessage(), "Jaeksoft OpenSearchServer",
-					Messagebox.OK, org.zkoss.zul.Messagebox.EXCLAMATION);
+			new AlertController(e.getMessage(), Messagebox.OK, Messagebox.ERROR);
 			return;
 		}
 		Client client = getClient();

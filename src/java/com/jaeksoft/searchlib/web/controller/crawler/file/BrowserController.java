@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.zkoss.zhtml.Messagebox;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zul.Button;
@@ -39,6 +38,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class BrowserController extends CrawlerController implements
@@ -197,9 +197,8 @@ public class BrowserController extends CrawlerController implements
 			if (filePathManager == null)
 				return;
 			if (filePathManager.getFilePath(selectedFile) != null) {
-				Messagebox.show("The file or directory is already selected.",
-						"OpenSearchServer", Messagebox.OK,
-						org.zkoss.zul.Messagebox.INFORMATION);
+				new AlertController(
+						"The file or directory is already selected.");
 				return;
 			}
 			filePathManager.add(selectedFile, withSubDir);

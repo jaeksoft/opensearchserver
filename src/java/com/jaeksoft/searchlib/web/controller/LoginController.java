@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.web.controller;
 
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Textbox;
 
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -53,9 +52,7 @@ public class LoginController extends CommonController {
 				.getValue());
 		if (user == null) {
 			Thread.sleep(2000);
-			Messagebox.show("Authentication failed",
-					"Jaeksoft OpenSearchServer", Messagebox.OK,
-					org.zkoss.zul.Messagebox.EXCLAMATION);
+			new AlertController("Authentication failed");
 			return;
 		}
 		setAttribute(ScopeAttribute.LOGGED_USER, user);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -131,20 +132,33 @@ public class QueryController extends CommonController {
 		reloadDesktop();
 	}
 
+	private class RemoveAlert extends AlertController {
+
+		private String selectedRequest;
+
+		public RemoveAlert(String selectedRequest) throws InterruptedException {
+			super("Please, confirm you want to remove the request: "
+					+ selectedRequest, Messagebox.CANCEL | Messagebox.YES,
+					Messagebox.QUESTION);
+			this.selectedRequest = selectedRequest;
+		}
+
+		@Override
+		public void onYes() throws SearchLibException {
+			Client client = getClient();
+			client.getSearchRequestMap().remove(selectedRequest);
+			client.saveRequests();
+			reloadDesktop();
+		}
+
+	}
+
 	public void onRemove() throws SearchLibException,
 			TransformerConfigurationException, IOException, SAXException,
 			InterruptedException {
 		if (!isSchemaRights())
 			throw new SearchLibException("Not allowed");
-		String name = getSelectedRequest();
-		if (Messagebox.show("Please, confirm you want to remove the request: "
-				+ name, "Confirmation", Messagebox.CANCEL | Messagebox.YES,
-				Messagebox.QUESTION) != Messagebox.YES)
-			return;
-		Client client = getClient();
-		client.getSearchRequestMap().remove(getSelectedRequest());
-		client.saveRequests();
-		reloadDesktop();
+		new RemoveAlert(getSelectedRequest());
 	}
 
 	public void onSearch() throws IOException, ParseException, SyntaxError,

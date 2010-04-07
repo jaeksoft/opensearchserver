@@ -41,6 +41,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.xml.sax.SAXException;
 
@@ -188,6 +189,15 @@ public class ClientCatalog {
 			w.unlock();
 		}
 
+	}
+
+	public static void eraseIndex(User user, String indexName)
+			throws SearchLibException, NamingException, IOException {
+		if (user != null && !user.isAdmin())
+			throw new SearchLibException("Operation not permitted");
+		Client client = getClient(indexName);
+		client.close();
+		FileUtils.deleteDirectory(client.getIndexDirectory());
 	}
 
 	public static UserList getUserList() throws SearchLibException {

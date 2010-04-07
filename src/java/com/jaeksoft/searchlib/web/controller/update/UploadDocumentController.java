@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.FilenameUtils;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
-import org.zkoss.zhtml.Messagebox;
 import org.zkoss.zul.Fileupload;
 import org.zkoss.zul.Panelchildren;
 
@@ -43,6 +42,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.model.FieldContentModel;
@@ -137,7 +137,7 @@ public class UploadDocumentController extends CommonController {
 				parser = parserSelector.getParserFromExtension(extension);
 			}
 			if (parser == null) {
-				Messagebox.show("No parser found for that document type ("
+				new AlertController("No parser found for that document type ("
 						+ contentType + " - " + media.getName() + ')');
 				return;
 			}
@@ -172,8 +172,7 @@ public class UploadDocumentController extends CommonController {
 				return;
 			getClient().updateDocument(basketDocument);
 			setCurrentDocument(null);
-			Messagebox.show("Document updated", "Jaeksoft OpenSearchServer",
-					Messagebox.OK, org.zkoss.zul.Messagebox.INFORMATION);
+			new AlertController("Document updated");
 			reloadDesktop();
 		}
 	}

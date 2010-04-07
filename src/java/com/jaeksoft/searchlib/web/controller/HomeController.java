@@ -64,6 +64,10 @@ public class HomeController extends CommonController {
 		return client.getIndexDirectory().getName();
 	}
 
+	public boolean isSelectedIndex() throws SearchLibException {
+		return getClientName() != null;
+	}
+
 	public void setClientName(String name) throws SearchLibException,
 			NamingException {
 		Client client = ClientCatalog.getClient(name);
@@ -104,8 +108,7 @@ public class HomeController extends CommonController {
 			msg = "The name already exists";
 
 		if (msg != null) {
-			Messagebox.show(msg, "Jaeksoft OpenSearchServer", Messagebox.OK,
-					org.zkoss.zul.Messagebox.EXCLAMATION);
+			new AlertController(msg);
 			return;
 		}
 		ClientCatalog.createIndex(getLoggedUser(), indexName, indexTemplate
@@ -116,6 +119,39 @@ public class HomeController extends CommonController {
 
 	public void onListRefresh() {
 		reloadPage();
+	}
+
+	private class EraseIndexAlert extends AlertController {
+
+		private String indexName;
+
+		protected EraseIndexAlert(String indexName) throws InterruptedException {
+			super("Please, confirm that you want to erase the index: "
+					+ indexName + ". All the datas will be erased",
+					Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
+			this.indexName = indexName;
+		}
+
+		@Override
+		protected void onYes() throws SearchLibException {
+			try {
+				setClient(null);
+				ClientCatalog.eraseIndex(getLoggedUser(), indexName);
+				reloadDesktop();
+			} catch (NamingException e) {
+				throw new SearchLibException(e);
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			}
+		}
+
+	}
+
+	public void onEraseIndex() throws SearchLibException, InterruptedException {
+		String indexName = getClientName();
+		if (indexName == null)
+			return;
+		new EraseIndexAlert(indexName);
 	}
 
 	@Override

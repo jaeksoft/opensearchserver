@@ -103,6 +103,21 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
+	private boolean deleteIndex(HttpServletRequest request,
+			ServletTransaction transaction) throws SearchLibException,
+			IOException, NamingException {
+		String indexName = request.getParameter("index.name");
+		String indexDeleteName = request.getParameter("index.delete.name");
+		if (indexName == null || indexDeleteName == null)
+			return false;
+		if (!indexName.equals(indexDeleteName))
+			throw new SearchLibException(
+					"parameters index.name and index.delete.name do not match");
+		ClientCatalog.eraseIndex(null, indexName);
+		transaction.addXmlResponse("Info", "Index deleted: " + indexName);
+		return true;
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
@@ -120,6 +135,9 @@ public class SchemaServlet extends AbstractServlet {
 				done = getSchema(request, transaction);
 			else if ("createindex".equalsIgnoreCase(cmd)) {
 				done = createIndex(request, transaction);
+				transaction.addXmlResponse("Status", "OK");
+			} else if ("deleteindex".equalsIgnoreCase(cmd)) {
+				done = deleteIndex(request, transaction);
 				transaction.addXmlResponse("Status", "OK");
 			}
 			if (!done)
