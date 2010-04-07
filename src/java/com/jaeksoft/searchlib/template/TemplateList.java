@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,4 +38,14 @@ public enum TemplateList {
 	public TemplateAbstract getTemplate() {
 		return template;
 	}
+
+	public static TemplateAbstract findTemplate(String name) {
+		if (name == null)
+			return EMPTY_INDEX.template;
+		TemplateList template = TemplateList.valueOf(name.toUpperCase());
+		if (template == null)
+			return EMPTY_INDEX.template;
+		return template.template;
+	}
+
 }

@@ -38,6 +38,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.template.TemplateAbstract;
+import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SchemaServlet extends AbstractServlet {
@@ -47,8 +49,13 @@ public class SchemaServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 2904843916773570688L;
 
-	private boolean getSchema(Schema schema, ServletTransaction transaction)
-			throws TransformerConfigurationException, SAXException, IOException {
+	private boolean getSchema(HttpServletRequest request,
+			ServletTransaction transaction)
+			throws TransformerConfigurationException, SAXException,
+			IOException, SearchLibException, NamingException {
+
+		Client client = ClientCatalog.getClient(request);
+		Schema schema = client.getSchema();
 
 		transaction.getServletResponse().setContentType("text/xml");
 		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
@@ -57,16 +64,24 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
-	private boolean setField(Schema schema, HttpServletRequest request,
-			ServletTransaction transaction) throws SearchLibException {
+	private boolean setField(HttpServletRequest request,
+			ServletTransaction transaction) throws SearchLibException,
+			NamingException {
+		Client client = ClientCatalog.getClient(request);
+		Schema schema = client.getSchema();
+
 		SchemaField schemaField = SchemaField.fromHttpRequest(request);
 		transaction.addXmlResponse("Info", "field '" + schemaField.getName()
 				+ "' added/updated");
 		return schema.getFieldList().addOrSet(schemaField);
 	}
 
-	private boolean deleteField(Schema schema, HttpServletRequest request,
-			ServletTransaction transaction) {
+	private boolean deleteField(HttpServletRequest request,
+			ServletTransaction transaction) throws SearchLibException,
+			NamingException {
+		Client client = ClientCatalog.getClient(request);
+		Schema schema = client.getSchema();
+
 		String name = request.getParameter("field.name");
 		SchemaFieldList sfl = schema.getFieldList();
 		SchemaField field = sfl.get(name);
@@ -77,23 +92,36 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
+	private boolean createIndex(HttpServletRequest request,
+			ServletTransaction transaction) throws SearchLibException,
+			IOException {
+		String indexName = request.getParameter("index.name");
+		TemplateAbstract template = TemplateList.findTemplate(request
+				.getParameter("index.template"));
+		ClientCatalog.createIndex(null, indexName, template);
+		transaction.addXmlResponse("Info", "Index created: " + indexName);
+		return true;
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
 			HttpServletRequest request = transaction.getServletRequest();
-			Client client = ClientCatalog.getClient(request);
-			Schema schema = client.getSchema();
 			String cmd = request.getParameter("cmd");
 			boolean done = false;
 			if ("setfield".equalsIgnoreCase(cmd)) {
-				done = setField(schema, request, transaction);
+				done = setField(request, transaction);
 				transaction.addXmlResponse("Status", "OK");
 			} else if ("deletefield".equalsIgnoreCase(cmd)) {
-				done = deleteField(schema, request, transaction);
+				done = deleteField(request, transaction);
 				transaction.addXmlResponse("Status", "OK");
 			} else if ("getschema".equalsIgnoreCase(cmd))
-				done = getSchema(schema, transaction);
+				done = getSchema(request, transaction);
+			else if ("createindex".equalsIgnoreCase(cmd)) {
+				done = createIndex(request, transaction);
+				transaction.addXmlResponse("Status", "OK");
+			}
 			if (!done)
 				transaction.addXmlResponse("Info", "Nothing to do");
 		} catch (SearchLibException e) {
