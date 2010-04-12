@@ -32,72 +32,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.TreeMap;
 
+import com.jaeksoft.searchlib.util.Expression;
+import com.jaeksoft.searchlib.util.ExpressionMap;
+
 public class SynonymMap {
-
-	private class Expression implements Comparable<Expression> {
-
-		private String[] words;
-
-		private Expression(String w) {
-			this.words = w.split("\\p{Space}+");
-		}
-
-		private Expression(String[] w) {
-			this.words = w;
-		}
-
-		private int getSize() {
-			return words.length;
-		}
-
-		@Override
-		public int compareTo(Expression o) {
-			int i = 0;
-			for (String word : words) {
-				if (i >= o.words.length)
-					return -1;
-				int n;
-				if ((n = word.compareToIgnoreCase(o.words[i])) != 0)
-					return n;
-				i++;
-			}
-			return 0;
-		}
-
-		@Override
-		public String toString() {
-			StringBuffer sb = new StringBuffer();
-			sb.append('_');
-			boolean space = false;
-			for (String word : words) {
-				if (space)
-					sb.append('_');
-				else
-					space = true;
-				sb.append(word);
-			}
-			sb.append('_');
-			return sb.toString();
-		}
-
-	}
-
-	protected class ExpressionMap {
-
-		TreeMap<Expression, String> map;
-
-		private ExpressionMap() {
-			map = new TreeMap<Expression, String>();
-		}
-
-		private void add(Expression words, Expression key) {
-			map.put(words, key.toString());
-		}
-
-		protected String find(String[] words) {
-			return map.get(new Expression(words));
-		}
-	}
 
 	private TreeMap<Integer, ExpressionMap> expressionMaps;
 

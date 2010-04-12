@@ -24,88 +24,94 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.jaeksoft.searchlib.analysis.SynonymMap.ExpressionMap;
+import com.jaeksoft.searchlib.util.ExpressionMap;
 
 public class SynonymQueues {
 
-	private class SynonymQueue {
-
-		private String[] tokens;
-
-		private int size;
-
-		private ExpressionMap expressionMap;
-
-		private SynonymQueue(ExpressionMap expressionMap, int size) {
-			this.expressionMap = expressionMap;
-			this.size = size;
-			tokens = new String[size];
-		}
-
-		private void addToken(String token) {
-			int l = tokens.length - 1;
-			for (int i = 0; i < l; i++)
-				tokens[i] = tokens[i + 1];
-			tokens[l] = token;
-			if (size > 0)
-				size--;
-		}
-
-		private String findSynonym() {
-			if (size != 0)
-				return null;
-			return expressionMap.find(tokens);
-		}
-
-		private void reset() {
-			for (int i = 0; i < tokens.length; i++)
-				tokens[i] = null;
-			size = tokens.length;
-		}
-
-		@Override
-		public String toString() {
-			StringBuffer sb = new StringBuffer();
-			int i = 0;
-			for (String token : tokens) {
-				sb.append(i++);
-				sb.append("=>");
-				sb.append(token);
-				sb.append(" (");
-				sb.append(size);
-				sb.append(')');
-			}
-			return sb.toString();
-		}
-	}
-
 	private SynonymQueue[] queues;
+
+	private String[] terms;
+
+	private int queueSize;
+
+	private LinkedList<String> insertTermList;
 
 	protected SynonymQueues(TreeMap<Integer, ExpressionMap> expressionMaps) {
 		Set<Integer> sizes = expressionMaps.keySet();
 		queues = new SynonymQueue[sizes.size()];
-		int i = 0;
+		int i = sizes.size();
+		terms = new String[i];
+		queueSize = 0;
+		insertTermList = new LinkedList<String>();
 		for (Integer n : sizes)
-			queues[i++] = new SynonymQueue(expressionMaps.get(n), n);
+			queues[--i] = new SynonymQueue(expressionMaps.get(n), terms, n);
 	}
 
-	public List<String> getSynonym(String token) {
-		// System.out.println("Add " + token);
-		List<String> synonymList = new ArrayList<String>();
+	protected String getNextInsertTerm() {
+		if (insertTermList.isEmpty())
+			return null;
+		return insertTermList.removeFirst();
+	}
+
+	public void setInsertTerm(SynonymQueue queue, String synonymKey) {
+		int l = terms.length - queue.getSize();
+		while (l-- != 0)
+			insertTermList.add(popToken());
+		insertTermList.add(synonymKey);
+	}
+
+	protected void addToken(String term) {
+		int l = terms.length - 1;
+		for (int i = 0; i < l; i++)
+			terms[i] = terms[i + 1];
+		terms[l] = term;
+		if (queueSize < terms.length)
+			queueSize++;
+	}
+
+	public SynonymQueue isSynonym(StringBuffer synonymKey) {
 		for (SynonymQueue queue : queues) {
-			queue.addToken(token);
-			// System.out.println(queue);
-			String synonym = queue.findSynonym();
-			if (synonym != null) {
-				synonymList.add(synonym);
-				queue.reset();
+			String key = queue.findSynonym(queueSize);
+			if (key != null) {
+				synonymKey.append(key);
+				return queue;
 			}
 		}
-		return synonymList.size() == 0 ? null : synonymList;
+		return null;
 	}
+
+	public String popToken() {
+		for (int i = 0; i < terms.length; i++) {
+			String term = terms[i];
+			if (term != null) {
+				System.out.println("popToken " + i + ": " + term);
+				terms[i] = null;
+				queueSize--;
+				return term;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer(super.toString());
+		sb.append(' ');
+		for (String term : terms) {
+			sb.append(term);
+			sb.append(' ');
+		}
+		sb.append(" - Queue size: ");
+		sb.append(queueSize);
+		return sb.toString();
+	}
+
+	public boolean isFull() {
+		return queueSize == terms.length;
+	}
+
 }
