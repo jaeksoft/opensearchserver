@@ -27,26 +27,13 @@ package com.jaeksoft.searchlib.util;
 public class Expression implements Comparable<Expression> {
 
 	private String[] words;
-	private int offset;
 
 	public Expression(String w) {
 		this.words = w.split("\\p{Space}+");
-		this.offset = 0;
 	}
 
-	public Expression(String[] w, int offset) {
+	public Expression(String[] w) {
 		this.words = w;
-		this.offset = offset;
-	}
-
-	public int getSize() {
-		return words.length - offset;
-	}
-
-	public String get(int n) {
-		if (n >= getSize())
-			return null;
-		return words[n + offset];
 	}
 
 	@Override
@@ -57,14 +44,16 @@ public class Expression implements Comparable<Expression> {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		for (int i = offset; i < words.length; i++) {
+		for (String word : words) {
 			sb.append('_');
-			sb.append(words[i]);
+			sb.append(word);
 		}
 		sb.append('_');
-		sb.append(getSize());
-		sb.append('_');
 		return sb.toString();
+	}
+
+	public int getSize() {
+		return words.length;
 	}
 
 }

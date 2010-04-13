@@ -33,23 +33,52 @@ class SynonymQueue {
 
 	private ExpressionMap expressionMap;
 
-	private int size;
+	private String[] tokens;
 
-	protected SynonymQueue(ExpressionMap expressionMap, String[] tokens,
-			int size) {
+	private int queueSize;
+
+	protected SynonymQueue(ExpressionMap expressionMap, int size) {
 		this.expressionMap = expressionMap;
-		this.expressionKey = new Expression(tokens, tokens.length - size);
-		this.size = size;
+		this.tokens = new String[size];
+		this.expressionKey = new Expression(tokens);
+		this.queueSize = 0;
 	}
 
-	protected int getSize() {
-		return size;
-	}
-
-	protected String findSynonym(int queueSize) {
-		if (queueSize < size)
+	protected String findSynonym() {
+		if (!isFull())
 			return null;
 		return expressionMap.find(expressionKey);
+	}
+
+	protected void clean() {
+		for (int i = 0; i < tokens.length; i++)
+			tokens[i] = null;
+		queueSize = 0;
+	}
+
+	protected void addToken(String token) {
+		int l = tokens.length - 1;
+		for (int i = 0; i < l; i++)
+			tokens[i] = tokens[i + 1];
+		tokens[l] = token;
+		if (queueSize < tokens.length)
+			queueSize++;
+	}
+
+	protected String popToken() {
+		for (int i = 0; i < tokens.length; i++) {
+			String token = tokens[i];
+			if (token != null) {
+				tokens[i] = null;
+				queueSize--;
+				return token;
+			}
+		}
+		return null;
+	}
+
+	protected boolean isFull() {
+		return queueSize == tokens.length;
 	}
 
 }

@@ -28,6 +28,7 @@ New features:
 - 2900449: Upgrade PDFBox to 0.8
 
 Bug fixes:
+- 2982541: Phrase synonyms generate unwanted words
 - 2934214: Shifted highlighting on snippet
 
 Open Search Server 1.1.2

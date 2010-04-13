@@ -30,6 +30,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.util.Expression;
@@ -84,14 +87,17 @@ public class SynonymMap {
 			expressionMaps.put(i, expressionMap);
 		}
 		expressionMap.add(expression, expKey);
-		// System.out.println(expKey + " => " + expression);
 	}
 
 	public int getSize() {
 		return size;
 	}
 
-	public SynonymQueues getSynonymQueues() {
-		return new SynonymQueues(expressionMaps);
+	public List<SynonymQueue> getSynonymQueues() {
+		Set<Integer> sizes = expressionMaps.keySet();
+		List<SynonymQueue> queues = new ArrayList<SynonymQueue>();
+		for (Integer n : sizes)
+			queues.add(new SynonymQueue(expressionMaps.get(n), n));
+		return queues;
 	}
 }

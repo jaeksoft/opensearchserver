@@ -59,7 +59,9 @@ public class SynonymFilter extends FilterFactory {
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new SynonymTokenFilter(tokenStream, synonymMap);
+		for (SynonymQueue queue : synonymMap.getSynonymQueues())
+			tokenStream = new SynonymTokenFilter(tokenStream, queue);
+		return tokenStream;
 	}
 
 	@Override

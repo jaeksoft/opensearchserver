@@ -37,43 +37,37 @@ public class SynonymTokenFilter extends TokenFilter {
 
 	private AttributeSource.State current = null;
 
-	private SynonymAttribute synonymAtt;
+	private SynonymQueue synonymQueue;
 
-	protected SynonymTokenFilter(TokenStream input, SynonymMap synonymMap) {
+	protected SynonymTokenFilter(TokenStream input, SynonymQueue synonymQueue) {
 		super(input);
 		this.termAtt = (TermAttribute) addAttribute(TermAttribute.class);
-		this.synonymAtt = (SynonymAttribute) addAttribute(SynonymAttribute.class);
-		this.synonymAtt.checkSynonymQueue(synonymMap);
+		this.synonymQueue = synonymQueue;
 	}
 
-	private final boolean createToken(String term) {
-		if (term == null)
+	private final boolean createToken(String token) {
+		if (token == null)
 			return false;
 		restoreState(current);
-		termAtt.setTermBuffer(term);
+		termAtt.setTermBuffer(token);
 		return true;
 	}
 
 	@Override
 	public final boolean incrementToken() throws IOException {
 		current = captureState();
-		SynonymQueues queues = synonymAtt.getSynonymQueues();
 		for (;;) {
-			String insertTerm = queues.getNextInsertTerm();
-			if (insertTerm != null)
-				return createToken(insertTerm);
 			if (!input.incrementToken())
-				return createToken(queues.popToken());
-			queues.addToken(termAtt.term());
+				return createToken(synonymQueue.popToken());
+			synonymQueue.addToken(termAtt.term());
 			restoreState(current);
-			StringBuffer synonymKey = new StringBuffer();
-			SynonymQueue queue = queues.isSynonym(synonymKey);
-			if (queue != null) {
-				queues.setInsertTerm(queue, synonymKey.toString());
-				continue;
+			String synonymKey = synonymQueue.findSynonym();
+			if (synonymKey != null) {
+				synonymQueue.clean();
+				return createToken(synonymKey);
 			}
-			if (queues.isFull())
-				return createToken(queues.popToken());
+			if (synonymQueue.isFull())
+				return createToken(synonymQueue.popToken());
 		}
 	}
 
