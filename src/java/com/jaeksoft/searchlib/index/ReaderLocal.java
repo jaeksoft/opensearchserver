@@ -41,7 +41,9 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Filter;
@@ -215,6 +217,36 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		r.lock();
 		try {
 			return indexSearcher.docFreq(term);
+		} finally {
+			r.unlock();
+		}
+	}
+
+	@Override
+	public TermEnum getTermEnum() throws IOException {
+		r.lock();
+		try {
+			return indexReader.terms();
+		} finally {
+			r.unlock();
+		}
+	}
+
+	@Override
+	public TermEnum getTermEnum(String field, String term) throws IOException {
+		r.lock();
+		try {
+			return indexReader.terms(new Term(field, term));
+		} finally {
+			r.unlock();
+		}
+	}
+
+	@Override
+	public Collection<?> getFieldNames() {
+		r.lock();
+		try {
+			return indexReader.getFieldNames(FieldOption.ALL);
 		} finally {
 			r.unlock();
 		}
@@ -709,4 +741,5 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			r.unlock();
 		}
 	}
+
 }

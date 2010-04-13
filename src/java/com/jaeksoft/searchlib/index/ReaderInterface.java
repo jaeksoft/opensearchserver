@@ -33,6 +33,7 @@ import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -50,7 +51,13 @@ public interface ReaderInterface {
 
 	public void close();
 
+	public Collection<?> getFieldNames() throws IOException;
+
 	public int getDocFreq(Term term) throws IOException;
+
+	public TermEnum getTermEnum() throws IOException;
+
+	public TermEnum getTermEnum(String field, String term) throws IOException;
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException;
@@ -96,4 +103,5 @@ public interface ReaderInterface {
 	public void push(URI dest) throws URISyntaxException, IOException;
 
 	public long getVersion();
+
 }

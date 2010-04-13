@@ -34,6 +34,7 @@ import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.store.LockObtainFailedException;
 
@@ -124,6 +125,21 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 
 	public void push(URI dest) throws URISyntaxException, IOException {
 		// TODO Auto-generated method stub
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public TermEnum getTermEnum() throws IOException {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public TermEnum getTermEnum(String field, String term) throws IOException {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public Collection<?> getFieldNames() {
 		throw new RuntimeException("Not yet implemented");
 	}
 
