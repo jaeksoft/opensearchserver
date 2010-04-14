@@ -52,19 +52,21 @@ class OSS_Search {
 	 * @return OSS_Search
 	 */
 	public function __construct($enginePath, $index = null, $rows = null, $start = null) {
+
 		$ossAPI = new OSS_API($enginePath, $index);
 
 		$this->enginePath	= $ossAPI->getEnginePath();
 		$this->index		= $ossAPI->getIndex();
-		$this->rows			= $rows;
-		$this->start		= $start;
 
+		$this->rows($rows);
+		$this->start($start);
+		
 		$this->field	= array();
 		$this->filter	= array();
 		$this->sort		= array();
 		$this->facets	= array();
 		$this->collapse	= array('field' => null, 'max' => null, 'mode' => null);
-
+		
 	}
 
 	/**
@@ -120,6 +122,15 @@ class OSS_Search {
 	}
 
 
+
+	/**
+	 * @return OSS_Search
+	 */
+	public function lang($lang = null) {
+		$this->lang = $lang;
+		return $this;
+	}
+
 	/**
 	 * @return OSS_Search
 	 */
@@ -141,7 +152,7 @@ class OSS_Search {
 	 */
 	public function sort($fields) {
 		foreach ((array)$fields as $field)
-		$this->sort[] = $field;
+			$this->sort[] = $field;
 		return $this;
 	}
 
@@ -234,18 +245,18 @@ class OSS_Search {
 			$facet  = $options['multi'] ? 'facet.multi=' : 'facet=';
 			$facet .= $field;
 			if ($options['min'] !== null)
-			$facet .= '('.$options['min'].')';
+				$facet .= '('.$options['min'].')';
 			$queryChunks[] = $facet;
 		}
 
 		// Collapsing
 		if ($this->collapse['field'])
-		$queryChunks[] = 'collapse.field='.$this->collapse['field'];
+			$queryChunks[] = 'collapse.field='.$this->collapse['field'];
 		if ($this->collapse['mode'] !== null)
-		$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
+			$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
 		if ($this->collapse['max'] !== null)
-		$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
-
+			$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
+		
 		return $this->enginePath.'/'.OSS_API::API_SELECT.'?'.implode('&', $queryChunks);
 
 	}
