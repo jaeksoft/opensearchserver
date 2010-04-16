@@ -64,18 +64,16 @@ public class RobotsTxt {
 	}
 
 	/**
-	 * Renvoie false si le robots.txt ne permet pas le crawl de l'url pass�e en
-	 * param�tre pour le userAgent indiqu�
+	 * Return the status of the specified URL
 	 * 
 	 * @param url
 	 * @param userAgent
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public RobotsTxtStatus getStatus(String userAgent)
+	public RobotsTxtStatus getStatus(String userAgent, UrlItem urlItem)
 			throws MalformedURLException {
-		UrlItem urlItem = crawl.getUrlItem();
-		Integer code = urlItem.getResponseCode();
+		Integer code = crawl.getUrlItem().getResponseCode();
 		if (code == null)
 			return RobotsTxtStatus.ERROR;
 		switch (code) {

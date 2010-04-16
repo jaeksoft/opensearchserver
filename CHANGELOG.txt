@@ -6,6 +6,12 @@ CHANGE LOG
 All new features and bugs are described here:
 http://sourceforge.net/tracker/?group_id=260863
 
+Open Search Server 1.1.3
+
+Bug fixes
+- 2988425: Crawler is not obeying disallow directives from robots.txt
+- 2988433: Crawler ignores query part of URL when evaluating robots.txt
+
 Open Search Server 1.1.2
 
 New features:

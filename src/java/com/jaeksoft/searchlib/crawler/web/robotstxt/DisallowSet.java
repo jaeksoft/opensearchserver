@@ -65,7 +65,7 @@ public class DisallowSet {
 		synchronized (this) {
 			if (set == null)
 				return true;
-			String path = url.getPath();
+			String path = url.getFile();
 			if ("".equals(path))
 				path = "/";
 			Iterator<String> i = set.iterator();
