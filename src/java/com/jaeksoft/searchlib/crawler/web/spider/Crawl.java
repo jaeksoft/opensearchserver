@@ -121,7 +121,8 @@ public class Crawl {
 			throws MalformedURLException, SearchLibException {
 		RobotsTxt robotsTxt = config.getRobotsTxtCache().getRobotsTxt(
 				httpDownloader, config, urlItem.getURL(), false);
-		RobotsTxtStatus robotsTxtStatus = robotsTxt.getStatus(userAgent);
+		RobotsTxtStatus robotsTxtStatus = robotsTxt.getStatus(userAgent,
+				urlItem);
 		urlItem.setRobotsTxtStatus(robotsTxtStatus);
 		if (robotsTxtStatus != RobotsTxtStatus.ALLOW
 				&& robotsTxtStatus != RobotsTxtStatus.NO_ROBOTSTXT) {
