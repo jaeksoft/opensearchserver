@@ -14,4 +14,4 @@ Open Search Server Web site:
 http://www.open-search-server.com
 
 The documentation wiki:
-http://sourceforge.net/apps/mediawiki/opensearchserve/
+http://www.open-search-server.com/wiki/en/
