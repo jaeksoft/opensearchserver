@@ -39,6 +39,7 @@ import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -53,6 +54,7 @@ import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 
 public class Client extends Config {
 
@@ -124,12 +126,13 @@ public class Client extends Config {
 			throws XPathExpressionException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, Base64DecodingException, DOMException {
 		NodeList nodeList = xpp.getNodeList("/index/document");
 		int l = nodeList.getLength();
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>();
 		for (int i = 0; i < l; i++)
-			docList.add(new IndexDocument(xpp, nodeList.item(i)));
+			docList.add(new IndexDocument(getParserSelector(), xpp, nodeList
+					.item(i)));
 		if (indexName == null)
 			return updateDocuments(docList);
 		else
@@ -140,7 +143,8 @@ public class Client extends Config {
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException,
+			Base64DecodingException, DOMException {
 		XPathParser xpp = new XPathParser(inputSource);
 		return updateXmlDocuments(indexName, xpp);
 	}
@@ -149,7 +153,8 @@ public class Client extends Config {
 			throws SAXException, IOException, ParserConfigurationException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException,
+			Base64DecodingException, DOMException {
 		XPathParser xpp = new XPathParser(new InputSource(new StringReader(
 				xmlString)));
 		return updateXmlDocuments(indexName, xpp);

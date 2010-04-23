@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,14 +36,19 @@ import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.External.Collecter;
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		Iterable<FieldContent> {
@@ -85,9 +90,18 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	 * @param documentNode
 	 * @throws XPathExpressionException
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws DOMException
+	 * @throws Base64DecodingException
+	 * @throws IOException
 	 */
-	public IndexDocument(XPathParser xpp, Node documentNode)
-			throws XPathExpressionException, SearchLibException {
+	public IndexDocument(ParserSelector parserSelector, XPathParser xpp,
+			Node documentNode) throws XPathExpressionException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, Base64DecodingException, DOMException,
+			IOException {
 		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				documentNode, "lang")));
 		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
@@ -107,6 +121,19 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 					textContent = textContent.replaceAll("<[^>]*>", "");
 				add(fieldName, textContent);
 			}
+		}
+		NodeList binaryNodes = xpp.getNodeList(documentNode, "binary");
+		int binaryCount = binaryNodes.getLength();
+		for (int i = 0; i < binaryCount; i++) {
+			Node node = binaryNodes.item(i);
+			String contentType = XPathParser.getAttributeString(node,
+					"contentType");
+			Parser parser = parserSelector.getParserFromMimeType(contentType);
+			if (parser == null)
+				continue;
+			byte[] binaryDocument = Base64.decode(node.getNodeValue());
+			parser.parseContent(binaryDocument);
+			parser.populate(this);
 		}
 	}
 

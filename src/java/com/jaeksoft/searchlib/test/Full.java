@@ -15,6 +15,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.http.HttpException;
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.DOMException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -23,6 +24,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 
 public class Full {
 
@@ -33,7 +35,8 @@ public class Full {
 			NoSuchAlgorithmException, XPathExpressionException, IOException,
 			URISyntaxException, ParserConfigurationException, SAXException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, NamingException, HttpException {
+			ClassNotFoundException, NamingException, HttpException,
+			Base64DecodingException, DOMException {
 		File configFile = new File("resources/test_config.xml");
 		assertTrue(configFile.exists());
 		client = ClientCatalog.getClient("web_crawler");
@@ -43,7 +46,8 @@ public class Full {
 	public void populate() throws SearchLibException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, XPathExpressionException,
 			ParserConfigurationException, SAXException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
+			IllegalAccessException, ClassNotFoundException, HttpException,
+			Base64DecodingException, DOMException {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
 		FileInputStream fis = new FileInputStream(contentFile);
