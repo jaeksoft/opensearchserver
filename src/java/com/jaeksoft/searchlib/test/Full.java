@@ -24,7 +24,6 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 
 public class Full {
 
@@ -36,7 +35,7 @@ public class Full {
 			URISyntaxException, ParserConfigurationException, SAXException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, NamingException, HttpException,
-			Base64DecodingException, DOMException {
+			DOMException {
 		File configFile = new File("resources/test_config.xml");
 		assertTrue(configFile.exists());
 		client = ClientCatalog.getClient("web_crawler");
@@ -46,8 +45,7 @@ public class Full {
 	public void populate() throws SearchLibException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, XPathExpressionException,
 			ParserConfigurationException, SAXException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException,
-			Base64DecodingException, DOMException {
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
 		FileInputStream fis = new FileInputStream(contentFile);

@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.DOMException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -46,7 +45,6 @@ import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.request.IndexRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 
 public class IndexServlet extends AbstractServlet {
 
@@ -149,10 +147,6 @@ public class IndexServlet extends AbstractServlet {
 		} catch (ClassNotFoundException e) {
 			throw new ServletException(e);
 		} catch (InterruptedException e) {
-			throw new ServletException(e);
-		} catch (Base64DecodingException e) {
-			throw new ServletException(e);
-		} catch (DOMException e) {
 			throw new ServletException(e);
 		}
 	}

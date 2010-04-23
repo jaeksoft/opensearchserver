@@ -31,7 +31,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.DOMException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
@@ -40,7 +39,6 @@ import org.zkoss.zk.ui.event.UploadEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 
 public class UploadXmlController extends CommonController {
 
@@ -67,10 +65,10 @@ public class UploadXmlController extends CommonController {
 	}
 
 	private void doMedia(Media media) throws XPathExpressionException,
-			NoSuchAlgorithmException, Base64DecodingException, DOMException,
-			SAXException, IOException, ParserConfigurationException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			NoSuchAlgorithmException, SAXException, IOException,
+			ParserConfigurationException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		synchronized (this) {
 			if (media.inMemory()) {
 				if (media.isBinary())
@@ -95,8 +93,7 @@ public class UploadXmlController extends CommonController {
 			XPathExpressionException, NoSuchAlgorithmException,
 			ParserConfigurationException, SAXException, IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException,
-			Base64DecodingException, DOMException {
+			IllegalAccessException, ClassNotFoundException {
 		if (!isUpdateRights())
 			throw new SearchLibException("Not allowed");
 		updatedCount = 0;

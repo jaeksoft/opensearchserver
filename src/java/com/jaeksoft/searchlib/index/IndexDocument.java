@@ -36,6 +36,7 @@ import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -47,8 +48,6 @@ import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.External.Collecter;
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		Iterable<FieldContent> {
@@ -94,14 +93,12 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 * @throws DOMException
-	 * @throws Base64DecodingException
 	 * @throws IOException
 	 */
 	public IndexDocument(ParserSelector parserSelector, XPathParser xpp,
 			Node documentNode) throws XPathExpressionException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, Base64DecodingException, DOMException,
-			IOException {
+			ClassNotFoundException, IOException {
 		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				documentNode, "lang")));
 		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
@@ -131,7 +128,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			Parser parser = parserSelector.getParserFromMimeType(contentType);
 			if (parser == null)
 				continue;
-			byte[] binaryDocument = Base64.decode(xpp.getNodeString(node));
+			byte[] binaryDocument = Base64.decodeBase64(xpp.getNodeString(node)
+					.getBytes());
 			parser.parseContent(binaryDocument);
 			parser.populate(this);
 		}
