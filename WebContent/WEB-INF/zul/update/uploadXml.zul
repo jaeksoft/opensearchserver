@@ -17,7 +17,7 @@
 <window id="upload"
 	use="com.jaeksoft.searchlib.web.controller.update.UploadXmlController">
 	<vbox width="100%" align="center">
-		<button label="Upload" forward="onUpload" />
+		<button label="Upload" upload="true,maxsize=-1" onUpload="upload.onUpload(event)"/>
 		<hbox visible="@{upload.updatedCount}">
 			<label value="@{upload.updatedCount}" />
 			<label>document(s) updated</label>

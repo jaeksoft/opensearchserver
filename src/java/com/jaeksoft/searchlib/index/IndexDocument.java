@@ -131,7 +131,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			Parser parser = parserSelector.getParserFromMimeType(contentType);
 			if (parser == null)
 				continue;
-			byte[] binaryDocument = Base64.decode(node.getNodeValue());
+			byte[] binaryDocument = Base64.decode(xpp.getNodeString(node));
 			parser.parseContent(binaryDocument);
 			parser.populate(this);
 		}

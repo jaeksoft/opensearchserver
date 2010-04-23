@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,8 @@ import org.w3c.dom.DOMException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
-import org.zkoss.zul.Fileupload;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.UploadEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -48,7 +49,7 @@ public class UploadXmlController extends CommonController {
 	 */
 	private static final long serialVersionUID = 1806972305859799181L;
 
-	private Integer updatedCount;
+	private int updatedCount;
 
 	public UploadXmlController() throws SearchLibException {
 		super();
@@ -56,16 +57,41 @@ public class UploadXmlController extends CommonController {
 
 	@Override
 	public void reset() {
-		updatedCount = null;
+		updatedCount = 0;
 	}
 
-	public Integer getUpdatedCount() {
+	public int getUpdatedCount() {
 		synchronized (this) {
 			return updatedCount;
 		}
 	}
 
-	public void onUpload() throws InterruptedException,
+	private void doMedia(Media media) throws XPathExpressionException,
+			NoSuchAlgorithmException, Base64DecodingException, DOMException,
+			SAXException, IOException, ParserConfigurationException,
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		synchronized (this) {
+			if (media.inMemory()) {
+				if (media.isBinary())
+					updatedCount += getClient().updateXmlDocuments(null,
+							new String(media.getByteData()));
+				else
+					updatedCount += getClient().updateXmlDocuments(null,
+							media.getStringData());
+			} else {
+				if (media.isBinary())
+					updatedCount += getClient().updateXmlDocuments(null,
+							new InputSource(media.getStreamData()));
+				else
+					updatedCount += getClient().updateXmlDocuments(null,
+							new InputSource(media.getReaderData()));
+			}
+		}
+
+	}
+
+	public void onUpload(Event event) throws InterruptedException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			ParserConfigurationException, SAXException, IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
@@ -73,27 +99,19 @@ public class UploadXmlController extends CommonController {
 			Base64DecodingException, DOMException {
 		if (!isUpdateRights())
 			throw new SearchLibException("Not allowed");
-		Media media = Fileupload.get();
-		if (media == null)
-			return;
-		synchronized (this) {
-			if (media.inMemory()) {
-				if (media.isBinary())
-					updatedCount = getClient().updateXmlDocuments(null,
-							new String(media.getByteData()));
-				else
-					updatedCount = getClient().updateXmlDocuments(null,
-							media.getStringData());
-			} else {
-				if (media.isBinary())
-					updatedCount = getClient().updateXmlDocuments(null,
-							new InputSource(media.getStreamData()));
-				else
-					updatedCount = getClient().updateXmlDocuments(null,
-							new InputSource(media.getReaderData()));
-			}
-			reloadPage();
+		updatedCount = 0;
+		UploadEvent uploadEvent = (UploadEvent) event;
+		Media[] medias = uploadEvent.getMedias();
+		if (medias != null) {
+			for (Media media : medias)
+				doMedia(media);
+		} else {
+			Media media = uploadEvent.getMedia();
+			if (media == null)
+				return;
+			doMedia(media);
 		}
-	}
+		reloadPage();
 
+	}
 }
