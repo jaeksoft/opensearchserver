@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,32 +24,26 @@
 
 package com.jaeksoft.searchlib.util;
 
-public class Expression implements Comparable<Expression> {
+public class ExpressionToken {
 
-	private ExpressionToken[] tokens;
+	protected String term;
 
-	public Expression(ExpressionToken[] tokens) {
-		this.tokens = tokens;
+	protected ExpressionToken(String term) {
+		this.term = term;
 	}
 
-	@Override
-	public int compareTo(Expression o) {
-		return toString().compareTo(o.toString());
+	public String getTerm() {
+		return term;
 	}
 
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		for (ExpressionToken token : tokens) {
-			sb.append('_');
-			sb.append(token.term);
-		}
-		sb.append('_');
-		return sb.toString();
-	}
+	public static ExpressionToken[] createArray(String phrase) {
+		String[] termArray = phrase.split("\\p{Space}+");
+		ExpressionToken[] tokens = new ExpressionToken[termArray.length];
+		int i = 0;
+		for (String term : termArray)
+			tokens[i++] = new ExpressionToken(term);
+		return tokens;
 
-	public int getSize() {
-		return tokens.length;
 	}
 
 }

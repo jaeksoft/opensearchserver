@@ -83,6 +83,16 @@ http://www.pdfbox.org
 Licensed under the BSD License
 
 ----------------------------------------
+Bouncy Castle encryption libraries.
+Copyright (c) 2000-2006 The Legion Of The Bouncy Castle
+http://www.bouncycastle.org
+
+----------------------------------------
+International Components for Unicode library.
+Copyright (c) 1995-2009 International Business Machines Corporation and others 
+http://site.icu-project.org/
+
+----------------------------------------
 BeanShell
 http://www.beanshell.org
 Rely on Gnu Lesser Public License

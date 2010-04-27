@@ -37,6 +37,7 @@ import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.util.Expression;
 import com.jaeksoft.searchlib.util.ExpressionMap;
+import com.jaeksoft.searchlib.util.ExpressionToken;
 
 public class SynonymMap {
 
@@ -78,8 +79,9 @@ public class SynonymMap {
 		if (words == null || words.length() == 0)
 			return;
 		size++;
-		Expression expKey = new Expression(key);
-		Expression expression = new Expression(words);
+		Expression expKey = new Expression(ExpressionToken.createArray(key));
+		Expression expression = new Expression(ExpressionToken
+				.createArray(words));
 		int i = expression.getSize();
 		ExpressionMap expressionMap = expressionMaps.get(i);
 		if (expressionMap == null) {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,34 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.analysis;
 
-public class Expression implements Comparable<Expression> {
+import com.jaeksoft.searchlib.util.ExpressionToken;
 
-	private ExpressionToken[] tokens;
+public class SynonymToken extends ExpressionToken {
 
-	public Expression(ExpressionToken[] tokens) {
-		this.tokens = tokens;
+	private int positionIncrement;
+	private int startOffset;
+	private int endOffset;
+
+	protected SynonymToken(String term, int posInc, int start, int end) {
+		super(term);
+		this.positionIncrement = posInc;
+		this.startOffset = start;
+		this.endOffset = end;
 	}
 
-	@Override
-	public int compareTo(Expression o) {
-		return toString().compareTo(o.toString());
+	public int getPositionIncrement() {
+		return positionIncrement;
 	}
 
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		for (ExpressionToken token : tokens) {
-			sb.append('_');
-			sb.append(token.term);
-		}
-		sb.append('_');
-		return sb.toString();
+	public int getStartOffset() {
+		return startOffset;
 	}
 
-	public int getSize() {
-		return tokens.length;
+	public int getEndOffset() {
+		return endOffset;
 	}
-
 }

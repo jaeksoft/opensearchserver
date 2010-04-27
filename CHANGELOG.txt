@@ -30,6 +30,8 @@ New features:
 - 2900449: Upgrade PDFBox to 0.8
 
 Bug fixes:
+- 2993103: NoClassDefFoundError BouncyCastleProvider
+- 2990960: keyword are not highlighted in snippets
 - 2982541: Phrase synonyms generate unwanted words
 - 2934214: Shifted highlighting on snippet
 

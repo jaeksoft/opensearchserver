@@ -33,13 +33,13 @@ class SynonymQueue {
 
 	private ExpressionMap expressionMap;
 
-	private String[] tokens;
+	private SynonymToken[] tokens;
 
 	private int queueSize;
 
 	protected SynonymQueue(ExpressionMap expressionMap, int size) {
 		this.expressionMap = expressionMap;
-		this.tokens = new String[size];
+		this.tokens = new SynonymToken[size];
 		this.expressionKey = new Expression(tokens);
 		this.queueSize = 0;
 	}
@@ -56,7 +56,7 @@ class SynonymQueue {
 		queueSize = 0;
 	}
 
-	protected void addToken(String token) {
+	protected void addToken(SynonymToken token) {
 		int l = tokens.length - 1;
 		for (int i = 0; i < l; i++)
 			tokens[i] = tokens[i + 1];
@@ -65,9 +65,9 @@ class SynonymQueue {
 			queueSize++;
 	}
 
-	protected String popToken() {
+	protected SynonymToken popToken() {
 		for (int i = 0; i < tokens.length; i++) {
-			String token = tokens[i];
+			SynonymToken token = tokens[i];
 			if (token != null) {
 				tokens[i] = null;
 				queueSize--;
@@ -79,6 +79,38 @@ class SynonymQueue {
 
 	protected boolean isFull() {
 		return queueSize == tokens.length;
+	}
+
+	protected int getPositionIncrement() {
+		int pos = 0;
+		for (SynonymToken token : tokens)
+			if (token != null)
+				pos += token.getPositionIncrement();
+		return 0;
+	}
+
+	protected int getStartOffset() {
+		int startOffset = Integer.MAX_VALUE;
+		for (SynonymToken token : tokens) {
+			if (token != null) {
+				int so = token.getStartOffset();
+				if (so < startOffset)
+					startOffset = so;
+			}
+		}
+		return startOffset;
+	}
+
+	protected int getEndOffset() {
+		int endOffset = 0;
+		for (SynonymToken token : tokens) {
+			if (token != null) {
+				int so = token.getEndOffset();
+				if (so > endOffset)
+					endOffset = so;
+			}
+		}
+		return endOffset;
 	}
 
 }
