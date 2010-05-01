@@ -1,0 +1,174 @@
+/**   
+ * License Agreement for Jaeksoft OpenSearchServer
+ *
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.open-search-server.com
+ * 
+ * This file is part of Jaeksoft OpenSearchServer.
+ *
+ * Jaeksoft OpenSearchServer is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Jaeksoft OpenSearchServer. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+package com.jaeksoft.searchlib.crawler.web.spider;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.RedirectHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultRedirectHandler;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParamBean;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+
+public class HttpDownloader {
+
+	private HttpClient httpClient = null;
+	private HttpGet httpGet = null;
+	private HttpContext httpContext = null;
+	private HttpResponse httpResponse = null;
+	private HttpEntity httpEntity = null;
+	private StatusLine statusLine = null;
+	private RedirectHandler redirectHandler;
+
+	public HttpDownloader(String userAgent, boolean bFollowRedirect) {
+		redirectHandler = new DefaultRedirectHandler();
+		HttpParams params = new BasicHttpParams();
+		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
+		paramsBean.setVersion(HttpVersion.HTTP_1_1);
+		paramsBean.setContentCharset("UTF-8");
+		paramsBean.setUserAgent(userAgent);
+		HttpClientParams.setRedirecting(params, bFollowRedirect);
+		httpClient = new DefaultHttpClient(params);
+		// TIMEOUT ?
+		// RETRY HANDLER ?
+	}
+
+	public void release() {
+		synchronized (this) {
+			try {
+				reset();
+				httpContext = null;
+				if (httpClient != null)
+					httpClient.getConnectionManager().shutdown();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void reset() {
+		synchronized (this) {
+			if (httpEntity != null) {
+				try {
+					httpEntity.consumeContent();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				httpEntity = null;
+			}
+			httpGet = null;
+			httpResponse = null;
+			httpEntity = null;
+			statusLine = null;
+		}
+	}
+
+	public void get(String url) throws IOException {
+		synchronized (this) {
+			reset();
+			httpGet = new HttpGet(url);
+			httpContext = new BasicHttpContext();
+			httpResponse = httpClient.execute(httpGet, httpContext);
+			if (httpResponse != null) {
+				statusLine = httpResponse.getStatusLine();
+				httpEntity = httpResponse.getEntity();
+			}
+		}
+	}
+
+	public URI getRedirectLocation() throws ProtocolException {
+		synchronized (this) {
+			if (httpResponse == null)
+				return null;
+			if (httpContext == null)
+				return null;
+			if (!redirectHandler.isRedirectRequested(httpResponse, httpContext))
+				return null;
+			return redirectHandler.getLocationURI(httpResponse, httpContext);
+		}
+	}
+
+	public Long getContentLength() {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			return httpEntity.getContentLength();
+		}
+	}
+
+	public String getContentType() {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			Header header = httpEntity.getContentType();
+			if (header == null)
+				return null;
+			return header.getValue();
+		}
+
+	}
+
+	public String getContentEncoding() {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			Header header = httpEntity.getContentEncoding();
+			if (header == null)
+				return null;
+			return header.getValue();
+		}
+
+	}
+
+	public InputStream getContent() throws IllegalStateException, IOException {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			return httpEntity.getContent();
+		}
+	}
+
+	public Integer getStatusCode() {
+		synchronized (this) {
+			if (statusLine == null)
+				return null;
+			return statusLine.getStatusCode();
+		}
+	}
+}

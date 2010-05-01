@@ -1,0 +1,122 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="crawlFileProcess"
+	use="com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController">
+	<panel title="Parameters for crawling" collapsible="true"
+		border="normal">
+		<panelchildren>
+			<grid>
+				<columns>
+					<column />
+					<column />
+				</columns>
+				<rows>
+					<row>
+						<label
+							value="Delay between each successive access, in milliseconds: " />
+						<intbox constraint="no empty, no negative"
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.delayBetweenAccesses.value}" />
+
+						<label
+							value="Number of files to crawl between each add: " />
+						<intbox constraint="no empty, no negative"
+							readonly="@{crawlFileProcess.refresh}"
+							value="@{crawlFileProcess.properties.indexDocumentBufferSize.value}" />
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
+	</panel>
+	<separator />
+	<panel title="Current status" collapsible="false" border="normal">
+		<toolbar>
+			<textbox readonly="true"
+				value="@{crawlFileProcess.fileCrawlMaster.statusInfo}" />
+			<space />
+			<checkbox label="Dry run"
+				disabled="@{crawlFileProcess.refresh}"
+				checked="@{crawlFileProcess.properties.dryRun.value}" />
+			<space />
+			<!-- 
+				<checkbox
+				label="Publish index at the end of the crawl session"
+				disabled="@{crawlFileProcess.refresh}" visible="@{crawlFileProcess.publish}"
+				checked="@{crawlFileProcess.properties.publishAfterSession.value}" />
+				<space visible="@{crawlFileProcess.publish}" />
+			-->
+			<checkbox label="Optimize at the end of the crawl session"
+				disabled="@{crawlFileProcess.refresh}"
+				checked="@{crawlFileProcess.properties.optimizeAfterSession.value}" />
+			<space />
+			<button id="runButton"
+				disabled="@{crawlFileProcess.fileCrawlMaster.aborting}"
+				label="@{crawlFileProcess.runButtonLabel}" forward="onRun" />
+		</toolbar>
+	</panel>
+	<separator />
+	<panel title="Statistics for prior sessions" collapsible="true"
+		border="normal">
+		<panelchildren>
+			<listbox
+				model="@{crawlFileProcess.fileCrawlMaster.statistics}">
+				<auxhead>
+					<auxheader label="Start time" width="130px" />
+					<auxheader label="Fetched" align="center"
+						colspan="2" width="60px" />
+					<auxheader label="Parsed" width="40px" />
+					<auxheader align="center" colspan="2"
+						label="Added or Updated" width="80px" />
+					<auxheader label="Ignored" width="40px" />
+					<auxheader align="center" label="Deleted"
+						width="80px" />
+					<auxheader align="center" colspan="2"
+						label="File(s)" width="80px" />
+				</auxhead>
+				<listhead sizable="true">
+					<listheader width="130px" />
+					<listheader label="Count" width="40px" />
+					<listheader label="Rate" width="40px" />
+					<listheader width="40px" />
+					<listheader label="Pending" width="40px" />
+					<listheader label="Committed" width="40px" />
+					<listheader width="40px" />
+					<listheader width="40px" />
+					<listheader label="Processed" width="40px" />
+					<listheader label="Total" width="40px" />
+				</listhead>
+				<listitem self="@{each=stat}">
+					<listcell label="@{stat.startDate}" />
+					<listcell label="@{stat.fetchedCount}" />
+					<listcell
+						label="@{stat.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+					<listcell label="@{stat.parsedCount}" />
+					<listcell label="@{stat.pendingUpdatedCount}" />
+					<listcell label="@{stat.updatedCount}" />
+					<listcell label="@{stat.ignoredCount}" />
+					<listcell label="@{stat.deletedCount}" />
+					<listcell label="@{stat.urlCount}" />
+					<listcell label="@{stat.urlListSize}" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<timer delay="5000" repeats="true"
+		onTimer="crawlFileProcess.onTimer()"
+		running="@{crawlFileProcess.refresh}" />
+</window>

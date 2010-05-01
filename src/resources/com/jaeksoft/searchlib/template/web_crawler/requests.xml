@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	<!--   License Agreement for Jaeksoft Open Search Server -->
+	<!--   -->
+	<!--   Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft -->
+	<!--   -->
+	<!--   This file is part of Jaeksoft Open Search Server. -->
+	<!--   http://www.open-search-server.com -->
+	<!--   -->
+	<!--   Jaeksoft Open Search Server is free software: you can -->
+	<!--   redistribute it and/or modify it under the terms of  -->
+	<!--   the GNU General Public License as published by the -->
+	<!--   Free Software Foundation, either version 3 of the  -->
+	<!--   License, or (at your option) any later version. -->
+	<!--   -->
+	<!--   Jaeksoft Open Search Server is distributed in the -->
+	<!--   hope that it will be useful, but WITHOUT ANY  -->
+	<!--   WARRANTY; without even the implied warranty of -->
+	<!--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
+	<!--   -->
+	<!--   See the GNU General Public License for more details. -->
+
+<requests>
+
+	<request name="search" phraseSlop="2" defaultOperator="AND"
+		start="0" rows="10" lang="en">
+
+		<query>title:($$)^10 OR title:("$$")^10
+			OR
+			titleExact:($$)^10 OR titleExact:("$$")^10
+			OR url:($$)^5 OR
+			url:("$$")^5
+			OR urlSplit:($$)^5 OR urlSplit:("$$")^5
+			OR
+			urlExact:($$)^5
+			OR urlExact:("$$")^5
+			OR content:($$) OR
+			content:("$$")
+			OR
+			contentExact:($$) OR contentExact:("$$")</query>
+
+		<returnFields>
+			<field name="url" />
+		</returnFields>
+
+		<snippet>
+			<field name="title" tag="b" maxDocChar="2147483647" separator="..."
+				maxSnippetSize="200" maxSnippetNumber="1" fragmenterClass="NoFragmenter" />
+			<field name="content" tag="b" maxDocChar="2147483647"
+				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
+				fragmenterClass="SentenceFragmenter" />
+		</snippet>
+
+	</request>
+
+</requests>

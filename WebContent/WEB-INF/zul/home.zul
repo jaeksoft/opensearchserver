@@ -1,0 +1,67 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="home"
+	use="com.jaeksoft.searchlib.web.controller.HomeController">
+	<panel title="Create a new index" border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" width="100px" />
+					<column align="left" width="200px" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Index name: " />
+						<textbox value="@{home.newIndexName}"
+							width="95%" />
+						<label
+							value="Choose a name for the index that will be created" />
+					</row>
+					<row>
+						<label value="Template: " />
+						<listbox mold="select" fixedLayout="true"
+							selectedItem="@{home.newIndexTemplate}"
+							model="@{home.templateList}">
+							<listitem self="@{each=telist}"
+								label="@{telist.template.publicName}" />
+						</listbox>
+						<label
+							value="@{home.newIndexTemplate.template.description}" />
+					</row>
+					<row spans="3">
+						<button label="Create" forward="onNewIndex" />
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
+	</panel>
+	<separator height="10" />
+	<panel
+		title="List of existing indices - click on an index to work with it"
+		border="normal">
+		<toolbar>
+			<button label="Refresh" forward="onListRefresh" />
+		</toolbar>
+		<panelchildren>
+			<listbox selectedItem="@{home.clientFile}"
+				model="@{home.clientCatalog}" itemRenderer="@{home}" />
+		</panelchildren>
+	</panel>
+
+</window>

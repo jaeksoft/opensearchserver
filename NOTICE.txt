@@ -1,0 +1,103 @@
+Jaeksoft Open Search Server
+Copyright 2008-2010 Emmanuel Keller / Jaeksoft
+http://www.open-search-server.com
+
+Jaeksoft Open Search Server is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+ 
+Jaeksoft Open Search Server is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License
+along with Jaeksoft Open Search Server.
+If not, see <http://www.gnu.org/licenses/>.
+
+----------------------------------------
+ 
+This product includes software developed by:
+
+----------------------------------------
+The Apache Software Foundation
+http://www.apache.org/
+Rely on LICENSE-APACHE2
+
+Apache Tomcat
+http://tomcat.apache.org
+
+Apache Lucene
+http://lucene.apache.org
+
+Apache POI
+http://poi.apache.org/
+
+Apache Commons
+http://commons.apache.org/
+
+Apache Xerces
+http://xerces.apache.org
+
+Apache XML-RPC
+http://ws.apache.org/xmlrpc/
+
+----------------------------------------
+ZK DirectRIA by Potix Corporation
+http://www.zkoss.org/
+Rely on GNU General Public License
+
+----------------------------------------
+Javamail by Sun Microsystems, Inc.
+http://www.sun.com/
+Rely on LICENSE-CPL-V10
+
+----------------------------------------
+TagSoup
+http://home.ccil.org/~cowan/XML/tagsoup/
+Rely on LICENCE-APACHE2
+
+----------------------------------------
+JTidy
+http://jtidy.sourceforge.net
+Rely on LICENCE-JTIDY
+
+----------------------------------------
+NekoHTML by Andy Clark
+http://nekohtml.sourceforge.net/
+Rely on LICENCE-APACHE2
+
+----------------------------------------
+HTMLCleaner
+http://htmlcleaner.sourceforge.net
+Rely on LICENCE-HTMLCLEANER
+
+----------------------------------------
+Textcat by Knallgrau New Media Solutions
+http://sourceforge.net/projects/textcat/
+
+----------------------------------------
+Pdfbox by PDFBox.org
+http://www.pdfbox.org
+Licensed under the BSD License
+
+----------------------------------------
+BeanShell
+http://www.beanshell.org
+Rely on Gnu Lesser Public License
+
+----------------------------------------
+Google-gson by Google Inc.
+http://code.google.com/p/google-gson
+Rely on LICENSE-APACHE2
+
+----------------------------------------
+ODFToolkit by Sun Microsystems, Inc.
+http://odftoolkit.org/
+Rely on LICENSE-APACHE2
+
+----------------------------------------
+Java Native Access (JNA)
+https://jna.dev.java.net/
+Rely on LGPL license 2.1

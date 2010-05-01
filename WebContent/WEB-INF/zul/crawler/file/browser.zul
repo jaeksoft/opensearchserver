@@ -1,0 +1,81 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="browser"
+	use="com.jaeksoft.searchlib.web.controller.crawler.file.BrowserController">
+
+	<grid width="100%">
+		<columns width="100%">
+			<column width="43%">
+				<listbox model="@{browser.files}"
+					selectedItem="@{browser.selectedFilePath}" height="500px">
+					<auxhead>
+						<auxheader colspan="2">
+							<button label="Back" forward="onBack" />
+							<button label="Refresh" forward="onRefresh" />
+						</auxheader>
+					</auxhead>
+
+					<listhead>
+						<listheader align="center" width="25px" />
+						<listheader align="left" label="Name" />
+					</listhead>
+
+					<listitem self="@{each='field'}">
+						<listcell image="/images/file.png"
+							visible="@{field.file}" />
+						<listcell image="/images/directory.png"
+							visible="@{field.directory}" />
+						<listcell label="@{field}"
+							onDoubleClick="browser.onDoubleClick(self)" />
+					</listitem>
+				</listbox>
+			</column>
+
+			<column>
+				<vbox align="center">
+					<label>With all sub-directories</label>
+
+					<checkbox checked="@{browser.selectedFileCheck}"
+						disabled="@{browser.selectedFile.file}" />
+
+					<button label="Add" forward="onAdd" width="80px" />
+				</vbox>
+			</column>
+
+			<column width="43%">
+				<listbox itemRenderer="@{browser}"
+					model="@{browser.pathItem.list}" height="500px">
+					<listhead>
+						<listheader label="Selection" />
+						<listheader label="With all" width="50px" />
+						<listheader label="Reset" width="50px" />
+						<listheader label="Remove" width="60px" />
+					</listhead>
+					<listfoot>
+						<listfooter span="4">
+							<paging id="paging" detailed="true"
+								totalSize="@{browser.totalSize}" pageSize="@{browser.pageSize}"
+								activePage="@{browser.activePage}" />
+						</listfooter>
+					</listfoot>
+				</listbox>
+
+			</column>
+		</columns>
+	</grid>
+</window>

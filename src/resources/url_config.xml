@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!-- License Agreement for Jaeksoft Open Search Server  -->
+	<!-- Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft -->
+	<!-- http://www.open-search-server.com -->
+	<!--  This file is part of Jaeksoft Open Search Server. -->
+	<!--
+		Jaeksoft Open Search Server is free software: you can redistribute it
+		and/or modify it under the terms of the GNU General Public License as
+		published by the Free Software Foundation, either version 3 of the
+		License, or (at your option) any later version. Jaeksoft Open Search
+		Server is distributed in the hope that it will be useful, but WITHOUT
+		ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+		FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+		for more details. You should have received a copy of the GNU General
+		Public License along with Jaeksoft Open Search Server. If not, see
+		<http://www.gnu.org/licenses/>.
+	-->
+<configuration>
+	<indices>
+		<index name="url" searchCache="100" filterCache="100"
+			fieldCache="500" />
+	</indices>
+	<schema>
+		<fields default="url" unique="url">
+			<field name="lang" indexed="yes" stored="yes" />
+			<field name="langMethod" indexed="yes" stored="yes" />
+			<field name="contentBaseType" indexed="yes" stored="yes" />
+			<field name="contentTypeCharset" indexed="yes" stored="yes" />
+			<field name="contentEncoding" indexed="yes" stored="yes" />
+			<field name="contentLength" indexed="yes" stored="yes" />
+			<field name="url" indexed="yes" stored="yes" />
+			<field name="outlink" indexed="yes" />
+			<field name="inlink" indexed="yes" />
+			<field name="host" indexed="yes" stored="yes" />
+			<field name="when" indexed="yes" stored="yes" />
+			<field name="responseCode" indexed="yes" stored="yes" />
+			<field name="robotsTxtStatus" indexed="yes" stored="yes" />
+			<field name="parserStatus" indexed="yes" stored="yes" />
+			<field name="fetchStatus" indexed="yes" stored="yes" />
+			<field name="indexStatus" indexed="yes" stored="yes" />
+		</fields>
+	</schema>
+	<requests>
+		<request name="urlSearch" defaultOperator="and" start="0"
+			rows="0">
+			<query>$$</query>
+			<returnFields>
+				url,host,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
+				lang,langMethod,when,responseCode,
+				robotsTxtStatus,parserStatus,fetchStatus,indexStatus</returnFields>
+		</request>
+		<request name="hostFacet" defaultOperator="or" start="0" rows="0">
+			<query>$$</query>
+			<facetFields>
+				<facetField name="host" minCount="1" />
+			</facetFields>
+		</request>
+	</requests>
+</configuration>

@@ -1,0 +1,213 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="crawlProcess"
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.CrawlController">
+	<panel title="Crawling parameters" collapsible="true"
+		border="normal">
+		<panelchildren>
+			<grid>
+				<columns>
+					<column align="right" />
+					<column />
+					<column align="right" />
+					<column />
+				</columns>
+				<rows>
+					<row>
+						<label value="User-Agent: " />
+						<textbox cols="50"
+							readonly="@{crawlProcess.refresh}"
+							value="@{crawlProcess.properties.userAgent.value}" />
+						<label value="Number of URLs to crawl: " />
+						<intbox constraint="no empty, no negative"
+							readonly="@{crawlProcess.refresh}"
+							value="@{crawlProcess.properties.maxUrlPerSession.value}" />
+
+					</row>
+					<row>
+						<label
+							value="Fetch interval between re-fetches (days): " />
+						<intbox constraint="no empty, no negative"
+							readonly="@{crawlProcess.refresh}"
+							value="@{crawlProcess.properties.fetchInterval.value}" />
+						<label
+							value="Maximum number of URLs per host: " />
+						<intbox constraint="no empty, no negative"
+							readonly="@{crawlProcess.refresh}"
+							value="@{crawlProcess.properties.maxUrlPerHost.value}" />
+
+					</row>
+					<row>
+						<label value="Number of simultaneous threads: " />
+						<intbox constraint="no empty, no negative"
+							readonly="@{crawlProcess.refresh}"
+							value="@{crawlProcess.properties.maxThreadNumber.value}" />
+						<label
+							value="Delay between each successive access, in seconds: " />
+						<intbox constraint="no empty, no negative"
+							readonly="@{crawlProcess.refresh}"
+							value="@{crawlProcess.properties.delayBetweenAccesses.value}" />
+
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
+	</panel>
+	<separator />
+	<panel title="Current status" collapsible="false" border="normal">
+		<toolbar>
+			<textbox readonly="true"
+				value="@{crawlProcess.webCrawlMaster.statusInfo}" />
+			<space />
+			<checkbox label="Dry run" disabled="@{crawlProcess.refresh}"
+				checked="@{crawlProcess.properties.dryRun.value}" />
+			<space />
+			<!-- 
+				<checkbox
+				label="Publish index at the end of the crawl session"
+				disabled="@{crawlProcess.refresh}" visible="@{crawlProcess.publish}"
+				checked="@{crawlProcess.properties.publishAfterSession.value}" />
+				<space visible="@{crawlProcess.publish}" />
+			-->
+			<checkbox label="Optimize at the end of the crawl session"
+				disabled="@{crawlProcess.refresh}"
+				checked="@{crawlProcess.properties.optimizeAfterSession.value}" />
+			<space />
+			<button id="runButton"
+				disabled="@{crawlProcess.webCrawlMaster.aborting}"
+				label="@{crawlProcess.runButtonLabel}" forward="onRun" />
+		</toolbar>
+	</panel>
+	<separator />
+	<panel title="Statistics for prior sessions" collapsible="true"
+		border="normal">
+		<panelchildren>
+			<listbox
+				model="@{crawlProcess.webCrawlMaster.statistics}">
+				<auxhead>
+					<auxheader label="Start time" width="130px" />
+					<auxheader label="Fetched" align="center"
+						colspan="2" width="60px" />
+					<auxheader align="center" colspan="2"
+						label="Old url host" width="80px" />
+					<auxheader align="center" colspan="2"
+						label="New url host" width="80px" />
+					<auxheader label="Parsed" width="40px" />
+					<auxheader align="center" colspan="2"
+						label="New url" width="80px" />
+					<auxheader align="center" colspan="2"
+						label="Updated" width="80px" />
+					<auxheader label="Ignored" width="40px" />
+					<auxheader align="center" colspan="2"
+						label="Deleted" width="80px" />
+					<auxheader align="center" colspan="2" label="Url(s)"
+						width="80px" />
+				</auxhead>
+				<listhead sizable="true">
+					<listheader width="130px" />
+					<listheader label="Count" width="40px" />
+					<listheader label="Rate" width="40px" />
+					<listheader label="Processed" width="40px" />
+					<listheader label="Total" width="40px" />
+					<listheader label="Processed" width="40px" />
+					<listheader label="Total" width="40px" />
+					<listheader width="40px" />
+					<listheader label="Pending" width="40px" />
+					<listheader label="Committed" width="40px" />
+					<listheader label="Pending" width="40px" />
+					<listheader label="Committed" width="40px" />
+					<listheader width="40px" />
+					<listheader label="Pending" width="40px" />
+					<listheader label="Committed" width="40px" />
+					<listheader label="Processed" width="40px" />
+					<listheader label="Total" width="40px" />
+				</listhead>
+				<listitem self="@{each=stat}">
+					<listcell label="@{stat.startDate}" />
+					<listcell label="@{stat.fetchedCount}" />
+					<listcell
+						label="@{stat.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+					<listcell label="@{stat.oldHostCount}" />
+					<listcell label="@{stat.oldHostListSize}" />
+					<listcell label="@{stat.newHostCount}" />
+					<listcell label="@{stat.newHostListSize}" />
+					<listcell label="@{stat.parsedCount}" />
+					<listcell label="@{stat.pendingNewUrlCount}" />
+					<listcell label="@{stat.newUrlCount}" />
+					<listcell label="@{stat.pendingUpdatedCount}" />
+					<listcell label="@{stat.updatedCount}" />
+					<listcell label="@{stat.ignoredCount}" />
+					<listcell label="@{stat.pendingDeletedCount}" />
+					<listcell label="@{stat.deletedCount}" />
+					<listcell label="@{stat.urlCount}" />
+					<listcell label="@{stat.urlListSize}" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<separator />
+	<panel title="Thread list" collapsible="true" border="normal">
+		<toolbar>
+			<checkbox label="Show debug information"
+				checked="@{crawlProcess.properties.debug.value}" />
+		</toolbar>
+		<panelchildren>
+			<listbox model="@{crawlProcess.webCrawlMaster.crawlThreads}"
+				mold="paging" pageSize="20">
+				<listhead sizable="true">
+					<listheader label="Current host name" />
+					<listheader width="50px" label="Fetched" />
+					<listheader width="50px" label="Fetch rate" />
+					<listheader width="50px" label="New url" />
+					<listheader width="50px" label="Updated" />
+					<listheader width="50px" label="Ignored" />
+					<listheader width="50px" label="Deleted" />
+					<listheader width="50px" label="Url" />
+					<listheader width="50px" label="Total" />
+					<listheader label="Status" />
+					<listheader
+						visible="@{crawlProcess.properties.debug.value}" label="Debug" />
+				</listhead>
+				<listitem self="@{each=thread}">
+					<listcell label="@{thread.host.name}" />
+					<listcell
+						label="@{thread.currentStatistics.fetchedCount}" />
+					<listcell
+						label="@{thread.currentStatistics.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+					<listcell
+						label="@{thread.currentStatistics.pendingNewUrlCount}" />
+					<listcell
+						label="@{thread.currentStatistics.pendingUpdatedCount}" />
+					<listcell
+						label="@{thread.currentStatistics.ignoredCount}" />
+					<listcell
+						label="@{thread.currentStatistics.pendingDeletedCount}" />
+					<listcell
+						label="@{thread.currentStatistics.urlCount}" />
+					<listcell
+						label="@{thread.currentStatistics.urlListSize}" />
+					<listcell label="@{thread.statusInfo}" />
+					<listcell visible="@{crawlProcess.properties.debug.value}"
+						label="@{thread.debugInfo}" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<timer delay="5000" repeats="true" onTimer="crawlProcess.onTimer()"
+		running="@{crawlProcess.refresh}" />
+</window>

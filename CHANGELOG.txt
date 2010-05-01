@@ -1,0 +1,109 @@
+Jaeksoft Open Search Server
+http://www.open-search-server.com
+-----------------------
+CHANGE LOG
+
+All new features and bugs are described here:
+http://sourceforge.net/tracker/?group_id=260863
+
+Open Search Server 1.1.3
+
+Bug fixes
+- 2989836: Statistics are not set up in template	
+- 2988425: Crawler is not obeying disallow directives from robots.txt
+- 2988433: Crawler ignores query part of URL when evaluating robots.txt
+
+Changes:
+- 2989831: Update the documentation link (wiki)
+
+Open Search Server 1.1.2
+
+New features:
+- 2958015: Add source archive
+- 2910029: Lucene read only support
+
+Bug fixes
+- 2885897: PHP API fail on some query with wrong xml chars
+- 2820286: Issue with statistics aggregation
+- 2911906: Sort functionnality seem to ignore sort order
+- 2908345: Performance issue with large field cache
+- 2905076: Issue with performance of web crawler
+- 2903935: Negative value on web crawler statistics
+- 2898343: Behaviour problem of wildcard function
+- 2899784: duplication of returned field in returned xml
+
+Open Search Server 1.1.1
+
+Bug fixes
+- 2886651: Default operator is not preserved when saving query
+- 2886645: Issue with lemmatisation using the web crawler
+- 2884347: Field seem to be lost if renamed
+- 2884344: Renaming a field then deleting: not removed from the back-office
+- 2884275: Duplicated documents when using empty index template
+
+Open Search Server 1.1
+
+New features
+- 2882224: Stress test for insertion
+- 2881642: Set maximum number of segments for index optimization
+- 2865088: Add default parser for web and file crawler
+- 2864468: Indexation plugin within web crawler
+- 2855049: Add a description for parsers
+- 2854421: Added Romanian, Turkish and Danish support
+- 2848588: Robots.txt view on web crawler
+- 2847820: Add Russian and Chinese language support
+- 2846159: Replace textfield by a menu for langage selection
+- 2843516: Sort field list by alphabetic order
+- 2843182: Use the library apache commons.io
+- 2836913: Return the rows parameter in the search API result
+- 2833103: Remove XML/HTML tag on XML upload
+- 2826651: Synonyms support
+- 2828734: Add Spellchecker ability
+- 2812808: Management of several indices
+- 2818592: Unique field and default field set up
+- 2818075: OpenDocument Format support
+- 2816562: New data directory in package
+- 2816561: Upgrade documentation for 1.1
+- 2813996: Add schema tab panel to manager analyzer and fields
+
+Bug fixes
+- 2882223: Error when inserting with concurrent access
+- 2881248: Web crawler does not follow redirection for robots.txt
+- 2881227: Wrong encoding detection on web crawler
+- 2881141: Can add fields in the schema for any type of index
+- 2880577: Web crawler doesn't follow redirections correctly
+- 2873319: Facets pagination in the interface doesn't work
+- 2872576: Add a web pattern api
+- 2863639: Prefix query changes term to lowercase
+- 2859658: Tab Crawler / Web doesn't change when switching index
+- 2856869: NPE Exception when field query is empty
+- 2855999: Web page title parsing issue
+- 2849135: File attribute loss in synonym filter and stop filter
+- 2843033: Failure to create and use an index using the empty template
+- 2841058: XML Conf: Exception with query template field sorting
+- 2839468: XML Conf: Exception when using SizeFragmenter and restart
+- 2832683: Exception when loading synonyms
+- 2829664: Snippets and Facets not saved on the FS
+- 2826959: Unable to set the langage in update form
+- 2824320: Unable to update index after a field update
+- 2823857: Search API, collapse.mode=full creates NullPointerException
+- 2823851: setclasspath.bat: blocking problem with some checks
+- 2820276: Add button is inactive on update form
+
+Open Search Server 1.0 beta 2
+
+New features
+- 2812149: Updated Zkoss to version 3.6.2
+- 2811901: Added collapsing for all documents to be returned
+- 2808582: Added paging for query results
+- 2807080: Updated Apache Tomcat to version 6.0.20
+
+Bug fixes
+- 2811902: Content type is now provided in XML API responses
+- 2810881: Useless empty lines within XML results deleted
+- 2808554: Collapsing now returns as many rows as expected
+- 2805843: start.bat and stop.bat no longer require CATALINA_HOME
+
+
+Documentation updates
+- 2805848: Added JAVA_HOME documentation
