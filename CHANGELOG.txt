@@ -35,6 +35,10 @@ Bug fixes:
 - 2982541: Phrase synonyms generate unwanted words
 - 2934214: Shifted highlighting on snippet
 
+Open Search Server 1.1.4
+
+New features:
+- 2995116: Replace Javamail library
 Open Search Server 1.1.3
 
 Bug fixes

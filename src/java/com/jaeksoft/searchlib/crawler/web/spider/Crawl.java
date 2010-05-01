@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,8 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.mail.internet.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -143,9 +141,14 @@ public class Crawl {
 			try {
 				httpDownloader.get(urlItem.getCheckedURI().toASCIIString());
 
-				String contentType = httpDownloader.getContentType();
-				if (contentType != null)
-					urlItem.setContentType(contentType);
+				String contentBaseType = httpDownloader.getContentBaseType();
+				if (contentBaseType != null)
+					urlItem.setContentBaseType(contentBaseType);
+
+				String contentTypeCharset = httpDownloader
+						.getContentTypeCharset();
+				if (contentTypeCharset != null)
+					urlItem.setContentTypeCharset(contentTypeCharset);
 
 				String encoding = httpDownloader.getContentEncoding();
 				if (encoding != null)
@@ -199,10 +202,6 @@ public class Crawl {
 			} catch (URISyntaxException e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
-				setError(e.getMessage());
-			} catch (ParseException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (MalformedURLException e) {
 				logger.log(Level.WARNING, e.getMessage(), e);

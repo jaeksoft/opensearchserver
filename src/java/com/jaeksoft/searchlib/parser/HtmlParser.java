@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
 
-import javax.mail.internet.ContentType;
-import javax.mail.internet.ParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -55,6 +53,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.MimeUtils;
 
 public class HtmlParser extends Parser {
 
@@ -312,15 +311,10 @@ public class HtmlParser extends Parser {
 		if (charsetWasNull) {
 			String contentType = getMetaHttpEquiv(metas, "content-type");
 			if (contentType != null) {
-				try {
-					ContentType ct = new ContentType(contentType);
-					charset = ct.getParameter("charset");
-					if (charset != null) {
-						inputStream.restartFromCache();
-						doc = htmlParserLine(charset, inputStream);
-					}
-				} catch (ParseException e) {
-					throw new IOException(e);
+				charset = MimeUtils.extractContentTypeCharset(contentType);
+				if (charset != null) {
+					inputStream.restartFromCache();
+					doc = htmlParserLine(charset, inputStream);
 				}
 			}
 		}

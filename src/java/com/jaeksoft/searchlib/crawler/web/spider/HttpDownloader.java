@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParamBean;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 
 public class HttpDownloader {
 
@@ -132,16 +133,27 @@ public class HttpDownloader {
 		}
 	}
 
-	public String getContentType() {
+	public String getContentBaseType() {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;
 			Header header = httpEntity.getContentType();
 			if (header == null)
 				return null;
-			return header.getValue();
+			String v = header.getValue();
+			int i = v.indexOf(';');
+			if (i == -1)
+				return v;
+			return v.substring(0, i);
 		}
+	}
 
+	public String getContentTypeCharset() {
+		synchronized (this) {
+			if (httpEntity == null)
+				return null;
+			return EntityUtils.getContentCharSet(httpEntity);
+		}
 	}
 
 	public String getContentEncoding() {
