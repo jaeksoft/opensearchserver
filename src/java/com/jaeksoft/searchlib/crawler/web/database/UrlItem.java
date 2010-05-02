@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,8 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.mail.internet.ContentType;
 
 import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
@@ -154,14 +152,6 @@ public class UrlItem implements Serializable {
 	private void setParserStatusInt(String v) {
 		if (v != null)
 			setParserStatusInt(Integer.parseInt(v));
-	}
-
-	public void setContentType(String v)
-			throws javax.mail.internet.ParseException {
-		ContentType contentType = new ContentType(v);
-		setContentBaseType(contentType.getBaseType());
-		setContentTypeCharset(contentType.getParameter("charset"));
-
 	}
 
 	public String getContentTypeCharset() {
