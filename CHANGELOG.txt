@@ -9,7 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.1.4
 
 New features:
-- 2995116: Replace Javamail library
+- 2995116: Due to license conflict, replace Javamail library
 
 Open Search Server 1.1.3
 
