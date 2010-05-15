@@ -54,6 +54,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.MimeUtils;
+import com.jaeksoft.searchlib.util.XPathParser;
 
 public class HtmlParser extends Parser {
 
@@ -109,6 +110,11 @@ public class HtmlParser extends Parser {
 			return;
 		if ("title".equalsIgnoreCase(nodeName))
 			return;
+		if ("oss".equalsIgnoreCase(nodeName)) {
+			if ("yes".equalsIgnoreCase(XPathParser.getAttributeString(node,
+					"ignore")))
+				return;
+		}
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			String text = node.getNodeValue();
 			text = text.replaceAll("\\r", "");

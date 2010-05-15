@@ -131,9 +131,9 @@ public class Crawl {
 	}
 
 	/**
-	 * T�l�charge le fichier et extrait les informations
+	 * Download the file and extract content informations
 	 * 
-	 * @param userAgent
+	 * @param httpDownloader
 	 */
 	public void download(HttpDownloader httpDownloader) {
 		synchronized (this) {
