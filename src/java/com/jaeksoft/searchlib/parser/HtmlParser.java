@@ -115,6 +115,11 @@ public class HtmlParser extends Parser {
 					"ignore")))
 				return;
 		}
+		if ("div".equalsIgnoreCase(nodeName)) {
+			if ("opensearchserver.ignore".equalsIgnoreCase(XPathParser
+					.getAttributeString(node, "class")))
+				return;
+		}
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			String text = node.getNodeValue();
 			text = text.replaceAll("\\r", "");
