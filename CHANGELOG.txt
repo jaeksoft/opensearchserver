@@ -9,7 +9,8 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
-- 2997826: Possibility to index only the specified content (partial implementation: <oss ignore="yes">)
+- 2997836: In the returned fields having extra fields from Meta tags
+- 2997826: Possibility to index only the specified content
 - 2991252: Possibility to index binary file and to add it to a document
 - 2982545: Extracting term frequency informations
 - 2881385: API to retrieve the available indice

@@ -42,6 +42,8 @@ public abstract class Parser {
 
 	private IndexDocument parserDocument;
 
+	private IndexDocument directDocument;
+
 	private ParserFieldEnum[] fieldList;
 
 	private FieldMap fieldMap;
@@ -52,6 +54,7 @@ public abstract class Parser {
 		this.fieldList = fieldList;
 		sizeLimit = 0;
 		sourceDocument = null;
+		directDocument = null;
 		parserDocument = new IndexDocument();
 		defaultCharset = null;
 	}
@@ -62,6 +65,8 @@ public abstract class Parser {
 
 	public void populate(IndexDocument indexDocument) {
 		fieldMap.mapIndexDocument(parserDocument, indexDocument);
+		if (directDocument != null)
+			indexDocument.add(directDocument);
 	}
 
 	public void setSizeLimit(long l) {
@@ -92,6 +97,13 @@ public abstract class Parser {
 		if (value.length() == 0)
 			return;
 		parserDocument.add(field.name(), value);
+	}
+
+	public void addDirectFields(String[] fields, String value) {
+		if (directDocument == null)
+			directDocument = new IndexDocument();
+		for (String field : fields)
+			directDocument.add(field, value);
 	}
 
 	protected void addField(ParserFieldEnum field, Object object) {

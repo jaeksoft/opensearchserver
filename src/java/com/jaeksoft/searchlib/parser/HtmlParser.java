@@ -99,8 +99,13 @@ public class HtmlParser extends Parser {
 		}
 	}
 
+	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
+	private final static String OPENSEARCHSERVER_IGNORE = "opensearchserver.ignore";
+	private final static int OPENSEARCHSERVER_FIELD_LENGTH = OPENSEARCHSERVER_FIELD
+			.length();
+
 	private void getBodyTextContent(StringBuffer sb, Node node,
-			boolean bAddBlock) {
+			boolean bAddBlock, String[] directFields) {
 		if (node.getNodeType() == Node.COMMENT_NODE)
 			return;
 		String nodeName = node.getNodeName();
@@ -115,10 +120,22 @@ public class HtmlParser extends Parser {
 					"ignore")))
 				return;
 		}
+		boolean bEnterDirectField = false;
 		if ("div".equalsIgnoreCase(nodeName)) {
-			if ("opensearchserver.ignore".equalsIgnoreCase(XPathParser
-					.getAttributeString(node, "class")))
-				return;
+			String classAttribute = XPathParser.getAttributeString(node,
+					"class");
+			if (classAttribute != null) {
+				if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(classAttribute))
+					return;
+				if (classAttribute.startsWith(OPENSEARCHSERVER_FIELD)) {
+					String directField = classAttribute
+							.substring(OPENSEARCHSERVER_FIELD_LENGTH);
+					if (directField.length() > 0) {
+						directFields = directField.split("\\.");
+						bEnterDirectField = directFields.length > 0;
+					}
+				}
+			}
 		}
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			String text = node.getNodeValue();
@@ -138,13 +155,18 @@ public class HtmlParser extends Parser {
 			return;
 		int len = children.getLength();
 		for (int i = 0; i < len; i++)
-			getBodyTextContent(sb, children.item(i), bAddBlock);
+			getBodyTextContent(sb, children.item(i), bAddBlock, directFields);
 
-		if (bAddBlock && nodeName != null && sb.length() > 0
-				&& sb.charAt(sb.length() - 1) != '.'
-				&& sentenceTagSet.contains(nodeName.toLowerCase())) {
-			addField(ParserFieldEnum.body, sb);
-			sb.setLength(0);
+		if (bAddBlock && nodeName != null && sb.length() > 0) {
+			boolean bForSentence = sb.charAt(sb.length() - 1) != '.'
+					&& sentenceTagSet.contains(nodeName.toLowerCase());
+			if (bForSentence || bEnterDirectField) {
+				if (directFields != null)
+					addDirectFields(directFields, sb.toString());
+				else
+					addField(ParserFieldEnum.body, sb);
+				sb.setLength(0);
+			}
 		}
 	}
 
@@ -213,7 +235,7 @@ public class HtmlParser extends Parser {
 		else if ("iso-2022".equalsIgnoreCase(charset))
 			tidy.setCharEncoding(Configuration.ISO2022);
 
-		// Cr�ation de l'arbre DOM avec Tidy
+		// Création de l'arbre DOM avec Tidy
 		Document dom = tidy.parseDOM(inputStream, null);
 		if (!inputStream.isComplete())
 			throw new LimitException();
@@ -330,6 +352,20 @@ public class HtmlParser extends Parser {
 			}
 		}
 
+		for (Node metaNode : metas) {
+			String metaName = DomUtils.getAttributeText(metaNode, "name");
+			if (metaName != null && metaName.startsWith(OPENSEARCHSERVER_FIELD)) {
+				String field = metaName
+						.substring(OPENSEARCHSERVER_FIELD_LENGTH);
+				String[] fields = field.split("\\.");
+				if (fields != null) {
+					String content = DomUtils.getAttributeText(metaNode,
+							"content");
+					addDirectFields(fields, content);
+				}
+			}
+		}
+
 		addField(ParserFieldEnum.charset, charset);
 
 		addField(ParserFieldEnum.title, getTitle(doc));
@@ -405,7 +441,7 @@ public class HtmlParser extends Parser {
 		nodes = DomUtils.getNodes(doc, p);
 		if (nodes != null && nodes.size() > 0) {
 			StringBuffer sb = new StringBuffer();
-			getBodyTextContent(sb, nodes.get(0), true);
+			getBodyTextContent(sb, nodes.get(0), true, null);
 			addField(ParserFieldEnum.body, sb);
 		}
 
