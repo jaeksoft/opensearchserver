@@ -231,7 +231,7 @@ if (isset($_REQUEST['query'])) {
 								$content   = implode('', $entry->xpath('field[@name="content"]'));
 							}
 
-							$subType = preg_replace('/^[^\/]+\//', '', $type);
+							//$subType = preg_replace('/^[^\/]+\//', '', $type);
 
 							?>
 								<li>
