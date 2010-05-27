@@ -26,6 +26,7 @@ if (!class_exists('OSS_API')) { trigger_error("OSS_Search won't work whitout OSS
  * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  * FIXME Complete this documentations
+ * FIXME Clean this class and use facilities provided by OSS_API
  */
 class OSS_Search {
 
@@ -43,6 +44,9 @@ class OSS_Search {
 	protected $collapse;
 	protected $facet;
 	protected $sortBy;
+	
+	protected $login;
+	protected $apiKey;
 
 	protected $lastQueryString;
 
@@ -51,13 +55,15 @@ class OSS_Search {
 	 * @param $index The index name
 	 * @return OSS_Search
 	 */
-	public function __construct($enginePath, $index = null, $rows = null, $start = null) {
+	public function __construct($enginePath, $index = null, $rows = null, $start = null, $login = null, $apiKey = null) {
 
 		$ossAPI = new OSS_API($enginePath, $index);
 
 		$this->enginePath	= $ossAPI->getEnginePath();
 		$this->index		= $ossAPI->getIndex();
-
+		
+		$this->credential($login, $apiKey);
+		
 		$this->rows($rows);
 		$this->start($start);
 		
@@ -120,8 +126,31 @@ class OSS_Search {
 		$this->filter[] = $filter;
 		return $this;
 	}
-
-
+	
+	/**
+	 * @param $login string
+	 * @param $apiKey string
+	 * If $login is empty, credential is removed
+	 */
+	public function credential($login, $apiKey) {
+		// Remove credentials
+		if (empty($login)) {
+			$this->login	= null;
+			$this->apiKey	= null;
+			return;
+		}
+		
+		// Else parse and affect new credentials
+		if (empty($login) || empty($apiKey)) {
+			if (class_exists('OSSException'))
+				throw new UnexpectedValueException('You must provide a login and an api key to use credential.');
+			trigger_error(__CLASS__.'::'.__METHOD__.': You must provide a login and an api key to use credential.', E_USER_ERROR);
+			return false;
+		}
+		
+		$this->login	= $login;
+		$this->apiKey	= $apiKey;
+	}
 
 	/**
 	 * @return OSS_Search
@@ -190,6 +219,7 @@ class OSS_Search {
 
 	/**
 	 * @return SimpleXMLElement False if the query produced an error
+	 * FIXME Must think about OSS_API inteegration inside OSS_Search
 	 */
 	public function execute($connectTimeOut = null, $timeOut = null) {
 		// Do the query
@@ -210,15 +240,21 @@ class OSS_Search {
 	protected function prepareQueryString() {
 
 		$queryChunks = array();
-
+		
+		// If credential provided, include them in the query url
+		if (!empty($this->login)) {
+			$queryChunks[] = "login=" . $this->login;
+			$queryChunks[] = "key="   . $this->apiKey;
+		}
+		
 		$queryChunks[] = 'q='.urlencode((empty($this->query) ? "*:*" : $this->query));
 
-		if (!empty($this->index))	 $queryChunks[] = 'use='.$this->index;
-		if (!empty($this->template)) $queryChunks[] = 'qt='.$this->template;
-		if (!empty($this->lang)) 	 $queryChunks[] = 'lang='.$this->lang;
+		if (!empty($this->index))	 $queryChunks[] = 'use='  . $this->index;
+		if (!empty($this->template)) $queryChunks[] = 'qt='   . $this->template;
+		if (!empty($this->lang)) 	 $queryChunks[] = 'lang=' . $this->lang;
 
-		if ($this->rows		!== null) $queryChunks[] = 'rows='.(int)$this->rows;
-		if ($this->start	!== null) $queryChunks[] = 'start='.(int)$this->start;
+		if ($this->rows	 !== null)	$queryChunks[] = 'rows='  . (int)$this->rows;
+		if ($this->start !== null)	$queryChunks[] = 'start=' . (int)$this->start;
 
 		if ($this->delete) $queryChunks[] = 'delete';
 

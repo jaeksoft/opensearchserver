@@ -39,11 +39,16 @@ define('MAX_PAGE_TO_LINK', 10);
 $ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
 $ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
 $ossEngineIndex = configRequestValue('ossEngineIndex_contrib_filesearch', 'fileCrawler', 'engineIndex');
+$ossEngineLogin = configRequestValue('ossEngineLogin_contrib_filesearch', '', 'engineLogin');
+$ossEngineApiKey = configRequestValue('ossEngineApiKey_contrib_filesearch', '', 'engineApiKey');
 
 if (isset($_REQUEST['query'])) {
-
+	
 	$search = new OSS_Search($ossEnginePath, $ossEngineIndex);
-
+	if (!empty($ossEngineLogin) && !empty($ossEngineApiKey)) {
+		$search->credential($ossEngineLogin, $ossEngineApiKey);
+	}
+	
 	if (!empty($_REQUEST['lang'])) {
 		$search->lang($_REQUEST['lang'])
 			   ->filter('lang:'.$_REQUEST['lang']);
@@ -167,6 +172,8 @@ if (isset($_REQUEST['query'])) {
 						<fieldset id="option_fieldset">
 							<label>Engine URL</label><input name="engineURL" value="<?php echo $ossEnginePath; ?>" style="border-top-width:1px"/>
 							<label>Index</label><input name="engineIndex" value="<?php echo $ossEngineIndex; ?>" />
+							<label>Login</label><input name="engineLogin" value="<?php echo $ossEngineLogin; ?>" style="border-top-width:1px"/>
+							<label>API Key</label><input name="engineApiKey" value="<?php echo $ossEngineApiKey; ?>" />
 							<label>ConnectTimeOut (s)</label><input name="engineConnectTimeOut" value="<?php echo $ossEngineConnectTimeOut; ?>" />
 							<label>&nbsp;</label><input type="submit" value="save">
 						</fieldset>
