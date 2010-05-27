@@ -36,7 +36,7 @@ require BASE_DIR.'/../lib/OSS_Results.class.php';
 require BASE_DIR.'/../lib/OSS_Paging.class.php';
 
 define('MAX_PAGE_TO_LINK', 10);
-define('MAX_RESULT_PER_PAGE', 1);
+define('MAX_RESULT_PER_PAGE', 15);
 
 $ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
 $ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
@@ -54,6 +54,9 @@ if (isset($_REQUEST['query'])) {
 	$start = isset($start)    ? max(0, $start-1) * $rows : 0;
 
 	$search = new OSS_Search($ossEnginePath, $ossEngineIndex, $rows, $start);
+	if (!empty($ossEngineLogin) && !empty($ossEngineApiKey)) {
+		$search->credential($ossEngineLogin, $ossEngineApiKey);
+	}
 
 	if (!empty($_REQUEST['lang'])) {
 		$search->filter('lang:'.$_REQUEST['lang']);
@@ -130,6 +133,11 @@ ul {
 }
 
 /** RESULTS *******************************************************/
+.result ul {
+	float: right;
+	width: 750px;
+}
+
 .result li {
 	margin-bottom: 15px;
 }
@@ -275,7 +283,7 @@ function fsubmit()
 							<?php endif; ?>
 						<?php endfor; ?>
 					</ul>
-
+					<br style="clear:both;" />
 				</div>
 				<?php if (isset($ossPaging) && $ossPaging->getResultTotal() >= 1): ?>
 					<div>
