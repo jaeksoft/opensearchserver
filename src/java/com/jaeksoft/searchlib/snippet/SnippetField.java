@@ -272,6 +272,7 @@ public class SnippetField extends Field implements Externalizable {
 			Fragment fragment) {
 		if (currentVector == null)
 			return null;
+		boolean bTag = (tag != null && tag.length() > 0);
 		StringBuffer result = new StringBuffer();
 		String originalText = fragment.getOriginalText();
 		int originalTextLength = originalText.length();
@@ -284,14 +285,18 @@ public class SnippetField extends Field implements Externalizable {
 			int start = currentVector.getStartOffset() - fragment.vectorOffset;
 			if (start >= startOffset) {
 				result.append(originalText.substring(pos, start - startOffset));
-				result.append("<");
-				result.append(tag);
-				result.append(">");
+				if (bTag) {
+					result.append("<");
+					result.append(tag);
+					result.append(">");
+				}
 				result.append(originalText.substring(start - startOffset, end
 						- startOffset));
-				result.append("</");
-				result.append(tag);
-				result.append(">");
+				if (bTag) {
+					result.append("</");
+					result.append(tag);
+					result.append(">");
+				}
 				pos = end - startOffset;
 			}
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()

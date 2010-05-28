@@ -46,6 +46,8 @@ public class ReplicationList {
 	public ReplicationList(File file) throws ParserConfigurationException,
 			SAXException, IOException, XPathExpressionException {
 		replicationSet = new HashSet<ReplicationItem>();
+		if (!file.exists())
+			return;
 		XPathParser xpp = new XPathParser(file);
 		Node parentNode = xpp.getNode("replicationList");
 		if (parentNode == null)

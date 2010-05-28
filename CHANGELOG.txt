@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3008633: Possibility to turn off the highlighting
 - 2997836: In the returned fields having extra fields from Meta tags
 - 2997826: Possibility to index only the specified content
 - 2991252: Possibility to index binary file and to add it to a document
