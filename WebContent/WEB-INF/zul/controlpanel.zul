@@ -30,6 +30,8 @@
 				label="Crawler" />
 			<tab id="tabRuntime" visible="@{index.runtimeRights}"
 				label="Runtime" />
+			<tab id="tabReplication" visible="@{index.runtimeRights}"
+				label="Replication" />
 			<tab id="tabPrivileges" visible="@{index.privilegeRights}"
 				label="Privileges" />
 		</tabs>
@@ -51,6 +53,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabRuntime.onSelect">
 				<include src="WEB-INF/zul/runtime/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabReplication.onSelect">
+				<include src="WEB-INF/zul/replication/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabPrivileges.onSelect">
 				<include src="WEB-INF/zul/privileges/index.zul" />

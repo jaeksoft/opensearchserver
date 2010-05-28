@@ -72,6 +72,7 @@ import com.jaeksoft.searchlib.plugin.IndexPluginTemplateList;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
+import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
@@ -130,6 +131,8 @@ public abstract class Config {
 	private final Lock lock = new ReentrantLock(true);
 
 	private Mailer mailer = null;
+
+	private ReplicationList replicationList = null;
 
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists) throws SearchLibException {
@@ -216,6 +219,21 @@ public abstract class Config {
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			getParserSelector().writeXmlConfig(xmlWriter);
+			xmlWriter.endDocument();
+			cfr.rotate();
+		} finally {
+			pw.close();
+		}
+	}
+
+	public void saveReplicationList() throws IOException,
+			TransformerConfigurationException, SAXException, SearchLibException {
+		ConfigFileRotation cfr = new ConfigFileRotation(indexDir,
+				"replication.xml");
+		PrintWriter pw = cfr.getTempPrintWriter();
+		try {
+			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			getReplicationList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();
 		} finally {
@@ -370,7 +388,27 @@ public abstract class Config {
 		} finally {
 			lock.unlock();
 		}
+	}
 
+	public ReplicationList getReplicationList() throws SearchLibException {
+		lock.lock();
+		try {
+			if (replicationList != null)
+				return replicationList;
+			replicationList = new ReplicationList(new File(indexDir,
+					"replication.xml"));
+			return replicationList;
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	protected String getIndexName() {
