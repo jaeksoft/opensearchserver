@@ -44,8 +44,6 @@ public class PushServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		ServletRequest request = transaction.getServletRequest();
-		long version = Long.parseLong(request.getParameter("version"));
-		String fileName = request.getParameter("fileName");
 		try {
 
 			User user = transaction.getLoggedUser();
@@ -54,8 +52,12 @@ public class PushServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 
+			long version = Long.parseLong(request.getParameter("version"));
+			String fileName = request.getParameter("fileName");
+
 			client.getIndex().receive(transaction.getIndexName(), version,
 					fileName, request.getInputStream());
+
 		} catch (SearchLibException e) {
 			throw new ServletException(e);
 		} catch (NamingException e) {
