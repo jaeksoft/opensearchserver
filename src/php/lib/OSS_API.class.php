@@ -222,18 +222,28 @@ class OSS_API {
 	/**
 	 * Return the url to use with curl
 	 * @param string $apiCall The Web API to call. Refer to the OSS Wiki documentation of [Web API]
+	 * @param string $index The index to query. If none given, index of the current object will be used
+	 * @param string $command The optional command to send to the API call
 	 * @return string
 	 * Use OSS_API::API_* constants for $apiCall
 	 */
-	protected function getQueryURL($apiCall, $index = null) {
-		$index = $index ? $index : $this->index;
+	protected function getQueryURL($apiCall, $index = null, $cmd = null) {
+		
 		$path = $this->enginePath.'/'.$apiCall;
-		if (!empty($index)) $path .= '?use='.$index;
+		$chunks = array();
+		
+		if (!empty($index)) $chunks[] = 'use='.$index;
+		
+		if (!empty($cmd)) $chunks[] = 'cmd='.$cmd;
+		
 		// If credential provided, include them in the query url
 		if (!empty($this->login)) {
-			$credential = "login=" . $this->login . "&key=" . $this->apiKey;
-			$path .= (strpos($path, '?') !== false ? '&' : '?') . $credential; 
+			$chunks[] = "login=". $this->login;
+			$chunks[] = "key="	. $this->apiKey;
 		}
+		
+		$path .= (strpos($path, '?') !== false ? '&' : '?') . implode("&", $chunks);
+		
 		return $path;
 	}
 
@@ -279,7 +289,7 @@ class OSS_API {
 	/**
 	 * Return informations about the OSS Engine
 	 * @todo Finish implementation once API is availabe
-	 * @return array
+	 * @return string[]
 	 */
 	public function getEngineInformations() {
 		$infos = array(
@@ -295,7 +305,7 @@ class OSS_API {
 	/**
 	 * Return informations about the index
 	 * @todo Finish implementation once API is availabe
-	 * @return array
+	 * @return string[]
 	 */
 	public function getIndexInformations($index = null) {
 		$index = $index ? $index : $this->index;
@@ -354,6 +364,17 @@ class OSS_API {
 		return (bool)$result;
 	}
 	
+	/**
+	 * Return the list of indexes usable by the current credential
+	 * @return string[] 
+	 */
+	public function indexList() {
+		$return = $this->queryServerXML($this->getQueryURL(OSS_API::API_SCHEMA, null, OSS_API::API_SCHEMA_INDEX_LIST));
+		$indexes = array();
+		foreach ($return->index as $index)
+			$indexes[] = (string)$index['name'];
+		return $indexes;
+	}
 	
 	/**
 	 * Post data to an URL
