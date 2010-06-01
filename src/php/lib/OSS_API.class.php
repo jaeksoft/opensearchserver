@@ -39,10 +39,17 @@ class OSS_API {
 	const API_UPDATE   = 'update';
 	const API_DELETE   = 'delete';
 	const API_OPTIMIZE = 'optimize';
-	const API_RELOAD   = 'reload';
+	//const API_RELOAD   = 'reload';
 	const API_INDEX    = 'index';
 	const API_ENGINE   = 'engine';
 	const API_PATTERN  = 'pattern';
+	const API_SCHEMA   = 'schema';
+	
+	const API_SCHEMA_INDEX_LIST		= 'indexList';
+	const API_SCHEMA_CREATE_INDEX	= 'createIndex';
+	const API_SCHEMA_GET_SCHEMA		= 'getSchema';
+	const API_SCHEMA_SET_FIELD		= "setField";
+	const API_SCHEMA_DELETE_FIELD	= "deleteField";
 
 	/** @var int Default timeout (specified in seconds) for CURLOPT_TIMEOUT option. See curl documentation */
 	const DEFAULT_QUERY_TIMEOUT = 0;
@@ -81,16 +88,24 @@ class OSS_API {
 	/* @var string */
 	protected $index;
 
+	/* @var string */
+	protected $login;
+
+	/* @var string */
+	protected $apiKey;
+
 	/**
 	 * @param $enginePath The URL to access the OSS Engine
 	 * @param $index The index name
 	 * @return OSS_API
 	 */
-	public function __construct($enginePath, $index = null) {
+	public function __construct($enginePath, $index = null, $login = null, $apiKey = null) {
 		
 		$parsedPath = OSS_API::parseEnginePath($enginePath, $index);
 		$this->enginePath	= $parsedPath['enginePath'];
 		$this->index		= $parsedPath['index'];
+		
+		$this->credential($login, $apiKey);
 		
 		if (!function_exists('OSS_API_Dummy_Function')) { function OSS_API_Dummy_Function() {} }
 	}
@@ -103,10 +118,35 @@ class OSS_API {
 	}
 
 	/**
-	 * @return string The parsed index
+	 * @return string The parsed index (null if not specified)
 	 */
 	public function getIndex() {
 		return $this->index;
+	}
+	
+	/**
+	 * @param $login string
+	 * @param $apiKey string
+	 * If $login is empty, credential is removed
+	 */
+	public function credential($login, $apiKey) {
+		// Remove credentials
+		if (empty($login)) {
+			$this->login	= null;
+			$this->apiKey	= null;
+			return;
+		}
+		
+		// Else parse and affect new credentials
+		if (empty($login) || empty($apiKey)) {
+			if (class_exists('OSSException'))
+				throw new UnexpectedValueException('You must provide a login and an api key to use credential.');
+			trigger_error(__CLASS__.'::'.__METHOD__.': You must provide a login and an api key to use credential.', E_USER_ERROR);
+			return false;
+		}
+		
+		$this->login	= $login;
+		$this->apiKey	= $apiKey;
 	}
 	
 	/**
@@ -115,9 +155,10 @@ class OSS_API {
 	 * This method require the file OSS_Search.class.php. It'll be included if the OSS_Search class don't exist.
 	 * It's expected to be in the same directory as OSS_API.class.php.
 	 */
-	public function select() {
+	public function select($index = null) {
+		$index = $index ? $index : $this->index;
 		if (!class_exists('OSS_Search')) require (dirname(__FILE__).'/OSS_Search.class.php');
-		return new OSS_Search($this->enginePath, $this->index);
+		return new OSS_Search($this->enginePath, $index, null, null, $this->login, $this->apiKey);
 	}
 
 	/**
@@ -125,8 +166,9 @@ class OSS_API {
 	 * @return OSS_Search
 	 * @deprecated Use OSS_API::select
 	 */
-	public function search() {
-		return $this->select();
+	public function search($index = null) {
+		$index = $index ? $index : $this->index;
+		return $this->select($index);
 	}
 
 	/**
@@ -135,8 +177,9 @@ class OSS_API {
 	 * @see OSS Wiki [Web API optimize] documentation before using this method
 	 * FIXME Provide a link to the OSS WiKi
 	 */
-	public function optimize() {
-		$return = $this->queryServer($this->getQueryURL(OSS_API::API_OPTIMIZE));
+	public function optimize($index = null) {
+		$index = $index ? $index : $this->index;
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_OPTIMIZE, $index));
 		return ($return !== false);
 	}
 
@@ -144,23 +187,12 @@ class OSS_API {
 	 * Reload the index
 	 * @return boolean True on success
 	 * @see OSS Wiki [Web API reload] documentation before using this method
-	 * FIXME Provide a link to the OSS WiKi
+	 * FIXME See why API have been removed
 	 */
-	public function reload() {
-		$return = $this->queryServer($this->getQueryURL(OSS_API::API_RELOAD));
+	public function reload($index = null) {
+		$index = $index ? $index : $this->index;
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_RELOAD, $index));
 		return ($return !== false);
-	}
-
-	/**
-	 * Not implemented yet
-	 * @todo Next release
-	 * @ignore
-	 * @param array<string> $ids
-	 * @return null
-	 * FIXME See with ekeller if this's api won't be deprecated soon
-	 */
-	public function delete($ids) {
-		// http://localhost:8080/oss/delete?use=spip_index&uniq=article_2
 	}
 
 	/**
@@ -180,9 +212,10 @@ class OSS_API {
 	 * @param boolean $deleteAll The provided patterns will replace the patterns already in the search engine
 	 * @return boolean True on success
 	 */
-	public function pattern($patterns, $deleteAll = false) {
+	public function pattern($patterns, $deleteAll = false, $index = null) {
+		$index = $index ? $index : $this->index;
 		if (is_array($patterns)) $patterns = implode("\n", $patterns);
-		$return = $this->queryServer($this->getQueryURL(OSS_API::API_PATTERN).($deleteAll?'&deleteAll=yes':'&deleteAll=no'), $patterns);
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_PATTERN, $index).($deleteAll?'&deleteAll=yes':'&deleteAll=no'), $patterns);
 		return ($return !== false);
 	}
 
@@ -192,9 +225,15 @@ class OSS_API {
 	 * @return string
 	 * Use OSS_API::API_* constants for $apiCall
 	 */
-	protected function getQueryURL($apiCall) {
+	protected function getQueryURL($apiCall, $index = null) {
+		$index = $index ? $index : $this->index;
 		$path = $this->enginePath.'/'.$apiCall;
-		if (!empty($this->index)) $path .= '?use='.$this->index;
+		if (!empty($index)) $path .= '?use='.$index;
+		// If credential provided, include them in the query url
+		if (!empty($this->login)) {
+			$credential = "login=" . $this->login . "&key=" . $this->apiKey;
+			$path .= (strpos($path, '?') !== false ? '&' : '?') . $credential; 
+		}
 		return $path;
 	}
 
@@ -205,7 +244,9 @@ class OSS_API {
 	 *                   magic method
 	 * @return boolean True on success
 	 */
-	public function update($xml) {
+	public function update($xml, $index = null) {
+		
+		$index = $index ? $index : $this->index;
 
 		// Cast $xml to a string
 		if (!is_string($xml)) {
@@ -229,7 +270,7 @@ class OSS_API {
 			return false;
 		}
 
-		$return = $this->queryServer($this->getQueryURL(OSS_API::API_UPDATE), $xml);
+		$return = $this->queryServer($this->getQueryURL(OSS_API::API_UPDATE, $index), $xml);
 		return ($return !== false);
 
 	}
@@ -242,10 +283,10 @@ class OSS_API {
 	 */
 	public function getEngineInformations() {
 		$infos = array(
-			'engine_url'     => $this->enginePath,
-			'engine_version' => 'unknown',
-			'user'           => '',
-			'password'       => ''
+			'engine_url'		=> $this->enginePath,
+			'engine_version'	=> 'unknown',
+			'login'				=> $this->login,
+			'apiKey'			=> $this->apiKey
 		);
 		return $infos;
 		//return OSS_API::queryServerXML($this->enginePath.'/'.OSS_API::API_ENGINE);
@@ -256,15 +297,16 @@ class OSS_API {
 	 * @todo Finish implementation once API is availabe
 	 * @return array
 	 */
-	public function getIndexInformations() {
+	public function getIndexInformations($index = null) {
+		$index = $index ? $index : $this->index;
 		
 		$infos  = array(
-			'name'  => $this->index,
+			'name'  => $index,
 			'size'  => null
 		);
 		
 		set_error_handler('OSS_API_Dummy_Function', E_ALL);
-		try { $result = $this->queryServerXML($this->getQueryURL(OSS_API::API_SELECT).'&q=*:*&rows=0'); }
+		try { $result = $this->queryServerXML($this->getQueryURL(OSS_API::API_SELECT, $index).'&q=*:*&rows=0'); }
 		catch (Exception $e) { $result = false; }
 		restore_error_handler();
 		if ($result instanceof SimpleXMLElement) {
@@ -272,7 +314,6 @@ class OSS_API {
 		}
 		
 		return $infos;
-		//return $this->queryServerXML($this->getQueryURL(OSS_API::API_INDEX));
 	}
 	
 	/**
@@ -283,7 +324,7 @@ class OSS_API {
 	public function isEngineRunning() {
 		
 		// Check if the select api is answering
-		$rCurl = curl_init($this->getQueryURL(OSS_API::API_SELECT).'&q=!*:*&rows=0');
+		$rCurl = curl_init($this->getQueryURL(OSS_API::API_SELECT, $index).'&q=!*:*&rows=0');
 		curl_setopt($rCurl, CURLOPT_HTTP_VERSION, '1.0');
 		curl_setopt($rCurl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($rCurl, CURLOPT_CONNECTTIMEOUT, 5);
@@ -300,12 +341,14 @@ class OSS_API {
 	/**
 	 * Check if the index is available
 	 * @return boolean True if exist.
+	 * FIXME Recode to use the new API Schema
 	 * @todo Recode this method once API is provided 
 	 */
-	public function isIndexAvailable() {
+	public function isIndexAvailable($index = null) {
+		$index = $index ? $index : $this->index;
 		// Check if the select api is answering
 		set_error_handler('OSS_API_Dummy_Function', E_ALL);
-		try { $result = $this->queryServerXML($this->getQueryURL(OSS_API::API_SELECT).'&q=!*:*&rows=0'); }
+		try { $result = $this->queryServerXML($this->getQueryURL(OSS_API::API_SELECT, $index).'&q=!*:*&rows=0'); }
 		catch (Exception $e) { $result = false; }
 		restore_error_handler();
 		return (bool)$result;
@@ -323,7 +366,7 @@ class OSS_API {
 	 * Will fail if more than 16 HTTP redirection
 	 */
 	public static function queryServer($url, $data = null, $connexionTimeout = OSS_API::DEFAULT_CONNEXION_TIMEOUT, $timeout = OSS_API::DEFAULT_QUERY_TIMEOUT) {
-
+		
 		// Use CURL to post the data
 		$rCurl = curl_init($url);
 		curl_setopt($rCurl, CURLOPT_HTTP_VERSION, '1.0');
@@ -387,7 +430,7 @@ class OSS_API {
 	 * @return SimpleXMLElement
 	 * Use OSS_API::queryServerto retrieve an XML and check its validity
 	 */
-	public function queryServerXML($url, $data = null, $connexionTimeout = OSS_API::DEFAULT_CONNEXION_TIMEOUT, $timeout = OSS_API::DEFAULT_QUERY_TIMEOUT) {
+	public static function queryServerXML($url, $data = null, $connexionTimeout = OSS_API::DEFAULT_CONNEXION_TIMEOUT, $timeout = OSS_API::DEFAULT_QUERY_TIMEOUT) {
 		$result = OSS_API::queryServer($url, $data, $connexionTimeout, $timeout);
 		if ($result === false) return false;
 		
@@ -445,7 +488,7 @@ class OSS_API {
 	}
 
 	/**
-	 * Parse the enginePath parameter to extract the index name
+	 * Parse the enginePath parameter to extract the index name.
 	 * @param $enginePath The URL to access the OSS Engine
 	 * @param $index The index name
 	 */
