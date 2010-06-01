@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><map>
-<link source="contentBaseType" target="contentBaseType"/>
-<link source="host" target="host"/>
-<link source="lang" target="lang"/>
-<link source="url" target="url"/>
-<link source="url" target="urlSplit"/>
-<link source="url" target="urlExact"/>
-</map>
