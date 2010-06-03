@@ -82,16 +82,16 @@ public class IndexServlet extends AbstractServlet {
 		return updateDoc(client, indexName, indexRequest.getCollection());
 	}
 
-	private int doObjectRequest(Client client, HttpServletRequest request,
-			String indexName) throws ServletException {
+	private int doObjectRequest(Client client, HttpServletRequest request)
+			throws ServletException {
 		StreamReadObject readObject = null;
 		try {
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof IndexRequest)
-				return updateDoc(client, indexName, (IndexRequest) obj);
+				return updateDoc(client, null, (IndexRequest) obj);
 			else if (obj instanceof IndexDocument)
-				return updateDoc(client, indexName, (IndexDocument) obj);
+				return updateDoc(client, null, (IndexDocument) obj);
 			throw new ServletException("Nothing to do");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -118,10 +118,10 @@ public class IndexServlet extends AbstractServlet {
 			String ct = request.getContentType();
 			Object result = null;
 			if (ct != null && ct.toLowerCase().contains("xml"))
-				result = client.updateXmlDocuments(indexName, new InputSource(
+				result = client.updateXmlDocuments(null, new InputSource(
 						request.getInputStream()));
 			else
-				result = doObjectRequest(client, request, indexName);
+				result = doObjectRequest(client, request);
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Count", result.toString());
 		} catch (IOException e) {
