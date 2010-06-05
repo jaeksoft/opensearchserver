@@ -17,7 +17,7 @@
 <window id="query"
 	use="com.jaeksoft.searchlib.web.controller.query.QueryController">
 	<hbox align="center">
-		<label>Load template:</label>
+		<label value="Load template" />
 		<listbox mold="select" selectedItem="@{query.selectedRequest}"
 			model="@{query.requests}">
 			<listitem self="@{each=request}" label="@{request}" />
@@ -31,6 +31,9 @@
 			value="@{query.request.requestName}" />
 		<button label="Save" visible="@{query.schemaRights}"
 			forward="onSaveRequest" />
+		<separator width="50px" />
+		<button label="XML/HTTP API call" target="_blank"
+			href="@{query.requestApiCall}" />
 	</hbox>
 	<tabbox>
 		<tabs>

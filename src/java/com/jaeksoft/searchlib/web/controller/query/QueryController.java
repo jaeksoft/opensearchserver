@@ -25,7 +25,9 @@
 package com.jaeksoft.searchlib.web.controller.query;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -41,6 +43,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
@@ -74,6 +77,30 @@ public class QueryController extends CommonController {
 		request = client.getNewSearchRequest();
 		setRequest(request);
 		return request;
+	}
+
+	public String getRequestApiCall() throws SearchLibException,
+			UnsupportedEncodingException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		SearchRequest request = getRequest();
+		if (request == null)
+			return null;
+		String url = getBaseUrl()
+				+ "/search?use="
+				+ URLEncoder.encode(client.getIndexDirectory().getName(),
+						"UTF-8");
+		if (selectedRequestName != null)
+			url += "&qt=" + URLEncoder.encode(selectedRequestName, "UTF-8");
+		String q = request.getQueryString();
+		if (q == null || q.length() == 0)
+			q = "*:*";
+		url += "&q=" + URLEncoder.encode(q, "UTF-8");
+		User user = getLoggedUser();
+		if (user != null)
+			url += "&" + user.getApiCallParameters();
+		return url;
 	}
 
 	public void setRequest(SearchRequest request) {

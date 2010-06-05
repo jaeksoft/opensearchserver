@@ -33,6 +33,7 @@ import java.util.List;
 import org.apache.http.HttpException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Desktop;
+import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zk.ui.UiException;
@@ -72,6 +73,13 @@ public abstract class CommonController extends Window implements AfterCompose,
 		binder.loadAll();
 		PushEvent.FLUSH_PRIVILEGES.subscribe(this);
 		isComposed = true;
+	}
+
+	protected String getBaseUrl() {
+		Execution exe = Executions.getCurrent();
+		int port = exe.getServerPort();
+		return exe.getScheme() + "://" + exe.getServerName()
+				+ ((port == 80) ? "" : ":" + port) + exe.getContextPath();
 	}
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute) {

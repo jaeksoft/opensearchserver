@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.user;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
@@ -315,6 +317,11 @@ public class User implements Comparable<User> {
 		} finally {
 			r.unlock();
 		}
+	}
+
+	public String getApiCallParameters() throws UnsupportedEncodingException {
+		return "login=" + URLEncoder.encode(name, "UTF-8") + "&key="
+				+ getApiKey();
 	}
 
 }
