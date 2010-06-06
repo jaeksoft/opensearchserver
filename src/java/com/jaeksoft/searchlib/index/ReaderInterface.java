@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -66,6 +66,9 @@ public interface ReaderInterface {
 			URISyntaxException, ParseException, SyntaxError,
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException;
+
+	public String explain(SearchRequest searchRequest, int docId)
+			throws IOException, ParseException, SyntaxError;
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,

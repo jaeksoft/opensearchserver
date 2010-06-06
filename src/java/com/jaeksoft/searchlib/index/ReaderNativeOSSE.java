@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -159,6 +159,13 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	@Override
 	public Collection<?> getFieldNames() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String explain(SearchRequest searchRequest, int docId)
+			throws IOException, ParseException, SyntaxError {
 		// TODO Auto-generated method stub
 		return null;
 	}

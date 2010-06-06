@@ -18,6 +18,10 @@
 	use="com.jaeksoft.searchlib.web.controller.query.ResultController">
 	<panel title="Summary" visible="@{result.resultExists}"
 		collapsible="true" border="normal">
+		<caption>
+			<button label="XML/HTTP API call" target="_blank"
+				href="@{query.requestApiCall}" />
+		</caption>
 		<panelchildren>
 			<grid>
 				<columns>

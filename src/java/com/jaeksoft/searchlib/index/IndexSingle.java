@@ -404,6 +404,23 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
+	public String explain(SearchRequest searchRequest, int docId)
+			throws IOException, ParseException, SyntaxError {
+		if (!online)
+			throw new IOException("Index is offline");
+		r.lock();
+		try {
+			if (!acceptNameOrEmpty(searchRequest.getIndexName()))
+				return null;
+			if (reader != null)
+				return reader.explain(searchRequest, docId);
+			return null;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,

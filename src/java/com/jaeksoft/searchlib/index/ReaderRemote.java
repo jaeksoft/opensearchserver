@@ -36,8 +36,10 @@ import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
@@ -140,6 +142,12 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 
 	@Override
 	public Collection<?> getFieldNames() {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public String explain(SearchRequest searchRequest, int docId)
+			throws IOException, ParseException, SyntaxError {
 		throw new RuntimeException("Not yet implemented");
 	}
 

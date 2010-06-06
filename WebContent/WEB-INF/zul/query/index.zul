@@ -31,9 +31,6 @@
 			value="@{query.request.requestName}" />
 		<button label="Save" visible="@{query.schemaRights}"
 			forward="onSaveRequest" />
-		<separator width="50px" />
-		<button label="XML/HTTP API call" target="_blank"
-			href="@{query.requestApiCall}" />
 	</hbox>
 	<tabbox>
 		<tabs>

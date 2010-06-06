@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,13 +30,16 @@ import java.util.List;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.AbstractTreeModel;
+import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.TreeModel;
 import org.zkoss.zul.Treecell;
 import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.TreeitemRenderer;
 import org.zkoss.zul.Treerow;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetList;
@@ -264,6 +267,23 @@ public class ResultController extends QueryController implements
 				return null;
 			return spellChecklist.getList();
 		}
+	}
+
+	public void explainScore(Component comp) throws SearchLibException,
+			InterruptedException, IOException, ParseException, SyntaxError {
+		Client client = getClient();
+		if (client == null)
+			return;
+		Result result = getResult();
+		if (result == null)
+			return;
+		Document document = (Document) comp.getAttribute("document");
+		if (document == null)
+			return;
+		int docId = document.getDocId();
+		String explanation = client.explain(result.getSearchRequest(), docId);
+		Filedownload.save(explanation, "text/plain; charset-UTF-8",
+				"Score explanation " + docId + ".txt");
 	}
 
 	public boolean isSpellCheckValid() {

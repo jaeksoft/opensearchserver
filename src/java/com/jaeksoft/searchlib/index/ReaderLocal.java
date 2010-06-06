@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,6 +46,7 @@ import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -329,6 +330,19 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		return new ResultSingle(this, searchRequest);
+	}
+
+	@Override
+	public String explain(SearchRequest searchRequest, int docId)
+			throws IOException, ParseException, SyntaxError {
+		r.lock();
+		try {
+			Explanation explanation = indexSearcher.explain(searchRequest
+					.getQuery(), docId);
+			return explanation.toString();
+		} finally {
+			r.unlock();
+		}
 	}
 
 	public boolean deleteDocument(int docId) throws StaleReaderException,

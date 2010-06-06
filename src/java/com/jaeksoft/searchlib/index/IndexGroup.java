@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -407,6 +407,11 @@ public class IndexGroup extends IndexAbstract {
 
 	@Override
 	public TermEnum getTermEnum(String field, String term) throws IOException {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public String explain(SearchRequest searchRequest, int docId) {
 		throw new RuntimeException("Not yet implemented");
 	}
 

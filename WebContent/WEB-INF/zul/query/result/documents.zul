@@ -22,6 +22,11 @@
 			<listcell>
 				<separator />
 				<panel title="@{document.title}" collapsible="true">
+					<caption>
+						<button label="Score explanation…" onClick="result.explainScore(self)">
+							<custom-attributes document="@{document}" />
+						</button>
+					</caption>
 					<panelchildren>
 						<grid>
 							<columns>

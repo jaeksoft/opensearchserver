@@ -333,6 +333,32 @@ public class Client extends Config {
 		}
 	}
 
+	public String explain(SearchRequest searchRequest, int docId)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
+		Timer timer = null;
+		Exception exception = null;
+		try {
+			searchRequest.init(this);
+			timer = searchRequest.getTimer();
+			return getIndex().explain(searchRequest, docId);
+		} catch (IOException e) {
+			exception = e;
+			throw e;
+		} catch (ParseException e) {
+			exception = e;
+			throw e;
+		} catch (SyntaxError e) {
+			exception = e;
+			throw e;
+		} finally {
+			if (timer != null) {
+				if (exception != null)
+					timer.setError(exception);
+				getStatisticsList().addSearch(timer);
+			}
+		}
+	}
+
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
