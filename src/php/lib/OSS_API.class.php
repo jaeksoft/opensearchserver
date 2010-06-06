@@ -50,6 +50,8 @@ class OSS_API {
 	const API_SCHEMA_GET_SCHEMA		= 'getSchema';
 	const API_SCHEMA_SET_FIELD		= "setField";
 	const API_SCHEMA_DELETE_FIELD	= "deleteField";
+	
+	const INDEX_TEMPLATE_EMPTY	= 'empty_index';
 
 	/** @var int Default timeout (specified in seconds) for CURLOPT_TIMEOUT option. See curl documentation */
 	const DEFAULT_QUERY_TIMEOUT = 0;
@@ -125,6 +127,7 @@ class OSS_API {
 	}
 	
 	/**
+	 * Assign credential information for the next queries
 	 * @param $login string
 	 * @param $apiKey string
 	 * If $login is empty, credential is removed
@@ -151,6 +154,7 @@ class OSS_API {
 	
 	/**
 	 * Return an OSS_Search using the current engine path and index
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
 	 * @return OSS_Search
 	 * This method require the file OSS_Search.class.php. It'll be included if the OSS_Search class don't exist.
 	 * It's expected to be in the same directory as OSS_API.class.php.
@@ -163,6 +167,7 @@ class OSS_API {
 
 	/**
 	 * Return an OSS_Search using the current engine path and index
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
 	 * @return OSS_Search
 	 * @deprecated Use OSS_API::select
 	 */
@@ -173,6 +178,7 @@ class OSS_API {
 
 	/**
 	 * Optimize the index
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
 	 * @return boolean True on success
 	 * @see OSS Wiki [Web API optimize] documentation before using this method
 	 * FIXME Provide a link to the OSS WiKi
@@ -185,6 +191,7 @@ class OSS_API {
 
 	/**
 	 * Reload the index
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
 	 * @return boolean True on success
 	 * @see OSS Wiki [Web API reload] documentation before using this method
 	 * FIXME See why API have been removed
@@ -210,6 +217,7 @@ class OSS_API {
 	 * Add one or many pattern to crawl
 	 * @param string|string[] $patterns
 	 * @param boolean $deleteAll The provided patterns will replace the patterns already in the search engine
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
 	 * @return boolean True on success
 	 */
 	public function pattern($patterns, $deleteAll = false, $index = null) {
@@ -224,22 +232,35 @@ class OSS_API {
 	 * @param string $apiCall The Web API to call. Refer to the OSS Wiki documentation of [Web API]
 	 * @param string $index The index to query. If none given, index of the current object will be used
 	 * @param string $command The optional command to send to the API call
+	 * @param string[] $options Additional query parameters
 	 * @return string
-	 * Use OSS_API::API_* constants for $apiCall
+	 * Use OSS_API::API_* constants for $apiCall.
+	 * Optionals query parameters are provided as a named list:
+	 * array(
+	 *   "arg1" => "value1",
+	 *   "arg2" => "value2"
+	 * )
 	 */
-	protected function getQueryURL($apiCall, $index = null, $cmd = null) {
+	protected function getQueryURL($apiCall, $index = null, $cmd = null, $options = null) {
 		
 		$path = $this->enginePath.'/'.$apiCall;
 		$chunks = array();
 		
-		if (!empty($index)) $chunks[] = 'use='.$index;
+		if (!empty($index)) $chunks[] = 'use='.urlencode($index);
 		
-		if (!empty($cmd)) $chunks[] = 'cmd='.$cmd;
+		if (!empty($cmd)) $chunks[] = 'cmd='.urlencode($cmd);
 		
 		// If credential provided, include them in the query url
 		if (!empty($this->login)) {
-			$chunks[] = "login=". $this->login;
-			$chunks[] = "key="	. $this->apiKey;
+			$chunks[] = "login=". urlencode($this->login);
+			$chunks[] = "key="	. urlencode($this->apiKey);
+		}
+		
+		// Prepare additionnal parameters
+		if (is_array($options)) {
+			foreach ($options as $argName => $argValue) {
+				$chunks[] = $argName . "=" . urlencode($argValue);
+			}
 		}
 		
 		$path .= (strpos($path, '?') !== false ? '&' : '?') . implode("&", $chunks);
@@ -252,6 +273,7 @@ class OSS_API {
 	 * @param mixed $xml Can be an xml string, a OSS_IndexDocument, a SimpleXMLElement,
 	 *                   a DOMDocument or any object that implement the __toString
 	 *                   magic method
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
 	 * @return boolean True on success
 	 */
 	public function update($xml, $index = null) {
@@ -305,6 +327,7 @@ class OSS_API {
 	/**
 	 * Return informations about the index
 	 * @todo Finish implementation once API is availabe
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
 	 * @return string[]
 	 */
 	public function getIndexInformations($index = null) {
@@ -350,6 +373,7 @@ class OSS_API {
 	
 	/**
 	 * Check if the index is available
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
 	 * @return boolean True if exist.
 	 * FIXME Recode to use the new API Schema
 	 * @todo Recode this method once API is provided 
@@ -374,6 +398,56 @@ class OSS_API {
 		foreach ($return->index as $index)
 			$indexes[] = (string)$index['name'];
 		return $indexes;
+	}
+	
+	/**
+	 * Create a new index using a template
+	 * @param string $index The name of the new index
+	 * @param string $template Optional. The name of the template to use
+	 * @return boolean
+	 */
+	public function createIndex($index, $template = false) {
+		$params = array("index.name" => $index);
+		if ($template) $params["index.template"] = $template;
+		$return = $this->queryServerXML($this->getQueryURL(OSS_API::API_SCHEMA, null, OSS_API::API_SCHEMA_CREATE_INDEX, $params));
+		if ($return === false) return false;
+		return true;
+	}
+	
+	/**
+	 * Retreive the complete schema of the index
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
+	 * @return SimpleXMLElement|OSS_Schema
+	 * The schema is provided by the OSS engine as an xml. This xml is actualy the complete configuration of the schema.
+	 * If you want to manipulate the schema, pass it to OSS_Schema::factoryFromXML(...) for easier access.
+	 */
+	public function getSchema($index = null) {
+		$index = $index ? $index : $this->index;
+		return $this->queryServerXML($this->getQueryURL(OSS_API::API_SCHEMA, $index, OSS_API::API_SCHEMA_GET_SCHEMA));
+	}
+	
+	/**
+	 * Create or alter a field
+	 * @param string $name
+	 * @param string $analyzer
+	 * @param string $stored
+	 * @param string $indexed
+	 * @param string $termVector
+	 * @param string $index If provided, this index name is used in place of the one defined in the API instance
+	 * @return boolean
+	 */
+	public function setField($name, $analyzer = null, $stored = null, $indexed = null, $termVector = null, $index = null) {
+		$index = $index ? $index : $this->index;
+		$params = array("field.name" => $name);
+		if ($analyzer)   $params["field.analyzer"]   = $analyzer;
+		if ($stored)     $params["field.stored"]     = $stored;
+		if ($indexed)    $params["field.indexed"]    = $indexed;
+		if ($termVector) $params["field.termVector"] = $termVector;
+		
+		$return = $this->queryServerXML($this->getQueryURL(OSS_API::API_SCHEMA, $index, OSS_API::API_SCHEMA_SET_FIELD, $params));
+		
+		if ($return === false) return false;
+		return true;
 	}
 	
 	/**
