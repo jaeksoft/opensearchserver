@@ -69,4 +69,26 @@
 			</grid>
 		</panelchildren>
 	</panel>
+	<separator height="10" />
+	<panel title="List of replications - click on the line to edit"
+		border="normal">
+		<toolbar>
+			<button label="Refresh" forward="onListRefresh" />
+		</toolbar>
+		<panelchildren>
+			<listbox selectedItem="@{replication.selectedItem}"
+				model="@{replication.replicationSet}">
+				<listhead>
+					<listheader label="Instance URL" />
+					<listheader label="Index Name" />
+					<listheader />
+				</listhead>
+				<listitem self="@{each='item'}">
+					<listcell label="@{item.instanceUrl}" />
+					<listcell label="@{item.indexName}" />
+					<listcell></listcell>
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
 </window>

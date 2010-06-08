@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
+import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -40,16 +41,16 @@ public class ReplicationController extends CommonController {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6081443889284004102L;
+	private static final long serialVersionUID = 1517834105476217906L;
 
 	private ReplicationItem selectedItem;
 
-	private ReplicationItem item;
+	private ReplicationItem currentItem;
 
 	public ReplicationController() throws SearchLibException, NamingException {
 		super();
 		selectedItem = null;
-		item = new ReplicationItem();
+		currentItem = new ReplicationItem();
 	}
 
 	public ReplicationItem getSelectedItem() {
@@ -58,10 +59,12 @@ public class ReplicationController extends CommonController {
 
 	public void setSelectedItem(ReplicationItem item) {
 		selectedItem = item;
+		currentItem = new ReplicationItem(selectedItem);
+		reloadPage();
 	}
 
 	public ReplicationItem getItem() {
-		return item;
+		return currentItem;
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
@@ -85,15 +88,15 @@ public class ReplicationController extends CommonController {
 			TransformerConfigurationException, IOException, SAXException {
 		Client client = getClient();
 		if (selectedItem != null)
-			selectedItem.copy(item);
+			selectedItem.copy(currentItem);
 		else
-			client.getReplicationList().put(item);
+			client.getReplicationList().put(currentItem);
 		client.saveReplicationList();
 		onCancel();
 	}
 
 	public void onCancel() {
-		item = new ReplicationItem();
+		currentItem = new ReplicationItem();
 		selectedItem = null;
 		reloadPage();
 	}
@@ -106,4 +109,8 @@ public class ReplicationController extends CommonController {
 		onCancel();
 	}
 
+	public Set<ReplicationItem> getReplicationSet() throws SearchLibException {
+		Client client = getClient();
+		return client.getReplicationList().getSet();
+	}
 }

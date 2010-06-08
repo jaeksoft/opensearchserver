@@ -62,6 +62,12 @@ public class ReplicationList {
 		}
 	}
 
+	public Set<ReplicationItem> getSet() {
+		synchronized (replicationSet) {
+			return replicationSet;
+		}
+	}
+
 	public void put(ReplicationItem item) {
 		synchronized (replicationSet) {
 			replicationSet.add(item);

@@ -46,6 +46,10 @@ public class ReplicationItem {
 
 	}
 
+	public ReplicationItem(ReplicationItem item) {
+		this.copy(item);
+	}
+
 	public ReplicationItem(XPathParser xpp, Node node)
 			throws MalformedURLException {
 		String url = XPathParser.getAttributeString(node, "instanceUrl");
