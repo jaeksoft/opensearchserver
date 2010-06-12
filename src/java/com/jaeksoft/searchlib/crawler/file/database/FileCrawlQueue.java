@@ -36,6 +36,7 @@ import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
@@ -52,7 +53,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
 
-	public FileCrawlQueue(Config config, FilePropertyManager propertyManager)
+	public FileCrawlQueue(Config config, PropertyManager propertyManager)
 			throws SearchLibException {
 		super(config, propertyManager.getIndexDocumentBufferSize().getValue());
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);

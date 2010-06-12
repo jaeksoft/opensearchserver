@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -143,8 +144,9 @@ public class SchemaServlet extends AbstractServlet {
 		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
 				"UTF-8");
 		xmlWriter.startElement("response");
-		for (String indexName : ClientCatalog.getClientCatalog(user)) {
-			xmlWriter.startElement("index", "name", indexName);
+		for (ClientCatalogItem catalogItem : ClientCatalog
+				.getClientCatalog(user)) {
+			xmlWriter.startElement("index", "name", catalogItem.getIndexName());
 			xmlWriter.endElement();
 		}
 		xmlWriter.endElement();

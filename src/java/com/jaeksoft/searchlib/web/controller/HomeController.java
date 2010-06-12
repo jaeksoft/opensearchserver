@@ -29,10 +29,12 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.template.TemplateList;
 
@@ -47,30 +49,36 @@ public class HomeController extends CommonController {
 
 	private TemplateList indexTemplate;
 
+	private Set<ClientCatalogItem> catalogItemSet;
+
 	public HomeController() throws SearchLibException, NamingException {
 		super();
 		indexName = "";
 		indexTemplate = TemplateList.EMPTY_INDEX;
+		catalogItemSet = null;
 	}
 
-	public Set<String> getClientCatalog() throws SearchLibException {
-		return ClientCatalog.getClientCatalog(getLoggedUser());
+	public Set<ClientCatalogItem> getClientCatalog() throws SearchLibException {
+		if (catalogItemSet != null)
+			return catalogItemSet;
+		catalogItemSet = ClientCatalog.getClientCatalog(getLoggedUser());
+		return catalogItemSet;
 	}
 
-	public String getClientName() throws SearchLibException {
+	public ClientCatalogItem getClientName() throws SearchLibException {
 		Client client = super.getClient();
 		if (client == null)
 			return null;
-		return client.getIndexDirectory().getName();
+		return new ClientCatalogItem(client.getIndexDirectory().getName());
 	}
 
 	public boolean isSelectedIndex() throws SearchLibException {
 		return getClientName() != null;
 	}
 
-	public void setClientName(String name) throws SearchLibException,
-			NamingException {
-		Client client = ClientCatalog.getClient(name);
+	public void setClientName(ClientCatalogItem item)
+			throws SearchLibException, NamingException {
+		Client client = ClientCatalog.getClient(item.getIndexName());
 		if (client == null)
 			return;
 		setClient(client);
@@ -118,6 +126,7 @@ public class HomeController extends CommonController {
 	}
 
 	public void onListRefresh() {
+		catalogItemSet = null;
 		reloadPage();
 	}
 
@@ -147,11 +156,26 @@ public class HomeController extends CommonController {
 
 	}
 
-	public void onEraseIndex() throws SearchLibException, InterruptedException {
-		String indexName = getClientName();
-		if (indexName == null)
+	public void eraseIndex(Component comp) throws SearchLibException,
+			InterruptedException {
+		if (comp == null)
 			return;
-		new EraseIndexAlert(indexName);
+		ClientCatalogItem item = (ClientCatalogItem) comp
+				.getAttribute("catalogitem");
+		if (item == null)
+			return;
+		new EraseIndexAlert(item.getIndexName());
+	}
+
+	public void computeInfos(Component comp) throws SearchLibException {
+		if (comp == null)
+			return;
+		ClientCatalogItem item = (ClientCatalogItem) comp
+				.getAttribute("catalogitem");
+		if (item == null)
+			return;
+		item.computeInfos();
+		reloadPage();
 	}
 
 	@Override

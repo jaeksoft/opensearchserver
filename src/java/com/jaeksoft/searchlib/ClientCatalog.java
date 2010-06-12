@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
 import com.jaeksoft.searchlib.util.ConfigFileRotation;
+import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -100,9 +101,10 @@ public class ClientCatalog {
 		w.lock();
 		try {
 
-			for (String indexName : getClientCatalog(null)) {
-				System.out.println("OSS load index " + indexName);
-				getClient(indexName);
+			for (ClientCatalogItem catalogItem : getClientCatalog(null)) {
+				System.out.println("OSS load index "
+						+ catalogItem.getIndexName());
+				getClient(catalogItem.getIndexName());
 			}
 		} catch (SearchLibException e) {
 			e.printStackTrace();
@@ -126,6 +128,14 @@ public class ClientCatalog {
 		}
 	}
 
+	public static final LastModifiedAndSize getLastModifiedAndSize(
+			String indexName) throws SearchLibException {
+		File file = new File(getDataDir(), indexName);
+		if (!file.exists())
+			return null;
+		return new LastModifiedAndSize(file);
+	}
+
 	public static final Client getClient(String indexDirectoryName)
 			throws SearchLibException, NamingException {
 		return getClient(new File(getDataDir(), indexDirectoryName));
@@ -141,18 +151,18 @@ public class ClientCatalog {
 		return dataDir;
 	}
 
-	public static final Set<String> getClientCatalog(User user)
+	public static final Set<ClientCatalogItem> getClientCatalog(User user)
 			throws SearchLibException {
 		File dataDir = getDataDir();
 		File[] files = dataDir
 				.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
-		Set<String> set = new TreeSet<String>();
+		Set<ClientCatalogItem> set = new TreeSet<ClientCatalogItem>();
 		for (File file : files) {
 			if (!file.isDirectory())
 				continue;
 			String indexName = file.getName();
 			if (user == null || user.hasAnyRole(indexName, Role.GROUP_INDEX))
-				set.add(indexName);
+				set.add(new ClientCatalogItem(indexName));
 		}
 		return set;
 	}
@@ -161,10 +171,8 @@ public class ClientCatalog {
 			throws SearchLibException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
-		for (String index : getClientCatalog(null))
-			if (index.equals(indexName))
-				return true;
-		return false;
+		return getClientCatalog(null)
+				.contains(new ClientCatalogItem(indexName));
 	}
 
 	public static void createIndex(User user, String indexName,

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,18 +22,23 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.file.database;
+package com.jaeksoft.searchlib.web.converter;
 
-import java.io.File;
-import java.io.IOException;
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zkplus.databind.TypeConverter;
 
-import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
+import com.jaeksoft.searchlib.util.StringUtils;
 
-public class FilePropertyManager extends PropertyManager {
+public class SizeConverter implements TypeConverter {
 
-	public FilePropertyManager(File file) throws IOException {
-		super(file);
-		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 100);
+	public Object coerceToBean(Object value, Component component) {
+		return null;
 	}
 
+	public Object coerceToUi(Object value, Component component) {
+		long l = (Long) value;
+		if (l == -1)
+			return "Unknown";
+		return StringUtils.humanBytes(l);
+	}
 }

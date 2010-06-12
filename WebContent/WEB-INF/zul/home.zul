@@ -58,12 +58,44 @@
 		<toolbar>
 			<button label="Refresh" forward="onListRefresh" />
 			<space width="20px" />
-			<button label="Erase" forward="onEraseIndex"
-				visible="@{home.selectedIndex}" />
 		</toolbar>
 		<panelchildren>
 			<listbox id="indexlist" selectedItem="@{home.clientName}"
-				mold="paging" pageSize="20" model="@{home.clientCatalog}" />
+				mold="paging" pageSize="20" model="@{home.clientCatalog}">
+				<listhead>
+					<listheader label="Name" />
+					<listheader width="150px" label="Last modified"
+						align="right" />
+					<listheader width="100px" label="Size"
+						align="right" />
+					<listheader width="200px" label="Action"
+						align="center" />
+				</listhead>
+				<listitem self="@{each='item'}">
+					<listcell label="@{item.indexName}" />
+					<listcell tooltiptext="@{item.lastModifiedFile}"
+						label="@{item.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+					<listcell tooltiptext="@{item.size}"
+						label="@{item.size,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+					<listcell>
+						<hbox align="center">
+							<button label="Info"
+								onClick="home.computeInfos(self)"
+								tooltiptext="Compute the size of the index">
+								<custom-attributes
+									catalogitem="@{item}" />
+							</button>
+							<space />
+							<button tooltiptext="Erase index"
+								image="/images/action_delete.png"
+								onClick="home.eraseIndex(self)">
+								<custom-attributes
+									catalogitem="@{item}" />
+							</button>
+						</hbox>
+					</listcell>
+				</listitem>
+			</listbox>
 		</panelchildren>
 	</panel>
 

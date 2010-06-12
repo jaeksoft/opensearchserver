@@ -86,7 +86,7 @@
 				<listitem self="@{each='item'}">
 					<listcell label="@{item.instanceUrl}" />
 					<listcell label="@{item.indexName}" />
-					<listcell></listcell>
+					<listcell><button label="Start replication" /></listcell>
 				</listitem>
 			</listbox>
 		</panelchildren>

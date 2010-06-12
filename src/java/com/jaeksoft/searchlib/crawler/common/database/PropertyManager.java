@@ -36,12 +36,12 @@ public abstract class PropertyManager {
 
 	private Properties properties;
 
-	private PropertyItem<Integer> delayBetweenAccesses;
-	private PropertyItem<Integer> indexDocumentBufferSize;
-	private PropertyItem<Boolean> crawlEnabled;
-	private PropertyItem<Boolean> optimizeAfterSession;
-	private PropertyItem<Boolean> dryRun;
-	private PropertyItem<Integer> maxThreadNumber;
+	protected PropertyItem<Integer> delayBetweenAccesses;
+	protected PropertyItem<Integer> indexDocumentBufferSize;
+	protected PropertyItem<Boolean> crawlEnabled;
+	protected PropertyItem<Boolean> optimizeAfterSession;
+	protected PropertyItem<Boolean> dryRun;
+	protected PropertyItem<Integer> maxThreadNumber;
 
 	protected PropertyManager(File file) throws IOException {
 		propFile = file;
@@ -86,7 +86,7 @@ public abstract class PropertyManager {
 				name, defaultValue);
 		String value = properties.getProperty(name);
 		if (value != null)
-			propertyItem.setValue(Integer.parseInt(value));
+			propertyItem.initValue(Integer.parseInt(value));
 		return propertyItem;
 	}
 

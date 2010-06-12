@@ -32,6 +32,7 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.IndexRole;
 import com.jaeksoft.searchlib.user.Role;
@@ -52,11 +53,11 @@ public class PrivilegesController extends CommonController {
 
 	private IndexRole selectedIndexRole;
 
-	private String selectedIndex;
+	private ClientCatalogItem selectedIndex;
 
 	private String selectedRole;
 
-	private Set<String> indexList;
+	private Set<ClientCatalogItem> indexList;
 
 	public PrivilegesController() throws SearchLibException, NamingException {
 		super();
@@ -73,7 +74,7 @@ public class PrivilegesController extends CommonController {
 		return ClientCatalog.getUserList().getUserNameSet();
 	}
 
-	public Set<String> getIndexList() throws SearchLibException {
+	public Set<ClientCatalogItem> getIndexList() throws SearchLibException {
 		if (indexList != null)
 			return indexList;
 		indexList = ClientCatalog.getClientCatalog(getLoggedUser());
@@ -105,11 +106,12 @@ public class PrivilegesController extends CommonController {
 		confirmPassword = user.getPassword();
 	}
 
-	public String getSelectedIndex() {
+	public ClientCatalogItem getSelectedIndex() {
 		return this.selectedIndex;
 	}
 
-	public void setSelectedIndex(String indexName) throws SearchLibException {
+	public void setSelectedIndex(ClientCatalogItem indexName)
+			throws SearchLibException {
 		this.selectedIndex = indexName;
 	}
 
@@ -185,7 +187,7 @@ public class PrivilegesController extends CommonController {
 	}
 
 	public void onAddPrivilege() {
-		user.addRole(selectedIndex, selectedRole);
+		user.addRole(selectedIndex.getIndexName(), selectedRole);
 		reloadPage();
 	}
 

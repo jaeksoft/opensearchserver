@@ -54,11 +54,14 @@ public abstract class StatisticsAbstract {
 
 	private StatisticTypeEnum type;
 
+	private boolean hasBeenUpdated;
+
 	public StatisticsAbstract(StatisticTypeEnum type, boolean writeToLog,
 			int maxRetention, File statDir) throws IOException,
 			ClassNotFoundException {
 		this.type = type;
 		this.writeToLog = writeToLog;
+		hasBeenUpdated = false;
 		this.maxRetention = maxRetention;
 		aggregateList = new LinkedList<Aggregate>();
 		currentAggregate = null;
@@ -89,6 +92,7 @@ public abstract class StatisticsAbstract {
 				addAggregate(currentAggregate);
 			}
 			currentAggregate.add(timer);
+			hasBeenUpdated = true;
 		}
 	}
 
@@ -173,6 +177,8 @@ public abstract class StatisticsAbstract {
 	}
 
 	public void save(File statDir) throws IOException {
+		if (!hasBeenUpdated)
+			return;
 		File file = getStatFile(statDir);
 		if (file.exists())
 			file.delete();

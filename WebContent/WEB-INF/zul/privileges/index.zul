@@ -63,7 +63,11 @@
 						<vbox width="100%">
 							<listbox mold="select" width="100%"
 								selectedItem="@{privileges.selectedIndex}"
-								model="@{privileges.indexList}" />
+								model="@{privileges.indexList}">
+								<listitem self="@{each='item'}">
+									<listcell label="@{item.indexName}" />
+								</listitem>
+							</listbox>
 							<listbox mold="select" width="100%"
 								selectedItem="@{privileges.selectedRole}"
 								model="@{privileges.roles}">
