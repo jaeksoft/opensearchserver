@@ -49,20 +49,20 @@ public class HomeController extends CommonController {
 
 	private TemplateList indexTemplate;
 
-	private Set<ClientCatalogItem> catalogItemSet;
+	private Set<ClientCatalogItem> catalogItems;
 
 	public HomeController() throws SearchLibException, NamingException {
 		super();
 		indexName = "";
 		indexTemplate = TemplateList.EMPTY_INDEX;
-		catalogItemSet = null;
+		catalogItems = null;
 	}
 
 	public Set<ClientCatalogItem> getClientCatalog() throws SearchLibException {
-		if (catalogItemSet != null)
-			return catalogItemSet;
-		catalogItemSet = ClientCatalog.getClientCatalog(getLoggedUser());
-		return catalogItemSet;
+		if (catalogItems != null)
+			return catalogItems;
+		catalogItems = ClientCatalog.getClientCatalog(getLoggedUser());
+		return catalogItems;
 	}
 
 	public ClientCatalogItem getClientName() throws SearchLibException {
@@ -122,11 +122,12 @@ public class HomeController extends CommonController {
 		ClientCatalog.createIndex(getLoggedUser(), indexName, indexTemplate
 				.getTemplate());
 		setClient(ClientCatalog.getClient(indexName));
+		catalogItems = null;
 		reloadDesktop();
 	}
 
 	public void onListRefresh() {
-		catalogItemSet = null;
+		catalogItems = null;
 		reloadPage();
 	}
 
@@ -146,6 +147,7 @@ public class HomeController extends CommonController {
 			try {
 				setClient(null);
 				ClientCatalog.eraseIndex(getLoggedUser(), indexName);
+				catalogItems = null;
 				reloadDesktop();
 			} catch (NamingException e) {
 				throw new SearchLibException(e);

@@ -63,6 +63,8 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 
 	@Override
 	public boolean equals(Object o) {
+		if (!(o instanceof ClientCatalogItem))
+			return false;
 		ClientCatalogItem item = (ClientCatalogItem) o;
 		return indexName.equals(item.indexName);
 	}

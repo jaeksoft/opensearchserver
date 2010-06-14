@@ -71,26 +71,27 @@
 					<listheader width="200px" label="Action"
 						align="center" />
 				</listhead>
-				<listitem self="@{each='item'}">
-					<listcell label="@{item.indexName}" />
-					<listcell tooltiptext="@{item.lastModifiedFile}"
-						label="@{item.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-					<listcell tooltiptext="@{item.size}"
-						label="@{item.size,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+				<listitem self="@{each='catalogitem'}">
+					<listcell label="@{catalogitem.indexName}" />
+					<listcell
+						tooltiptext="@{catalogitem.lastModifiedFile}"
+						label="@{catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+					<listcell tooltiptext="@{catalogitem.size}"
+						label="@{catalogitem.size,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
 					<listcell>
 						<hbox align="center">
 							<button label="Info"
 								onClick="home.computeInfos(self)"
 								tooltiptext="Compute the size of the index">
 								<custom-attributes
-									catalogitem="@{item}" />
+									catalogitem="@{catalogitem}" />
 							</button>
 							<space />
 							<button tooltiptext="Erase index"
 								image="/images/action_delete.png"
 								onClick="home.eraseIndex(self)">
 								<custom-attributes
-									catalogitem="@{item}" />
+									catalogitem="@{catalogitem}" />
 							</button>
 						</hbox>
 					</listcell>

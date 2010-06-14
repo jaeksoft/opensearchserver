@@ -64,8 +64,10 @@
 							<listbox mold="select" width="100%"
 								selectedItem="@{privileges.selectedIndex}"
 								model="@{privileges.indexList}">
-								<listitem self="@{each='item'}">
-									<listcell label="@{item.indexName}" />
+								<listitem
+									self="@{each='catalogitem'}">
+									<listcell
+										label="@{catalogitem.indexName}" />
 								</listitem>
 							</listbox>
 							<listbox mold="select" width="100%"
