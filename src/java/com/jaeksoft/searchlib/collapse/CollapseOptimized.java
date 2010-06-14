@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultSingle;
 
-public class CollapseOptimized extends CollapseAbstract {
+public class CollapseOptimized extends CollapseAdjacent {
 
 	protected CollapseOptimized(SearchRequest searchRequest) {
 		super(searchRequest);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.collapse;
 import java.io.IOException;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -52,6 +51,9 @@ public abstract class CollapseAbstract {
 		this.collapsedDoc = null;
 	}
 
+	protected abstract void collapse(ResultScoreDoc[] fetchedDocs,
+			int fetchLength);
+
 	public void run(ResultScoreDoc[] fetchedDocs, int fetchLength)
 			throws IOException {
 
@@ -63,36 +65,7 @@ public abstract class CollapseAbstract {
 		if (fetchLength > fetchedDocs.length)
 			fetchLength = fetchedDocs.length;
 
-		OpenBitSet collapsedSet = new OpenBitSet(fetchLength);
-
-		String lastTerm = null;
-		int adjacent = 0;
-		collapsedDocCount = 0;
-		for (int i = 0; i < fetchLength; i++) {
-			String term = fetchedDocs[i].collapseTerm;
-			if (term != null && term.equals(lastTerm)) {
-				if (++adjacent >= collapseMax)
-					collapsedSet.set(i);
-			} else {
-				lastTerm = term;
-				adjacent = 0;
-			}
-		}
-		collapsedDocCount = (int) collapsedSet.cardinality();
-
-		collapsedDoc = new ResultScoreDoc[fetchLength - collapsedDocCount];
-
-		int currentPos = 0;
-		ResultScoreDoc collapseDoc = null;
-		for (int i = 0; i < fetchLength; i++) {
-			if (!collapsedSet.get(i)) {
-				collapseDoc = fetchedDocs[i];
-				collapseDoc.collapseCount = 0;
-				collapsedDoc[currentPos++] = collapseDoc;
-			} else {
-				collapseDoc.collapseCount++;
-			}
-		}
+		collapse(fetchedDocs, fetchLength);
 	}
 
 	public abstract ResultScoreDoc[] collapse(ResultSingle resultSingle)
@@ -100,6 +73,22 @@ public abstract class CollapseAbstract {
 
 	public int getDocCount() {
 		return this.collapsedDocCount;
+	}
+
+	/**
+	 * @param collapsedDocCount
+	 *            the collapsedDocCount to set
+	 */
+	public void setCollapsedDocCount(int collapsedDocCount) {
+		this.collapsedDocCount = collapsedDocCount;
+	}
+
+	/**
+	 * @param collapsedDoc
+	 *            the collapsedDoc to set
+	 */
+	public void setCollapsedDoc(ResultScoreDoc[] collapsedDoc) {
+		this.collapsedDoc = collapsedDoc;
 	}
 
 	protected String getCollapseField() {
@@ -120,12 +109,21 @@ public abstract class CollapseAbstract {
 		return collapsedDoc.length;
 	}
 
+	/**
+	 * @return the collapseMax
+	 */
+	public int getCollapseMax() {
+		return collapseMax;
+	}
+
 	public static CollapseAbstract newInstance(SearchRequest searchRequest) {
 		CollapseMode mode = searchRequest.getCollapseMode();
 		if (mode == CollapseMode.COLLAPSE_FULL)
 			return new CollapseFull(searchRequest);
 		else if (mode == CollapseMode.COLLAPSE_OPTIMIZED)
 			return new CollapseOptimized(searchRequest);
+		else if (mode == CollapseMode.COLLAPSE_CLUSTER)
+			return new CollapseCluster(searchRequest);
 		return null;
 	}
 

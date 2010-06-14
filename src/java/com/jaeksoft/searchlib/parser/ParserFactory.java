@@ -58,8 +58,7 @@ public class ParserFactory implements Comparable<ParserFactory> {
 			this.className = "com.jaeksoft.searchlib.parser." + className;
 		this.sizeLimit = sizeLimit;
 		this.fieldMap = fieldMap;
-		this.defaultCharset = defaultCharset == null ? "US-ASCII"
-				: defaultCharset;
+		this.defaultCharset = defaultCharset == null ? "UTF-8" : defaultCharset;
 		mimeTypeList = null;
 		extensionList = null;
 	}

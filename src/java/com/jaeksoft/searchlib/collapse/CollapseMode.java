@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.collapse;
 public enum CollapseMode {
 
 	COLLAPSE_OFF(0, "off"), COLLAPSE_FULL(1, "full"), COLLAPSE_OPTIMIZED(2,
-			"optimized");
+			"optimized"), COLLAPSE_CLUSTER(3, "cluster");
 
 	public int code;
 	private String label;

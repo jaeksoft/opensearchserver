@@ -37,7 +37,8 @@ public class LimitInputStream extends InputStream {
 	private ByteArrayOutputStream outputCache;
 	private ByteArrayInputStream inputCache;
 
-	public LimitInputStream(InputStream inputStream, long limit) {
+	public LimitInputStream(InputStream inputStream, long limit)
+			throws IOException {
 		this.inputStream = inputStream;
 		this.limit = limit;
 		this.isComplete = false;
@@ -65,6 +66,9 @@ public class LimitInputStream extends InputStream {
 	}
 
 	public void restartFromCache() {
-		inputCache = new ByteArrayInputStream(outputCache.toByteArray());
+		if (inputCache == null)
+			inputCache = new ByteArrayInputStream(outputCache.toByteArray());
+		else
+			inputCache.reset();
 	}
 }

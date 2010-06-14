@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
@@ -242,9 +243,8 @@ public class HtmlParser extends Parser {
 		return dom;
 	}
 
-	private String getTitle(Document doc) {
-		String[] p = { "html", "head", "title" };
-		List<Node> nodes = DomUtils.getNodes(doc, p);
+	private String getTitleText(Document doc, String[] path) {
+		List<Node> nodes = DomUtils.getNodes(doc, path);
 		if (nodes == null)
 			return null;
 		if (nodes.size() < 1)
@@ -252,9 +252,21 @@ public class HtmlParser extends Parser {
 		return DomUtils.getText(nodes.get(0));
 	}
 
+	private String getTitle(Document doc) {
+		String[] p1 = { "html", "head", "title" };
+		String title = getTitleText(doc, p1);
+		if (title != null)
+			return title;
+		String[] p2 = { "html", "title" };
+		return getTitleText(doc, p2);
+	}
+
 	private static List<Node> getMetas(Document doc) {
-		String[] p = { "html", "head", "meta" };
-		List<Node> metas = DomUtils.getNodes(doc, p);
+		String[] p1 = { "html", "head", "meta" };
+		String[] p2 = { "html", "meta" };
+		List<Node> metas = new ArrayList<Node>();
+		DomUtils.getNodes(doc, p1, metas);
+		DomUtils.getNodes(doc, p2, metas);
 		return metas;
 	}
 
@@ -263,6 +275,15 @@ public class HtmlParser extends Parser {
 		if (content == null)
 			return null;
 		return StringEscapeUtils.unescapeHtml(content);
+	}
+
+	private static String getMetaCharset(List<Node> metas) {
+		for (Node node : metas) {
+			String charset = DomUtils.getAttributeText(node, "charset");
+			if (charset != null && charset.length() > 0)
+				return charset;
+		}
+		return null;
 	}
 
 	private static String getMetaHttpEquiv(List<Node> metas, String name) {
@@ -275,13 +296,23 @@ public class HtmlParser extends Parser {
 		return null;
 	}
 
+	private boolean checkDocument(Document doc) {
+		if (doc == null)
+			return false;
+		int i = DomUtils.countElements(doc);
+		return i > 0;
+	}
+
 	private Document htmlParserLine(String charset, LimitInputStream inputStream)
 			throws LimitException {
 		Document doc = null;
 		if (doc == null) {
 			try {
 				doc = tagSoupDomDocument(charset, inputStream);
-
+				if (checkDocument(doc))
+					return doc;
+				else
+					doc = null;
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
@@ -291,7 +322,12 @@ public class HtmlParser extends Parser {
 		}
 		if (doc == null) {
 			try {
+				inputStream.restartFromCache();
 				doc = nekoHtmlDomDocument(charset, inputStream);
+				if (checkDocument(doc))
+					return doc;
+				else
+					doc = null;
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
@@ -301,7 +337,12 @@ public class HtmlParser extends Parser {
 		}
 		if (doc == null) {
 			try {
+				inputStream.restartFromCache();
 				doc = tidyDomDocument(charset, inputStream);
+				if (checkDocument(doc))
+					return doc;
+				else
+					doc = null;
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
@@ -311,7 +352,12 @@ public class HtmlParser extends Parser {
 		}
 		if (doc == null) {
 			try {
+				inputStream.restartFromCache();
 				doc = htmlCleanerDomDocument(charset, inputStream);
+				if (checkDocument(doc))
+					return doc;
+				else
+					doc = null;
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
@@ -343,12 +389,13 @@ public class HtmlParser extends Parser {
 
 		if (charsetWasNull) {
 			String contentType = getMetaHttpEquiv(metas, "content-type");
-			if (contentType != null) {
+			if (contentType != null)
 				charset = MimeUtils.extractContentTypeCharset(contentType);
-				if (charset != null) {
-					inputStream.restartFromCache();
-					doc = htmlParserLine(charset, inputStream);
-				}
+			else
+				charset = getMetaCharset(metas);
+			if (charset != null) {
+				inputStream.restartFromCache();
+				doc = htmlParserLine(charset, inputStream);
 			}
 		}
 
@@ -437,8 +484,12 @@ public class HtmlParser extends Parser {
 			}
 		}
 
-		String[] p = { "html", "body" };
-		nodes = DomUtils.getNodes(doc, p);
+		String[] p1 = { "html", "body" };
+		nodes = DomUtils.getNodes(doc, p1);
+		if (nodes == null || nodes.size() == 0) {
+			String[] p2 = { "html" };
+			nodes = DomUtils.getNodes(doc, p2);
+		}
 		if (nodes != null && nodes.size() > 0) {
 			StringBuffer sb = new StringBuffer();
 			getBodyTextContent(sb, nodes.get(0), true, null);

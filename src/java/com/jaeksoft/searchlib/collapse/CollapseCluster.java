@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.ScoreDoc;
@@ -37,10 +39,36 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultSingle;
 
-public class CollapseFull extends CollapseAdjacent {
+public class CollapseCluster extends CollapseAbstract {
 
-	protected CollapseFull(SearchRequest searchRequest) {
+	protected CollapseCluster(SearchRequest searchRequest) {
 		super(searchRequest);
+	}
+
+	@Override
+	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength) {
+		// TODO Auto-generated method stub
+
+		Map<String, ResultScoreDoc> collapsedDocMap = new LinkedHashMap<String, ResultScoreDoc>();
+		ResultScoreDoc collapseDoc;
+		for (int i = 0; i < fetchLength; i++) {
+			ResultScoreDoc fetchedDoc = fetchedDocs[i];
+			String term = fetchedDoc.collapseTerm;
+			if (term != null
+					&& ((collapseDoc = collapsedDocMap.get(term)) != null)) {
+				collapseDoc.collapseCount++;
+			} else {
+				collapsedDocMap.put(term, fetchedDoc);
+			}
+		}
+
+		ResultScoreDoc[] collapsedDocs = new ResultScoreDoc[collapsedDocMap
+				.size()];
+		collapsedDocMap.values().toArray(collapsedDocs);
+
+		setCollapsedDocCount(fetchLength - collapsedDocs.length);
+		setCollapsedDoc(collapsedDocs);
+
 	}
 
 	@Override

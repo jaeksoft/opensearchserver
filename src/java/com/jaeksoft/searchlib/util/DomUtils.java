@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,13 +56,22 @@ public class DomUtils {
 		}
 	}
 
+	final public static void getNodes(Document doc, String[] path,
+			List<Node> nodes) {
+		if (path == null)
+			return;
+		if (path.length == 0)
+			return;
+		getNodes(doc, 0, path, nodes);
+	}
+
 	final public static List<Node> getNodes(Document doc, String[] path) {
 		if (path == null)
 			return null;
 		if (path.length == 0)
 			return null;
 		List<Node> nodes = new ArrayList<Node>();
-		getNodes(doc, 0, path, nodes);
+		getNodes(doc, path, nodes);
 		return nodes;
 	}
 
@@ -79,6 +88,24 @@ public class DomUtils {
 		StringBuffer sb = new StringBuffer();
 		getText(node, sb);
 		return sb.toString();
+	}
+
+	final public static int countElements(Node parent) {
+		int counter = 0;
+		NodeList childrens = parent.getChildNodes();
+		int l = childrens.getLength();
+		for (int i = 0; i < l; i++) {
+			Node node = childrens.item(i);
+			switch (node.getNodeType()) {
+			case Node.ELEMENT_NODE:
+				counter++;
+				counter += countElements(node);
+				break;
+			default:
+				continue;
+			}
+		}
+		return counter;
 	}
 
 	final public static String getAttributeText(Node node, String name) {

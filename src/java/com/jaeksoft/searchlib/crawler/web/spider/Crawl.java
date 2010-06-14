@@ -142,21 +142,17 @@ public class Crawl {
 				httpDownloader.get(urlItem.getCheckedURI().toASCIIString());
 
 				String contentBaseType = httpDownloader.getContentBaseType();
-				if (contentBaseType != null)
-					urlItem.setContentBaseType(contentBaseType);
+				urlItem.setContentBaseType(contentBaseType);
 
 				String contentTypeCharset = httpDownloader
 						.getContentTypeCharset();
-				if (contentTypeCharset != null)
-					urlItem.setContentTypeCharset(contentTypeCharset);
+				urlItem.setContentTypeCharset(contentTypeCharset);
 
 				String encoding = httpDownloader.getContentEncoding();
-				if (encoding != null)
-					urlItem.setContentEncoding(encoding);
+				urlItem.setContentEncoding(encoding);
 
 				Long contentLength = httpDownloader.getContentLength();
-				if (contentLength != null)
-					urlItem.setContentLength(contentLength);
+				urlItem.setContentLength(contentLength);
 
 				urlItem.setFetchStatus(FetchStatus.FETCHED);
 
