@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,6 +61,10 @@ import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 
 public class UrlManager {
+
+	public enum SearchTemplate {
+		urlSearch, urlExport;
+	}
 
 	public enum Field {
 
@@ -383,17 +387,17 @@ public class UrlManager {
 			urlList.add(new UrlItem(item));
 	}
 
-	public SearchRequest urlQuery(String like, String host, String lang,
-			String langMethod, String contentBaseType,
-			String contentTypeCharset, String contentEncoding,
-			Integer minContentLength, Integer maxContentLength,
-			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
-			Integer responseCode, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate)
-			throws SearchLibException {
+	public SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
+			String like, String host, String lang, String langMethod,
+			String contentBaseType, String contentTypeCharset,
+			String contentEncoding, Integer minContentLength,
+			Integer maxContentLength, RobotsTxtStatus robotsTxtStatus,
+			FetchStatus fetchStatus, Integer responseCode,
+			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
+			Date endDate) throws SearchLibException {
 		try {
 			SearchRequest searchRequest = urlDbClient
-					.getNewSearchRequest("urlSearch");
+					.getNewSearchRequest(urlSearchTemplate.name());
 			StringBuffer query = new StringBuffer();
 			if (like != null) {
 				like = like.trim();

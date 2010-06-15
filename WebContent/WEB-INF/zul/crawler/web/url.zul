@@ -125,6 +125,8 @@
 				<intbox cols="3"
 					constraint="no negative, no zero, no negative"
 					value="@{searchUrl.pageSize}" forward="onChange=onSearch" />
+				<space width="50px" />
+				<button label="Export URLs…" forward="onExportURLs" />
 			</listfooter>
 		</listfoot>
 	</listbox>

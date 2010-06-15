@@ -49,6 +49,11 @@
 				lang,langMethod,when,responseCode,
 				robotsTxtStatus,parserStatus,fetchStatus,indexStatus</returnFields>
 		</request>
+		<request name="urlExport" defaultOperator="and" start="0"
+			rows="0">
+			<query>$$</query>
+			<returnFields>url</returnFields>
+		</request>
 		<request name="hostFacet" defaultOperator="or" start="0" rows="0">
 			<query>$$</query>
 			<facetFields>

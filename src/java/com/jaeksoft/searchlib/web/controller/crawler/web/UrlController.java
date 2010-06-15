@@ -23,6 +23,10 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +34,7 @@ import java.util.List;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
+import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
@@ -40,6 +45,7 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
@@ -332,23 +338,29 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
+	private long getUrlList(SearchTemplate urlSearchTemplate,
+			UrlManager urlManager, int start, int rows, List<UrlItem> urlList)
+			throws SearchLibException {
+		SearchRequest searchRequest = urlManager.urlQuery(urlSearchTemplate,
+				getLike(), getHost(), getLang(), getLangMethod(),
+				getContentBaseType(), getContentTypeCharset(),
+				getContentEncoding(), getMinContentLength(),
+				getMaxContentLength(), getRobotsTxtStatus(), getFetchStatus(),
+				getResponseCode(), getParserStatus(), getIndexStatus(),
+				getDateStart(), getDateEnd());
+		return urlManager.getUrls(searchRequest, null, false, start, rows,
+				urlList);
+	}
+
 	private void computeUrlList() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return;
-			totalSize = 0;
 			urlList = new ArrayList<UrlItem>();
-			UrlManager urlManager = client.getUrlManager();
-			SearchRequest searchRequest = urlManager.urlQuery(getLike(),
-					getHost(), getLang(), getLangMethod(),
-					getContentBaseType(), getContentTypeCharset(),
-					getContentEncoding(), getMinContentLength(),
-					getMaxContentLength(), getRobotsTxtStatus(),
-					getFetchStatus(), getResponseCode(), getParserStatus(),
-					getIndexStatus(), getDateStart(), getDateEnd());
-			totalSize = (int) urlManager.getUrls(searchRequest, null, false,
-					getPageSize() * getActivePage(), getPageSize(), urlList);
+			totalSize = (int) getUrlList(SearchTemplate.urlSearch, client
+					.getUrlManager(), getPageSize() * getActivePage(),
+					getPageSize(), urlList);
 		}
 	}
 
@@ -384,4 +396,41 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
+	public void onExportURLs() throws IOException, SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+
+			PrintWriter pw = null;
+			try {
+				File tempFile = File.createTempFile("OSS_web_crawler_URLs",
+						"csv");
+				pw = new PrintWriter(tempFile);
+
+				int currentPos = 0;
+				List<UrlItem> uList = new ArrayList<UrlItem>();
+				for (;;) {
+					totalSize = (int) getUrlList(SearchTemplate.urlSearch,
+							client.getUrlManager(), currentPos, 1000, uList);
+					for (UrlItem u : uList)
+						pw.println(u.getUrl());
+					if (uList.size() == 0)
+						break;
+					uList.clear();
+					currentPos += 1000;
+				}
+
+				pw.close();
+				pw = null;
+				Filedownload
+						.save(new FileInputStream(tempFile),
+								"text/plain; charset-UTF-8",
+								"OSS_web_crawler_URLs.txt");
+			} finally {
+				if (pw != null)
+					pw.close();
+			}
+		}
+	}
 }
