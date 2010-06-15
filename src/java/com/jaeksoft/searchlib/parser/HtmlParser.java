@@ -387,10 +387,22 @@ public class HtmlParser extends Parser {
 
 		List<Node> metas = getMetas(doc);
 
+		// Check ContentType charset in meta http-equiv
+		String contentType = getMetaHttpEquiv(metas, "content-type");
+		String contentTypeCharset = null;
+		if (contentType != null) {
+			contentTypeCharset = MimeUtils
+					.extractContentTypeCharset(contentType);
+			// the meta in charset has priority if it is different from previous
+			// charset
+			if (contentTypeCharset != null
+					&& !contentTypeCharset.equals(charset))
+				charsetWasNull = true;
+		}
+
 		if (charsetWasNull) {
-			String contentType = getMetaHttpEquiv(metas, "content-type");
-			if (contentType != null)
-				charset = MimeUtils.extractContentTypeCharset(contentType);
+			if (contentTypeCharset != null)
+				charset = contentTypeCharset;
 			else
 				charset = getMetaCharset(metas);
 			if (charset != null) {
