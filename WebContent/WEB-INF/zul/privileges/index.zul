@@ -52,6 +52,13 @@
 							value="Check the box if the user is admin" />
 					</row>
 					<row>
+						<label value="Can monitoring: " />
+						<checkbox
+							checked="@{privileges.user.monitoring}" />
+						<label
+							value="Check the box if the user is able to monitor" />
+					</row>
+					<row>
 						<label value="API Key: " />
 						<textbox readonly="true"
 							value="@{privileges.user.apiKey}" width="95%" />

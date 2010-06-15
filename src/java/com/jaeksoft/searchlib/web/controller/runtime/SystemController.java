@@ -22,26 +22,33 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.converter;
+package com.jaeksoft.searchlib.web.controller.runtime;
 
-import java.text.DecimalFormat;
+import com.jaeksoft.searchlib.Monitor;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zkplus.databind.TypeConverter;
+public class SystemController extends CommonController {
 
-public class RateConverter implements TypeConverter {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6358001462419893725L;
 
-	public Object coerceToBean(Object value, Component component) {
-		return null;
+	private Monitor monitor;
+
+	public SystemController() throws SearchLibException {
+		super();
+		monitor = new Monitor();
 	}
 
-	public Object coerceToUi(Object value, Component component) {
-		DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
-		format.setMaximumFractionDigits(1);
-		if (value instanceof Double)
-			return format.format((Double) value) + " %";
-		else if (value instanceof Float)
-			return format.format((Float) value) + " %";
-		return null;
+	@Override
+	public void reset() {
+		monitor = new Monitor();
 	}
+
+	public Monitor getMonitor() {
+		return monitor;
+	}
+
 }

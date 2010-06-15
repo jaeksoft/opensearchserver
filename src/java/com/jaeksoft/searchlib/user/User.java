@@ -52,6 +52,7 @@ public class User implements Comparable<User> {
 	private String apiKey;
 	private Set<IndexRole> indexRoles;
 	private boolean isAdmin;
+	private boolean isMonitoring;
 
 	public User() {
 		indexRoles = new TreeSet<IndexRole>();
@@ -292,10 +293,28 @@ public class User implements Comparable<User> {
 		}
 	}
 
+	public boolean isMonitoring() {
+		r.lock();
+		try {
+			return isMonitoring;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public void setAdmin(boolean isAdmin) {
 		w.lock();
 		try {
 			this.isAdmin = isAdmin;
+		} finally {
+			w.unlock();
+		}
+	}
+
+	public void setMonitoring(boolean isMonitoring) {
+		w.lock();
+		try {
+			this.isMonitoring = isMonitoring;
 		} finally {
 			w.unlock();
 		}

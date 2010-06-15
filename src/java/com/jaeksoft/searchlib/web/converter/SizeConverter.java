@@ -36,6 +36,10 @@ public class SizeConverter implements TypeConverter {
 	}
 
 	public Object coerceToUi(Object value, Component component) {
+		if (value == null)
+			return "Unknown";
+		if (!(value instanceof Long))
+			return "Unknown";
 		long l = (Long) value;
 		if (l == -1)
 			return "Unknown";

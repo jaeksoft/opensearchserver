@@ -137,6 +137,15 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return isAdmin();
 	}
 
+	public boolean isAdminOrMonitoringOrNoUser() throws SearchLibException {
+		if (isNoUserList())
+			return true;
+		User user = getLoggedUser();
+		if (user == null)
+			return false;
+		return user.isAdmin() || user.isMonitoring();
+	}
+
 	public boolean isLogged() throws SearchLibException {
 		if (isNoUserList())
 			return true;

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.PrintWriter;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -34,6 +36,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -44,6 +47,8 @@ public class XmlWriter {
 	private AttributesImpl elementAttributes;
 
 	private Stack<String> startedElementStack;
+
+	private Matcher controlMatcher;
 
 	public XmlWriter(PrintWriter out, String encoding)
 			throws TransformerConfigurationException, SAXException {
@@ -58,12 +63,15 @@ public class XmlWriter {
 		startedElementStack = new Stack<String>();
 		transformerHandler.startDocument();
 		elementAttributes = new AttributesImpl();
+		Pattern p = Pattern.compile("\\p{Cntrl}");
+		controlMatcher = p.matcher("");
+
 	}
 
 	public void textNode(Object data) throws SAXException {
 		if (data == null)
 			return;
-		String value = data.toString();
+		String value = escapeXml(data.toString());
 		int length = value.length();
 		char[] chars = new char[length];
 		value.getChars(0, length, chars, 0);
@@ -76,12 +84,17 @@ public class XmlWriter {
 		transformerHandler.endDocument();
 	}
 
+	public String escapeXml(String text) {
+		controlMatcher.reset(text);
+		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
+	}
+
 	public void startElement(String name, String... attributes)
 			throws SAXException {
 		elementAttributes.clear();
 		for (int i = 0; i < attributes.length; i++) {
 			String attr = attributes[i];
-			String value = attributes[++i];
+			String value = escapeXml(attributes[++i]);
 			if (attr != null && value != null)
 				elementAttributes.addAttribute("", "", attr, "CDATA", value);
 		}

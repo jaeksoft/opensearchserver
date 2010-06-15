@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3016566: Monitoring API
 - 3015939: Cluster collapsing
 - 2830490: Size of the index
 - 3011847: Score explanation

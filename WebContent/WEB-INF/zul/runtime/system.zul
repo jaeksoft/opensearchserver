@@ -1,0 +1,91 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="system"
+	use="com.jaeksoft.searchlib.web.controller.runtime.SystemController">
+	<grid>
+		<columns>
+			<column label="Info" align="right" width="20%" />
+			<column label="Value" width="40%" />
+			<column />
+		</columns>
+		<rows>
+			<row>
+				<label value="Available processors" />
+				<label value="@{system.monitor.availableProcessors}" />
+				<label
+					value="The maximum number of processors available to the virtual machine" />
+			</row>
+			<row>
+				<label value="Free memory" />
+				<label
+					value="@{system.monitor.freeMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+				<label
+					value="The amount of free memory in the Java Virtual Machine" />
+			</row>
+			<row>
+				<label value="Free memory rate" />
+				<label
+					value="@{system.monitor.memoryRate,converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+				<label
+					value="The amount of free memory in the Java Virtual Machine" />
+			</row>
+			<row>
+				<label value="Max memory" />
+				<label
+					value="@{system.monitor.maxMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+				<label
+					value="The maximum amount of memory that the Java virtual machine will attempt to use" />
+			</row>
+			<row>
+				<label value="Total memory" />
+				<label
+					value="@{system.monitor.totalMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+				<label
+					value="The total amount of memory in the Java virtual machine" />
+			</row>
+			<row>
+				<label value="Data directory path" />
+				<label value="@{system.monitor.dataDirectoryPath}" />
+				<label
+					value="The location of the directory containing the indices" />
+			</row>
+			<row>
+				<label value="Free disk space" />
+				<label
+					value="@{system.monitor.freeDiskSpace,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+				<label value="The free space on a drive or volume" />
+			</row>
+			<row>
+				<label value="Index count" />
+				<label value="@{system.monitor.indexCount}" />
+				<label value="The total number of indices" />
+			</row>
+		</rows>
+	</grid>
+	<grid model="@{system.monitor.properties}">
+		<columns>
+			<column label="Property" width="30%" align="right" />
+			<column label="Value" />
+		</columns>
+		<rows>
+			<row self="@{each='prop'}">
+				<label value="@{prop.key}" />
+				<label value="@{prop.value}" />
+			</row>
+		</rows>
+	</grid>
+</window>

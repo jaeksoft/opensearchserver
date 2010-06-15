@@ -25,6 +25,8 @@
 			<tab id="tabRuntimeCache" label="Cache" />
 			<tab id="tabRuntimeIndex" label="Index" />
 			<tab id="tabRuntimeTerms" label="Terms" />
+			<tab id="tabRuntimeSystem" label="System"
+				visible="@{runtime.adminOrMonitoringOrNoUser}" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -41,6 +43,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabRuntimeTerms.onSelect">
 				<include src="WEB-INF/zul/runtime/terms.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntimeSystem.onSelect">
+				<include src="WEB-INF/zul/runtime/system.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

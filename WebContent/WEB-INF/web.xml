@@ -105,6 +105,10 @@
 		<servlet-class>com.jaeksoft.searchlib.web.ActionServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>Monitor</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.MonitorServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>Pattern</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.PatternServlet</servlet-class>
 	</servlet>
@@ -158,6 +162,10 @@
 	<servlet-mapping>
 		<servlet-name>Action</servlet-name>
 		<url-pattern>/action</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Monitor</servlet-name>
+		<url-pattern>/monitor</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Report</servlet-name>
