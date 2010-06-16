@@ -16,76 +16,113 @@
 -->
 <window id="system"
 	use="com.jaeksoft.searchlib.web.controller.runtime.SystemController">
-	<grid>
-		<columns>
-			<column label="Info" align="right" width="20%" />
-			<column label="Value" width="40%" />
-			<column />
-		</columns>
-		<rows>
-			<row>
-				<label value="Available processors" />
-				<label value="@{system.monitor.availableProcessors}" />
-				<label
-					value="The maximum number of processors available to the virtual machine" />
-			</row>
-			<row>
-				<label value="Free memory" />
-				<label
-					value="@{system.monitor.freeMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
-				<label
-					value="The amount of free memory in the Java Virtual Machine" />
-			</row>
-			<row>
-				<label value="Free memory rate" />
-				<label
-					value="@{system.monitor.memoryRate,converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
-				<label
-					value="The amount of free memory in the Java Virtual Machine" />
-			</row>
-			<row>
-				<label value="Max memory" />
-				<label
-					value="@{system.monitor.maxMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
-				<label
-					value="The maximum amount of memory that the Java virtual machine will attempt to use" />
-			</row>
-			<row>
-				<label value="Total memory" />
-				<label
-					value="@{system.monitor.totalMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
-				<label
-					value="The total amount of memory in the Java virtual machine" />
-			</row>
-			<row>
-				<label value="Data directory path" />
-				<label value="@{system.monitor.dataDirectoryPath}" />
-				<label
-					value="The location of the directory containing the indices" />
-			</row>
-			<row>
-				<label value="Free disk space" />
-				<label
-					value="@{system.monitor.freeDiskSpace,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
-				<label value="The free space on a drive or volume" />
-			</row>
-			<row>
-				<label value="Index count" />
-				<label value="@{system.monitor.indexCount}" />
-				<label value="The total number of indices" />
-			</row>
-		</rows>
-	</grid>
-	<grid model="@{system.monitor.properties}">
-		<columns>
-			<column label="Property" width="30%" align="right" />
-			<column label="Value" />
-		</columns>
-		<rows>
-			<row self="@{each='prop'}">
-				<label value="@{prop.key}" />
-				<label value="@{prop.value}" />
-			</row>
-		</rows>
-	</grid>
+	<tabbox>
+		<tabs>
+			<tab id="tabSystemGeneral" label="General" selected="true" />
+			<tab id="tabSystemProperties" label="Properties" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<grid>
+					<auxhead>
+						<auxheader colspan="3" align="center">
+							<button label="Refresh" forward="onReload" />
+						</auxheader>
+					</auxhead>
+					<columns>
+						<column label="Variable" align="right"
+							width="20%" />
+						<column label="Value" width="40%" />
+						<column label="Information" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Available processors" />
+							<label
+								value="@{system.monitor.availableProcessors}" />
+							<label
+								value="The maximum number of processors available to the virtual machine" />
+						</row>
+						<row>
+							<label value="Free memory" />
+							<label
+								value="@{system.monitor.freeMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+							<label
+								value="The amount of free memory in the Java Virtual Machine" />
+						</row>
+						<row>
+							<label value="Free memory rate" />
+							<label
+								value="@{system.monitor.memoryRate,converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+							<label
+								value="The rate of free memory in the Java Virtual Machine" />
+						</row>
+						<row>
+							<label value="Max memory" />
+							<label
+								value="@{system.monitor.maxMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+							<label
+								value="The maximum amount of memory that the Java virtual machine will attempt to use" />
+						</row>
+						<row>
+							<label value="Total memory" />
+							<label
+								value="@{system.monitor.totalMemory,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+							<label
+								value="The total amount of memory in the Java virtual machine" />
+						</row>
+						<row>
+							<label value="Data directory path" />
+							<label
+								value="@{system.monitor.dataDirectoryPath}" />
+							<label
+								value="The location of the directory containing the indices" />
+						</row>
+						<row>
+							<label value="Free disk space" />
+							<label
+								value="@{system.monitor.freeDiskSpace,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+							<label
+								value="The free space on a drive or volume" />
+						</row>
+						<row>
+							<label value="Disk space rate" />
+							<label
+								value="@{system.monitor.diskRate,converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+							<label
+								value="The rate of free space on a drive or volume" />
+						</row>
+						<row>
+							<label value="Total disk space" />
+							<label
+								value="@{system.monitor.totalDiskSpace,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+							<label
+								value="The total space on a drive or volume" />
+						</row>
+						<row>
+							<label value="Index count" />
+							<label value="@{system.monitor.indexCount}" />
+							<label value="The total number of indices" />
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+			<tabpanel>
+				<grid model="@{system.monitor.properties}" mold="paging"
+					pageSize="20">
+					<columns>
+						<column label="Property" width="30%"
+							align="right" />
+						<column label="Value" />
+					</columns>
+					<rows>
+						<row self="@{each='prop'}">
+							<label value="@{prop.key}" />
+							<label value="@{prop.value}" />
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
 </window>

@@ -47,6 +47,12 @@ public class SystemController extends CommonController {
 		monitor = new Monitor();
 	}
 
+	@Override
+	public void reloadPage() {
+		reset();
+		super.reloadPage();
+	}
+
 	public Monitor getMonitor() {
 		return monitor;
 	}

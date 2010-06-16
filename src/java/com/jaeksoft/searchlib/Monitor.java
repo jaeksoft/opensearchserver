@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -61,17 +62,35 @@ public class Monitor {
 		return ((double) getFreeMemory() / (double) getTotalMemory()) * 100;
 	}
 
-	public Long getFreeDiskSpace() {
+	public Long getFreeDiskSpace() throws SearchLibException,
+			SecurityException, IOException {
+		File dataDir = ClientCatalog.getDataDir();
 		try {
-			return FileSystemUtils.freeSpaceKb(ClientCatalog.getDataDir()
-					.getAbsolutePath()) * 1000;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} catch (SearchLibException e) {
-			e.printStackTrace();
-			return null;
+			if (dataDir.getClass().getDeclaredMethod("getFreeSpace") != null)
+				return dataDir.getFreeSpace();
+		} catch (NoSuchMethodException e) {
 		}
+		return FileSystemUtils.freeSpaceKb(dataDir.getAbsolutePath()) * 1000;
+	}
+
+	public Long getTotalDiskSpace() throws SearchLibException,
+			SecurityException, IOException {
+		File dataDir = ClientCatalog.getDataDir();
+		try {
+			if (dataDir.getClass().getDeclaredMethod("getTotalSpace") != null)
+				return dataDir.getTotalSpace();
+		} catch (NoSuchMethodException e) {
+		}
+		return FileSystemUtils.freeSpaceKb(dataDir.getAbsolutePath()) * 1000;
+	}
+
+	public Double getDiskRate() throws SecurityException, SearchLibException,
+			IOException {
+		Long free = getFreeDiskSpace();
+		Long total = getTotalDiskSpace();
+		if (free == null || total == null)
+			return null;
+		return ((double) free / (double) total) * 100;
 	}
 
 	public String getDataDirectoryPath() throws SearchLibException {
@@ -90,7 +109,7 @@ public class Monitor {
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException,
-			SearchLibException {
+			SearchLibException, SecurityException, IOException {
 		xmlWriter.startElement("system");
 
 		xmlWriter.startElement("availableProcessors", "value", Integer
@@ -114,8 +133,14 @@ public class Monitor {
 				.toString(getIndexCount()));
 		xmlWriter.endElement();
 
-		xmlWriter.startElement("freeDiskSpace", "value", getFreeDiskSpace()
-				.toString());
+		Double rate = getDiskRate();
+		if (rate == null)
+			xmlWriter.startElement("freeDiskSpace", "value", getFreeDiskSpace()
+					.toString());
+		else
+			xmlWriter.startElement("freeDiskSpace", "value", getFreeDiskSpace()
+					.toString(), "rate", rate.toString());
+
 		xmlWriter.endElement();
 
 		xmlWriter.startElement("dataDirectoryPath", "value",
