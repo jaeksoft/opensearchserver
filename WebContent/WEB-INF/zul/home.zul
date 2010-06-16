@@ -56,6 +56,7 @@
 		title="List of existing indices - click on an index to work with it"
 		border="normal">
 		<toolbar>
+			<space width="20px" />
 			<button label="Refresh" forward="onListRefresh" />
 			<space width="20px" />
 		</toolbar>

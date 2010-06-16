@@ -42,7 +42,7 @@
 	</schema>
 	<requests>
 		<request name="urlSearch" defaultOperator="and" start="0"
-			rows="0">
+			rows="0" allowLeadingWildcard="yes">
 			<query>$$</query>
 			<returnFields>
 				url,host,contentBaseType,contentTypeCharset,contentEncoding,contentLength,

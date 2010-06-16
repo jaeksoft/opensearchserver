@@ -505,11 +505,29 @@ public class SearchRequest implements Externalizable {
 		return this.collapseMode;
 	}
 
+	public final static String[] RANGE_CHARS = { "(", ")", "{", "}", "[", "]" };
+
+	public final static String[] AND_OR_NOT_CHARS = { "+", "-", "&&", "||", "!" };
+
+	public final static String[] WILDCARD_CHARS = { "*", "?" };
+
+	public final static String[] CONTROL_CHARS = { "\\", "^", "\"", "~", ":" };
+
+	public static String escapeQuery(String query, String[] escapeChars) {
+		for (String s : escapeChars) {
+			String r = "";
+			for (int i = 0; i < s.length(); i++)
+				r += "\\" + s.charAt(i);
+			query = query.replace(s, r);
+		}
+		return query;
+	}
+
 	public static String escapeQuery(String query) {
-		String[] escapedString = { "\\", "+", "-", "&&", "||", "!", "(", ")",
-				"{", "}", "[", "]", "^", "\"", "~", "*", "?", ":" };
-		for (String s : escapedString)
-			query = query.replace(s, "\\" + s);
+		query = escapeQuery(query, RANGE_CHARS);
+		query = escapeQuery(query, AND_OR_NOT_CHARS);
+		query = escapeQuery(query, WILDCARD_CHARS);
+		query = escapeQuery(query, CONTROL_CHARS);
 		return query;
 	}
 
@@ -567,9 +585,11 @@ public class SearchRequest implements Externalizable {
 		String name = XPathParser.getAttributeString(node, "name");
 		String indexName = XPathParser.getAttributeString(node, "indexName");
 		SearchRequest searchRequest = new SearchRequest(config, indexName,
-				name, false, XPathParser.getAttributeValue(node, "phraseSlop"),
-				("and".equalsIgnoreCase(XPathParser.getAttributeString(node,
-						"defaultOperator"))) ? QueryParser.AND_OPERATOR
+				name, ("yes".equalsIgnoreCase(XPathParser.getAttributeString(
+						node, "allowLeadingWildcard"))), XPathParser
+						.getAttributeValue(node, "phraseSlop"), ("and"
+						.equalsIgnoreCase(XPathParser.getAttributeString(node,
+								"defaultOperator"))) ? QueryParser.AND_OPERATOR
 						: QueryParser.OR_OPERATOR, XPathParser
 						.getAttributeValue(node, "start"), XPathParser
 						.getAttributeValue(node, "rows"), XPathParser

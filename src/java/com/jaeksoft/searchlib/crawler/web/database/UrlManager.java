@@ -402,8 +402,13 @@ public class UrlManager {
 			if (like != null) {
 				like = like.trim();
 				if (like.length() > 0) {
-					Field.URL.addQuery(query, SearchRequest.escapeQuery(like));
-					query.append("*");
+					like = SearchRequest.escapeQuery(like,
+							SearchRequest.RANGE_CHARS);
+					like = SearchRequest.escapeQuery(like,
+							SearchRequest.AND_OR_NOT_CHARS);
+					like = SearchRequest.escapeQuery(like,
+							SearchRequest.CONTROL_CHARS);
+					Field.URL.addQuery(query, like);
 				}
 			}
 			if (host != null) {
