@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -39,11 +40,13 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 
 public class WebCrawlMaster extends CrawlMasterAbstract {
@@ -103,12 +106,12 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				if (host == null)
 					break;
 
-				List<UrlItem> urlList = getNextUrlList(host, howMany);
-				if (urlList == null)
+				HostUrlList hostUrlList = getNextUrlList(host, howMany);
+				if (hostUrlList == null)
 					continue;
 
 				CrawlThreadAbstract crawlThread = new WebCrawlThread(config,
-						this, currentStats, urlList, host);
+						this, currentStats, hostUrlList);
 				add(crawlThread);
 
 				while (crawlThreadsSize() >= threadNumber && !isAbort())
@@ -156,19 +159,25 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 	private NamedItem getNextHost() {
 		synchronized (oldHostList) {
-			NamedItem host = oldHostList.poll();
-			if (host != null) {
-				host.setList(oldHostList);
-				currentStats.incOldHostCount();
-				return host;
+			int s = oldHostList.size();
+			if (s > 0) {
+				NamedItem host = oldHostList.remove(new Random().nextInt(s));
+				if (host != null) {
+					host.setList(oldHostList);
+					currentStats.incOldHostCount();
+					return host;
+				}
 			}
 		}
 		synchronized (newHostList) {
-			NamedItem host = newHostList.poll();
-			if (host != null) {
-				host.setList(newHostList);
-				currentStats.incNewHostCount();
-				return host;
+			int s = newHostList.size();
+			if (s > 0) {
+				NamedItem host = newHostList.remove(new Random().nextInt(s));
+				if (host != null) {
+					host.setList(newHostList);
+					currentStats.incNewHostCount();
+					return host;
+				}
 			}
 		}
 		return null;
@@ -187,23 +196,27 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		return leftCount;
 	}
 
-	private List<UrlItem> getNextUrlList(NamedItem host, int count)
+	private HostUrlList getNextUrlList(NamedItem host, int count)
 			throws ParseException, IOException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, InstantiationException, IllegalAccessException {
 
 		setStatus(CrawlStatus.EXTRACTING_URLLIST);
-		setInfo(host.name);
+		setInfo(host.getName());
 		UrlManager urlManager = config.getUrlManager();
 
 		List<UrlItem> urlList = new ArrayList<UrlItem>();
-		if (host.list == oldHostList)
+		HostUrlList hostUrlList = new HostUrlList(urlList, host);
+		if (host.getList() == oldHostList) {
+			hostUrlList.setListType(ListType.OLD_URL);
 			urlManager
 					.getOldUrlToFetch(host, fetchIntervalDate, count, urlList);
-		else if (host.list == newHostList)
+		} else if (host.getList() == newHostList) {
+			hostUrlList.setListType(ListType.NEW_URL);
 			urlManager.getNewUrlToFetch(host, count, urlList);
+		}
 		setInfo(null);
-		return urlList;
+		return hostUrlList;
 	}
 
 	public boolean isFull() throws SearchLibException {

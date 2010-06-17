@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,7 @@ import java.text.DecimalFormat;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zkplus.databind.TypeConverter;
 
-public class RateConverter implements TypeConverter {
+public class PercentConverter implements TypeConverter {
 
 	public Object coerceToBean(Object value, Component component) {
 		return null;
@@ -39,9 +39,9 @@ public class RateConverter implements TypeConverter {
 		DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
 		format.setMaximumFractionDigits(1);
 		if (value instanceof Double)
-			return format.format((Double) value);
+			return format.format((Double) value) + " %";
 		else if (value instanceof Float)
-			return format.format((Float) value);
+			return format.format((Float) value) + " %";
 		return null;
 	}
 }

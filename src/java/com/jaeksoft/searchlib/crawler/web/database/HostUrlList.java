@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,57 +26,61 @@ package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.util.List;
 
-public class NamedItem {
+public class HostUrlList {
 
-	protected String name;
-	protected int count;
-	protected transient List<NamedItem> list;
+	private List<UrlItem> urlList;
+	private NamedItem namedItem;
+	private ListType listType;
 
-	public NamedItem() {
-		name = null;
-		count = 0;
+	public enum ListType {
+
+		OLD_URL("old"), NEW_URL("new");
+
+		private String name;
+
+		private ListType(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 
-	public NamedItem(String name) {
-		this.name = name;
-		this.count = 0;
+	public HostUrlList(List<UrlItem> urlList, NamedItem namedItem) {
+		this.urlList = urlList;
+		this.namedItem = namedItem;
+		this.setListType(null);
 	}
 
-	public NamedItem(String name, int count) {
-		this.name = name;
-		this.count = count;
+	/**
+	 * @return the urlList
+	 */
+	public List<UrlItem> getUrlList() {
+		return urlList;
 	}
 
-	public String getName() {
-		return name;
+	/**
+	 * @return the namedItem
+	 */
+	public NamedItem getNamedItem() {
+		return namedItem;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	/**
+	 * @param listType
+	 *            the listType to set
+	 */
+	public void setListType(ListType listType) {
+		this.listType = listType;
 	}
 
-	public int getCount() {
-		return count;
+	/**
+	 * @return the listType
+	 */
+	public ListType getListType() {
+		return listType;
 	}
 
-	public void setCount(int c) {
-		this.count = c;
-	}
-
-	public String getNameAndCount() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(name);
-		sb.append(" (");
-		sb.append(count);
-		sb.append(")");
-		return sb.toString();
-	}
-
-	public void setList(List<NamedItem> list) {
-		this.list = list;
-	}
-
-	public List<NamedItem> getList() {
-		return this.list;
-	}
 }

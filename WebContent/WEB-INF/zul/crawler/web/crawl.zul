@@ -175,6 +175,7 @@
 				mold="paging" pageSize="20">
 				<listhead sizable="true">
 					<listheader label="Current host name" />
+					<listheader width="50px" label="Type" />
 					<listheader width="50px" label="Fetched" />
 					<listheader width="50px" label="Fetch rate" />
 					<listheader width="50px" label="New url" />
@@ -188,7 +189,8 @@
 						visible="@{crawlProcess.properties.debug.value}" label="Debug" />
 				</listhead>
 				<listitem self="@{each=thread}">
-					<listcell label="@{thread.host.name}" />
+					<listcell label="@{thread.hostUrlList.namedItem.name}" />
+					<listcell label="@{thread.hostUrlList.listType}" />
 					<listcell
 						label="@{thread.currentStatistics.fetchedCount}" />
 					<listcell

@@ -53,7 +53,7 @@
 						<row>
 							<label value="Free memory rate" />
 							<label
-								value="@{system.monitor.memoryRate,converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+								value="@{system.monitor.memoryRate,converter='com.jaeksoft.searchlib.web.converter.PercentConverter'}" />
 							<label
 								value="The rate of free memory in the Java Virtual Machine" />
 						</row>
@@ -88,7 +88,7 @@
 						<row>
 							<label value="Disk space rate" />
 							<label
-								value="@{system.monitor.diskRate,converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+								value="@{system.monitor.diskRate,converter='com.jaeksoft.searchlib.web.converter.PercentConverter'}" />
 							<label
 								value="The rate of free space on a drive or volume" />
 						</row>

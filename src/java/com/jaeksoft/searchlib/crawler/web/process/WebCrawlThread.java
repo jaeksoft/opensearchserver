@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
-import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
@@ -52,21 +52,19 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	private HttpDownloader httpDownloader;
 	private HttpDownloader httpDownloaderRobotsTxt;
 	private long nextTimeTarget;
-	private List<UrlItem> urlList;
-	private NamedItem host;
+	private HostUrlList hostUrlList;
 
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
-			CrawlStatistics sessionStats, List<UrlItem> urlList, NamedItem host)
+			CrawlStatistics sessionStats, HostUrlList hostUrlList)
 			throws SearchLibException {
 		super(config, crawlMaster);
-		this.host = host;
 		this.currentUrlItem = null;
 		currentStats = new CrawlStatistics(sessionStats);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		delayBetweenAccesses = propertyManager.getDelayBetweenAccesses()
 				.getValue();
 		nextTimeTarget = 0;
-		this.urlList = urlList;
+		this.hostUrlList = hostUrlList;
 		httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
 				.getValue(), false);
 		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
@@ -87,6 +85,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		boolean dryRun = propertyManager.getDryRun().getValue();
 
+		List<UrlItem> urlList = hostUrlList.getUrlList();
 		currentStats.addListSize(urlList.size());
 
 		Iterator<UrlItem> iterator = urlList.iterator();
@@ -174,9 +173,9 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		}
 	}
 
-	public NamedItem getHost() {
+	public HostUrlList getHostUrlList() {
 		synchronized (this) {
-			return host;
+			return hostUrlList;
 		}
 	}
 
