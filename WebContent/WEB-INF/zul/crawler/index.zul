@@ -20,6 +20,8 @@
 		<tabs>
 			<tab id="tabWebCrawler" label="Web" selected="true"
 				visible="@{crawler.webCrawlerRights}" />
+			<tab id="tabDatabaseCrawler" label="Database"
+				visible="@{crawler.fileCrawlerRights}" />
 			<tab id="tabFileCrawler" label="Files"
 				visible="@{crawler.fileCrawlerRights}" />
 		</tabs>
@@ -28,6 +30,10 @@
 
 			<tabpanel>
 				<include src="WEB-INF/zul/crawler/web/index.zul" />
+			</tabpanel>
+
+			<tabpanel fulfill="tabDatabaseCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/database/index.zul" />
 			</tabpanel>
 
 			<tabpanel fulfill="tabFileCrawler.onSelect">

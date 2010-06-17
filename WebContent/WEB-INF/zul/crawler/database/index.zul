@@ -1,0 +1,97 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="dbcrawl"
+	use="com.jaeksoft.searchlib.web.controller.crawler.database.DatabaseCrawlerController">
+	<panel title="@{dbcrawl.currentEditMode}" border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" width="100px" />
+					<column align="left" />
+					<column align="left" width="300px" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Name: " />
+						<textbox value="@{dbcrawl.currentCrawl.name}"
+							readonly="@{dbcrawl.selected}" width="80%" />
+						<label value="Choose a name" />
+					</row>
+					<row>
+						<label value="JDBC url: " />
+						<textbox value="@{dbcrawl.currentCrawl.url}"
+							width="95%" />
+						<label
+							value="Enter the URL used to connect to the database" />
+					</row>
+					<row>
+						<label value="User: " />
+						<textbox value="@{dbcrawl.currentCrawl.user}"
+							width="50%" />
+						<label
+							value="Enter the user name for the database connection" />
+					</row>
+					<row>
+						<label value="Password: " />
+						<textbox type="password"
+							value="@{dbcrawl.currentCrawl.password}" width="50%" />
+						<label
+							value="Enter the password for the database connection" />
+					</row>
+					<row>
+						<label value="SQL: " />
+						<textbox rows="10"
+							value="@{dbcrawl.currentCrawl.sql}" width="95%" />
+						<label
+							value="Enter the SQL query to retrieve data" />
+					</row>
+				</rows>
+				<foot>
+					<footer span="3">
+						<vbox width="100%" align="center">
+							<hbox visible="@{dbcrawl.selected}">
+								<button label="Cancel"
+									forward="onCancel" />
+								<space width="10px" />
+								<button label="Save" forward="onSave" />
+								<space width="30px" />
+								<button label="Delete"
+									forward="onDelete" />
+							</hbox>
+							<hbox visible="@{dbcrawl.notSelected}">
+								<button label="Create" forward="onSave" />
+							</hbox>
+						</vbox>
+					</footer>
+				</foot>
+			</grid>
+		</panelchildren>
+	</panel>
+	<separator height="10" />
+	<panel
+		title="List of existing database crawl - click on an crawl name to edit it"
+		border="normal">
+		<toolbar>
+			<button label="Refresh" forward="onListRefresh" />
+		</toolbar>
+		<panelchildren>
+			<listbox selectedItem="@{dbcrawl.selectedCrawl}"
+				model="@{dbcrawl.databaseCrawlList}" mold="paging" pageSize="30" />
+		</panelchildren>
+	</panel>
+
+</window>
