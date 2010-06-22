@@ -85,6 +85,8 @@ public class XmlWriter {
 	}
 
 	public String escapeXml(String text) {
+		if (text == null)
+			return null;
 		controlMatcher.reset(text);
 		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
 	}
