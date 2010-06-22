@@ -62,15 +62,26 @@ public enum DatabaseDriverNames {
 		return name;
 	}
 
-	public static List<DatabaseDriverNames> getAvailableList() {
-		List<DatabaseDriverNames> list = new ArrayList<DatabaseDriverNames>();
+	private static List<DatabaseDriverNames> dbDriverList = null;
+
+	/**
+	 * Build the list of available driver classes
+	 * 
+	 * @return
+	 */
+	public static synchronized List<DatabaseDriverNames> getAvailableList(
+			ClassLoader classLoader) {
+		if (dbDriverList != null)
+			return dbDriverList;
+		dbDriverList = new ArrayList<DatabaseDriverNames>();
 		for (DatabaseDriverNames ddn : values()) {
 			try {
-				Class.forName(ddn.name, false, null);
-				list.add(ddn);
+				Class.forName(ddn.name, false, classLoader);
+				dbDriverList.add(ddn);
+				System.out.println("JDBC driver found: " + ddn.name);
 			} catch (ClassNotFoundException e) {
 			}
 		}
-		return list;
+		return dbDriverList;
 	}
 }

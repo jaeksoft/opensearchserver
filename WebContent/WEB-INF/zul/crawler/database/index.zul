@@ -32,6 +32,14 @@
 						<label value="Choose a name" />
 					</row>
 					<row>
+						<label value="Driver class: " />
+						<combobox width="300px" autodrop="true"
+							id="combodriver" buttonVisible="false"
+							value="@{dbcrawl.currentCrawl.driverClass}" />
+						<label
+							value="Enter the class name of the JDBC driver" />
+					</row>
+					<row>
 						<label value="JDBC url: " />
 						<textbox value="@{dbcrawl.currentCrawl.url}"
 							width="95%" />
@@ -68,9 +76,6 @@
 									forward="onCancel" />
 								<space width="10px" />
 								<button label="Save" forward="onSave" />
-								<space width="30px" />
-								<button label="Delete"
-									forward="onDelete" />
 							</hbox>
 							<hbox visible="@{dbcrawl.notSelected}">
 								<button label="Create" forward="onSave" />
@@ -90,7 +95,32 @@
 		</toolbar>
 		<panelchildren>
 			<listbox selectedItem="@{dbcrawl.selectedCrawl}"
-				model="@{dbcrawl.databaseCrawlList}" mold="paging" pageSize="30" />
+				model="@{dbcrawl.databaseCrawlList}" mold="paging" pageSize="30">
+				<listhead>
+					<listheader label="Name" />
+					<listheader label="Action" width="100px"
+						align="center" />
+				</listhead>
+				<listitem self="@{each=dbcrawlitem}"
+					label="@{dbcrawlitem.name}">
+					<listcell label="@{dbcrawlitem.name}" />
+					<listcell>
+						<button tooltiptext="Execute the crawl process"
+							image="/images/action_check.png"
+							onClick="dbcrawl.execute(self)">
+							<custom-attributes
+								dbcrawlitem="@{dbcrawlitem}" />
+						</button>
+						<space />
+						<button tooltiptext="Delete crawl process"
+							image="/images/action_delete.png"
+							onClick="dbcrawl.delete(self)">
+							<custom-attributes
+								dbcrawlitem="@{dbcrawlitem}" />
+						</button>
+					</listcell>
+				</listitem>
+			</listbox>
 		</panelchildren>
 	</panel>
 

@@ -327,10 +327,41 @@ public abstract class Config {
 		try {
 			if (databaseCrawlList != null)
 				return databaseCrawlList;
-			databaseCrawlList = new DatabaseCrawlList(indexDir);
+			databaseCrawlList = DatabaseCrawlList.fromXml(new File(indexDir,
+					"databaseCrawlList.xml"));
 			return databaseCrawlList;
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
 		} finally {
 			lock.unlock();
+		}
+	}
+
+	public void saveDatabaseCrawlList() throws SearchLibException {
+		PrintWriter pw = null;
+		try {
+			ConfigFileRotation cfr = new ConfigFileRotation(indexDir,
+					"databaseCrawlList.xml");
+			pw = cfr.getTempPrintWriter();
+			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			getDatabaseCrawlList().writeXml(xmlWriter);
+			xmlWriter.endDocument();
+			cfr.rotate();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			if (pw != null)
+				pw.close();
 		}
 	}
 
