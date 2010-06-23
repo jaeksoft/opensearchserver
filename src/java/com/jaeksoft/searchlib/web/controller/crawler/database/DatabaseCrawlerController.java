@@ -24,10 +24,16 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.database;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
+import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Combobox;
 import org.zkoss.zul.ListModel;
@@ -38,6 +44,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.GenericLink;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -73,6 +81,10 @@ public class DatabaseCrawlerController extends CrawlerController {
 	private DatabaseCrawl selectedCrawl;
 
 	private Set<DatabaseCrawl> dbCrawlList;
+
+	private String sqlColumn;
+
+	private SchemaField selectedIndexField;
 
 	public DatabaseCrawlerController() throws SearchLibException,
 			NamingException {
@@ -121,9 +133,49 @@ public class DatabaseCrawlerController extends CrawlerController {
 						.getClassLoader()));
 	}
 
+	/**
+	 * @param sqlColumn
+	 *            the sqlColumn to set
+	 */
+	public void setSqlColumn(String sqlColumn) {
+		this.sqlColumn = sqlColumn;
+	}
+
+	/**
+	 * @return the sqlColumn
+	 */
+	public String getSqlColumn() {
+		return sqlColumn;
+	}
+
 	public void setSelectedCrawl(DatabaseCrawl crawl) throws SearchLibException {
 		selectedCrawl = crawl;
 		currentCrawl = new DatabaseCrawl(selectedCrawl);
+		reloadPage();
+	}
+
+	public void onAddField() throws SearchLibException,
+			TransformerConfigurationException, SAXException, IOException,
+			XPathExpressionException, ParserConfigurationException {
+		if (!isFileCrawlerParametersRights())
+			throw new SearchLibException("Not allowed");
+		if (sqlColumn == null || sqlColumn.length() == 0
+				|| selectedIndexField == null)
+			return;
+		currentCrawl.getFieldMap().add(sqlColumn, selectedIndexField.getName());
+		reloadPage();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void removeLink(Component comp) throws SearchLibException,
+			InterruptedException {
+		if (comp == null)
+			return;
+		GenericLink<String> fieldLink = (GenericLink<String>) comp
+				.getAttribute("fieldlink");
+		if (fieldLink == null)
+			return;
+		currentCrawl.getFieldMap().remove(fieldLink);
 		reloadPage();
 	}
 
@@ -154,7 +206,33 @@ public class DatabaseCrawlerController extends CrawlerController {
 
 	public String getCurrentEditMode() throws SearchLibException {
 		return selectedCrawl == null ? "Create a new database crawl process"
-				: "Edit the database crawl process" + selectedCrawl.getName();
+				: "Edit the database crawl process : "
+						+ selectedCrawl.getName();
+	}
+
+	public List<SchemaField> getIndexFieldList() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			List<SchemaField> list = client.getSchema().getFieldList()
+					.getList();
+			if (list.size() > 0 && selectedIndexField == null)
+				selectedIndexField = list.get(0);
+			return list;
+		}
+	}
+
+	public void setSelectedIndexField(SchemaField field) {
+		synchronized (this) {
+			selectedIndexField = field;
+		}
+	}
+
+	public SchemaField getSelectedIndexField() {
+		synchronized (this) {
+			return selectedIndexField;
+		}
 	}
 
 	@Override

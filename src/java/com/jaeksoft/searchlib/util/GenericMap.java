@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ public class GenericMap<T> {
 
 	public GenericMap() {
 		map = new TreeMap<T, List<T>>();
+		list = null;
 	}
 
 	public List<GenericLink<T>> getList() {
@@ -51,6 +52,21 @@ public class GenericMap<T> {
 					list.add(new GenericLink<T>(entry.getKey(), t));
 			}
 			return list;
+		}
+	}
+
+	public void clear() {
+		synchronized (this) {
+			map.clear();
+			list = null;
+		}
+	}
+
+	public void copyTo(GenericMap<T> dest) {
+		synchronized (this) {
+			dest.clear();
+			for (GenericLink<T> lnk : getList())
+				dest.add(lnk.getSource(), lnk.getTarget());
 		}
 	}
 

@@ -61,11 +61,68 @@
 							value="Enter the password for the database connection" />
 					</row>
 					<row>
+						<label value="Language: " />
+						<listbox mold="select"
+							selectedItem="@{dbcrawl.currentCrawl.lang}"
+							model="@{dbcrawl.languageEnum}">
+							<listitem self="@{each=langEnum}"
+								label="@{langEnum.name}" value="@{langEnum}" />
+						</listbox>
+						<label
+							value="Enter the language of the indexed documents" />
+					</row>
+					<row>
 						<label value="SQL: " />
 						<textbox rows="10"
 							value="@{dbcrawl.currentCrawl.sql}" width="95%" />
 						<label
 							value="Enter the SQL query to retrieve data" />
+					</row>
+					<row>
+						<label value="Field mapping: " />
+						<listbox width="95%"
+							model="@{dbcrawl.currentCrawl.fieldMap.list}">
+							<listhead>
+								<listheader label="SQL column"
+									align="center" />
+								<listheader label="Index field"
+									align="center" />
+								<listheader width="100px" label="Action"
+									align="center" />
+							</listhead>
+							<auxhead>
+								<auxheader align="center">
+									<textbox cols="50"
+										value="@{dbcrawl.sqlColumn}" />
+								</auxheader>
+								<auxheader align="center">
+									<listbox mold="select"
+										model="@{dbcrawl.indexFieldList}"
+										selectedItem="@{dbcrawl.selectedIndexField}">
+										<listitem
+											self="@{each='indexField'}" label="@{indexField.name}" />
+									</listbox>
+								</auxheader>
+								<auxheader align="center">
+									<button label="add"
+										forward="onAddField" />
+								</auxheader>
+							</auxhead>
+							<listitem self="@{each='fieldlink'}">
+								<listcell label="@{fieldlink.source}" />
+								<listcell label="@{fieldlink.target}" />
+								<listcell>
+									<button tooltiptext="Remove"
+										image="/images/action_delete.png"
+										onClick="dbcrawl.removeLink(self)">
+										<custom-attributes
+											fieldlink="@{fieldlink}" />
+									</button>
+								</listcell>
+							</listitem>
+						</listbox>
+						<label
+							value="Relation between SQL columns and the index fields" />
 					</row>
 				</rows>
 				<foot>

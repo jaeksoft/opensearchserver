@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,15 +49,17 @@ public class FieldMap extends GenericMap<String> {
 
 	private File mapFile;
 
+	public FieldMap() {
+		mapFile = null;
+	}
+
 	public FieldMap(File mapFile) throws ParserConfigurationException,
 			SAXException, IOException, XPathExpressionException {
-		synchronized (this) {
-			this.mapFile = mapFile;
-			if (!mapFile.exists())
-				return;
-			XPathParser xpp = new XPathParser(mapFile);
-			load(xpp, xpp.getNode("/map"));
-		}
+		this.mapFile = mapFile;
+		if (!mapFile.exists())
+			return;
+		XPathParser xpp = new XPathParser(mapFile);
+		load(xpp, xpp.getNode("/map"));
 	}
 
 	public FieldMap(XPathParser xpp, Node parentNode)
@@ -65,7 +67,7 @@ public class FieldMap extends GenericMap<String> {
 		load(xpp, parentNode);
 	}
 
-	private void load(XPathParser xpp, Node parentNode)
+	public void load(XPathParser xpp, Node parentNode)
 			throws XPathExpressionException {
 		synchronized (this) {
 			if (parentNode == null)
