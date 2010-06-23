@@ -197,6 +197,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	protected final static String DBCRAWL_ATTR_USER = "user";
 	protected final static String DBCRAWL_ATTR_PASSWORD = "password";
 	protected final static String DBCRAWL_ATTR_URL = "url";
+	protected final static String DBCRAWL_ATTR_LANG = "lang";
 	protected final static String DBCRAWL_NODE_NAME_SQL = "sql";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
@@ -210,6 +211,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.setPassword(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_PASSWORD));
 		crawl.setUrl(XPathParser.getAttributeString(item, DBCRAWL_ATTR_URL));
+		crawl.setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
+				item, DBCRAWL_ATTR_LANG)));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL);
 		if (sqlNode != null)
 			crawl.setSql(xpp.getNodeString(sqlNode));
@@ -223,7 +226,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(),
 				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(), DBCRAWL_ATTR_USER,
 				getUser(), DBCRAWL_ATTR_PASSWORD, getPassword(),
-				DBCRAWL_ATTR_URL, getUrl());
+				DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG, getLang()
+						.getCode());
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		fieldMap.store(xmlWriter);
 		xmlWriter.endElement();
