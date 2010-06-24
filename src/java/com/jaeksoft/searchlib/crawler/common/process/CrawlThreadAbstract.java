@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.crawler.common.process;
 
 import java.lang.Thread.State;
-import java.util.concurrent.ExecutorService;
 
 import com.jaeksoft.searchlib.config.Config;
 
@@ -58,6 +57,10 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		thread = null;
 		info = null;
 		running = false;
+	}
+
+	public Config getConfig() {
+		return config;
 	}
 
 	public CrawlStatus getStatus() {
@@ -241,9 +244,9 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		}
 	}
 
-	final public void start(ExecutorService threadPool) {
+	final protected void execute() {
 		running = true;
-		threadPool.execute(this);
+		config.getThreadPool().execute(this);
 	}
 
 	protected CrawlMasterAbstract getCrawlMaster() {

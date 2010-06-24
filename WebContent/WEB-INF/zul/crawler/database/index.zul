@@ -14,171 +14,21 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="dbcrawl"
-	use="com.jaeksoft.searchlib.web.controller.crawler.database.DatabaseCrawlerController">
-	<panel title="@{dbcrawl.currentEditMode}" border="normal">
-		<panelchildren>
-			<grid>
-				<columns sizable="false">
-					<column align="right" width="100px" />
-					<column align="left" />
-					<column align="left" width="300px" />
-				</columns>
-				<rows>
-					<row>
-						<label value="Name: " />
-						<textbox value="@{dbcrawl.currentCrawl.name}"
-							readonly="@{dbcrawl.selected}" width="80%" />
-						<label value="Choose a name" />
-					</row>
-					<row>
-						<label value="Driver class: " />
-						<combobox width="300px" autodrop="true"
-							id="combodriver" buttonVisible="false"
-							value="@{dbcrawl.currentCrawl.driverClass}" />
-						<label
-							value="Enter the class name of the JDBC driver" />
-					</row>
-					<row>
-						<label value="JDBC url: " />
-						<textbox value="@{dbcrawl.currentCrawl.url}"
-							width="95%" />
-						<label
-							value="Enter the URL used to connect to the database" />
-					</row>
-					<row>
-						<label value="User: " />
-						<textbox value="@{dbcrawl.currentCrawl.user}"
-							width="50%" />
-						<label
-							value="Enter the user name for the database connection" />
-					</row>
-					<row>
-						<label value="Password: " />
-						<textbox type="password"
-							value="@{dbcrawl.currentCrawl.password}" width="50%" />
-						<label
-							value="Enter the password for the database connection" />
-					</row>
-					<row>
-						<label value="Language: " />
-						<listbox mold="select"
-							selectedItem="@{dbcrawl.currentCrawl.lang}"
-							model="@{dbcrawl.languageEnum}">
-							<listitem self="@{each=langEnum}"
-								label="@{langEnum.name}" value="@{langEnum}" />
-						</listbox>
-						<label
-							value="Enter the language of the indexed documents" />
-					</row>
-					<row>
-						<label value="SQL: " />
-						<textbox rows="10"
-							value="@{dbcrawl.currentCrawl.sql}" width="95%" />
-						<label
-							value="Enter the SQL query to retrieve data" />
-					</row>
-					<row>
-						<label value="Field mapping: " />
-						<listbox width="95%"
-							model="@{dbcrawl.currentCrawl.fieldMap.list}">
-							<listhead>
-								<listheader label="SQL column"
-									align="center" />
-								<listheader label="Index field"
-									align="center" />
-								<listheader width="100px" label="Action"
-									align="center" />
-							</listhead>
-							<auxhead>
-								<auxheader align="center">
-									<textbox cols="50"
-										value="@{dbcrawl.sqlColumn}" />
-								</auxheader>
-								<auxheader align="center">
-									<listbox mold="select"
-										model="@{dbcrawl.indexFieldList}"
-										selectedItem="@{dbcrawl.selectedIndexField}">
-										<listitem
-											self="@{each='indexField'}" label="@{indexField.name}" />
-									</listbox>
-								</auxheader>
-								<auxheader align="center">
-									<button label="add"
-										forward="onAddField" />
-								</auxheader>
-							</auxhead>
-							<listitem self="@{each='fieldlink'}">
-								<listcell label="@{fieldlink.source}" />
-								<listcell label="@{fieldlink.target}" />
-								<listcell>
-									<button tooltiptext="Remove"
-										image="/images/action_delete.png"
-										onClick="dbcrawl.removeLink(self)">
-										<custom-attributes
-											fieldlink="@{fieldlink}" />
-									</button>
-								</listcell>
-							</listitem>
-						</listbox>
-						<label
-							value="Relation between SQL columns and the index fields" />
-					</row>
-				</rows>
-				<foot>
-					<footer span="3">
-						<vbox width="100%" align="center">
-							<hbox visible="@{dbcrawl.selected}">
-								<button label="Cancel"
-									forward="onCancel" />
-								<space width="10px" />
-								<button label="Save" forward="onSave" />
-							</hbox>
-							<hbox visible="@{dbcrawl.notSelected}">
-								<button label="Create" forward="onSave" />
-							</hbox>
-						</vbox>
-					</footer>
-				</foot>
-			</grid>
-		</panelchildren>
-	</panel>
-	<separator height="10" />
-	<panel
-		title="List of existing database crawl - click on an crawl name to edit it"
-		border="normal">
-		<toolbar>
-			<button label="Refresh" forward="onListRefresh" />
-		</toolbar>
-		<panelchildren>
-			<listbox selectedItem="@{dbcrawl.selectedCrawl}"
-				model="@{dbcrawl.databaseCrawlList}" mold="paging" pageSize="30">
-				<listhead>
-					<listheader label="Name" />
-					<listheader label="Action" width="100px"
-						align="center" />
-				</listhead>
-				<listitem self="@{each=dbcrawlitem}"
-					label="@{dbcrawlitem.name}">
-					<listcell label="@{dbcrawlitem.name}" />
-					<listcell>
-						<button tooltiptext="Execute the crawl process"
-							image="/images/action_check.png"
-							onClick="dbcrawl.execute(self)">
-							<custom-attributes
-								dbcrawlitem="@{dbcrawlitem}" />
-						</button>
-						<space />
-						<button tooltiptext="Delete crawl process"
-							image="/images/action_delete.png"
-							onClick="dbcrawl.delete(self)">
-							<custom-attributes
-								dbcrawlitem="@{dbcrawlitem}" />
-						</button>
-					</listcell>
-				</listitem>
-			</listbox>
-		</panelchildren>
-	</panel>
-
+<window border="none">
+	<tabbox>
+		<tabs>
+			<tab id="tabCrawlerDatabaseList" label="Crawl list"
+				selected="true" />
+			<tab id="tabCrawlerDatabaseProcess" label="Process list" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include
+					src="WEB-INF/zul/crawler/database/crawllist.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerDatabaseProcess.onSelect">
+				<include src="WEB-INF/zul/crawler/database/process.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
 </window>

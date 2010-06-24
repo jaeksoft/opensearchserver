@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.crawler;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -123,6 +125,15 @@ public class FieldMap extends GenericMap<String> {
 					for (String value : values)
 						target.add(targetField, value);
 			}
+		}
+	}
+
+	public void mapResultSet(ResultSet resultSet, IndexDocument target)
+			throws SQLException {
+		for (GenericLink<String> link : getList()) {
+			String content = resultSet.getString(link.getSource());
+			if (content != null)
+				target.add(link.getTarget(), content);
 		}
 	}
 

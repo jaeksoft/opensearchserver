@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.web.controller.crawler.database;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,13 +42,20 @@ import org.zkoss.zul.SimpleListModel;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.GenericLink;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class DatabaseCrawlerController extends CrawlerController {
+public class DatabaseCrawlListController extends CrawlerController {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2176688319013998120L;
 
 	private class DeleteAlert extends AlertController {
 
@@ -71,22 +77,17 @@ public class DatabaseCrawlerController extends CrawlerController {
 		}
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8688620789870696565L;
-
 	private DatabaseCrawl currentCrawl;
 
 	private DatabaseCrawl selectedCrawl;
 
-	private Set<DatabaseCrawl> dbCrawlList;
+	private DatabaseCrawlList dbCrawlList;
 
 	private String sqlColumn;
 
 	private SchemaField selectedIndexField;
 
-	public DatabaseCrawlerController() throws SearchLibException,
+	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
 		super();
 		currentCrawl = new DatabaseCrawl();
@@ -117,13 +118,13 @@ public class DatabaseCrawlerController extends CrawlerController {
 		return selectedCrawl;
 	}
 
-	public Set<DatabaseCrawl> getDatabaseCrawlList() throws SearchLibException {
+	public DatabaseCrawlList getDatabaseCrawlList() throws SearchLibException {
 		if (dbCrawlList != null)
 			return dbCrawlList;
 		Client client = getClient();
 		if (client == null)
 			return null;
-		dbCrawlList = client.getDatabaseCrawlList().getSet();
+		dbCrawlList = client.getDatabaseCrawlList();
 		return dbCrawlList;
 	}
 
@@ -194,14 +195,36 @@ public class DatabaseCrawlerController extends CrawlerController {
 		reloadPage();
 	}
 
+	private DatabaseCrawl getDatabaseCrawlItem(Component comp) {
+		if (comp == null)
+			return null;
+		return (DatabaseCrawl) comp.getAttribute("dbcrawlitem");
+	}
+
 	public void delete(Component comp) throws SearchLibException,
 			InterruptedException {
-		if (comp == null)
-			return;
-		DatabaseCrawl item = (DatabaseCrawl) comp.getAttribute("dbcrawlitem");
+		DatabaseCrawl item = getDatabaseCrawlItem(comp);
 		if (item == null)
 			return;
 		new DeleteAlert(item);
+	}
+
+	public void execute(Component comp) throws SearchLibException {
+		DatabaseCrawl item = getDatabaseCrawlItem(comp);
+		if (item == null)
+			return;
+		Client client = getClient();
+		if (client == null)
+			return;
+		getCrawlMaster().execute(client, item);
+		reloadPage();
+	}
+
+	private DatabaseCrawlMaster getCrawlMaster() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getDatabaseCrawlMaster();
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {

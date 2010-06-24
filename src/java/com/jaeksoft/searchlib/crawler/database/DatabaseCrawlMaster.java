@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,25 +22,24 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web;
+package com.jaeksoft.searchlib.crawler.database;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 
-import com.jaeksoft.searchlib.ClientCatalog;
+public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 
-public class StartStopListener implements ServletContextListener {
+	public DatabaseCrawlMaster(Config config) {
+		super(config);
+	}
 
-	@Override
-	public void contextDestroyed(ServletContextEvent contextEvent) {
-		System.out.println("OSS SHUTDOWN");
-		ClientCatalog.closeAll();
+	public void execute(Client client, DatabaseCrawl databaseCrawl) {
+		add(new DatabaseCrawlThread(client, this, databaseCrawl));
 	}
 
 	@Override
-	public void contextInitialized(ServletContextEvent contextEvent) {
-		System.out.println("OSS IS STARTING");
-		ClientCatalog.openAll();
+	public void runner() throws Exception {
 	}
 
 }

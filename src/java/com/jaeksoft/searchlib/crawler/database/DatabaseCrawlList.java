@@ -45,6 +45,8 @@ public class DatabaseCrawlList {
 
 	private Set<DatabaseCrawl> set;
 
+	private DatabaseCrawl[] array;
+
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
@@ -53,24 +55,40 @@ public class DatabaseCrawlList {
 		w.lock();
 		try {
 			set = new TreeSet<DatabaseCrawl>();
+			array = null;
 		} finally {
 			w.unlock();
 		}
 	}
 
-	private void add(DatabaseCrawl dbCrawl) {
+	public void add(DatabaseCrawl dbCrawl) {
 		w.lock();
 		try {
 			set.add(dbCrawl);
+			array = null;
 		} finally {
 			w.unlock();
 		}
 	}
 
-	public Set<DatabaseCrawl> getSet() {
+	public void remove(DatabaseCrawl dbCrawl) {
+		w.lock();
+		try {
+			set.remove(dbCrawl);
+			array = null;
+		} finally {
+			w.unlock();
+		}
+	}
+
+	public DatabaseCrawl[] getArray() {
 		r.lock();
 		try {
-			return set;
+			if (array != null)
+				return array;
+			array = new DatabaseCrawl[set.size()];
+			set.toArray(array);
+			return array;
 		} finally {
 			r.unlock();
 		}
@@ -110,4 +128,5 @@ public class DatabaseCrawlList {
 		}
 		return dbCrawlList;
 	}
+
 }

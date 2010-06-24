@@ -29,8 +29,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -41,8 +39,6 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 	private final LinkedHashSet<CrawlThreadAbstract> crawlThreads;
 
 	private CrawlThreadAbstract[] crawlThreadArray;
-
-	private final ExecutorService threadPool;
 
 	private final LinkedList<CrawlStatistics> statistics;
 
@@ -56,7 +52,6 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 		statistics = new LinkedList<CrawlStatistics>();
 		crawlThreadArray = null;
 		crawlQueue = null;
-		threadPool = Executors.newCachedThreadPool();
 		crawlThreads = new LinkedHashSet<CrawlThreadAbstract>();
 	}
 
@@ -73,7 +68,7 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 			setInfo(e.getMessage());
 			return;
 		}
-		super.start(threadPool);
+		execute();
 	}
 
 	@Override
@@ -98,7 +93,7 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 			crawlThreads.add(crawlThread);
 			crawlThreadArray = null;
 		}
-		crawlThread.start(threadPool);
+		crawlThread.execute();
 	}
 
 	public void remove(CrawlThreadAbstract crawlThread) {

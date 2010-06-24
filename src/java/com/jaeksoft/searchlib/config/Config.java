@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
@@ -118,6 +119,8 @@ public abstract class Config {
 	private WebCrawlMaster webCrawlMaster = null;
 
 	private CrawlFileMaster fileCrawlMaster = null;
+
+	private DatabaseCrawlMaster databaseCrawlMaster = null;
 
 	private DatabaseCrawlList databaseCrawlList = null;
 
@@ -307,7 +310,7 @@ public abstract class Config {
 		}
 	}
 
-	private ExecutorService getThreadPool() {
+	public ExecutorService getThreadPool() {
 		lock.lock();
 		try {
 			if (threadPool == null)
@@ -375,7 +378,6 @@ public abstract class Config {
 		} finally {
 			lock.unlock();
 		}
-
 	}
 
 	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {
@@ -388,7 +390,19 @@ public abstract class Config {
 		} finally {
 			lock.unlock();
 		}
+	}
 
+	public DatabaseCrawlMaster getDatabaseCrawlMaster()
+			throws SearchLibException {
+		lock.lock();
+		try {
+			if (databaseCrawlMaster != null)
+				return databaseCrawlMaster;
+			databaseCrawlMaster = new DatabaseCrawlMaster(this);
+			return databaseCrawlMaster;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public ParserSelector getParserSelector() throws SearchLibException {

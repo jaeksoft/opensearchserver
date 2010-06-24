@@ -1,0 +1,50 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="dbCrawlProc"
+	use="com.jaeksoft.searchlib.web.controller.crawler.database.DatabaseCrawlProcessController">
+	<panel title="Running processes" border="normal">
+		<toolbar>
+			<checkbox label="Show debug information"
+				visible="@{dbCrawlProc.admin}" checked="@{dbCrawlProc.debug}" />
+		</toolbar>
+		<panelchildren>
+			<listbox model="@{dbCrawlProc.crawlMaster.crawlThreads}"
+				mold="paging" pageSize="20">
+				<listhead sizable="true">
+					<listheader label="Name" />
+					<listheader label="Status" />
+					<listheader label="Pending" />
+					<listheader label="Updated" />
+					<listheader visible="@{dbCrawlProc.debug}"
+						label="Debug" />
+				</listhead>
+				<listitem self="@{each=thread}">
+					<listcell label="@{thread.name}" />
+					<listcell label="@{thread.statusInfo}" />
+					<listcell
+						label="@{thread.pendingIndexDocumentCount}" />
+					<listcell
+						label="@{thread.updatedIndexDocumentCount}" />
+					<listcell visible="@{dbCrawlProc.debug}"
+						label="@{thread.debugInfo}" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<timer delay="5000" repeats="true" onTimer="dbCrawlProc.onTimer()"
+		running="@{dbCrawlProc.refresh}" />
+</window>
