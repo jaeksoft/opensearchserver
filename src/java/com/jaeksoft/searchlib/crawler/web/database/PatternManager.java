@@ -62,8 +62,9 @@ public class PatternManager {
 
 	private File patternFile;
 
-	public PatternManager(File indexDir) throws SearchLibException {
-		patternFile = new File(indexDir, "patterns.xml");
+	public PatternManager(File indexDir, String filename)
+			throws SearchLibException {
+		patternFile = new File(indexDir, filename);
 		patternMap = new TreeMap<String, List<PatternItem>>();
 		try {
 			load();

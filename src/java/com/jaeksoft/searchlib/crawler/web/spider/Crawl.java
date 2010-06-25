@@ -268,9 +268,9 @@ public class Crawl {
 	}
 
 	final private static void discoverLinks(UrlManager urlManager,
-			PatternManager patternManager, FieldContent urlFieldContent,
-			List<String> newUrlList) throws NoSuchAlgorithmException,
-			IOException, SearchLibException {
+			PatternManager inclusionManager, PatternManager exclusionManager,
+			FieldContent urlFieldContent, List<String> newUrlList)
+			throws NoSuchAlgorithmException, IOException, SearchLibException {
 		if (urlFieldContent == null)
 			return;
 		List<String> links = urlFieldContent.getValues();
@@ -280,9 +280,13 @@ public class Crawl {
 			try {
 				URL url = new URL(link);
 				String sUrl = url.toExternalForm();
-				if (patternManager.matchPattern(url) != null)
-					if (!urlManager.exists(sUrl))
-						newUrlList.add(link);
+				if (exclusionManager.matchPattern(url) != null)
+					continue;
+				if (inclusionManager.matchPattern(url) == null)
+					continue;
+				if (urlManager.exists(sUrl))
+					continue;
+				newUrlList.add(link);
 			} catch (MalformedURLException e) {
 				logger.log(Level.WARNING, link + " " + e.getMessage(), e);
 			}
@@ -302,12 +306,15 @@ public class Crawl {
 			if (parser == null || !urlItem.isStatusFull())
 				return discoverLinks;
 			UrlManager urlManager = config.getUrlManager();
-			PatternManager patternUrlManager = config.getPatternManager();
-			discoverLinks(urlManager, patternUrlManager, parser
-					.getFieldContent(ParserFieldEnum.internal_link),
+			PatternManager inclusionManager = config
+					.getInclusionPatternManager();
+			PatternManager exclusionManager = config
+					.getInclusionPatternManager();
+			discoverLinks(urlManager, inclusionManager, exclusionManager,
+					parser.getFieldContent(ParserFieldEnum.internal_link),
 					discoverLinks);
-			discoverLinks(urlManager, patternUrlManager, parser
-					.getFieldContent(ParserFieldEnum.external_link),
+			discoverLinks(urlManager, inclusionManager, exclusionManager,
+					parser.getFieldContent(ParserFieldEnum.external_link),
 					discoverLinks);
 			return discoverLinks;
 		}

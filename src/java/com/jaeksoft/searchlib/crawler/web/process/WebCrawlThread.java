@@ -132,10 +132,17 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 			URL url = currentUrlItem.getURL();
 
 			// Check if url is allowed by pattern list
-			PatternManager patternManager = config.getPatternManager();
+			PatternManager inclusionManager = config
+					.getInclusionPatternManager();
+			PatternManager exclusionManager = config
+					.getExclusionPatternManager();
 			if (url != null)
-				if (patternManager.matchPattern(url) == null)
+				if (inclusionManager.matchPattern(url) == null)
 					url = null;
+			if (url != null)
+				if (exclusionManager.matchPattern(url) != null)
+					url = null;
+
 			if (url == null)
 				return null;
 

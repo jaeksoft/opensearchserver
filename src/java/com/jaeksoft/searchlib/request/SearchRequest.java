@@ -505,13 +505,13 @@ public class SearchRequest implements Externalizable {
 		return this.collapseMode;
 	}
 
+	public final static String[] CONTROL_CHARS = { "\\", "^", "\"", "~", ":" };
+
 	public final static String[] RANGE_CHARS = { "(", ")", "{", "}", "[", "]" };
 
 	public final static String[] AND_OR_NOT_CHARS = { "+", "-", "&&", "||", "!" };
 
 	public final static String[] WILDCARD_CHARS = { "*", "?" };
-
-	public final static String[] CONTROL_CHARS = { "\\", "^", "\"", "~", ":" };
 
 	public static String escapeQuery(String query, String[] escapeChars) {
 		for (String s : escapeChars) {
@@ -524,10 +524,10 @@ public class SearchRequest implements Externalizable {
 	}
 
 	public static String escapeQuery(String query) {
+		query = escapeQuery(query, CONTROL_CHARS);
 		query = escapeQuery(query, RANGE_CHARS);
 		query = escapeQuery(query, AND_OR_NOT_CHARS);
 		query = escapeQuery(query, WILDCARD_CHARS);
-		query = escapeQuery(query, CONTROL_CHARS);
 		return query;
 	}
 

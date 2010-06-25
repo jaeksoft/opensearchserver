@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,26 +27,27 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 
-public class PatternController extends AbstractPatternController {
+public class ExclusionController extends AbstractPatternController {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4379405145841183453L;
+	private static final long serialVersionUID = -3279476598755841903L;
 
-	public PatternController() throws SearchLibException {
+	public ExclusionController() throws SearchLibException {
 		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	protected PatternManager getPatternManager(Client client)
 			throws SearchLibException {
-		return client.getInclusionPatternManager();
+		return client.getExclusionPatternManager();
 	}
 
 	@Override
 	protected boolean isInclusion() {
-		return true;
+		return false;
 	}
 
 }

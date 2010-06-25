@@ -104,7 +104,9 @@ public abstract class Config {
 
 	private UrlManager urlManager = null;
 
-	private PatternManager patternManager = null;
+	private PatternManager inclusionPatternManager = null;
+
+	private PatternManager exclusionPatternManager = null;
 
 	private FilePathManager filePatternManager = null;
 
@@ -595,12 +597,27 @@ public abstract class Config {
 		}
 	}
 
-	public PatternManager getPatternManager() throws SearchLibException {
+	public PatternManager getInclusionPatternManager()
+			throws SearchLibException {
 		lock.lock();
 		try {
-			if (patternManager == null)
-				patternManager = new PatternManager(indexDir);
-			return patternManager;
+			if (inclusionPatternManager == null)
+				inclusionPatternManager = new PatternManager(indexDir,
+						"patterns.xml");
+			return inclusionPatternManager;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public PatternManager getExclusionPatternManager()
+			throws SearchLibException {
+		lock.lock();
+		try {
+			if (exclusionPatternManager == null)
+				exclusionPatternManager = new PatternManager(indexDir,
+						"patterns_exclusion.xml");
+			return exclusionPatternManager;
 		} finally {
 			lock.unlock();
 		}

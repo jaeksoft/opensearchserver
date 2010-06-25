@@ -83,7 +83,7 @@ public class PatternServlet extends AbstractServlet {
 	}
 
 	private void doPatternList(List<PatternItem> patternList,
-			UrlManager urlManager, PrintWriter writer)
+			UrlManager urlManager, PrintWriter writer, boolean bExclusion)
 			throws SearchLibException {
 		if (patternList == null)
 			return;
@@ -93,7 +93,8 @@ public class PatternServlet extends AbstractServlet {
 			writer.println(item.getPattern());
 			writer.flush();
 		}
-		urlManager.injectPrefix(patternList);
+		if (!bExclusion)
+			urlManager.injectPrefix(patternList);
 	}
 
 	@Override
@@ -112,7 +113,14 @@ public class PatternServlet extends AbstractServlet {
 
 			HttpServletRequest request = transaction.getServletRequest();
 
-			PatternManager patternManager = client.getPatternManager();
+			boolean bDeleteAll = "yes"
+					.equals(request.getParameter("deleteAll"));
+			boolean bExclusion = "exclusion".equals(request
+					.getParameter("type"));
+
+			PatternManager patternManager = bExclusion ? client
+					.getExclusionPatternManager() : client
+					.getInclusionPatternManager();
 			UrlManager urlManager = client.getUrlManager();
 
 			PrintWriter writer = transaction.getWriter("utf-8");
@@ -120,8 +128,6 @@ public class PatternServlet extends AbstractServlet {
 					.getContentType();
 			Method method = transaction.getMethod();
 			List<PatternItem> patternList = null;
-			boolean bDeleteAll = "yes"
-					.equals(request.getParameter("deleteAll"));
 			if (contentType != null
 					&& contentType
 							.startsWith("application/x-www-form-urlencoded"))
@@ -132,7 +138,7 @@ public class PatternServlet extends AbstractServlet {
 							.startsWith("text/plain")))
 				patternList = inject(patternManager, transaction
 						.getInputStream(), writer, bDeleteAll);
-			doPatternList(patternList, urlManager, writer);
+			doPatternList(patternList, urlManager, writer, bExclusion);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
