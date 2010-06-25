@@ -42,7 +42,11 @@ public enum Role {
 
 	FILE_CRAWLER_EDIT_PARAMETERS("File crawler: edit parameters"),
 
-	FILE_CRAWLER_START_STOP("File crawler: start  and stop");
+	FILE_CRAWLER_START_STOP("File crawler: start  and stop"),
+
+	DATABASE_CRAWLER_EDIT_PARAMETERS("Database crawler: edit parameters"),
+
+	DATABASE_CRAWLER_START_STOP("Database crawler: start  and stop");
 
 	private String label;
 

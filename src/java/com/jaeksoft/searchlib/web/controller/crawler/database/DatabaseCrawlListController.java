@@ -209,14 +209,15 @@ public class DatabaseCrawlListController extends CrawlerController {
 		new DeleteAlert(item);
 	}
 
-	public void execute(Component comp) throws SearchLibException {
+	public void execute(Component comp) throws SearchLibException,
+			InterruptedException {
 		DatabaseCrawl item = getDatabaseCrawlItem(comp);
 		if (item == null)
 			return;
 		Client client = getClient();
 		if (client == null)
 			return;
-		getCrawlMaster().execute(client, item);
+		getCrawlMaster().execute(client, item, false);
 		reloadPage();
 	}
 

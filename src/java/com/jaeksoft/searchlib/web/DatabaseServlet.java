@@ -24,6 +24,15 @@
 
 package com.jaeksoft.searchlib.web;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
+
 public class DatabaseServlet extends AbstractServlet {
 
 	/**
@@ -34,8 +43,32 @@ public class DatabaseServlet extends AbstractServlet {
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
-		// TODO Auto-generated method stub
 
+		try {
+
+			User user = transaction.getLoggedUser();
+			if (user != null
+					&& !user.hasRole(transaction.getIndexName(),
+							Role.DATABASE_CRAWLER_START_STOP))
+				throw new SearchLibException("Not permitted");
+
+			Client client = transaction.getClient();
+
+			HttpServletRequest request = transaction.getServletRequest();
+
+			String name = request.getParameter("name");
+			DatabaseCrawl databaseCrawl = client.getDatabaseCrawlList().get(
+					name);
+			if (databaseCrawl == null)
+				throw new SearchLibException("Database crawl name not found ("
+						+ name + ")");
+			DatabaseCrawlThread databaseCrawlThread = client
+					.getDatabaseCrawlMaster().execute(client, databaseCrawl,
+							true);
+			transaction.addXmlResponse("status", "ok");
+			transaction.addXmlResponse("info", databaseCrawlThread.getInfo());
+		} catch (Exception e) {
+			throw new ServletException(e);
+		}
 	}
-
 }

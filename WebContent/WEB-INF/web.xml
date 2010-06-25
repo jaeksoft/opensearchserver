@@ -93,6 +93,10 @@
 		<servlet-class>com.jaeksoft.searchlib.web.DocumentsServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>Database</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.DatabaseServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>Stats</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.StatServlet</servlet-class>
 	</servlet>
@@ -146,6 +150,10 @@
 	<servlet-mapping>
 		<servlet-name>Documents</servlet-name>
 		<url-pattern>/documents</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Database</servlet-name>
+		<url-pattern>/database</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Stats</servlet-name>

@@ -34,8 +34,15 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 		super(config);
 	}
 
-	public void execute(Client client, DatabaseCrawl databaseCrawl) {
-		add(new DatabaseCrawlThread(client, this, databaseCrawl));
+	public DatabaseCrawlThread execute(Client client,
+			DatabaseCrawl databaseCrawl, boolean bWaitForCompletion)
+			throws InterruptedException {
+		DatabaseCrawlThread databaseCrawlThread = new DatabaseCrawlThread(
+				client, this, databaseCrawl);
+		add(databaseCrawlThread);
+		if (bWaitForCompletion)
+			databaseCrawlThread.waitForEnd();
+		return databaseCrawlThread;
 	}
 
 	@Override
