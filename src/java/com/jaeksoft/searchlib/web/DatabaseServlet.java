@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.user.Role;
@@ -65,8 +66,15 @@ public class DatabaseServlet extends AbstractServlet {
 			DatabaseCrawlThread databaseCrawlThread = client
 					.getDatabaseCrawlMaster().execute(client, databaseCrawl,
 							true);
-			transaction.addXmlResponse("status", "ok");
+			if (databaseCrawlThread.getStatus() == CrawlStatus.ERROR)
+				transaction.addXmlResponse("status", "error");
+			else
+				transaction.addXmlResponse("status", "ok");
+
 			transaction.addXmlResponse("info", databaseCrawlThread.getInfo());
+			transaction.addXmlResponse("updated document count", Long
+					.toString(databaseCrawlThread
+							.getUpdatedIndexDocumentCount()));
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
