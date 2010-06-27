@@ -44,20 +44,21 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 	public DatabaseCrawlThread execute(Client client,
 			DatabaseCrawl databaseCrawl, boolean bWaitForCompletion)
 			throws InterruptedException, SearchLibException {
+		DatabaseCrawlThread databaseCrawlThread = null;
 		synchronized (threadMap) {
 			if (threadMap.containsKey(databaseCrawl)) {
 				throw new SearchLibException("The job "
 						+ databaseCrawl.getName() + " is already running");
 			}
-			DatabaseCrawlThread databaseCrawlThread = new DatabaseCrawlThread(
-					client, this, databaseCrawl);
+			databaseCrawlThread = new DatabaseCrawlThread(client, this,
+					databaseCrawl);
 			threadMap.put(databaseCrawl, databaseCrawlThread);
-			databaseCrawl.setCrawlThread(databaseCrawlThread);
-			add(databaseCrawlThread);
-			if (bWaitForCompletion)
-				databaseCrawlThread.waitForEnd();
-			return databaseCrawlThread;
 		}
+		databaseCrawl.setCrawlThread(databaseCrawlThread);
+		add(databaseCrawlThread);
+		if (bWaitForCompletion)
+			databaseCrawlThread.waitForEnd();
+		return databaseCrawlThread;
 	}
 
 	public boolean isDatabaseCrawlThread(DatabaseCrawl databaseCrawl) {
