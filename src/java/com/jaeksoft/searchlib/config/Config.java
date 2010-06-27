@@ -84,7 +84,6 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
-import com.jaeksoft.searchlib.util.ConfigFileRotation;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -142,6 +141,8 @@ public abstract class Config {
 
 	private ReplicationList replicationList = null;
 
+	private ConfigFiles configFiles = null;
+
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists) throws SearchLibException {
 
@@ -162,6 +163,8 @@ public abstract class Config {
 			index = getIndex(indexDir, xppConfig, createIndexIfNotExists);
 			schema = Schema.fromXmlConfig(xppConfig
 					.getNode("/configuration/schema"), xppConfig);
+
+			configFiles = new ConfigFiles();
 
 			getFileCrawlMaster();
 			getWebCrawlMaster();
@@ -194,12 +197,10 @@ public abstract class Config {
 	private void saveConfigWithoutLock() throws IOException,
 			TransformerConfigurationException, SAXException,
 			SearchLibException, XPathExpressionException {
-		ConfigFileRotation cfr = new ConfigFileRotation(indexDir, "config.xml");
-		if (!cfr.getTempFile().exists())
-			cfr.getTempFile().createNewFile();
-		PrintWriter pw = new PrintWriter(cfr.getTempFile());
+		ConfigFileRotation cfr = configFiles.get(indexDir, "config.xml");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+					"UTF-8");
 			xmlWriter.startElement("configuration");
 			getIndex().writeXmlConfig(xmlWriter);
 			getSchema().writeXmlConfig(xmlWriter);
@@ -211,50 +212,44 @@ public abstract class Config {
 				mailer.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
-			pw.close();
-			pw = null;
 			cfr.rotate();
 		} finally {
-			if (pw != null)
-				pw.close();
+			cfr.abort();
 		}
 	}
 
 	public void saveParsers() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
-		ConfigFileRotation cfr = new ConfigFileRotation(indexDir, "parsers.xml");
-		PrintWriter pw = cfr.getTempPrintWriter();
+		ConfigFileRotation cfr = configFiles.get(indexDir, "parsers.xml");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+					"UTF-8");
 			getParserSelector().writeXmlConfig(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();
 		} finally {
-			pw.close();
+			cfr.abort();
 		}
 	}
 
 	public void saveReplicationList() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
-		ConfigFileRotation cfr = new ConfigFileRotation(indexDir,
-				"replication.xml");
-		PrintWriter pw = cfr.getTempPrintWriter();
+		ConfigFileRotation cfr = configFiles.get(indexDir, "replication.xml");
 		try {
+			PrintWriter pw = cfr.getTempPrintWriter();
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			getReplicationList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();
 		} finally {
-			pw.close();
+			cfr.abort();
 		}
 	}
 
 	public void saveRequests() throws SearchLibException {
-		ConfigFileRotation cfr = new ConfigFileRotation(indexDir,
-				"requests.xml");
-		PrintWriter pw = null;
+		ConfigFileRotation cfr = configFiles.get(indexDir, "requests.xml");
 		try {
-			pw = cfr.getTempPrintWriter();
+			PrintWriter pw = cfr.getTempPrintWriter();
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			getSearchRequestMap().writeXmlConfig(xmlWriter);
 			xmlWriter.endDocument();
@@ -266,8 +261,7 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			if (pw != null)
-				pw.close();
+			cfr.abort();
 		}
 	}
 
@@ -349,12 +343,11 @@ public abstract class Config {
 	}
 
 	public void saveDatabaseCrawlList() throws SearchLibException {
-		PrintWriter pw = null;
+		ConfigFileRotation cfr = configFiles.get(indexDir,
+				"databaseCrawlList.xml");
 		try {
-			ConfigFileRotation cfr = new ConfigFileRotation(indexDir,
-					"databaseCrawlList.xml");
-			pw = cfr.getTempPrintWriter();
-			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+					"UTF-8");
 			getDatabaseCrawlList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();
@@ -365,8 +358,7 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			if (pw != null)
-				pw.close();
+			cfr.abort();
 		}
 	}
 

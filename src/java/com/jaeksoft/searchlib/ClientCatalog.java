@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -44,11 +43,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.config.ConfigFileRotation;
+import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
-import com.jaeksoft.searchlib.util.ConfigFileRotation;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -66,6 +66,8 @@ public class ClientCatalog {
 	private static final Lock w = rwl.writeLock();
 
 	private static UserList userList = null;
+
+	private static final ConfigFiles configFiles = new ConfigFiles();
 
 	private static final Client getClient(File indexDirectory)
 			throws SearchLibException, NamingException {
@@ -235,17 +237,25 @@ public class ClientCatalog {
 		}
 	}
 
-	public static void saveUserList() throws SearchLibException {
-		PrintWriter pw = null;
-		w.lock();
+	private static void saveUserListWithoutLock()
+			throws TransformerConfigurationException, SAXException,
+			IOException, SearchLibException {
+		ConfigFileRotation cfr = configFiles.get(getDataDir(), "users.xml");
 		try {
-			ConfigFileRotation cfr = new ConfigFileRotation(getDataDir(),
-					"users.xml");
-			pw = cfr.getTempPrintWriter();
-			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+					"UTF-8");
 			getUserList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();
+		} finally {
+			cfr.abort();
+		}
+	}
+
+	public static void saveUserList() throws SearchLibException {
+		w.lock();
+		try {
+			saveUserListWithoutLock();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
@@ -254,8 +264,6 @@ public class ClientCatalog {
 			throw new SearchLibException(e);
 		} finally {
 			w.unlock();
-			if (pw != null)
-				pw.close();
 		}
 	}
 
