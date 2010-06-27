@@ -58,12 +58,6 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		updatedIndexDocumentCount = 0;
 	}
 
-	@Override
-	protected String getCurrentInfo() {
-		return config.getIndexDirectory().getName() + " "
-				+ databaseCrawl.getName();
-	}
-
 	public String getCountInfo() {
 		return getUpdatedIndexDocumentCount() + " ("
 				+ getPendingIndexDocumentCount() + ")";
@@ -130,6 +124,11 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				transaction.close();
 		}
 
+	}
+
+	@Override
+	protected String getCurrentInfo() {
+		return "";
 	}
 
 }

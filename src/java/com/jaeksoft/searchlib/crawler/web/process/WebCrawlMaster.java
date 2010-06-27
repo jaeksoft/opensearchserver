@@ -114,7 +114,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 						this, currentStats, hostUrlList);
 				add(crawlThread);
 
-				while (crawlThreadsSize() >= threadNumber && !isAbort())
+				while (getCrawlThreadsSize() >= threadNumber && !isAbort())
 					sleepSec(5);
 			}
 

@@ -53,6 +53,13 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 		return client.getDatabaseCrawlMaster();
 	}
 
+	public boolean isRefresh() throws SearchLibException {
+		DatabaseCrawlMaster crawlMaster = getCrawlMaster();
+		if (crawlMaster == null)
+			return false;
+		return crawlMaster.getCrawlThreadsSize() > 0;
+	}
+
 	public void onTimer() {
 		reloadPage();
 	}

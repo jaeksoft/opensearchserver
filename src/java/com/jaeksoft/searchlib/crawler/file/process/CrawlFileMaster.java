@@ -87,7 +87,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 						this, currentStats);
 				add(crawlThread);
 
-				while (crawlThreadsSize() >= threadNumber && !isAbort())
+				while (getCrawlThreadsSize() >= threadNumber && !isAbort())
 					sleepSec(5);
 			}
 

@@ -267,7 +267,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		DatabaseCrawlMaster crawlMaster = getCrawlMaster();
 		if (crawlMaster == null)
 			return false;
-		return crawlMaster.isRunning() || crawlMaster.isAborting();
+		return crawlMaster.getCrawlThreadsSize() > 0;
 	}
 
 	@Override

@@ -82,7 +82,7 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 		}
 	}
 
-	protected int crawlThreadsSize() {
+	public int getCrawlThreadsSize() {
 		synchronized (crawlThreads) {
 			return crawlThreads.size();
 		}
@@ -113,7 +113,7 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 	}
 
 	protected void waitForChild() {
-		while (crawlThreadsSize() > 0) {
+		while (getCrawlThreadsSize() > 0) {
 			try {
 				synchronized (this) {
 					wait(5000);

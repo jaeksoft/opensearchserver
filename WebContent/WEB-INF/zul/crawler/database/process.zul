@@ -26,15 +26,19 @@
 				mold="paging" pageSize="20">
 				<listhead sizable="true">
 					<listheader label="Name" />
-					<listheader label="Status" />
-					<listheader label="Pending" />
-					<listheader label="Updated" />
+					<listheader width="150px" label="Status" />
+					<listheader width="150px"
+						label="Last execution time" />
+					<listheader width="100px" label="Pending" />
+					<listheader width="100px" label="Updated" />
 					<listheader visible="@{dbCrawlProc.debug}"
 						label="Debug" />
 				</listhead>
 				<listitem self="@{each=thread}">
-					<listcell label="@{thread.name}" />
+					<listcell label="@{thread.databaseCrawl.name}" />
 					<listcell label="@{thread.statusInfo}" />
+					<listcell
+						label="@{thread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 					<listcell
 						label="@{thread.pendingIndexDocumentCount}" />
 					<listcell
