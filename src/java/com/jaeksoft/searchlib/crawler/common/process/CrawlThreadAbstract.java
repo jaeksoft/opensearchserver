@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.common.process;
 
 import java.lang.Thread.State;
+import java.util.Date;
 
 import com.jaeksoft.searchlib.config.Config;
 
@@ -47,6 +48,8 @@ public abstract class CrawlThreadAbstract implements Runnable {
 	private volatile boolean running;
 
 	protected CrawlStatistics currentStats;
+
+	private Date startTime;
 
 	protected CrawlThreadAbstract(Config config, CrawlMasterAbstract crawlMaster) {
 		this.config = config;
@@ -185,6 +188,7 @@ public abstract class CrawlThreadAbstract implements Runnable {
 	public abstract void release();
 
 	final public void run() {
+		startTime = new Date();
 		abort = false;
 		setThread(Thread.currentThread());
 		setStatus(CrawlStatus.STARTING);
@@ -267,6 +271,13 @@ public abstract class CrawlThreadAbstract implements Runnable {
 
 	public CrawlStatistics getCurrentStatistics() {
 		return currentStats;
+	}
+
+	/**
+	 * @return the startTime
+	 */
+	public Date getStartTime() {
+		return startTime;
 	}
 
 }

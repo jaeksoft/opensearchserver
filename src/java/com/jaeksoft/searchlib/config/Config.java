@@ -326,8 +326,9 @@ public abstract class Config {
 		try {
 			if (databaseCrawlList != null)
 				return databaseCrawlList;
-			databaseCrawlList = DatabaseCrawlList.fromXml(new File(indexDir,
-					"databaseCrawlList.xml"));
+			databaseCrawlList = DatabaseCrawlList.fromXml(
+					getDatabaseCrawlMaster(), new File(indexDir,
+							"databaseCrawlList.xml"));
 			return databaseCrawlList;
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);

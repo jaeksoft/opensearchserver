@@ -36,6 +36,10 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
+	private DatabaseCrawlMaster databaseCrawlMaster;
+
+	private DatabaseCrawlThread lastCrawlThread;
+
 	private String name;
 
 	private String url;
@@ -52,7 +56,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	private FieldMap fieldMap;
 
-	public DatabaseCrawl() {
+	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster) {
+		this.databaseCrawlMaster = databaseCrawlMaster;
 		name = null;
 		url = null;
 		driverClass = null;
@@ -61,10 +66,12 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		sql = null;
 		lang = LanguageEnum.UNDEFINED;
 		fieldMap = new FieldMap();
+		lastCrawlThread = null;
 	}
 
-	public DatabaseCrawl(DatabaseCrawl crawl) {
-		this();
+	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster,
+			DatabaseCrawl crawl) {
+		this(databaseCrawlMaster);
 		crawl.copyTo(this);
 	}
 
@@ -76,6 +83,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.password = this.password;
 		crawl.sql = this.sql;
 		crawl.lang = this.lang;
+		crawl.lastCrawlThread = this.lastCrawlThread;
 		this.fieldMap.copyTo(crawl.fieldMap);
 	}
 
@@ -191,6 +199,18 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		return fieldMap;
 	}
 
+	public boolean isCrawlThread() {
+		return databaseCrawlMaster.isDatabaseCrawlThread(this);
+	}
+
+	public DatabaseCrawlThread getLastCrawlThread() {
+		return lastCrawlThread;
+	}
+
+	public void setCrawlThread(DatabaseCrawlThread lastCrawlThread) {
+		this.lastCrawlThread = lastCrawlThread;
+	}
+
 	protected final static String DBCRAWL_NODE_NAME = "databaseCrawl";
 	protected final static String DBCRAWL_ATTR_NAME = "name";
 	protected final static String DBCRAWL_ATTR_DRIVER_CLASS = "driverClass";
@@ -201,9 +221,9 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	protected final static String DBCRAWL_NODE_NAME_SQL = "sql";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
-	public static DatabaseCrawl fromXml(XPathParser xpp, Node item)
-			throws XPathExpressionException {
-		DatabaseCrawl crawl = new DatabaseCrawl();
+	public static DatabaseCrawl fromXml(DatabaseCrawlMaster dcm,
+			XPathParser xpp, Node item) throws XPathExpressionException {
+		DatabaseCrawl crawl = new DatabaseCrawl(dcm);
 		crawl.setName(XPathParser.getAttributeString(item, DBCRAWL_ATTR_NAME));
 		crawl.setDriverClass(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_DRIVER_CLASS));

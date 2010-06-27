@@ -43,6 +43,8 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class DatabaseCrawlList {
 
+	private DatabaseCrawlMaster databaseCrawlMaster;
+
 	private TreeSet<DatabaseCrawl> set;
 
 	private DatabaseCrawl[] array;
@@ -51,9 +53,10 @@ public class DatabaseCrawlList {
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
 
-	private DatabaseCrawlList() {
+	private DatabaseCrawlList(DatabaseCrawlMaster databaseCrawlMaster) {
 		w.lock();
 		try {
+			this.databaseCrawlMaster = databaseCrawlMaster;
 			set = new TreeSet<DatabaseCrawl>();
 			array = null;
 		} finally {
@@ -97,7 +100,7 @@ public class DatabaseCrawlList {
 	public DatabaseCrawl get(String name) {
 		r.lock();
 		try {
-			DatabaseCrawl finder = new DatabaseCrawl();
+			DatabaseCrawl finder = new DatabaseCrawl(databaseCrawlMaster);
 			finder.setName(name);
 			SortedSet<DatabaseCrawl> s = set.subSet(finder, true, finder, true);
 			if (s == null)
@@ -124,10 +127,12 @@ public class DatabaseCrawlList {
 		}
 	}
 
-	public static DatabaseCrawlList fromXml(File file)
+	public static DatabaseCrawlList fromXml(
+			DatabaseCrawlMaster databaseCrawlMaster, File file)
 			throws XPathExpressionException, ParserConfigurationException,
 			SAXException, IOException {
-		DatabaseCrawlList dbCrawlList = new DatabaseCrawlList();
+		DatabaseCrawlList dbCrawlList = new DatabaseCrawlList(
+				databaseCrawlMaster);
 		if (!file.exists())
 			return dbCrawlList;
 		XPathParser xpp = new XPathParser(file);
@@ -139,7 +144,8 @@ public class DatabaseCrawlList {
 		if (nodes == null)
 			return dbCrawlList;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			DatabaseCrawl dbCrawl = DatabaseCrawl.fromXml(xpp, nodes.item(i));
+			DatabaseCrawl dbCrawl = DatabaseCrawl.fromXml(databaseCrawlMaster,
+					xpp, nodes.item(i));
 			dbCrawlList.add(dbCrawl);
 		}
 		return dbCrawlList;

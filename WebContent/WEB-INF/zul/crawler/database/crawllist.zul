@@ -27,7 +27,8 @@
 				<rows>
 					<row>
 						<label value="Name: " />
-						<textbox value="@{dbCrawlList.currentCrawl.name}"
+						<textbox
+							value="@{dbCrawlList.currentCrawl.name}"
 							readonly="@{dbCrawlList.selected}" width="80%" />
 						<label value="Choose a name" />
 					</row>
@@ -48,8 +49,8 @@
 					</row>
 					<row>
 						<label value="User: " />
-						<textbox value="@{dbCrawlList.currentCrawl.user}"
-							width="50%" />
+						<textbox
+							value="@{dbCrawlList.currentCrawl.user}" width="50%" />
 						<label
 							value="Enter the user name for the database connection" />
 					</row>
@@ -134,7 +135,8 @@
 								<space width="10px" />
 								<button label="Save" forward="onSave" />
 							</hbox>
-							<hbox visible="@{dbCrawlList.notSelected}">
+							<hbox
+								visible="@{dbCrawlList.notSelected}">
 								<button label="Create" forward="onSave" />
 							</hbox>
 						</vbox>
@@ -151,19 +153,31 @@
 			<button label="Refresh" forward="onListRefresh" />
 		</toolbar>
 		<panelchildren>
-			<listbox selectedItem="@{dbCrawlList.selectedCrawl}"
+			<listbox id="crawllistbox"
+				selectedItem="@{dbCrawlList.selectedCrawl}"
 				model="@{dbCrawlList.databaseCrawlList.array}" mold="paging"
-				pageSize="30">
+				pageSize="20">
 				<listhead>
 					<listheader label="Name" />
+					<listheader label="Last execution time"
+						width="150px" />
+					<listheader label="Status" width="100px" />
+					<listheader label="Info" width="150px" />
 					<listheader label="Action" width="100px"
 						align="center" />
 				</listhead>
 				<listitem self="@{each=dbcrawlitem}"
 					label="@{dbcrawlitem.name}">
 					<listcell label="@{dbcrawlitem.name}" />
+					<listcell
+						label="@{dbcrawlitem.lastCrawlThread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+					<listcell
+						label="@{dbcrawlitem.lastCrawlThread.status}" />
+					<listcell
+						label="@{dbcrawlitem.lastCrawlThread.countInfo}" />
 					<listcell>
 						<button tooltiptext="Execute the crawl process"
+							disabled="@{dbcrawlitem.crawlThread}"
 							image="/images/action_check.png"
 							onClick="dbCrawlList.execute(self)">
 							<custom-attributes
@@ -181,5 +195,6 @@
 			</listbox>
 		</panelchildren>
 	</panel>
-
+	<timer delay="5000" repeats="true" onTimer="dbCrawlList.onTimer()"
+		running="@{dbCrawlList.refreshList}" />
 </window>

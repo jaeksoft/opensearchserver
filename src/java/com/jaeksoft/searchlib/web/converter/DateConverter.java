@@ -38,7 +38,13 @@ public class DateConverter implements TypeConverter {
 	}
 
 	public Object coerceToUi(Object value, Component component) {
-		long l = (Long) value;
+		if (value == null)
+			return "Unknown";
+		long l = -1;
+		if (value instanceof Date)
+			l = ((Date) value).getTime();
+		else if (value instanceof Long)
+			l = (Long) value;
 		if (l == -1)
 			return "Unknown";
 		return DateFormat.getDateTimeInstance(DateFormat.SHORT,

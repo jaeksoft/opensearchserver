@@ -90,7 +90,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
 		super();
-		currentCrawl = new DatabaseCrawl();
+		currentCrawl = new DatabaseCrawl(getCrawlMaster());
 		selectedCrawl = null;
 		dbCrawlList = null;
 	}
@@ -151,7 +151,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	public void setSelectedCrawl(DatabaseCrawl crawl) throws SearchLibException {
 		selectedCrawl = crawl;
-		currentCrawl = new DatabaseCrawl(selectedCrawl);
+		currentCrawl = new DatabaseCrawl(getCrawlMaster(), selectedCrawl);
 		reloadPage();
 	}
 
@@ -189,10 +189,14 @@ public class DatabaseCrawlListController extends CrawlerController {
 		onCancel();
 	}
 
-	public void onCancel() {
-		currentCrawl = new DatabaseCrawl();
+	public void onCancel() throws SearchLibException {
+		currentCrawl = new DatabaseCrawl(getCrawlMaster());
 		selectedCrawl = null;
 		reloadPage();
+	}
+
+	public void onTimer() {
+		super.reloadPage();
 	}
 
 	private DatabaseCrawl getDatabaseCrawlItem(Component comp) {
@@ -257,6 +261,13 @@ public class DatabaseCrawlListController extends CrawlerController {
 		synchronized (this) {
 			return selectedIndexField;
 		}
+	}
+
+	public boolean isRefresh() throws SearchLibException {
+		DatabaseCrawlMaster crawlMaster = getCrawlMaster();
+		if (crawlMaster == null)
+			return false;
+		return crawlMaster.isRunning() || crawlMaster.isAborting();
 	}
 
 	@Override

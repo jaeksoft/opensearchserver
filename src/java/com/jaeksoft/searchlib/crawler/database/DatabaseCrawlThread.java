@@ -64,6 +64,11 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				+ databaseCrawl.getName();
 	}
 
+	public String getCountInfo() {
+		return getUpdatedIndexDocumentCount() + " ("
+				+ getPendingIndexDocumentCount() + ")";
+	}
+
 	public long getPendingIndexDocumentCount() {
 		return pendingIndexDocumentCount;
 	}
@@ -87,6 +92,10 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		pendingIndexDocumentCount -= i;
 		updatedIndexDocumentCount += i;
 		indexDocumentList.clear();
+	}
+
+	public DatabaseCrawl getDatabaseCrawl() {
+		return databaseCrawl;
 	}
 
 	@Override
@@ -122,4 +131,5 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		}
 
 	}
+
 }

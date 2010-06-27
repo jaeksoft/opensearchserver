@@ -24,25 +24,62 @@
 
 package com.jaeksoft.searchlib.crawler.database;
 
+import java.util.TreeMap;
+
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 
 public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 
+	private TreeMap<DatabaseCrawl, DatabaseCrawlThread> threadMap;
+
 	public DatabaseCrawlMaster(Config config) {
 		super(config);
+		threadMap = new TreeMap<DatabaseCrawl, DatabaseCrawlThread>();
 	}
 
 	public DatabaseCrawlThread execute(Client client,
 			DatabaseCrawl databaseCrawl, boolean bWaitForCompletion)
-			throws InterruptedException {
-		DatabaseCrawlThread databaseCrawlThread = new DatabaseCrawlThread(
-				client, this, databaseCrawl);
-		add(databaseCrawlThread);
-		if (bWaitForCompletion)
-			databaseCrawlThread.waitForEnd();
-		return databaseCrawlThread;
+			throws InterruptedException, SearchLibException {
+		synchronized (threadMap) {
+			if (threadMap.containsKey(databaseCrawl)) {
+				throw new SearchLibException("The job "
+						+ databaseCrawl.getName() + " is already running");
+			}
+			DatabaseCrawlThread databaseCrawlThread = new DatabaseCrawlThread(
+					client, this, databaseCrawl);
+			threadMap.put(databaseCrawl, databaseCrawlThread);
+			databaseCrawl.setCrawlThread(databaseCrawlThread);
+			add(databaseCrawlThread);
+			if (bWaitForCompletion)
+				databaseCrawlThread.waitForEnd();
+			return databaseCrawlThread;
+		}
+	}
+
+	public boolean isDatabaseCrawlThread(DatabaseCrawl databaseCrawl) {
+		synchronized (threadMap) {
+			return threadMap.containsKey(databaseCrawl);
+		}
+	}
+
+	public DatabaseCrawlThread getDatabaseCrawlThread(
+			DatabaseCrawl databaseCrawl) {
+		synchronized (threadMap) {
+			return threadMap.get(databaseCrawl);
+		}
+	}
+
+	@Override
+	public void remove(CrawlThreadAbstract crawlThread) {
+		super.remove(crawlThread);
+		synchronized (threadMap) {
+			threadMap.remove(((DatabaseCrawlThread) crawlThread)
+					.getDatabaseCrawl());
+		}
 	}
 
 	@Override
