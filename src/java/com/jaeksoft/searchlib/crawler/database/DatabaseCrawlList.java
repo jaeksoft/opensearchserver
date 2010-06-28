@@ -26,10 +26,6 @@ package com.jaeksoft.searchlib.crawler.database;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -38,94 +34,20 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.crawler.UniqueNameSetGeneric;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class DatabaseCrawlList {
+public class DatabaseCrawlList extends UniqueNameSetGeneric<DatabaseCrawl> {
 
 	private DatabaseCrawlMaster databaseCrawlMaster;
 
-	private TreeSet<DatabaseCrawl> set;
-
-	private DatabaseCrawl[] array;
-
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
-
 	private DatabaseCrawlList(DatabaseCrawlMaster databaseCrawlMaster) {
-		w.lock();
-		try {
-			this.databaseCrawlMaster = databaseCrawlMaster;
-			set = new TreeSet<DatabaseCrawl>();
-			array = null;
-		} finally {
-			w.unlock();
-		}
-	}
-
-	public void add(DatabaseCrawl dbCrawl) {
-		w.lock();
-		try {
-			set.add(dbCrawl);
-			array = null;
-		} finally {
-			w.unlock();
-		}
-	}
-
-	public void remove(DatabaseCrawl dbCrawl) {
-		w.lock();
-		try {
-			set.remove(dbCrawl.getName());
-			array = null;
-		} finally {
-			w.unlock();
-		}
-	}
-
-	public DatabaseCrawl[] getArray() {
-		r.lock();
-		try {
-			if (array != null)
-				return array;
-			array = new DatabaseCrawl[set.size()];
-			set.toArray(array);
-			return array;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	public DatabaseCrawl get(String name) {
-		r.lock();
-		try {
-			DatabaseCrawl finder = new DatabaseCrawl(databaseCrawlMaster);
-			finder.setName(name);
-			SortedSet<DatabaseCrawl> s = set.subSet(finder, true, finder, true);
-			if (s == null)
-				return null;
-			if (s.size() == 0)
-				return null;
-			return s.first();
-		} finally {
-			r.unlock();
-		}
+		this.databaseCrawlMaster = databaseCrawlMaster;
+		init();
 	}
 
 	private final static String DBCRAWLLIST_ROOTNODE_NAME = "databaseCrawlList";
-
-	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		r.lock();
-		try {
-			xmlWriter.startElement(DBCRAWLLIST_ROOTNODE_NAME);
-			for (DatabaseCrawl dbCrawl : set)
-				dbCrawl.writeXml(xmlWriter);
-			xmlWriter.endElement();
-		} finally {
-			r.unlock();
-		}
-	}
 
 	public static DatabaseCrawlList fromXml(
 			DatabaseCrawlMaster databaseCrawlMaster, File file)
@@ -149,6 +71,20 @@ public class DatabaseCrawlList {
 			dbCrawlList.add(dbCrawl);
 		}
 		return dbCrawlList;
+	}
+
+	public void writeXml(XmlWriter xmlWriter) throws SAXException {
+		writeXml(DBCRAWLLIST_ROOTNODE_NAME, xmlWriter);
+	}
+
+	@Override
+	protected DatabaseCrawl[] newArray(int size) {
+		return new DatabaseCrawl[size];
+	}
+
+	@Override
+	protected DatabaseCrawl newItem(String name) {
+		return new DatabaseCrawl(databaseCrawlMaster, name);
 	}
 
 }

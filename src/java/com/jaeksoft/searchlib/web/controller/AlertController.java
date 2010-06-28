@@ -58,7 +58,7 @@ public class AlertController implements EventListener {
 			onAbort();
 			break;
 		case Messagebox.CANCEL:
-			onCancel();
+			onCancellation();
 			break;
 		case Messagebox.IGNORE:
 			onIgnore();
@@ -81,7 +81,7 @@ public class AlertController implements EventListener {
 	protected void onAbort() throws SearchLibException {
 	}
 
-	protected void onCancel() throws SearchLibException {
+	protected void onCancellation() throws SearchLibException {
 	}
 
 	protected void onIgnore() throws SearchLibException {

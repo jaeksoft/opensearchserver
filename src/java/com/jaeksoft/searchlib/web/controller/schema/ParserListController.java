@@ -137,7 +137,7 @@ public class ParserListController extends CommonController implements
 
 	public ParserFieldEnum[] getParserFieldList()
 			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		synchronized (this) {
 			if (selectedParser == null)
 				return null;

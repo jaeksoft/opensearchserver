@@ -30,16 +30,15 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
+public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 
 	private DatabaseCrawlMaster databaseCrawlMaster;
 
 	private DatabaseCrawlThread lastCrawlThread;
-
-	private String name;
 
 	private String url;
 
@@ -55,9 +54,9 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	private DatabaseFieldMap fieldMap;
 
-	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster) {
+	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster, String name) {
+		super(name);
 		this.databaseCrawlMaster = databaseCrawlMaster;
-		name = null;
 		url = null;
 		driverClass = null;
 		user = null;
@@ -68,6 +67,10 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		lastCrawlThread = null;
 	}
 
+	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster) {
+		this(databaseCrawlMaster, (String) null);
+	}
+
 	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster,
 			DatabaseCrawl crawl) {
 		this(databaseCrawlMaster);
@@ -75,7 +78,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	}
 
 	public void copyTo(DatabaseCrawl crawl) {
-		crawl.name = this.name;
+		crawl.setName(this.getName());
 		crawl.url = this.url;
 		crawl.driverClass = this.driverClass;
 		crawl.user = this.user;
@@ -84,21 +87,6 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.lang = this.lang;
 		crawl.lastCrawlThread = this.lastCrawlThread;
 		this.fieldMap.copyTo(crawl.fieldMap);
-	}
-
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	/**
@@ -241,6 +229,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		return crawl;
 	}
 
+	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(),
 				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(), DBCRAWL_ATTR_USER,
@@ -254,11 +243,6 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		xmlWriter.textNode(getSql());
 		xmlWriter.endElement();
 		xmlWriter.endElement();
-	}
-
-	@Override
-	public int compareTo(DatabaseCrawl o) {
-		return this.name.compareTo(o.name);
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -50,8 +52,11 @@ public class ParserFactory implements Comparable<ParserFactory> {
 
 	private FieldMap fieldMap;
 
-	public ParserFactory(String parserName, String className, long sizeLimit,
-			FieldMap fieldMap, String defaultCharset) {
+	private Config config;
+
+	public ParserFactory(Config config, String parserName, String className,
+			long sizeLimit, FieldMap fieldMap, String defaultCharset) {
+		this.config = config;
 		this.parserName = parserName;
 		this.className = className;
 		if (this.className.indexOf('.') == -1)
@@ -64,11 +69,13 @@ public class ParserFactory implements Comparable<ParserFactory> {
 	}
 
 	public Parser getNewParser() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		Parser parser = (Parser) Class.forName(className).newInstance();
 		parser.setSizeLimit(sizeLimit);
 		parser.setFieldMap(fieldMap);
 		parser.setDefaultCharset(defaultCharset);
+		if (config != null)
+			parser.setUrlFilterList(config.getUrlFilterList().getArray());
 		return parser;
 	}
 
@@ -104,8 +111,9 @@ public class ParserFactory implements Comparable<ParserFactory> {
 		}
 	}
 
-	public static ParserFactory fromXmlConfig(ParserSelector parserSelector,
-			XPathParser xpp, Node parserNode) throws XPathExpressionException {
+	public static ParserFactory fromXmlConfig(Config config,
+			ParserSelector parserSelector, XPathParser xpp, Node parserNode)
+			throws XPathExpressionException {
 
 		String parserClassName = XPathParser.getAttributeString(parserNode,
 				"class");
@@ -120,7 +128,7 @@ public class ParserFactory implements Comparable<ParserFactory> {
 		long sizeLimit = XPathParser.getAttributeValue(parserNode, "sizeLimit");
 		String defaultCharset = XPathParser.getAttributeString(parserNode,
 				"defaultCharset");
-		ParserFactory parserFactory = new ParserFactory(parserName,
+		ParserFactory parserFactory = new ParserFactory(config, parserName,
 				parserClassName, sizeLimit, fieldMap, defaultCharset);
 
 		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");

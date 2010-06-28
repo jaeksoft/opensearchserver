@@ -50,6 +50,7 @@ import org.w3c.tidy.Tidy;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Lang;
@@ -462,6 +463,8 @@ public class HtmlParser extends Parser {
 			}
 		}
 
+		UrlFilterItem[] urlFilterList = getUrlFilterList();
+
 		List<Node> nodes = DomUtils.getAllNodes(doc, "a");
 		if (nodes != null && metaRobotsFollow) {
 			URL currentURL = new URL(getSourceDocument().getFieldValue(
@@ -477,7 +480,7 @@ public class HtmlParser extends Parser {
 				if (href != null)
 					if (!href.startsWith("javascript:"))
 						newUrl = LinkUtils.getLink(currentURL, href, follow,
-								false, true, true);
+								false, true, urlFilterList);
 				if (newUrl != null) {
 					ParserFieldEnum field = null;
 					if (newUrl.getHost().equalsIgnoreCase(currentURL.getHost())) {

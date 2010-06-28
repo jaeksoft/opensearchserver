@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 
@@ -48,6 +49,8 @@ public abstract class Parser {
 
 	private FieldMap fieldMap;
 
+	private UrlFilterItem[] urlFilterList;
+
 	private String defaultCharset;
 
 	protected Parser(ParserFieldEnum[] fieldList) {
@@ -57,6 +60,7 @@ public abstract class Parser {
 		directDocument = null;
 		parserDocument = new IndexDocument();
 		defaultCharset = null;
+		urlFilterList = null;
 	}
 
 	public void setFieldMap(FieldMap fieldMap) {
@@ -182,6 +186,21 @@ public abstract class Parser {
 
 	public String getDefaultCharset() {
 		return defaultCharset;
+	}
+
+	/**
+	 * @param urlFilterList
+	 *            the urlFilterList to set
+	 */
+	public void setUrlFilterList(UrlFilterItem[] urlFilterList) {
+		this.urlFilterList = urlFilterList;
+	}
+
+	/**
+	 * @return the urlFilterList
+	 */
+	public UrlFilterItem[] getUrlFilterList() {
+		return urlFilterList;
 	}
 
 }

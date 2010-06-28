@@ -55,6 +55,7 @@ public class DatabaseFieldTarget extends Target {
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no");
+		xmlWriter.endElement();
 	}
 
 	/**

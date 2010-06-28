@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,11 +24,10 @@
 
 package com.jaeksoft.searchlib.util;
 
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 
 public class LinkUtils {
 
@@ -64,9 +63,9 @@ public class LinkUtils {
 		return path;
 	}
 
-	public static URL getLink(URL currentURL, String uri, boolean follow,
+	public final static URL getLink(URL currentURL, String uri, boolean follow,
 			boolean allowRefAnchor, boolean resolveDotSlash,
-			boolean removeSessionId) throws MalformedURLException {
+			UrlFilterItem[] urlFilterList) throws MalformedURLException {
 
 		if (uri == null)
 			return null;
@@ -101,78 +100,31 @@ public class LinkUtils {
 				uri = uri.substring(0, p);
 		}
 
-		// Do we have to remove session id
-		if (removeSessionId)
-			uri = removeSessionId(uri);
+		int i = uri.indexOf('?');
+		if (i != -1 && urlFilterList != null) {
+			StringBuffer newUrl = new StringBuffer(uri.substring(0, i++));
+			String queryString = uri.substring(i);
+			String[] queryParts = queryString.split("\\&");
+
+			if (queryParts != null && queryParts.length > 0) {
+				for (UrlFilterItem urlFilter : urlFilterList)
+					urlFilter.doReplace(queryParts);
+				boolean first = true;
+				for (String queryPart : queryParts) {
+					if (queryPart != null) {
+						if (first) {
+							newUrl.append('?');
+							first = false;
+						} else
+							newUrl.append('&');
+						newUrl.append(queryPart);
+					}
+				}
+				uri = newUrl.toString();
+			}
+		}
 
 		return new URL(uri);
 	}
 
-	private static final Pattern[] sessionIdPatterns = {
-			Pattern.compile("^(.*)" + "([\\?|&]{1}"
-					+ "PHPSESSID=[0-9a-zA-Z]{32}" + "&?)" + "(.*)$",
-					Pattern.CASE_INSENSITIVE),
-			Pattern.compile("^(.*)" + "([\\?|&]{1}"
-					+ "jsessionid=[0-9a-zA-Z]{32}" + "&?)" + "(.*)$",
-					Pattern.CASE_INSENSITIVE),
-			Pattern.compile("^(.*)" + "([\\?|&]{1}" + "sid=[0-9a-zA-Z]{32}"
-					+ "&?)" + "(.*)$", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("^(.*)" + "([\\?|&]{1}"
-					+ "ASPSESSIONID[a-zA-Z]{8}=[a-zA-Z]{24}" + "&?)" + "(.*)$",
-					Pattern.CASE_INSENSITIVE) };
-
-	public static String removeSessionId(String url) {
-		for (Pattern pattern : sessionIdPatterns) {
-			Matcher matcher = pattern.matcher(url);
-			if (matcher.matches()) {
-				StringBuffer newUrl = new StringBuffer(matcher.group(1));
-				if (matcher.group(3).length() > 0) {
-					newUrl.append(matcher.group(2).charAt(0));
-					newUrl.append(matcher.group(3));
-				}
-				url = newUrl.toString();
-			}
-		}
-		return url;
-	}
-
-	public static void test(String url, String uri, PrintWriter pw)
-			throws MalformedURLException {
-		pw.println(getLink(new URL(url), uri, true, false, true, true));
-		pw.flush();
-	}
-
-	public final static void main(String[] argv) {
-		try {
-			PrintWriter pw = new PrintWriter(System.out);
-			test("http://www.open-search-server.com", "////websearch.html", pw);
-			test(
-					"http://www.open-search-server.com/archives/copieslocales/",
-					"./../copieslocales/../copieslocales/./../copieslocales/../copieslocales/./tribunelibre/fr-x203.html",
-					pw);
-			// test("http://www.ledisez.net/blog/2007/03/20//archives",
-			// "uriEmpty:", pw);
-			test(
-					"http://clx.anet.fr/spip/spip_login.php3?url=ecrire%2Findex.php",
-					"http://clx.anet.fr/spip?test=5#m'enfin", pw);
-			test("http://www.test.fr/directory/subdirectory/page.html", "#", pw);
-			test("http://www.test.fr/directory/subdirectory/page.html",
-					"?PHPSESSID=88cde663abb075261403c11751defc17", pw);
-			test("http://www.test.fr/directory/subdirectory/page.html",
-					"?test=2&PHPSESSID=88cde663abb075261403c11751defc17", pw);
-			test("http://www.test.fr/directory/subdirectory/page.html",
-					"?PHPSESSID=88cde663abb075261403c11751defc17&test=3", pw);
-			test(
-					"http://www.test.fr/directory/subdirectory/page.html",
-					"?test=4&PHPSESSID=88cde663abb075261403c11751defc17&test=5",
-					pw);
-			test(
-					"http://www.test.fr/directory/subdirectory/page.html",
-					"?test=6&PHPSESSID=88cde663abb075261403c11751defc17&test=7&jsessionid=88cde663abb075261403c11751defc17&test=8",
-					pw);
-			pw.close();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-	}
 }

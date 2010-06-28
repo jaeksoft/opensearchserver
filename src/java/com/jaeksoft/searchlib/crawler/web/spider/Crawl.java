@@ -89,7 +89,7 @@ public class Crawl {
 
 	private void parseContent(InputStream inputStream)
 			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, IOException {
+			ClassNotFoundException, IOException, SearchLibException {
 		if (parserSelector == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
@@ -309,7 +309,7 @@ public class Crawl {
 			PatternManager inclusionManager = config
 					.getInclusionPatternManager();
 			PatternManager exclusionManager = config
-					.getInclusionPatternManager();
+					.getExclusionPatternManager();
 			discoverLinks(urlManager, inclusionManager, exclusionManager,
 					parser.getFieldContent(ParserFieldEnum.internal_link),
 					discoverLinks);

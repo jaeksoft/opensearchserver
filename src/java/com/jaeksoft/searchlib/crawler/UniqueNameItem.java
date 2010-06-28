@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,46 +22,41 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.spider;
+package com.jaeksoft.searchlib.crawler;
 
-import java.net.URL;
+import org.xml.sax.SAXException;
 
-public class Link {
+import com.jaeksoft.searchlib.util.XmlWriter;
 
-	public enum Type {
-		OUTLINK, INLINK;
+public abstract class UniqueNameItem<T extends UniqueNameItem<?>> implements
+		Comparable<T> {
+
+	private String name;
+
+	protected UniqueNameItem(String name) {
+		setName(name);
 	}
 
-	private Type type;
-	private URL url;
-	private int count;
-	private boolean follow;
-
-	private Link(Type type, URL url, boolean follow) {
-		this.type = type;
-		this.url = url;
-		this.count = 1;
-		this.follow = follow;
+	@Override
+	public int compareTo(T o) {
+		return name.compareTo(o.name);
 	}
 
-	public void increment() {
-		count++;
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public int getCount() {
-		return count;
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
 	}
 
-	public Type getType() {
-		return type;
-	}
-
-	public URL getUrl() {
-		return url;
-	}
-
-	public boolean getFollow() {
-		return follow;
-	}
+	public abstract void writeXml(XmlWriter xmlWriter) throws SAXException;
 
 }

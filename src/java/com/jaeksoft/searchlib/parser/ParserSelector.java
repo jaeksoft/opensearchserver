@@ -38,6 +38,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -63,7 +65,7 @@ public class ParserSelector {
 	}
 
 	public Parser getFileCrawlerDefaultParser() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		if (fileCrawlerDefaultParserFactory == null)
 			return null;
 		return fileCrawlerDefaultParserFactory.getNewParser();
@@ -75,7 +77,7 @@ public class ParserSelector {
 	}
 
 	public Parser getWebCrawlerDefaultParser() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		if (webCrawlerDefaultParserFactory == null)
 			return null;
 		return webCrawlerDefaultParserFactory.getNewParser();
@@ -101,7 +103,7 @@ public class ParserSelector {
 
 	private Parser getParser(ParserFactory parserFactory)
 			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		if (parserFactory == null)
 			return null;
 		return parserFactory.getNewParser();
@@ -109,7 +111,7 @@ public class ParserSelector {
 
 	public Parser getParserFromExtension(String extension)
 			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, MalformedURLException {
+			ClassNotFoundException, MalformedURLException, SearchLibException {
 		ParserFactory parserFactory = null;
 		if (extensionParserMap != null && extension != null)
 			parserFactory = extensionParserMap.get(extension);
@@ -119,15 +121,16 @@ public class ParserSelector {
 
 	public Parser getParserFromMimeType(String contentBaseType)
 			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, MalformedURLException {
+			ClassNotFoundException, MalformedURLException, SearchLibException {
 		ParserFactory parserFactory = null;
 		if (mimeTypeParserMap != null)
 			parserFactory = mimeTypeParserMap.get(contentBaseType);
 		return getParser(parserFactory);
 	}
 
-	public static ParserSelector fromXmlConfig(XPathParser xpp, Node parentNode)
-			throws XPathExpressionException, DOMException, IOException {
+	public static ParserSelector fromXmlConfig(Config config, XPathParser xpp,
+			Node parentNode) throws XPathExpressionException, DOMException,
+			IOException {
 		ParserSelector selector = new ParserSelector();
 		if (parentNode == null)
 			return selector;
@@ -141,8 +144,8 @@ public class ParserSelector {
 		NodeList parserNodes = xpp.getNodeList(parentNode, "parser");
 		for (int i = 0; i < parserNodes.getLength(); i++) {
 			Node parserNode = parserNodes.item(i);
-			ParserFactory parserFactory = ParserFactory.fromXmlConfig(selector,
-					xpp, parserNode);
+			ParserFactory parserFactory = ParserFactory.fromXmlConfig(config,
+					selector, xpp, parserNode);
 
 			if (parserFactory != null) {
 				selector.addParserFactory(parserFactory);

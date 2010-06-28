@@ -57,6 +57,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
@@ -106,6 +107,8 @@ public abstract class Config {
 	private PatternManager inclusionPatternManager = null;
 
 	private PatternManager exclusionPatternManager = null;
+
+	private UrlFilterList urlFilterList = null;
 
 	private FilePathManager filePatternManager = null;
 
@@ -407,12 +410,12 @@ public abstract class Config {
 				File parserFile = new File(indexDir, "parsers.xml");
 				if (parserFile.exists()) {
 					XPathParser xpp = new XPathParser(parserFile);
-					parserSelector = ParserSelector.fromXmlConfig(xpp, xpp
-							.getNode("/parsers"));
+					parserSelector = ParserSelector.fromXmlConfig(this, xpp,
+							xpp.getNode("/parsers"));
 				} else {
 					Node node = xppConfig.getNode("/configuration/parsers");
 					if (node != null)
-						parserSelector = ParserSelector.fromXmlConfig(
+						parserSelector = ParserSelector.fromXmlConfig(this,
 								xppConfig, node);
 				}
 			}
@@ -613,6 +616,38 @@ public abstract class Config {
 			return exclusionPatternManager;
 		} finally {
 			lock.unlock();
+		}
+	}
+
+	public UrlFilterList getUrlFilterList() throws SearchLibException {
+		lock.lock();
+		try {
+			if (urlFilterList == null)
+				urlFilterList = new UrlFilterList(indexDir,
+						"webcrawler-urlfilter.xml");
+			return urlFilterList;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void saveUrlFilterList() throws SearchLibException {
+		ConfigFileRotation cfr = configFiles.get(indexDir,
+				"webcrawler-urlfilter.xml");
+		try {
+			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+					"UTF-8");
+			getUrlFilterList().writeXml(xmlWriter);
+			xmlWriter.endDocument();
+			cfr.rotate();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			cfr.abort();
 		}
 	}
 

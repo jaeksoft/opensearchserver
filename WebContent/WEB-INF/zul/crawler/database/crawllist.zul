@@ -176,12 +176,12 @@
 					<listheader label="Action" width="100px"
 						align="center" />
 				</listhead>
-				<listitem self="@{each=dbcrawlitem}"
-					label="@{dbcrawlitem.name}">
+				<listitem self="@{each=dbcrawlitem}">
 					<listcell label="@{dbcrawlitem.name}" />
 					<listcell
 						label="@{dbcrawlitem.lastCrawlThread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 					<listcell
+						tooltiptext="@{dbcrawlitem.lastCrawlThread.info}"
 						label="@{dbcrawlitem.lastCrawlThread.status}" />
 					<listcell
 						label="@{dbcrawlitem.lastCrawlThread.countInfo}" />
