@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,8 @@ public class WebCrawler extends TemplateAbstract {
 	public final static String root = "web_crawler";
 
 	public final static String[] resources = { "config.xml", "parsers.xml",
-			"requests.xml", "webcrawler-mapping.xml" };
+			"requests.xml", "webcrawler-mapping.xml",
+			"webcrawler-urlfilter.xml" };
 
 	protected WebCrawler() {
 		super(root, resources, publicName, description);
