@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
@@ -115,7 +116,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 						.getAttributeString(valueNode, "removeTag"));
 				String textContent = xpp.getNodeString(valueNode);
 				if (removeTag)
-					textContent = textContent.replaceAll("<[^>]*>", "");
+					textContent = StringUtils.removeTag(textContent);
 				add(fieldName, textContent);
 			}
 		}

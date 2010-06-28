@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.util.map;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,26 +30,26 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-public class GenericMap<T> {
+public class GenericMap<T1, T2 extends Target> {
 
-	private TreeMap<T, List<T>> map;
-	private List<GenericLink<T>> list;
+	private TreeMap<T1, List<T2>> map;
+	private List<GenericLink<T1, T2>> list;
 
 	public GenericMap() {
-		map = new TreeMap<T, List<T>>();
+		map = new TreeMap<T1, List<T2>>();
 		list = null;
 	}
 
-	public List<GenericLink<T>> getList() {
+	public List<GenericLink<T1, T2>> getList() {
 		synchronized (this) {
 			if (list != null)
 				return list;
-			list = new ArrayList<GenericLink<T>>(0);
-			Iterator<Entry<T, List<T>>> it = map.entrySet().iterator();
+			list = new ArrayList<GenericLink<T1, T2>>(0);
+			Iterator<Entry<T1, List<T2>>> it = map.entrySet().iterator();
 			while (it.hasNext()) {
-				Entry<T, List<T>> entry = it.next();
-				for (T t : entry.getValue())
-					list.add(new GenericLink<T>(entry.getKey(), t));
+				Entry<T1, List<T2>> entry = it.next();
+				for (T2 t : entry.getValue())
+					list.add(new GenericLink<T1, T2>(entry.getKey(), t));
 			}
 			return list;
 		}
@@ -62,19 +62,19 @@ public class GenericMap<T> {
 		}
 	}
 
-	public void copyTo(GenericMap<T> dest) {
+	public void copyTo(GenericMap<T1, T2> dest) {
 		synchronized (this) {
 			dest.clear();
-			for (GenericLink<T> lnk : getList())
+			for (GenericLink<T1, T2> lnk : getList())
 				dest.add(lnk.getSource(), lnk.getTarget());
 		}
 	}
 
-	public void add(T source, T target) {
+	public void add(T1 source, T2 target) {
 		synchronized (this) {
-			List<T> l = map.get(source);
+			List<T2> l = map.get(source);
 			if (l == null) {
-				l = new ArrayList<T>();
+				l = new ArrayList<T2>();
 				map.put(source, l);
 			} else if (l.contains(target))
 				return;
@@ -83,10 +83,10 @@ public class GenericMap<T> {
 		}
 	}
 
-	public void remove(GenericLink<T> link) {
+	public void remove(GenericLink<T1, T2> link) {
 		synchronized (this) {
-			T source = link.getSource();
-			List<T> l = map.get(source);
+			T1 source = link.getSource();
+			List<T2> l = map.get(source);
 			if (l == null)
 				return;
 			l.remove(link.getTarget());
@@ -96,7 +96,7 @@ public class GenericMap<T> {
 		}
 	}
 
-	public List<T> getLinks(T source) {
+	public List<T2> getLinks(T1 source) {
 		synchronized (this) {
 			return map.get(source);
 		}

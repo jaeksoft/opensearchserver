@@ -88,12 +88,14 @@
 									align="center" />
 								<listheader label="Index field"
 									align="center" />
+								<listheader width="50px" label="Tags"
+									tooltiptext="Remove tag" align="center" />
 								<listheader width="100px" label="Action"
 									align="center" />
 							</listhead>
 							<auxhead>
 								<auxheader align="center">
-									<textbox cols="50"
+									<textbox cols="30"
 										value="@{dbCrawlList.sqlColumn}" />
 								</auxheader>
 								<auxheader align="center">
@@ -105,6 +107,10 @@
 									</listbox>
 								</auxheader>
 								<auxheader align="center">
+									<checkbox tooltiptext="remove tags"
+										checked="@{dbCrawlList.removeTag}" />
+								</auxheader>
+								<auxheader align="center">
 									<button label="add"
 										forward="onAddField" />
 								</auxheader>
@@ -112,6 +118,10 @@
 							<listitem self="@{each='fieldlink'}">
 								<listcell label="@{fieldlink.source}" />
 								<listcell label="@{fieldlink.target}" />
+								<listcell>
+									<checkbox disabled="true"
+										checked="@{fieldlink.target.removeTag}" />
+								</listcell>
 								<listcell>
 									<button tooltiptext="Remove"
 										image="/images/action_delete.png"

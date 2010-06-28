@@ -26,114 +26,52 @@ package com.jaeksoft.searchlib.crawler;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.util.DomUtils;
-import com.jaeksoft.searchlib.util.GenericLink;
-import com.jaeksoft.searchlib.util.GenericMap;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.util.map.GenericLink;
+import com.jaeksoft.searchlib.util.map.Target;
 
-public class FieldMap extends GenericMap<String> {
+public class FieldMap extends FieldMapGeneric<Target> {
 
-	private File mapFile;
-
-	public FieldMap() {
-		mapFile = null;
+	public FieldMap(File file) throws XPathExpressionException,
+			ParserConfigurationException, SAXException, IOException {
+		super(file, "/map");
 	}
 
-	public FieldMap(File mapFile) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException {
-		this.mapFile = mapFile;
-		if (!mapFile.exists())
-			return;
-		XPathParser xpp = new XPathParser(mapFile);
-		load(xpp, xpp.getNode("/map"));
+	public FieldMap(XPathParser xpp, Node node) throws XPathExpressionException {
+		super(xpp, node);
 	}
 
-	public FieldMap(XPathParser xpp, Node parentNode)
-			throws XPathExpressionException {
-		load(xpp, parentNode);
+	@Override
+	protected Target loadTarget(String targetName, Node node) {
+		return new Target(targetName);
 	}
 
-	public void load(XPathParser xpp, Node parentNode)
-			throws XPathExpressionException {
-		synchronized (this) {
-			if (parentNode == null)
-				return;
-			NodeList nodeList = xpp.getNodeList(parentNode, "link");
-			int l = nodeList.getLength();
-			for (int i = 0; i < l; i++) {
-				Node node = nodeList.item(i);
-				String source = DomUtils.getAttributeText(node, "source");
-				if (source == null)
-					continue;
-				String target = DomUtils.getAttributeText(node, "target");
-				if (target == null)
-					continue;
-				add(source, target);
-			}
-		}
-	}
-
-	public void store(XmlWriter xmlWriter) throws SAXException {
-		for (GenericLink<String> link : getList()) {
-			xmlWriter.startElement("link", "source", link.getSource(),
-					"target", link.getTarget());
-			xmlWriter.endElement();
-		}
-	}
-
-	public void store() throws TransformerConfigurationException, SAXException,
-			IOException {
-		synchronized (this) {
-			if (!mapFile.exists())
-				mapFile.createNewFile();
-			PrintWriter pw = new PrintWriter(mapFile);
-			try {
-				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-				xmlWriter.startElement("map");
-				store(xmlWriter);
-				xmlWriter.endElement();
-				xmlWriter.endDocument();
-			} finally {
-				pw.close();
-			}
-		}
+	@Override
+	protected void writeTarget(XmlWriter xmlWriter, Target target)
+			throws SAXException {
 	}
 
 	public void mapIndexDocument(IndexDocument source, IndexDocument target) {
-		for (GenericLink<String> link : getList()) {
+		for (GenericLink<String, Target> link : getList()) {
 			FieldContent fc = source.getField(link.getSource());
-			String targetField = link.getTarget();
+			String targetField = link.getTarget().getName();
 			if (fc != null) {
 				List<String> values = fc.getValues();
 				if (values != null)
 					for (String value : values)
 						target.add(targetField, value);
 			}
-		}
-	}
-
-	public void mapResultSet(ResultSet resultSet, IndexDocument target)
-			throws SQLException {
-		for (GenericLink<String> link : getList()) {
-			String content = resultSet.getString(link.getSource());
-			if (content != null)
-				target.add(link.getTarget(), content);
 		}
 	}
 

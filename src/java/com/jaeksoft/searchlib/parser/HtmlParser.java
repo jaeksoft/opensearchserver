@@ -265,8 +265,8 @@ public class HtmlParser extends Parser {
 		String[] p1 = { "html", "head", "meta" };
 		String[] p2 = { "html", "meta" };
 		List<Node> metas = new ArrayList<Node>();
-		DomUtils.getNodes(doc, p1, metas);
-		DomUtils.getNodes(doc, p2, metas);
+		DomUtils.getNodes(metas, doc, p1);
+		DomUtils.getNodes(metas, doc, p2);
 		return metas;
 	}
 

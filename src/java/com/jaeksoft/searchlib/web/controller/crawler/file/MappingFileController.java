@@ -41,7 +41,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.GenericLink;
+import com.jaeksoft.searchlib.util.map.GenericLink;
+import com.jaeksoft.searchlib.util.map.Target;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class MappingFileController extends CrawlerController implements
@@ -136,7 +137,8 @@ public class MappingFileController extends CrawlerController implements
 		if (selectedUrlField == null || selectedIndexField == null)
 			return;
 		FieldMap fieldMap = getFieldMap();
-		fieldMap.add(selectedUrlField.getName(), selectedIndexField.getName());
+		fieldMap.add(selectedUrlField.getName(), new Target(selectedIndexField
+				.getName()));
 		fieldMap.store();
 		reloadPage();
 	}
@@ -147,7 +149,8 @@ public class MappingFileController extends CrawlerController implements
 			XPathExpressionException, ParserConfigurationException {
 		if (!isFileCrawlerParametersRights())
 			throw new SearchLibException("Not allowed");
-		GenericLink<String> link = (GenericLink<String>) event.getData();
+		GenericLink<String, Target> link = (GenericLink<String, Target>) event
+				.getData();
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
 		fieldMap.store();
@@ -157,9 +160,9 @@ public class MappingFileController extends CrawlerController implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render(Listitem item, Object data) throws Exception {
-		GenericLink<String> link = (GenericLink<String>) data;
+		GenericLink<String, Target> link = (GenericLink<String, Target>) data;
 		new Listcell(link.getSource()).setParent(item);
-		new Listcell(link.getTarget()).setParent(item);
+		new Listcell(link.getTarget().getName()).setParent(item);
 		Listcell listcell = new Listcell();
 		Image image = new Image("/images/action_delete.png");
 		image.addForward(null, this, "onLinkRemove", data);

@@ -45,8 +45,9 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
+import com.jaeksoft.searchlib.crawler.database.DatabaseFieldTarget;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.GenericLink;
+import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -86,6 +87,8 @@ public class DatabaseCrawlListController extends CrawlerController {
 	private String sqlColumn;
 
 	private SchemaField selectedIndexField;
+
+	private boolean removeTag;
 
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
@@ -163,7 +166,11 @@ public class DatabaseCrawlListController extends CrawlerController {
 		if (sqlColumn == null || sqlColumn.length() == 0
 				|| selectedIndexField == null)
 			return;
-		currentCrawl.getFieldMap().add(sqlColumn, selectedIndexField.getName());
+		currentCrawl.getFieldMap()
+				.add(
+						sqlColumn,
+						new DatabaseFieldTarget(selectedIndexField.getName(),
+								removeTag));
 		reloadPage();
 	}
 
@@ -172,7 +179,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 			InterruptedException {
 		if (comp == null)
 			return;
-		GenericLink<String> fieldLink = (GenericLink<String>) comp
+		GenericLink<String, DatabaseFieldTarget> fieldLink = (GenericLink<String, DatabaseFieldTarget>) comp
 				.getAttribute("fieldlink");
 		if (fieldLink == null)
 			return;
@@ -278,6 +285,21 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	@Override
 	public void reset() {
+	}
+
+	/**
+	 * @param removeTag
+	 *            the removeTag to set
+	 */
+	public void setRemoveTag(boolean removeTag) {
+		this.removeTag = removeTag;
+	}
+
+	/**
+	 * @return the removeTag
+	 */
+	public boolean isRemoveTag() {
+		return removeTag;
 	}
 
 }

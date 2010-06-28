@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -56,22 +55,22 @@ public class DomUtils {
 		}
 	}
 
-	final public static void getNodes(Document doc, String[] path,
-			List<Node> nodes) {
+	final public static void getNodes(List<Node> nodes, Node parent,
+			String... path) {
 		if (path == null)
 			return;
 		if (path.length == 0)
 			return;
-		getNodes(doc, 0, path, nodes);
+		getNodes(parent, 0, path, nodes);
 	}
 
-	final public static List<Node> getNodes(Document doc, String[] path) {
+	final public static List<Node> getNodes(Node parent, String... path) {
 		if (path == null)
 			return null;
 		if (path.length == 0)
 			return null;
 		List<Node> nodes = new ArrayList<Node>();
-		getNodes(doc, path, nodes);
+		getNodes(nodes, parent, path);
 		return nodes;
 	}
 

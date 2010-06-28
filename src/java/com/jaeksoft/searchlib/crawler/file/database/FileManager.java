@@ -53,6 +53,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.map.Target;
 
 public class FileManager {
 
@@ -397,15 +398,15 @@ public class FileManager {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 
-		List<String> mappedPath = targetClient.getFileCrawlerFieldMap()
+		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
 				.getLinks(FileItemFieldEnum.directoryUri.name());
 
 		if (mappedPath.isEmpty())
 			return 0;
 
 		SearchRequest deleteRequestTarget = targetClient.getNewSearchRequest();
-		deleteRequestTarget.setQueryString(buildQueryString(mappedPath.get(0),
-				rowToDelete, true));
+		deleteRequestTarget.setQueryString(buildQueryString(mappedPath.get(0)
+				.getName(), rowToDelete, true));
 		deleteRequestTarget.setDelete(true);
 
 		return targetClient.search(deleteRequestTarget).getNumFound();
@@ -425,7 +426,7 @@ public class FileManager {
 			fileDbClient.search(deleteRequest);
 
 			// Delete in final index if a mapping is found
-			List<String> mappedField = targetClient.getFileCrawlerFieldMap()
+			List<Target> mappedField = targetClient.getFileCrawlerFieldMap()
 					.getLinks(FileItemFieldEnum.originalUri.name());
 
 			if (mappedField.isEmpty())
@@ -433,7 +434,7 @@ public class FileManager {
 
 			SearchRequest deleteRequestTarget = getDBSearchRequest();
 			deleteRequestTarget.setQueryString(buildQueryString(mappedField
-					.get(0), list, false));
+					.get(0).getName(), list, false));
 
 			deleteRequestTarget.setDelete(true);
 			return targetClient.search(deleteRequestTarget).getNumFound();

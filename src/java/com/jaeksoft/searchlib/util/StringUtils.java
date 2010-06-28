@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.util;
 
 import java.text.DecimalFormat;
+import java.util.regex.Pattern;
 
 public class StringUtils {
 
@@ -56,5 +57,11 @@ public class StringUtils {
 				selectedUnit = unit;
 		}
 		return selectedUnit.render(size);
+	}
+
+	private final static Pattern removeTagPattern = Pattern.compile("<[^>]*>");
+
+	public static String removeTag(String text) {
+		return removeTagPattern.matcher(text).replaceAll("");
 	}
 }

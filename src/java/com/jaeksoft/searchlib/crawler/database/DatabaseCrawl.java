@@ -30,7 +30,6 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -54,7 +53,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	private LanguageEnum lang;
 
-	private FieldMap fieldMap;
+	private DatabaseFieldMap fieldMap;
 
 	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster) {
 		this.databaseCrawlMaster = databaseCrawlMaster;
@@ -65,7 +64,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		password = null;
 		sql = null;
 		lang = LanguageEnum.UNDEFINED;
-		fieldMap = new FieldMap();
+		fieldMap = new DatabaseFieldMap();
 		lastCrawlThread = null;
 	}
 
@@ -195,7 +194,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	/**
 	 * @return the fieldMap
 	 */
-	public FieldMap getFieldMap() {
+	public DatabaseFieldMap getFieldMap() {
 		return fieldMap;
 	}
 

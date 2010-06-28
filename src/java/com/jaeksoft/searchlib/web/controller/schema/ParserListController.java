@@ -45,7 +45,8 @@ import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.GenericLink;
+import com.jaeksoft.searchlib.util.map.GenericLink;
+import com.jaeksoft.searchlib.util.map.Target;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ParserListController extends CommonController implements
@@ -186,7 +187,8 @@ public class ParserListController extends CommonController implements
 		if (selectedParserField == null || selectedIndexField == null)
 			return;
 		FieldMap fieldMap = getFieldMap();
-		fieldMap.add(selectedParserField.name(), selectedIndexField.getName());
+		fieldMap.add(selectedParserField.name(), new Target(selectedIndexField
+				.getName()));
 		getClient().saveParsers();
 		reloadPage();
 	}
@@ -195,7 +197,8 @@ public class ParserListController extends CommonController implements
 	public void onLinkRemove(Event event) throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
-		GenericLink<String> link = (GenericLink<String>) event.getData();
+		GenericLink<String, Target> link = (GenericLink<String, Target>) event
+				.getData();
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
 		getClient().saveParsers();
@@ -205,9 +208,9 @@ public class ParserListController extends CommonController implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render(Listitem item, Object data) throws Exception {
-		GenericLink<String> link = (GenericLink<String>) data;
+		GenericLink<String, Target> link = (GenericLink<String, Target>) data;
 		new Listcell(link.getSource()).setParent(item);
-		new Listcell(link.getTarget()).setParent(item);
+		new Listcell(link.getTarget().getName()).setParent(item);
 		Listcell listcell = new Listcell();
 		Image image = new Image("/images/action_delete.png");
 		image.addForward(null, this, "onLinkRemove", data);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,23 +22,23 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.util.map;
 
-public class GenericLink<T> {
+public class GenericLink<T1, T2> {
 
-	private T source;
-	private T target;
+	private T1 source;
+	private T2 target;
 
-	protected GenericLink(T source, T target) {
+	protected GenericLink(T1 source, T2 target) {
 		this.source = source;
 		this.target = target;
 	}
 
-	public T getSource() {
+	public T1 getSource() {
 		return source;
 	}
 
-	public T getTarget() {
+	public T2 getTarget() {
 		return target;
 	}
 }
