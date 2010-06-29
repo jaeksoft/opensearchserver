@@ -24,7 +24,11 @@
 
 package com.jaeksoft.searchlib.crawler.database;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.TreeMap;
+
+import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -80,6 +84,27 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 		synchronized (threadMap) {
 			threadMap.remove(((DatabaseCrawlThread) crawlThread)
 					.getDatabaseCrawl());
+			if (threadMap.size() == 0) {
+				if (config instanceof Client) {
+					try {
+						((Client) config).reload(null);
+					} catch (IOException e) {
+						setError(e);
+					} catch (URISyntaxException e) {
+						setError(e);
+					} catch (SearchLibException e) {
+						setError(e);
+					} catch (InstantiationException e) {
+						setError(e);
+					} catch (IllegalAccessException e) {
+						setError(e);
+					} catch (ClassNotFoundException e) {
+						setError(e);
+					} catch (HttpException e) {
+						setError(e);
+					}
+				}
+			}
 		}
 	}
 

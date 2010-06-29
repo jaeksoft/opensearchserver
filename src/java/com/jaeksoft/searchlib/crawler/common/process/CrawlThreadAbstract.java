@@ -111,6 +111,14 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		}
 	}
 
+	protected void setError(Exception e) {
+		synchronized (this) {
+			setStatus(CrawlStatus.ERROR);
+			setInfo(e.getMessage() == null ? e.toString() : e.getMessage());
+		}
+
+	}
+
 	protected void setInfo(String info) {
 		synchronized (this) {
 			this.info = info;
