@@ -38,6 +38,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -59,8 +60,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		if (tokenizerFactoryClassName == null)
 			tokenizerFactoryClassName = "StandardTokenizer";
 		this.tokenizer = (TokenizerFactory) Class.forName(
-				"com.jaeksoft.searchlib.analysis." + tokenizerFactoryClassName)
-				.newInstance();
+				"com.jaeksoft.searchlib.analysis.tokenizer."
+						+ tokenizerFactoryClassName).newInstance();
 		this.tokenizer.setParams(xpp, node);
 		this.filters = new ArrayList<FilterFactory>();
 	}

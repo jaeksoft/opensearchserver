@@ -32,7 +32,9 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,6 +65,7 @@ public class UrlItem implements Serializable {
 	private URL cachedUrl;
 	private URI checkedUri;
 	private String host;
+	private List<String> subhost;
 	private Date when;
 	private RobotsTxtStatus robotsTxtStatus;
 	private FetchStatus fetchStatus;
@@ -82,6 +85,7 @@ public class UrlItem implements Serializable {
 		lang = null;
 		langMethod = null;
 		host = null;
+		subhost = null;
 		when = new Date();
 		robotsTxtStatus = RobotsTxtStatus.UNKNOWN;
 		fetchStatus = FetchStatus.UN_FETCHED;
@@ -96,6 +100,7 @@ public class UrlItem implements Serializable {
 		this();
 		setUrl(doc.getValue(UrlItemFieldEnum.url.name(), 0));
 		setHost(doc.getValue(UrlItemFieldEnum.host.name(), 0));
+		setSubHost(doc.getValueList(UrlItemFieldEnum.subhost.name()));
 		setContentBaseType(doc.getValue(
 				UrlItemFieldEnum.contentBaseType.name(), 0));
 		setContentTypeCharset(doc.getValue(UrlItemFieldEnum.contentTypeCharset
@@ -120,13 +125,20 @@ public class UrlItem implements Serializable {
 		setUrl(sUrl);
 	}
 
+	public List<String> getSubHost() {
+		return subhost;
+	}
+
+	public void setSubHost(List<String> subhost) {
+		this.subhost = subhost;
+	}
+
 	public String getHost() {
 		return host;
 	}
 
 	public void setHost(String host) {
 		this.host = host;
-
 	}
 
 	public void checkHost() throws MalformedURLException {
@@ -311,7 +323,6 @@ public class UrlItem implements Serializable {
 	public void setUrl(String url) {
 		this.url = url;
 		cachedUrl = null;
-
 	}
 
 	public Date getWhen() {
@@ -364,14 +375,32 @@ public class UrlItem implements Serializable {
 				&& indexStatus == IndexStatus.INDEXED;
 	}
 
+	private static List<String> buildSubHost(String host) {
+		if (host == null)
+			return null;
+		List<String> subhost = new ArrayList<String>();
+		int lastPos = host.length();
+		while (lastPos > 0) {
+			lastPos = host.lastIndexOf('.', lastPos - 1);
+			if (lastPos == -1)
+				break;
+			subhost.add(host.substring(lastPos + 1));
+		}
+		subhost.add(host);
+		return subhost;
+	}
+
 	public void populate(IndexDocument indexDocument)
 			throws MalformedURLException {
 		indexDocument.set(UrlItemFieldEnum.url.name(), getUrl());
 		indexDocument.set(UrlItemFieldEnum.when.name(), getWhenDateFormat()
 				.format(when));
 		URL url = getURL();
-		if (url != null)
+		if (url != null) {
 			indexDocument.set(UrlItemFieldEnum.host.name(), url.getHost());
+			indexDocument.set(UrlItemFieldEnum.subhost.name(), buildSubHost(url
+					.getHost()));
+		}
 		if (responseCode != null)
 			indexDocument.set(UrlItemFieldEnum.responseCode.name(),
 					responseCode);

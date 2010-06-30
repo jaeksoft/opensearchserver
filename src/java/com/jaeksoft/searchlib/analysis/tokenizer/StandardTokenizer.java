@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,27 +22,23 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.tokenizer;
 
-import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
-import org.w3c.dom.Node;
 
-import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 
-public abstract class TokenizerFactory implements ParamsInterface {
+public class StandardTokenizer extends TokenizerFactory {
 
-	public abstract Tokenizer create(Reader reader);
-
-	public abstract String getDescription();
-
-	public String getClassName() {
-		return this.getClass().getSimpleName();
+	@Override
+	public Tokenizer create(Reader reader) {
+		return new org.apache.lucene.analysis.standard.StandardTokenizer(reader);
 	}
 
-	public void setParams(XPathParser xpp, Node node) throws IOException {
+	@Override
+	public String getDescription() {
+		return "Splits words at punctuation characters, removing punctuation.";
 	}
-
 }

@@ -36,7 +36,7 @@
 		</listhead>
 		<auxhead>
 			<auxheader>
-				<vbox>
+				<vbox width="100%">
 					<textbox width="90%" value="@{searchUrl.like}" />
 					<button label="Search" forward="onSearch" />
 				</vbox>
@@ -97,7 +97,11 @@
 					selectedItem="@{searchUrl.indexStatus}" />
 			</auxheader>
 			<auxheader>
-				<textbox width="90%" value="@{searchUrl.host}" />
+				<vbox width="100%">
+					<textbox width="90%" value="@{searchUrl.host}" />
+					<checkbox label="with sub"
+						checked="@{searchUrl.withSubDomain}" />
+				</vbox>
 			</auxheader>
 		</auxhead>
 		<listitem self="@{each='url'}">

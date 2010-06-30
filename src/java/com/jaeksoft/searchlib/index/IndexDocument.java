@@ -200,6 +200,13 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		add(field, value);
 	}
 
+	public void set(String field, List<String> values) {
+		FieldContent fc = fields.get(field);
+		if (fc != null)
+			fc.clear();
+		add(field, values);
+	}
+
 	public void set(String field, Object value) {
 		set(field, value.toString());
 	}

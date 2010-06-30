@@ -104,6 +104,21 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
+	public boolean isWithSubDomain() {
+		synchronized (this) {
+			Boolean b = (Boolean) ScopeAttribute.SEARCH_URL_SUBHOST.get(this);
+			if (b != null)
+				return b;
+			return false;
+		}
+	}
+
+	public void setWithSubDomain(boolean b) {
+		synchronized (this) {
+			ScopeAttribute.SEARCH_URL_SUBHOST.set(this, new Boolean(b));
+		}
+	}
+
 	public void setResponseCode(Integer v) {
 		synchronized (this) {
 			ScopeAttribute.SEARCH_URL_RESPONSE_CODE.set(this, v);
@@ -342,8 +357,8 @@ public class UrlController extends CommonController implements AfterCompose {
 			UrlManager urlManager, int start, int rows, List<UrlItem> urlList)
 			throws SearchLibException {
 		SearchRequest searchRequest = urlManager.urlQuery(urlSearchTemplate,
-				getLike(), getHost(), getLang(), getLangMethod(),
-				getContentBaseType(), getContentTypeCharset(),
+				getLike(), getHost(), isWithSubDomain(), getLang(),
+				getLangMethod(), getContentBaseType(), getContentTypeCharset(),
 				getContentEncoding(), getMinContentLength(),
 				getMaxContentLength(), getRobotsTxtStatus(), getFetchStatus(),
 				getResponseCode(), getParserStatus(), getIndexStatus(),

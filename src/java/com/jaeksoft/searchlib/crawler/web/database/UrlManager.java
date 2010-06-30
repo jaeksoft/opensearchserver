@@ -73,7 +73,7 @@ public class UrlManager {
 				"contentLength"), LANG("lang"), LANGMETHOD("langMethod"), ROBOTSTXTSTATUS(
 				"robotsTxtStatus"), FETCHSTATUS("fetchStatus"), RESPONSECODE(
 				"responseCode"), PARSERSTATUS("parserStatus"), INDEXSTATUS(
-				"indexStatus"), HOST("host");
+				"indexStatus"), HOST("host"), SUBHOST("subhost");
 
 		private String name;
 
@@ -388,13 +388,14 @@ public class UrlManager {
 	}
 
 	public SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
-			String like, String host, String lang, String langMethod,
-			String contentBaseType, String contentTypeCharset,
-			String contentEncoding, Integer minContentLength,
-			Integer maxContentLength, RobotsTxtStatus robotsTxtStatus,
-			FetchStatus fetchStatus, Integer responseCode,
-			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
-			Date endDate) throws SearchLibException {
+			String like, String host, boolean includingSubDomain, String lang,
+			String langMethod, String contentBaseType,
+			String contentTypeCharset, String contentEncoding,
+			Integer minContentLength, Integer maxContentLength,
+			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
+			Integer responseCode, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startDate, Date endDate)
+			throws SearchLibException {
 		try {
 			SearchRequest searchRequest = urlDbClient
 					.getNewSearchRequest(urlSearchTemplate.name());
@@ -414,8 +415,12 @@ public class UrlManager {
 			if (host != null) {
 				host = host.trim();
 				if (host.length() > 0)
-					Field.HOST.addFilterQuery(searchRequest, SearchRequest
-							.escapeQuery(host));
+					if (includingSubDomain)
+						Field.SUBHOST.addFilterQuery(searchRequest,
+								SearchRequest.escapeQuery(host));
+					else
+						Field.HOST.addFilterQuery(searchRequest, SearchRequest
+								.escapeQuery(host));
 			}
 			if (lang != null) {
 				lang = lang.trim();

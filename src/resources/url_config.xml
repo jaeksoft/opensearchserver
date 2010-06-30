@@ -32,6 +32,7 @@
 			<field name="outlink" indexed="yes" />
 			<field name="inlink" indexed="yes" />
 			<field name="host" indexed="yes" stored="yes" />
+			<field name="subhost" indexed="yes" stored="no" />
 			<field name="when" indexed="yes" stored="yes" />
 			<field name="responseCode" indexed="yes" stored="yes" />
 			<field name="robotsTxtStatus" indexed="yes" stored="yes" />

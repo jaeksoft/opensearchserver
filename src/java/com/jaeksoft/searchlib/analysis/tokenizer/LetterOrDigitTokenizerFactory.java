@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,22 +22,35 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.tokenizer;
 
 import java.io.Reader;
 
+import org.apache.lucene.analysis.CharTokenizer;
 import org.apache.lucene.analysis.Tokenizer;
 
-public class WhitespaceTokenizer extends TokenizerFactory {
+public class LetterOrDigitTokenizerFactory extends TokenizerFactory {
+
+	public class LetterOrDigitTokenizer extends CharTokenizer {
+
+		public LetterOrDigitTokenizer(Reader input) {
+			super(input);
+		}
+
+		@Override
+		protected boolean isTokenChar(char c) {
+			return Character.isLetterOrDigit(c);
+		}
+	}
 
 	@Override
 	public Tokenizer create(Reader reader) {
-		return new org.apache.lucene.analysis.WhitespaceTokenizer(reader);
+		return new LetterOrDigitTokenizer(reader);
 	}
 
 	@Override
 	public String getDescription() {
-		return "Splits text into word each time a white space is encountered";
+		return "This tokenizer considers each non-digit, non-letter character to be a separator between words";
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,22 +22,24 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.tokenizer;
 
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
 
-public class RussianLetterTokenizer extends TokenizerFactory {
+import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
+
+public class ChineseTokenizer extends TokenizerFactory {
 
 	@Override
 	public Tokenizer create(Reader reader) {
-		return new org.apache.lucene.analysis.ru.RussianLetterTokenizer(reader);
+		return new org.apache.lucene.analysis.cn.ChineseTokenizer(reader);
 	}
 
 	@Override
 	public String getDescription() {
-		return "Russian tokenizer";
+		return "Chinese tokenizer";
 	}
 
 }

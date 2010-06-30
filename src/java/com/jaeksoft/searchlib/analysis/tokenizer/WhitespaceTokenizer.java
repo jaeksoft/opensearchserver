@@ -22,21 +22,22 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.tokenizer;
 
 import java.io.Reader;
 
-import org.apache.lucene.analysis.CharTokenizer;
+import org.apache.lucene.analysis.Tokenizer;
 
-public class LetterOrDigitTokenizer extends CharTokenizer {
+public class WhitespaceTokenizer extends TokenizerFactory {
 
-	public LetterOrDigitTokenizer(Reader input) {
-		super(input);
+	@Override
+	public Tokenizer create(Reader reader) {
+		return new org.apache.lucene.analysis.WhitespaceTokenizer(reader);
 	}
 
 	@Override
-	protected boolean isTokenChar(char c) {
-		return Character.isLetterOrDigit(c);
+	public String getDescription() {
+		return "Splits text into word each time a white space is encountered";
 	}
 
 }

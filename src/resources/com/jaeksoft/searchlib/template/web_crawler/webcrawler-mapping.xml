@@ -21,6 +21,7 @@
 <map>
 	<link source="contentBaseType" target="contentBaseType" />
 	<link source="host" target="host" />
+	<link source="subhost" target="subhost" />
 	<link source="lang" target="lang" />
 	<link source="url" target="url" />
 	<link source="url" target="urlSplit" />
