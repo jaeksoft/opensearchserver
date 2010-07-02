@@ -25,6 +25,54 @@
 package com.jaeksoft.searchlib.parser;
 
 public enum ParserFieldEnum {
-	url, title, filename, body, meta_keywords, meta_description, meta_robots, lang_method, internal_link, external_link, author, subject, content, producer, keywords, creation_date, modification_date, language, number_of_pages, note, other, charset, internal_nofollow, external_link_nofollow, lang, content_type;
+	url,
+
+	title,
+
+	filename,
+
+	body,
+
+	meta_keywords,
+
+	meta_description,
+
+	meta_robots,
+
+	lang_method,
+
+	internal_link,
+
+	external_link,
+
+	author,
+
+	subject,
+
+	content,
+
+	producer,
+
+	keywords,
+
+	creation_date,
+
+	modification_date,
+
+	language,
+
+	number_of_pages,
+
+	note,
+
+	other,
+
+	charset,
+
+	internal_nofollow,
+
+	external_link_nofollow,
+
+	lang, content_type;
 
 }

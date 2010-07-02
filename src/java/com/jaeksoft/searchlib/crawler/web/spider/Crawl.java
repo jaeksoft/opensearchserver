@@ -102,6 +102,7 @@ public class Crawl {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
 		}
+
 		IndexDocument sourceDocument = new IndexDocument();
 		urlItem.populate(sourceDocument);
 		parser.setSourceDocument(sourceDocument);
