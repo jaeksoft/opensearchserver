@@ -36,6 +36,7 @@ import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 
@@ -71,21 +72,19 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		return updatedIndexDocumentCount;
 	}
 
-	@Override
-	public void release() {
-	}
-
-	private void index(List<IndexDocument> indexDocumentList, int limit)
+	private boolean index(List<IndexDocument> indexDocumentList, int limit)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
-			return;
+			return false;
+		setStatus(CrawlStatus.INDEXATION);
 		client.updateDocuments(indexDocumentList);
 		pendingIndexDocumentCount -= i;
 		updatedIndexDocumentCount += i;
 		indexDocumentList.clear();
+		return true;
 	}
 
 	public DatabaseCrawl getDatabaseCrawl() {
@@ -94,6 +93,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
+		setStatus(CrawlStatus.STARTING);
 		JDBCConnection connectionManager = new JDBCConnection();
 		connectionManager.setDriver(databaseCrawl.getDriverClass());
 		connectionManager.setUrl(databaseCrawl.getUrl());
@@ -108,13 +108,14 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			ResultSet resultSet = query.getResultSet();
 			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>();
 			while (resultSet.next()) {
-				IndexDocument indexDocument = new IndexDocument(databaseCrawl
-						.getLang());
+				IndexDocument indexDocument = new IndexDocument(
+						databaseCrawl.getLang());
 				databaseCrawl.getFieldMap().mapResultSet(resultSet,
 						indexDocument);
 				indexDocumentList.add(indexDocument);
 				pendingIndexDocumentCount++;
-				index(indexDocumentList, 1000);
+				if (index(indexDocumentList, 1000))
+					setStatus(CrawlStatus.CRAWL);
 			}
 			index(indexDocumentList, 0);
 			if (updatedIndexDocumentCount > 0)

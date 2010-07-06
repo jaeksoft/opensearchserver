@@ -31,9 +31,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
@@ -102,6 +105,15 @@ public class WriterNativeOSSE extends WriterAbstract {
 			if (updateDocument(schema, document))
 				i++;
 		return i;
+	}
+
+	@Override
+	public void deleteDocuments(SearchRequest query)
+			throws CorruptIndexException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, ParseException,
+			SyntaxError {
+		throw new RuntimeException("Not yet implemented");
+
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,14 +22,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index;
+package com.jaeksoft.searchlib.replication;
 
+public class ReplicationProcess implements Runnable {
 
-public abstract class ReaderAbstract extends NameFilter implements
-		ReaderInterface {
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
 
-	protected ReaderAbstract(String indexName) {
-		super(indexName);
 	}
 
 }

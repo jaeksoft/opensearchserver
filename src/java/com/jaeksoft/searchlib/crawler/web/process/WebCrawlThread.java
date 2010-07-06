@@ -82,6 +82,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	@Override
 	public void runner() throws Exception {
 
+		Config config = getConfig();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		boolean dryRun = propertyManager.getDryRun().getValue();
 
@@ -89,12 +90,12 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		currentStats.addListSize(urlList.size());
 
 		Iterator<UrlItem> iterator = urlList.iterator();
-		WebCrawlMaster crawlMaster = (WebCrawlMaster) getCrawlMaster();
+		WebCrawlMaster crawlMaster = (WebCrawlMaster) getThreadMaster();
 		UrlCrawlQueue crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 
 		while (iterator.hasNext()) {
 
-			if (isAbort() || crawlMaster.isAbort())
+			if (isAborted() || crawlMaster.isAborted())
 				break;
 
 			if (crawlMaster.urlLeft() < 0)
@@ -121,11 +122,13 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 
 	private Crawl crawl(boolean dryRun) throws SearchLibException {
 
+		Config config = getConfig();
+
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
-		Crawl crawl = new Crawl(currentUrlItem, config, config
-				.getParserSelector());
+		Crawl crawl = new Crawl(currentUrlItem, config,
+				config.getParserSelector());
 
 		try {
 			// Check the url
@@ -196,6 +199,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	public void release() {
 		httpDownloader.release();
 		httpDownloaderRobotsTxt.release();
+		super.release();
 	}
 
 	@Override

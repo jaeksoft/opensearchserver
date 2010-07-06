@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -52,10 +52,11 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
+		Config config = getConfig();
 		FilePropertyManager propertyManager = config.getFilePropertyManager();
 		boolean dryRun = propertyManager.getDryRun().getValue();
 
-		CrawlFileMaster crawlMaster = (CrawlFileMaster) getCrawlMaster();
+		CrawlFileMaster crawlMaster = (CrawlFileMaster) getThreadMaster();
 		FileCrawlQueue crawlQueue = (FileCrawlQueue) crawlMaster
 				.getCrawlQueue();
 
@@ -65,7 +66,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 		while ((file = crawlMaster.getNextFile()) != null) {
 
-			if (isAbort() || crawlMaster.isAbort())
+			if (isAborted() || crawlMaster.isAborted())
 				return;
 
 			currentFileItem = new FileItem(file);
@@ -86,7 +87,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
-		CrawlFile crawl = new CrawlFile(currentFileItem, config, currentStats);
+		CrawlFile crawl = new CrawlFile(currentFileItem, getConfig(),
+				currentStats);
 
 		// Fetch started
 		currentStats.incFetchedCount();
@@ -124,10 +126,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		if (currentFileItem != null)
 			return currentFileItem.getURI().toASCIIString();
 		return "";
-	}
-
-	@Override
-	public void release() {
 	}
 
 }

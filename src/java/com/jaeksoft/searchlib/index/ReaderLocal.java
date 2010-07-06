@@ -38,22 +38,22 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Explanation;
+import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
@@ -186,6 +186,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public long getVersion() {
 		r.lock();
 		try {
@@ -204,6 +205,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException {
 		r.lock();
@@ -214,6 +216,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public int getDocFreq(Term term) throws IOException {
 		r.lock();
 		try {
@@ -265,13 +268,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public void close(boolean bDeleteDirectory) {
 		w.lock();
 		try {
-			if (indexReader != null) {
-				indexReader.close();
-				indexReader = null;
-			}
 			if (indexSearcher != null) {
 				indexSearcher.close();
 				indexSearcher = null;
+			}
+			if (indexReader != null) {
+				indexReader.close();
+				indexReader = null;
 			}
 			if (indexDirectory != null) {
 				if (bDeleteDirectory)
@@ -286,6 +289,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public void close() {
 		close(false);
 	}
@@ -325,6 +329,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public ResultSingle search(SearchRequest searchRequest) throws IOException,
 			ParseException, SyntaxError, SearchLibException,
 			InstantiationException, IllegalAccessException,
@@ -337,36 +342,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			throws IOException, ParseException, SyntaxError {
 		r.lock();
 		try {
-			Explanation explanation = indexSearcher.explain(searchRequest
-					.getQuery(), docId);
+			Explanation explanation = indexSearcher.explain(
+					searchRequest.getQuery(), docId);
 			return explanation.toString();
-		} finally {
-			r.unlock();
-		}
-	}
-
-	public boolean deleteDocument(int docId) throws StaleReaderException,
-			CorruptIndexException, LockObtainFailedException, IOException {
-		r.lock();
-		try {
-			fastDeleteDocument(docId);
-			return true;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	public int deleteDocuments(Collection<Integer> docIds)
-			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException {
-		r.lock();
-		try {
-			int count = 0;
-			for (Integer docId : docIds) {
-				fastDeleteDocument(docId);
-				count++;
-			}
-			return count;
 		} finally {
 			r.unlock();
 		}
@@ -521,8 +499,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			indexDir.mkdirs();
 
 		ReaderLocal reader = ReaderLocal.findMostRecent(indexConfig.getName(),
-				indexDir, indexConfig.getSimilarityClass(), indexConfig
-						.getReadOnly());
+				indexDir, indexConfig.getSimilarityClass(),
+				indexConfig.getReadOnly());
 
 		if (reader == null) {
 			if (!createIfNotExists)
@@ -532,8 +510,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 					indexConfig.getSimilarityClass(), indexConfig.getReadOnly());
 		}
 
-		reader.initCache(indexConfig.getSearchCache(), indexConfig
-				.getFilterCache(), indexConfig.getFieldCache());
+		reader.initCache(indexConfig.getSearchCache(),
+				indexConfig.getFilterCache(), indexConfig.getFieldCache());
 		return reader;
 	}
 
@@ -546,6 +524,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public void reload() throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		w.lock();
@@ -558,6 +537,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public void swap(long version, boolean deleteOld) throws IOException {
 		ReaderLocal newReader = null;
 		if (version > 0)
@@ -617,7 +597,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			Field defaultField, Analyzer analyzer) throws IOException,
 			ParseException, SyntaxError, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		boolean isDelete = searchRequest.isDelete();
 
 		boolean isFacet = searchRequest.isFacet();
 
@@ -626,9 +605,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		Sort sort = searchRequest.getSortList().getLuceneSort();
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
-				filterHits, sort, isDelete, isFacet);
-		if (isDelete && dsh.getDocNumFound() > 0)
-			reload();
+				filterHits, sort, isFacet);
 		return dsh;
 	}
 
@@ -643,6 +620,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError {
 		r.lock();
@@ -663,6 +641,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public boolean sameIndex(ReaderInterface reader) {
 		r.lock();
 		try {
@@ -676,6 +655,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public IndexStatistics getStatistics() {
 		r.lock();
 		try {
@@ -693,9 +673,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		query.append(getVersion());
 		query.append("&fileName=");
 		query.append(file.getName());
-		uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri
-				.getPort(), uri.getPath() + "/push", query.toString(), uri
-				.getFragment());
+		uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(),
+				uri.getPort(), uri.getPath() + "/push", query.toString(),
+				uri.getFragment());
 		UriWriteStream uws = null;
 		try {
 			uws = new UriWriteStream(uri, file);
@@ -705,6 +685,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public void push(URI dest) throws URISyntaxException, IOException {
 		r.lock();
 		try {

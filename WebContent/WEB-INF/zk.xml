@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 	<!--
 		License Agreement for Jaeksoft OpenSearchServer Copyright (C)
-		2008-2009 Emmanuel Keller / Jaeksoft http://www.open-search-server.com
+		2008-2010 Emmanuel Keller / Jaeksoft http://www.open-search-server.com
 		This file is part of Jaeksoft OpenSearchServer. Jaeksoft
 		OpenSearchServer is free software: you can redistribute it and/or
 		modify it under the terms of the GNU General Public License as
@@ -22,19 +22,19 @@
 
 	<library-property>
 		<name>org.zkoss.zul.theme.fontSizeM</name>
-		<value>10px</value>
+		<value>12px</value>
 	</library-property>
 	<library-property>
 		<name>org.zkoss.zul.theme.fontSizeMS</name>
-		<value>9px</value>
+		<value>11px</value>
 	</library-property>
 	<library-property>
 		<name>org.zkoss.zul.theme.fontSizeS</name>
-		<value>9px</value>
+		<value>10px</value>
 	</library-property>
 	<library-property>
 		<name>org.zkoss.zul.theme.fontSizeXS</name>
-		<value>8px</value>
+		<value>9px</value>
 	</library-property>
 
 

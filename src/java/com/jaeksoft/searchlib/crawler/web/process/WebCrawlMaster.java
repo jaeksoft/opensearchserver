@@ -41,12 +41,12 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
-import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 
 public class WebCrawlMaster extends CrawlMasterAbstract {
@@ -75,8 +75,9 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 	@Override
 	public void runner() throws Exception {
+		Config config = getConfig();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		while (!isAbort()) {
+		while (!isAborted()) {
 
 			crawlQueue = new UrlCrawlQueue(config, propertyManager);
 
@@ -96,7 +97,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			}
 			extractHostList();
 
-			while (!isAbort()) {
+			while (!isAborted()) {
 
 				int howMany = urlLeftPerHost();
 				if (howMany <= 0)
@@ -114,11 +115,11 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 						this, currentStats, hostUrlList);
 				add(crawlThread);
 
-				while (getCrawlThreadsSize() >= threadNumber && !isAbort())
+				while (getThreadsCount() >= threadNumber && !isAborted())
 					sleepSec(5);
 			}
 
-			waitForChild();
+			waitForChild(600);
 			setStatus(CrawlStatus.INDEXATION);
 			crawlQueue.index(true);
 			if (currentStats.getUrlCount() > 0) {
@@ -145,6 +146,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, SearchLibException, InstantiationException,
 			IllegalAccessException {
+		Config config = getConfig();
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 		UrlManager urlManager = config.getUrlManager();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
@@ -203,7 +205,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 		setStatus(CrawlStatus.EXTRACTING_URLLIST);
 		setInfo(host.getName());
-		UrlManager urlManager = config.getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 
 		List<UrlItem> urlList = new ArrayList<UrlItem>();
 		HostUrlList hostUrlList = new HostUrlList(urlList, host);
@@ -220,8 +222,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 	}
 
 	public boolean isFull() throws SearchLibException {
-		return currentStats.getFetchedCount() >= config.getWebPropertyManager()
-				.getMaxUrlPerSession().getValue();
+		return currentStats.getFetchedCount() >= getConfig()
+				.getWebPropertyManager().getMaxUrlPerSession().getValue();
 	}
 
 }

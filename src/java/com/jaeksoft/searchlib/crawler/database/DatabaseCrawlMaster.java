@@ -34,7 +34,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.process.ThreadAbstract;
 
 public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 
@@ -79,29 +79,29 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 	}
 
 	@Override
-	public void remove(CrawlThreadAbstract crawlThread) {
-		super.remove(crawlThread);
+	public void remove(ThreadAbstract thread) {
+		super.remove(thread);
 		synchronized (threadMap) {
-			threadMap.remove(((DatabaseCrawlThread) crawlThread)
-					.getDatabaseCrawl());
+			threadMap.remove(((DatabaseCrawlThread) thread).getDatabaseCrawl());
 			if (threadMap.size() == 0) {
+				Config config = getConfig();
 				if (config instanceof Client) {
 					try {
 						((Client) config).reload(null);
 					} catch (IOException e) {
-						setError(e);
+						setException(e);
 					} catch (URISyntaxException e) {
-						setError(e);
+						setException(e);
 					} catch (SearchLibException e) {
-						setError(e);
+						setException(e);
 					} catch (InstantiationException e) {
-						setError(e);
+						setException(e);
 					} catch (IllegalAccessException e) {
-						setError(e);
+						setException(e);
 					} catch (ClassNotFoundException e) {
-						setError(e);
+						setException(e);
 					} catch (HttpException e) {
-						setError(e);
+						setException(e);
 					}
 				}
 			}

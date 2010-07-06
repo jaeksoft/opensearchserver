@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.web.xmlrpc;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -41,27 +40,6 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 
 public class DeleteXmlRpc extends AbstractXmlRpc {
-
-	public Map<String, ?> deleteById(String index, Integer docId)
-			throws SearchLibException, NamingException,
-			NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		Client client = ClientCatalog.getClient(index);
-		if (client.deleteDocument(docId))
-			return newInfoMap("Document deleted");
-		return newInfoMap("Nothing to delete");
-	}
-
-	public Map<String, ?> deleteByIds(String index, List<Integer> docIds)
-			throws SearchLibException, NamingException,
-			NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		Client client = ClientCatalog.getClient(index);
-		int n = client.deleteDocumentsById(docIds);
-		return newInfoMap(n + " document(s) deleted");
-	}
 
 	public Map<String, ?> deleteByUniqueKey(String index, String uniqueKey)
 			throws SearchLibException, NamingException, CorruptIndexException,

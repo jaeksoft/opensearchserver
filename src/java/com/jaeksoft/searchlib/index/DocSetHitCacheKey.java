@@ -46,10 +46,11 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 		facet = searchRequest.isFacet();
 		sortListCacheKey = searchRequest.getSortList().getFieldList()
 				.getCacheKey();
-		filterListCacheKey = new FilterListCacheKey(searchRequest
-				.getFilterList(), defaultField, analyzer);
+		filterListCacheKey = new FilterListCacheKey(
+				searchRequest.getFilterList(), defaultField, analyzer);
 	}
 
+	@Override
 	public int compareTo(DocSetHitCacheKey r) {
 		int c;
 		if ((c = facet.compareTo(r.facet)) != 0)

@@ -68,6 +68,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 		reset();
 	}
 
+	@Override
 	public void afterCompose() {
 		binder = new AnnotateDataBinder(this);
 		binder.loadAll();

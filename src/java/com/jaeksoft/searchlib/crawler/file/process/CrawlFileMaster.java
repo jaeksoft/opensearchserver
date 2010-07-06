@@ -59,10 +59,11 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 
 	@Override
 	public void runner() throws Exception {
+		Config config = getConfig();
 		FilePropertyManager filePropertyManager = config
 				.getFilePropertyManager();
 
-		while (!isAbort()) {
+		while (!isAborted()) {
 
 			crawlQueue = new FileCrawlQueue(config, filePropertyManager);
 
@@ -75,10 +76,10 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 			delayBetweenAccess = filePropertyManager.getDelayBetweenAccesses()
 					.getValue();
 
-			crawlFileIterator = new CrawlFileIterator(config
-					.getFilePathManager());
+			crawlFileIterator = new CrawlFileIterator(
+					config.getFilePathManager());
 
-			while (!isAbort()) {
+			while (!isAborted()) {
 
 				if (!crawlFileIterator.hasNext())
 					break;
@@ -87,11 +88,11 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 						this, currentStats);
 				add(crawlThread);
 
-				while (getCrawlThreadsSize() >= threadNumber && !isAbort())
+				while (getThreadsCount() >= threadNumber && !isAborted())
 					sleepSec(5);
 			}
 
-			waitForChild();
+			waitForChild(600);
 			setStatus(CrawlStatus.INDEXATION);
 			crawlQueue.index(true);
 			if (currentStats.getUrlCount() > 0) {

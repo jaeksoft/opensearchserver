@@ -57,7 +57,7 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 		DatabaseCrawlMaster crawlMaster = getCrawlMaster();
 		if (crawlMaster == null)
 			return false;
-		return crawlMaster.getCrawlThreadsSize() > 0;
+		return crawlMaster.getThreadsCount() > 0;
 	}
 
 	public void onTimer() {

@@ -171,7 +171,7 @@
 				checked="@{crawlProcess.properties.debug.value}" />
 		</toolbar>
 		<panelchildren>
-			<listbox model="@{crawlProcess.webCrawlMaster.crawlThreads}"
+			<listbox model="@{crawlProcess.webCrawlMaster.threads}"
 				mold="paging" pageSize="20">
 				<listhead sizable="true">
 					<listheader label="Current host name" />

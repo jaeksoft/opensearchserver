@@ -24,46 +24,19 @@
 
 package com.jaeksoft.searchlib.crawler.common.process;
 
-import java.lang.Thread.State;
-import java.util.Date;
-
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.process.ThreadAbstract;
 
-public abstract class CrawlThreadAbstract implements Runnable {
-
-	protected Config config;
-
-	private CrawlMasterAbstract crawlMaster;
+public abstract class CrawlThreadAbstract extends ThreadAbstract {
 
 	private CrawlStatus status;
 
-	private String info;
-
-	private volatile long statusTime;
-
-	private volatile boolean abort;
-
-	private Thread thread;
-
-	private volatile boolean running;
-
 	protected CrawlStatistics currentStats;
 
-	private Date startTime;
-
 	protected CrawlThreadAbstract(Config config, CrawlMasterAbstract crawlMaster) {
-		this.config = config;
-		this.crawlMaster = crawlMaster;
+		super(config, crawlMaster);
 		currentStats = null;
 		setStatus(CrawlStatus.NOT_RUNNING);
-		abort = false;
-		thread = null;
-		info = null;
-		running = false;
-	}
-
-	public Config getConfig() {
-		return config;
 	}
 
 	public CrawlStatus getStatus() {
@@ -72,16 +45,11 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		}
 	}
 
-	public String getInfo() {
-		synchronized (this) {
-			return info;
-		}
-	}
-
 	public String getStatusInfo() {
 		synchronized (this) {
 			StringBuffer sb = new StringBuffer();
 			sb.append(status);
+			String info = getInfo();
 			if (info != null) {
 				sb.append(' ');
 				sb.append('(');
@@ -92,73 +60,17 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		}
 	}
 
-	public long getStatusTimeElapsed() {
-		return (System.currentTimeMillis() - statusTime) / 1000;
-	}
-
-	public boolean getCrawlTimeOutExhausted(int seconds) {
-		synchronized (this) {
-			if (getStatus() != CrawlStatus.CRAWL)
-				return false;
-			return getStatusTimeElapsed() > seconds;
-		}
-	}
-
 	public void setStatus(CrawlStatus status) {
 		synchronized (this) {
+			idle();
 			this.status = status;
-			this.statusTime = System.currentTimeMillis();
 		}
-	}
-
-	protected void setError(Exception e) {
-		synchronized (this) {
-			setStatus(CrawlStatus.ERROR);
-			setInfo(e.getMessage() == null ? e.toString() : e.getMessage());
-		}
-
-	}
-
-	protected void setInfo(String info) {
-		synchronized (this) {
-			this.info = info;
-		}
-	}
-
-	public boolean isAbort() {
-		return abort;
-	}
-
-	public void abort() {
-		abort = true;
-	}
-
-	public boolean isAborting() {
-		return isRunning() && isAbort();
-	}
-
-	public void waitForEnd() {
-		while (isRunning())
-			sleepMs(100);
-	}
-
-	protected void sleepMs(long ms) {
-		sleepMs(ms, true);
 	}
 
 	protected void sleepMs(long ms, boolean withStatus) {
-
-		try {
-			if (withStatus)
-				setStatus(CrawlStatus.WAITING);
-			Thread.sleep(ms);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	protected void sleepSec(int sec) {
-		sleepSec(sec, true);
+		if (withStatus)
+			setStatus(CrawlStatus.WAITING);
+		sleepMs(ms);
 	}
 
 	protected void sleepSec(int sec, boolean withStatus) {
@@ -166,103 +78,7 @@ public abstract class CrawlThreadAbstract implements Runnable {
 			return;
 		if (withStatus)
 			setStatus(CrawlStatus.WAITING);
-		while (!abort && sec-- > 0)
-			sleepMs(1000);
-	}
-
-	public String getCurrentMethod() {
-		synchronized (this) {
-			if (thread == null)
-				return "No thread";
-			StackTraceElement[] ste = thread.getStackTrace();
-			if (ste == null)
-				return "No stack";
-			if (ste.length == 0)
-				return "Empty stack";
-			StackTraceElement element = ste[0];
-			for (StackTraceElement e : ste) {
-				if (e.getClassName().contains("jaeksoft")) {
-					element = e;
-					break;
-				}
-			}
-			return element.getClassName() + '.' + element.getMethodName()
-					+ " (" + element.getLineNumber() + ")";
-		}
-	}
-
-	public abstract void runner() throws Exception;
-
-	public abstract void release();
-
-	final public void run() {
-		startTime = new Date();
-		abort = false;
-		setThread(Thread.currentThread());
-		setStatus(CrawlStatus.STARTING);
-		try {
-			runner();
-		} catch (Exception e) {
-			e.printStackTrace();
-			setStatus(CrawlStatus.ERROR);
-			setInfo(e.getMessage());
-		}
-		if (getStatus() != CrawlStatus.ERROR) {
-			if (isAbort())
-				setStatus(CrawlStatus.ABORTED);
-			else
-				setStatus(CrawlStatus.COMPLETE);
-		}
-		setThread(null);
-		if (crawlMaster != null) {
-			crawlMaster.remove(this);
-			synchronized (crawlMaster) {
-				crawlMaster.notify();
-			}
-		}
-		release();
-		running = false;
-	}
-
-	private void setThread(Thread thread) {
-		synchronized (this) {
-			this.thread = thread;
-		}
-	}
-
-	public boolean isRunning() {
-		return running;
-	}
-
-	public State getThreadState() {
-		synchronized (this) {
-			if (thread == null)
-				return null;
-			return thread.getState();
-		}
-	}
-
-	public String getThreadStatus() {
-		synchronized (this) {
-			StringBuffer sb = new StringBuffer();
-			sb.append(this.hashCode());
-			if (thread == null)
-				return sb.toString();
-			sb.append('/');
-			sb.append(thread.hashCode());
-			sb.append(' ');
-			sb.append(thread.getState().toString());
-			return sb.toString();
-		}
-	}
-
-	final protected void execute() {
-		running = true;
-		config.getThreadPool().execute(this);
-	}
-
-	protected CrawlMasterAbstract getCrawlMaster() {
-		return crawlMaster;
+		sleepSec(sec);
 	}
 
 	public String getDebugInfo() {
@@ -281,11 +97,18 @@ public abstract class CrawlThreadAbstract implements Runnable {
 		return currentStats;
 	}
 
-	/**
-	 * @return the startTime
-	 */
-	public Date getStartTime() {
-		return startTime;
+	@Override
+	public void release() {
+		Exception e = getException();
+		if (e != null) {
+			setStatus(CrawlStatus.ERROR);
+			setInfo(e.getMessage() == null ? e.toString() : e.getMessage());
+		} else {
+			if (isAborted())
+				setStatus(CrawlStatus.ABORTED);
+			else
+				setStatus(CrawlStatus.COMPLETE);
+		}
 	}
 
 }

@@ -119,8 +119,8 @@ public class HomeController extends CommonController {
 			new AlertController(msg);
 			return;
 		}
-		ClientCatalog.createIndex(getLoggedUser(), indexName, indexTemplate
-				.getTemplate());
+		ClientCatalog.createIndex(getLoggedUser(), indexName,
+				indexTemplate.getTemplate());
 		setClient(ClientCatalog.getClient(indexName));
 		catalogItems = null;
 		reloadDesktop();

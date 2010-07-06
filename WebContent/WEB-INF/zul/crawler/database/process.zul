@@ -22,7 +22,7 @@
 				visible="@{dbCrawlProc.admin}" checked="@{dbCrawlProc.debug}" />
 		</toolbar>
 		<panelchildren>
-			<listbox model="@{dbCrawlProc.crawlMaster.crawlThreads}"
+			<listbox model="@{dbCrawlProc.crawlMaster.threads}"
 				mold="paging" pageSize="20">
 				<listhead sizable="true">
 					<listheader label="Name" />

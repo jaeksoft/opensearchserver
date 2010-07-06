@@ -30,13 +30,10 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 
 import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -74,23 +71,6 @@ public interface ReaderInterface {
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, IllegalAccessException, InstantiationException;
-
-	public boolean deleteDocument(int docId) throws StaleReaderException,
-			CorruptIndexException, LockObtainFailedException, IOException,
-			URISyntaxException, HttpException;
-
-	public boolean deleteDocument(String indexName, int docId)
-			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			HttpException;
-
-	public int deleteDocuments(Collection<Integer> docIds)
-			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException;
-
-	public int deleteDocuments(String indexName, Collection<Integer> docIds)
-			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException;
 
 	public String getName();
 

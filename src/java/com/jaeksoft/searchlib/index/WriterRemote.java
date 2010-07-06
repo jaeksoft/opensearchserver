@@ -33,8 +33,11 @@ import java.util.Collection;
 
 import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.web.ActionServlet;
 import com.jaeksoft.searchlib.web.DeleteServlet;
@@ -79,6 +82,14 @@ public class WriterRemote extends WriterAbstract {
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws IOException, URISyntaxException {
 		return DeleteServlet.delete(uri, getName(), uniqueFields);
+	}
+
+	@Override
+	public void deleteDocuments(SearchRequest query)
+			throws CorruptIndexException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, ParseException,
+			SyntaxError {
+		throw new RuntimeException("Not yet implemented");
 	}
 
 }

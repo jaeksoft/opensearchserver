@@ -183,28 +183,6 @@ public class Client extends Config {
 		}
 	}
 
-	public boolean deleteDocument(int docId) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			SearchLibException, HttpException {
-		Timer timer = new Timer("Delete document " + docId);
-		try {
-			return getIndex().deleteDocument(docId);
-		} finally {
-			getStatisticsList().addDelete(timer);
-		}
-	}
-
-	public boolean deleteDocument(String indexName, int docId)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException, HttpException {
-		Timer timer = new Timer("Delete document " + docId);
-		try {
-			return getIndex().deleteDocument(indexName, docId);
-		} finally {
-			getStatisticsList().addDelete(timer);
-		}
-	}
-
 	public int deleteDocuments(Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, SearchLibException,
@@ -227,28 +205,6 @@ public class Client extends Config {
 		try {
 			return getIndex().deleteDocuments(indexName, getSchema(),
 					uniqueFields);
-		} finally {
-			getStatisticsList().addDelete(timer);
-		}
-	}
-
-	public int deleteDocumentsById(Collection<Integer> docIds)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException {
-		Timer timer = new Timer("Delete " + docIds.size() + " documents");
-		try {
-			return getIndex().deleteDocuments(docIds);
-		} finally {
-			getStatisticsList().addDelete(timer);
-		}
-	}
-
-	public int deleteDocumentsbyId(String indexName, Collection<Integer> docIds)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException {
-		Timer timer = new Timer("Delete " + docIds.size() + " documents");
-		try {
-			return getIndex().deleteDocuments(indexName, docIds);
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}

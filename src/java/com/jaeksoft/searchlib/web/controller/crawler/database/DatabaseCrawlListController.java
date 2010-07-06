@@ -132,9 +132,9 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	public ListModel getDriverClassList() {
-		return new SimpleListModel(DatabaseDriverNames
-				.getAvailableList(getDesktop().getWebApp().getClass()
-						.getClassLoader()));
+		return new SimpleListModel(
+				DatabaseDriverNames.getAvailableList(getDesktop().getWebApp()
+						.getClass().getClassLoader()));
 	}
 
 	/**
@@ -167,8 +167,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 				|| selectedIndexField == null)
 			return;
 		currentCrawl.getFieldMap()
-				.add(
-						sqlColumn,
+				.add(sqlColumn,
 						new DatabaseFieldTarget(selectedIndexField.getName(),
 								removeTag));
 		reloadPage();
@@ -274,7 +273,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		DatabaseCrawlMaster crawlMaster = getCrawlMaster();
 		if (crawlMaster == null)
 			return false;
-		return crawlMaster.getCrawlThreadsSize() > 0;
+		return crawlMaster.getThreadsCount() > 0;
 	}
 
 	@Override

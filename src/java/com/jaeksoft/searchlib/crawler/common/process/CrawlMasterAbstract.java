@@ -24,21 +24,15 @@
 
 package com.jaeksoft.searchlib.crawler.common.process;
 
-import java.lang.Thread.State;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
+import com.jaeksoft.searchlib.process.ThreadMasterAbstract;
 
-public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
-
-	private final LinkedHashSet<CrawlThreadAbstract> crawlThreads;
-
-	private CrawlThreadAbstract[] crawlThreadArray;
+public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 
 	private final LinkedList<CrawlStatistics> statistics;
 
@@ -46,13 +40,15 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 
 	private IndexPluginList indexPluginList;
 
+	private CrawlStatus status;
+
+	protected CrawlStatistics currentStats;
+
 	protected CrawlMasterAbstract(Config config) {
-		super(config, null);
-		crawlThreadArray = null;
+		super(config);
+		status = CrawlStatus.NOT_RUNNING;
 		statistics = new LinkedList<CrawlStatistics>();
-		crawlThreadArray = null;
 		crawlQueue = null;
-		crawlThreads = new LinkedHashSet<CrawlThreadAbstract>();
 	}
 
 	public void start() {
@@ -60,7 +56,7 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 			return;
 		try {
 			setStatus(CrawlStatus.STARTING);
-			indexPluginList = new IndexPluginList(config
+			indexPluginList = new IndexPluginList(getConfig()
 					.getIndexPluginTemplateList());
 		} catch (SearchLibException e) {
 			e.printStackTrace();
@@ -71,75 +67,30 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 		execute();
 	}
 
-	@Override
-	public void abort() {
+	public CrawlStatus getStatus() {
 		synchronized (this) {
-			synchronized (crawlThreads) {
-				for (CrawlThreadAbstract crawlThread : crawlThreads)
-					crawlThread.abort();
+			return status;
+		}
+	}
+
+	public String getStatusInfo() {
+		synchronized (this) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(status);
+			String info = getInfo();
+			if (info != null) {
+				sb.append(' ');
+				sb.append('(');
+				sb.append(info);
+				sb.append(')');
 			}
-			super.abort();
+			return sb.toString();
 		}
 	}
 
-	public int getCrawlThreadsSize() {
-		synchronized (crawlThreads) {
-			return crawlThreads.size();
-		}
-	}
-
-	protected void add(CrawlThreadAbstract crawlThread) {
-		synchronized (crawlThreads) {
-			crawlThreads.add(crawlThread);
-			crawlThreadArray = null;
-		}
-		crawlThread.execute();
-	}
-
-	public void remove(CrawlThreadAbstract crawlThread) {
-		synchronized (crawlThreads) {
-			crawlThreads.remove(crawlThread);
-			crawlThreadArray = null;
-		}
-	}
-
-	public CrawlThreadAbstract[] getCrawlThreads() {
-		synchronized (crawlThreads) {
-			if (crawlThreadArray != null)
-				return crawlThreadArray;
-			crawlThreadArray = new CrawlThreadAbstract[crawlThreads.size()];
-			return crawlThreads.toArray(crawlThreadArray);
-		}
-	}
-
-	protected void waitForChild() {
-		while (getCrawlThreadsSize() > 0) {
-			try {
-				synchronized (this) {
-					wait(5000);
-				}
-				// Remove terminated thread
-				synchronized (crawlThreads) {
-					boolean remove = false;
-					Iterator<CrawlThreadAbstract> it = crawlThreads.iterator();
-					while (it.hasNext()) {
-						CrawlThreadAbstract crawlThread = it.next();
-						if (crawlThread.getThreadState() == State.TERMINATED) {
-							it.remove();
-							remove = true;
-						} else if (crawlThread.getCrawlTimeOutExhausted(300)) {
-							crawlThread.abort();
-							it.remove();
-							remove = true;
-						}
-					}
-					if (remove)
-						crawlThreadArray = null;
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			sleepSec(1);
+	public void setStatus(CrawlStatus status) {
+		synchronized (this) {
+			this.status = status;
 		}
 	}
 
@@ -161,15 +112,20 @@ public abstract class CrawlMasterAbstract extends CrawlThreadAbstract {
 
 	@Override
 	public void release() {
+		Exception e = getException();
+		if (e != null) {
+			setStatus(CrawlStatus.ERROR);
+			setInfo(e.getMessage() == null ? e.toString() : e.getMessage());
+		} else {
+			if (isAborted())
+				setStatus(CrawlStatus.ABORTED);
+			else
+				setStatus(CrawlStatus.COMPLETE);
+		}
 	}
 
 	public CrawlQueueAbstract getCrawlQueue() {
 		return crawlQueue;
-	}
-
-	@Override
-	public String getCurrentInfo() {
-		return "";
 	}
 
 }

@@ -40,6 +40,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -47,6 +48,8 @@ import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -73,6 +76,17 @@ public class WriterLocal extends WriterAbstract {
 
 	}
 
+	private void unlock() {
+		try {
+			Directory dir = readerLocal.getDirectory();
+			if (!IndexWriter.isLocked(dir))
+				return;
+			IndexWriter.unlock(dir);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void close() {
 		l.lock();
 		try {
@@ -83,6 +97,8 @@ public class WriterLocal extends WriterAbstract {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
+				} finally {
+					unlock();
 				}
 				indexWriter = null;
 			}
@@ -205,13 +221,15 @@ public class WriterLocal extends WriterAbstract {
 		Field uniqueField = schema.getFieldList().getUniqueField();
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
-			indexWriter.updateDocument(new Term(uniqueFieldName, doc
-					.get(uniqueFieldName)), doc, pfa);
+			indexWriter.updateDocument(
+					new Term(uniqueFieldName, doc.get(uniqueFieldName)), doc,
+					pfa);
 		} else
 			indexWriter.addDocument(doc, pfa);
 		return true;
 	}
 
+	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException,
 			InstantiationException, IllegalAccessException,
@@ -229,6 +247,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
+	@Override
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException,
@@ -274,6 +293,7 @@ public class WriterLocal extends WriterAbstract {
 		return doc;
 	}
 
+	@Override
 	public void optimize(String indexName) throws CorruptIndexException,
 			LockObtainFailedException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
@@ -289,6 +309,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
+	@Override
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, InstantiationException, IllegalAccessException,
@@ -299,12 +320,14 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.deleteDocuments(new Term(schema.getFieldList()
 					.getUniqueField().getName(), uniqueField));
 			close();
+			readerLocal.reload();
 			return true;
 		} finally {
 			l.unlock();
 		}
 	}
 
+	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, InstantiationException, IllegalAccessException,
@@ -319,7 +342,25 @@ public class WriterLocal extends WriterAbstract {
 			open();
 			indexWriter.deleteDocuments(terms);
 			close();
+			if (terms.length > 0)
+				readerLocal.reload();
 			return terms.length;
+		} finally {
+			l.unlock();
+		}
+	}
+
+	@Override
+	public void deleteDocuments(SearchRequest query)
+			throws CorruptIndexException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, ParseException,
+			SyntaxError {
+		l.lock();
+		try {
+			open();
+			indexWriter.deleteDocuments(query.getQuery());
+			close();
+			readerLocal.reload();
 		} finally {
 			l.unlock();
 		}

@@ -94,6 +94,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public void optimize(String indexName) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
@@ -112,6 +113,7 @@ public class IndexSingle extends IndexAbstract {
 		reload(indexName);
 	}
 
+	@Override
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
@@ -131,6 +133,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public boolean deleteDocument(String indexName, Schema schema,
 			String uniqueField) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
@@ -151,40 +154,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public boolean deleteDocument(int docId) throws IOException,
-			URISyntaxException, HttpException {
-		if (!online)
-			throw new IOException("Index is offline");
-		if (readonly)
-			throw new IOException("Index is read only");
-		r.lock();
-		try {
-			if (reader != null)
-				return reader.deleteDocument(docId);
-			else
-				return false;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	public boolean deleteDocument(String indexName, int docId)
-			throws IOException, URISyntaxException, HttpException {
-		if (!online)
-			throw new IOException("Index is offline");
-		if (readonly)
-			throw new IOException("Index is read only");
-		r.lock();
-		try {
-			if (reader != null)
-				return reader.deleteDocument(indexName, docId);
-			else
-				return false;
-		} finally {
-			r.unlock();
-		}
-	}
-
+	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
@@ -204,6 +174,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public int deleteDocuments(String indexName, Schema schema,
 			Collection<String> uniqueFields) throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
@@ -224,42 +195,24 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public int deleteDocuments(Collection<Integer> docIds)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+	@Override
+	public void deleteDocuments(SearchRequest query)
+			throws CorruptIndexException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, ParseException,
+			SyntaxError {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
 		r.lock();
 		try {
-			if (reader != null)
-				return reader.deleteDocuments(docIds);
-			else
-				return 0;
+			writer.deleteDocuments(query);
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public int deleteDocuments(String indexName, Collection<Integer> docIds)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
-		if (!online)
-			throw new IOException("Index is offline");
-		if (readonly)
-			throw new IOException("Index is read only");
-		r.lock();
-		try {
-			if (reader != null)
-				return reader.deleteDocuments(indexName, docIds);
-			else
-				return 0;
-		} finally {
-			r.unlock();
-		}
-	}
-
+	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
@@ -279,6 +232,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public boolean updateDocument(String indexName, Schema schema,
 			IndexDocument document) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException, InstantiationException,
@@ -298,6 +252,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
@@ -318,6 +273,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public int updateDocuments(String indexName, Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
@@ -338,6 +294,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public void reload() throws IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
@@ -363,6 +320,7 @@ public class IndexSingle extends IndexAbstract {
 		reload();
 	}
 
+	@Override
 	public void swap(long version, boolean deleteOld) throws IOException,
 			URISyntaxException, HttpException {
 		if (!online)
@@ -386,6 +344,7 @@ public class IndexSingle extends IndexAbstract {
 		swap(version, deleteOld);
 	}
 
+	@Override
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
 			ClassNotFoundException, InterruptedException, SearchLibException,
@@ -421,6 +380,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
@@ -437,6 +397,7 @@ public class IndexSingle extends IndexAbstract {
 		return null;
 	}
 
+	@Override
 	public boolean sameIndex(ReaderInterface reader) {
 		r.lock();
 		try {
@@ -450,6 +411,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public IndexStatistics getStatistics() throws IOException {
 		if (!online)
 			throw new IOException("Index is offline");
@@ -468,6 +430,7 @@ public class IndexSingle extends IndexAbstract {
 		return this;
 	}
 
+	@Override
 	public int getDocFreq(Term term) throws IOException {
 		if (!online)
 			throw new IOException("Index is offline");
@@ -509,6 +472,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException {
 		if (!online)
@@ -523,6 +487,7 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
 	public void push(URI dest) throws URISyntaxException, IOException {
 		if (reader == null)
 			return;
@@ -586,6 +551,7 @@ public class IndexSingle extends IndexAbstract {
 		readonly = v;
 	}
 
+	@Override
 	public long getVersion() {
 		if (reader == null)
 			return 0;

@@ -30,13 +30,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
@@ -61,22 +58,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	protected Pointer getIndex() {
 		return index;
-	}
-
-	@Override
-	public boolean deleteDocument(int docId) throws StaleReaderException,
-			CorruptIndexException, LockObtainFailedException, IOException,
-			URISyntaxException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public int deleteDocuments(Collection<Integer> docIds)
-			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override

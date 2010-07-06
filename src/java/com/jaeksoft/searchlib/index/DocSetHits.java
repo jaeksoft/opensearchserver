@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -88,20 +88,8 @@ public class DocSetHits {
 		}
 	}
 
-	private class DeleteHitCollector extends ScoreHitCollector {
-		@Override
-		public void collect(int docId) {
-			super.collect(docId);
-			try {
-				reader.fastDeleteDocument(docId);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
-
 	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
-			Sort sort, boolean delete, boolean collect) throws IOException {
+			Sort sort, boolean collect) throws IOException {
 		w.lock();
 		try {
 			this.query = query;
@@ -116,8 +104,6 @@ public class DocSetHits {
 			Collector collector = null;
 			if (reader.numDocs() == 0)
 				return;
-			if (delete)
-				collector = new DeleteHitCollector();
 			else if (collect)
 				collector = new ScoreHitCollector();
 

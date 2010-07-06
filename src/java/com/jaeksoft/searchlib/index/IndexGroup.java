@@ -191,25 +191,6 @@ public class IndexGroup extends IndexAbstract {
 		return index.deleteDocument(schema, uniqueField);
 	}
 
-	public boolean deleteDocument(String indexName, int docId)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, HttpException {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return false;
-		return index.deleteDocument(docId);
-	}
-
-	public boolean deleteDocument(int docId) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			HttpException {
-		boolean deleted = false;
-		for (IndexAbstract index : getIndices())
-			if (index.deleteDocument(docId))
-				deleted = true;
-		return deleted;
-	}
-
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
@@ -231,24 +212,7 @@ public class IndexGroup extends IndexAbstract {
 		return index.deleteDocuments(schema, uniqueFields);
 	}
 
-	public int deleteDocuments(Collection<Integer> docIds)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
-		int count = 0;
-		for (IndexAbstract index : getIndices())
-			count += index.deleteDocuments(docIds);
-		return count;
-	}
-
-	public int deleteDocuments(String indexName, Collection<Integer> docIds)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return 0;
-		return index.deleteDocuments(docIds);
-	}
-
+	@Override
 	public int getDocFreq(Term term) throws IOException {
 		int r = 0;
 		for (IndexAbstract index : getIndices())
@@ -412,6 +376,14 @@ public class IndexGroup extends IndexAbstract {
 
 	@Override
 	public String explain(SearchRequest searchRequest, int docId) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public void deleteDocuments(SearchRequest query)
+			throws CorruptIndexException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, ParseException,
+			SyntaxError {
 		throw new RuntimeException("Not yet implemented");
 	}
 
