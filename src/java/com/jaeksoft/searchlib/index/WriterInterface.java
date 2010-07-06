@@ -34,6 +34,7 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -62,10 +63,11 @@ public interface WriterInterface {
 			IOException, URISyntaxException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException;
 
-	public void deleteDocuments(SearchRequest query)
+	public int deleteDocuments(SearchRequest query)
 			throws CorruptIndexException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError;
+			SyntaxError, URISyntaxException, InterruptedException,
+			SearchLibException;
 
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,

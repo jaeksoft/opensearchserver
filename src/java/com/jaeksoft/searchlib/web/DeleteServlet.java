@@ -34,11 +34,15 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.HttpException;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.request.DeleteRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -68,6 +72,16 @@ public class DeleteServlet extends AbstractServlet {
 			return client.deleteDocuments(uniqFields);
 		else
 			return client.deleteDocuments(indexName, uniqFields);
+	}
+
+	private int deleteByQuery(Client client, String q)
+			throws CorruptIndexException, SearchLibException, IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, ParseException, SyntaxError,
+			URISyntaxException, InterruptedException {
+		SearchRequest request = client.getNewSearchRequest();
+		request.setQueryString(q);
+		return client.deleteDocuments(request);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -105,9 +119,12 @@ public class DeleteServlet extends AbstractServlet {
 
 			HttpServletRequest request = transaction.getServletRequest();
 			String uniq = request.getParameter("uniq");
+			String q = request.getParameter("q");
 			Object result = null;
 			if (uniq != null)
 				result = deleteUniqDoc(client, indexName, uniq);
+			else if (q != null)
+				result = deleteByQuery(client, q);
 			else
 				result = doObjectRequest(client, request, indexName);
 			PrintWriter pw = transaction.getWriter("UTF-8");

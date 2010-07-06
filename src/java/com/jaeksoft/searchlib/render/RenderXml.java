@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -105,9 +105,8 @@ public class RenderXml implements Render {
 		writer.print("\" time=\"");
 		writer.print(searchRequest.getFinalTime());
 		writer.println("\">");
-		if (!searchRequest.isDelete())
-			for (int i = start; i < end; i++)
-				this.renderDocument(i);
+		for (int i = start; i < end; i++)
+			this.renderDocument(i);
 		writer.println("</result>");
 	}
 
@@ -231,6 +230,7 @@ public class RenderXml implements Render {
 
 	}
 
+	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
 		servletTransaction.getServletResponse().setContentType("text/xml");
 		render(servletTransaction.getWriter("UTF-8"));

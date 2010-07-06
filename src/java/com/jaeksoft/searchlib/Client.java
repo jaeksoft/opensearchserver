@@ -210,6 +210,19 @@ public class Client extends Config {
 		}
 	}
 
+	public int deleteDocuments(SearchRequest searchRequest)
+			throws SearchLibException, CorruptIndexException, IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, ParseException, SyntaxError,
+			URISyntaxException, InterruptedException {
+		Timer timer = new Timer("Delete by query documents");
+		try {
+			return getIndex().deleteDocuments(searchRequest);
+		} finally {
+			getStatisticsList().addDelete(timer);
+		}
+	}
+
 	public void optimize(String indexName) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException {

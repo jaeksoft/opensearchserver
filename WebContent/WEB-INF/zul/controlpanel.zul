@@ -26,6 +26,8 @@
 				label="Query" />
 			<tab id="tabUpdate" visible="@{index.updateRights}"
 				label="Update" />
+			<tab id="tabDelete" visible="@{index.updateRights}"
+				label="Delete" />
 			<tab id="tabCrawler" visible="@{index.crawlerRights}"
 				label="Crawler" />
 			<tab id="tabRuntime" visible="@{index.runtimeRights}"
@@ -47,6 +49,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabUpdate.onSelect">
 				<include src="WEB-INF/zul/update/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabDelete.onSelect">
+				<include src="WEB-INF/zul/delete/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawler.onSelect">
 				<include src="WEB-INF/zul/crawler/index.zul" />

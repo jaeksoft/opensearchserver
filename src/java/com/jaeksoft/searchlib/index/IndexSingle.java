@@ -196,17 +196,21 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void deleteDocuments(SearchRequest query)
+	public int deleteDocuments(SearchRequest query)
 			throws CorruptIndexException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError {
+			SyntaxError, URISyntaxException, InterruptedException,
+			SearchLibException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
 		r.lock();
 		try {
+			int i = reader.search(query).getNumFound();
+			query.reset();
 			writer.deleteDocuments(query);
+			return i;
 		} finally {
 			r.unlock();
 		}

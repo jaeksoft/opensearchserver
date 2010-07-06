@@ -1,0 +1,62 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="delete"
+	use="com.jaeksoft.searchlib.web.controller.delete.DeleteController">
+
+	<grid>
+		<columns>
+			<column width="100px" align="right" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label>Enter the query:</label>
+				<textbox height="50px" multiline="true"
+					value="@{delete.request.queryString}" width="90%" />
+			</row>
+			<row>
+				<label>Default operator:</label>
+				<listbox mold="select"
+					selectedItem="@{delete.request.defaultOperator}">
+					<listitem label="AND" value="AND" />
+					<listitem label="OR" value="OR" />
+				</listbox>
+			</row>
+			<row>
+				<label>Language:</label>
+				<listbox mold="select"
+					selectedItem="@{delete.request.lang}"
+					model="@{delete.languageEnum}">
+					<listitem self="@{each=langEnum}"
+						label="@{langEnum.name}" value="@{langEnum}" />
+				</listbox>
+			</row>
+		</rows>
+		<foot width="100%">
+			<footer span="2">
+				<button label="Check" forward="onCheck" />
+				<space width="50px" />
+				<button label="Delete" forward="onDelete" />
+				<space width="50px" />
+				<button label="XML/HTTP API call" target="_blank"
+					href="@{delete.requestApiCall}" />
+				<space width="50px" />
+			</footer>
+		</foot>
+	</grid>
+
+</window>

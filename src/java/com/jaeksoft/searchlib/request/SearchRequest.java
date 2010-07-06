@@ -47,8 +47,8 @@ import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
-import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.RootExpression;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
@@ -101,7 +101,6 @@ public class SearchRequest implements Externalizable {
 	private String patternQuery;
 	private String scoreFunction;
 	private String queryParsed;
-	private boolean delete;
 	private boolean withDocuments;
 	private boolean withSortValues;
 	private boolean debug;
@@ -139,7 +138,6 @@ public class SearchRequest implements Externalizable {
 		this.queryString = null;
 		this.patternQuery = null;
 		this.scoreFunction = null;
-		this.delete = false;
 		this.withDocuments = true;
 		this.withSortValues = false;
 		this.reader = null;
@@ -174,7 +172,6 @@ public class SearchRequest implements Externalizable {
 		this.collapseField = searchRequest.collapseField;
 		this.collapseMax = searchRequest.collapseMax;
 		this.collapseMode = searchRequest.collapseMode;
-		this.delete = searchRequest.delete;
 		this.withDocuments = searchRequest.withDocuments;
 		this.withSortValues = searchRequest.withSortValues;
 		this.start = searchRequest.start;
@@ -216,7 +213,6 @@ public class SearchRequest implements Externalizable {
 			if (scoreFunction.trim().length() == 0)
 				scoreFunction = null;
 		this.scoreFunction = scoreFunction;
-		this.delete = delete;
 		this.withDocuments = withDocuments;
 		this.withSortValues = withSortValues;
 		this.debug = debug;
@@ -358,8 +354,8 @@ public class SearchRequest implements Externalizable {
 	}
 
 	public void addReturnField(String fieldName) throws SearchLibException {
-		returnFieldList.add(new Field(config.getSchema().getFieldList().get(
-				fieldName)));
+		returnFieldList.add(new Field(config.getSchema().getFieldList()
+				.get(fieldName)));
 	}
 
 	public SortList getSortList() {
@@ -400,14 +396,6 @@ public class SearchRequest implements Externalizable {
 
 	public void setStart(int start) {
 		this.start = start;
-	}
-
-	public boolean isDelete() {
-		return this.delete;
-	}
-
-	public void setDelete(boolean delete) {
-		this.delete = delete;
 	}
 
 	public boolean isWithDocument() {
@@ -586,15 +574,15 @@ public class SearchRequest implements Externalizable {
 		String indexName = XPathParser.getAttributeString(node, "indexName");
 		SearchRequest searchRequest = new SearchRequest(config, indexName,
 				name, ("yes".equalsIgnoreCase(XPathParser.getAttributeString(
-						node, "allowLeadingWildcard"))), XPathParser
-						.getAttributeValue(node, "phraseSlop"), ("and"
-						.equalsIgnoreCase(XPathParser.getAttributeString(node,
-								"defaultOperator"))) ? QueryParser.AND_OPERATOR
-						: QueryParser.OR_OPERATOR, XPathParser
-						.getAttributeValue(node, "start"), XPathParser
-						.getAttributeValue(node, "rows"), XPathParser
-						.getAttributeString(node, "lang"), xpp.getNodeString(
-						node, "query"), null, xpp.getNodeString(node,
+						node, "allowLeadingWildcard"))),
+				XPathParser.getAttributeValue(node, "phraseSlop"),
+				("and".equalsIgnoreCase(XPathParser.getAttributeString(node,
+						"defaultOperator"))) ? QueryParser.AND_OPERATOR
+						: QueryParser.OR_OPERATOR,
+				XPathParser.getAttributeValue(node, "start"),
+				XPathParser.getAttributeValue(node, "rows"),
+				XPathParser.getAttributeString(node, "lang"),
+				xpp.getNodeString(node, "query"), null, xpp.getNodeString(node,
 						"scoreFunction"), false, true, false, false, false);
 
 		FieldList<Field> returnFields = searchRequest.getReturnFieldList();
@@ -648,8 +636,8 @@ public class SearchRequest implements Externalizable {
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("request", "name", requestName, "indexName",
 				indexName, "phraseSlop", Integer.toString(phraseSlop),
-				"defaultOperator", getDefaultOperator(), "start", Integer
-						.toString(start), "rows", Integer.toString(rows),
+				"defaultOperator", getDefaultOperator(), "start",
+				Integer.toString(start), "rows", Integer.toString(rows),
 				"lang", lang != null ? lang.getCode() : null);
 
 		if (patternQuery != null && patternQuery.trim().length() > 0) {
@@ -703,6 +691,7 @@ public class SearchRequest implements Externalizable {
 		xmlWriter.endElement();
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		indexName = External.readUTF(in);
@@ -732,12 +721,12 @@ public class SearchRequest implements Externalizable {
 		patternQuery = External.readUTF(in);
 		scoreFunction = External.readUTF(in);
 		queryParsed = External.readUTF(in);
-		delete = in.readBoolean();
 		withDocuments = in.readBoolean();
 		withSortValues = in.readBoolean();
 		debug = in.readBoolean();
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 
 		External.writeUTF(indexName, out);
@@ -767,7 +756,6 @@ public class SearchRequest implements Externalizable {
 		External.writeUTF(scoreFunction, out);
 		External.writeUTF(queryParsed, out);
 
-		out.writeBoolean(delete);
 		out.writeBoolean(withDocuments);
 		out.writeBoolean(withSortValues);
 		out.writeBoolean(debug);

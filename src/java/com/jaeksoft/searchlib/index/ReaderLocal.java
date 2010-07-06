@@ -565,11 +565,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			throws IOException, ParseException, SyntaxError,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		boolean isDelete = searchRequest.isDelete();
-		if (isDelete)
-			w.lock();
-		else
-			r.lock();
+		r.lock();
 		try {
 
 			Schema schema = searchRequest.getConfig().getSchema();
@@ -577,19 +573,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			Analyzer analyzer = schema.getQueryPerFieldAnalyzer(searchRequest
 					.getLang());
 
-			if (!isDelete)
-				return searchCache.get(this, searchRequest, schema,
-						defaultField, analyzer);
-
-			else
-				return newDocSetHits(searchRequest, schema, defaultField,
-						analyzer);
+			return searchCache.get(this, searchRequest, schema, defaultField,
+					analyzer);
 
 		} finally {
-			if (isDelete)
-				w.unlock();
-			else
-				r.unlock();
+			r.unlock();
 		}
 	}
 

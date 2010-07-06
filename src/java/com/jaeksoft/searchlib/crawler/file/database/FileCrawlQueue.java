@@ -167,7 +167,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 			return false;
 
 		FileManager manager = (FileManager) getConfig().getFileManager();
-		int nbFilesDeleted = manager.deleteByFilename(workDeleteUriList);
+		int nbFilesDeleted = manager.deleteByFilename(workDeleteUriList) ? 1
+				: 0;
 		getSessionStats().addDeletedCount(nbFilesDeleted);
 		return true;
 	}

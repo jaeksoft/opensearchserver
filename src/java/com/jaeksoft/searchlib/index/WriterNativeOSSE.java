@@ -108,7 +108,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	@Override
-	public void deleteDocuments(SearchRequest query)
+	public int deleteDocuments(SearchRequest query)
 			throws CorruptIndexException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, ParseException,
 			SyntaxError {

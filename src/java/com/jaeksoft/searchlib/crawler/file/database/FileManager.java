@@ -226,8 +226,8 @@ public class FileManager {
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
-					Field.LANG.addFilterQuery(searchRequest, SearchRequest
-							.escapeQuery(lang));
+					Field.LANG.addFilterQuery(searchRequest,
+							SearchRequest.escapeQuery(lang));
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
@@ -318,15 +318,16 @@ public class FileManager {
 		}
 	}
 
-	public final int deleteByFilename(List<String> rowToDelete)
+	public final boolean deleteByFilename(List<String> rowToDelete)
 			throws SearchLibException {
 		try {
 			if (rowToDelete == null
 					|| (rowToDelete != null && rowToDelete.isEmpty()))
-				return 0;
+				return false;
 
 			deleteByFilenameFromFileDBIndex(rowToDelete);
-			return deleteByFilenameFromTargetIndex(rowToDelete);
+			deleteByFilenameFromTargetIndex(rowToDelete);
+			return true;
 
 		} catch (SearchLibException e) {
 			throw new SearchLibException(e);
@@ -373,8 +374,7 @@ public class FileManager {
 
 		deleteRequest.setQueryString(buildQueryString(
 				FileItemFieldEnum.directoryUri.name(), rowToDelete, true));
-		deleteRequest.setDelete(true);
-		fileDbClient.search(deleteRequest);
+		fileDbClient.deleteDocuments(deleteRequest);
 	}
 
 	/**
@@ -392,24 +392,24 @@ public class FileManager {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	private final int deleteByFilenameFromTargetIndex(List<String> rowToDelete)
-			throws SearchLibException, IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
+	private final boolean deleteByFilenameFromTargetIndex(
+			List<String> rowToDelete) throws SearchLibException, IOException,
+			ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 
 		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
 				.getLinks(FileItemFieldEnum.directoryUri.name());
 
 		if (mappedPath.isEmpty())
-			return 0;
+			return false;
 
 		SearchRequest deleteRequestTarget = targetClient.getNewSearchRequest();
 		deleteRequestTarget.setQueryString(buildQueryString(mappedPath.get(0)
 				.getName(), rowToDelete, true));
-		deleteRequestTarget.setDelete(true);
 
-		return targetClient.search(deleteRequestTarget).getNumFound();
+		targetClient.deleteDocuments(deleteRequestTarget);
+		return true;
 	}
 
 	public int deleteByOriginalUri(List<String> list) throws SearchLibException {
@@ -422,8 +422,7 @@ public class FileManager {
 			deleteRequest.setQueryString(buildQueryString(
 					FileItemFieldEnum.originalUri.name(), list, false));
 
-			deleteRequest.setDelete(true);
-			fileDbClient.search(deleteRequest);
+			fileDbClient.deleteDocuments(deleteRequest);
 
 			// Delete in final index if a mapping is found
 			List<Target> mappedField = targetClient.getFileCrawlerFieldMap()
@@ -436,8 +435,7 @@ public class FileManager {
 			deleteRequestTarget.setQueryString(buildQueryString(mappedField
 					.get(0).getName(), list, false));
 
-			deleteRequestTarget.setDelete(true);
-			return targetClient.search(deleteRequestTarget).getNumFound();
+			return targetClient.deleteDocuments(deleteRequestTarget);
 
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
@@ -445,19 +443,19 @@ public class FileManager {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}
 
@@ -466,8 +464,8 @@ public class FileManager {
 	public void updateCrawls(List<CrawlFile> crawls) throws SearchLibException {
 		try {
 			// Update target index
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls
-					.size());
+			List<IndexDocument> documents = new ArrayList<IndexDocument>(
+					crawls.size());
 			for (CrawlFile crawl : crawls) {
 				IndexDocument indexDocument = crawl.getTargetIndexDocument();
 				if (indexDocument != null)

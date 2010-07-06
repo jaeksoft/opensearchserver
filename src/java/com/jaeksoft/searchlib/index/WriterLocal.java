@@ -351,7 +351,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public void deleteDocuments(SearchRequest query)
+	public int deleteDocuments(SearchRequest query)
 			throws CorruptIndexException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, ParseException,
 			SyntaxError {
@@ -361,6 +361,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.deleteDocuments(query.getQuery());
 			close();
 			readerLocal.reload();
+			return 0;
 		} finally {
 			l.unlock();
 		}

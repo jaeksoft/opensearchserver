@@ -164,8 +164,8 @@ public abstract class Config {
 			}
 
 			index = getIndex(indexDir, xppConfig, createIndexIfNotExists);
-			schema = Schema.fromXmlConfig(xppConfig
-					.getNode("/configuration/schema"), xppConfig);
+			schema = Schema.fromXmlConfig(
+					xppConfig.getNode("/configuration/schema"), xppConfig);
 
 			configFiles = new ConfigFiles();
 
@@ -296,12 +296,12 @@ public abstract class Config {
 			case 0:
 				return null;
 			case 1:
-				return new IndexSingle(indexDir, new IndexConfig(xpp, xpp
-						.getNode("/configuration/indices/index")),
+				return new IndexSingle(indexDir, new IndexConfig(xpp,
+						xpp.getNode("/configuration/indices/index")),
 						createIndexIfNotExists);
 			default:
-				return new IndexGroup(indexDir, xpp, xpp
-						.getNode("/configuration/indices"),
+				return new IndexGroup(indexDir, xpp,
+						xpp.getNode("/configuration/indices"),
 						createIndexIfNotExists, getThreadPool());
 			}
 		} finally {
@@ -551,8 +551,8 @@ public abstract class Config {
 							xpp.getNode("/requests"));
 				} else
 					searchRequests = SearchRequestMap.fromXmlConfig(this,
-							xppConfig, xppConfig
-									.getNode("/configuration/requests"));
+							xppConfig,
+							xppConfig.getNode("/configuration/requests"));
 			}
 			return searchRequests;
 		} catch (XPathExpressionException e) {
@@ -744,9 +744,6 @@ public abstract class Config {
 		if ((p = httpRequest.getParameter("collapse.max")) != null)
 			searchRequest.setCollapseMax(Integer.parseInt(p));
 
-		if ((p = httpRequest.getParameter("delete")) != null)
-			searchRequest.setDelete(true);
-
 		if ((p = httpRequest.getParameter("withDocs")) != null)
 			searchRequest.setWithDocument(true);
 
@@ -768,9 +765,7 @@ public abstract class Config {
 			for (String value : values)
 				if (value != null)
 					if (value.trim().length() > 0)
-						rf
-								.add(new Field(getSchema().getFieldList().get(
-										value)));
+						rf.add(new Field(getSchema().getFieldList().get(value)));
 		}
 
 		if ((values = httpRequest.getParameterValues("hl")) != null) {
