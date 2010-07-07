@@ -18,12 +18,11 @@
 	use="com.jaeksoft.searchlib.web.controller.runtime.IndexController">
 	<grid model="@{index.indices}">
 		<auxhead>
-			<auxheader colspan="12" align="center">
+			<auxheader colspan="11" align="center">
 				<button label="Refresh" forward="onReload" />
 			</auxheader>
 		</auxhead>
 		<columns>
-			<column width="120px" label="name" />
 			<column width="40px" label="search"
 				tooltiptext="searchCache" />
 			<column width="40px" label="filter"
@@ -40,7 +39,6 @@
 		</columns>
 		<rows>
 			<row self="@{each=index}">
-				<label value="@{index.indexConfig.name}" />
 				<label value="@{index.indexConfig.searchCache}" />
 				<label value="@{index.indexConfig.filterCache}" />
 				<label value="@{index.indexConfig.fieldCache}" />
