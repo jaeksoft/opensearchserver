@@ -49,9 +49,11 @@ public abstract class ThreadAbstract implements Runnable {
 
 	private volatile boolean running;
 
-	private Date startTime;
+	private long startTime;
 
 	private long idleTime;
+
+	private long endTime;
 
 	private Exception exception;
 
@@ -63,7 +65,9 @@ public abstract class ThreadAbstract implements Runnable {
 		thread = null;
 		info = null;
 		running = false;
+		startTime = 0;
 		idleTime = 0;
+		endTime = 0;
 	}
 
 	public Config getConfig() {
@@ -209,8 +213,8 @@ public abstract class ThreadAbstract implements Runnable {
 	final public void run() {
 		w.lock();
 		try {
-			startTime = new Date();
-			idleTime = System.currentTimeMillis();
+			startTime = System.currentTimeMillis();
+			idleTime = startTime;
 			abort = false;
 			thread = Thread.currentThread();
 		} finally {
@@ -232,6 +236,7 @@ public abstract class ThreadAbstract implements Runnable {
 		try {
 			thread = null;
 			running = false;
+			endTime = System.currentTimeMillis();
 		} finally {
 			w.unlock();
 		}
@@ -300,16 +305,20 @@ public abstract class ThreadAbstract implements Runnable {
 	public Date getStartTime() {
 		r.lock();
 		try {
-			return startTime;
+			return new Date(startTime);
 		} finally {
 			r.unlock();
 		}
 	}
 
-	public long returnElapsedTime() {
+	public long getDuration() {
 		r.lock();
 		try {
-			return System.currentTimeMillis() - startTime.getTime();
+			if (startTime == 0)
+				return 0;
+			if (endTime != 0)
+				return endTime - startTime;
+			return System.currentTimeMillis() - startTime;
 		} finally {
 			r.unlock();
 		}

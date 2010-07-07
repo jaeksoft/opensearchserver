@@ -54,22 +54,22 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 	private URI uri;
 
 	protected ReaderRemote(IndexConfig indexConfig) {
-		super(indexConfig.getName());
 		this.uri = indexConfig.getRemoteUri();
 	}
 
+	@Override
 	public void close() {
 	}
 
 	// TODO Implementation
 	public void reload() throws IOException, URISyntaxException, HttpException {
-		ActionServlet.reload(uri, getName());
+		ActionServlet.reload(uri);
 	}
 
 	// TODO Propagate version information
 	public void swap(long version, boolean deleteOld) throws IOException,
 			URISyntaxException, HttpException {
-		ActionServlet.swap(uri, getName(), version, deleteOld);
+		ActionServlet.swap(uri, null, version, deleteOld);
 	}
 
 	public void xmlInfo(PrintWriter writer) {
@@ -79,7 +79,7 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException {
-		return SearchServlet.search(uri, searchRequest, getName());
+		return SearchServlet.search(uri, searchRequest, null);
 	}
 
 	public ResultDocuments documents(DocumentsRequest documentRequest)
@@ -90,13 +90,13 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 	public boolean deleteDocument(int docId) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException,
 			URISyntaxException, HttpException {
-		return DeleteServlet.deleteDocument(uri, getName(), docId);
+		return DeleteServlet.deleteDocument(uri, null, docId);
 	}
 
 	public int deleteDocuments(Collection<Integer> docIds)
 			throws StaleReaderException, CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
-		return DeleteServlet.deleteDocuments(uri, getName(), docIds);
+		return DeleteServlet.deleteDocuments(uri, null, docIds);
 	}
 
 	public boolean sameIndex(ReaderInterface reader) {

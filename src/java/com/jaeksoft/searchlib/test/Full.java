@@ -49,9 +49,9 @@ public class Full {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
 		FileInputStream fis = new FileInputStream(contentFile);
-		client.updateXmlDocuments(null, new InputSource(fis));
+		client.updateXmlDocuments(new InputSource(fis));
 		fis.close();
-		client.reload(null);
+		client.reload();
 	}
 
 	@Test

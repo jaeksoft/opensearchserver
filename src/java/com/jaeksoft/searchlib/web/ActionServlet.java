@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 
 public class ActionServlet extends AbstractServlet {
 	/**
@@ -46,23 +45,21 @@ public class ActionServlet extends AbstractServlet {
 			throws ServletException {
 		try {
 			HttpServletRequest request = transaction.getServletRequest();
-			Client client = ClientCatalog
-					.getClient(request.getParameter("use"));
-			String index = request.getParameter("index");
+			Client client = transaction.getClient();
 			String action = request.getParameter("action");
 			if ("optimize".equalsIgnoreCase(action))
-				client.optimize(index);
+				client.optimize();
 			else if ("swap".equalsIgnoreCase(action)) {
 				String p = request.getParameter("version");
 				long version = (p == null) ? 0 : Long.parseLong(p);
 				boolean deleteOld = (request.getParameter("deleteOld") != null);
-				client.getIndex().swap(index, version, deleteOld);
+				client.getIndex().swap(version, deleteOld);
 			} else if ("reload".equalsIgnoreCase(action)) {
-				client.reload(index);
+				client.reload();
 			} else if ("online".equalsIgnoreCase(action))
-				client.getIndex().setOnline(index, true);
+				client.getIndex().setOnline(true);
 			else if ("offline".equalsIgnoreCase(action))
-				client.getIndex().setOnline(index, false);
+				client.getIndex().setOnline(false);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
@@ -73,9 +70,9 @@ public class ActionServlet extends AbstractServlet {
 		call(buildUri(uri, "/action", indexName, "action=optimize"));
 	}
 
-	public static void reload(URI uri, String indexName) throws HttpException,
-			IOException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, "action=reload"));
+	public static void reload(URI uri) throws HttpException, IOException,
+			URISyntaxException {
+		call(buildUri(uri, "/action", null, "action=reload"));
 	}
 
 	public static void swap(URI uri, String indexName, long version,

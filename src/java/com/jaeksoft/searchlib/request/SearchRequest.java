@@ -79,7 +79,6 @@ public class SearchRequest implements Externalizable {
 	private transient Timer timer;
 	private transient long finalTime;
 
-	private String indexName;
 	private String requestName;
 	private FilterList filterList;
 	private boolean allowLeadingWildcard;
@@ -115,7 +114,6 @@ public class SearchRequest implements Externalizable {
 
 	public SearchRequest(Config config) {
 		this.config = config;
-		this.indexName = null;
 		this.requestName = null;
 		this.filterList = new FilterList(this.config);
 		this.queryParser = null;
@@ -149,7 +147,6 @@ public class SearchRequest implements Externalizable {
 
 	public SearchRequest(SearchRequest searchRequest) {
 		this(searchRequest.config);
-		this.indexName = searchRequest.indexName;
 		this.requestName = searchRequest.requestName;
 		this.filterList = new FilterList(searchRequest.filterList);
 		this.queryParser = null;
@@ -192,14 +189,13 @@ public class SearchRequest implements Externalizable {
 		this.queryParser = null;
 	}
 
-	private SearchRequest(Config config, String indexName, String requestName,
+	private SearchRequest(Config config, String requestName,
 			boolean allowLeadingWildcard, int phraseSlop,
 			QueryParser.Operator defaultOperator, int start, int rows,
 			String codeLang, String patternQuery, String queryString,
 			String scoreFunction, boolean delete, boolean withDocuments,
 			boolean withSortValues, boolean noCache, boolean debug) {
 		this(config);
-		this.indexName = indexName;
 		this.requestName = requestName;
 		this.allowLeadingWildcard = allowLeadingWildcard;
 		this.phraseSlop = phraseSlop;
@@ -451,8 +447,6 @@ public class SearchRequest implements Externalizable {
 		sb.append(rows);
 		sb.append(" Query: ");
 		sb.append(query);
-		sb.append(" IndexName: ");
-		sb.append(indexName);
 		sb.append(" Facet: " + getFacetFieldList().toString());
 		if (getCollapseMode() != CollapseMode.COLLAPSE_OFF)
 			sb.append(" Collapsing: " + getCollapseMode() + " "
@@ -542,14 +536,6 @@ public class SearchRequest implements Externalizable {
 		return timer;
 	}
 
-	public String getIndexName() {
-		return indexName;
-	}
-
-	public void setIndexName(String indexName) {
-		this.indexName = indexName;
-	}
-
 	/**
 	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
 	 * config XML.
@@ -571,10 +557,9 @@ public class SearchRequest implements Externalizable {
 		if (node == null)
 			return null;
 		String name = XPathParser.getAttributeString(node, "name");
-		String indexName = XPathParser.getAttributeString(node, "indexName");
-		SearchRequest searchRequest = new SearchRequest(config, indexName,
-				name, ("yes".equalsIgnoreCase(XPathParser.getAttributeString(
-						node, "allowLeadingWildcard"))),
+		SearchRequest searchRequest = new SearchRequest(config, name,
+				("yes".equalsIgnoreCase(XPathParser.getAttributeString(node,
+						"allowLeadingWildcard"))),
 				XPathParser.getAttributeValue(node, "phraseSlop"),
 				("and".equalsIgnoreCase(XPathParser.getAttributeString(node,
 						"defaultOperator"))) ? QueryParser.AND_OPERATOR
@@ -634,11 +619,11 @@ public class SearchRequest implements Externalizable {
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("request", "name", requestName, "indexName",
-				indexName, "phraseSlop", Integer.toString(phraseSlop),
-				"defaultOperator", getDefaultOperator(), "start",
-				Integer.toString(start), "rows", Integer.toString(rows),
-				"lang", lang != null ? lang.getCode() : null);
+		xmlWriter.startElement("request", "name", requestName, "phraseSlop",
+				Integer.toString(phraseSlop), "defaultOperator",
+				getDefaultOperator(), "start", Integer.toString(start), "rows",
+				Integer.toString(rows), "lang", lang != null ? lang.getCode()
+						: null);
 
 		if (patternQuery != null && patternQuery.trim().length() > 0) {
 			xmlWriter.startElement("query");
@@ -694,7 +679,6 @@ public class SearchRequest implements Externalizable {
 	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		indexName = External.readUTF(in);
 		requestName = External.readUTF(in);
 		filterList = External.readObject(in);
 		allowLeadingWildcard = in.readBoolean();
@@ -729,7 +713,6 @@ public class SearchRequest implements Externalizable {
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 
-		External.writeUTF(indexName, out);
 		External.writeUTF(requestName, out);
 		External.writeObject(filterList, out);
 		out.writeBoolean(allowLeadingWildcard);

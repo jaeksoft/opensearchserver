@@ -29,8 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
+import org.apache.lucene.search.ScoreDoc;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
@@ -74,17 +74,15 @@ public class CollapseCluster extends CollapseAbstract {
 	@Override
 	public ResultScoreDoc[] collapse(ResultSingle resultSingle)
 			throws IOException, ParseException, SyntaxError {
-		// TODO Auto-generated method stub
 		ReaderLocal reader = resultSingle.getReader();
 		DocSetHits docSetHits = resultSingle.getDocSetHits();
 		int allRows = docSetHits.getDocNumFound();
 		ScoreDoc[] scoreDocs = docSetHits.getScoreDocs(allRows);
 		StringIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
-		String indexName = reader.getName();
 		ResultScoreDoc[] resultScoreDocs = ResultScoreDoc
-				.appendResultScoreDocArray(indexName, resultSingle, null,
-						scoreDocs, allRows, collapseFieldStringIndex);
+				.appendResultScoreDocArray(resultSingle, null, scoreDocs,
+						allRows, collapseFieldStringIndex);
 		run(resultScoreDocs, allRows);
 		return getCollapsedDoc();
 	}

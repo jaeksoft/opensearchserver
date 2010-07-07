@@ -230,6 +230,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 		Executions.sendRedirect("/");
 	}
 
+	@Override
 	public void onEvent(Event event) throws UiException {
 		PushEvent pushEvent = PushEvent.isEvent(event);
 		if (pushEvent != null && pushEvent == PushEvent.FLUSH_PRIVILEGES) {

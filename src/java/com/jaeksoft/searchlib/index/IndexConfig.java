@@ -35,8 +35,6 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexConfig {
 
-	private String name;
-
 	private int searchCache;
 
 	private int filterCache;
@@ -59,7 +57,6 @@ public class IndexConfig {
 
 	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
 		maxNumSegments = 1;
-		name = XPathParser.getAttributeString(node, "name");
 		searchCache = XPathParser.getAttributeValue(node, "searchCache");
 		filterCache = XPathParser.getAttributeValue(node, "filterCache");
 		fieldCache = XPathParser.getAttributeValue(node, "fieldCache");
@@ -81,7 +78,7 @@ public class IndexConfig {
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("index", "name", name, "searchCache", Integer
+		xmlWriter.startElement("index", "searchCache", Integer
 				.toString(searchCache), "filterCache", Integer
 				.toString(filterCache), "fieldCache", Integer
 				.toString(fieldCache), "remoteUrl",
@@ -91,21 +88,6 @@ public class IndexConfig {
 				"readOnly", readOnly ? "yes" : "no", "maxNumSegments", Integer
 						.toString(maxNumSegments));
 		xmlWriter.endElement();
-	}
-
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	/**

@@ -16,6 +16,7 @@
 -->
 <window id="caches"
 	use="com.jaeksoft.searchlib.web.controller.runtime.CacheController">
+	<button label="Refresh" forward="onReload" />
 	<tabbox>
 		<tabs>
 			<tab id="tabCacheSearch" label="Search cache"
@@ -98,5 +99,4 @@
 			</tabpanel>
 		</tabpanels>
 	</tabbox>
-	<button label="refresh data" forward="onReload" />
 </window>

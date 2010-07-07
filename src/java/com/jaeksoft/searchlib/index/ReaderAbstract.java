@@ -24,12 +24,6 @@
 
 package com.jaeksoft.searchlib.index;
 
-
-public abstract class ReaderAbstract extends NameFilter implements
-		ReaderInterface {
-
-	protected ReaderAbstract(String indexName) {
-		super(indexName);
-	}
+public abstract class ReaderAbstract implements ReaderInterface {
 
 }

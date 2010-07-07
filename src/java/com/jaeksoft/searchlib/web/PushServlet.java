@@ -55,8 +55,8 @@ public class PushServlet extends AbstractServlet {
 			long version = Long.parseLong(request.getParameter("version"));
 			String fileName = request.getParameter("fileName");
 
-			client.getIndex().receive(transaction.getIndexName(), version,
-					fileName, request.getInputStream());
+			client.getIndex().receive(version, fileName,
+					request.getInputStream());
 
 		} catch (SearchLibException e) {
 			throw new ServletException(e);

@@ -40,7 +40,7 @@
 					<checkbox label="Show last error"
 						checked="@{stats.showLastError}" />
 				</hbox>
-				<button label="refresh data" forward="onReload" />
+				<button label="Refresh" forward="onReload" />
 			</row>
 		</rows>
 	</grid>

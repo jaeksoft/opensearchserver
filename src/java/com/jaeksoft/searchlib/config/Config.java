@@ -76,6 +76,7 @@ import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.replication.ReplicationList;
+import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
@@ -143,6 +144,8 @@ public abstract class Config {
 	private Mailer mailer = null;
 
 	private ReplicationList replicationList = null;
+
+	private ReplicationMaster replicationMaster = null;
 
 	private ConfigFiles configFiles = null;
 
@@ -403,6 +406,19 @@ public abstract class Config {
 		}
 	}
 
+	public ReplicationMaster getReplicationMaster() {
+		lock.lock();
+		try {
+			if (replicationMaster != null)
+				return replicationMaster;
+			replicationMaster = new ReplicationMaster(this);
+			return replicationMaster;
+		} finally {
+			lock.unlock();
+		}
+
+	}
+
 	public ParserSelector getParserSelector() throws SearchLibException {
 		lock.lock();
 		try {
@@ -453,8 +469,8 @@ public abstract class Config {
 		try {
 			if (replicationList != null)
 				return replicationList;
-			replicationList = new ReplicationList(new File(indexDir,
-					"replication.xml"));
+			replicationList = new ReplicationList(getReplicationMaster(),
+					new File(indexDir, "replication.xml"));
 			return replicationList;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -718,8 +734,6 @@ public abstract class Config {
 
 		String p;
 
-		if ((p = httpRequest.getParameter("index")) != null)
-			searchRequest.setIndexName(p);
 		if ((p = httpRequest.getParameter("query")) != null)
 			searchRequest.setQueryString(p);
 		else if ((p = httpRequest.getParameter("q")) != null)

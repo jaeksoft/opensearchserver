@@ -222,7 +222,7 @@ public class UrlManager {
 					}
 				}
 				if (injected > 0)
-					urlDbClient.reload(null);
+					urlDbClient.reload();
 			} catch (NoSuchAlgorithmException e) {
 				throw new SearchLibException(e);
 			} catch (IOException e) {
@@ -419,14 +419,14 @@ public class UrlManager {
 						Field.SUBHOST.addFilterQuery(searchRequest,
 								SearchRequest.escapeQuery(host));
 					else
-						Field.HOST.addFilterQuery(searchRequest, SearchRequest
-								.escapeQuery(host));
+						Field.HOST.addFilterQuery(searchRequest,
+								SearchRequest.escapeQuery(host));
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
-					Field.LANG.addFilterQuery(searchRequest, SearchRequest
-							.escapeQuery(lang));
+					Field.LANG.addFilterQuery(searchRequest,
+							SearchRequest.escapeQuery(lang));
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
@@ -544,13 +544,13 @@ public class UrlManager {
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException {
 		if (optimize) {
-			urlDbClient.reload(null);
-			urlDbClient.getIndex().optimize(null);
-			targetClient.reload(null);
-			targetClient.getIndex().optimize(null);
+			urlDbClient.reload();
+			urlDbClient.getIndex().optimize();
+			targetClient.reload();
+			targetClient.getIndex().optimize();
 		}
-		urlDbClient.reload(null);
-		targetClient.reload(null);
+		urlDbClient.reload();
+		targetClient.reload();
 	}
 
 	public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
@@ -580,8 +580,8 @@ public class UrlManager {
 			// Update target index
 			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
 					crawls.size());
-			List<String> documentsToDelete = new ArrayList<String>(crawls
-					.size());
+			List<String> documentsToDelete = new ArrayList<String>(
+					crawls.size());
 			for (Crawl crawl : crawls) {
 				if (crawl == null)
 					continue;

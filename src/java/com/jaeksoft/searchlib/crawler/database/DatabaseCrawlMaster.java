@@ -87,7 +87,7 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 				Config config = getConfig();
 				if (config instanceof Client) {
 					try {
-						((Client) config).reload(null);
+						((Client) config).reload();
 					} catch (IOException e) {
 						setException(e);
 					} catch (URISyntaxException e) {

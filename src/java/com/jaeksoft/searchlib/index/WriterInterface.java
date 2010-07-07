@@ -41,22 +41,10 @@ import com.jaeksoft.searchlib.schema.Schema;
 
 public interface WriterInterface {
 
-	public boolean deleteDocument(String indexName, Schema schema,
-			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException;
-
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException;
-
-	public int deleteDocuments(String indexName, Schema schema,
-			Collection<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
 
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
@@ -74,24 +62,13 @@ public interface WriterInterface {
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException;
 
-	public boolean updateDocument(String indexName, Schema schema,
-			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException;
-
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException;
 
-	public int updateDocuments(String indexName, Schema schema,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
-
-	public void optimize(String indexName) throws CorruptIndexException,
+	public void optimize() throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException;

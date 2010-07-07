@@ -55,33 +55,34 @@ public class WriterRemote extends WriterAbstract {
 	public void xmlInfo(PrintWriter writer) {
 	}
 
-	public void optimize(String indexName) throws IOException,
-			URISyntaxException, HttpException {
-		ActionServlet.optimize(uri, getName());
+	@Override
+	public void optimize() throws IOException, URISyntaxException,
+			HttpException {
+		ActionServlet.optimize(uri, null);
 	}
 
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
 		if (!acceptDocument(document))
 			return false;
-		return IndexServlet.update(uri, getName(), document);
+		return IndexServlet.update(uri, null, document);
 	}
 
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		return IndexServlet.update(uri, getName(), documents);
+		return IndexServlet.update(uri, null, documents);
 	}
 
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, HttpException {
-		return DeleteServlet.delete(uri, getName(), uniqueField);
+		return DeleteServlet.delete(uri, null, uniqueField);
 	}
 
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws IOException, URISyntaxException {
-		return DeleteServlet.delete(uri, getName(), uniqueFields);
+		return DeleteServlet.delete(uri, null, uniqueFields);
 	}
 
 	@Override

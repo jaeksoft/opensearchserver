@@ -133,13 +133,13 @@ public class FileManager {
 			IllegalAccessException, ClassNotFoundException, HttpException {
 
 		if (optimize) {
-			fileDbClient.reload(null);
-			fileDbClient.getIndex().optimize(null);
-			targetClient.reload(null);
-			targetClient.getIndex().optimize(null);
+			fileDbClient.reload();
+			fileDbClient.getIndex().optimize();
+			targetClient.reload();
+			targetClient.getIndex().optimize();
 		}
-		fileDbClient.reload(null);
-		targetClient.reload(null);
+		fileDbClient.reload();
+		targetClient.reload();
 	}
 
 	private SearchRequest getPathSearchRequest() throws SearchLibException {

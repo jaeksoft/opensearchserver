@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,8 +47,6 @@ public class DocumentsRequest implements Externalizable {
 	 */
 	private static final long serialVersionUID = 2369658807248539632L;
 
-	private String indexName;
-
 	private DocumentRequest[] requestedDocuments;
 
 	private FieldList<SnippetField> snippetFieldList;
@@ -63,7 +61,6 @@ public class DocumentsRequest implements Externalizable {
 
 	private DocumentsRequest(SearchRequest searchRequest)
 			throws ParseException, SyntaxError, IOException {
-		indexName = searchRequest.getIndexName();
 		requestedDocuments = null;
 		this.snippetFieldList = searchRequest.getSnippetFieldList();
 		for (SnippetField snippetField : snippetFieldList)
@@ -104,9 +101,8 @@ public class DocumentsRequest implements Externalizable {
 	 * @throws SyntaxError
 	 * @throws IOException
 	 */
-	public DocumentsRequest(DocumentsRequest documentsRequest, String indexName)
+	public DocumentsRequest(DocumentsRequest documentsRequest)
 			throws ParseException, SyntaxError, IOException {
-		this.indexName = indexName;
 
 		this.snippetFieldList = documentsRequest.snippetFieldList;
 		this.returnFieldList = documentsRequest.returnFieldList;
@@ -115,8 +111,7 @@ public class DocumentsRequest implements Externalizable {
 		DocumentRequest[] tempDocs = new DocumentRequest[documentsRequest.requestedDocuments.length];
 		int l = 0;
 		for (DocumentRequest doc : documentsRequest.requestedDocuments)
-			if (indexName.equals(doc.indexName))
-				tempDocs[l++] = doc;
+			tempDocs[l++] = doc;
 		requestedDocuments = new DocumentRequest[l];
 		l = 0;
 		for (DocumentRequest doc : tempDocs) {
@@ -138,10 +133,6 @@ public class DocumentsRequest implements Externalizable {
 		return returnFieldList;
 	}
 
-	public String getIndexName() {
-		return indexName;
-	}
-
 	public FieldList<Field> getDocumentFieldList() {
 		if (documentFieldList != null)
 			return documentFieldList;
@@ -152,10 +143,10 @@ public class DocumentsRequest implements Externalizable {
 		return documentFieldList;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		indexName = External.readUTF(in);
 		int l = in.readInt();
 		if (l > 0) {
 			requestedDocuments = new DocumentRequest[l];
@@ -165,8 +156,8 @@ public class DocumentsRequest implements Externalizable {
 		returnFieldList = (FieldList<Field>) in.readObject();
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeUTF(indexName, out);
 		External.writeObjectArray(requestedDocuments, out);
 		out.writeObject(snippetFieldList);
 		out.writeObject(returnFieldList);

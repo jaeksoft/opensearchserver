@@ -26,19 +26,15 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.http.HttpException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public abstract class IndexAbstract extends NameFilter implements
-		ReaderInterface, WriterInterface {
+public abstract class IndexAbstract implements ReaderInterface, WriterInterface {
 
 	protected final ReadWriteLock rwl = new ReentrantReadWriteLock(true);
 	protected final Lock r = rwl.readLock();
@@ -46,12 +42,7 @@ public abstract class IndexAbstract extends NameFilter implements
 
 	protected IndexConfig indexConfig;
 
-	protected IndexAbstract() {
-		super(null);
-	}
-
 	protected IndexAbstract(IndexConfig indexConfig) {
-		super(indexConfig.getName());
 		this.indexConfig = indexConfig;
 	}
 
@@ -61,31 +52,16 @@ public abstract class IndexAbstract extends NameFilter implements
 		return indexConfig;
 	}
 
-	@Override
-	public abstract void close();
+	public abstract boolean isOnline();
 
-	public abstract boolean isOnline(String indexName);
+	public abstract void setOnline(boolean v);
 
-	public abstract void setOnline(String indexName, boolean v);
+	public abstract boolean isReadOnly();
 
-	public abstract boolean isReadOnly(String indexName);
+	public abstract void setReadOnly(boolean v);
 
-	public abstract void setReadOnly(String indexName, boolean v);
-
-	public abstract void receive(String indexName, long version,
-			String fileName, InputStream inputStream) throws IOException;
-
-	public abstract void push(String indexName, URI dest)
-			throws URISyntaxException, IOException;
-
-	public abstract long getVersion(String indexName);
-
-	public abstract void reload(String indexName) throws IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException;
-
-	public abstract void swap(String indexName, long version, boolean deleteOld)
-			throws IOException, URISyntaxException, HttpException;
+	public abstract void receive(long version, String fileName,
+			InputStream inputStream) throws IOException;
 
 	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter)
 			throws SAXException;

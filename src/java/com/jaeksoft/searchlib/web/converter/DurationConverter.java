@@ -22,14 +22,30 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.replication;
+package com.jaeksoft.searchlib.web.converter;
 
-public class ReplicationProcess implements Runnable {
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zkplus.databind.TypeConverter;
+
+public class DurationConverter implements TypeConverter {
 
 	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-
+	public Object coerceToBean(Object value, Component component) {
+		return null;
 	}
 
+	@Override
+	public Object coerceToUi(Object value, Component component) {
+		if (value == null)
+			return "Unknown";
+		long l = -1;
+		if (value instanceof Long)
+			l = (Long) value;
+		else if (value instanceof Integer)
+			l = (Integer) value;
+		if (l == -1)
+			return "Unknown";
+		return String.format("%d:%02d:%02d", l / 3600, (l % 3600) / 60,
+				(l % 60));
+	}
 }

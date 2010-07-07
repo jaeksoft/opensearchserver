@@ -48,8 +48,7 @@ public class DocumentsThread extends AbstractGroupRequestThread {
 			throws ParseException, SyntaxError, IOException {
 		reader = index;
 		this.groupResultDocuments = groupResultDocuments;
-		this.documentsRequest = new DocumentsRequest(documentsRequest, index
-				.getName());
+		this.documentsRequest = new DocumentsRequest(documentsRequest);
 	}
 
 	@Override

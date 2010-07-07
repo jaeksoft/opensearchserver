@@ -72,8 +72,6 @@ public interface ReaderInterface {
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, IllegalAccessException, InstantiationException;
 
-	public String getName();
-
 	public IndexStatistics getStatistics() throws IOException;
 
 	public void reload() throws IOException, URISyntaxException,

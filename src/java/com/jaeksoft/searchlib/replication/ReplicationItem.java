@@ -31,10 +31,11 @@ import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class ReplicationItem {
+public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	private URL instanceUrl = null;
 
@@ -42,16 +43,25 @@ public class ReplicationItem {
 
 	private String apiKey = null;
 
-	public ReplicationItem() {
+	private ReplicationThread lastReplicationThread;
 
+	private ReplicationMaster replicationMaster;
+
+	public ReplicationItem(ReplicationMaster replicationMaster) {
+		super(null);
+		this.replicationMaster = replicationMaster;
+		lastReplicationThread = null;
 	}
 
 	public ReplicationItem(ReplicationItem item) {
+		super(item.getName());
 		this.copy(item);
 	}
 
-	public ReplicationItem(XPathParser xpp, Node node)
-			throws MalformedURLException {
+	public ReplicationItem(ReplicationMaster replicationMaster,
+			XPathParser xpp, Node node) throws MalformedURLException {
+		super(null);
+		this.replicationMaster = replicationMaster;
 		String url = XPathParser.getAttributeString(node, "instanceUrl");
 		if (url != null && url.length() > 0)
 			setInstanceUrl(new URL(url));
@@ -59,13 +69,18 @@ public class ReplicationItem {
 		String encodedApiKey = XPathParser.getAttributeString(node, "apiKey");
 		if (encodedApiKey != null && encodedApiKey.length() > 0)
 			setApiKey(new String(Base64.decodeBase64(encodedApiKey.getBytes())));
+		updateName();
 	}
 
+	private void updateName() {
+		setName(getInstanceUrl().toExternalForm() + "/" + getIndexName());
+	}
+
+	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		synchronized (this) {
 			String encodedApiKey = (apiKey != null && apiKey.length() > 0) ? new String(
-					Base64.encodeBase64(apiKey.getBytes()))
-					: "";
+					Base64.encodeBase64(apiKey.getBytes())) : "";
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
 					"apiKey", encodedApiKey);
@@ -79,6 +94,7 @@ public class ReplicationItem {
 	 */
 	public void setInstanceUrl(URL instanceUrl) {
 		this.instanceUrl = instanceUrl;
+		updateName();
 	}
 
 	/**
@@ -94,6 +110,7 @@ public class ReplicationItem {
 	 */
 	public void setIndexName(String indexName) {
 		this.indexName = indexName;
+		updateName();
 	}
 
 	/**
@@ -122,6 +139,21 @@ public class ReplicationItem {
 		this.indexName = item.indexName;
 		this.instanceUrl = item.instanceUrl;
 		this.apiKey = item.apiKey;
+		this.lastReplicationThread = item.lastReplicationThread;
+		this.replicationMaster = item.replicationMaster;
+		setName(item.getName());
+	}
+
+	protected void setReplicationThread(ReplicationThread replicationThread) {
+		this.lastReplicationThread = replicationThread;
+	}
+
+	public ReplicationThread getLastReplicationThread() {
+		return lastReplicationThread;
+	}
+
+	public boolean isReplicationThread() {
+		return replicationMaster.isReplicationThread(this);
 	}
 
 }

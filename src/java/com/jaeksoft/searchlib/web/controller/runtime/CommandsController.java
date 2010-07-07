@@ -63,7 +63,7 @@ public class CommandsController extends CommonController {
 			ClassNotFoundException, HttpException {
 		synchronized (this) {
 			Date t = new Date();
-			getClient().reload(null);
+			getClient().reload();
 			lastReload = t;
 			reloadPage();
 		}
@@ -75,7 +75,7 @@ public class CommandsController extends CommonController {
 			ClassNotFoundException, HttpException {
 		synchronized (this) {
 			Date t = new Date();
-			getClient().optimize(null);
+			getClient().optimize();
 			lastOptimize = t;
 			reloadPage();
 		}

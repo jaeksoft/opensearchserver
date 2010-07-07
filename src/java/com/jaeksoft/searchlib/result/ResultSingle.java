@@ -124,9 +124,8 @@ public class ResultSingle extends Result {
 		String collapseField = searchRequest.getCollapseField();
 		StringIndex collapseFieldStringIndex = (collapseField != null) ? reader
 				.getStringIndex(collapseField) : null;
-		return ResultScoreDoc.appendResultScoreDocArray(reader.getName(), this,
-				getDocs(), docSetHits.getScoreDocs(end), end,
-				collapseFieldStringIndex);
+		return ResultScoreDoc.appendResultScoreDocArray(this, getDocs(),
+				docSetHits.getScoreDocs(end), end, collapseFieldStringIndex);
 	}
 
 	/**

@@ -17,6 +17,11 @@
 <window id="index"
 	use="com.jaeksoft.searchlib.web.controller.runtime.IndexController">
 	<grid model="@{index.indices}">
+		<auxhead>
+			<auxheader colspan="12" align="center">
+				<button label="Refresh" forward="onReload" />
+			</auxheader>
+		</auxhead>
 		<columns>
 			<column width="120px" label="name" />
 			<column width="40px" label="search"

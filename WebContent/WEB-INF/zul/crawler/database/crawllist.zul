@@ -171,6 +171,8 @@
 					<listheader label="Name" />
 					<listheader label="Last execution time"
 						width="150px" />
+					<listheader label="Duration"
+						tooltiptext="last duration time" width="100px" />
 					<listheader label="Status" width="100px" />
 					<listheader label="Info" width="150px" />
 					<listheader label="Action" width="100px"
@@ -180,6 +182,8 @@
 					<listcell label="@{dbcrawlitem.name}" />
 					<listcell
 						label="@{dbcrawlitem.lastCrawlThread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+					<listcell
+						label="@{dbcrawlitem.lastCrawlThread.lastReplicationThread.duration,converter='com.jaeksoft.searchlib.web.converter.DurationConverter'}" />
 					<listcell
 						tooltiptext="@{dbcrawlitem.lastCrawlThread.info}"
 						label="@{dbcrawlitem.lastCrawlThread.status}" />
@@ -206,5 +210,5 @@
 		</panelchildren>
 	</panel>
 	<timer delay="5000" repeats="true" onTimer="dbCrawlList.onTimer()"
-		running="@{dbCrawlList.refreshList}" />
+		running="@{dbCrawlList.refresh}" />
 </window>

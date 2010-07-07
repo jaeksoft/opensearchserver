@@ -72,15 +72,15 @@ public class IndexGroup extends IndexAbstract {
 			throws XPathExpressionException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		super();
+		super(null);
 		this.threadPool = threadPool;
 		indices = new TreeMap<String, IndexSingle>();
 		NodeList nodes = xpp.getNodeList(parentNode, "index");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
 			IndexConfig indexConfig = new IndexConfig(xpp, node);
-			indices.put(indexConfig.getName(), new IndexSingle(homeDir,
-					indexConfig, createIfNotExists));
+			indices.put(null, new IndexSingle(homeDir, indexConfig,
+					createIfNotExists));
 		}
 	}
 
@@ -103,21 +103,16 @@ public class IndexGroup extends IndexAbstract {
 			index.close();
 	}
 
-	public void optimize(String indexName) throws CorruptIndexException,
+	@Override
+	public void optimize() throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		if (indexName == null || indexName.length() == 0) {
-			for (IndexAbstract index : getIndices())
-				index.optimize(null);
-			return;
-		}
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return;
-		index.optimize(null);
+		for (IndexAbstract index : getIndices())
+			index.optimize();
 	}
 
+	@Override
 	public IndexStatistics getStatistics() throws IOException {
 		IndexStatistics stats = new IndexStatistics();
 		for (IndexAbstract index : indices.values())
@@ -125,6 +120,7 @@ public class IndexGroup extends IndexAbstract {
 		return stats;
 	}
 
+	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
@@ -136,17 +132,7 @@ public class IndexGroup extends IndexAbstract {
 		return updated;
 	}
 
-	public boolean updateDocument(String indexName, Schema schema,
-			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return false;
-		return index.updateDocument(schema, document);
-
-	}
-
+	@Override
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
@@ -158,17 +144,7 @@ public class IndexGroup extends IndexAbstract {
 		return count;
 	}
 
-	public int updateDocuments(String indexName, Schema schema,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return 0;
-		return index.updateDocuments(indexName, schema, documents);
-	}
-
+	@Override
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
@@ -180,17 +156,7 @@ public class IndexGroup extends IndexAbstract {
 		return deleted;
 	}
 
-	public boolean deleteDocument(String indexName, Schema schema,
-			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return false;
-		return index.deleteDocument(schema, uniqueField);
-	}
-
+	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
@@ -201,17 +167,6 @@ public class IndexGroup extends IndexAbstract {
 		return count;
 	}
 
-	public int deleteDocuments(String indexName, Schema schema,
-			Collection<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return 0;
-		return index.deleteDocuments(schema, uniqueFields);
-	}
-
 	@Override
 	public int getDocFreq(Term term) throws IOException {
 		int r = 0;
@@ -220,33 +175,17 @@ public class IndexGroup extends IndexAbstract {
 		return r;
 	}
 
+	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException {
 		throw new RuntimeException("Not yet implemented");
 	}
 
 	@Override
-	public void reload(String indexName) throws IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		for (IndexAbstract index : getIndices())
-			index.reload(indexName);
-	}
-
-	@Override
-	public void swap(String indexName, long version, boolean deleteOld)
-			throws IOException, URISyntaxException, HttpException {
-		for (IndexAbstract index : getIndices())
-			index.swap(indexName, version, deleteOld);
-	}
-
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
-		String indexName = searchRequest.getIndexName();
-		if (indexName != null)
-			return get(indexName).search(searchRequest);
 		ResultGroup resultGroup = new SearchGroup(this, searchRequest,
 				threadPool).getResult();
 		if (resultGroup == null)
@@ -256,79 +195,57 @@ public class IndexGroup extends IndexAbstract {
 		return resultGroup;
 	}
 
+	@Override
 	public boolean sameIndex(ReaderInterface reader) {
 		return reader == this;
 	}
 
 	@Override
-	public void receive(String indexName, long version, String fileName,
-			InputStream inputStream) throws IOException {
-		IndexAbstract idx = get(indexName);
-		if (idx == null)
-			return;
-		idx.receive(indexName, version, fileName, inputStream);
+	public void receive(long version, String fileName, InputStream inputStream)
+			throws IOException {
+		throw new RuntimeException("Not implemented");
 	}
 
 	@Override
-	public void push(String indexName, URI dest) throws URISyntaxException,
-			IOException {
-		IndexAbstract index = get(indexName);
-		if (index != null) {
-			index.push(indexName, dest);
-			return;
-		}
-		for (IndexAbstract idx : getIndices())
-			idx.push(idx.getName(), dest);
-	}
-
-	@Override
-	public boolean isOnline(String indexName) {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return false;
-		return index.isOnline(indexName);
-	}
-
-	@Override
-	public boolean isReadOnly(String indexName) {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return false;
-		return index.isReadOnly(indexName);
-	}
-
-	@Override
-	public void setOnline(String indexName, boolean v) {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return;
-		index.setOnline(indexName, v);
-	}
-
-	@Override
-	public void setReadOnly(String indexName, boolean v) {
-		IndexAbstract index = get(indexName);
-		if (index == null)
-			return;
-		index.setReadOnly(indexName, v);
-	}
-
-	@Override
-	public long getVersion(String indexName) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public long getVersion() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	public void push(URI dest) throws URISyntaxException, IOException {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("Not implemented");
 	}
 
+	@Override
+	public boolean isOnline() {
+		int i = 0;
+		for (IndexAbstract index : getIndices())
+			if (index.isOnline())
+				i++;
+		return i == getIndices().size();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		for (IndexAbstract index : getIndices())
+			if (index.isReadOnly())
+				return true;
+		return false;
+	}
+
+	@Override
+	public void setOnline(boolean v) {
+		for (IndexAbstract index : getIndices())
+			index.setOnline(v);
+	}
+
+	@Override
+	public void setReadOnly(boolean v) {
+		for (IndexAbstract index : getIndices())
+			index.setReadOnly(v);
+	}
+
+	@Override
+	public long getVersion() {
+		throw new RuntimeException("Not implemented");
+	}
+
+	@Override
 	public void reload() throws IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
@@ -336,21 +253,19 @@ public class IndexGroup extends IndexAbstract {
 			index.reload();
 	}
 
+	@Override
 	public void swap(long version, boolean deleteOld) throws IOException {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Operation not permitted on grouped indices");
 	}
 
+	@Override
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, IllegalAccessException, InstantiationException {
-		String indexName = documentsRequest.getIndexName();
-		if (indexName != null)
-			return get(indexName).documents(documentsRequest);
-		else
-			return new DocumentsGroup(this, documentsRequest, threadPool)
-					.getDocuments();
+		return new DocumentsGroup(this, documentsRequest, threadPool)
+				.getDocuments();
 	}
 
 	@Override

@@ -52,25 +52,19 @@ public class DeleteServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = -2663934578246659291L;
 
-	private int deleteUniqDoc(Client client, String indexName, String uniq)
+	private int deleteUniqDoc(Client client, String uniq)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		if (indexName == null)
-			return client.deleteDocument(uniq) ? 1 : 0;
-		else
-			return client.deleteDocument(indexName, uniq) ? 1 : 0;
+		return client.deleteDocument(uniq) ? 1 : 0;
+
 	}
 
-	private int deleteUniqDocs(Client client, String indexName,
-			Collection<String> uniqFields) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
+	private int deleteUniqDocs(Client client, Collection<String> uniqFields)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		if (indexName == null)
-			return client.deleteDocuments(uniqFields);
-		else
-			return client.deleteDocuments(indexName, uniqFields);
+		return client.deleteDocuments(uniqFields);
 	}
 
 	private int deleteByQuery(Client client, String q)
@@ -84,18 +78,18 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private int doObjectRequest(Client client, HttpServletRequest request,
-			String indexName) throws ServletException {
+	private int doObjectRequest(Client client, HttpServletRequest request)
+			throws ServletException {
 		StreamReadObject readObject = null;
 		try {
 
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof DeleteRequest) {
-				return deleteUniqDocs(client, indexName,
+				return deleteUniqDocs(client,
 						((DeleteRequest<String>) obj).getCollection());
 			} else if (obj instanceof String)
-				return deleteUniqDoc(client, indexName, (String) obj);
+				return deleteUniqDoc(client, (String) obj);
 			return 0;
 		} catch (Exception e) {
 			throw new ServletException(e);
@@ -121,11 +115,11 @@ public class DeleteServlet extends AbstractServlet {
 			String q = request.getParameter("q");
 			Integer result = null;
 			if (uniq != null)
-				result = deleteUniqDoc(client, indexName, uniq);
+				result = deleteUniqDoc(client, uniq);
 			else if (q != null)
 				result = deleteByQuery(client, q);
 			else
-				result = doObjectRequest(client, request, indexName);
+				result = doObjectRequest(client, request);
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Deleted", result.toString());
 		} catch (Exception e) {

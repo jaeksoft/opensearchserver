@@ -48,10 +48,10 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	private Pointer index;
 
 	protected ReaderNativeOSSE(File configDir, IndexConfig indexConfig) {
-		super(configDir.getName());
 		index = OsseLibrary.INSTANCE.index_new();
 	}
 
+	@Override
 	public void close() {
 		OsseLibrary.INSTANCE.index_delete(index);
 	}

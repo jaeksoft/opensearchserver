@@ -96,8 +96,6 @@ public class ResultController extends QueryController implements
 				title.append(getScore());
 				title.append(" - Collapsed: ");
 				title.append(getCollapseCount());
-				title.append(" - Index: ");
-				title.append(getIndex());
 				title.append(" - docId: ");
 				title.append(getDocId());
 				return title.toString();
@@ -118,10 +116,6 @@ public class ResultController extends QueryController implements
 
 		public int getDocId() {
 			return getResult().getDocs()[pos].doc;
-		}
-
-		public String getIndex() {
-			return getResult().getDocs()[pos].indexName;
 		}
 
 		public ResultDocument getResultDocument() throws CorruptIndexException,
@@ -181,6 +175,7 @@ public class ResultController extends QueryController implements
 			super(fieldList);
 		}
 
+		@Override
 		public Object getChild(Object parent, int index) {
 			if (parent instanceof FieldList<?>) {
 				FieldList<?> fieldList = (FieldList<?>) parent;
@@ -192,6 +187,7 @@ public class ResultController extends QueryController implements
 			return null;
 		}
 
+		@Override
 		public int getChildCount(Object parent) {
 			if (parent instanceof FieldList<?>) {
 				FieldList<?> fieldList = (FieldList<?>) parent;
@@ -203,6 +199,7 @@ public class ResultController extends QueryController implements
 			return 0;
 		}
 
+		@Override
 		public boolean isLeaf(Object node) {
 			return node instanceof String;
 		}

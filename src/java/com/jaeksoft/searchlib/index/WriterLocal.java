@@ -294,13 +294,11 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public void optimize(String indexName) throws CorruptIndexException,
+	public void optimize() throws CorruptIndexException,
 			LockObtainFailedException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		l.lock();
 		try {
-			if (!acceptNameOrEmpty(indexName))
-				return;
 			open();
 			indexWriter.optimize(maxNumSegments, true);
 			close();

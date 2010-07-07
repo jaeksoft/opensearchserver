@@ -53,33 +53,26 @@ public class IndexServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 3855116559376800406L;
 
-	private int updateDoc(Client client, String indexName, IndexDocument doc)
+	private int updateDoc(Client client, IndexDocument doc)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		if (indexName == null)
-			return client.updateDocument(doc) ? 1 : 0;
-		else
-			return client.updateDocument(indexName, doc) ? 1 : 0;
+		return client.updateDocument(doc) ? 1 : 0;
 	}
 
-	private int updateDoc(Client client, String indexName,
+	private int updateDoc(Client client,
 			Collection<IndexDocument> indexDocuments)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		if (indexName == null)
-			return client.updateDocuments(indexDocuments);
-		else
-			return client.updateDocuments(indexName, indexDocuments);
+		return client.updateDocuments(indexDocuments);
 	}
 
-	private int updateDoc(Client client, String indexName,
-			IndexRequest indexRequest) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
+	private int updateDoc(Client client, IndexRequest indexRequest)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		return updateDoc(client, indexName, indexRequest.getCollection());
+		return updateDoc(client, indexRequest.getCollection());
 	}
 
 	private int doObjectRequest(Client client, HttpServletRequest request)
@@ -89,9 +82,9 @@ public class IndexServlet extends AbstractServlet {
 			readObject = new StreamReadObject(request.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof IndexRequest)
-				return updateDoc(client, null, (IndexRequest) obj);
+				return updateDoc(client, (IndexRequest) obj);
 			else if (obj instanceof IndexDocument)
-				return updateDoc(client, null, (IndexDocument) obj);
+				return updateDoc(client, (IndexDocument) obj);
 			throw new ServletException("Nothing to do");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -118,8 +111,8 @@ public class IndexServlet extends AbstractServlet {
 			String ct = request.getContentType();
 			Object result = null;
 			if (ct != null && ct.toLowerCase().contains("xml"))
-				result = client.updateXmlDocuments(null, new InputSource(
-						request.getInputStream()));
+				result = client.updateXmlDocuments(new InputSource(request
+						.getInputStream()));
 			else
 				result = doObjectRequest(client, request);
 			transaction.addXmlResponse("Status", "OK");

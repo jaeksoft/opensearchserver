@@ -72,17 +72,17 @@ public class UploadXmlController extends CommonController {
 		synchronized (this) {
 			if (media.inMemory()) {
 				if (media.isBinary())
-					updatedCount += getClient().updateXmlDocuments(null,
+					updatedCount += getClient().updateXmlDocuments(
 							new String(media.getByteData()));
 				else
-					updatedCount += getClient().updateXmlDocuments(null,
+					updatedCount += getClient().updateXmlDocuments(
 							media.getStringData());
 			} else {
 				if (media.isBinary())
-					updatedCount += getClient().updateXmlDocuments(null,
+					updatedCount += getClient().updateXmlDocuments(
 							new InputSource(media.getStreamData()));
 				else
-					updatedCount += getClient().updateXmlDocuments(null,
+					updatedCount += getClient().updateXmlDocuments(
 							new InputSource(media.getReaderData()));
 			}
 		}

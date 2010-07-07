@@ -31,10 +31,12 @@ import javax.naming.NamingException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
+import com.jaeksoft.searchlib.replication.ReplicationMaster;
 
 public class ReplicationController extends CommonController {
 
@@ -50,7 +52,7 @@ public class ReplicationController extends CommonController {
 	public ReplicationController() throws SearchLibException, NamingException {
 		super();
 		selectedItem = null;
-		currentItem = new ReplicationItem();
+		currentItem = new ReplicationItem(getReplicationMaster());
 	}
 
 	public ReplicationItem getSelectedItem() {
@@ -95,8 +97,19 @@ public class ReplicationController extends CommonController {
 		onCancel();
 	}
 
-	public void onCancel() {
-		currentItem = new ReplicationItem();
+	public boolean isRefresh() throws SearchLibException {
+		ReplicationMaster replicationMaser = getReplicationMaster();
+		if (replicationMaser == null)
+			return false;
+		return replicationMaser.getThreadsCount() > 0;
+	}
+
+	public void onTimer() {
+		super.reloadPage();
+	}
+
+	public void onCancel() throws SearchLibException {
+		currentItem = new ReplicationItem(getReplicationMaster());
 		selectedItem = null;
 		reloadPage();
 	}
@@ -112,5 +125,30 @@ public class ReplicationController extends CommonController {
 	public Set<ReplicationItem> getReplicationSet() throws SearchLibException {
 		Client client = getClient();
 		return client.getReplicationList().getSet();
+	}
+
+	private ReplicationItem getReplicationItem(Component comp) {
+		if (comp == null)
+			return null;
+		return (ReplicationItem) comp.getAttribute("replicationitem");
+	}
+
+	private ReplicationMaster getReplicationMaster() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getReplicationMaster();
+	}
+
+	public void execute(Component comp) throws SearchLibException,
+			InterruptedException {
+		ReplicationItem item = getReplicationItem(comp);
+		if (item == null)
+			return;
+		Client client = getClient();
+		if (client == null)
+			return;
+		getReplicationMaster().execute(client, item, false);
+		reloadPage();
 	}
 }

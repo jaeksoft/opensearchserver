@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -95,7 +95,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void optimize(String indexName) throws CorruptIndexException,
+	public void optimize() throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
@@ -106,11 +106,11 @@ public class IndexSingle extends IndexAbstract {
 		r.lock();
 		try {
 			if (writer != null)
-				writer.optimize(indexName);
+				writer.optimize();
 		} finally {
 			r.unlock();
 		}
-		reload(indexName);
+		reload();
 	}
 
 	@Override
@@ -134,27 +134,6 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public boolean deleteDocument(String indexName, Schema schema,
-			String uniqueField) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		if (!online)
-			throw new IOException("Index is offline");
-		if (readonly)
-			throw new IOException("Index is read only");
-		r.lock();
-		try {
-			if (writer != null)
-				return writer.deleteDocument(indexName, schema, uniqueField);
-			else
-				return false;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, InstantiationException,
@@ -167,27 +146,6 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (writer != null)
 				return writer.deleteDocuments(schema, uniqueFields);
-			else
-				return 0;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	@Override
-	public int deleteDocuments(String indexName, Schema schema,
-			Collection<String> uniqueFields) throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		if (!online)
-			throw new IOException("Index is offline");
-		if (readonly)
-			throw new IOException("Index is read only");
-		r.lock();
-		try {
-			if (writer != null)
-				return writer.deleteDocuments(indexName, schema, uniqueFields);
 			else
 				return 0;
 		} finally {
@@ -237,26 +195,6 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public boolean updateDocument(String indexName, Schema schema,
-			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-		if (!online)
-			throw new IOException("Index is offline");
-		if (readonly)
-			throw new IOException("Index is read only");
-		r.lock();
-		try {
-			if (writer != null)
-				return writer.updateDocument(indexName, schema, document);
-			else
-				return false;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	@Override
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
@@ -270,27 +208,6 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (writer != null)
 				return writer.updateDocuments(schema, documents);
-			else
-				return 0;
-		} finally {
-			r.unlock();
-		}
-	}
-
-	@Override
-	public int updateDocuments(String indexName, Schema schema,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		if (!online)
-			throw new IOException("Index is offline");
-		if (readonly)
-			throw new IOException("Index is read only");
-		r.lock();
-		try {
-			if (writer != null)
-				return writer.updateDocuments(indexName, schema, documents);
 			else
 				return 0;
 		} finally {
@@ -316,15 +233,6 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void reload(String indexName) throws IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		if (!acceptNameOrEmpty(indexName))
-			return;
-		reload();
-	}
-
-	@Override
 	public void swap(long version, boolean deleteOld) throws IOException,
 			URISyntaxException, HttpException {
 		if (!online)
@@ -341,14 +249,6 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void swap(String indexName, long version, boolean deleteOld)
-			throws IOException, URISyntaxException, HttpException {
-		if (!acceptNameOrEmpty(indexName))
-			return;
-		swap(version, deleteOld);
-	}
-
-	@Override
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,
 			ClassNotFoundException, InterruptedException, SearchLibException,
@@ -357,8 +257,6 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		r.lock();
 		try {
-			if (!acceptNameOrEmpty(searchRequest.getIndexName()))
-				return null;
 			if (reader != null)
 				return reader.search(searchRequest);
 			return null;
@@ -374,8 +272,6 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		r.lock();
 		try {
-			if (!acceptNameOrEmpty(searchRequest.getIndexName()))
-				return null;
 			if (reader != null)
 				return reader.explain(searchRequest, docId);
 			return null;
@@ -513,45 +409,31 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void push(String indexName, URI dest) throws URISyntaxException,
-			IOException {
-		if (!acceptOnlyRightName(indexName))
-			return;
-		push(dest);
-	}
-
-	@Override
-	public void receive(String indexName, long version, String fileName,
-			InputStream inputStream) throws IOException {
+	public void receive(long version, String fileName, InputStream inputStream)
+			throws IOException {
 		if (reader == null)
-			return;
-		if (!acceptOnlyRightName(indexName))
 			return;
 		WriterLocal.receiveIndexFile(((ReaderLocal) reader).getRootDir(),
 				version, fileName, inputStream);
 	}
 
 	@Override
-	public boolean isOnline(String indexName) {
+	public boolean isOnline() {
 		return online;
 	}
 
 	@Override
-	public boolean isReadOnly(String indexName) {
+	public boolean isReadOnly() {
 		return readonly;
 	}
 
 	@Override
-	public void setOnline(String indexName, boolean v) {
-		if (!acceptNameOrEmpty(indexName))
-			return;
+	public void setOnline(boolean v) {
 		online = v;
 	}
 
 	@Override
-	public void setReadOnly(String indexName, boolean v) {
-		if (!acceptNameOrEmpty(indexName))
-			return;
+	public void setReadOnly(boolean v) {
 		readonly = v;
 	}
 
@@ -560,15 +442,6 @@ public class IndexSingle extends IndexAbstract {
 		if (reader == null)
 			return 0;
 		return reader.getVersion();
-	}
-
-	@Override
-	public long getVersion(String indexName) {
-		if (!online)
-			return 0;
-		if (!acceptNameOrEmpty(indexName))
-			return 0;
-		return getVersion();
 	}
 
 	public SearchCache getSearchCache() {

@@ -68,7 +68,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	@Override
-	public void optimize(String indexName) throws CorruptIndexException,
+	public void optimize() throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException {
 
 	}

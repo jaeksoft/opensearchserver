@@ -119,7 +119,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			}
 			index(indexDocumentList, 0);
 			if (updatedIndexDocumentCount > 0)
-				client.reload(null);
+				client.reload();
 		} finally {
 			if (transaction != null)
 				transaction.close();

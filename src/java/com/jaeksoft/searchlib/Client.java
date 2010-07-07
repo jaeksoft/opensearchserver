@@ -82,18 +82,6 @@ public class Client extends Config {
 		}
 	}
 
-	public boolean updateDocument(String indexName, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		Timer timer = new Timer("Update document " + document.toString());
-		try {
-			return getIndex().updateDocument(indexName, getSchema(), document);
-		} finally {
-			getStatisticsList().addUpdate(timer);
-		}
-	}
-
 	public int updateDocuments(Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
@@ -106,21 +94,7 @@ public class Client extends Config {
 		}
 	}
 
-	public int updateDocuments(String indexName,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		Timer timer = new Timer("Update " + documents.size() + " documents");
-		try {
-			return getIndex()
-					.updateDocuments(indexName, getSchema(), documents);
-		} finally {
-			getStatisticsList().addUpdate(timer);
-		}
-	}
-
-	private int updateXmlDocuments(String indexName, XPathParser xpp)
+	private int updateXmlDocuments(XPathParser xpp)
 			throws XPathExpressionException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
@@ -131,29 +105,26 @@ public class Client extends Config {
 		for (int i = 0; i < l; i++)
 			docList.add(new IndexDocument(getParserSelector(), xpp, nodeList
 					.item(i)));
-		if (indexName == null)
-			return updateDocuments(docList);
-		else
-			return updateDocuments(indexName, docList);
+		return updateDocuments(docList);
 	}
 
-	public int updateXmlDocuments(String indexName, InputSource inputSource)
+	public int updateXmlDocuments(InputSource inputSource)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		XPathParser xpp = new XPathParser(inputSource);
-		return updateXmlDocuments(indexName, xpp);
+		return updateXmlDocuments(xpp);
 	}
 
-	public int updateXmlDocuments(String indexName, String xmlString)
-			throws SAXException, IOException, ParserConfigurationException,
+	public int updateXmlDocuments(String xmlString) throws SAXException,
+			IOException, ParserConfigurationException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		XPathParser xpp = new XPathParser(new InputSource(new StringReader(
 				xmlString)));
-		return updateXmlDocuments(indexName, xpp);
+		return updateXmlDocuments(xpp);
 	}
 
 	public boolean deleteDocument(String uniqueField)
@@ -164,20 +135,6 @@ public class Client extends Config {
 		Timer timer = new Timer("Delete document " + uniqueField);
 		try {
 			return getIndex().deleteDocument(getSchema(), uniqueField);
-		} finally {
-			getStatisticsList().addDelete(timer);
-		}
-	}
-
-	public boolean deleteDocument(String indexName, String uniqueField)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		Timer timer = new Timer("Delete document " + uniqueField);
-		try {
-			return getIndex().deleteDocument(indexName, getSchema(),
-					uniqueField);
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}
@@ -196,20 +153,6 @@ public class Client extends Config {
 		}
 	}
 
-	public int deleteDocuments(String indexName, Collection<String> uniqueFields)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		Timer timer = new Timer("Delete " + uniqueFields.size() + " documents");
-		try {
-			return getIndex().deleteDocuments(indexName, getSchema(),
-					uniqueFields);
-		} finally {
-			getStatisticsList().addDelete(timer);
-		}
-	}
-
 	public int deleteDocuments(SearchRequest searchRequest)
 			throws SearchLibException, CorruptIndexException, IOException,
 			InstantiationException, IllegalAccessException,
@@ -223,23 +166,23 @@ public class Client extends Config {
 		}
 	}
 
-	public void optimize(String indexName) throws IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
-		Timer timer = new Timer("Optimize " + indexName);
+	public void optimize() throws IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
+		Timer timer = new Timer("Optimize");
 		try {
-			getIndex().optimize(indexName);
+			getIndex().optimize();
 		} finally {
 			getStatisticsList().addOptimize(timer);
 		}
 	}
 
-	public void reload(String indexName) throws IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
-		Timer timer = new Timer("Reload " + indexName);
+	public void reload() throws IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
+		Timer timer = new Timer("Reload");
 		try {
-			getIndex().reload(indexName);
+			getIndex().reload();
 		} finally {
 			getStatisticsList().addReload(timer);
 		}
@@ -252,7 +195,7 @@ public class Client extends Config {
 	public void reload(boolean deleteOld) throws IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException {
-		reload(null);
+		reload();
 	}
 
 	public Result search(SearchRequest searchRequest) throws IOException,

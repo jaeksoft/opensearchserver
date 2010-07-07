@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldCache.StringIndex;
+import org.apache.lucene.search.ScoreDoc;
 
 import com.jaeksoft.searchlib.util.External;
 
@@ -42,8 +42,6 @@ public class ResultScoreDoc implements Externalizable {
 	private static final long serialVersionUID = 5961891131296766298L;
 
 	public transient ResultSingle resultSingle;
-
-	public String indexName;
 
 	public int doc;
 
@@ -60,11 +58,9 @@ public class ResultScoreDoc implements Externalizable {
 	public ResultScoreDoc() {
 	}
 
-	public ResultScoreDoc(String indexName, ResultSingle resultSingle,
-			ScoreDoc scoreDoc) {
+	public ResultScoreDoc(ResultSingle resultSingle, ScoreDoc scoreDoc) {
 		this.score = scoreDoc.score;
 		this.doc = scoreDoc.doc;
-		this.indexName = indexName;
 		this.resultSingle = resultSingle;
 		this.collapseTerm = null;
 		this.collapseCount = 0;
@@ -112,7 +108,7 @@ public class ResultScoreDoc implements Externalizable {
 		return facetValues;
 	}
 
-	public static ResultScoreDoc[] appendResultScoreDocArray(String indexName,
+	public static ResultScoreDoc[] appendResultScoreDocArray(
 			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
 			ScoreDoc[] scoreDocs, int rows) {
 		if (rows > scoreDocs.length)
@@ -123,30 +119,30 @@ public class ResultScoreDoc implements Externalizable {
 			for (ResultScoreDoc rsc : oldResultScoreDocs)
 				resultScoreDocs[i++] = rsc;
 		while (i < rows)
-			resultScoreDocs[i] = new ResultScoreDoc(indexName, resultSingle,
+			resultScoreDocs[i] = new ResultScoreDoc(resultSingle,
 					scoreDocs[i++]);
 		return resultScoreDocs;
 	}
 
-	public static ResultScoreDoc[] appendResultScoreDocArray(String indexName,
+	public static ResultScoreDoc[] appendResultScoreDocArray(
 			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
 			ScoreDoc[] scoreDocs, int rows, StringIndex collapseFieldStringIndex) {
 		if (collapseFieldStringIndex == null)
-			return appendResultScoreDocArray(indexName, resultSingle,
-					oldResultScoreDocs, scoreDocs, rows);
+			return appendResultScoreDocArray(resultSingle, oldResultScoreDocs,
+					scoreDocs, rows);
 		int l = oldResultScoreDocs != null ? oldResultScoreDocs.length : 0;
-		ResultScoreDoc[] resultScoreDocs = appendResultScoreDocArray(indexName,
+		ResultScoreDoc[] resultScoreDocs = appendResultScoreDocArray(
 				resultSingle, oldResultScoreDocs, scoreDocs, rows);
 		for (int i = l; i < resultScoreDocs.length; i++)
 			resultScoreDocs[i].loadCollapseTerm(collapseFieldStringIndex);
 		return resultScoreDocs;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		resultSingle = null;
 		collapseCount = 0;
-		indexName = External.readUTF(in);
 		doc = in.readInt();
 		score = in.readFloat();
 		collapseTerm = External.readUTF(in);
@@ -154,8 +150,8 @@ public class ResultScoreDoc implements Externalizable {
 		facetValues = External.readStringArray(in);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeUTF(indexName, out);
 		out.writeInt(doc);
 		out.writeFloat(score);
 		External.writeUTF(collapseTerm, out);
@@ -166,11 +162,6 @@ public class ResultScoreDoc implements Externalizable {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		if (indexName != null) {
-			sb.append("Index: ");
-			sb.append(indexName);
-			sb.append('.');
-		}
 		sb.append(" DocId: ");
 		sb.append(doc);
 		sb.append(" Score: ");

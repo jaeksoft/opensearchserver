@@ -60,7 +60,7 @@ public class StatServlet extends AbstractServlet {
 			String reload = request.getParameter("reload");
 
 			if (reload != null)
-				client.reload(reload);
+				client.reload();
 
 			PrintWriter writer = transaction.getWriter("UTF-8");
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");

@@ -43,8 +43,9 @@ public class ReplicationList {
 
 	private Set<ReplicationItem> replicationSet;
 
-	public ReplicationList(File file) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException {
+	public ReplicationList(ReplicationMaster replicationMaster, File file)
+			throws ParserConfigurationException, SAXException, IOException,
+			XPathExpressionException {
 		replicationSet = new HashSet<ReplicationItem>();
 		if (!file.exists())
 			return;
@@ -56,8 +57,8 @@ public class ReplicationList {
 		if (nodes == null)
 			return;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			ReplicationItem replicationItem = new ReplicationItem(xpp, nodes
-					.item(i));
+			ReplicationItem replicationItem = new ReplicationItem(
+					replicationMaster, xpp, nodes.item(i));
 			put(replicationItem);
 		}
 	}
