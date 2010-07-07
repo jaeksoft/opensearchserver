@@ -26,6 +26,7 @@
 			<row>
 				<label>Enter the query:</label>
 				<textbox height="50px" multiline="true"
+					forward="onChange=onQueryChange"
 					value="@{delete.request.queryString}" width="90%" />
 			</row>
 			<row>
@@ -50,10 +51,11 @@
 			<footer span="2">
 				<button label="Check" forward="onCheck" />
 				<space width="50px" />
-				<button label="Delete" forward="onDelete" />
+				<button label="Delete" forward="onDelete"
+					disabled="@{delete.notChecked}" />
 				<space width="50px" />
 				<button label="XML/HTTP API call" target="_blank"
-					href="@{delete.requestApiCall}" />
+					disabled="@{delete.notChecked}" href="@{delete.requestApiCall}" />
 				<space width="50px" />
 			</footer>
 		</foot>

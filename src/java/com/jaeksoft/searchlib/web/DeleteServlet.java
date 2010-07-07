@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -53,14 +52,14 @@ public class DeleteServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = -2663934578246659291L;
 
-	private boolean deleteUniqDoc(Client client, String indexName, String uniq)
+	private int deleteUniqDoc(Client client, String indexName, String uniq)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
 		if (indexName == null)
-			return client.deleteDocument(uniq);
+			return client.deleteDocument(uniq) ? 1 : 0;
 		else
-			return client.deleteDocument(indexName, uniq);
+			return client.deleteDocument(indexName, uniq) ? 1 : 0;
 	}
 
 	private int deleteUniqDocs(Client client, String indexName,
@@ -85,7 +84,7 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Object doObjectRequest(Client client, HttpServletRequest request,
+	private int doObjectRequest(Client client, HttpServletRequest request,
 			String indexName) throws ServletException {
 		StreamReadObject readObject = null;
 		try {
@@ -97,7 +96,7 @@ public class DeleteServlet extends AbstractServlet {
 						((DeleteRequest<String>) obj).getCollection());
 			} else if (obj instanceof String)
 				return deleteUniqDoc(client, indexName, (String) obj);
-			return "Error";
+			return 0;
 		} catch (Exception e) {
 			throw new ServletException(e);
 		} finally {
@@ -120,15 +119,15 @@ public class DeleteServlet extends AbstractServlet {
 			HttpServletRequest request = transaction.getServletRequest();
 			String uniq = request.getParameter("uniq");
 			String q = request.getParameter("q");
-			Object result = null;
+			Integer result = null;
 			if (uniq != null)
 				result = deleteUniqDoc(client, indexName, uniq);
 			else if (q != null)
 				result = deleteByQuery(client, q);
 			else
 				result = doObjectRequest(client, request, indexName);
-			PrintWriter pw = transaction.getWriter("UTF-8");
-			pw.println(result);
+			transaction.addXmlResponse("Status", "OK");
+			transaction.addXmlResponse("Deleted", result.toString());
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

@@ -46,6 +46,7 @@ public class FacetFieldRenderer implements RowRenderer {
 			this.facetField = facetField;
 		}
 
+		@Override
 		public void onEvent(Event event) throws Exception {
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();
@@ -85,6 +86,7 @@ public class FacetFieldRenderer implements RowRenderer {
 		}
 	}
 
+	@Override
 	public void render(Row row, Object data) throws Exception {
 		FacetField facetField = (FacetField) data;
 		new Label(facetField.getName()).setParent(row);

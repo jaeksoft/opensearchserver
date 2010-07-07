@@ -85,9 +85,12 @@ public class DeleteController extends CommonController {
 
 	private SearchRequest request;
 
+	private boolean isChecked;
+
 	public DeleteController() throws SearchLibException {
 		super();
 		request = getClient().getNewSearchRequest();
+		isChecked = false;
 	}
 
 	public SearchRequest getRequest() {
@@ -100,17 +103,30 @@ public class DeleteController extends CommonController {
 			IllegalAccessException {
 		request.reset();
 		int numFound = getClient().search(request).getNumFound();
+		isChecked = true;
 		new AlertController(numFound + " document(s) found.",
 				Messagebox.INFORMATION);
+		reloadPage();
 	}
 
 	public void onDelete() throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, SearchLibException,
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
+		if (!isChecked)
+			return;
 		request.reset();
 		int numFound = getClient().search(request).getNumFound();
 		new DeleteAlert(numFound);
+	}
+
+	public void onQueryChange() {
+		isChecked = false;
+		reloadPage();
+	}
+
+	public boolean isNotChecked() {
+		return !isChecked;
 	}
 
 	public String getRequestApiCall() throws SearchLibException,
@@ -128,7 +144,6 @@ public class DeleteController extends CommonController {
 		User user = getLoggedUser();
 		if (user != null)
 			url += "&" + user.getApiCallParameters();
-		System.out.println("URL=" + url);
 		return url;
 	}
 
