@@ -52,6 +52,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -189,10 +190,9 @@ public class HtmlParser extends Parser {
 			SAXException, IOException, ParserConfigurationException {
 		DOMParser parser = new DOMParser();
 		parser.setFeature("http://xml.org/sax/features/namespaces", true);
-		parser
-				.setFeature(
-						"http://cyberneko.org/html/features/balance-tags/ignore-outside-content",
-						false);
+		parser.setFeature(
+				"http://cyberneko.org/html/features/balance-tags/ignore-outside-content",
+				false);
 		parser.setFeature("http://cyberneko.org/html/features/balance-tags",
 				true);
 		parser.setFeature("http://cyberneko.org/html/features/report-errors",
@@ -373,11 +373,15 @@ public class HtmlParser extends Parser {
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
 
-		String charset = getSourceDocument().getFieldValue(
-				UrlItemFieldEnum.contentTypeCharset.name(), 0);
-		if (charset == null)
-			charset = getSourceDocument().getFieldValue(
-					UrlItemFieldEnum.contentEncoding.name(), 0);
+		String charset = null;
+		IndexDocument sourceDocument = getSourceDocument();
+		if (sourceDocument != null) {
+			charset = sourceDocument.getFieldValue(
+					UrlItemFieldEnum.contentTypeCharset.name(), 0);
+			if (charset == null)
+				charset = getSourceDocument().getFieldValue(
+						UrlItemFieldEnum.contentEncoding.name(), 0);
+		}
 		boolean charsetWasNull = charset == null;
 		if (charsetWasNull)
 			charset = getDefaultCharset();
@@ -534,8 +538,8 @@ public class HtmlParser extends Parser {
 			String text = getMergedBodyText(1000, " ", ParserFieldEnum.body);
 			if (text != null) {
 				langMethod = "ngram recognition";
-				String textcat = new TextCategorizer().categorize(text, text
-						.length());
+				String textcat = new TextCategorizer().categorize(text,
+						text.length());
 				lang = Lang.findLocaleDescription(textcat);
 			}
 		}

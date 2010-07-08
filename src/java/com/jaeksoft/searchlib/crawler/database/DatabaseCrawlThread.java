@@ -112,6 +112,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			String lastPrimaryKey = null;
 			String dbPrimaryKey = databaseCrawl.getPrimaryKey();
 			boolean merge = false;
+			setStatus(CrawlStatus.CRAWL);
 			while (resultSet.next()) {
 				if (dbPrimaryKey != null) {
 					merge = false;
