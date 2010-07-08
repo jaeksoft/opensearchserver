@@ -57,16 +57,12 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		return field;
 	}
 
-	public void addIfDifferentThanPrevious(String value) {
-		int l = values.size();
-		if (l > 0)
-			if (values.get(l - 1).equals(value))
-				return;
-		add(value);
-	}
-
 	public void add(String value) {
 		values.add(value);
+	}
+
+	public void add(FieldContent fc2) {
+		values.addAll(fc2.values);
 	}
 
 	public void clear() {
@@ -122,6 +118,26 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		}
 
 		return result.toString();
+	}
+
+	public boolean isEquals(FieldContent fc) {
+		if (!field.equals(fc.getField()))
+			return false;
+		if (values.size() != fc.values.size())
+			return false;
+		int i = 0;
+		for (String v1 : values) {
+			String v2 = fc.values.get(i++);
+			if (v1 == null) {
+				if (v2 != null)
+					return false;
+				else
+					continue;
+			}
+			if (!v1.equals(v2))
+				return false;
+		}
+		return true;
 	}
 
 }

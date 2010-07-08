@@ -92,17 +92,21 @@
 							model="@{dbCrawlList.currentCrawl.fieldMap.list}">
 							<listhead>
 								<listheader label="SQL column"
-									align="center" />
+									align="center" width="180px" />
 								<listheader label="Index field"
-									align="center" />
+									align="center" width="180px" />
 								<listheader width="50px" label="Tags"
 									tooltiptext="Remove tag" align="center" />
+								<listheader width="50px" label="File"
+									tooltiptext="Contains a file path" align="center" />
+								<listheader label="File path prefix"
+									align="center" />
 								<listheader width="100px" label="Action"
 									align="center" />
 							</listhead>
 							<auxhead>
 								<auxheader align="center">
-									<textbox cols="30"
+									<textbox width="95%"
 										value="@{dbCrawlList.sqlColumn}" />
 								</auxheader>
 								<auxheader align="center">
@@ -115,7 +119,16 @@
 								</auxheader>
 								<auxheader align="center">
 									<checkbox tooltiptext="remove tags"
-										checked="@{dbCrawlList.removeTag}" />
+										checked="@{dbCrawlList.dbFieldTarget.removeTag}" />
+								</auxheader>
+								<auxheader align="center">
+									<checkbox tooltiptext="File path"
+										checked="@{dbCrawlList.dbFieldTarget.filePath}" />
+								</auxheader>
+								<auxheader align="center">
+									<textbox width="95%"
+										disabled="@{dbCrawlList.dbFieldTarget.notFilePath}"
+										value="@{dbCrawlList.dbFieldTarget.filePathPrefix}" />
 								</auxheader>
 								<auxheader align="center">
 									<button label="add"
@@ -129,6 +142,12 @@
 									<checkbox disabled="true"
 										checked="@{fieldlink.target.removeTag}" />
 								</listcell>
+								<listcell>
+									<checkbox disabled="true"
+										checked="@{fieldlink.target.filePath}" />
+								</listcell>
+								<listcell
+									label="@{fieldlink.target.filePathPrefix}" />
 								<listcell>
 									<button tooltiptext="Remove"
 										image="/images/action_delete.png"

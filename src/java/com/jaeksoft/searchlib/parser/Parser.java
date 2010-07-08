@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -168,11 +170,22 @@ public abstract class Parser {
 	public void parseContent(String stringData) throws IOException {
 		StringReader stringReader = null;
 		try {
-			new StringReader(stringData);
+			stringReader = new StringReader(stringData);
 			parseContent(stringReader);
 		} finally {
 			if (stringReader != null)
 				stringReader.close();
+		}
+	}
+
+	public void parseContent(File file) throws IOException {
+		FileInputStream fileInputStream = null;
+		try {
+			fileInputStream = new FileInputStream(file);
+			parseContent(fileInputStream);
+		} finally {
+			if (fileInputStream != null)
+				fileInputStream.close();
 		}
 	}
 

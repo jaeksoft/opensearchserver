@@ -158,12 +158,6 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		fieldContentArray = null;
 	}
 
-	private void addFieldIfDifferentThanPrevious(String field, String value) {
-		FieldContent fc = getFieldContent(field);
-		fc.addIfDifferentThanPrevious(value);
-		fieldContentArray = null;
-	}
-
 	public void addEmptyField(String field) {
 		addField(field, "");
 	}
@@ -172,12 +166,6 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		if (value.length() == 0)
 			return;
 		addField(field, value);
-	}
-
-	public void addIfDifferentThanPrevious(String field, String value) {
-		if (value.length() == 0)
-			return;
-		addFieldIfDifferentThanPrevious(field, value);
 	}
 
 	public void add(String field, List<String> values) {
@@ -280,6 +268,15 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	@Override
 	public Iterator<FieldContent> iterator() {
 		return fields.values().iterator();
+	}
+
+	public void removeIdenticalFieldContent(IndexDocument source) {
+		for (FieldContent fcSource : source.fields.values()) {
+			FieldContent fcTarget = getFieldContent(fcSource.getField());
+			if (fcSource.isEquals(fcTarget))
+				fcTarget.clear();
+		}
+
 	}
 
 	@Override

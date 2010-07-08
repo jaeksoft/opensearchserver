@@ -24,14 +24,20 @@
 
 package com.jaeksoft.searchlib.crawler.database;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -49,17 +55,33 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 		target.writeXml(xmlWriter);
 	}
 
-	public void mapResultSet(ResultSet resultSet, IndexDocument target)
-			throws SQLException {
+	public void mapResultSet(ParserSelector parserSelector,
+			ResultSet resultSet, IndexDocument target) throws SQLException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException, IOException {
 		for (GenericLink<String, DatabaseFieldTarget> link : getList()) {
+
 			String content = resultSet.getString(link.getSource());
 			if (content == null)
 				continue;
 			DatabaseFieldTarget dfTarget = link.getTarget();
+			if (dfTarget.isFilePath()) {
+				File file = new File(dfTarget.getFilePathPrefix() + content);
+				if (file.exists()) {
+					String extension = FilenameUtils.getExtension(file
+							.getName());
+					Parser parser = parserSelector
+							.getParserFromExtension(extension);
+					if (parser != null) {
+						parser.parseContent(file);
+						parser.populate(target);
+					}
+				}
+			}
+
 			if (dfTarget.isRemoveTag())
 				content = StringUtils.removeTag(content);
-			target.addIfDifferentThanPrevious(link.getTarget().getName(),
-					content);
+			target.add(dfTarget.getName(), content);
 		}
 	}
 }

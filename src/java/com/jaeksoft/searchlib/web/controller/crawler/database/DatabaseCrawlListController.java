@@ -88,7 +88,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	private SchemaField selectedIndexField;
 
-	private boolean removeTag;
+	private DatabaseFieldTarget dbFieldTarget;
 
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
@@ -96,6 +96,9 @@ public class DatabaseCrawlListController extends CrawlerController {
 		currentCrawl = new DatabaseCrawl(getCrawlMaster());
 		selectedCrawl = null;
 		dbCrawlList = null;
+		sqlColumn = null;
+		dbFieldTarget = new DatabaseFieldTarget(null, false, false, null);
+		selectedIndexField = null;
 	}
 
 	@Override
@@ -137,21 +140,6 @@ public class DatabaseCrawlListController extends CrawlerController {
 						.getClass().getClassLoader()));
 	}
 
-	/**
-	 * @param sqlColumn
-	 *            the sqlColumn to set
-	 */
-	public void setSqlColumn(String sqlColumn) {
-		this.sqlColumn = sqlColumn;
-	}
-
-	/**
-	 * @return the sqlColumn
-	 */
-	public String getSqlColumn() {
-		return sqlColumn;
-	}
-
 	public void setSelectedCrawl(DatabaseCrawl crawl) throws SearchLibException {
 		selectedCrawl = crawl;
 		currentCrawl = new DatabaseCrawl(getCrawlMaster(), selectedCrawl);
@@ -163,13 +151,13 @@ public class DatabaseCrawlListController extends CrawlerController {
 			XPathExpressionException, ParserConfigurationException {
 		if (!isFileCrawlerParametersRights())
 			throw new SearchLibException("Not allowed");
-		if (sqlColumn == null || sqlColumn.length() == 0
-				|| selectedIndexField == null)
+		if (dbFieldTarget.getName() == null
+				|| dbFieldTarget.getName().length() == 0
+				|| dbFieldTarget == null)
 			return;
-		currentCrawl.getFieldMap()
-				.add(sqlColumn,
-						new DatabaseFieldTarget(selectedIndexField.getName(),
-								removeTag));
+		currentCrawl.getFieldMap().add(sqlColumn, dbFieldTarget);
+		sqlColumn = null;
+		dbFieldTarget = new DatabaseFieldTarget(null, false, false, null);
 		reloadPage();
 	}
 
@@ -252,7 +240,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 			List<SchemaField> list = client.getSchema().getFieldList()
 					.getList();
 			if (list.size() > 0 && selectedIndexField == null)
-				selectedIndexField = list.get(0);
+				setSelectedIndexField(list.get(0));
 			return list;
 		}
 	}
@@ -260,6 +248,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 	public void setSelectedIndexField(SchemaField field) {
 		synchronized (this) {
 			selectedIndexField = field;
+			dbFieldTarget.setName(field.getName());
 		}
 	}
 
@@ -287,18 +276,25 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	/**
-	 * @param removeTag
-	 *            the removeTag to set
+	 * @return the dbFieldTarget
 	 */
-	public void setRemoveTag(boolean removeTag) {
-		this.removeTag = removeTag;
+	public DatabaseFieldTarget getDbFieldTarget() {
+		return dbFieldTarget;
 	}
 
 	/**
-	 * @return the removeTag
+	 * @return the sqlColumn
 	 */
-	public boolean isRemoveTag() {
-		return removeTag;
+	public String getSqlColumn() {
+		return sqlColumn;
+	}
+
+	/**
+	 * @param sqlColumn
+	 *            the sqlColumn to set
+	 */
+	public void setSqlColumn(String sqlColumn) {
+		this.sqlColumn = sqlColumn;
 	}
 
 }

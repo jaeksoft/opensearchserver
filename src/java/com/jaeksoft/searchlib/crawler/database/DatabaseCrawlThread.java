@@ -108,6 +108,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			ResultSet resultSet = query.getResultSet();
 			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>();
 			IndexDocument indexDocument = null;
+			IndexDocument lastFieldContent = null;
 			String lastPrimaryKey = null;
 			String dbPrimaryKey = databaseCrawl.getPrimaryKey();
 			boolean merge = false;
@@ -127,8 +128,16 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 					indexDocumentList.add(indexDocument);
 					pendingIndexDocumentCount++;
 				}
-				databaseCrawl.getFieldMap().mapResultSet(resultSet,
-						indexDocument);
+				IndexDocument newFieldContents = new IndexDocument(
+						databaseCrawl.getLang());
+				databaseCrawl.getFieldMap()
+						.mapResultSet(client.getParserSelector(), resultSet,
+								newFieldContents);
+				if (merge && lastFieldContent != null)
+					newFieldContents
+							.removeIdenticalFieldContent(lastFieldContent);
+				indexDocument.add(newFieldContents);
+				lastFieldContent = newFieldContents;
 			}
 			index(indexDocumentList, 0);
 			if (updatedIndexDocumentCount > 0)

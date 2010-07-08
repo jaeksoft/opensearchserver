@@ -37,9 +37,16 @@ public class DatabaseFieldTarget extends Target {
 
 	private boolean removeTag;
 
-	public DatabaseFieldTarget(String targetName, boolean removeTag) {
+	private boolean filePath;
+
+	private String filePathPrefix;
+
+	public DatabaseFieldTarget(String targetName, boolean removeTag,
+			boolean filePath, String filePathPrefix) {
 		super(targetName);
 		this.removeTag = removeTag;
+		this.filePathPrefix = filePathPrefix;
+		this.filePath = filePath;
 	}
 
 	public DatabaseFieldTarget(String targetName, Node targetNode) {
@@ -50,11 +57,17 @@ public class DatabaseFieldTarget extends Target {
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
 					"removeTag")))
 				removeTag = true;
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
+					"filePath")))
+				removeTag = true;
+			filePathPrefix = DomUtils.getAttributeText(node, "filePathPrefix");
 		}
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no");
+		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no",
+				"filePath", filePath ? "yes" : "no", "filePathPrefix",
+				filePathPrefix);
 		xmlWriter.endElement();
 	}
 
@@ -71,6 +84,45 @@ public class DatabaseFieldTarget extends Target {
 	 */
 	public boolean isRemoveTag() {
 		return removeTag;
+	}
+
+	/**
+	 * @return the filePathPrefix
+	 */
+	public String getFilePathPrefix() {
+		return filePathPrefix;
+	}
+
+	/**
+	 * @param filePathPrefix
+	 *            the filePathPrefix to set
+	 */
+	public void setFilePathPrefix(String filePathPrefix) {
+		this.filePathPrefix = filePathPrefix;
+	}
+
+	/**
+	 * @param filePath
+	 *            the FilePath to set
+	 */
+	public void setFilePath(boolean filePath) {
+		this.filePath = filePath;
+		if (!filePath)
+			setFilePathPrefix(null);
+	}
+
+	/**
+	 * @return the FilePath
+	 */
+	public boolean isFilePath() {
+		return filePath;
+	}
+
+	/**
+	 * @return true if the FilePath is not set
+	 */
+	public boolean isNotFilePath() {
+		return !isFilePath();
 	}
 
 }
