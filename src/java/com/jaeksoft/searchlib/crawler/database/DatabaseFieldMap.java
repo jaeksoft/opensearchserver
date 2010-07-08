@@ -58,7 +58,8 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 			DatabaseFieldTarget dfTarget = link.getTarget();
 			if (dfTarget.isRemoveTag())
 				content = StringUtils.removeTag(content);
-			target.add(link.getTarget().getName(), content);
+			target.addIfDifferentThanPrevious(link.getTarget().getName(),
+					content);
 		}
 	}
 }

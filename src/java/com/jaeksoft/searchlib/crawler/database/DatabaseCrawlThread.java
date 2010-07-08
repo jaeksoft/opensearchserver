@@ -107,15 +107,28 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			Query query = transaction.prepare(databaseCrawl.getSql());
 			ResultSet resultSet = query.getResultSet();
 			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>();
+			IndexDocument indexDocument = null;
+			String lastPrimaryKey = null;
+			String dbPrimaryKey = databaseCrawl.getPrimaryKey();
+			boolean merge = false;
 			while (resultSet.next()) {
-				IndexDocument indexDocument = new IndexDocument(
-						databaseCrawl.getLang());
+				if (dbPrimaryKey != null) {
+					merge = false;
+					String pKey = resultSet.getString(dbPrimaryKey);
+					if (pKey != null && lastPrimaryKey != null)
+						if (pKey.equals(lastPrimaryKey))
+							merge = true;
+					lastPrimaryKey = pKey;
+				}
+				if (!merge) {
+					if (index(indexDocumentList, 1000))
+						setStatus(CrawlStatus.CRAWL);
+					indexDocument = new IndexDocument(databaseCrawl.getLang());
+					indexDocumentList.add(indexDocument);
+					pendingIndexDocumentCount++;
+				}
 				databaseCrawl.getFieldMap().mapResultSet(resultSet,
 						indexDocument);
-				indexDocumentList.add(indexDocument);
-				pendingIndexDocumentCount++;
-				if (index(indexDocumentList, 1000))
-					setStatus(CrawlStatus.CRAWL);
 			}
 			index(indexDocumentList, 0);
 			if (updatedIndexDocumentCount > 0)

@@ -46,9 +46,9 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.External.Collecter;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.External.Collecter;
 
 public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		Iterable<FieldContent> {
@@ -143,13 +143,24 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			add(entry.getKey(), entry.getValue());
 	}
 
-	private void addField(String field, String value) {
+	private FieldContent getFieldContent(String field) {
 		FieldContent fc = fields.get(field);
 		if (fc == null) {
 			fc = new FieldContent(field);
 			fields.put(field, fc);
 		}
+		return fc;
+	}
+
+	private void addField(String field, String value) {
+		FieldContent fc = getFieldContent(field);
 		fc.add(value);
+		fieldContentArray = null;
+	}
+
+	private void addFieldIfDifferentThanPrevious(String field, String value) {
+		FieldContent fc = getFieldContent(field);
+		fc.addIfDifferentThanPrevious(value);
 		fieldContentArray = null;
 	}
 
@@ -161,6 +172,12 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		if (value.length() == 0)
 			return;
 		addField(field, value);
+	}
+
+	public void addIfDifferentThanPrevious(String field, String value) {
+		if (value.length() == 0)
+			return;
+		addFieldIfDifferentThanPrevious(field, value);
 	}
 
 	public void add(String field, List<String> values) {
@@ -240,23 +257,27 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		return fieldContentArray;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
 		lang = LanguageEnum.findByCode(External.readUTF(in));
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(fields.values(), out);
 		External.writeUTF(lang == null ? LanguageEnum.UNDEFINED.getCode()
 				: lang.getCode(), out);
 	}
 
+	@Override
 	public void addObject(FieldContent fieldContent) {
 		fields.put(fieldContent.getField(), fieldContent);
 		fieldContentArray = null;
 	}
 
+	@Override
 	public Iterator<FieldContent> iterator() {
 		return fields.values().iterator();
 	}

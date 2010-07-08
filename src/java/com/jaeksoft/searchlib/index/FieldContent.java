@@ -57,6 +57,14 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		return field;
 	}
 
+	public void addIfDifferentThanPrevious(String value) {
+		int l = values.size();
+		if (l > 0)
+			if (values.get(l - 1).equals(value))
+				return;
+		add(value);
+	}
+
 	public void add(String value) {
 		values.add(value);
 	}
@@ -83,18 +91,21 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		values.remove(index);
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		field = External.readObject(in);
 		External.readCollection(in, this);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeObject(field, out);
 		External.writeCollection(values, out);
 
 	}
 
+	@Override
 	public void addObject(String value) {
 		add(value);
 	}

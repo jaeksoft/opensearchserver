@@ -54,6 +54,8 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 
 	private DatabaseFieldMap fieldMap;
 
+	private String primaryKey;
+
 	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster, String name) {
 		super(name);
 		this.databaseCrawlMaster = databaseCrawlMaster;
@@ -65,6 +67,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		lang = LanguageEnum.UNDEFINED;
 		fieldMap = new DatabaseFieldMap();
 		lastCrawlThread = null;
+		primaryKey = null;
 	}
 
 	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster) {
@@ -86,6 +89,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		crawl.sql = this.sql;
 		crawl.lang = this.lang;
 		crawl.lastCrawlThread = this.lastCrawlThread;
+		crawl.primaryKey = this.primaryKey;
 		this.fieldMap.copyTo(crawl.fieldMap);
 	}
 
@@ -198,6 +202,21 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		this.lastCrawlThread = lastCrawlThread;
 	}
 
+	/**
+	 * @param primaryKey
+	 *            the primaryKey to set
+	 */
+	public void setPrimaryKey(String primaryKey) {
+		this.primaryKey = primaryKey;
+	}
+
+	/**
+	 * @return the primaryKey
+	 */
+	public String getPrimaryKey() {
+		return primaryKey;
+	}
+
 	protected final static String DBCRAWL_NODE_NAME = "databaseCrawl";
 	protected final static String DBCRAWL_ATTR_NAME = "name";
 	protected final static String DBCRAWL_ATTR_DRIVER_CLASS = "driverClass";
@@ -205,6 +224,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 	protected final static String DBCRAWL_ATTR_PASSWORD = "password";
 	protected final static String DBCRAWL_ATTR_URL = "url";
 	protected final static String DBCRAWL_ATTR_LANG = "lang";
+	protected final static String DBCRAWL_ATTR_PRIMARY_KEY = "primaryKey";
 	protected final static String DBCRAWL_NODE_NAME_SQL = "sql";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
@@ -220,6 +240,8 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		crawl.setUrl(XPathParser.getAttributeString(item, DBCRAWL_ATTR_URL));
 		crawl.setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				item, DBCRAWL_ATTR_LANG)));
+		crawl.setPrimaryKey(XPathParser.getAttributeString(item,
+				DBCRAWL_ATTR_PRIMARY_KEY));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL);
 		if (sqlNode != null)
 			crawl.setSql(xpp.getNodeString(sqlNode));
@@ -235,7 +257,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(), DBCRAWL_ATTR_USER,
 				getUser(), DBCRAWL_ATTR_PASSWORD, getPassword(),
 				DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG, getLang()
-						.getCode());
+						.getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey);
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		fieldMap.store(xmlWriter);
 		xmlWriter.endElement();

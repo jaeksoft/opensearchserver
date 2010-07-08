@@ -73,6 +73,13 @@
 							value="Enter the language of the indexed documents" />
 					</row>
 					<row>
+						<label value="Primary key: " />
+						<textbox
+							value="@{dbCrawlList.currentCrawl.primaryKey}" width="50%" />
+						<label
+							value="Enter the primary key to identify unique document" />
+					</row>
+					<row>
 						<label value="SQL: " />
 						<textbox rows="10"
 							value="@{dbCrawlList.currentCrawl.sql}" width="95%" />
