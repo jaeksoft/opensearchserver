@@ -225,6 +225,7 @@ public abstract class ThreadAbstract implements Runnable {
 		} catch (Exception e) {
 			setException(e);
 			setInfo(e.getMessage());
+			e.printStackTrace();
 		}
 		if (threadMaster != null) {
 			threadMaster.remove(this);
