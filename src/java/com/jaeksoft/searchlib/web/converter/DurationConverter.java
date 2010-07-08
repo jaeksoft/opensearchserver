@@ -40,7 +40,7 @@ public class DurationConverter implements TypeConverter {
 			return "Unknown";
 		long l = -1;
 		if (value instanceof Long)
-			l = (Long) value;
+			l = ((Long) value) / 1000;
 		else if (value instanceof Integer)
 			l = (Integer) value;
 		if (l == -1)
