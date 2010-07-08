@@ -59,7 +59,7 @@ public class DatabaseFieldTarget extends Target {
 				removeTag = true;
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
 					"filePath")))
-				removeTag = true;
+				filePath = true;
 			filePathPrefix = DomUtils.getAttributeText(node, "filePathPrefix");
 		}
 	}
