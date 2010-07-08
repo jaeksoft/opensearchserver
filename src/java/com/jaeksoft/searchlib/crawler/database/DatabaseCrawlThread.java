@@ -122,7 +122,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 					lastPrimaryKey = pKey;
 				}
 				if (!merge) {
-					if (index(indexDocumentList, 1000))
+					if (index(indexDocumentList, 100))
 						setStatus(CrawlStatus.CRAWL);
 					indexDocument = new IndexDocument(databaseCrawl.getLang());
 					indexDocumentList.add(indexDocument);

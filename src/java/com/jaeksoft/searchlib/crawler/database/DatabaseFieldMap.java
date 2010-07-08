@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.database;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -58,7 +59,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 	public void mapResultSet(ParserSelector parserSelector,
 			ResultSet resultSet, IndexDocument target) throws SQLException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException, IOException {
+			ClassNotFoundException, SearchLibException, MalformedURLException {
 		for (GenericLink<String, DatabaseFieldTarget> link : getList()) {
 
 			String content = resultSet.getString(link.getSource());
@@ -73,7 +74,11 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 					Parser parser = parserSelector
 							.getParserFromExtension(extension);
 					if (parser != null) {
-						parser.parseContent(file);
+						try {
+							parser.parseContent(file);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						parser.populate(target);
 					}
 				}
