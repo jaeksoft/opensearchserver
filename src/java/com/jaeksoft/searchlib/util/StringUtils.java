@@ -60,8 +60,13 @@ public class StringUtils {
 	}
 
 	private final static Pattern removeTagPattern = Pattern.compile("<[^>]*>");
+	private final static Pattern removeTagBlockPattern = Pattern
+			.compile("<(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)[^>]*>");
+	private final static Pattern removeEndTagBlockPattern = Pattern
+			.compile("[^\\p{Punct}].<\\/(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>");
 
 	public static String removeTag(String text) {
+		text = removeEndTagBlockPattern.matcher(text).replaceAll(". ");
 		return removeTagPattern.matcher(text).replaceAll("");
 	}
 }

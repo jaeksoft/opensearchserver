@@ -28,7 +28,6 @@
 			<tabpanel>
 				<listbox model="@{caches.searchCacheList}">
 					<listhead>
-						<listheader label="index" />
 						<listheader label="size" />
 						<listheader label="max size" />
 						<listheader label="hit ratio" />
@@ -38,7 +37,6 @@
 						<listheader label="evictions" />
 					</listhead>
 					<listitem self="@{each='item'}">
-						<listcell label="@{item.index.name}" />
 						<listcell label="@{item.cache.size}" />
 						<listcell label="@{item.cache.maxSize}" />
 						<listcell label="@{item.cache.hitRatioPercent}" />
@@ -52,7 +50,6 @@
 			<tabpanel>
 				<listbox model="@{caches.filterCacheList}">
 					<listhead>
-						<listheader label="index" />
 						<listheader label="size" />
 						<listheader label="max size" />
 						<listheader label="hit ratio" />
@@ -62,7 +59,6 @@
 						<listheader label="evictions" />
 					</listhead>
 					<listitem self="@{each='item'}">
-						<listcell label="@{item.index.name}" />
 						<listcell label="@{item.cache.size}" />
 						<listcell label="@{item.cache.maxSize}" />
 						<listcell label="@{item.cache.hitRatioPercent}" />
@@ -76,7 +72,6 @@
 			<tabpanel>
 				<listbox model="@{caches.fieldCacheList}">
 					<listhead>
-						<listheader label="index" />
 						<listheader label="size" />
 						<listheader label="max size" />
 						<listheader label="hit ratio" />
@@ -86,7 +81,6 @@
 						<listheader label="evictions" />
 					</listhead>
 					<listitem self="@{each='item'}">
-						<listcell label="@{item.index.name}" />
 						<listcell label="@{item.cache.size}" />
 						<listcell label="@{item.cache.maxSize}" />
 						<listcell label="@{item.cache.hitRatioPercent}" />
