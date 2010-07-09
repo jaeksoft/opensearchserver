@@ -2,7 +2,7 @@
 /*
  *  This file is part of Jaeksoft OpenSearchServer.
  *
- *  Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ *  Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  *
  *  http://www.open-search-server.com
  *
@@ -37,6 +37,9 @@ class OSS_Paging {
 	protected $resultPrev;
 	protected $resultNext;
 	protected $pageBaseURI;
+	
+	protected $rowsParameter;
+	protected $pageParameter;
 
 
 	/**
@@ -44,8 +47,10 @@ class OSS_Paging {
 	 * @param $model The list of fields
 	 * @return OSS_API
 	 */
-	public function __construct(SimpleXMLElement $result) {
+	public function __construct(SimpleXMLElement $result, $rowsParam = 'rows', $pageParam = 'p') {
 		$this->oss_result	= $result;
+		$this->rowsParameter = $rowsParam;
+		$this->pageParameter = $pageParam;
 		self::compute();
 
 		if (!function_exists('OSS_API_Dummy_Function')) { function OSS_API_Dummy_Function() {} }
@@ -100,7 +105,7 @@ class OSS_Paging {
 			$this->resultHigh = min($this->resultTotal, $high);
 			$this->resultPrev = max($this->resultCurrentPage - MAX_PAGE_TO_LINK, 0);
 			$this->resultNext = min($this->resultCurrentPage + MAX_PAGE_TO_LINK, $this->resultTotal);
-			$this->pageBaseURI = preg_replace('/&(?:p|rows)=[\d]+/', '', $_SERVER['REQUEST_URI']).'&rows='.$this->resultRows.'&p=';
+			$this->pageBaseURI = preg_replace('/&(?:'.$this->pageParameter.'|'.$this->rowsParameter.')=[\d]+/', '', $_SERVER['REQUEST_URI']).'&'.$this->rowsParameter.'='.$this->resultRows.'&'.$this->pageParameter.'=';
 		}
 	}
 

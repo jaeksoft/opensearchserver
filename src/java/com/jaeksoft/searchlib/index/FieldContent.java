@@ -109,11 +109,10 @@ public class FieldContent implements Externalizable, Collecter<String> {
 	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer();
-
-		result.append("key : ").append(field);
 		if (getValues() != null) {
 			for (String value : getValues()) {
-				result.append("value : ").append(value).append("\n");
+				result.append("key[").append(field).append(']');
+				result.append(" value[").append(value).append("]\n");
 			}
 		}
 

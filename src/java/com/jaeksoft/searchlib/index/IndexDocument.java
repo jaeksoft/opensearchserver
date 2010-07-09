@@ -270,13 +270,12 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		return fields.values().iterator();
 	}
 
-	public void removeIdenticalFieldContent(IndexDocument source) {
+	public void extractDifferential(IndexDocument source, IndexDocument target) {
 		for (FieldContent fcSource : source.fields.values()) {
 			FieldContent fcTarget = getFieldContent(fcSource.getField());
-			if (fcSource.isEquals(fcTarget))
-				fcTarget.clear();
+			if (!fcSource.isEquals(fcTarget))
+				target.add(fcTarget.getField(), fcTarget);
 		}
-
 	}
 
 	@Override
@@ -285,9 +284,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		if (fields != null) {
 			for (String key : fields.keySet()) {
 				FieldContent value = (FieldContent) fields.get(key);
-				result.append("key : ").append(key).append("  -- value :")
-						.append(value.toString()).append("\n");
-
+				result.append(value.toString()).append("\n");
 			}
 		}
 		return result.toString();

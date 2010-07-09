@@ -134,10 +134,14 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				databaseCrawl.getFieldMap()
 						.mapResultSet(client.getParserSelector(), resultSet,
 								newFieldContents);
-				if (merge && lastFieldContent != null)
-					newFieldContents
-							.removeIdenticalFieldContent(lastFieldContent);
-				indexDocument.add(newFieldContents);
+				if (merge && lastFieldContent != null) {
+					IndexDocument diffFieldContent = new IndexDocument(
+							databaseCrawl.getLang());
+					newFieldContents.extractDifferential(lastFieldContent,
+							diffFieldContent);
+					indexDocument.add(diffFieldContent);
+				} else
+					indexDocument.add(newFieldContents);
 				lastFieldContent = newFieldContents;
 			}
 			index(indexDocumentList, 0);
