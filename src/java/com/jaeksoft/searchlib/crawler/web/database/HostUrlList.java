@@ -34,7 +34,7 @@ public class HostUrlList {
 
 	public enum ListType {
 
-		OLD_URL("old"), NEW_URL("new");
+		OLD_URL("old"), NEW_URL("new"), MANUAL("manual");
 
 		private String name;
 

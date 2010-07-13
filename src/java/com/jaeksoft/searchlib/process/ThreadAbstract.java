@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.process;
 
 import java.lang.Thread.State;
-import java.util.Date;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -138,9 +137,25 @@ public abstract class ThreadAbstract implements Runnable {
 
 	}
 
-	public void waitForEnd() {
-		while (isRunning())
+	public boolean waitForStart(int timeOut) {
+		long t = System.currentTimeMillis();
+		while (getStartTime() == 0) {
+			if (timeOut != 0)
+				if (System.currentTimeMillis() < t)
+					return false;
 			sleepMs(100);
+		}
+		return true;
+	}
+
+	public boolean waitForEnd(int timeOut) {
+		long t = System.currentTimeMillis();
+		while (isRunning())
+			if (timeOut != 0)
+				if (System.currentTimeMillis() < t)
+					return false;
+		sleepMs(100);
+		return true;
 	}
 
 	protected void sleepMs(long ms) {
@@ -281,7 +296,7 @@ public abstract class ThreadAbstract implements Runnable {
 		}
 	}
 
-	final protected void execute() {
+	final public void execute() {
 		w.lock();
 		try {
 			running = true;
@@ -303,10 +318,10 @@ public abstract class ThreadAbstract implements Runnable {
 	/**
 	 * @return the startTime
 	 */
-	public Date getStartTime() {
+	public long getStartTime() {
 		r.lock();
 		try {
-			return new Date(startTime);
+			return startTime;
 		} finally {
 			r.unlock();
 		}

@@ -63,7 +63,7 @@ public class ReplicationMaster extends ThreadMasterAbstract {
 		replicationItem.setReplicationThread(replicationThread);
 		add(replicationThread);
 		if (bWaitForCompletion)
-			replicationThread.waitForEnd();
+			replicationThread.waitForEnd(0);
 		return replicationThread;
 	}
 

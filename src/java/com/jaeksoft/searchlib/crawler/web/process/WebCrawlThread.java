@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
@@ -53,12 +54,14 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	private HttpDownloader httpDownloaderRobotsTxt;
 	private long nextTimeTarget;
 	private HostUrlList hostUrlList;
+	private Crawl currentCrawl;
 
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
 			CrawlStatistics sessionStats, HostUrlList hostUrlList)
 			throws SearchLibException {
 		super(config, crawlMaster);
 		this.currentUrlItem = null;
+		this.currentCrawl = null;
 		currentStats = new CrawlStatistics(sessionStats);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		delayBetweenAccesses = propertyManager.getDelayBetweenAccesses()
@@ -95,18 +98,20 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 
 		while (iterator.hasNext()) {
 
-			if (isAborted() || crawlMaster.isAborted())
-				break;
+			if (hostUrlList.getListType() != ListType.MANUAL) {
+				if (isAborted() || crawlMaster.isAborted())
+					break;
 
-			if (crawlMaster.urlLeft() < 0)
-				break;
+				if (crawlMaster.urlLeft() < 0)
+					break;
+			}
 
 			currentUrlItem = iterator.next();
 
-			Crawl crawl = crawl(dryRun);
-			if (crawl != null) {
+			currentCrawl = crawl(dryRun);
+			if (currentCrawl != null) {
 				if (!dryRun)
-					crawlQueue.add(currentStats, crawl);
+					crawlQueue.add(currentStats, currentCrawl);
 			} else {
 				if (!dryRun)
 					crawlQueue.delete(currentStats, currentUrlItem.getUrl());
@@ -116,7 +121,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 
 		setStatus(CrawlStatus.INDEXATION);
 		if (!dryRun)
-			crawlMaster.getCrawlQueue().index(false);
+			crawlMaster.getCrawlQueue().index(!crawlMaster.isRunning());
 
 	}
 
@@ -140,11 +145,17 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 			PatternManager exclusionManager = config
 					.getExclusionPatternManager();
 			if (url != null)
-				if (inclusionManager.matchPattern(url) == null)
+				if (inclusionManager.matchPattern(url) == null) {
+					currentUrlItem
+							.setFetchStatus(FetchStatus.NOT_IN_INCLUSION_LIST);
 					url = null;
+				}
 			if (url != null)
-				if (exclusionManager.matchPattern(url) != null)
+				if (exclusionManager.matchPattern(url) != null) {
+					currentUrlItem
+							.setFetchStatus(FetchStatus.BLOCKED_BY_EXCLUSION_LIST);
 					url = null;
+				}
 
 			if (url == null)
 				return null;
@@ -180,6 +191,12 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	public UrlItem getCurrentUrlItem() {
 		synchronized (this) {
 			return currentUrlItem;
+		}
+	}
+
+	public Crawl getCurrentCrawl() {
+		synchronized (this) {
+			return currentCrawl;
 		}
 	}
 

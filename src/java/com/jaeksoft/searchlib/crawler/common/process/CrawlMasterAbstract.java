@@ -36,8 +36,6 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 
 	private final LinkedList<CrawlStatistics> statistics;
 
-	protected CrawlQueueAbstract crawlQueue;
-
 	private IndexPluginList indexPluginList;
 
 	private CrawlStatus status;
@@ -48,7 +46,6 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 		super(config);
 		status = CrawlStatus.NOT_RUNNING;
 		statistics = new LinkedList<CrawlStatistics>();
-		crawlQueue = null;
 	}
 
 	public void start() {
@@ -124,8 +121,6 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 		}
 	}
 
-	public CrawlQueueAbstract getCrawlQueue() {
-		return crawlQueue;
-	}
+	public abstract CrawlQueueAbstract getCrawlQueue();
 
 }

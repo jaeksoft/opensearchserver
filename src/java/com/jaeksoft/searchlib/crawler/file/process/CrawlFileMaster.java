@@ -29,6 +29,7 @@ import java.io.File;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
@@ -41,9 +42,14 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 
 	private CrawlFileIterator crawlFileIterator;
 
+	private FileCrawlQueue fileCrawlQueue;
+
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		super(config);
-		if (config.getFilePropertyManager().getCrawlEnabled().getValue()) {
+		FilePropertyManager filePropertyManager = config
+				.getFilePropertyManager();
+		fileCrawlQueue = new FileCrawlQueue(config, filePropertyManager);
+		if (filePropertyManager.getCrawlEnabled().getValue()) {
 			System.out.println("Filecrawler is starting for "
 					+ config.getIndexDirectory().getName());
 			start();
@@ -65,11 +71,9 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 
 		while (!isAborted()) {
 
-			crawlQueue = new FileCrawlQueue(config, filePropertyManager);
-
 			currentStats = new CrawlStatistics();
 			addStatistics(currentStats);
-			crawlQueue.setStatistiques(currentStats);
+			fileCrawlQueue.setStatistiques(currentStats);
 
 			int threadNumber = filePropertyManager.getMaxThreadNumber()
 					.getValue();
@@ -94,7 +98,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 
 			waitForChild(600);
 			setStatus(CrawlStatus.INDEXATION);
-			crawlQueue.index(true);
+			fileCrawlQueue.index(true);
 			if (currentStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getUrlManager().reload(
@@ -104,8 +108,13 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 
 			sleepSec(5);
 		}
-		crawlQueue.index(true);
+		fileCrawlQueue.index(true);
 		setStatus(CrawlStatus.NOT_RUNNING);
+	}
+
+	@Override
+	public CrawlQueueAbstract getCrawlQueue() {
+		return fileCrawlQueue;
 	}
 
 }

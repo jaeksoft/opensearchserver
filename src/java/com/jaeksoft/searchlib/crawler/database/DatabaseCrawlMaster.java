@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 
 public class DatabaseCrawlMaster extends CrawlMasterAbstract {
@@ -61,7 +62,7 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 		databaseCrawl.setCrawlThread(databaseCrawlThread);
 		add(databaseCrawlThread);
 		if (bWaitForCompletion)
-			databaseCrawlThread.waitForEnd();
+			databaseCrawlThread.waitForEnd(0);
 		return databaseCrawlThread;
 	}
 
@@ -110,6 +111,11 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 
 	@Override
 	public void runner() throws Exception {
+	}
+
+	@Override
+	public CrawlQueueAbstract getCrawlQueue() {
+		return null;
 	}
 
 }

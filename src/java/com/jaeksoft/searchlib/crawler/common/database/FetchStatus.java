@@ -48,6 +48,12 @@ public enum FetchStatus {
 
 	URL_ERROR(9, "Url error", TargetStatus.TARGET_DELETE),
 
+	NOT_IN_INCLUSION_LIST(10, "Not in inclusion list",
+			TargetStatus.TARGET_DELETE),
+
+	BLOCKED_BY_EXCLUSION_LIST(11, "Blocked by exclusion list",
+			TargetStatus.TARGET_DELETE),
+
 	ALL(99, "All", null);
 
 	public int value;

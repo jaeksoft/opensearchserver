@@ -78,6 +78,7 @@ public class UrlController extends CommonController implements AfterCompose {
 	public void afterCompose() {
 		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
+			@Override
 			public void onEvent(Event event) {
 				onPaging((PagingEvent) event);
 			}
@@ -373,8 +374,8 @@ public class UrlController extends CommonController implements AfterCompose {
 			if (client == null)
 				return;
 			urlList = new ArrayList<UrlItem>();
-			totalSize = (int) getUrlList(SearchTemplate.urlSearch, client
-					.getUrlManager(), getPageSize() * getActivePage(),
+			totalSize = (int) getUrlList(SearchTemplate.urlSearch,
+					client.getUrlManager(), getPageSize() * getActivePage(),
 					getPageSize(), urlList);
 		}
 	}

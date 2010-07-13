@@ -1,0 +1,121 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="manualCrawl"
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.ManualWebCrawlController">
+	<vbox width="100%">
+		<hbox align="center">
+			<label value="URL to crawl: " />
+			<textbox cols="100" value="@{manualCrawl.url}"
+				readonly="@{manualCrawl.refresh}" />
+			<button label="Crawl" forward="onCrawl"
+				disabled="@{manualCrawl.refresh}" />
+			<image visible="@{manualCrawl.refresh}"
+				src="/images/ajax-loader.gif" />
+		</hbox>
+		<panel title="Crawl result" visible="@{manualCrawl.crawlThread}"
+			collapsible="true" border="normal">
+			<panelchildren>
+				<grid>
+					<auxhead>
+						<auxheader colspan="4" align="center">
+							<label value="URL: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.url}" />
+						</auxheader>
+					</auxhead>
+					<columns>
+						<column align="right" width="150px" />
+						<column align="left" />
+						<column align="right" width="150px" />
+						<column align="left" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Crawl date: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.when}" />
+							<label value="Robots.txt status: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.robotsTxtStatus}" />
+						</row>
+						<row>
+							<label value="Content Type: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.contentBaseType}" />
+							<label value="Fetch status: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.fetchStatus}" />
+						</row>
+						<row>
+							<label value="Content Type charset: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.contentTypeCharset}" />
+							<label value="Parser status: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.parserStatus}" />
+						</row>
+						<row>
+							<label value="Content encoding: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.contentEncoding}" />
+							<label value="Index status: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.indexStatus}" />
+						</row>
+						<row>
+							<label value="Lang: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.lang}" />
+							<label value="Response Code: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.responseCode}" />
+						</row>
+						<row>
+							<label value="Lang method: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.langMethod}" />
+							<label value="Content length: " />
+							<label
+								value="@{manualCrawl.crawlThread.currentUrlItem.contentLength}" />
+						</row>
+					</rows>
+				</grid>
+			</panelchildren>
+		</panel>
+	</vbox>
+
+	<listbox mold="paging" pageSize="20"
+		model="@{manualCrawl.crawlThread.currentCrawl.targetIndexDocument.fieldContentArray}">
+		<listitem self="@{each='fieldContent'}">
+			<listcell>
+				<panel title="@{fieldContent.field}"
+					collapsible="true">
+					<panelchildren>
+						<listbox model="@{fieldContent.values}"
+							mold="paging" pageSize="10">
+							<listitem self="@{each='fieldValue'}"
+								label="@{fieldValue}" />
+						</listbox>
+					</panelchildren>
+				</panel>
+			</listcell>
+		</listitem>
+	</listbox>
+
+	<timer delay="3000" repeats="true" onTimer="manualCrawl.onTimer()"
+		running="@{manualCrawl.refresh}" />
+</window>

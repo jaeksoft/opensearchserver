@@ -282,8 +282,8 @@ public class Client extends Config {
 		try {
 			getFileCrawlMaster().abort();
 			getWebCrawlMaster().abort();
-			getFileCrawlMaster().waitForEnd();
-			getWebCrawlMaster().waitForEnd();
+			getFileCrawlMaster().waitForEnd(0);
+			getWebCrawlMaster().waitForEnd(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -62,6 +62,7 @@ public class Crawl {
 	final private static Logger logger = Logger.getLogger(Crawl.class
 			.getCanonicalName());
 
+	private IndexDocument targetIndexDocument;
 	private UrlItem urlItem;
 	private String userAgent;
 	private ParserSelector parserSelector;
@@ -74,6 +75,7 @@ public class Crawl {
 
 	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector)
 			throws SearchLibException {
+		this.targetIndexDocument = null;
 		this.urlFieldMap = config.getWebCrawlerFieldMap();
 		this.discoverLinks = null;
 		this.urlItem = urlItem;
@@ -246,25 +248,28 @@ public class Crawl {
 	public IndexDocument getTargetIndexDocument() throws SearchLibException,
 			MalformedURLException {
 		synchronized (this) {
+			if (targetIndexDocument != null)
+				return targetIndexDocument;
 
-			IndexDocument indexDocument = new IndexDocument(LanguageEnum
-					.findByCode(urlItem.getLang()));
+			IndexDocument targetIndexDocument = new IndexDocument(
+					LanguageEnum.findByCode(urlItem.getLang()));
 
 			IndexDocument urlIndexDocument = new IndexDocument();
 			urlItem.populate(urlIndexDocument);
-			urlFieldMap.mapIndexDocument(urlIndexDocument, indexDocument);
+			urlFieldMap.mapIndexDocument(urlIndexDocument, targetIndexDocument);
 
 			if (parser != null)
-				parser.populate(indexDocument);
+				parser.populate(targetIndexDocument);
 
 			IndexPluginList indexPluginList = config.getWebCrawlMaster()
 					.getIndexPluginList();
-			if (indexPluginList != null && !indexPluginList.run(indexDocument)) {
+			if (indexPluginList != null
+					&& !indexPluginList.run(targetIndexDocument)) {
 				urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
 				urlItem.populate(urlIndexDocument);
 			}
 
-			return indexDocument;
+			return targetIndexDocument;
 		}
 	}
 

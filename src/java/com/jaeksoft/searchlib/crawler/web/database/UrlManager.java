@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -368,6 +369,20 @@ public class UrlManager {
 		Result result = urlDbClient.search(searchRequest);
 		for (ResultDocument item : result)
 			urlList.add(new UrlItem(item));
+	}
+
+	public UrlItem getUrlToFetch(URL url) throws SearchLibException,
+			ParseException, IOException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
+		SearchRequest searchRequest = urlDbClient
+				.getNewSearchRequest("urlSearch");
+		searchRequest.addFilter("url:\"" + url.toExternalForm() + "\"");
+		searchRequest.setQueryString("*:*");
+		Result result = urlDbClient.search(searchRequest);
+		if (result.getDocumentCount() == 0)
+			return null;
+		return new UrlItem(result.getDocument(0));
 	}
 
 	public void getNewUrlToFetch(NamedItem host, long limit,

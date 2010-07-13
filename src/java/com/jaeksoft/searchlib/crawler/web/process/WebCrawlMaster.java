@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.web.process;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -37,6 +38,7 @@ import org.apache.lucene.queryParser.ParseException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
@@ -61,12 +63,15 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 	private int maxUrlPerHost;
 
+	private UrlCrawlQueue urlCrawlQueue;
+
 	public WebCrawlMaster(Config config) throws SearchLibException {
 		super(config);
-		crawlQueue = null;
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		urlCrawlQueue = new UrlCrawlQueue(config, propertyManager);
 		oldHostList = new LinkedList<NamedItem>();
 		newHostList = new LinkedList<NamedItem>();
-		if (config.getWebPropertyManager().getCrawlEnabled().getValue()) {
+		if (propertyManager.getCrawlEnabled().getValue()) {
 			System.out.println("Webcrawler is starting for "
 					+ config.getIndexDirectory().getName());
 			start();
@@ -79,11 +84,9 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		while (!isAborted()) {
 
-			crawlQueue = new UrlCrawlQueue(config, propertyManager);
-
 			currentStats = new CrawlStatistics();
 			addStatistics(currentStats);
-			crawlQueue.setStatistiques(currentStats);
+			urlCrawlQueue.setStatistiques(currentStats);
 
 			int threadNumber = propertyManager.getMaxThreadNumber().getValue();
 			maxUrlPerSession = propertyManager.getMaxUrlPerSession().getValue();
@@ -121,7 +124,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 			waitForChild(600);
 			setStatus(CrawlStatus.INDEXATION);
-			crawlQueue.index(true);
+			urlCrawlQueue.index(true);
 			if (currentStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getUrlManager().reload(
@@ -138,7 +141,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			}
 			sleepSec(5);
 		}
-		crawlQueue.index(true);
+		urlCrawlQueue.index(true);
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
@@ -226,4 +229,28 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				.getWebPropertyManager().getMaxUrlPerSession().getValue();
 	}
 
+	public WebCrawlThread manualCrawl(URL url) throws SearchLibException,
+			ParseException, IOException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
+		Config config = getConfig();
+		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
+		UrlItem urlItem = config.getUrlManager().getUrlToFetch(url);
+		if (urlItem == null)
+			urlItem = new UrlItem(url.toExternalForm());
+		urlItemList.add(urlItem);
+		HostUrlList hostUrlList = new HostUrlList(urlItemList, new NamedItem(
+				url.getHost()));
+		hostUrlList.setListType(HostUrlList.ListType.MANUAL);
+		WebCrawlThread crawlThread = new WebCrawlThread(config, this,
+				new CrawlStatistics(), hostUrlList);
+		crawlThread.execute();
+		return crawlThread;
+
+	}
+
+	@Override
+	public CrawlQueueAbstract getCrawlQueue() {
+		return urlCrawlQueue;
+	}
 }

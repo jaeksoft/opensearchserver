@@ -24,6 +24,7 @@
 			<tab id="tabCrawlerWebUrlFilter" label="Url filter" />
 			<tab id="tabCrawlerWebUrl" label="Url browser" />
 			<tab id="tabCrawlerWebCrawl" label="Crawl process" />
+			<tab id="tabCrawlerManualWebCrawl" label="Manual crawl" />
 			<tab id="tabCrawlerWebMapping" label="Field mapping"
 				visible="@{webcrawler.webCrawlerParametersRights}" />
 			<tab id="tabCrawlerWebRobotsTxt" label="Robots.txt" />
@@ -43,6 +44,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebCrawl.onSelect">
 				<include src="WEB-INF/zul/crawler/web/crawl.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerManualWebCrawl.onSelect">
+				<include src="WEB-INF/zul/crawler/web/manualcrawl.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebMapping.onSelect">
 				<include src="WEB-INF/zul/crawler/web/mapping.zul" />

@@ -83,6 +83,7 @@ public abstract class AbstractPatternController extends CrawlerController
 	public void afterCompose() {
 		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
+			@Override
 			public void onEvent(Event event) {
 				onPaging((PagingEvent) event);
 			}
@@ -188,6 +189,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		reloadPage();
 	}
 
+	@Override
 	public void render(Listitem item, Object data) throws Exception {
 		PatternItem patternItem = (PatternItem) data;
 		item.setLabel(patternItem.getPattern());
@@ -195,12 +197,14 @@ public abstract class AbstractPatternController extends CrawlerController
 		item.addForward(null, this, "onSelect", patternItem);
 	}
 
+	@Override
 	public void addSelection(PatternItem item) {
 		synchronized (selection) {
 			selection.add(item.getPattern());
 		}
 	}
 
+	@Override
 	public void removeSelection(PatternItem item) {
 		synchronized (selection) {
 			selection.remove(item.getPattern());
@@ -213,6 +217,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		}
 	}
 
+	@Override
 	public boolean isSelected(PatternItem item) {
 		synchronized (selection) {
 			return selection.contains(item.getPattern());
