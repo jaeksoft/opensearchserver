@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,21 +29,19 @@ import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	protected final Lock r = rwl.readLock();
-	protected final Lock w = rwl.writeLock();
+	final protected ReadWriteLock rwl = new ReadWriteLock();
 
 	private class EvictionQueue extends LinkedHashMap<K, V> {
 
 		private static final long serialVersionUID = -2384951296369306995L;
 
-		private final ReentrantLock queueLock = new ReentrantLock(true);
+		protected final ReentrantLock queueLock = new ReentrantLock(true);
 
 		protected EvictionQueue(int maxSize) {
 			super(maxSize);
@@ -95,7 +93,7 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	final protected V getAndPromote(K key) {
 		if (queue == null)
 			return null;
-		r.lock();
+		rwl.r.lock();
 		try {
 			lookups++;
 			K key2 = tree.get(key);
@@ -104,20 +102,20 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 			hits++;
 			return queue.promote(key2);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	final public void remove(K key) {
 		if (queue == null)
 			return;
-		w.lock();
+		rwl.w.lock();
 		try {
 			K key2 = tree.remove(key);
 			queue.remove(key2);
 			evictions++;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 
 	}
@@ -125,27 +123,27 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	final protected void put(K key, V value) {
 		if (queue == null)
 			return;
-		w.lock();
+		rwl.w.lock();
 		try {
 			inserts++;
 			queue.put(key, value);
 			tree.put(key, key);
 			size = queue.size();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	final public void clear() {
 		if (queue == null)
 			return;
-		w.lock();
+		rwl.w.lock();
 		try {
 			queue.clear();
 			tree.clear();
 			size = queue.size();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 

@@ -26,7 +26,9 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -42,6 +44,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.xml.sax.SAXException;
+import org.zkoss.zk.ui.WebApp;
 
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
@@ -52,6 +55,7 @@ import com.jaeksoft.searchlib.user.UserList;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class ClientCatalog {
 
@@ -91,7 +95,7 @@ public class ClientCatalog {
 				throw new SearchLibException("Security alert: "
 						+ indexDirectory
 						+ " is outside OPENSEARCHSERVER_DATA (" + dataDir + ")");
-			client = new Client(indexDirectory, true);
+			client = new Client(indexDirectory, true, false);
 			CLIENTS.put(indexDirectory, client);
 			return client;
 		} finally {
@@ -161,6 +165,8 @@ public class ClientCatalog {
 		Set<ClientCatalogItem> set = new TreeSet<ClientCatalogItem>();
 		for (File file : files) {
 			if (!file.isDirectory())
+				continue;
+			if (file.getName().startsWith("."))
 				continue;
 			String indexName = file.getName();
 			if (user == null || user.hasAnyRole(indexName, Role.GROUP_INDEX))
@@ -297,4 +303,71 @@ public class ClientCatalog {
 		}
 	}
 
+	private static File getTempReceiveDir(Client client) {
+		File clientDir = client.getIndexDirectory();
+		return new File(clientDir.getParentFile(), '.' + clientDir.getName());
+	}
+
+	private static File getTrashReceiveDir(Client client) {
+		File clientDir = client.getIndexDirectory();
+		return new File(clientDir.getParentFile(), "._" + clientDir.getName());
+	}
+
+	public static void receive_init(Client client) throws IOException {
+		File rootDir = getTempReceiveDir(client);
+		FileUtils.deleteDirectory(rootDir);
+		rootDir.mkdir();
+	}
+
+	public static void receive_switch(WebApp webapp, Client client)
+			throws SearchLibException, NamingException, IOException {
+		File trashDir = getTrashReceiveDir(client);
+		File clientDir = client.getIndexDirectory();
+		if (trashDir.exists())
+			FileUtils.deleteDirectory(trashDir);
+		w.lock();
+		try {
+			client.trash(trashDir);
+			getTempReceiveDir(client).renameTo(clientDir);
+			CLIENTS.remove(clientDir);
+			CLIENTS.put(clientDir, new Client(clientDir, true, true));
+			PushEvent.RESET_DESKTOP.publish(webapp);
+		} finally {
+			w.unlock();
+		}
+		client.close();
+		FileUtils.deleteDirectory(trashDir);
+	}
+
+	public static void receive_dir(Client client, String filePath)
+			throws IOException {
+		File rootDir = getTempReceiveDir(client);
+		File targetFile = new File(rootDir, filePath);
+		targetFile.mkdir();
+	}
+
+	public static void receive_file(Client client, String filePath,
+			InputStream is) throws IOException {
+		File rootDir = getTempReceiveDir(client);
+		File targetFile = new File(rootDir, filePath);
+		targetFile.createNewFile();
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(targetFile);
+			int len;
+			byte[] buffer = new byte[131072];
+			while ((len = is.read(buffer)) != -1)
+				fos.write(buffer, 0, len);
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

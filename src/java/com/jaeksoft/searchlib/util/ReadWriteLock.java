@@ -1,4 +1,5 @@
 /**   
+ * License Agreement for Jaeksoft OpenSearchServer
  *
  * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
@@ -23,45 +24,13 @@
 
 package com.jaeksoft.searchlib.util;
 
-import java.io.File;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import com.jaeksoft.searchlib.SearchLibException;
+final public class ReadWriteLock {
 
-public class LastModifiedAndSize implements RecursiveDirectoryBrowser.CallBack {
-
-	private long lastModified;
-
-	private long size;
-
-	private File lastModifiedFile;
-
-	public LastModifiedAndSize(File file) throws SearchLibException {
-		lastModifiedFile = file;
-		lastModified = file.lastModified();
-		size = file.length();
-		new RecursiveDirectoryBrowser(file, this);
-	}
-
-	public long getLastModified() {
-		return lastModified;
-	}
-
-	public long getSize() {
-		return size;
-	}
-
-	public File getLastModifiedFile() {
-		return lastModifiedFile;
-	}
-
-	@Override
-	public void file(File file) throws SearchLibException {
-		long l = file.lastModified();
-		if (l > lastModified) {
-			lastModified = l;
-			lastModifiedFile = file;
-		}
-		size += file.length();
-	}
+	final private ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
+	final public Lock r = rwl.readLock();
+	final public Lock w = rwl.writeLock();
 
 }

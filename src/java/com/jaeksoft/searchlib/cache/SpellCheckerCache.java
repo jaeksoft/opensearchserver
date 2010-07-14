@@ -40,7 +40,7 @@ public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
 
 	public SpellChecker get(ReaderLocal reader, String field)
 			throws IOException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			FieldNameKey key = new FieldNameKey(field);
 			SpellChecker spellChecker = getAndPromote(key);
@@ -54,7 +54,7 @@ public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
 			put(key, spellchecker);
 			return spellchecker;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 

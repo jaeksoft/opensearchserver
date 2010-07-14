@@ -182,7 +182,6 @@ public class HomeController extends CommonController {
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
-
+		onListRefresh();
 	}
 }

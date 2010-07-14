@@ -27,16 +27,13 @@ package com.jaeksoft.searchlib.process;
 import java.lang.Thread.State;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class ThreadMasterAbstract extends ThreadAbstract {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	protected final Lock r = rwl.readLock();
-	protected final Lock w = rwl.writeLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private final LinkedHashSet<ThreadAbstract> threads;
 
@@ -49,56 +46,56 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 	}
 
 	public int getThreadsCount() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return threads.size();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	protected void add(ThreadAbstract thread) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			threads.add(thread);
 			threadArray = null;
 			thread.execute();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public void remove(ThreadAbstract thread) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			threads.remove(thread);
 			threadArray = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public ThreadAbstract[] getThreads() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (threadArray != null)
 				return threadArray;
 			threadArray = new ThreadAbstract[threads.size()];
 			return threads.toArray(threadArray);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public void abort() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			for (ThreadAbstract thread : threads)
 				thread.abort();
 			super.abort();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -109,7 +106,7 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 					wait(5000);
 				}
 				// Remove terminated thread
-				w.lock();
+				rwl.w.lock();
 				try {
 					synchronized (threads) {
 						boolean remove = false;
@@ -129,7 +126,7 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 							threadArray = null;
 					}
 				} finally {
-					w.unlock();
+					rwl.w.unlock();
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();

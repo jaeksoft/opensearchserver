@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -43,14 +41,13 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class FilePathManager {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private Map<File, FilePathItem> filePathMap = null;
 
@@ -104,8 +101,8 @@ public class FilePathManager {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("paths");
 			for (FilePathItem item : filePathMap.values()) {
-				xmlWriter.startElement("path", "withSub", ""
-						+ item.getWithSubToString());
+				xmlWriter.startElement("path", "withSub",
+						"" + item.getWithSubToString());
 				xmlWriter.textNode(item.getFilePath().getAbsolutePath());
 				xmlWriter.endElement();
 			}
@@ -134,7 +131,7 @@ public class FilePathManager {
 
 	public void addList(List<FilePathItem> filePathList, boolean bDeleteAll)
 			throws SearchLibException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			addListWithoutStoreAndLock(filePathList, bDeleteAll);
 			store();
@@ -145,7 +142,7 @@ public class FilePathManager {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -154,7 +151,7 @@ public class FilePathManager {
 	}
 
 	public void delPath(String path) throws SearchLibException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			delPatternWithoutLock(path);
 			store();
@@ -165,7 +162,7 @@ public class FilePathManager {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -174,7 +171,7 @@ public class FilePathManager {
 	}
 
 	public void addPath(FilePathItem item) throws SearchLibException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			addPathWithoutLock(item);
 			store();
@@ -185,7 +182,7 @@ public class FilePathManager {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -195,15 +192,15 @@ public class FilePathManager {
 
 	public int getFilePaths(String startsWith, long start, long rows,
 			List<FilePathItem> list) throws SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			long end = start + rows;
 			int pos = 0;
 			int total = 0;
 			for (FilePathItem item : filePathMap.values()) {
 				if (startsWith != null) {
-					if (!item.getFilePath().getAbsolutePath().startsWith(
-							startsWith)) {
+					if (!item.getFilePath().getAbsolutePath()
+							.startsWith(startsWith)) {
 						pos++;
 						continue;
 					}
@@ -215,35 +212,35 @@ public class FilePathManager {
 			}
 			return total;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public FilePathItem getFilePath(File file) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return filePathMap.get(file);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void getAllFilePaths(List<FilePathItem> list) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			for (FilePathItem item : filePathMap.values())
 				list.add(item);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void remove(File file) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			filePathMap.remove(file);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 
 	}

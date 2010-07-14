@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,21 +24,11 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class IndexAbstract implements ReaderInterface, WriterInterface {
-
-	protected final ReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	protected final Lock r = rwl.readLock();
-	protected final Lock w = rwl.writeLock();
 
 	protected IndexConfig indexConfig;
 
@@ -59,9 +49,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	public abstract boolean isReadOnly();
 
 	public abstract void setReadOnly(boolean v);
-
-	public abstract void receive(long version, String fileName,
-			InputStream inputStream) throws IOException;
 
 	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter)
 			throws SAXException;

@@ -29,8 +29,6 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.http.HttpException;
 
@@ -40,18 +38,17 @@ import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class FileCrawlQueue extends CrawlQueueAbstract {
+
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private List<CrawlFile> updateCrawlList;
 	private List<String> deleteUriList;
 
 	private List<CrawlFile> workingUpdateCrawlList;
 	private List<String> workingDeleteUriList;
-
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
 
 	public FileCrawlQueue(Config config, PropertyManager propertyManager)
 			throws SearchLibException {
@@ -62,28 +59,28 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 
 	public void add(CrawlStatistics crawlStats, CrawlFile crawl)
 			throws NoSuchAlgorithmException, IOException, SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			System.out.println("add crawl "
 					+ crawl.getFileItem().getURI().toString());
 			updateCrawlList.add(crawl);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void delete(CrawlStatistics crawlStats, String uri) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			deleteUriList.add(uri);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	protected boolean shouldWePersist() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (updateCrawlList.size() >= getMaxBufferSize())
 				return true;
@@ -91,13 +88,13 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 				return true;
 			return false;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	protected boolean workingInProgress() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (workingUpdateCrawlList != null)
 				return true;
@@ -105,13 +102,13 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 				return true;
 			return false;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	protected void initWorking() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			workingUpdateCrawlList = updateCrawlList;
 			workingDeleteUriList = deleteUriList;
@@ -121,18 +118,18 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 
 			getSessionStats().resetPending();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	@Override
 	protected void resetWork() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			workingUpdateCrawlList = null;
 			workingDeleteUriList = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 

@@ -24,10 +24,27 @@
 
 package com.jaeksoft.searchlib.replication;
 
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.process.ThreadAbstract;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-public class ReplicationThread extends ThreadAbstract {
+import org.apache.http.HttpException;
+
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.remote.UriWriteStream;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
+import com.jaeksoft.searchlib.web.AbstractServlet;
+
+public class ReplicationThread extends ThreadAbstract implements
+		RecursiveDirectoryBrowser.CallBack {
+
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private Client client;
 
@@ -46,15 +63,22 @@ public class ReplicationThread extends ThreadAbstract {
 		sendSize = 0;
 	}
 
-	public int progress() {
-		if (sendSize == 0 || totalSize == 0)
-			return 0;
-		return (int) ((sendSize / totalSize) * 100);
+	public int getProgress() {
+		rwl.r.lock();
+		try {
+			if (sendSize == 0 || totalSize == 0)
+				return 0;
+			int p = (int) ((sendSize / totalSize) * 100);
+			return p;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public void runner() throws Exception {
 		setInfo("Running");
+		client.push(this);
 	}
 
 	@Override
@@ -73,4 +97,66 @@ public class ReplicationThread extends ThreadAbstract {
 		return replicationItem;
 	}
 
+	public void push() throws SearchLibException {
+		setTotalSize(ClientCatalog.getLastModifiedAndSize(
+				client.getIndexDirectory().getName()).getSize());
+		addSendSize(client.getIndexDirectory().length());
+		try {
+			AbstractServlet.call(new URI(replicationItem.getPushTargetUrl(
+					client, "init")));
+			new RecursiveDirectoryBrowser(client.getIndexDirectory(), this);
+			AbstractServlet.call(new URI(replicationItem.getPushTargetUrl(
+					client, "switch")));
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (HttpException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	private void setTotalSize(long size) {
+		rwl.w.lock();
+		try {
+			totalSize = size;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private void addSendSize(long size) {
+		rwl.w.lock();
+		try {
+			sendSize += size;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	@Override
+	public void file(File file) throws SearchLibException {
+		try {
+			String url = replicationItem.getPushTargetUrl(client, file);
+			URI uri = new URI(url);
+			if (file.isFile()) {
+				if (!file.getName().equals("replication.xml"))
+					if (!file.getName().equals("replication_old.xml"))
+						new UriWriteStream(uri, file);
+			} else {
+				AbstractServlet.call(uri);
+			}
+			addSendSize(file.length());
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (HttpException e) {
+			throw new SearchLibException(e);
+		}
+	}
 }

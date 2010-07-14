@@ -36,8 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -48,14 +46,13 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class PatternManager {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	// For better performances, pattern are grouped by hostname in a map
 	private Map<String, List<PatternItem>> patternMap = null;
@@ -135,7 +132,7 @@ public class PatternManager {
 
 	public void addList(List<PatternItem> patternList, boolean bDeleteAll)
 			throws SearchLibException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			addListWithoutStoreAndLock(patternList, bDeleteAll);
 			store();
@@ -146,7 +143,7 @@ public class PatternManager {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -164,7 +161,7 @@ public class PatternManager {
 
 	public void delPattern(Collection<String> patterns)
 			throws SearchLibException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			for (String pattern : patterns)
 				delPatternWithoutLock(pattern);
@@ -178,7 +175,7 @@ public class PatternManager {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -194,7 +191,7 @@ public class PatternManager {
 	}
 
 	public void addPattern(PatternItem patternItem) throws SearchLibException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			addPatternWithoutLock(patternItem);
 			store();
@@ -205,13 +202,13 @@ public class PatternManager {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public int getPatterns(String startsWith, long start, long rows,
 			List<PatternItem> list) throws SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			Iterator<List<PatternItem>> it = patternMap.values().iterator();
 			long end = start + rows;
@@ -232,13 +229,13 @@ public class PatternManager {
 				}
 			return total;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	private PatternItem findPattern(PatternItem pattern)
 			throws MalformedURLException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			List<PatternItem> patternList = patternMap.get(pattern.extractUrl(
 					true).getHost());
@@ -250,12 +247,12 @@ public class PatternManager {
 					return patternItem;
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public PatternItem matchPattern(URL url) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			List<PatternItem> patternList = patternMap.get(url.getHost());
 			if (patternList == null)
@@ -266,7 +263,7 @@ public class PatternManager {
 					return patternItem;
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 

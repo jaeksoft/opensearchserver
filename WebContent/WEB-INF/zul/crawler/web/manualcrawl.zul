@@ -25,9 +25,13 @@
 				disabled="@{manualCrawl.refresh}" />
 			<image visible="@{manualCrawl.refresh}"
 				src="/images/ajax-loader.gif" />
+			<space />
+			<button label="Download crawl cache"
+				visible="@{manualCrawl.crawlCache}" forward="onDownload" />
 		</hbox>
-		<panel title="Crawl result" visible="@{manualCrawl.crawlThread}"
-			collapsible="true" border="normal">
+		<panel title="Crawl result"
+			visible="@{manualCrawl.crawlComplete}" collapsible="true"
+			border="normal">
 			<panelchildren>
 				<grid>
 					<auxhead>
@@ -94,27 +98,31 @@
 						</row>
 					</rows>
 				</grid>
+
+				<listbox mold="paging" pageSize="20"
+					model="@{manualCrawl.crawlThread.currentCrawl.targetIndexDocument.fieldContentArray}">
+					<listitem self="@{each='fieldContent'}">
+						<listcell>
+							<panel title="@{fieldContent.field}"
+								collapsible="true">
+								<panelchildren>
+									<listbox
+										model="@{fieldContent.values}" mold="paging" pageSize="10">
+										<listitem
+											self="@{each='fieldValue'}" label="@{fieldValue}" />
+									</listbox>
+								</panelchildren>
+							</panel>
+						</listcell>
+					</listitem>
+
+				</listbox>
+
 			</panelchildren>
 		</panel>
-	</vbox>
 
-	<listbox mold="paging" pageSize="20"
-		model="@{manualCrawl.crawlThread.currentCrawl.targetIndexDocument.fieldContentArray}">
-		<listitem self="@{each='fieldContent'}">
-			<listcell>
-				<panel title="@{fieldContent.field}"
-					collapsible="true">
-					<panelchildren>
-						<listbox model="@{fieldContent.values}"
-							mold="paging" pageSize="10">
-							<listitem self="@{each='fieldValue'}"
-								label="@{fieldValue}" />
-						</listbox>
-					</panelchildren>
-				</panel>
-			</listcell>
-		</listitem>
-	</listbox>
+
+	</vbox>
 
 	<timer delay="3000" repeats="true" onTimer="manualCrawl.onTimer()"
 		running="@{manualCrawl.refresh}" />

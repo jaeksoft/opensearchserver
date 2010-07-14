@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -51,9 +50,12 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexSingle extends IndexAbstract {
+
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private ReaderInterface reader = null;
 	private WriterInterface writer = null;
@@ -85,12 +87,12 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public void close() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			if (reader != null)
 				reader.close();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -103,12 +105,12 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (writer != null)
 				writer.optimize();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 		reload();
 	}
@@ -122,14 +124,14 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (writer != null)
 				return writer.deleteDocument(schema, uniqueField);
 			else
 				return false;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -142,14 +144,14 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (writer != null)
 				return writer.deleteDocuments(schema, uniqueFields);
 			else
 				return 0;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -163,14 +165,14 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
-		r.lock();
+		rwl.r.lock();
 		try {
 			int i = reader.search(query).getNumFound();
 			query.reset();
 			writer.deleteDocuments(query);
 			return i;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -183,14 +185,14 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (writer != null)
 				return writer.updateDocument(schema, document);
 			else
 				return false;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -204,14 +206,14 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (writer != null)
 				return writer.updateDocuments(schema, documents);
 			else
 				return 0;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -223,12 +225,12 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
-		w.lock();
+		rwl.w.lock();
 		try {
 			if (reader != null)
 				reader.reload();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -239,12 +241,12 @@ public class IndexSingle extends IndexAbstract {
 			throw new IOException("Index is offline");
 		if (readonly)
 			throw new IOException("Index is read only");
-		w.lock();
+		rwl.w.lock();
 		try {
 			if (reader != null)
 				reader.swap(version, deleteOld);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -255,13 +257,13 @@ public class IndexSingle extends IndexAbstract {
 			InstantiationException, IllegalAccessException {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.search(searchRequest);
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -270,13 +272,13 @@ public class IndexSingle extends IndexAbstract {
 			throws IOException, ParseException, SyntaxError {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.explain(searchRequest, docId);
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -287,19 +289,19 @@ public class IndexSingle extends IndexAbstract {
 			SearchLibException, IllegalAccessException, InstantiationException {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.documents(documentsRequest);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 		return null;
 	}
 
 	@Override
 	public boolean sameIndex(ReaderInterface reader) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader == this)
 				return true;
@@ -307,7 +309,7 @@ public class IndexSingle extends IndexAbstract {
 				return true;
 			return false;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -315,13 +317,13 @@ public class IndexSingle extends IndexAbstract {
 	public IndexStatistics getStatistics() throws IOException {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.getStatistics();
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -334,13 +336,13 @@ public class IndexSingle extends IndexAbstract {
 	public int getDocFreq(Term term) throws IOException {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.getDocFreq(term);
 			return 0;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -348,13 +350,13 @@ public class IndexSingle extends IndexAbstract {
 	public TermEnum getTermEnum() throws IOException {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.getTermEnum();
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -362,13 +364,13 @@ public class IndexSingle extends IndexAbstract {
 	public TermEnum getTermEnum(String field, String term) throws IOException {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.getTermEnum(field, term);
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -377,13 +379,13 @@ public class IndexSingle extends IndexAbstract {
 			throws IOException {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.getTermFreqVector(docId, field);
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -392,29 +394,20 @@ public class IndexSingle extends IndexAbstract {
 		if (reader == null)
 			return;
 		boolean oldReadOnly;
-		w.lock();
+		rwl.w.lock();
 		try {
 			oldReadOnly = readonly;
 			readonly = true;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
-		r.lock();
+		rwl.r.lock();
 		try {
 			reader.push(dest);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 		readonly = oldReadOnly;
-	}
-
-	@Override
-	public void receive(long version, String fileName, InputStream inputStream)
-			throws IOException {
-		if (reader == null)
-			return;
-		WriterLocal.receiveIndexFile(((ReaderLocal) reader).getRootDir(),
-				version, fileName, inputStream);
 	}
 
 	@Override
@@ -445,38 +438,38 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	public SearchCache getSearchCache() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				if (reader instanceof ReaderLocal)
 					return ((ReaderLocal) reader).getSearchCache();
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public FilterCache getFilterCache() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				if (reader instanceof ReaderLocal)
 					return ((ReaderLocal) reader).getFilterCache();
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public FieldCache getFieldCache() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				if (reader instanceof ReaderLocal)
 					return ((ReaderLocal) reader).getFieldCache();
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -489,13 +482,13 @@ public class IndexSingle extends IndexAbstract {
 	public Collection<?> getFieldNames() throws IOException {
 		if (!online)
 			throw new IOException("Index is offline");
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader != null)
 				return reader.getFieldNames();
 			return null;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 

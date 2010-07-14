@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.zk.ui.WebApp;
+import org.zkoss.zk.ui.http.WebManager;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -218,5 +220,9 @@ public class ServletTransaction {
 
 		xmlWriter.endElement();
 		xmlWriter.endDocument();
+	}
+
+	public WebApp getWebApp() {
+		return WebManager.getWebApp(servlet.getServletContext());
 	}
 }

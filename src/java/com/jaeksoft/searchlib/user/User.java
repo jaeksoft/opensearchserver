@@ -27,8 +27,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -38,14 +36,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class User implements Comparable<User> {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private String name;
 	private String password;
@@ -72,7 +69,7 @@ public class User implements Comparable<User> {
 	}
 
 	public void copyTo(User user) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			user.setName(name);
 			user.setPassword(password);
@@ -81,23 +78,23 @@ public class User implements Comparable<User> {
 			for (IndexRole indexRole : indexRoles)
 				user.addRole(indexRole);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public boolean hasRole(String indexName, Role role) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (isAdmin)
 				return true;
 			return indexRoles.contains(new IndexRole(indexName, role));
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public boolean hasAnyRole(String indexName, Role... roles) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (isAdmin)
 				return true;
@@ -106,7 +103,7 @@ public class User implements Comparable<User> {
 					return true;
 			return false;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -118,7 +115,7 @@ public class User implements Comparable<User> {
 	}
 
 	public boolean hasAllRole(String indexName, Role... roles) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (isAdmin)
 				return true;
@@ -127,7 +124,7 @@ public class User implements Comparable<User> {
 					return false;
 			return true;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -139,29 +136,29 @@ public class User implements Comparable<User> {
 	}
 
 	public void addRole(IndexRole indexRole) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			indexRoles.add(indexRole);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public void removeRole(IndexRole indexRole) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			indexRoles.remove(indexRole);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	protected void removeRoles() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			indexRoles.clear();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -170,11 +167,11 @@ public class User implements Comparable<User> {
 	}
 
 	public Set<IndexRole> getRoles() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexRoles;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -205,7 +202,7 @@ public class User implements Comparable<User> {
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			String encodedPassword = new String(Base64.encodeBase64(password
 					.getBytes()));
@@ -215,7 +212,7 @@ public class User implements Comparable<User> {
 				indexRole.writeXml(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -231,35 +228,35 @@ public class User implements Comparable<User> {
 	}
 
 	public String getName() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return name;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void setName(String name) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.name = name;
 			this.apiKey = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public String getPassword() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return password;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public String getApiKey() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (apiKey != null)
 				return apiKey;
@@ -269,72 +266,72 @@ public class User implements Comparable<User> {
 					apiKey = DigestUtils.md5Hex("ossacc" + name + password);
 			return apiKey;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 
 	}
 
 	public void setPassword(String password) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.password = password;
 			this.apiKey = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public boolean isAdmin() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return isAdmin;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public boolean isMonitoring() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return isMonitoring;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void setAdmin(boolean isAdmin) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.isAdmin = isAdmin;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public void setMonitoring(boolean isMonitoring) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.isMonitoring = isMonitoring;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public boolean authenticate(String password) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return this.password.equals(password);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public boolean authenticateKey(String key) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return getApiKey().equals(key);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 

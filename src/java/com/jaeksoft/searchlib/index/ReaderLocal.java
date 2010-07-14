@@ -30,8 +30,6 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -77,8 +75,11 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
+
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private IndexDirectory indexDirectory;
 	private IndexSearcher indexSearcher;
@@ -88,10 +89,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private FilterCache filterCache;
 	private FieldCache fieldCache;
 	private SpellCheckerCache spellCheckerCache;
-
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
 
 	private File rootDir;
 	private File dataDir;
@@ -110,7 +107,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private void init(File rootDir, File dataDir) throws IOException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.rootDir = rootDir;
 			this.dataDir = dataDir;
@@ -124,12 +121,12 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				this.indexSearcher.setSimilarity(similarity);
 			}
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	private void init(ReaderLocal r) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.rootDir = r.rootDir;
 			this.dataDir = r.dataDir;
@@ -137,12 +134,12 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			this.indexSearcher = r.indexSearcher;
 			this.indexReader = r.indexReader;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	private void initCache(int searchCache, int filterCache, int fieldCache) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.searchCache = new SearchCache(searchCache);
 			this.filterCache = new FilterCache(filterCache);
@@ -150,121 +147,121 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			// TODO replace value 100 by number of field in schema
 			this.spellCheckerCache = new SpellCheckerCache(100);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	private void resetCache() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			searchCache.clear();
 			filterCache.clear();
 			fieldCache.clear();
 			spellCheckerCache.clear();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	protected File getRootDir() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return rootDir;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	protected File getDatadir() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return dataDir;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public long getVersion() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexReader.getVersion();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public TermDocs getTermDocs(Term term) throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexReader.termDocs(term);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexReader.getTermFreqVector(docId, field);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public int getDocFreq(Term term) throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexSearcher.docFreq(term);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public TermEnum getTermEnum() throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexReader.terms();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public TermEnum getTermEnum(String field, String term) throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexReader.terms(new Term(field, term));
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public Collection<?> getFieldNames() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexReader.getFieldNames(FieldOption.ALL);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void rewrite(Query query) throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			query.rewrite(indexReader);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void close(boolean bDeleteDirectory) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			if (indexSearcher != null) {
 				indexSearcher.close();
@@ -283,7 +280,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -293,26 +290,26 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public int maxDoc() throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexSearcher.maxDoc();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public int numDocs() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexReader.numDocs();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public TopDocs search(Query query, Filter filter, Sort sort, int nTop)
 			throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (sort == null) {
 				if (filter == null)
@@ -323,7 +320,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				return indexSearcher.search(query, filter, nTop, sort);
 			}
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -338,37 +335,37 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	@Override
 	public String explain(SearchRequest searchRequest, int docId)
 			throws IOException, ParseException, SyntaxError {
-		r.lock();
+		rwl.r.lock();
 		try {
 			Explanation explanation = indexSearcher.explain(
 					searchRequest.getQuery(), docId);
 			return explanation.toString();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void search(Query query, Filter filter, Collector collector)
 			throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (filter == null)
 				indexSearcher.search(query, collector);
 			else
 				indexSearcher.search(query, filter, collector);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public FilterHits getFilterHits(Field defaultField, Analyzer analyzer,
 			com.jaeksoft.searchlib.filter.Filter filter) throws ParseException,
 			IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return filterCache.get(this, defaultField, analyzer, filter);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -385,42 +382,42 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	public Document getDocFields(int docId, FieldSelector selector)
 			throws CorruptIndexException, IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexReader.document(docId, selector);
 		} catch (IllegalArgumentException e) {
 			throw e;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public StringIndex getStringIndex(String fieldName) throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return org.apache.lucene.search.FieldCache.DEFAULT.getStringIndex(
 					indexReader, fieldName);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public LuceneDictionary getLuceneDirectionary(String fieldName) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return new LuceneDictionary(indexReader, fieldName);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void xmlInfo(PrintWriter writer) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			writer.println("<index name=\"" + indexDirectory.getName()
 					+ "\" path=\"" + indexDirectory.getDirectory() + "\"/>");
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -512,24 +509,24 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public Directory getDirectory() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return indexDirectory.getDirectory();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public void reload() throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			close(false);
 			init(rootDir, dataDir);
 			resetCache();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -544,7 +541,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 					readOnly);
 		if (newReader == null)
 			return;
-		w.lock();
+		rwl.w.lock();
 		try {
 			close(false);
 			init(newReader);
@@ -552,7 +549,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			if (deleteOld)
 				deleteAllOthers();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 
 	}
@@ -561,7 +558,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			throws IOException, ParseException, SyntaxError,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		r.lock();
+		rwl.r.lock();
 		try {
 
 			Schema schema = searchRequest.getConfig().getSchema();
@@ -573,7 +570,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 					analyzer);
 
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -596,18 +593,18 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public FieldList<FieldValue> getDocumentFields(int docId,
 			FieldList<Field> fieldList) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return fieldCache.get(this, docId, fieldList);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError {
-		r.lock();
+		rwl.r.lock();
 		try {
 			DocumentRequest[] requestedDocuments = documentsRequest
 					.getRequestedDocuments();
@@ -621,13 +618,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 						documentRequest.doc, this));
 			return documents;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public boolean sameIndex(ReaderInterface reader) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (reader == this)
 				return true;
@@ -635,17 +632,17 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				return true;
 			return reader.sameIndex(this);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public IndexStatistics getStatistics() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return new IndexStatistics(indexReader);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -670,7 +667,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	@Override
 	public void push(URI dest) throws URISyntaxException, IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			File[] files = dataDir.listFiles();
 			for (File file : files) {
@@ -679,44 +676,44 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				pushFile(file, dest);
 			}
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 
 	}
 
 	public SpellChecker getSpellChecker(String fieldName) throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return spellCheckerCache.get(this, fieldName);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	protected SearchCache getSearchCache() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return searchCache;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	protected FilterCache getFilterCache() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return filterCache;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	protected FieldCache getFieldCache() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return fieldCache;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 

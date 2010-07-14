@@ -29,8 +29,6 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.http.HttpException;
 
@@ -39,8 +37,11 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class UrlCrawlQueue extends CrawlQueueAbstract {
+
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private List<Crawl> updateCrawlList;
 	private List<UrlItem> insertUrlList;
@@ -49,10 +50,6 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	private List<Crawl> workingUpdateCrawlList;
 	private List<UrlItem> workingInsertUrlList;
 	private List<String> workingDeleteUrlList;
-
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
 
 	public UrlCrawlQueue(Config config, WebPropertyManager propertyManager)
 			throws SearchLibException {
@@ -67,7 +64,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 
 	public void add(CrawlStatistics currentStats, Crawl crawl)
 			throws NoSuchAlgorithmException, IOException, SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			updateCrawlList.add(crawl);
 			currentStats.incPendingUpdateCount();
@@ -78,25 +75,25 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 				currentStats.addPendingNewUrlCount(discoverLinks.size());
 			}
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void delete(CrawlStatistics currentStats, String url) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (url == null)
 				return;
 			deleteUrlList.add(url);
 			currentStats.incPendingDeleteCount();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	protected boolean shouldWePersist() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (updateCrawlList.size() > getMaxBufferSize())
 				return true;
@@ -106,13 +103,13 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 				return true;
 			return false;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	protected boolean workingInProgress() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (workingUpdateCrawlList != null)
 				return true;
@@ -122,13 +119,13 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 				return true;
 			return false;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	protected void initWorking() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			workingUpdateCrawlList = updateCrawlList;
 			workingInsertUrlList = insertUrlList;
@@ -141,19 +138,19 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			if (getSessionStats() != null)
 				getSessionStats().resetPending();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	@Override
 	protected void resetWork() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			workingUpdateCrawlList = null;
 			workingInsertUrlList = null;
 			workingDeleteUrlList = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 

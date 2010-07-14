@@ -26,22 +26,19 @@ package com.jaeksoft.searchlib.crawler;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class UniqueNameSetGeneric<T extends UniqueNameItem<T>> {
 
+	final private ReadWriteLock rwl = new ReadWriteLock();
+
 	private TreeSet<T> set;
 
 	private T[] array;
-
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
 
 	protected void init() {
 		set = new TreeSet<T>();
@@ -49,22 +46,22 @@ public abstract class UniqueNameSetGeneric<T extends UniqueNameItem<T>> {
 	}
 
 	public void add(T item) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			set.add(item);
 			array = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public void remove(T item) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			set.remove(item);
 			array = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -73,7 +70,7 @@ public abstract class UniqueNameSetGeneric<T extends UniqueNameItem<T>> {
 	protected abstract T newItem(String name);
 
 	public T[] getArray() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (array != null)
 				return array;
@@ -81,12 +78,12 @@ public abstract class UniqueNameSetGeneric<T extends UniqueNameItem<T>> {
 			set.toArray(array);
 			return array;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public T get(String name) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			T finder = newItem(name);
 			finder.setName(name);
@@ -97,20 +94,20 @@ public abstract class UniqueNameSetGeneric<T extends UniqueNameItem<T>> {
 				return null;
 			return s.first();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void writeXml(String elementName, XmlWriter xmlWriter)
 			throws SAXException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			xmlWriter.startElement(elementName);
 			for (T item : set)
 				item.writeXml(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 

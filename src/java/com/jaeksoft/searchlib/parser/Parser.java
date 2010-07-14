@@ -55,6 +55,10 @@ public abstract class Parser {
 
 	private String defaultCharset;
 
+	private LimitReader limitReader;
+
+	private LimitInputStream limitInputStream;
+
 	protected Parser(ParserFieldEnum[] fieldList) {
 		this.fieldList = fieldList;
 		sizeLimit = 0;
@@ -63,6 +67,8 @@ public abstract class Parser {
 		parserDocument = new IndexDocument();
 		defaultCharset = null;
 		urlFilterList = null;
+		limitReader = null;
+		limitInputStream = null;
 	}
 
 	public void setFieldMap(FieldMap fieldMap) {
@@ -149,11 +155,21 @@ public abstract class Parser {
 	protected abstract void parseContent(LimitReader reader) throws IOException;
 
 	public void parseContent(InputStream inputStream) throws IOException {
-		parseContent(new LimitInputStream(inputStream, sizeLimit));
+		limitInputStream = new LimitInputStream(inputStream, sizeLimit);
+		parseContent(limitInputStream);
 	}
 
 	public void parseContent(Reader reader) throws IOException {
-		parseContent(new LimitReader(reader, sizeLimit));
+		limitReader = new LimitReader(reader, sizeLimit);
+		parseContent(limitReader);
+	}
+
+	public LimitInputStream getLimitInputStream() {
+		return limitInputStream;
+	}
+
+	public LimitReader getLimitReader() {
+		return limitReader;
 	}
 
 	public void parseContent(byte[] byteData) throws IOException {

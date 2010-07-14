@@ -25,9 +25,7 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -162,34 +160,6 @@ public class WriterLocal extends WriterAbstract {
 			if (directory != null) {
 				try {
 					directory.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	protected static void receiveIndexFile(File rootDir, Long version,
-			String fileName, InputStream is) throws IOException {
-		File dataDir = new File(rootDir, version.toString());
-		if (!dataDir.exists())
-			dataDir.mkdirs();
-		File targetFile = new File(dataDir, fileName);
-		if (!targetFile.exists())
-			targetFile.createNewFile();
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(targetFile);
-			int len;
-			byte[] buffer = new byte[131072];
-			while ((len = is.read(buffer)) != -1)
-				fos.write(buffer, 0, len);
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (fos != null) {
-				try {
-					fos.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

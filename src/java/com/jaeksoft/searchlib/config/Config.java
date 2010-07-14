@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -77,6 +78,7 @@ import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
+import com.jaeksoft.searchlib.replication.ReplicationThread;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
@@ -141,6 +143,8 @@ public abstract class Config {
 
 	private final Lock lock = new ReentrantLock(true);
 
+	private final Lock longTermLock = new ReentrantLock();
+
 	private Mailer mailer = null;
 
 	private ReplicationList replicationList = null;
@@ -150,7 +154,8 @@ public abstract class Config {
 	private ConfigFiles configFiles = null;
 
 	protected Config(File indexDirectory, String configXmlResourceName,
-			boolean createIndexIfNotExists) throws SearchLibException {
+			boolean createIndexIfNotExists, boolean disableCrawler)
+			throws SearchLibException {
 
 		try {
 			indexDir = indexDirectory;
@@ -172,6 +177,10 @@ public abstract class Config {
 
 			configFiles = new ConfigFiles();
 
+			if (disableCrawler) {
+				getFilePropertyManager().getCrawlEnabled().setValue(false);
+				getWebPropertyManager().getCrawlEnabled().setValue(false);
+			}
 			getFileCrawlMaster();
 			getWebCrawlMaster();
 
@@ -227,6 +236,8 @@ public abstract class Config {
 	public void saveParsers() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "parsers.xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
 		try {
 			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
 					"UTF-8");
@@ -234,6 +245,7 @@ public abstract class Config {
 			xmlWriter.endDocument();
 			cfr.rotate();
 		} finally {
+			longTermLock.unlock();
 			cfr.abort();
 		}
 	}
@@ -241,6 +253,8 @@ public abstract class Config {
 	public void saveReplicationList() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "replication.xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
 		try {
 			PrintWriter pw = cfr.getTempPrintWriter();
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
@@ -248,12 +262,15 @@ public abstract class Config {
 			xmlWriter.endDocument();
 			cfr.rotate();
 		} finally {
+			longTermLock.unlock();
 			cfr.abort();
 		}
 	}
 
 	public void saveRequests() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "requests.xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
 		try {
 			PrintWriter pw = cfr.getTempPrintWriter();
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
@@ -267,6 +284,7 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
+			longTermLock.tryLock();
 			cfr.abort();
 		}
 	}
@@ -274,6 +292,8 @@ public abstract class Config {
 	public void saveConfig() throws SearchLibException {
 		lock.lock();
 		try {
+			if (!longTermLock.tryLock())
+				throw new SearchLibException("Replication in process");
 			saveConfigWithoutLock();
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
@@ -284,6 +304,7 @@ public abstract class Config {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
+			longTermLock.unlock();
 			lock.unlock();
 		}
 	}
@@ -352,6 +373,8 @@ public abstract class Config {
 	public void saveDatabaseCrawlList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"databaseCrawlList.xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
 		try {
 			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
 					"UTF-8");
@@ -365,6 +388,7 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
+			longTermLock.unlock();
 			cfr.abort();
 		}
 	}
@@ -650,6 +674,8 @@ public abstract class Config {
 	public void saveUrlFilterList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"webcrawler-urlfilter.xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
 		try {
 			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
 					"UTF-8");
@@ -663,7 +689,18 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
+			longTermLock.unlock();
 			cfr.abort();
+		}
+	}
+
+	public void push(ReplicationThread replicationThread)
+			throws SearchLibException {
+		longTermLock.lock();
+		try {
+			replicationThread.push();
+		} finally {
+			longTermLock.unlock();
 		}
 	}
 
@@ -893,4 +930,55 @@ public abstract class Config {
 		}
 	}
 
+	private void closeQuiet(boolean waitForEnd) {
+		try {
+			getFileCrawlMaster().abort();
+			getWebCrawlMaster().abort();
+			getDatabaseCrawlMaster().abort();
+			if (waitForEnd)
+				getFileCrawlMaster().waitForEnd(0);
+			if (waitForEnd)
+				getWebCrawlMaster().waitForEnd(0);
+			if (waitForEnd)
+				getDatabaseCrawlMaster().waitForEnd(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			getIndex().close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			StatisticsList statList = getStatisticsList();
+			if (statList != null)
+				statList.save(getStatStorage());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void close() {
+		lock.lock();
+		longTermLock.lock();
+		try {
+			closeQuiet(true);
+		} finally {
+			longTermLock.unlock();
+			lock.unlock();
+		}
+	}
+
+	public void trash(File trashDir) throws SearchLibException, NamingException {
+		lock.lock();
+		longTermLock.lock();
+		try {
+			closeQuiet(false);
+			indexDir.renameTo(trashDir);
+		} finally {
+			longTermLock.unlock();
+			lock.unlock();
+		}
+	}
 }

@@ -25,16 +25,13 @@
 package com.jaeksoft.searchlib.process;
 
 import java.lang.Thread.State;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class ThreadAbstract implements Runnable {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	protected final Lock r = rwl.readLock();
-	protected final Lock w = rwl.writeLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private Config config;
 
@@ -70,65 +67,65 @@ public abstract class ThreadAbstract implements Runnable {
 	}
 
 	public Config getConfig() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return config;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public String getInfo() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return info;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	protected void setInfo(String info) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.info = info;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public boolean isAborted() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return abort;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void abort() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			abort = true;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public Exception getException() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return exception;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	protected void setException(Exception e) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.exception = e;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -175,29 +172,29 @@ public abstract class ThreadAbstract implements Runnable {
 	}
 
 	protected void idle() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			idleTime = System.currentTimeMillis();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	protected boolean isIdleTimeExhausted(int seconds) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (seconds == 0)
 				return false;
 			long timeElapsed = (System.currentTimeMillis() - idleTime) / 1000;
 			return timeElapsed > seconds;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 
 	}
 
 	public String getCurrentMethod() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (thread == null)
 				return "No thread";
@@ -216,7 +213,7 @@ public abstract class ThreadAbstract implements Runnable {
 			return element.getClassName() + '.' + element.getMethodName()
 					+ " (" + element.getLineNumber() + ")";
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -226,14 +223,14 @@ public abstract class ThreadAbstract implements Runnable {
 
 	@Override
 	final public void run() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			startTime = System.currentTimeMillis();
 			idleTime = startTime;
 			abort = false;
 			thread = Thread.currentThread();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 		try {
 			runner();
@@ -248,39 +245,39 @@ public abstract class ThreadAbstract implements Runnable {
 				threadMaster.notify();
 			}
 		}
-		w.lock();
+		rwl.w.lock();
 		try {
 			thread = null;
 			running = false;
 			endTime = System.currentTimeMillis();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 		release();
 	}
 
 	public boolean isRunning() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return running;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public State getThreadState() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (thread == null)
 				return null;
 			return thread.getState();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public String getThreadStatus() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			StringBuffer sb = new StringBuffer();
 			sb.append(this.hashCode());
@@ -292,26 +289,26 @@ public abstract class ThreadAbstract implements Runnable {
 			sb.append(thread.getState().toString());
 			return sb.toString();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	final public void execute() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			running = true;
 			config.getThreadPool().execute(this);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	protected ThreadMasterAbstract getThreadMaster() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return threadMaster;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -319,16 +316,16 @@ public abstract class ThreadAbstract implements Runnable {
 	 * @return the startTime
 	 */
 	public long getStartTime() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return startTime;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public long getDuration() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (startTime == 0)
 				return 0;
@@ -336,7 +333,7 @@ public abstract class ThreadAbstract implements Runnable {
 				return endTime - startTime;
 			return System.currentTimeMillis() - startTime;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 

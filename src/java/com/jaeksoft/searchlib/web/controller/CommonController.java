@@ -233,17 +233,20 @@ public abstract class CommonController extends Window implements AfterCompose,
 	@Override
 	public void onEvent(Event event) throws UiException {
 		PushEvent pushEvent = PushEvent.isEvent(event);
-		if (pushEvent != null && pushEvent == PushEvent.FLUSH_PRIVILEGES) {
-			User user = (User) event.getData();
-			try {
+		if (pushEvent == null)
+			return;
+		try {
+			if (pushEvent == PushEvent.FLUSH_PRIVILEGES) {
+				User user = (User) event.getData();
 				ClientCatalog.flushPrivileges();
 				if (isLogged()) {
 					if (user.equals(getLoggedUser()))
 						onLogout();
 				}
-			} catch (SearchLibException e) {
-				e.printStackTrace();
-			}
+			} else if (pushEvent == PushEvent.RESET_DESKTOP)
+				resetDesktop();
+		} catch (SearchLibException e) {
+			e.printStackTrace();
 		}
 	}
 

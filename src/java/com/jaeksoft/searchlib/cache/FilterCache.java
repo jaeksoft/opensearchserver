@@ -45,7 +45,7 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 	public FilterHits get(ReaderLocal reader, Field defaultField,
 			Analyzer analyzer, Filter filter) throws ParseException,
 			IOException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			FilterCacheKey filterCacheKey = null;
 			filterCacheKey = new FilterCacheKey(filter, defaultField, analyzer);
@@ -57,7 +57,7 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 			put(filterCacheKey, filterHits);
 			return filterHits;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 }

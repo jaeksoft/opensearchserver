@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import org.zkoss.zk.ui.WebApp;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.EventQueue;
@@ -31,7 +32,7 @@ import org.zkoss.zk.ui.event.EventQueues;
 
 public enum PushEvent {
 
-	FLUSH_PRIVILEGES;
+	FLUSH_PRIVILEGES, RESET_DESKTOP;
 
 	private Event newEvent(Object data) {
 		return new Event(name(), null, data);
@@ -45,12 +46,24 @@ public enum PushEvent {
 		return EventQueues.lookup("OSS", EventQueues.APPLICATION, true);
 	}
 
+	private static EventQueue getQueue(WebApp webApp) {
+		return EventQueues.lookup("OSS", webApp, true);
+	}
+
 	public void publish() {
 		getQueue().publish(newEvent());
 	}
 
+	public void publish(WebApp webApp) {
+		getQueue(webApp).publish(newEvent());
+	}
+
 	public void publish(Object data) {
 		getQueue().publish(newEvent(data));
+	}
+
+	public void publish(WebApp webApp, Object data) {
+		getQueue(webApp).publish(newEvent(data));
 	}
 
 	public void subscribe(EventListener eventListener) {

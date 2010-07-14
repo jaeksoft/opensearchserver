@@ -29,7 +29,10 @@ import java.io.IOException;
 import javax.naming.NamingException;
 import javax.servlet.ServletRequest;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
 
@@ -52,19 +55,33 @@ public class PushServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 
-			long version = Long.parseLong(request.getParameter("version"));
-			String fileName = request.getParameter("fileName");
+			String cmd = request.getParameter("cmd");
+			if ("init".equals(cmd)) {
+				ClientCatalog.receive_init(client);
+				return;
+			}
+			if ("switch".equals(cmd)) {
+				ClientCatalog.receive_switch(transaction.getWebApp(), client);
+				return;
+			}
 
-			client.getIndex().receive(version, fileName,
-					request.getInputStream());
+			String filePath = request.getParameter("filePath");
+			if (FilenameUtils.getName(filePath).startsWith("."))
+				return;
+
+			if ("dir".equals(request.getParameter("type")))
+				ClientCatalog.receive_dir(client, filePath);
+			else
+				ClientCatalog.receive_file(client, filePath,
+						request.getInputStream());
 
 		} catch (SearchLibException e) {
 			throw new ServletException(e);
 		} catch (NamingException e) {
 			throw new ServletException(e);
-		} catch (IOException e) {
-			throw new ServletException(e);
 		} catch (InterruptedException e) {
+			throw new ServletException(e);
+		} catch (IOException e) {
 			throw new ServletException(e);
 		}
 

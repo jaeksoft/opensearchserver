@@ -24,44 +24,46 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class LastModifiedAndSize implements RecursiveDirectoryBrowser.CallBack {
+public class RecursiveDirectoryBrowser {
 
-	private long lastModified;
+	private CallBack callBack;
 
-	private long size;
+	private SearchLibException searchLibException;
 
-	private File lastModifiedFile;
-
-	public LastModifiedAndSize(File file) throws SearchLibException {
-		lastModifiedFile = file;
-		lastModified = file.lastModified();
-		size = file.length();
-		new RecursiveDirectoryBrowser(file, this);
+	public interface CallBack {
+		void file(File file) throws SearchLibException;
 	}
 
-	public long getLastModified() {
-		return lastModified;
+	public RecursiveDirectoryBrowser(File file, CallBack callBack)
+			throws SearchLibException {
+		searchLibException = null;
+		this.callBack = callBack;
+		if (!file.isDirectory())
+			return;
+		file.listFiles(new _FileFilter());
+		if (searchLibException != null)
+			throw searchLibException;
 	}
 
-	public long getSize() {
-		return size;
-	}
-
-	public File getLastModifiedFile() {
-		return lastModifiedFile;
-	}
-
-	@Override
-	public void file(File file) throws SearchLibException {
-		long l = file.lastModified();
-		if (l > lastModified) {
-			lastModified = l;
-			lastModifiedFile = file;
+	private class _FileFilter implements FileFilter {
+		@Override
+		public boolean accept(File file) {
+			if (searchLibException != null)
+				return false;
+			if (file.getName().startsWith("."))
+				return false;
+			try {
+				callBack.file(file);
+			} catch (SearchLibException e) {
+				searchLibException = e;
+				return false;
+			}
+			file.listFiles(this);
+			return true;
 		}
-		size += file.length();
 	}
-
 }

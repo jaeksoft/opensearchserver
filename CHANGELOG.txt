@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3008440: Index replication
 - 3026212: API and interface for document deletion
 - 3023327: Sub domain extraction in Web Crawler
 - 2820289: Database crawler

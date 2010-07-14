@@ -28,10 +28,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.lucene.queryParser.ParseException;
+import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
+import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.parser.LimitInputStream;
+import com.jaeksoft.searchlib.parser.LimitReader;
+import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ManualWebCrawlController extends CommonController {
@@ -92,10 +98,56 @@ public class ManualWebCrawlController extends CommonController {
 		}
 	}
 
-	public boolean isCrawlThread() {
+	public void onDownload() throws IOException, InterruptedException {
 		synchronized (this) {
-			return currentCrawlThread != null;
+			if (!isCrawlCache())
+				return;
+			Crawl crawl = currentCrawlThread.getCurrentCrawl();
+			Parser parser = crawl.getParser();
+			UrlItem ui = crawl.getUrlItem();
+			LimitInputStream is = parser.getLimitInputStream();
+			LimitReader rdr = parser.getLimitReader();
+			if (is != null) {
+				is.restartFromCache();
+				Filedownload.save(is, ui.getContentBaseType(), "crawl.cache");
+			} else if (rdr != null) {
+				rdr.restartFromCache();
+				Filedownload.save(rdr, ui.getContentBaseType(), "crawl.cache");
+			}
 		}
+	}
+
+	public boolean isCrawlComplete() {
+		synchronized (this) {
+			if (currentCrawlThread == null)
+				return false;
+			if (currentCrawlThread.isRunning())
+				return false;
+			return true;
+		}
+
+	}
+
+	public boolean isCrawlCache() {
+		synchronized (this) {
+			if (!isCrawlComplete())
+				return false;
+			Crawl crawl = currentCrawlThread.getCurrentCrawl();
+			if (crawl == null)
+				return false;
+			Parser parser = crawl.getParser();
+			if (parser == null)
+				return false;
+			UrlItem ui = crawl.getUrlItem();
+			if (ui == null)
+				return false;
+			if (parser.getLimitInputStream() != null)
+				return true;
+			if (parser.getLimitReader() != null)
+				return true;
+			return false;
+		}
+
 	}
 
 	public void onTimer() {

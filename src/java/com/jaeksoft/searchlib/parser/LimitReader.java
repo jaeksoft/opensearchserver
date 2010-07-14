@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -32,11 +34,15 @@ public class LimitReader extends Reader {
 	private boolean isComplete;
 	private Reader reader;
 	private long limit;
+	private CharArrayWriter outputCache;
+	private CharArrayReader inputCache;
 
 	public LimitReader(Reader reader, long limit) {
 		this.reader = reader;
 		this.limit = limit;
 		this.isComplete = true;
+		this.outputCache = new CharArrayWriter();
+		this.inputCache = null;
 	}
 
 	public boolean isComplete() {
@@ -50,9 +56,12 @@ public class LimitReader extends Reader {
 
 	@Override
 	public int read(char[] cbuf, int off, int len) throws IOException {
+		if (inputCache != null)
+			return inputCache.read(cbuf, off, len);
 		int r = reader.read(cbuf, off, len);
 		if (r == -1)
 			return r;
+		outputCache.write(cbuf, off, r);
 		limit -= r;
 		if (limit < 0) {
 			isComplete = false;
@@ -61,4 +70,10 @@ public class LimitReader extends Reader {
 		return r;
 	}
 
+	public void restartFromCache() throws IOException {
+		if (inputCache == null)
+			inputCache = new CharArrayReader(outputCache.toCharArray());
+		else
+			inputCache.reset();
+	}
 }

@@ -25,8 +25,6 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Collector;
@@ -39,12 +37,11 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class DocSetHits {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private int[] collectedDocs;
 	private OpenBitSet bitset;
@@ -90,7 +87,7 @@ public class DocSetHits {
 
 	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
 			Sort sort, boolean collect) throws IOException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			this.query = query;
 			this.filter = filter;
@@ -116,12 +113,12 @@ public class DocSetHits {
 				maxScore = topDocs.getMaxScore();
 			}
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public ScoreDoc[] getScoreDocs(int rows) throws IOException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			if (rows > docNumFound)
 				rows = docNumFound;
@@ -131,61 +128,61 @@ public class DocSetHits {
 			this.scoreDocs = topDocs.scoreDocs;
 			return scoreDocs;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public int getDocByPos(int pos) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return scoreDocs[pos].doc;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public float getScoreByPos(int pos) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return scoreDocs[pos].score;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public int[] facetMultivalued(String fieldName) throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return Facet.computeMultivalued(reader, fieldName, bitset);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public int[] facetSinglevalue(String fieldName) throws IOException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return Facet.computeSinglevalued(reader, fieldName, collectedDocs);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public float getMaxScore() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return maxScore;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public int getDocNumFound() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return docNumFound;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 

@@ -50,24 +50,23 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocuments;
-import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class Client extends Config {
 
-	public Client(File initFileOrDir, boolean createIndexIfNotExists)
-			throws SearchLibException {
-		super(initFileOrDir, null, createIndexIfNotExists);
+	public Client(File initFileOrDir, boolean createIndexIfNotExists,
+			boolean disableCrawler) throws SearchLibException {
+		super(initFileOrDir, null, createIndexIfNotExists, disableCrawler);
 	}
 
 	public Client(File initFileOrDir, String resourceName,
 			boolean createIndexIfNotExists) throws SearchLibException {
-		super(initFileOrDir, resourceName, createIndexIfNotExists);
+		super(initFileOrDir, resourceName, createIndexIfNotExists, false);
 	}
 
 	public Client(File initFile) throws SearchLibException {
-		this(initFile, false);
+		this(initFile, false, false);
 	}
 
 	public boolean updateDocument(IndexDocument document)
@@ -276,29 +275,6 @@ public class Client extends Config {
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, IllegalAccessException, InstantiationException {
 		return getIndex().documents(documentsRequest);
-	}
-
-	public void close() {
-		try {
-			getFileCrawlMaster().abort();
-			getWebCrawlMaster().abort();
-			getFileCrawlMaster().waitForEnd(0);
-			getWebCrawlMaster().waitForEnd(0);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		try {
-			getIndex().close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		try {
-			StatisticsList statList = getStatisticsList();
-			if (statList != null)
-				statList.save(getStatStorage());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }

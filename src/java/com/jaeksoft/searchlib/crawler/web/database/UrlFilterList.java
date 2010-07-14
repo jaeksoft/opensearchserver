@@ -28,8 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -39,14 +37,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class UrlFilterList {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private File configFile;
 	private TreeSet<UrlFilterItem> filterSet;
@@ -82,18 +79,18 @@ public class UrlFilterList {
 			UrlFilterItem item = new UrlFilterItem(nodeList.item(i));
 			set.add(item);
 		}
-		w.lock();
+		rwl.w.lock();
 		try {
 			filterSet = set;
 			array = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws IOException,
 			TransformerConfigurationException, SAXException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			xmlWriter.startElement("urlFilters");
 			for (UrlFilterItem item : filterSet)
@@ -101,12 +98,12 @@ public class UrlFilterList {
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public UrlFilterItem[] getArray() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (array != null)
 				return array;
@@ -114,32 +111,32 @@ public class UrlFilterList {
 			filterSet.toArray(array);
 			return array;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void add(UrlFilterItem item) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			filterSet.add(item);
 			array = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public void remove(UrlFilterItem item) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			filterSet.remove(item);
 			array = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public UrlFilterItem get(String name) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			UrlFilterItem finder = new UrlFilterItem(name, null);
 			SortedSet<UrlFilterItem> s = filterSet.subSet(finder, true, finder,
@@ -150,7 +147,7 @@ public class UrlFilterList {
 				return null;
 			return s.first();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 }

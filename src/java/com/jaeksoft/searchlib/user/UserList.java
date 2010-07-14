@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.user;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -36,14 +34,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class UserList {
 
-	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(true);
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private Map<String, User> users;
 
@@ -52,43 +49,43 @@ public class UserList {
 	}
 
 	public boolean add(User user) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			if (users.containsKey(user.getName()))
 				return false;
 			users.put(user.getName(), user);
 			return true;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public boolean remove(String selectedUserName) {
-		w.lock();
+		rwl.w.lock();
 		try {
 			return users.remove(selectedUserName) != null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public User get(String name) {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (name == null)
 				return null;
 			return users.get(name);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public Set<String> getUserNameSet() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return users.keySet();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -108,23 +105,23 @@ public class UserList {
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			xmlWriter.startElement("users");
 			for (User user : users.values())
 				user.writeXml(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public boolean isEmpty() {
-		r.lock();
+		rwl.r.lock();
 		try {
 			return users.size() == 0;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 }

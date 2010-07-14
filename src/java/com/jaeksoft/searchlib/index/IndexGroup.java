@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -198,12 +197,6 @@ public class IndexGroup extends IndexAbstract {
 	@Override
 	public boolean sameIndex(ReaderInterface reader) {
 		return reader == this;
-	}
-
-	@Override
-	public void receive(long version, String fileName, InputStream inputStream)
-			throws IOException {
-		throw new RuntimeException("Not implemented");
 	}
 
 	@Override

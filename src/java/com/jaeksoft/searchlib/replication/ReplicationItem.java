@@ -24,20 +24,32 @@
 
 package com.jaeksoft.searchlib.replication;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.UniqueNameItem;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
+	private ReadWriteLock rwl = new ReadWriteLock();
+
 	private URL instanceUrl = null;
+
+	private String cachedUrl = null;
+
+	private String login = null;
 
 	private String indexName = null;
 
@@ -78,13 +90,16 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		synchronized (this) {
+		rwl.r.lock();
+		try {
 			String encodedApiKey = (apiKey != null && apiKey.length() > 0) ? new String(
 					Base64.encodeBase64(apiKey.getBytes())) : "";
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
 					"apiKey", encodedApiKey);
 			xmlWriter.endElement();
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -93,15 +108,26 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 	 *            the instanceUrl to set
 	 */
 	public void setInstanceUrl(URL instanceUrl) {
-		this.instanceUrl = instanceUrl;
-		updateName();
+		rwl.w.lock();
+		try {
+			this.instanceUrl = instanceUrl;
+			updateName();
+			this.cachedUrl = null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	/**
 	 * @return the instanceUrl
 	 */
 	public URL getInstanceUrl() {
-		return instanceUrl;
+		rwl.r.lock();
+		try {
+			return instanceUrl;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
@@ -109,15 +135,26 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 	 *            the indexName to set
 	 */
 	public void setIndexName(String indexName) {
-		this.indexName = indexName;
-		updateName();
+		rwl.w.lock();
+		try {
+			this.indexName = indexName;
+			updateName();
+			this.cachedUrl = null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	/**
 	 * @return the indexName
 	 */
 	public String getIndexName() {
-		return indexName;
+		rwl.r.lock();
+		try {
+			return indexName;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
@@ -125,35 +162,131 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 	 *            the apiKey to set
 	 */
 	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
+		rwl.w.lock();
+		try {
+			this.apiKey = apiKey;
+			this.cachedUrl = null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	/**
 	 * @return the apiKey
 	 */
 	public String getApiKey() {
-		return apiKey;
+		rwl.r.lock();
+		try {
+			return apiKey;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param login
+	 *            the login to set
+	 */
+	public void setLogin(String login) {
+		rwl.w.lock();
+		try {
+			this.login = login;
+			this.cachedUrl = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the login
+	 */
+	public String getLogin() {
+		rwl.r.lock();
+		try {
+			return login;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void copy(ReplicationItem item) {
-		this.indexName = item.indexName;
-		this.instanceUrl = item.instanceUrl;
-		this.apiKey = item.apiKey;
-		this.lastReplicationThread = item.lastReplicationThread;
-		this.replicationMaster = item.replicationMaster;
-		setName(item.getName());
+		rwl.w.lock();
+		try {
+			this.indexName = item.indexName;
+			this.instanceUrl = item.instanceUrl;
+			this.apiKey = item.apiKey;
+			this.lastReplicationThread = item.lastReplicationThread;
+			this.replicationMaster = item.replicationMaster;
+			setName(item.getName());
+			this.cachedUrl = null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	protected void setReplicationThread(ReplicationThread replicationThread) {
-		this.lastReplicationThread = replicationThread;
+		rwl.w.lock();
+		try {
+			this.lastReplicationThread = replicationThread;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public ReplicationThread getLastReplicationThread() {
-		return lastReplicationThread;
+		rwl.r.lock();
+		try {
+			return lastReplicationThread;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public boolean isReplicationThread() {
-		return replicationMaster.isReplicationThread(this);
+		rwl.r.lock();
+		try {
+			return replicationMaster.isReplicationThread(this);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	private String getPushTargetUrl() throws UnsupportedEncodingException {
+		rwl.r.lock();
+		try {
+			if (cachedUrl != null)
+				return cachedUrl;
+			String url = getInstanceUrl().toExternalForm();
+			cachedUrl = url + (url.endsWith("/") ? "" : '/') + "push?use="
+					+ URLEncoder.encode(getIndexName(), "UTF-8");
+
+			String login = getLogin();
+			String apiKey = getApiKey();
+			if (login != null && login.length() > 0 && apiKey != null
+					&& apiKey.length() > 0)
+				cachedUrl += "&login=" + URLEncoder.encode(login, "UTF-8")
+						+ "&key=" + apiKey;
+			return cachedUrl;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	protected String getPushTargetUrl(Client client, File sourceFile)
+			throws UnsupportedEncodingException, SearchLibException {
+		String dataPath = client.getIndexDirectory().getAbsolutePath();
+		String filePath = sourceFile.getAbsolutePath();
+		if (!filePath.startsWith(dataPath))
+			throw new SearchLibException("Bad file path " + filePath);
+		filePath = filePath.substring(dataPath.length());
+		return getPushTargetUrl() + "&filePath="
+				+ URLEncoder.encode(filePath, "UTF-8")
+				+ (sourceFile.isDirectory() ? "&type=dir" : "");
+	}
+
+	protected String getPushTargetUrl(Client client, String cmd)
+			throws UnsupportedEncodingException {
+		return getPushTargetUrl() + "&cmd=" + URLEncoder.encode(cmd, "UTF-8");
 	}
 
 }

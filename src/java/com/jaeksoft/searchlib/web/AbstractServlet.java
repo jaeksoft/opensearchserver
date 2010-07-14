@@ -118,13 +118,13 @@ public abstract class AbstractServlet extends HttpServlet {
 				query.append("&");
 			query.append(additionnalQuery);
 		}
-		return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri
-				.getPort(), path.toString(), query.toString(), uri
-				.getFragment());
+		return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(),
+				uri.getPort(), path.toString(), query.toString(),
+				uri.getFragment());
 
 	}
 
-	protected static String call(URI uri) throws org.apache.http.HttpException,
+	public static String call(URI uri) throws org.apache.http.HttpException,
 			IOException, URISyntaxException {
 		UriRead uriRead = null;
 		try {
