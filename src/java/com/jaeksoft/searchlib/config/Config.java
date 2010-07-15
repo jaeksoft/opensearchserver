@@ -284,7 +284,7 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.tryLock();
+			longTermLock.unlock();
 			cfr.abort();
 		}
 	}
@@ -294,7 +294,11 @@ public abstract class Config {
 		try {
 			if (!longTermLock.tryLock())
 				throw new SearchLibException("Replication in process");
-			saveConfigWithoutLock();
+			try {
+				saveConfigWithoutLock();
+			} finally {
+				longTermLock.unlock();
+			}
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -304,7 +308,6 @@ public abstract class Config {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.unlock();
 			lock.unlock();
 		}
 	}
