@@ -34,7 +34,8 @@ import org.apache.poi.hslf.usermodel.SlideShow;
 public class PptParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.note, ParserFieldEnum.body, ParserFieldEnum.other };
+			ParserFieldEnum.note, ParserFieldEnum.body, ParserFieldEnum.other,
+			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
 	public PptParser() {
 		super(fl);

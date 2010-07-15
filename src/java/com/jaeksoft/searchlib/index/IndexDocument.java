@@ -181,6 +181,20 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		add(field, fieldContent.getValues());
 	}
 
+	private void addIfNotAlreadyHere(FieldContent fieldContent) {
+		if (fieldContent == null)
+			return;
+		FieldContent fc = getFieldContent(fieldContent.getField());
+		if (fc.checkIfAlreadyHere(fieldContent))
+			return;
+		fc.add(fieldContent);
+	}
+
+	public void addIfNotAlreadyHere(IndexDocument source) {
+		for (FieldContent fc : source.fields.values())
+			addIfNotAlreadyHere(fc);
+	}
+
 	public void add(String field, Object value) {
 		if (value == null)
 			throw new java.lang.NullPointerException("Null value on field "
@@ -268,14 +282,6 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	@Override
 	public Iterator<FieldContent> iterator() {
 		return fields.values().iterator();
-	}
-
-	public void extractDifferential(IndexDocument source, IndexDocument target) {
-		for (FieldContent fcSource : source.fields.values()) {
-			FieldContent fcTarget = getFieldContent(fcSource.getField());
-			if (!fcSource.isEquals(fcTarget))
-				target.add(fcTarget.getField(), fcTarget);
-		}
 	}
 
 	@Override

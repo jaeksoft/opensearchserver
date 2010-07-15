@@ -36,7 +36,8 @@ public abstract class OOParser extends Parser {
 			ParserFieldEnum.content, ParserFieldEnum.producer,
 			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
 			ParserFieldEnum.modification_date, ParserFieldEnum.language,
-			ParserFieldEnum.number_of_pages };
+			ParserFieldEnum.number_of_pages, ParserFieldEnum.filename,
+			ParserFieldEnum.content_type };
 
 	public OOParser() {
 		super(fl);
@@ -82,7 +83,7 @@ public abstract class OOParser extends Parser {
 
 				if (lode.getNodeType() == Node.NOTATION_NODE)
 					addField(selectedField, lode.getNodeValue());
-				
+
 				scanNodes(lode.getChildNodes(), selectedField);
 			}
 		}

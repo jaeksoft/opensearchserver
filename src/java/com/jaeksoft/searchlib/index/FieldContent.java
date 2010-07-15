@@ -61,6 +61,17 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		values.add(value);
 	}
 
+	public boolean checkIfAlreadyHere(FieldContent fc2) {
+		int fc2size = fc2.values.size();
+		if (values.size() < fc2size)
+			return false;
+		int i = values.size() - fc2size;
+		for (String v : fc2.values)
+			if (!v.equals(values.get(i++)))
+				return false;
+		return true;
+	}
+
 	public void add(FieldContent fc2) {
 		values.addAll(fc2.values);
 	}

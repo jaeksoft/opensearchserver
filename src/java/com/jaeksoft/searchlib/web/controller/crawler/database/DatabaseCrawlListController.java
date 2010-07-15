@@ -151,12 +151,12 @@ public class DatabaseCrawlListController extends CrawlerController {
 			XPathExpressionException, ParserConfigurationException {
 		if (!isFileCrawlerParametersRights())
 			throw new SearchLibException("Not allowed");
-		if (dbFieldTarget.getName() == null
-				|| dbFieldTarget.getName().length() == 0
-				|| dbFieldTarget == null)
+		if (dbFieldTarget == null || dbFieldTarget.getName() == null
+				|| dbFieldTarget.getName().length() == 0)
 			return;
 		currentCrawl.getFieldMap().add(sqlColumn, dbFieldTarget);
 		sqlColumn = null;
+		selectedIndexField = null;
 		dbFieldTarget = new DatabaseFieldTarget(null, false, false, null);
 		reloadPage();
 	}

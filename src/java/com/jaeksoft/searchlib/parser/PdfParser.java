@@ -38,7 +38,8 @@ public class PdfParser extends Parser {
 			ParserFieldEnum.content, ParserFieldEnum.producer,
 			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
 			ParserFieldEnum.modification_date, ParserFieldEnum.language,
-			ParserFieldEnum.number_of_pages };
+			ParserFieldEnum.number_of_pages, ParserFieldEnum.filename,
+			ParserFieldEnum.content_type };
 
 	public PdfParser() {
 		super(fl);
@@ -77,8 +78,8 @@ public class PdfParser extends Parser {
 				String text = stripper.getText(pdf);
 				String[] frags = text.split("\\n");
 				for (String frag : frags)
-					addField(ParserFieldEnum.content, frag.replaceAll("\\s+",
-							" ").trim());
+					addField(ParserFieldEnum.content,
+							frag.replaceAll("\\s+", " ").trim());
 			}
 		} finally {
 			if (pdf != null)

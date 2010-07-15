@@ -94,6 +94,8 @@ public class CrawlFile {
 
 				parser.setSourceDocument(sourceDocument);
 				parser.parseContent(fileItem.getFileInputStream());
+				parser.addField(ParserFieldEnum.filename, fileItem.getFile()
+						.getName());
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
 				fileItem.setFetchStatus(FetchStatus.FETCHED);

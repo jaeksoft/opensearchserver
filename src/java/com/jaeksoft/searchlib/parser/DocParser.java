@@ -37,7 +37,8 @@ public class DocParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
 			ParserFieldEnum.author, ParserFieldEnum.subject,
-			ParserFieldEnum.content, ParserFieldEnum.lang };
+			ParserFieldEnum.content, ParserFieldEnum.lang,
+			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
 	public DocParser() {
 		super(fl);
@@ -69,8 +70,8 @@ public class DocParser extends Parser {
 		String text = getMergedBodyText(1000, " ", ParserFieldEnum.content);
 		if (text != null) {
 			langMethod = "ngram recognition";
-			String textcat = new TextCategorizer().categorize(text, text
-					.length());
+			String textcat = new TextCategorizer().categorize(text,
+					text.length());
 			lang = Lang.findLocaleDescription(textcat);
 		}
 

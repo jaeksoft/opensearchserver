@@ -135,11 +135,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 						.mapResultSet(client.getParserSelector(), resultSet,
 								newFieldContents);
 				if (merge && lastFieldContent != null) {
-					IndexDocument diffFieldContent = new IndexDocument(
-							databaseCrawl.getLang());
-					newFieldContents.extractDifferential(lastFieldContent,
-							diffFieldContent);
-					indexDocument.add(diffFieldContent);
+					indexDocument.addIfNotAlreadyHere(newFieldContents);
 				} else
 					indexDocument.add(newFieldContents);
 				lastFieldContent = newFieldContents;

@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -76,6 +77,8 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 					if (parser != null) {
 						try {
 							parser.parseContent(file);
+							parser.addField(ParserFieldEnum.filename,
+									file.getName());
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
