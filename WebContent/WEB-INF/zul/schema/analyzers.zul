@@ -19,30 +19,77 @@
 <!--   See the GNU General Public License for more details. -->
 <window id="anlzr"
 	use="com.jaeksoft.searchlib.web.controller.schema.AnalyzersController">
-	<grid model="@{anlzr.list}">
-		<columns>
-			<column label="name" width="100px" />
-			<column label="lang" width="50px" />
-			<column label="tokenizer / description" />
-			<column label="filters / description" />
-		</columns>
-		<rows>
-			<row self="@{each=analyzer}">
-				<label value="@{analyzer.name}" />
-				<label value="@{analyzer.lang}" />
-				<vbox>
-					<label value="@{analyzer.tokenizer.className}" />
-					<label style="font-style:italic"
-						value="@{analyzer.tokenizer.description}" />
-				</vbox>
-				<listbox model="@{analyzer.filters}">
-					<listitem self="@{each=filter}">
-						<listcell label="@{filter.className}" />
-						<listcell style="font-style:italic"
-							label="@{filter.description}" />
-					</listitem>
-				</listbox>
-			</row>
-		</rows>
-	</grid>
+	<panel title="Choose an analyzer" border="normal">
+		<panelchildren>
+			<listbox model="@{anlzr.list.nameSet}"
+				selectedItem="@{anlzr.selectedName}" mold="select" />
+			<listbox model="@{anlzr.langList}"
+				selectedItem="@{anlzr.selectedAnalyzer}" mold="select">
+				<listitem self="@{each='analyzer'}"
+					label="@{analyzer.lang}" />
+			</listbox>
+			<button label="Edit" visible="@{anlzr.selectedAnalyzer}"
+				forward="onEdit" />
+		</panelchildren>
+	</panel>
+	<panel title="@{anlzr.editMode}" border="normal">
+		<panelchildren>
+			<grid>
+				<columns>
+					<column width="150px" align="right" />
+					<column />
+				</columns>
+				<rows>
+					<row>
+						<label value="Name: " />
+						<textbox cols="50" readonly="@{anlzr.edit}"
+							value="@{anlzr.currentAnalyzer.name}" />
+					</row>
+					<row visible="@{anlzr.edit}">
+						<label value="Language: " />
+						<label value="@{anlzr.currentAnalyzer.lang}" />
+					</row>
+					<row visible="@{anlzr.notEdit}">
+						<label value="Language: " />
+						<listbox model="@{anlzr.languageEnum}"
+							selectedItem="@{anlzr.currentAnalyzer.lang}" mold="select" />
+					</row>
+					<row>
+						<label value="Tokenizer: " />
+						<combobox width="300px" autodrop="true"
+							id="combotokenizer" buttonVisible="false"
+							value="@{anlzr.currentAnalyzer.tokenizer.className}" />
+					</row>
+					<row>
+						<label value="Filter list: " />
+						<listbox
+							model="@{anlzr.currentAnalyzer.filters}">
+							<listhead>
+								<listheader label="filter" />
+								<listheader label="properties" />
+								<listheader label="action" />
+							</listhead>
+							<auxhead>
+								<auxheader>
+									<listbox model="@{anlzr.filterEnum}"
+										mold="select" />
+								</auxheader>
+								<auxheader></auxheader>
+								<auxheader>
+									<button label="Add" />
+								</auxheader>
+							</auxhead>
+							<listitem self="@{each='filter'}">
+								<listcell>
+									<label label="@{filter.className}" />
+								</listcell>
+								<listcell />
+								<listcell />
+							</listitem>
+						</listbox>
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
+	</panel>
 </window>

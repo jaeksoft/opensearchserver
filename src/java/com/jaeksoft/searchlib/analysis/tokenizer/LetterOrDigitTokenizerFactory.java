@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,11 +46,6 @@ public class LetterOrDigitTokenizerFactory extends TokenizerFactory {
 	@Override
 	public Tokenizer create(Reader reader) {
 		return new LetterOrDigitTokenizer(reader);
-	}
-
-	@Override
-	public String getDescription() {
-		return "This tokenizer considers each non-digit, non-letter character to be a separator between words";
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -32,13 +31,14 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -56,18 +56,17 @@ public class Schema {
 		langQueryAnalyzers = new TreeMap<String, PerFieldAnalyzerWrapper>();
 	}
 
-	public static Schema fromXmlConfig(Node parentNode, XPathParser xpp)
-			throws XPathExpressionException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, DOMException,
-			IOException {
+	public static Schema fromXmlConfig(Config config, Node parentNode,
+			XPathParser xpp) throws XPathExpressionException,
+			SearchLibException {
 
 		Schema schema = new Schema();
 
-		schema.analyzers = AnalyzerList.fromXmlConfig(xpp, xpp.getNode(
-				parentNode, "analyzers"));
+		schema.analyzers = AnalyzerList.fromXmlConfig(config, xpp,
+				xpp.getNode(parentNode, "analyzers"));
 
-		schema.fieldList = SchemaField.fromXmlConfig(xpp, xpp.getNode(
-				parentNode, "fields"));
+		schema.fieldList = SchemaField.fromXmlConfig(xpp,
+				xpp.getNode(parentNode, "fields"));
 
 		return schema;
 	}

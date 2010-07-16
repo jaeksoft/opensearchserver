@@ -96,7 +96,7 @@
 							<label value="Analyzer: " />
 							<listbox mold="select"
 								selectedItem="@{fields.field.indexAnalyzer}"
-								model="@{fields.client.schema.analyzerList.analyzerSet}">
+								model="@{fields.analyzerNameList}">
 								<listitem self="@{each=analyzer}"
 									label="@{analyzer}" value="@{analyzer}" />
 							</listbox>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,21 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.synonym;
 
-import org.apache.lucene.analysis.TokenStream;
+import com.jaeksoft.searchlib.util.ExpressionToken;
 
-public class SnowballSpanishFilter extends FilterFactory {
+public class SynonymToken extends ExpressionToken {
 
-	@Override
-	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.snowball.SnowballFilter(
-				tokenStream, "Spanish");
+	private int positionIncrement;
+	private int startOffset;
+	private int endOffset;
+
+	protected SynonymToken(String term, int posInc, int start, int end) {
+		super(term);
+		this.positionIncrement = posInc;
+		this.startOffset = start;
+		this.endOffset = end;
 	}
 
-	@Override
-	public String getDescription() {
-		return "Stems Spanish words using a Snowball-generated stemmer";
+	public int getPositionIncrement() {
+		return positionIncrement;
 	}
 
+	public int getStartOffset() {
+		return startOffset;
+	}
+
+	public int getEndOffset() {
+		return endOffset;
+	}
 }

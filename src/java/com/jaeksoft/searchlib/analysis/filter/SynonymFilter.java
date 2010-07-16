@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,18 +22,20 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.analysis.synonym.SynonymMap;
+import com.jaeksoft.searchlib.analysis.synonym.SynonymQueue;
+import com.jaeksoft.searchlib.analysis.synonym.SynonymTokenFilter;
+import com.jaeksoft.searchlib.config.Config;
 
 public class SynonymFilter extends FilterFactory {
 
@@ -44,9 +46,11 @@ public class SynonymFilter extends FilterFactory {
 	private static TreeMap<File, SynonymMap> synonymMaps = new TreeMap<File, SynonymMap>();
 
 	@Override
-	public void setParams(XPathParser xpp, Node node) throws IOException {
-		filePath = XPathParser.getAttributeString(node, "file");
-		File file = new File(xpp.getCurrentFile().getParentFile(), filePath);
+	public void setParams(Config config, String packageName, String className,
+			Properties properties) throws IOException {
+		super.setParams(config, packageName, className, properties);
+		filePath = properties.getProperty("file");
+		File file = new File(config.getIndexDirectory(), filePath);
 
 		synchronized (synonymMaps) {
 			synonymMap = synonymMaps.get(file);
@@ -64,17 +68,4 @@ public class SynonymFilter extends FilterFactory {
 		return tokenStream;
 	}
 
-	@Override
-	public String getDescription() {
-		return "Add synonyms support. File: " + filePath + ". "
-				+ synonymMap.getSize() + " synonym(s).";
-	}
-
-	@Override
-	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer
-				.startElement("filter", "class", getClassName(), "file",
-						filePath);
-		writer.endElement();
-	}
 }

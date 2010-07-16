@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,8 +28,6 @@ import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
 
-import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
-
 public class StandardTokenizer extends TokenizerFactory {
 
 	@Override
@@ -37,8 +35,4 @@ public class StandardTokenizer extends TokenizerFactory {
 		return new org.apache.lucene.analysis.standard.StandardTokenizer(reader);
 	}
 
-	@Override
-	public String getDescription() {
-		return "Splits words at punctuation characters, removing punctuation.";
-	}
 }

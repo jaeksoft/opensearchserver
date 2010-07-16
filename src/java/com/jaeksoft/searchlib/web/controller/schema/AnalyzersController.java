@@ -25,10 +25,17 @@
 package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.util.List;
+import java.util.Set;
+
+import org.zkoss.zul.Combobox;
+import org.zkoss.zul.SimpleListModel;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
+import com.jaeksoft.searchlib.analysis.AnalyzerList;
+import com.jaeksoft.searchlib.analysis.FilterEnum;
+import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class AnalyzersController extends CommonController {
@@ -38,19 +45,130 @@ public class AnalyzersController extends CommonController {
 	 */
 	private static final long serialVersionUID = -556387199220890770L;
 
+	private String selectedName;
+
+	private Analyzer selectedAnalyzer;
+
+	private Analyzer editAnalyzer;
+
+	private Analyzer currentAnalyzer;
+
 	public AnalyzersController() throws SearchLibException {
 		super();
+		editAnalyzer = null;
+		selectedName = null;
+		selectedAnalyzer = null;
+		currentAnalyzer = new Analyzer(getClient());
 	}
 
-	public List<Analyzer> getList() throws SearchLibException {
+	@Override
+	public void afterCompose() {
+		super.afterCompose();
+		Combobox cb = (Combobox) getFellow("combotokenizer");
+		cb.setModel(new SimpleListModel(getTokenizerList()));
+	}
+
+	public AnalyzerList getList() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
 		return client.getSchema().getAnalyzerList();
 	}
 
+	public List<Analyzer> getLangList() throws SearchLibException {
+		if (getSelectedName() == null)
+			return null;
+		AnalyzerList analyzerList = getList();
+		if (analyzerList == null)
+			return null;
+		return analyzerList.get(getSelectedName());
+	}
+
 	@Override
 	public void reset() {
+	}
+
+	/**
+	 * @param selectedName
+	 *            the selectedName to set
+	 */
+	public void setSelectedName(String selectedName) {
+		this.selectedName = selectedName;
+		this.selectedAnalyzer = null;
+	}
+
+	/**
+	 * @return the selectedName
+	 * @throws SearchLibException
+	 */
+	public String getSelectedName() throws SearchLibException {
+		if (selectedName == null) {
+			Set<String> set = getList().getNameSet();
+			if (set != null && set.size() > 0)
+				selectedName = set.iterator().next();
+		}
+		return selectedName;
+	}
+
+	/**
+	 * @param selectedAnalyzer
+	 *            the selectedAnalyzer to set
+	 */
+	public void setSelectedAnalyzer(Analyzer analyzer) {
+		this.selectedAnalyzer = analyzer;
+	}
+
+	/**
+	 * @return the selectedAnalyzer
+	 * @throws SearchLibException
+	 */
+	public Analyzer getSelectedAnalyzer() throws SearchLibException {
+		if (selectedAnalyzer == null) {
+			List<Analyzer> li = getLangList();
+			if (li != null && li.size() > 0)
+				setSelectedAnalyzer(li.get(0));
+		}
+		return selectedAnalyzer;
+	}
+
+	public boolean isEdit() throws SearchLibException {
+		return editAnalyzer != null;
+	}
+
+	public boolean isNotEdit() throws SearchLibException {
+		return !isEdit();
+	}
+
+	/**
+	 * @return the editMode
+	 */
+	public String getEditMode() throws SearchLibException {
+		if (editAnalyzer == null)
+			return "Create a new analyzer";
+		return "Editing analyzer: " + editAnalyzer.getName() + " - "
+				+ editAnalyzer.getLang();
+	}
+
+	/**
+	 * @return the currentAnalyzer
+	 */
+	public Analyzer getCurrentAnalyzer() {
+		return currentAnalyzer;
+	}
+
+	public void onEdit() throws SearchLibException {
+		editAnalyzer = getSelectedAnalyzer();
+		if (editAnalyzer != null)
+			currentAnalyzer.copyFrom(editAnalyzer);
+		reloadPage();
+	}
+
+	public TokenizerEnum[] getTokenizerList() {
+		return TokenizerEnum.values();
+	}
+
+	public FilterEnum[] getFilterEnum() {
+		return FilterEnum.values();
 	}
 
 }

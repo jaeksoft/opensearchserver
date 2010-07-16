@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,77 +24,90 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.IOException;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class AnalyzerList extends AbstractList<Analyzer> {
+public class AnalyzerList {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1994552936047860059L;
 
-	private List<Analyzer> analyzerList;
-	private Map<String, Analyzer> analyzersName;
+	private Map<String, List<Analyzer>> nameListMap;
+	private Map<String, Analyzer> nameLangMap;
+
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	public AnalyzerList() {
-		analyzersName = new TreeMap<String, Analyzer>();
-		analyzerList = new ArrayList<Analyzer>();
+		nameLangMap = new TreeMap<String, Analyzer>();
+		nameListMap = new TreeMap<String, List<Analyzer>>();
 	}
 
-	@Override
 	public boolean add(Analyzer analyzer) {
-		if (!analyzerList.add(analyzer))
-			return false;
-		analyzersName.put(analyzer.getName() + "_"
-				+ analyzer.getLang().getCode(), analyzer);
-		return true;
+		rwl.w.lock();
+		try {
+			List<Analyzer> alist = nameListMap.get(analyzer.getName());
+			if (alist == null) {
+				alist = new ArrayList<Analyzer>();
+				nameListMap.put(analyzer.getName(), alist);
+			}
+			alist.add(analyzer);
+			nameLangMap.put(analyzer.getName() + "_"
+					+ analyzer.getLang().getCode(), analyzer);
+			return true;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
-	@Override
-	public Analyzer get(int index) {
-		return analyzerList.get(index);
+	public Set<String> getNameSet() {
+		rwl.r.lock();
+		try {
+			return nameListMap.keySet();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public List<Analyzer> get(String name) {
+		rwl.r.lock();
+		try {
+			return nameListMap.get(name);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public Analyzer get(String name, LanguageEnum lang) {
-		if (lang == null)
-			lang = LanguageEnum.UNDEFINED;
-		return analyzersName.get(name + "_" + lang.getCode());
+		rwl.r.lock();
+		try {
+			if (lang == null)
+				lang = LanguageEnum.UNDEFINED;
+			return nameLangMap.get(name + "_" + lang.getCode());
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
-	public Set<String> getAnalyzerSet() {
-		Set<String> analyzerSet = new TreeSet<String>();
-		analyzerSet.add("");
-		for (Analyzer analyzer : analyzerList)
-			analyzerSet.add(analyzer.getName());
-		return analyzerSet;
-	}
-
-	@Override
-	public int size() {
-		return analyzerList.size();
-	}
-
-	public static AnalyzerList fromXmlConfig(XPathParser xpp, Node parentNode)
-			throws XPathExpressionException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, DOMException,
-			IOException {
+	public static AnalyzerList fromXmlConfig(Config config, XPathParser xpp,
+			Node parentNode) throws XPathExpressionException,
+			SearchLibException {
 		AnalyzerList analyzers = new AnalyzerList();
 		if (parentNode == null)
 			return analyzers;
@@ -102,17 +115,21 @@ public class AnalyzerList extends AbstractList<Analyzer> {
 		if (nodes == null)
 			return analyzers;
 		for (int i = 0; i < nodes.getLength(); i++)
-			analyzers.add(Analyzer.fromXmlConfig(xpp, nodes.item(i)));
+			analyzers.add(Analyzer.fromXmlConfig(config, xpp, nodes.item(i)));
 		return analyzers;
 	}
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		if (analyzerList.size() == 0)
-			return;
-		writer.startElement("analyzers");
-		for (Analyzer analyzer : analyzerList)
-			analyzer.writeXmlConfig(writer);
-		writer.endElement();
+		rwl.r.lock();
+		try {
+			if (nameListMap.size() == 0)
+				return;
+			writer.startElement("analyzers");
+			for (Analyzer analyzer : nameLangMap.values())
+				analyzer.writeXmlConfig(writer);
+			writer.endElement();
+		} finally {
+			rwl.r.unlock();
+		}
 	}
-
 }

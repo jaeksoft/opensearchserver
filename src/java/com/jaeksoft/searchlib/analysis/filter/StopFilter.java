@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,21 +22,20 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Properties;
 
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.config.Config;
 
 public class StopFilter extends FilterFactory {
 
@@ -45,10 +44,12 @@ public class StopFilter extends FilterFactory {
 	private String filePath;
 
 	@Override
-	public void setParams(XPathParser xpp, Node node) throws IOException {
+	public void setParams(Config config, String packageName, String className,
+			Properties properties) throws IOException {
+		super.setParams(config, packageName, className, properties);
 		words = new CharArraySet(0, true);
-		filePath = XPathParser.getAttributeString(node, "file");
-		File file = new File(xpp.getCurrentFile().getParentFile(), filePath);
+		filePath = properties.getProperty("file");
+		File file = new File(config.getIndexDirectory(), filePath);
 		BufferedReader br = new BufferedReader(new InputStreamReader(
 				new FileInputStream(file), "UTF-8"));
 		String line;
@@ -65,20 +66,6 @@ public class StopFilter extends FilterFactory {
 	public TokenStream create(TokenStream tokenStream) {
 		return new org.apache.lucene.analysis.StopFilter(false, tokenStream,
 				words);
-	}
-
-	@Override
-	public String getDescription() {
-		return "Removes stop words. Stop file: " + filePath + ". "
-				+ words.size() + " words.";
-	}
-
-	@Override
-	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer
-				.startElement("filter", "class", getClassName(), "file",
-						filePath);
-		writer.endElement();
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,32 +22,18 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.filter;
 
-import com.jaeksoft.searchlib.util.ExpressionToken;
+import org.apache.lucene.analysis.TokenStream;
 
-public class SynonymToken extends ExpressionToken {
+import com.jaeksoft.searchlib.analysis.FilterFactory;
 
-	private int positionIncrement;
-	private int startOffset;
-	private int endOffset;
+public class SnowballSwedishFilter extends FilterFactory {
 
-	protected SynonymToken(String term, int posInc, int start, int end) {
-		super(term);
-		this.positionIncrement = posInc;
-		this.startOffset = start;
-		this.endOffset = end;
+	@Override
+	public TokenStream create(TokenStream tokenStream) {
+		return new org.apache.lucene.analysis.snowball.SnowballFilter(
+				tokenStream, "Swedish");
 	}
 
-	public int getPositionIncrement() {
-		return positionIncrement;
-	}
-
-	public int getStartOffset() {
-		return startOffset;
-	}
-
-	public int getEndOffset() {
-		return endOffset;
-	}
 }

@@ -54,6 +54,8 @@ public class FieldsController extends CommonController {
 
 	private List<SchemaField> schemaFieldList;
 
+	private List<String> analyzerNameList;
+
 	public FieldsController() throws SearchLibException {
 		super();
 	}
@@ -64,6 +66,7 @@ public class FieldsController extends CommonController {
 		selectedField = null;
 		schemaFieldList = null;
 		indexedFields = null;
+		analyzerNameList = null;
 	}
 
 	public SchemaField getField() {
@@ -141,6 +144,19 @@ public class FieldsController extends CommonController {
 		return TermVector.values();
 	}
 
+	public List<String> getAnalyzerNameList() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		if (analyzerNameList != null)
+			return analyzerNameList;
+		analyzerNameList = new ArrayList<String>();
+		analyzerNameList.add("");
+		for (String n : client.getSchema().getAnalyzerList().getNameSet())
+			analyzerNameList.add(n);
+		return analyzerNameList;
+	}
+
 	public List<SchemaField> getSortedList() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
@@ -215,6 +231,7 @@ public class FieldsController extends CommonController {
 		synchronized (this) {
 			indexedFields = null;
 			schemaFieldList = null;
+			analyzerNameList = null;
 			super.reloadPage();
 		}
 	}

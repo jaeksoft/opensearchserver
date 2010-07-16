@@ -172,7 +172,7 @@ public abstract class Config {
 			}
 
 			index = getIndex(indexDir, xppConfig, createIndexIfNotExists);
-			schema = Schema.fromXmlConfig(
+			schema = Schema.fromXmlConfig(this,
 					xppConfig.getNode("/configuration/schema"), xppConfig);
 
 			configFiles = new ConfigFiles();

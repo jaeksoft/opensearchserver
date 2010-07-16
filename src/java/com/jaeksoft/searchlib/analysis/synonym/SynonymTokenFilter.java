@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.synonym;
 
 import java.io.IOException;
 
@@ -45,7 +45,7 @@ public class SynonymTokenFilter extends TokenFilter {
 
 	private SynonymQueue synonymQueue;
 
-	protected SynonymTokenFilter(TokenStream input, SynonymQueue synonymQueue) {
+	public SynonymTokenFilter(TokenStream input, SynonymQueue synonymQueue) {
 		super(input);
 		this.termAtt = (TermAttribute) addAttribute(TermAttribute.class);
 		this.posIncrAtt = (PositionIncrementAttribute) addAttribute(PositionIncrementAttribute.class);
@@ -66,8 +66,8 @@ public class SynonymTokenFilter extends TokenFilter {
 	private final boolean createToken(SynonymToken token) {
 		if (token == null)
 			return false;
-		createToken(token.getTerm(), token.getPositionIncrement(), token
-				.getStartOffset(), token.getEndOffset());
+		createToken(token.getTerm(), token.getPositionIncrement(),
+				token.getStartOffset(), token.getEndOffset());
 		return true;
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,20 +22,18 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.filter;
 
 import org.apache.lucene.analysis.TokenStream;
 
-public class ISOLatin1AccentFilter extends FilterFactory {
+import com.jaeksoft.searchlib.analysis.FilterFactory;
+
+public class SnowballItalianFilter extends FilterFactory {
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.ASCIIFoldingFilter(tokenStream);
-	}
-
-	@Override
-	public String getDescription() {
-		return "This filter replaces accented characters (characters with diacritics) in the ISO latin 1 character set (ISO-8859-1) with the unaccented (no diacritics) equivalent.";
+		return new org.apache.lucene.analysis.snowball.SnowballFilter(
+				tokenStream, "Italian");
 	}
 
 }

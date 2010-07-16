@@ -22,12 +22,12 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.synonym;
 
 import com.jaeksoft.searchlib.util.Expression;
 import com.jaeksoft.searchlib.util.ExpressionMap;
 
-class SynonymQueue {
+public class SynonymQueue {
 
 	private Expression expressionKey;
 

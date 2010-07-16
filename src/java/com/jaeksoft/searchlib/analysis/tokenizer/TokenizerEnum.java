@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,20 +22,34 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.tokenizer;
 
-import org.apache.lucene.analysis.TokenStream;
+public enum TokenizerEnum {
 
-public class ChineseFilter extends FilterFactory {
+	LetterOrDigitTokenizerFactory(
+			"This tokenizer considers each non-digit, non-letter character to be a separator between words"),
 
-	@Override
-	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.cn.ChineseFilter(tokenStream);
+	StandardTokenizer(
+			"Splits words at punctuation characters, removing punctuation."),
+
+	WhitespaceTokenizer(
+			"Splits text into word each time a white space is encountered"),
+
+	ChineseTokenizer("Chinese tokenizer"),
+
+	RussianLetterTokenizer("Russian tokenizer");
+
+	private String description;
+
+	private TokenizerEnum(String description) {
+		this.description = description;
 	}
 
-	@Override
+	/**
+	 * @return the description
+	 */
 	public String getDescription() {
-		return "A filter that filter Chinese words.";
+		return description;
 	}
 
 }

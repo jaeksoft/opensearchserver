@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,11 +33,6 @@ public class WhitespaceTokenizer extends TokenizerFactory {
 	@Override
 	public Tokenizer create(Reader reader) {
 		return new org.apache.lucene.analysis.WhitespaceTokenizer(reader);
-	}
-
-	@Override
-	public String getDescription() {
-		return "Splits text into word each time a white space is encountered";
 	}
 
 }

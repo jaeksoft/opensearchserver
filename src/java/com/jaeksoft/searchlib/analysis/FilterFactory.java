@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,31 +24,41 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.IOException;
+import java.util.Properties;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public abstract class FilterFactory implements ParamsInterface {
+public abstract class FilterFactory extends ClassFactory {
 
-	public void setParams(XPathParser xpp, Node node) throws IOException {
-	}
+	final private static String FILTER_PACKAGE = "com.jaeksoft.searchlib.analysis.filter";
 
 	public abstract TokenStream create(TokenStream tokenStream);
 
-	public String getClassName() {
-		return this.getClass().getSimpleName();
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("filter", "class", className);
+		writer.endElement();
 	}
 
-	public abstract String getDescription();
+	public static FilterFactory getDefaultFilter(Config config)
+			throws SearchLibException {
+		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
+				FilterEnum.StandardFilter.name(), null);
+	}
 
-	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer.startElement("filter", "class", getClassName());
-		writer.endElement();
+	public static FilterFactory create(Config config, String className,
+			Properties properties) throws SearchLibException {
+		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
+				className, properties);
+	}
+
+	protected static FilterFactory create(FilterFactory filter)
+			throws SearchLibException {
+		return (FilterFactory) ClassFactory.create(filter);
 	}
 
 }

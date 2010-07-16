@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,16 +22,17 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.filter;
 
-import java.io.IOException;
+import org.apache.lucene.analysis.TokenStream;
 
-import org.w3c.dom.Node;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
 
-import com.jaeksoft.searchlib.util.XPathParser;
+public class RussianStemFilter extends FilterFactory {
 
-public interface ParamsInterface {
-
-	public void setParams(XPathParser xpp, Node node) throws IOException;
+	@Override
+	public TokenStream create(TokenStream tokenStream) {
+		return new org.apache.lucene.analysis.ru.RussianStemFilter(tokenStream);
+	}
 
 }

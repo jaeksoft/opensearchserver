@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,20 +22,18 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis;
+package com.jaeksoft.searchlib.analysis.filter;
 
 import org.apache.lucene.analysis.TokenStream;
 
-public class RussianStemFilter extends FilterFactory {
+import com.jaeksoft.searchlib.analysis.FilterFactory;
+
+public class SnowballDanishFilter extends FilterFactory {
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.ru.RussianStemFilter(tokenStream);
-	}
-
-	@Override
-	public String getDescription() {
-		return "A filter that stems Russian words.";
+		return new org.apache.lucene.analysis.snowball.SnowballFilter(
+				tokenStream, "Danish");
 	}
 
 }

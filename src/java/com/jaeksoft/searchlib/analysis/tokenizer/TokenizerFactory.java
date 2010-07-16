@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,26 +24,37 @@
 
 package com.jaeksoft.searchlib.analysis.tokenizer;
 
-import java.io.IOException;
 import java.io.Reader;
+import java.util.Properties;
 
 import org.apache.lucene.analysis.Tokenizer;
-import org.w3c.dom.Node;
 
-import com.jaeksoft.searchlib.analysis.ParamsInterface;
-import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassFactory;
+import com.jaeksoft.searchlib.config.Config;
 
-public abstract class TokenizerFactory implements ParamsInterface {
+public abstract class TokenizerFactory extends ClassFactory {
+
+	final private static String TOKENIZER_PACKAGE = "com.jaeksoft.searchlib.analysis.tokenizer";
 
 	public abstract Tokenizer create(Reader reader);
 
-	public abstract String getDescription();
-
-	public String getClassName() {
-		return this.getClass().getSimpleName();
+	public static TokenizerFactory getDefaultTokenizer(Config config)
+			throws SearchLibException {
+		return (TokenizerFactory) ClassFactory
+				.create(config, TOKENIZER_PACKAGE,
+						TokenizerEnum.StandardTokenizer.name(), null);
 	}
 
-	public void setParams(XPathParser xpp, Node node) throws IOException {
+	public static TokenizerFactory create(Config config, String className,
+			Properties properties) throws SearchLibException {
+		return (TokenizerFactory) ClassFactory.create(config,
+				TOKENIZER_PACKAGE, className, properties);
+	}
+
+	public static TokenizerFactory create(TokenizerFactory tokenizer)
+			throws SearchLibException {
+		return (TokenizerFactory) ClassFactory.create(tokenizer);
 	}
 
 }
