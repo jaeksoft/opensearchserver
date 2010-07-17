@@ -55,12 +55,21 @@ public abstract class ClassFactory {
 	 * @param properties
 	 * @throws IOException
 	 */
-	public void setParams(Config config, String packageName, String className,
-			Properties properties) throws IOException {
+	public void setParams(Config config, String packageName, String className)
+			throws IOException {
 		this.config = config;
 		this.packageName = packageName;
 		this.className = className;
-		this.properties = properties;
+	}
+
+	public void setProperty(String key, String value) throws SearchLibException {
+		if (properties == null)
+			properties = new Properties();
+		properties.setProperty(key, value);
+	}
+
+	public void setProperties(Properties props) {
+		this.properties = new Properties(props);
 	}
 
 	/**
@@ -69,6 +78,23 @@ public abstract class ClassFactory {
 	 */
 	public String getClassName() {
 		return className;
+	}
+
+	/**
+	 * Return the class name and properties
+	 * 
+	 * @return a string array
+	 */
+	public String[] getAttributes() {
+		String[] attributes = new String[1 + getPropertyList().length];
+		int i = 0;
+		attributes[i++] = "class";
+		attributes[i++] = className;
+		for (String a : getPropertyList()) {
+			attributes[i++] = a;
+			attributes[i++] = properties.getProperty(a);
+		}
+		return attributes;
 	}
 
 	/**
@@ -81,17 +107,13 @@ public abstract class ClassFactory {
 	 * @throws SearchLibException
 	 */
 	protected static ClassFactory create(Config config, String packageName,
-			String className, Properties properties) throws SearchLibException {
+			String className) throws SearchLibException {
 		try {
 			String cl = className;
 			if (className.indexOf('.') == -1)
 				cl = packageName + '.' + cl;
-			if (properties == null)
-				properties = new Properties();
-			else
-				properties = new Properties(properties);
 			ClassFactory o = (ClassFactory) Class.forName(cl).newInstance();
-			o.setParams(config, packageName, className, properties);
+			o.setParams(config, packageName, className);
 			return o;
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
@@ -112,7 +134,16 @@ public abstract class ClassFactory {
 	 */
 	protected static ClassFactory create(ClassFactory classFactory)
 			throws SearchLibException {
-		return create(classFactory.config, classFactory.packageName,
-				classFactory.className, classFactory.properties);
+		ClassFactory newClassFactory = create(classFactory.config,
+				classFactory.packageName, classFactory.className);
+		if (classFactory.properties != null)
+			newClassFactory.properties = new Properties(classFactory.properties);
+		return newClassFactory;
+	}
+
+	private final static String[] EMPTY_PROP_LIST = {};
+
+	public String[] getPropertyList() {
+		return EMPTY_PROP_LIST;
 	}
 }

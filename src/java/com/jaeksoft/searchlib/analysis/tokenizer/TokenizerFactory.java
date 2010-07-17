@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.analysis.tokenizer;
 
 import java.io.Reader;
-import java.util.Properties;
 
 import org.apache.lucene.analysis.Tokenizer;
 
@@ -41,15 +40,14 @@ public abstract class TokenizerFactory extends ClassFactory {
 
 	public static TokenizerFactory getDefaultTokenizer(Config config)
 			throws SearchLibException {
-		return (TokenizerFactory) ClassFactory
-				.create(config, TOKENIZER_PACKAGE,
-						TokenizerEnum.StandardTokenizer.name(), null);
+		return (TokenizerFactory) ClassFactory.create(config,
+				TOKENIZER_PACKAGE, TokenizerEnum.StandardTokenizer.name());
 	}
 
-	public static TokenizerFactory create(Config config, String className,
-			Properties properties) throws SearchLibException {
+	public static TokenizerFactory create(Config config, String className)
+			throws SearchLibException {
 		return (TokenizerFactory) ClassFactory.create(config,
-				TOKENIZER_PACKAGE, className, properties);
+				TOKENIZER_PACKAGE, className);
 	}
 
 	public static TokenizerFactory create(TokenizerFactory tokenizer)

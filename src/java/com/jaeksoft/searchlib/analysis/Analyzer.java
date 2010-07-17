@@ -100,7 +100,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 				"tokenizer");
 
 		this.tokenizer = TokenizerFactory.create(config,
-				tokenizerFactoryClassName, DomUtils.getAttributes(node));
+				tokenizerFactoryClassName);
+		this.tokenizer.setProperties(DomUtils.getAttributes(node));
 		this.filters = new ArrayList<FilterFactory>();
 	}
 
@@ -210,8 +211,10 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 			throws SearchLibException {
 		rwl.w.lock();
 		try {
-			filters.add(FilterFactory.create(config, filterFactoryClassName,
-					properties));
+			FilterFactory f = FilterFactory.create(config,
+					filterFactoryClassName);
+			f.setProperties(properties);
+			filters.add(f);
 		} finally {
 			rwl.w.unlock();
 		}

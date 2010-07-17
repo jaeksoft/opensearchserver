@@ -65,26 +65,59 @@
 						<listbox
 							model="@{anlzr.currentAnalyzer.filters}">
 							<listhead>
-								<listheader label="filter" />
+								<listheader width="200px"
+									label="filter" />
 								<listheader label="properties" />
-								<listheader label="action" />
+								<listheader align="center" width="120px"
+									label="action" />
 							</listhead>
 							<auxhead>
 								<auxheader>
 									<listbox model="@{anlzr.filterEnum}"
-										mold="select" />
+										mold="select" selectedItem="@{anlzr.selectedFilter}" />
 								</auxheader>
-								<auxheader></auxheader>
 								<auxheader>
-									<button label="Add" />
+									<grid
+										model="@{anlzr.currentFilter.propertyList}">
+										<columns>
+											<column />
+											<column />
+										</columns>
+										<rows>
+											<row
+												self="@{each='propname'}">
+												<label
+													value="@{propname}" />
+												<textbox cols="50" />
+											</row>
+										</rows>
+									</grid>
+								</auxheader>
+								<auxheader align="center">
+									<button tooltiptext="Add a filter"
+										image="/images/action_add.png" />
 								</auxheader>
 							</auxhead>
-							<listitem self="@{each='filter'}">
+							<listitem self="@{each='filterItem'}">
 								<listcell>
-									<label label="@{filter.className}" />
+									<label
+										value="@{filterItem.className}" />
 								</listcell>
 								<listcell />
-								<listcell />
+								<listcell>
+									<custom-attributes
+										filteritem="@{filterItem}" />
+									<button
+										tooltiptext="Move the filter up" image="/images/arrow_top.png"
+										action="anlzr.onUp(self)" />
+									<button
+										tooltiptext="Move the filter down"
+										image="/images/arrow_down.png" />
+									<space />
+									<button
+										tooltiptext="Remove the filter"
+										image="/images/action_delete.png" />
+								</listcell>
 							</listitem>
 						</listbox>
 					</row>

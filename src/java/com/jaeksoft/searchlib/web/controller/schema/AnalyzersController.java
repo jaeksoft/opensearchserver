@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
 import com.jaeksoft.searchlib.analysis.FilterEnum;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -53,11 +54,17 @@ public class AnalyzersController extends CommonController {
 
 	private Analyzer currentAnalyzer;
 
+	private FilterFactory currentFilter;
+
+	private FilterEnum selectedFilter;
+
 	public AnalyzersController() throws SearchLibException {
 		super();
 		editAnalyzer = null;
 		selectedName = null;
 		selectedAnalyzer = null;
+		selectedFilter = FilterEnum.StandardFilter;
+		currentFilter = FilterFactory.getDefaultFilter(getClient());
 		currentAnalyzer = new Analyzer(getClient());
 	}
 
@@ -169,6 +176,32 @@ public class AnalyzersController extends CommonController {
 
 	public FilterEnum[] getFilterEnum() {
 		return FilterEnum.values();
+	}
+
+	/**
+	 * @return the currentFilter
+	 */
+	public FilterFactory getCurrentFilter() {
+		return currentFilter;
+	}
+
+	/**
+	 * @param selectedFilter
+	 *            the selectedFilter to set
+	 * @throws SearchLibException
+	 */
+	public void setSelectedFilter(FilterEnum selectedFilter)
+			throws SearchLibException {
+		this.selectedFilter = selectedFilter;
+		this.currentFilter = FilterFactory.create(getClient(),
+				selectedFilter.name());
+	}
+
+	/**
+	 * @return the selectedFilter
+	 */
+	public FilterEnum getSelectedFilter() {
+		return selectedFilter;
 	}
 
 }

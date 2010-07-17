@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.util.Properties;
-
 import org.apache.lucene.analysis.TokenStream;
 import org.xml.sax.SAXException;
 
@@ -40,20 +38,20 @@ public abstract class FilterFactory extends ClassFactory {
 	public abstract TokenStream create(TokenStream tokenStream);
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer.startElement("filter", "class", className);
+		writer.startElement("filter", getAttributes());
 		writer.endElement();
 	}
 
 	public static FilterFactory getDefaultFilter(Config config)
 			throws SearchLibException {
 		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
-				FilterEnum.StandardFilter.name(), null);
+				FilterEnum.StandardFilter.name());
 	}
 
-	public static FilterFactory create(Config config, String className,
-			Properties properties) throws SearchLibException {
+	public static FilterFactory create(Config config, String className)
+			throws SearchLibException {
 		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
-				className, properties);
+				className);
 	}
 
 	protected static FilterFactory create(FilterFactory filter)

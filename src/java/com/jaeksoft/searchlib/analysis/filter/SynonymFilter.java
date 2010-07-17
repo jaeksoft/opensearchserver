@@ -25,37 +25,43 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.TreeMap;
 
 import org.apache.lucene.analysis.TokenStream;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymMap;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymQueue;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymTokenFilter;
-import com.jaeksoft.searchlib.config.Config;
 
 public class SynonymFilter extends FilterFactory {
 
 	private SynonymMap synonymMap = null;
 
-	private String filePath = null;
-
 	private static TreeMap<File, SynonymMap> synonymMaps = new TreeMap<File, SynonymMap>();
 
 	@Override
-	public void setParams(Config config, String packageName, String className,
-			Properties properties) throws IOException {
-		super.setParams(config, packageName, className, properties);
-		filePath = properties.getProperty("file");
-		File file = new File(config.getIndexDirectory(), filePath);
+	public void setProperty(String key, String value) throws SearchLibException {
+		super.setProperty(key, value);
+		if (!"file".equals(key))
+			return;
+		if (value == null)
+			return;
+		File file = new File(config.getIndexDirectory(), value);
 
 		synchronized (synonymMaps) {
 			synonymMap = synonymMaps.get(file);
 			if (synonymMap == null) {
-				synonymMap = new SynonymMap(file);
+				try {
+					synonymMap = new SynonymMap(file);
+				} catch (FileNotFoundException e) {
+					throw new SearchLibException(e);
+				} catch (IOException e) {
+					throw new SearchLibException(e);
+				}
 				synonymMaps.put(file, synonymMap);
 			}
 		}
@@ -68,4 +74,10 @@ public class SynonymFilter extends FilterFactory {
 		return tokenStream;
 	}
 
+	private final static String[] PROPLIST = { "file" };
+
+	@Override
+	public String[] getPropertyList() {
+		return PROPLIST;
+	}
 }

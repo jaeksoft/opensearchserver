@@ -27,39 +27,53 @@ package com.jaeksoft.searchlib.analysis.filter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Properties;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-import com.jaeksoft.searchlib.config.Config;
 
 public class StopFilter extends FilterFactory {
 
 	private CharArraySet words;
 
-	private String filePath;
-
 	@Override
-	public void setParams(Config config, String packageName, String className,
-			Properties properties) throws IOException {
-		super.setParams(config, packageName, className, properties);
+	public void setProperty(String key, String value) throws SearchLibException {
+		super.setProperty(key, value);
+		if (!"file".equals(key))
+			return;
 		words = new CharArraySet(0, true);
-		filePath = properties.getProperty("file");
-		File file = new File(config.getIndexDirectory(), filePath);
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				new FileInputStream(file), "UTF-8"));
-		String line;
-		while ((line = br.readLine()) != null) {
-			line = line.trim();
-			if (line.length() > 0) {
-				words.add(line);
+		BufferedReader br = null;
+		try {
+			File file = new File(config.getIndexDirectory(), value);
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(
+					file), "UTF-8"));
+			String line;
+			while ((line = br.readLine()) != null) {
+				line = line.trim();
+				if (line.length() > 0) {
+					words.add(line);
+				}
 			}
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (FileNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			if (br != null)
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 		}
-		br.close();
 	}
 
 	@Override
@@ -68,4 +82,10 @@ public class StopFilter extends FilterFactory {
 				words);
 	}
 
+	private final static String[] PROPLIST = { "file" };
+
+	@Override
+	public String[] getPropertyList() {
+		return PROPLIST;
+	}
 }
