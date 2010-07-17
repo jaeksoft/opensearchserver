@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.schema;
 import java.util.List;
 import java.util.Set;
 
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Combobox;
 import org.zkoss.zul.SimpleListModel;
 
@@ -195,6 +196,7 @@ public class AnalyzersController extends CommonController {
 		this.selectedFilter = selectedFilter;
 		this.currentFilter = FilterFactory.create(getClient(),
 				selectedFilter.name());
+		reloadPage();
 	}
 
 	/**
@@ -204,4 +206,30 @@ public class AnalyzersController extends CommonController {
 		return selectedFilter;
 	}
 
+	private FilterFactory getFilter(Component component) {
+		return (FilterFactory) component.getParent().getAttribute("filteritem");
+	}
+
+	public void onFilterAdd() throws SearchLibException {
+		currentAnalyzer.add(FilterFactory.create(currentFilter));
+		reloadPage();
+	}
+
+	public void onFilterUp(Component component) {
+		FilterFactory filter = getFilter(component);
+		currentAnalyzer.filterUp(filter);
+		reloadPage();
+	}
+
+	public void onFilterDown(Component component) {
+		FilterFactory filter = getFilter(component);
+		currentAnalyzer.filterDown(filter);
+		reloadPage();
+	}
+
+	public void onFilterRemove(Component component) {
+		FilterFactory filter = getFilter(component);
+		currentAnalyzer.filterRemove(filter);
+		reloadPage();
+	}
 }

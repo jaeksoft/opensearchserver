@@ -78,16 +78,17 @@
 								</auxheader>
 								<auxheader>
 									<grid
-										model="@{anlzr.currentFilter.propertyList}">
+										visible="@{anlzr.currentFilter.property}"
+										model="@{anlzr.currentFilter.propertyKeyList}">
 										<columns>
-											<column />
+											<column width="150px" />
 											<column />
 										</columns>
 										<rows>
 											<row
-												self="@{each='propname'}">
+												self="@{each='propkey'}">
 												<label
-													value="@{propname}" />
+													value="@{propkey}" />
 												<textbox cols="50" />
 											</row>
 										</rows>
@@ -95,7 +96,7 @@
 								</auxheader>
 								<auxheader align="center">
 									<button tooltiptext="Add a filter"
-										image="/images/action_add.png" />
+										image="/images/action_add.png" forward="onFilterAdd" />
 								</auxheader>
 							</auxhead>
 							<listitem self="@{each='filterItem'}">
@@ -103,20 +104,40 @@
 									<label
 										value="@{filterItem.className}" />
 								</listcell>
-								<listcell />
+								<listcell>
+									<listbox
+										visible="@{filterItem.property}"
+										model="@{filterItem.propertySet}">
+										<listhead>
+											<listheader align="right"
+												width="150px" />
+											<listheader />
+										</listhead>
+										<listitem
+											self="@{each='prop'}">
+											<listcell>
+												<label
+													value="@{prop.key}" />
+												<label value=": " />
+											</listcell>
+											<listcell
+												label="@{prop.value}" />
+										</listitem>
+									</listbox>
+								</listcell>
 								<listcell>
 									<custom-attributes
 										filteritem="@{filterItem}" />
 									<button
 										tooltiptext="Move the filter up" image="/images/arrow_top.png"
-										action="anlzr.onUp(self)" />
+										onClick="anlzr.onFilterUp(self)" />
 									<button
 										tooltiptext="Move the filter down"
-										image="/images/arrow_down.png" />
+										image="/images/arrow_down.png" onClick="anlzr.onFilterDown(self)" />
 									<space />
 									<button
 										tooltiptext="Remove the filter"
-										image="/images/action_delete.png" />
+										image="/images/action_delete.png" onClick="anlzr.onFilterRemove(self)" />
 								</listcell>
 							</listitem>
 						</listbox>

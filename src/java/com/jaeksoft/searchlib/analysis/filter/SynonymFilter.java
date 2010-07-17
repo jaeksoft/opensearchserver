@@ -51,7 +51,6 @@ public class SynonymFilter extends FilterFactory {
 		if (value == null)
 			return;
 		File file = new File(config.getIndexDirectory(), value);
-
 		synchronized (synonymMaps) {
 			synonymMap = synonymMaps.get(file);
 			if (synonymMap == null) {
@@ -77,7 +76,7 @@ public class SynonymFilter extends FilterFactory {
 	private final static String[] PROPLIST = { "file" };
 
 	@Override
-	public String[] getPropertyList() {
+	public String[] getPropertyKeyList() {
 		return PROPLIST;
 	}
 }

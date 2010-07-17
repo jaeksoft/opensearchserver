@@ -29,7 +29,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -207,14 +206,10 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		}
 	}
 
-	public void add(String filterFactoryClassName, Properties properties)
-			throws SearchLibException {
+	public void add(FilterFactory filter) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			FilterFactory f = FilterFactory.create(config,
-					filterFactoryClassName);
-			f.setProperties(properties);
-			filters.add(f);
+			filters.add(filter);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -250,8 +245,10 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		NodeList nodes = xpp.getNodeList(node, "filter");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node n = nodes.item(i);
-			analyzer.add(XPathParser.getAttributeString(n, "class"),
-					DomUtils.getAttributes(n));
+			FilterFactory filter = FilterFactory.create(config,
+					XPathParser.getAttributeString(n, "class"));
+			filter.setProperties(DomUtils.getAttributes(n));
+			analyzer.add(filter);
 		}
 		return analyzer;
 	}
@@ -282,6 +279,56 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 			return anyToken;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * Move filter up
+	 * 
+	 * @param filter
+	 */
+	public void filterUp(FilterFactory filter) {
+		rwl.w.lock();
+		try {
+			int i = filters.indexOf(filter);
+			if (i == -1 || i == 0)
+				return;
+			filters.remove(i);
+			filters.add(i - 1, filter);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * Move filter down
+	 * 
+	 * @param filter
+	 */
+	public void filterDown(FilterFactory filter) {
+		rwl.w.lock();
+		try {
+			int i = filters.indexOf(filter);
+			if (i == -1 || i == filters.size() - 1)
+				return;
+			filters.remove(i);
+			filters.add(i + 1, filter);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * Remove the filter
+	 * 
+	 * @param filter
+	 */
+	public void filterRemove(FilterFactory filter) {
+		rwl.w.lock();
+		try {
+			filters.remove(filter);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 

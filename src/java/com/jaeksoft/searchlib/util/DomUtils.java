@@ -26,7 +26,8 @@ package com.jaeksoft.searchlib.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -118,8 +119,8 @@ public class DomUtils {
 		return getText(attr);
 	}
 
-	final public static Properties getAttributes(Node node) {
-		Properties properties = new Properties();
+	final public static Map<String, String> getAttributes(Node node) {
+		Map<String, String> properties = new TreeMap<String, String>();
 		NamedNodeMap nnm = node.getAttributes();
 		if (nnm == null)
 			return properties;

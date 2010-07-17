@@ -25,7 +25,10 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -34,7 +37,7 @@ public abstract class ClassFactory {
 
 	protected Config config;
 
-	protected Properties properties;
+	protected Map<String, String> properties;
 
 	protected String packageName;
 
@@ -63,13 +66,19 @@ public abstract class ClassFactory {
 	}
 
 	public void setProperty(String key, String value) throws SearchLibException {
+		if ("class".equals(key))
+			return;
 		if (properties == null)
-			properties = new Properties();
-		properties.setProperty(key, value);
+			properties = new TreeMap<String, String>();
+		properties.put(key, value);
 	}
 
-	public void setProperties(Properties props) {
-		this.properties = new Properties(props);
+	final public void setProperties(Map<String, String> props)
+			throws SearchLibException {
+		properties = null;
+		if (props != null)
+			for (Entry<String, String> prop : props.entrySet())
+				setProperty(prop.getKey(), prop.getValue());
 	}
 
 	/**
@@ -86,13 +95,13 @@ public abstract class ClassFactory {
 	 * @return a string array
 	 */
 	public String[] getAttributes() {
-		String[] attributes = new String[1 + getPropertyList().length];
+		String[] attributes = new String[1 + getPropertyKeyList().length];
 		int i = 0;
 		attributes[i++] = "class";
 		attributes[i++] = className;
-		for (String a : getPropertyList()) {
+		for (String a : getPropertyKeyList()) {
 			attributes[i++] = a;
-			attributes[i++] = properties.getProperty(a);
+			attributes[i++] = properties.get(a);
 		}
 		return attributes;
 	}
@@ -136,14 +145,23 @@ public abstract class ClassFactory {
 			throws SearchLibException {
 		ClassFactory newClassFactory = create(classFactory.config,
 				classFactory.packageName, classFactory.className);
-		if (classFactory.properties != null)
-			newClassFactory.properties = new Properties(classFactory.properties);
+		newClassFactory.setProperties(classFactory.properties);
 		return newClassFactory;
 	}
 
 	private final static String[] EMPTY_PROP_LIST = {};
 
-	public String[] getPropertyList() {
+	public String[] getPropertyKeyList() {
 		return EMPTY_PROP_LIST;
+	}
+
+	public boolean isProperty() {
+		return getPropertyKeyList().length > 0;
+	}
+
+	public Set<Entry<String, String>> getPropertySet() {
+		if (properties == null)
+			return null;
+		return properties.entrySet();
 	}
 }

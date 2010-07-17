@@ -85,7 +85,7 @@ public class StopFilter extends FilterFactory {
 	private final static String[] PROPLIST = { "file" };
 
 	@Override
-	public String[] getPropertyList() {
+	public String[] getPropertyKeyList() {
 		return PROPLIST;
 	}
 }

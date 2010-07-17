@@ -54,7 +54,7 @@ public abstract class FilterFactory extends ClassFactory {
 				className);
 	}
 
-	protected static FilterFactory create(FilterFactory filter)
+	public static FilterFactory create(FilterFactory filter)
 			throws SearchLibException {
 		return (FilterFactory) ClassFactory.create(filter);
 	}
