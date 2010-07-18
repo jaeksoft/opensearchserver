@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
 import com.jaeksoft.searchlib.analysis.FilterEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -177,6 +178,10 @@ public class AnalyzersController extends CommonController {
 
 	public FilterEnum[] getFilterEnum() {
 		return FilterEnum.values();
+	}
+
+	public FilterScope[] getFilterScopeEnum() {
+		return FilterScope.values();
 	}
 
 	/**

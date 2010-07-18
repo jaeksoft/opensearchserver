@@ -32,6 +32,7 @@ import java.util.TreeMap;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymMap;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymQueue;
@@ -44,13 +45,21 @@ public class SynonymFilter extends FilterFactory {
 	private static TreeMap<File, SynonymMap> synonymMaps = new TreeMap<File, SynonymMap>();
 
 	@Override
-	public void setProperty(String key, String value) throws SearchLibException {
-		super.setProperty(key, value);
-		if (!"file".equals(key))
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.FILE, null, null);
+	}
+
+	@Override
+	public void checkValue(ClassPropertyEnum prop, String value)
+			throws SearchLibException {
+		if (prop != ClassPropertyEnum.FILE)
 			return;
-		if (value == null)
+		if (value == null || value.length() == 0)
 			return;
 		File file = new File(config.getIndexDirectory(), value);
+		if (!file.exists() || !file.isFile())
+			throw new SearchLibException("File not found (" + value + ")");
 		synchronized (synonymMaps) {
 			synonymMap = synonymMaps.get(file);
 			if (synonymMap == null) {
@@ -73,10 +82,4 @@ public class SynonymFilter extends FilterFactory {
 		return tokenStream;
 	}
 
-	private final static String[] PROPLIST = { "file" };
-
-	@Override
-	public String[] getPropertyKeyList() {
-		return PROPLIST;
-	}
 }

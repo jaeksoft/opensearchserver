@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.analysis.tokenizer;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassFactory;
@@ -48,6 +49,12 @@ public abstract class TokenizerFactory extends ClassFactory {
 			throws SearchLibException {
 		return (TokenizerFactory) ClassFactory.create(config,
 				TOKENIZER_PACKAGE, className);
+	}
+
+	public static TokenizerFactory create(Config config, Node node)
+			throws SearchLibException {
+		return (TokenizerFactory) ClassFactory.create(config,
+				TOKENIZER_PACKAGE, node);
 	}
 
 	public static TokenizerFactory create(TokenizerFactory tokenizer)

@@ -30,6 +30,7 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.Side;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
 public class EdgeNGramTokenizer extends TokenizerFactory {
 
@@ -37,22 +38,38 @@ public class EdgeNGramTokenizer extends TokenizerFactory {
 	private int max;
 	private Side side;
 
+	private final static Object[] SIDE_VALUE_LIST = {
+			org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.Side.FRONT
+					.getLabel(),
+			org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.Side.BACK
+					.getLabel() };
+
 	@Override
-	public void setProperty(String key, String value) throws SearchLibException {
-		super.setProperty(key, value);
-		if ("min_gram".equals(key))
-			min = Integer.parseInt(value);
-		else if ("max_gram".equals(key))
-			max = Integer.parseInt(value);
-		else if ("side".equals(key))
-			side = Side.getSide(value);
+	protected void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(
+				ClassPropertyEnum.MIN_GRAM,
+				Integer.toString(org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.DEFAULT_MIN_GRAM_SIZE),
+				null);
+		addProperty(
+				ClassPropertyEnum.MAX_GRAM,
+				Integer.toString(org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.DEFAULT_MAX_GRAM_SIZE),
+				null);
+		addProperty(
+				ClassPropertyEnum.SIDE,
+				org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.DEFAULT_SIDE
+						.getLabel(), SIDE_VALUE_LIST);
 	}
 
-	private final static String[] PROPLIST = { "min_gram", "max_gram", "side" };
-
 	@Override
-	public String[] getPropertyKeyList() {
-		return PROPLIST;
+	protected void checkValue(ClassPropertyEnum prop, String value)
+			throws SearchLibException {
+		if (prop == ClassPropertyEnum.MIN_GRAM)
+			min = Integer.parseInt(value);
+		else if (prop == ClassPropertyEnum.MAX_GRAM)
+			max = Integer.parseInt(value);
+		else if (prop == ClassPropertyEnum.SIDE)
+			side = Side.getSide(value);
 	}
 
 	@Override

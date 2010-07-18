@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.analysis;
 
 import org.apache.lucene.analysis.TokenStream;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -42,21 +43,65 @@ public abstract class FilterFactory extends ClassFactory {
 		writer.endElement();
 	}
 
+	@Override
+	protected void initProperties() throws SearchLibException {
+		addProperty(ClassPropertyEnum.SCOPE, FilterScope.QUERY_INDEX.name(),
+				FilterScope.values());
+	}
+
+	public FilterScope getScope() {
+		return FilterScope.valueOf(getProperty(ClassPropertyEnum.SCOPE)
+				.getValue());
+	}
+
+	public void setScope(FilterScope scope) throws SearchLibException {
+		getProperty(ClassPropertyEnum.SCOPE).setValue(scope.name());
+	}
+
 	public static FilterFactory getDefaultFilter(Config config)
 			throws SearchLibException {
 		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
 				FilterEnum.StandardFilter.name());
 	}
 
+	/**
+	 * Create a new filter by reading the attributes of an XML node
+	 * 
+	 * @param config
+	 * @param node
+	 * @return a FilterFactory
+	 * @throws SearchLibException
+	 */
+	public static FilterFactory create(Config config, Node node)
+			throws SearchLibException {
+		return (FilterFactory) ClassFactory
+				.create(config, FILTER_PACKAGE, node);
+	}
+
+	/**
+	 * Clone a filter
+	 * 
+	 * @param filter
+	 * @return a FilterFactory
+	 * @throws SearchLibException
+	 */
+	public static FilterFactory create(FilterFactory filter)
+			throws SearchLibException {
+		return (FilterFactory) ClassFactory.create(filter);
+	}
+
+	/**
+	 * Create a new filter with default parameters
+	 * 
+	 * @param config
+	 * @param className
+	 * @return
+	 * @throws SearchLibException
+	 */
 	public static FilterFactory create(Config config, String className)
 			throws SearchLibException {
 		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
 				className);
-	}
-
-	public static FilterFactory create(FilterFactory filter)
-			throws SearchLibException {
-		return (FilterFactory) ClassFactory.create(filter);
 	}
 
 }

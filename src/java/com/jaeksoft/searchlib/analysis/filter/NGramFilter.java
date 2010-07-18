@@ -28,6 +28,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.ngram.NGramTokenFilter;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 
 public class NGramFilter extends FilterFactory {
@@ -36,11 +37,20 @@ public class NGramFilter extends FilterFactory {
 	private int max;
 
 	@Override
-	public void setProperty(String key, String value) throws SearchLibException {
-		super.setProperty(key, value);
-		if ("minGram".equals(key))
+	protected void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.MIN_GRAM,
+				Integer.toString(NGramTokenFilter.DEFAULT_MIN_NGRAM_SIZE), null);
+		addProperty(ClassPropertyEnum.MAX_GRAM,
+				Integer.toString(NGramTokenFilter.DEFAULT_MAX_NGRAM_SIZE), null);
+	}
+
+	@Override
+	protected void checkValue(ClassPropertyEnum prop, String value)
+			throws SearchLibException {
+		if (prop == ClassPropertyEnum.MIN_GRAM)
 			min = Integer.parseInt(value);
-		else if ("maxGram".equals(key))
+		else if (prop == ClassPropertyEnum.MAX_GRAM)
 			max = Integer.parseInt(value);
 	}
 
@@ -49,10 +59,4 @@ public class NGramFilter extends FilterFactory {
 		return new NGramTokenFilter(input, min, max);
 	}
 
-	private final static String[] PROPLIST = { "minGram", "maxGram" };
-
-	@Override
-	public String[] getPropertyKeyList() {
-		return PROPLIST;
-	}
 }

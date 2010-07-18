@@ -29,6 +29,7 @@ import java.io.Reader;
 import org.apache.lucene.analysis.Tokenizer;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
 public class NGramTokenizer extends TokenizerFactory {
 
@@ -36,11 +37,25 @@ public class NGramTokenizer extends TokenizerFactory {
 	private int max;
 
 	@Override
-	public void setProperty(String key, String value) throws SearchLibException {
-		super.setProperty(key, value);
-		if ("minGram".equals(key))
+	protected void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(
+				ClassPropertyEnum.MIN_GRAM,
+				Integer.toString(org.apache.lucene.analysis.ngram.NGramTokenizer.DEFAULT_MIN_NGRAM_SIZE),
+				null);
+		addProperty(
+				ClassPropertyEnum.MAX_GRAM,
+
+				Integer.toString(org.apache.lucene.analysis.ngram.NGramTokenizer.DEFAULT_MAX_NGRAM_SIZE),
+				null);
+	}
+
+	@Override
+	protected void checkValue(ClassPropertyEnum prop, String value)
+			throws SearchLibException {
+		if (prop == ClassPropertyEnum.MIN_GRAM)
 			min = Integer.parseInt(value);
-		else if ("maxGram".equals(key))
+		else if (prop == ClassPropertyEnum.MAX_GRAM)
 			max = Integer.parseInt(value);
 	}
 
@@ -48,13 +63,6 @@ public class NGramTokenizer extends TokenizerFactory {
 	public Tokenizer create(Reader reader) {
 		return new org.apache.lucene.analysis.ngram.NGramTokenizer(reader, min,
 				max);
-	}
-
-	private final static String[] PROPLIST = { "minGram", "maxGram" };
-
-	@Override
-	public String[] getPropertyKeyList() {
-		return PROPLIST;
 	}
 
 }

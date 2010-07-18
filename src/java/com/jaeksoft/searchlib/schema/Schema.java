@@ -110,7 +110,7 @@ public class Schema {
 			for (SchemaField field : fieldList) {
 				Analyzer analyzer = getAnalyzer(field, lang);
 				if (analyzer != null)
-					pfa.addAnalyzer(field.name, analyzer);
+					pfa.addAnalyzer(field.name, analyzer.getQueryAnalyzer());
 			}
 			langQueryAnalyzers.put(lang.getCode(), pfa);
 			return pfa;

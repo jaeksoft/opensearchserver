@@ -36,6 +36,7 @@ import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 
 public class StopFilter extends FilterFactory {
@@ -43,14 +44,24 @@ public class StopFilter extends FilterFactory {
 	private CharArraySet words;
 
 	@Override
-	public void setProperty(String key, String value) throws SearchLibException {
-		super.setProperty(key, value);
-		if (!"file".equals(key))
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.FILE, null, null);
+	}
+
+	@Override
+	public void checkValue(ClassPropertyEnum prop, String value)
+			throws SearchLibException {
+		if (prop != ClassPropertyEnum.FILE)
 			return;
 		words = new CharArraySet(0, true);
+		if (value == null || value.length() == 0)
+			return;
 		BufferedReader br = null;
 		try {
 			File file = new File(config.getIndexDirectory(), value);
+			if (!file.exists() || !file.isFile())
+				throw new SearchLibException("File not found (" + value + ")");
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
 					file), "UTF-8"));
 			String line;
@@ -80,12 +91,5 @@ public class StopFilter extends FilterFactory {
 	public TokenStream create(TokenStream tokenStream) {
 		return new org.apache.lucene.analysis.StopFilter(false, tokenStream,
 				words);
-	}
-
-	private final static String[] PROPLIST = { "file" };
-
-	@Override
-	public String[] getPropertyKeyList() {
-		return PROPLIST;
 	}
 }

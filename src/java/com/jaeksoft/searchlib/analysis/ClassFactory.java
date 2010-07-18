@@ -25,10 +25,13 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
+
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -37,17 +40,33 @@ public abstract class ClassFactory {
 
 	protected Config config;
 
-	protected Map<String, String> properties;
+	protected Map<ClassPropertyEnum, ClassProperty> properties;
+
+	protected List<ClassProperty> userProperties;
 
 	protected String packageName;
 
-	protected String className;
-
 	public ClassFactory() {
 		config = null;
-		properties = null;
-		className = null;
+		properties = new TreeMap<ClassPropertyEnum, ClassProperty>();
+		userProperties = null;
+		addProperty(ClassPropertyEnum.CLASS, null, null);
 		packageName = null;
+	}
+
+	final protected void addProperty(ClassPropertyEnum classPropertyEnum,
+			String defaultValue, Object[] valueList) {
+		ClassProperty classProperty = properties.get(classPropertyEnum);
+		if (classProperty != null)
+			return;
+		classProperty = new ClassProperty(this, classPropertyEnum,
+				defaultValue, valueList);
+		properties.put(classPropertyEnum, classProperty);
+		if (classPropertyEnum.isUser()) {
+			if (userProperties == null)
+				userProperties = new ArrayList<ClassProperty>();
+			userProperties.add(classProperty);
+		}
 	}
 
 	/**
@@ -57,28 +76,41 @@ public abstract class ClassFactory {
 	 * @param className
 	 * @param properties
 	 * @throws IOException
+	 * @throws SearchLibException
 	 */
 	public void setParams(Config config, String packageName, String className)
-			throws IOException {
+			throws IOException, SearchLibException {
 		this.config = config;
 		this.packageName = packageName;
-		this.className = className;
+		getProperty(ClassPropertyEnum.CLASS).setValue(className);
 	}
 
-	public void setProperty(String key, String value) throws SearchLibException {
-		if ("class".equals(key))
-			return;
-		if (properties == null)
-			properties = new TreeMap<String, String>();
-		properties.put(key, value);
+	protected void initProperties() throws SearchLibException {
 	}
 
-	final public void setProperties(Map<String, String> props)
+	protected void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		properties = null;
-		if (props != null)
-			for (Entry<String, String> prop : props.entrySet())
-				setProperty(prop.getKey(), prop.getValue());
+	}
+
+	protected ClassProperty getProperty(ClassPropertyEnum prop) {
+		return properties.get(prop);
+	}
+
+	final protected void addProperties(NamedNodeMap nnm)
+			throws SearchLibException {
+		if (nnm == null)
+			return;
+		int l = nnm.getLength();
+		for (int i = 0; i < l; i++) {
+			Node attr = nnm.item(i);
+			ClassPropertyEnum propEnum = ClassPropertyEnum.valueOf(attr
+					.getNodeName().toUpperCase());
+			if (propEnum != null) {
+				ClassProperty prop = getProperty(propEnum);
+				if (prop != null)
+					prop.setValue(attr.getNodeValue());
+			}
+		}
 	}
 
 	/**
@@ -86,7 +118,7 @@ public abstract class ClassFactory {
 	 * @return
 	 */
 	public String getClassName() {
-		return className;
+		return getProperty(ClassPropertyEnum.CLASS).getValue();
 	}
 
 	/**
@@ -95,13 +127,11 @@ public abstract class ClassFactory {
 	 * @return a string array
 	 */
 	public String[] getAttributes() {
-		String[] attributes = new String[1 + getPropertyKeyList().length];
+		String[] attributes = new String[properties.size()];
 		int i = 0;
-		attributes[i++] = "class";
-		attributes[i++] = className;
-		for (String a : getPropertyKeyList()) {
-			attributes[i++] = a;
-			attributes[i++] = properties.get(a);
+		for (ClassProperty prop : properties.values()) {
+			attributes[i++] = prop.getClassPropertyEnum().getAttribute();
+			attributes[i++] = prop.getValue();
 		}
 		return attributes;
 	}
@@ -111,7 +141,6 @@ public abstract class ClassFactory {
 	 * @param config
 	 * @param packageName
 	 * @param className
-	 * @param properties
 	 * @return
 	 * @throws SearchLibException
 	 */
@@ -123,6 +152,7 @@ public abstract class ClassFactory {
 				cl = packageName + '.' + cl;
 			ClassFactory o = (ClassFactory) Class.forName(cl).newInstance();
 			o.setParams(config, packageName, className);
+			o.initProperties();
 			return o;
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
@@ -141,27 +171,46 @@ public abstract class ClassFactory {
 	 * @return
 	 * @throws SearchLibException
 	 */
-	protected static ClassFactory create(ClassFactory classFactory)
-			throws SearchLibException {
-		ClassFactory newClassFactory = create(classFactory.config,
-				classFactory.packageName, classFactory.className);
-		newClassFactory.setProperties(classFactory.properties);
+	protected static ClassFactory create(Config config, String packageName,
+			Node node) throws SearchLibException {
+		if (node == null)
+			return null;
+		NamedNodeMap nnm = node.getAttributes();
+		if (nnm == null)
+			return null;
+		Node classNode = nnm.getNamedItem(ClassPropertyEnum.CLASS
+				.getAttribute());
+		if (classNode == null)
+			return null;
+		ClassFactory newClassFactory = create(config, packageName,
+				classNode.getNodeValue());
+		newClassFactory.addProperties(nnm);
 		return newClassFactory;
 	}
 
-	private final static String[] EMPTY_PROP_LIST = {};
-
-	public String[] getPropertyKeyList() {
-		return EMPTY_PROP_LIST;
+	/**
+	 * 
+	 * @param classFactory
+	 * @return
+	 * @throws SearchLibException
+	 */
+	protected static ClassFactory create(ClassFactory classFactory)
+			throws SearchLibException {
+		ClassFactory newClassFactory = create(classFactory.config,
+				classFactory.packageName, classFactory.getClassName());
+		for (ClassProperty prop : classFactory.properties.values())
+			newClassFactory.getProperty(prop.getClassPropertyEnum()).setValue(
+					prop.getValue());
+		return newClassFactory;
 	}
 
 	public boolean isProperty() {
-		return getPropertyKeyList().length > 0;
+		if (userProperties == null)
+			return false;
+		return userProperties.size() > 0;
 	}
 
-	public Set<Entry<String, String>> getPropertySet() {
-		if (properties == null)
-			return null;
-		return properties.entrySet();
+	public List<ClassProperty> getUserProperties() {
+		return userProperties;
 	}
 }

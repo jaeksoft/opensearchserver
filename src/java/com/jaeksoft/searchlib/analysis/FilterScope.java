@@ -22,37 +22,26 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.cache;
+package com.jaeksoft.searchlib.analysis;
 
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.ngram.NGramTokenFilter;
+public enum FilterScope {
 
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.FilterFactory;
+	QUERY("Query"),
 
-public class NGramFilter extends FilterFactory {
+	INDEX("Indexation"),
 
-	private int min;
-	private int max;
+	QUERY_INDEX("Query and indexation"),
 
-	@Override
-	public void setProperty(String key, String value) throws SearchLibException {
-		super.setProperty(key, value);
-		if ("minGram".equals(key))
-			min = Integer.parseInt(value);
-		else if ("maxGram".equals(key))
-			max = Integer.parseInt(value);
+	DISABLE("Disable");
+
+	private String label;
+
+	private FilterScope(String label) {
+		this.label = label;
 	}
 
 	@Override
-	public TokenStream create(TokenStream input) {
-		return new NGramTokenFilter(input, min, max);
-	}
-
-	private final static String[] PROPLIST = { "minGram", "maxGram" };
-
-	@Override
-	public String[] getPropertyKeyList() {
-		return PROPLIST;
+	public String toString() {
+		return label;
 	}
 }

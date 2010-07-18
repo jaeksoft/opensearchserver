@@ -66,8 +66,9 @@
 							model="@{anlzr.currentAnalyzer.filters}">
 							<listhead>
 								<listheader width="200px"
-									label="filter" />
-								<listheader label="properties" />
+									label="Filter" />
+								<listheader width="200px" label="Scope" />
+								<listheader label="Properties" />
 								<listheader align="center" width="120px"
 									label="action" />
 							</listhead>
@@ -77,19 +78,33 @@
 										mold="select" selectedItem="@{anlzr.selectedFilter}" />
 								</auxheader>
 								<auxheader>
+									<listbox
+										model="@{anlzr.filterScopeEnum}" mold="select"
+										selectedItem="@{anlzr.currentFilter.scope}" />
+								</auxheader>
+								<auxheader>
 									<grid
 										visible="@{anlzr.currentFilter.property}"
-										model="@{anlzr.currentFilter.propertyKeyList}">
+										model="@{anlzr.currentFilter.userProperties}">
 										<columns>
-											<column width="150px" />
+											<column width="150px"
+												align="right" />
 											<column />
 										</columns>
 										<rows>
 											<row
-												self="@{each='propkey'}">
+												self="@{each='property'}">
 												<label
-													value="@{propkey}" />
-												<textbox cols="50" />
+													tooltiptext="@{property.classPropertyEnum.info}"
+													value="@{property.classPropertyEnum.label}" />
+												<hbox>
+													<textbox
+														visible="@{property.textbox}" cols="50"
+														value="@{property.value}" />
+													<listbox
+														mold="select" model="@{property.valueList}"
+														visible="@{property.valueList}" value="@{property.value}" />
+												</hbox>
 											</row>
 										</rows>
 									</grid>
@@ -105,23 +120,26 @@
 										value="@{filterItem.className}" />
 								</listcell>
 								<listcell>
+									<label value="@{filterItem.scope}" />
+								</listcell>
+								<listcell>
 									<listbox
 										visible="@{filterItem.property}"
-										model="@{filterItem.propertySet}">
+										model="@{filterItem.userProperties}">
 										<listhead>
 											<listheader align="right"
 												width="150px" />
 											<listheader />
 										</listhead>
 										<listitem
-											self="@{each='prop'}">
+											self="@{each='property'}">
 											<listcell>
 												<label
-													value="@{prop.key}" />
+													value="@{property.classPropertyEnum.label}" />
 												<label value=": " />
 											</listcell>
 											<listcell
-												label="@{prop.value}" />
+												label="@{property.value}" />
 										</listitem>
 									</listbox>
 								</listcell>
@@ -133,11 +151,13 @@
 										onClick="anlzr.onFilterUp(self)" />
 									<button
 										tooltiptext="Move the filter down"
-										image="/images/arrow_down.png" onClick="anlzr.onFilterDown(self)" />
+										image="/images/arrow_down.png"
+										onClick="anlzr.onFilterDown(self)" />
 									<space />
 									<button
 										tooltiptext="Remove the filter"
-										image="/images/action_delete.png" onClick="anlzr.onFilterRemove(self)" />
+										image="/images/action_delete.png"
+										onClick="anlzr.onFilterRemove(self)" />
 								</listcell>
 							</listitem>
 						</listbox>

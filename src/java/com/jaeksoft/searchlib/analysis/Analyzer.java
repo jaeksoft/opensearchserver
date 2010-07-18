@@ -24,15 +24,11 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.analysis.TokenStream;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -40,12 +36,11 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class Analyzer extends org.apache.lucene.analysis.Analyzer {
+public class Analyzer {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -54,6 +49,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 	private String name;
 	private LanguageEnum lang;
 	private Config config;
+	private CompiledAnalyzer queryAnalyzer;
+	private CompiledAnalyzer indexAnalyzer;
 
 	public Analyzer(Config config) throws SearchLibException {
 		name = null;
@@ -61,6 +58,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		lang = LanguageEnum.UNDEFINED;
 		setTokenizer(TokenizerFactory.getDefaultTokenizer(config));
 		filters = new ArrayList<FilterFactory>();
+		queryAnalyzer = null;
+		indexAnalyzer = null;
 	}
 
 	public void copyFrom(Analyzer source) throws SearchLibException {
@@ -84,6 +83,9 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 				target.filters
 						.add((FilterFactory) FilterFactory.create(filter));
 			target.config = this.config;
+			target.queryAnalyzer = this.queryAnalyzer;
+			target.indexAnalyzer = this.indexAnalyzer;
+
 		} finally {
 			rwl.r.unlock();
 		}
@@ -95,13 +97,9 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		this.name = XPathParser.getAttributeString(node, "name");
 		this.lang = LanguageEnum.findByCode(XPathParser.getAttributeString(
 				node, "lang"));
-		String tokenizerFactoryClassName = XPathParser.getAttributeString(node,
-				"tokenizer");
-
-		this.tokenizer = TokenizerFactory.create(config,
-				tokenizerFactoryClassName);
-		this.tokenizer.setProperties(DomUtils.getAttributes(node));
 		this.filters = new ArrayList<FilterFactory>();
+		this.queryAnalyzer = null;
+		this.indexAnalyzer = null;
 	}
 
 	/**
@@ -126,6 +124,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		rwl.w.lock();
 		try {
 			this.tokenizer = TokenizerFactory.create(tokenizer);
+			this.queryAnalyzer = null;
+			this.indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -151,6 +151,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		rwl.w.lock();
 		try {
 			this.filters = filters;
+			this.queryAnalyzer = null;
+			this.indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -210,21 +212,10 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		rwl.w.lock();
 		try {
 			filters.add(filter);
+			this.queryAnalyzer = null;
+			this.indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
-		}
-	}
-
-	@Override
-	public TokenStream tokenStream(String fieldname, Reader reader) {
-		rwl.r.lock();
-		try {
-			TokenStream ts = tokenizer.create(reader);
-			for (FilterFactory filter : filters)
-				ts = filter.create(ts);
-			return ts;
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 
@@ -242,12 +233,21 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		if (node == null)
 			return null;
 		Analyzer analyzer = new Analyzer(config, xpp, node);
-		NodeList nodes = xpp.getNodeList(node, "filter");
+
+		String tokenizerFactoryClassName = XPathParser.getAttributeString(node,
+				"tokenizer");
+		if (tokenizerFactoryClassName != null) {
+			analyzer.setTokenizer(TokenizerFactory.create(config,
+					tokenizerFactoryClassName));
+		}
+		NodeList nodes = xpp.getNodeList(node, "tokenizer");
+		if (nodes.getLength() > 0)
+			analyzer.setTokenizer(TokenizerFactory.create(config, nodes.item(0)));
+
+		nodes = xpp.getNodeList(node, "filter");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node n = nodes.item(i);
-			FilterFactory filter = FilterFactory.create(config,
-					XPathParser.getAttributeString(n, "class"));
-			filter.setProperties(DomUtils.getAttributes(n));
+			FilterFactory filter = FilterFactory.create(config, n);
 			analyzer.add(filter);
 		}
 		return analyzer;
@@ -268,20 +268,6 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		}
 	}
 
-	public boolean isAnyToken(String fieldName, String value)
-			throws IOException {
-		rwl.r.lock();
-		try {
-			if (tokenizer == null)
-				return false;
-			boolean anyToken = tokenStream(fieldName, new StringReader(value))
-					.incrementToken();
-			return anyToken;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
 	/**
 	 * Move filter up
 	 * 
@@ -295,6 +281,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 				return;
 			filters.remove(i);
 			filters.add(i - 1, filter);
+			this.queryAnalyzer = null;
+			this.indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -313,6 +301,8 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 				return;
 			filters.remove(i);
 			filters.add(i + 1, filter);
+			this.queryAnalyzer = null;
+			this.indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -327,9 +317,61 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
 		rwl.w.lock();
 		try {
 			filters.remove(filter);
+			this.queryAnalyzer = null;
+			this.indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
+	/**
+	 * Returns the compiled analyzer for queries
+	 * 
+	 * @return
+	 */
+	public CompiledAnalyzer getQueryAnalyzer() {
+		rwl.r.lock();
+		try {
+			if (queryAnalyzer != null)
+				return queryAnalyzer;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (queryAnalyzer != null)
+				return queryAnalyzer;
+			queryAnalyzer = new CompiledAnalyzer(tokenizer, filters,
+					FilterScope.QUERY);
+			return queryAnalyzer;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * Returns the compiled analyzer for indexation
+	 * 
+	 * @return
+	 */
+	public CompiledAnalyzer getIndexAnalyzer() {
+		rwl.r.lock();
+		try {
+			if (indexAnalyzer != null)
+				return indexAnalyzer;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (indexAnalyzer != null)
+				return indexAnalyzer;
+			indexAnalyzer = new CompiledAnalyzer(tokenizer, filters,
+					FilterScope.INDEX);
+			return indexAnalyzer;
+		} finally {
+			rwl.w.unlock();
+		}
+
+	}
 }
