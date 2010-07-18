@@ -37,6 +37,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.xml.sax.SAXException;
 
@@ -486,6 +487,20 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (reader != null)
 				return reader.getFieldNames();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public Query rewrite(Query query) throws IOException {
+		if (!online)
+			throw new IOException("Index is offline");
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				return reader.rewrite(query);
 			return null;
 		} finally {
 			rwl.r.unlock();

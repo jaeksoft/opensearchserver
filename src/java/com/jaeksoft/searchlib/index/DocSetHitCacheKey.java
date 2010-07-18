@@ -53,13 +53,13 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 	@Override
 	public int compareTo(DocSetHitCacheKey r) {
 		int c;
-		if ((c = facet.compareTo(r.facet)) != 0)
-			return c;
 		if ((c = query.compareTo(r.query)) != 0)
 			return c;
-		if ((c = sortListCacheKey.compareTo(r.sortListCacheKey)) != 0)
+		if ((c = facet.compareTo(r.facet)) != 0)
 			return c;
 		if ((c = filterListCacheKey.compareTo(r.filterListCacheKey)) != 0)
+			return c;
+		if ((c = sortListCacheKey.compareTo(r.sortListCacheKey)) != 0)
 			return c;
 		return 0;
 	}

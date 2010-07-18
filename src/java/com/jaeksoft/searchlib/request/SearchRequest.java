@@ -36,6 +36,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.Version;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -51,7 +52,6 @@ import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.RootExpression;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -61,6 +61,7 @@ import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -73,9 +74,9 @@ public class SearchRequest implements Externalizable {
 	private static final long serialVersionUID = 148522254171520640L;
 
 	private transient QueryParser queryParser;
-	private transient Query query;
+	private transient Query complexQuery;
+	private transient Query primitiveQuery;
 	private transient Config config;
-	private transient ReaderInterface reader;
 	private transient Timer timer;
 	private transient long finalTime;
 
@@ -104,10 +105,11 @@ public class SearchRequest implements Externalizable {
 	private boolean withSortValues;
 	private boolean debug;
 
+	private final ReadWriteLock rwl = new ReadWriteLock();
+
 	public SearchRequest() {
 		queryParser = null;
 		config = null;
-		reader = null;
 		timer = null;
 		finalTime = 0;
 	}
@@ -132,13 +134,13 @@ public class SearchRequest implements Externalizable {
 		this.start = 0;
 		this.rows = 10;
 		this.lang = null;
-		this.query = null;
+		this.complexQuery = null;
+		this.primitiveQuery = null;
 		this.queryString = null;
 		this.patternQuery = null;
 		this.scoreFunction = null;
 		this.withDocuments = true;
 		this.withSortValues = false;
-		this.reader = null;
 		this.queryParsed = null;
 		this.timer = new Timer("Search request");
 		this.finalTime = 0;
@@ -147,46 +149,57 @@ public class SearchRequest implements Externalizable {
 
 	public SearchRequest(SearchRequest searchRequest) {
 		this(searchRequest.config);
-		this.requestName = searchRequest.requestName;
-		this.filterList = new FilterList(searchRequest.filterList);
-		this.queryParser = null;
-		this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
-		this.phraseSlop = searchRequest.phraseSlop;
-		this.defaultOperator = searchRequest.defaultOperator;
-		this.snippetFieldList = new FieldList<SnippetField>(
-				searchRequest.snippetFieldList);
-		this.returnFieldList = new FieldList<Field>(
-				searchRequest.returnFieldList);
-		this.sortList = new SortList(searchRequest.sortList);
-		this.documentFieldList = null;
-		if (searchRequest.documentFieldList != null)
-			this.documentFieldList = new FieldList<Field>(
-					searchRequest.documentFieldList);
-		this.facetFieldList = new FieldList<FacetField>(
-				searchRequest.facetFieldList);
-		this.spellCheckFieldList = new FieldList<SpellCheckField>(
-				searchRequest.spellCheckFieldList);
-		this.collapseField = searchRequest.collapseField;
-		this.collapseMax = searchRequest.collapseMax;
-		this.collapseMode = searchRequest.collapseMode;
-		this.withDocuments = searchRequest.withDocuments;
-		this.withSortValues = searchRequest.withSortValues;
-		this.start = searchRequest.start;
-		this.rows = searchRequest.rows;
-		this.lang = searchRequest.lang;
-		this.query = null;
-		this.queryString = searchRequest.queryString;
-		this.patternQuery = searchRequest.patternQuery;
-		this.scoreFunction = searchRequest.scoreFunction;
-		this.reader = searchRequest.reader;
-		this.queryParsed = null;
-		this.debug = searchRequest.debug;
+		searchRequest.rwl.r.lock();
+		try {
+			this.requestName = searchRequest.requestName;
+			this.filterList = new FilterList(searchRequest.filterList);
+			this.queryParser = null;
+			this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
+			this.phraseSlop = searchRequest.phraseSlop;
+			this.defaultOperator = searchRequest.defaultOperator;
+			this.snippetFieldList = new FieldList<SnippetField>(
+					searchRequest.snippetFieldList);
+			this.returnFieldList = new FieldList<Field>(
+					searchRequest.returnFieldList);
+			this.sortList = new SortList(searchRequest.sortList);
+			this.documentFieldList = null;
+			if (searchRequest.documentFieldList != null)
+				this.documentFieldList = new FieldList<Field>(
+						searchRequest.documentFieldList);
+			this.facetFieldList = new FieldList<FacetField>(
+					searchRequest.facetFieldList);
+			this.spellCheckFieldList = new FieldList<SpellCheckField>(
+					searchRequest.spellCheckFieldList);
+			this.collapseField = searchRequest.collapseField;
+			this.collapseMax = searchRequest.collapseMax;
+			this.collapseMode = searchRequest.collapseMode;
+			this.withDocuments = searchRequest.withDocuments;
+			this.withSortValues = searchRequest.withSortValues;
+			this.start = searchRequest.start;
+			this.rows = searchRequest.rows;
+			this.lang = searchRequest.lang;
+			this.complexQuery = null;
+			this.primitiveQuery = null;
+			this.queryString = searchRequest.queryString;
+			this.patternQuery = searchRequest.patternQuery;
+			this.scoreFunction = searchRequest.scoreFunction;
+			this.queryParsed = null;
+			this.debug = searchRequest.debug;
+		} finally {
+			searchRequest.rwl.r.unlock();
+		}
 	}
 
 	public void reset() {
-		this.queryParsed = null;
-		this.query = null;
-		this.queryParser = null;
+		rwl.w.lock();
+		try {
+			this.queryParsed = null;
+			this.complexQuery = null;
+			this.primitiveQuery = null;
+			this.queryParser = null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	private SearchRequest(Config config, String requestName,
@@ -215,52 +228,61 @@ public class SearchRequest implements Externalizable {
 	}
 
 	public void init(Config config) {
-		synchronized (this) {
+		rwl.w.lock();
+		try {
 			this.config = config;
 			finalTime = 0;
 			if (timer != null)
 				timer.reset();
 			timer = new Timer("Search request");
-		}
-	}
-
-	protected QueryParser getNewQueryParser() {
-		synchronized (this) {
-			Schema schema = getConfig().getSchema();
-			return new QueryParser(schema.getFieldList().getDefaultField()
-					.getName(), schema.getQueryPerFieldAnalyzer(getLang()));
-		}
-	}
-
-	private static void setQueryParser(SearchRequest searchRequest,
-			QueryParser queryParser) {
-		synchronized (queryParser) {
-			queryParser
-					.setAllowLeadingWildcard(searchRequest.allowLeadingWildcard);
-			queryParser.setPhraseSlop(searchRequest.phraseSlop);
-			queryParser.setDefaultOperator(searchRequest.defaultOperator);
-			queryParser.setLowercaseExpandedTerms(false);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public Config getConfig() {
-		return this.config;
+		rwl.r.lock();
+		try {
+			return this.config;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public String getRequestName() {
-		return this.requestName;
+		rwl.r.lock();
+		try {
+			return this.requestName;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setRequestName(String name) {
-		this.requestName = name;
+		rwl.w.lock();
+		try {
+			this.requestName = name;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public int getPhraseSlop() {
-		return phraseSlop;
+		rwl.r.lock();
+		try {
+			return phraseSlop;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setPhraseSlop(int value) {
-		phraseSlop = value;
+		rwl.w.lock();
+		try {
+			phraseSlop = value;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	private String getFinalQuery() throws SyntaxError {
@@ -276,215 +298,451 @@ public class SearchRequest implements Externalizable {
 		return finalQuery;
 	}
 
-	public Query getQuery() throws ParseException, SyntaxError {
-		synchronized (this) {
-			if (query != null)
-				return query;
-			getQueryParser();
-			synchronized (queryParser) {
-				query = queryParser.parse(getFinalQuery());
-				queryParsed = query.toString();
-				if (scoreFunction != null)
-					query = RootExpression.getQuery(query, scoreFunction);
-			}
-			return query;
+	public Query getSnippetQuery() throws IOException, ParseException,
+			SyntaxError {
+		rwl.r.lock();
+		try {
+			if (primitiveQuery != null)
+				return primitiveQuery;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (primitiveQuery != null)
+				return primitiveQuery;
+			primitiveQuery = config.getIndex().rewrite(getQuery());
+			return primitiveQuery;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
-	public QueryParser getQueryParser() throws ParseException {
-		synchronized (this) {
-			if (queryParser != null)
-				return queryParser;
-			queryParser = getNewQueryParser();
-			setQueryParser(this, queryParser);
-			return queryParser;
+	public Query getQuery() throws ParseException, SyntaxError {
+		rwl.r.lock();
+		try {
+			if (complexQuery != null)
+				return complexQuery;
+		} finally {
+			rwl.r.unlock();
 		}
+		rwl.w.lock();
+		try {
+			if (complexQuery != null)
+				return complexQuery;
+			queryParser = getQueryParser();
+			complexQuery = queryParser.parse(getFinalQuery());
+			queryParsed = complexQuery.toString();
+			if (scoreFunction != null)
+				complexQuery = RootExpression.getQuery(complexQuery,
+						scoreFunction);
+			return complexQuery;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private QueryParser getQueryParser() throws ParseException {
+		if (queryParser != null)
+			return queryParser;
+		Schema schema = getConfig().getSchema();
+		queryParser = new QueryParser(Version.LUCENE_29, schema.getFieldList()
+				.getDefaultField().getName(),
+				schema.getQueryPerFieldAnalyzer(getLang()));
+		queryParser.setAllowLeadingWildcard(allowLeadingWildcard);
+		queryParser.setPhraseSlop(phraseSlop);
+		queryParser.setDefaultOperator(defaultOperator);
+		queryParser.setLowercaseExpandedTerms(false);
+		return queryParser;
 	}
 
 	public String getQueryString() {
-		return queryString;
+		rwl.r.lock();
+		try {
+			return queryString;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public String getPatternQuery() {
-		return patternQuery;
+		rwl.r.lock();
+		try {
+			return patternQuery;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setPatternQuery(String value) {
-		patternQuery = value;
+		rwl.w.lock();
+		try {
+			patternQuery = value;
+			complexQuery = null;
+			primitiveQuery = null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public String getQueryParsed() throws ParseException, SyntaxError {
-		getQuery();
-		return queryParsed;
+		rwl.r.lock();
+		try {
+			getQuery();
+			return queryParsed;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setQueryString(String q) {
-		synchronized (this) {
+		rwl.w.lock();
+		try {
 			queryString = q;
-			query = null;
+			complexQuery = null;
+			primitiveQuery = null;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public String getScoreFunction() {
-		return scoreFunction;
+		rwl.r.lock();
+		try {
+			return scoreFunction;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setScoreFunction(String v) {
-		scoreFunction = v;
+		rwl.w.lock();
+		try {
+			scoreFunction = v;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public FilterList getFilterList() {
-		return this.filterList;
+		rwl.r.lock();
+		try {
+			return this.filterList;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void addFilter(String req) throws ParseException {
-		this.filterList.add(req, Filter.Source.REQUEST);
+		rwl.w.lock();
+		try {
+			this.filterList.add(req, Filter.Source.REQUEST);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public FieldList<SnippetField> getSnippetFieldList() {
-		return this.snippetFieldList;
+		rwl.r.lock();
+		try {
+			return this.snippetFieldList;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public FieldList<Field> getReturnFieldList() {
-		return this.returnFieldList;
+		rwl.r.lock();
+		try {
+			return this.returnFieldList;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void addReturnField(String fieldName) throws SearchLibException {
-		returnFieldList.add(new Field(config.getSchema().getFieldList()
-				.get(fieldName)));
+		rwl.w.lock();
+		try {
+			returnFieldList.add(new Field(config.getSchema().getFieldList()
+					.get(fieldName)));
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public SortList getSortList() {
-		return this.sortList;
+		rwl.r.lock();
+		try {
+			return this.sortList;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void addSort(String fieldName, boolean desc) {
-		sortList.add(fieldName, desc);
+		rwl.w.lock();
+		try {
+			sortList.add(fieldName, desc);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public FieldList<FacetField> getFacetFieldList() {
-		return this.facetFieldList;
+		rwl.r.lock();
+		try {
+			return this.facetFieldList;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public FieldList<SpellCheckField> getSpellCheckFieldList() {
-		return this.spellCheckFieldList;
+		rwl.r.lock();
+		try {
+			return this.spellCheckFieldList;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setCollapseField(String collapseField) {
-		this.collapseField = collapseField;
+		rwl.w.lock();
+		try {
+			this.collapseField = collapseField;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public void setCollapseMax(int collapseMax) {
-		this.collapseMax = collapseMax;
+		rwl.w.lock();
+		try {
+			this.collapseMax = collapseMax;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public String getCollapseField() {
-		return this.collapseField;
+		rwl.r.lock();
+		try {
+			return this.collapseField;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public int getCollapseMax() {
-		return this.collapseMax;
+		rwl.r.lock();
+		try {
+			return this.collapseMax;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public int getStart() {
-		return this.start;
+		rwl.r.lock();
+		try {
+			return this.start;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setStart(int start) {
-		this.start = start;
+		rwl.w.lock();
+		try {
+			this.start = start;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public boolean isWithDocument() {
-		return this.withDocuments;
+		rwl.r.lock();
+		try {
+			return this.withDocuments;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setWithDocument(boolean withDocuments) {
-		this.withDocuments = withDocuments;
+		rwl.w.lock();
+		try {
+			this.withDocuments = withDocuments;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public boolean isWithSortValues() {
-		return withSortValues;
+		rwl.r.lock();
+		try {
+			return withSortValues;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setWithSortValues(boolean withSortValues) {
-		this.withSortValues = withSortValues;
+		rwl.w.lock();
+		try {
+			this.withSortValues = withSortValues;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public void setDebug(boolean debug) {
-		this.debug = debug;
+		rwl.w.lock();
+		try {
+			this.debug = debug;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public boolean isDebug() {
-		return debug;
+		rwl.r.lock();
+		try {
+			return debug;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public int getRows() {
-		return this.rows;
+		rwl.r.lock();
+		try {
+			return this.rows;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public LanguageEnum getLang() {
-		return this.lang;
+		rwl.r.lock();
+		try {
+			return this.lang;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setRows(int rows) {
-		this.rows = rows;
+		rwl.w.lock();
+		try {
+			this.rows = rows;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public int getEnd() {
-		return this.start + this.rows;
+		rwl.r.lock();
+		try {
+			return this.start + this.rows;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("RequestName: ");
-		sb.append(requestName);
-		sb.append(" DefaultOperator: ");
-		sb.append(defaultOperator);
-		sb.append(" Start: ");
-		sb.append(start);
-		sb.append(" Rows: ");
-		sb.append(rows);
-		sb.append(" Query: ");
-		sb.append(query);
-		sb.append(" Facet: " + getFacetFieldList().toString());
-		if (getCollapseMode() != CollapseMode.COLLAPSE_OFF)
-			sb.append(" Collapsing: " + getCollapseMode() + " "
-					+ getCollapseField() + "(" + getCollapseMax() + ")");
-		return sb.toString();
+		rwl.r.lock();
+		try {
+			StringBuffer sb = new StringBuffer();
+			sb.append("RequestName: ");
+			sb.append(requestName);
+			sb.append(" DefaultOperator: ");
+			sb.append(defaultOperator);
+			sb.append(" Start: ");
+			sb.append(start);
+			sb.append(" Rows: ");
+			sb.append(rows);
+			sb.append(" Query: ");
+			sb.append(complexQuery);
+			sb.append(" Facet: " + getFacetFieldList().toString());
+			if (getCollapseMode() != CollapseMode.COLLAPSE_OFF)
+				sb.append(" Collapsing: " + getCollapseMode() + " "
+						+ getCollapseField() + "(" + getCollapseMax() + ")");
+			return sb.toString();
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setLang(LanguageEnum lang) {
-		this.lang = lang;
+		rwl.w.lock();
+		try {
+			this.lang = lang;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public FieldList<Field> getDocumentFieldList() {
-		if (documentFieldList != null)
+		rwl.r.lock();
+		try {
+			if (documentFieldList != null)
+				return documentFieldList;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (documentFieldList != null)
+				return documentFieldList;
+			documentFieldList = new FieldList<Field>(returnFieldList);
+			Iterator<SnippetField> it = snippetFieldList.iterator();
+			while (it.hasNext())
+				documentFieldList.add(new Field(it.next()));
 			return documentFieldList;
-		documentFieldList = new FieldList<Field>(returnFieldList);
-		Iterator<SnippetField> it = snippetFieldList.iterator();
-		while (it.hasNext())
-			documentFieldList.add(new Field(it.next()));
-		return documentFieldList;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public String getDefaultOperator() {
-		return defaultOperator.toString();
+		rwl.r.lock();
+		try {
+			return defaultOperator.toString();
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setDefaultOperator(String value) {
-		if ("and".equalsIgnoreCase(value))
-			defaultOperator = Operator.AND;
-		else if ("or".equalsIgnoreCase(value))
-			defaultOperator = Operator.OR;
+		rwl.w.lock();
+		try {
+			if ("and".equalsIgnoreCase(value))
+				defaultOperator = Operator.AND;
+			else if ("or".equalsIgnoreCase(value))
+				defaultOperator = Operator.OR;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public void setCollapseMode(CollapseMode mode) {
-		this.collapseMode = mode;
+		rwl.w.lock();
+		try {
+			this.collapseMode = mode;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public CollapseMode getCollapseMode() {
-		return this.collapseMode;
+		rwl.r.lock();
+		try {
+			return this.collapseMode;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public final static String[] CONTROL_CHARS = { "\\", "^", "\"", "~", ":" };
@@ -514,26 +772,51 @@ public class SearchRequest implements Externalizable {
 	}
 
 	public boolean isFacet() {
-		if (facetFieldList == null)
-			return false;
-		return facetFieldList.size() > 0;
+		rwl.r.lock();
+		try {
+			if (facetFieldList == null)
+				return false;
+			return facetFieldList.size() > 0;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public boolean isSpellCheck() {
-		if (spellCheckFieldList == null)
-			return false;
-		return spellCheckFieldList.size() > 0;
+		rwl.r.lock();
+		try {
+			if (spellCheckFieldList == null)
+				return false;
+			return spellCheckFieldList.size() > 0;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public long getFinalTime() {
-		if (finalTime != 0)
+		rwl.r.lock();
+		try {
+			if (finalTime != 0)
+				return finalTime;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			finalTime = timer.duration();
 			return finalTime;
-		finalTime = timer.duration();
-		return finalTime;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public Timer getTimer() {
-		return timer;
+		rwl.r.lock();
+		try {
+			return timer;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**

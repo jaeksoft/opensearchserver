@@ -250,7 +250,7 @@ public class SnippetField extends Field implements Externalizable {
 	public void initSearchTerms(SearchRequest searchRequest)
 			throws ParseException, SyntaxError, IOException {
 		synchronized (this) {
-			Query query = searchRequest.getQuery();
+			Query query = searchRequest.getSnippetQuery();
 			Set<Term> terms = new HashSet<Term>();
 			query.extractTerms(terms);
 			String[] tempTerms = new String[terms.size()];
@@ -415,8 +415,8 @@ public class SnippetField extends Field implements Externalizable {
 		if (c != 0)
 			return c;
 		SnippetField f = (SnippetField) o;
-		if ((c = fragmenterTemplate.getClass().getName().compareTo(
-				f.fragmenterTemplate.getClass().getName())) != 0)
+		if ((c = fragmenterTemplate.getClass().getName()
+				.compareTo(f.fragmenterTemplate.getClass().getName())) != 0)
 			return c;
 		if ((c = tag.compareTo(f.tag)) != 0)
 			return c;

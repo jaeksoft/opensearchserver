@@ -37,6 +37,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -148,6 +149,11 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 	@Override
 	public String explain(SearchRequest searchRequest, int docId)
 			throws IOException, ParseException, SyntaxError {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public Query rewrite(Query query) throws IOException {
 		throw new RuntimeException("Not yet implemented");
 	}
 

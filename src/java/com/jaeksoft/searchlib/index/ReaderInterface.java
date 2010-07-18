@@ -34,6 +34,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -58,6 +59,8 @@ public interface ReaderInterface {
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException;
+
+	public abstract Query rewrite(Query query) throws IOException;
 
 	public Result search(SearchRequest searchRequest) throws IOException,
 			URISyntaxException, ParseException, SyntaxError,

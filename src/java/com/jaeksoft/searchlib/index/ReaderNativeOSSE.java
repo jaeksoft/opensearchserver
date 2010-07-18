@@ -34,6 +34,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
@@ -147,6 +148,12 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	@Override
 	public String explain(SearchRequest searchRequest, int docId)
 			throws IOException, ParseException, SyntaxError {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Query rewrite(Query query) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -251,10 +251,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public void rewrite(Query query) throws IOException {
+	@Override
+	public Query rewrite(Query query) throws IOException {
 		rwl.r.lock();
 		try {
-			query.rewrite(indexReader);
+			return query.rewrite(indexReader);
 		} finally {
 			rwl.r.unlock();
 		}
