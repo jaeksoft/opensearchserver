@@ -57,8 +57,9 @@
 					<row>
 						<label value="Tokenizer: " />
 						<combobox width="300px" autodrop="true"
-							id="combotokenizer" buttonVisible="false"
-							value="@{anlzr.currentAnalyzer.tokenizer.className}" />
+							model="@{anlzr.tokenizerList}" id="combotokenizer"
+							buttonVisible="true"
+							value="@{anlzr.currentAnalyzer.tokenizerClassName}" />
 					</row>
 					<row>
 						<label value="Filter list: " />
@@ -164,6 +165,32 @@
 					</row>
 				</rows>
 			</grid>
+		</panelchildren>
+		<toolbar>
+			<button visible="@{anlzr.notEdit}" label="Create"
+				forward="onSave" />
+			<button visible="@{anlzr.edit}" label="Save"
+				forward="onSave" />
+			<button visible="@{anlzr.edit}" label="Cancel"
+				forward="onCancel" />
+		</toolbar>
+	</panel>
+	<separator />
+	<panel title="Try your analyzer" border="normal">
+		<panelchildren>
+			<listbox>
+				<auxhead>
+					<auxheader colspan="2">
+						<label value="Enter a text to analyze: " />
+						<textbox cols="100" value="@{anlzr.testText}" />
+						<button label="Test" forward="onTest" />
+					</auxheader>
+				</auxhead>
+				<listhead>
+					<listheader width="200px" label="Filter/Tokenizer" />
+					<listheader label="Result" />
+				</listhead>
+			</listbox>
 		</panelchildren>
 	</panel>
 </window>

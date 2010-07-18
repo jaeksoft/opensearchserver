@@ -132,6 +132,39 @@ public class Analyzer {
 	}
 
 	/**
+	 * @return the tokenizer classname
+	 */
+	public String getTokenizerClassName() {
+		rwl.r.lock();
+		try {
+			if (tokenizer == null)
+				return null;
+			return tokenizer.getClassName();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param tokenizer
+	 *            the tokenizer to set
+	 * @throws SearchLibException
+	 */
+	public void setTokenizerClassName(String className)
+			throws SearchLibException {
+		rwl.w.lock();
+		try {
+			this.tokenizer = (className == null || className.length() == 0) ? TokenizerFactory
+					.getDefaultTokenizer(config) : TokenizerFactory.create(
+					config, className);
+			this.queryAnalyzer = null;
+			this.indexAnalyzer = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
 	 * @return the filters
 	 */
 	public List<FilterFactory> getFilters() {

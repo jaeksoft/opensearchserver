@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Combobox;
-import org.zkoss.zul.SimpleListModel;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -60,6 +58,8 @@ public class AnalyzersController extends CommonController {
 
 	private FilterEnum selectedFilter;
 
+	private String testText;
+
 	public AnalyzersController() throws SearchLibException {
 		super();
 		editAnalyzer = null;
@@ -73,8 +73,8 @@ public class AnalyzersController extends CommonController {
 	@Override
 	public void afterCompose() {
 		super.afterCompose();
-		Combobox cb = (Combobox) getFellow("combotokenizer");
-		cb.setModel(new SimpleListModel(getTokenizerList()));
+		// Combobox cb = (Combobox) getFellow("combotokenizer");
+		// cb.setModel(new SimpleListModel(getTokenizerList()));
 	}
 
 	public AnalyzerList getList() throws SearchLibException {
@@ -172,6 +172,21 @@ public class AnalyzersController extends CommonController {
 		reloadPage();
 	}
 
+	public void onSave() throws InterruptedException, SearchLibException {
+		if (editAnalyzer != null)
+			selectedAnalyzer.copyFrom(editAnalyzer);
+		else
+			getClient().getSchema().getAnalyzerList().add(editAnalyzer);
+		// getClient().saveDatabaseCrawlList();
+		onCancel();
+	}
+
+	public void onCancel() throws SearchLibException {
+		editAnalyzer = null;
+		currentAnalyzer = new Analyzer(getClient());
+		reloadPage();
+	}
+
 	public TokenizerEnum[] getTokenizerList() {
 		return TokenizerEnum.values();
 	}
@@ -236,5 +251,24 @@ public class AnalyzersController extends CommonController {
 		FilterFactory filter = getFilter(component);
 		currentAnalyzer.filterRemove(filter);
 		reloadPage();
+	}
+
+	/**
+	 * @param testText
+	 *            the testText to set
+	 */
+	public void setTestText(String testText) {
+		this.testText = testText;
+	}
+
+	/**
+	 * @return the testText
+	 */
+	public String getTestText() {
+		return testText;
+	}
+
+	public void onTest() {
+
 	}
 }
