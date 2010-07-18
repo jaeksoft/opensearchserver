@@ -24,22 +24,32 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Label;
+import org.zkoss.zul.Listcell;
+import org.zkoss.zul.Listitem;
+import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
+import com.jaeksoft.searchlib.analysis.DebugTokenFilter;
 import com.jaeksoft.searchlib.analysis.FilterEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class AnalyzersController extends CommonController {
+public class AnalyzersController extends CommonController implements
+		ListitemRenderer {
 
 	/**
 	 * 
@@ -60,6 +70,10 @@ public class AnalyzersController extends CommonController {
 
 	private String testText;
 
+	private String testType;
+
+	private List<DebugTokenFilter> testList;
+
 	public AnalyzersController() throws SearchLibException {
 		super();
 		editAnalyzer = null;
@@ -68,13 +82,9 @@ public class AnalyzersController extends CommonController {
 		selectedFilter = FilterEnum.StandardFilter;
 		currentFilter = FilterFactory.getDefaultFilter(getClient());
 		currentAnalyzer = new Analyzer(getClient());
-	}
-
-	@Override
-	public void afterCompose() {
-		super.afterCompose();
-		// Combobox cb = (Combobox) getFellow("combotokenizer");
-		// cb.setModel(new SimpleListModel(getTokenizerList()));
+		testType = "query";
+		testText = null;
+		testList = null;
 	}
 
 	public AnalyzerList getList() throws SearchLibException {
@@ -174,10 +184,10 @@ public class AnalyzersController extends CommonController {
 
 	public void onSave() throws InterruptedException, SearchLibException {
 		if (editAnalyzer != null)
-			selectedAnalyzer.copyFrom(editAnalyzer);
+			selectedAnalyzer.copyFrom(currentAnalyzer);
 		else
-			getClient().getSchema().getAnalyzerList().add(editAnalyzer);
-		// getClient().saveDatabaseCrawlList();
+			getClient().getSchema().getAnalyzerList().add(currentAnalyzer);
+		getClient().saveConfig();
 		onCancel();
 	}
 
@@ -254,6 +264,21 @@ public class AnalyzersController extends CommonController {
 	}
 
 	/**
+	 * @param testType
+	 *            the testType to set
+	 */
+	public void setTestType(String testType) {
+		this.testType = testType;
+	}
+
+	/**
+	 * @return the testType
+	 */
+	public String getTestType() {
+		return testType;
+	}
+
+	/**
 	 * @param testText
 	 *            the testText to set
 	 */
@@ -268,7 +293,32 @@ public class AnalyzersController extends CommonController {
 		return testText;
 	}
 
-	public void onTest() {
+	public void onTest() throws IOException {
+		CompiledAnalyzer compiledAnalyzer = ("query".equals(testType)) ? currentAnalyzer
+				.getQueryAnalyzer() : currentAnalyzer.getIndexAnalyzer();
+		testList = compiledAnalyzer.test(testText);
+		reloadPage();
+	}
 
+	public List<DebugTokenFilter> getTestList() {
+		return testList;
+	}
+
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		DebugTokenFilter debugFilter = (DebugTokenFilter) data;
+		Listcell listcell = new Listcell(debugFilter.getClassFactory()
+				.getClassName());
+		listcell.setParent(item);
+		listcell = new Listcell();
+		Hbox hbox = new Hbox();
+		for (String term : debugFilter.getTokenList()) {
+			Window window = new Window();
+			window.setBorder("normal");
+			new Label(term).setParent(window);
+			window.setParent(hbox);
+		}
+		hbox.setParent(listcell);
+		listcell.setParent(item);
 	}
 }

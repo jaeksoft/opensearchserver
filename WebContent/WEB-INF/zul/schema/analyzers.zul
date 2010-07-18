@@ -178,11 +178,16 @@
 	<separator />
 	<panel title="Try your analyzer" border="normal">
 		<panelchildren>
-			<listbox>
+			<listbox model="@{anlzr.testList}" itemRenderer="@{anlzr}">
 				<auxhead>
 					<auxheader colspan="2">
 						<label value="Enter a text to analyze: " />
 						<textbox cols="100" value="@{anlzr.testText}" />
+						<listbox selectedItem="@{anlzr.testType}"
+							mold="select">
+							<listitem label="Query" value="query" />
+							<listitem label="Indexation" value="index" />
+						</listbox>
 						<button label="Test" forward="onTest" />
 					</auxheader>
 				</auxhead>

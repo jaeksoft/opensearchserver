@@ -127,7 +127,7 @@ public abstract class ClassFactory {
 	 * @return a string array
 	 */
 	public String[] getAttributes() {
-		String[] attributes = new String[properties.size()];
+		String[] attributes = new String[properties.size() * 2];
 		int i = 0;
 		for (ClassProperty prop : properties.values()) {
 			attributes[i++] = prop.getClassPropertyEnum().getAttribute();

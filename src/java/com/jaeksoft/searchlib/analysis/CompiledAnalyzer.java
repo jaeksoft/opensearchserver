@@ -83,4 +83,22 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 			return false;
 		return tokenStream(fieldName, new StringReader(value)).incrementToken();
 	}
+
+	public List<DebugTokenFilter> test(String text) throws IOException {
+		List<DebugTokenFilter> list = new ArrayList<DebugTokenFilter>();
+		StringReader reader = new StringReader(text);
+		DebugTokenFilter lastDebugTokenFilter = new DebugTokenFilter(tokenizer,
+				tokenizer.create(reader));
+		lastDebugTokenFilter.incrementToken();
+		list.add(lastDebugTokenFilter);
+		for (FilterFactory filter : filters) {
+			lastDebugTokenFilter.reset();
+			DebugTokenFilter newDebugTokenFilter = new DebugTokenFilter(filter,
+					filter.create(lastDebugTokenFilter));
+			newDebugTokenFilter.incrementToken();
+			list.add(newDebugTokenFilter);
+			lastDebugTokenFilter = newDebugTokenFilter;
+		}
+		return list;
+	}
 }
