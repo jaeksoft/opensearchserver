@@ -22,39 +22,37 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis.tokenizer;
+package com.jaeksoft.searchlib.cache;
 
-public enum TokenizerEnum {
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.ngram.NGramTokenFilter;
 
-	LetterOrDigitTokenizerFactory(
-			"This tokenizer considers each non-digit, non-letter character to be a separator between words"),
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
 
-	NGramTokenizer("Tokenizes the input into n-grams of the given size(s)."),
+public class NGramFilter extends FilterFactory {
 
-	EdgeNGramTokenizer(
-			"Create n-grams from the beginning edge or ending edge of a input token."),
+	private int min;
+	private int max;
 
-	StandardTokenizer(
-			"Splits words at punctuation characters, removing punctuation."),
-
-	WhitespaceTokenizer(
-			"Splits text into word each time a white space is encountered"),
-
-	ChineseTokenizer("Chinese tokenizer"),
-
-	RussianLetterTokenizer("Russian tokenizer");
-
-	private String description;
-
-	private TokenizerEnum(String description) {
-		this.description = description;
+	@Override
+	public void setProperty(String key, String value) throws SearchLibException {
+		super.setProperty(key, value);
+		if ("minGram".equals(key))
+			min = Integer.parseInt(value);
+		else if ("maxGram".equals(key))
+			max = Integer.parseInt(value);
 	}
 
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
+	@Override
+	public TokenStream create(TokenStream input) {
+		return new NGramTokenFilter(input, min, max);
 	}
 
+	private final static String[] PROPLIST = { "minGram", "maxGram" };
+
+	@Override
+	public String[] getPropertyKeyList() {
+		return PROPLIST;
+	}
 }

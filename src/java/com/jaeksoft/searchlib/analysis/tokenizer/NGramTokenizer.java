@@ -24,37 +24,37 @@
 
 package com.jaeksoft.searchlib.analysis.tokenizer;
 
-public enum TokenizerEnum {
+import java.io.Reader;
 
-	LetterOrDigitTokenizerFactory(
-			"This tokenizer considers each non-digit, non-letter character to be a separator between words"),
+import org.apache.lucene.analysis.Tokenizer;
 
-	NGramTokenizer("Tokenizes the input into n-grams of the given size(s)."),
+import com.jaeksoft.searchlib.SearchLibException;
 
-	EdgeNGramTokenizer(
-			"Create n-grams from the beginning edge or ending edge of a input token."),
+public class NGramTokenizer extends TokenizerFactory {
 
-	StandardTokenizer(
-			"Splits words at punctuation characters, removing punctuation."),
+	private int min;
+	private int max;
 
-	WhitespaceTokenizer(
-			"Splits text into word each time a white space is encountered"),
-
-	ChineseTokenizer("Chinese tokenizer"),
-
-	RussianLetterTokenizer("Russian tokenizer");
-
-	private String description;
-
-	private TokenizerEnum(String description) {
-		this.description = description;
+	@Override
+	public void setProperty(String key, String value) throws SearchLibException {
+		super.setProperty(key, value);
+		if ("minGram".equals(key))
+			min = Integer.parseInt(value);
+		else if ("maxGram".equals(key))
+			max = Integer.parseInt(value);
 	}
 
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
+	@Override
+	public Tokenizer create(Reader reader) {
+		return new org.apache.lucene.analysis.ngram.NGramTokenizer(reader, min,
+				max);
+	}
+
+	private final static String[] PROPLIST = { "minGram", "maxGram" };
+
+	@Override
+	public String[] getPropertyKeyList() {
+		return PROPLIST;
 	}
 
 }

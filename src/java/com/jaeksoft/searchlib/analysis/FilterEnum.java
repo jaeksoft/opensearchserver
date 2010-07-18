@@ -32,12 +32,18 @@ public enum FilterEnum {
 
 	DutchStemFilter("A filter that stems Dutch words."),
 
+	EdgeNGramFilter(
+			"This filter create n-grams from the beginning edge or ending edge of a input token"),
+
 	FrenchStemFilter("A filter that stems French words"),
 
 	ISOLatin1AccentFilter(
 			"This filter replaces accented characters (characters with diacritics) in the ISO latin 1 character set (ISO-8859-1) with the unaccented (no diacritics) equivalent."),
 
 	LowerCaseFilter("This filter normalises text into lower case characters"),
+
+	NGramFilter(
+			"This filter tokenizes the input into n-grams of the given size(s)."),
 
 	RussianStemFilter("A filter that stems Russian words."),
 
