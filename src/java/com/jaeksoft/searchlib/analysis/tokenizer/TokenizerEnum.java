@@ -57,4 +57,15 @@ public enum TokenizerEnum {
 		return description;
 	}
 
+	private static String[] tokenizerEnumArray = null;
+
+	public static synchronized String[] getStringArray() {
+		if (tokenizerEnumArray != null)
+			return tokenizerEnumArray;
+		tokenizerEnumArray = new String[TokenizerEnum.values().length];
+		int i = 0;
+		for (TokenizerEnum te : TokenizerEnum.values())
+			tokenizerEnumArray[i++] = te.name();
+		return tokenizerEnumArray;
+	}
 }

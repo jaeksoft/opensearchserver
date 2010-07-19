@@ -34,6 +34,7 @@ import org.zkoss.zul.Label;
 import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
@@ -47,6 +48,7 @@ import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class AnalyzersController extends CommonController implements
@@ -74,6 +76,27 @@ public class AnalyzersController extends CommonController implements
 	private String testType;
 
 	private List<DebugTokenFilter> testList;
+
+	private class DeleteAlert extends AlertController {
+
+		private Analyzer deleteAnalyzer;
+
+		protected DeleteAlert(Analyzer deleteAnalyzer)
+				throws InterruptedException {
+			super("Please, confirm that you want to delete the analyzer: "
+					+ deleteAnalyzer.getName() + " "
+					+ deleteAnalyzer.getLang().getName(), Messagebox.YES
+					| Messagebox.NO, Messagebox.QUESTION);
+			this.deleteAnalyzer = deleteAnalyzer;
+		}
+
+		@Override
+		protected void onYes() throws SearchLibException {
+			getClient().getSchema().getAnalyzerList().remove(deleteAnalyzer);
+			getClient().saveConfig();
+			onCancel();
+		}
+	}
 
 	public AnalyzersController() throws SearchLibException {
 		super();
@@ -151,6 +174,10 @@ public class AnalyzersController extends CommonController implements
 		return selectedAnalyzer;
 	}
 
+	public boolean isSelectedAnalyzer() throws SearchLibException {
+		return getSelectedAnalyzer() != null;
+	}
+
 	public boolean isEdit() throws SearchLibException {
 		return editAnalyzer != null;
 	}
@@ -183,13 +210,19 @@ public class AnalyzersController extends CommonController implements
 	public void setCurrentTokenizer(String className) throws SearchLibException {
 		getCurrentAnalyzer().setTokenizer(
 				TokenizerFactory.create(getClient(), className));
-		reloadPage();
 	}
 
 	public void onEdit() throws SearchLibException {
 		editAnalyzer = getSelectedAnalyzer();
 		if (editAnalyzer != null)
 			currentAnalyzer.copyFrom(editAnalyzer);
+		reloadPage();
+	}
+
+	public void onDelete() throws SearchLibException, InterruptedException {
+		if (getSelectedAnalyzer() == null)
+			return;
+		new DeleteAlert(getSelectedAnalyzer());
 		reloadPage();
 	}
 
@@ -208,8 +241,8 @@ public class AnalyzersController extends CommonController implements
 		reloadPage();
 	}
 
-	public TokenizerEnum[] getTokenizerList() {
-		return TokenizerEnum.values();
+	public String[] getTokenizerList() {
+		return TokenizerEnum.getStringArray();
 	}
 
 	public FilterEnum[] getFilterEnum() {

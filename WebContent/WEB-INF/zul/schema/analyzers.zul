@@ -30,6 +30,9 @@
 			</listbox>
 			<button label="Edit" visible="@{anlzr.selectedAnalyzer}"
 				forward="onEdit" />
+			<space />
+			<button label="Delete" visible="@{anlzr.selectedAnalyzer}"
+				forward="onDelete" />
 		</panelchildren>
 	</panel>
 	<panel title="@{anlzr.editMode}" border="normal">
@@ -56,10 +59,9 @@
 					</row>
 					<row>
 						<label value="Tokenizer: " />
-						<vbox width="99%">
-							<combobox width="300px" autodrop="true"
-								model="@{anlzr.tokenizerList}" buttonVisible="true"
-								value="@{anlzr.currentTokenizer}" />
+						<vbox width="100%">
+							<listbox model="@{anlzr.tokenizerList}"
+								mold="select" selectedItem="@{anlzr.currentTokenizer}" />
 							<grid
 								visible="@{anlzr.currentAnalyzer.tokenizer.property}"
 								model="@{anlzr.currentAnalyzer.tokenizer.userProperties}">
@@ -73,15 +75,15 @@
 										<label
 											tooltiptext="@{tokenizerproperty.classPropertyEnum.info}"
 											value="@{tokenizerproperty.classPropertyEnum.label}" />
-										<hbox>
+										<vbox>
 											<textbox
-												visible="@{tokenizerproperty.textbox}" cols="50"
+												visible="@{tokenizerproperty.textbox}"
 												value="@{tokenizerproperty.value}" />
-											<combobox autodrop="true"
+											<listbox mold="select"
 												visible="@{tokenizerproperty.valueList}"
-												model="@{tokenizerproperty.valueList}" buttonVisible="true"
-												value="@{tokenizerproperty.value}" />
-										</hbox>
+												model="@{tokenizerproperty.valueList}"
+												selectedItem="@{tokenizerproperty.value}" />
+										</vbox>
 									</row>
 								</rows>
 							</grid>
@@ -124,15 +126,14 @@
 												<label
 													tooltiptext="@{property.classPropertyEnum.info}"
 													value="@{property.classPropertyEnum.label}" />
-												<hbox>
+												<vbox>
 													<textbox
-														visible="@{property.textbox}" cols="50"
-														value="@{property.value}" />
-													<combobox
-														autodrop="true" visible="@{property.valueList}"
-														model="@{property.valueList}" buttonVisible="true"
-														value="@{property.value}" />
-												</hbox>
+														visible="@{property.textbox}" value="@{property.value}" />
+													<listbox
+														mold="select" visible="@{property.valueList}"
+														model="@{property.valueList}"
+														selectedItem="@{property.value}" />
+												</vbox>
 											</row>
 										</rows>
 									</grid>
@@ -203,7 +204,7 @@
 		</toolbar>
 	</panel>
 	<separator />
-	<panel title="Try your analyzer" border="normal">
+	<panel title="Analyzer test" border="normal">
 		<panelchildren>
 			<listbox model="@{anlzr.testList}"
 				itemRenderer="@{anlzr}">

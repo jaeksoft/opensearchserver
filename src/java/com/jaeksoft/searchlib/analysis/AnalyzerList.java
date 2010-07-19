@@ -59,6 +59,18 @@ public class AnalyzerList {
 		nameListMap = new TreeMap<String, List<Analyzer>>();
 	}
 
+	final private static String getAnalyzerLangKey(String analyzerName,
+			LanguageEnum lang) {
+		StringBuffer sb = new StringBuffer(analyzerName);
+		sb.append('_');
+		sb.append(lang.getCode());
+		return sb.toString();
+	}
+
+	final private static String getAnalyzerLangKey(Analyzer analyzer) {
+		return getAnalyzerLangKey(analyzer.getName(), analyzer.getLang());
+	}
+
 	public boolean add(Analyzer analyzer) {
 		rwl.w.lock();
 		try {
@@ -68,9 +80,23 @@ public class AnalyzerList {
 				nameListMap.put(analyzer.getName(), alist);
 			}
 			alist.add(analyzer);
-			nameLangMap.put(analyzer.getName() + "_"
-					+ analyzer.getLang().getCode(), analyzer);
+			nameLangMap.put(getAnalyzerLangKey(analyzer), analyzer);
 			return true;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void remove(Analyzer analyzer) {
+		rwl.w.lock();
+		try {
+			List<Analyzer> alist = nameListMap.get(analyzer.getName());
+			if (alist != null) {
+				alist.remove(analyzer);
+				if (alist.size() == 0)
+					nameListMap.remove(analyzer.getName());
+			}
+			nameLangMap.remove(getAnalyzerLangKey(analyzer));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -99,7 +125,7 @@ public class AnalyzerList {
 		try {
 			if (lang == null)
 				lang = LanguageEnum.UNDEFINED;
-			return nameLangMap.get(name + "_" + lang.getCode());
+			return nameLangMap.get(getAnalyzerLangKey(name, lang));
 		} finally {
 			rwl.r.unlock();
 		}
@@ -132,4 +158,5 @@ public class AnalyzerList {
 			rwl.r.unlock();
 		}
 	}
+
 }

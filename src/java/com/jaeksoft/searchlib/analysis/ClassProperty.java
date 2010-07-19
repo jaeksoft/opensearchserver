@@ -64,8 +64,6 @@ public class ClassProperty {
 	 * @throws SearchLibException
 	 */
 	public void setValue(String value) throws SearchLibException {
-		System.out.println("VALUE_STRING " + value.getClass().getName() + " = "
-				+ value.toString());
 		classFactory.checkValue(classPropertyEnum, value);
 		this.value = value;
 	}
