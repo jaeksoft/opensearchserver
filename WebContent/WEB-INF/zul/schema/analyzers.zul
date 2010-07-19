@@ -56,10 +56,36 @@
 					</row>
 					<row>
 						<label value="Tokenizer: " />
-						<combobox width="300px" autodrop="true"
-							model="@{anlzr.tokenizerList}" id="combotokenizer"
-							buttonVisible="true"
-							value="@{anlzr.currentAnalyzer.tokenizerClassName}" />
+						<vbox width="99%">
+							<combobox width="300px" autodrop="true"
+								model="@{anlzr.tokenizerList}" buttonVisible="true"
+								value="@{anlzr.currentTokenizer}" />
+							<grid
+								visible="@{anlzr.currentAnalyzer.tokenizer.property}"
+								model="@{anlzr.currentAnalyzer.tokenizer.userProperties}">
+								<columns>
+									<column width="150px" align="right" />
+									<column />
+								</columns>
+								<rows>
+									<row
+										self="@{each='tokenizerproperty'}">
+										<label
+											tooltiptext="@{tokenizerproperty.classPropertyEnum.info}"
+											value="@{tokenizerproperty.classPropertyEnum.label}" />
+										<hbox>
+											<textbox
+												visible="@{tokenizerproperty.textbox}" cols="50"
+												value="@{tokenizerproperty.value}" />
+											<combobox autodrop="true"
+												visible="@{tokenizerproperty.valueList}"
+												model="@{tokenizerproperty.valueList}" buttonVisible="true"
+												value="@{tokenizerproperty.value}" />
+										</hbox>
+									</row>
+								</rows>
+							</grid>
+						</vbox>
 					</row>
 					<row>
 						<label value="Filter list: " />
@@ -102,9 +128,10 @@
 													<textbox
 														visible="@{property.textbox}" cols="50"
 														value="@{property.value}" />
-													<listbox
-														mold="select" model="@{property.valueList}"
-														visible="@{property.valueList}" value="@{property.value}" />
+													<combobox
+														autodrop="true" visible="@{property.valueList}"
+														model="@{property.valueList}" buttonVisible="true"
+														value="@{property.value}" />
 												</hbox>
 											</row>
 										</rows>
@@ -133,14 +160,14 @@
 											<listheader />
 										</listhead>
 										<listitem
-											self="@{each='property'}">
+											self="@{each='filterproperty'}">
 											<listcell>
 												<label
-													value="@{property.classPropertyEnum.label}" />
+													value="@{filterproperty.classPropertyEnum.label}" />
 												<label value=": " />
 											</listcell>
 											<listcell
-												label="@{property.value}" />
+												label="@{filterproperty.value}" />
 										</listitem>
 									</listbox>
 								</listcell>
@@ -178,7 +205,8 @@
 	<separator />
 	<panel title="Try your analyzer" border="normal">
 		<panelchildren>
-			<listbox model="@{anlzr.testList}" itemRenderer="@{anlzr}">
+			<listbox model="@{anlzr.testList}"
+				itemRenderer="@{anlzr}">
 				<auxhead>
 					<auxheader colspan="2">
 						<label value="Enter a text to analyze: " />

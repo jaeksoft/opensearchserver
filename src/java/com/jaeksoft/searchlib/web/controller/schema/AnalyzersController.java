@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.analysis.FilterEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
+import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class AnalyzersController extends CommonController implements
@@ -173,6 +174,16 @@ public class AnalyzersController extends CommonController implements
 	 */
 	public Analyzer getCurrentAnalyzer() {
 		return currentAnalyzer;
+	}
+
+	public String getCurrentTokenizer() {
+		return getCurrentAnalyzer().getTokenizer().getClassName();
+	}
+
+	public void setCurrentTokenizer(String className) throws SearchLibException {
+		getCurrentAnalyzer().setTokenizer(
+				TokenizerFactory.create(getClient(), className));
+		reloadPage();
 	}
 
 	public void onEdit() throws SearchLibException {

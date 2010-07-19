@@ -132,39 +132,6 @@ public class Analyzer {
 	}
 
 	/**
-	 * @return the tokenizer classname
-	 */
-	public String getTokenizerClassName() {
-		rwl.r.lock();
-		try {
-			if (tokenizer == null)
-				return null;
-			return tokenizer.getClassName();
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param tokenizer
-	 *            the tokenizer to set
-	 * @throws SearchLibException
-	 */
-	public void setTokenizerClassName(String className)
-			throws SearchLibException {
-		rwl.w.lock();
-		try {
-			this.tokenizer = (className == null || className.length() == 0) ? TokenizerFactory
-					.getDefaultTokenizer(config) : TokenizerFactory.create(
-					config, className);
-			this.queryAnalyzer = null;
-			this.indexAnalyzer = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
 	 * @return the filters
 	 */
 	public List<FilterFactory> getFilters() {
@@ -289,9 +256,10 @@ public class Analyzer {
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		rwl.r.lock();
 		try {
-			writer.startElement("analyzer", "name", getName(), "tokenizer",
-					tokenizer != null ? tokenizer.getClassName() : null,
-					"lang", lang != null ? lang.getCode() : null);
+			writer.startElement("analyzer", "name", getName(), "lang",
+					lang != null ? lang.getCode() : null);
+			if (tokenizer != null)
+				tokenizer.writeXmlConfig(writer);
 			if (filters != null && filters.size() > 0)
 				for (FilterFactory filter : filters)
 					filter.writeXmlConfig(writer);

@@ -28,10 +28,12 @@ import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassFactory;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class TokenizerFactory extends ClassFactory {
 
@@ -62,4 +64,8 @@ public abstract class TokenizerFactory extends ClassFactory {
 		return (TokenizerFactory) ClassFactory.create(tokenizer);
 	}
 
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("tokenizer", getAttributes());
+		writer.endElement();
+	}
 }

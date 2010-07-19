@@ -27,12 +27,14 @@ package com.jaeksoft.searchlib.analysis.tokenizer;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.util.Version;
 
 public class StandardTokenizer extends TokenizerFactory {
 
 	@Override
 	public Tokenizer create(Reader reader) {
-		return new org.apache.lucene.analysis.standard.StandardTokenizer(reader);
+		return new org.apache.lucene.analysis.standard.StandardTokenizer(
+				Version.LUCENE_29, reader);
 	}
 
 }
