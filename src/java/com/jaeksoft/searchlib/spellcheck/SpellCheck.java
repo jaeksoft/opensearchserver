@@ -38,6 +38,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.spell.SpellChecker;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -52,7 +53,7 @@ public class SpellCheck implements Externalizable, Iterable<SpellCheckItem>,
 	private String fieldName;
 
 	public SpellCheck(ResultSingle result, SpellCheckField spellCheckField)
-			throws ParseException, SyntaxError, IOException {
+			throws ParseException, SyntaxError, IOException, SearchLibException {
 		SearchRequest searchRequest = result.getSearchRequest();
 		ReaderLocal reader = result.getReader();
 		fieldName = spellCheckField.getName();

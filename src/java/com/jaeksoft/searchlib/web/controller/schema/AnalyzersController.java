@@ -337,7 +337,7 @@ public class AnalyzersController extends CommonController implements
 		return testText;
 	}
 
-	public void onTest() throws IOException {
+	public void onTest() throws IOException, SearchLibException {
 		CompiledAnalyzer compiledAnalyzer = ("query".equals(testType)) ? currentAnalyzer
 				.getQueryAnalyzer() : currentAnalyzer.getIndexAnalyzer();
 		testList = compiledAnalyzer.test(testText);

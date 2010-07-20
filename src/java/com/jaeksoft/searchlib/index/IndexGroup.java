@@ -124,7 +124,7 @@ public class IndexGroup extends IndexAbstract {
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		boolean updated = false;
 		for (IndexAbstract index : getIndices())
 			if (index.updateDocument(schema, document))
@@ -137,7 +137,7 @@ public class IndexGroup extends IndexAbstract {
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		int count = 0;
 		for (IndexAbstract index : getIndices())
 			count += index.updateDocuments(schema, documents);

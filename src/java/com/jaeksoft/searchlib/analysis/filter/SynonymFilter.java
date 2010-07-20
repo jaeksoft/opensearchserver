@@ -47,7 +47,8 @@ public class SynonymFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.FILE, null, null);
+		addProperty(ClassPropertyEnum.FILE, null, config.getStopWordsManager()
+				.getList());
 	}
 
 	@Override

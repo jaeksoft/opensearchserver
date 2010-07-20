@@ -68,7 +68,7 @@ public interface ReaderInterface {
 			InstantiationException, IllegalAccessException;
 
 	public String explain(SearchRequest searchRequest, int docId)
-			throws IOException, ParseException, SyntaxError;
+			throws IOException, ParseException, SyntaxError, SearchLibException;
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
 			throws IOException, ParseException, SyntaxError,

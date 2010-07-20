@@ -43,6 +43,7 @@ import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -248,7 +249,7 @@ public class SnippetField extends Field implements Externalizable {
 	}
 
 	public void initSearchTerms(SearchRequest searchRequest)
-			throws ParseException, SyntaxError, IOException {
+			throws ParseException, SyntaxError, IOException, SearchLibException {
 		synchronized (this) {
 			Query query = searchRequest.getSnippetQuery();
 			Set<Term> terms = new HashSet<Term>();

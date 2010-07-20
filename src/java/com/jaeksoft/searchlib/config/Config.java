@@ -49,6 +49,8 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
+import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
@@ -116,6 +118,10 @@ public abstract class Config {
 	private FilePathManager filePatternManager = null;
 
 	private FileManager fileManager = null;
+
+	private StopWordsManager stopWordsManager = null;
+
+	private SynonymsManager synonymsManager = null;
 
 	private WebPropertyManager webPropertyManager = null;
 
@@ -631,6 +637,30 @@ public abstract class Config {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public StopWordsManager getStopWordsManager() throws SearchLibException {
+		lock.lock();
+		try {
+			if (stopWordsManager == null)
+				stopWordsManager = new StopWordsManager(this, new File(
+						indexDir, "stopwords"));
+			return stopWordsManager;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public SynonymsManager getSynonymsManager() throws SearchLibException {
+		lock.lock();
+		try {
+			if (synonymsManager == null)
+				synonymsManager = new SynonymsManager(this, new File(indexDir,
+						"synonyms"));
+			return synonymsManager;
 		} finally {
 			lock.unlock();
 		}

@@ -86,6 +86,13 @@ public class Schema {
 		return fieldList;
 	}
 
+	public void recompileAnalyzers() {
+		synchronized (langQueryAnalyzers) {
+			analyzers.recompile();
+			langQueryAnalyzers.clear();
+		}
+	}
+
 	public Analyzer getAnalyzer(SchemaField schemaField, LanguageEnum lang) {
 		String analyzerName = schemaField.getIndexAnalyzer();
 		if (analyzerName == null)
@@ -98,7 +105,8 @@ public class Schema {
 		return analyzer;
 	}
 
-	public PerFieldAnalyzerWrapper getQueryPerFieldAnalyzer(LanguageEnum lang) {
+	public PerFieldAnalyzerWrapper getQueryPerFieldAnalyzer(LanguageEnum lang)
+			throws SearchLibException {
 		synchronized (langQueryAnalyzers) {
 			if (lang == null)
 				lang = LanguageEnum.UNDEFINED;

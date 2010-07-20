@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
@@ -69,7 +70,8 @@ public class RenderXml implements Render {
 		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
 	}
 
-	private void renderPrefix() throws ParseException, SyntaxError {
+	private void renderPrefix() throws ParseException, SyntaxError,
+			SearchLibException {
 		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		writer.println("<response>");
 		writer.println("<header>");

@@ -24,14 +24,6 @@
 
 package com.jaeksoft.searchlib.analysis.filter;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 
@@ -46,7 +38,8 @@ public class StopFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.FILE, null, null);
+		addProperty(ClassPropertyEnum.FILE, null, config.getStopWordsManager()
+				.getList());
 	}
 
 	@Override
@@ -54,37 +47,7 @@ public class StopFilter extends FilterFactory {
 			throws SearchLibException {
 		if (prop != ClassPropertyEnum.FILE)
 			return;
-		words = new CharArraySet(0, true);
-		if (value == null || value.length() == 0)
-			return;
-		BufferedReader br = null;
-		try {
-			File file = new File(config.getIndexDirectory(), value);
-			if (!file.exists() || !file.isFile())
-				throw new SearchLibException("File not found (" + value + ")");
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(
-					file), "UTF-8"));
-			String line;
-			while ((line = br.readLine()) != null) {
-				line = line.trim();
-				if (line.length() > 0) {
-					words.add(line);
-				}
-			}
-		} catch (UnsupportedEncodingException e) {
-			throw new SearchLibException(e);
-		} catch (FileNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			if (br != null)
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		}
+		words = config.getStopWordsManager().getWords(value);
 	}
 
 	@Override

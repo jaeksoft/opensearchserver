@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHitCacheKey;
 import com.jaeksoft.searchlib.index.DocSetHits;
@@ -47,7 +48,7 @@ public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 			Schema schema, Field defaultField, Analyzer analyzer)
 			throws ParseException, SyntaxError, IOException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		rwl.w.lock();
 		try {
 			DocSetHitCacheKey key = new DocSetHitCacheKey(searchRequest,

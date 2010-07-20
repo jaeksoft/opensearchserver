@@ -299,7 +299,7 @@ public class SearchRequest implements Externalizable {
 	}
 
 	public Query getSnippetQuery() throws IOException, ParseException,
-			SyntaxError {
+			SyntaxError, SearchLibException {
 		rwl.r.lock();
 		try {
 			if (primitiveQuery != null)
@@ -318,7 +318,8 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
-	public Query getQuery() throws ParseException, SyntaxError {
+	public Query getQuery() throws ParseException, SyntaxError,
+			SearchLibException {
 		rwl.r.lock();
 		try {
 			if (complexQuery != null)
@@ -342,7 +343,8 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
-	private QueryParser getQueryParser() throws ParseException {
+	private QueryParser getQueryParser() throws ParseException,
+			SearchLibException {
 		if (queryParser != null)
 			return queryParser;
 		Schema schema = getConfig().getSchema();
@@ -385,7 +387,8 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
-	public String getQueryParsed() throws ParseException, SyntaxError {
+	public String getQueryParsed() throws ParseException, SyntaxError,
+			SearchLibException {
 		rwl.r.lock();
 		try {
 			getQuery();

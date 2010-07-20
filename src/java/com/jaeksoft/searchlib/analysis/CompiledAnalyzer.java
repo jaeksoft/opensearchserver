@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 
 public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
@@ -40,7 +41,9 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 	private FilterFactory[] filters;
 
 	protected CompiledAnalyzer(TokenizerFactory sourceTokenizer,
-			List<FilterFactory> sourceFilters, FilterScope scopeTarget) {
+			List<FilterFactory> sourceFilters, FilterScope scopeTarget)
+			throws SearchLibException {
+		sourceTokenizer.checkProperties();
 		tokenizer = sourceTokenizer;
 		List<FilterFactory> ff = new ArrayList<FilterFactory>();
 		if (scopeTarget == FilterScope.INDEX)
@@ -52,20 +55,24 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 	}
 
 	private static void buildQueryList(List<FilterFactory> source,
-			List<FilterFactory> target) {
+			List<FilterFactory> target) throws SearchLibException {
 		for (FilterFactory filter : source) {
 			FilterScope scope = filter.getScope();
-			if (scope == FilterScope.QUERY || scope == FilterScope.QUERY_INDEX)
+			if (scope == FilterScope.QUERY || scope == FilterScope.QUERY_INDEX) {
+				filter.checkProperties();
 				target.add(filter);
+			}
 		}
 	}
 
 	private static void buildIndexList(List<FilterFactory> source,
-			List<FilterFactory> target) {
+			List<FilterFactory> target) throws SearchLibException {
 		for (FilterFactory filter : source) {
 			FilterScope scope = filter.getScope();
-			if (scope == FilterScope.INDEX || scope == FilterScope.QUERY_INDEX)
+			if (scope == FilterScope.INDEX || scope == FilterScope.QUERY_INDEX) {
+				filter.checkProperties();
 				target.add(filter);
+			}
 		}
 	}
 

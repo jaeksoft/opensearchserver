@@ -176,12 +176,22 @@ public class Client extends Config {
 		}
 	}
 
-	public void reload() throws IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void reload() throws SearchLibException {
 		Timer timer = new Timer("Reload");
 		try {
 			getIndex().reload();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (HttpException e) {
+			throw new SearchLibException(e);
 		} finally {
 			getStatisticsList().addReload(timer);
 		}

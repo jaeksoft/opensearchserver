@@ -181,7 +181,7 @@ public class IndexSingle extends IndexAbstract {
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -202,7 +202,7 @@ public class IndexSingle extends IndexAbstract {
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		if (!online)
 			throw new IOException("Index is offline");
 		if (readonly)
@@ -270,7 +270,7 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public String explain(SearchRequest searchRequest, int docId)
-			throws IOException, ParseException, SyntaxError {
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		if (!online)
 			throw new IOException("Index is offline");
 		rwl.r.lock();

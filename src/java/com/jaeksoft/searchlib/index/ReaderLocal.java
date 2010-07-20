@@ -335,7 +335,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	@Override
 	public String explain(SearchRequest searchRequest, int docId)
-			throws IOException, ParseException, SyntaxError {
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		rwl.r.lock();
 		try {
 			Explanation explanation = indexSearcher.explain(
@@ -578,7 +578,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public DocSetHits newDocSetHits(SearchRequest searchRequest, Schema schema,
 			Field defaultField, Analyzer analyzer) throws IOException,
 			ParseException, SyntaxError, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
 
 		boolean isFacet = searchRequest.isFacet();
 

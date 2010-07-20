@@ -92,6 +92,11 @@ public abstract class ClassFactory {
 			throws SearchLibException {
 	}
 
+	public void checkProperties() throws SearchLibException {
+		for (ClassProperty prop : properties.values())
+			checkValue(prop.getClassPropertyEnum(), prop.getValue());
+	}
+
 	protected ClassProperty getProperty(ClassPropertyEnum prop) {
 		return properties.get(prop);
 	}

@@ -30,7 +30,7 @@ public enum ClassPropertyEnum {
 
 	SCOPE(false, "Scope", "The scope of the class"),
 
-	FILE(true, "file", "The name of the file"),
+	FILE(true, "List", "The name of the list"),
 
 	MIN_GRAM(true, "Min gram size", "The smallest n-gram to generate"),
 

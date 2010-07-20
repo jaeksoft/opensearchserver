@@ -60,13 +60,13 @@ public interface WriterInterface {
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
+			ClassNotFoundException, SearchLibException;
 
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
+			ClassNotFoundException, SearchLibException;
 
 	public void optimize() throws CorruptIndexException,
 			LockObtainFailedException, IOException, URISyntaxException,

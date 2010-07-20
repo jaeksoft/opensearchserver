@@ -17,18 +17,26 @@
 <tabbox>
 	<tabs>
 		<tab id="tabFields" label="Fields" selected="true" />
-		<tab id="tabParserList" label="Parser list" />
 		<tab id="tabAnalyzers" label="Analyzers" />
+		<tab id="tabParserList" label="Parser list" />
+		<tab id="tabStopWords" label="Stop words" />
+		<tab id="tabSynonyms" label="Synonyms" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
 			<include src="WEB-INF/zul/schema/fields.zul" />
 		</tabpanel>
+		<tabpanel fulfill="tabAnalyzers.onSelect">
+			<include src="WEB-INF/zul/schema/analyzers.zul" />
+		</tabpanel>
 		<tabpanel fulfill="tabParserList.onSelect">
 			<include src="WEB-INF/zul/schema/parserList.zul" />
 		</tabpanel>
-		<tabpanel fulfill="tabAnalyzers.onSelect">
-			<include src="WEB-INF/zul/schema/analyzers.zul" />
+		<tabpanel fulfill="tabStopWords.onSelect">
+			<include src="WEB-INF/zul/schema/stopWords.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabSynonyms.onSelect">
+			<include src="WEB-INF/zul/schema/synonyms.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

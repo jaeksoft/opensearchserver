@@ -102,6 +102,16 @@ public class Analyzer {
 		this.indexAnalyzer = null;
 	}
 
+	public void recompile() {
+		rwl.w.lock();
+		try {
+			this.queryAnalyzer = null;
+			this.indexAnalyzer = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	/**
 	 * @return the tokenizer
 	 */
@@ -329,8 +339,9 @@ public class Analyzer {
 	 * Returns the compiled analyzer for queries
 	 * 
 	 * @return
+	 * @throws SearchLibException
 	 */
-	public CompiledAnalyzer getQueryAnalyzer() {
+	public CompiledAnalyzer getQueryAnalyzer() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (queryAnalyzer != null)
@@ -354,8 +365,9 @@ public class Analyzer {
 	 * Returns the compiled analyzer for indexation
 	 * 
 	 * @return
+	 * @throws SearchLibException
 	 */
-	public CompiledAnalyzer getIndexAnalyzer() {
+	public CompiledAnalyzer getIndexAnalyzer() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (indexAnalyzer != null)

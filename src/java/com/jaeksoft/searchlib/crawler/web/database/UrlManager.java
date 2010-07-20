@@ -236,8 +236,6 @@ public class UrlManager {
 				throw new SearchLibException(e);
 			} catch (ClassNotFoundException e) {
 				throw new SearchLibException(e);
-			} catch (HttpException e) {
-				throw new SearchLibException(e);
 			}
 		}
 	}

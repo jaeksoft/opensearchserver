@@ -102,6 +102,20 @@ public class AnalyzerList {
 		}
 	}
 
+	/**
+	 * Recompile the analyzers
+	 */
+	public void recompile() {
+		rwl.r.lock();
+		try {
+			for (List<Analyzer> alist : nameListMap.values())
+				for (Analyzer a : alist)
+					a.recompile();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public Set<String> getNameSet() {
 		rwl.r.lock();
 		try {

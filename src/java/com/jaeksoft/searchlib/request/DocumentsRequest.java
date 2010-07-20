@@ -32,6 +32,7 @@ import java.util.Iterator;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
@@ -60,7 +61,7 @@ public class DocumentsRequest implements Externalizable {
 	}
 
 	private DocumentsRequest(SearchRequest searchRequest)
-			throws ParseException, SyntaxError, IOException {
+			throws ParseException, SyntaxError, IOException, SearchLibException {
 		requestedDocuments = null;
 		this.snippetFieldList = searchRequest.getSnippetFieldList();
 		for (SnippetField snippetField : snippetFieldList)
@@ -76,9 +77,10 @@ public class DocumentsRequest implements Externalizable {
 	 * @throws ParseException
 	 * @throws SyntaxError
 	 * @throws IOException
+	 * @throws SearchLibException
 	 */
 	public DocumentsRequest(Result result) throws ParseException, SyntaxError,
-			IOException {
+			IOException, SearchLibException {
 		this(result.getSearchRequest());
 		int start = result.getSearchRequest().getStart();
 		int rows = result.getDocumentCount();

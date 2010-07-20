@@ -44,6 +44,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -182,7 +183,8 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private boolean updateDoc(Schema schema, IndexDocument document)
-			throws CorruptIndexException, IOException, NoSuchAlgorithmException {
+			throws CorruptIndexException, IOException,
+			NoSuchAlgorithmException, SearchLibException {
 		if (!acceptDocument(document))
 			return false;
 		Document doc = getLuceneDocument(schema, document);
@@ -204,7 +206,7 @@ public class WriterLocal extends WriterAbstract {
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws NoSuchAlgorithmException, IOException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		l.lock();
 		try {
 			open();
@@ -223,7 +225,7 @@ public class WriterLocal extends WriterAbstract {
 			Collection<IndexDocument> documents)
 			throws NoSuchAlgorithmException, IOException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SearchLibException {
 		l.lock();
 		try {
 			int count = 0;
@@ -242,7 +244,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private static Document getLuceneDocument(Schema schema,
-			IndexDocument document) throws IOException {
+			IndexDocument document) throws IOException, SearchLibException {
 		schema.getQueryPerFieldAnalyzer(document.getLang());
 		org.apache.lucene.document.Document doc = new Document();
 		LanguageEnum lang = document.getLang();
@@ -325,7 +327,7 @@ public class WriterLocal extends WriterAbstract {
 	public int deleteDocuments(SearchRequest query)
 			throws CorruptIndexException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError {
+			SyntaxError, SearchLibException {
 		l.lock();
 		try {
 			open();
