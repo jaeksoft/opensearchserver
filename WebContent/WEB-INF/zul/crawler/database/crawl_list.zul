@@ -1,0 +1,65 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<panel
+	title="List of existing database crawl - click on an crawl name to edit it"
+	border="normal">
+	<toolbar>
+		<button label="Refresh" forward="onListRefresh" />
+	</toolbar>
+	<panelchildren>
+		<listbox id="crawllistbox"
+			selectedItem="@{dbCrawlList.selectedCrawl}"
+			model="@{dbCrawlList.databaseCrawlList.array}" mold="paging"
+			pageSize="20">
+			<listhead>
+				<listheader label="Name" />
+				<listheader label="Last execution time" width="150px" />
+				<listheader label="Duration"
+					tooltiptext="last duration time" width="100px" />
+				<listheader label="Status" width="100px" />
+				<listheader label="Info" width="150px" />
+				<listheader label="Action" width="100px" align="center" />
+			</listhead>
+			<listitem self="@{each=dbcrawlitem}">
+				<listcell label="@{dbcrawlitem.name}" />
+				<listcell
+					label="@{dbcrawlitem.lastCrawlThread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+				<listcell
+					label="@{dbcrawlitem.lastCrawlThread.lastReplicationThread.duration,converter='com.jaeksoft.searchlib.web.converter.DurationConverter'}" />
+				<listcell
+					tooltiptext="@{dbcrawlitem.lastCrawlThread.info}"
+					label="@{dbcrawlitem.lastCrawlThread.status}" />
+				<listcell
+					label="@{dbcrawlitem.lastCrawlThread.countInfo}" />
+				<listcell>
+					<button tooltiptext="Execute the crawl process"
+						disabled="@{dbcrawlitem.crawlThread}"
+						image="/images/action_check.png"
+						onClick="dbCrawlList.execute(self)">
+						<custom-attributes dbcrawlitem="@{dbcrawlitem}" />
+					</button>
+					<space />
+					<button tooltiptext="Delete crawl process"
+						image="/images/action_delete.png"
+						onClick="dbCrawlList.delete(self)">
+						<custom-attributes dbcrawlitem="@{dbcrawlitem}" />
+					</button>
+				</listcell>
+			</listitem>
+		</listbox>
+	</panelchildren>
+</panel>

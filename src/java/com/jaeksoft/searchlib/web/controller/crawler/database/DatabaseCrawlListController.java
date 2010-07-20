@@ -34,10 +34,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Combobox;
-import org.zkoss.zul.ListModel;
 import org.zkoss.zul.Messagebox;
-import org.zkoss.zul.SimpleListModel;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -101,13 +98,6 @@ public class DatabaseCrawlListController extends CrawlerController {
 		selectedIndexField = null;
 	}
 
-	@Override
-	public void afterCompose() {
-		super.afterCompose();
-		Combobox cb = (Combobox) getFellow("combodriver");
-		cb.setModel(getDriverClassList());
-	}
-
 	public DatabaseCrawl getCurrentCrawl() {
 		return currentCrawl;
 	}
@@ -134,10 +124,9 @@ public class DatabaseCrawlListController extends CrawlerController {
 		return dbCrawlList;
 	}
 
-	public ListModel getDriverClassList() {
-		return new SimpleListModel(
-				DatabaseDriverNames.getAvailableList(getDesktop().getWebApp()
-						.getClass().getClassLoader()));
+	public String[] getDriverClassList() {
+		return DatabaseDriverNames.getAvailableList(getDesktop().getWebApp()
+				.getClass().getClassLoader());
 	}
 
 	public void setSelectedCrawl(DatabaseCrawl crawl) throws SearchLibException {

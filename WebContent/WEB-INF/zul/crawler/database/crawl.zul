@@ -14,20 +14,13 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window border="none">
-	<tabbox>
-		<tabs>
-			<tab id="tabCrawlerDatabaseList" label="Crawl list"
-				selected="true" />
-			<tab id="tabCrawlerDatabaseProcess" label="Process list" />
-		</tabs>
-		<tabpanels>
-			<tabpanel>
-				<include src="WEB-INF/zul/crawler/database/crawl.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tabCrawlerDatabaseProcess.onSelect">
-				<include src="WEB-INF/zul/crawler/database/process.zul" />
-			</tabpanel>
-		</tabpanels>
-	</tabbox>
+<window id="dbCrawlList"
+	use="com.jaeksoft.searchlib.web.controller.crawler.database.DatabaseCrawlListController">
+
+	<include src="WEB-INF/zul/crawler/database/crawl_list.zul" />
+	<separator height="10" />
+	<include src="WEB-INF/zul/crawler/database/crawl_edit.zul" />
+
+	<timer delay="5000" repeats="true" onTimer="dbCrawlList.onTimer()"
+		running="@{dbCrawlList.refresh}" />
 </window>
