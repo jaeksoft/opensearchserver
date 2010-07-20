@@ -24,11 +24,6 @@
 
 package com.jaeksoft.searchlib.analysis.filter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.TreeMap;
-
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -40,15 +35,14 @@ import com.jaeksoft.searchlib.analysis.synonym.SynonymTokenFilter;
 
 public class SynonymFilter extends FilterFactory {
 
-	private SynonymMap synonymMap = null;
-
-	private static TreeMap<File, SynonymMap> synonymMaps = new TreeMap<File, SynonymMap>();
+	private SynonymMap synonyms = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.FILE, null, config.getStopWordsManager()
-				.getList());
+		String[] values = config.getSynonymsManager().getList();
+		String value = (values != null && values.length > 0) ? values[0] : null;
+		addProperty(ClassPropertyEnum.FILE, value, values);
 	}
 
 	@Override
@@ -58,27 +52,14 @@ public class SynonymFilter extends FilterFactory {
 			return;
 		if (value == null || value.length() == 0)
 			return;
-		File file = new File(config.getIndexDirectory(), value);
-		if (!file.exists() || !file.isFile())
-			throw new SearchLibException("File not found (" + value + ")");
-		synchronized (synonymMaps) {
-			synonymMap = synonymMaps.get(file);
-			if (synonymMap == null) {
-				try {
-					synonymMap = new SynonymMap(file);
-				} catch (FileNotFoundException e) {
-					throw new SearchLibException(e);
-				} catch (IOException e) {
-					throw new SearchLibException(e);
-				}
-				synonymMaps.put(file, synonymMap);
-			}
-		}
+		synonyms = config.getSynonymsManager().getSynonyms(value);
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		for (SynonymQueue queue : synonymMap.getSynonymQueues())
+		if (synonyms == null)
+			return tokenStream;
+		for (SynonymQueue queue : synonyms.getSynonymQueues())
 			tokenStream = new SynonymTokenFilter(tokenStream, queue);
 		return tokenStream;
 	}

@@ -83,8 +83,8 @@ public class Analyzer {
 				target.filters
 						.add((FilterFactory) FilterFactory.create(filter));
 			target.config = this.config;
-			target.queryAnalyzer = this.queryAnalyzer;
-			target.indexAnalyzer = this.indexAnalyzer;
+			target.queryAnalyzer = null;
+			target.indexAnalyzer = null;
 
 		} finally {
 			rwl.r.unlock();

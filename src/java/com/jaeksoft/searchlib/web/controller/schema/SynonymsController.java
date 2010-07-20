@@ -24,44 +24,24 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
-import org.zkoss.zul.Messagebox;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
-import com.jaeksoft.searchlib.web.controller.AlertController;
-import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class SynonymsController extends CommonController {
+public class SynonymsController extends CommonDirectoryController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8145875561037662110L;
 
-	private class DeleteAlert extends AlertController {
-
-		protected DeleteAlert() throws InterruptedException {
-			super("Please, confirm that you want to delete the synonym list: ",
-					Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
-		}
-
-		@Override
-		protected void onYes() throws SearchLibException {
-		}
-	}
-
 	public SynonymsController() throws SearchLibException {
 		super();
-	}
-
-	public SynonymsManager getManager() throws SearchLibException {
-		return getClient().getSynonymsManager();
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
+	public SynonymsManager getManager() throws SearchLibException {
+		return getClient().getSynonymsManager();
 	}
 
 }

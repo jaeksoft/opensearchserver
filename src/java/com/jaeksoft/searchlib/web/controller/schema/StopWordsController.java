@@ -24,123 +24,23 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
-import java.io.IOException;
-
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Messagebox;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
-import com.jaeksoft.searchlib.web.controller.AlertController;
-import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class StopWordsController extends CommonController {
+public class StopWordsController extends CommonDirectoryController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5856562070877122405L;
 
-	private String editName;
-
-	private String content;
-
-	private class DeleteAlert extends AlertController {
-
-		private String deleteListName;
-
-		protected DeleteAlert(String listname) throws InterruptedException {
-			super(
-					"Please, confirm that you want to delete the stop words list: "
-							+ listname, Messagebox.YES | Messagebox.NO,
-					Messagebox.QUESTION);
-			deleteListName = listname;
-		}
-
-		@Override
-		protected void onYes() throws SearchLibException {
-			getManager().delete(deleteListName);
-			getClient().getSchema().recompileAnalyzers();
-			getClient().reload();
-			reloadPage();
-		}
-	}
-
 	public StopWordsController() throws SearchLibException {
 		super();
 	}
 
+	@Override
 	public StopWordsManager getManager() throws SearchLibException {
 		return getClient().getStopWordsManager();
-	}
-
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void onAdd() throws IOException, SearchLibException {
-		getManager().create(getEditName());
-		getClient().getSchema().recompileAnalyzers();
-		getClient().reload();
-		reloadPage();
-	}
-
-	public void onSave() throws IOException, InterruptedException,
-			SearchLibException {
-		getManager().saveContent(getEditName(), getContent());
-		new AlertController("Stop words list saved!", Messagebox.INFORMATION);
-		getClient().getSchema().recompileAnalyzers();
-		getClient().reload();
-		reloadPage();
-	}
-
-	public void onDelete(Component comp) throws InterruptedException {
-		String name = (String) comp.getAttribute("listname");
-		if (name == null)
-			return;
-		new DeleteAlert(name);
-	}
-
-	public boolean isEdit() throws SearchLibException {
-		return getManager().exists(getEditName());
-	}
-
-	/**
-	 * @param editName
-	 *            the editName to set
-	 * @throws SearchLibException
-	 * @throws IOException
-	 */
-	public void setEditName(String editName) throws SearchLibException,
-			IOException {
-		this.editName = editName;
-		StopWordsManager manager = getManager();
-		if (manager.exists(editName))
-			setContent(manager.getContent(editName));
-	}
-
-	/**
-	 * @return the editName
-	 */
-	public String getEditName() {
-		return editName;
-	}
-
-	/**
-	 * @param content
-	 *            the content to set
-	 */
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	/**
-	 * @return the content
-	 */
-	public String getContent() {
-		return content;
 	}
 
 }

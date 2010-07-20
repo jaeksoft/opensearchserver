@@ -106,6 +106,17 @@ public class StopWordsManager extends AbstractDirectoryManager {
 	}
 
 	@Override
+	public void delete(String name) {
+		rwl.w.lock();
+		try {
+			super.delete(name);
+			wordsMap.remove(name);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	@Override
 	public void saveContent(String name, String content) throws IOException,
 			SearchLibException {
 		rwl.w.lock();

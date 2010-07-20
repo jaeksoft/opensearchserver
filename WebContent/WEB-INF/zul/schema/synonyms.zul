@@ -16,4 +16,44 @@
 -->
 <window id="synonyms"
 	use="com.jaeksoft.searchlib.web.controller.schema.SynonymsController">
-</window>
+	<panel title="Stop words list" border="normal">
+		<panelchildren>
+			<listbox model="@{synonyms.manager.list}"
+				selectedItem="@{synonyms.editName}">
+				<listhead>
+					<listheader label="List name" />
+					<listheader width="50px" label="Action"
+						align="center" />
+				</listhead>
+				<auxhead>
+					<auxheader>
+						<textbox width="99%"
+							value="@{synonyms.editName}" readonly="@{isEdit}" />
+					</auxheader>
+					<auxheader>
+						<button image="/images/action_add.png"
+							forward="onAdd" />
+					</auxheader>
+				</auxhead>
+				<listitem self="@{each='listname'}">
+					<listcell label="@{listname}" />
+					<listcell>
+						<button image="/images/action_delete.png"
+							onClick="synonyms.onDelete(self)">
+							<custom-attributes listname="@{listname}" />
+						</button>
+					</listcell>
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<panel visible="@{synonyms.isEdit}" border="normal"
+		title="List content">
+		<toolbar>
+			<button label="Save" forward="onSave" />
+		</toolbar>
+		<panelchildren>
+			<textbox width="100%" multiline="true" height="300px"
+				value="@{synonyms.content}" />
+		</panelchildren>
+	</panel></window>

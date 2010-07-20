@@ -38,14 +38,17 @@ public class StopFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.FILE, null, config.getStopWordsManager()
-				.getList());
+		String[] values = config.getStopWordsManager().getList();
+		String value = (values != null && values.length > 0) ? values[0] : null;
+		addProperty(ClassPropertyEnum.FILE, value, values);
 	}
 
 	@Override
 	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
 		if (prop != ClassPropertyEnum.FILE)
+			return;
+		if (value == null || value.length() == 0)
 			return;
 		words = config.getStopWordsManager().getWords(value);
 	}

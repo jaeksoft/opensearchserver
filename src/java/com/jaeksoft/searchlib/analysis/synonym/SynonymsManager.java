@@ -25,14 +25,78 @@
 package com.jaeksoft.searchlib.analysis.synonym;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.TreeMap;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.AbstractDirectoryManager;
 import com.jaeksoft.searchlib.config.Config;
 
 public class SynonymsManager extends AbstractDirectoryManager {
 
+	private TreeMap<String, SynonymMap> synonymMaps;
+
 	public SynonymsManager(Config config, File directory) {
 		super(config, directory);
+		synonymMaps = new TreeMap<String, SynonymMap>();
 	}
 
+	private SynonymMap getNewSynonymMap(String listname)
+			throws SearchLibException {
+		try {
+			return new SynonymMap(getFile(listname));
+		} catch (FileNotFoundException e) {
+			return null;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	public SynonymMap getSynonyms(String listname) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			SynonymMap synonymMap = synonymMaps.get(listname);
+			if (synonymMap != null)
+				return synonymMap;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			SynonymMap synonymMap = synonymMaps.get(listname);
+			if (synonymMap != null)
+				return synonymMap;
+			synonymMap = getNewSynonymMap(listname);
+			if (synonymMap != null)
+				synonymMaps.put(listname, synonymMap);
+			return synonymMap;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	@Override
+	public void delete(String name) {
+		rwl.w.lock();
+		try {
+			super.delete(name);
+			synonymMaps.remove(name);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	@Override
+	public void saveContent(String name, String content) throws IOException,
+			SearchLibException {
+		rwl.w.lock();
+		try {
+			super.saveContent(name, content);
+			synonymMaps.remove(name);
+			synonymMaps.put(name, getSynonyms(name));
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 }
