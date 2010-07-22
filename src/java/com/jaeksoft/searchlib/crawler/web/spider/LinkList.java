@@ -68,6 +68,7 @@ public class LinkList implements Iterable<Link> {
 			document.add(fieldName, link.getUrl().toExternalForm());
 	}
 
+	@Override
 	public Iterator<Link> iterator() {
 		return links.values().iterator();
 	}

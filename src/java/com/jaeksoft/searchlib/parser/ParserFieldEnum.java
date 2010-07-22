@@ -73,6 +73,8 @@ public enum ParserFieldEnum {
 
 	external_link_nofollow,
 
-	lang, content_type;
+	lang,
+
+	content_type;
 
 }
