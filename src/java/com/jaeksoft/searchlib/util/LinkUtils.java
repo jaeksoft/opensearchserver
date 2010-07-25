@@ -65,7 +65,7 @@ public class LinkUtils {
 
 	public final static URL getLink(URL currentURL, String uri, boolean follow,
 			boolean allowRefAnchor, boolean resolveDotSlash,
-			UrlFilterItem[] urlFilterList) throws MalformedURLException {
+			UrlFilterItem[] urlFilterList) {
 
 		if (uri == null)
 			return null;
@@ -124,7 +124,12 @@ public class LinkUtils {
 			}
 		}
 
-		return new URL(uri);
+		try {
+			return new URL(uri);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }
