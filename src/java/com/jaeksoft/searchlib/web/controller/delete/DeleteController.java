@@ -66,7 +66,7 @@ public class DeleteController extends CommonController {
 				if (client == null)
 					return;
 				client.deleteDocuments(request);
-				PushEvent.DOCUMENT_UPDATED.publish(client.getIndexName());
+				PushEvent.DOCUMENT_UPDATED.publish(client);
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} catch (InstantiationException e) {
