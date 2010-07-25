@@ -97,9 +97,9 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 		try {
 			if (updateCrawlList.size() > getMaxBufferSize())
 				return true;
-			if (deleteUrlList.size() > getMaxBufferSize())
+			if (deleteUrlList.size() > getMaxBufferSize() * 10)
 				return true;
-			if (insertUrlList.size() > getMaxBufferSize())
+			if (insertUrlList.size() > getMaxBufferSize() * 10)
 				return true;
 			return false;
 		} finally {
