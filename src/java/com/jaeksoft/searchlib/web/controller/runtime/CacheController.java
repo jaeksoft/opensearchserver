@@ -48,11 +48,10 @@ public class CacheController extends CommonController {
 
 	public CacheController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		searchCacheList = null;
 		filterCacheList = null;
 		fieldCacheList = null;
@@ -103,8 +102,8 @@ public class CacheController extends CommonController {
 			int i = 0;
 			for (Object o : indexList) {
 				IndexSingle index = (IndexSingle) o;
-				searchCacheList[i++] = new CacheItem<SearchCache>(index, index
-						.getSearchCache());
+				searchCacheList[i++] = new CacheItem<SearchCache>(index,
+						index.getSearchCache());
 			}
 			return searchCacheList;
 		}
@@ -121,8 +120,8 @@ public class CacheController extends CommonController {
 			int i = 0;
 			for (Object o : indexList) {
 				IndexSingle index = (IndexSingle) o;
-				filterCacheList[i++] = new CacheItem<FilterCache>(index, index
-						.getFilterCache());
+				filterCacheList[i++] = new CacheItem<FilterCache>(index,
+						index.getFilterCache());
 			}
 			return filterCacheList;
 		}
@@ -139,8 +138,8 @@ public class CacheController extends CommonController {
 			int i = 0;
 			for (Object o : indexList) {
 				IndexSingle index = (IndexSingle) o;
-				fieldCacheList[i++] = new CacheItem<FieldCache>(index, index
-						.getFieldCache());
+				fieldCacheList[i++] = new CacheItem<FieldCache>(index,
+						index.getFieldCache());
 			}
 			return fieldCacheList;
 		}
@@ -149,9 +148,7 @@ public class CacheController extends CommonController {
 	@Override
 	public void reloadPage() {
 		synchronized (this) {
-			searchCacheList = null;
-			filterCacheList = null;
-			fieldCacheList = null;
+			reset();
 			super.reloadPage();
 		}
 	}

@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -90,6 +91,7 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -147,7 +149,7 @@ public abstract class Config {
 
 	private File indexDir;
 
-	private final Lock lock = new ReentrantLock(true);
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	private final Lock longTermLock = new ReentrantLock();
 
@@ -177,7 +179,7 @@ public abstract class Config {
 
 			}
 
-			index = getIndex(indexDir, xppConfig, createIndexIfNotExists);
+			index = newIndex(indexDir, xppConfig, createIndexIfNotExists);
 			schema = Schema.fromXmlConfig(this,
 					xppConfig.getNode("/configuration/schema"), xppConfig);
 
@@ -211,8 +213,13 @@ public abstract class Config {
 		}
 	}
 
-	public File getIndexDirectory() {
-		return indexDir;
+	public File getDirectory() {
+		rwl.r.lock();
+		try {
+			return indexDir;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private void saveConfigWithoutLock() throws IOException,
@@ -245,11 +252,16 @@ public abstract class Config {
 		if (!longTermLock.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-					"UTF-8");
-			getParserSelector().writeXmlConfig(xmlWriter);
-			xmlWriter.endDocument();
-			cfr.rotate();
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+						"UTF-8");
+				getParserSelector().writeXmlConfig(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
 		} finally {
 			longTermLock.unlock();
 			cfr.abort();
@@ -262,11 +274,16 @@ public abstract class Config {
 		if (!longTermLock.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			PrintWriter pw = cfr.getTempPrintWriter();
-			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-			getReplicationList().writeXml(xmlWriter);
-			xmlWriter.endDocument();
-			cfr.rotate();
+			rwl.w.lock();
+			try {
+				PrintWriter pw = cfr.getTempPrintWriter();
+				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+				getReplicationList().writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
 		} finally {
 			longTermLock.unlock();
 			cfr.abort();
@@ -278,11 +295,16 @@ public abstract class Config {
 		if (!longTermLock.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			PrintWriter pw = cfr.getTempPrintWriter();
-			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-			getSearchRequestMap().writeXmlConfig(xmlWriter);
-			xmlWriter.endDocument();
-			cfr.rotate();
+			rwl.w.lock();
+			try {
+				PrintWriter pw = cfr.getTempPrintWriter();
+				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+				getSearchRequestMap().writeXmlConfig(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
@@ -296,14 +318,14 @@ public abstract class Config {
 	}
 
 	public void saveConfig() throws SearchLibException {
-		lock.lock();
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
 		try {
-			if (!longTermLock.tryLock())
-				throw new SearchLibException("Replication in process");
+			rwl.w.lock();
 			try {
 				saveConfigWithoutLock();
 			} finally {
-				longTermLock.unlock();
+				rwl.w.unlock();
 			}
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
@@ -314,42 +336,45 @@ public abstract class Config {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			longTermLock.unlock();
 		}
 	}
 
-	protected IndexAbstract getIndex(File indexDir, XPathParser xpp,
+	private IndexAbstract newIndex(File indexDir, XPathParser xpp,
 			boolean createIndexIfNotExists) throws XPathExpressionException,
 			IOException, URISyntaxException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		lock.lock();
-		try {
-			NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
-			switch (nodeList.getLength()) {
-			case 0:
-				return null;
-			case 1:
-				return new IndexSingle(indexDir, new IndexConfig(xpp,
-						xpp.getNode("/configuration/indices/index")),
-						createIndexIfNotExists);
-			default:
-				return new IndexGroup(indexDir, xpp,
-						xpp.getNode("/configuration/indices"),
-						createIndexIfNotExists, getThreadPool());
-			}
-		} finally {
-			lock.unlock();
+		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
+		switch (nodeList.getLength()) {
+		case 0:
+			return null;
+		case 1:
+			return new IndexSingle(indexDir, new IndexConfig(xpp,
+					xpp.getNode("/configuration/indices/index")),
+					createIndexIfNotExists);
+		default:
+			return new IndexGroup(indexDir, xpp,
+					xpp.getNode("/configuration/indices"),
+					createIndexIfNotExists, getThreadPool());
 		}
 	}
 
 	public ExecutorService getThreadPool() {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (threadPool == null)
-				threadPool = Executors.newCachedThreadPool();
+			if (threadPool != null)
+				return threadPool;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (threadPool != null)
+				return threadPool;
+			threadPool = Executors.newCachedThreadPool();
 			return threadPool;
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -358,7 +383,14 @@ public abstract class Config {
 	}
 
 	public DatabaseCrawlList getDatabaseCrawlList() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
+		try {
+			if (databaseCrawlList != null)
+				return databaseCrawlList;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
 		try {
 			if (databaseCrawlList != null)
 				return databaseCrawlList;
@@ -375,7 +407,7 @@ public abstract class Config {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -385,11 +417,16 @@ public abstract class Config {
 		if (!longTermLock.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-					"UTF-8");
-			getDatabaseCrawlList().writeXml(xmlWriter);
-			xmlWriter.endDocument();
-			cfr.rotate();
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+						"UTF-8");
+				getDatabaseCrawlList().writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
@@ -403,70 +440,101 @@ public abstract class Config {
 	}
 
 	public WebCrawlMaster getWebCrawlMaster() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
 			if (webCrawlMaster != null)
 				return webCrawlMaster;
-			webCrawlMaster = new WebCrawlMaster(this);
-			return webCrawlMaster;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (webCrawlMaster != null)
+				return webCrawlMaster;
+			return webCrawlMaster = new WebCrawlMaster(this);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
+		try {
+			if (fileCrawlMaster != null)
+				return fileCrawlMaster;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
 		try {
 			if (fileCrawlMaster != null)
 				return fileCrawlMaster;
 			fileCrawlMaster = new CrawlFileMaster(this);
 			return fileCrawlMaster;
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public DatabaseCrawlMaster getDatabaseCrawlMaster()
 			throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
 			if (databaseCrawlMaster != null)
 				return databaseCrawlMaster;
-			databaseCrawlMaster = new DatabaseCrawlMaster(this);
-			return databaseCrawlMaster;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (databaseCrawlMaster != null)
+				return databaseCrawlMaster;
+			return databaseCrawlMaster = new DatabaseCrawlMaster(this);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public ReplicationMaster getReplicationMaster() {
-		lock.lock();
+		rwl.r.lock();
 		try {
 			if (replicationMaster != null)
 				return replicationMaster;
-			replicationMaster = new ReplicationMaster(this);
-			return replicationMaster;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
 		}
-
+		rwl.w.lock();
+		try {
+			if (replicationMaster != null)
+				return replicationMaster;
+			return replicationMaster = new ReplicationMaster(this);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public ParserSelector getParserSelector() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (parserSelector == null) {
-				File parserFile = new File(indexDir, "parsers.xml");
-				if (parserFile.exists()) {
-					XPathParser xpp = new XPathParser(parserFile);
-					parserSelector = ParserSelector.fromXmlConfig(this, xpp,
-							xpp.getNode("/parsers"));
-				} else {
-					Node node = xppConfig.getNode("/configuration/parsers");
-					if (node != null)
-						parserSelector = ParserSelector.fromXmlConfig(this,
-								xppConfig, node);
-				}
+			if (parserSelector != null)
+				return parserSelector;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (parserSelector != null)
+				return parserSelector;
+			File parserFile = new File(indexDir, "parsers.xml");
+			if (parserFile.exists()) {
+				XPathParser xpp = new XPathParser(parserFile);
+				parserSelector = ParserSelector.fromXmlConfig(this, xpp,
+						xpp.getNode("/parsers"));
+			} else {
+				Node node = xppConfig.getNode("/configuration/parsers");
+				if (node != null)
+					parserSelector = ParserSelector.fromXmlConfig(this,
+							xppConfig, node);
 			}
 			return parserSelector;
 		} catch (XPathExpressionException e) {
@@ -480,31 +548,44 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public Mailer getMailer() throws XPathExpressionException {
-		lock.lock();
+		rwl.r.lock();
 		try {
 			if (mailer != null)
 				return mailer;
-			mailer = Mailer.fromXmlConfig(xppConfig
-					.getNode("/configuration/mailer"));
-			return mailer;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (mailer != null)
+				return mailer;
+			return mailer = Mailer.fromXmlConfig(xppConfig
+					.getNode("/configuration/mailer"));
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public ReplicationList getReplicationList() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
 			if (replicationList != null)
 				return replicationList;
-			replicationList = new ReplicationList(getReplicationMaster(),
-					new File(indexDir, "replication.xml"));
-			return replicationList;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (replicationList != null)
+				return replicationList;
+			return replicationList = new ReplicationList(
+					getReplicationMaster(), new File(indexDir,
+							"replication.xml"));
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -514,12 +595,12 @@ public abstract class Config {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
-	protected String getIndexName() {
-		return getIndexDirectory().getName();
+	public String getIndexName() {
+		return getDirectory().getName();
 	}
 
 	public IndexAbstract getIndex() {
@@ -528,28 +609,34 @@ public abstract class Config {
 
 	public IndexPluginTemplateList getIndexPluginTemplateList()
 			throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
+		try {
+			if (indexPluginTemplateList != null)
+				return indexPluginTemplateList;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
 		try {
 			if (indexPluginTemplateList != null)
 				return indexPluginTemplateList;
 			Node node = xppConfig.getNode("/configuration/indexPlugins");
 			if (node == null)
 				return null;
-			indexPluginTemplateList = IndexPluginTemplateList.fromXmlConfig(
-					xppConfig, node);
-			return indexPluginTemplateList;
+			return indexPluginTemplateList = IndexPluginTemplateList
+					.fromXmlConfig(xppConfig, node);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 
 	}
 
 	protected File getStatStorage() {
-		return new File(getIndexDirectory(), "statstore");
+		return new File(getDirectory(), "statstore");
 	}
 
 	public StatisticsList getStatisticsList() throws SearchLibException {
@@ -590,19 +677,26 @@ public abstract class Config {
 	}
 
 	public SearchRequestMap getSearchRequestMap() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (searchRequests == null) {
-				File requestFile = new File(indexDir, "requests.xml");
-				if (requestFile.exists()) {
-					XPathParser xpp = new XPathParser(requestFile);
-					searchRequests = SearchRequestMap.fromXmlConfig(this, xpp,
-							xpp.getNode("/requests"));
-				} else
-					searchRequests = SearchRequestMap.fromXmlConfig(this,
-							xppConfig,
-							xppConfig.getNode("/configuration/requests"));
-			}
+			if (searchRequests != null)
+				return searchRequests;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (searchRequests != null)
+				return searchRequests;
+			File requestFile = new File(indexDir, "requests.xml");
+			if (requestFile.exists()) {
+				XPathParser xpp = new XPathParser(requestFile);
+				searchRequests = SearchRequestMap.fromXmlConfig(this, xpp,
+						xpp.getNode("/requests"));
+			} else
+				searchRequests = SearchRequestMap
+						.fromXmlConfig(this, xppConfig,
+								xppConfig.getNode("/configuration/requests"));
 			return searchRequests;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -623,84 +717,126 @@ public abstract class Config {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public UrlManager getUrlManager() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (urlManager == null)
-				urlManager = new UrlManager((Client) this, indexDir);
-			return urlManager;
+			if (urlManager != null)
+				return urlManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (urlManager != null)
+				return urlManager;
+			return urlManager = new UrlManager((Client) this, indexDir);
 		} catch (FileNotFoundException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public StopWordsManager getStopWordsManager() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (stopWordsManager == null)
-				stopWordsManager = new StopWordsManager(this, new File(
-						indexDir, "stopwords"));
-			return stopWordsManager;
+			if (stopWordsManager != null)
+				return stopWordsManager;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (stopWordsManager != null)
+				return stopWordsManager;
+			return stopWordsManager = new StopWordsManager(this, new File(
+					indexDir, "stopwords"));
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public SynonymsManager getSynonymsManager() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (synonymsManager == null)
-				synonymsManager = new SynonymsManager(this, new File(indexDir,
-						"synonyms"));
-			return synonymsManager;
+			if (synonymsManager != null)
+				return synonymsManager;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (synonymsManager != null)
+				return synonymsManager;
+			return synonymsManager = new SynonymsManager(this, new File(
+					indexDir, "synonyms"));
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public PatternManager getInclusionPatternManager()
 			throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (inclusionPatternManager == null)
-				inclusionPatternManager = new PatternManager(indexDir,
-						"patterns.xml");
-			return inclusionPatternManager;
+			if (inclusionPatternManager != null)
+				return inclusionPatternManager;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (inclusionPatternManager != null)
+				return inclusionPatternManager;
+			return inclusionPatternManager = new PatternManager(indexDir,
+					"patterns.xml");
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public PatternManager getExclusionPatternManager()
 			throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (exclusionPatternManager == null)
-				exclusionPatternManager = new PatternManager(indexDir,
-						"patterns_exclusion.xml");
-			return exclusionPatternManager;
+			if (exclusionPatternManager != null)
+				return exclusionPatternManager;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (exclusionPatternManager != null)
+				return exclusionPatternManager;
+			return exclusionPatternManager = new PatternManager(indexDir,
+					"patterns_exclusion.xml");
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public UrlFilterList getUrlFilterList() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (urlFilterList == null)
-				urlFilterList = new UrlFilterList(indexDir,
-						"webcrawler-urlfilter.xml");
-			return urlFilterList;
+			if (urlFilterList != null)
+				return urlFilterList;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (urlFilterList != null)
+				return urlFilterList;
+			return urlFilterList = new UrlFilterList(indexDir,
+					"webcrawler-urlfilter.xml");
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -710,11 +846,16 @@ public abstract class Config {
 		if (!longTermLock.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-					"UTF-8");
-			getUrlFilterList().writeXml(xmlWriter);
-			xmlWriter.endDocument();
-			cfr.rotate();
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+						"UTF-8");
+				getUrlFilterList().writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
@@ -731,64 +872,97 @@ public abstract class Config {
 			throws SearchLibException {
 		longTermLock.lock();
 		try {
-			replicationThread.push();
+			rwl.r.lock();
+			try {
+				replicationThread.push();
+			} finally {
+				rwl.r.unlock();
+			}
 		} finally {
 			longTermLock.unlock();
 		}
 	}
 
 	public FilePathManager getFilePathManager() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (filePatternManager == null)
-				filePatternManager = new FilePathManager(indexDir);
-			return filePatternManager;
+			if (filePatternManager != null)
+				return filePatternManager;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (filePatternManager != null)
+				return filePatternManager;
+			return filePatternManager = new FilePathManager(indexDir);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public FileManager getFileManager() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (fileManager == null)
-				fileManager = new FileManager((Client) this, indexDir);
-			return fileManager;
+			if (fileManager != null)
+				return fileManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (fileManager != null)
+				return fileManager;
+			return fileManager = new FileManager((Client) this, indexDir);
 		} catch (FileNotFoundException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public WebPropertyManager getWebPropertyManager() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (webPropertyManager == null)
-				webPropertyManager = new WebPropertyManager(new File(indexDir,
-						"webcrawler-properties.xml"));
-			return webPropertyManager;
+			if (webPropertyManager != null)
+				return webPropertyManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (webPropertyManager != null)
+				return webPropertyManager;
+			return webPropertyManager = new WebPropertyManager(new File(
+					indexDir, "webcrawler-properties.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public FilePropertyManager getFilePropertyManager()
 			throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (filePropertyManager == null)
-				filePropertyManager = new FilePropertyManager(new File(
-						indexDir, "filecrawler-properties.xml"));
-			return filePropertyManager;
+			if (filePropertyManager != null)
+				return filePropertyManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (filePropertyManager != null)
+				return filePropertyManager;
+			return filePropertyManager = new FilePropertyManager(new File(
+					indexDir, "filecrawler-properties.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -912,24 +1086,38 @@ public abstract class Config {
 	}
 
 	public RobotsTxtCache getRobotsTxtCache() {
-		lock.lock();
+		rwl.r.lock();
 		try {
 			if (robotsTxtCache != null)
 				return robotsTxtCache;
-			robotsTxtCache = new RobotsTxtCache();
-			return robotsTxtCache;
 		} finally {
-			lock.unlock();
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (robotsTxtCache != null)
+				return robotsTxtCache;
+			return robotsTxtCache = new RobotsTxtCache();
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public FieldMap getWebCrawlerFieldMap() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (webCrawlerFieldMap == null)
-				webCrawlerFieldMap = new FieldMap(new File(indexDir,
-						"webcrawler-mapping.xml"));
-			return webCrawlerFieldMap;
+			if (webCrawlerFieldMap != null)
+				return webCrawlerFieldMap;
+
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (webCrawlerFieldMap != null)
+				return webCrawlerFieldMap;
+			return webCrawlerFieldMap = new FieldMap(new File(indexDir,
+					"webcrawler-mapping.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {
@@ -939,17 +1127,24 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public FieldMap getFileCrawlerFieldMap() throws SearchLibException {
-		lock.lock();
+		rwl.r.lock();
 		try {
-			if (fileCrawlerFieldMap == null)
-				fileCrawlerFieldMap = new FieldMap(new File(indexDir,
-						"filecrawler-mapping.xml"));
-			return fileCrawlerFieldMap;
+			if (fileCrawlerFieldMap != null)
+				return fileCrawlerFieldMap;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (fileCrawlerFieldMap != null)
+				return fileCrawlerFieldMap;
+			return fileCrawlerFieldMap = new FieldMap(new File(indexDir,
+					"filecrawler-mapping.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {
@@ -959,24 +1154,23 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			rwl.w.unlock();
 		}
 	}
 
-	private void closeQuiet(boolean waitForEnd) {
-		try {
-			getFileCrawlMaster().abort();
-			getWebCrawlMaster().abort();
-			getDatabaseCrawlMaster().abort();
-			if (waitForEnd)
-				getFileCrawlMaster().waitForEnd(0);
-			if (waitForEnd)
-				getWebCrawlMaster().waitForEnd(0);
-			if (waitForEnd)
-				getDatabaseCrawlMaster().waitForEnd(0);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	private void prepareClose(boolean waitForEnd) throws SearchLibException {
+		getFileCrawlMaster().abort();
+		getWebCrawlMaster().abort();
+		getDatabaseCrawlMaster().abort();
+		if (waitForEnd)
+			getFileCrawlMaster().waitForEnd(0);
+		if (waitForEnd)
+			getWebCrawlMaster().waitForEnd(0);
+		if (waitForEnd)
+			getDatabaseCrawlMaster().waitForEnd(0);
+	}
+
+	private void closeQuiet() {
 		try {
 			getIndex().close();
 		} catch (Exception e) {
@@ -989,29 +1183,38 @@ public abstract class Config {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
 
+	private void close(File trashDir) {
+		try {
+			prepareClose(true);
+		} catch (SearchLibException e) {
+			e.printStackTrace();
+		}
+		longTermLock.lock();
+		try {
+			rwl.w.lock();
+			try {
+				closeQuiet();
+				if (trashDir != null)
+					indexDir.renameTo(trashDir);
+			} finally {
+				rwl.w.unlock();
+			}
+		} finally {
+			longTermLock.unlock();
+		}
 	}
 
 	public void close() {
-		lock.lock();
-		longTermLock.lock();
-		try {
-			closeQuiet(true);
-		} finally {
-			longTermLock.unlock();
-			lock.unlock();
-		}
+		close(null);
 	}
 
 	public void trash(File trashDir) throws SearchLibException, NamingException {
-		lock.lock();
-		longTermLock.lock();
-		try {
-			closeQuiet(false);
-			indexDir.renameTo(trashDir);
-		} finally {
-			longTermLock.unlock();
-			lock.unlock();
-		}
+		close(trashDir);
+	}
+
+	public void delete() throws IOException {
+		FileUtils.deleteDirectory(getDirectory());
 	}
 }

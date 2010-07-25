@@ -59,11 +59,10 @@ public class MappingFileController extends CrawlerController implements
 
 	public MappingFileController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		selectedUrlField = null;
 		selectedIndexField = null;
 	}
@@ -137,8 +136,8 @@ public class MappingFileController extends CrawlerController implements
 		if (selectedUrlField == null || selectedIndexField == null)
 			return;
 		FieldMap fieldMap = getFieldMap();
-		fieldMap.add(selectedUrlField.getName(), new Target(selectedIndexField
-				.getName()));
+		fieldMap.add(selectedUrlField.getName(),
+				new Target(selectedIndexField.getName()));
 		fieldMap.store();
 		reloadPage();
 	}

@@ -100,12 +100,21 @@ public class AnalyzersController extends CommonController implements
 
 	public AnalyzersController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	public void reset() throws SearchLibException {
 		editAnalyzer = null;
 		selectedName = null;
 		selectedAnalyzer = null;
 		selectedFilter = FilterEnum.StandardFilter;
-		currentFilter = FilterFactory.getDefaultFilter(getClient());
-		currentAnalyzer = new Analyzer(getClient());
+		currentAnalyzer = null;
+		currentFilter = null;
+		Client client = getClient();
+		if (client != null) {
+			currentFilter = FilterFactory.getDefaultFilter(client);
+			currentAnalyzer = new Analyzer(client);
+		}
 		testType = "query";
 		testText = null;
 		testList = null;
@@ -127,10 +136,6 @@ public class AnalyzersController extends CommonController implements
 		return analyzerList.get(getSelectedName());
 	}
 
-	@Override
-	public void reset() {
-	}
-
 	/**
 	 * @param selectedName
 	 *            the selectedName to set
@@ -145,11 +150,14 @@ public class AnalyzersController extends CommonController implements
 	 * @throws SearchLibException
 	 */
 	public String getSelectedName() throws SearchLibException {
-		if (selectedName == null) {
-			Set<String> set = getList().getNameSet();
-			if (set != null && set.size() > 0)
-				selectedName = set.iterator().next();
-		}
+		if (selectedName != null)
+			return selectedName;
+		AnalyzerList alist = getList();
+		if (alist == null)
+			return null;
+		Set<String> set = alist.getNameSet();
+		if (set != null && set.size() > 0)
+			selectedName = set.iterator().next();
 		return selectedName;
 	}
 
@@ -166,11 +174,11 @@ public class AnalyzersController extends CommonController implements
 	 * @throws SearchLibException
 	 */
 	public Analyzer getSelectedAnalyzer() throws SearchLibException {
-		if (selectedAnalyzer == null) {
-			List<Analyzer> li = getLangList();
-			if (li != null && li.size() > 0)
-				setSelectedAnalyzer(li.get(0));
-		}
+		if (selectedAnalyzer != null)
+			return selectedAnalyzer;
+		List<Analyzer> li = getLangList();
+		if (li != null && li.size() > 0)
+			setSelectedAnalyzer(li.get(0));
 		return selectedAnalyzer;
 	}
 
@@ -204,7 +212,13 @@ public class AnalyzersController extends CommonController implements
 	}
 
 	public String getCurrentTokenizer() {
-		return getCurrentAnalyzer().getTokenizer().getClassName();
+		Analyzer analyzer = getCurrentAnalyzer();
+		if (analyzer == null)
+			return null;
+		TokenizerFactory tokenizer = analyzer.getTokenizer();
+		if (tokenizer == null)
+			return null;
+		return tokenizer.getClassName();
 	}
 
 	public void setCurrentTokenizer(String className) throws SearchLibException {

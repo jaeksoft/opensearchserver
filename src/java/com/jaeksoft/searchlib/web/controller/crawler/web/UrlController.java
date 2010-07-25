@@ -68,7 +68,7 @@ public class UrlController extends CommonController implements AfterCompose {
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		urlList = null;
 		totalSize = 0;
 		activePage = 0;

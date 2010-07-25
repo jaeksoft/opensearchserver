@@ -73,7 +73,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		newHostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
 			System.out.println("Webcrawler is starting for "
-					+ config.getIndexDirectory().getName());
+					+ config.getIndexName());
 			start();
 		}
 	}

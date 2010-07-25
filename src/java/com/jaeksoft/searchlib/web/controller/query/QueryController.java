@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class QueryController extends CommonController {
@@ -62,9 +63,10 @@ public class QueryController extends CommonController {
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() throws SearchLibException {
 		selectedRequestName = null;
-		setAttribute(ScopeAttribute.QUERY_SEARCH_REQUEST, null);
+		setRequest(null);
+		setResult(null);
 	}
 
 	public SearchRequest getRequest() throws SearchLibException {
@@ -87,10 +89,8 @@ public class QueryController extends CommonController {
 		SearchRequest request = getRequest();
 		if (request == null)
 			return null;
-		String url = getBaseUrl()
-				+ "/search?use="
-				+ URLEncoder.encode(client.getIndexDirectory().getName(),
-						"UTF-8");
+		String url = getBaseUrl() + "/search?use="
+				+ URLEncoder.encode(client.getIndexName(), "UTF-8");
 		if (selectedRequestName != null)
 			url += "&qt=" + URLEncoder.encode(selectedRequestName, "UTF-8");
 		String q = request.getQueryString();
@@ -144,7 +144,7 @@ public class QueryController extends CommonController {
 
 	public void onLoadRequest() throws SearchLibException {
 		setRequest(getClient().getNewSearchRequest(selectedRequestName));
-		reloadDesktop();
+		reloadPage();
 	}
 
 	public void onSaveRequest() throws SearchLibException,
@@ -156,7 +156,7 @@ public class QueryController extends CommonController {
 		client.getSearchRequestMap().put(request);
 		client.saveRequests();
 		setSelectedRequest(request.getRequestName());
-		reloadDesktop();
+		PushEvent.REQUEST_LIST_CHANGED.publish(client);
 	}
 
 	private class RemoveAlert extends AlertController {
@@ -175,7 +175,7 @@ public class QueryController extends CommonController {
 			Client client = getClient();
 			client.getSearchRequestMap().remove(selectedRequest);
 			client.saveRequests();
-			reloadDesktop();
+			PushEvent.REQUEST_LIST_CHANGED.publish(client);
 		}
 
 	}
@@ -199,6 +199,19 @@ public class QueryController extends CommonController {
 
 		request.reset();
 		setResult(getClient().search(request));
-		reloadDesktop();
+		reloadPage();
 	}
+
+	@Override
+	protected void eventRequestListChange() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
+
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
+
 }

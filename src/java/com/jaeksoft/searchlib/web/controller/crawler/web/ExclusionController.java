@@ -36,7 +36,6 @@ public class ExclusionController extends AbstractPatternController {
 
 	public ExclusionController() throws SearchLibException {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

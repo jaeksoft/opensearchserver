@@ -41,27 +41,24 @@ public class LoginController extends CommonController {
 
 	public LoginController() throws SearchLibException {
 		super();
-		reset();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 	}
 
 	public void onLogin(Event event) throws WrongValueException,
 			SearchLibException, InterruptedException {
 		Textbox teLogin = (Textbox) getFellow("login");
 		Textbox tePassword = (Textbox) getFellow("password");
-		User user = ClientCatalog.authenticate(teLogin.getValue(), tePassword
-				.getValue());
+		User user = ClientCatalog.authenticate(teLogin.getValue(),
+				tePassword.getValue());
 		if (user == null) {
 			Thread.sleep(2000);
 			new AlertController("Authentication failed");
 			return;
 		}
 		setAttribute(ScopeAttribute.LOGGED_USER, user);
-		reloadDesktop();
 	}
 
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
-	}
 }

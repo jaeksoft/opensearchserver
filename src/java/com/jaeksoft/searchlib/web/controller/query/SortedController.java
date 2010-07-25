@@ -55,11 +55,10 @@ public class SortedController extends QueryController implements RowRenderer {
 
 	public SortedController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() throws SearchLibException {
 		super.reset();
 		selectedSort = null;
 		sortFieldLeft = null;
@@ -146,6 +145,7 @@ public class SortedController extends QueryController implements RowRenderer {
 			this.sortField = sortField;
 		}
 
+		@Override
 		public void onEvent(Event event) throws Exception {
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();
@@ -157,6 +157,7 @@ public class SortedController extends QueryController implements RowRenderer {
 		}
 	}
 
+	@Override
 	public void render(Row row, Object data) throws Exception {
 		SortField sortField = (SortField) data;
 		new Label(sortField.getName()).setParent(row);

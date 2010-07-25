@@ -51,8 +51,15 @@ public class ReplicationController extends CommonController {
 
 	public ReplicationController() throws SearchLibException, NamingException {
 		super();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 		selectedItem = null;
-		currentItem = new ReplicationItem(getReplicationMaster());
+		currentItem = null;
+		ReplicationMaster rm = getReplicationMaster();
+		if (rm != null)
+			currentItem = new ReplicationItem(getReplicationMaster());
 	}
 
 	public ReplicationItem getSelectedItem() {
@@ -80,10 +87,6 @@ public class ReplicationController extends CommonController {
 
 	public boolean notSelected() {
 		return !selected();
-	}
-
-	@Override
-	public void reset() {
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException,
@@ -117,6 +120,8 @@ public class ReplicationController extends CommonController {
 	public void onDelete() throws SearchLibException,
 			TransformerConfigurationException, IOException, SAXException {
 		Client client = getClient();
+		if (client == null)
+			return;
 		client.getReplicationList().remove(selectedItem);
 		client.saveReplicationList();
 		onCancel();
@@ -124,6 +129,8 @@ public class ReplicationController extends CommonController {
 
 	public Set<ReplicationItem> getReplicationSet() throws SearchLibException {
 		Client client = getClient();
+		if (client == null)
+			return null;
 		return client.getReplicationList().getSet();
 	}
 
@@ -151,4 +158,5 @@ public class ReplicationController extends CommonController {
 		getReplicationMaster().execute(client, item, false);
 		reloadPage();
 	}
+
 }

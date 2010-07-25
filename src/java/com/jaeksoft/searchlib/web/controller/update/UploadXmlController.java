@@ -54,7 +54,7 @@ public class UploadXmlController extends CommonController {
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		updatedCount = 0;
 	}
 

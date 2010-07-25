@@ -39,7 +39,6 @@ public class SystemController extends CommonController {
 
 	public SystemController() throws SearchLibException {
 		super();
-		monitor = new Monitor();
 	}
 
 	@Override

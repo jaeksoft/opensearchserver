@@ -42,11 +42,10 @@ public class CrawlFileController extends CrawlerController {
 
 	public CrawlFileController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		sheetRows = 20;
 	}
 

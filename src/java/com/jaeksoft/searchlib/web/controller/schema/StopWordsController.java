@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 
@@ -40,7 +41,14 @@ public class StopWordsController extends CommonDirectoryController {
 
 	@Override
 	public StopWordsManager getManager() throws SearchLibException {
-		return getClient().getStopWordsManager();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getStopWordsManager();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 	}
 
 }

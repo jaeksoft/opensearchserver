@@ -62,7 +62,7 @@ public class MappingController extends CrawlerController implements
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		selectedUrlField = null;
 		selectedIndexField = null;
 	}
@@ -136,8 +136,8 @@ public class MappingController extends CrawlerController implements
 		if (selectedUrlField == null || selectedIndexField == null)
 			return;
 		FieldMap fieldMap = getFieldMap();
-		fieldMap.add(selectedUrlField.getName(), new Target(selectedIndexField
-				.getName()));
+		fieldMap.add(selectedUrlField.getName(),
+				new Target(selectedIndexField.getName()));
 		fieldMap.store();
 		reloadPage();
 	}

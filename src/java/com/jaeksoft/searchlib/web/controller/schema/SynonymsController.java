@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
 
@@ -36,12 +37,18 @@ public class SynonymsController extends CommonDirectoryController {
 
 	public SynonymsController() throws SearchLibException {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public SynonymsManager getManager() throws SearchLibException {
-		return getClient().getSynonymsManager();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getSynonymsManager();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 	}
 
 }

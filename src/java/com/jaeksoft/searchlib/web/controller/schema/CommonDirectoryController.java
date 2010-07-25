@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.AbstractDirectoryManager;
 import com.jaeksoft.searchlib.web.controller.AlertController;
@@ -72,25 +73,31 @@ public abstract class CommonDirectoryController extends CommonController {
 	public abstract AbstractDirectoryManager getManager()
 			throws SearchLibException;
 
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void onAdd() throws IOException, SearchLibException {
-		getManager().create(getEditName());
-		getClient().getSchema().recompileAnalyzers();
-		getClient().reload();
+		Client client = getClient();
+		if (client == null)
+			return;
+		AbstractDirectoryManager manager = getManager();
+		if (manager == null)
+			return;
+		manager.create(getEditName());
+		client.getSchema().recompileAnalyzers();
+		client.reload();
 		reloadPage();
 	}
 
 	public void onSave() throws IOException, InterruptedException,
 			SearchLibException {
-		getManager().saveContent(getEditName(), getContent());
+		Client client = getClient();
+		if (client == null)
+			return;
+		AbstractDirectoryManager manager = getManager();
+		if (manager == null)
+			return;
+		manager.saveContent(getEditName(), getContent());
 		new AlertController("List saved!", Messagebox.INFORMATION);
-		getClient().getSchema().recompileAnalyzers();
-		getClient().reload();
+		client.getSchema().recompileAnalyzers();
+		client.reload();
 		reloadPage();
 	}
 
@@ -102,7 +109,10 @@ public abstract class CommonDirectoryController extends CommonController {
 	}
 
 	public boolean isEdit() throws SearchLibException {
-		return getManager().exists(getEditName());
+		AbstractDirectoryManager manager = getManager();
+		if (manager == null)
+			return false;
+		return manager.exists(getEditName());
 	}
 
 	/**

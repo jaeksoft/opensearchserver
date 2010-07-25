@@ -32,7 +32,41 @@ import org.zkoss.zk.ui.event.EventQueues;
 
 public enum PushEvent {
 
-	FLUSH_PRIVILEGES, RESET_DESKTOP;
+	/**
+	 * The privilege of the current user has change
+	 */
+	FLUSH_PRIVILEGES(EventQueues.APPLICATION),
+
+	/**
+	 * The user selects another index
+	 */
+	CLIENT_CHANGE(EventQueues.DESKTOP),
+
+	/**
+	 * The user logs out
+	 */
+	LOG_OUT(EventQueues.DESKTOP),
+
+	/**
+	 * Notify that document has been inserted or deleted.
+	 */
+	DOCUMENT_UPDATED(EventQueues.APPLICATION),
+
+	/**
+	 * Notify that a request list has changed
+	 */
+	REQUEST_LIST_CHANGED(EventQueues.APPLICATION),
+
+	/**
+	 * Notify that the schema has changes (fields or analyzers)
+	 */
+	SCHEMA_CHANGED(EventQueues.APPLICATION);
+
+	private String scope;
+
+	private PushEvent(String scope) {
+		this.scope = scope;
+	}
 
 	private Event newEvent(Object data) {
 		return new Event(name(), null, data);
@@ -42,8 +76,8 @@ public enum PushEvent {
 		return new Event(name());
 	}
 
-	private static EventQueue getQueue() {
-		return EventQueues.lookup("OSS", EventQueues.APPLICATION, true);
+	private static EventQueue getQueue(String scope) {
+		return EventQueues.lookup("OSS", scope, true);
 	}
 
 	private static EventQueue getQueue(WebApp webApp) {
@@ -51,7 +85,7 @@ public enum PushEvent {
 	}
 
 	public void publish() {
-		getQueue().publish(newEvent());
+		getQueue(scope).publish(newEvent());
 	}
 
 	public void publish(WebApp webApp) {
@@ -59,18 +93,23 @@ public enum PushEvent {
 	}
 
 	public void publish(Object data) {
-		getQueue().publish(newEvent(data));
+		getQueue(scope).publish(newEvent(data));
 	}
 
 	public void publish(WebApp webApp, Object data) {
 		getQueue(webApp).publish(newEvent(data));
 	}
 
-	public void subscribe(EventListener eventListener) {
-		getQueue().subscribe(eventListener);
+	private void subscribe(EventListener eventListener) {
+		getQueue(scope).subscribe(eventListener);
 	}
 
 	public static PushEvent isEvent(Event event) {
 		return PushEvent.valueOf(event.getName());
+	}
+
+	public static void suscribe(EventListener eventListener) {
+		for (PushEvent pushEvent : PushEvent.values())
+			pushEvent.subscribe(eventListener);
 	}
 }

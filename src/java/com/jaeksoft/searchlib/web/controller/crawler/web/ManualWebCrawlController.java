@@ -53,14 +53,12 @@ public class ManualWebCrawlController extends CommonController {
 
 	public ManualWebCrawlController() throws SearchLibException {
 		super();
-		url = null;
-		currentCrawlThread = null;
 	}
 
 	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
+	protected void reset() {
+		url = null;
+		currentCrawlThread = null;
 	}
 
 	/**

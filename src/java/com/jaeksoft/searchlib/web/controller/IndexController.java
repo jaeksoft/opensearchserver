@@ -42,11 +42,10 @@ public class IndexController extends CommonController {
 
 	public IndexController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		release = null;
 	}
 
@@ -119,4 +118,5 @@ public class IndexController extends CommonController {
 			return true;
 		return false;
 	}
+
 }

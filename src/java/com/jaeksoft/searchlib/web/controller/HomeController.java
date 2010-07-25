@@ -51,8 +51,12 @@ public class HomeController extends CommonController {
 
 	private Set<ClientCatalogItem> catalogItems;
 
-	public HomeController() throws SearchLibException, NamingException {
+	public HomeController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 		indexName = "";
 		indexTemplate = TemplateList.EMPTY_INDEX;
 		catalogItems = null;
@@ -69,7 +73,7 @@ public class HomeController extends CommonController {
 		Client client = super.getClient();
 		if (client == null)
 			return null;
-		return new ClientCatalogItem(client.getIndexDirectory().getName());
+		return new ClientCatalogItem(client.getIndexName());
 	}
 
 	public boolean isSelectedIndex() throws SearchLibException {
@@ -82,7 +86,6 @@ public class HomeController extends CommonController {
 		if (client == null)
 			return;
 		setClient(client);
-		resetDesktop();
 	}
 
 	public String getNewIndexName() {
@@ -122,8 +125,6 @@ public class HomeController extends CommonController {
 		ClientCatalog.createIndex(getLoggedUser(), indexName,
 				indexTemplate.getTemplate());
 		setClient(ClientCatalog.getClient(indexName));
-		catalogItems = null;
-		reloadDesktop();
 	}
 
 	public void onListRefresh() {
@@ -145,10 +146,8 @@ public class HomeController extends CommonController {
 		@Override
 		protected void onYes() throws SearchLibException {
 			try {
-				setClient(null);
 				ClientCatalog.eraseIndex(getLoggedUser(), indexName);
-				catalogItems = null;
-				reloadDesktop();
+				setClient(null);
 			} catch (NamingException e) {
 				throw new SearchLibException(e);
 			} catch (IOException e) {
@@ -180,8 +179,4 @@ public class HomeController extends CommonController {
 		reloadPage();
 	}
 
-	@Override
-	public void reset() {
-		onListRefresh();
-	}
 }

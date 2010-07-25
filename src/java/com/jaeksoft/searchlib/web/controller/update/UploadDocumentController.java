@@ -37,6 +37,7 @@ import org.zkoss.util.media.Media;
 import org.zkoss.zul.Fileupload;
 import org.zkoss.zul.Panelchildren;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
@@ -44,6 +45,7 @@ import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.model.FieldContentModel;
 
@@ -61,7 +63,7 @@ public class UploadDocumentController extends CommonController {
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		basketComponent = null;
 	}
 
@@ -170,10 +172,13 @@ public class UploadDocumentController extends CommonController {
 			IndexDocument basketDocument = getCurrentDocument();
 			if (basketDocument == null)
 				return;
-			getClient().updateDocument(basketDocument);
+			Client client = getClient();
+			if (client == null)
+				return;
+			client.updateDocument(basketDocument);
 			setCurrentDocument(null);
 			new AlertController("Document updated");
-			reloadDesktop();
+			PushEvent.DOCUMENT_UPDATED.publish(client);
 		}
 	}
 }

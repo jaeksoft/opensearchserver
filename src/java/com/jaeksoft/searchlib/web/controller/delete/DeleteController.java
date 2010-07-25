@@ -32,12 +32,14 @@ import java.net.URLEncoder;
 import org.apache.lucene.queryParser.ParseException;
 import org.zkoss.zul.Messagebox;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class DeleteController extends CommonController {
 
@@ -60,8 +62,11 @@ public class DeleteController extends CommonController {
 		protected void onYes() throws SearchLibException {
 			try {
 				request.reset();
-				getClient().deleteDocuments(request);
-				reloadDesktop();
+				Client client = getClient();
+				if (client == null)
+					return;
+				client.deleteDocuments(request);
+				PushEvent.DOCUMENT_UPDATED.publish(client.getIndexName());
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} catch (InstantiationException e) {
@@ -89,8 +94,15 @@ public class DeleteController extends CommonController {
 
 	public DeleteController() throws SearchLibException {
 		super();
-		request = getClient().getNewSearchRequest();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
+		request = null;
 		isChecked = false;
+		Client client = getClient();
+		if (client != null)
+			request = getClient().getNewSearchRequest();
 	}
 
 	public SearchRequest getRequest() {
@@ -131,10 +143,11 @@ public class DeleteController extends CommonController {
 
 	public String getRequestApiCall() throws SearchLibException,
 			UnsupportedEncodingException {
-		String url = getBaseUrl()
-				+ "/delete?use="
-				+ URLEncoder.encode(getClient().getIndexDirectory().getName(),
-						"UTF-8");
+		Client client = getClient();
+		if (client == null)
+			return null;
+		String url = getBaseUrl() + "/delete?use="
+				+ URLEncoder.encode(client.getIndexName(), "UTF-8");
 		String q = request.getQueryString();
 		if (q == null)
 			q = "";
@@ -148,9 +161,25 @@ public class DeleteController extends CommonController {
 	}
 
 	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
+	protected void eventClientChange() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
 
+	@Override
+	protected void eventFlushPrivileges() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
+
+	@Override
+	protected void eventDocumentUpdate() throws SearchLibException {
+	}
+
+	@Override
+	protected void eventLogout() throws SearchLibException {
+		reset();
+		reloadPage();
 	}
 
 }

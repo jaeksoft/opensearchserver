@@ -62,11 +62,10 @@ public class BrowserController extends CrawlerController implements
 
 	public BrowserController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		filePathItemList = null;
 		currentFileList = null;
 		folderTree = new ArrayList<File>(0);

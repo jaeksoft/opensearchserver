@@ -49,11 +49,10 @@ public class StatisticsController extends CommonController {
 
 	public StatisticsController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		this.selectedType = StatisticTypeEnum.SEARCH;
 		selectedStat = null;
 		showLastError = null;

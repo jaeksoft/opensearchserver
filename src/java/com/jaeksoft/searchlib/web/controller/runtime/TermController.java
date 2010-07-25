@@ -35,6 +35,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.zkoss.zul.Filedownload;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -81,6 +82,10 @@ public class TermController extends CommonController {
 
 	public TermController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 		searchTerm = "";
 		termList = null;
 		fieldList = null;
@@ -95,8 +100,13 @@ public class TermController extends CommonController {
 	}
 
 	private TermEnum buildTermEnum() throws IOException, SearchLibException {
-		return getClient().getIndex().getTermEnum(getCurrentField(),
-				getSearchTerm());
+		Client client = getClient();
+		if (client == null)
+			return null;
+		String currentField = getCurrentField();
+		if (currentField == null)
+			return null;
+		return client.getIndex().getTermEnum(currentField, getSearchTerm());
 	}
 
 	private void setTermEnum() throws IOException, SearchLibException {
@@ -124,11 +134,14 @@ public class TermController extends CommonController {
 	}
 
 	private void setFieldList() throws IOException, SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return;
 		if (fieldList == null)
 			fieldList = new ArrayList<String>();
 		else
 			fieldList.clear();
-		for (Object f : getClient().getIndex().getFieldNames())
+		for (Object f : client.getIndex().getFieldNames())
 			fieldList.add(f.toString());
 	}
 
@@ -160,8 +173,11 @@ public class TermController extends CommonController {
 	}
 
 	public String getCurrentField() throws IOException, SearchLibException {
-		if (currentField == null && getFieldList().size() > 0)
-			currentField = getFieldList().get(0);
+		List<String> fieldList = getFieldList();
+		if (fieldList == null)
+			return null;
+		if (currentField == null && fieldList.size() > 0)
+			currentField = fieldList.get(0);
 		return currentField;
 	}
 
@@ -215,11 +231,6 @@ public class TermController extends CommonController {
 				termEnum.close();
 		}
 
-	}
-
-	@Override
-	public void reset() {
-		termList = null;
 	}
 
 }

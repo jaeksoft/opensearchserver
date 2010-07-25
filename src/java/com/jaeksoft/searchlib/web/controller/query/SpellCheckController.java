@@ -51,11 +51,10 @@ public class SpellCheckController extends QueryController {
 
 	public SpellCheckController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() throws SearchLibException {
 		super.reset();
 		selectedField = null;
 		fieldLeft = null;

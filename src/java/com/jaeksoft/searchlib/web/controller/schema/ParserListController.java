@@ -68,7 +68,7 @@ public class ParserListController extends CommonController implements
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		selectedParser = null;
 		selectedIndexField = null;
 		selectedParserField = null;
@@ -187,8 +187,8 @@ public class ParserListController extends CommonController implements
 		if (selectedParserField == null || selectedIndexField == null)
 			return;
 		FieldMap fieldMap = getFieldMap();
-		fieldMap.add(selectedParserField.name(), new Target(selectedIndexField
-				.getName()));
+		fieldMap.add(selectedParserField.name(),
+				new Target(selectedIndexField.getName()));
 		getClient().saveParsers();
 		reloadPage();
 	}

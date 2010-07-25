@@ -62,7 +62,7 @@ public class IndexController extends CommonController {
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 	}
 
 }

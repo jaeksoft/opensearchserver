@@ -274,7 +274,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	protected String getPushTargetUrl(Client client, File sourceFile)
 			throws UnsupportedEncodingException, SearchLibException {
-		String dataPath = client.getIndexDirectory().getAbsolutePath();
+		String dataPath = client.getDirectory().getAbsolutePath();
 		String filePath = sourceFile.getAbsolutePath();
 		if (!filePath.startsWith(dataPath))
 			throw new SearchLibException("Bad file path " + filePath);

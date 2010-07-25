@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class FieldsController extends CommonController {
 
@@ -61,7 +62,7 @@ public class FieldsController extends CommonController {
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		field = new SchemaField();
 		selectedField = null;
 		schemaFieldList = null;
@@ -95,7 +96,7 @@ public class FieldsController extends CommonController {
 		client.saveConfig();
 		field = new SchemaField();
 		selectedField = null;
-		reloadDesktop();
+		PushEvent.SCHEMA_CHANGED.publish(client);
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException {
@@ -115,7 +116,7 @@ public class FieldsController extends CommonController {
 		client.saveConfig();
 		field = new SchemaField();
 		selectedField = null;
-		reloadDesktop();
+		PushEvent.SCHEMA_CHANGED.publish(client);
 	}
 
 	public void setSelectedField(SchemaField selectedField) {
@@ -205,7 +206,7 @@ public class FieldsController extends CommonController {
 		Client client = getClient();
 		client.getSchema().getFieldList().setUniqueField(field);
 		client.saveConfig();
-		reloadDesktop();
+		PushEvent.SCHEMA_CHANGED.publish(client);
 	}
 
 	public String getSelectedDefault() throws SearchLibException {
@@ -223,15 +224,18 @@ public class FieldsController extends CommonController {
 		Client client = getClient();
 		client.getSchema().getFieldList().setDefaultField(field);
 		client.saveConfig();
-		reloadDesktop();
+		PushEvent.SCHEMA_CHANGED.publish(client);
+	}
+
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		reloadPage();
 	}
 
 	@Override
 	public void reloadPage() {
 		synchronized (this) {
-			indexedFields = null;
-			schemaFieldList = null;
-			analyzerNameList = null;
+			reset();
 			super.reloadPage();
 		}
 	}

@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
@@ -59,8 +57,12 @@ public class PrivilegesController extends CommonController {
 
 	private Set<ClientCatalogItem> indexList;
 
-	public PrivilegesController() throws SearchLibException, NamingException {
+	public PrivilegesController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	protected void reset() {
 		user = new User("", "", false);
 		confirmPassword = null;
 		selectedUserName = null;
@@ -206,10 +208,6 @@ public class PrivilegesController extends CommonController {
 	public void reloadPage() {
 		indexList = null;
 		super.reloadPage();
-	}
-
-	@Override
-	public void reset() {
 	}
 
 }

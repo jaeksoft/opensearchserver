@@ -59,11 +59,10 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	public FileController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		fileList = null;
 		totalSize = 0;
 		activePage = 0;
@@ -73,6 +72,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 	public void afterCompose() {
 		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
+			@Override
 			public void onEvent(Event event) {
 				onPaging((PagingEvent) event);
 			}

@@ -47,6 +47,7 @@ public class SnippetFieldRenderer implements RowRenderer {
 			this.snippetField = snippetField;
 		}
 
+		@Override
 		public void onEvent(Event event) throws Exception {
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();

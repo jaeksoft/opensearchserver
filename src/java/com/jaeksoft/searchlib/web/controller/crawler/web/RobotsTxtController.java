@@ -51,13 +51,11 @@ public class RobotsTxtController extends CrawlerController {
 
 	public RobotsTxtController() throws SearchLibException {
 		super();
-		searchString = null;
-		robotsTxtList = null;
-		selectedRobotsTxt = null;
 	}
 
 	@Override
 	public void reset() {
+		searchString = null;
 		pageSize = 20;
 		robotsTxtList = null;
 		selectedRobotsTxt = null;

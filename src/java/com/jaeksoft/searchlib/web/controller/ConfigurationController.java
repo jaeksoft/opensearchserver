@@ -46,7 +46,7 @@ public class ConfigurationController extends CommonController {
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() throws SearchLibException {
 	}
 
 	public List<IndexAbstract> getIndices() throws SearchLibException,

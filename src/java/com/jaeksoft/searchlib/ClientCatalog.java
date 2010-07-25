@@ -125,8 +125,7 @@ public class ClientCatalog {
 		w.lock();
 		try {
 			for (Client client : CLIENTS.values()) {
-				System.out.println("OSS unload index "
-						+ client.getIndexDirectory().getName());
+				System.out.println("OSS unload index " + client.getIndexName());
 				client.close();
 			}
 		} finally {
@@ -206,7 +205,7 @@ public class ClientCatalog {
 			throw new SearchLibException("Operation not permitted");
 		Client client = getClient(indexName);
 		client.close();
-		FileUtils.deleteDirectory(client.getIndexDirectory());
+		client.delete();
 	}
 
 	public static UserList getUserList() throws SearchLibException {
@@ -304,12 +303,12 @@ public class ClientCatalog {
 	}
 
 	private static File getTempReceiveDir(Client client) {
-		File clientDir = client.getIndexDirectory();
+		File clientDir = client.getDirectory();
 		return new File(clientDir.getParentFile(), '.' + clientDir.getName());
 	}
 
 	private static File getTrashReceiveDir(Client client) {
-		File clientDir = client.getIndexDirectory();
+		File clientDir = client.getDirectory();
 		return new File(clientDir.getParentFile(), "._" + clientDir.getName());
 	}
 
@@ -322,7 +321,7 @@ public class ClientCatalog {
 	public static void receive_switch(WebApp webapp, Client client)
 			throws SearchLibException, NamingException, IOException {
 		File trashDir = getTrashReceiveDir(client);
-		File clientDir = client.getIndexDirectory();
+		File clientDir = client.getDirectory();
 		if (trashDir.exists())
 			FileUtils.deleteDirectory(trashDir);
 		w.lock();
@@ -331,7 +330,7 @@ public class ClientCatalog {
 			getTempReceiveDir(client).renameTo(clientDir);
 			CLIENTS.remove(clientDir);
 			CLIENTS.put(clientDir, new Client(clientDir, true, true));
-			PushEvent.RESET_DESKTOP.publish(webapp);
+			PushEvent.CLIENT_CHANGE.publish(webapp);
 		} finally {
 			w.unlock();
 		}

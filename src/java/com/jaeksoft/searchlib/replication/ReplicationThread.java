@@ -98,13 +98,13 @@ public class ReplicationThread extends ThreadAbstract implements
 	}
 
 	public void push() throws SearchLibException {
-		setTotalSize(ClientCatalog.getLastModifiedAndSize(
-				client.getIndexDirectory().getName()).getSize());
-		addSendSize(client.getIndexDirectory().length());
+		setTotalSize(ClientCatalog
+				.getLastModifiedAndSize(client.getIndexName()).getSize());
+		addSendSize(client.getIndexName().length());
 		try {
 			AbstractServlet.call(new URI(replicationItem.getPushTargetUrl(
 					client, "init")));
-			new RecursiveDirectoryBrowser(client.getIndexDirectory(), this);
+			new RecursiveDirectoryBrowser(client.getDirectory(), this);
 			AbstractServlet.call(new URI(replicationItem.getPushTargetUrl(
 					client, "switch")));
 		} catch (UnsupportedEncodingException e) {

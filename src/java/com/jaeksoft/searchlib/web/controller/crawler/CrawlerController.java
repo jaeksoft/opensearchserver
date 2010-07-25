@@ -29,11 +29,15 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CrawlerController extends CommonController {
 
+	private static final long serialVersionUID = 2308774605231174474L;
+
 	public CrawlerController() throws SearchLibException {
 		super();
 	}
 
-	private static final long serialVersionUID = 2308774605231174474L;
+	@Override
+	protected void reset() throws SearchLibException {
+	}
 
 	public boolean isWebCrawlerRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
@@ -107,9 +111,32 @@ public class CrawlerController extends CommonController {
 				Role.FILE_CRAWLER_START_STOP);
 	}
 
-	@Override
-	public void reset() {
+	public boolean isDatabaseCrawlerRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.GROUP_DATABASE_CRAWLER);
+	}
 
+	public boolean isDatabaseCrawlerEditPatternsRights()
+			throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.DATABASE_CRAWLER_EDIT_PARAMETERS);
+	}
+
+	public boolean isDatabaseCrawlerStartStopRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.DATABASE_CRAWLER_START_STOP);
 	}
 
 }

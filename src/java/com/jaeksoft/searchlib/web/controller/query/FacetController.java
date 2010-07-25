@@ -52,11 +52,10 @@ public class FacetController extends QueryController {
 
 	public FacetController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() throws SearchLibException {
 		super.reset();
 		selectedFacet = null;
 		fieldLeft = null;

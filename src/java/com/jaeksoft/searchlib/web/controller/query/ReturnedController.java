@@ -53,11 +53,10 @@ public class ReturnedController extends QueryController implements RowRenderer {
 
 	public ReturnedController() throws SearchLibException {
 		super();
-		reset();
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() throws SearchLibException {
 		super.reset();
 		selectedReturn = null;
 		fieldLeft = null;

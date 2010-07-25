@@ -33,13 +33,10 @@ public class RuntimeController extends CommonController {
 
 	public RuntimeController() throws SearchLibException {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
+	protected void reset() {
 	}
 
 }

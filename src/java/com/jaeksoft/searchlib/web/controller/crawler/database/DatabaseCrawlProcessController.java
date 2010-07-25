@@ -43,6 +43,10 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 	public DatabaseCrawlProcessController() throws SearchLibException,
 			NamingException {
 		super();
+	}
+
+	@Override
+	protected void reset() {
 		debug = false;
 	}
 
@@ -70,10 +74,6 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
-	}
-
-	@Override
-	public void reset() {
 	}
 
 }

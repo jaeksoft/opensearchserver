@@ -90,7 +90,14 @@ public class DatabaseCrawlListController extends CrawlerController {
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
 		super();
-		currentCrawl = new DatabaseCrawl(getCrawlMaster());
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
+		currentCrawl = null;
+		DatabaseCrawlMaster cm = getCrawlMaster();
+		if (cm != null)
+			new DatabaseCrawl(cm);
 		selectedCrawl = null;
 		dbCrawlList = null;
 		sqlColumn = null;
@@ -258,10 +265,6 @@ public class DatabaseCrawlListController extends CrawlerController {
 	public void reloadPage() {
 		dbCrawlList = null;
 		super.reloadPage();
-	}
-
-	@Override
-	public void reset() {
 	}
 
 	/**

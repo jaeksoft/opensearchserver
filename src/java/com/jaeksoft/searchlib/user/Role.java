@@ -59,6 +59,9 @@ public enum Role {
 	public static Role[] GROUP_FILE_CRAWLER = { FILE_CRAWLER_EDIT_PATTERN_LIST,
 			FILE_CRAWLER_EDIT_PARAMETERS, FILE_CRAWLER_START_STOP };
 
+	public static Role[] GROUP_DATABASE_CRAWLER = {
+			DATABASE_CRAWLER_EDIT_PARAMETERS, DATABASE_CRAWLER_START_STOP };
+
 	private Role(String label) {
 		this.label = label;
 	}

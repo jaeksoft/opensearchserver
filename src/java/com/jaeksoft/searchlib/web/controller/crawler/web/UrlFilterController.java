@@ -66,6 +66,10 @@ public class UrlFilterController extends CrawlerController {
 
 	public UrlFilterController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 		selectedFilter = null;
 		currentFilter = new UrlFilterItem(null, null);
 	}

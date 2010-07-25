@@ -26,16 +26,10 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 import org.apache.http.HttpException;
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
-import org.zkoss.zk.ui.Page;
 import org.zkoss.zk.ui.UiException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -72,7 +66,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 	public void afterCompose() {
 		binder = new AnnotateDataBinder(this);
 		binder.loadAll();
-		PushEvent.FLUSH_PRIVILEGES.subscribe(this);
+		PushEvent.suscribe(this);
 		isComposed = true;
 	}
 
@@ -96,8 +90,9 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
 	}
 
-	public void setClient(Client client) {
+	protected void setClient(Client client) {
 		setAttribute(ScopeAttribute.CURRENT_CLIENT, client);
+		PushEvent.CLIENT_CHANGE.publish();
 	}
 
 	public boolean isInstanceValid() throws SearchLibException {
@@ -153,56 +148,10 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return getLoggedUser() != null;
 	}
 
-	private static void reloadComponent(Component component, boolean bReset) {
-		if (component == null)
-			return;
-		if (component instanceof CommonController) {
-			CommonController controller = (CommonController) component;
-			if (bReset)
-				controller.reset();
-			controller.reloadPage();
-		}
-		List<?> children = component.getChildren();
-		if (children != null)
-			for (Object child : children)
-				reloadComponent((Component) child, bReset);
-	}
-
-	private Iterator<?> getPagesIterator() {
-		Desktop desktop = getDesktop();
-		if (desktop == null)
-			return null;
-		Collection<?> pages = desktop.getPages();
-		if (pages == null)
-			return null;
-		return pages.iterator();
-	}
-
-	private void reloadDesktop(boolean bReset) {
-		Iterator<?> it = getPagesIterator();
-		if (it == null)
-			return;
-		while (it.hasNext()) {
-			Page page = (Page) it.next();
-			if (page != null)
-				reloadComponent(page.getFirstRoot(), bReset);
-		}
-	}
-
-	protected void reloadDesktop() {
-		reloadDesktop(false);
-	}
-
-	protected void resetDesktop() {
-		reloadDesktop(true);
-	}
-
 	public void reloadComponent(String compId) {
 		if (binder != null)
 			binder.loadComponent(getFellow(compId));
 	}
-
-	public abstract void reset();
 
 	public void reloadPage() {
 		if (binder != null)
@@ -226,35 +175,90 @@ public abstract class CommonController extends Window implements AfterCompose,
 	public void onLogout() {
 		for (ScopeAttribute attr : ScopeAttribute.values())
 			setAttribute(attr, null);
-		resetDesktop();
+		PushEvent.LOG_OUT.publish();
 		Executions.sendRedirect("/");
 	}
 
+	private boolean sameClient(Event event) throws SearchLibException {
+		Client client = (Client) event.getData();
+		if (client == null)
+			return false;
+		Client localClient = getClient();
+		if (localClient == null)
+			return false;
+		return client.getIndexName().equals(localClient.getIndexName());
+	}
+
+	private boolean sameUser(Event event) throws SearchLibException {
+		User user = (User) event.getData();
+		if (user == null)
+			return false;
+		if (!isLogged())
+			return false;
+		return user.equals(getLoggedUser());
+	}
+
 	@Override
-	public void onEvent(Event event) throws UiException {
+	final public void onEvent(Event event) throws UiException {
 		PushEvent pushEvent = PushEvent.isEvent(event);
 		if (pushEvent == null)
 			return;
 		try {
 			if (pushEvent == PushEvent.FLUSH_PRIVILEGES) {
-				User user = (User) event.getData();
 				ClientCatalog.flushPrivileges();
-				if (isLogged()) {
-					if (user.equals(getLoggedUser()))
-						onLogout();
+				if (sameUser(event)) {
+					eventFlushPrivileges();
+					onLogout();
 				}
-			} else if (pushEvent == PushEvent.RESET_DESKTOP)
-				resetDesktop();
+			} else if (pushEvent == PushEvent.CLIENT_CHANGE)
+				eventClientChange();
+			else if (pushEvent == PushEvent.DOCUMENT_UPDATED) {
+				if (sameClient(event))
+					eventDocumentUpdate();
+			} else if (pushEvent == PushEvent.REQUEST_LIST_CHANGED) {
+				if (sameClient(event))
+					eventRequestListChange();
+			} else if (pushEvent == PushEvent.SCHEMA_CHANGED) {
+				if (sameClient(event))
+					eventSchemaChange();
+			} else if (pushEvent == PushEvent.LOG_OUT)
+				eventLogout();
 		} catch (SearchLibException e) {
-			e.printStackTrace();
+			throw new UiException(e);
 		}
+	}
+
+	protected abstract void reset() throws SearchLibException;
+
+	protected void eventClientChange() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
+
+	protected void eventFlushPrivileges() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
+
+	protected void eventDocumentUpdate() throws SearchLibException {
+	}
+
+	protected void eventRequestListChange() throws SearchLibException {
+	}
+
+	protected void eventSchemaChange() throws SearchLibException {
+	}
+
+	protected void eventLogout() throws SearchLibException {
+		reset();
+		reloadPage();
 	}
 
 	protected String getIndexName() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return getClient().getIndexDirectory().getName();
+		return getClient().getIndexName();
 	}
 
 	public boolean isUpdateRights() throws SearchLibException {

@@ -46,7 +46,7 @@ public class CrawlWebController extends CrawlerController {
 	}
 
 	@Override
-	public void reset() {
+	protected void reset() {
 		sheetRows = 20;
 	}
 
