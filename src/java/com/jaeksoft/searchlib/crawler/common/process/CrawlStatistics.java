@@ -84,7 +84,7 @@ public class CrawlStatistics {
 		synchronized (this) {
 			pendingDeleteCount = 0;
 			pendingUpdatedCount = 0;
-			pendingDeleteCount = 0;
+			pendingNewUrlCount = 0;
 		}
 		if (parent != null)
 			parent.resetPending();

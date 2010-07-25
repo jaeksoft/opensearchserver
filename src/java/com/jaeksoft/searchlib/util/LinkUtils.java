@@ -127,7 +127,7 @@ public class LinkUtils {
 		try {
 			return new URL(uri);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			System.err.println(e);
 			return null;
 		}
 	}
