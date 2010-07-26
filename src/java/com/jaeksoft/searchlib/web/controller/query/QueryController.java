@@ -204,7 +204,6 @@ public class QueryController extends CommonController {
 
 	@Override
 	protected void eventRequestListChange() throws SearchLibException {
-		reset();
 		reloadPage();
 	}
 

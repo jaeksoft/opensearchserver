@@ -126,6 +126,7 @@ public class SnippetFieldRenderer implements RowRenderer {
 		}
 	}
 
+	@Override
 	public void render(Row row, Object data) throws Exception {
 		SnippetField field = (SnippetField) data;
 		new Label(field.getName()).setParent(row);
