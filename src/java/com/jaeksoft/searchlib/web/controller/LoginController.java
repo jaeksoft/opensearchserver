@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.Textbox;
@@ -59,6 +60,7 @@ public class LoginController extends CommonController {
 			return;
 		}
 		setAttribute(ScopeAttribute.LOGGED_USER, user);
+		Executions.sendRedirect("/");
 	}
 
 }
