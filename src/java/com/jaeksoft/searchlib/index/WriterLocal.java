@@ -44,6 +44,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
@@ -83,7 +84,7 @@ public class WriterLocal extends WriterAbstract {
 				return;
 			IndexWriter.unlock(dir);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -94,9 +95,9 @@ public class WriterLocal extends WriterAbstract {
 				try {
 					indexWriter.close();
 				} catch (CorruptIndexException e) {
-					e.printStackTrace();
+					Logging.logger.error(e.getMessage(), e);
 				} catch (IOException e) {
-					e.printStackTrace();
+					Logging.logger.error(e.getMessage(), e);
 				} finally {
 					unlock();
 				}
@@ -154,16 +155,16 @@ public class WriterLocal extends WriterAbstract {
 				try {
 					indexWriter.close();
 				} catch (CorruptIndexException e) {
-					e.printStackTrace();
+					Logging.logger.error(e.getMessage(), e);
 				} catch (IOException e) {
-					e.printStackTrace();
+					Logging.logger.error(e.getMessage(), e);
 				}
 			}
 			if (directory != null) {
 				try {
 					directory.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					Logging.logger.error(e.getMessage(), e);
 				}
 			}
 		}

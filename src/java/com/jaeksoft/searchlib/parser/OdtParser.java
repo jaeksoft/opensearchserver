@@ -31,6 +31,8 @@ import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.office.OfficeTextElement;
 import org.w3c.dom.Document;
 
+import com.jaeksoft.searchlib.Logging;
+
 /**
  * 
  * @author Emmanuel Gosse (philCube)
@@ -55,20 +57,17 @@ public class OdtParser extends OOParser {
 			// get root of all content of a text document
 			OfficeTextElement officeText = odt.getContentRoot();
 			scanNodes(officeText.getChildNodes(), ParserFieldEnum.content);
-			
+
 			Document docOwner = officeText.getOwnerDocument();
 			if (docOwner != null)
 				scanNodes(docOwner.getChildNodes(), ParserFieldEnum.author);
-			
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 		}
 	}
-
 
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {

@@ -60,7 +60,6 @@ public class Debug {
 			this.hc = object.hashCode();
 		}
 		this.elapsedTime = System.currentTimeMillis() - startTime;
-		System.out.println(this);
 	}
 
 	public Debug addChildren() {

@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.common.process;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
@@ -56,7 +57,7 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 			indexPluginList = new IndexPluginList(getConfig()
 					.getIndexPluginTemplateList());
 		} catch (SearchLibException e) {
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 			setStatus(CrawlStatus.ERROR);
 			setInfo(e.getMessage());
 			return;

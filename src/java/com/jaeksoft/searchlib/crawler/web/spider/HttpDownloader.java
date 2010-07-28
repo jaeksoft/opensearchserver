@@ -47,6 +47,8 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
+import com.jaeksoft.searchlib.Logging;
+
 public class HttpDownloader {
 
 	private HttpClient httpClient = null;
@@ -78,7 +80,7 @@ public class HttpDownloader {
 				if (httpClient != null)
 					httpClient.getConnectionManager().shutdown();
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 			}
 		}
 	}
@@ -89,7 +91,7 @@ public class HttpDownloader {
 				try {
 					httpEntity.consumeContent();
 				} catch (IOException e) {
-					e.printStackTrace();
+					Logging.logger.warn(e.getMessage(), e);
 				}
 				httpEntity = null;
 			}

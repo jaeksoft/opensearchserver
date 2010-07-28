@@ -37,6 +37,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.XPathParser;
 
@@ -85,7 +86,7 @@ public abstract class UriHttp {
 				httpEntity = null;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logging.logger.warn(e.getMessage(), e);
 		}
 		httpEntity = null;
 		if (httpClient != null) {

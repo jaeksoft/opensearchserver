@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
+import com.jaeksoft.searchlib.Logging;
+
 public class StreamWriteObject {
 
 	// private GZIPOutputStream gos;
@@ -49,7 +51,7 @@ public class StreamWriteObject {
 					oos.flush();
 				oos.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 			}
 			oos = null;
 		}

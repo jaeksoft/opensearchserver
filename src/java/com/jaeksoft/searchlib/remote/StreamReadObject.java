@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
+import com.jaeksoft.searchlib.Logging;
+
 public class StreamReadObject {
 
 	// private GZIPInputStream gis;
@@ -48,7 +50,7 @@ public class StreamReadObject {
 			try {
 				ois.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 			}
 			ois = null;
 		}

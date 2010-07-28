@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import com.jaeksoft.searchlib.Logging;
+
 public class Timer {
 
 	private long startTime;
@@ -80,7 +82,7 @@ public class Timer {
 		try {
 			sw.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logging.logger.warn(e.getMessage(), e);
 		}
 		this.error = sw.toString();
 	}

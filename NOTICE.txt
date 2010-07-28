@@ -31,6 +31,9 @@ http://tomcat.apache.org
 Apache Lucene
 http://lucene.apache.org
 
+Apache log4j
+http://logging.apache.org/log4j
+
 Apache POI
 http://poi.apache.org/
 

@@ -57,6 +57,7 @@ import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
@@ -290,7 +291,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				indexDirectory = null;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logging.logger.warn(e.getMessage(), e);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -465,13 +466,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				else if (r.getVersion() > reader.getVersion())
 					reader = r;
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 			}
 		}
 		return reader;
@@ -488,13 +489,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				if (reader.getVersion() == version)
 					return reader;
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 			}
 		}
 		return null;

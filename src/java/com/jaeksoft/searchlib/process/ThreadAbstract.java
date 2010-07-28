@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.process;
 
 import java.lang.Thread.State;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
@@ -159,7 +160,7 @@ public abstract class ThreadAbstract implements Runnable {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Logging.logger.warn(e.getMessage(), e);
 		}
 	}
 
@@ -237,7 +238,7 @@ public abstract class ThreadAbstract implements Runnable {
 		} catch (Exception e) {
 			setException(e);
 			setInfo(e.getMessage());
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 		}
 		if (threadMaster != null) {
 			threadMaster.remove(this);

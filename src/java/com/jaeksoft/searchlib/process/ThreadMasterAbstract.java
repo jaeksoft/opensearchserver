@@ -28,6 +28,7 @@ import java.lang.Thread.State;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
@@ -129,7 +130,7 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 					rwl.w.unlock();
 				}
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 			}
 			sleepSec(1);
 		}

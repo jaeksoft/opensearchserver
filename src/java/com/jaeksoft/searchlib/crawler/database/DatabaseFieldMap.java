@@ -34,6 +34,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -80,7 +81,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 							parser.addField(ParserFieldEnum.filename,
 									file.getName());
 						} catch (IOException e) {
-							e.printStackTrace();
+							Logging.logger.warn(e.getMessage(), e);
 						}
 						parser.populate(target);
 					}

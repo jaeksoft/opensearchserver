@@ -59,7 +59,7 @@ import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class ClientCatalog {
 
-	private static final String OPENSEARCHSERVER_DATA = System
+	static final String OPENSEARCHSERVER_DATA = System
 			.getenv("OPENSEARCHSERVER_DATA");
 
 	private static volatile Map<File, Client> CLIENTS = new TreeMap<File, Client>();
@@ -108,7 +108,7 @@ public class ClientCatalog {
 		try {
 
 			for (ClientCatalogItem catalogItem : getClientCatalog(null)) {
-				System.out.println("OSS load index "
+				Logging.logger.info("OSS load index "
 						+ catalogItem.getIndexName());
 				getClient(catalogItem.getIndexName());
 			}
@@ -125,7 +125,8 @@ public class ClientCatalog {
 		w.lock();
 		try {
 			for (Client client : CLIENTS.values()) {
-				System.out.println("OSS unload index " + client.getIndexName());
+				Logging.logger
+						.info("OSS unload index " + client.getIndexName());
 				client.close();
 			}
 		} finally {
@@ -135,15 +136,21 @@ public class ClientCatalog {
 
 	public static final LastModifiedAndSize getLastModifiedAndSize(
 			String indexName) throws SearchLibException {
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
 		File file = new File(getDataDir(), indexName);
 		if (!file.exists())
 			return null;
 		return new LastModifiedAndSize(file);
 	}
 
-	public static final Client getClient(String indexDirectoryName)
+	public static final Client getClient(String indexName)
 			throws SearchLibException, NamingException {
-		return getClient(new File(getDataDir(), indexDirectoryName));
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
+		return getClient(new File(getDataDir(), indexName));
 	}
 
 	public static File getDataDir() throws SearchLibException {
@@ -165,9 +172,9 @@ public class ClientCatalog {
 		for (File file : files) {
 			if (!file.isDirectory())
 				continue;
-			if (file.getName().startsWith("."))
-				continue;
 			String indexName = file.getName();
+			if (!isValidIndexName(indexName))
+				continue;
 			if (user == null || user.hasAnyRole(indexName, Role.GROUP_INDEX))
 				set.add(new ClientCatalogItem(indexName));
 		}
@@ -178,14 +185,28 @@ public class ClientCatalog {
 			throws SearchLibException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
 		return getClientCatalog(null)
 				.contains(new ClientCatalogItem(indexName));
+	}
+
+	final private static boolean isValidIndexName(String name) {
+		if (name.startsWith("."))
+			return false;
+		if ("logs".equals(name))
+			return false;
+		return true;
 	}
 
 	public static void createIndex(User user, String indexName,
 			TemplateAbstract template) throws SearchLibException, IOException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
 		w.lock();
 		try {
 			File indexDir = new File(getDataDir(), indexName);
@@ -203,6 +224,9 @@ public class ClientCatalog {
 			throws SearchLibException, NamingException, IOException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
 		Client client = getClient(indexName);
 		client.close();
 		client.delete();
@@ -369,4 +393,5 @@ public class ClientCatalog {
 			}
 		}
 	}
+
 }

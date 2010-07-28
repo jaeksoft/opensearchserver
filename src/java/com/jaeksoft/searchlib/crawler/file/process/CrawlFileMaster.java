@@ -49,11 +49,8 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 		FilePropertyManager filePropertyManager = config
 				.getFilePropertyManager();
 		fileCrawlQueue = new FileCrawlQueue(config, filePropertyManager);
-		if (filePropertyManager.getCrawlEnabled().getValue()) {
-			System.out.println("Filecrawler is starting for "
-					+ config.getIndexName());
+		if (filePropertyManager.getCrawlEnabled().getValue())
 			start();
-		}
 	}
 
 	protected File getNextFile() {

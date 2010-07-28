@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
@@ -100,8 +101,8 @@ public class SearchServlet extends AbstractServlet {
 			if ("object".equalsIgnoreCase(p))
 				render = doObjectRequest(client, request);
 			else
-				render = doQueryRequest(client, request, p, request
-						.getParameter("jsp"));
+				render = doQueryRequest(client, request, p,
+						request.getParameter("jsp"));
 
 			render.render(transaction);
 
@@ -126,7 +127,7 @@ public class SearchServlet extends AbstractServlet {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 			err = e;
 		} finally {
 			if (uwo != null)

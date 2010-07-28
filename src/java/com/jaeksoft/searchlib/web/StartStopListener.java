@@ -28,18 +28,20 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.Logging;
 
 public class StartStopListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
-		System.out.println("OSS SHUTDOWN");
+		Logging.logger.info("OSS SHUTDOWN");
 		ClientCatalog.closeAll();
 	}
 
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
-		System.out.println("OSS IS STARTING");
+		Logging.initLogger();
+		Logging.logger.info("OSS IS STARTING");
 		ClientCatalog.openAll();
 	}
 

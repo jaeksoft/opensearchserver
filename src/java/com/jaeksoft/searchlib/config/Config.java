@@ -48,6 +48,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
@@ -647,22 +648,16 @@ public abstract class Config {
 						getStatStorage());
 			return statisticsList;
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (DOMException e) {
-			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 			throw new SearchLibException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new SearchLibException(e);
 		}
 	}
@@ -1174,14 +1169,14 @@ public abstract class Config {
 		try {
 			getIndex().close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logging.logger.warn(e.getMessage(), e);
 		}
 		try {
 			StatisticsList statList = getStatisticsList();
 			if (statList != null)
 				statList.save(getStatStorage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logging.logger.warn(e.getMessage(), e);
 		}
 	}
 
@@ -1189,7 +1184,7 @@ public abstract class Config {
 		try {
 			prepareClose(true);
 		} catch (SearchLibException e) {
-			e.printStackTrace();
+			Logging.logger.warn(e.getMessage(), e);
 		}
 		longTermLock.lock();
 		try {

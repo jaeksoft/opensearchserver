@@ -40,6 +40,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.http.HttpException;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.UriRead;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
@@ -93,10 +94,10 @@ public abstract class AbstractServlet extends HttpServlet {
 				transaction.writeXmlResponse();
 			} catch (Exception e) {
 				try {
-					e.printStackTrace();
+					Logging.logger.error(e.getMessage(), e);
 					response.sendError(500, e.getMessage());
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					Logging.logger.warn(e1.getMessage(), e1);
 				}
 			}
 		}

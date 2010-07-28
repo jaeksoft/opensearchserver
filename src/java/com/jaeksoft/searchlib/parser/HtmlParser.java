@@ -50,6 +50,7 @@ import org.w3c.tidy.Tidy;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -318,7 +319,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 				doc = null;
 			}
 		}
@@ -333,7 +334,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 				doc = null;
 			}
 		}
@@ -348,7 +349,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logging.logger.error(e.getMessage(), e);
 				doc = null;
 			}
 		}
@@ -363,7 +364,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 				doc = null;
 			}
 		}

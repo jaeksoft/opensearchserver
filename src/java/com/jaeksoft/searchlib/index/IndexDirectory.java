@@ -30,6 +30,8 @@ import java.io.IOException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import com.jaeksoft.searchlib.Logging;
+
 public class IndexDirectory {
 
 	private Directory directory;
@@ -61,7 +63,7 @@ public class IndexDirectory {
 			try {
 				directory.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 			}
 			directory = null;
 		}

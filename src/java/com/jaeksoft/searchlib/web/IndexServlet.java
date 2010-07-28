@@ -39,6 +39,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
@@ -87,7 +88,7 @@ public class IndexServlet extends AbstractServlet {
 				return updateDoc(client, (IndexDocument) obj);
 			throw new ServletException("Nothing to do");
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 			throw new ServletException(e);
 		} finally {
 			if (readObject != null)

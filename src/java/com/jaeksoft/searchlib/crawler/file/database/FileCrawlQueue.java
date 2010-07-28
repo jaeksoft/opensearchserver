@@ -61,8 +61,6 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 			throws NoSuchAlgorithmException, IOException, SearchLibException {
 		rwl.r.lock();
 		try {
-			System.out.println("add crawl "
-					+ crawl.getFileItem().getURI().toString());
 			updateCrawlList.add(crawl);
 		} finally {
 			rwl.r.unlock();

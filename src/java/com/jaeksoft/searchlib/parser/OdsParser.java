@@ -30,6 +30,8 @@ import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
 import org.odftoolkit.odfdom.doc.office.OdfOfficeSpreadsheet;
 import org.w3c.dom.Document;
 
+import com.jaeksoft.searchlib.Logging;
+
 /**
  * 
  * @author Emmanuel Gosse (philCube)
@@ -61,11 +63,9 @@ public class OdsParser extends OOParser {
 				scanNodes(docOwner.getChildNodes(), ParserFieldEnum.author);
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logging.logger.error(e.getMessage(), e);
 		}
 	}
 

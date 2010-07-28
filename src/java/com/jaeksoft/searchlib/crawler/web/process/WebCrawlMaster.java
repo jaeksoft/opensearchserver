@@ -35,6 +35,7 @@ import java.util.Random;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
@@ -72,7 +73,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		oldHostList = new LinkedList<NamedItem>();
 		newHostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
-			System.out.println("Webcrawler is starting for "
+			Logging.logger.info("Webcrawler is starting for "
 					+ config.getIndexName());
 			start();
 		}

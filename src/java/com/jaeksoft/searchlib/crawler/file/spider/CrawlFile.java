@@ -151,10 +151,8 @@ public class CrawlFile {
 			UnsupportedEncodingException {
 		synchronized (this) {
 			// No parser found
-			if (parser == null) {
-				// System.out.println("No parser at end");
+			if (parser == null)
 				return null;
-			}
 
 			IndexDocument indexDocument = new IndexDocument();
 			IndexDocument fileIndexDocument = new IndexDocument();

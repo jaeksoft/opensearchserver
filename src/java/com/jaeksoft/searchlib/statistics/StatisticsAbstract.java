@@ -37,6 +37,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 
@@ -86,7 +87,7 @@ public abstract class StatisticsAbstract {
 			if (currentAggregate == null
 					|| startTime >= currentAggregate.nextStart) {
 				if (currentAggregate != null && writeToLog)
-					System.out.println(type + " - " + getPeriod().getName()
+					Logging.logger.info(type + " - " + getPeriod().getName()
 							+ " - " + currentAggregate);
 				currentAggregate = newAggregate(timer.getStartTime());
 				addAggregate(currentAggregate);

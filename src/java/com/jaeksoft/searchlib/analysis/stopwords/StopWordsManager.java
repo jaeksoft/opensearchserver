@@ -36,6 +36,7 @@ import java.util.TreeMap;
 
 import org.apache.lucene.analysis.CharArraySet;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 
@@ -99,7 +100,7 @@ public class StopWordsManager extends AbstractDirectoryManager {
 				try {
 					br.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					Logging.logger.warn(e.getMessage(), e);
 				}
 			}
 		}

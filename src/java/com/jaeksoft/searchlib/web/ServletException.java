@@ -37,7 +37,6 @@ public class ServletException extends Exception {
 
 	public ServletException(Exception e) {
 		super(e);
-		e.printStackTrace();
 	}
 
 }

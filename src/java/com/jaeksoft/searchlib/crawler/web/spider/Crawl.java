@@ -34,9 +34,8 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
@@ -58,9 +57,6 @@ import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 
 public class Crawl {
-
-	final private static Logger logger = Logger.getLogger(Crawl.class
-			.getCanonicalName());
 
 	private IndexDocument targetIndexDocument;
 	private UrlItem urlItem;
@@ -179,39 +175,40 @@ public class Crawl {
 					urlItem.setFetchStatus(FetchStatus.HTTP_ERROR);
 				}
 			} catch (FileNotFoundException e) {
-				logger.info("FileNotFound: " + urlItem.getUrl());
+				Logging.logger.info("FileNotFound: " + urlItem.getUrl());
 				urlItem.setFetchStatus(FetchStatus.GONE);
 				setError("FileNotFound: " + urlItem.getUrl());
 			} catch (LimitException e) {
-				logger.warning(e.toString() + " (" + urlItem.getUrl() + ")");
+				Logging.logger.warn(e.toString() + " (" + urlItem.getUrl()
+						+ ")");
 				urlItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
 				setError(e.getMessage());
 			} catch (InstantiationException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.error(e.getMessage(), e);
 				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (IllegalAccessException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.error(e.getMessage(), e);
 				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (ClassNotFoundException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.error(e.getMessage(), e);
 				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (URISyntaxException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.warn(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
 				setError(e.getMessage());
 			} catch (MalformedURLException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.warn(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
 				setError(e.getMessage());
 			} catch (IOException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.error(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
 			} catch (Exception e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.error(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
 			}
@@ -219,8 +216,7 @@ public class Crawl {
 				if (is != null)
 					is.close();
 			} catch (IOException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-				e.printStackTrace();
+				Logging.logger.warn(e.getMessage(), e);
 			}
 		}
 	}
@@ -294,7 +290,7 @@ public class Crawl {
 					continue;
 				newUrlList.add(link);
 			} catch (MalformedURLException e) {
-				logger.log(Level.WARNING, link + " " + e.getMessage(), e);
+				Logging.logger.warn(link + " " + e.getMessage(), e);
 			}
 		}
 	}

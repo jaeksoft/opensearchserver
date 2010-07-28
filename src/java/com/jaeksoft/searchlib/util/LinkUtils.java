@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.util;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 
 public class LinkUtils {
@@ -127,7 +128,7 @@ public class LinkUtils {
 		try {
 			return new URL(uri);
 		} catch (MalformedURLException e) {
-			System.err.println(e);
+			Logging.logger.warn(e.getMessage(), e);
 			return null;
 		}
 	}
