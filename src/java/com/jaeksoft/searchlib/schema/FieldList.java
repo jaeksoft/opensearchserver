@@ -46,9 +46,9 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.External.Collecter;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.util.External.Collecter;
 
 public class FieldList<T extends Field> implements
 		CacheKeyInterface<FieldList<T>>, FieldSelector, Externalizable,
@@ -164,6 +164,7 @@ public class FieldList<T extends Field> implements
 		return fieldList.size();
 	}
 
+	@Override
 	public FieldSelectorResult accept(String fieldName) {
 		if (this.fieldsName.containsKey(fieldName))
 			return FieldSelectorResult.LOAD;
@@ -188,6 +189,7 @@ public class FieldList<T extends Field> implements
 		return s;
 	}
 
+	@Override
 	public Iterator<T> iterator() {
 		return this.fieldList.iterator();
 	}
@@ -206,15 +208,18 @@ public class FieldList<T extends Field> implements
 		}
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(fieldList, out);
 	}
 
+	@Override
 	public void addObject(T field) {
 		synchronized (this) {
 			add(field);
@@ -233,6 +238,7 @@ public class FieldList<T extends Field> implements
 		}
 	}
 
+	@Override
 	public int compareTo(FieldList<T> o) {
 		return getCacheKey().compareTo(o.getCacheKey());
 	}

@@ -46,6 +46,7 @@ public class FilterListCacheKey implements
 					analyzer));
 	}
 
+	@Override
 	public int compareTo(FilterListCacheKey o) {
 		int i1 = filterCacheKeySet.size();
 		int i2 = o.filterCacheKeySet.size();

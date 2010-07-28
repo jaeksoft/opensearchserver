@@ -26,18 +26,14 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 
-import org.apache.http.HttpException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
@@ -49,42 +45,35 @@ public interface ReaderInterface {
 
 	public void close();
 
-	public Collection<?> getFieldNames() throws IOException;
+	public Collection<?> getFieldNames() throws SearchLibException;
 
-	public int getDocFreq(Term term) throws IOException;
+	public int getDocFreq(Term term) throws SearchLibException;
 
-	public TermEnum getTermEnum() throws IOException;
+	public TermEnum getTermEnum() throws SearchLibException;
 
-	public TermEnum getTermEnum(String field, String term) throws IOException;
+	public TermEnum getTermEnum(String field, String term)
+			throws SearchLibException;
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException;
+			throws SearchLibException;
 
-	public abstract Query rewrite(Query query) throws IOException;
+	public abstract Query rewrite(Query query) throws SearchLibException;
 
-	public Result search(SearchRequest searchRequest) throws IOException,
-			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException;
+	public Result search(SearchRequest searchRequest) throws SearchLibException;
 
 	public String explain(SearchRequest searchRequest, int docId)
-			throws IOException, ParseException, SyntaxError, SearchLibException;
+			throws SearchLibException;
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException, IllegalAccessException, InstantiationException;
+			throws SearchLibException;
 
 	public IndexStatistics getStatistics() throws IOException;
 
-	public void reload() throws IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException;
+	public void reload() throws SearchLibException;
 
-	public void swap(long version, boolean deleteOld) throws IOException,
-			URISyntaxException, HttpException;
+	public void swap(long version, boolean deleteOld) throws SearchLibException;
 
-	public void push(URI dest) throws URISyntaxException, IOException;
+	public void push(URI dest) throws SearchLibException;
 
 	public long getVersion();
 

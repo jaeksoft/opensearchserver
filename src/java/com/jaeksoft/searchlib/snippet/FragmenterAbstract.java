@@ -70,13 +70,15 @@ public abstract class FragmenterAbstract implements Externalizable {
 		Fragment lastFragment = null;
 		while (splitIterator.hasNext()) {
 			int nextSplitPos = splitIterator.next();
-			lastFragment = fragments.addOriginalText(originalText.substring(
-					pos, nextSplitPos), vectorOffset, lastFragment == null);
+			lastFragment = fragments.addOriginalText(
+					originalText.substring(pos, nextSplitPos), vectorOffset,
+					lastFragment == null);
 			pos = nextSplitPos;
 		}
 		if (pos < originalText.length())
-			lastFragment = fragments.addOriginalText(originalText
-					.substring(pos), vectorOffset, lastFragment == null);
+			lastFragment = fragments.addOriginalText(
+					originalText.substring(pos), vectorOffset,
+					lastFragment == null);
 		if (lastFragment != null)
 			lastFragment.setEdge(true);
 	}
@@ -97,10 +99,12 @@ public abstract class FragmenterAbstract implements Externalizable {
 
 	protected abstract void check(String originalText);
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 	}
 

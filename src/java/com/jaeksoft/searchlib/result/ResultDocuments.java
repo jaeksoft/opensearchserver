@@ -62,6 +62,7 @@ public class ResultDocuments implements Externalizable,
 			return resultDocuments.length;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		int l = in.readInt();
@@ -71,6 +72,7 @@ public class ResultDocuments implements Externalizable,
 		}
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeObjectArray(resultDocuments, out);
 	}
@@ -83,22 +85,26 @@ public class ResultDocuments implements Externalizable,
 			pos = 0;
 		}
 
+		@Override
 		public boolean hasNext() {
 			if (resultDocuments == null)
 				return false;
 			return pos < resultDocuments.length;
 		}
 
+		@Override
 		public ResultDocument next() {
 			return resultDocuments[pos++];
 		}
 
+		@Override
 		public void remove() {
 			throw new RuntimeException("Not permitted");
 		}
 
 	}
 
+	@Override
 	public Iterator<ResultDocument> iterator() {
 		return new ResultDocumentIterator();
 	}

@@ -70,6 +70,7 @@ public class Field implements FieldSelector, Externalizable, Comparable<Field> {
 		return new Field(this);
 	}
 
+	@Override
 	public FieldSelectorResult accept(String fieldName) {
 		if (this.name.equals(fieldName))
 			return FieldSelectorResult.LOAD;
@@ -111,11 +112,13 @@ public class Field implements FieldSelector, Externalizable, Comparable<Field> {
 		}
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		name = in.readUTF();
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeUTF(name);
 	}

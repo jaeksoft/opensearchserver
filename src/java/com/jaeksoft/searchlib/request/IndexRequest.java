@@ -53,20 +53,24 @@ public class IndexRequest implements Externalizable, Iterable<IndexDocument>,
 		return indexDocuments;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
 
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(indexDocuments, out);
 	}
 
+	@Override
 	public Iterator<IndexDocument> iterator() {
 		return indexDocuments.iterator();
 	}
 
+	@Override
 	public void addObject(IndexDocument indexDocument) {
 		indexDocuments.add(indexDocument);
 	}

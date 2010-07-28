@@ -44,19 +44,23 @@ public class SpellCheckList implements Iterable<SpellCheck>, Externalizable,
 		this.list = new ArrayList<SpellCheck>();
 	}
 
+	@Override
 	public Iterator<SpellCheck> iterator() {
 		return list.iterator();
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(list, out);
 	}
 
+	@Override
 	public void addObject(SpellCheck spellCheck) {
 		list.add(spellCheck);
 	}

@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
@@ -44,6 +45,7 @@ import com.jaeksoft.searchlib.request.DeleteRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.XPathParser;
 
 public class DeleteServlet extends AbstractServlet {
 
@@ -128,10 +130,19 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	public static boolean delete(URI uri, String indexName, String uniqueField)
-			throws IOException, URISyntaxException, HttpException {
-		String msg = call(buildUri(uri, "/delete", indexName, "uniq="
-				+ uniqueField));
-		return Boolean.parseBoolean(msg.trim());
+			throws SearchLibException {
+		try {
+			XPathParser xpp = call(buildUri(uri, "/delete", indexName, "uniq="
+					+ uniqueField));
+			return "OK".equals(xpp
+					.getNodeString("/response/entry[@key='Status'"));
+		} catch (IllegalStateException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	public static int delete(URI uri, String indexName,
@@ -143,9 +154,19 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	public static boolean deleteDocument(URI uri, String indexName, int docId)
-			throws HttpException, IOException, URISyntaxException {
-		String msg = call(buildUri(uri, "/delete", indexName, "id=" + docId));
-		return Boolean.parseBoolean(msg.trim());
+			throws SearchLibException {
+		try {
+			XPathParser xpp = call(buildUri(uri, "/delete", indexName, "id="
+					+ docId));
+			return "OK".equals(xpp
+					.getNodeString("/response/entry[@key='Status'"));
+		} catch (SearchLibException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	public static int deleteDocuments(URI uri, String indexName,

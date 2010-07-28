@@ -82,6 +82,7 @@ public abstract class AbstractGroupRequestThread implements Runnable {
 			InterruptedException, SearchLibException, InstantiationException,
 			IllegalAccessException;
 
+	@Override
 	final public void run() {
 		lock.lock();
 		try {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,8 @@ public class WebPropertyManager extends PropertyManager {
 	private PropertyItem<Integer> maxUrlPerHost;
 	private PropertyItem<Integer> maxUrlPerSession;
 	private PropertyItem<String> userAgent;
-	private PropertyItem<Boolean> publishAfterSession;
+	private PropertyItem<Boolean> replicationAfterSession;
+	private PropertyItem<String> replicationTarget;
 	private PropertyItem<Boolean> debug;
 
 	public WebPropertyManager(File file) throws IOException {
@@ -45,7 +46,9 @@ public class WebPropertyManager extends PropertyManager {
 		maxUrlPerHost = newIntegerProperty("maxUrlPerHost", 100);
 		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000);
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
-		publishAfterSession = newBooleanProperty("PublishAfterSession", false);
+		replicationAfterSession = newBooleanProperty("replicationAfterSession",
+				false);
+		replicationTarget = newStringProperty("replicationTarget", "");
 		debug = newBooleanProperty("debug", false);
 	}
 
@@ -65,8 +68,12 @@ public class WebPropertyManager extends PropertyManager {
 		return userAgent;
 	}
 
-	public PropertyItem<Boolean> getPublishAfterSession() {
-		return publishAfterSession;
+	public PropertyItem<Boolean> getReplicationAfterSession() {
+		return replicationAfterSession;
+	}
+
+	public PropertyItem<String> getReplicationTarget() {
+		return replicationTarget;
 	}
 
 	public PropertyItem<Boolean> getDebug() {

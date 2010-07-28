@@ -297,23 +297,11 @@ public class FileManager {
 					list.add(new FileItem(doc));
 			return result.getNumFound();
 
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		}
 	}

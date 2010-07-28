@@ -52,20 +52,24 @@ public class DeleteRequest<T> implements Externalizable, Iterable<T>,
 		return collection;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
 
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(collection, out);
 	}
 
+	@Override
 	public Iterator<T> iterator() {
 		return collection.iterator();
 	}
 
+	@Override
 	public void addObject(T field) {
 		collection.add(field);
 	}

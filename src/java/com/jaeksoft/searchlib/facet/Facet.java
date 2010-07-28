@@ -116,6 +116,7 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 		return (FacetItem) getArray()[i];
 	}
 
+	@Override
 	public Iterator<FacetItem> iterator() {
 		return facetMap.values().iterator();
 	}
@@ -170,10 +171,12 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
+	@Override
 	public void addObject(FacetItem facetItem) {
 		facetMap.put(facetItem.term, facetItem);
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		facetField = (FacetField) External.readObject(in);
@@ -181,6 +184,7 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeObject(facetField, out);
 		External.writeCollection(facetMap.values(), out);

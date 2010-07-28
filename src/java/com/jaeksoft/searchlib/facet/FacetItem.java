@@ -58,12 +58,14 @@ public class FacetItem implements Externalizable {
 		return count;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		term = External.readUTF(in);
 		count = in.readInt();
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeUTF(term, out);
 		out.writeInt(count);

@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
@@ -57,7 +58,8 @@ public class ResultDocument implements Externalizable {
 	}
 
 	public ResultDocument(DocumentsRequest documentsRequest, int doc,
-			ReaderLocal reader) throws IOException, ParseException, SyntaxError {
+			ReaderLocal reader) throws IOException, ParseException,
+			SyntaxError, SearchLibException {
 
 		FieldList<FieldValue> documentFields = reader.getDocumentFields(doc,
 				documentsRequest.getDocumentFieldList());
@@ -157,12 +159,14 @@ public class ResultDocument implements Externalizable {
 		return snippetFields.get(fieldName).isHighlighted();
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		returnFields = External.readObject(in);
 		snippetFields = External.readObject(in);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeObject(returnFields, out);
 		External.writeObject(snippetFields, out);

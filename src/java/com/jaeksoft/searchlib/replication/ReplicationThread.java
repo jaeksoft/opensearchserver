@@ -25,21 +25,14 @@
 package com.jaeksoft.searchlib.replication;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
-import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
-import com.jaeksoft.searchlib.web.AbstractServlet;
+import com.jaeksoft.searchlib.web.PushServlet;
 
 public class ReplicationThread extends ThreadAbstract implements
 		RecursiveDirectoryBrowser.CallBack {
@@ -101,21 +94,9 @@ public class ReplicationThread extends ThreadAbstract implements
 		setTotalSize(ClientCatalog
 				.getLastModifiedAndSize(client.getIndexName()).getSize());
 		addSendSize(client.getIndexName().length());
-		try {
-			AbstractServlet.call(new URI(replicationItem.getPushTargetUrl(
-					client, "init")));
-			new RecursiveDirectoryBrowser(client.getDirectory(), this);
-			AbstractServlet.call(new URI(replicationItem.getPushTargetUrl(
-					client, "switch")));
-		} catch (UnsupportedEncodingException e) {
-			throw new SearchLibException(e);
-		} catch (HttpException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		}
+		PushServlet.call_init(replicationItem);
+		new RecursiveDirectoryBrowser(client.getDirectory(), this);
+		PushServlet.call_switch(replicationItem);
 	}
 
 	private void setTotalSize(long size) {
@@ -139,23 +120,15 @@ public class ReplicationThread extends ThreadAbstract implements
 	@Override
 	public void file(File file) throws SearchLibException {
 		try {
-			String url = replicationItem.getPushTargetUrl(client, file);
-			URI uri = new URI(url);
 			if (file.isFile()) {
 				if (!file.getName().equals("replication.xml"))
 					if (!file.getName().equals("replication_old.xml"))
-						new UriWriteStream(uri, file);
+						PushServlet.call_file(client, replicationItem, file);
 			} else {
-				AbstractServlet.call(uri);
+				PushServlet.call_directory(client, replicationItem, file);
 			}
 			addSendSize(file.length());
-		} catch (UnsupportedEncodingException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (HttpException e) {
+		} catch (IllegalStateException e) {
 			throw new SearchLibException(e);
 		}
 	}

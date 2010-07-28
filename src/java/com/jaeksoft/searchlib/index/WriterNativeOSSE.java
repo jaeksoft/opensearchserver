@@ -25,16 +25,8 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.store.LockObtainFailedException;
-
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -52,30 +44,24 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	@Override
-	public boolean deleteDocument(Schema schema, String uniqueField)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+	public boolean deleteDocument(Schema schema, String uniqueField) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException {
+	public int deleteDocuments(Schema schema, Collection<String> uniqueFields) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public void optimize() throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException {
+	public void optimize() {
 
 	}
 
 	@Override
-	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+	public boolean updateDocument(Schema schema, IndexDocument document) {
 		Pointer doc = OsseLibrary.INSTANCE.document_new();
 		for (FieldContent fieldContent : document) {
 			WString field = new WString(fieldContent.getField());
@@ -98,8 +84,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 
 	@Override
 	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
+			Collection<IndexDocument> documents) {
 		int i = 0;
 		for (IndexDocument document : documents)
 			if (updateDocument(schema, document))
@@ -108,10 +93,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(SearchRequest query)
-			throws CorruptIndexException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError {
+	public int deleteDocuments(SearchRequest query) {
 		throw new RuntimeException("Not yet implemented");
 
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,8 +32,6 @@ public class Context {
 	public static Object get(String lookup1, String lookup2)
 			throws NamingException {
 		javax.naming.Context ctx1 = new InitialContext();
-		if (ctx1 == null)
-			return null;
 		javax.naming.Context ctx2 = (javax.naming.Context) ctx1.lookup(lookup1);
 		if (ctx2 == null)
 			return null;
@@ -42,8 +40,6 @@ public class Context {
 
 	public static Object get(String lookup) throws NamingException {
 		javax.naming.Context ctx = new InitialContext();
-		if (ctx == null)
-			return null;
 		return ctx.lookup(lookup);
 	}
 

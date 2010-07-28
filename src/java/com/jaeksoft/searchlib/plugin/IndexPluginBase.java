@@ -39,12 +39,14 @@ public class IndexPluginBase implements IndexPluginInterface {
 		logger.info("INIT");
 	}
 
+	@Override
 	public void setProperties(Properties properties) {
 		for (Map.Entry<Object, Object> entry : properties.entrySet())
 			logger.info("PROPERTY " + entry.getKey() + " VALUE: "
 					+ entry.getValue());
 	}
 
+	@Override
 	public boolean run(IndexDocument indexDocument) {
 		logger.info("RUN");
 		return true;

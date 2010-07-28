@@ -24,15 +24,13 @@
 
 package com.jaeksoft.searchlib.web;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.http.HttpException;
-
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 
 public class ActionServlet extends AbstractServlet {
 	/**
@@ -66,18 +64,17 @@ public class ActionServlet extends AbstractServlet {
 	}
 
 	public static void optimize(URI uri, String indexName)
-			throws HttpException, IOException, URISyntaxException {
+			throws SearchLibException, URISyntaxException {
 		call(buildUri(uri, "/action", indexName, "action=optimize"));
 	}
 
-	public static void reload(URI uri) throws HttpException, IOException,
+	public static void reload(URI uri) throws SearchLibException,
 			URISyntaxException {
 		call(buildUri(uri, "/action", null, "action=reload"));
 	}
 
 	public static void swap(URI uri, String indexName, long version,
-			boolean deleteOld) throws URISyntaxException, HttpException,
-			IOException {
+			boolean deleteOld) throws SearchLibException, URISyntaxException {
 		StringBuffer query = new StringBuffer("action=swap");
 		query.append("&version=");
 		query.append(version);
@@ -86,13 +83,13 @@ public class ActionServlet extends AbstractServlet {
 		call(buildUri(uri, "/action", indexName, query.toString()));
 	}
 
-	public static void online(URI uri, String indexName) throws HttpException,
-			IOException, URISyntaxException {
+	public static void online(URI uri, String indexName)
+			throws SearchLibException, URISyntaxException {
 		call(buildUri(uri, "/action", indexName, "action=online"));
 	}
 
-	public static void offline(URI uri, String indexName) throws HttpException,
-			IOException, URISyntaxException {
+	public static void offline(URI uri, String indexName)
+			throws SearchLibException, URISyntaxException {
 		call(buildUri(uri, "/action", indexName, "action=offline"));
 	}
 }

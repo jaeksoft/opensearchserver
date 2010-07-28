@@ -69,6 +69,7 @@ public class SpellCheckFieldRenderer implements RowRenderer {
 		}
 	}
 
+	@Override
 	public void render(Row row, Object data) throws Exception {
 		SpellCheckField spellCheckField = (SpellCheckField) data;
 		new Label(spellCheckField.getName()).setParent(row);

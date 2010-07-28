@@ -226,7 +226,8 @@ public class SnippetField extends Field implements Externalizable {
 	}
 
 	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(int docId,
-			ReaderLocal reader) throws IOException, ParseException, SyntaxError {
+			ReaderLocal reader) throws IOException, ParseException,
+			SyntaxError, SearchLibException {
 		if (searchTerms == null)
 			return null;
 		if (searchTerms.length == 0)
@@ -313,7 +314,7 @@ public class SnippetField extends Field implements Externalizable {
 
 	public boolean getSnippets(int docId, ReaderLocal reader, String[] values,
 			List<String> snippets) throws IOException, ParseException,
-			SyntaxError {
+			SyntaxError, SearchLibException {
 
 		if (values == null)
 			return false;

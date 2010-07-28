@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,53 +24,28 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
-import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.store.LockObtainFailedException;
-
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 
 public interface WriterInterface {
 
 	public boolean deleteDocument(Schema schema, String uniqueField)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException;
+			throws SearchLibException;
 
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException;
+			throws SearchLibException;
 
-	public int deleteDocuments(SearchRequest query)
-			throws CorruptIndexException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError, URISyntaxException, InterruptedException,
-			SearchLibException;
+	public int deleteDocuments(SearchRequest query) throws SearchLibException;
 
 	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException;
+			throws SearchLibException;
 
 	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException;
+			Collection<IndexDocument> documents) throws SearchLibException;
 
-	public void optimize() throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException;
+	public void optimize() throws SearchLibException;
 
 }

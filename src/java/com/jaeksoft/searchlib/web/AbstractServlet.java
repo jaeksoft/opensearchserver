@@ -34,9 +34,16 @@ import java.net.URISyntaxException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.http.HttpException;
+import org.xml.sax.SAXException;
+
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.UriRead;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
+import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
 public abstract class AbstractServlet extends HttpServlet {
@@ -45,6 +52,16 @@ public abstract class AbstractServlet extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 7013544620359275684L;
+
+	protected final static String XML_CALL_KEY_STATUS = "Status";
+
+	protected final static String XML_CALL_KEY_EXCEPTION = "Exception";
+
+	protected final static String XML_CALL_KEY_TRACE = "Trace";
+
+	protected final static String XML_CALL_KEY_STATUS_ERROR = "Error";
+
+	protected final static String XML_CALL_KEY_STATUS_OK = "OK";
 
 	protected abstract void doRequest(ServletTransaction transaction)
 			throws ServletException;
@@ -58,8 +75,9 @@ public abstract class AbstractServlet extends HttpServlet {
 		try {
 			doRequest(transaction);
 		} catch (Exception e) {
-			transaction.addXmlResponse("Status", "Error");
-			transaction.addXmlResponse("Exception", e.toString());
+			transaction.addXmlResponse(XML_CALL_KEY_STATUS,
+					XML_CALL_KEY_STATUS_ERROR);
+			transaction.addXmlResponse(XML_CALL_KEY_EXCEPTION, e.toString());
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
@@ -68,7 +86,7 @@ public abstract class AbstractServlet extends HttpServlet {
 				pw.println("Caused by...");
 				t.printStackTrace(pw);
 			}
-			transaction.addXmlResponse("Trace", sw.toString());
+			transaction.addXmlResponse(XML_CALL_KEY_TRACE, sw.toString());
 			pw.close();
 		} finally {
 			try {
@@ -124,8 +142,39 @@ public abstract class AbstractServlet extends HttpServlet {
 
 	}
 
-	public static String call(URI uri) throws org.apache.http.HttpException,
-			IOException, URISyntaxException {
+	private static String getCallKeyValue(XPathParser xpp, String key)
+			throws SearchLibException {
+		try {
+			return xpp.getNodeString("/response/entry[@key='" + key + "']");
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	public static void checkCallError(XPathParser xpp)
+			throws SearchLibException {
+		if (!"Error".equals(getCallKeyValue(xpp, XML_CALL_KEY_STATUS)))
+			return;
+		throw new SearchLibException(getCallKeyValue(xpp,
+				XML_CALL_KEY_EXCEPTION));
+	}
+
+	public static void checkCallStatusOK(XPathParser xpp)
+			throws SearchLibException {
+		if ("OK".equals(getCallKeyValue(xpp, XML_CALL_KEY_STATUS)))
+			return;
+		throw new SearchLibException("The returned status is not OK");
+	}
+
+	public static void checkCallKey(XPathParser xpp, String key, String value)
+			throws SearchLibException {
+		if (value.equals(getCallKeyValue(xpp, key)))
+			return;
+		throw new SearchLibException("The returned value does not match "
+				+ value);
+	}
+
+	protected static XPathParser call(URI uri) throws SearchLibException {
 		UriRead uriRead = null;
 		try {
 			uriRead = new UriRead(uri);
@@ -133,7 +182,17 @@ public abstract class AbstractServlet extends HttpServlet {
 				throw new IOException(uri + " returns "
 						+ uriRead.getResponseMessage() + "("
 						+ uriRead.getResponseCode() + ")");
-			return uriRead.getResponseMessage();
+			return uriRead.getXmlContent();
+		} catch (HttpException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalStateException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
 		} finally {
 			if (uriRead != null)
 				uriRead.close();

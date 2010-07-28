@@ -43,6 +43,7 @@ public class RenderObject implements Render {
 		this.object = object;
 	}
 
+	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
 
 		HttpServletResponse response = servletTransaction.getServletResponse();
@@ -51,8 +52,8 @@ public class RenderObject implements Render {
 		StreamWriteObject writeObject = null;
 		IOException err = null;
 		try {
-			writeObject = new StreamWriteObject(servletTransaction
-					.getOutputStream());
+			writeObject = new StreamWriteObject(
+					servletTransaction.getOutputStream());
 			writeObject.write(object);
 			writeObject.close(true);
 		} catch (IOException e) {

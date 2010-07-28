@@ -27,16 +27,13 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Query;
 
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -62,15 +59,13 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public ResultDocuments documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException {
+	public ResultDocuments documents(DocumentsRequest documentsRequest) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public int getDocFreq(Term term) throws IOException {
+	public int getDocFreq(Term term) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -82,8 +77,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException {
+	public TermFreqVector getTermFreqVector(int docId, String field) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -95,13 +89,13 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public void push(URI dest) throws URISyntaxException, IOException {
+	public void push(URI dest) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void reload() throws IOException, URISyntaxException {
+	public void reload() {
 		// TODO Auto-generated method stub
 
 	}
@@ -113,28 +107,25 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public Result search(SearchRequest searchRequest) throws IOException,
-			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException {
+	public Result search(SearchRequest searchRequest) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void swap(long version, boolean deleteOld) throws IOException,
-			URISyntaxException {
+	public void swap(long version, boolean deleteOld) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public TermEnum getTermEnum() throws IOException {
+	public TermEnum getTermEnum() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public TermEnum getTermEnum(String field, String term) throws IOException {
+	public TermEnum getTermEnum(String field, String term) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -146,14 +137,13 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public String explain(SearchRequest searchRequest, int docId)
-			throws IOException, ParseException, SyntaxError {
+	public String explain(SearchRequest searchRequest, int docId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Query rewrite(Query query) throws IOException {
+	public Query rewrite(Query query) {
 		// TODO Auto-generated method stub
 		return null;
 	}

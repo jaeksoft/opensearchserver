@@ -41,8 +41,8 @@ import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.External;
-import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.External.Collecter;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class FilterList implements Externalizable, Collecter<Filter>,
 		Iterable<Filter> {
@@ -73,6 +73,7 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 		this.config = config;
 	}
 
+	@Override
 	public void addObject(Filter filter) {
 		filterList.add(filter);
 	}
@@ -89,15 +90,18 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 		return filterList.size();
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(filterList, out);
 	}
 
+	@Override
 	public Iterator<Filter> iterator() {
 		return filterList.iterator();
 	}

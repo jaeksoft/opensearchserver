@@ -24,22 +24,19 @@
 
 package com.jaeksoft.searchlib.replication;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.PushServlet;
 
 public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
@@ -78,6 +75,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		if (url != null && url.length() > 0)
 			setInstanceUrl(new URL(url));
 		setIndexName(XPathParser.getAttributeString(node, "indexName"));
+		setLogin(XPathParser.getAttributeString(node, "login"));
 		String encodedApiKey = XPathParser.getAttributeString(node, "apiKey");
 		if (encodedApiKey != null && encodedApiKey.length() > 0)
 			setApiKey(new String(Base64.decodeBase64(encodedApiKey.getBytes())));
@@ -96,7 +94,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 					Base64.encodeBase64(apiKey.getBytes())) : "";
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
-					"apiKey", encodedApiKey);
+					"login", login, "apiKey", encodedApiKey);
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -214,6 +212,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		try {
 			this.indexName = item.indexName;
 			this.instanceUrl = item.instanceUrl;
+			this.login = item.login;
 			this.apiKey = item.apiKey;
 			this.lastReplicationThread = item.lastReplicationThread;
 			this.replicationMaster = item.replicationMaster;
@@ -251,42 +250,23 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		}
 	}
 
-	private String getPushTargetUrl() throws UnsupportedEncodingException {
+	public String getCachedUrl() throws UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
 			if (cachedUrl != null)
 				return cachedUrl;
-			String url = getInstanceUrl().toExternalForm();
-			cachedUrl = url + (url.endsWith("/") ? "" : '/') + "push?use="
-					+ URLEncoder.encode(getIndexName(), "UTF-8");
-
-			String login = getLogin();
-			String apiKey = getApiKey();
-			if (login != null && login.length() > 0 && apiKey != null
-					&& apiKey.length() > 0)
-				cachedUrl += "&login=" + URLEncoder.encode(login, "UTF-8")
-						+ "&key=" + apiKey;
-			return cachedUrl;
 		} finally {
 			rwl.r.unlock();
 		}
-	}
-
-	protected String getPushTargetUrl(Client client, File sourceFile)
-			throws UnsupportedEncodingException, SearchLibException {
-		String dataPath = client.getDirectory().getAbsolutePath();
-		String filePath = sourceFile.getAbsolutePath();
-		if (!filePath.startsWith(dataPath))
-			throw new SearchLibException("Bad file path " + filePath);
-		filePath = filePath.substring(dataPath.length());
-		return getPushTargetUrl() + "&filePath="
-				+ URLEncoder.encode(filePath, "UTF-8")
-				+ (sourceFile.isDirectory() ? "&type=dir" : "");
-	}
-
-	protected String getPushTargetUrl(Client client, String cmd)
-			throws UnsupportedEncodingException {
-		return getPushTargetUrl() + "&cmd=" + URLEncoder.encode(cmd, "UTF-8");
+		rwl.w.lock();
+		try {
+			if (cachedUrl != null)
+				return cachedUrl;
+			cachedUrl = PushServlet.getCachedUrl(this);
+			return cachedUrl;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 }

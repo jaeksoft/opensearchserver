@@ -36,11 +36,10 @@ import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.LockObtainFailedException;
 
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
@@ -62,15 +61,22 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 	public void close() {
 	}
 
-	// TODO Implementation
-	public void reload() throws IOException, URISyntaxException, HttpException {
-		ActionServlet.reload(uri);
+	@Override
+	public void reload() throws SearchLibException {
+		try {
+			ActionServlet.reload(uri);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
-	// TODO Propagate version information
-	public void swap(long version, boolean deleteOld) throws IOException,
-			URISyntaxException, HttpException {
-		ActionServlet.swap(uri, null, version, deleteOld);
+	@Override
+	public void swap(long version, boolean deleteOld) throws SearchLibException {
+		try {
+			ActionServlet.swap(uri, null, version, deleteOld);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	public void xmlInfo(PrintWriter writer) {
@@ -78,19 +84,34 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 
 	}
 
-	public Result search(SearchRequest searchRequest) throws IOException,
-			URISyntaxException {
-		return SearchServlet.search(uri, searchRequest, null);
+	@Override
+	public Result search(SearchRequest searchRequest) throws SearchLibException {
+		try {
+			return SearchServlet.search(uri, searchRequest, null);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
+	@Override
 	public ResultDocuments documents(DocumentsRequest documentRequest)
-			throws IOException, URISyntaxException, ClassNotFoundException {
-		return DocumentsServlet.documents(uri, documentRequest);
+			throws SearchLibException {
+		try {
+			return DocumentsServlet.documents(uri, documentRequest);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	public boolean deleteDocument(int docId) throws StaleReaderException,
 			CorruptIndexException, LockObtainFailedException, IOException,
-			URISyntaxException, HttpException {
+			URISyntaxException, HttpException, SearchLibException {
 		return DeleteServlet.deleteDocument(uri, null, docId);
 	}
 
@@ -100,44 +121,49 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 		return DeleteServlet.deleteDocuments(uri, null, docIds);
 	}
 
+	@Override
 	public boolean sameIndex(ReaderInterface reader) {
 		if (reader == this)
 			return true;
 		return reader.sameIndex(this);
 	}
 
+	@Override
 	public IndexStatistics getStatistics() {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Not yet implemented");
 	}
 
-	public int getDocFreq(Term term) throws IOException {
+	@Override
+	public int getDocFreq(Term term) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Not yet implemented");
 	}
 
-	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException {
+	@Override
+	public TermFreqVector getTermFreqVector(int docId, String field) {
 		throw new RuntimeException("Not yet implemented");
 	}
 
+	@Override
 	public long getVersion() {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Not yet implemented");
 	}
 
-	public void push(URI dest) throws URISyntaxException, IOException {
+	@Override
+	public void push(URI dest) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Not yet implemented");
 	}
 
 	@Override
-	public TermEnum getTermEnum() throws IOException {
+	public TermEnum getTermEnum() {
 		throw new RuntimeException("Not yet implemented");
 	}
 
 	@Override
-	public TermEnum getTermEnum(String field, String term) throws IOException {
+	public TermEnum getTermEnum(String field, String term) {
 		throw new RuntimeException("Not yet implemented");
 	}
 
@@ -147,13 +173,12 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public String explain(SearchRequest searchRequest, int docId)
-			throws IOException, ParseException, SyntaxError {
+	public String explain(SearchRequest searchRequest, int docId) {
 		throw new RuntimeException("Not yet implemented");
 	}
 
 	@Override
-	public Query rewrite(Query query) throws IOException {
+	public Query rewrite(Query query) {
 		throw new RuntimeException("Not yet implemented");
 	}
 

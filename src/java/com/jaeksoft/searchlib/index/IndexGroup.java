@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,14 +35,11 @@ import java.util.concurrent.ExecutorService;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -104,10 +100,7 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	@Override
-	public void optimize() throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void optimize() throws SearchLibException {
 		for (IndexAbstract index : getIndices())
 			index.optimize();
 	}
@@ -122,9 +115,7 @@ public class IndexGroup extends IndexAbstract {
 
 	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+			throws SearchLibException {
 		boolean updated = false;
 		for (IndexAbstract index : getIndices())
 			if (index.updateDocument(schema, document))
@@ -134,10 +125,7 @@ public class IndexGroup extends IndexAbstract {
 
 	@Override
 	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+			Collection<IndexDocument> documents) throws SearchLibException {
 		int count = 0;
 		for (IndexAbstract index : getIndices())
 			count += index.updateDocuments(schema, documents);
@@ -146,9 +134,7 @@ public class IndexGroup extends IndexAbstract {
 
 	@Override
 	public boolean deleteDocument(Schema schema, String uniqueField)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
+			throws SearchLibException {
 		boolean deleted = false;
 		for (IndexAbstract index : getIndices())
 			if (index.deleteDocument(schema, uniqueField))
@@ -158,9 +144,7 @@ public class IndexGroup extends IndexAbstract {
 
 	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			throws SearchLibException {
 		int count = 0;
 		for (IndexAbstract index : getIndices())
 			count += index.deleteDocuments(schema, uniqueFields);
@@ -168,7 +152,7 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	@Override
-	public int getDocFreq(Term term) throws IOException {
+	public int getDocFreq(Term term) throws SearchLibException {
 		int r = 0;
 		for (IndexAbstract index : getIndices())
 			r += index.getDocFreq(term);
@@ -177,22 +161,38 @@ public class IndexGroup extends IndexAbstract {
 
 	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException {
+			throws SearchLibException {
 		throw new RuntimeException("Not yet implemented");
 	}
 
 	@Override
-	public Result search(SearchRequest searchRequest) throws IOException,
-			URISyntaxException, ParseException, SyntaxError,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException {
-		ResultGroup resultGroup = new SearchGroup(this, searchRequest,
-				threadPool).getResult();
-		if (resultGroup == null)
-			return null;
-		if (searchRequest.isWithDocument())
-			resultGroup.loadDocuments(this);
-		return resultGroup;
+	public Result search(SearchRequest searchRequest) throws SearchLibException {
+		ResultGroup resultGroup;
+		try {
+			resultGroup = new SearchGroup(this, searchRequest, threadPool)
+					.getResult();
+			if (resultGroup == null)
+				return null;
+			if (searchRequest.isWithDocument())
+				resultGroup.loadDocuments(this);
+			return resultGroup;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override
@@ -201,7 +201,7 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	@Override
-	public void push(URI dest) throws URISyntaxException, IOException {
+	public void push(URI dest) throws SearchLibException {
 		throw new RuntimeException("Not implemented");
 	}
 
@@ -240,26 +240,39 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	@Override
-	public void reload() throws IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void reload() throws SearchLibException {
 		for (IndexAbstract index : getIndices())
 			index.reload();
 	}
 
 	@Override
-	public void swap(long version, boolean deleteOld) throws IOException {
-		// TODO Auto-generated method stub
+	public void swap(long version, boolean deleteOld) {
 		throw new RuntimeException("Operation not permitted on grouped indices");
 	}
 
 	@Override
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException, IllegalAccessException, InstantiationException {
-		return new DocumentsGroup(this, documentsRequest, threadPool)
-				.getDocuments();
+			throws SearchLibException {
+		try {
+			return new DocumentsGroup(this, documentsRequest, threadPool)
+					.getDocuments();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override
@@ -269,7 +282,7 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	@Override
-	public TermEnum getTermEnum() throws IOException {
+	public TermEnum getTermEnum() throws SearchLibException {
 		throw new RuntimeException("Not yet implemented");
 	}
 
@@ -279,7 +292,8 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	@Override
-	public TermEnum getTermEnum(String field, String term) throws IOException {
+	public TermEnum getTermEnum(String field, String term)
+			throws SearchLibException {
 		throw new RuntimeException("Not yet implemented");
 	}
 
@@ -289,15 +303,12 @@ public class IndexGroup extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(SearchRequest query)
-			throws CorruptIndexException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError {
+	public int deleteDocuments(SearchRequest query) throws SearchLibException {
 		throw new RuntimeException("Not yet implemented");
 	}
 
 	@Override
-	public Query rewrite(Query query) throws IOException {
+	public Query rewrite(Query query) throws SearchLibException {
 		throw new RuntimeException("Not yet implemented");
 	}
 

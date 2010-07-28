@@ -204,9 +204,7 @@ public class WriterLocal extends WriterAbstract {
 
 	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+			throws SearchLibException {
 		l.lock();
 		try {
 			open();
@@ -215,6 +213,20 @@ public class WriterLocal extends WriterAbstract {
 			if (updated)
 				readerLocal.reload();
 			return updated;
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
 		} finally {
 			l.unlock();
 		}
@@ -222,10 +234,7 @@ public class WriterLocal extends WriterAbstract {
 
 	@Override
 	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+			Collection<IndexDocument> documents) throws SearchLibException {
 		l.lock();
 		try {
 			int count = 0;
@@ -237,6 +246,20 @@ public class WriterLocal extends WriterAbstract {
 			if (count > 0)
 				readerLocal.reload();
 			return count;
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
 		} finally {
 			l.unlock();
 		}
@@ -269,14 +292,24 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public void optimize() throws CorruptIndexException,
-			LockObtainFailedException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	public void optimize() throws SearchLibException {
 		l.lock();
 		try {
 			open();
 			indexWriter.optimize(maxNumSegments, true);
 			close();
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		} finally {
 			l.unlock();
 		}
@@ -284,9 +317,7 @@ public class WriterLocal extends WriterAbstract {
 
 	@Override
 	public boolean deleteDocument(Schema schema, String uniqueField)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws SearchLibException {
 		l.lock();
 		try {
 			open();
@@ -295,6 +326,18 @@ public class WriterLocal extends WriterAbstract {
 			close();
 			readerLocal.reload();
 			return true;
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		} finally {
 			l.unlock();
 		}
@@ -302,9 +345,7 @@ public class WriterLocal extends WriterAbstract {
 
 	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws SearchLibException {
 		String uniqueField = schema.getFieldList().getUniqueField().getName();
 		Term[] terms = new Term[uniqueFields.size()];
 		int i = 0;
@@ -318,16 +359,25 @@ public class WriterLocal extends WriterAbstract {
 			if (terms.length > 0)
 				readerLocal.reload();
 			return terms.length;
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		} finally {
 			l.unlock();
 		}
 	}
 
 	@Override
-	public int deleteDocuments(SearchRequest query)
-			throws CorruptIndexException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError, SearchLibException {
+	public int deleteDocuments(SearchRequest query) throws SearchLibException {
 		l.lock();
 		try {
 			open();
@@ -335,6 +385,22 @@ public class WriterLocal extends WriterAbstract {
 			close();
 			readerLocal.reload();
 			return 0;
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
 		} finally {
 			l.unlock();
 		}

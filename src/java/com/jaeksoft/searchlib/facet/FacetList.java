@@ -57,19 +57,23 @@ public class FacetList implements Iterable<Facet>, Externalizable,
 		return facetMap.get(fieldName);
 	}
 
+	@Override
 	public Iterator<Facet> iterator() {
 		return facetList.iterator();
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		External.readCollection(in, this);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeCollection(facetList, out);
 	}
 
+	@Override
 	public void addObject(Facet facet) {
 		facetList.add(facet);
 		facetMap.put(facet.facetField.getName(), facet);

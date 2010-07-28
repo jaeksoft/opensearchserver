@@ -33,6 +33,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.Version;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.schema.Field;
@@ -70,8 +71,8 @@ public class Filter implements Externalizable {
 			throws ParseException {
 		if (query != null)
 			return query;
-		QueryParser queryParser = new QueryParser(defaultField.getName(),
-				analyzer);
+		QueryParser queryParser = new QueryParser(Version.LUCENE_29,
+				defaultField.getName(), analyzer);
 		queryParser.setLowercaseExpandedTerms(false);
 		query = queryParser.parse(queryString);
 		return query;
@@ -90,12 +91,14 @@ public class Filter implements Externalizable {
 		return this.source;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		queryString = External.readUTF(in);
 		source = Source.valueOf(External.readUTF(in));
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeUTF(queryString, out);
 		External.writeUTF(source.name(), out);

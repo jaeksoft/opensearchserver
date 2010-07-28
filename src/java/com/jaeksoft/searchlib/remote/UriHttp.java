@@ -26,12 +26,19 @@ package com.jaeksoft.searchlib.remote;
 
 import java.io.IOException;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.xml.sax.SAXException;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.XPathParser;
 
 public abstract class UriHttp {
 
@@ -56,6 +63,19 @@ public abstract class UriHttp {
 
 	public String getResponseMessage() throws IOException {
 		return httpResponse.getStatusLine().getReasonPhrase();
+	}
+
+	public XPathParser getXmlContent() throws IllegalStateException,
+			SAXException, IOException, ParserConfigurationException,
+			SearchLibException {
+		if (httpEntity == null)
+			throw new SearchLibException("No content");
+		Header header = httpEntity.getContentType();
+		if (header == null)
+			throw new SearchLibException("No content type");
+		if (!header.getValue().startsWith("text/xml"))
+			throw new SearchLibException("No XML content");
+		return new XPathParser(httpEntity.getContent());
 	}
 
 	public void close() {

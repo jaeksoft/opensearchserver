@@ -202,40 +202,49 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException {
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			return indexReader.getTermFreqVector(docId, field);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	@Override
-	public int getDocFreq(Term term) throws IOException {
+	public int getDocFreq(Term term) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			return indexSearcher.docFreq(term);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	@Override
-	public TermEnum getTermEnum() throws IOException {
+	public TermEnum getTermEnum() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			return indexReader.terms();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	@Override
-	public TermEnum getTermEnum(String field, String term) throws IOException {
+	public TermEnum getTermEnum(String field, String term)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			return indexReader.terms(new Term(field, term));
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -252,10 +261,12 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public Query rewrite(Query query) throws IOException {
+	public Query rewrite(Query query) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			return query.rewrite(indexReader);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -326,21 +337,39 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public ResultSingle search(SearchRequest searchRequest) throws IOException,
-			ParseException, SyntaxError, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		return new ResultSingle(this, searchRequest);
+	public ResultSingle search(SearchRequest searchRequest)
+			throws SearchLibException {
+		try {
+			return new ResultSingle(this, searchRequest);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override
 	public String explain(SearchRequest searchRequest, int docId)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			Explanation explanation = indexSearcher.explain(
 					searchRequest.getQuery(), docId);
 			return explanation.toString();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -519,20 +548,27 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public void reload() throws IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	public void reload() throws SearchLibException {
 		rwl.w.lock();
 		try {
 			close(false);
 			init(rootDir, dataDir);
 			resetCache();
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	@Override
-	public void swap(long version, boolean deleteOld) throws IOException {
+	public void swap(long version, boolean deleteOld) {
 		ReaderLocal newReader = null;
 		if (version > 0)
 			newReader = ReaderLocal.findVersion(rootDir, version,
@@ -604,7 +640,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	@Override
 	public ResultDocuments documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError {
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			DocumentRequest[] requestedDocuments = documentsRequest
@@ -618,6 +654,12 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				documents.set(i++, new ResultDocument(documentsRequest,
 						documentRequest.doc, this));
 			return documents;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -667,7 +709,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public void push(URI dest) throws URISyntaxException, IOException {
+	public void push(URI dest) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			File[] files = dataDir.listFiles();
@@ -676,6 +718,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 					continue;
 				pushFile(file, dest);
 			}
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}

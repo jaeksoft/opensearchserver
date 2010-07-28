@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -121,8 +120,7 @@ public class Client extends Config {
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		XPathParser xpp = new XPathParser(new InputSource(new StringReader(
-				xmlString)));
+		XPathParser xpp = new XPathParser(xmlString);
 		return updateXmlDocuments(xpp);
 	}
 
@@ -180,18 +178,6 @@ public class Client extends Config {
 		Timer timer = new Timer("Reload");
 		try {
 			getIndex().reload();
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (HttpException e) {
-			throw new SearchLibException(e);
 		} finally {
 			getStatisticsList().addReload(timer);
 		}
@@ -207,42 +193,15 @@ public class Client extends Config {
 		reload();
 	}
 
-	public Result search(SearchRequest searchRequest) throws IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException {
+	public Result search(SearchRequest searchRequest) throws SearchLibException {
 		Timer timer = null;
-		Exception exception = null;
+		SearchLibException exception = null;
 		try {
 			searchRequest.init(this);
 			timer = searchRequest.getTimer();
 			Result result = getIndex().search(searchRequest);
 			return result;
-		} catch (IOException e) {
-			exception = e;
-			throw e;
-		} catch (ParseException e) {
-			exception = e;
-			throw e;
-		} catch (SyntaxError e) {
-			exception = e;
-			throw e;
-		} catch (URISyntaxException e) {
-			exception = e;
-			throw e;
-		} catch (ClassNotFoundException e) {
-			exception = e;
-			throw e;
-		} catch (InterruptedException e) {
-			exception = e;
-			throw e;
 		} catch (SearchLibException e) {
-			exception = e;
-			throw e;
-		} catch (InstantiationException e) {
-			exception = e;
-			throw e;
-		} catch (IllegalAccessException e) {
 			exception = e;
 			throw e;
 		} finally {
@@ -255,29 +214,25 @@ public class Client extends Config {
 	}
 
 	public String explain(SearchRequest searchRequest, int docId)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			throws SearchLibException {
 		Timer timer = null;
-		Exception exception = null;
+		SearchLibException exception = null;
 		try {
 			searchRequest.init(this);
 			timer = searchRequest.getTimer();
 			return getIndex().explain(searchRequest, docId);
-		} catch (IOException e) {
+		} catch (SearchLibException e) {
 			exception = e;
-			throw e;
-		} catch (ParseException e) {
-			exception = e;
-			throw e;
-		} catch (SyntaxError e) {
-			exception = e;
-			throw e;
 		} finally {
 			if (timer != null) {
 				if (exception != null)
 					timer.setError(exception);
 				getStatisticsList().addSearch(timer);
 			}
+			if (exception != null)
+				throw exception;
 		}
+		return null;
 	}
 
 	public ResultDocuments documents(DocumentsRequest documentsRequest)

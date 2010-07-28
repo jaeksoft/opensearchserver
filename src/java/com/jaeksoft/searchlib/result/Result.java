@@ -111,6 +111,7 @@ public abstract class Result implements Externalizable,
 		return resultDocuments.get(pos - searchRequest.getStart());
 	}
 
+	@Override
 	public Iterator<ResultDocument> iterator() {
 		if (resultDocuments == null)
 			return new ResultDocuments(0).iterator();
@@ -167,6 +168,7 @@ public abstract class Result implements Externalizable,
 		return docs[pos].collapseCount;
 	}
 
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 
@@ -195,6 +197,7 @@ public abstract class Result implements Externalizable,
 		spellCheckList = (SpellCheckList) External.readObject(in);
 	}
 
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 
 		// Writing FacetList if any

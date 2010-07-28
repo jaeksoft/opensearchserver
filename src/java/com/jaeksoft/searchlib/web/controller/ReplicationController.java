@@ -147,8 +147,8 @@ public class ReplicationController extends CommonController {
 		return client.getReplicationMaster();
 	}
 
-	public void execute(Component comp) throws SearchLibException,
-			InterruptedException {
+	public void execute(Component comp) throws InterruptedException,
+			SearchLibException {
 		ReplicationItem item = getReplicationItem(comp);
 		if (item == null)
 			return;

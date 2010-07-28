@@ -31,12 +31,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
-import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.store.LockObtainFailedException;
-
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.web.ActionServlet;
@@ -56,40 +51,64 @@ public class WriterRemote extends WriterAbstract {
 	}
 
 	@Override
-	public void optimize() throws IOException, URISyntaxException,
-			HttpException {
-		ActionServlet.optimize(uri, null);
-	}
-
-	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		if (!acceptDocument(document))
-			return false;
-		return IndexServlet.update(uri, null, document);
-	}
-
-	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		return IndexServlet.update(uri, null, documents);
-	}
-
-	public boolean deleteDocument(Schema schema, String uniqueField)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, HttpException {
-		return DeleteServlet.delete(uri, null, uniqueField);
-	}
-
-	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws IOException, URISyntaxException {
-		return DeleteServlet.delete(uri, null, uniqueFields);
+	public void optimize() throws SearchLibException {
+		try {
+			ActionServlet.optimize(uri, null);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override
-	public int deleteDocuments(SearchRequest query)
-			throws CorruptIndexException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError {
+	public boolean updateDocument(Schema schema, IndexDocument document)
+			throws SearchLibException {
+		try {
+			if (!acceptDocument(document))
+				return false;
+			return IndexServlet.update(uri, null, document);
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
+	public int updateDocuments(Schema schema,
+			Collection<IndexDocument> documents) throws SearchLibException {
+		try {
+			return IndexServlet.update(uri, null, documents);
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
+	public boolean deleteDocument(Schema schema, String uniqueField)
+			throws SearchLibException {
+		return DeleteServlet.delete(uri, null, uniqueField);
+	}
+
+	@Override
+	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
+			throws SearchLibException {
+		try {
+			return DeleteServlet.delete(uri, null, uniqueFields);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
+	public int deleteDocuments(SearchRequest query) throws SearchLibException {
 		throw new RuntimeException("Not yet implemented");
 	}
 
