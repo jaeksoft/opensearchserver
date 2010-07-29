@@ -173,10 +173,24 @@ public class DatabaseCrawlListController extends CrawlerController {
 	public void onSave() throws InterruptedException, SearchLibException {
 		if (selectedCrawl != null)
 			currentCrawl.copyTo(selectedCrawl);
-		else
+		else {
+			if (dbCrawlList.get(currentCrawl.getName()) != null) {
+				new AlertController("The crawl name is already used");
+				return;
+			}
 			dbCrawlList.add(currentCrawl);
+		}
 		getClient().saveDatabaseCrawlList();
 		onCancel();
+	}
+
+	public void onNew() throws SearchLibException {
+		DatabaseCrawl oldCurrentCrawl = currentCrawl;
+		selectedCrawl = null;
+		currentCrawl = new DatabaseCrawl(getCrawlMaster());
+		oldCurrentCrawl.copyTo(currentCrawl);
+		currentCrawl.setName(null);
+		reloadPage();
 	}
 
 	public void onCancel() throws SearchLibException {

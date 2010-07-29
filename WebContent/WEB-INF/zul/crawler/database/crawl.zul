@@ -227,9 +227,13 @@
 									forward="onCancel" />
 								<space width="10px" />
 								<button label="Save" forward="onSave" />
+								<space width="20px" />
+								<button label="New..." forward="onNew" />
 							</hbox>
 							<hbox
 								visible="@{dbCrawlList.notSelected}">
+								<button label="Reset"
+									forward="onCancel" />
 								<button label="Create" forward="onSave" />
 							</hbox>
 						</vbox>
