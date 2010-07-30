@@ -141,4 +141,8 @@ public class ReturnedController extends QueryController implements RowRenderer {
 		}
 	}
 
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		reloadPage();
+	}
 }

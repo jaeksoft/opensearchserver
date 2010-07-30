@@ -137,6 +137,11 @@ public class SortedController extends QueryController implements RowRenderer {
 		}
 	}
 
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		reloadPage();
+	}
+
 	public class DirectionListener implements EventListener {
 
 		protected SortField sortField;

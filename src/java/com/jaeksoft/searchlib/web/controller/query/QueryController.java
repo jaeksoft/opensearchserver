@@ -156,6 +156,7 @@ public class QueryController extends CommonController {
 		client.getSearchRequestMap().put(request);
 		client.saveRequests();
 		setSelectedRequest(request.getRequestName());
+		reloadPage();
 		PushEvent.REQUEST_LIST_CHANGED.publish(client);
 	}
 
@@ -199,17 +200,6 @@ public class QueryController extends CommonController {
 
 		request.reset();
 		setResult(getClient().search(request));
-		reloadPage();
-	}
-
-	@Override
-	protected void eventRequestListChange() throws SearchLibException {
-		reloadPage();
-	}
-
-	@Override
-	protected void eventSchemaChange() throws SearchLibException {
-		reset();
 		reloadPage();
 	}
 

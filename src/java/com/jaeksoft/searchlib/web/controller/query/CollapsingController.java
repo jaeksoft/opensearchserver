@@ -79,4 +79,8 @@ public class CollapsingController extends QueryController {
 		}
 	}
 
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		reloadPage();
+	}
 }

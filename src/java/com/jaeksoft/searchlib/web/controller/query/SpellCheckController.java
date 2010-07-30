@@ -139,4 +139,9 @@ public class SpellCheckController extends QueryController {
 		}
 	}
 
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		reloadPage();
+	}
+
 }

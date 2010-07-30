@@ -142,4 +142,9 @@ public class FacetController extends QueryController {
 		}
 	}
 
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		reloadPage();
+	}
+
 }
