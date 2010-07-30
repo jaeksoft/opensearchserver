@@ -189,7 +189,7 @@ public class WriterLocal extends WriterAbstract {
 		if (!acceptDocument(document))
 			return false;
 		Document doc = getLuceneDocument(schema, document);
-		PerFieldAnalyzerWrapper pfa = schema.getQueryPerFieldAnalyzer(document
+		PerFieldAnalyzerWrapper pfa = schema.getIndexPerFieldAnalyzer(document
 				.getLang());
 
 		Field uniqueField = schema.getFieldList().getUniqueField();

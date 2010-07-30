@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.Indexed;
+import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
@@ -92,8 +93,10 @@ public class FieldsController extends CommonController {
 		if (!isSchemaRights())
 			throw new SearchLibException("Not allowed");
 		Client client = getClient();
-		client.getSchema().getFieldList().remove(selectedField);
+		Schema schema = client.getSchema();
+		schema.getFieldList().remove(selectedField);
 		client.saveConfig();
+		schema.recompileAnalyzers();
 		field = new SchemaField();
 		selectedField = null;
 		PushEvent.SCHEMA_CHANGED.publish(client);
@@ -109,11 +112,13 @@ public class FieldsController extends CommonController {
 			return;
 		}
 		Client client = getClient();
+		Schema schema = client.getSchema();
 		if (selectedField != null)
 			selectedField.copy(field);
 		else
-			client.getSchema().getFieldList().add(field);
+			schema.getFieldList().add(field);
 		client.saveConfig();
+		schema.recompileAnalyzers();
 		field = new SchemaField();
 		selectedField = null;
 		PushEvent.SCHEMA_CHANGED.publish(client);
