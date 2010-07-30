@@ -42,7 +42,8 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
 
-public class SortedController extends QueryController implements RowRenderer {
+public class SortedController extends AbstractQueryController implements
+		RowRenderer {
 
 	/**
 	 * 
@@ -59,7 +60,6 @@ public class SortedController extends QueryController implements RowRenderer {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		super.reset();
 		selectedSort = null;
 		sortFieldLeft = null;
 	}

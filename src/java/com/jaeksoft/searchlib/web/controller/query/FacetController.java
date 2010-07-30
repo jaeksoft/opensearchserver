@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class FacetController extends QueryController {
+public class FacetController extends AbstractQueryController {
 
 	/**
 	 * 
@@ -56,7 +56,6 @@ public class FacetController extends QueryController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		super.reset();
 		selectedFacet = null;
 		fieldLeft = null;
 		rowRenderer = null;

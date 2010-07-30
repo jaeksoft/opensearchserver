@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 
-public class SpellCheckController extends QueryController {
+public class SpellCheckController extends AbstractQueryController {
 
 	/**
 	 * 
@@ -55,7 +55,6 @@ public class SpellCheckController extends QueryController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		super.reset();
 		selectedField = null;
 		fieldLeft = null;
 		rowRenderer = null;

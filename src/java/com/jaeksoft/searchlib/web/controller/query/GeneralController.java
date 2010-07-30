@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class GeneralController extends QueryController {
+public class GeneralController extends AbstractQueryController {
 
 	/**
 	 * 
@@ -35,6 +35,10 @@ public class GeneralController extends QueryController {
 
 	public GeneralController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 	}
 
 }

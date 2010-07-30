@@ -285,16 +285,15 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
-	private String getFinalQuery() throws SyntaxError {
+	private String getFinalQuery() {
 		String finalQuery;
-		if (patternQuery != null && patternQuery.length() > 0)
+		if (patternQuery != null && patternQuery.length() > 0
+				&& queryString != null)
 			finalQuery = patternQuery.replace("$$", queryString).replace(
 					"\"\"", "\"");
 		else
 			finalQuery = queryString;
 
-		if (finalQuery == null || finalQuery.length() == 0)
-			throw new SyntaxError("No query");
 		return finalQuery;
 	}
 
@@ -332,7 +331,10 @@ public class SearchRequest implements Externalizable {
 			if (complexQuery != null)
 				return complexQuery;
 			queryParser = getQueryParser();
-			complexQuery = queryParser.parse(getFinalQuery());
+			String fq = getFinalQuery();
+			if (fq == null)
+				return null;
+			complexQuery = queryParser.parse(fq);
 			queryParsed = complexQuery.toString();
 			if (scoreFunction != null)
 				complexQuery = RootExpression.getQuery(complexQuery,

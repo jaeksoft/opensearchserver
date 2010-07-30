@@ -45,11 +45,10 @@ import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.AlertController;
-import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
-public class QueryController extends CommonController {
+public final class QueryController extends AbstractQueryController {
 
 	/**
 	 * 
@@ -60,6 +59,7 @@ public class QueryController extends CommonController {
 
 	public QueryController() throws SearchLibException {
 		super();
+		selectedRequestName = null;
 	}
 
 	@Override
@@ -69,8 +69,9 @@ public class QueryController extends CommonController {
 		setResult(null);
 	}
 
+	@Override
 	public SearchRequest getRequest() throws SearchLibException {
-		SearchRequest request = (SearchRequest) getAttribute(ScopeAttribute.QUERY_SEARCH_REQUEST);
+		SearchRequest request = super.getRequest();
 		if (request != null)
 			return request;
 		Client client = getClient();
@@ -78,6 +79,7 @@ public class QueryController extends CommonController {
 			return null;
 		request = client.getNewSearchRequest();
 		setRequest(request);
+		PushEvent.QUERY_EDIT_REQUEST.publish(request);
 		return request;
 	}
 
@@ -104,7 +106,7 @@ public class QueryController extends CommonController {
 	}
 
 	public void setRequest(SearchRequest request) {
-		setAttribute(ScopeAttribute.QUERY_SEARCH_REQUEST, request);
+		ScopeAttribute.QUERY_SEARCH_REQUEST.set(this, request);
 	}
 
 	public void setSelectedRequest(String requestName) {
@@ -130,21 +132,13 @@ public class QueryController extends CommonController {
 		return set;
 	}
 
-	public boolean getResultExists() {
-		return getResult() != null;
-	}
-
-	public Result getResult() {
-		return (Result) getAttribute(ScopeAttribute.QUERY_SEARCH_RESULT);
-	}
-
 	public void setResult(Result result) {
-		setAttribute(ScopeAttribute.QUERY_SEARCH_RESULT, result);
+		ScopeAttribute.QUERY_SEARCH_RESULT.set(this, result);
 	}
 
 	public void onLoadRequest() throws SearchLibException {
 		setRequest(getClient().getNewSearchRequest(selectedRequestName));
-		reloadPage();
+		PushEvent.QUERY_EDIT_REQUEST.publish(getRequest());
 	}
 
 	public void onSaveRequest() throws SearchLibException,
@@ -200,7 +194,7 @@ public class QueryController extends CommonController {
 
 		request.reset();
 		setResult(getClient().search(request));
-		reloadPage();
+		PushEvent.QUERY_EDIT_RESULT.publish(getResult());
 	}
 
 }

@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 
-public class SnippetController extends QueryController {
+public class SnippetController extends AbstractQueryController {
 
 	/**
 	 * 
@@ -56,7 +56,6 @@ public class SnippetController extends QueryController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		super.reset();
 		selectedSnippet = null;
 		snippetFieldLeft = null;
 		rowRenderer = null;

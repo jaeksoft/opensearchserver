@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class CollapsingController extends QueryController {
+public class CollapsingController extends AbstractQueryController {
 
 	/**
 	 * 
@@ -47,7 +47,6 @@ public class CollapsingController extends QueryController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		super.reset();
 		indexedFields = null;
 	}
 

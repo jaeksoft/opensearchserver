@@ -41,6 +41,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -223,6 +225,10 @@ public abstract class CommonController extends Window implements AfterCompose,
 					eventSchemaChange();
 			} else if (pushEvent == PushEvent.LOG_OUT)
 				eventLogout();
+			else if (pushEvent == PushEvent.QUERY_EDIT_REQUEST)
+				eventQueryEditRequest((SearchRequest) event.getData());
+			else if (pushEvent == PushEvent.QUERY_EDIT_RESULT)
+				eventQueryEditResult((Result) event.getData());
 		} catch (SearchLibException e) {
 			throw new UiException(e);
 		}
@@ -252,6 +258,12 @@ public abstract class CommonController extends Window implements AfterCompose,
 	protected void eventLogout() throws SearchLibException {
 		reset();
 		reloadPage();
+	}
+
+	protected void eventQueryEditResult(Result data) {
+	}
+
+	protected void eventQueryEditRequest(SearchRequest data) {
 	}
 
 	protected String getIndexName() throws SearchLibException {

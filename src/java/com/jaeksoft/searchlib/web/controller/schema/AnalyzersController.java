@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class AnalyzersController extends CommonController implements
 		ListitemRenderer {
@@ -241,11 +242,15 @@ public class AnalyzersController extends CommonController implements
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return;
 		if (editAnalyzer != null)
 			selectedAnalyzer.copyFrom(currentAnalyzer);
 		else
-			getClient().getSchema().getAnalyzerList().add(currentAnalyzer);
-		getClient().saveConfig();
+			client.getSchema().getAnalyzerList().add(currentAnalyzer);
+		client.saveConfig();
+		PushEvent.SCHEMA_CHANGED.publish(client);
 		onCancel();
 	}
 

@@ -229,7 +229,10 @@ public class FieldsController extends CommonController {
 
 	@Override
 	protected void eventSchemaChange() throws SearchLibException {
-		reloadPage();
+		schemaFieldList = null;
+		indexedFields = null;
+		analyzerNameList = null;
+		super.reloadPage();
 	}
 
 	@Override

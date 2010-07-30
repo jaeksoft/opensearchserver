@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,40 +24,42 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.RowRenderer;
-
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.filter.Filter;
-import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
-public class FiltersController extends AbstractQueryController {
+public abstract class AbstractQueryController extends CommonController {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 989287631079056922L;
+	private static final long serialVersionUID = 1943618096637337561L;
 
-	@Override
-	protected void reset() throws SearchLibException {
-	}
-
-	public FiltersController() throws SearchLibException {
+	public AbstractQueryController() throws SearchLibException {
 		super();
 	}
 
-	public RowRenderer getFilterRenderer() {
-		return new FilterRenderer();
+	public SearchRequest getRequest() throws SearchLibException {
+		return (SearchRequest) ScopeAttribute.QUERY_SEARCH_REQUEST.get(this);
 	}
 
-	public void onFilterAdd() throws SearchLibException {
-		getRequest().getFilterList().add("", Source.REQUEST);
+	public boolean getResultExists() {
+		return getResult() != null;
+	}
+
+	public Result getResult() {
+		return (Result) ScopeAttribute.QUERY_SEARCH_RESULT.get(this);
+	}
+
+	@Override
+	protected void eventQueryEditResult(Result result) {
 		reloadPage();
 	}
 
-	public void onFilterRemove(Event event) throws SearchLibException {
-		Filter filter = (Filter) event.getData();
-		getRequest().getFilterList().remove(filter);
+	@Override
+	protected void eventQueryEditRequest(SearchRequest request) {
 		reloadPage();
 	}
 

@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class ScoreFunctionController extends QueryController {
+public class ScoreFunctionController extends AbstractQueryController {
 
 	/**
 	 * 
@@ -35,6 +35,10 @@ public class ScoreFunctionController extends QueryController {
 
 	public ScoreFunctionController() throws SearchLibException {
 		super();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 	}
 
 }

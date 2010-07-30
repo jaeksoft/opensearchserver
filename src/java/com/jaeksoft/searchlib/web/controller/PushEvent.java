@@ -60,7 +60,17 @@ public enum PushEvent {
 	/**
 	 * Notify that the schema has changes (fields or analyzers)
 	 */
-	SCHEMA_CHANGED(EventQueues.APPLICATION);
+	SCHEMA_CHANGED(EventQueues.APPLICATION),
+
+	/**
+	 * The user load a request
+	 */
+	QUERY_EDIT_REQUEST(EventQueues.DESKTOP),
+
+	/**
+	 * The user does a search
+	 */
+	QUERY_EDIT_RESULT(EventQueues.DESKTOP);
 
 	private String scope;
 

@@ -40,7 +40,8 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class ReturnedController extends QueryController implements RowRenderer {
+public class ReturnedController extends AbstractQueryController implements
+		RowRenderer {
 
 	/**
 	 * 
@@ -57,7 +58,6 @@ public class ReturnedController extends QueryController implements RowRenderer {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		super.reset();
 		selectedReturn = null;
 		fieldLeft = null;
 	}

@@ -52,7 +52,7 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 
-public class ResultController extends QueryController implements
+public class ResultController extends AbstractQueryController implements
 		TreeitemRenderer {
 
 	/**
@@ -70,7 +70,6 @@ public class ResultController extends QueryController implements
 
 	@Override
 	protected void reset() throws SearchLibException {
-		super.reset();
 		selectedFacet = null;
 		documents = null;
 	}
@@ -119,17 +118,26 @@ public class ResultController extends QueryController implements
 
 		public ResultDocument getResultDocument() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			return getResult().getDocument(pos);
+			Result result = getResult();
+			if (result == null)
+				return null;
+			return result.getDocument(pos);
 		}
 
 		public boolean isReturnValid() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			return getResultDocument().getReturnFields().size() > 0;
+			ResultDocument resultDocument = getResultDocument();
+			if (resultDocument == null)
+				return false;
+			return resultDocument.getReturnFields().size() > 0;
 		}
 
 		public boolean isSnippetValid() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			return getResultDocument().getSnippetFields().size() > 0;
+			ResultDocument resultDocument = getResultDocument();
+			if (resultDocument == null)
+				return false;
+			return resultDocument.getSnippetFields().size() > 0;
 		}
 
 		public String getReturnPercent() throws CorruptIndexException,
