@@ -86,75 +86,92 @@ public class TermController extends CommonController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		searchTerm = "";
-		termList = null;
-		fieldList = null;
-		currentField = null;
-		currentTermEnum = null;
+		synchronized (this) {
+			searchTerm = "";
+			termList = null;
+			fieldList = null;
+			currentField = null;
+			currentTermEnum = null;
+		}
 	}
 
 	private TermEnum getTermEnum() throws IOException, SearchLibException {
-		if (currentTermEnum == null)
-			setTermEnum();
-		return currentTermEnum;
+		synchronized (this) {
+
+			if (currentTermEnum == null)
+				setTermEnum();
+			return currentTermEnum;
+		}
 	}
 
 	private TermEnum buildTermEnum() throws IOException, SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		String currentField = getCurrentField();
-		if (currentField == null)
-			return null;
-		return client.getIndex().getTermEnum(currentField, getSearchTerm());
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			String currentField = getCurrentField();
+			if (currentField == null)
+				return null;
+			return client.getIndex().getTermEnum(currentField, getSearchTerm());
+		}
 	}
 
 	private void setTermEnum() throws IOException, SearchLibException {
-		if (currentTermEnum != null)
-			currentTermEnum.close();
-		currentTermEnum = buildTermEnum();
+		synchronized (this) {
+			if (currentTermEnum != null)
+				currentTermEnum.close();
+			currentTermEnum = buildTermEnum();
+		}
 	}
 
 	private void setTermList() throws IOException, SearchLibException {
-		if (termList == null)
-			termList = new ArrayList<TermFreq>();
-		else
-			termList.clear();
-		TermEnum termEnum = getTermEnum();
-		if (termEnum == null)
-			return;
-		int i = 20;
-		while (i-- != 0 && termEnum.term() != null) {
-			if (!termEnum.term().field().equals(currentField))
-				break;
-			termList.add(new TermFreq(termEnum));
-			if (!termEnum.next())
-				break;
+		synchronized (this) {
+			if (termList == null)
+				termList = new ArrayList<TermFreq>();
+			else
+				termList.clear();
+			TermEnum termEnum = getTermEnum();
+			if (termEnum == null)
+				return;
+			int i = 20;
+			while (i-- != 0 && termEnum.term() != null) {
+				if (!termEnum.term().field().equals(currentField))
+					break;
+				termList.add(new TermFreq(termEnum));
+				if (!termEnum.next())
+					break;
+			}
 		}
 	}
 
 	private void setFieldList() throws IOException, SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return;
-		if (fieldList == null)
-			fieldList = new ArrayList<String>();
-		else
-			fieldList.clear();
-		for (Object f : client.getIndex().getFieldNames())
-			fieldList.add(f.toString());
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			if (fieldList == null)
+				fieldList = new ArrayList<String>();
+			else
+				fieldList.clear();
+			for (Object f : client.getIndex().getFieldNames())
+				fieldList.add(f.toString());
+		}
 	}
 
 	public List<TermFreq> getTermList() throws IOException, SearchLibException {
-		if (termList == null)
-			setTermList();
-		return termList;
+		synchronized (this) {
+			if (termList == null)
+				setTermList();
+			return termList;
+		}
 	}
 
 	public List<String> getFieldList() throws IOException, SearchLibException {
-		if (fieldList == null)
-			setFieldList();
-		return fieldList;
+		synchronized (this) {
+			if (fieldList == null)
+				setFieldList();
+			return fieldList;
+		}
 	}
 
 	/**
@@ -162,75 +179,97 @@ public class TermController extends CommonController {
 	 *            the searchTerm to set
 	 */
 	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;
+		synchronized (this) {
+			this.searchTerm = searchTerm;
+		}
 	}
 
 	/**
 	 * @return the searchTerm
 	 */
 	public String getSearchTerm() {
-		return searchTerm;
+		synchronized (this) {
+			return searchTerm;
+		}
 	}
 
 	public String getCurrentField() throws IOException, SearchLibException {
-		List<String> fieldList = getFieldList();
-		if (fieldList == null)
-			return null;
-		if (currentField == null && fieldList.size() > 0)
-			currentField = fieldList.get(0);
-		return currentField;
+		synchronized (this) {
+			List<String> fieldList = getFieldList();
+			if (fieldList == null)
+				return null;
+			if (currentField == null && fieldList.size() > 0)
+				currentField = fieldList.get(0);
+			return currentField;
+		}
 	}
 
 	public void setCurrentField(String field) {
-		currentField = field;
+		synchronized (this) {
+			currentField = field;
+		}
 	}
 
 	public void onSearch() throws IOException, SearchLibException {
-		setTermEnum();
-		setTermList();
-		reloadPage();
+		synchronized (this) {
+			setTermEnum();
+			setTermList();
+			reloadPage();
+		}
 	}
 
 	public void onReset() throws IOException, SearchLibException {
-		setSearchTerm("");
-		onSearch();
+		synchronized (this) {
+			setSearchTerm("");
+			onSearch();
+		}
 	}
 
 	public void onNext() throws IOException, SearchLibException {
-		setTermList();
-		reloadPage();
+		synchronized (this) {
+			setTermList();
+			reloadPage();
+		}
 	}
 
 	public void onExport() throws IOException, SearchLibException {
-		PrintWriter pw = null;
-		TermEnum termEnum = null;
-		try {
-			File tempFile = File.createTempFile("OSS_term_freq", "csv");
-			pw = new PrintWriter(tempFile);
-			termEnum = buildTermEnum();
-			while (termEnum.term() != null) {
-				if (!termEnum.term().field().equals(currentField))
-					break;
-				pw.print('"');
-				pw.print(termEnum.term().text().replaceAll("\"", "\"\""));
-				pw.print('"');
-				pw.print(',');
-				pw.println(termEnum.docFreq());
-				if (!termEnum.next())
-					break;
-			}
-			pw.close();
-			pw = null;
-			Filedownload.save(new FileInputStream(tempFile),
-					"text/csv; charset-UTF-8", "OSS_term_freq_" + currentField
-							+ ".csv");
-		} finally {
-			if (pw != null)
+		synchronized (this) {
+			PrintWriter pw = null;
+			TermEnum termEnum = null;
+			try {
+				File tempFile = File.createTempFile("OSS_term_freq", "csv");
+				pw = new PrintWriter(tempFile);
+				termEnum = buildTermEnum();
+				while (termEnum.term() != null) {
+					if (!termEnum.term().field().equals(currentField))
+						break;
+					pw.print('"');
+					pw.print(termEnum.term().text().replaceAll("\"", "\"\""));
+					pw.print('"');
+					pw.print(',');
+					pw.println(termEnum.docFreq());
+					if (!termEnum.next())
+						break;
+				}
 				pw.close();
-			if (termEnum != null)
-				termEnum.close();
+				pw = null;
+				Filedownload.save(new FileInputStream(tempFile),
+						"text/csv; charset-UTF-8", "OSS_term_freq_"
+								+ currentField + ".csv");
+			} finally {
+				if (pw != null)
+					pw.close();
+				if (termEnum != null)
+					termEnum.close();
+			}
 		}
-
 	}
 
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		synchronized (this) {
+			fieldList = null;
+			reloadPage();
+		}
+	}
 }

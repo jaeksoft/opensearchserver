@@ -24,12 +24,16 @@
 
 package com.jaeksoft.searchlib.plugin;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.LimitInputStream;
+import com.jaeksoft.searchlib.parser.LimitReader;
 
 public class IndexPluginList {
 
@@ -53,14 +57,29 @@ public class IndexPluginList {
 		}
 	}
 
-	public boolean run(IndexDocument indexDocument) {
+	public boolean run(String contentType, LimitInputStream inputStream,
+			LimitReader reader, IndexDocument indexDocument) {
 		if (pluginList == null)
 			return true;
 		Iterator<IndexPluginInterface> it = pluginList.iterator();
-		while (it.hasNext())
-			if (!it.next().run(indexDocument))
+		while (it.hasNext()) {
+			IndexPluginInterface plugin = it.next();
+			if (plugin instanceof IndexPluginCacheInterface) {
+				IndexPluginCacheInterface cachePlugin = (IndexPluginCacheInterface) plugin;
+				try {
+					if (inputStream != null)
+						inputStream.restartFromCache();
+					if (reader != null)
+						reader.restartFromCache();
+				} catch (IOException e) {
+					Logging.logger.warn(e.getMessage(), e);
+				}
+				if (!cachePlugin.run(contentType, inputStream, reader,
+						indexDocument))
+					return false;
+			} else if (!plugin.run(indexDocument))
 				return false;
+		}
 		return true;
 	}
-
 }

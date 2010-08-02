@@ -51,6 +51,8 @@ import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.LimitException;
+import com.jaeksoft.searchlib.parser.LimitInputStream;
+import com.jaeksoft.searchlib.parser.LimitReader;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
@@ -233,6 +235,24 @@ public class Crawl {
 		return parser;
 	}
 
+	public String getContentType() {
+		if (urlItem == null)
+			return null;
+		return urlItem.getContentBaseType();
+	}
+
+	public LimitInputStream getInputStream() {
+		if (parser == null)
+			return null;
+		return parser.getLimitInputStream();
+	}
+
+	public LimitReader getReader() {
+		if (parser == null)
+			return null;
+		return parser.getLimitReader();
+	}
+
 	public String getError() {
 		return error;
 	}
@@ -259,10 +279,13 @@ public class Crawl {
 
 			IndexPluginList indexPluginList = config.getWebCrawlMaster()
 					.getIndexPluginList();
-			if (indexPluginList != null
-					&& !indexPluginList.run(targetIndexDocument)) {
-				urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
-				urlItem.populate(urlIndexDocument);
+
+			if (indexPluginList != null) {
+				if (!indexPluginList.run(getContentType(), getInputStream(),
+						getReader(), targetIndexDocument)) {
+					urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
+					urlItem.populate(urlIndexDocument);
+				}
 			}
 
 			return targetIndexDocument;
