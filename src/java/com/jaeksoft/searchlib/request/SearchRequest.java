@@ -1021,7 +1021,10 @@ public class SearchRequest implements Externalizable {
 		out.writeInt(start);
 		out.writeInt(rows);
 
-		External.writeUTF(lang.getCode(), out);
+		if (lang == null)
+			External.writeUTF(LanguageEnum.UNDEFINED.getCode(), out);
+		else
+			External.writeUTF(lang.getCode(), out);
 		External.writeUTF(queryString, out);
 		External.writeUTF(patternQuery, out);
 		External.writeUTF(scoreFunction, out);

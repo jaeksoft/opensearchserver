@@ -44,19 +44,19 @@ public class SynonymQueue {
 		this.queueSize = 0;
 	}
 
-	protected String findSynonym() {
+	protected final String findSynonym() {
 		if (!isFull())
 			return null;
 		return expressionMap.find(expressionKey);
 	}
 
-	protected void clean() {
+	protected final void clean() {
 		for (int i = 0; i < tokens.length; i++)
 			tokens[i] = null;
 		queueSize = 0;
 	}
 
-	protected void addToken(SynonymToken token) {
+	protected final void addToken(SynonymToken token) {
 		int l = tokens.length - 1;
 		for (int i = 0; i < l; i++)
 			tokens[i] = tokens[i + 1];
@@ -65,7 +65,7 @@ public class SynonymQueue {
 			queueSize++;
 	}
 
-	protected SynonymToken popToken() {
+	protected final SynonymToken popToken() {
 		for (int i = 0; i < tokens.length; i++) {
 			SynonymToken token = tokens[i];
 			if (token != null) {
@@ -77,11 +77,11 @@ public class SynonymQueue {
 		return null;
 	}
 
-	protected boolean isFull() {
+	protected final boolean isFull() {
 		return queueSize == tokens.length;
 	}
 
-	protected int getPositionIncrement() {
+	protected final int getPositionIncrement() {
 		int pos = 0;
 		for (SynonymToken token : tokens)
 			if (token != null)
@@ -89,7 +89,7 @@ public class SynonymQueue {
 		return 0;
 	}
 
-	protected int getStartOffset() {
+	protected final int getStartOffset() {
 		int startOffset = Integer.MAX_VALUE;
 		for (SynonymToken token : tokens) {
 			if (token != null) {
@@ -101,7 +101,7 @@ public class SynonymQueue {
 		return startOffset;
 	}
 
-	protected int getEndOffset() {
+	protected final int getEndOffset() {
 		int endOffset = 0;
 		for (SynonymToken token : tokens) {
 			if (token != null) {

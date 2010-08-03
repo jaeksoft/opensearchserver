@@ -338,4 +338,8 @@ public abstract class ThreadAbstract implements Runnable {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + " " + getClass().getSimpleName();
+	}
 }

@@ -37,7 +37,19 @@ public enum ClassPropertyEnum {
 	MAX_GRAM(true, "Max gram size", "The largest n-gram to generate"),
 
 	SIDE(true, "Edge side",
-			"Specifies which side of the input the n-gram should be generated from");
+			"Specifies which side of the input the n-gram should be generated from"),
+
+	TOKEN_SEPARATOR(true, "Token separator",
+			"The string to use when joining adjacent tokens to form a shingle"),
+
+	MAX_SHINGLE_SIZE(true, "Max shingle size",
+			"Set the max shingle size (default: 2)"),
+
+	MIN_SHINGLE_SIZE(true, "Min shingle size",
+			"Set the min shingle size (default: 1)");
+
+	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
+			Boolean.FALSE.toString() };
 
 	private boolean isUser;
 

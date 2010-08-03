@@ -47,6 +47,9 @@ public enum FilterEnum {
 
 	RussianStemFilter("A filter that stems Russian words."),
 
+	ShingleFilter(
+			"A ShingleFilter constructs shingles (token n-grams) from a token stream."),
+
 	SnowballDanishFilter(
 			"Stems Danish words using a Snowball-generated stemmer"),
 

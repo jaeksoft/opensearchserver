@@ -22,18 +22,17 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis.synonym;
+package com.jaeksoft.searchlib.analysis.shingle;
 
-import com.jaeksoft.searchlib.util.ExpressionToken;
+public class ShingleToken {
 
-public class SynonymToken extends ExpressionToken {
-
+	private String term;
 	private int positionIncrement;
 	private int startOffset;
 	private int endOffset;
 
-	protected SynonymToken(String term, int posInc, int start, int end) {
-		super(term);
+	protected ShingleToken(String term, int posInc, int start, int end) {
+		this.term = term;
 		this.positionIncrement = posInc;
 		this.startOffset = start;
 		this.endOffset = end;
@@ -49,5 +48,9 @@ public class SynonymToken extends ExpressionToken {
 
 	public final int getEndOffset() {
 		return endOffset;
+	}
+
+	public final String getTerm() {
+		return term;
 	}
 }
