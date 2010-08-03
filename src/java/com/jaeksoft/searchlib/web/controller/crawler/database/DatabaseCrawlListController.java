@@ -94,7 +94,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		currentCrawl = null;
+		currentCrawl = new DatabaseCrawl(getCrawlMaster());
 		DatabaseCrawlMaster cm = getCrawlMaster();
 		if (cm != null)
 			new DatabaseCrawl(cm);
@@ -171,6 +171,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException {
+		getDatabaseCrawlList();
 		if (selectedCrawl != null)
 			currentCrawl.copyTo(selectedCrawl);
 		else {
