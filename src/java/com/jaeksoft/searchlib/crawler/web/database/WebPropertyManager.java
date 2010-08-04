@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 public class WebPropertyManager extends PropertyManager {
 
 	private PropertyItem<Integer> fetchInterval;
+	private PropertyItem<String> fetchIntervalUnit;
 	private PropertyItem<Integer> maxUrlPerHost;
 	private PropertyItem<Integer> maxUrlPerSession;
 	private PropertyItem<String> userAgent;
@@ -43,6 +44,7 @@ public class WebPropertyManager extends PropertyManager {
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
 		fetchInterval = newIntegerProperty("fetchInterval", 30);
+		fetchIntervalUnit = newStringProperty("fechIntervalUnit", "days");
 		maxUrlPerHost = newIntegerProperty("maxUrlPerHost", 100);
 		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000);
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
@@ -66,6 +68,10 @@ public class WebPropertyManager extends PropertyManager {
 
 	public PropertyItem<String> getUserAgent() {
 		return userAgent;
+	}
+
+	public PropertyItem<String> getFetchIntervalUnit() {
+		return fetchIntervalUnit;
 	}
 
 	public PropertyItem<Boolean> getReplicationAfterSession() {

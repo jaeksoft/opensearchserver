@@ -30,7 +30,7 @@
 				<rows>
 					<row>
 						<label value="User-Agent: " />
-						<textbox cols="50"
+						<textbox width="95%"
 							readonly="@{crawlProcess.refresh}"
 							value="@{crawlProcess.properties.userAgent.value}" />
 						<label value="Number of URLs to crawl: " />
@@ -41,10 +41,18 @@
 					</row>
 					<row>
 						<label
-							value="Fetch interval between re-fetches (days): " />
-						<intbox constraint="no empty, no negative"
-							readonly="@{crawlProcess.refresh}"
-							value="@{crawlProcess.properties.fetchInterval.value}" />
+							value="Fetch interval between re-fetches: " />
+						<hbox align="center">
+							<intbox constraint="no empty, no negative"
+								readonly="@{crawlProcess.refresh}"
+								value="@{crawlProcess.properties.fetchInterval.value}" />
+							<listbox
+								visible="@{crawlProcess.notRefresh}"
+								model="@{crawlProcess.fetchIntervalUnitValues}" mold="select"
+								selectedItem="@{crawlProcess.properties.fetchIntervalUnit.value}" />
+							<label visible="@{crawlProcess.refresh}"
+								value="@{crawlProcess.properties.fetchIntervalUnit.value}" />
+						</hbox>
 						<label
 							value="Maximum number of URLs per host: " />
 						<intbox constraint="no empty, no negative"
@@ -189,7 +197,8 @@
 						visible="@{crawlProcess.properties.debug.value}" label="Debug" />
 				</listhead>
 				<listitem self="@{each=thread}">
-					<listcell label="@{thread.hostUrlList.namedItem.name}" />
+					<listcell
+						label="@{thread.hostUrlList.namedItem.name}" />
 					<listcell label="@{thread.hostUrlList.listType}" />
 					<listcell
 						label="@{thread.currentStatistics.fetchedCount}" />

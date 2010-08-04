@@ -155,7 +155,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		UrlManager urlManager = config.getUrlManager();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		fetchIntervalDate = urlManager.getPastDate(propertyManager
-				.getFetchInterval().getValue());
+				.getFetchInterval().getValue(), propertyManager
+				.getFetchIntervalUnit().getValue());
 		config.getUrlManager().getOldHostToFetch(fetchIntervalDate,
 				maxUrlPerSession, oldHostList);
 		currentStats.addOldHostListSize(oldHostList.size());

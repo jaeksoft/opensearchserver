@@ -76,6 +76,13 @@ public class CrawlWebController extends CrawlerController {
 		return client.getWebPropertyManager();
 	}
 
+	private final static String[] fetchIntervalUnitValues = { "days", "hours",
+			"minutes" };
+
+	public String[] getFetchIntervalUnitValues() {
+		return fetchIntervalUnitValues;
+	}
+
 	public WebCrawlMaster getWebCrawlMaster() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -95,6 +102,10 @@ public class CrawlWebController extends CrawlerController {
 		if (webCrawlMaster == null)
 			return false;
 		return webCrawlMaster.isRunning() || webCrawlMaster.isAborting();
+	}
+
+	public boolean isNotRefresh() throws SearchLibException {
+		return !isRefresh();
 	}
 
 	public String getRunButtonLabel() throws SearchLibException {

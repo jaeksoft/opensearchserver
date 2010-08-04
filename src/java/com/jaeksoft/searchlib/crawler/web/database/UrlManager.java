@@ -258,9 +258,16 @@ public class UrlManager {
 	}
 
 	// TODO : can be mutualised
-	public Date getPastDate(int fetchInterval) {
-		return new Date(System.currentTimeMillis() - (long) fetchInterval
-				* 1000 * 86400);
+	public Date getPastDate(int fetchInterval, String intervalUnit) {
+		long l;
+		if ("hours".equalsIgnoreCase(intervalUnit))
+			l = fetchInterval * 1000 * 3600;
+		else if ("minutes".equalsIgnoreCase(intervalUnit))
+			l = fetchInterval * 1000 * 60;
+		else
+			// Default is days
+			l = fetchInterval * 1000 * 86400;
+		return new Date(System.currentTimeMillis() - l);
 	}
 
 	private void getFacetLimit(Field field, SearchRequest searchRequest,
