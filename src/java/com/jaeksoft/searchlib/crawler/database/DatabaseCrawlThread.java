@@ -111,6 +111,8 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			IndexDocument lastFieldContent = null;
 			String lastPrimaryKey = null;
 			String dbPrimaryKey = databaseCrawl.getPrimaryKey();
+			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
+				dbPrimaryKey = null;
 			boolean merge = false;
 			setStatus(CrawlStatus.CRAWL);
 			while (resultSet.next()) {
