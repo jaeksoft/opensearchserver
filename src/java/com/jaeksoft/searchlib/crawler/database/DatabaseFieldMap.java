@@ -28,7 +28,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Node;
@@ -62,9 +64,16 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 			ResultSet resultSet, IndexDocument target) throws SQLException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException, MalformedURLException {
+		ResultSetMetaData metaData = resultSet.getMetaData();
+		TreeSet<String> columns = new TreeSet<String>();
+		int columnCount = metaData.getColumnCount();
+		for (int i = 1; i <= columnCount; i++)
+			columns.add(metaData.getColumnLabel(i));
 		for (GenericLink<String, DatabaseFieldTarget> link : getList()) {
-
-			String content = resultSet.getString(link.getSource());
+			String columnName = link.getSource();
+			if (!columns.contains(columnName))
+				continue;
+			String content = resultSet.getString(columnName);
 			if (content == null)
 				continue;
 			DatabaseFieldTarget dfTarget = link.getTarget();

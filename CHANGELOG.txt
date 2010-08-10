@@ -9,6 +9,8 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 2882260: Add a parser for text/plain
+- 3010010: RTF parser
 - 3038733: Add a shingle filter
 - 3036262: Log management
 - 3031800: Schema interface
