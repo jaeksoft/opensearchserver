@@ -56,6 +56,7 @@ public class UrlItem implements Serializable {
 			.getCanonicalName());
 
 	private String url;
+	private String contentDispositionFilename;
 	private String contentBaseType;
 	private String contentTypeCharset;
 	private Long contentLength;
@@ -78,6 +79,7 @@ public class UrlItem implements Serializable {
 		url = null;
 		cachedUrl = null;
 		checkedUri = null;
+		contentDispositionFilename = null;
 		contentBaseType = null;
 		contentTypeCharset = null;
 		contentLength = null;
@@ -101,18 +103,20 @@ public class UrlItem implements Serializable {
 		setUrl(doc.getValue(UrlItemFieldEnum.url.name(), 0));
 		setHost(doc.getValue(UrlItemFieldEnum.host.name(), 0));
 		setSubHost(doc.getValueList(UrlItemFieldEnum.subhost.name()));
+		setContentDispositionFilename(doc.getValue(
+				UrlItemFieldEnum.contentDispositionFilename.name(), 0));
 		setContentBaseType(doc.getValue(
 				UrlItemFieldEnum.contentBaseType.name(), 0));
-		setContentTypeCharset(doc.getValue(UrlItemFieldEnum.contentTypeCharset
-				.name(), 0));
+		setContentTypeCharset(doc.getValue(
+				UrlItemFieldEnum.contentTypeCharset.name(), 0));
 		setContentLength(doc.getValue(UrlItemFieldEnum.contentLength.name(), 0));
 		setContentEncoding(doc.getValue(
 				UrlItemFieldEnum.contentEncoding.name(), 0));
 		setLang(doc.getValue(UrlItemFieldEnum.lang.name(), 0));
 		setLangMethod(doc.getValue(UrlItemFieldEnum.langMethod.name(), 0));
 		setWhen(doc.getValue(UrlItemFieldEnum.when.name(), 0));
-		setRobotsTxtStatusInt(doc.getValue(UrlItemFieldEnum.robotsTxtStatus
-				.name(), 0));
+		setRobotsTxtStatusInt(doc.getValue(
+				UrlItemFieldEnum.robotsTxtStatus.name(), 0));
 		setFetchStatusInt(doc.getValue(UrlItemFieldEnum.fetchStatus.name(), 0));
 		setResponseCode(doc.getValue(UrlItemFieldEnum.responseCode.name(), 0));
 		setParserStatusInt(doc
@@ -173,6 +177,14 @@ public class UrlItem implements Serializable {
 	public void setContentTypeCharset(String v) {
 		contentTypeCharset = v;
 
+	}
+
+	public String getContentDispositionFilename() {
+		return contentDispositionFilename;
+	}
+
+	public void setContentDispositionFilename(String v) {
+		contentDispositionFilename = v;
 	}
 
 	public String getContentBaseType() {
@@ -309,9 +321,9 @@ public class UrlItem implements Serializable {
 			if (checkedUri != null)
 				return checkedUri;
 			URL url = getURL();
-			checkedUri = new URI(url.getProtocol(), url.getUserInfo(), url
-					.getHost(), url.getPort(), url.getPath(), url.getQuery(),
-					url.getRef());
+			checkedUri = new URI(url.getProtocol(), url.getUserInfo(),
+					url.getHost(), url.getPort(), url.getPath(),
+					url.getQuery(), url.getRef());
 			return checkedUri;
 		}
 	}
@@ -398,12 +410,16 @@ public class UrlItem implements Serializable {
 		URL url = getURL();
 		if (url != null) {
 			indexDocument.set(UrlItemFieldEnum.host.name(), url.getHost());
-			indexDocument.set(UrlItemFieldEnum.subhost.name(), buildSubHost(url
-					.getHost()));
+			indexDocument.set(UrlItemFieldEnum.subhost.name(),
+					buildSubHost(url.getHost()));
 		}
 		if (responseCode != null)
 			indexDocument.set(UrlItemFieldEnum.responseCode.name(),
 					responseCode);
+		if (contentDispositionFilename != null)
+			indexDocument.set(
+					UrlItemFieldEnum.contentDispositionFilename.name(),
+					contentDispositionFilename);
 		if (contentBaseType != null)
 			indexDocument.set(UrlItemFieldEnum.contentBaseType.name(),
 					contentBaseType);

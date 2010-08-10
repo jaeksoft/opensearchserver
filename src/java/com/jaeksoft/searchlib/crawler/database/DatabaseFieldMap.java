@@ -32,7 +32,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.TreeSet;
 
-import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -41,7 +40,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
-import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -80,15 +78,11 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 			if (dfTarget.isFilePath()) {
 				File file = new File(dfTarget.getFilePathPrefix() + content);
 				if (file.exists()) {
-					String extension = FilenameUtils.getExtension(file
-							.getName());
-					Parser parser = parserSelector
-							.getParserFromExtension(extension);
+					Parser parser = parserSelector.getParser(file.getName(),
+							null);
 					if (parser != null) {
 						try {
 							parser.parseContent(file);
-							parser.addField(ParserFieldEnum.filename,
-									file.getName());
 						} catch (IOException e) {
 							Logging.logger.warn(e.getMessage(), e);
 						}

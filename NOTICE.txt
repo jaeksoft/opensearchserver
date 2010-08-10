@@ -57,6 +57,11 @@ http://home.ccil.org/~cowan/XML/tagsoup/
 Rely on LICENCE-APACHE2
 
 ----------------------------------------
+JAudiotagger
+http://www.jthink.net/jaudiotagger/
+Rely on Lesser General Public License
+
+----------------------------------------
 JTidy
 http://jtidy.sourceforge.net
 Rely on LICENCE-JTIDY

@@ -154,12 +154,12 @@ public abstract class Parser {
 
 	protected abstract void parseContent(LimitReader reader) throws IOException;
 
-	public void parseContent(InputStream inputStream) throws IOException {
+	final public void parseContent(InputStream inputStream) throws IOException {
 		limitInputStream = new LimitInputStream(inputStream, sizeLimit);
 		parseContent(limitInputStream);
 	}
 
-	public void parseContent(Reader reader) throws IOException {
+	final public void parseContent(Reader reader) throws IOException {
 		limitReader = new LimitReader(reader, sizeLimit);
 		parseContent(limitReader);
 	}
@@ -172,7 +172,7 @@ public abstract class Parser {
 		return limitReader;
 	}
 
-	public void parseContent(byte[] byteData) throws IOException {
+	final public void parseContent(byte[] byteData) throws IOException {
 		ByteArrayInputStream inputStream = null;
 		try {
 			inputStream = new ByteArrayInputStream(byteData);
@@ -183,7 +183,7 @@ public abstract class Parser {
 		}
 	}
 
-	public void parseContent(String stringData) throws IOException {
+	final public void parseContent(String stringData) throws IOException {
 		StringReader stringReader = null;
 		try {
 			stringReader = new StringReader(stringData);

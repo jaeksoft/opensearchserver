@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3042488: Audio parser
 - 2882260: Add a parser for text/plain
 - 3010010: RTF parser
 - 3038733: Add a shingle filter

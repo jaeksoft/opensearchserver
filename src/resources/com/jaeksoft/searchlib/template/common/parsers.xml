@@ -132,4 +132,20 @@
 			<link source="content" target="contentExact" />
 		</map>
 	</parser>
+	<parser name="Audio parser" class="com.jaeksoft.searchlib.parser.AudioParser"
+		sizeLimit="8388608">
+		<extension>mp3</extension>
+		<extension>mp4</extension>
+		<extension>wav</extension>
+		<extension>ogg</extension>
+		<extension>flac</extension>
+		<contentType>audio/mpeg</contentType>
+		<contentType>audio/x-wav</contentType>
+		<contentType>audio/ogg</contentType>
+		<contentType>audio/flac</contentType>
+		<map>
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
+		</map>
+	</parser>
 </parsers>

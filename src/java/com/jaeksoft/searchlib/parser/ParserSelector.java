@@ -33,6 +33,7 @@ import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -109,7 +110,7 @@ public class ParserSelector {
 		return parserFactory.getNewParser();
 	}
 
-	public Parser getParserFromExtension(String extension)
+	private Parser getParserFromExtension(String extension)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, MalformedURLException, SearchLibException {
 		ParserFactory parserFactory = null;
@@ -119,13 +120,31 @@ public class ParserSelector {
 		return getParser(parserFactory);
 	}
 
-	public Parser getParserFromMimeType(String contentBaseType)
+	private Parser getParserFromMimeType(String contentBaseType)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, MalformedURLException, SearchLibException {
 		ParserFactory parserFactory = null;
 		if (mimeTypeParserMap != null)
 			parserFactory = mimeTypeParserMap.get(contentBaseType);
 		return getParser(parserFactory);
+	}
+
+	public Parser getParser(String filename, String contentBaseType)
+			throws MalformedURLException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
+		Parser parser = null;
+		if (contentBaseType != null)
+			parser = getParserFromMimeType(contentBaseType);
+		if (parser == null && filename != null)
+			parser = getParserFromExtension(FilenameUtils
+					.getExtension(filename));
+		if (parser == null)
+			return null;
+		if (filename != null)
+			parser.addField(ParserFieldEnum.filename, filename);
+		if (contentBaseType != null)
+			parser.addField(ParserFieldEnum.content_type, contentBaseType);
+		return parser;
 	}
 
 	public static ParserSelector fromXmlConfig(Config config, XPathParser xpp,

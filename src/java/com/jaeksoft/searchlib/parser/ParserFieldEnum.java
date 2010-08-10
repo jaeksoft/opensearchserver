@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -75,6 +75,22 @@ public enum ParserFieldEnum {
 
 	lang,
 
-	content_type;
+	content_type,
+
+	artist,
+
+	album,
+
+	year,
+
+	track,
+
+	genre,
+
+	album_artist,
+
+	comment, composer,
+
+	grouping;
 
 }

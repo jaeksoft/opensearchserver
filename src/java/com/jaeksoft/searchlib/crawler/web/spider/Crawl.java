@@ -94,8 +94,11 @@ public class Crawl {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
 		}
-		Parser parser = parserSelector.getParserFromMimeType(urlItem
-				.getContentBaseType());
+		String fileName = urlItem.getContentDispositionFilename();
+		if (fileName == null)
+			fileName = urlItem.getURL().getFile();
+		Parser parser = parserSelector.getParser(fileName,
+				urlItem.getContentBaseType());
 		if (parser == null)
 			parser = parserSelector.getWebCrawlerDefaultParser();
 		if (parser == null) {
@@ -141,6 +144,10 @@ public class Crawl {
 			InputStream is = null;
 			try {
 				httpDownloader.get(urlItem.getCheckedURI().toASCIIString());
+
+				String contentDispositionFilename = httpDownloader
+						.getContentDispositionFilename();
+				urlItem.setContentDispositionFilename(contentDispositionFilename);
 
 				String contentBaseType = httpDownloader.getContentBaseType();
 				urlItem.setContentBaseType(contentBaseType);

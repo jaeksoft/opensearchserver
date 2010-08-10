@@ -32,6 +32,8 @@ public enum UrlItemFieldEnum {
 
 	langMethod,
 
+	contentDispositionFilename,
+
 	contentBaseType,
 
 	contentTypeCharset,

@@ -74,8 +74,8 @@ public class CrawlFile {
 		synchronized (this) {
 			try {
 				ParserSelector parserSelector = config.getParserSelector();
-				Parser parser = parserSelector.getParserFromExtension(fileItem
-						.getExtension());
+				Parser parser = parserSelector.getParser(fileItem.getFile()
+						.getName(), null);
 
 				// Get default parser
 				if (parser == null)

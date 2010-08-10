@@ -135,6 +135,22 @@ public class HttpDownloader {
 		}
 	}
 
+	public String getContentDispositionFilename() {
+		if (httpResponse == null)
+			return null;
+		Header header = httpResponse.getFirstHeader("Content-Disposition");
+		if (header == null)
+			return null;
+		String s = header.getValue();
+		int i1 = s.indexOf("filename=");
+		if (i1 == -1)
+			return null;
+		i1 += 9;
+		int i2 = s.indexOf(";", i1);
+		String f = (i2 == -1) ? s.substring(i1) : s.substring(i1, i2);
+		return f.replace("\"", "");
+	}
+
 	public String getContentBaseType() {
 		synchronized (this) {
 			if (httpEntity == null)

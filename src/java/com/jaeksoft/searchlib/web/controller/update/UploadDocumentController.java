@@ -31,7 +31,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.FilenameUtils;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
 import org.zkoss.zul.Fileupload;
@@ -41,7 +40,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
-import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -132,20 +130,12 @@ public class UploadDocumentController extends CommonController {
 			ParserSelector parserSelector = getClient().getParserSelector();
 			Parser parser = null;
 			String contentType = media.getContentType();
-			if (contentType != null)
-				parser = parserSelector.getParserFromMimeType(contentType);
-			if (parser == null) {
-				String extension = FilenameUtils.getExtension(media.getName());
-				parser = parserSelector.getParserFromExtension(extension);
-			}
+			parser = parserSelector.getParser(media.getName(), contentType);
 			if (parser == null) {
 				new AlertController("No parser found for that document type ("
 						+ contentType + " - " + media.getName() + ')');
 				return;
 			}
-
-			parser.addField(ParserFieldEnum.filename, media.getName());
-			parser.addField(ParserFieldEnum.content_type, contentType);
 
 			if (media.inMemory()) {
 				if (media.isBinary())

@@ -124,9 +124,10 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		int binaryCount = binaryNodes.getLength();
 		for (int i = 0; i < binaryCount; i++) {
 			Node node = binaryNodes.item(i);
+			String filename = XPathParser.getAttributeString(node, "fileName");
 			String contentType = XPathParser.getAttributeString(node,
 					"contentType");
-			Parser parser = parserSelector.getParserFromMimeType(contentType);
+			Parser parser = parserSelector.getParser(filename, contentType);
 			if (parser == null)
 				continue;
 			byte[] binaryDocument = Base64.decodeBase64(xpp.getNodeString(node)
