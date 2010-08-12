@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.parser;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Hex;
 import org.klomp.snark.MetaInfo;
 
 public class TorrentParser extends Parser {
@@ -34,7 +35,8 @@ public class TorrentParser extends Parser {
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.filename,
 			ParserFieldEnum.content_type, ParserFieldEnum.name,
 			ParserFieldEnum.announce, ParserFieldEnum.totalLength,
-			ParserFieldEnum.files, ParserFieldEnum.lengths };
+			ParserFieldEnum.files, ParserFieldEnum.lengths,
+			ParserFieldEnum.infoHash };
 
 	public TorrentParser() {
 		super(fl);
@@ -53,7 +55,6 @@ public class TorrentParser extends Parser {
 		addField(ParserFieldEnum.announce, meta.getAnnounce());
 		addField(ParserFieldEnum.totalLength,
 				Long.toString(meta.getTotalLength()));
-
 		List<?> lengths = meta.getLengths();
 		if (lengths != null)
 			for (Object o : lengths)
@@ -62,6 +63,9 @@ public class TorrentParser extends Parser {
 		if (files != null)
 			for (Object o : files)
 				addField(ParserFieldEnum.files, o.toString());
+
+		addField(ParserFieldEnum.infoHash,
+				new String(Hex.encodeHex(meta.getInfoHash())));
 	}
 
 	@Override

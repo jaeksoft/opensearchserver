@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 
+import javax.naming.NamingException;
+
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 
 public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
@@ -41,6 +43,10 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 
 	public String getIndexName() {
 		return indexName;
+	}
+
+	public Client getClient() throws SearchLibException, NamingException {
+		return ClientCatalog.getClient(indexName);
 	}
 
 	public long getSize() {

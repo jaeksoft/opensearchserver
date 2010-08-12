@@ -63,17 +63,28 @@
 		<panelchildren>
 			<listbox id="indexlist" selectedItem="@{home.clientName}"
 				mold="paging" pageSize="20" model="@{home.clientCatalog}">
+				<auxhead>
+				<auxheader align="center" label="Index name" />
+				<auxheader align="center" label="Crawl status" colspan="3"/>
+				<auxheader align="center" label="Informations" colspan="2"/>
+				<auxheader align="center" label="Action" />
+				</auxhead>
 				<listhead>
-					<listheader label="Name" />
+					<listheader />
+					<listheader label="Web" />
+					<listheader label="Database" />
+					<listheader label="File" />
 					<listheader width="150px" label="Last modified"
 						align="right" />
 					<listheader width="100px" label="Size"
 						align="right" />
-					<listheader width="200px" label="Action"
-						align="center" />
+					<listheader width="200px" align="center"  />
 				</listhead>
 				<listitem self="@{each='catalogitem'}">
 					<listcell label="@{catalogitem.indexName}" />
+					<listcell label="@{catalogitem.client.webCrawlMaster.statusInfo}" />
+					<listcell label="@{catalogitem.client.databaseCrawlMaster.statusInfo}" />
+					<listcell label="@{catalogitem.client.fileCrawlMaster.statusInfo}" />
 					<listcell
 						tooltiptext="@{catalogitem.lastModifiedFile}"
 						label="@{catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />

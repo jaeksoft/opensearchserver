@@ -101,6 +101,8 @@ public enum ParserFieldEnum {
 
 	lengths,
 
-	files;
+	files,
+
+	infoHash;
 
 }
