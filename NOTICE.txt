@@ -114,8 +114,3 @@ Rely on LICENSE-APACHE2
 Java Native Access (JNA)
 https://jna.dev.java.net/
 Rely on LGPL license 2.1
-
-----------------------------------------
-Snark
-http://klomp.org/snark/
-Rely on GPL license version 2 or any later

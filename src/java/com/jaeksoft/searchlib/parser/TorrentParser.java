@@ -25,18 +25,17 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
-import java.util.List;
+import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.binary.Hex;
-import org.klomp.snark.MetaInfo;
+import com.jaeksoft.searchlib.parser.torrent.MetaInfo;
 
 public class TorrentParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.filename,
 			ParserFieldEnum.content_type, ParserFieldEnum.name,
-			ParserFieldEnum.announce, ParserFieldEnum.totalLength,
-			ParserFieldEnum.files, ParserFieldEnum.lengths,
-			ParserFieldEnum.infoHash, ParserFieldEnum.comment,
+			ParserFieldEnum.announce, ParserFieldEnum.total_length,
+			ParserFieldEnum.file_length, ParserFieldEnum.file_path,
+			ParserFieldEnum.info_hash, ParserFieldEnum.comment,
 			ParserFieldEnum.creation_date };
 
 	public TorrentParser() {
@@ -51,27 +50,29 @@ public class TorrentParser extends Parser {
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
+
 		MetaInfo meta = new MetaInfo(inputStream);
 		addField(ParserFieldEnum.name, meta.getName());
 		addField(ParserFieldEnum.announce, meta.getAnnounce());
-		addField(ParserFieldEnum.totalLength,
+		addField(ParserFieldEnum.total_length,
 				Long.toString(meta.getTotalLength()));
-		List<?> lengths = meta.getLengths();
-		if (lengths != null)
-			for (Object o : lengths)
-				addField(ParserFieldEnum.lengths, o.toString());
-		List<?> files = meta.getFiles();
-		if (files != null)
-			for (Object o : files)
-				addField(ParserFieldEnum.files, o.toString());
+		int l = meta.getFilesCount();
+		for (int i = 0; i < l; i++) {
+			addField(ParserFieldEnum.file_length, meta.getFileLength(i));
+			addField(ParserFieldEnum.file_path, meta.getFilePath(i));
+		}
 
-		addField(ParserFieldEnum.infoHash,
-				new String(Hex.encodeHex(meta.getInfoHash())));
+		try {
+			addField(ParserFieldEnum.info_hash, meta.getInfoHash());
+		} catch (NoSuchAlgorithmException e) {
+			throw new IOException(e);
+		}
 
 		addField(ParserFieldEnum.comment, meta.getComment());
 
 		addField(ParserFieldEnum.creation_date,
 				Integer.toString(meta.getCreationDate()));
+
 	}
 
 	@Override

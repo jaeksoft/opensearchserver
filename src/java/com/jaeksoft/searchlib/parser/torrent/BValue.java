@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,89 +22,47 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.parser;
+package com.jaeksoft.searchlib.parser.torrent;
 
-public enum ParserFieldEnum {
-	url,
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-	title,
+public class BValue {
 
-	filename,
+	protected ByteArrayOutputStream byteArray;
 
-	body,
+	protected BValue() {
+		byteArray = new ByteArrayOutputStream();
+	}
 
-	meta_keywords,
-
-	meta_description,
-
-	meta_robots,
-
-	lang_method,
-
-	internal_link,
-
-	external_link,
-
-	author,
-
-	subject,
-
-	content,
-
-	producer,
-
-	keywords,
-
-	creation_date,
-
-	modification_date,
-
-	language,
-
-	number_of_pages,
-
-	note,
-
-	other,
-
-	charset,
-
-	internal_nofollow,
-
-	external_link_nofollow,
-
-	lang,
-
-	content_type,
-
-	artist,
-
-	album,
-
-	year,
-
-	track,
-
-	genre,
-
-	album_artist,
-
-	comment,
-
-	composer,
-
-	grouping,
-
-	name,
-
-	announce,
-
-	total_length,
-
-	file_length,
-
-	file_path,
-
-	info_hash;
+	public static BValue next(InputStream input) throws IOException {
+		int i = input.read();
+		switch (i) {
+		case -1:
+			return null;
+		case 'e':
+			return new BEnd();
+		case 'd':
+			return new BDictionary(input);
+		case 'l':
+			return new BList(input);
+		case 'i':
+			return new BInteger(input);
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			return new BString(i, input);
+		default:
+			throw new BException();
+		}
+	}
 
 }

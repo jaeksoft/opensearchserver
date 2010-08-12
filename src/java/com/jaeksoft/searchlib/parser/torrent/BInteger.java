@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,89 +22,35 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.parser;
+package com.jaeksoft.searchlib.parser.torrent;
 
-public enum ParserFieldEnum {
-	url,
+import java.io.IOException;
+import java.io.InputStream;
 
-	title,
+public class BInteger extends BValue {
 
-	filename,
+	private Integer integer;
 
-	body,
+	public BInteger(InputStream input) throws IOException {
+		integer = null;
+		StringBuffer integerString = new StringBuffer();
+		byteArray.write('i');
+		for (;;) {
+			int i = input.read();
+			if (i == -1)
+				throw new BException();
+			if (i == 'e')
+				break;
+			if (!Character.isDigit((char) i))
+				throw new BException();
+			byteArray.write(i);
+			integerString.append((char) i);
+		}
+		byteArray.write('e');
+		integer = Integer.parseInt(integerString.toString());
+	}
 
-	meta_keywords,
-
-	meta_description,
-
-	meta_robots,
-
-	lang_method,
-
-	internal_link,
-
-	external_link,
-
-	author,
-
-	subject,
-
-	content,
-
-	producer,
-
-	keywords,
-
-	creation_date,
-
-	modification_date,
-
-	language,
-
-	number_of_pages,
-
-	note,
-
-	other,
-
-	charset,
-
-	internal_nofollow,
-
-	external_link_nofollow,
-
-	lang,
-
-	content_type,
-
-	artist,
-
-	album,
-
-	year,
-
-	track,
-
-	genre,
-
-	album_artist,
-
-	comment,
-
-	composer,
-
-	grouping,
-
-	name,
-
-	announce,
-
-	total_length,
-
-	file_length,
-
-	file_path,
-
-	info_hash;
-
+	public Integer getInteger() {
+		return integer;
+	}
 }
