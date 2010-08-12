@@ -160,7 +160,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		config.getUrlManager().getOldHostToFetch(fetchIntervalDate,
 				maxUrlPerSession, oldHostList);
 		currentStats.addOldHostListSize(oldHostList.size());
-		config.getUrlManager().getNewHostToFetch(maxUrlPerSession, newHostList);
+		config.getUrlManager().getNewHostToFetch(fetchIntervalDate,
+				maxUrlPerSession, newHostList);
 		currentStats.addNewHostListSize(newHostList.size());
 	}
 
@@ -220,7 +221,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 					.getOldUrlToFetch(host, fetchIntervalDate, count, urlList);
 		} else if (host.getList() == newHostList) {
 			hostUrlList.setListType(ListType.NEW_URL);
-			urlManager.getNewUrlToFetch(host, count, urlList);
+			urlManager
+					.getNewUrlToFetch(host, fetchIntervalDate, count, urlList);
 		}
 		setInfo(null);
 		return hostUrlList;

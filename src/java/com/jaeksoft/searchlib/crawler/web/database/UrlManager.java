@@ -249,16 +249,21 @@ public class UrlManager {
 		request.addFilter(query.toString());
 	}
 
-	private void filterQueryToFetchNew(SearchRequest request)
-			throws ParseException {
+	private void filterQueryToFetchNew(SearchRequest request,
+			Date fetchIntervalDate) throws ParseException {
 		StringBuffer query = new StringBuffer();
 		query.append("fetchStatus:");
 		query.append(FetchStatus.UN_FETCHED.value);
 		request.addFilter(query.toString());
+		query = new StringBuffer();
+		query.append("when:[");
+		query.append(UrlItem.getWhenDateFormat().format(fetchIntervalDate));
+		query.append(" TO 99999999999999]");
+		request.addFilter(query.toString());
 	}
 
 	// TODO : can be mutualised
-	public Date getPastDate(int fetchInterval, String intervalUnit) {
+	public Date getPastDate(long fetchInterval, String intervalUnit) {
 		long l;
 		if ("hours".equalsIgnoreCase(intervalUnit))
 			l = fetchInterval * 1000 * 3600;
@@ -335,14 +340,14 @@ public class UrlManager {
 		getFacetLimit(Field.HOST, searchRequest, limit, hostList);
 	}
 
-	public void getNewHostToFetch(int limit, List<NamedItem> hostList)
-			throws SearchLibException, ParseException, IOException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
+	public void getNewHostToFetch(Date fetchIntervalDate, int limit,
+			List<NamedItem> hostList) throws SearchLibException,
+			ParseException, IOException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		SearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setQueryString("*:*");
-		filterQueryToFetchNew(searchRequest);
+		filterQueryToFetchNew(searchRequest, fetchIntervalDate);
 		getFacetLimit(Field.HOST, searchRequest, limit, hostList);
 	}
 
@@ -390,9 +395,9 @@ public class UrlManager {
 		return new UrlItem(result.getDocument(0));
 	}
 
-	public void getNewUrlToFetch(NamedItem host, long limit,
-			List<UrlItem> urlList) throws SearchLibException, ParseException,
-			IOException, SyntaxError, URISyntaxException,
+	public void getNewUrlToFetch(NamedItem host, Date fetchIntervalDate,
+			long limit, List<UrlItem> urlList) throws SearchLibException,
+			ParseException, IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException,
 			InstantiationException, IllegalAccessException {
 		SearchRequest searchRequest = urlDbClient
@@ -400,7 +405,7 @@ public class UrlManager {
 		searchRequest.addFilter("host:\""
 				+ SearchRequest.escapeQuery(host.getName()) + "\"");
 		searchRequest.setQueryString("*:*");
-		filterQueryToFetchNew(searchRequest);
+		filterQueryToFetchNew(searchRequest, fetchIntervalDate);
 		searchRequest.setRows((int) limit);
 		Result result = urlDbClient.search(searchRequest);
 		for (ResultDocument item : result)
