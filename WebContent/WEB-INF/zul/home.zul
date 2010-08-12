@@ -78,7 +78,7 @@
 						align="right" />
 					<listheader width="100px" label="Size"
 						align="right" />
-					<listheader width="200px" align="center"  />
+					<listheader width="100px" align="center"  />
 				</listhead>
 				<listitem self="@{each='catalogitem'}">
 					<listcell label="@{catalogitem.indexName}" />

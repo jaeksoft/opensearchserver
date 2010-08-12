@@ -76,6 +76,22 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 	}
 
 	@Override
+	public String getStatusInfo() {
+		synchronized (threadMap) {
+			int l = threadMap.size();
+			switch (l) {
+			case 0:
+				return "Not running";
+			case 1:
+				return "1 process";
+			default:
+				return l + " processes";
+
+			}
+		}
+	}
+
+	@Override
 	public void remove(ThreadAbstract thread) {
 		super.remove(thread);
 		synchronized (threadMap) {
