@@ -91,6 +91,16 @@ public enum ParserFieldEnum {
 
 	comment, composer,
 
-	grouping;
+	grouping,
+
+	name,
+
+	announce,
+
+	totalLength,
+
+	lengths,
+
+	files;
 
 }

@@ -148,4 +148,14 @@
 			<link source="title" target="titleExact" />
 		</map>
 	</parser>
+		<parser name="Torrent parser" class="com.jaeksoft.searchlib.parser.TorrentParser"
+		sizeLimit="8388608">
+		<extension>torrent</extension>
+		<contentType>application/x-bittorrent</contentType>
+		<map>
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
+		</map>
+	</parser>
+	
 </parsers>
