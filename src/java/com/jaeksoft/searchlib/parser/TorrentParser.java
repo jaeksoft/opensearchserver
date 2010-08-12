@@ -36,7 +36,8 @@ public class TorrentParser extends Parser {
 			ParserFieldEnum.content_type, ParserFieldEnum.name,
 			ParserFieldEnum.announce, ParserFieldEnum.totalLength,
 			ParserFieldEnum.files, ParserFieldEnum.lengths,
-			ParserFieldEnum.infoHash };
+			ParserFieldEnum.infoHash, ParserFieldEnum.comment,
+			ParserFieldEnum.creation_date };
 
 	public TorrentParser() {
 		super(fl);
@@ -66,6 +67,11 @@ public class TorrentParser extends Parser {
 
 		addField(ParserFieldEnum.infoHash,
 				new String(Hex.encodeHex(meta.getInfoHash())));
+
+		addField(ParserFieldEnum.comment, meta.getComment());
+
+		addField(ParserFieldEnum.creation_date,
+				Integer.toString(meta.getCreationDate()));
 	}
 
 	@Override
