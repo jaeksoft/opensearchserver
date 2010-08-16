@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.analysis.tokenizer;
 
 public enum TokenizerEnum {
 
+	KeywordTokenizer("Emits the entire input as a single token"),
+
 	LetterOrDigitTokenizerFactory(
 			"This tokenizer considers each non-digit, non-letter character to be a separator between words"),
 
