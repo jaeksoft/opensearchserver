@@ -105,6 +105,8 @@ public enum ParserFieldEnum {
 
 	file_path,
 
-	info_hash;
+	info_hash,
+
+	info_hash_urlencoded;
 
 }

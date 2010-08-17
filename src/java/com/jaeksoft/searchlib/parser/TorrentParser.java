@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 
 import com.jaeksoft.searchlib.parser.torrent.MetaInfo;
@@ -63,7 +64,10 @@ public class TorrentParser extends Parser {
 		}
 
 		try {
-			addField(ParserFieldEnum.info_hash, meta.getInfoHash());
+			String infoHash = meta.getInfoHash();
+			addField(ParserFieldEnum.info_hash, infoHash);
+			addField(ParserFieldEnum.info_hash_urlencoded,
+					URLEncoder.encode(infoHash, "UTF-8"));
 		} catch (NoSuchAlgorithmException e) {
 			throw new IOException(e);
 		}
