@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.binary.Hex;
-
 import com.jaeksoft.searchlib.parser.LimitInputStream;
 
 public class MetaInfo {
@@ -129,13 +127,9 @@ public class MetaInfo {
 		return ((BList) v).getFilePath();
 	}
 
-	private byte[] getInfoHashBytes() throws NoSuchAlgorithmException {
+	public byte[] getInfoHash() throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA");
 		return digest.digest(infoDictionary.byteArray.toByteArray());
-	}
-
-	public String getInfoHash() throws NoSuchAlgorithmException {
-		return new String(Hex.encodeHex(getInfoHashBytes()));
 	}
 
 	public String getPieces() throws BException {
