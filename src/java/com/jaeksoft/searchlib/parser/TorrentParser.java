@@ -71,7 +71,7 @@ public class TorrentParser extends Parser {
 		addField(ParserFieldEnum.comment, meta.getComment());
 
 		addField(ParserFieldEnum.creation_date,
-				Integer.toString(meta.getCreationDate()));
+				Long.toString(meta.getCreationDate()));
 
 	}
 

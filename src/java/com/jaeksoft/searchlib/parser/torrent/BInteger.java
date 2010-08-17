@@ -29,7 +29,7 @@ import java.io.InputStream;
 
 public class BInteger extends BValue {
 
-	private Integer integer;
+	private Long integer;
 
 	public BInteger(InputStream input) throws IOException {
 		integer = null;
@@ -47,10 +47,10 @@ public class BInteger extends BValue {
 			integerString.append((char) i);
 		}
 		byteArray.write('e');
-		integer = Integer.parseInt(integerString.toString());
+		integer = Long.parseLong(integerString.toString());
 	}
 
-	public Integer getInteger() {
+	public Long getInteger() {
 		return integer;
 	}
 }

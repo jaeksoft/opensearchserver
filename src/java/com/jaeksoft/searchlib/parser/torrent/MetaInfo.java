@@ -55,7 +55,7 @@ public class MetaInfo {
 		filesList = (BList) v;
 	}
 
-	private int getInteger(BValue v) throws BException {
+	private long getInteger(BValue v) throws BException {
 		if (v == null || !(v instanceof BInteger))
 			throw new BException();
 		return ((BInteger) v).getInteger();
@@ -67,7 +67,7 @@ public class MetaInfo {
 		return ((BString) v).getString();
 	}
 
-	private int getOptionalInteger(BValue v) throws BException {
+	private long getOptionalInteger(BValue v) throws BException {
 		if (v == null || !(v instanceof BInteger))
 			return 0;
 		return ((BInteger) v).getInteger();
@@ -110,7 +110,7 @@ public class MetaInfo {
 		return filesList.size();
 	}
 
-	public int getFileLength(int index) throws BException {
+	public long getFileLength(int index) throws BException {
 		BDictionary fileDict = getFile(index);
 		if (fileDict == null)
 			throw new BException();
@@ -129,10 +129,13 @@ public class MetaInfo {
 		return ((BList) v).getFilePath();
 	}
 
-	public String getInfoHash() throws NoSuchAlgorithmException {
+	private byte[] getInfoHashBytes() throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA");
-		byte[] infoHash = digest.digest(infoDictionary.byteArray.toByteArray());
-		return new String(Hex.encodeHex(infoHash));
+		return digest.digest(infoDictionary.byteArray.toByteArray());
+	}
+
+	public String getInfoHash() throws NoSuchAlgorithmException {
+		return new String(Hex.encodeHex(getInfoHashBytes()));
 	}
 
 	public String getPieces() throws BException {
@@ -146,11 +149,11 @@ public class MetaInfo {
 		return pieces.substring(index * 20, (index + 1) * 20);
 	}
 
-	public int getLength() throws BException {
+	public long getLength() throws BException {
 		return getOptionalInteger(infoDictionary.get("length"));
 	}
 
-	public int getPieceLength() throws BException {
+	public long getPieceLength() throws BException {
 		return getInteger(infoDictionary.get("piece length"));
 	}
 
@@ -158,7 +161,7 @@ public class MetaInfo {
 		return getOptionalString(metaDictionary.get("comment"));
 	}
 
-	public int getCreationDate() throws BException {
+	public long getCreationDate() throws BException {
 		return getOptionalInteger(metaDictionary.get("creation date"));
 	}
 }
