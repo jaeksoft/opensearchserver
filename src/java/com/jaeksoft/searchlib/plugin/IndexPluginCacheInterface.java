@@ -27,10 +27,11 @@ package com.jaeksoft.searchlib.plugin;
 import java.io.InputStream;
 import java.io.Reader;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.index.IndexDocument;
 
 public interface IndexPluginCacheInterface extends IndexPluginInterface {
 
-	public boolean run(String contentType, InputStream inputStream,
-			Reader reader, IndexDocument indexDocument);
+	public boolean run(Client client, String contentType,
+			InputStream inputStream, Reader reader, IndexDocument indexDocument);
 }

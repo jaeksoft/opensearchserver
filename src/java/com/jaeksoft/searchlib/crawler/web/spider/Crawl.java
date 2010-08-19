@@ -35,6 +35,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -288,8 +289,8 @@ public class Crawl {
 					.getIndexPluginList();
 
 			if (indexPluginList != null) {
-				if (!indexPluginList.run(getContentType(), getInputStream(),
-						getReader(), targetIndexDocument)) {
+				if (!indexPluginList.run((Client) config, getContentType(),
+						getInputStream(), getReader(), targetIndexDocument)) {
 					urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
 					urlItem.populate(urlIndexDocument);
 				}

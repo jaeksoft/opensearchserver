@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -57,8 +58,9 @@ public class IndexPluginList {
 		}
 	}
 
-	public boolean run(String contentType, LimitInputStream inputStream,
-			LimitReader reader, IndexDocument indexDocument) {
+	public boolean run(Client client, String contentType,
+			LimitInputStream inputStream, LimitReader reader,
+			IndexDocument indexDocument) {
 		if (pluginList == null)
 			return true;
 		Iterator<IndexPluginInterface> it = pluginList.iterator();
@@ -74,7 +76,7 @@ public class IndexPluginList {
 				} catch (IOException e) {
 					Logging.logger.warn(e.getMessage(), e);
 				}
-				if (!cachePlugin.run(contentType, inputStream, reader,
+				if (!cachePlugin.run(client, contentType, inputStream, reader,
 						indexDocument))
 					return false;
 			} else if (!plugin.run(indexDocument))
