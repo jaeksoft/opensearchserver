@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -90,12 +91,14 @@ public class CrawlWebController extends CrawlerController {
 		return client.getWebCrawlMaster();
 	}
 
-	// TODO Publish / vs / plugin
-	/*
-	 * public boolean isPublish() { PublishIndexList publishList =
-	 * getClient().getPublishIndexList(); if (publishList == null) return false;
-	 * return publishList.size() > 0; }
-	 */
+	public List<String> getReplicationNameList() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		List<String> list = client.getReplicationList().getNameList();
+		list.add(0, "");
+		return list;
+	}
 
 	public boolean isRefresh() throws SearchLibException {
 		WebCrawlMaster webCrawlMaster = getWebCrawlMaster();

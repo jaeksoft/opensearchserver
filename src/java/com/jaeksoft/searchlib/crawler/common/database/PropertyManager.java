@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,8 +40,8 @@ public abstract class PropertyManager {
 	protected PropertyItem<Integer> indexDocumentBufferSize;
 	protected PropertyItem<Boolean> crawlEnabled;
 	protected PropertyItem<Boolean> optimizeAfterSession;
-	protected PropertyItem<Boolean> dryRun;
 	protected PropertyItem<Integer> maxThreadNumber;
+	protected PropertyItem<String> replicationItem;
 
 	protected PropertyManager(File file) throws IOException {
 		propFile = file;
@@ -64,7 +64,7 @@ public abstract class PropertyManager {
 		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 10);
 		crawlEnabled = newBooleanProperty("crawlEnabled", false);
 		optimizeAfterSession = newBooleanProperty("optimizeAfterSession", true);
-		dryRun = newBooleanProperty("dryRun", false);
+		replicationItem = newStringProperty("replicationItem", "");
 	}
 
 	protected void save() throws IOException {
@@ -129,8 +129,8 @@ public abstract class PropertyManager {
 		return optimizeAfterSession;
 	}
 
-	public PropertyItem<Boolean> getDryRun() {
-		return dryRun;
+	public PropertyItem<String> getReplicationItem() {
+		return replicationItem;
 	}
 
 	public PropertyItem<Integer> getIndexDocumentBufferSize() {

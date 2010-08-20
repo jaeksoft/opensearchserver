@@ -64,9 +64,9 @@ public class ItemDirectoryIterator extends ItemIterator {
 	@Override
 	protected ItemIterator nextImpl() {
 		if (files == null)
-			return null;
+			return parent;
 		if (currentPos >= files.length)
-			return null;
+			return parent;
 		File file = files[currentPos++];
 		return ItemIterator.create(this, file, withSubDir);
 	}

@@ -56,10 +56,18 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	private ReplicationMaster replicationMaster;
 
-	public ReplicationItem(ReplicationMaster replicationMaster) {
-		super(null);
+	public ReplicationItem(ReplicationMaster replicationMaster, String name) {
+		super(name);
 		this.replicationMaster = replicationMaster;
 		lastReplicationThread = null;
+	}
+
+	public ReplicationItem(ReplicationMaster replicationMaster) {
+		this(replicationMaster, null);
+	}
+
+	public ReplicationItem() {
+		this(null, null);
 	}
 
 	public ReplicationItem(ReplicationItem item) {
@@ -83,7 +91,11 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 	}
 
 	private void updateName() {
-		setName(getInstanceUrl().toExternalForm() + "/" + getIndexName());
+		String u = getInstanceUrl().toExternalForm();
+		if (!u.endsWith("/"))
+			u += '/';
+		u += getIndexName();
+		setName(u);
 	}
 
 	@Override

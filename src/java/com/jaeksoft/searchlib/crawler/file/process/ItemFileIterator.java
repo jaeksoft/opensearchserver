@@ -37,9 +37,7 @@ public class ItemFileIterator extends ItemIterator {
 
 	@Override
 	protected ItemIterator nextImpl() {
-		ItemIterator i = parent;
-		parent = null;
-		return i;
+		return parent;
 	}
 
 	@Override

@@ -36,7 +36,6 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
-import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 
 public class CrawlFileThread extends CrawlThreadAbstract {
@@ -52,9 +51,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 	@Override
 	public void runner() throws Exception {
-		Config config = getConfig();
-		FilePropertyManager propertyManager = config.getFilePropertyManager();
-		boolean dryRun = propertyManager.getDryRun().getValue();
 
 		CrawlFileMaster crawlMaster = (CrawlFileMaster) getThreadMaster();
 		FileCrawlQueue crawlQueue = (FileCrawlQueue) crawlMaster
@@ -67,22 +63,23 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		while ((file = crawlMaster.getNextFile()) != null) {
 
 			if (isAborted() || crawlMaster.isAborted())
-				return;
+				break;
+
+			setStatus(CrawlStatus.CRAWL);
 
 			currentFileItem = new FileItem(file);
 
-			CrawlFile crawl = crawl(dryRun);
+			CrawlFile crawl = crawl();
 			if (crawl != null)
-				if (!dryRun)
-					crawlQueue.add(currentStats, crawl);
-		}
-
-		setStatus(CrawlStatus.INDEXATION);
-		if (!dryRun)
+				crawlQueue.add(currentStats, crawl);
+			setStatus(CrawlStatus.INDEXATION);
 			crawlQueue.index(false);
+
+		}
+		crawlQueue.index(!crawlMaster.isRunning());
 	}
 
-	private CrawlFile crawl(boolean dryRun) throws SearchLibException {
+	private CrawlFile crawl() throws SearchLibException {
 
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
@@ -92,8 +89,6 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 		// Fetch started
 		currentStats.incFetchedCount();
-		if (dryRun)
-			return crawl;
 
 		crawl.download();
 

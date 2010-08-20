@@ -72,6 +72,19 @@
 							value="@{crawlProcess.properties.delayBetweenAccesses.value}" />
 
 					</row>
+					<row>
+						<label
+							value="At the end of the crawl session: " />
+						<checkbox label="Optimize"
+							visible="@{crawlProcess.webCrawlerParametersRights}"
+							disabled="@{crawlProcess.refresh}"
+							checked="@{crawlProcess.properties.optimizeAfterSession.value}" />
+						<label value="Execute the replication: " />
+						<listbox
+							model="@{crawlProcess.replicationNameList}"
+							selectedItem="@{crawlProcess.properties.replicationItem.value}"
+							mold="select" />
+					</row>
 				</rows>
 			</grid>
 		</panelchildren>
@@ -79,24 +92,8 @@
 	<separator />
 	<panel title="Current status" collapsible="false" border="normal">
 		<toolbar>
-			<textbox readonly="true"
+			<textbox readonly="true" cols="50"
 				value="@{crawlProcess.webCrawlMaster.statusInfo}" />
-			<space />
-			<checkbox label="Dry run" disabled="@{crawlProcess.refresh}"
-				visible="@{crawlProcess.webCrawlerParametersRights}"
-				checked="@{crawlProcess.properties.dryRun.value}" />
-			<space />
-			<!-- 
-				<checkbox
-				label="Publish index at the end of the crawl session"
-				disabled="@{crawlProcess.refresh}" visible="@{crawlProcess.publish}"
-				checked="@{crawlProcess.properties.publishAfterSession.value}" />
-				<space visible="@{crawlProcess.publish}" />
-			-->
-			<checkbox label="Optimize at the end of the crawl session"
-				visible="@{crawlProcess.webCrawlerParametersRights}"
-				disabled="@{crawlProcess.refresh}"
-				checked="@{crawlProcess.properties.optimizeAfterSession.value}" />
 			<space />
 			<button id="runButton"
 				visible="@{crawlProcess.webCrawlerStartStopRights}"

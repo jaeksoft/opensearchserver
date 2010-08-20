@@ -62,6 +62,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		rwl.r.lock();
 		try {
 			updateCrawlList.add(crawl);
+			crawlStats.incPendingUpdateCount();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -71,6 +72,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		rwl.r.lock();
 		try {
 			deleteUriList.add(uri);
+			crawlStats.incPendingDeleteCount();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -136,35 +138,38 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
 		FileManager fileManager = getConfig().getFileManager();
+		CrawlStatistics sessionStats = getSessionStats();
 		boolean needReload = false;
-		if (deleteCollection(workingDeleteUriList))
+		if (deleteCollection(workingDeleteUriList, sessionStats))
 			needReload = true;
-		if (updateCrawls(workingUpdateCrawlList))
+		if (updateCrawls(workingUpdateCrawlList, sessionStats))
 			needReload = true;
 		if (needReload)
 			fileManager.reload(false);
 	}
 
-	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList)
-			throws SearchLibException {
+	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList,
+			CrawlStatistics sessionStats) throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
 
 		FileManager manager = (FileManager) getConfig().getFileManager();
 		manager.updateCrawls(workUpdateCrawlList);
-		getSessionStats().addUpdatedCount(workUpdateCrawlList.size());
+		if (sessionStats != null)
+			sessionStats.addUpdatedCount(workUpdateCrawlList.size());
 		return true;
 	}
 
-	protected boolean deleteCollection(List<String> workDeleteUriList)
-			throws SearchLibException {
+	protected boolean deleteCollection(List<String> workDeleteUriList,
+			CrawlStatistics sessionStats) throws SearchLibException {
 		if (workDeleteUriList.size() == 0)
 			return false;
 
 		FileManager manager = (FileManager) getConfig().getFileManager();
 		int nbFilesDeleted = manager.deleteByFilename(workDeleteUriList) ? 1
 				: 0;
-		getSessionStats().addDeletedCount(nbFilesDeleted);
+		if (sessionStats != null)
+			sessionStats.addDeletedCount(nbFilesDeleted);
 		return true;
 	}
 

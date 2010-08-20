@@ -66,6 +66,8 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 		FilePropertyManager filePropertyManager = config
 				.getFilePropertyManager();
 
+		setStatus(CrawlStatus.CRAWL);
+
 		while (!isAborted()) {
 
 			currentStats = new CrawlStatistics();

@@ -85,10 +85,6 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	@Override
 	public void runner() throws Exception {
 
-		Config config = getConfig();
-		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		boolean dryRun = propertyManager.getDryRun().getValue();
-
 		List<UrlItem> urlList = hostUrlList.getUrlList();
 		currentStats.addListSize(urlList.size());
 
@@ -108,24 +104,20 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 
 			currentUrlItem = iterator.next();
 
-			currentCrawl = crawl(dryRun);
-			if (currentCrawl != null) {
-				if (!dryRun)
-					crawlQueue.add(currentStats, currentCrawl);
-			} else {
-				if (!dryRun)
-					crawlQueue.delete(currentStats, currentUrlItem.getUrl());
-			}
+			currentCrawl = crawl();
+			if (currentCrawl != null)
+				crawlQueue.add(currentStats, currentCrawl);
+			else
+				crawlQueue.delete(currentStats, currentUrlItem.getUrl());
 
 		}
 
 		setStatus(CrawlStatus.INDEXATION);
-		if (!dryRun)
-			crawlMaster.getCrawlQueue().index(!crawlMaster.isRunning());
+		crawlMaster.getCrawlQueue().index(!crawlMaster.isRunning());
 
 	}
 
-	private Crawl crawl(boolean dryRun) throws SearchLibException {
+	private Crawl crawl() throws SearchLibException {
 
 		Config config = getConfig();
 
@@ -162,8 +154,6 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 
 			// Fetch started
 			currentStats.incFetchedCount();
-			if (dryRun)
-				return crawl;
 
 			sleepInterval();
 			setStatus(CrawlStatus.CRAWL);

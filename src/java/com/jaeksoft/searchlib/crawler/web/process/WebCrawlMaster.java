@@ -35,6 +35,7 @@ import java.util.Random;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -51,6 +52,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.replication.ReplicationItem;
 
 public class WebCrawlMaster extends CrawlMasterAbstract {
 
@@ -130,15 +132,19 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
 				config.getUrlManager().reload(
 						propertyManager.getOptimizeAfterSession().getValue());
-				// TEMP publishIndexList disabled
-				/*
-				 * PublishIndexList publishIndexList = client
-				 * .getPublishIndexList(); if (publishIndexList != null &&
-				 * publishIndexList.size() > 0 &&
-				 * propertyManager.isPublishAfterSession()) {
-				 * setStatus(CrawlStatus.PUBLISH_INDEX);
-				 * publishIndexList.publish(); }
-				 */
+
+				String replicationItemName = propertyManager
+						.getReplicationItem().getValue();
+
+				if (replicationItemName != null
+						&& replicationItemName.length() > 0) {
+					setStatus(CrawlStatus.PUBLISH_INDEX);
+					ReplicationItem replicationItem = config
+							.getReplicationList().get(replicationItemName);
+					config.getReplicationMaster().execute((Client) config,
+							replicationItem, true);
+				}
+
 			}
 			sleepSec(5);
 		}

@@ -26,8 +26,10 @@ package com.jaeksoft.searchlib.replication;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -41,12 +43,12 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ReplicationList {
 
-	private Set<ReplicationItem> replicationSet;
+	private TreeSet<ReplicationItem> replicationSet;
 
 	public ReplicationList(ReplicationMaster replicationMaster, File file)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException {
-		replicationSet = new HashSet<ReplicationItem>();
+		replicationSet = new TreeSet<ReplicationItem>();
 		if (!file.exists())
 			return;
 		XPathParser xpp = new XPathParser(file);
@@ -66,6 +68,26 @@ public class ReplicationList {
 	public Set<ReplicationItem> getSet() {
 		synchronized (replicationSet) {
 			return replicationSet;
+		}
+	}
+
+	public List<String> getNameList() {
+		synchronized (replicationSet) {
+			List<String> list = new ArrayList<String>();
+			for (ReplicationItem item : replicationSet)
+				list.add(item.getName());
+			return list;
+		}
+	}
+
+	public ReplicationItem get(String replicationItemName) {
+		synchronized (replicationSet) {
+			ReplicationItem item = new ReplicationItem();
+			item.setName(replicationItemName);
+			ReplicationItem found = replicationSet.ceiling(item);
+			if (found.compareTo(item) != 0)
+				return null;
+			return found;
 		}
 	}
 
