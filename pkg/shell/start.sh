@@ -30,6 +30,10 @@ if [ ! -x "$EXECUTABLE" ]; then
     exit 1
 fi
 
+if [ -z "$CATALINA_OPTS" ]; then
+	CATALINA_OPTS="-Xms256m -Xmx2048m"
+fi
+
 OPENSEARCHSERVER_DATA=`pwd`/data
 export OPENSEARCHSERVER_DATA
 
