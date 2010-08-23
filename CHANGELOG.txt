@@ -52,6 +52,7 @@ New features:
 - 2900449: Upgrade PDFBox to 0.8
 
 Bug fixes:
+- 3051308: <base href= ""/> is not interpreted
 - 2881689: Requests.xml fails to rotate on some Windows platforms
 - 3019491: NullPointerException > at java.util.regex.Matcher
 - 3017481: The web crawler selects the host in alphabetical order

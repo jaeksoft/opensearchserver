@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -273,6 +274,16 @@ public class HtmlParser extends Parser {
 		return metas;
 	}
 
+	private static URL getBaseHref(Document doc) throws MalformedURLException {
+		String[] p = { "html", "head", "base" };
+		List<Node> list = DomUtils.getNodes(doc, p);
+		if (list == null)
+			return null;
+		if (list.size() == 0)
+			return null;
+		return new URL(DomUtils.getAttributeText(list.get(0), "href"));
+	}
+
 	private static String getMetaContent(Node node) {
 		String content = DomUtils.getAttributeText(node, "content");
 		if (content == null)
@@ -473,8 +484,10 @@ public class HtmlParser extends Parser {
 
 		List<Node> nodes = DomUtils.getAllNodes(doc, "a");
 		if (nodes != null && metaRobotsFollow) {
-			URL currentURL = new URL(getSourceDocument().getFieldValue(
-					UrlItemFieldEnum.url.name(), 0));
+			URL currentURL = getBaseHref(doc);
+			if (currentURL == null)
+				currentURL = new URL(getSourceDocument().getFieldValue(
+						UrlItemFieldEnum.url.name(), 0));
 			for (Node node : nodes) {
 				String href = DomUtils.getAttributeText(node, "href");
 				String rel = DomUtils.getAttributeText(node, "rel");
