@@ -26,9 +26,7 @@ if "%OS%" == "Windows_NT" setlocal
 
 set EXECUTABLE=%cd%\apache-tomcat-6.0.26\bin\startup.bat
 
-if not "%CATALINA_OPTS%" == "" goto okCatalinaOpts
-set CATALINA_OPTS=-Xmx256m -Xms2048m
-:okCatalinaOpts
+if not defined %CATALINA_OPTS% set CATALINA_OPTS="-Xms256m -Xmx2048m"
 
 if exist "%EXECUTABLE%" goto okExec
 echo Cannot find %EXECUTABLE%

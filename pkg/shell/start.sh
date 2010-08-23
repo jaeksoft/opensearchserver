@@ -32,6 +32,7 @@ fi
 
 if [ -z "$CATALINA_OPTS" ]; then
 	CATALINA_OPTS="-Xms256m -Xmx2048m"
+	export CATALINA_OPTS
 fi
 
 OPENSEARCHSERVER_DATA=`pwd`/data
