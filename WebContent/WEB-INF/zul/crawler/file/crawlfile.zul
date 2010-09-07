@@ -48,17 +48,6 @@
 			<textbox readonly="true"
 				value="@{crawlFileProcess.fileCrawlMaster.statusInfo}" />
 			<space />
-			<checkbox label="Dry run"
-				disabled="@{crawlFileProcess.refresh}"
-				checked="@{crawlFileProcess.properties.dryRun.value}" />
-			<space />
-			<!-- 
-				<checkbox
-				label="Publish index at the end of the crawl session"
-				disabled="@{crawlFileProcess.refresh}" visible="@{crawlFileProcess.publish}"
-				checked="@{crawlFileProcess.properties.publishAfterSession.value}" />
-				<space visible="@{crawlFileProcess.publish}" />
-			-->
 			<checkbox label="Optimize at the end of the crawl session"
 				disabled="@{crawlFileProcess.refresh}"
 				checked="@{crawlFileProcess.properties.optimizeAfterSession.value}" />
