@@ -102,10 +102,10 @@ public class HttpDownloader {
 		}
 	}
 
-	public void get(String url) throws IOException {
+	public void get(URI uri) throws IOException {
 		synchronized (this) {
 			reset();
-			httpGet = new HttpGet(url);
+			httpGet = new HttpGet(uri);
 			httpContext = new BasicHttpContext();
 			httpResponse = httpClient.execute(httpGet, httpContext);
 			if (httpResponse != null) {

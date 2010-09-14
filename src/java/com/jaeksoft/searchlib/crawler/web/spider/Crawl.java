@@ -144,7 +144,7 @@ public class Crawl {
 		synchronized (this) {
 			InputStream is = null;
 			try {
-				httpDownloader.get(urlItem.getCheckedURI().toASCIIString());
+				httpDownloader.get(urlItem.getCheckedURI());
 
 				String contentDispositionFilename = httpDownloader
 						.getContentDispositionFilename();
