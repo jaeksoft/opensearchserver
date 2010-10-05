@@ -77,6 +77,7 @@ public class RobotsTxt {
 		if (code == null)
 			return RobotsTxtStatus.ERROR;
 		switch (code) {
+		case 400:
 		case 404:
 			return RobotsTxtStatus.NO_ROBOTSTXT;
 		case 200:
