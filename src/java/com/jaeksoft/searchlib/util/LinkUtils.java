@@ -38,8 +38,10 @@ public class LinkUtils {
 		newUri.append(url.getProtocol());
 		newUri.append("://");
 		newUri.append(url.getHost());
-		if (url.getPort() != -1)
+		if (url.getPort() != -1) {
+			newUri.append(":");
 			newUri.append(url.getPort());
+		}
 		if (newPath != null && newPath.length() > 0) {
 			if (newPath.charAt(0) != '/')
 				newUri.append('/');
