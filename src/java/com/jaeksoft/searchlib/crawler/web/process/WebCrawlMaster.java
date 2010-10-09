@@ -49,7 +49,7 @@ import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
@@ -158,16 +158,16 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			IllegalAccessException {
 		Config config = getConfig();
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
-		UrlManager urlManager = config.getUrlManager();
+		UrlManagerAbstract urlManager = config.getUrlManager();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		fetchIntervalDate = urlManager.getPastDate(propertyManager
 				.getFetchInterval().getValue(), propertyManager
 				.getFetchIntervalUnit().getValue());
-		config.getUrlManager().getOldHostToFetch(fetchIntervalDate,
-				maxUrlPerSession, oldHostList);
+		urlManager.getOldHostToFetch(fetchIntervalDate, maxUrlPerSession,
+				oldHostList);
 		currentStats.addOldHostListSize(oldHostList.size());
-		config.getUrlManager().getNewHostToFetch(fetchIntervalDate,
-				maxUrlPerSession, newHostList);
+		urlManager.getNewHostToFetch(fetchIntervalDate, maxUrlPerSession,
+				newHostList);
 		currentStats.addNewHostListSize(newHostList.size());
 	}
 
@@ -217,7 +217,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 		setStatus(CrawlStatus.EXTRACTING_URLLIST);
 		setInfo(host.getName());
-		UrlManager urlManager = getConfig().getUrlManager();
+		UrlManagerAbstract urlManager = getConfig().getUrlManager();
 
 		List<UrlItem> urlList = new ArrayList<UrlItem>();
 		HostUrlList hostUrlList = new HostUrlList(urlList, host);

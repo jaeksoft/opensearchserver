@@ -64,6 +64,7 @@ import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
@@ -110,7 +111,7 @@ public abstract class Config {
 
 	private ParserSelector parserSelector = null;
 
-	private UrlManager urlManager = null;
+	private UrlManagerAbstract urlManager = null;
 
 	private PatternManager inclusionPatternManager = null;
 
@@ -716,7 +717,7 @@ public abstract class Config {
 		}
 	}
 
-	public UrlManager getUrlManager() throws SearchLibException {
+	public UrlManagerAbstract getUrlManager() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (urlManager != null)

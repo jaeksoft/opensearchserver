@@ -61,7 +61,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 
-public class UrlManager {
+public class UrlManager extends UrlManagerAbstract {
 
 	public enum SearchTemplate {
 		urlSearch, urlExport;
@@ -133,10 +133,12 @@ public class UrlManager {
 		targetClient = client;
 	}
 
+	@Override
 	public Client getUrlDbClient() {
 		return urlDbClient;
 	}
 
+	@Override
 	public void injectPrefix(List<PatternItem> patternList)
 			throws SearchLibException {
 		Iterator<PatternItem> it = patternList.iterator();
@@ -174,6 +176,7 @@ public class UrlManager {
 		}
 	}
 
+	@Override
 	public void deleteUrls(Collection<String> workDeleteUrlList)
 			throws SearchLibException {
 		try {
@@ -196,6 +199,7 @@ public class UrlManager {
 		}
 	}
 
+	@Override
 	public boolean exists(String sUrl) throws SearchLibException {
 		SearchRequest request = getUrlSearchRequest();
 		request.setQueryString("url:\"" + sUrl + '"');
@@ -262,24 +266,8 @@ public class UrlManager {
 		request.addFilter(query.toString());
 	}
 
-	// TODO : can be mutualised
-	public Date getPastDate(long fetchInterval, String intervalUnit) {
-		long l;
-		if ("hours".equalsIgnoreCase(intervalUnit))
-			l = fetchInterval * 1000 * 3600;
-		else if ("minutes".equalsIgnoreCase(intervalUnit))
-			l = fetchInterval * 1000 * 60;
-		else
-			// Default is days
-			l = fetchInterval * 1000 * 86400;
-		return new Date(System.currentTimeMillis() - l);
-	}
-
 	private void getFacetLimit(Field field, SearchRequest searchRequest,
-			int limit, List<NamedItem> list) throws IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException {
+			int limit, List<NamedItem> list) throws SearchLibException {
 		Result result = urlDbClient.search(searchRequest);
 		Facet facet = result.getFacetList().getByField(field.name);
 		for (FacetItem facetItem : facet) {
@@ -329,25 +317,29 @@ public class UrlManager {
 		return searchRequest;
 	}
 
+	@Override
 	public void getOldHostToFetch(Date fetchIntervalDate, int limit,
-			List<NamedItem> hostList) throws SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+			List<NamedItem> hostList) throws SearchLibException {
 		SearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setQueryString("*:*");
-		filterQueryToFetchOld(searchRequest, fetchIntervalDate);
+		try {
+			filterQueryToFetchOld(searchRequest, fetchIntervalDate);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		}
 		getFacetLimit(Field.HOST, searchRequest, limit, hostList);
 	}
 
+	@Override
 	public void getNewHostToFetch(Date fetchIntervalDate, int limit,
-			List<NamedItem> hostList) throws SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+			List<NamedItem> hostList) throws SearchLibException {
 		SearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setQueryString("*:*");
-		filterQueryToFetchNew(searchRequest, fetchIntervalDate);
+		try {
+			filterQueryToFetchNew(searchRequest, fetchIntervalDate);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		}
 		getFacetLimit(Field.HOST, searchRequest, limit, hostList);
 	}
 
@@ -364,54 +356,62 @@ public class UrlManager {
 		getFacetLimit(field, searchRequest, limit, list);
 	}
 
+	@Override
 	public void getOldUrlToFetch(NamedItem host, Date fetchIntervalDate,
-			long limit, List<UrlItem> urlList) throws SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+			long limit, List<UrlItem> urlList) throws SearchLibException {
 		SearchRequest searchRequest = urlDbClient
 				.getNewSearchRequest("urlSearch");
-		searchRequest.addFilter("host:\""
-				+ SearchRequest.escapeQuery(host.getName()) + "\"");
-		searchRequest.setQueryString("*:*");
-		filterQueryToFetchOld(searchRequest, fetchIntervalDate);
+		try {
+			searchRequest.addFilter("host:\""
+					+ SearchRequest.escapeQuery(host.getName()) + "\"");
+			searchRequest.setQueryString("*:*");
+			filterQueryToFetchOld(searchRequest, fetchIntervalDate);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		}
 		searchRequest.setRows((int) limit);
 		Result result = urlDbClient.search(searchRequest);
 		for (ResultDocument item : result)
 			urlList.add(new UrlItem(item));
 	}
 
-	public UrlItem getUrlToFetch(URL url) throws SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	@Override
+	public UrlItem getUrlToFetch(URL url) throws SearchLibException {
 		SearchRequest searchRequest = urlDbClient
 				.getNewSearchRequest("urlSearch");
-		searchRequest.addFilter("url:\"" + url.toExternalForm() + "\"");
+		try {
+			searchRequest.addFilter("url:\"" + url.toExternalForm() + "\"");
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		}
 		searchRequest.setQueryString("*:*");
 		Result result = urlDbClient.search(searchRequest);
 		if (result.getDocumentCount() == 0)
 			return null;
 		return new UrlItem(result.getDocument(0));
+
 	}
 
+	@Override
 	public void getNewUrlToFetch(NamedItem host, Date fetchIntervalDate,
-			long limit, List<UrlItem> urlList) throws SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+			long limit, List<UrlItem> urlList) throws SearchLibException {
 		SearchRequest searchRequest = urlDbClient
 				.getNewSearchRequest("urlSearch");
-		searchRequest.addFilter("host:\""
-				+ SearchRequest.escapeQuery(host.getName()) + "\"");
-		searchRequest.setQueryString("*:*");
-		filterQueryToFetchNew(searchRequest, fetchIntervalDate);
+		try {
+			searchRequest.addFilter("host:\""
+					+ SearchRequest.escapeQuery(host.getName()) + "\"");
+			searchRequest.setQueryString("*:*");
+			filterQueryToFetchNew(searchRequest, fetchIntervalDate);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		}
 		searchRequest.setRows((int) limit);
 		Result result = urlDbClient.search(searchRequest);
 		for (ResultDocument item : result)
 			urlList.add(new UrlItem(item));
 	}
 
+	@Override
 	public SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
 			String like, String host, boolean includingSubDomain, String lang,
 			String langMethod, String contentBaseType,
@@ -531,6 +531,7 @@ public class UrlManager {
 		}
 	}
 
+	@Override
 	public long getUrls(SearchRequest searchRequest, Field orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException {
@@ -549,9 +550,8 @@ public class UrlManager {
 		}
 	}
 
-	public void reload(boolean optimize) throws IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
+	@Override
+	public void reload(boolean optimize) throws SearchLibException {
 		if (optimize) {
 			urlDbClient.reload();
 			urlDbClient.getIndex().optimize();
@@ -633,6 +633,7 @@ public class UrlManager {
 		}
 	}
 
+	@Override
 	public void updateUrlItems(List<UrlItem> urlItems)
 			throws SearchLibException {
 		try {

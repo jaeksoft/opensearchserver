@@ -30,12 +30,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Iterator;
 
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
-
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 import com.jaeksoft.searchlib.util.Debug;
@@ -100,8 +96,7 @@ public abstract class Result implements Externalizable,
 		this.resultDocuments = resultDocuments;
 	}
 
-	public ResultDocument getDocument(int pos) throws CorruptIndexException,
-			IOException, ParseException, SyntaxError {
+	public ResultDocument getDocument(int pos) {
 		if (pos < searchRequest.getStart())
 			return null;
 		if (pos >= searchRequest.getEnd())

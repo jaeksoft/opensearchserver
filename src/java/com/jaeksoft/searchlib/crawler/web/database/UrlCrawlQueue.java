@@ -158,7 +158,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	protected void indexWork() throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		UrlManager urlManager = getConfig().getUrlManager();
+		UrlManagerAbstract urlManager = getConfig().getUrlManager();
 		boolean needReload = false;
 		CrawlStatistics sessionStats = getSessionStats();
 		if (deleteCollection(workingDeleteUrlList, sessionStats))
@@ -175,7 +175,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			CrawlStatistics sessionStats) throws SearchLibException {
 		if (workDeleteUrlList.size() == 0)
 			return false;
-		UrlManager urlManager = getConfig().getUrlManager();
+		UrlManagerAbstract urlManager = getConfig().getUrlManager();
 		urlManager.deleteUrls(workDeleteUrlList);
 		if (sessionStats != null)
 			sessionStats.addDeletedCount(workDeleteUrlList.size());
@@ -197,7 +197,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			CrawlStatistics sessionStats) throws SearchLibException {
 		if (workInsertUrlList.size() == 0)
 			return false;
-		UrlManager urlManager = getConfig().getUrlManager();
+		UrlManagerAbstract urlManager = getConfig().getUrlManager();
 		urlManager.updateUrlItems(workInsertUrlList);
 		if (sessionStats != null)
 			sessionStats.addNewUrlCount(workInsertUrlList.size());

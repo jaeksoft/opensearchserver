@@ -44,8 +44,8 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
@@ -355,8 +355,8 @@ public class UrlController extends CommonController implements AfterCompose {
 	}
 
 	private long getUrlList(SearchTemplate urlSearchTemplate,
-			UrlManager urlManager, int start, int rows, List<UrlItem> urlList)
-			throws SearchLibException {
+			UrlManagerAbstract urlManager, int start, int rows,
+			List<UrlItem> urlList) throws SearchLibException {
 		SearchRequest searchRequest = urlManager.urlQuery(urlSearchTemplate,
 				getLike(), getHost(), isWithSubDomain(), getLang(),
 				getLangMethod(), getContentBaseType(), getContentTypeCharset(),

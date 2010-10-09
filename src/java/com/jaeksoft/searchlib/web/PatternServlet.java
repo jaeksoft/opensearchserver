@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
@@ -83,8 +83,8 @@ public class PatternServlet extends AbstractServlet {
 	}
 
 	private void doPatternList(List<PatternItem> patternList,
-			UrlManager urlManager, PrintWriter writer, boolean bExclusion)
-			throws SearchLibException {
+			UrlManagerAbstract urlManager, PrintWriter writer,
+			boolean bExclusion) throws SearchLibException {
 		if (patternList == null)
 			return;
 		for (PatternItem item : patternList) {
@@ -121,7 +121,7 @@ public class PatternServlet extends AbstractServlet {
 			PatternManager patternManager = bExclusion ? client
 					.getExclusionPatternManager() : client
 					.getInclusionPatternManager();
-			UrlManager urlManager = client.getUrlManager();
+			UrlManagerAbstract urlManager = client.getUrlManager();
 
 			PrintWriter writer = transaction.getWriter("utf-8");
 			String contentType = transaction.getServletResponse()
@@ -131,13 +131,13 @@ public class PatternServlet extends AbstractServlet {
 			if (contentType != null
 					&& contentType
 							.startsWith("application/x-www-form-urlencoded"))
-				patternList = inject(patternManager, request
-						.getParameter("inject"), bDeleteAll);
+				patternList = inject(patternManager,
+						request.getParameter("inject"), bDeleteAll);
 			else if ((method == Method.PUT || method == Method.POST)
 					&& (contentType == null || contentType
 							.startsWith("text/plain")))
-				patternList = inject(patternManager, transaction
-						.getInputStream(), writer, bDeleteAll);
+				patternList = inject(patternManager,
+						transaction.getInputStream(), writer, bDeleteAll);
 			doPatternList(patternList, urlManager, writer, bExclusion);
 		} catch (Exception e) {
 			throw new ServletException(e);
