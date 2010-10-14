@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.update;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +40,6 @@ import org.zkoss.zk.ui.event.UploadEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
 public class UploadXmlController extends CommonController {
 
@@ -75,13 +75,11 @@ public class UploadXmlController extends CommonController {
 				if (media.isBinary()) {
 					byte[] bytes = media.getByteData();
 					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(new ByteInputStream(bytes,
-									bytes.length)));
+							new InputSource(new ByteArrayInputStream(bytes)));
 				} else {
 					byte[] bytes = media.getStringData().getBytes();
 					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(new ByteInputStream(bytes,
-									bytes.length)));
+							new InputSource(new ByteArrayInputStream(bytes)));
 				}
 			} else {
 				if (media.isBinary())
