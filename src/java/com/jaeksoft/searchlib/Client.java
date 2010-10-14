@@ -115,15 +115,6 @@ public class Client extends Config {
 		return updateXmlDocuments(xpp);
 	}
 
-	public int updateXmlDocuments(String xmlString) throws SAXException,
-			IOException, ParserConfigurationException,
-			XPathExpressionException, NoSuchAlgorithmException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-		XPathParser xpp = new XPathParser(xmlString);
-		return updateXmlDocuments(xpp);
-	}
-
 	public boolean deleteDocument(String uniqueField)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException, URISyntaxException, SearchLibException,

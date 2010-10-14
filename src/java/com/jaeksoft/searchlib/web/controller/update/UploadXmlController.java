@@ -39,6 +39,7 @@ import org.zkoss.zk.ui.event.UploadEvent;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
 public class UploadXmlController extends CommonController {
 
@@ -71,12 +72,17 @@ public class UploadXmlController extends CommonController {
 			ClassNotFoundException {
 		synchronized (this) {
 			if (media.inMemory()) {
-				if (media.isBinary())
+				if (media.isBinary()) {
+					byte[] bytes = media.getByteData();
 					updatedCount += getClient().updateXmlDocuments(
-							new String(media.getByteData()));
-				else
+							new InputSource(new ByteInputStream(bytes,
+									bytes.length)));
+				} else {
+					byte[] bytes = media.getStringData().getBytes();
 					updatedCount += getClient().updateXmlDocuments(
-							media.getStringData());
+							new InputSource(new ByteInputStream(bytes,
+									bytes.length)));
+				}
 			} else {
 				if (media.isBinary())
 					updatedCount += getClient().updateXmlDocuments(

@@ -195,9 +195,9 @@ public class WriterLocal extends WriterAbstract {
 		Field uniqueField = schema.getFieldList().getUniqueField();
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
-			indexWriter.updateDocument(
-					new Term(uniqueFieldName, doc.get(uniqueFieldName)), doc,
-					pfa);
+			String uniqueFieldValue = doc.get(uniqueFieldName);
+			indexWriter.updateDocument(new Term(uniqueFieldName,
+					uniqueFieldValue), doc, pfa);
 		} else
 			indexWriter.addDocument(doc, pfa);
 		return true;
