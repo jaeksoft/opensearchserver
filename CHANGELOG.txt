@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3087916: Upgrade to PDFBox 1.2
 - 3043692: Torrent Parser
 - 3042488: Audio parser
 - 2882260: Add a parser for text/plain
