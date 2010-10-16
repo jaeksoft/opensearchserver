@@ -34,6 +34,9 @@ http://lucene.apache.org
 Apache log4j
 http://logging.apache.org/log4j
 
+Apache PDFBox
+http://pdfbox.apache.org
+
 Apache POI
 http://poi.apache.org/
 
@@ -79,11 +82,6 @@ Rely on LICENCE-HTMLCLEANER
 ----------------------------------------
 Textcat by Knallgrau New Media Solutions
 http://sourceforge.net/projects/textcat/
-
-----------------------------------------
-Pdfbox by PDFBox.org
-http://www.pdfbox.org
-Licensed under the BSD License
 
 ----------------------------------------
 Bouncy Castle encryption libraries.
