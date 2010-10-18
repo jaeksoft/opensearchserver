@@ -35,7 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpException;
@@ -124,7 +123,8 @@ public class UrlManager extends UrlManagerAbstract {
 
 	private Client targetClient;
 
-	public UrlManager(Client client, File dataDir) throws SearchLibException,
+	@Override
+	public void init(Client client, File dataDir) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
 		dataDir = new File(dataDir, "web_crawler_url");
 		if (!dataDir.exists())
@@ -136,19 +136,6 @@ public class UrlManager extends UrlManagerAbstract {
 	@Override
 	public Client getUrlDbClient() {
 		return urlDbClient;
-	}
-
-	@Override
-	public void injectPrefix(List<PatternItem> patternList)
-			throws SearchLibException {
-		Iterator<PatternItem> it = patternList.iterator();
-		List<InjectUrlItem> urlList = new ArrayList<InjectUrlItem>();
-		while (it.hasNext()) {
-			PatternItem item = it.next();
-			if (item.getStatus() == PatternItem.Status.INJECTED)
-				urlList.add(new InjectUrlItem(item));
-		}
-		inject(urlList);
 	}
 
 	public void deleteUrl(String sUrl) throws SearchLibException {
@@ -206,6 +193,7 @@ public class UrlManager extends UrlManagerAbstract {
 		return (getUrls(request, null, false, 0, 0, null) > 0);
 	}
 
+	@Override
 	public void inject(List<InjectUrlItem> list) throws SearchLibException {
 		synchronized (this) {
 			try {

@@ -63,7 +63,6 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
@@ -163,6 +162,8 @@ public abstract class Config {
 
 	private ConfigFiles configFiles = null;
 
+	private String urlManagerClass = null;
+
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
@@ -186,6 +187,11 @@ public abstract class Config {
 					xppConfig.getNode("/configuration/schema"), xppConfig);
 
 			configFiles = new ConfigFiles();
+
+			urlManagerClass = xppConfig.getAttributeString(
+					"/configuration/urlManager", "class");
+			if (urlManagerClass == null)
+				urlManagerClass = "UrlManager";
 
 			if (disableCrawler) {
 				getFilePropertyManager().getCrawlEnabled().setValue(false);
@@ -729,10 +735,20 @@ public abstract class Config {
 		try {
 			if (urlManager != null)
 				return urlManager;
-			return urlManager = new UrlManager((Client) this, indexDir);
+			UrlManagerAbstract ua = (UrlManagerAbstract) Class.forName(
+					"com.jaeksoft.searchlib.crawler.web.database."
+							+ urlManagerClass).newInstance();
+			ua.init((Client) this, indexDir);
+			return urlManager = ua;
 		} catch (FileNotFoundException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();

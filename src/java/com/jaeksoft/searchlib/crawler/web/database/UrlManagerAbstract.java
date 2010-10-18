@@ -24,9 +24,14 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
@@ -39,6 +44,10 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public abstract class UrlManagerAbstract {
+
+	public abstract void init(Client client, File dataDir)
+			throws SearchLibException, URISyntaxException,
+			FileNotFoundException;
 
 	public abstract void reload(boolean optimize) throws SearchLibException;
 
@@ -66,6 +75,9 @@ public abstract class UrlManagerAbstract {
 
 	public abstract Client getUrlDbClient();
 
+	public abstract void inject(List<InjectUrlItem> list)
+			throws SearchLibException;
+
 	public abstract SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
 			String like, String host, boolean includingSubDomain, String lang,
 			String langMethod, String contentBaseType,
@@ -80,8 +92,17 @@ public abstract class UrlManagerAbstract {
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException;
 
-	public abstract void injectPrefix(List<PatternItem> patternList)
-			throws SearchLibException;
+	public void injectPrefix(List<PatternItem> patternList)
+			throws SearchLibException {
+		Iterator<PatternItem> it = patternList.iterator();
+		List<InjectUrlItem> urlList = new ArrayList<InjectUrlItem>();
+		while (it.hasNext()) {
+			PatternItem item = it.next();
+			if (item.getStatus() == PatternItem.Status.INJECTED)
+				urlList.add(new InjectUrlItem(item));
+		}
+		inject(urlList);
+	}
 
 	public abstract boolean exists(String sUrl) throws SearchLibException;
 

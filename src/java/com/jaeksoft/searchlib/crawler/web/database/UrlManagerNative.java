@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
@@ -39,6 +42,13 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class UrlManagerNative extends UrlManagerAbstract {
+
+	@Override
+	public void init(Client client, File dataDir) throws SearchLibException,
+			URISyntaxException, FileNotFoundException {
+		// TODO Auto-generated method stub
+
+	}
 
 	@Override
 	public void reload(boolean optimize) throws SearchLibException {
@@ -123,16 +133,15 @@ public class UrlManagerNative extends UrlManagerAbstract {
 	}
 
 	@Override
-	public void injectPrefix(List<PatternItem> patternList)
-			throws SearchLibException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public boolean exists(String sUrl) throws SearchLibException {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void inject(List<InjectUrlItem> list) throws SearchLibException {
+		// TODO Auto-generated method stub
+
 	}
 
 }
