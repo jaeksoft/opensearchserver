@@ -36,10 +36,12 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class StatisticsAbstract {
 
@@ -145,6 +147,14 @@ public abstract class StatisticsAbstract {
 		else
 			throw new XPathExpressionException(
 					"Wrong periode name. Should be day, hour, or minute.");
+	}
+
+	final protected void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("statistic", "type", type.name(), "period", this
+				.getPeriod().name(), "maxRetention", Integer
+				.toString(maxRetention), "writeToLog", writeToLog ? "yes"
+				: "no");
+		writer.endElement();
 	}
 
 	private File getStatFile(File statDir) {

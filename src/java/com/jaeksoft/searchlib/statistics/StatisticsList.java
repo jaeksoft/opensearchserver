@@ -34,9 +34,11 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class StatisticsList {
 
@@ -151,6 +153,26 @@ public class StatisticsList {
 			stats.add(StatisticsAbstract.fromXmlConfig(xpp, nodes.item(i),
 					statDir));
 		return stats;
+	}
+
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("statistics");
+		if (searchList != null)
+			for (StatisticsAbstract stat : searchList)
+				stat.writeXmlConfig(writer);
+		if (updateList != null)
+			for (StatisticsAbstract stat : updateList)
+				stat.writeXmlConfig(writer);
+		if (deleteList != null)
+			for (StatisticsAbstract stat : deleteList)
+				stat.writeXmlConfig(writer);
+		if (optimizeList != null)
+			for (StatisticsAbstract stat : optimizeList)
+				stat.writeXmlConfig(writer);
+		if (reloadList != null)
+			for (StatisticsAbstract stat : reloadList)
+				stat.writeXmlConfig(writer);
+		writer.endElement();
 	}
 
 	private void writeStatList(File statDir, List<StatisticsAbstract> list)
