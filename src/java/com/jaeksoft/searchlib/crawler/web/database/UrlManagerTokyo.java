@@ -41,6 +41,7 @@ import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
+import tokyocabinet.BDB;
 import tokyocabinet.TDB;
 
 import com.jaeksoft.searchlib.Client;
@@ -55,12 +56,32 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class UrlManagerTokyo extends UrlManagerAbstract {
 
-	public TDB tdb;
+	public BDB dbSequence;
+	public BDB dbUrlPrimaryKey;
+	public BDB dbWhen, dbCcontentBaseType, dbCcontentTypeCharset,
+			dbContentEncoding, dbContentLength, dbLang, dbLangMethod,
+			dbRobotsTxtStatus, dbFetchStatus, dbResponseCode, dbParserStatus,
+			dbIndexStatus, dbHost, dbSubhost;
 
 	private Client targetClient;
 
 	public UrlManagerTokyo() {
-		tdb = new TDB();
+		dbSequence = null;
+		dbUrlPrimaryKey = null;
+		dbWhen = null;
+		dbCcontentBaseType = null;
+		dbCcontentTypeCharset = null;
+		dbContentEncoding = null;
+		dbContentLength = null;
+		dbLang = null;
+		dbLangMethod = null;
+		dbRobotsTxtStatus = null;
+		dbFetchStatus = null;
+		dbResponseCode = null;
+		dbParserStatus = null;
+		dbIndexStatus = null;
+		dbHost = null;
+		dbSubhost = null;
 	}
 
 	@Override
@@ -206,7 +227,7 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			for (UrlItem urlItem : urlItems) {
 				if (urlItem == null)
 					continue;
-				dbOpen();
+				// dbOpen();
 
 				Map<String, String> cols = new HashMap<String, String>();
 				cols.put("url", urlItem.getUrl());
@@ -224,10 +245,11 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 				cols.put("fetchStatus", urlItem.getFetchStatus().name());
 				cols.put("indexStatus", urlItem.getIndexStatus().name());
 
-				if (!tdb.put(urlItem.getUrl(), cols)) {
-					int ecode = tdb.ecode();
-					System.err.println("put error: " + TDB.errmsg(ecode));
-				}
+				/*
+				 * if (!tdb.put(urlItem.getUrl(), cols)) { int ecode =
+				 * tdb.ecode(); System.err.println("put error: " +
+				 * TDB.errmsg(ecode)); }
+				 */
 
 			}
 
@@ -238,18 +260,95 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		}
 	}
 
-	public void dbOpen() {
-		if (!tdb.open("urls.oss", TDB.OWRITER | TDB.OCREAT)) {
-			int ecode = tdb.ecode();
-			System.err.println("open error: " + TDB.errmsg(ecode));
-		}
+	private void dbOpenForWrite() {
+		/*
+		 * if (!tdb.open("urls.oss", TDB.OWRITER | TDB.OCREAT)) { int ecode =
+		 * tdb.ecode(); System.err.println("open error: " + TDB.errmsg(ecode));
+		 * }
+		 */
 	}
 
-	public void dbClose() {
-		if (!tdb.close()) {
-			int ecode = tdb.ecode();
-			System.err.println("close error: " + TDB.errmsg(ecode));
-		}
+	private void dbClose() throws SearchLibException {
+		if (dbSequence != null && !dbSequence.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbSequence.ecode()));
+		else
+			dbSequence = null;
+		if (dbUrlPrimaryKey != null && !dbUrlPrimaryKey.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbUrlPrimaryKey.ecode()));
+		else
+			dbUrlPrimaryKey = null;
+		if (dbWhen != null && !dbWhen.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbWhen.ecode()));
+		else
+			dbWhen = null;
+		if (dbCcontentBaseType != null && !dbCcontentBaseType.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbCcontentBaseType.ecode()));
+		else
+			dbCcontentBaseType = null;
+		if (dbCcontentTypeCharset != null && !dbCcontentTypeCharset.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbCcontentTypeCharset.ecode()));
+		else
+			dbCcontentTypeCharset = null;
+		if (dbContentEncoding != null && !dbContentEncoding.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbContentEncoding.ecode()));
+		else
+			dbContentEncoding = null;
+		if (dbContentLength != null && !dbContentLength.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbContentLength.ecode()));
+		else
+			dbContentLength = null;
+		if (dbLang != null && !dbLang.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbLang.ecode()));
+		else
+			dbLang = null;
+		if (dbLangMethod != null && !dbLangMethod.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbLangMethod.ecode()));
+		else
+			dbLangMethod = null;
+		if (dbRobotsTxtStatus != null && !dbRobotsTxtStatus.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbRobotsTxtStatus.ecode()));
+		else
+			dbLangMethod = null;
+		if (dbFetchStatus != null && !dbFetchStatus.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbFetchStatus.ecode()));
+		else
+			dbFetchStatus = null;
+		if (dbResponseCode != null && !dbResponseCode.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbResponseCode.ecode()));
+		else
+			dbResponseCode = null;
+		if (dbParserStatus != null && !dbParserStatus.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbParserStatus.ecode()));
+		else
+			dbParserStatus = null;
+		if (dbIndexStatus != null && !dbIndexStatus.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbIndexStatus.ecode()));
+		else
+			dbIndexStatus = null;
+		if (dbHost != null && !dbHost.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbHost.ecode()));
+		else
+			dbHost = null;
+		if (dbSubhost != null && !dbSubhost.close())
+			throw new SearchLibException("Close error: "
+					+ TDB.errmsg(dbSubhost.ecode()));
+		else
+			dbSubhost = null;
 	}
 
 	@Override
