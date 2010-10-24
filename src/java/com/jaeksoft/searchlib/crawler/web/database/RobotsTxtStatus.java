@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -55,6 +55,10 @@ public enum RobotsTxtStatus {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	public String getValue() {
+		return Integer.toString(value);
 	}
 
 	public static RobotsTxtStatus find(int v) {

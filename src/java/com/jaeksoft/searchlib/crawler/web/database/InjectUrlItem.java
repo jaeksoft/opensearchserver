@@ -102,15 +102,24 @@ public class InjectUrlItem {
 	}
 
 	public void populate(IndexDocument indexDocument) {
-		indexDocument.set("url", getUrl());
-		indexDocument.set("when", UrlItem.getWhenDateFormat()
-				.format(new Date()));
+		indexDocument.set(UrlItemFieldEnum.url.name(), getUrl());
+		indexDocument.set(UrlItemFieldEnum.when.name(), UrlItem
+				.getWhenDateFormat().format(new Date()));
 		URL url = getURL();
-		if (url != null)
-			indexDocument.set("host", url.getHost());
-		indexDocument.set("fetchStatus", FetchStatus.UN_FETCHED.value);
-		indexDocument.set("parserStatus", ParserStatus.NOT_PARSED.value);
-		indexDocument.set("indexStatus", IndexStatus.NOT_INDEXED.value);
+		if (url != null) {
+			String hostname = url.getHost();
+			indexDocument.set(UrlItemFieldEnum.host.name(), hostname);
+			indexDocument.set(UrlItemFieldEnum.subhost.name(),
+					UrlItem.buildSubHost(hostname));
+		}
+		indexDocument.set(UrlItemFieldEnum.fetchStatus.name(),
+				FetchStatus.UN_FETCHED.value);
+		indexDocument.set(UrlItemFieldEnum.parserStatus.name(),
+				ParserStatus.NOT_PARSED.value);
+		indexDocument.set(UrlItemFieldEnum.indexStatus.name(),
+				IndexStatus.NOT_INDEXED.value);
+		indexDocument.set(UrlItemFieldEnum.robotsTxtStatus.name(),
+				RobotsTxtStatus.UNKNOWN.value);
 	}
 
 	public IndexDocument getIndexDocument() {

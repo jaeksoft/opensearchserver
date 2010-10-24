@@ -25,40 +25,28 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
-import tokyocabinet.BDB;
+import java.io.File;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class TokyoBDB extends TokyoADB {
+public abstract class TokyoADB {
 
-	public BDB db;
+	protected boolean isOpen;
+	protected File file;
 
-	protected TokyoBDB() {
-		db = new BDB();
-	}
-
-	protected void openRead() throws SearchLibException {
-		if (!db.open(getAbsolutePath(), BDB.OREADER))
-			throwError("Database open error " + getAbsolutePath());
-		isOpen = true;
-	}
-
-	protected void openWrite() throws SearchLibException {
-		if (!db.open(getAbsolutePath(), BDB.OWRITER | BDB.OCREAT))
-			throwError("Database open error " + getAbsolutePath());
-		isOpen = true;
-	}
-
-	protected void close() throws SearchLibException {
-		if (!isOpen)
-			return;
-		if (!db.close())
-			throwError("Database close error " + getAbsolutePath());
+	protected TokyoADB() {
 		isOpen = false;
+		file = null;
 	}
 
-	@Override
-	protected void throwError(String prefix) throws SearchLibException {
-		throw new SearchLibException(prefix + " " + db.errmsg());
+	protected void init(File file) {
+		this.file = file;
 	}
+
+	protected String getAbsolutePath() {
+		return file == null ? null : file.getAbsolutePath();
+	}
+
+	protected abstract void throwError(String prefix) throws SearchLibException;
+
 }

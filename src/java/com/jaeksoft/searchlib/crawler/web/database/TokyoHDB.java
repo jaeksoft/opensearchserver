@@ -26,15 +26,16 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import tokyocabinet.BDB;
+import tokyocabinet.HDB;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class TokyoBDB extends TokyoADB {
+public class TokyoHDB extends TokyoADB {
 
-	public BDB db;
+	public HDB db;
 
-	protected TokyoBDB() {
-		db = new BDB();
+	protected TokyoHDB() {
+		db = new HDB();
 	}
 
 	protected void openRead() throws SearchLibException {

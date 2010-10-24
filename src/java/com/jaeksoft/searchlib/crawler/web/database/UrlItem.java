@@ -387,7 +387,7 @@ public class UrlItem implements Serializable {
 				&& indexStatus == IndexStatus.INDEXED;
 	}
 
-	private static List<String> buildSubHost(String host) {
+	public static List<String> buildSubHost(String host) {
 		if (host == null)
 			return null;
 		List<String> subhost = new ArrayList<String>();

@@ -41,24 +41,27 @@ import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
-import tokyocabinet.BDB;
-import tokyocabinet.TDB;
+import tokyocabinet.HDB;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.web.database.InjectUrlItem.Status;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class UrlManagerTokyo extends UrlManagerAbstract {
 
-	public BDB dbSequence;
-	public BDB dbUrlPrimaryKey;
-	public BDB dbWhen, dbCcontentBaseType, dbCcontentTypeCharset,
+	private final ReadWriteLock lock = new ReadWriteLock();
+
+	public TokyoHDB dbSequence;
+	public TokyoTDB dbUrlPrimaryKey;
+	public TokyoBDB dbWhen, dbCcontentBaseType, dbCcontentTypeCharset,
 			dbContentEncoding, dbContentLength, dbLang, dbLangMethod,
 			dbRobotsTxtStatus, dbFetchStatus, dbResponseCode, dbParserStatus,
 			dbIndexStatus, dbHost, dbSubhost;
@@ -66,22 +69,22 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 	private Client targetClient;
 
 	public UrlManagerTokyo() {
-		dbSequence = null;
-		dbUrlPrimaryKey = null;
-		dbWhen = null;
-		dbCcontentBaseType = null;
-		dbCcontentTypeCharset = null;
-		dbContentEncoding = null;
-		dbContentLength = null;
-		dbLang = null;
-		dbLangMethod = null;
-		dbRobotsTxtStatus = null;
-		dbFetchStatus = null;
-		dbResponseCode = null;
-		dbParserStatus = null;
-		dbIndexStatus = null;
-		dbHost = null;
-		dbSubhost = null;
+		dbSequence = new TokyoHDB();
+		dbUrlPrimaryKey = new TokyoTDB();
+		dbWhen = new TokyoBDB();
+		dbCcontentBaseType = new TokyoBDB();
+		dbCcontentTypeCharset = new TokyoBDB();
+		dbContentEncoding = new TokyoBDB();
+		dbContentLength = new TokyoBDB();
+		dbLang = new TokyoBDB();
+		dbLangMethod = new TokyoBDB();
+		dbRobotsTxtStatus = new TokyoBDB();
+		dbFetchStatus = new TokyoBDB();
+		dbResponseCode = new TokyoBDB();
+		dbParserStatus = new TokyoBDB();
+		dbIndexStatus = new TokyoBDB();
+		dbHost = new TokyoBDB();
+		dbSubhost = new TokyoBDB();
 	}
 
 	@Override
@@ -91,6 +94,22 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		if (!dataDir.exists())
 			dataDir.mkdir();
 		targetClient = client;
+		dbSequence.init(new File(dataDir, "sequence"));
+		dbUrlPrimaryKey.init(new File(dataDir, "primarykey"));
+		dbWhen.init(new File(dataDir, "when"));
+		dbCcontentBaseType.init(new File(dataDir, "contentbasetype"));
+		dbCcontentTypeCharset.init(new File(dataDir, "contenttypecharset"));
+		dbContentEncoding.init(new File(dataDir, "contentencoding"));
+		dbContentLength.init(new File(dataDir, "contentlength"));
+		dbLang.init(new File(dataDir, "lang"));
+		dbLangMethod.init(new File(dataDir, "langmethod"));
+		dbRobotsTxtStatus.init(new File(dataDir, "robotstxtstatus"));
+		dbFetchStatus.init(new File(dataDir, "fetchstatus"));
+		dbResponseCode.init(new File(dataDir, "responsecode"));
+		dbParserStatus.init(new File(dataDir, "parserstatus"));
+		dbIndexStatus.init(new File(dataDir, "indexstatus"));
+		dbHost.init(new File(dataDir, "host"));
+		dbSubhost.init(new File(dataDir, "subhost"));
 	}
 
 	@Override
@@ -260,101 +279,108 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		}
 	}
 
-	private void dbOpenForWrite() {
-		/*
-		 * if (!tdb.open("urls.oss", TDB.OWRITER | TDB.OCREAT)) { int ecode =
-		 * tdb.ecode(); System.err.println("open error: " + TDB.errmsg(ecode));
-		 * }
-		 */
+	private void dbOpenForWrite() throws SearchLibException {
+		dbSequence.openWrite();
+		dbUrlPrimaryKey.openWrite();
+		dbWhen.openWrite();
+		dbCcontentBaseType.openWrite();
+		dbCcontentTypeCharset.openWrite();
+		dbContentEncoding.openWrite();
+		dbContentLength.openWrite();
+		dbLang.openWrite();
+		dbLangMethod.openWrite();
+		dbRobotsTxtStatus.openWrite();
+		dbFetchStatus.openWrite();
+		dbResponseCode.openWrite();
+		dbParserStatus.openWrite();
+		dbIndexStatus.openWrite();
+		dbHost.openWrite();
+		dbSubhost.openWrite();
 	}
 
 	private void dbClose() throws SearchLibException {
-		if (dbSequence != null && !dbSequence.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbSequence.ecode()));
-		else
-			dbSequence = null;
-		if (dbUrlPrimaryKey != null && !dbUrlPrimaryKey.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbUrlPrimaryKey.ecode()));
-		else
-			dbUrlPrimaryKey = null;
-		if (dbWhen != null && !dbWhen.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbWhen.ecode()));
-		else
-			dbWhen = null;
-		if (dbCcontentBaseType != null && !dbCcontentBaseType.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbCcontentBaseType.ecode()));
-		else
-			dbCcontentBaseType = null;
-		if (dbCcontentTypeCharset != null && !dbCcontentTypeCharset.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbCcontentTypeCharset.ecode()));
-		else
-			dbCcontentTypeCharset = null;
-		if (dbContentEncoding != null && !dbContentEncoding.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbContentEncoding.ecode()));
-		else
-			dbContentEncoding = null;
-		if (dbContentLength != null && !dbContentLength.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbContentLength.ecode()));
-		else
-			dbContentLength = null;
-		if (dbLang != null && !dbLang.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbLang.ecode()));
-		else
-			dbLang = null;
-		if (dbLangMethod != null && !dbLangMethod.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbLangMethod.ecode()));
-		else
-			dbLangMethod = null;
-		if (dbRobotsTxtStatus != null && !dbRobotsTxtStatus.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbRobotsTxtStatus.ecode()));
-		else
-			dbLangMethod = null;
-		if (dbFetchStatus != null && !dbFetchStatus.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbFetchStatus.ecode()));
-		else
-			dbFetchStatus = null;
-		if (dbResponseCode != null && !dbResponseCode.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbResponseCode.ecode()));
-		else
-			dbResponseCode = null;
-		if (dbParserStatus != null && !dbParserStatus.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbParserStatus.ecode()));
-		else
-			dbParserStatus = null;
-		if (dbIndexStatus != null && !dbIndexStatus.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbIndexStatus.ecode()));
-		else
-			dbIndexStatus = null;
-		if (dbHost != null && !dbHost.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbHost.ecode()));
-		else
-			dbHost = null;
-		if (dbSubhost != null && !dbSubhost.close())
-			throw new SearchLibException("Close error: "
-					+ TDB.errmsg(dbSubhost.ecode()));
-		else
-			dbSubhost = null;
+		dbSequence.close();
+		dbUrlPrimaryKey.close();
+		dbWhen.close();
+		dbCcontentBaseType.close();
+		dbCcontentTypeCharset.close();
+		dbContentEncoding.close();
+		dbContentLength.close();
+		dbLang.close();
+		dbLangMethod.close();
+		dbRobotsTxtStatus.close();
+		dbFetchStatus.close();
+		dbResponseCode.close();
+		dbParserStatus.close();
+		dbIndexStatus.close();
+		dbHost.close();
+		dbSubhost.close();
+	}
+
+	private static final String primarykey = "pkey";
+
+	private String nextPrimaryKey() throws SearchLibException {
+		String value = dbSequence.db.get(primarykey);
+		if (value == null && dbSequence.db.ecode() != HDB.ENOREC)
+			dbSequence.throwError("URL primary key");
+		long l = value == null ? 1 : Long.parseLong(value) + 1;
+		String pk = Long.toString(l);
+		if (!dbSequence.db.put("primarykey", pk))
+			dbSequence.throwError("URL primary key");
+		return pk;
 	}
 
 	@Override
 	public void inject(List<InjectUrlItem> list) throws SearchLibException {
-		// TODO Auto-generated method stub
+		try {
+			lock.w.lock();
+			try {
+				dbOpenForWrite();
+				for (InjectUrlItem item : list) {
+					if (exists(item.getUrl()))
+						item.setStatus(InjectUrlItem.Status.ALREADY);
+					else {
+						String pk = nextPrimaryKey();
+						Map<String, String> cols = new HashMap<String, String>();
+						String hostname = item.getURL().getHost();
+						cols.put("pkey", pk);
+						cols.put(UrlItemFieldEnum.when.name(), UrlItem
+								.getWhenDateFormat().format(new Date()));
+						cols.put(UrlItemFieldEnum.when.name(), hostname);
+						cols.put(UrlItemFieldEnum.fetchStatus.name(),
+								FetchStatus.UN_FETCHED.getValue());
+						cols.put(UrlItemFieldEnum.parserStatus.name(),
+								ParserStatus.NOT_PARSED.getValue());
+						cols.put(UrlItemFieldEnum.indexStatus.name(),
+								IndexStatus.NOT_INDEXED.getValue());
+						cols.put(UrlItemFieldEnum.robotsTxtStatus.name(),
+								RobotsTxtStatus.UNKNOWN.getValue());
+						dbUrlPrimaryKey.db.put(item.getUrl(), cols);
 
+						dbWhen.db.putcat(
+								UrlItem.getWhenDateFormat().format(new Date()),
+								pk);
+						dbHost.db.putcat(hostname, pk);
+						List<String> subhosts = UrlItem.buildSubHost(hostname);
+						for (String subhost : subhosts)
+							dbSubhost.db.putcat(subhost, pk);
+						dbFetchStatus.db.putcat(
+								UrlItemFieldEnum.fetchStatus.name(), pk);
+						dbParserStatus.db.putcat(
+								UrlItemFieldEnum.parserStatus.name(), pk);
+						dbIndexStatus.db.putcat(
+								UrlItemFieldEnum.indexStatus.name(), pk);
+						dbRobotsTxtStatus.db.putcat(
+								UrlItemFieldEnum.robotsTxtStatus.name(), pk);
+						item.setStatus(Status.INJECTED);
+					}
+				}
+			} finally {
+				dbClose();
+			}
+		} finally {
+			lock.w.unlock();
+		}
 	}
 
 	@Override
