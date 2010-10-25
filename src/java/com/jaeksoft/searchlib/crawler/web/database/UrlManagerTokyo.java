@@ -60,31 +60,15 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 	private final ReadWriteLock lock = new ReadWriteLock();
 
 	public TokyoHDB dbSequence;
-	public TokyoTDB dbUrlPrimaryKey;
-	public TokyoBDB dbWhen, dbCcontentBaseType, dbCcontentTypeCharset,
-			dbContentEncoding, dbContentLength, dbLang, dbLangMethod,
-			dbRobotsTxtStatus, dbFetchStatus, dbResponseCode, dbParserStatus,
-			dbIndexStatus, dbHost, dbSubhost;
+	public TokyoTDB dbUrl;
+	public TokyoBDB dbIndex;
 
 	private Client targetClient;
 
 	public UrlManagerTokyo() {
 		dbSequence = new TokyoHDB();
-		dbUrlPrimaryKey = new TokyoTDB();
-		dbWhen = new TokyoBDB();
-		dbCcontentBaseType = new TokyoBDB();
-		dbCcontentTypeCharset = new TokyoBDB();
-		dbContentEncoding = new TokyoBDB();
-		dbContentLength = new TokyoBDB();
-		dbLang = new TokyoBDB();
-		dbLangMethod = new TokyoBDB();
-		dbRobotsTxtStatus = new TokyoBDB();
-		dbFetchStatus = new TokyoBDB();
-		dbResponseCode = new TokyoBDB();
-		dbParserStatus = new TokyoBDB();
-		dbIndexStatus = new TokyoBDB();
-		dbHost = new TokyoBDB();
-		dbSubhost = new TokyoBDB();
+		dbUrl = new TokyoTDB();
+		dbIndex = new TokyoBDB();
 	}
 
 	@Override
@@ -95,21 +79,8 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			dataDir.mkdir();
 		targetClient = client;
 		dbSequence.init(new File(dataDir, "sequence"));
-		dbUrlPrimaryKey.init(new File(dataDir, "primarykey"));
-		dbWhen.init(new File(dataDir, "when"));
-		dbCcontentBaseType.init(new File(dataDir, "contentbasetype"));
-		dbCcontentTypeCharset.init(new File(dataDir, "contenttypecharset"));
-		dbContentEncoding.init(new File(dataDir, "contentencoding"));
-		dbContentLength.init(new File(dataDir, "contentlength"));
-		dbLang.init(new File(dataDir, "lang"));
-		dbLangMethod.init(new File(dataDir, "langmethod"));
-		dbRobotsTxtStatus.init(new File(dataDir, "robotstxtstatus"));
-		dbFetchStatus.init(new File(dataDir, "fetchstatus"));
-		dbResponseCode.init(new File(dataDir, "responsecode"));
-		dbParserStatus.init(new File(dataDir, "parserstatus"));
-		dbIndexStatus.init(new File(dataDir, "indexstatus"));
-		dbHost.init(new File(dataDir, "host"));
-		dbSubhost.init(new File(dataDir, "subhost"));
+		dbUrl.init(new File(dataDir, "url"));
+		dbIndex.init(new File(dataDir, "index"));
 	}
 
 	@Override
@@ -281,40 +252,14 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 
 	private void dbOpenForWrite() throws SearchLibException {
 		dbSequence.openWrite();
-		dbUrlPrimaryKey.openWrite();
-		dbWhen.openWrite();
-		dbCcontentBaseType.openWrite();
-		dbCcontentTypeCharset.openWrite();
-		dbContentEncoding.openWrite();
-		dbContentLength.openWrite();
-		dbLang.openWrite();
-		dbLangMethod.openWrite();
-		dbRobotsTxtStatus.openWrite();
-		dbFetchStatus.openWrite();
-		dbResponseCode.openWrite();
-		dbParserStatus.openWrite();
-		dbIndexStatus.openWrite();
-		dbHost.openWrite();
-		dbSubhost.openWrite();
+		dbUrl.openWrite();
+		dbIndex.openWrite();
 	}
 
 	private void dbClose() throws SearchLibException {
 		dbSequence.close();
-		dbUrlPrimaryKey.close();
-		dbWhen.close();
-		dbCcontentBaseType.close();
-		dbCcontentTypeCharset.close();
-		dbContentEncoding.close();
-		dbContentLength.close();
-		dbLang.close();
-		dbLangMethod.close();
-		dbRobotsTxtStatus.close();
-		dbFetchStatus.close();
-		dbResponseCode.close();
-		dbParserStatus.close();
-		dbIndexStatus.close();
-		dbHost.close();
-		dbSubhost.close();
+		dbUrl.close();
+		dbIndex.close();
 	}
 
 	private static final String primarykey = "pkey";
@@ -328,6 +273,13 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		if (!dbSequence.db.put("primarykey", pk))
 			dbSequence.throwError("URL primary key");
 		return pk;
+	}
+
+	private void insertIndex(String prefix, String value, String primaryKey) {
+		StringBuffer key = new StringBuffer(prefix);
+		key.append('_');
+		key.append(value);
+		dbIndex.db.putcat(key.toString(), primaryKey);
 	}
 
 	@Override
@@ -346,7 +298,7 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 						cols.put("pkey", pk);
 						cols.put(UrlItemFieldEnum.when.name(), UrlItem
 								.getWhenDateFormat().format(new Date()));
-						cols.put(UrlItemFieldEnum.when.name(), hostname);
+						cols.put(UrlItemFieldEnum.host.name(), hostname);
 						cols.put(UrlItemFieldEnum.fetchStatus.name(),
 								FetchStatus.UN_FETCHED.getValue());
 						cols.put(UrlItemFieldEnum.parserStatus.name(),
@@ -355,23 +307,23 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 								IndexStatus.NOT_INDEXED.getValue());
 						cols.put(UrlItemFieldEnum.robotsTxtStatus.name(),
 								RobotsTxtStatus.UNKNOWN.getValue());
-						dbUrlPrimaryKey.db.put(item.getUrl(), cols);
+						dbUrl.db.put(item.getUrl(), cols);
 
-						dbWhen.db.putcat(
-								UrlItem.getWhenDateFormat().format(new Date()),
-								pk);
-						dbHost.db.putcat(hostname, pk);
+						insertIndex(UrlItemFieldEnum.when.name(), UrlItem
+								.getWhenDateFormat().format(new Date()), pk);
+						insertIndex(UrlItemFieldEnum.host.name(), hostname, pk);
 						List<String> subhosts = UrlItem.buildSubHost(hostname);
 						for (String subhost : subhosts)
-							dbSubhost.db.putcat(subhost, pk);
-						dbFetchStatus.db.putcat(
-								UrlItemFieldEnum.fetchStatus.name(), pk);
-						dbParserStatus.db.putcat(
-								UrlItemFieldEnum.parserStatus.name(), pk);
-						dbIndexStatus.db.putcat(
-								UrlItemFieldEnum.indexStatus.name(), pk);
-						dbRobotsTxtStatus.db.putcat(
-								UrlItemFieldEnum.robotsTxtStatus.name(), pk);
+							insertIndex(UrlItemFieldEnum.subhost.name(),
+									subhost, pk);
+						insertIndex(UrlItemFieldEnum.fetchStatus.name(),
+								FetchStatus.UN_FETCHED.getValue(), pk);
+						insertIndex(UrlItemFieldEnum.parserStatus.name(),
+								ParserStatus.NOT_PARSED.getValue(), pk);
+						insertIndex(UrlItemFieldEnum.indexStatus.name(),
+								IndexStatus.NOT_INDEXED.getValue(), pk);
+						insertIndex(UrlItemFieldEnum.robotsTxtStatus.name(),
+								RobotsTxtStatus.UNKNOWN.getValue(), pk);
 						item.setStatus(Status.INJECTED);
 					}
 				}
