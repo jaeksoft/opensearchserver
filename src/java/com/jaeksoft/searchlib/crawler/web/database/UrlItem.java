@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -122,6 +123,36 @@ public class UrlItem implements Serializable {
 		setParserStatusInt(doc
 				.getValue(UrlItemFieldEnum.parserStatus.name(), 0));
 		setIndexStatusInt(doc.getValue(UrlItemFieldEnum.indexStatus.name(), 0));
+	}
+
+	public UrlItem(Map<?, ?> map) {
+		this();
+		setUrl((String) map.get(UrlItemFieldEnum.url.name()));
+		String host = (String) map.get(UrlItemFieldEnum.host.name());
+		if (host != null) {
+			setHost(host);
+			setSubHost(buildSubHost(host));
+		}
+		setContentDispositionFilename((String) map
+				.get(UrlItemFieldEnum.contentDispositionFilename.name()));
+		setContentBaseType((String) map.get(UrlItemFieldEnum.contentBaseType
+				.name()));
+		setContentTypeCharset((String) map
+				.get(UrlItemFieldEnum.contentTypeCharset.name()));
+		setContentLength((String) map
+				.get(UrlItemFieldEnum.contentLength.name()));
+		setContentEncoding((String) map.get(UrlItemFieldEnum.contentEncoding
+				.name()));
+		setLang((String) map.get(UrlItemFieldEnum.lang.name()));
+		setLangMethod((String) map.get(UrlItemFieldEnum.langMethod.name()));
+		setWhen((String) map.get(UrlItemFieldEnum.when.name()));
+		setRobotsTxtStatusInt((String) map.get(UrlItemFieldEnum.robotsTxtStatus
+				.name()));
+		setFetchStatusInt((String) map.get(UrlItemFieldEnum.fetchStatus.name()));
+		setResponseCode((String) map.get(UrlItemFieldEnum.responseCode.name()));
+		setParserStatusInt((String) map.get(UrlItemFieldEnum.parserStatus
+				.name()));
+		setIndexStatusInt((String) map.get(UrlItemFieldEnum.indexStatus.name()));
 	}
 
 	public UrlItem(String sUrl) {

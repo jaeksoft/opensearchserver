@@ -41,7 +41,8 @@ import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.LockObtainFailedException;
 
-import tokyocabinet.HDB;
+import tokyocabinet.TDB;
+import tokyocabinet.TDBQRY;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -51,24 +52,21 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.InjectUrlItem.Status;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
+import com.jaeksoft.searchlib.database.tokyo.TokyoTDB;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class UrlManagerTokyo extends UrlManagerAbstract {
 
-	private final ReadWriteLock lock = new ReadWriteLock();
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	public TokyoHDB dbSequence;
 	public TokyoTDB dbUrl;
-	public TokyoBDB dbIndex;
 
 	private Client targetClient;
 
 	public UrlManagerTokyo() {
-		dbSequence = new TokyoHDB();
 		dbUrl = new TokyoTDB();
-		dbIndex = new TokyoBDB();
 	}
 
 	@Override
@@ -78,9 +76,7 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		if (!dataDir.exists())
 			dataDir.mkdir();
 		targetClient = client;
-		dbSequence.init(new File(dataDir, "sequence"));
 		dbUrl.init(new File(dataDir, "url"));
-		dbIndex.init(new File(dataDir, "index"));
 	}
 
 	@Override
@@ -246,58 +242,44 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			dbClose();
+			dbUrl.close();
 		}
 	}
 
-	private void dbOpenForWrite() throws SearchLibException {
-		dbSequence.openWrite();
-		dbUrl.openWrite();
-		dbIndex.openWrite();
-	}
-
-	private void dbClose() throws SearchLibException {
-		dbSequence.close();
-		dbUrl.close();
-		dbIndex.close();
-	}
-
-	private static final String primarykey = "pkey";
-
-	private String nextPrimaryKey() throws SearchLibException {
-		String value = dbSequence.db.get(primarykey);
-		if (value == null && dbSequence.db.ecode() != HDB.ENOREC)
-			dbSequence.throwError("URL primary key");
-		long l = value == null ? 1 : Long.parseLong(value) + 1;
-		String pk = Long.toString(l);
-		if (!dbSequence.db.put("primarykey", pk))
-			dbSequence.throwError("URL primary key");
-		return pk;
-	}
-
-	private void insertIndex(String prefix, String value, String primaryKey) {
-		StringBuffer key = new StringBuffer(prefix);
-		key.append('_');
-		key.append(value);
-		dbIndex.db.putcat(key.toString(), primaryKey);
+	private void checkIndex() {
+		dbUrl.db.setindex(UrlItemFieldEnum.url.name(), TDB.ITLEXICAL
+				| TDB.ITKEEP);
+		dbUrl.db.setindex(UrlItemFieldEnum.when.name(), TDB.ITLEXICAL
+				| TDB.ITKEEP);
+		dbUrl.db.setindex(UrlItemFieldEnum.host.name(), TDB.ITLEXICAL
+				| TDB.ITKEEP);
+		dbUrl.db.setindex(UrlItemFieldEnum.fetchStatus.name(), TDB.ITLEXICAL
+				| TDB.ITKEEP);
+		dbUrl.db.setindex(UrlItemFieldEnum.parserStatus.name(), TDB.ITLEXICAL
+				| TDB.ITKEEP);
+		dbUrl.db.setindex(UrlItemFieldEnum.indexStatus.name(), TDB.ITLEXICAL
+				| TDB.ITKEEP);
+		dbUrl.db.setindex(UrlItemFieldEnum.robotsTxtStatus.name(),
+				TDB.ITLEXICAL | TDB.ITKEEP);
 	}
 
 	@Override
 	public void inject(List<InjectUrlItem> list) throws SearchLibException {
 		try {
-			lock.w.lock();
+			rwl.w.lock();
 			try {
-				dbOpenForWrite();
+				dbUrl.openForWrite();
+				checkIndex();
 				for (InjectUrlItem item : list) {
 					if (exists(item.getUrl()))
 						item.setStatus(InjectUrlItem.Status.ALREADY);
 					else {
-						String pk = nextPrimaryKey();
+						String uid = Long.toString(dbUrl.db.genuid());
 						Map<String, String> cols = new HashMap<String, String>();
-						String hostname = item.getURL().getHost();
-						cols.put("pkey", pk);
+						cols.put(UrlItemFieldEnum.url.name(), item.getUrl());
 						cols.put(UrlItemFieldEnum.when.name(), UrlItem
 								.getWhenDateFormat().format(new Date()));
+						String hostname = item.getURL().getHost();
 						cols.put(UrlItemFieldEnum.host.name(), hostname);
 						cols.put(UrlItemFieldEnum.fetchStatus.name(),
 								FetchStatus.UN_FETCHED.getValue());
@@ -307,31 +289,15 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 								IndexStatus.NOT_INDEXED.getValue());
 						cols.put(UrlItemFieldEnum.robotsTxtStatus.name(),
 								RobotsTxtStatus.UNKNOWN.getValue());
-						dbUrl.db.put(item.getUrl(), cols);
-
-						insertIndex(UrlItemFieldEnum.when.name(), UrlItem
-								.getWhenDateFormat().format(new Date()), pk);
-						insertIndex(UrlItemFieldEnum.host.name(), hostname, pk);
-						List<String> subhosts = UrlItem.buildSubHost(hostname);
-						for (String subhost : subhosts)
-							insertIndex(UrlItemFieldEnum.subhost.name(),
-									subhost, pk);
-						insertIndex(UrlItemFieldEnum.fetchStatus.name(),
-								FetchStatus.UN_FETCHED.getValue(), pk);
-						insertIndex(UrlItemFieldEnum.parserStatus.name(),
-								ParserStatus.NOT_PARSED.getValue(), pk);
-						insertIndex(UrlItemFieldEnum.indexStatus.name(),
-								IndexStatus.NOT_INDEXED.getValue(), pk);
-						insertIndex(UrlItemFieldEnum.robotsTxtStatus.name(),
-								RobotsTxtStatus.UNKNOWN.getValue(), pk);
+						dbUrl.db.put(uid, cols);
 						item.setStatus(Status.INJECTED);
 					}
 				}
 			} finally {
-				dbClose();
+				dbUrl.close();
 			}
 		} finally {
-			lock.w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -339,8 +305,27 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 	public long getUrls(SearchRequest searchRequest, Field orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException {
-		// TODO Auto-generated method stub
+		try {
+			rwl.r.lock();
+			try {
+				dbUrl.openForRead();
+
+				TDBQRY qry = new TDBQRY(dbUrl.db);
+				List<?> res = qry.search();
+				long end = start + rows;
+				if (end > res.size())
+					end = res.size();
+				for (int i = (int) start; i < end; i++) {
+					Map<?, ?> rcols = dbUrl.db.get(new String((byte[]) res
+							.get(i)));
+					list.add(new UrlItem(rcols));
+				}
+			} finally {
+				dbUrl.close();
+			}
+		} finally {
+			rwl.r.unlock();
+		}
 		return 0;
 	}
-
 }

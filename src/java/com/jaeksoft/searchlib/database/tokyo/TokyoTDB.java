@@ -23,39 +23,38 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.database.tokyo;
 
-import tokyocabinet.BDB;
-import tokyocabinet.HDB;
+import tokyocabinet.TDB;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class TokyoHDB extends TokyoADB {
+public class TokyoTDB extends TokyoADB {
 
-	public HDB db;
+	public TDB db;
 
-	protected TokyoHDB() {
-		db = new HDB();
+	public TokyoTDB() {
+		db = new TDB();
 	}
 
-	protected void openRead() throws SearchLibException {
-		if (!db.open(getAbsolutePath(), BDB.OREADER))
-			throwError("Database open error " + getAbsolutePath());
-		isOpen = true;
-	}
-
-	protected void openWrite() throws SearchLibException {
-		if (!db.open(getAbsolutePath(), BDB.OWRITER | BDB.OCREAT))
-			throwError("Database open error " + getAbsolutePath());
-		isOpen = true;
-	}
-
-	protected void close() throws SearchLibException {
-		if (!isOpen)
+	@Override
+	protected void dbOpenRead() throws SearchLibException {
+		if (db.open(getAbsolutePath(), TDB.OREADER))
 			return;
+		throwError("Database open error " + getAbsolutePath());
+	}
+
+	@Override
+	protected void dbOpenWrite() throws SearchLibException {
+		if (db.open(getAbsolutePath(), TDB.OWRITER | TDB.OCREAT))
+			return;
+		throwError("Database open error " + getAbsolutePath());
+	}
+
+	@Override
+	protected void dbClose() throws SearchLibException {
 		if (!db.close())
 			throwError("Database close error " + getAbsolutePath());
-		isOpen = false;
 	}
 
 	@Override

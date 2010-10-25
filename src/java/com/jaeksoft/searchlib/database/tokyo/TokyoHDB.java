@@ -23,38 +23,38 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.database.tokyo;
 
 import tokyocabinet.BDB;
+import tokyocabinet.HDB;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.database.tokyo.TokyoADB;
 
-public class TokyoBDB extends TokyoADB {
+public class TokyoHDB extends TokyoADB {
 
-	public BDB db;
+	public HDB db;
 
-	protected TokyoBDB() {
-		db = new BDB();
+	protected TokyoHDB() {
+		db = new HDB();
 	}
 
-	protected void openRead() throws SearchLibException {
+	@Override
+	protected void dbOpenRead() throws SearchLibException {
 		if (!db.open(getAbsolutePath(), BDB.OREADER))
 			throwError("Database open error " + getAbsolutePath());
-		isOpen = true;
 	}
 
-	protected void openWrite() throws SearchLibException {
+	@Override
+	protected void dbOpenWrite() throws SearchLibException {
 		if (!db.open(getAbsolutePath(), BDB.OWRITER | BDB.OCREAT))
 			throwError("Database open error " + getAbsolutePath());
-		isOpen = true;
 	}
 
-	protected void close() throws SearchLibException {
-		if (!isOpen)
-			return;
+	@Override
+	protected void dbClose() throws SearchLibException {
 		if (!db.close())
 			throwError("Database close error " + getAbsolutePath());
-		isOpen = false;
 	}
 
 	@Override
