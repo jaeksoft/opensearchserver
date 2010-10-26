@@ -26,8 +26,10 @@ package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -36,14 +38,21 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.index.IndexDocument;
 
 public abstract class UrlManagerAbstract {
+
+	public enum SearchTemplate {
+		urlSearch, urlExport;
+	}
+
+	protected Client targetClient;
 
 	public abstract void init(Client client, File dataDir)
 			throws SearchLibException, URISyntaxException,
@@ -78,19 +87,16 @@ public abstract class UrlManagerAbstract {
 	public abstract void inject(List<InjectUrlItem> list)
 			throws SearchLibException;
 
-	public abstract SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
-			String like, String host, boolean includingSubDomain, String lang,
+	public abstract long getUrls(SearchTemplate urlSearchTemplate, String like,
+			String host, boolean includingSubDomain, String lang,
 			String langMethod, String contentBaseType,
 			String contentTypeCharset, String contentEncoding,
 			Integer minContentLength, Integer maxContentLength,
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate)
-			throws SearchLibException;
-
-	public abstract long getUrls(SearchRequest searchRequest, Field orderBy,
-			boolean orderAsc, long start, long rows, List<UrlItem> list)
-			throws SearchLibException;
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			Field orderBy, boolean orderAsc, long start, long rows,
+			List<UrlItem> list) throws SearchLibException;
 
 	public void injectPrefix(List<PatternItem> patternList)
 			throws SearchLibException {
@@ -104,7 +110,8 @@ public abstract class UrlManagerAbstract {
 		inject(urlList);
 	}
 
-	public abstract boolean exists(String sUrl) throws SearchLibException;
+	public abstract void removeExisting(List<String> urlList)
+			throws SearchLibException;
 
 	// TODO : can be mutualised
 	public Date getPastDate(long fetchInterval, String intervalUnit) {
@@ -117,6 +124,55 @@ public abstract class UrlManagerAbstract {
 			// Default is days
 			l = fetchInterval * 1000 * 86400;
 		return new Date(System.currentTimeMillis() - l);
+	}
+
+	public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
+		try {
+			if (crawls == null)
+				return;
+			// Update target index
+			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
+					crawls.size());
+			List<String> documentsToDelete = new ArrayList<String>(
+					crawls.size());
+			for (Crawl crawl : crawls) {
+				if (crawl == null)
+					continue;
+				IndexDocument indexDocument = crawl.getTargetIndexDocument();
+				TargetStatus targetStatus = crawl.getUrlItem()
+						.getTargetResult();
+				if (targetStatus == TargetStatus.TARGET_UPDATE)
+					documentsToUpdate.add(indexDocument);
+				else if (targetStatus == TargetStatus.TARGET_DELETE)
+					documentsToDelete.add(crawl.getUrlItem().getUrl());
+			}
+			if (documentsToUpdate.size() > 0)
+				targetClient.updateDocuments(documentsToUpdate);
+			if (documentsToDelete.size() > 0)
+				targetClient.deleteDocuments(documentsToDelete);
+
+			// Update URL DB
+			List<UrlItem> urlItems = new ArrayList<UrlItem>();
+			for (Crawl crawl : crawls) {
+				if (crawl == null)
+					continue;
+				urlItems.add(crawl.getUrlItem());
+			}
+			updateUrlItems(urlItems);
+
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 }

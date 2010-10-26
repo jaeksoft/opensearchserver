@@ -145,7 +145,8 @@ public class UrlItem implements Serializable {
 				.name()));
 		setLang((String) map.get(UrlItemFieldEnum.lang.name()));
 		setLangMethod((String) map.get(UrlItemFieldEnum.langMethod.name()));
-		setWhen((String) map.get(UrlItemFieldEnum.when.name()));
+		setWhen(new Date(Long.parseLong((String) map.get(UrlItemFieldEnum.when
+				.name()))));
 		setRobotsTxtStatusInt((String) map.get(UrlItemFieldEnum.robotsTxtStatus
 				.name()));
 		setFetchStatusInt((String) map.get(UrlItemFieldEnum.fetchStatus.name()));

@@ -58,7 +58,10 @@ public class TokyoTDB extends TokyoADB {
 	}
 
 	@Override
-	protected void throwError(String prefix) throws SearchLibException {
+	public void throwError(String prefix) throws SearchLibException {
+		int ecode = db.ecode();
+		if (ecode == TDB.ESUCCESS)
+			return;
 		throw new SearchLibException(prefix + " " + db.errmsg());
 	}
 }

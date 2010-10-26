@@ -312,18 +312,16 @@ public class Crawl {
 		for (String link : links) {
 			try {
 				URL url = new URL(link);
-				String sUrl = url.toExternalForm();
 				if (exclusionManager.matchPattern(url) != null)
 					continue;
 				if (inclusionManager.matchPattern(url) == null)
-					continue;
-				if (urlManager.exists(sUrl))
 					continue;
 				newUrlList.add(link);
 			} catch (MalformedURLException e) {
 				Logging.logger.warn(link + " " + e.getMessage(), e);
 			}
 		}
+		urlManager.removeExisting(newUrlList);
 	}
 
 	public List<String> getDiscoverLinks() throws NoSuchAlgorithmException,

@@ -186,7 +186,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			CrawlStatistics sessionStats) throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
-		UrlManager urlManager = (UrlManager) getConfig().getUrlManager();
+		UrlManagerAbstract urlManager = getConfig().getUrlManager();
 		urlManager.updateCrawls(workUpdateCrawlList);
 		if (sessionStats != null)
 			sessionStats.addUpdatedCount(workUpdateCrawlList.size());

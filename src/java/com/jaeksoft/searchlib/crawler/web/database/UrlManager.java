@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpException;
@@ -44,12 +45,10 @@ import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.InjectUrlItem.Status;
-import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
@@ -61,10 +60,6 @@ import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 
 public class UrlManager extends UrlManagerAbstract {
-
-	public enum SearchTemplate {
-		urlSearch, urlExport;
-	}
 
 	public enum Field {
 
@@ -120,8 +115,6 @@ public class UrlManager extends UrlManagerAbstract {
 	}
 
 	private Client urlDbClient;
-
-	private Client targetClient;
 
 	@Override
 	public void init(Client client, File dataDir) throws SearchLibException,
@@ -186,11 +179,18 @@ public class UrlManager extends UrlManagerAbstract {
 		}
 	}
 
-	@Override
-	public boolean exists(String sUrl) throws SearchLibException {
+	private boolean exists(String sUrl) throws SearchLibException {
 		SearchRequest request = getUrlSearchRequest();
 		request.setQueryString("url:\"" + sUrl + '"');
 		return (getUrls(request, null, false, 0, 0, null) > 0);
+	}
+
+	@Override
+	public void removeExisting(List<String> urlList) throws SearchLibException {
+		Iterator<String> it = urlList.iterator();
+		while (it.hasNext())
+			if (exists(it.next()))
+				it.remove();
 	}
 
 	@Override
@@ -399,8 +399,7 @@ public class UrlManager extends UrlManagerAbstract {
 			urlList.add(new UrlItem(item));
 	}
 
-	@Override
-	public SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
+	private SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
 			String like, String host, boolean includingSubDomain, String lang,
 			String langMethod, String contentBaseType,
 			String contentTypeCharset, String contentEncoding,
@@ -519,8 +518,7 @@ public class UrlManager extends UrlManagerAbstract {
 		}
 	}
 
-	@Override
-	public long getUrls(SearchRequest searchRequest, Field orderBy,
+	private long getUrls(SearchRequest searchRequest, Field orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException {
 		searchRequest.setStart((int) start);
@@ -536,6 +534,25 @@ public class UrlManager extends UrlManagerAbstract {
 		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	@Override
+	public long getUrls(SearchTemplate urlSearchTemplate, String like,
+			String host, boolean includingSubDomain, String lang,
+			String langMethod, String contentBaseType,
+			String contentTypeCharset, String contentEncoding,
+			Integer minContentLength, Integer maxContentLength,
+			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
+			Integer responseCode, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			Field orderBy, boolean orderAsc, long start, long rows,
+			List<UrlItem> list) throws SearchLibException {
+		SearchRequest searchRequest = urlQuery(urlSearchTemplate, like, host,
+				includingSubDomain, lang, langMethod, contentBaseType,
+				contentTypeCharset, contentEncoding, minContentLength,
+				maxContentLength, robotsTxtStatus, fetchStatus, responseCode,
+				parserStatus, indexStatus, startDate, endDate);
+		return getUrls(searchRequest, orderBy, orderAsc, start, rows, list);
 	}
 
 	@Override
@@ -555,57 +572,6 @@ public class UrlManager extends UrlManagerAbstract {
 			IndexDocument indexDocument = new IndexDocument();
 			urlItem.populate(indexDocument);
 			urlDbClient.updateDocument(indexDocument);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		}
-	}
-
-	public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
-		try {
-			if (crawls == null)
-				return;
-			// Update target index
-			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
-					crawls.size());
-			List<String> documentsToDelete = new ArrayList<String>(
-					crawls.size());
-			for (Crawl crawl : crawls) {
-				if (crawl == null)
-					continue;
-				IndexDocument indexDocument = crawl.getTargetIndexDocument();
-				TargetStatus targetStatus = crawl.getUrlItem()
-						.getTargetResult();
-				if (targetStatus == TargetStatus.TARGET_UPDATE)
-					documentsToUpdate.add(indexDocument);
-				else if (targetStatus == TargetStatus.TARGET_DELETE)
-					documentsToDelete.add(crawl.getUrlItem().getUrl());
-			}
-			if (documentsToUpdate.size() > 0)
-				targetClient.updateDocuments(documentsToUpdate);
-			if (documentsToDelete.size() > 0)
-				targetClient.deleteDocuments(documentsToDelete);
-
-			// Update URL DB
-			documentsToUpdate.clear();
-			for (Crawl crawl : crawls) {
-				if (crawl == null)
-					continue;
-				IndexDocument indexDocument = new IndexDocument();
-				crawl.getUrlItem().populate(indexDocument);
-				documentsToUpdate.add(indexDocument);
-			}
-			urlDbClient.updateDocuments(documentsToUpdate);
-
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

@@ -29,7 +29,6 @@ import tokyocabinet.BDB;
 import tokyocabinet.HDB;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.database.tokyo.TokyoADB;
 
 public class TokyoHDB extends TokyoADB {
 

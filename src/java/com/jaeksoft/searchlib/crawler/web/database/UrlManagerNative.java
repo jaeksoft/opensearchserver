@@ -38,8 +38,6 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
-import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class UrlManagerNative extends UrlManagerAbstract {
 
@@ -111,37 +109,30 @@ public class UrlManagerNative extends UrlManagerAbstract {
 	}
 
 	@Override
-	public SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
-			String like, String host, boolean includingSubDomain, String lang,
+	public void inject(List<InjectUrlItem> list) throws SearchLibException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void removeExisting(List<String> urlList) throws SearchLibException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public long getUrls(SearchTemplate urlSearchTemplate, String like,
+			String host, boolean includingSubDomain, String lang,
 			String langMethod, String contentBaseType,
 			String contentTypeCharset, String contentEncoding,
 			Integer minContentLength, Integer maxContentLength,
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate)
-			throws SearchLibException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public long getUrls(SearchRequest searchRequest, Field orderBy,
-			boolean orderAsc, long start, long rows, List<UrlItem> list)
-			throws SearchLibException {
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			Field orderBy, boolean orderAsc, long start, long rows,
+			List<UrlItem> list) throws SearchLibException {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public boolean exists(String sUrl) throws SearchLibException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void inject(List<InjectUrlItem> list) throws SearchLibException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

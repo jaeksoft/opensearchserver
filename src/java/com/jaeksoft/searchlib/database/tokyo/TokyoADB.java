@@ -35,15 +35,17 @@ public abstract class TokyoADB {
 		CLOSED, READ, WRITE;
 	}
 
-	private File file;
 	private Mode mode;
+	private File file;
 
 	protected TokyoADB() {
 		mode = Mode.CLOSED;
 		file = null;
 	}
 
-	public void init(File file) {
+	public void init(File file) throws SearchLibException {
+		if (mode != Mode.CLOSED)
+			throwError("Init not allowed when db is open");
 		this.file = file;
 	}
 
