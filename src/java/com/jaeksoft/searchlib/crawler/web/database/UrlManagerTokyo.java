@@ -217,11 +217,11 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		TDBQRY qry = new TDBQRY(dbUrl.db);
 		qry.addcond(UrlItemFieldEnum.url.name(), TDBQRY.QCSTREQ, sUrl);
 		List<?> res = qry.search();
-		if (res.size() != 0)
-			return new String((byte[]) res.get(0));
-		if (dbUrl.db.ecode() != TDB.ENOREC)
+		if (res == null)
 			dbUrl.throwError("GetPrimaryKey failed");
-		return null;
+		if (res.size() == 0)
+			return null;
+		return new String((byte[]) res.get(0));
 	}
 
 	private void tokyoMap2hostList(List<?> res, List<NamedItem> hostList,
