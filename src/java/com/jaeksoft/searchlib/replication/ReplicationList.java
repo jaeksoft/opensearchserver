@@ -82,6 +82,8 @@ public class ReplicationList {
 
 	public ReplicationItem get(String replicationItemName) {
 		synchronized (replicationSet) {
+			if (replicationItemName == null)
+				return null;
 			ReplicationItem item = new ReplicationItem();
 			item.setName(replicationItemName);
 			ReplicationItem found = replicationSet.ceiling(item);
