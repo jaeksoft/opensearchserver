@@ -154,6 +154,8 @@
 									align="center" width="180px" />
 								<listheader width="50px" label="Tags"
 									tooltiptext="Remove tag" align="center" />
+								<listheader width="50px" label="Entities"
+									tooltiptext="Convert HTML entities" align="center" />
 								<listheader width="50px" label="File"
 									tooltiptext="Contains a file path" align="center" />
 								<listheader label="File path prefix"
@@ -179,6 +181,11 @@
 										checked="@{dbCrawlList.dbFieldTarget.removeTag}" />
 								</auxheader>
 								<auxheader align="center">
+									<checkbox
+										tooltiptext="convert HTML entities"
+										checked="@{dbCrawlList.dbFieldTarget.convertHtmlEntities}" />
+								</auxheader>
+								<auxheader align="center">
 									<checkbox tooltiptext="File path"
 										checked="@{dbCrawlList.dbFieldTarget.filePath}" />
 								</auxheader>
@@ -198,6 +205,10 @@
 								<listcell>
 									<checkbox disabled="true"
 										checked="@{fieldlink.target.removeTag}" />
+								</listcell>
+								<listcell>
+									<checkbox disabled="true"
+										checked="@{fieldlink.target.convertHtmlEntities}" />
 								</listcell>
 								<listcell>
 									<checkbox disabled="true"

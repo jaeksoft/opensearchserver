@@ -32,6 +32,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -93,6 +94,8 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 
 			if (dfTarget.isRemoveTag())
 				content = StringUtils.removeTag(content);
+			if (dfTarget.isConvertHtmlEntities())
+				content = StringEscapeUtils.unescapeHtml(content);
 			target.add(dfTarget.getName(), content);
 		}
 	}

@@ -37,14 +37,17 @@ public class DatabaseFieldTarget extends Target {
 
 	private boolean removeTag;
 
+	private boolean convertHtmlEntities;
+
 	private boolean filePath;
 
 	private String filePathPrefix;
 
 	public DatabaseFieldTarget(String targetName, boolean removeTag,
-			boolean filePath, String filePathPrefix) {
+			boolean convertHtmlEntities, boolean filePath, String filePathPrefix) {
 		super(targetName);
 		this.removeTag = removeTag;
+		this.convertHtmlEntities = convertHtmlEntities;
 		this.filePathPrefix = filePathPrefix;
 		this.filePath = filePath;
 	}
@@ -52,11 +55,15 @@ public class DatabaseFieldTarget extends Target {
 	public DatabaseFieldTarget(String targetName, Node targetNode) {
 		super(targetName);
 		removeTag = false;
+		convertHtmlEntities = false;
 		List<Node> nodeList = DomUtils.getNodes(targetNode, "filter");
 		for (Node node : nodeList) {
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
 					"removeTag")))
 				removeTag = true;
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
+					"convertHtmlEntities")))
+				convertHtmlEntities = true;
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
 					"filePath")))
 				filePath = true;
@@ -66,6 +73,7 @@ public class DatabaseFieldTarget extends Target {
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no",
+				"convertHtmlEntities", convertHtmlEntities ? "yes" : "no",
 				"filePath", filePath ? "yes" : "no", "filePathPrefix",
 				filePathPrefix);
 		xmlWriter.endElement();
@@ -84,6 +92,21 @@ public class DatabaseFieldTarget extends Target {
 	 */
 	public boolean isRemoveTag() {
 		return removeTag;
+	}
+
+	/**
+	 * @param convertHtmlEntities
+	 *            the convertHtmlEntities to set
+	 */
+	public void setConvertHtmlEntities(boolean convertHtmlEntities) {
+		this.convertHtmlEntities = convertHtmlEntities;
+	}
+
+	/**
+	 * @return the convertHtmlEntities
+	 */
+	public boolean isConvertHtmlEntities() {
+		return convertHtmlEntities;
 	}
 
 	/**

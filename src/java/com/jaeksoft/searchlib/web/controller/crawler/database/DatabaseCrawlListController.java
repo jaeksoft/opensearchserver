@@ -101,7 +101,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		selectedCrawl = null;
 		dbCrawlList = null;
 		sqlColumn = null;
-		dbFieldTarget = new DatabaseFieldTarget(null, false, false, null);
+		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false, null);
 		selectedIndexField = null;
 	}
 
@@ -153,7 +153,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		currentCrawl.getFieldMap().add(sqlColumn, dbFieldTarget);
 		sqlColumn = null;
 		selectedIndexField = null;
-		dbFieldTarget = new DatabaseFieldTarget(null, false, false, null);
+		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false, null);
 		reloadPage();
 	}
 
