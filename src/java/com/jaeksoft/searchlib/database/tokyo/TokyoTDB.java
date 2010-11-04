@@ -64,4 +64,10 @@ public class TokyoTDB extends TokyoADB {
 			return;
 		throw new SearchLibException(prefix + " " + db.errmsg());
 	}
+
+	public void sync() throws SearchLibException {
+		if (db.sync())
+			return;
+		throwError("Sync error");
+	}
 }

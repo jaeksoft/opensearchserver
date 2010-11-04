@@ -61,7 +61,6 @@ public abstract class TokyoADB {
 		}
 		if (mode == Mode.WRITE)
 			throwError("Already open with write access");
-
 	}
 
 	final public void openForWrite() throws SearchLibException {
@@ -79,6 +78,22 @@ public abstract class TokyoADB {
 			return;
 		dbClose();
 		mode = Mode.CLOSED;
+	}
+
+	final public boolean isRead() {
+		return mode == Mode.READ;
+	}
+
+	final public boolean isWrite() {
+		return mode == Mode.WRITE;
+	}
+
+	final public boolean isOpen() {
+		return mode == Mode.WRITE || mode == Mode.READ;
+	}
+
+	final public boolean isClosed() {
+		return mode == Mode.CLOSED;
 	}
 
 	protected abstract void throwError(String prefix) throws SearchLibException;

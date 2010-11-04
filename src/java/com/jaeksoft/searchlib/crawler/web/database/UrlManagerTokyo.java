@@ -102,9 +102,21 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 						TDB.ITDECIMAL | TDB.ITKEEP);
 				dbUrl.db.setindex(UrlItemFieldEnum.robotsTxtStatus.name(),
 						TDB.ITDECIMAL | TDB.ITKEEP);
-			} finally {
+				dbUrl.sync();
+			} catch (SearchLibException e) {
 				dbUrl.close();
+				throw e;
 			}
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	@Override
+	public void free() throws SearchLibException {
+		try {
+			rwl.w.lock();
+			dbUrl.close();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -140,14 +152,19 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		try {
 			rwl.w.lock();
 			try {
-				dbUrl.openForWrite();
+				if (!dbUrl.isWrite()) {
+					dbUrl.close();
+					dbUrl.openForWrite();
+				}
 				String pk = getPrimaryKey(sUrl);
 				if (pk != null)
 					if (!dbUrl.db.out(pk))
 						if (dbUrl.db.ecode() != TDB.ENOREC)
 							dbUrl.throwError("Delete failure");
-			} finally {
+				dbUrl.sync();
+			} catch (SearchLibException e) {
 				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.w.unlock();
@@ -177,7 +194,10 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		try {
 			rwl.w.lock();
 			try {
-				dbUrl.openForWrite();
+				if (!dbUrl.isWrite()) {
+					dbUrl.close();
+					dbUrl.openForWrite();
+				}
 				for (String sUrl : workDeleteUrlList) {
 					String pk = getPrimaryKey(sUrl);
 					if (pk != null)
@@ -199,13 +219,15 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			rwl.r.lock();
 			synchronized (dbUrl) {
 				try {
-					dbUrl.openForRead();
+					if (!dbUrl.isOpen())
+						dbUrl.openForRead();
 					Iterator<String> it = urlList.iterator();
 					while (it.hasNext())
 						if (getPrimaryKey((String) it.next()) != null)
 							it.remove();
-				} finally {
+				} catch (SearchLibException e) {
 					dbUrl.close();
+					throw e;
 				}
 			}
 		} finally {
@@ -249,14 +271,16 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			rwl.r.lock();
 			synchronized (dbUrl) {
 				try {
-					dbUrl.openForRead();
+					if (!dbUrl.isOpen())
+						dbUrl.openForRead();
 					TDBQRY qry = new TDBQRY(dbUrl.db);
 					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMLT,
 							Long.toString(fetchIntervalDate.getTime()));
 					List<?> res = qry.search();
 					tokyoMap2hostList(res, hostList, limit);
-				} finally {
+				} catch (SearchLibException e) {
 					dbUrl.close();
+					throw e;
 				}
 			}
 		} finally {
@@ -271,7 +295,8 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			rwl.r.lock();
 			synchronized (dbUrl) {
 				try {
-					dbUrl.openForRead();
+					if (!dbUrl.isOpen())
+						dbUrl.openForRead();
 					TDBQRY qry = new TDBQRY(dbUrl.db);
 					qry.addcond(UrlItemFieldEnum.fetchStatus.name(),
 							TDBQRY.QCNUMEQ, FetchStatus.UN_FETCHED.getValue());
@@ -279,8 +304,9 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 							Long.toString(fetchIntervalDate.getTime()));
 					List<?> res = qry.search();
 					tokyoMap2hostList(res, hostList, limit);
-				} finally {
+				} catch (SearchLibException e) {
 					dbUrl.close();
+					throw e;
 				}
 			}
 		} finally {
@@ -295,7 +321,8 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			rwl.r.lock();
 			synchronized (dbUrl) {
 				try {
-					dbUrl.openForRead();
+					if (!dbUrl.isOpen())
+						dbUrl.openForRead();
 					TDBQRY qry = new TDBQRY(dbUrl.db);
 					qry.addcond(UrlItemFieldEnum.host.name(), TDBQRY.QCNUMEQ,
 							host.getName());
@@ -306,8 +333,9 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 					for (Object o : res)
 						urlList.add(new UrlItem(dbUrl.db.get(new String(
 								(byte[]) o))));
-				} finally {
+				} catch (SearchLibException e) {
 					dbUrl.close();
+					throw e;
 				}
 			}
 		} finally {
@@ -321,7 +349,8 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			rwl.r.lock();
 			synchronized (dbUrl) {
 				try {
-					dbUrl.openForRead();
+					if (!dbUrl.isOpen())
+						dbUrl.openForRead();
 					TDBQRY qry = new TDBQRY(dbUrl.db);
 					qry.addcond(UrlItemFieldEnum.url.name(), TDBQRY.QCSTREQ,
 							url.toExternalForm());
@@ -330,8 +359,9 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 						return null;
 					return new UrlItem(dbUrl.db.get(new String((byte[]) res
 							.get(0))));
-				} finally {
+				} catch (SearchLibException e) {
 					dbUrl.close();
+					throw e;
 				}
 			}
 		} finally {
@@ -346,7 +376,8 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			rwl.r.lock();
 			synchronized (dbUrl) {
 				try {
-					dbUrl.openForRead();
+					if (!dbUrl.isOpen())
+						dbUrl.openForRead();
 					TDBQRY qry = new TDBQRY(dbUrl.db);
 					qry.addcond(UrlItemFieldEnum.host.name(), TDBQRY.QCSTREQ,
 							host.getName());
@@ -359,8 +390,9 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 					for (Object o : res)
 						urlList.add(new UrlItem(dbUrl.db.get(new String(
 								(byte[]) o))));
-				} finally {
+				} catch (SearchLibException e) {
 					dbUrl.close();
+					throw e;
 				}
 			}
 		} finally {
@@ -382,7 +414,10 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		try {
 			rwl.w.lock();
 			try {
-				dbUrl.openForWrite();
+				if (!dbUrl.isWrite()) {
+					dbUrl.close();
+					dbUrl.openForWrite();
+				}
 
 				for (UrlItem urlItem : urlItems) {
 					if (urlItem == null)
@@ -434,10 +469,12 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 					if (!dbUrl.db.put(primaryKey, cols))
 						dbUrl.throwError("Put error");
 				}
+				dbUrl.sync();
 			} catch (MalformedURLException e) {
 				throw new SearchLibException(e);
-			} finally {
+			} catch (SearchLibException e) {
 				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.w.unlock();
@@ -449,7 +486,10 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 		try {
 			rwl.w.lock();
 			try {
-				dbUrl.openForWrite();
+				if (!dbUrl.isWrite()) {
+					dbUrl.close();
+					dbUrl.openForWrite();
+				}
 				for (InjectUrlItem item : list) {
 					if (getPrimaryKey(item.getUrl()) != null)
 						item.setStatus(InjectUrlItem.Status.ALREADY);
@@ -473,8 +513,10 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 						item.setStatus(Status.INJECTED);
 					}
 				}
-			} finally {
+				dbUrl.sync();
+			} catch (SearchLibException e) {
 				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.w.unlock();
@@ -496,7 +538,8 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			rwl.r.lock();
 			synchronized (dbUrl) {
 				try {
-					dbUrl.openForRead();
+					if (!dbUrl.isOpen())
+						dbUrl.openForRead();
 					TDBQRY qry = new TDBQRY(dbUrl.db);
 					if (like != null) {
 						like = like.trim();
@@ -576,8 +619,9 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 						list.add(new UrlItem(rcols));
 					}
 					return res.size();
-				} finally {
+				} catch (SearchLibException e) {
 					dbUrl.close();
+					throw e;
 				}
 			}
 		} finally {

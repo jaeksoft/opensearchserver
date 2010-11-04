@@ -58,6 +58,8 @@ public abstract class UrlManagerAbstract {
 			throws SearchLibException, URISyntaxException,
 			FileNotFoundException;
 
+	public abstract void free() throws SearchLibException;
+
 	public abstract void reload(boolean optimize) throws SearchLibException;
 
 	public abstract void deleteUrls(Collection<String> workDeleteUrlList)

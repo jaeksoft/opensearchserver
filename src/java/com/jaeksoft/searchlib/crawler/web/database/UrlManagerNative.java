@@ -135,4 +135,10 @@ public class UrlManagerNative extends UrlManagerAbstract {
 		return 0;
 	}
 
+	@Override
+	public void free() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

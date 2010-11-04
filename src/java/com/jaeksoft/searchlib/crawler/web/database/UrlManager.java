@@ -127,6 +127,11 @@ public class UrlManager extends UrlManagerAbstract {
 	}
 
 	@Override
+	public void free() {
+		this.urlDbClient.close();
+	}
+
+	@Override
 	public Client getUrlDbClient() {
 		return urlDbClient;
 	}

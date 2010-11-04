@@ -1183,6 +1183,7 @@ public abstract class Config {
 			getWebCrawlMaster().waitForEnd(0);
 		if (waitForEnd)
 			getDatabaseCrawlMaster().waitForEnd(0);
+		getUrlManager().free();
 	}
 
 	private void closeQuiet() {
