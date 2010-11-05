@@ -217,18 +217,16 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 	public void removeExisting(List<String> urlList) throws SearchLibException {
 		try {
 			rwl.r.lock();
-			synchronized (dbUrl) {
-				try {
-					if (!dbUrl.isOpen())
-						dbUrl.openForRead();
-					Iterator<String> it = urlList.iterator();
-					while (it.hasNext())
-						if (getPrimaryKey((String) it.next()) != null)
-							it.remove();
-				} catch (SearchLibException e) {
-					dbUrl.close();
-					throw e;
-				}
+			try {
+				if (!dbUrl.isOpen())
+					dbUrl.openForRead();
+				Iterator<String> it = urlList.iterator();
+				while (it.hasNext())
+					if (getPrimaryKey((String) it.next()) != null)
+						it.remove();
+			} catch (SearchLibException e) {
+				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.r.unlock();
@@ -269,19 +267,17 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			List<NamedItem> hostList) throws SearchLibException {
 		try {
 			rwl.r.lock();
-			synchronized (dbUrl) {
-				try {
-					if (!dbUrl.isOpen())
-						dbUrl.openForRead();
-					TDBQRY qry = new TDBQRY(dbUrl.db);
-					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMLT,
-							Long.toString(fetchIntervalDate.getTime()));
-					List<?> res = qry.search();
-					tokyoMap2hostList(res, hostList, limit);
-				} catch (SearchLibException e) {
-					dbUrl.close();
-					throw e;
-				}
+			try {
+				if (!dbUrl.isOpen())
+					dbUrl.openForRead();
+				TDBQRY qry = new TDBQRY(dbUrl.db);
+				qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMLT,
+						Long.toString(fetchIntervalDate.getTime()));
+				List<?> res = qry.search();
+				tokyoMap2hostList(res, hostList, limit);
+			} catch (SearchLibException e) {
+				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.r.unlock();
@@ -293,21 +289,19 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			List<NamedItem> hostList) throws SearchLibException {
 		try {
 			rwl.r.lock();
-			synchronized (dbUrl) {
-				try {
-					if (!dbUrl.isOpen())
-						dbUrl.openForRead();
-					TDBQRY qry = new TDBQRY(dbUrl.db);
-					qry.addcond(UrlItemFieldEnum.fetchStatus.name(),
-							TDBQRY.QCNUMEQ, FetchStatus.UN_FETCHED.getValue());
-					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMGE,
-							Long.toString(fetchIntervalDate.getTime()));
-					List<?> res = qry.search();
-					tokyoMap2hostList(res, hostList, limit);
-				} catch (SearchLibException e) {
-					dbUrl.close();
-					throw e;
-				}
+			try {
+				if (!dbUrl.isOpen())
+					dbUrl.openForRead();
+				TDBQRY qry = new TDBQRY(dbUrl.db);
+				qry.addcond(UrlItemFieldEnum.fetchStatus.name(),
+						TDBQRY.QCNUMEQ, FetchStatus.UN_FETCHED.getValue());
+				qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMGE,
+						Long.toString(fetchIntervalDate.getTime()));
+				List<?> res = qry.search();
+				tokyoMap2hostList(res, hostList, limit);
+			} catch (SearchLibException e) {
+				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.r.unlock();
@@ -319,24 +313,22 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			long limit, List<UrlItem> urlList) throws SearchLibException {
 		try {
 			rwl.r.lock();
-			synchronized (dbUrl) {
-				try {
-					if (!dbUrl.isOpen())
-						dbUrl.openForRead();
-					TDBQRY qry = new TDBQRY(dbUrl.db);
-					qry.addcond(UrlItemFieldEnum.host.name(), TDBQRY.QCNUMEQ,
-							host.getName());
-					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMLT,
-							Long.toString(fetchIntervalDate.getTime()));
-					qry.setlimit((int) limit, 0);
-					List<?> res = qry.search();
-					for (Object o : res)
-						urlList.add(new UrlItem(dbUrl.db.get(new String(
-								(byte[]) o))));
-				} catch (SearchLibException e) {
-					dbUrl.close();
-					throw e;
-				}
+			try {
+				if (!dbUrl.isOpen())
+					dbUrl.openForRead();
+				TDBQRY qry = new TDBQRY(dbUrl.db);
+				qry.addcond(UrlItemFieldEnum.host.name(), TDBQRY.QCNUMEQ,
+						host.getName());
+				qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMLT,
+						Long.toString(fetchIntervalDate.getTime()));
+				qry.setlimit((int) limit, 0);
+				List<?> res = qry.search();
+				for (Object o : res)
+					urlList.add(new UrlItem(dbUrl.db
+							.get(new String((byte[]) o))));
+			} catch (SearchLibException e) {
+				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.r.unlock();
@@ -347,22 +339,20 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 	public UrlItem getUrlToFetch(URL url) throws SearchLibException {
 		try {
 			rwl.r.lock();
-			synchronized (dbUrl) {
-				try {
-					if (!dbUrl.isOpen())
-						dbUrl.openForRead();
-					TDBQRY qry = new TDBQRY(dbUrl.db);
-					qry.addcond(UrlItemFieldEnum.url.name(), TDBQRY.QCSTREQ,
-							url.toExternalForm());
-					List<?> res = qry.search();
-					if (res == null || res.size() == 0)
-						return null;
-					return new UrlItem(dbUrl.db.get(new String((byte[]) res
-							.get(0))));
-				} catch (SearchLibException e) {
-					dbUrl.close();
-					throw e;
-				}
+			try {
+				if (!dbUrl.isOpen())
+					dbUrl.openForRead();
+				TDBQRY qry = new TDBQRY(dbUrl.db);
+				qry.addcond(UrlItemFieldEnum.url.name(), TDBQRY.QCSTREQ,
+						url.toExternalForm());
+				List<?> res = qry.search();
+				if (res == null || res.size() == 0)
+					return null;
+				return new UrlItem(
+						dbUrl.db.get(new String((byte[]) res.get(0))));
+			} catch (SearchLibException e) {
+				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.r.unlock();
@@ -374,26 +364,24 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			long limit, List<UrlItem> urlList) throws SearchLibException {
 		try {
 			rwl.r.lock();
-			synchronized (dbUrl) {
-				try {
-					if (!dbUrl.isOpen())
-						dbUrl.openForRead();
-					TDBQRY qry = new TDBQRY(dbUrl.db);
-					qry.addcond(UrlItemFieldEnum.host.name(), TDBQRY.QCSTREQ,
-							host.getName());
-					qry.addcond(UrlItemFieldEnum.fetchStatus.name(),
-							TDBQRY.QCSTREQ, FetchStatus.UN_FETCHED.getValue());
-					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMGE,
-							Long.toString(fetchIntervalDate.getTime()));
-					qry.setlimit((int) limit, 0);
-					List<?> res = qry.search();
-					for (Object o : res)
-						urlList.add(new UrlItem(dbUrl.db.get(new String(
-								(byte[]) o))));
-				} catch (SearchLibException e) {
-					dbUrl.close();
-					throw e;
-				}
+			try {
+				if (!dbUrl.isOpen())
+					dbUrl.openForRead();
+				TDBQRY qry = new TDBQRY(dbUrl.db);
+				qry.addcond(UrlItemFieldEnum.host.name(), TDBQRY.QCSTREQ,
+						host.getName());
+				qry.addcond(UrlItemFieldEnum.fetchStatus.name(),
+						TDBQRY.QCSTREQ, FetchStatus.UN_FETCHED.getValue());
+				qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMGE,
+						Long.toString(fetchIntervalDate.getTime()));
+				qry.setlimit((int) limit, 0);
+				List<?> res = qry.search();
+				for (Object o : res)
+					urlList.add(new UrlItem(dbUrl.db
+							.get(new String((byte[]) o))));
+			} catch (SearchLibException e) {
+				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.r.unlock();
@@ -536,93 +524,85 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 			List<UrlItem> list) throws SearchLibException {
 		try {
 			rwl.r.lock();
-			synchronized (dbUrl) {
-				try {
-					if (!dbUrl.isOpen())
-						dbUrl.openForRead();
-					TDBQRY qry = new TDBQRY(dbUrl.db);
-					if (like != null) {
-						like = like.trim();
-						if (like.length() > 0)
-							qry.addcond(UrlItemFieldEnum.url.name(),
-									TDBQRY.QCSTREW, like);
-					}
-					if (host != null) {
-						host = host.trim();
-						if (host.length() > 0)
-							qry.addcond(UrlItemFieldEnum.host.name(),
-									TDBQRY.QCSTREQ, host);
-					}
-					if (lang != null) {
-						lang = lang.trim();
-						if (lang.length() > 0)
-							qry.addcond(UrlItemFieldEnum.lang.name(),
-									TDBQRY.QCSTREQ, lang);
-					}
-					if (langMethod != null) {
-						langMethod = langMethod.trim();
-						if (langMethod.length() > 0)
-							qry.addcond(UrlItemFieldEnum.langMethod.name(),
-									TDBQRY.QCSTREQ, langMethod);
-					}
-					if (contentBaseType != null) {
-						contentBaseType = contentBaseType.trim();
-						if (contentBaseType.length() > 0)
-							qry.addcond(
-									UrlItemFieldEnum.contentBaseType.name(),
-									TDBQRY.QCSTREQ, contentBaseType);
-					}
-					if (contentTypeCharset != null) {
-						contentTypeCharset = contentTypeCharset.trim();
-						if (contentTypeCharset.length() > 0)
-							qry.addcond(
-									UrlItemFieldEnum.contentTypeCharset.name(),
-									TDBQRY.QCSTREQ, contentTypeCharset);
-					}
-					if (contentEncoding != null) {
-						contentEncoding = contentEncoding.trim();
-						if (contentEncoding.length() > 0)
-							qry.addcond(
-									UrlItemFieldEnum.contentEncoding.name(),
-									TDBQRY.QCSTREQ, contentEncoding);
-					}
-					if (robotsTxtStatus != null
-							&& robotsTxtStatus != RobotsTxtStatus.ALL)
-						qry.addcond(UrlItemFieldEnum.robotsTxtStatus.name(),
-								TDBQRY.QCNUMEQ, robotsTxtStatus.getValue());
-					if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
-						qry.addcond(UrlItemFieldEnum.fetchStatus.name(),
-								TDBQRY.QCNUMEQ, fetchStatus.getValue());
-					if (parserStatus != null
-							&& parserStatus != ParserStatus.ALL)
-						qry.addcond(UrlItemFieldEnum.parserStatus.name(),
-								TDBQRY.QCNUMEQ, parserStatus.getValue());
-					if (indexStatus != null && indexStatus != IndexStatus.ALL)
-						qry.addcond(UrlItemFieldEnum.indexStatus.name(),
-								TDBQRY.QCNUMEQ, indexStatus.getValue());
-					if (startDate != null)
-						qry.addcond(UrlItemFieldEnum.when.name(),
-								TDBQRY.QCNUMGE,
-								Long.toString(startDate.getTime()));
-					if (endDate != null)
-						qry.addcond(UrlItemFieldEnum.when.name(),
-								TDBQRY.QCNUMLT,
-								Long.toString(endDate.getTime()));
-
-					List<?> res = qry.search();
-					long end = start + rows;
-					if (end > res.size())
-						end = res.size();
-					for (int i = (int) start; i < end; i++) {
-						Map<?, ?> rcols = dbUrl.db.get(new String((byte[]) res
-								.get(i)));
-						list.add(new UrlItem(rcols));
-					}
-					return res.size();
-				} catch (SearchLibException e) {
-					dbUrl.close();
-					throw e;
+			try {
+				if (!dbUrl.isOpen())
+					dbUrl.openForRead();
+				TDBQRY qry = new TDBQRY(dbUrl.db);
+				if (like != null) {
+					like = like.trim();
+					if (like.length() > 0)
+						qry.addcond(UrlItemFieldEnum.url.name(),
+								TDBQRY.QCSTREW, like);
 				}
+				if (host != null) {
+					host = host.trim();
+					if (host.length() > 0)
+						qry.addcond(UrlItemFieldEnum.host.name(),
+								TDBQRY.QCSTREQ, host);
+				}
+				if (lang != null) {
+					lang = lang.trim();
+					if (lang.length() > 0)
+						qry.addcond(UrlItemFieldEnum.lang.name(),
+								TDBQRY.QCSTREQ, lang);
+				}
+				if (langMethod != null) {
+					langMethod = langMethod.trim();
+					if (langMethod.length() > 0)
+						qry.addcond(UrlItemFieldEnum.langMethod.name(),
+								TDBQRY.QCSTREQ, langMethod);
+				}
+				if (contentBaseType != null) {
+					contentBaseType = contentBaseType.trim();
+					if (contentBaseType.length() > 0)
+						qry.addcond(UrlItemFieldEnum.contentBaseType.name(),
+								TDBQRY.QCSTREQ, contentBaseType);
+				}
+				if (contentTypeCharset != null) {
+					contentTypeCharset = contentTypeCharset.trim();
+					if (contentTypeCharset.length() > 0)
+						qry.addcond(UrlItemFieldEnum.contentTypeCharset.name(),
+								TDBQRY.QCSTREQ, contentTypeCharset);
+				}
+				if (contentEncoding != null) {
+					contentEncoding = contentEncoding.trim();
+					if (contentEncoding.length() > 0)
+						qry.addcond(UrlItemFieldEnum.contentEncoding.name(),
+								TDBQRY.QCSTREQ, contentEncoding);
+				}
+				if (robotsTxtStatus != null
+						&& robotsTxtStatus != RobotsTxtStatus.ALL)
+					qry.addcond(UrlItemFieldEnum.robotsTxtStatus.name(),
+							TDBQRY.QCNUMEQ, robotsTxtStatus.getValue());
+				if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
+					qry.addcond(UrlItemFieldEnum.fetchStatus.name(),
+							TDBQRY.QCNUMEQ, fetchStatus.getValue());
+				if (parserStatus != null && parserStatus != ParserStatus.ALL)
+					qry.addcond(UrlItemFieldEnum.parserStatus.name(),
+							TDBQRY.QCNUMEQ, parserStatus.getValue());
+				if (indexStatus != null && indexStatus != IndexStatus.ALL)
+					qry.addcond(UrlItemFieldEnum.indexStatus.name(),
+							TDBQRY.QCNUMEQ, indexStatus.getValue());
+				if (startDate != null)
+					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMGE,
+							Long.toString(startDate.getTime()));
+				if (endDate != null)
+					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMLT,
+							Long.toString(endDate.getTime()));
+
+				List<?> res = qry.search();
+				long end = start + rows;
+				if (end > res.size())
+					end = res.size();
+				for (int i = (int) start; i < end; i++) {
+					Map<?, ?> rcols = dbUrl.db.get(new String((byte[]) res
+							.get(i)));
+					list.add(new UrlItem(rcols));
+				}
+				return res.size();
+			} catch (SearchLibException e) {
+				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.r.unlock();
