@@ -1174,16 +1174,36 @@ public abstract class Config {
 	}
 
 	private void prepareClose(boolean waitForEnd) throws SearchLibException {
-		getFileCrawlMaster().abort();
-		getWebCrawlMaster().abort();
-		getDatabaseCrawlMaster().abort();
-		if (waitForEnd)
-			getFileCrawlMaster().waitForEnd(0);
-		if (waitForEnd)
-			getWebCrawlMaster().waitForEnd(0);
-		if (waitForEnd)
-			getDatabaseCrawlMaster().waitForEnd(0);
-		getUrlManager().free();
+		boolean isFileCrawlMaster;
+		boolean isWebCrawlMaster;
+		boolean isDatabaseCrawlMaster;
+		boolean isUrlManager;
+		try {
+			rwl.r.lock();
+			isFileCrawlMaster = fileCrawlMaster != null;
+			isWebCrawlMaster = webCrawlMaster != null;
+			isDatabaseCrawlMaster = databaseCrawlMaster != null;
+			isUrlManager = urlManager != null;
+		} finally {
+			rwl.r.unlock();
+		}
+		if (isFileCrawlMaster)
+			fileCrawlMaster.abort();
+		if (isWebCrawlMaster)
+			webCrawlMaster.abort();
+		if (isDatabaseCrawlMaster)
+			databaseCrawlMaster.abort();
+
+		if (waitForEnd) {
+			if (isFileCrawlMaster)
+				fileCrawlMaster.waitForEnd(0);
+			if (isWebCrawlMaster)
+				webCrawlMaster.waitForEnd(0);
+			if (isDatabaseCrawlMaster)
+				databaseCrawlMaster.waitForEnd(0);
+		}
+		if (isUrlManager)
+			urlManager.free();
 	}
 
 	private void closeQuiet() {
