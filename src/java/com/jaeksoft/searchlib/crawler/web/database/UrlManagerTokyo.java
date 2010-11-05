@@ -205,8 +205,10 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 							if (dbUrl.db.ecode() != TDB.ENOREC)
 								dbUrl.throwError("Delete failure");
 				}
-			} finally {
+				dbUrl.sync();
+			} catch (SearchLibException e) {
 				dbUrl.close();
+				throw e;
 			}
 		} finally {
 			rwl.w.unlock();
