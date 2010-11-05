@@ -530,62 +530,74 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 				TDBQRY qry = new TDBQRY(dbUrl.db);
 				if (like != null) {
 					like = like.trim();
-					if (like.length() > 0)
+					if (like.length() > 0) {
 						qry.addcond(UrlItemFieldEnum.url.name(),
 								TDBQRY.QCSTREW, like);
+					}
 				}
 				if (host != null) {
 					host = host.trim();
-					if (host.length() > 0)
+					if (host.length() > 0) {
 						qry.addcond(UrlItemFieldEnum.host.name(),
 								TDBQRY.QCSTREQ, host);
+					}
 				}
 				if (lang != null) {
 					lang = lang.trim();
-					if (lang.length() > 0)
+					if (lang.length() > 0) {
 						qry.addcond(UrlItemFieldEnum.lang.name(),
 								TDBQRY.QCSTREQ, lang);
+					}
 				}
 				if (langMethod != null) {
 					langMethod = langMethod.trim();
-					if (langMethod.length() > 0)
+					if (langMethod.length() > 0) {
 						qry.addcond(UrlItemFieldEnum.langMethod.name(),
 								TDBQRY.QCSTREQ, langMethod);
+					}
 				}
 				if (contentBaseType != null) {
 					contentBaseType = contentBaseType.trim();
-					if (contentBaseType.length() > 0)
+					if (contentBaseType.length() > 0) {
 						qry.addcond(UrlItemFieldEnum.contentBaseType.name(),
 								TDBQRY.QCSTREQ, contentBaseType);
+					}
 				}
 				if (contentTypeCharset != null) {
 					contentTypeCharset = contentTypeCharset.trim();
-					if (contentTypeCharset.length() > 0)
+					if (contentTypeCharset.length() > 0) {
 						qry.addcond(UrlItemFieldEnum.contentTypeCharset.name(),
 								TDBQRY.QCSTREQ, contentTypeCharset);
+					}
 				}
 				if (contentEncoding != null) {
 					contentEncoding = contentEncoding.trim();
-					if (contentEncoding.length() > 0)
+					if (contentEncoding.length() > 0) {
 						qry.addcond(UrlItemFieldEnum.contentEncoding.name(),
 								TDBQRY.QCSTREQ, contentEncoding);
+					}
 				}
 				if (robotsTxtStatus != null
-						&& robotsTxtStatus != RobotsTxtStatus.ALL)
+						&& robotsTxtStatus != RobotsTxtStatus.ALL) {
 					qry.addcond(UrlItemFieldEnum.robotsTxtStatus.name(),
 							TDBQRY.QCNUMEQ, robotsTxtStatus.getValue());
-				if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
+				}
+				if (fetchStatus != null && fetchStatus != FetchStatus.ALL) {
 					qry.addcond(UrlItemFieldEnum.fetchStatus.name(),
 							TDBQRY.QCNUMEQ, fetchStatus.getValue());
-				if (parserStatus != null && parserStatus != ParserStatus.ALL)
+				}
+				if (parserStatus != null && parserStatus != ParserStatus.ALL) {
 					qry.addcond(UrlItemFieldEnum.parserStatus.name(),
 							TDBQRY.QCNUMEQ, parserStatus.getValue());
-				if (indexStatus != null && indexStatus != IndexStatus.ALL)
+				}
+				if (indexStatus != null && indexStatus != IndexStatus.ALL) {
 					qry.addcond(UrlItemFieldEnum.indexStatus.name(),
 							TDBQRY.QCNUMEQ, indexStatus.getValue());
+				}
 				if (startDate != null)
 					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMGE,
 							Long.toString(startDate.getTime()));
+
 				if (endDate != null)
 					qry.addcond(UrlItemFieldEnum.when.name(), TDBQRY.QCNUMLT,
 							Long.toString(endDate.getTime()));

@@ -35,6 +35,7 @@ public class TokyoTDB extends TokyoADB {
 
 	public TokyoTDB() {
 		db = new TDB();
+		db.setcache(0, 16384, 4096);
 	}
 
 	@Override
