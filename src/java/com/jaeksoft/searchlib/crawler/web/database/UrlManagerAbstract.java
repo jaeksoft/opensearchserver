@@ -86,6 +86,8 @@ public abstract class UrlManagerAbstract {
 
 	public abstract Client getUrlDbClient();
 
+	public abstract long getSize() throws SearchLibException;
+
 	public abstract void inject(List<InjectUrlItem> list)
 			throws SearchLibException;
 

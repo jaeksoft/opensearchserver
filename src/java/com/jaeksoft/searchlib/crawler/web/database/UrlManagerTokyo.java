@@ -391,6 +391,23 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 	}
 
 	@Override
+	public long getSize() throws SearchLibException {
+		try {
+			rwl.r.lock();
+			try {
+				if (!dbUrl.isOpen())
+					dbUrl.openForRead();
+				return dbUrl.db.rnum();
+			} catch (SearchLibException e) {
+				dbUrl.close();
+				throw e;
+			}
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
 	public void reload(boolean optimize) throws SearchLibException {
 		// TODO Implementation
 		targetClient.reload();

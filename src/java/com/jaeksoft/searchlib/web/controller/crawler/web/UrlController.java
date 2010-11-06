@@ -92,6 +92,16 @@ public class UrlController extends CommonController implements AfterCompose {
 		return totalSize;
 	}
 
+	public long getRecordNumber() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return 0;
+			return client.getUrlManager().getSize();
+		}
+
+	}
+
 	public void setHost(String v) {
 		synchronized (this) {
 			ScopeAttribute.SEARCH_URL_HOST.set(this, v);
@@ -339,9 +349,13 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void onPaging(PagingEvent pagingEvent) {
 		synchronized (this) {
-			urlList = null;
 			activePage = pagingEvent.getActivePage();
-			reloadPage();
+			try {
+				computeUrlList();
+				reloadPage();
+			} catch (SearchLibException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -381,8 +395,6 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public List<UrlItem> getUrlList() throws SearchLibException {
 		synchronized (this) {
-			if (urlList == null)
-				computeUrlList();
 			return urlList;
 		}
 	}

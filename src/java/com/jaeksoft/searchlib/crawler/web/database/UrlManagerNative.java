@@ -141,4 +141,10 @@ public class UrlManagerNative extends UrlManagerAbstract {
 
 	}
 
+	@Override
+	public long getSize() throws SearchLibException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

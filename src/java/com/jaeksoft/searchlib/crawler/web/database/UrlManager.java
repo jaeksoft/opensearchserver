@@ -386,6 +386,15 @@ public class UrlManager extends UrlManagerAbstract {
 	}
 
 	@Override
+	public long getSize() throws SearchLibException {
+		try {
+			return urlDbClient.getIndex().getStatistics().getNumDocs();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
 	public void getNewUrlToFetch(NamedItem host, Date fetchIntervalDate,
 			long limit, List<UrlItem> urlList) throws SearchLibException {
 		SearchRequest searchRequest = urlDbClient
