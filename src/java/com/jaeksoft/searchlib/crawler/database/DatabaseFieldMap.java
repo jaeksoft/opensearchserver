@@ -92,10 +92,10 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 				}
 			}
 
-			if (dfTarget.isRemoveTag())
-				content = StringUtils.removeTag(content);
 			if (dfTarget.isConvertHtmlEntities())
 				content = StringEscapeUtils.unescapeHtml(content);
+			if (dfTarget.isRemoveTag())
+				content = StringUtils.removeTag(content);
 			target.add(dfTarget.getName(), content);
 		}
 	}
