@@ -1,4 +1,5 @@
 ﻿<%@ Page Language="VB" Debug="true" %>
+
 <%@ Import Namespace="System.Globalization" %>
 <%@ Import Namespace="System.Xml" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -13,37 +14,37 @@
     </form>
     <% 
         Dim query As String = Request.QueryString("q")
+        Dim p As String = Request.QueryString("p")
+        Dim rows As Long = 10
+        Dim start As Long = 0
+        If p <> Nothing then start = rows * Long.Parse(p)
         If query <> Nothing Then
-            Dim url As String = "http://localhost:8080/search?use=indexname&qt=search&q=" + HttpUtility.HtmlEncode(query)
-            
-            Dim doc As XmlDocument = New XmlDocument()
-            doc.Load(XmlReader.Create(url))
-            
-            Dim nodes As XmlNodeList = doc.SelectNodes("/response/result/doc")
-            Dim resultNode As XmlNode = doc.SelectSingleNode("/response/result")      
-            Dim count As String = resultNode.Attributes.GetNamedItem("numFound").Value
-            
-            Dim results As String = "No result"
-            If count = 1 Then
+            Dim search As OpenSearchServer.Search = New OpenSearchServer.Search("http://localhost:8080", "indexname", Nothing, Nothing)
+            Dim result As OpenSearchServer.Result = search.search("search", query, start, rows)
+            Dim numFound As Long = result.getNumFound
+            Dim paging As OpenSearchServer.Paging = result.getPaging(11)
+            Dim documents As String = "No result"
+            If numFound = 1 Then
                 documents = "1 result"
-            ElseIf count > 1 Then
-                documents = count + " results"
+            ElseIf numFound > 1 Then
+                documents = numFound & " results"
             End If
                  
     %>
     <p>
-        <%= results%></p>
+        <%= documents%></p>
+        <%= paging.getCurrentPage%>/<%=paging.getTotalPages %>
     <%
-        For Each node As XmlNode In nodes
+        For i As Integer = 0 To result.getDocumentsCount() - 1
                 
-            Dim title As String = node.SelectSingleNode("snippet[@name='title']").InnerText
-            Dim content As String = node.SelectSingleNode("snippet[@name='content']").InnerText
-            Dim url As String = node.SelectSingleNode("field[@name='url']").InnerText
-                
+            Dim title As String = result.getSnippet(i, "title")
+            Dim content As String = result.getSnippet(i, "content")
+            Dim url As String = result.getField(i, "url")
+                           
     %>
     <div>
         <h3 style="margin-bottom: 0px">
-            <a href="<%= url%>">
+            <a href="<%= link%>">
                 <%= title%></a></h3>
         <div>
             <%= content%></div>
