@@ -24,12 +24,15 @@
 
 package com.jaeksoft.searchlib.crawler.file.spider;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -72,6 +75,7 @@ public class CrawlFile {
 	 */
 	public void download() {
 		synchronized (this) {
+			FileInputStream fis = null;
 			try {
 				ParserSelector parserSelector = config.getParserSelector();
 				Parser parser = parserSelector.getParser(fileItem.getFile()
@@ -93,7 +97,8 @@ public class CrawlFile {
 				fileItem.populate(sourceDocument);
 
 				parser.setSourceDocument(sourceDocument);
-				parser.parseContent(fileItem.getFileInputStream());
+				fis = fileItem.getFileInputStream();
+				parser.parseContent(fis);
 				parser.addField(ParserFieldEnum.filename, fileItem.getFile()
 						.getName());
 
@@ -126,11 +131,12 @@ public class CrawlFile {
 			} catch (IOException e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
-				// setError(e.getMessage() + "  " + fileItem.getPath());
 			} catch (Exception e) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
-				// setError(e.getMessage());
+			} finally {
+				if (fis != null)
+					IOUtils.closeQuietly(fis);
 			}
 		}
 	}

@@ -54,6 +54,7 @@ New features:
 - 2900449: Upgrade PDFBox to 0.8
 
 Bug fixes:
+- 3104065: File crawler crashes with java.io.EOFException
 - 3090248: Statistics configuration lost when adding fields
 - 3051308: <base href= ""/> is not interpreted
 - 2881689: Requests.xml fails to rotate on some Windows platforms

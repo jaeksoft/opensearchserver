@@ -35,6 +35,7 @@ public class TokyoTDB extends TokyoADB {
 
 	public TokyoTDB() {
 		db = new TDB();
+		db.tune(100000000, -1, -1, TDB.TLARGE);
 		db.setcache(0, 16384, 4096);
 	}
 

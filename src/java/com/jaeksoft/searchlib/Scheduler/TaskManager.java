@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,39 +22,44 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web;
+package com.jaeksoft.searchlib.Scheduler;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.Logging;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.impl.StdSchedulerFactory;
+
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.Scheduler.TaskManager;
 
-public class StartStopListener implements ServletContextListener {
+public class TaskManager {
 
-	@Override
-	public void contextDestroyed(ServletContextEvent contextEvent) {
-		Logging.logger.info("OSS SHUTDOWN");
+	private final static Lock lock = new ReentrantLock();
+
+	private static Scheduler scheduler = null;
+
+	public static void start() throws SearchLibException {
 		try {
-			TaskManager.stop();
-		} catch (SearchLibException e) {
-			Logging.logger.error(e);
-		}
-		ClientCatalog.closeAll();
-	}
-
-	@Override
-	public void contextInitialized(ServletContextEvent contextEvent) {
-		Logging.initLogger();
-		Logging.logger.info("OSS IS STARTING");
-		ClientCatalog.openAll();
-		try {
-			TaskManager.start();
-		} catch (SearchLibException e) {
-			Logging.logger.error(e);
+			lock.lock();
+			scheduler = StdSchedulerFactory.getDefaultScheduler();
+			scheduler.start();
+		} catch (SchedulerException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
 		}
 	}
 
+	public static void stop() throws SearchLibException {
+		try {
+			lock.lock();
+			if (scheduler != null)
+				scheduler.shutdown();
+		} catch (SchedulerException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
 }

@@ -79,6 +79,7 @@ public class DocParser extends Parser {
 			addField(ParserFieldEnum.lang, lang.getLanguage());
 			addField(ParserFieldEnum.lang_method, langMethod);
 		}
+
 	}
 
 	@Override
