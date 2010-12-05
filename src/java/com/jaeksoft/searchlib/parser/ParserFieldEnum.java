@@ -45,9 +45,13 @@ public enum ParserFieldEnum {
 
 	external_link,
 
+	creator,
+
 	author,
 
 	subject,
+
+	description,
 
 	content,
 

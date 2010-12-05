@@ -25,7 +25,6 @@
 		sizeLimit="8388608">
 		<contentType>application/msword</contentType>
 		<extension>doc</extension>
-		<extension>docx</extension>
 		<map>
 			<link source="author" target="content" />
 			<link source="author" target="contentExact" />
@@ -33,6 +32,57 @@
 			<link source="content" target="contentExact" />
 			<link source="subject" target="content" />
 			<link source="subject" target="contentExact" />
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
+		</map>
+	</parser>
+	<parser name="XLS parser" class="com.jaeksoft.searchlib.parser.XlsParser"
+		sizeLimit="8388608">
+		<contentType>application/vnd.ms-excel</contentType>
+		<extension>xls</extension>
+		<map>
+			<link source="author" target="content" />
+			<link source="author" target="contentExact" />
+			<link source="content" target="content" />
+			<link source="content" target="contentExact" />
+			<link source="subject" target="content" />
+			<link source="subject" target="contentExact" />
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
+		</map>
+	</parser>
+	<parser name="DOCX parser" class="com.jaeksoft.searchlib.parser.DocxParser"
+		sizeLimit="8388608">
+		<contentType>application/vnd.openxmlformats-officedocument.wordprocessingml.document
+		</contentType>
+		<extension>docx</extension>
+		<map>
+			<link source="creator" target="content" />
+			<link source="creator" target="contentExact" />
+			<link source="content" target="content" />
+			<link source="content" target="contentExact" />
+			<link source="subject" target="content" />
+			<link source="subject" target="contentExact" />
+			<link source="description" target="content" />
+			<link source="description" target="contentExact" />
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
+		</map>
+	</parser>
+	<parser name="XLSX parser" class="com.jaeksoft.searchlib.parser.XlsxParser"
+		sizeLimit="8388608">
+		<contentType>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+		</contentType>
+		<extension>xlsx</extension>
+		<map>
+			<link source="creator" target="content" />
+			<link source="creator" target="contentExact" />
+			<link source="content" target="content" />
+			<link source="content" target="contentExact" />
+			<link source="subject" target="content" />
+			<link source="subject" target="contentExact" />
+			<link source="description" target="content" />
+			<link source="description" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 		</map>
@@ -77,6 +127,24 @@
 			<link source="body" target="contentExact" />
 			<link source="content" target="title" />
 			<link source="content" target="titleExact" />
+		</map>
+	</parser>
+	<parser name="PPTX parser" class="com.jaeksoft.searchlib.parser.PptxParser"
+		sizeLimit="8388608">
+		<extension>pptx</extension>
+		<contentType>application/vnd.openxmlformats-officedocument.presentationml.presentation
+		</contentType>
+		<map>
+			<link source="creator" target="content" />
+			<link source="creator" target="contentExact" />
+			<link source="content" target="content" />
+			<link source="content" target="contentExact" />
+			<link source="subject" target="content" />
+			<link source="subject" target="contentExact" />
+			<link source="description" target="content" />
+			<link source="description" target="contentExact" />
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
 		</map>
 	</parser>
 	<parser name="ODT parser" class="com.jaeksoft.searchlib.parser.OdtParser"
@@ -148,7 +216,7 @@
 			<link source="title" target="titleExact" />
 		</map>
 	</parser>
-		<parser name="Torrent parser" class="com.jaeksoft.searchlib.parser.TorrentParser"
+	<parser name="Torrent parser" class="com.jaeksoft.searchlib.parser.TorrentParser"
 		sizeLimit="8388608">
 		<extension>torrent</extension>
 		<contentType>application/x-bittorrent</contentType>
@@ -157,5 +225,5 @@
 			<link source="title" target="titleExact" />
 		</map>
 	</parser>
-	
+
 </parsers>

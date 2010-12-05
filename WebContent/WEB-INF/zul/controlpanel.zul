@@ -30,6 +30,8 @@
 				label="Delete" />
 			<tab id="tabCrawler" visible="@{index.crawlerRights}"
 				label="Crawler" />
+			<tab id="tabScheduler" visible="@{index.runtimeRights}"
+				label="Scheduler" />
 			<tab id="tabRuntime" visible="@{index.runtimeRights}"
 				label="Runtime" />
 			<tab id="tabReplication" visible="@{index.runtimeRights}"
@@ -55,6 +57,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawler.onSelect">
 				<include src="WEB-INF/zul/crawler/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabScheduler.onSelect">
+				<include src="WEB-INF/zul/scheduler/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabRuntime.onSelect">
 				<include src="WEB-INF/zul/runtime/index.zul" />

@@ -1,0 +1,56 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="scheduler"
+	use="com.jaeksoft.searchlib.web.controller.SchedulerController">
+	<panel title="@{scheduler.currentEditMode}" border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" width="100px" />
+					<column align="left" width="300px" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Job name: " />
+						<textbox value="@{scheduler.item.name}"
+							width="95%" />
+						<label value="Enter the name of the job" />
+					</row>
+				</rows>
+				<foot>
+					<footer span="3">
+						<vbox width="100%" align="center">
+							<hbox visible="@{scheduler.selected}">
+								<button label="Cancel"
+									forward="onCancel" />
+								<space width="10px" />
+								<button label="Save" forward="onSave" />
+								<space width="30px" />
+								<button label="Delete"
+									forward="onDelete" />
+							</hbox>
+							<hbox visible="@{scheduler.notSelected}">
+								<button label="Create" forward="onSave" />
+							</hbox>
+						</vbox>
+					</footer>
+				</foot>
+			</grid>
+		</panelchildren>
+	</panel>
+</window>

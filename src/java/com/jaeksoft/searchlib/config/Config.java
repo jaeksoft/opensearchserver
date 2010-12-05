@@ -86,6 +86,7 @@ import com.jaeksoft.searchlib.replication.ReplicationThread;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.scheduler.JobManager;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -159,6 +160,8 @@ public abstract class Config {
 	private ReplicationList replicationList = null;
 
 	private ReplicationMaster replicationMaster = null;
+
+	private JobManager jobManager = null;
 
 	private ConfigFiles configFiles = null;
 
@@ -268,6 +271,28 @@ public abstract class Config {
 				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
 						"UTF-8");
 				getParserSelector().writeXmlConfig(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
+		} finally {
+			longTermLock.unlock();
+			cfr.abort();
+		}
+	}
+
+	public void saveJobs() throws IOException,
+			TransformerConfigurationException, SAXException, SearchLibException {
+		ConfigFileRotation cfr = configFiles.get(indexDir, "jobs.xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+						"UTF-8");
+				getJobManager().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
@@ -557,6 +582,33 @@ public abstract class Config {
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public JobManager getJobManager() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (jobManager != null)
+				return jobManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (jobManager != null)
+				return jobManager;
+			File file = new File(indexDir, "jobs.xml");
+			return jobManager = JobManager.fromXml(file);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();

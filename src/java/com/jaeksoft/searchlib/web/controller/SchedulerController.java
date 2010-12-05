@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,39 +22,49 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web;
+package com.jaeksoft.searchlib.web.controller;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import javax.naming.NamingException;
 
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.scheduler.TaskManager;
+import com.jaeksoft.searchlib.scheduler.JobItem;
 
-public class StartStopListener implements ServletContextListener {
+public class SchedulerController extends CommonController {
 
-	@Override
-	public void contextDestroyed(ServletContextEvent contextEvent) {
-		Logging.logger.info("OSS SHUTDOWN");
-		try {
-			TaskManager.stop();
-		} catch (SearchLibException e) {
-			Logging.logger.error(e);
-		}
-		ClientCatalog.closeAll();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5736529335058096440L;
+
+	private JobItem selectedItem;
+
+	private JobItem currentItem;
+
+	public SchedulerController() throws SearchLibException, NamingException {
+		super();
 	}
 
 	@Override
-	public void contextInitialized(ServletContextEvent contextEvent) {
-		Logging.initLogger();
-		Logging.logger.info("OSS IS STARTING");
-		ClientCatalog.openAll();
-		try {
-			TaskManager.start();
-		} catch (SearchLibException e) {
-			Logging.logger.error(e);
-		}
+	protected void reset() throws SearchLibException {
+		selectedItem = null;
+		currentItem = null;
+	}
+
+	public JobItem getItem() {
+		return currentItem;
+	}
+
+	public String getCurrentEditMode() throws SearchLibException {
+		return selectedItem == null ? "Create a new job"
+				: "Edit the selected job";
+	}
+
+	public boolean selected() {
+		return selectedItem != null;
+	}
+
+	public boolean notSelected() {
+		return !selected();
 	}
 
 }
