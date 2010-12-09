@@ -118,3 +118,15 @@ Tokyo Cabinet
 Copyright (C) 2006-2009 Fal Labs
 http://fallabs.com/tokyocabinet/
 Rely on LGPL license 2.1
+
+----------------------------------------
+Quartz Scheduler
+Copyright 2001-2009 Terracotta, Inc.
+http://www.quartz-scheduler.org
+Rely on LICENSE-APACHE2
+
+----------------------------------------
+JCIFS
+Copyright © 2010 The JCIFS Project
+http://jcifs.samba.org/
+Rely on LGPL license 2.1

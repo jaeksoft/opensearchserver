@@ -24,9 +24,7 @@ rem	 If not, see <http://www.gnu.org/licenses/>.
 
 if "%OS%" == "Windows_NT" setlocal
 
-set EXECUTABLE=%cd%\apache-tomcat-6.0.26\bin\startup.bat
-
-if not defined %CATALINA_OPTS% set CATALINA_OPTS="-Xms256m -Xmx2048m"
+set EXECUTABLE=%cd%\apache-tomcat-6.0.29\bin\startup.bat
 
 if exist "%EXECUTABLE%" goto okExec
 echo Cannot find %EXECUTABLE%
@@ -37,7 +35,7 @@ goto end
 
 set OPENSEARCHSERVER_DATA=%cd%\data
 
-cd %cd%\apache-tomcat-6.0.26
+cd %cd%\apache-tomcat-6.0.29
 call "%EXECUTABLE%"
 
 :end

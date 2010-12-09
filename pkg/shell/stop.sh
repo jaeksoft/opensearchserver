@@ -22,7 +22,7 @@
 #	along with Jaeksoft OpenSearchServer. 
 #	If not, see <http://www.gnu.org/licenses/>.
 
-EXECUTABLE=apache-tomcat-6.0.26/bin/shutdown.sh
+EXECUTABLE=apache-tomcat-6.0.29/bin/shutdown.sh
 
 if [ ! -x "$EXECUTABLE" ]; then
     echo "Cannot find $EXECUTABLE"

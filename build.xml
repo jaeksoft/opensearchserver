@@ -27,6 +27,7 @@
 	<property environment="env" />
 	<property name="src" location="src/java" />
 	<property name="src.php" location="src/php" />
+	<property name="src.asp" location="src/asp" />
 	<property name="resources" location="src/resources" />
 	<property name="web" location="WebContent" />
 	<property name="lib" location="lib" />
@@ -42,7 +43,7 @@
 	<property name="product" value="open-search-server" />
 	<property name="name-release" value="${product}" />
 	<property name="name-debug" value="${product}-debug" />
-	<property name="tomcat-name" value="apache-tomcat-6.0.26" />
+	<property name="tomcat-name" value="apache-tomcat-6.0.29" />
 	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
 	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="shell-dir" location="pkg/shell" />
@@ -142,6 +143,10 @@
 			<fileset dir="${src.php}" />
 		</copy>
 
+		<!-- Copy ASP source -->
+		<copy todir="${dist}/${product}/asp">
+			<fileset dir="${src.asp}" />
+		</copy>
 
 		<!-- Check executable file flag for batches -->
 		<chmod perm="ugo+x" type="file">

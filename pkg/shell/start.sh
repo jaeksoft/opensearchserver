@@ -22,17 +22,12 @@
 #	along with Jaeksoft OpenSearchServer. 
 #	If not, see <http://www.gnu.org/licenses/>.
 	
-EXECUTABLE=apache-tomcat-6.0.26/bin/startup.sh
+EXECUTABLE=apache-tomcat-6.0.29/bin/startup.sh
 
 if [ ! -x "$EXECUTABLE" ]; then
     echo "Cannot find $EXECUTABLE"
     echo "This file is needed to run this program"
     exit 1
-fi
-
-if [ -z "$CATALINA_OPTS" ]; then
-	CATALINA_OPTS="-Xms256m -Xmx2048m"
-	export CATALINA_OPTS
 fi
 
 OPENSEARCHSERVER_DATA=`pwd`/data
