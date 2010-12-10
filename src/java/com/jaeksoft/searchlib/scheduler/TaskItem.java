@@ -24,62 +24,63 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Properties;
 
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.crawler.UniqueNameItem;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class JobItem extends UniqueNameItem<JobItem> {
+public class TaskItem {
 
-	protected final static String JOB_NODE_NAME = "job";
+	private TaskAbstract task;
 
-	private ReadWriteLock rwl = new ReadWriteLock();
+	private Properties properties;
 
-	private String cron;
-
-	private List<TaskItem> tasks;
-
-	public JobItem(String name) {
-		super(name);
-		tasks = new ArrayList<TaskItem>();
+	public TaskItem(TaskAbstract task) {
+		this.task = task;
+		properties = new Properties();
 	}
 
 	/**
-	 * @return the cron
+	 * @return the task
 	 */
-	public String getCron() {
-		return cron;
+	public TaskAbstract getTask() {
+		return task;
 	}
 
 	/**
-	 * @param cron
-	 *            the cron to set
+	 * 
+	 * @param name
+	 * @return the property value
 	 */
-	public void setCron(String cron) {
-		this.cron = cron;
+	public String getProperty(String name) {
+		return properties.getProperty(name);
 	}
 
-	@Override
+	/**
+	 * Set the property
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	public void setProperty(String name, String value) {
+		properties.setProperty(name, value);
+	}
+
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		rwl.r.lock();
-		try {
-			xmlWriter.startElement("job", "name", this.getName(), "cron", cron);
-			for (TaskItem task : tasks)
-				task.writeXml(xmlWriter);
-			xmlWriter.endElement();
-		} finally {
-			rwl.r.unlock();
+		xmlWriter
+				.startElement("task", "class", task.getClass().getSimpleName());
+		String[] propertyList = task.getPropertyList();
+		if (propertyList != null) {
+			for (String propertyName : propertyList) {
+				String value = properties.getProperty(propertyName);
+				if (value != null) {
+					xmlWriter.startElement("property", "name", propertyName);
+					xmlWriter.textNode(value);
+					xmlWriter.endElement();
+				}
+			}
 		}
-	}
-
-	public static JobItem fromXml(XPathParser xpp, Node item) {
-		// TODO Auto-generated method stub
-		return null;
+		xmlWriter.endElement();
 	}
 }

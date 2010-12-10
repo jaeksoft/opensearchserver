@@ -31,6 +31,14 @@
 							width="95%" />
 						<label value="Enter the name of the job" />
 					</row>
+					<row>
+						<label value="Cron expression " />
+						<textbox value="@{scheduler.item.cron}"
+							width="95%" />
+						<button target="_blank"
+							label="Syntax documentation"
+							href="http://en.wikipedia.org/wiki/CRON_expression" />
+					</row>
 				</rows>
 				<foot>
 					<footer span="3">
