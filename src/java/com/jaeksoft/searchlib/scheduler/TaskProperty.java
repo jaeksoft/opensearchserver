@@ -24,53 +24,68 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
-import java.util.Properties;
+import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
-public abstract class TaskAbstract {
+public class TaskProperty {
 
-	/**
-	 * The name of the task
-	 * 
-	 * @return the name
-	 */
-	public abstract String getName();
+	private Config config;
 
-	/**
-	 * List of the properties
-	 * 
-	 * @return an array containing the name of the properties
-	 */
-	public abstract String[] getPropertyList();
+	private TaskAbstract task;
 
-	public boolean isProperty() {
-		String[] props = getPropertyList();
-		if (props == null)
-			return false;
-		return props.length > 0;
+	private String name;
+
+	private String value;
+
+	protected TaskProperty(Config config, TaskAbstract task, String propertyName) {
+		this.config = config;
+		this.task = task;
+		this.name = propertyName;
+		setValue(null);
 	}
 
 	/**
-	 * The possible values for a property.
-	 * 
-	 * @param client
-	 * @param property
-	 * @return an array with the possible value name
+	 * @param value
+	 *            the value to set
 	 */
-	public abstract String[] getPropertyValues(Config config, String property)
-			throws SearchLibException;
+	public void setValue(String value) {
+		this.value = value;
+	}
 
 	/**
-	 * Implements the task execution
+	 * @return the value
+	 */
+	public String getValue() {
+		return value;
+	}
+
+	/**
+	 * @return the property name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
 	 * 
-	 * @param client
-	 * @param properties
+	 * @return the possible value for this property
 	 * @throws SearchLibException
 	 */
-	public abstract void execute(Client client, Properties properties)
-			throws SearchLibException;
+	public String[] getValueList() throws SearchLibException {
+		return task.getPropertyValues(config, name);
+	}
 
+	/**
+	 * 
+	 * @param xmlWriter
+	 * @throws SAXException
+	 */
+	public void writeXml(XmlWriter xmlWriter) throws SAXException {
+		xmlWriter.startElement("property", "name", name);
+		xmlWriter.textNode(value);
+		xmlWriter.endElement();
+	}
 }

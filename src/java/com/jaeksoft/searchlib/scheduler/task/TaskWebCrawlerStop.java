@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 
@@ -44,7 +45,7 @@ public class TaskWebCrawlerStop extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Client client, String property) {
+	public String[] getPropertyValues(Config config, String property) {
 		return null;
 	}
 

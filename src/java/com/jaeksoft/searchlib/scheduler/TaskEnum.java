@@ -45,7 +45,7 @@ public enum TaskEnum {
 
 	WebCrawlerStop(TaskWebCrawlerStop.class);
 
-	protected TaskAbstract task;
+	private TaskAbstract task;
 
 	private TaskEnum(Class<? extends TaskAbstract> taskClass) {
 		try {
@@ -55,5 +55,31 @@ public enum TaskEnum {
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * 
+	 * @return the task abstract
+	 */
+	public TaskAbstract getTask() {
+		return task;
+	}
+
+	@Override
+	public String toString() {
+		return task.getName();
+	}
+
+	/**
+	 * Find the TaskAbstract using the simple name of the class
+	 * 
+	 * @param taskClass
+	 * @return
+	 */
+	public static TaskAbstract findClass(String taskClass) {
+		for (TaskEnum te : values())
+			if (taskClass.equals(te.task.getClass().getSimpleName()))
+				return te.getTask();
+		return null;
 	}
 }

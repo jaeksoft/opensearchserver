@@ -26,7 +26,8 @@ package com.jaeksoft.searchlib.scheduler;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -35,53 +36,71 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class JobManager {
+public class JobList {
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
-	private HashMap<String, JobItem> jobMap;
+	private Map<String, JobItem> jobs;
 
-	public JobManager() {
-		jobMap = new HashMap<String, JobItem>();
+	public JobList() {
+		jobs = new TreeMap<String, JobItem>();
 	}
 
-	public void add(JobItem item) {
+	public void add(JobItem job) {
+		rwl.w.lock();
+		try {
+			jobs.put(job.getName(), job);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 
+	public void remove(JobItem job) {
+		rwl.w.lock();
+		try {
+			jobs.remove(job);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	private final static String JOBS_ROOTNODE_NAME = "jobs";
 
-	public static JobManager fromXml(File file)
+	public static JobList fromXml(Config config, File file)
 			throws XPathExpressionException, ParserConfigurationException,
 			SAXException, IOException {
-		JobManager jobManager = new JobManager();
+		JobList jobList = new JobList();
 		if (!file.exists())
-			return jobManager;
+			return jobList;
 		XPathParser xpp = new XPathParser(file);
 		Node rootNode = xpp.getNode(JOBS_ROOTNODE_NAME);
 		if (rootNode == null)
-			return jobManager;
+			return jobList;
 		NodeList nodes = xpp.getNodeList(rootNode, JobItem.JOB_NODE_NAME);
 		if (nodes == null)
-			return jobManager;
+			return jobList;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			JobItem jobItem = JobItem.fromXml(xpp, nodes.item(i));
-			jobManager.add(jobItem);
+			JobItem jobItem = JobItem.fromXml(config, xpp, nodes.item(i));
+			jobList.add(jobItem);
 		}
-		return jobManager;
+		return jobList;
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement("jobs");
+			for (JobItem job : jobs.values())
+				job.writeXml(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
 		}
 	}
+
 }

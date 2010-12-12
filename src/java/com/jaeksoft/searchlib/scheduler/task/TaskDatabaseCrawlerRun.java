@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
@@ -48,9 +49,9 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Client client, String property)
+	public String[] getPropertyValues(Config config, String property)
 			throws SearchLibException {
-		DatabaseCrawlList crawlList = client.getDatabaseCrawlList();
+		DatabaseCrawlList crawlList = config.getDatabaseCrawlList();
 		DatabaseCrawl[] crawls = crawlList.getArray();
 		if (crawls == null)
 			return null;

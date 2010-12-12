@@ -24,21 +24,33 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class TaskItem {
 
 	private TaskAbstract task;
 
-	private Properties properties;
+	private List<TaskProperty> userProperties;
 
-	public TaskItem(TaskAbstract task) {
+	public TaskItem(Config config, TaskAbstract task) {
 		this.task = task;
-		properties = new Properties();
+		userProperties = new ArrayList<TaskProperty>();
+		String[] propertyNames = task.getPropertyList();
+		if (propertyNames != null) {
+			for (String propertyName : propertyNames)
+				userProperties
+						.add(new TaskProperty(config, task, propertyName));
+		}
 	}
 
 	/**
@@ -50,37 +62,28 @@ public class TaskItem {
 
 	/**
 	 * 
-	 * @param name
-	 * @return the property value
+	 * @return the property list
 	 */
-	public String getProperty(String name) {
-		return properties.getProperty(name);
-	}
-
-	/**
-	 * Set the property
-	 * 
-	 * @param name
-	 * @param value
-	 */
-	public void setProperty(String name, String value) {
-		properties.setProperty(name, value);
+	public List<TaskProperty> getProperties() {
+		return userProperties;
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter
 				.startElement("task", "class", task.getClass().getSimpleName());
-		String[] propertyList = task.getPropertyList();
-		if (propertyList != null) {
-			for (String propertyName : propertyList) {
-				String value = properties.getProperty(propertyName);
-				if (value != null) {
-					xmlWriter.startElement("property", "name", propertyName);
-					xmlWriter.textNode(value);
-					xmlWriter.endElement();
-				}
-			}
-		}
+		for (TaskProperty taskProperty : userProperties)
+			taskProperty.writeXml(xmlWriter);
 		xmlWriter.endElement();
+	}
+
+	public static TaskItem fromXml(Config config, Node node)
+			throws XPathExpressionException {
+		String taskClass = XPathParser.getAttributeString(node, "class");
+		if (taskClass == null)
+			return null;
+		TaskAbstract taskAbstract = TaskEnum.findClass(taskClass);
+		if (taskAbstract == null)
+			return null;
+		return new TaskItem(config, taskAbstract);
 	}
 }

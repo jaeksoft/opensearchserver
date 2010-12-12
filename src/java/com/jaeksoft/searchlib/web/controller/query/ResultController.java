@@ -105,14 +105,23 @@ public class ResultController extends AbstractQueryController implements
 		}
 
 		public float getScore() {
-			return getResult().getScore(pos);
+			Result result = getResult();
+			if (result == null)
+				return 0;
+			return result.getScore(pos);
 		}
 
 		public int getCollapseCount() {
-			return getResult().getCollapseCount(pos);
+			Result result = getResult();
+			if (result == null)
+				return 0;
+			return result.getCollapseCount(pos);
 		}
 
 		public int getDocId() {
+			Result result = getResult();
+			if (result == null)
+				return 0;
 			return getResult().getDocs()[pos].doc;
 		}
 
@@ -160,14 +169,20 @@ public class ResultController extends AbstractQueryController implements
 
 		public TreeModel getReturnTree() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			return new FieldTreeModel<FieldValue>(getResultDocument()
-					.getReturnFields());
+			ResultDocument resultDocument = getResultDocument();
+			if (resultDocument == null)
+				return null;
+			return new FieldTreeModel<FieldValue>(
+					resultDocument.getReturnFields());
 		}
 
 		public TreeModel getSnippetTree() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			return new FieldTreeModel<SnippetFieldValue>(getResultDocument()
-					.getSnippetFields());
+			ResultDocument resultDocument = getResultDocument();
+			if (resultDocument == null)
+				return null;
+			return new FieldTreeModel<SnippetFieldValue>(
+					resultDocument.getSnippetFields());
 		}
 	}
 
