@@ -16,7 +16,8 @@
 -->
 <window id="scheduler"
 	use="com.jaeksoft.searchlib.web.controller.SchedulerController">
-	<panel title="@{scheduler.currentEditMode}" border="normal">
+	<panel title="@{scheduler.currentEditMode}" border="normal"
+		collapsible="true">
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
@@ -27,7 +28,12 @@
 					<row>
 						<label value="Job name: " />
 						<textbox value="@{scheduler.currentJob.name}"
-							cols="50" />
+							readonly="@{scheduler.selected}" cols="50" />
+					</row>
+					<row>
+						<label value="Active: " />
+						<checkbox label="enabled"
+							checked="@{scheduler.currentJob.active}" />
 					</row>
 					<row>
 						<vbox>
@@ -110,7 +116,8 @@
 							</auxhead>
 							<listitem self="@{each='taskItem'}">
 								<listcell>
-									<label value="@{taskItem.task.name}" />
+									<label
+										value="@{taskItem.task.name}" />
 								</listcell>
 								<listcell>
 									<listbox
@@ -175,4 +182,43 @@
 			</grid>
 		</panelchildren>
 	</panel>
+
+	<separator height="5" />
+
+	<panel title="List of existing jobs and their settings"
+		border="normal">
+		<panelchildren>
+			<listbox model="@{scheduler.jobs}"
+				selectedItem="@{scheduler.selectedJob}">
+				<listhead>
+					<listheader label="Name" />
+					<listheader label="Active" />
+					<listheader label="Seconds" />
+					<listheader label="Minutes" />
+					<listheader label="Hours" />
+					<listheader label="Day of month" />
+					<listheader label="Month" />
+					<listheader label="Day of week" />
+					<listheader label="Year" />
+					<listheader label="Status" />
+				</listhead>
+				<listitem self="@{each=job}">
+					<listcell label="@{job.name}" />
+					<listcell>
+						<image src="images/action_check.png"
+							visible="@{job.active}" />
+					</listcell>
+					<listcell label="@{job.cron.seconds}" />
+					<listcell label="@{job.cron.minutes}" />
+					<listcell label="@{job.cron.hours}" />
+					<listcell label="@{job.cron.dayOfMonth}" />
+					<listcell label="@{job.cron.month}" />
+					<listcell label="@{job.cron.dayOfWeek}" />
+					<listcell label="@{job.cron.year}" />
+					<listcell label="" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+
 </window>

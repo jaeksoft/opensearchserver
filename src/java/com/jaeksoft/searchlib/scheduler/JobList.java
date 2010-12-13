@@ -47,23 +47,80 @@ public class JobList {
 
 	private Map<String, JobItem> jobs;
 
+	private JobItem[] jobsCache;
+
 	public JobList() {
 		jobs = new TreeMap<String, JobItem>();
+		jobsCache = null;
 	}
 
+	/**
+	 * Add a job to the list
+	 * 
+	 * @param job
+	 */
 	public void add(JobItem job) {
 		rwl.w.lock();
 		try {
 			jobs.put(job.getName(), job);
+			jobsCache = null;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public void remove(JobItem job) {
+	/**
+	 * Find a jobItem by name
+	 * 
+	 * @param jobName
+	 * @return
+	 */
+	public JobItem get(String jobName) {
+		rwl.r.lock();
+		try {
+			return jobs.get(jobName);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * Remove the jobItem by the name
+	 * 
+	 * @param jobName
+	 */
+	public void remove(String jobName) {
 		rwl.w.lock();
 		try {
-			jobs.remove(job);
+			jobs.remove(jobName);
+			jobsCache = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * Return an array of the jobItem in the jobList
+	 * 
+	 * @return
+	 */
+	public JobItem[] getJobs() {
+		rwl.r.lock();
+		try {
+			if (jobsCache != null)
+				return jobsCache;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (jobsCache != null)
+				return jobsCache;
+			jobsCache = new JobItem[jobs.size()];
+			int i = 0;
+			for (JobItem job : jobs.values())
+				jobsCache[i++] = job;
+			return jobsCache;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -71,6 +128,17 @@ public class JobList {
 
 	private final static String JOBS_ROOTNODE_NAME = "jobs";
 
+	/**
+	 * Build a job list from an XML file
+	 * 
+	 * @param config
+	 * @param file
+	 * @return
+	 * @throws XPathExpressionException
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
 	public static JobList fromXml(Config config, File file)
 			throws XPathExpressionException, ParserConfigurationException,
 			SAXException, IOException {
@@ -91,6 +159,12 @@ public class JobList {
 		return jobList;
 	}
 
+	/**
+	 * Write the job list in XML
+	 * 
+	 * @param xmlWriter
+	 * @throws SAXException
+	 */
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {

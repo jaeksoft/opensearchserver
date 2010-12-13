@@ -49,10 +49,31 @@ public class JobItem extends UniqueNameItem<JobItem> {
 
 	private List<TaskItem> tasks;
 
+	private boolean active;
+
 	public JobItem(String name) {
 		super(name);
 		tasks = new ArrayList<TaskItem>();
 		cron = new TaskCronExpression();
+	}
+
+	public void copy(JobItem job) {
+		rwl.w.lock();
+		try {
+			job.rwl.r.lock();
+			try {
+				setName(job.getName());
+				active = job.active;
+				tasks.clear();
+				for (TaskItem task : job.tasks)
+					tasks.add(task);
+				cron.copy(job.getCron());
+			} finally {
+				job.rwl.r.unlock();
+			}
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	/**
@@ -144,7 +165,8 @@ public class JobItem extends UniqueNameItem<JobItem> {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement("job", "name", this.getName());
+			xmlWriter.startElement("job", "name", this.getName(), "active",
+					active ? "yes" : "no");
 			cron.writeXml(xmlWriter);
 			for (TaskItem task : tasks)
 				task.writeXml(xmlWriter);
@@ -157,9 +179,12 @@ public class JobItem extends UniqueNameItem<JobItem> {
 	public static JobItem fromXml(Config config, XPathParser xpp, Node node)
 			throws XPathExpressionException {
 		String name = XPathParser.getAttributeString(node, "name");
+		boolean active = "yes".equalsIgnoreCase(XPathParser.getAttributeString(
+				node, "active"));
 		if (name == null)
 			return null;
 		JobItem jobItem = new JobItem(name);
+		jobItem.setActive(active);
 		NodeList tasks = xpp.getNodeList(node, "task");
 		for (int i = 0; i < tasks.getLength(); i++) {
 			TaskItem taskItem = TaskItem.fromXml(config, tasks.item(i));
@@ -168,4 +193,30 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 		return jobItem;
 	}
+
+	/**
+	 * @param active
+	 *            the active to set
+	 */
+	public void setActive(boolean active) {
+		rwl.w.lock();
+		try {
+			this.active = active;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the active
+	 */
+	public boolean isActive() {
+		rwl.r.lock();
+		try {
+			return active;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 }

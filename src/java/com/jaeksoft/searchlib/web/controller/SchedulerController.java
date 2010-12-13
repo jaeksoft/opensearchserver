@@ -32,6 +32,7 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
+import com.jaeksoft.searchlib.scheduler.JobList;
 import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 
@@ -64,7 +65,7 @@ public class SchedulerController extends CommonController {
 		@Override
 		protected void onYes() throws SearchLibException {
 			Client client = getClient();
-			client.getJobList().remove(deleteJob);
+			client.getJobList().remove(deleteJob.getName());
 			client.saveJobs();
 			onCancel();
 		}
@@ -209,10 +210,34 @@ public class SchedulerController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		if (selectedJob == null)
-			client.getJobList().add(currentJob);
+		JobList jobList = client.getJobList();
+		if (selectedJob == null) {
+			if (jobList.get(currentJob.getName()) != null) {
+				new AlertController("The name is already used");
+				return;
+			}
+			jobList.add(currentJob);
+		} else
+			selectedJob.copy(currentJob);
 		client.saveJobs();
 		onCancel();
+	}
+
+	public JobItem[] getJobs() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getJobList().getJobs();
+	}
+
+	public JobItem getSelectedJob() {
+		return selectedJob;
+	}
+
+	public void setSelectedJob(JobItem job) {
+		this.selectedJob = job;
+		currentJob.copy(job);
+		reloadPage();
 	}
 
 }

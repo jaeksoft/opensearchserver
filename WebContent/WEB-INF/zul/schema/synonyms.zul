@@ -16,7 +16,7 @@
 -->
 <window id="synonyms"
 	use="com.jaeksoft.searchlib.web.controller.schema.SynonymsController">
-	<panel title="Stop words list" border="normal">
+	<panel title="Synonyms list" border="normal">
 		<panelchildren>
 			<listbox model="@{synonyms.manager.list}"
 				selectedItem="@{synonyms.editName}">

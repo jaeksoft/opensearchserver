@@ -57,6 +57,16 @@ public class TaskCronExpression {
 		year = "*";
 	}
 
+	public void copy(TaskCronExpression cron) {
+		seconds = cron.seconds;
+		minutes = cron.minutes;
+		hours = cron.hours;
+		dayOfMonth = cron.dayOfMonth;
+		month = cron.month;
+		dayOfWeek = cron.dayOfWeek;
+		year = cron.year;
+	}
+
 	/**
 	 * @return the seconds
 	 */
@@ -194,4 +204,5 @@ public class TaskCronExpression {
 				XML_NODE_DAYOFWEEK, dayOfWeek, XML_NODE_YEAR, year);
 		xmlWriter.endElement();
 	}
+
 }
