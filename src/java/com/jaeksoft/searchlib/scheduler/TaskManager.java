@@ -24,11 +24,15 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.text.ParseException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.quartz.CronTrigger;
+import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -40,8 +44,8 @@ public class TaskManager {
 	private static Scheduler scheduler = null;
 
 	public static void start() throws SearchLibException {
+		lock.lock();
 		try {
-			lock.lock();
 			scheduler = StdSchedulerFactory.getDefaultScheduler();
 			scheduler.start();
 		} catch (SchedulerException e) {
@@ -52,10 +56,54 @@ public class TaskManager {
 	}
 
 	public static void stop() throws SearchLibException {
+		lock.lock();
 		try {
-			lock.lock();
 			if (scheduler != null)
 				scheduler.shutdown();
+		} catch (SchedulerException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public static void checkJob(String indexName, String jobName,
+			TaskCronExpression cron) throws SearchLibException {
+		lock.lock();
+		try {
+			// TODO CHECK IF IT ALREADY EXIST
+			JobDetail job = new JobDetail(jobName, indexName, TaskManager.class);
+			try {
+				Trigger trigger = new CronTrigger(jobName, indexName,
+						cron.getStringExpression());
+				scheduler.scheduleJob(job, trigger);
+			} catch (ParseException e) {
+				throw new SearchLibException(e);
+			} catch (SchedulerException e) {
+				throw new SearchLibException(e);
+			}
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public static String[] getActiveJobs(String indexName)
+			throws SearchLibException {
+		lock.lock();
+		try {
+			return scheduler.getJobNames(indexName);
+		} catch (SchedulerException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public static void removeJob(String indexName, String jobName)
+			throws SearchLibException {
+		lock.lock();
+		try {
+			scheduler.deleteJob(indexName, jobName);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {

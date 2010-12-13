@@ -205,4 +205,22 @@ public class TaskCronExpression {
 		xmlWriter.endElement();
 	}
 
+	public String getStringExpression() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(seconds);
+		sb.append(' ');
+		sb.append(minutes);
+		sb.append(' ');
+		sb.append(hours);
+		sb.append(' ');
+		sb.append(dayOfMonth);
+		sb.append(' ');
+		sb.append(month);
+		sb.append(' ');
+		sb.append(dayOfWeek);
+		sb.append(' ');
+		sb.append(year);
+		return sb.toString();
+	}
+
 }

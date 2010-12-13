@@ -202,6 +202,7 @@ public abstract class Config {
 			}
 			getFileCrawlMaster();
 			getWebCrawlMaster();
+			getJobList();
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -287,11 +288,12 @@ public abstract class Config {
 		if (!longTermLock.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
+			JobList jobList = getJobList();
 			rwl.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
 						"UTF-8");
-				getJobList().writeXml(xmlWriter);
+				jobList.writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} catch (TransformerConfigurationException e) {
@@ -303,6 +305,7 @@ public abstract class Config {
 			} finally {
 				rwl.w.unlock();
 			}
+			jobList.checkExecution(this);
 		} finally {
 			longTermLock.unlock();
 			cfr.abort();
@@ -606,7 +609,9 @@ public abstract class Config {
 			if (jobList != null)
 				return jobList;
 			File file = new File(indexDir, "jobs.xml");
-			return jobList = JobList.fromXml(this, file);
+			jobList = JobList.fromXml(this, file);
+			jobList.checkExecution(this);
+			return jobList;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {

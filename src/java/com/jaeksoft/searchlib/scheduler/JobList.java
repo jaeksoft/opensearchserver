@@ -36,6 +36,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -177,4 +178,13 @@ public class JobList {
 		}
 	}
 
+	public void checkExecution(Config config) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			for (JobItem job : jobs.values())
+				job.checkTaskExecution(config);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
 }

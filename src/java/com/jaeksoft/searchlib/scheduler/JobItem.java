@@ -33,6 +33,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -214,6 +215,18 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		rwl.r.lock();
 		try {
 			return active;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void checkTaskExecution(Config config) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (active)
+				TaskManager.checkJob(config.getIndexName(), getName(), cron);
+			else
+				TaskManager.removeJob(config.getIndexName(), getName());
 		} finally {
 			rwl.r.unlock();
 		}
