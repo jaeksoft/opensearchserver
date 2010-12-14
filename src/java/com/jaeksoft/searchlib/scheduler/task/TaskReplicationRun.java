@@ -24,37 +24,59 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.util.List;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
+import com.jaeksoft.searchlib.replication.ReplicationItem;
+import com.jaeksoft.searchlib.replication.ReplicationList;
+import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 
-public class TaskFileCrawlerStart extends TaskAbstract {
+public class TaskReplicationRun extends TaskAbstract {
+
+	private String[] propsName = { "replication name" };
 
 	@Override
 	public String getName() {
-		return "File crawler - start";
+		return "Replication - run";
 	}
 
 	@Override
 	public String[] getPropertyList() {
-		return null;
+		return propsName;
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, String property) {
-		return null;
+	public String[] getPropertyValues(Config config, String property)
+			throws SearchLibException {
+		ReplicationList replicationList = config.getReplicationList();
+		List<String> nameList = replicationList.getNameList();
+		if (nameList == null)
+			return null;
+		String[] values = new String[nameList.size()];
+		for (int i = 0; i < values.length; i++)
+			values[i] = nameList.get(i);
+		return values;
 	}
 
 	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
-		CrawlFileMaster crawlMaster = client.getFileCrawlMaster();
-		if (crawlMaster.isRunning())
+		ReplicationMaster replicationMaster = client.getReplicationMaster();
+		ReplicationList replicationList = client.getReplicationList();
+		String replicationName = properties.getValue(propsName[0]);
+		if (replicationName == null)
 			return;
-		crawlMaster.start();
-		crawlMaster.waitForStart(0);
+		ReplicationItem replicationItem = replicationList.get(replicationName);
+		if (replicationItem == null)
+			return;
+		try {
+			replicationMaster.execute(client, replicationItem, true);
+		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		}
 	}
 }

@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Properties;
 
 import org.apache.http.HttpException;
 
@@ -34,6 +33,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskProperties;
 
 public class TaskOptimizeIndex extends TaskAbstract {
 
@@ -53,7 +53,7 @@ public class TaskOptimizeIndex extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, Properties properties)
+	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
 		try {
 			client.optimize();

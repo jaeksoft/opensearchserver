@@ -33,6 +33,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.UniqueNameItem;
@@ -52,10 +54,13 @@ public class JobItem extends UniqueNameItem<JobItem> {
 
 	private boolean active;
 
+	private SearchLibException lastError;
+
 	public JobItem(String name) {
 		super(name);
 		tasks = new ArrayList<TaskItem>();
 		cron = new TaskCronExpression();
+		setLastError(null);
 	}
 
 	public void copy(JobItem job) {
@@ -162,6 +167,16 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 	}
 
+	public void run(Client client) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			for (TaskItem task : tasks)
+				task.run(client);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
@@ -188,7 +203,7 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		jobItem.setActive(active);
 		NodeList tasks = xpp.getNodeList(node, "task");
 		for (int i = 0; i < tasks.getLength(); i++) {
-			TaskItem taskItem = TaskItem.fromXml(config, tasks.item(i));
+			TaskItem taskItem = TaskItem.fromXml(config, xpp, tasks.item(i));
 			if (taskItem != null)
 				jobItem.taskAdd(taskItem);
 		}
@@ -220,16 +235,34 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 	}
 
-	public void checkTaskExecution(Config config) throws SearchLibException {
+	public void checkTaskExecution(Config config) {
 		rwl.r.lock();
 		try {
 			if (active)
 				TaskManager.checkJob(config.getIndexName(), getName(), cron);
 			else
 				TaskManager.removeJob(config.getIndexName(), getName());
+		} catch (SearchLibException e) {
+			Logging.logger.error(e);
+			setLastError(e);
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	/**
+	 * @param lastError
+	 *            the lastError to set
+	 */
+	public void setLastError(SearchLibException lastError) {
+		this.lastError = lastError;
+	}
+
+	/**
+	 * @return the lastError
+	 */
+	public SearchLibException getLastError() {
+		return lastError;
 	}
 
 }

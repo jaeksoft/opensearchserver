@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
-import java.util.Properties;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -70,7 +68,7 @@ public abstract class TaskAbstract {
 	 * @param properties
 	 * @throws SearchLibException
 	 */
-	public abstract void execute(Client client, Properties properties)
+	public abstract void execute(Client client, TaskProperties properties)
 			throws SearchLibException;
 
 }

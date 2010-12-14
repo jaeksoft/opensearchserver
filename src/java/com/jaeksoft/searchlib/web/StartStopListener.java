@@ -49,12 +49,12 @@ public class StartStopListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		Logging.initLogger();
 		Logging.logger.info("OSS IS STARTING");
-		ClientCatalog.openAll();
 		try {
 			TaskManager.start();
 		} catch (SearchLibException e) {
 			Logging.logger.error(e);
 		}
+		ClientCatalog.openAll();
 	}
 
 }

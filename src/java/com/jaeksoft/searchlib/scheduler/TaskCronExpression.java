@@ -48,12 +48,12 @@ public class TaskCronExpression {
 	private String year;
 
 	public TaskCronExpression() {
-		seconds = "*";
+		seconds = "0";
 		minutes = "*";
 		hours = "*";
 		dayOfMonth = "*";
 		month = "*";
-		dayOfWeek = "*";
+		dayOfWeek = "?";
 		year = "*";
 	}
 

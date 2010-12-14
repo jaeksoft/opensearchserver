@@ -28,6 +28,7 @@ import com.jaeksoft.searchlib.scheduler.task.TaskDatabaseCrawlerRun;
 import com.jaeksoft.searchlib.scheduler.task.TaskFileCrawlerStart;
 import com.jaeksoft.searchlib.scheduler.task.TaskFileCrawlerStop;
 import com.jaeksoft.searchlib.scheduler.task.TaskOptimizeIndex;
+import com.jaeksoft.searchlib.scheduler.task.TaskReplicationRun;
 import com.jaeksoft.searchlib.scheduler.task.TaskWebCrawlerStart;
 import com.jaeksoft.searchlib.scheduler.task.TaskWebCrawlerStop;
 
@@ -40,6 +41,8 @@ public enum TaskEnum {
 	FileCrawlerStop(TaskFileCrawlerStop.class),
 
 	OptimizeIndex(TaskOptimizeIndex.class),
+
+	ReplicationRun(TaskReplicationRun.class),
 
 	WebCrawlerStart(TaskWebCrawlerStart.class),
 

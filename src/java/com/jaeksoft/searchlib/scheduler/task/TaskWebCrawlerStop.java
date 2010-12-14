@@ -24,13 +24,12 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
-import java.util.Properties;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskProperties;
 
 public class TaskWebCrawlerStop extends TaskAbstract {
 
@@ -50,7 +49,7 @@ public class TaskWebCrawlerStop extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, Properties properties)
+	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
 		WebCrawlMaster crawlMaster = client.getWebCrawlMaster();
 		if (!crawlMaster.isRunning())

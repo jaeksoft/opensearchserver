@@ -24,14 +24,14 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -40,17 +40,12 @@ public class TaskItem {
 
 	private TaskAbstract task;
 
-	private List<TaskProperty> userProperties;
+	private TaskProperties userProperties;
 
 	public TaskItem(Config config, TaskAbstract task) {
 		this.task = task;
-		userProperties = new ArrayList<TaskProperty>();
-		String[] propertyNames = task.getPropertyList();
-		if (propertyNames != null) {
-			for (String propertyName : propertyNames)
-				userProperties
-						.add(new TaskProperty(config, task, propertyName));
-		}
+		userProperties = new TaskProperties(config, task,
+				task.getPropertyList());
 	}
 
 	/**
@@ -64,19 +59,22 @@ public class TaskItem {
 	 * 
 	 * @return the property list
 	 */
-	public List<TaskProperty> getProperties() {
-		return userProperties;
+	public TaskProperty[] getProperties() {
+		return userProperties.getArray();
+	}
+
+	public void run(Client client) throws SearchLibException {
+		task.execute(client, userProperties);
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter
 				.startElement("task", "class", task.getClass().getSimpleName());
-		for (TaskProperty taskProperty : userProperties)
-			taskProperty.writeXml(xmlWriter);
+		userProperties.writeXml(xmlWriter);
 		xmlWriter.endElement();
 	}
 
-	public static TaskItem fromXml(Config config, Node node)
+	public static TaskItem fromXml(Config config, XPathParser xpp, Node node)
 			throws XPathExpressionException {
 		String taskClass = XPathParser.getAttributeString(node, "class");
 		if (taskClass == null)
@@ -84,6 +82,15 @@ public class TaskItem {
 		TaskAbstract taskAbstract = TaskEnum.findClass(taskClass);
 		if (taskAbstract == null)
 			return null;
-		return new TaskItem(config, taskAbstract);
+		TaskItem taskItem = new TaskItem(config, taskAbstract);
+		NodeList nodeList = xpp.getNodeList(node, "property");
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node propNode = nodeList.item(i);
+			String name = XPathParser.getAttributeString(propNode, "name");
+			String value = xpp.getNodeString(propNode);
+			taskItem.userProperties.setValue(name, value);
+		}
+		return taskItem;
 	}
+
 }

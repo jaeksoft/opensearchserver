@@ -192,15 +192,16 @@
 				selectedItem="@{scheduler.selectedJob}">
 				<listhead>
 					<listheader label="Name" />
-					<listheader label="Active" />
-					<listheader label="Seconds" />
-					<listheader label="Minutes" />
-					<listheader label="Hours" />
-					<listheader label="Day of month" />
-					<listheader label="Month" />
-					<listheader label="Day of week" />
-					<listheader label="Year" />
+					<listheader tooltiptext="Active" label="A" width="50px" />
+					<listheader tooltiptext="Seconds" label="S" width="50px" />
+					<listheader tooltiptext="Minutes" label="M" width="50px"/>
+					<listheader tooltiptext="Hours" label="H" width="50px"/>
+					<listheader tooltiptext="Day of month" label="DM" width="50px"/>
+					<listheader tooltiptext="Month" label="M" width="50px"/>
+					<listheader tooltiptext="Day of week" label="DW" width="50px"/>
+					<listheader tooltiptext="Year" label="W" width="50px"/>
 					<listheader label="Status" />
+					<listheader label="Error" />
 				</listhead>
 				<listitem self="@{each=job}">
 					<listcell label="@{job.name}" />
@@ -216,6 +217,7 @@
 					<listcell label="@{job.cron.dayOfWeek}" />
 					<listcell label="@{job.cron.year}" />
 					<listcell label="" />
+					<listcell label="@{job.lastError.message}" />
 				</listitem>
 			</listbox>
 		</panelchildren>

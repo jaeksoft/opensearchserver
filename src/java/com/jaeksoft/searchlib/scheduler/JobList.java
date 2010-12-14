@@ -183,6 +183,19 @@ public class JobList {
 		try {
 			for (JobItem job : jobs.values())
 				job.checkTaskExecution(config);
+
+			// Remove non existing job in the scheduler
+			String indexName = config.getIndexName();
+			String[] jobNames = TaskManager.getActiveJobs(indexName);
+			if (jobNames != null)
+				for (String jobName : jobNames) {
+					JobItem jobItem = jobs.get(jobName);
+					if (jobItem != null)
+						if (!jobItem.isActive())
+							jobItem = null;
+					if (jobItem == null)
+						TaskManager.removeJob(indexName, jobName);
+				}
 		} finally {
 			rwl.r.unlock();
 		}
