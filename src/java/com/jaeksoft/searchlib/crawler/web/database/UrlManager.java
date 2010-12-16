@@ -574,10 +574,7 @@ public class UrlManager extends UrlManagerAbstract {
 		if (optimize) {
 			urlDbClient.reload();
 			urlDbClient.getIndex().optimize();
-			targetClient.reload();
-			targetClient.getIndex().optimize();
 		}
-		urlDbClient.reload();
 		targetClient.reload();
 	}
 

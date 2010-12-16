@@ -409,8 +409,6 @@ public class UrlManagerTokyo extends UrlManagerAbstract {
 
 	@Override
 	public void reload(boolean optimize) throws SearchLibException {
-		// TODO Implementation
-		targetClient.reload();
 	}
 
 	@Override

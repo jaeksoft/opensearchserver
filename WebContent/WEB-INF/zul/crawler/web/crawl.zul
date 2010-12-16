@@ -72,19 +72,6 @@
 							value="@{crawlProcess.properties.delayBetweenAccesses.value}" />
 
 					</row>
-					<row>
-						<label
-							value="At the end of the crawl session: " />
-						<checkbox label="Optimize"
-							visible="@{crawlProcess.webCrawlerParametersRights}"
-							disabled="@{crawlProcess.refresh}"
-							checked="@{crawlProcess.properties.optimizeAfterSession.value}" />
-						<label value="Execute the replication: " />
-						<listbox
-							model="@{crawlProcess.replicationNameList}"
-							selectedItem="@{crawlProcess.properties.replicationItem.value}"
-							mold="select" />
-					</row>
 				</rows>
 			</grid>
 		</panelchildren>
