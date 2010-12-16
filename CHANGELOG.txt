@@ -9,6 +9,8 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3011773: Add Quartz as scheduler service
+- 3138603: Upgrade Tomcat to version 6.0.29
 - 3103055: Convert HTML entities
 - 3087916: Upgrade to PDFBox 1.2
 - 3043692: Torrent Parser

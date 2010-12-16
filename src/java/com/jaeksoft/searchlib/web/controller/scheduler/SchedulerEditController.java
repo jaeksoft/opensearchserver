@@ -22,12 +22,13 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller;
+package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import javax.naming.NamingException;
 
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
+import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -35,8 +36,10 @@ import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.scheduler.JobList;
 import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
+import com.jaeksoft.searchlib.web.controller.AlertController;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class SchedulerController extends CommonController {
+public class SchedulerEditController extends CommonController {
 
 	/**
 	 * 
@@ -71,7 +74,7 @@ public class SchedulerController extends CommonController {
 		}
 	}
 
-	public SchedulerController() throws SearchLibException, NamingException {
+	public SchedulerEditController() throws SearchLibException, NamingException {
 		super();
 	}
 
@@ -80,6 +83,13 @@ public class SchedulerController extends CommonController {
 		selectedJob = null;
 		currentJob = new JobItem("New job");
 		setSelectedTask(TaskEnum.DatabaseCrawlerRun);
+	}
+
+	@Override
+	protected void eventJobEdit(JobItem job) throws SearchLibException {
+		this.selectedJob = job;
+		currentJob.copy(job);
+		reloadPage();
 	}
 
 	/**
@@ -197,13 +207,15 @@ public class SchedulerController extends CommonController {
 	public void onCancel() throws SearchLibException {
 		reset();
 		reloadPage();
+		Tab tab = (Tab) getFellow("tabSchedulerList", true);
+		tab.setSelected(true);
 	}
 
 	public void onDelete() throws SearchLibException, InterruptedException {
 		if (selectedJob == null)
 			return;
 		new DeleteAlert(selectedJob);
-		reloadPage();
+		onCancel();
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException {
@@ -221,23 +233,6 @@ public class SchedulerController extends CommonController {
 			selectedJob.copy(currentJob);
 		client.saveJobs();
 		onCancel();
-	}
-
-	public JobItem[] getJobs() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		return client.getJobList().getJobs();
-	}
-
-	public JobItem getSelectedJob() {
-		return selectedJob;
-	}
-
-	public void setSelectedJob(JobItem job) {
-		this.selectedJob = job;
-		currentJob.copy(job);
-		reloadPage();
 	}
 
 }

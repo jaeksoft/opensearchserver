@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.scheduler;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -56,11 +57,17 @@ public class JobItem extends UniqueNameItem<JobItem> {
 
 	private SearchLibException lastError;
 
+	private JobLog jobLog;
+
+	private Date lastExecution;
+
 	public JobItem(String name) {
 		super(name);
 		tasks = new ArrayList<TaskItem>();
 		cron = new TaskCronExpression();
+		jobLog = new JobLog(200);
 		setLastError(null);
+		lastExecution = null;
 	}
 
 	public void copy(JobItem job) {
@@ -167,12 +174,23 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 	}
 
-	public void run(Client client) throws SearchLibException {
+	public void run(Client client) {
 		rwl.r.lock();
+		TaskLog taskLog = null;
+		lastExecution = new Date();
 		try {
-			for (TaskItem task : tasks)
+			for (TaskItem task : tasks) {
+				taskLog = new TaskLog(task);
+				jobLog.addLog(taskLog);
 				task.run(client);
+				taskLog.end();
+			}
+		} catch (SearchLibException e) {
+			taskLog.setError(e);
+			setLastError(e);
 		} finally {
+			if (taskLog != null)
+				taskLog.end();
 			rwl.r.unlock();
 		}
 	}
@@ -262,7 +280,37 @@ public class JobItem extends UniqueNameItem<JobItem> {
 	 * @return the lastError
 	 */
 	public SearchLibException getLastError() {
-		return lastError;
+		rwl.r.lock();
+		try {
+			return lastError;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the last execution date
+	 */
+	public Date getLastExecution() {
+		rwl.r.lock();
+		try {
+			return lastExecution;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * 
+	 * @return the job log
+	 */
+	public JobLog getJobLog() {
+		rwl.r.lock();
+		try {
+			return jobLog;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 }

@@ -127,6 +127,19 @@ public class JobList {
 		}
 	}
 
+	public int getActiveCount() {
+		rwl.r.lock();
+		try {
+			int c = 0;
+			for (JobItem job : jobs.values())
+				if (job.isActive())
+					c++;
+			return c;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	private final static String JOBS_ROOTNODE_NAME = "jobs";
 
 	/**

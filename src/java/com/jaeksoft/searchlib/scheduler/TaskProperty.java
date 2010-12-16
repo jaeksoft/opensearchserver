@@ -47,6 +47,13 @@ public class TaskProperty {
 		setValue(null);
 	}
 
+	protected TaskProperty(TaskProperty taskPropSource) {
+		this.config = taskPropSource.config;
+		this.task = taskPropSource.task;
+		this.name = taskPropSource.name;
+		this.value = taskPropSource.value;
+	}
+
 	/**
 	 * @param value
 	 *            the value to set

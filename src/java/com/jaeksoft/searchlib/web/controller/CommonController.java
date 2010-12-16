@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -229,6 +230,8 @@ public abstract class CommonController extends Window implements AfterCompose,
 				eventQueryEditRequest((SearchRequest) event.getData());
 			else if (pushEvent == PushEvent.QUERY_EDIT_RESULT)
 				eventQueryEditResult((Result) event.getData());
+			else if (pushEvent == PushEvent.JOB_EDIT)
+				eventJobEdit((JobItem) event.getData());
 		} catch (SearchLibException e) {
 			throw new UiException(e);
 		}
@@ -253,6 +256,9 @@ public abstract class CommonController extends Window implements AfterCompose,
 	}
 
 	protected void eventSchemaChange() throws SearchLibException {
+	}
+
+	protected void eventJobEdit(JobItem jobItem) throws SearchLibException {
 	}
 
 	protected void eventLogout() throws SearchLibException {

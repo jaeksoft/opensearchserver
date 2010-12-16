@@ -70,7 +70,12 @@ public enum PushEvent {
 	/**
 	 * The user does a search
 	 */
-	QUERY_EDIT_RESULT(EventQueues.DESKTOP);
+	QUERY_EDIT_RESULT(EventQueues.DESKTOP),
+
+	/**
+	 * An job has been selected for edition
+	 */
+	JOB_EDIT(EventQueues.SESSION);
 
 	private String scope;
 
