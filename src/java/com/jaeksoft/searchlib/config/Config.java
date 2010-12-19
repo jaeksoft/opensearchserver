@@ -61,6 +61,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
@@ -116,6 +117,8 @@ public abstract class Config {
 	private PatternManager inclusionPatternManager = null;
 
 	private PatternManager exclusionPatternManager = null;
+
+	private CredentialManager webCredentialManager = null;
 
 	private UrlFilterList urlFilterList = null;
 
@@ -893,6 +896,26 @@ public abstract class Config {
 				return exclusionPatternManager;
 			return exclusionPatternManager = new PatternManager(indexDir,
 					"patterns_exclusion.xml");
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public CredentialManager getWebCredentialManager()
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (webCredentialManager != null)
+				return webCredentialManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (webCredentialManager != null)
+				return webCredentialManager;
+			return webCredentialManager = new CredentialManager(indexDir,
+					"web_credentials.xml");
 		} finally {
 			rwl.w.unlock();
 		}

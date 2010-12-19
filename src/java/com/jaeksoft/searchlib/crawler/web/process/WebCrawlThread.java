@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
@@ -124,8 +125,9 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
+		CredentialManager credentialManager = config.getWebCredentialManager();
 		Crawl crawl = new Crawl(currentUrlItem, config,
-				config.getParserSelector());
+				config.getParserSelector(), credentialManager);
 
 		try {
 			// Check the url

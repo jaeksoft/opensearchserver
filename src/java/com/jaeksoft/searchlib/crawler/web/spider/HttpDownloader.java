@@ -34,7 +34,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.HttpClientParams;
@@ -48,10 +50,11 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
 public class HttpDownloader {
 
-	private HttpClient httpClient = null;
+	private DefaultHttpClient httpClient = null;
 	private HttpGet httpGet = null;
 	private HttpContext httpContext = null;
 	private HttpResponse httpResponse = null;
@@ -68,6 +71,7 @@ public class HttpDownloader {
 		paramsBean.setUserAgent(userAgent);
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		httpClient = new DefaultHttpClient(params);
+
 		// TIMEOUT ?
 		// RETRY HANDLER ?
 	}
@@ -102,9 +106,19 @@ public class HttpDownloader {
 		}
 	}
 
-	public void get(URI uri) throws IOException {
+	public void get(URI uri, CredentialItem credentialItem) throws IOException {
 		synchronized (this) {
 			reset();
+			CredentialsProvider credential = httpClient
+					.getCredentialsProvider();
+			if (credentialItem == null)
+				credential.clear();
+			else
+				credential.setCredentials(
+						new AuthScope(uri.getHost(), uri.getPort()),
+						new UsernamePasswordCredentials(credentialItem
+								.getUsername(), credentialItem.getPassword()));
+
 			httpGet = new HttpGet(uri);
 			httpContext = new BasicHttpContext();
 			httpResponse = httpClient.execute(httpGet, httpContext);

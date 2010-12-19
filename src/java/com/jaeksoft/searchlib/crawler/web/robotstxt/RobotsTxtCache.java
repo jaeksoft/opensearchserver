@@ -29,8 +29,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -103,7 +103,7 @@ public class RobotsTxtCache {
 			if (robotsTxt != null)
 				return robotsTxt;
 		}
-		Crawl crawl = new Crawl(urlItem, config, parserSelector);
+		Crawl crawl = new Crawl(urlItem, config, parserSelector, null);
 		crawl.download(httpDownloader);
 		synchronized (robotsTxtList) {
 			RobotsTxt robotsTxt = new RobotsTxt(crawl);

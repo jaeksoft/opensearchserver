@@ -44,6 +44,8 @@ import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
@@ -63,6 +65,7 @@ public class Crawl {
 
 	private IndexDocument targetIndexDocument;
 	private UrlItem urlItem;
+	private CredentialManager credentialManager;
 	private String userAgent;
 	private ParserSelector parserSelector;
 	private Config config;
@@ -72,13 +75,14 @@ public class Crawl {
 	private FieldMap urlFieldMap;
 	private URI redirectUrlLocation;
 
-	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector)
-			throws SearchLibException {
+	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector,
+			CredentialManager credentialManager) throws SearchLibException {
 		this.targetIndexDocument = null;
 		this.urlFieldMap = config.getWebCrawlerFieldMap();
 		this.discoverLinks = null;
 		this.urlItem = urlItem;
 		this.urlItem.setWhenNow();
+		this.credentialManager = credentialManager;
 		this.userAgent = config.getWebPropertyManager().getUserAgent()
 				.getValue().toLowerCase();
 		this.parser = null;
@@ -144,7 +148,11 @@ public class Crawl {
 		synchronized (this) {
 			InputStream is = null;
 			try {
-				httpDownloader.get(urlItem.getCheckedURI());
+				URI uri = urlItem.getCheckedURI();
+
+				CredentialItem credentialItem = credentialManager == null ? null
+						: credentialManager.matchCredential(uri.toURL());
+				httpDownloader.get(uri, credentialItem);
 
 				String contentDispositionFilename = httpDownloader
 						.getContentDispositionFilename();
