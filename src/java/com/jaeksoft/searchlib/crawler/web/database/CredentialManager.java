@@ -109,9 +109,29 @@ public class CredentialManager {
 		}
 	}
 
+	public CredentialItem getCredential(String sPattern)
+			throws MalformedURLException {
+		rwl.r.lock();
+		try {
+			String host = new URL(sPattern).getHost();
+			List<CredentialItem> itemList = credentialMap.get(host);
+			if (itemList == null)
+				return null;
+			Iterator<CredentialItem> it = itemList.iterator();
+			while (it.hasNext()) {
+				CredentialItem item = it.next();
+				if (item.getPattern().equals(sPattern))
+					return item;
+			}
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	private void delCredentialWithoutLock(String sPattern)
 			throws MalformedURLException {
-		String host = new PatternItem(sPattern).extractUrl(true).getHost();
+		String host = new URL(sPattern).getHost();
 		List<CredentialItem> itemList = credentialMap.get(host);
 		if (itemList == null)
 			return;
@@ -121,7 +141,25 @@ public class CredentialManager {
 				it.remove();
 	}
 
-	public void delCredential(Collection<String> patterns)
+	public void delCredential(String pattern) throws SearchLibException {
+		rwl.w.lock();
+		try {
+			delCredentialWithoutLock(pattern);
+			store();
+		} catch (MalformedURLException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void delCredentials(Collection<String> patterns)
 			throws SearchLibException {
 		rwl.w.lock();
 		try {

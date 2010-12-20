@@ -16,8 +16,7 @@
 -->
 <window id="scheduleredit"
 	use="com.jaeksoft.searchlib.web.controller.scheduler.SchedulerEditController">
-	<panel title="@{scheduleredit.currentEditMode}" border="normal"
-		collapsible="true">
+	<panel title="@{scheduleredit.currentEditMode}" border="normal">
 		<panelchildren>
 			<grid>
 				<columns sizable="false">

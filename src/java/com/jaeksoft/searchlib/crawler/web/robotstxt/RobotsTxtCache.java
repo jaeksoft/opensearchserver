@@ -55,8 +55,7 @@ public class RobotsTxtCache {
 	}
 
 	/**
-	 * Retire les robotsTxt dont la date d'expiration est inférieure ou égale à
-	 * t
+	 * Remove the expired robotsTxt items (relative to the t parameter)
 	 * 
 	 * @param t
 	 */
@@ -80,7 +79,7 @@ public class RobotsTxtCache {
 	}
 
 	/**
-	 * Retourne l'objet RobotsTxt correspondant � l'url pass�e en param�tre.
+	 * Return the RobotsTxt object related to the URL.
 	 * 
 	 * @param userAgent
 	 * @param url
@@ -103,7 +102,8 @@ public class RobotsTxtCache {
 			if (robotsTxt != null)
 				return robotsTxt;
 		}
-		Crawl crawl = new Crawl(urlItem, config, parserSelector, null);
+		Crawl crawl = new Crawl(urlItem, config, parserSelector,
+				config.getWebCredentialManager());
 		crawl.download(httpDownloader);
 		synchronized (robotsTxtList) {
 			RobotsTxt robotsTxt = new RobotsTxt(crawl);

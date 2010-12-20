@@ -56,11 +56,17 @@ public class CredentialItem {
 	public void writeXml(XmlWriter xmlWriter)
 			throws UnsupportedEncodingException, SAXException {
 		xmlWriter.startElement("credential", "username",
-				new String(Base64.encodeBase64URLSafe(username.getBytes()),
-						"password"),
+				new String(Base64.encodeBase64URLSafe(username.getBytes())),
+				"password",
 				new String(Base64.encodeBase64URLSafe(password.getBytes())));
 		xmlWriter.textNode(pattern);
 		xmlWriter.endElement();
+	}
+
+	public void copy(CredentialItem credential) {
+		credential.pattern = this.pattern;
+		credential.username = this.username;
+		credential.password = this.password;
 	}
 
 	/**
