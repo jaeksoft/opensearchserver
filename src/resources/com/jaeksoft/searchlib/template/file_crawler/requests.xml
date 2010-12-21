@@ -26,14 +26,12 @@
 
 		<query>uri:($$)^10 OR uri:("$$")^10 OR
 			content:($$)^10 OR content:("$$")^10 OR
-			title:($$)^10 OR title:("$$")^10 OR
-			originalUri:($$)
+			title:($$)^10 OR title:("$$")^10
         </query>
       
 		<returnFields>
 			<field name="uri" />
 			<field name="content" />
-			<field name="originalUri" />
 			<field name="fileSystemDate" />
 		</returnFields>
 
@@ -46,7 +44,6 @@
 		<returnFields>
 			<field name="uri" />
 			<field name="content" />
-			<field name="originalUri" />
 			<field name="fileSystemDate" />
 		</returnFields>
 

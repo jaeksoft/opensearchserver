@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +57,7 @@ public class CrawlFileIterator {
 		}
 	}
 
-	protected File next() {
+	protected FileInstanceAbstract next() throws URISyntaxException {
 		lock.lock();
 		try {
 			for (;;) {
@@ -68,7 +68,7 @@ public class CrawlFileIterator {
 					filePathItemIterator = new FilePathItemIterator(
 							filePathItem);
 				} else {
-					File next = filePathItemIterator.next();
+					FileInstanceAbstract next = filePathItemIterator.next();
 					if (next != null)
 						return next;
 					hasNext = false;

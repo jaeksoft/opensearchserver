@@ -24,8 +24,7 @@
 	<link source="content" target="contentExact" />
 	<link source="title" target="title" />
 	<link source="title" target="titleExact" />
-	<link source="originalUri" target="originalUri" />
-	<link source="directoryUri" target="directoryUri" />
+	<link source="directory" target="directory" />
 	<link source="fileSystemDate" target="fileSystemDate" />
 	<link source="lang" target="lang" />
 	<link source="crawlDate" target="crawlDate" />

@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.File;
+import java.net.URISyntaxException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,23 +36,26 @@ public class FilePathItemIterator {
 
 	private ItemIterator itemIterator;
 
-	protected FilePathItemIterator(FilePathItem filePathItem) {
+	protected FilePathItemIterator(FilePathItem filePathItem)
+			throws URISyntaxException {
 		lock.lock();
 		try {
-			itemIterator = ItemIterator.create(null,
-					filePathItem.getFilePath(), filePathItem.isWithSub());
+			FileInstanceAbstract fileInstance = FileInstanceAbstract.create(
+					null, filePathItem.getURI());
+			itemIterator = ItemIterator.create(null, fileInstance,
+					filePathItem.isWithSub());
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	protected File next() {
+	protected FileInstanceAbstract next() throws URISyntaxException {
 		lock.lock();
 		try {
 			for (;;) {
 				if (itemIterator == null)
 					return null;
-				File f = itemIterator.getFile();
+				FileInstanceAbstract f = itemIterator.getFileInstance();
 				itemIterator = itemIterator.next();
 				if (f != null)
 					return f;

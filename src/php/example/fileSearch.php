@@ -61,7 +61,7 @@ if (isset($_REQUEST['query'])) {
 	$result = $search->query($_REQUEST['query'])
 					 ->template('fileSearch')
 					 ->facet('lang', 0)
-					 ->field(array('uri', 'crawlDate', 'directoryUri', 'fileSystemDate', 'metaDescription', 'metaKeywords', 'lang', 'originalUri', 'title', 'when'))
+					 ->field(array('uri', 'crawlDate', 'directory', 'fileSystemDate', 'metaDescription', 'metaKeywords', 'lang', 'title', 'when'))
 					 ->start($start)
 					 ->rows(10)
 					 ->execute($ossEngineConnectTimeOut);
@@ -220,7 +220,7 @@ if (isset($_REQUEST['query'])) {
 						foreach ($resultEntries as $entry):
 
 							$uri	   = array_first($entry->xpath('*[@name="uri"]'));
-							$directory = array_first($entry->xpath('*[@name="directoryUri"]'));
+							$directory = array_first($entry->xpath('*[@name="directory"]'));
 							$file	   = str_replace($directory, '', $uri);
 							$date	   = array_first($entry->xpath('*[@name="fileSystemDate"]'));
 							$dateTS    = strtotime(preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})\d+$/', '$1-$2-$3 $4:$5:$6', $date));

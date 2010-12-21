@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.File;
+import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -53,7 +53,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 			start();
 	}
 
-	protected File getNextFile() {
+	protected FileInstanceAbstract getNextFile() throws URISyntaxException {
 		synchronized (crawlFileIterator) {
 			sleepMs(delayBetweenAccess);
 			return crawlFileIterator.next();

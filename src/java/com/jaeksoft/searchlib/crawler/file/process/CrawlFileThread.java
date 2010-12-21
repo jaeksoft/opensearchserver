@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.File;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
@@ -58,16 +56,16 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 		currentStats.addListSize(1);
 
-		File file;
+		FileInstanceAbstract fileInstance;
 
-		while ((file = crawlMaster.getNextFile()) != null) {
+		while ((fileInstance = crawlMaster.getNextFile()) != null) {
 
 			if (isAborted() || crawlMaster.isAborted())
 				break;
 
 			setStatus(CrawlStatus.CRAWL);
 
-			currentFileItem = new FileItem(file);
+			currentFileItem = new FileItem(fileInstance);
 
 			CrawlFile crawl = crawl();
 			if (crawl != null)

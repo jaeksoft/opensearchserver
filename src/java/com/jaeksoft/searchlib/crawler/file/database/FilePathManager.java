@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.crawler.file.database;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,13 +51,13 @@ public class FilePathManager {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private Map<File, FilePathItem> filePathMap = null;
+	private Map<URI, FilePathItem> filePathMap = null;
 
 	private final File filePathFile;
 
 	public FilePathManager(File indexDir) throws SearchLibException {
 		filePathFile = new File(indexDir, "filePaths.xml");
-		filePathMap = new TreeMap<File, FilePathItem>();
+		filePathMap = new TreeMap<URI, FilePathItem>();
 		try {
 			load();
 		} catch (ParserConfigurationException e) {
@@ -66,11 +68,14 @@ public class FilePathManager {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
 	private void load() throws ParserConfigurationException, SAXException,
-			IOException, XPathExpressionException, SearchLibException {
+			IOException, XPathExpressionException, SearchLibException,
+			URISyntaxException {
 		if (!filePathFile.exists())
 			return;
 
@@ -81,12 +86,11 @@ public class FilePathManager {
 
 		List<FilePathItem> patternList = new ArrayList<FilePathItem>(l);
 		for (int i = 0; i < l; i++) {
-			String path = DomUtils.getText(nodeList.item(i));
-			File filePath = new File(path);
-
+			String uriString = DomUtils.getText(nodeList.item(i));
+			URI uri = new URI(uriString);
 			String withSubString = DomUtils.getAttributeText(nodeList.item(i),
 					"withSub");
-			patternList.add(new FilePathItem(filePath, FilePathItem
+			patternList.add(new FilePathItem(uri, FilePathItem
 					.parse(withSubString)));
 		}
 		addListWithoutStoreAndLock(patternList, true);
@@ -103,7 +107,7 @@ public class FilePathManager {
 			for (FilePathItem item : filePathMap.values()) {
 				xmlWriter.startElement("path", "withSub",
 						"" + item.getWithSubToString());
-				xmlWriter.textNode(item.getFilePath().getAbsolutePath());
+				xmlWriter.textNode(item.getURI().toString());
 				xmlWriter.endElement();
 			}
 			xmlWriter.endElement();
@@ -120,7 +124,7 @@ public class FilePathManager {
 
 		// First pass: Identify already present
 		for (FilePathItem item : filePathList) {
-			if (!bDeleteAll && filePathMap.containsKey(item.getFilePath()))
+			if (!bDeleteAll && filePathMap.containsKey(item.getURI()))
 				item.setStatus(FilePathItem.Status.ALREADY);
 			else {
 				addPathWithoutLock(item);
@@ -167,7 +171,7 @@ public class FilePathManager {
 	}
 
 	private void addPathWithoutLock(FilePathItem filePathItem) {
-		filePathMap.put(filePathItem.getFilePath(), filePathItem);
+		filePathMap.put(filePathItem.getURI(), filePathItem);
 	}
 
 	public void addPath(FilePathItem item) throws SearchLibException {
@@ -186,8 +190,8 @@ public class FilePathManager {
 		}
 	}
 
-	public void add(File file, boolean withSubDir) throws SearchLibException {
-		addPath(new FilePathItem(file, withSubDir));
+	public void add(URI uri, boolean withSubDir) throws SearchLibException {
+		addPath(new FilePathItem(uri, withSubDir));
 	}
 
 	public int getFilePaths(String startsWith, long start, long rows,
@@ -199,8 +203,7 @@ public class FilePathManager {
 			int total = 0;
 			for (FilePathItem item : filePathMap.values()) {
 				if (startsWith != null) {
-					if (!item.getFilePath().getAbsolutePath()
-							.startsWith(startsWith)) {
+					if (!item.getURI().toString().startsWith(startsWith)) {
 						pos++;
 						continue;
 					}

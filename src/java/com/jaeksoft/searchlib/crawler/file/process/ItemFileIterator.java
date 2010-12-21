@@ -24,15 +24,14 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.File;
-
 public class ItemFileIterator extends ItemIterator {
 
-	private File file;
+	private FileInstanceAbstract fileInstance;
 
-	protected ItemFileIterator(ItemIterator parent, File file) {
+	protected ItemFileIterator(ItemIterator parent,
+			FileInstanceAbstract fileInstance) {
 		super(parent);
-		this.file = file;
+		this.fileInstance = fileInstance;
 	}
 
 	@Override
@@ -41,8 +40,8 @@ public class ItemFileIterator extends ItemIterator {
 	}
 
 	@Override
-	protected File getFileImpl() {
-		return file;
+	protected FileInstanceAbstract getFileInstanceImpl() {
+		return fileInstance;
 	}
 
 }

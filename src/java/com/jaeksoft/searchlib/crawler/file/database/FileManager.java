@@ -40,7 +40,6 @@ import java.util.List;
 import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -147,8 +146,7 @@ public class FileManager {
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		searchRequest.addReturnField("uri");
-		searchRequest.addReturnField("directoryUri");
-		searchRequest.addReturnField("originalUri");
+		searchRequest.addReturnField("directory");
 		searchRequest.addReturnField("contentLength");
 		searchRequest.addReturnField("lang");
 		searchRequest.addReturnField("langMethod");
@@ -160,16 +158,6 @@ public class FileManager {
 		searchRequest.addReturnField("fileSystemDate");
 		searchRequest.addReturnField("fileSize");
 		searchRequest.addReturnField("fileExtension");
-		return searchRequest;
-	}
-
-	private SearchRequest getDBSearchRequest() throws SearchLibException {
-		SearchRequest searchRequest = targetClient.getNewSearchRequest();
-		searchRequest.setDefaultOperator("OR");
-		searchRequest.setRows(0);
-		searchRequest.setRows(MAX_FILE_RETURN);
-		searchRequest.addReturnField("uri");
-		searchRequest.addReturnField("originalUri");
 		return searchRequest;
 	}
 
@@ -189,13 +177,13 @@ public class FileManager {
 		return null;
 	}
 
-	public List<FileItem> findAllByDirectoryURI(URI parentUri)
+	public List<FileItem> findAllByDirectory(URI parentUri)
 			throws SearchLibException, CorruptIndexException, ParseException,
 			UnsupportedEncodingException {
 
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
-		request.addFilter(FileItemFieldEnum.directoryUri.name() + ":\""
+		request.addFilter(FileItemFieldEnum.directory.name() + ":\""
 				+ SearchRequest.escapeQuery(parentUri.toASCIIString()) + '"');
 		request.addSort(FileItemFieldEnum.uri.name(), false);
 
@@ -361,7 +349,7 @@ public class FileManager {
 		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 
 		deleteRequest.setQueryString(buildQueryString(
-				FileItemFieldEnum.directoryUri.name(), rowToDelete, true));
+				FileItemFieldEnum.directory.name(), rowToDelete, true));
 		fileDbClient.deleteDocuments(deleteRequest);
 	}
 
@@ -387,7 +375,7 @@ public class FileManager {
 			InstantiationException, IllegalAccessException {
 
 		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(FileItemFieldEnum.directoryUri.name());
+				.getLinks(FileItemFieldEnum.directory.name());
 
 		if (mappedPath.isEmpty())
 			return false;
@@ -398,55 +386,6 @@ public class FileManager {
 
 		targetClient.deleteDocuments(deleteRequestTarget);
 		return true;
-	}
-
-	public int deleteByOriginalUri(List<String> list) throws SearchLibException {
-		try {
-
-			if (list == null || (list != null && list.isEmpty()))
-				return 0;
-
-			SearchRequest deleteRequest = getPathSearchRequest();
-			deleteRequest.setQueryString(buildQueryString(
-					FileItemFieldEnum.originalUri.name(), list, false));
-
-			fileDbClient.deleteDocuments(deleteRequest);
-
-			// Delete in final index if a mapping is found
-			List<Target> mappedField = targetClient.getFileCrawlerFieldMap()
-					.getLinks(FileItemFieldEnum.originalUri.name());
-
-			if (mappedField.isEmpty())
-				return 0;
-
-			SearchRequest deleteRequestTarget = getDBSearchRequest();
-			deleteRequestTarget.setQueryString(buildQueryString(mappedField
-					.get(0).getName(), list, false));
-
-			return targetClient.deleteDocuments(deleteRequestTarget);
-
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
-		}
-
 	}
 
 	public void updateCrawls(List<CrawlFile> crawls) throws SearchLibException {

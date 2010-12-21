@@ -22,44 +22,47 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.file.process;
+package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
-import java.net.URISyntaxException;
+import java.net.URI;
 
-public class ItemDirectoryIterator extends ItemIterator {
+import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 
-	private FileInstanceAbstract[] files;
+public class FtpFileInstance extends FileInstanceAbstract {
 
-	private int currentPos;
-
-	private boolean withSubDir;
-
-	protected ItemDirectoryIterator(ItemIterator parent,
-			FileInstanceAbstract fileInstance, boolean withSubDir)
-			throws URISyntaxException {
-		super(parent);
-		currentPos = 0;
-		this.withSubDir = withSubDir;
-		if (withSubDir)
-			files = fileInstance.listFilesAndDirectories();
-		else
-			files = fileInstance.listFilesOnly();
-
+	public FtpFileInstance(FileInstanceAbstract parent, URI uri) {
+		super(parent, uri);
 	}
 
 	@Override
-	protected FileInstanceAbstract getFileInstanceImpl() {
+	public FileTypeEnum getFileType() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected ItemIterator nextImpl() throws URISyntaxException {
-		if (files == null)
-			return parent;
-		if (currentPos >= files.length)
-			return parent;
-		FileInstanceAbstract fileInstances = files[currentPos++];
-		return ItemIterator.create(this, fileInstances, withSubDir);
+	public FileInstanceAbstract[] listFilesAndDirectories() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FileInstanceAbstract[] listFilesOnly() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Long getLastModified() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Long getFileSize() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

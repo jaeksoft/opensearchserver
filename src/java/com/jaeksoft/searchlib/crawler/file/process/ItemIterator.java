@@ -24,9 +24,11 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.File;
+import java.net.URISyntaxException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 
 public abstract class ItemIterator {
 
@@ -43,18 +45,18 @@ public abstract class ItemIterator {
 		}
 	}
 
-	protected File getFile() {
+	protected FileInstanceAbstract getFileInstance() {
 		lock.lock();
 		try {
-			return getFileImpl();
+			return getFileInstanceImpl();
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	protected abstract File getFileImpl();
+	protected abstract FileInstanceAbstract getFileInstanceImpl();
 
-	protected ItemIterator next() {
+	protected ItemIterator next() throws URISyntaxException {
 		lock.lock();
 		try {
 			return nextImpl();
@@ -63,14 +65,16 @@ public abstract class ItemIterator {
 		}
 	}
 
-	protected abstract ItemIterator nextImpl();
+	protected abstract ItemIterator nextImpl() throws URISyntaxException;
 
-	protected static ItemIterator create(ItemIterator parent, File file,
-			boolean withSubDir) {
-		if (file.isDirectory())
-			return new ItemDirectoryIterator(parent, file, withSubDir);
-		if (file.isFile())
-			return new ItemFileIterator(parent, file);
+	protected static ItemIterator create(ItemIterator parent,
+			FileInstanceAbstract fileInstance, boolean withSubDir)
+			throws URISyntaxException {
+		FileTypeEnum type = fileInstance.getFileType();
+		if (type == FileTypeEnum.directory)
+			return new ItemDirectoryIterator(parent, fileInstance, withSubDir);
+		if (type == FileTypeEnum.file)
+			return new ItemFileIterator(parent, fileInstance);
 		return null;
 	}
 }

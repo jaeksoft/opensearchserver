@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-import java.io.File;
+import java.net.URI;
 
 import com.jaeksoft.searchlib.crawler.common.database.Selector;
 
@@ -50,20 +50,20 @@ public class FilePathItem {
 	}
 
 	private Status status;
-	private File filePath;
+	private URI uri;
 	private Selector<FilePathItem> filePathSelector;
 	private boolean withSub;
 
 	public FilePathItem() {
 		status = Status.UNDEFINED;
-		filePath = null;
+		uri = null;
 		filePathSelector = null;
 		withSub = false;
 	}
 
-	public FilePathItem(File filePath, boolean withSub) {
+	public FilePathItem(URI uri, boolean withSub) {
 		this();
-		setFilePath(filePath);
+		setURI(uri);
 		setWithSub(withSub);
 	}
 
@@ -86,12 +86,12 @@ public class FilePathItem {
 		return filePathSelector.isSelected(this);
 	}
 
-	public void setFilePath(File filePath) {
-		this.filePath = filePath;
+	public void setURI(URI uri) {
+		this.uri = uri;
 	}
 
-	public File getFilePath() {
-		return filePath;
+	public URI getURI() {
+		return uri;
 	}
 
 	public void setFilePathSelector(Selector<FilePathItem> patternSelector) {

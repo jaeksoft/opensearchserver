@@ -38,7 +38,7 @@ if (isset($_REQUEST['query'])) {
 	$result = $search->query($_REQUEST['query'])
 	->template('search')
 	->facet('lang', 0)
-	// ->field(array('uri', 'crawlDate', 'directoryUri', 'fileSystemDate', 'metaDescription', 'metaKeywords', 'lang', 'originalUri', 'title', 'when'))
+	// ->field(array('uri', 'crawlDate', 'directory', 'fileSystemDate', 'metaDescription', 'metaKeywords', 'lang', 'title', 'when'))
 	->start($start)
 	->rows($params->get('maxResultPerPage',10))
 	->execute($ossEngineConnectTimeOut);

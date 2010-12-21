@@ -9,6 +9,8 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3141193: FTP/FTPS support in the file crawler
+- 3141192: SMB/CIFS support in file crawler
 - 3034238: Crawler able to log in protected web site
 - 3011773: Add Quartz as scheduler service
 - 3138603: Upgrade Tomcat to version 6.0.29

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,34 +24,19 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-public enum FileItemFieldEnum {
-	uri,
+import java.io.File;
 
-	directory,
+public enum FileTypeEnum {
 
-	subDirectory,
+	file,
 
-	lang,
+	directory;
 
-	langMethod,
-
-	contentLength,
-
-	when,
-
-	parserStatus,
-
-	fetchStatus,
-
-	indexStatus,
-
-	crawlDate,
-
-	fileSystemDate,
-
-	fileSize,
-
-	fileExtension,
-
-	fileType;
+	public final static FileTypeEnum valueOf(File file) {
+		if (file.isFile())
+			return FileTypeEnum.file;
+		if (file.isDirectory())
+			return FileTypeEnum.directory;
+		return null;
+	}
 }

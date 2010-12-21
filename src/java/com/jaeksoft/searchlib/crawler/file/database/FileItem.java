@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,9 @@ import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,6 +45,7 @@ import org.apache.commons.io.FilenameUtils;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -92,8 +95,8 @@ public class FileItem implements Serializable {
 	}
 
 	public URI uri;
-	public URI originalUri;
-	public URI directoryUri;
+	public URI directory;
+	public List<String> subDirectory;
 	private Integer contentLength;
 	private String lang;
 	private String langMethod;
@@ -105,6 +108,7 @@ public class FileItem implements Serializable {
 	private long crawlDate;
 	private long size;
 	private String extension;
+	private FileTypeEnum type;
 
 	private final int count;
 
@@ -113,8 +117,8 @@ public class FileItem implements Serializable {
 	protected FileItem() {
 		status = Status.UNDEFINED;
 		uri = null;
-		originalUri = null;
-		directoryUri = null;
+		directory = null;
+		subDirectory = null;
 		contentLength = null;
 		lang = null;
 		langMethod = null;
@@ -127,6 +131,7 @@ public class FileItem implements Serializable {
 		fileSystemDate = "0";
 		size = 0;
 		extension = "";
+		type = null;
 	}
 
 	public FileItem(ResultDocument doc) throws UnsupportedEncodingException,
@@ -134,14 +139,13 @@ public class FileItem implements Serializable {
 		this();
 
 		setURI(parseValueToURI(doc.getValue(FileItemFieldEnum.uri.name(), 0)));
-		setOriginalURI(parseValueToURI(doc.getValue(
-				FileItemFieldEnum.originalUri.name(), 0)));
-		setDirectoryURI(parseValueToURI(doc.getValue(
-				FileItemFieldEnum.directoryUri.name(), 0)));
+		setDirectory(parseValueToURI(doc.getValue(
+				FileItemFieldEnum.directory.name(), 0)));
+		setSubDirectory(doc.getValueList(FileItemFieldEnum.directory.name()));
 
 		if (FileItemFieldEnum.contentLength.name() != null)
-			setContentLength(doc.getValue(FileItemFieldEnum.contentLength
-					.name(), 0));
+			setContentLength(doc.getValue(
+					FileItemFieldEnum.contentLength.name(), 0));
 
 		if (FileItemFieldEnum.uri.name() != null)
 			setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
@@ -157,8 +161,8 @@ public class FileItem implements Serializable {
 					FileItemFieldEnum.fetchStatus.name(), 0));
 
 		if (FileItemFieldEnum.parserStatus.name() != null)
-			setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus
-					.name(), 0));
+			setParserStatusInt(doc.getValue(
+					FileItemFieldEnum.parserStatus.name(), 0));
 
 		if (FileItemFieldEnum.indexStatus.name() != null)
 			setIndexStatusInt(doc.getValue(
@@ -168,8 +172,8 @@ public class FileItem implements Serializable {
 			setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
 
 		if (FileItemFieldEnum.fileSystemDate.name() != null)
-			setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate
-					.name(), 0));
+			setFileSystemDate(doc.getValue(
+					FileItemFieldEnum.fileSystemDate.name(), 0));
 
 		if (FileItemFieldEnum.fileSize.name() != null)
 			setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
@@ -177,17 +181,27 @@ public class FileItem implements Serializable {
 		if (FileItemFieldEnum.fileExtension.name() != null)
 			setExtension(doc
 					.getValue(FileItemFieldEnum.fileExtension.name(), 0));
+
+		if (FileItemFieldEnum.fileType.name() != null)
+			setType(FileTypeEnum.valueOf(doc.getValue(
+					FileItemFieldEnum.fileType.name(), 0)));
 	}
 
-	public FileItem(File file) {
+	public FileItem(FileInstanceAbstract fileInstance) {
 		this();
-		setURI(file.toURI());
-		setOriginalURI(file.toURI());
-		setDirectoryURI(file.getParentFile().toURI());
+		setURI(fileInstance.getURI());
+		FileInstanceAbstract parentFileInstance = fileInstance.getParent();
+		if (parentFileInstance != null)
+			setDirectory(parentFileInstance.getURI());
+		subDirectory = new ArrayList<String>();
+		FileInstanceAbstract dir = fileInstance;
+		while ((dir = dir.getParent()) != null)
+			subDirectory.add(dir.getURI().getPath());
 		setCrawlDate(System.currentTimeMillis());
-		setFileSystemDate(file.lastModified());
-		setSize(file.length());
+		setFileSystemDate(fileInstance.getLastModified());
+		setSize(fileInstance.getFileSize());
 		setExtension(FilenameUtils.getExtension(uri.toASCIIString()));
+		setType(fileInstance.getFileType());
 	}
 
 	public Integer getContentLength() {
@@ -236,12 +250,12 @@ public class FileItem implements Serializable {
 		return langMethod;
 	}
 
-	public URI getOriginalURI() {
-		return originalUri;
+	public URI getDirectory() {
+		return directory;
 	}
 
-	public URI getDirectoryURI() {
-		return directoryUri;
+	public List<String> getSubDirectory() {
+		return subDirectory;
 	}
 
 	public ParserStatus getParserStatus() {
@@ -274,11 +288,11 @@ public class FileItem implements Serializable {
 		indexDocument.set(FileItemFieldEnum.uri.name(), getURI()
 				.toASCIIString());
 
-		indexDocument.set(FileItemFieldEnum.originalUri.name(),
-				getOriginalURI().toASCIIString());
+		indexDocument.set(FileItemFieldEnum.directory.name(), getDirectory()
+				.toASCIIString());
 
-		indexDocument.set(FileItemFieldEnum.directoryUri.name(),
-				getDirectoryURI().toASCIIString());
+		indexDocument.set(FileItemFieldEnum.subDirectory.name(),
+				getSubDirectory());
 
 		if (when != null)
 			indexDocument.set(FileItemFieldEnum.when.name(), getDateFormat()
@@ -303,9 +317,11 @@ public class FileItem implements Serializable {
 		indexDocument.set(FileItemFieldEnum.indexStatus.name(),
 				indexStatus.value);
 		indexDocument.set(FileItemFieldEnum.fileSize.name(), getSize());
-		if (getExtension() != null)
-			indexDocument.set(FileItemFieldEnum.fileExtension.name(),
-					getExtension());
+		if (extension != null)
+			indexDocument
+					.set(FileItemFieldEnum.fileExtension.name(), extension);
+		if (type != null)
+			indexDocument.set(FileItemFieldEnum.fileType.name(), type.name());
 	}
 
 	public void setContentLength(int v) {
@@ -358,12 +374,12 @@ public class FileItem implements Serializable {
 		this.langMethod = langMethod;
 	}
 
-	public void setOriginalURI(URI originalUri) {
-		this.originalUri = originalUri;
+	public void setDirectory(URI directory) {
+		this.directory = directory;
 	}
 
-	public void setDirectoryURI(URI directoryUri) {
-		this.directoryUri = directoryUri;
+	public void setSubDirectory(List<String> subDirectory) {
+		this.subDirectory = subDirectory;
 	}
 
 	public void setParserStatus(ParserStatus status) {
@@ -468,6 +484,14 @@ public class FileItem implements Serializable {
 		this.extension = extension;
 	}
 
+	public FileTypeEnum getType() {
+		return type;
+	}
+
+	public void setType(FileTypeEnum type) {
+		this.type = type;
+	}
+
 	/**
 	 * Test if a new crawl is needed
 	 * 
@@ -495,4 +519,5 @@ public class FileItem implements Serializable {
 			return new URI(value);
 		return null;
 	}
+
 }
