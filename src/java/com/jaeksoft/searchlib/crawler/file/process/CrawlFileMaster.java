@@ -53,7 +53,8 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 			start();
 	}
 
-	protected FileInstanceAbstract getNextFile() throws URISyntaxException {
+	protected FileInstanceAbstract getNextFile() throws URISyntaxException,
+			InstantiationException, IllegalAccessException {
 		synchronized (crawlFileIterator) {
 			sleepMs(delayBetweenAccess);
 			return crawlFileIterator.next();

@@ -143,48 +143,34 @@ public class FileItem implements Serializable {
 				FileItemFieldEnum.directory.name(), 0)));
 		setSubDirectory(doc.getValueList(FileItemFieldEnum.directory.name()));
 
-		if (FileItemFieldEnum.contentLength.name() != null)
-			setContentLength(doc.getValue(
-					FileItemFieldEnum.contentLength.name(), 0));
+		setContentLength(doc
+				.getValue(FileItemFieldEnum.contentLength.name(), 0));
 
-		if (FileItemFieldEnum.uri.name() != null)
-			setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
+		setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
 
-		if (FileItemFieldEnum.langMethod.name() != null)
-			setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
+		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
 
-		if (FileItemFieldEnum.when.name() != null)
-			setWhen(doc.getValue(FileItemFieldEnum.when.name(), 0));
+		setWhen(doc.getValue(FileItemFieldEnum.when.name(), 0));
 
-		if (FileItemFieldEnum.fetchStatus.name() != null)
-			setFetchStatusInt(doc.getValue(
-					FileItemFieldEnum.fetchStatus.name(), 0));
+		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
 
-		if (FileItemFieldEnum.parserStatus.name() != null)
-			setParserStatusInt(doc.getValue(
-					FileItemFieldEnum.parserStatus.name(), 0));
+		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
+				0));
 
-		if (FileItemFieldEnum.indexStatus.name() != null)
-			setIndexStatusInt(doc.getValue(
-					FileItemFieldEnum.indexStatus.name(), 0));
+		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.name(), 0));
 
-		if (FileItemFieldEnum.crawlDate.name() != null)
-			setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
+		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
 
-		if (FileItemFieldEnum.fileSystemDate.name() != null)
-			setFileSystemDate(doc.getValue(
-					FileItemFieldEnum.fileSystemDate.name(), 0));
+		setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate.name(),
+				0));
 
-		if (FileItemFieldEnum.fileSize.name() != null)
-			setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
+		setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
 
-		if (FileItemFieldEnum.fileExtension.name() != null)
-			setExtension(doc
-					.getValue(FileItemFieldEnum.fileExtension.name(), 0));
+		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.name(), 0));
 
-		if (FileItemFieldEnum.fileType.name() != null)
-			setType(FileTypeEnum.valueOf(doc.getValue(
-					FileItemFieldEnum.fileType.name(), 0)));
+		String s = doc.getValue(FileItemFieldEnum.fileType.name(), 0);
+		if (s != null)
+			setType(FileTypeEnum.valueOf(s));
 	}
 
 	public FileItem(FileInstanceAbstract fileInstance) {

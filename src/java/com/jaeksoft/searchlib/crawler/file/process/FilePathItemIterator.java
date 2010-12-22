@@ -37,11 +37,12 @@ public class FilePathItemIterator {
 	private ItemIterator itemIterator;
 
 	protected FilePathItemIterator(FilePathItem filePathItem)
-			throws URISyntaxException {
+			throws URISyntaxException, InstantiationException,
+			IllegalAccessException {
 		lock.lock();
 		try {
 			FileInstanceAbstract fileInstance = FileInstanceAbstract.create(
-					null, filePathItem.getURI());
+					filePathItem, null, filePathItem.getPath());
 			itemIterator = ItemIterator.create(null, fileInstance,
 					filePathItem.isWithSub());
 		} finally {

@@ -27,34 +27,40 @@ package com.jaeksoft.searchlib.crawler.file.process;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance;
 
 public abstract class FileInstanceAbstract {
 
-	protected URI uri;
-
 	protected FileInstanceAbstract parent;
 
-	final public static FileInstanceAbstract create(
-			FileInstanceAbstract parent, URI uri) {
-		if (uri == null)
-			return null;
-		String scheme = uri.getScheme();
-		if ("smb".equals(scheme))
-			return new SmbFileInstance(parent, uri);
-		if ("ftp".equals(scheme))
-			return new FtpFileInstance(parent, uri);
-		if ("file".equals(scheme))
-			return new LocalFileInstance(parent, uri);
-		return null;
+	protected FilePathItem filePathItem;
+
+	protected String path;
+
+	private URI uri;
+
+	final public static FileInstanceAbstract create(FilePathItem filePathItem,
+			FileInstanceAbstract parent, String path)
+			throws InstantiationException, IllegalAccessException,
+			URISyntaxException {
+		FileInstanceAbstract fileInstance = filePathItem.getType()
+				.getNewInstance();
+		fileInstance.init(filePathItem, parent, path);
+		return fileInstance;
 	}
 
-	protected FileInstanceAbstract(FileInstanceAbstract parent, URI uri) {
+	protected FileInstanceAbstract() {
+	}
+
+	protected void init(FilePathItem filePathItem, FileInstanceAbstract parent,
+			String path) throws URISyntaxException {
+		this.filePathItem = filePathItem;
 		this.parent = parent;
-		this.uri = uri;
+		this.path = path;
+		uri = new URI(filePathItem.getType().getScheme(),
+				filePathItem.getUsername(), filePathItem.getHost(), -1, path,
+				null, null);
 	}
 
 	public abstract FileTypeEnum getFileType();
@@ -69,12 +75,19 @@ public abstract class FileInstanceAbstract {
 
 	public abstract Long getFileSize();
 
-	public URI getURI() {
-		return uri;
+	public FilePathItem getFilePathItem() {
+		return filePathItem;
 	}
 
 	public FileInstanceAbstract getParent() {
 		return parent;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
+	public URI getURI() {
+		return uri;
+	}
 }

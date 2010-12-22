@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.crawler.file.database;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +41,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -51,13 +49,13 @@ public class FilePathManager {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private Map<URI, FilePathItem> filePathMap = null;
+	private Map<FilePathItem, FilePathItem> filePathMap = null;
 
 	private final File filePathFile;
 
 	public FilePathManager(File indexDir) throws SearchLibException {
 		filePathFile = new File(indexDir, "filePaths.xml");
-		filePathMap = new TreeMap<URI, FilePathItem>();
+		filePathMap = new TreeMap<FilePathItem, FilePathItem>();
 		try {
 			load();
 		} catch (ParserConfigurationException e) {
@@ -84,16 +82,10 @@ public class FilePathManager {
 
 		int l = nodeList.getLength();
 
-		List<FilePathItem> patternList = new ArrayList<FilePathItem>(l);
-		for (int i = 0; i < l; i++) {
-			String uriString = DomUtils.getText(nodeList.item(i));
-			URI uri = new URI(uriString);
-			String withSubString = DomUtils.getAttributeText(nodeList.item(i),
-					"withSub");
-			patternList.add(new FilePathItem(uri, FilePathItem
-					.parse(withSubString)));
-		}
-		addListWithoutStoreAndLock(patternList, true);
+		List<FilePathItem> filePathList = new ArrayList<FilePathItem>(l);
+		for (int i = 0; i < l; i++)
+			filePathList.add(FilePathItem.fromXml(nodeList.item(i)));
+		addListWithoutStoreAndLock(filePathList, true);
 	}
 
 	private void store() throws IOException, TransformerConfigurationException,
@@ -104,12 +96,8 @@ public class FilePathManager {
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("paths");
-			for (FilePathItem item : filePathMap.values()) {
-				xmlWriter.startElement("path", "withSub",
-						"" + item.getWithSubToString());
-				xmlWriter.textNode(item.getURI().toString());
-				xmlWriter.endElement();
-			}
+			for (FilePathItem item : filePathMap.values())
+				item.writeXml(xmlWriter, "path");
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
 		} finally {
@@ -122,15 +110,8 @@ public class FilePathManager {
 		if (bDeleteAll)
 			filePathMap.clear();
 
-		// First pass: Identify already present
-		for (FilePathItem item : filePathList) {
-			if (!bDeleteAll && filePathMap.containsKey(item.getURI()))
-				item.setStatus(FilePathItem.Status.ALREADY);
-			else {
-				addPathWithoutLock(item);
-				item.setStatus(FilePathItem.Status.INJECTED);
-			}
-		}
+		for (FilePathItem item : filePathList)
+			addPathWithoutLock(item);
 	}
 
 	public void addList(List<FilePathItem> filePathList, boolean bDeleteAll)
@@ -150,31 +131,11 @@ public class FilePathManager {
 		}
 	}
 
-	private void delPatternWithoutLock(String sPath) {
-		filePathMap.remove(new File(sPath));
-	}
-
-	public void delPath(String path) throws SearchLibException {
-		rwl.w.lock();
-		try {
-			delPatternWithoutLock(path);
-			store();
-		} catch (TransformerConfigurationException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (SAXException e) {
-			throw new SearchLibException(e);
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
 	private void addPathWithoutLock(FilePathItem filePathItem) {
-		filePathMap.put(filePathItem.getURI(), filePathItem);
+		filePathMap.put(filePathItem, filePathItem);
 	}
 
-	public void addPath(FilePathItem item) throws SearchLibException {
+	public void add(FilePathItem item) throws SearchLibException {
 		rwl.w.lock();
 		try {
 			addPathWithoutLock(item);
@@ -190,39 +151,20 @@ public class FilePathManager {
 		}
 	}
 
-	public void add(URI uri, boolean withSubDir) throws SearchLibException {
-		addPath(new FilePathItem(uri, withSubDir));
-	}
-
-	public int getFilePaths(String startsWith, long start, long rows,
-			List<FilePathItem> list) throws SearchLibException {
+	public int getFilePaths(long start, long rows, List<FilePathItem> list)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			long end = start + rows;
 			int pos = 0;
 			int total = 0;
 			for (FilePathItem item : filePathMap.values()) {
-				if (startsWith != null) {
-					if (!item.getURI().toString().startsWith(startsWith)) {
-						pos++;
-						continue;
-					}
-				}
 				if (pos >= start && pos < end)
 					list.add(item);
 				total++;
 				pos++;
 			}
 			return total;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public FilePathItem getFilePath(File file) {
-		rwl.r.lock();
-		try {
-			return filePathMap.get(file);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -238,14 +180,36 @@ public class FilePathManager {
 		}
 	}
 
-	public void remove(File file) {
+	public void remove(FilePathItem filePathItem) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			filePathMap.remove(file);
+			filePathMap.remove(filePathItem);
+			store();
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
 
+	}
+
+	/**
+	 * Return TRUE if a FilePathItem with the same URI exists
+	 * 
+	 * @param currentFilePath
+	 * @return
+	 */
+	public boolean exists(FilePathItem currentFilePath) {
+		rwl.w.lock();
+		try {
+			return filePathMap.containsKey(currentFilePath);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 }

@@ -1,0 +1,53 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="repository"
+	use="com.jaeksoft.searchlib.web.controller.crawler.file.RepositoryController">
+
+	<panel title="List of existing locations and their settings"
+		border="normal">
+		<panelchildren>
+			<listbox model="@{repository.filePathItemList}"
+				selectedItem="@{repository.selectedFilePathItem}">
+				<listhead>
+					<listheader label="Scheme" width="80px" />
+					<listheader label="Host" width="120px" />
+					<listheader label="User" width="120px" />
+					<listheader label="Path" />
+					<listheader label="With subdir" width="80px" />
+				</listhead>
+				<listitem self="@{each='filepathitem'}">
+					<listcell label="@{filepathitem.type.label}" />
+					<listcell label="@{filepathitem.host}" />
+					<listcell label="@{filepathitem.username}" />
+					<listcell label="@{filepathitem.path}" />
+					<listcell>
+						<label value="@{filepathitem.withSub}" />
+					</listcell>
+				</listitem>
+				<listfoot>
+					<listfooter span="5">
+						<paging id="paging" detailed="true"
+							totalSize="@{repository.totalSize}"
+							pageSize="@{repository.pageSize}"
+							activePage="@{repository.activePage}" />
+					</listfooter>
+				</listfoot>
+			</listbox>
+		</panelchildren>
+	</panel>
+
+</window>

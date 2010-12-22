@@ -57,7 +57,8 @@ public class CrawlFileIterator {
 		}
 	}
 
-	protected FileInstanceAbstract next() throws URISyntaxException {
+	protected FileInstanceAbstract next() throws URISyntaxException,
+			InstantiationException, IllegalAccessException {
 		lock.lock();
 		try {
 			for (;;) {

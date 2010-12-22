@@ -24,16 +24,10 @@
 
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
-import java.net.URI;
-
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 
 public class SmbFileInstance extends FileInstanceAbstract {
-
-	public SmbFileInstance(FileInstanceAbstract parent, URI uri) {
-		super(parent, uri);
-	}
 
 	@Override
 	public FileTypeEnum getFileType() {

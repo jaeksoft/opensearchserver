@@ -18,8 +18,9 @@
 	use="com.jaeksoft.searchlib.web.controller.crawler.CrawlerController">
 	<tabbox>
 		<tabs>
-			<tab id="tabCrawlerFileBrowser"
-				label="Files and folders list" selected="true" />
+			<tab id="tabCrawlerRepository" label="Locations"
+				selected="true" />
+			<tab id="tabCrawlerFileEdit" label="Edit/New" />
 			<tab id="tabCrawlerFileCrawl" label="Crawl process" />
 			<tab id="tabCrawlerFileCrawled" label="File browser" />
 			<tab id="tabCrawlerFileMapping" label="Field mapping"
@@ -27,7 +28,10 @@
 		</tabs>
 		<tabpanels>
 			<tabpanel>
-				<include src="WEB-INF/zul/crawler/file/browser.zul" />
+				<include src="WEB-INF/zul/crawler/file/repository.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/crawler/file/edit.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerFileCrawl.onSelect">
 				<include src="WEB-INF/zul/crawler/file/crawlfile.zul" />

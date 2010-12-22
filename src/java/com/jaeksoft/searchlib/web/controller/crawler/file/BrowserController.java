@@ -24,11 +24,9 @@
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zul.Button;
@@ -37,8 +35,6 @@ import org.zkoss.zul.Checkbox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
-import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class BrowserController extends CrawlerController implements
@@ -169,7 +165,7 @@ public class BrowserController extends CrawlerController implements
 
 			filePathItemList = new ArrayList<FilePathItem>();
 
-			client.getFilePathManager().getFilePaths(null, 0, 1000000,
+			client.getFilePathManager().getFilePaths(0, 1000000,
 					filePathItemList);
 
 			return filePathItemList;
@@ -182,45 +178,6 @@ public class BrowserController extends CrawlerController implements
 
 	public boolean isNotRoot() {
 		return !isRoot();
-	}
-
-	public void onAdd() throws SearchLibException,
-			UnsupportedEncodingException, ParseException, InterruptedException {
-		synchronized (this) {
-			if (selectedFile == null)
-				return;
-			Client client = getClient();
-			if (client == null)
-				return;
-			FilePathManager filePathManager = client.getFilePathManager();
-			if (filePathManager == null)
-				return;
-			if (filePathManager.getFilePath(selectedFile) != null) {
-				new AlertController(
-						"The file or directory is already selected.");
-				return;
-			}
-			filePathManager.add(selectedFile, withSubDir);
-			filePathItemList = null;
-			reloadPage();
-		}
-	}
-
-	public void onRemoveFilePath(Component component) throws SearchLibException {
-		synchronized (this) {
-			FilePathItem filePathItem = (FilePathItem) component
-					.getAttribute("filepath");
-
-			Client client = getClient();
-			if (client == null)
-				return;
-			FilePathManager filePathManager = client.getFilePathManager();
-			if (filePathManager == null)
-				return;
-			filePathManager.remove(filePathItem.getFilePath());
-			filePathItemList = null;
-			reloadPage();
-		}
 	}
 
 	public void onOpenFile(Component component) throws SearchLibException {
@@ -250,17 +207,6 @@ public class BrowserController extends CrawlerController implements
 			refreshCurrentFileList();
 			reloadPage();
 		}
-	}
-
-	public void onSelectFilePathItem() {
-		if (selectedFilePathItem == null)
-			return;
-		File f = selectedFilePathItem.getFilePath();
-		if (f == null)
-			return;
-		setCurrentFile(f.getParentFile());
-		setSelectedFile(f);
-		reloadPage();
 	}
 
 }

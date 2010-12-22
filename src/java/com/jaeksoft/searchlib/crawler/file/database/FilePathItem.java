@@ -24,100 +24,173 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-import java.net.URI;
+import java.net.URISyntaxException;
 
-import com.jaeksoft.searchlib.crawler.common.database.Selector;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
-public class FilePathItem {
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.XmlWriter;
+import com.sun.xml.internal.messaging.saaj.util.Base64;
 
-	private static final String NO = "no";
-	private static final String YES = "yes";
+public class FilePathItem implements Comparable<FilePathItem> {
 
-	public enum Status {
-		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(
-				"Already injected"), ERROR("Unknown Error");
-
-		private String name;
-
-		private Status(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
-
-	private Status status;
-	private URI uri;
-	private Selector<FilePathItem> filePathSelector;
+	private FileInstanceEnum type;
+	private String host;
+	private String path;
+	private String username;
+	private String password;
 	private boolean withSub;
 
 	public FilePathItem() {
-		status = Status.UNDEFINED;
-		uri = null;
-		filePathSelector = null;
+		type = FileInstanceEnum.LocalFileInstance;
+		host = "";
+		path = "";
+		username = "";
+		password = "";
 		withSub = false;
 	}
 
-	public FilePathItem(URI uri, boolean withSub) {
-		this();
-		setURI(uri);
-		setWithSub(withSub);
+	public void copy(FilePathItem destFilePath) throws URISyntaxException {
+		destFilePath.withSub = withSub;
+		destFilePath.type = type;
+		destFilePath.host = host;
+		destFilePath.path = path;
+		destFilePath.username = username;
+		destFilePath.password = password;
 	}
 
-	public Status getStatus() {
-		return status;
+	/**
+	 * Set the type
+	 * 
+	 * @param type
+	 */
+	public void setType(FileInstanceEnum type) {
+		this.type = type;
 	}
 
-	public void setStatus(Status v) {
-		status = v;
-	}
-
-	public void setSelected(boolean v) {
-		if (v)
-			filePathSelector.addSelection(this);
-		else
-			filePathSelector.removeSelection(this);
-	}
-
-	public boolean isSelected() {
-		return filePathSelector.isSelected(this);
-	}
-
-	public void setURI(URI uri) {
-		this.uri = uri;
-	}
-
-	public URI getURI() {
-		return uri;
-	}
-
-	public void setFilePathSelector(Selector<FilePathItem> patternSelector) {
-		this.filePathSelector = patternSelector;
+	public FileInstanceEnum getType() {
+		return type;
 	}
 
 	public boolean isWithSub() {
 		return withSub;
 	}
 
-	public String getWithSubToString() {
-		return (withSub ? YES : NO);
-	}
-
-	public static boolean parse(String text) {
-		if (text == null)
-			return false;
-
-		if (text.equals(YES))
-			return true;
-
-		return false;
-	}
-
 	public void setWithSub(boolean withSub) {
 		this.withSub = withSub;
 	}
 
+	/**
+	 * @return the path
+	 */
+	public String getPath() {
+		return path;
+	}
+
+	/**
+	 * @param path
+	 *            the path to set
+	 */
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	/**
+	 * @return the host
+	 */
+	public String getHost() {
+		return host;
+	}
+
+	/**
+	 * @param host
+	 *            the host to set
+	 */
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	/**
+	 * @return the username
+	 */
+	public String getUsername() {
+		return username;
+	}
+
+	/**
+	 * @param username
+	 *            the username to set
+	 */
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return password;
+	}
+
+	/**
+	 * @param password
+	 *            the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	/**
+	 * Create a new FilePathItem instance by reading XML
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public static FilePathItem fromXml(Node node) {
+		FilePathItem filePathItem = new FilePathItem();
+		filePathItem.setPath(DomUtils.getText(node));
+		String type = DomUtils.getAttributeText(node, "type");
+		if (type != null)
+			filePathItem.setType(FileInstanceEnum.valueOf(type));
+		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
+		String password = DomUtils.getAttributeText(node, "password");
+		if (password != null)
+			filePathItem.setPassword(Base64.base64Decode(password));
+		filePathItem.setHost(DomUtils.getAttributeText(node, "host"));
+		String withSubString = DomUtils.getAttributeText(node, "withSub");
+		filePathItem.setWithSub("yes".equalsIgnoreCase(withSubString));
+		return filePathItem;
+	}
+
+	/**
+	 * Write the FilePathItem in XML format
+	 * 
+	 * @param xmlWriter
+	 * @param nodeName
+	 * @throws SAXException
+	 */
+	public void writeXml(XmlWriter xmlWriter, String nodeName)
+			throws SAXException {
+		xmlWriter.startElement(nodeName, "type", type.name(), "username",
+				username, "password", password, "host", host, "withSub",
+				withSub ? "yes" : "no");
+		if (path != null)
+			xmlWriter.textNode(path);
+		xmlWriter.endElement();
+	}
+
+	@Override
+	public int compareTo(FilePathItem fpi) {
+		int c;
+		if ((c = type.compareTo(fpi.type)) != 0)
+			return c;
+		if ((c = host.compareTo(fpi.host)) != 0)
+			return c;
+		if ((c = username.compareTo(fpi.username)) != 0)
+			return c;
+		if ((c = path.compareTo(fpi.path)) != 0)
+			return c;
+		return 0;
+	}
 }

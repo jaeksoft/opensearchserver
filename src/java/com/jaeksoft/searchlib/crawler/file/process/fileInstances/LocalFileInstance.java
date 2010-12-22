@@ -26,9 +26,9 @@ package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 
@@ -45,14 +45,13 @@ public class LocalFileInstance extends FileInstanceAbstract {
 
 	private File file;
 
-	public LocalFileInstance(FileInstanceAbstract parent, URI uri) {
-		super(parent, uri);
-		file = new File(uri);
+	public LocalFileInstance() {
+		file = null;
 	}
 
-	private LocalFileInstance(FileInstanceAbstract parent, File file)
-			throws URISyntaxException {
-		super(parent, new URI(file.getAbsolutePath()));
+	private LocalFileInstance(FilePathItem filePathItem,
+			FileInstanceAbstract parent, File file) throws URISyntaxException {
+		init(filePathItem, parent, file.getAbsolutePath());
 		this.file = file;
 	}
 
@@ -72,7 +71,7 @@ public class LocalFileInstance extends FileInstanceAbstract {
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
 		int i = 0;
 		for (File f : files)
-			fileInstances[i] = new LocalFileInstance(this, f);
+			fileInstances[i] = new LocalFileInstance(filePathItem, this, f);
 		return fileInstances;
 	}
 
