@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class SchedulerEditController extends CommonController {
 
@@ -87,6 +88,8 @@ public class SchedulerEditController extends CommonController {
 
 	@Override
 	protected void eventJobEdit(JobItem job) throws SearchLibException {
+		if (job == null)
+			return;
 		this.selectedJob = job;
 		currentJob.copy(job);
 		reloadPage();
@@ -209,6 +212,7 @@ public class SchedulerEditController extends CommonController {
 		reloadPage();
 		Tab tab = (Tab) getFellow("tabSchedulerList", true);
 		tab.setSelected(true);
+		PushEvent.JOB_EDIT.publish();
 	}
 
 	public void onDelete() throws SearchLibException, InterruptedException {

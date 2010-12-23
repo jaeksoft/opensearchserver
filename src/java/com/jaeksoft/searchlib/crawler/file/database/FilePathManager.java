@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,7 +48,7 @@ public class FilePathManager {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private Map<FilePathItem, FilePathItem> filePathMap = null;
+	private TreeMap<FilePathItem, FilePathItem> filePathMap = null;
 
 	private final File filePathFile;
 
@@ -96,7 +95,7 @@ public class FilePathManager {
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("paths");
-			for (FilePathItem item : filePathMap.values())
+			for (FilePathItem item : filePathMap.keySet())
 				item.writeXml(xmlWriter, "path");
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
@@ -131,7 +130,10 @@ public class FilePathManager {
 		}
 	}
 
-	private void addPathWithoutLock(FilePathItem filePathItem) {
+	private void addPathWithoutLock(FilePathItem filePathItem)
+			throws SearchLibException {
+		if (filePathMap.containsKey(filePathItem))
+			throw new SearchLibException("This filePathItem already exists");
 		filePathMap.put(filePathItem, filePathItem);
 	}
 
@@ -158,7 +160,7 @@ public class FilePathManager {
 			long end = start + rows;
 			int pos = 0;
 			int total = 0;
-			for (FilePathItem item : filePathMap.values()) {
+			for (FilePathItem item : filePathMap.keySet()) {
 				if (pos >= start && pos < end)
 					list.add(item);
 				total++;
@@ -173,7 +175,7 @@ public class FilePathManager {
 	public void getAllFilePaths(List<FilePathItem> list) {
 		rwl.r.lock();
 		try {
-			for (FilePathItem item : filePathMap.values())
+			for (FilePathItem item : filePathMap.keySet())
 				list.add(item);
 		} finally {
 			rwl.r.unlock();
@@ -198,17 +200,17 @@ public class FilePathManager {
 	}
 
 	/**
-	 * Return TRUE if a FilePathItem with the same URI exists
+	 * Return the FilePathItem
 	 * 
 	 * @param currentFilePath
 	 * @return
 	 */
-	public boolean exists(FilePathItem currentFilePath) {
-		rwl.w.lock();
+	public FilePathItem get(FilePathItem currentFilePath) {
+		rwl.r.lock();
 		try {
-			return filePathMap.containsKey(currentFilePath);
+			return filePathMap.get(currentFilePath);
 		} finally {
-			rwl.w.unlock();
+			rwl.r.unlock();
 		}
 	}
 

@@ -19,27 +19,32 @@
 
 	<panel title="List of existing locations and their settings"
 		border="normal">
+		<toolbar>
+			<button label="Refresh" forward="onRefresh" />
+		</toolbar>
 		<panelchildren>
 			<listbox model="@{repository.filePathItemList}"
 				selectedItem="@{repository.selectedFilePathItem}">
 				<listhead>
 					<listheader label="Scheme" width="80px" />
-					<listheader label="Host" width="120px" />
+					<listheader label="Host" width="200px" />
 					<listheader label="User" width="120px" />
 					<listheader label="Path" />
-					<listheader label="With subdir" width="80px" />
+					<listheader label="Sub directories" width="100px"
+						tooltiptext="Also crawl sub directories" />
+					<listheader label="Ignore hidden" width="100px"
+						tooltiptext="Ignore hidden files" />
 				</listhead>
 				<listitem self="@{each='filepathitem'}">
 					<listcell label="@{filepathitem.type.label}" />
 					<listcell label="@{filepathitem.host}" />
 					<listcell label="@{filepathitem.username}" />
 					<listcell label="@{filepathitem.path}" />
-					<listcell>
-						<label value="@{filepathitem.withSub}" />
-					</listcell>
+					<listcell label="@{filepathitem.withSubDir}" />
+					<listcell label="@{filepathitem.ignoreHidden}" />
 				</listitem>
 				<listfoot>
-					<listfooter span="5">
+					<listfooter span="6">
 						<paging id="paging" detailed="true"
 							totalSize="@{repository.totalSize}"
 							pageSize="@{repository.pageSize}"

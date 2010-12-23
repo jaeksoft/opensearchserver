@@ -354,7 +354,7 @@ public class ClientCatalog {
 			getTempReceiveDir(client).renameTo(clientDir);
 			CLIENTS.remove(clientDir);
 			CLIENTS.put(clientDir, new Client(clientDir, true, true));
-			PushEvent.CLIENT_CHANGE.publish(webapp);
+			PushEvent.CLIENT_SWITCH.publish(webapp, client);
 		} finally {
 			w.unlock();
 		}

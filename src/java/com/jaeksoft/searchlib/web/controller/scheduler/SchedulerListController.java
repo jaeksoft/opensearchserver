@@ -49,6 +49,11 @@ public class SchedulerListController extends CommonController {
 	protected void reset() throws SearchLibException {
 	}
 
+	@Override
+	protected void eventJobEdit(JobItem job) throws SearchLibException {
+		reloadPage();
+	}
+
 	public JobItem[] getJobs() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)

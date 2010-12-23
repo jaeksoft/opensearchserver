@@ -30,13 +30,13 @@ import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -182,8 +182,7 @@ public class User implements Comparable<User> {
 		String name = XPathParser.getAttributeString(node, "name");
 		String encodedPassword = XPathParser.getAttributeString(node,
 				"password");
-		String password = new String(Base64.decodeBase64(encodedPassword
-				.getBytes()));
+		String password = StringUtils.base64decode(encodedPassword);
 		if (name == null || password == null)
 			return null;
 		boolean isAdmin = "yes".equalsIgnoreCase(XPathParser
@@ -204,8 +203,7 @@ public class User implements Comparable<User> {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			String encodedPassword = new String(Base64.encodeBase64(password
-					.getBytes()));
+			String encodedPassword = StringUtils.base64encode(password);
 			xmlWriter.startElement("user", "name", name, "password",
 					encodedPassword, "isAdmin", isAdmin ? "yes" : "no");
 			for (IndexRole indexRole : indexRoles)

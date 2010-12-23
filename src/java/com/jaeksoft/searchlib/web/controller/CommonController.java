@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.apache.http.HttpException;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.UiException;
@@ -41,6 +42,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.scheduler.JobItem;
@@ -152,8 +154,14 @@ public abstract class CommonController extends Window implements AfterCompose,
 	}
 
 	public void reloadComponent(String compId) {
-		if (binder != null)
-			binder.loadComponent(getFellow(compId));
+		reloadComponent(getFellow(compId));
+	}
+
+	public void reloadComponent(Component component) {
+		if (binder != null) {
+			component.invalidate();
+			binder.loadComponent(component);
+		}
 	}
 
 	public void reloadPage() {
@@ -215,6 +223,8 @@ public abstract class CommonController extends Window implements AfterCompose,
 				}
 			} else if (pushEvent == PushEvent.CLIENT_CHANGE)
 				eventClientChange();
+			else if (pushEvent == PushEvent.CLIENT_SWITCH)
+				eventClientSwitch((Client) event.getData());
 			else if (pushEvent == PushEvent.DOCUMENT_UPDATED) {
 				if (sameClient(event))
 					eventDocumentUpdate();
@@ -232,6 +242,8 @@ public abstract class CommonController extends Window implements AfterCompose,
 				eventQueryEditResult((Result) event.getData());
 			else if (pushEvent == PushEvent.JOB_EDIT)
 				eventJobEdit((JobItem) event.getData());
+			else if (pushEvent == PushEvent.FILEPATH_EDIT)
+				eventFilePathEdit((FilePathItem) event.getData());
 		} catch (SearchLibException e) {
 			throw new UiException(e);
 		}
@@ -240,6 +252,18 @@ public abstract class CommonController extends Window implements AfterCompose,
 	protected abstract void reset() throws SearchLibException;
 
 	protected void eventClientChange() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
+
+	protected void eventClientSwitch(Client client) throws SearchLibException {
+		if (client == null)
+			return;
+		Client currentClient = getClient();
+		if (currentClient == null)
+			return;
+		if (!client.getIndexName().equals(currentClient.getIndexName()))
+			return;
 		reset();
 		reloadPage();
 	}
@@ -259,6 +283,10 @@ public abstract class CommonController extends Window implements AfterCompose,
 	}
 
 	protected void eventJobEdit(JobItem jobItem) throws SearchLibException {
+	}
+
+	protected void eventFilePathEdit(FilePathItem filePathItem)
+			throws SearchLibException {
 	}
 
 	protected void eventLogout() throws SearchLibException {

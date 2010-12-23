@@ -43,6 +43,11 @@ public enum PushEvent {
 	CLIENT_CHANGE(EventQueues.DESKTOP),
 
 	/**
+	 * An index has been switched
+	 */
+	CLIENT_SWITCH(EventQueues.DESKTOP),
+
+	/**
 	 * The user logs out
 	 */
 	LOG_OUT(EventQueues.DESKTOP),
@@ -75,7 +80,12 @@ public enum PushEvent {
 	/**
 	 * An job has been selected for edition
 	 */
-	JOB_EDIT(EventQueues.SESSION);
+	JOB_EDIT(EventQueues.SESSION),
+
+	/**
+	 * A filePathItem has been selected for edition
+	 */
+	FILEPATH_EDIT(EventQueues.SESSION);
 
 	private String scope;
 

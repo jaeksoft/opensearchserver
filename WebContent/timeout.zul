@@ -15,7 +15,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window border="normal">
-	<caption image="images/oss_16x16_WEB.png"
+	<caption image="images/oss_logo_32.png"
 		label="Open Search Server - Session Timeout">
 		<toolbarbutton label="Visit the OSS web site" target="_blank"
 			href="http://www.open-search-server.com" />
@@ -23,10 +23,19 @@
 		<toolbarbutton label="Wiki documentation" target="_blank"
 			href="http://www.open-search-server.com/wiki/en/" />
 	</caption>
-	<vbox>
-		The page or component you request is no longer available. This
-		is normally caused by timeout, opening too many Web pages, or
-		rebooting the server.
-		<button href="/" label="Back to home" />
-	</vbox>
+	<panel title="TIME OUT" border="normal">
+		<panelchildren>
+			<vbox align="center" width="100%">
+				<label>
+					The page or component you request is no longer
+					available.
+				</label>
+				<label>
+					This is normally caused by timeout, opening too many
+					Web pages, or rebooting the server.
+				</label>
+				<button href="/" label="Back to home" />
+			</vbox>
+		</panelchildren>
+	</panel>
 </window>

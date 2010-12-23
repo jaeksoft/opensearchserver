@@ -30,8 +30,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.sun.xml.internal.messaging.saaj.util.Base64;
 
 public class FilePathItem implements Comparable<FilePathItem> {
 
@@ -41,18 +41,21 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private String username;
 	private String password;
 	private boolean withSub;
+	private boolean ignoreHidden;
 
 	public FilePathItem() {
 		type = FileInstanceEnum.LocalFileInstance;
-		host = "";
-		path = "";
-		username = "";
-		password = "";
+		host = null;
+		path = null;
+		username = null;
+		password = null;
 		withSub = false;
+		ignoreHidden = true;
 	}
 
-	public void copy(FilePathItem destFilePath) throws URISyntaxException {
+	public void copyTo(FilePathItem destFilePath) throws URISyntaxException {
 		destFilePath.withSub = withSub;
+		destFilePath.ignoreHidden = ignoreHidden;
 		destFilePath.type = type;
 		destFilePath.host = host;
 		destFilePath.path = path;
@@ -73,12 +76,20 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		return type;
 	}
 
-	public boolean isWithSub() {
+	public boolean isWithSubDir() {
 		return withSub;
 	}
 
-	public void setWithSub(boolean withSub) {
-		this.withSub = withSub;
+	public void setWithSubDir(boolean b) {
+		this.withSub = b;
+	}
+
+	public boolean isIgnoreHidden() {
+		return ignoreHidden;
+	}
+
+	public void setIgnoreHidden(boolean b) {
+		this.ignoreHidden = b;
 	}
 
 	/**
@@ -156,10 +167,12 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");
 		if (password != null)
-			filePathItem.setPassword(Base64.base64Decode(password));
+			filePathItem.setPassword(StringUtils.base64decode(password));
 		filePathItem.setHost(DomUtils.getAttributeText(node, "host"));
 		String withSubString = DomUtils.getAttributeText(node, "withSub");
-		filePathItem.setWithSub("yes".equalsIgnoreCase(withSubString));
+		filePathItem.setWithSubDir("yes".equalsIgnoreCase(withSubString));
+		String ignoreHidden = DomUtils.getAttributeText(node, "ignoreHidden");
+		filePathItem.setIgnoreHidden("yes".equalsIgnoreCase(ignoreHidden));
 		return filePathItem;
 	}
 
@@ -173,24 +186,69 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
 			throws SAXException {
 		xmlWriter.startElement(nodeName, "type", type.name(), "username",
-				username, "password", password, "host", host, "withSub",
-				withSub ? "yes" : "no");
+				username, "password",
+				password == null ? null : StringUtils.base64encode(password),
+				"host", host, "withSub", withSub ? "yes" : "no",
+				"ignoreHidden", ignoreHidden ? "yes" : "no");
 		if (path != null)
 			xmlWriter.textNode(path);
 		xmlWriter.endElement();
 	}
 
+	private static int compareNullValues(Object v1, Object v2) {
+		if (v1 == null) {
+			if (v2 == null)
+				return 0;
+			return -1;
+		}
+		if (v2 == null)
+			return 1;
+		return 0;
+	}
+
 	@Override
 	public int compareTo(FilePathItem fpi) {
 		int c;
-		if ((c = type.compareTo(fpi.type)) != 0)
+		if ((c = compareNullValues(type, fpi.type)) != 0)
 			return c;
-		if ((c = host.compareTo(fpi.host)) != 0)
+		if (type != null)
+			if ((c = type.compareTo(fpi.type)) != 0)
+				return c;
+		if ((c = compareNullValues(host, fpi.host)) != 0)
 			return c;
-		if ((c = username.compareTo(fpi.username)) != 0)
+		if (host != null)
+			if ((c = host.compareTo(fpi.host)) != 0)
+				return c;
+		if ((c = compareNullValues(username, fpi.username)) != 0)
 			return c;
-		if ((c = path.compareTo(fpi.path)) != 0)
+		if (username != null)
+			if ((c = username.compareTo(fpi.username)) != 0)
+				return c;
+		if ((c = compareNullValues(path, fpi.path)) != 0)
 			return c;
+		if (path != null)
+			if ((c = path.compareTo(fpi.path)) != 0)
+				return c;
 		return 0;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(type.getScheme());
+		sb.append("://");
+		if (username != null) {
+			sb.append(username);
+			sb.append('@');
+		}
+		if (host != null) {
+			sb.append(host);
+		}
+		if (path != null) {
+			if (!path.startsWith("/"))
+				sb.append('/');
+			sb.append(path);
+		}
+		return sb.toString();
 	}
 }

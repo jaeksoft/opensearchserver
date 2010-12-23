@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.util;
 import java.text.DecimalFormat;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
+
 public class StringUtils {
 
 	private enum SizeUnit {
@@ -69,5 +71,25 @@ public class StringUtils {
 		text = removeSpacePattern.matcher(text).replaceAll(" ");
 		text = removeEndTagBlockPattern.matcher(text).replaceAll(". ");
 		return removeTagPattern.matcher(text).replaceAll("");
+	}
+
+	/**
+	 * 
+	 * @param text
+	 *            the text to encode
+	 * @return a base64 encoded string
+	 */
+	public final static String base64encode(String text) {
+		return Base64.encodeBase64URLSafeString(text.getBytes());
+	}
+
+	/**
+	 * 
+	 * @param base64String
+	 *            the base64 string to decode
+	 * @return a decoded string
+	 */
+	public final static String base64decode(String base64String) {
+		return new String(Base64.decodeBase64(base64String));
 	}
 }

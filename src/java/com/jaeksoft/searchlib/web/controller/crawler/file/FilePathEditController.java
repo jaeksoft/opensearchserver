@@ -25,10 +25,14 @@
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Tab;
@@ -40,6 +44,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class FilePathEditController extends CommonController {
 
@@ -55,6 +60,8 @@ public class FilePathEditController extends CommonController {
 	private File currentFile;
 
 	private File currentFolder;
+
+	private List<File> currentFolderList;
 
 	private class DeleteAlert extends AlertController {
 
@@ -92,10 +99,24 @@ public class FilePathEditController extends CommonController {
 		return FileInstanceEnum.values();
 	}
 
+	@Override
 	protected void eventFilePathEdit(FilePathItem filePathItem)
-			throws SearchLibException, URISyntaxException {
+			throws SearchLibException {
+		if (filePathItem == null)
+			return;
 		this.selectedFilePath = filePathItem;
-		currentFilePath.copy(filePathItem);
+		try {
+			filePathItem.copyTo(currentFilePath);
+			if (filePathItem.getType() == FileInstanceEnum.LocalFileInstance) {
+				File f = new File(filePathItem.getPath());
+				if (f.exists()) {
+					setCurrentFolder(f.getParentFile());
+					setCurrentFile(new File(filePathItem.getPath()));
+				}
+			}
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
 		reloadPage();
 	}
 
@@ -123,8 +144,9 @@ public class FilePathEditController extends CommonController {
 	public void onCancel() throws SearchLibException {
 		reset();
 		reloadPage();
-		Tab tab = (Tab) getFellow("tabSchedulerList", true);
+		Tab tab = (Tab) getFellow("tabCrawlerRepository", true);
 		tab.setSelected(true);
+		PushEvent.FILEPATH_EDIT.publish();
 	}
 
 	public void onDelete() throws SearchLibException, InterruptedException {
@@ -140,25 +162,37 @@ public class FilePathEditController extends CommonController {
 		if (client == null)
 			return;
 		FilePathManager filePathManager = client.getFilePathManager();
+		FilePathItem checkFilePath = filePathManager.get(currentFilePath);
 		if (selectedFilePath == null) {
-			if (filePathManager.exists(currentFilePath)) {
+			if (checkFilePath != null) {
 				new AlertController("The location already exists");
 				return;
 			}
-			filePathManager.add(currentFilePath);
-		} else
-			selectedFilePath.copy(currentFilePath);
+		} else {
+			if (checkFilePath != null)
+				if (checkFilePath.hashCode() != selectedFilePath.hashCode()) {
+					new AlertController("The location already exists");
+					return;
+				}
+			filePathManager.remove(selectedFilePath);
+		}
+		filePathManager.add(currentFilePath);
 		onCancel();
 	}
 
 	public File[] getCurrentFileList() {
 		if (currentFolder == null)
 			return File.listRoots();
-		return currentFolder.listFiles();
+		if (isIgnoreHidden())
+			return currentFolder
+					.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
+		else
+			return currentFolder.listFiles();
 	}
 
 	public void setCurrentFile(File file) {
 		currentFile = file;
+		reloadBrowser();
 	}
 
 	public File getCurrentFile() {
@@ -169,20 +203,90 @@ public class FilePathEditController extends CommonController {
 		return currentFolder;
 	}
 
+	public List<File> getFolderTree() {
+		return currentFolderList;
+	}
+
+	public boolean isNotRoot() {
+		return currentFolder != null;
+	}
+
+	public boolean isLocalFileType() {
+		return currentFilePath.getType() == FileInstanceEnum.LocalFileInstance;
+	}
+
+	public boolean isNotLocalFileType() {
+		return !isLocalFileType();
+	}
+
+	public boolean isNotSelectedFile() {
+		return currentFile != null;
+	}
+
+	public boolean isSelectedFile() {
+		return !isNotSelectedFile();
+	}
+
+	public boolean isNotSelectedFilePath() {
+		return !isSelectedFilePath();
+	}
+
+	public boolean isSelectedFilePath() {
+		return selectedFilePath != null;
+	}
+
 	public void setCurrentFolder(File file) {
 		currentFolder = file;
+		currentFolderList = null;
+		if (currentFolder != null) {
+			currentFolderList = new ArrayList<File>();
+			File f = currentFolder;
+			do {
+				currentFolderList.add(0, f);
+			} while ((f = f.getParentFile()) != null);
+		}
 		currentFile = null;
+		reloadBrowser();
+	}
+
+	public FileInstanceEnum getCurrentFileType() {
+		return currentFilePath.getType();
+	}
+
+	public void setCurrentFileType(FileInstanceEnum type) {
+		currentFilePath.setType(type);
+		reloadPage();
+	}
+
+	public boolean isIgnoreHidden() {
+		return currentFilePath.isIgnoreHidden();
+	}
+
+	public void setIgnoreHidden(boolean b) {
+		currentFilePath.setIgnoreHidden(b);
+		reloadPage();
 	}
 
 	public void reloadBrowser() {
-		getFellow("filebrowser").invalidate();
+		reloadComponent("filebrowser");
 	}
 
 	public void onOpenFile(Component component) {
 		File file = (File) component.getAttribute("file");
 		if (file.isDirectory())
-			currentFolder = file;
-		reloadBrowser();
+			setCurrentFolder(file);
+	}
+
+	public void onSelectFile() {
+		if (currentFile != null) {
+			currentFilePath.setPath(currentFile.getAbsolutePath());
+			reloadPage();
+		}
+	}
+
+	public void onParentFolder() {
+		if (currentFolder != null)
+			setCurrentFolder(currentFolder.getParentFile());
 	}
 
 }

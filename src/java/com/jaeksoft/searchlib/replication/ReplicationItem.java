@@ -28,12 +28,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.PushServlet;
@@ -86,7 +86,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		setLogin(XPathParser.getAttributeString(node, "login"));
 		String encodedApiKey = XPathParser.getAttributeString(node, "apiKey");
 		if (encodedApiKey != null && encodedApiKey.length() > 0)
-			setApiKey(new String(Base64.decodeBase64(encodedApiKey.getBytes())));
+			setApiKey(StringUtils.base64decode(encodedApiKey));
 		updateName();
 	}
 
@@ -103,7 +103,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		rwl.r.lock();
 		try {
 			String encodedApiKey = (apiKey != null && apiKey.length() > 0) ? new String(
-					Base64.encodeBase64(apiKey.getBytes())) : "";
+					StringUtils.base64encode(apiKey)) : "";
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
 					"login", login, "apiKey", encodedApiKey);

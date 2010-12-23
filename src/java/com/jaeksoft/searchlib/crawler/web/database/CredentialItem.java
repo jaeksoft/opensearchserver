@@ -28,11 +28,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class CredentialItem {
@@ -46,19 +46,18 @@ public class CredentialItem {
 	public static CredentialItem fromXml(Node node) {
 		CredentialItem credentialItem = new CredentialItem();
 		credentialItem.setPattern(DomUtils.getText(node));
-		credentialItem.setUsername(new String(Base64.decodeBase64(DomUtils
-				.getAttributeText(node, "username"))));
-		credentialItem.setPassword(new String(Base64.decodeBase64(DomUtils
-				.getAttributeText(node, "password"))));
+		credentialItem.setUsername(StringUtils.base64decode(DomUtils
+				.getAttributeText(node, "username")));
+		credentialItem.setPassword(StringUtils.base64decode(DomUtils
+				.getAttributeText(node, "password")));
 		return credentialItem;
 	}
 
 	public void writeXml(XmlWriter xmlWriter)
 			throws UnsupportedEncodingException, SAXException {
 		xmlWriter.startElement("credential", "username",
-				new String(Base64.encodeBase64URLSafe(username.getBytes())),
-				"password",
-				new String(Base64.encodeBase64URLSafe(password.getBytes())));
+				new String(StringUtils.base64encode(username)), "password",
+				new String(StringUtils.base64encode(password)));
 		xmlWriter.textNode(pattern);
 		xmlWriter.endElement();
 	}

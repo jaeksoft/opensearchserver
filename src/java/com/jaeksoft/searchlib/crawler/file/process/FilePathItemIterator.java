@@ -44,7 +44,7 @@ public class FilePathItemIterator {
 			FileInstanceAbstract fileInstance = FileInstanceAbstract.create(
 					filePathItem, null, filePathItem.getPath());
 			itemIterator = ItemIterator.create(null, fileInstance,
-					filePathItem.isWithSub());
+					filePathItem.isWithSubDir());
 		} finally {
 			lock.unlock();
 		}

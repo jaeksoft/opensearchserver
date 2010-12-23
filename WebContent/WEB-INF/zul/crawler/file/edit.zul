@@ -28,8 +28,7 @@
 					<row>
 						<label value="Type " />
 						<listbox model="@{filepathedit.typeList}"
-							mold="select"
-							selectedItem="@{filepathedit.currentFilePath.type}">
+							mold="select" selectedItem="@{filepathedit.currentFileType}">
 							<listitem
 								self="@{each='fileinstancetype'}">
 								<listcell
@@ -37,34 +36,39 @@
 							</listitem>
 						</listbox>
 					</row>
-					<row>
+					<row visible="@{filepathedit.notLocalFileType}">
 						<label value="User name: " />
 						<textbox
 							value="@{filepathedit.currentFilePath.username}" cols="30" />
 					</row>
-					<row>
+					<row visible="@{filepathedit.notLocalFileType}">
 						<label value="Password: " />
 						<textbox type="password"
 							value="@{filepathedit.currentFilePath.password}" cols="30" />
 					</row>
+					<row visible="@{filepathedit.notLocalFileType}">
+						<label value="Host: " />
+						<textbox
+							value="@{filepathedit.currentFilePath.host}" cols="100" />
+					</row>
 					<row>
 						<label value="Path: " />
 						<textbox
-							value="@{filepathedit.currentFilePath.path}" cols="100" />
+							value="@{filepathedit.currentFilePath.path}" cols="150" />
 					</row>
-					<row>
+					<row visible="@{filepathedit.localFileType}">
 						<label value="Local folder" />
 						<listbox id="filebrowser"
 							model="@{filepathedit.currentFileList}"
 							selectedItem="@{filepathedit.currentFile}" height="250px">
 							<listhead>
 								<listheader label="Local file system">
-									<space width="30px" />
-									<label value="Path: " />
+									<label
+										visible="@{filepathedit.isNotRoot}" value="Path: " />
 									<listbox
+										visible="@{filepathedit.isNotRoot}"
 										model="@{filepathedit.folderTree}"
-										selectedItem="@{filepathedit.currentFolder}" mold="select"
-										onSelect="filepathedit.reloadBrowser()">
+										selectedItem="@{filepathedit.currentFolder}" mold="select">
 										<listitem
 											self="@{each='folder'}">
 											<listcell
@@ -72,8 +76,8 @@
 										</listitem>
 									</listbox>
 									<button
-										visible="@{filepathedit.isNotRoot}" label="Parent folder"
-										forward="onParentFolder" />
+										visible="@{filepathedit.isNotRoot}"
+										label="go to parent folder" forward="onParentFolder" />
 									<space width="30px" />
 									<button label="Refresh the list"
 										forward="onRefresh" />
@@ -93,18 +97,45 @@
 							<listfoot>
 								<listfooter>
 									<button
-										disabled="@{browser.noSelectedFile}" label="Select"
+										disabled="@{filepathedit.selectedFile}" label="Select"
 										forward="onSelectFile" />
+									<label
+										value="@{filepathedit.currentFile.absolutePath}" />
 								</listfooter>
 							</listfoot>
 						</listbox>
 					</row>
 					<row>
+						<label value="Ignore hidden file: " />
+						<checkbox
+							checked="@{filepathedit.ignoreHidden}" />
+					</row>
+					<row>
 						<label value="With sub directory: " />
 						<checkbox
-							value="@{filepathedit.currentFilePath.withSubDir}" />
+							checked="@{filepathedit.currentFilePath.withSubDir}" />
 					</row>
 				</rows>
+				<foot>
+					<footer span="2">
+						<vbox width="100%" align="center">
+							<hbox
+								visible="@{filepathedit.selectedFilePath}">
+								<button label="Cancel"
+									forward="onCancel" />
+								<space width="10px" />
+								<button label="Save" forward="onSave" />
+								<space width="30px" />
+								<button label="Delete"
+									forward="onDelete" />
+							</hbox>
+							<hbox
+								visible="@{filepathedit.notSelectedFilePath}">
+								<button label="Create" forward="onSave" />
+							</hbox>
+						</vbox>
+					</footer>
+				</foot>
 			</grid>
 		</panelchildren>
 	</panel>

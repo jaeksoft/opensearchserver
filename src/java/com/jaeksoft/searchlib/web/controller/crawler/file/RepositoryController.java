@@ -28,11 +28,13 @@ import java.util.List;
 
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zul.Tab;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class RepositoryController extends CrawlerController {
@@ -43,8 +45,6 @@ public class RepositoryController extends CrawlerController {
 	private static final long serialVersionUID = -1207354816338087824L;
 
 	private List<FilePathItem> filePathItemList = null;
-
-	private FilePathItem selectedFilePathItem;
 
 	private int pageSize;
 
@@ -68,6 +68,12 @@ public class RepositoryController extends CrawlerController {
 				onPaging((PagingEvent) event);
 			}
 		});
+	}
+
+	@Override
+	protected void eventFilePathEdit(FilePathItem filePathItem)
+			throws SearchLibException {
+		onRefresh();
 	}
 
 	public void setPageSize(int v) {
@@ -97,15 +103,24 @@ public class RepositoryController extends CrawlerController {
 	@Override
 	protected void reset() {
 		filePathItemList = null;
-		selectedFilePathItem = null;
+	}
+
+	public void onRefresh() {
+		reset();
+		reloadPage();
 	}
 
 	public FilePathItem getSelectedFilePathItem() {
-		return selectedFilePathItem;
+		return null;
 	}
 
 	public void setSelectedFilePathItem(FilePathItem selectedFilePathItem) {
-		this.selectedFilePathItem = selectedFilePathItem;
+		if (selectedFilePathItem == null)
+			return;
+		reloadPage();
+		PushEvent.FILEPATH_EDIT.publish(selectedFilePathItem);
+		Tab tab = (Tab) getFellow("tabCrawlerFileEdit", true);
+		tab.setSelected(true);
 	}
 
 	public List<FilePathItem> getFilePathItemList() throws SearchLibException {
