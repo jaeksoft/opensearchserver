@@ -42,6 +42,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private String password;
 	private boolean withSub;
 	private boolean ignoreHidden;
+	private boolean enabled;
 
 	public FilePathItem() {
 		type = FileInstanceEnum.LocalFileInstance;
@@ -51,6 +52,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		password = null;
 		withSub = false;
 		ignoreHidden = true;
+		enabled = false;
 	}
 
 	public void copyTo(FilePathItem destFilePath) throws URISyntaxException {
@@ -61,6 +63,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		destFilePath.path = path;
 		destFilePath.username = username;
 		destFilePath.password = password;
+		destFilePath.enabled = enabled;
 	}
 
 	/**
@@ -90,6 +93,14 @@ public class FilePathItem implements Comparable<FilePathItem> {
 
 	public void setIgnoreHidden(boolean b) {
 		this.ignoreHidden = b;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean b) {
+		this.enabled = b;
 	}
 
 	/**
@@ -173,6 +184,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		filePathItem.setWithSubDir("yes".equalsIgnoreCase(withSubString));
 		String ignoreHidden = DomUtils.getAttributeText(node, "ignoreHidden");
 		filePathItem.setIgnoreHidden("yes".equalsIgnoreCase(ignoreHidden));
+		String enabled = DomUtils.getAttributeText(node, "enabled");
+		filePathItem.setEnabled("yes".equalsIgnoreCase(enabled));
 		return filePathItem;
 	}
 
@@ -189,7 +202,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 				username, "password",
 				password == null ? null : StringUtils.base64encode(password),
 				"host", host, "withSub", withSub ? "yes" : "no",
-				"ignoreHidden", ignoreHidden ? "yes" : "no");
+				"ignoreHidden", ignoreHidden ? "yes" : "no", "enabled",
+				enabled ? "yes" : "no");
 		if (path != null)
 			xmlWriter.textNode(path);
 		xmlWriter.endElement();

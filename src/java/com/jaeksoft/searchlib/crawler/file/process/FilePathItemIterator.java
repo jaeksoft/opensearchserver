@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 
 public class FilePathItemIterator {
@@ -37,14 +38,15 @@ public class FilePathItemIterator {
 	private ItemIterator itemIterator;
 
 	protected FilePathItemIterator(FilePathItem filePathItem)
-			throws URISyntaxException, InstantiationException,
-			IllegalAccessException {
+			throws SearchLibException {
 		lock.lock();
 		try {
 			FileInstanceAbstract fileInstance = FileInstanceAbstract.create(
 					filePathItem, null, filePathItem.getPath());
 			itemIterator = ItemIterator.create(null, fileInstance,
 					filePathItem.isWithSubDir());
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
 			lock.unlock();
 		}

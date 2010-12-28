@@ -34,6 +34,8 @@
 						tooltiptext="Also crawl sub directories" />
 					<listheader label="Ignore hidden" width="100px"
 						tooltiptext="Ignore hidden files" />
+					<listheader label="Enabled" width="100px"
+						tooltiptext="Enabled for crawling" />
 				</listhead>
 				<listitem self="@{each='filepathitem'}">
 					<listcell label="@{filepathitem.type.label}" />
@@ -42,9 +44,10 @@
 					<listcell label="@{filepathitem.path}" />
 					<listcell label="@{filepathitem.withSubDir}" />
 					<listcell label="@{filepathitem.ignoreHidden}" />
+					<listcell label="@{filepathitem.enabled}" />
 				</listitem>
 				<listfoot>
-					<listfooter span="6">
+					<listfooter span="7">
 						<paging id="paging" detailed="true"
 							totalSize="@{repository.totalSize}"
 							pageSize="@{repository.pageSize}"

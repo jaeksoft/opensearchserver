@@ -34,17 +34,36 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 
 public class CrawlFileThread extends CrawlThreadAbstract {
 
 	private FileItem currentFileItem;
+	private long delayBetweenAccesses;
+	private FilePathItem filePathItem;
+	private long nextTimeTarget;
 
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
-			CrawlStatistics sessionStats) throws SearchLibException {
+			CrawlStatistics sessionStats, FilePathItem filePathItem)
+			throws SearchLibException {
 		super(config, crawlMaster);
 		currentStats = new CrawlStatistics(sessionStats);
-		currentFileItem = null;
+		FilePropertyManager propertyManager = config.getFilePropertyManager();
+		delayBetweenAccesses = propertyManager.getDelayBetweenAccesses()
+				.getValue();
+		nextTimeTarget = 0;
+		this.filePathItem = filePathItem;
+	}
+
+	private void sleepInterval() {
+		long c = System.currentTimeMillis();
+		long ms = nextTimeTarget - c;
+		nextTimeTarget = c + delayBetweenAccesses;
+		if (ms < 0)
+			return;
+		sleepMs(ms);
 	}
 
 	@Override
@@ -54,16 +73,15 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		FileCrawlQueue crawlQueue = (FileCrawlQueue) crawlMaster
 				.getCrawlQueue();
 
-		currentStats.addListSize(1);
+		FilePathItemIterator filePathIterator = new FilePathItemIterator(
+				filePathItem);
 
 		FileInstanceAbstract fileInstance;
 
-		while ((fileInstance = crawlMaster.getNextFile()) != null) {
+		while ((fileInstance = filePathIterator.next()) != null) {
 
 			if (isAborted() || crawlMaster.isAborted())
 				break;
-
-			setStatus(CrawlStatus.CRAWL);
 
 			currentFileItem = new FileItem(fileInstance);
 
@@ -78,6 +96,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	}
 
 	private CrawlFile crawl() throws SearchLibException {
+
+		sleepInterval();
 
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();

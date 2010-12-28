@@ -182,6 +182,17 @@ public class FilePathManager {
 		}
 	}
 
+	public void getFilePathsToFetch(List<FilePathItem> list) {
+		rwl.r.lock();
+		try {
+			for (FilePathItem item : filePathMap.keySet())
+				if (item.isEnabled())
+					list.add(item);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void remove(FilePathItem filePathItem) throws SearchLibException {
 		rwl.w.lock();
 		try {

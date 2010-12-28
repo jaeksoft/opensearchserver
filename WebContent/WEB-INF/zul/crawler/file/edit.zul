@@ -115,6 +115,11 @@
 						<checkbox
 							checked="@{filepathedit.currentFilePath.withSubDir}" />
 					</row>
+					<row>
+						<label value="Enabled: " />
+						<checkbox
+							checked="@{filepathedit.currentFilePath.enabled}" />
+					</row>
 				</rows>
 				<foot>
 					<footer span="2">

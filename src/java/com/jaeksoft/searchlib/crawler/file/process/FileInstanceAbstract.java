@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.file.process;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 
@@ -41,27 +42,36 @@ public abstract class FileInstanceAbstract {
 	private URI uri;
 
 	final public static FileInstanceAbstract create(FilePathItem filePathItem,
-			FileInstanceAbstract parent, String path)
-			throws InstantiationException, IllegalAccessException,
-			URISyntaxException {
-		FileInstanceAbstract fileInstance = filePathItem.getType()
-				.getNewInstance();
-		fileInstance.init(filePathItem, parent, path);
-		return fileInstance;
+			FileInstanceAbstract parent, String path) throws SearchLibException {
+		FileInstanceAbstract fileInstance;
+		try {
+			fileInstance = filePathItem.getType().getNewInstance();
+			fileInstance.init(filePathItem, parent, path);
+			return fileInstance;
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	protected FileInstanceAbstract() {
 	}
 
-	protected void init(FilePathItem filePathItem, FileInstanceAbstract parent,
-			String path) throws URISyntaxException {
+	final protected void init(FilePathItem filePathItem,
+			FileInstanceAbstract parent, String path) throws URISyntaxException {
 		this.filePathItem = filePathItem;
 		this.parent = parent;
 		this.path = path;
 		uri = new URI(filePathItem.getType().getScheme(),
 				filePathItem.getUsername(), filePathItem.getHost(), -1, path,
 				null, null);
+		init();
 	}
+
+	public abstract void init();
 
 	public abstract FileTypeEnum getFileType();
 

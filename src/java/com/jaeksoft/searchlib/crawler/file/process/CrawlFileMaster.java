@@ -24,8 +24,13 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
 
+import org.apache.lucene.queryParser.ParseException;
+
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
@@ -34,30 +39,27 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 
 public class CrawlFileMaster extends CrawlMasterAbstract {
 
-	private int delayBetweenAccess;
-
-	private CrawlFileIterator crawlFileIterator;
-
 	private FileCrawlQueue fileCrawlQueue;
+
+	private final LinkedList<FilePathItem> filePathList;
 
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		super(config);
 		FilePropertyManager filePropertyManager = config
 				.getFilePropertyManager();
 		fileCrawlQueue = new FileCrawlQueue(config, filePropertyManager);
-		if (filePropertyManager.getCrawlEnabled().getValue())
+		filePathList = new LinkedList<FilePathItem>();
+		if (filePropertyManager.getCrawlEnabled().getValue()) {
+			Logging.logger.info("The file crawler is starting for "
+					+ config.getIndexName());
 			start();
-	}
-
-	protected FileInstanceAbstract getNextFile() throws URISyntaxException,
-			InstantiationException, IllegalAccessException {
-		synchronized (crawlFileIterator) {
-			sleepMs(delayBetweenAccess);
-			return crawlFileIterator.next();
 		}
 	}
 
@@ -67,8 +69,6 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 		FilePropertyManager filePropertyManager = config
 				.getFilePropertyManager();
 
-		setStatus(CrawlStatus.CRAWL);
-
 		while (!isAborted()) {
 
 			currentStats = new CrawlStatistics();
@@ -77,19 +77,21 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 
 			int threadNumber = filePropertyManager.getMaxThreadNumber()
 					.getValue();
-			delayBetweenAccess = filePropertyManager.getDelayBetweenAccesses()
-					.getValue();
 
-			crawlFileIterator = new CrawlFileIterator(
-					config.getFilePathManager());
+			synchronized (filePathList) {
+				filePathList.clear();
+			}
+
+			extractFilePathList();
 
 			while (!isAborted()) {
 
-				if (!crawlFileIterator.hasNext())
+				FilePathItem filePathItem = getNextFilePathItem();
+				if (filePathItem == null)
 					break;
 
 				CrawlThreadAbstract crawlThread = new CrawlFileThread(config,
-						this, currentStats);
+						this, currentStats, filePathItem);
 				add(crawlThread);
 
 				while (getThreadsCount() >= threadNumber && !isAborted())
@@ -108,6 +110,32 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 		}
 		fileCrawlQueue.index(true);
 		setStatus(CrawlStatus.NOT_RUNNING);
+	}
+
+	private void extractFilePathList() throws IOException, ParseException,
+			SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, SearchLibException, InstantiationException,
+			IllegalAccessException {
+		Config config = getConfig();
+		setStatus(CrawlStatus.EXTRACTING_FILEPATHLIST);
+
+		FilePathManager filePathManager = config.getFilePathManager();
+
+		filePathManager.getFilePathsToFetch(filePathList);
+		currentStats.addOldHostListSize(filePathList.size());
+	}
+
+	private FilePathItem getNextFilePathItem() {
+		synchronized (filePathList) {
+			int s = filePathList.size();
+			if (s == 0)
+				return null;
+			FilePathItem filePathItem = filePathList.remove(0);
+			if (filePathItem == null)
+				return null;
+			currentStats.incNewHostCount();
+			return filePathItem;
+		}
 	}
 
 	@Override

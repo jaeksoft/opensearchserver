@@ -59,4 +59,10 @@ public class SmbFileInstance extends FileInstanceAbstract {
 		return null;
 	}
 
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

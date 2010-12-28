@@ -56,6 +56,11 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
+	public void init() {
+		file = new File(getURI());
+	}
+
+	@Override
 	public FileTypeEnum getFileType() {
 		if (file.isFile())
 			return FileTypeEnum.file;
@@ -71,7 +76,7 @@ public class LocalFileInstance extends FileInstanceAbstract {
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
 		int i = 0;
 		for (File f : files)
-			fileInstances[i] = new LocalFileInstance(filePathItem, this, f);
+			fileInstances[i++] = new LocalFileInstance(filePathItem, this, f);
 		return fileInstances;
 	}
 

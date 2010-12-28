@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,13 +26,35 @@ package com.jaeksoft.searchlib.crawler.common.process;
 
 public enum CrawlStatus {
 
-	NOT_RUNNING("Not running"), STARTING("Starting"), EXTRACTING_URLLIST(
-			"Extracting url list"), EXTRACTING_HOSTLIST("Extracting host list"), CRAWL(
-			"Crawling"), INDEXATION("Indexation"), OPTMIZING_INDEX(
-			"Optimizing index"), PUBLISH_INDEX("Publishing index"), EXTRACTING_URLS(
-			"Extracting urls"), WAITING("Waiting"), ERROR("Error"), ABORTED(
-			"Aborted"), COMPLETE("Complete"), DELETE_REMOVED(
-			"Delete removed files");
+	NOT_RUNNING("Not running"),
+
+	STARTING("Starting"),
+
+	EXTRACTING_URLLIST("Extracting url list"),
+
+	EXTRACTING_HOSTLIST("Extracting host list"),
+
+	EXTRACTING_FILEPATHLIST("Extracting file path list"),
+
+	CRAWL("Crawling"),
+
+	INDEXATION("Indexation"),
+
+	OPTMIZING_INDEX("Optimizing index"),
+
+	PUBLISH_INDEX("Publishing index"),
+
+	EXTRACTING_URLS("Extracting urls"),
+
+	WAITING("Waiting"),
+
+	ERROR("Error"),
+
+	ABORTED("Aborted"),
+
+	COMPLETE("Complete"),
+
+	DELETE_REMOVED("Delete removed files");
 
 	public String name;
 
