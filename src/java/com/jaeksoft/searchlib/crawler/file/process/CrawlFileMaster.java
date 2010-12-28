@@ -101,9 +101,9 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 			waitForChild(600);
 			setStatus(CrawlStatus.INDEXATION);
 			fileCrawlQueue.index(true);
-			if (currentStats.getUrlCount() > 0) {
+			if (fileCrawlQueue.hasContainedData()) {
 				setStatus(CrawlStatus.OPTMIZING_INDEX);
-				config.getUrlManager().reload(true);
+				config.getFileManager().reload(true);
 			}
 
 			sleepSec(5);

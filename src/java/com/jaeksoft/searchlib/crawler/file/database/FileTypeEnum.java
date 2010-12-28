@@ -28,6 +28,8 @@ import java.io.File;
 
 public enum FileTypeEnum {
 
+	ALL,
+
 	file,
 
 	directory;

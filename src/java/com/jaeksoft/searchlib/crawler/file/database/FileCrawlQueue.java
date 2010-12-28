@@ -157,6 +157,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		manager.updateCrawls(workUpdateCrawlList);
 		if (sessionStats != null)
 			sessionStats.addUpdatedCount(workUpdateCrawlList.size());
+		setContainedData();
 		return true;
 	}
 
@@ -170,6 +171,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 				: 0;
 		if (sessionStats != null)
 			sessionStats.addDeletedCount(nbFilesDeleted);
+		setContainedData();
 		return true;
 	}
 

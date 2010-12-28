@@ -42,8 +42,8 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				uri,directory,content,contentLength,
-				lang,langMethod,when,parserStatus,fetchStatus,indexStatus,fileSystemDate,crawlDate,fileSize,fileExtension
+				uri,directory,subDirectory,content,contentLength,
+				lang,langMethod,when,parserStatus,fetchStatus,indexStatus,fileSystemDate,crawlDate,fileSize,fileExtension,fileType
 			</returnFields>
 		</request>
 	</requests>

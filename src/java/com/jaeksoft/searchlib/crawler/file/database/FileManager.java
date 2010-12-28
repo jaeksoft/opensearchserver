@@ -56,7 +56,6 @@ import com.jaeksoft.searchlib.util.map.Target;
 
 public class FileManager {
 
-	private static final int MAX_FILE_RETURN = 10000;
 	private static final String FILE_SEARCH = "fileSearch";
 
 	public enum Field {
@@ -65,7 +64,8 @@ public class FileManager {
 				"contentTypeCharset"), CONTENTENCODING("contentEncoding"), CONTENTLENGTH(
 				"contentLength"), LANG("lang"), LANGMETHOD("langMethod"), FETCHSTATUS(
 				"fetchStatus"), RESPONSECODE("responseCode"), PARSERSTATUS(
-				"parserStatus"), INDEXSTATUS("indexStatus");
+				"parserStatus"), INDEXSTATUS("indexStatus"), FILETYPE(
+				"fileType");
 
 		private final String name;
 
@@ -134,8 +134,6 @@ public class FileManager {
 		if (optimize) {
 			fileDbClient.reload();
 			fileDbClient.getIndex().optimize();
-			targetClient.reload();
-			targetClient.getIndex().optimize();
 		}
 		fileDbClient.reload();
 		targetClient.reload();
@@ -147,6 +145,7 @@ public class FileManager {
 		searchRequest.setRows(0);
 		searchRequest.addReturnField("uri");
 		searchRequest.addReturnField("directory");
+		searchRequest.addReturnField("subDirectory");
 		searchRequest.addReturnField("contentLength");
 		searchRequest.addReturnField("lang");
 		searchRequest.addReturnField("langMethod");
@@ -158,6 +157,7 @@ public class FileManager {
 		searchRequest.addReturnField("fileSystemDate");
 		searchRequest.addReturnField("fileSize");
 		searchRequest.addReturnField("fileExtension");
+		searchRequest.addReturnField("fileType");
 		return searchRequest;
 	}
 
@@ -177,9 +177,9 @@ public class FileManager {
 		return null;
 	}
 
-	public List<FileItem> findAllByDirectory(URI parentUri)
-			throws SearchLibException, CorruptIndexException, ParseException,
-			UnsupportedEncodingException {
+	public List<FileItem> findAllByDirectory(URI parentUri, long start,
+			long rows) throws SearchLibException, CorruptIndexException,
+			ParseException, UnsupportedEncodingException {
 
 		SearchRequest request = getPathSearchRequest();
 		request.setQueryString("*:*");
@@ -188,7 +188,7 @@ public class FileManager {
 		request.addSort(FileItemFieldEnum.uri.name(), false);
 
 		List<FileItem> listFileItem = new ArrayList<FileItem>();
-		getFiles(request, null, false, 0, MAX_FILE_RETURN, listFileItem);
+		getFiles(request, null, false, start, rows, listFileItem);
 
 		return listFileItem;
 	}
@@ -196,8 +196,8 @@ public class FileManager {
 	public SearchRequest fileQuery(String like, String lang, String langMethod,
 			Integer minContentLength, Integer maxContentLength,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate)
-			throws SearchLibException {
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			FileTypeEnum fileType) throws SearchLibException {
 		try {
 
 			SearchRequest searchRequest = fileDbClient
@@ -233,6 +233,9 @@ public class FileManager {
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
 				Field.INDEXSTATUS.addFilterQuery(searchRequest,
 						indexStatus.value);
+
+			if (fileType != null && fileType != FileTypeEnum.ALL)
+				Field.FILETYPE.addFilterQuery(searchRequest, fileType.name());
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;

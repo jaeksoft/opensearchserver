@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
+import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 
 public class CrawlFileThread extends CrawlThreadAbstract {
@@ -88,6 +89,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			CrawlFile crawl = crawl();
 			if (crawl != null)
 				crawlQueue.add(currentStats, crawl);
+			if (currentFileItem.getType() == FileTypeEnum.directory)
+				checkDirectory();
 			setStatus(CrawlStatus.INDEXATION);
 			crawlQueue.index(false);
 
@@ -120,6 +123,10 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			currentStats.incIgnoredCount();
 
 		return crawl;
+	}
+
+	private void checkDirectory() {
+
 	}
 
 	public FileItem getCurrentFileItem() {

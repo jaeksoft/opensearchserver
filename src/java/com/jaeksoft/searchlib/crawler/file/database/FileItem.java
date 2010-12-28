@@ -274,8 +274,10 @@ public class FileItem implements Serializable {
 		indexDocument.set(FileItemFieldEnum.uri.name(), getURI()
 				.toASCIIString());
 
-		indexDocument.set(FileItemFieldEnum.directory.name(), getDirectory()
-				.toASCIIString());
+		URI dirUri = getDirectory();
+		if (dirUri != null)
+			indexDocument.set(FileItemFieldEnum.directory.name(),
+					dirUri.toASCIIString());
 
 		indexDocument.set(FileItemFieldEnum.subDirectory.name(),
 				getSubDirectory());

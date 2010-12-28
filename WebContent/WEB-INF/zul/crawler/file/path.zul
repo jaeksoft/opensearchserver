@@ -22,6 +22,7 @@
 		<listhead sizable="true">
 			<listheader width="30%" label="File" />
 			<listheader width="140px" label="Date" />
+			<listheader label="Type" />
 			<listheader label="Extension" />
 			<listheader label="Size" />
 			<listheader label="Lang" />
@@ -45,6 +46,11 @@
 						value="@{searchPath.dateEnd}" />
 				</vbox>
 			</auxheader>
+			<auxheader>
+				<listbox mold="select" width="50px" fixedLayout="true"
+					model="@{searchPath.fileTypeList}"
+					selectedItem="@{searchPath.fileType}" />
+			</auxheader>
 			<auxheader />
 			<auxheader />
 			<auxheader>
@@ -59,7 +65,7 @@
 					model="@{searchPath.fetchStatusList}"
 					selectedItem="@{searchPath.fetchStatus}" />
 			</auxheader>
-			
+
 			<auxheader>
 				<listbox mold="select" width="50px" fixedLayout="true"
 					model="@{searchPath.parserStatusList}"
@@ -75,6 +81,7 @@
 		<listitem self="@{each='file'}">
 			<listcell label="@{file.uri}" />
 			<listcell label="@{file.when}" />
+			<listcell label="@{file.type}" />
 			<listcell label="@{file.extension}" />
 			<listcell label="@{file.humanSize}" />
 			<listcell label="@{file.lang}" />
@@ -84,13 +91,13 @@
 			<listcell label="@{file.IndexStatus}" />
 		</listitem>
 		<listfoot>
-			
-			<listfooter span="14">
+
+			<listfooter span="15">
 				<paging id="paging" detailed="true"
 					totalSize="@{searchPath.totalSize}"
 					pageSize="@{searchPath.pageSize}"
 					activePage="@{searchPath.activePage}" />
-					<button label="Reload" forward="onReload" />
+				<button label="Reload" forward="onReload" />
 				<label value="Line per page: " />
 				<intbox cols="3"
 					constraint="no negative, no zero, no negative"

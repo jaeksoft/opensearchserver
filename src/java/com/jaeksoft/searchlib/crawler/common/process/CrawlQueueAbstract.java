@@ -38,6 +38,7 @@ public abstract class CrawlQueueAbstract {
 	private Config config;
 	private CrawlStatistics sessionStats;
 	private int maxBufferSize;
+	private boolean containedData;
 
 	private final ReentrantLock rl = new ReentrantLock(true);
 
@@ -46,6 +47,7 @@ public abstract class CrawlQueueAbstract {
 		this.sessionStats = null;
 		this.config = config;
 		this.maxBufferSize = maxBufferSize;
+		this.containedData = false;
 	}
 
 	public void setStatistiques(CrawlStatistics stats) {
@@ -71,6 +73,15 @@ public abstract class CrawlQueueAbstract {
 	protected abstract boolean workingInProgress();
 
 	protected abstract boolean shouldWePersist();
+
+	protected void setContainedData() {
+		if (!this.containedData)
+			this.containedData = true;
+	}
+
+	public boolean hasContainedData() {
+		return containedData;
+	}
 
 	private boolean weMustIndexNow() {
 		synchronized (this) {

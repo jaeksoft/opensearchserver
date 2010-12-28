@@ -34,12 +34,15 @@ public class ItemDirectoryIterator extends ItemIterator {
 
 	private boolean withSubDir;
 
+	private FileInstanceAbstract fileInstance;
+
 	protected ItemDirectoryIterator(ItemIterator parent,
 			FileInstanceAbstract fileInstance, boolean withSubDir)
 			throws URISyntaxException {
 		super(parent);
-		currentPos = 0;
+		currentPos = -1;
 		this.withSubDir = withSubDir;
+		this.fileInstance = fileInstance;
 		if (withSubDir)
 			files = fileInstance.listFilesAndDirectories();
 		else
@@ -49,13 +52,17 @@ public class ItemDirectoryIterator extends ItemIterator {
 
 	@Override
 	protected FileInstanceAbstract getFileInstanceImpl() {
-		return null;
+		return fileInstance;
 	}
 
 	@Override
 	protected ItemIterator nextImpl() throws URISyntaxException {
 		if (files == null)
 			return parent;
+		if (currentPos == -1) {
+			currentPos = 0;
+			return this;
+		}
 		if (currentPos >= files.length)
 			return parent;
 		FileInstanceAbstract fileInstances = files[currentPos++];

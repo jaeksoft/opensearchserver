@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager.Field;
+import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
@@ -185,6 +186,22 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
+	public void setFileType(FileTypeEnum v) {
+		synchronized (this) {
+			setAttribute("searchUrlFileType", v, SESSION_SCOPE);
+		}
+	}
+
+	public FileTypeEnum getFileType() {
+		synchronized (this) {
+			FileTypeEnum type = (FileTypeEnum) getAttribute(
+					"searchUrlFileType", SESSION_SCOPE);
+			if (type == null)
+				return FileTypeEnum.ALL;
+			return type;
+		}
+	}
+
 	public void setLike(String v) {
 		synchronized (this) {
 			setAttribute("searchUrlLike", v, SESSION_SCOPE);
@@ -274,7 +291,8 @@ public class FileController extends CrawlerController implements AfterCompose {
 			SearchRequest searchRequest = fileManager.fileQuery(getLike(),
 					getLang(), getLangMethod(), getMinContentLength(),
 					getMaxContentLength(), getFetchStatus(), getParserStatus(),
-					getIndexStatus(), getDateStart(), getDateEnd());
+					getIndexStatus(), getDateStart(), getDateEnd(),
+					getFileType());
 
 			totalSize = (int) fileManager.getFiles(searchRequest, Field.FILE,
 					true, getPageSize() * getActivePage(), getPageSize(),
@@ -304,6 +322,12 @@ public class FileController extends CrawlerController implements AfterCompose {
 	public IndexStatus[] getIndexStatusList() {
 		synchronized (this) {
 			return IndexStatus.values();
+		}
+	}
+
+	public FileTypeEnum[] getFileTypeList() {
+		synchronized (this) {
+			return FileTypeEnum.values();
 		}
 	}
 
