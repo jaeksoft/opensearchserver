@@ -315,13 +315,12 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 			fileList = new ArrayList<FileItem>();
 			FileManager fileManager = client.getFileManager();
-			SearchRequest searchRequest = fileManager
-					.fileQuery(getLike(), getLang(), getLangMethod(),
-							getMinContentLength(), getMaxContentLength(),
-							getFetchStatus(), getParserStatus(),
-							getIndexStatus(), getDateStart(), getDateEnd(),
-							getDateModifiedStart(), getDateModifiedEnd(),
-							getFileType());
+			SearchRequest searchRequest = fileManager.fileQuery(getLike(),
+					getLang(), getLangMethod(), getMinContentLength(),
+					getMaxContentLength(), getFetchStatus(), getParserStatus(),
+					getIndexStatus(), getDateStart(), getDateEnd(),
+					getDateModifiedStart(), getDateModifiedEnd(),
+					getFileType(), null);
 
 			totalSize = (int) fileManager.getFiles(searchRequest, Field.FILE,
 					true, getPageSize() * getActivePage(), getPageSize(),

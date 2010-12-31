@@ -495,10 +495,8 @@ public class FileItem implements Serializable {
 
 	/**
 	 * Test if a new crawl is needed
-	 * 
-	 * @throws ParseException
 	 */
-	public boolean isNewCrawlNeeded(long dateModified) throws ParseException {
+	public boolean isNewCrawlNeeded(long dateModified) {
 		if (fileSystemDate == null)
 			return true;
 		return fileSystemDate.getTime() != dateModified;

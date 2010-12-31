@@ -62,7 +62,8 @@ public class FileManager {
 				"contentLength"), LANG("lang"), LANGMETHOD("langMethod"), FETCHSTATUS(
 				"fetchStatus"), RESPONSECODE("responseCode"), PARSERSTATUS(
 				"parserStatus"), INDEXSTATUS("indexStatus"), FILETYPE(
-				"fileType"), FILESYSTEMDATE("fileSystemDate");
+				"fileType"), FILESYSTEMDATE("fileSystemDate"), SUBDIRECTORY(
+				"subDirectory");
 
 		private final String name;
 
@@ -140,7 +141,8 @@ public class FileManager {
 			Integer minContentLength, Integer maxContentLength,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Date startModifiedDate, Date endModifiedDate, FileTypeEnum fileType)
+			Date startModifiedDate, Date endModifiedDate,
+			FileTypeEnum fileType, String subDirectory)
 			throws SearchLibException {
 		try {
 
@@ -222,6 +224,9 @@ public class FileManager {
 					to = df.format(endModifiedDate);
 				Field.FILESYSTEMDATE.addFilterRange(searchRequest, from, to);
 			}
+
+			if (subDirectory != null)
+				Field.SUBDIRECTORY.addFilterQuery(searchRequest, subDirectory);
 
 			if (query.length() == 0)
 				query.append("*:*");
