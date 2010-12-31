@@ -104,7 +104,7 @@ public class FileItem implements Serializable {
 	private FetchStatus fetchStatus;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
-	private String fileSystemDate;
+	private Date fileSystemDate;
 	private long crawlDate;
 	private long size;
 	private String extension;
@@ -128,7 +128,7 @@ public class FileItem implements Serializable {
 		indexStatus = IndexStatus.NOT_INDEXED;
 		count = 0;
 		crawlDate = 0;
-		fileSystemDate = "0";
+		fileSystemDate = null;
 		size = 0;
 		extension = "";
 		type = null;
@@ -432,16 +432,29 @@ public class FileItem implements Serializable {
 		}
 	}
 
-	public String getFileSystemDate() {
+	public Date getFileSystemDate() {
 		return fileSystemDate;
 	}
 
-	public void setFileSystemDate(String d) {
+	public void setFileSystemDate(Date d) {
 		fileSystemDate = d;
 	}
 
 	public void setFileSystemDate(long d) {
-		fileSystemDate = getTecnhicalDateFormat().format(new Date(d));
+		fileSystemDate = new Date(d);
+	}
+
+	public void setFileSystemDate(String d) {
+		if (d == null) {
+			fileSystemDate = null;
+			return;
+		}
+		try {
+			fileSystemDate = getTecnhicalDateFormat().parse(d);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+			setWhenNow();
+		}
 	}
 
 	public long getSize() {
@@ -486,7 +499,9 @@ public class FileItem implements Serializable {
 	 * @throws ParseException
 	 */
 	public boolean isNewCrawlNeeded(long dateModified) throws ParseException {
-		return getTecnhicalDateFormat().parse(fileSystemDate).getTime() != dateModified;
+		if (fileSystemDate == null)
+			return true;
+		return fileSystemDate.getTime() != dateModified;
 	}
 
 	public File getFile() {

@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileManager.Field;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class FileController extends CrawlerController implements AfterCompose {
@@ -232,25 +233,51 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	public void setDateStart(Date v) {
 		synchronized (this) {
-			setAttribute("searchUrlDateStart", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_DATE_START.set(this, v);
 		}
 	}
 
 	public Date getDateStart() {
 		synchronized (this) {
-			return (Date) getAttribute("searchUrlDateStart", SESSION_SCOPE);
+			return (Date) ScopeAttribute.SEARCH_FILE_DATE_START.get(this);
 		}
 	}
 
 	public void setDateEnd(Date v) {
 		synchronized (this) {
-			setAttribute("searchUrlDateEnd", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_DATE_END.set(this, v);
 		}
 	}
 
 	public Date getDateEnd() {
 		synchronized (this) {
-			return (Date) getAttribute("searchUrlDateEnd", SESSION_SCOPE);
+			return (Date) ScopeAttribute.SEARCH_FILE_DATE_END.get(this);
+		}
+	}
+
+	public void setDateModifiedStart(Date v) {
+		synchronized (this) {
+			ScopeAttribute.SEARCH_FILE_DATE_MODIFIED_START.set(this, v);
+		}
+	}
+
+	public Date getDateModifiedStart() {
+		synchronized (this) {
+			return (Date) ScopeAttribute.SEARCH_FILE_DATE_MODIFIED_START
+					.get(this);
+		}
+	}
+
+	public void setDateModifiedEnd(Date v) {
+		synchronized (this) {
+			ScopeAttribute.SEARCH_FILE_DATE_MODIFIED_END.set(this, v);
+		}
+	}
+
+	public Date getDateModifiedEnd() {
+		synchronized (this) {
+			return (Date) ScopeAttribute.SEARCH_FILE_DATE_MODIFIED_END
+					.get(this);
 		}
 	}
 
@@ -288,11 +315,13 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 			fileList = new ArrayList<FileItem>();
 			FileManager fileManager = client.getFileManager();
-			SearchRequest searchRequest = fileManager.fileQuery(getLike(),
-					getLang(), getLangMethod(), getMinContentLength(),
-					getMaxContentLength(), getFetchStatus(), getParserStatus(),
-					getIndexStatus(), getDateStart(), getDateEnd(),
-					getFileType());
+			SearchRequest searchRequest = fileManager
+					.fileQuery(getLike(), getLang(), getLangMethod(),
+							getMinContentLength(), getMaxContentLength(),
+							getFetchStatus(), getParserStatus(),
+							getIndexStatus(), getDateStart(), getDateEnd(),
+							getDateModifiedStart(), getDateModifiedEnd(),
+							getFileType());
 
 			totalSize = (int) fileManager.getFiles(searchRequest, Field.FILE,
 					true, getPageSize() * getActivePage(), getPageSize(),

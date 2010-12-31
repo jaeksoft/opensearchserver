@@ -21,7 +21,8 @@
 		multiple="false" checkmark="false">
 		<listhead sizable="true">
 			<listheader width="30%" label="File" />
-			<listheader width="140px" label="Date" />
+			<listheader width="140px" label="Index Date" />
+			<listheader width="140px" label="Modified date" />
 			<listheader label="Type" />
 			<listheader label="Extension" />
 			<listheader label="Size" />
@@ -44,6 +45,14 @@
 						value="@{searchPath.dateStart}" />
 					<datebox compact="true"
 						value="@{searchPath.dateEnd}" />
+				</vbox>
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<datebox compact="true"
+						value="@{searchPath.dateModifiedStart}" />
+					<datebox compact="true"
+						value="@{searchPath.dateModifiedEnd}" />
 				</vbox>
 			</auxheader>
 			<auxheader>
@@ -80,7 +89,10 @@
 		</auxhead>
 		<listitem self="@{each='file'}">
 			<listcell label="@{file.uri}" />
-			<listcell label="@{file.when}" />
+			<listcell
+				label="@{file.when,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+			<listcell
+				label="@{file.fileSystemDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 			<listcell label="@{file.type}" />
 			<listcell label="@{file.extension}" />
 			<listcell label="@{file.humanSize}" />
@@ -92,7 +104,7 @@
 		</listitem>
 		<listfoot>
 
-			<listfooter span="15">
+			<listfooter span="16">
 				<paging id="paging" detailed="true"
 					totalSize="@{searchPath.totalSize}"
 					pageSize="@{searchPath.pageSize}"

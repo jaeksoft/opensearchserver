@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.crawler.file.database;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -38,7 +36,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
@@ -65,7 +62,7 @@ public class FileManager {
 				"contentLength"), LANG("lang"), LANGMETHOD("langMethod"), FETCHSTATUS(
 				"fetchStatus"), RESPONSECODE("responseCode"), PARSERSTATUS(
 				"parserStatus"), INDEXSTATUS("indexStatus"), FILETYPE(
-				"fileType");
+				"fileType"), FILESYSTEMDATE("fileSystemDate");
 
 		private final String name;
 
@@ -139,65 +136,12 @@ public class FileManager {
 		targetClient.reload();
 	}
 
-	private SearchRequest getPathSearchRequest() throws SearchLibException {
-		SearchRequest searchRequest = fileDbClient.getNewSearchRequest();
-		searchRequest.setDefaultOperator("OR");
-		searchRequest.setRows(0);
-		searchRequest.addReturnField("uri");
-		searchRequest.addReturnField("directory");
-		searchRequest.addReturnField("subDirectory");
-		searchRequest.addReturnField("contentLength");
-		searchRequest.addReturnField("lang");
-		searchRequest.addReturnField("langMethod");
-		searchRequest.addReturnField("when");
-		searchRequest.addReturnField("parserStatus");
-		searchRequest.addReturnField("indexStatus");
-		searchRequest.addReturnField("fetchStatus");
-		searchRequest.addReturnField("crawlDate");
-		searchRequest.addReturnField("fileSystemDate");
-		searchRequest.addReturnField("fileSize");
-		searchRequest.addReturnField("fileExtension");
-		searchRequest.addReturnField("fileType");
-		return searchRequest;
-	}
-
-	public FileItem find(String path) throws SearchLibException,
-			CorruptIndexException, ParseException, UnsupportedEncodingException {
-		SearchRequest request = getPathSearchRequest();
-		request.setQueryString("*:*");
-
-		request.addFilter(FileItemFieldEnum.uri.name() + ":\""
-				+ SearchRequest.escapeQuery(path) + '"');
-		List<FileItem> listFileItem = new ArrayList<FileItem>();
-		getFiles(request, null, false, 0, 10, listFileItem);
-
-		if (listFileItem.size() > 0)
-			return listFileItem.get(0);
-
-		return null;
-	}
-
-	public List<FileItem> findAllByDirectory(URI parentUri, long start,
-			long rows) throws SearchLibException, CorruptIndexException,
-			ParseException, UnsupportedEncodingException {
-
-		SearchRequest request = getPathSearchRequest();
-		request.setQueryString("*:*");
-		request.addFilter(FileItemFieldEnum.directory.name() + ":\""
-				+ SearchRequest.escapeQuery(parentUri.toASCIIString()) + '"');
-		request.addSort(FileItemFieldEnum.uri.name(), false);
-
-		List<FileItem> listFileItem = new ArrayList<FileItem>();
-		getFiles(request, null, false, start, rows, listFileItem);
-
-		return listFileItem;
-	}
-
 	public SearchRequest fileQuery(String like, String lang, String langMethod,
 			Integer minContentLength, Integer maxContentLength,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			FileTypeEnum fileType) throws SearchLibException {
+			Date startModifiedDate, Date endModifiedDate, FileTypeEnum fileType)
+			throws SearchLibException {
 		try {
 
 			SearchRequest searchRequest = fileDbClient
@@ -263,6 +207,20 @@ public class FileManager {
 				else
 					to = df.format(endDate);
 				Field.WHEN.addFilterRange(searchRequest, from, to);
+			}
+
+			if (startModifiedDate != null || endModifiedDate != null) {
+				String from, to;
+				SimpleDateFormat df = FileItem.getDateFormat();
+				if (startModifiedDate == null)
+					from = "00000000000000";
+				else
+					from = df.format(startModifiedDate);
+				if (endModifiedDate == null)
+					to = "99999999999999";
+				else
+					to = df.format(endModifiedDate);
+				Field.FILESYSTEMDATE.addFilterRange(searchRequest, from, to);
 			}
 
 			if (query.length() == 0)

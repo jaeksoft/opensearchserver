@@ -106,7 +106,7 @@
 		</auxhead>
 		<listitem self="@{each='url'}">
 			<listcell label="@{url.url}" />
-			<listcell label="@{url.when}" />
+			<listcell label="@{url.when,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 			<listcell label="@{url.contentBaseType}" />
 			<listcell label="@{url.contentTypeCharset}" />
 			<listcell label="@{url.contentEncoding}" />
