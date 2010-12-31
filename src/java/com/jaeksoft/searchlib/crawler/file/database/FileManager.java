@@ -63,7 +63,7 @@ public class FileManager {
 				"fetchStatus"), RESPONSECODE("responseCode"), PARSERSTATUS(
 				"parserStatus"), INDEXSTATUS("indexStatus"), FILETYPE(
 				"fileType"), FILESYSTEMDATE("fileSystemDate"), SUBDIRECTORY(
-				"subDirectory");
+				"subDirectory"), REPOSITORY("repository");
 
 		private final String name;
 
@@ -74,7 +74,7 @@ public class FileManager {
 		private void addFilterQuery(SearchRequest request, Object value)
 				throws ParseException {
 			StringBuffer sb = new StringBuffer();
-			addQuery(sb, value);
+			addQuery(sb, value, true);
 			request.addFilter(sb.toString());
 		}
 
@@ -85,11 +85,15 @@ public class FileManager {
 			request.addFilter(sb.toString());
 		}
 
-		private void addQuery(StringBuffer sb, Object value) {
-			sb.append(" ");
+		private void addQuery(StringBuffer sb, Object value, boolean quote) {
+			sb.append(' ');
 			sb.append(name);
-			sb.append(":");
+			sb.append(':');
+			if (quote)
+				sb.append('"');
 			sb.append(value);
+			if (quote)
+				sb.append('"');
 		}
 
 		private void addQueryRange(StringBuffer sb, Object from, Object to) {
@@ -137,11 +141,11 @@ public class FileManager {
 		targetClient.reload();
 	}
 
-	public SearchRequest fileQuery(String like, String lang, String langMethod,
-			Integer minContentLength, Integer maxContentLength,
-			FetchStatus fetchStatus, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate,
-			Date startModifiedDate, Date endModifiedDate,
+	public SearchRequest fileQuery(String repository, String like, String lang,
+			String langMethod, Integer minContentLength,
+			Integer maxContentLength, FetchStatus fetchStatus,
+			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
+			Date endDate, Date startModifiedDate, Date endModifiedDate,
 			FileTypeEnum fileType, String subDirectory)
 			throws SearchLibException {
 		try {
@@ -149,11 +153,15 @@ public class FileManager {
 			SearchRequest searchRequest = fileDbClient
 					.getNewSearchRequest(FILE_SEARCH);
 
+			if (repository != null)
+				Field.REPOSITORY.addFilterQuery(searchRequest, repository);
+
 			StringBuffer query = new StringBuffer();
 			if (like != null) {
 				like = like.trim();
 				if (like.length() > 0) {
-					Field.FILE.addQuery(query, SearchRequest.escapeQuery(like));
+					Field.FILE.addQuery(query, SearchRequest.escapeQuery(like),
+							false);
 					query.append("*");
 				}
 			}
@@ -235,6 +243,11 @@ public class FileManager {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public void deleteBySubDirectory(String subDirectory) throws ParseException {
+		SearchRequest searchRequest = fileDbClient.getNewSearchRequest();
+		Field.SUBDIRECTORY.addFilterQuery(searchRequest, subDirectory);
 	}
 
 	public long getFiles(SearchRequest searchRequest, Field orderBy,

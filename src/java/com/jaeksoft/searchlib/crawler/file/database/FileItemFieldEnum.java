@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 public enum FileItemFieldEnum {
+
+	repository,
+
 	uri,
 
 	directory,

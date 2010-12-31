@@ -91,51 +91,39 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	public void setLang(String v) {
 		synchronized (this) {
-			setAttribute("searchUrlLang", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_LANG.set(this, v);
 		}
 	}
 
 	public String getLang() {
 		synchronized (this) {
-			return (String) getAttribute("searchUrlLang", SESSION_SCOPE);
-		}
-	}
-
-	public void setLangMethod(String v) {
-		synchronized (this) {
-			setAttribute("searchUrlLangMethod", v, SESSION_SCOPE);
-		}
-	}
-
-	public String getLangMethod() {
-		synchronized (this) {
-			return (String) getAttribute("searchUrlMethod", SESSION_SCOPE);
+			return (String) ScopeAttribute.SEARCH_FILE_LANG.get(this);
 		}
 	}
 
 	public void setMinContentLength(Integer v) {
 		synchronized (this) {
-			setAttribute("searchUrlMinContentLength", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_MIN_CONTENT_LENGTH.set(this, v);
 		}
 	}
 
 	public Integer getMinContentLength() {
 		synchronized (this) {
-			return (Integer) getAttribute("searchUrlMinContentLength",
-					SESSION_SCOPE);
+			return (Integer) ScopeAttribute.SEARCH_FILE_MIN_CONTENT_LENGTH
+					.get(this);
 		}
 	}
 
 	public void setMaxContentLength(Integer v) {
 		synchronized (this) {
-			setAttribute("searchUrlMaxContentLength", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_MAX_CONTENT_LENGTH.set(this, v);
 		}
 	}
 
 	public Integer getMaxContentLength() {
 		synchronized (this) {
-			return (Integer) getAttribute("searchUrlMaxContentLength",
-					SESSION_SCOPE);
+			return (Integer) ScopeAttribute.SEARCH_FILE_MAX_CONTENT_LENGTH
+					.get(this);
 		}
 	}
 
@@ -281,6 +269,21 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
+	public void setRepository(String v) {
+		synchronized (this) {
+			if (v != null)
+				if (v.length() == 0)
+					v = null;
+			ScopeAttribute.SEARCH_FILE_REPOSITORY.set(this, v);
+		}
+	}
+
+	public String getRepository() {
+		synchronized (this) {
+			return (String) ScopeAttribute.SEARCH_FILE_REPOSITORY.get(this);
+		}
+	}
+
 	public void onPaging(PagingEvent pagingEvent) {
 		synchronized (this) {
 			fileList = null;
@@ -315,12 +318,12 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 			fileList = new ArrayList<FileItem>();
 			FileManager fileManager = client.getFileManager();
-			SearchRequest searchRequest = fileManager.fileQuery(getLike(),
-					getLang(), getLangMethod(), getMinContentLength(),
-					getMaxContentLength(), getFetchStatus(), getParserStatus(),
-					getIndexStatus(), getDateStart(), getDateEnd(),
-					getDateModifiedStart(), getDateModifiedEnd(),
-					getFileType(), null);
+			SearchRequest searchRequest = fileManager.fileQuery(
+					getRepository(), getLike(), getLang(), null,
+					getMinContentLength(), getMaxContentLength(),
+					getFetchStatus(), getParserStatus(), getIndexStatus(),
+					getDateStart(), getDateEnd(), getDateModifiedStart(),
+					getDateModifiedEnd(), getFileType(), null);
 
 			totalSize = (int) fileManager.getFiles(searchRequest, Field.FILE,
 					true, getPageSize() * getActivePage(), getPageSize(),
@@ -356,6 +359,18 @@ public class FileController extends CrawlerController implements AfterCompose {
 	public FileTypeEnum[] getFileTypeList() {
 		synchronized (this) {
 			return FileTypeEnum.values();
+		}
+	}
+
+	public List<String> getRepositoryList() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			List<String> list = new ArrayList<String>();
+			list.add("");
+			client.getFilePathManager().getAllFilePathsString(list);
+			return list;
 		}
 	}
 

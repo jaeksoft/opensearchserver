@@ -182,6 +182,16 @@ public class FilePathManager {
 		}
 	}
 
+	public void getAllFilePathsString(List<String> list) {
+		rwl.r.lock();
+		try {
+			for (FilePathItem item : filePathMap.keySet())
+				list.add(item.toString());
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void getFilePathsToFetch(List<FilePathItem> list) {
 		rwl.r.lock();
 		try {

@@ -19,6 +19,7 @@
 	</indices>
 	<schema>
 		<fields default="content" unique="uri">
+			<field name="repository" indexed="yes" stored="yes" />
 			<field name="uri" indexed="yes" stored="yes" />
 			<field name="directory" indexed="yes" stored="yes" />
 			<field name="subDirectory" indexed="yes" stored="no" />
@@ -42,8 +43,9 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				uri,directory,subDirectory,content,contentLength,
-				lang,langMethod,when,parserStatus,fetchStatus,indexStatus,fileSystemDate,crawlDate,fileSize,fileExtension,fileType
+				repository,uri,directory,subDirectory,content,contentLength,
+				lang,langMethod,when,parserStatus,fetchStatus,indexStatus,fileSystemDate
+				crawlDate,fileSize,fileExtension,fileType
 			</returnFields>
 		</request>
 	</requests>

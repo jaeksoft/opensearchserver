@@ -94,6 +94,7 @@ public class FileItem implements Serializable {
 		return new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
 	}
 
+	public String repository;
 	public URI uri;
 	public URI directory;
 	public List<String> subDirectory;
@@ -116,6 +117,7 @@ public class FileItem implements Serializable {
 
 	protected FileItem() {
 		status = Status.UNDEFINED;
+		repository = null;
 		uri = null;
 		directory = null;
 		subDirectory = null;
@@ -138,6 +140,7 @@ public class FileItem implements Serializable {
 			URISyntaxException {
 		this();
 
+		setRepository(doc.getValue(FileItemFieldEnum.repository.name(), 0));
 		setURI(parseValueToURI(doc.getValue(FileItemFieldEnum.uri.name(), 0)));
 		setDirectory(parseValueToURI(doc.getValue(
 				FileItemFieldEnum.directory.name(), 0)));
@@ -175,6 +178,7 @@ public class FileItem implements Serializable {
 
 	public FileItem(FileInstanceAbstract fileInstance) {
 		this();
+		setRepository(fileInstance.getFilePathItem().toString());
 		setURI(fileInstance.getURI());
 		FileInstanceAbstract parentFileInstance = fileInstance.getParent();
 		if (parentFileInstance != null)
@@ -271,6 +275,8 @@ public class FileItem implements Serializable {
 	public void populate(IndexDocument indexDocument)
 			throws UnsupportedEncodingException {
 
+		indexDocument.set(FileItemFieldEnum.repository.name(), getRepository());
+
 		indexDocument.set(FileItemFieldEnum.uri.name(), getURI()
 				.toASCIIString());
 
@@ -287,8 +293,10 @@ public class FileItem implements Serializable {
 					.format(when));
 
 		indexDocument.set(FileItemFieldEnum.crawlDate.name(), crawlDate);
-		indexDocument.set(FileItemFieldEnum.fileSystemDate.name(),
-				fileSystemDate);
+
+		if (fileSystemDate != null)
+			indexDocument.set(FileItemFieldEnum.fileSystemDate.name(),
+					getTecnhicalDateFormat().format(fileSystemDate));
 
 		if (contentLength != null)
 			indexDocument.set(FileItemFieldEnum.contentLength.name(),
@@ -383,6 +391,14 @@ public class FileItem implements Serializable {
 			setParserStatusInt(Integer.parseInt(v));
 	}
 
+	public String getRepository() {
+		return repository;
+	}
+
+	public void setRepository(String r) {
+		this.repository = r;
+	}
+
 	public void setURI(URI uri) {
 		this.uri = uri;
 	}
@@ -436,10 +452,6 @@ public class FileItem implements Serializable {
 		return fileSystemDate;
 	}
 
-	public void setFileSystemDate(Date d) {
-		fileSystemDate = d;
-	}
-
 	public void setFileSystemDate(long d) {
 		fileSystemDate = new Date(d);
 	}
@@ -453,7 +465,7 @@ public class FileItem implements Serializable {
 			fileSystemDate = getTecnhicalDateFormat().parse(d);
 		} catch (ParseException e) {
 			logger.log(Level.WARNING, e.getMessage(), e);
-			setWhenNow();
+			fileSystemDate = null;
 		}
 	}
 
