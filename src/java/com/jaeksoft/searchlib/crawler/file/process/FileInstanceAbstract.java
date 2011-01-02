@@ -37,8 +37,6 @@ public abstract class FileInstanceAbstract {
 
 	protected FilePathItem filePathItem;
 
-	protected String path;
-
 	private URI uri;
 
 	final public static FileInstanceAbstract create(FilePathItem filePathItem,
@@ -64,7 +62,6 @@ public abstract class FileInstanceAbstract {
 			FileInstanceAbstract parent, String path) throws URISyntaxException {
 		this.filePathItem = filePathItem;
 		this.parent = parent;
-		this.path = path;
 		uri = new URI(filePathItem.getType().getScheme(),
 				filePathItem.getUsername(), filePathItem.getHost(), -1, path,
 				null, null);
@@ -91,10 +88,6 @@ public abstract class FileInstanceAbstract {
 
 	public FileInstanceAbstract getParent() {
 		return parent;
-	}
-
-	public String getPath() {
-		return path;
 	}
 
 	public URI getURI() {

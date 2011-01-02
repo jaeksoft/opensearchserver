@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.crawler.file.database;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -54,6 +56,8 @@ import com.jaeksoft.searchlib.util.map.Target;
 public class FileManager {
 
 	private static final String FILE_SEARCH = "fileSearch";
+
+	private static final String FILE_INFO = "fileInfo";
 
 	public enum Field {
 
@@ -248,6 +252,21 @@ public class FileManager {
 	public void deleteBySubDirectory(String subDirectory) throws ParseException {
 		SearchRequest searchRequest = fileDbClient.getNewSearchRequest();
 		Field.SUBDIRECTORY.addFilterQuery(searchRequest, subDirectory);
+	}
+
+	public FileInfo getFileInfo(URI uri) throws SearchLibException,
+			UnsupportedEncodingException, URISyntaxException {
+		SearchRequest searchRequest = fileDbClient
+				.getNewSearchRequest(FILE_INFO);
+		StringBuffer sb = new StringBuffer();
+		Field.FILESYSTEMDATE.addQuery(sb, uri.toASCIIString(), true);
+		searchRequest.setQueryString(sb.toString());
+		searchRequest.setStart(0);
+		searchRequest.setRows(1);
+		Result result = fileDbClient.search(searchRequest);
+		if (result.getNumFound() == 0)
+			return null;
+		return new FileInfo(result.getDocument(0));
 	}
 
 	public long getFiles(SearchRequest searchRequest, Field orderBy,

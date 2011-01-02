@@ -116,6 +116,11 @@
 							checked="@{filepathedit.currentFilePath.withSubDir}" />
 					</row>
 					<row>
+						<label value="Delay between each access (ms): " />
+						<intbox
+							value="@{filepathedit.currentFilePath.delay}" />
+					</row>
+					<row>
 						<label value="Enabled: " />
 						<checkbox
 							checked="@{filepathedit.currentFilePath.enabled}" />

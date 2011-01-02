@@ -93,7 +93,7 @@
 		<listitem self="@{each='file'}">
 			<listcell label="@{file.uri}" />
 			<listcell
-				label="@{file.when,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+				label="@{file.crawlDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 			<listcell
 				label="@{file.fileSystemDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 			<listcell label="@{file.type}" />

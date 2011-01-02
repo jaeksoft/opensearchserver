@@ -28,6 +28,8 @@ public enum FileItemFieldEnum {
 
 	repository,
 
+	name,
+
 	uri,
 
 	directory,
@@ -39,8 +41,6 @@ public enum FileItemFieldEnum {
 	langMethod,
 
 	contentLength,
-
-	when,
 
 	parserStatus,
 

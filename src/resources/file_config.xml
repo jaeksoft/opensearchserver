@@ -27,7 +27,6 @@
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="langMethod" indexed="yes" stored="yes" />
 			<field name="contentLength" indexed="yes" stored="yes" />
-			<field name="when" indexed="yes" stored="yes" />
 			<field name="parserStatus" indexed="yes" stored="yes" />
 			<field name="fetchStatus" indexed="yes" stored="yes" />
 			<field name="indexStatus" indexed="yes" stored="yes" />
@@ -44,9 +43,13 @@
 			<query>$$</query>
 			<returnFields>
 				repository,uri,directory,subDirectory,content,contentLength,
-				lang,langMethod,when,parserStatus,fetchStatus,indexStatus,fileSystemDate
+				lang,langMethod,parserStatus,fetchStatus,indexStatus,fileSystemDate
 				crawlDate,fileSize,fileExtension,fileType
 			</returnFields>
+		</request>
+		<request name="fileInfo" defaultOperator="and" start="0" rows="0">
+			<query>$$</query>
+			<returnFields>fileSystemDate,fileType</returnFields>
 		</request>
 	</requests>
 </configuration>

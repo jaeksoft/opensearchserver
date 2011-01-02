@@ -35,13 +35,11 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -50,7 +48,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.StringUtils;
 
-public class FileItem implements Serializable {
+public class FileItem extends FileInfo implements Serializable {
 
 	public static final String UTF_8_ENCODING = "UTF-8";
 
@@ -75,19 +73,12 @@ public class FileItem implements Serializable {
 	 */
 	private static final long serialVersionUID = -4043010587042224473L;
 
-	final private static Logger logger = Logger.getLogger(FileItem.class
-			.getCanonicalName());
-
 	final static DecimalFormat getContentLengthFormat() {
 		return new DecimalFormat("00000000000000");
 	}
 
 	final static SimpleDateFormat getDateFormat() {
 		return new SimpleDateFormat("yyyyMMddHHmmss");
-	}
-
-	final static SimpleDateFormat getTecnhicalDateFormat() {
-		return new SimpleDateFormat("yyyyMMddHHmmssSSS");
 	}
 
 	public final static SimpleDateFormat getNiceDateFormat() {
@@ -101,21 +92,21 @@ public class FileItem implements Serializable {
 	private Integer contentLength;
 	private String lang;
 	private String langMethod;
-	private Date when;
 	private FetchStatus fetchStatus;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
-	private Date fileSystemDate;
-	private long crawlDate;
+	private Long crawlDate;
 	private long size;
 	private String extension;
-	private FileTypeEnum type;
-
-	private final int count;
-
 	private Status status;
 
 	protected FileItem() {
+		super();
+	}
+
+	@Override
+	protected void init() {
+		super.init();
 		status = Status.UNDEFINED;
 		repository = null;
 		uri = null;
@@ -124,21 +115,17 @@ public class FileItem implements Serializable {
 		contentLength = null;
 		lang = null;
 		langMethod = null;
-		when = new Date();
 		fetchStatus = FetchStatus.UN_FETCHED;
 		parserStatus = ParserStatus.NOT_PARSED;
 		indexStatus = IndexStatus.NOT_INDEXED;
-		count = 0;
-		crawlDate = 0;
-		fileSystemDate = null;
+		crawlDate = null;
 		size = 0;
 		extension = "";
-		type = null;
 	}
 
 	public FileItem(ResultDocument doc) throws UnsupportedEncodingException,
 			URISyntaxException {
-		this();
+		super(doc);
 
 		setRepository(doc.getValue(FileItemFieldEnum.repository.name(), 0));
 		setURI(parseValueToURI(doc.getValue(FileItemFieldEnum.uri.name(), 0)));
@@ -153,8 +140,6 @@ public class FileItem implements Serializable {
 
 		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
 
-		setWhen(doc.getValue(FileItemFieldEnum.when.name(), 0));
-
 		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
 
 		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
@@ -164,16 +149,10 @@ public class FileItem implements Serializable {
 
 		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
 
-		setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate.name(),
-				0));
-
 		setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
 
 		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.name(), 0));
 
-		String s = doc.getValue(FileItemFieldEnum.fileType.name(), 0);
-		if (s != null)
-			setType(FileTypeEnum.valueOf(s));
 	}
 
 	public FileItem(FileInstanceAbstract fileInstance) {
@@ -198,8 +177,8 @@ public class FileItem implements Serializable {
 		return contentLength;
 	}
 
-	public String getCount() {
-		return Integer.toString(count);
+	public Long getCrawlDate() {
+		return crawlDate;
 	}
 
 	public FetchStatus getFetchStatus() {
@@ -262,10 +241,6 @@ public class FileItem implements Serializable {
 		return status;
 	}
 
-	public Date getWhen() {
-		return when;
-	}
-
 	public boolean isStatusFull() {
 		return fetchStatus == FetchStatus.FETCHED
 				&& parserStatus == ParserStatus.PARSED
@@ -288,15 +263,14 @@ public class FileItem implements Serializable {
 		indexDocument.set(FileItemFieldEnum.subDirectory.name(),
 				getSubDirectory());
 
-		if (when != null)
-			indexDocument.set(FileItemFieldEnum.when.name(), getDateFormat()
-					.format(when));
+		if (crawlDate != null)
+			indexDocument.set(FileItemFieldEnum.crawlDate.name(),
+					StringUtils.longToHexString(crawlDate));
 
-		indexDocument.set(FileItemFieldEnum.crawlDate.name(), crawlDate);
-
-		if (fileSystemDate != null)
+		Long fsd = getFileSystemDate();
+		if (fsd != null)
 			indexDocument.set(FileItemFieldEnum.fileSystemDate.name(),
-					getTecnhicalDateFormat().format(fileSystemDate));
+					StringUtils.longToHexString(fsd));
 
 		if (contentLength != null)
 			indexDocument.set(FileItemFieldEnum.contentLength.name(),
@@ -316,8 +290,9 @@ public class FileItem implements Serializable {
 		if (extension != null)
 			indexDocument
 					.set(FileItemFieldEnum.fileExtension.name(), extension);
-		if (type != null)
-			indexDocument.set(FileItemFieldEnum.fileType.name(), type.name());
+		FileTypeEnum t = getType();
+		if (t != null)
+			indexDocument.set(FileItemFieldEnum.fileType.name(), t.name());
 	}
 
 	public void setContentLength(int v) {
@@ -332,7 +307,7 @@ public class FileItem implements Serializable {
 		try {
 			contentLength = getContentLengthFormat().parse(v).intValue();
 		} catch (ParseException e) {
-			logger.log(Level.SEVERE, e.getMessage(), e);
+			Logging.logger.error(e.getMessage());
 		}
 	}
 
@@ -407,31 +382,6 @@ public class FileItem implements Serializable {
 		status = v;
 	}
 
-	public void setWhen(Date d) {
-		if (d == null) {
-			setWhenNow();
-			return;
-		}
-		when = d;
-	}
-
-	public void setWhen(String d) {
-		if (d == null) {
-			setWhenNow();
-			return;
-		}
-		try {
-			when = getDateFormat().parse(d);
-		} catch (ParseException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			setWhenNow();
-		}
-	}
-
-	public void setWhenNow() {
-		setWhen(new Date(System.currentTimeMillis()));
-	}
-
 	public void setCrawlDate(long d) {
 		crawlDate = d;
 	}
@@ -439,33 +389,10 @@ public class FileItem implements Serializable {
 	public void setCrawlDate(String d) {
 		if (d == null)
 			return;
-
 		try {
-			crawlDate = Long.parseLong(d);
+			crawlDate = StringUtils.hexStringToLong(d);
 		} catch (NumberFormatException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			setWhenNow();
-		}
-	}
-
-	public Date getFileSystemDate() {
-		return fileSystemDate;
-	}
-
-	public void setFileSystemDate(long d) {
-		fileSystemDate = new Date(d);
-	}
-
-	public void setFileSystemDate(String d) {
-		if (d == null) {
-			fileSystemDate = null;
-			return;
-		}
-		try {
-			fileSystemDate = getTecnhicalDateFormat().parse(d);
-		} catch (ParseException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			fileSystemDate = null;
+			Logging.logger.warn(e.getMessage());
 		}
 	}
 
@@ -495,23 +422,6 @@ public class FileItem implements Serializable {
 
 	public void setExtension(String extension) {
 		this.extension = extension;
-	}
-
-	public FileTypeEnum getType() {
-		return type;
-	}
-
-	public void setType(FileTypeEnum type) {
-		this.type = type;
-	}
-
-	/**
-	 * Test if a new crawl is needed
-	 */
-	public boolean isNewCrawlNeeded(long dateModified) {
-		if (fileSystemDate == null)
-			return true;
-		return fileSystemDate.getTime() != dateModified;
 	}
 
 	public File getFile() {

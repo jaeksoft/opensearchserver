@@ -62,7 +62,7 @@ public class CrawlFile {
 			CrawlStatistics currentStats) throws SearchLibException {
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileItem = fileItem;
-		this.fileItem.setWhenNow();
+		this.fileItem.setCrawlDate(System.currentTimeMillis());
 		this.parser = null;
 		this.error = null;
 		this.config = config;

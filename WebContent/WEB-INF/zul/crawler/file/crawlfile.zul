@@ -16,34 +16,6 @@
 -->
 <window id="crawlFileProcess"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController">
-	<panel title="Parameters for crawling" collapsible="true"
-		border="normal">
-		<panelchildren>
-			<grid>
-				<columns>
-					<column />
-					<column />
-				</columns>
-				<rows>
-					<row>
-						<label
-							value="Delay between each successive access, in milliseconds: " />
-						<intbox constraint="no empty, no negative"
-							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.delayBetweenAccesses.value}" />
-					</row>
-					<row>
-						<label
-							value="Number of files to crawl between each add: " />
-						<intbox constraint="no empty, no negative"
-							readonly="@{crawlFileProcess.refresh}"
-							value="@{crawlFileProcess.properties.indexDocumentBufferSize.value}" />
-					</row>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
-	<separator />
 	<panel title="Current status" collapsible="false" border="normal">
 		<toolbar>
 			<textbox readonly="true"

@@ -33,7 +33,6 @@ public class FilePropertyManager extends PropertyManager {
 
 	public FilePropertyManager(File file) throws IOException {
 		super(file);
-		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 100);
 	}
 
 }

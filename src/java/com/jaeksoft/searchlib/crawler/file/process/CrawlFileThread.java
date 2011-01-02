@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
@@ -33,15 +36,17 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
+import com.jaeksoft.searchlib.crawler.file.database.FileInfo;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 
 public class CrawlFileThread extends CrawlThreadAbstract {
 
 	private FileItem currentFileItem;
+	private FileManager fileManager;
 	private long delayBetweenAccesses;
 	private FilePathItem filePathItem;
 	private long nextTimeTarget;
@@ -50,10 +55,9 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			CrawlStatistics sessionStats, FilePathItem filePathItem)
 			throws SearchLibException {
 		super(config, crawlMaster);
+		this.fileManager = config.getFileManager();
 		currentStats = new CrawlStatistics(sessionStats);
-		FilePropertyManager propertyManager = config.getFilePropertyManager();
-		delayBetweenAccesses = propertyManager.getDelayBetweenAccesses()
-				.getValue();
+		delayBetweenAccesses = filePathItem.getDelay();
 		nextTimeTarget = 0;
 		this.filePathItem = filePathItem;
 	}
@@ -86,11 +90,18 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 			currentFileItem = new FileItem(fileInstance);
 
+			FileTypeEnum type = currentFileItem.getType();
+			if (type == FileTypeEnum.directory) {
+				checkDirectory();
+			} else if (type == FileTypeEnum.file) {
+				if (!checkFile())
+					continue;
+			}
+
 			CrawlFile crawl = crawl();
 			if (crawl != null)
 				crawlQueue.add(currentStats, crawl);
-			if (currentFileItem.getType() == FileTypeEnum.directory)
-				checkDirectory();
+
 			setStatus(CrawlStatus.INDEXATION);
 			crawlQueue.index(false);
 
@@ -126,7 +137,24 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	}
 
 	private void checkDirectory() {
+		// Load directory from Index
 
+		// Compare to current file list
+	}
+
+	private boolean checkFile() throws UnsupportedEncodingException,
+			SearchLibException, URISyntaxException {
+		FileInfo oldFileInfo = fileManager
+				.getFileInfo(currentFileItem.getURI());
+		// The file is a new file
+		if (oldFileInfo == null)
+			return true;
+		// The file has been modified
+		if (oldFileInfo.isNewCrawlNeeded(currentFileItem))
+			return true;
+		// The file has not changed, we don't need to craw it
+		currentStats.incIgnoredCount();
+		return false;
 	}
 
 	public FileItem getCurrentFileItem() {

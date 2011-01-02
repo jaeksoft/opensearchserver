@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 
 public class WebPropertyManager extends PropertyManager {
 
+	private PropertyItem<Integer> delayBetweenAccesses;
 	private PropertyItem<Integer> fetchInterval;
 	private PropertyItem<String> fetchIntervalUnit;
 	private PropertyItem<Integer> maxUrlPerHost;
@@ -43,6 +44,7 @@ public class WebPropertyManager extends PropertyManager {
 
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
+		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 10);
 		fetchInterval = newIntegerProperty("fetchInterval", 30);
 		fetchIntervalUnit = newStringProperty("fechIntervalUnit", "days");
 		maxUrlPerHost = newIntegerProperty("maxUrlPerHost", 100);
@@ -84,6 +86,10 @@ public class WebPropertyManager extends PropertyManager {
 
 	public PropertyItem<Boolean> getDebug() {
 		return debug;
+	}
+
+	public PropertyItem<Integer> getDelayBetweenAccesses() {
+		return delayBetweenAccesses;
 	}
 
 }

@@ -36,7 +36,6 @@ public abstract class PropertyManager {
 
 	private Properties properties;
 
-	protected PropertyItem<Integer> delayBetweenAccesses;
 	protected PropertyItem<Integer> indexDocumentBufferSize;
 	protected PropertyItem<Boolean> crawlEnabled;
 	protected PropertyItem<Integer> maxThreadNumber;
@@ -59,7 +58,6 @@ public abstract class PropertyManager {
 		indexDocumentBufferSize = new PropertyItem<Integer>(this,
 				"indexDocumentBufferSize", 1000);
 		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10);
-		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 10);
 		crawlEnabled = newBooleanProperty("crawlEnabled", false);
 	}
 
@@ -111,10 +109,6 @@ public abstract class PropertyManager {
 	public void put(PropertyItem<?> propertyItem) throws IOException {
 		propertyItem.put(properties);
 		save();
-	}
-
-	public PropertyItem<Integer> getDelayBetweenAccesses() {
-		return delayBetweenAccesses;
 	}
 
 	public PropertyItem<Boolean> getCrawlEnabled() {
