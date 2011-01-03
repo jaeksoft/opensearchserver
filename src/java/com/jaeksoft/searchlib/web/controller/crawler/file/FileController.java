@@ -325,7 +325,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 					getDateStart(), getDateEnd(), getDateModifiedStart(),
 					getDateModifiedEnd(), getFileType(), null);
 
-			totalSize = (int) fileManager.getFiles(searchRequest, Field.FILE,
+			totalSize = (int) fileManager.getFiles(searchRequest, Field.URI,
 					true, getPageSize() * getActivePage(), getPageSize(),
 					fileList);
 			return fileList;

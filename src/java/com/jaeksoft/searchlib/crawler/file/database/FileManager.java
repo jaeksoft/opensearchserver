@@ -63,14 +63,14 @@ public class FileManager {
 
 	public enum Field {
 
-		FILE("uri"), WHEN("when"), CONTENTBASETYPE("contentBaseType"), CONTENTTYPECHARSET(
+		URI("uri"), CONTENTBASETYPE("contentBaseType"), CONTENTTYPECHARSET(
 				"contentTypeCharset"), CONTENTENCODING("contentEncoding"), CONTENTLENGTH(
-				"contentLength"), LANG("lang"), LANGMETHOD("langMethod"), FETCHSTATUS(
-				"fetchStatus"), RESPONSECODE("responseCode"), PARSERSTATUS(
-				"parserStatus"), INDEXSTATUS("indexStatus"), FILETYPE(
-				"fileType"), FILESYSTEMDATE("fileSystemDate"), SUBDIRECTORY(
-				"subDirectory"), REPOSITORY("repository"), DIRECTORY(
-				"directory");
+				"contentLength"), CRAWLDATE("crawlDate"), LANG("lang"), LANGMETHOD(
+				"langMethod"), FETCHSTATUS("fetchStatus"), RESPONSECODE(
+				"responseCode"), PARSERSTATUS("parserStatus"), INDEXSTATUS(
+				"indexStatus"), FILETYPE("fileType"), FILESYSTEMDATE(
+				"fileSystemDate"), SUBDIRECTORY("subDirectory"), REPOSITORY(
+				"repository"), DIRECTORY("directory");
 
 		private final String name;
 
@@ -186,7 +186,7 @@ public class FileManager {
 			if (like != null) {
 				like = like.trim();
 				if (like.length() > 0) {
-					Field.FILE.addQuery(query, SearchRequest.escapeQuery(like),
+					Field.URI.addQuery(query, SearchRequest.escapeQuery(like),
 							false);
 					query.append("*");
 				}
@@ -242,7 +242,7 @@ public class FileManager {
 					to = "99999999999999";
 				else
 					to = df.format(endDate);
-				Field.WHEN.addFilterRange(searchRequest, from, to);
+				Field.CRAWLDATE.addFilterRange(searchRequest, from, to);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -276,7 +276,7 @@ public class FileManager {
 		SearchRequest searchRequest = fileDbClient
 				.getNewSearchRequest(FILE_INFO);
 		StringBuffer sb = new StringBuffer();
-		Field.FILESYSTEMDATE.addQuery(sb, uriString, true);
+		Field.URI.addQuery(sb, uriString, true);
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(1);

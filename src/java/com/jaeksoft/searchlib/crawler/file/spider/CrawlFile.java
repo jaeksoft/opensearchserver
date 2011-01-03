@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.parser.ParserSelector;
 
 public class CrawlFile {
 
+	private IndexDocument targetIndexDocument;
 	private final FileItem fileItem;
 	private Parser parser;
 	private String error;
@@ -56,6 +57,7 @@ public class CrawlFile {
 
 	public CrawlFile(FileItem fileItem, Config config,
 			CrawlStatistics currentStats) throws SearchLibException {
+		this.targetIndexDocument = null;
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileItem = fileItem;
 		this.fileItem.setCrawlDate(System.currentTimeMillis());
@@ -152,19 +154,19 @@ public class CrawlFile {
 	public IndexDocument getTargetIndexDocument() throws SearchLibException,
 			UnsupportedEncodingException {
 		synchronized (this) {
-			// No parser found
-			if (parser == null)
-				return null;
+			if (targetIndexDocument != null)
+				return targetIndexDocument;
 
-			IndexDocument indexDocument = new IndexDocument();
+			targetIndexDocument = new IndexDocument();
 			IndexDocument fileIndexDocument = new IndexDocument();
 			fileItem.populate(fileIndexDocument);
-			fileFieldMap.mapIndexDocument(fileIndexDocument, indexDocument);
+			fileFieldMap.mapIndexDocument(fileIndexDocument,
+					targetIndexDocument);
 
 			if (parser != null)
-				parser.populate(indexDocument);
+				parser.populate(targetIndexDocument);
 
-			return indexDocument;
+			return targetIndexDocument;
 		}
 	}
 

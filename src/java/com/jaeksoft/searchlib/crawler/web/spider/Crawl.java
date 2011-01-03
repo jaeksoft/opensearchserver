@@ -283,7 +283,7 @@ public class Crawl {
 			if (targetIndexDocument != null)
 				return targetIndexDocument;
 
-			IndexDocument targetIndexDocument = new IndexDocument(
+			targetIndexDocument = new IndexDocument(
 					LanguageEnum.findByCode(urlItem.getLang()));
 
 			IndexDocument urlIndexDocument = new IndexDocument();

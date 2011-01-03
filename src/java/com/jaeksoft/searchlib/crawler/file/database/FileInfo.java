@@ -110,7 +110,7 @@ public class FileInfo {
 			return true;
 		if (type == null)
 			return true;
-		if (fileSystemDate != newFileInfo.fileSystemDate)
+		if (!fileSystemDate.equals(newFileInfo.fileSystemDate))
 			return true;
 		if (type != newFileInfo.type)
 			return true;
