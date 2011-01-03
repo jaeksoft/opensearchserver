@@ -22,7 +22,7 @@
 			<field name="repository" indexed="yes" stored="yes" />
 			<field name="uri" indexed="yes" stored="yes" />
 			<field name="directory" indexed="yes" stored="yes" />
-			<field name="subDirectory" indexed="yes" stored="no" />
+			<field name="subDirectory" indexed="yes" stored="yes" />
 			<field name="content" indexed="yes" stored="yes" />
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="langMethod" indexed="yes" stored="yes" />
@@ -49,7 +49,7 @@
 		</request>
 		<request name="fileInfo" defaultOperator="and" start="0" rows="0">
 			<query>$$</query>
-			<returnFields>fileSystemDate,fileType</returnFields>
+			<returnFields>uri,fileSystemDate,fileType</returnFields>
 		</request>
 	</requests>
 </configuration>

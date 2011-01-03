@@ -34,7 +34,7 @@ public abstract class ItemIterator {
 
 	private final Lock lock = new ReentrantLock(true);
 
-	protected ItemIterator parent;
+	private ItemIterator parent;
 
 	protected ItemIterator(ItemIterator parent) {
 		lock.lock();
@@ -59,7 +59,12 @@ public abstract class ItemIterator {
 	protected ItemIterator next() throws URISyntaxException {
 		lock.lock();
 		try {
-			return nextImpl();
+			ItemIterator next = nextImpl();
+			if (next != null)
+				return next;
+			if (parent == null)
+				return null;
+			return parent.next();
 		} finally {
 			lock.unlock();
 		}

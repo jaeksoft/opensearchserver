@@ -157,7 +157,6 @@
 			<field name="subDirectory" indexed="yes" stored="no" />
 			<field name="crawlDate" indexed="yes" stored="yes" />
 			<field name="fileSystemDate" indexed="yes" stored="yes" />
-			<field name="when" indexed="yes" stored="yes" />
 			<!-- mandatory parameters -->
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"

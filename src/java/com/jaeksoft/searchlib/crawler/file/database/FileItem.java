@@ -86,8 +86,7 @@ public class FileItem extends FileInfo implements Serializable {
 	}
 
 	public String repository;
-	public URI uri;
-	public URI directory;
+	public String directory;
 	public List<String> subDirectory;
 	private Integer contentLength;
 	private String lang;
@@ -109,7 +108,6 @@ public class FileItem extends FileInfo implements Serializable {
 		super.init();
 		status = Status.UNDEFINED;
 		repository = null;
-		uri = null;
 		directory = null;
 		subDirectory = null;
 		contentLength = null;
@@ -128,9 +126,7 @@ public class FileItem extends FileInfo implements Serializable {
 		super(doc);
 
 		setRepository(doc.getValue(FileItemFieldEnum.repository.name(), 0));
-		setURI(parseValueToURI(doc.getValue(FileItemFieldEnum.uri.name(), 0)));
-		setDirectory(parseValueToURI(doc.getValue(
-				FileItemFieldEnum.directory.name(), 0)));
+		setDirectory(doc.getValue(FileItemFieldEnum.directory.name(), 0));
 		setSubDirectory(doc.getValueList(FileItemFieldEnum.directory.name()));
 
 		setContentLength(doc
@@ -158,7 +154,7 @@ public class FileItem extends FileInfo implements Serializable {
 	public FileItem(FileInstanceAbstract fileInstance) {
 		this();
 		setRepository(fileInstance.getFilePathItem().toString());
-		setURI(fileInstance.getURI());
+		setUri(fileInstance.getURI());
 		FileInstanceAbstract parentFileInstance = fileInstance.getParent();
 		if (parentFileInstance != null)
 			setDirectory(parentFileInstance.getURI());
@@ -169,7 +165,7 @@ public class FileItem extends FileInfo implements Serializable {
 		setCrawlDate(System.currentTimeMillis());
 		setFileSystemDate(fileInstance.getLastModified());
 		setSize(fileInstance.getFileSize());
-		setExtension(FilenameUtils.getExtension(uri.toASCIIString()));
+		setExtension(FilenameUtils.getExtension(getUri()));
 		setType(fileInstance.getFileType());
 	}
 
@@ -219,7 +215,7 @@ public class FileItem extends FileInfo implements Serializable {
 		return langMethod;
 	}
 
-	public URI getDirectory() {
+	public String getDirectory() {
 		return directory;
 	}
 
@@ -231,10 +227,6 @@ public class FileItem extends FileInfo implements Serializable {
 		if (parserStatus == null)
 			return ParserStatus.NOT_PARSED;
 		return parserStatus;
-	}
-
-	public URI getURI() {
-		return uri;
 	}
 
 	public Status getStatus() {
@@ -252,13 +244,10 @@ public class FileItem extends FileInfo implements Serializable {
 
 		indexDocument.set(FileItemFieldEnum.repository.name(), getRepository());
 
-		indexDocument.set(FileItemFieldEnum.uri.name(), getURI()
-				.toASCIIString());
+		indexDocument.set(FileItemFieldEnum.uri.name(), getUri());
 
-		URI dirUri = getDirectory();
-		if (dirUri != null)
-			indexDocument.set(FileItemFieldEnum.directory.name(),
-					dirUri.toASCIIString());
+		if (directory != null)
+			indexDocument.set(FileItemFieldEnum.directory.name(), directory);
 
 		indexDocument.set(FileItemFieldEnum.subDirectory.name(),
 				getSubDirectory());
@@ -345,8 +334,12 @@ public class FileItem extends FileInfo implements Serializable {
 		this.langMethod = langMethod;
 	}
 
-	public void setDirectory(URI directory) {
+	public void setDirectory(String directory) {
 		this.directory = directory;
+	}
+
+	public void setDirectory(URI directoryUri) {
+		this.directory = directoryUri.toASCIIString();
 	}
 
 	public void setSubDirectory(List<String> subDirectory) {
@@ -372,10 +365,6 @@ public class FileItem extends FileInfo implements Serializable {
 
 	public void setRepository(String r) {
 		this.repository = r;
-	}
-
-	public void setURI(URI uri) {
-		this.uri = uri;
 	}
 
 	public void setStatus(Status v) {
@@ -424,23 +413,19 @@ public class FileItem extends FileInfo implements Serializable {
 		this.extension = extension;
 	}
 
-	public File getFile() {
-		if (this.getURI() != null)
-			return new File(this.getURI());
-		return null;
+	public File getFile() throws URISyntaxException {
+		String uri = getUri();
+		if (uri == null)
+			return null;
+		return new File(new URI(uri));
 	}
 
-	public FileInputStream getFileInputStream() throws FileNotFoundException {
-		if (this.getURI() != null)
-			return new FileInputStream(getFile());
-		return null;
-	}
-
-	public final static URI parseValueToURI(String value)
-			throws URISyntaxException {
-		if (value != null)
-			return new URI(value);
-		return null;
+	public FileInputStream getFileInputStream() throws FileNotFoundException,
+			URISyntaxException {
+		File file = getFile();
+		if (file == null)
+			return null;
+		return new FileInputStream(file);
 	}
 
 }

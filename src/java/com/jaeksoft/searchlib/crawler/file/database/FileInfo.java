@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.Logging;
@@ -36,6 +37,8 @@ public class FileInfo {
 	private Long fileSystemDate;
 
 	private FileTypeEnum type;
+
+	public String uriString;
 
 	public FileInfo() {
 		init();
@@ -49,11 +52,13 @@ public class FileInfo {
 		String s = doc.getValue(FileItemFieldEnum.fileType.name(), 0);
 		if (s != null)
 			setType(FileTypeEnum.valueOf(s));
+		setUri(doc.getValue(FileItemFieldEnum.uri.name(), 0));
 	}
 
 	protected void init() {
 		fileSystemDate = null;
 		type = null;
+		uriString = null;
 	}
 
 	public Long getFileSystemDate() {
@@ -83,6 +88,18 @@ public class FileInfo {
 
 	public void setType(FileTypeEnum type) {
 		this.type = type;
+	}
+
+	public String getUri() {
+		return uriString;
+	}
+
+	public void setUri(String uriString) {
+		this.uriString = uriString;
+	}
+
+	public void setUri(URI uri) {
+		this.uriString = uri.toASCIIString();
 	}
 
 	/**

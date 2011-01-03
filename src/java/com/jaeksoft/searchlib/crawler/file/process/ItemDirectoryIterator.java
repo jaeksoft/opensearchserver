@@ -40,14 +40,17 @@ public class ItemDirectoryIterator extends ItemIterator {
 			FileInstanceAbstract fileInstance, boolean withSubDir)
 			throws URISyntaxException {
 		super(parent);
-		currentPos = -1;
+		currentPos = 0;
 		this.withSubDir = withSubDir;
 		this.fileInstance = fileInstance;
 		if (withSubDir)
 			files = fileInstance.listFilesAndDirectories();
 		else
 			files = fileInstance.listFilesOnly();
+	}
 
+	public FileInstanceAbstract[] getFiles() {
+		return files;
 	}
 
 	@Override
@@ -58,15 +61,11 @@ public class ItemDirectoryIterator extends ItemIterator {
 	@Override
 	protected ItemIterator nextImpl() throws URISyntaxException {
 		if (files == null)
-			return parent;
-		if (currentPos == -1) {
-			currentPos = 0;
-			return this;
-		}
+			return null;
 		if (currentPos >= files.length)
-			return parent;
-		FileInstanceAbstract fileInstances = files[currentPos++];
-		return ItemIterator.create(this, fileInstances, withSubDir);
+			return null;
+		FileInstanceAbstract fileInstance = files[currentPos++];
+		return ItemIterator.create(this, fileInstance, withSubDir);
 	}
 
 }

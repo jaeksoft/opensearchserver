@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -81,18 +82,19 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		FilePathItemIterator filePathIterator = new FilePathItemIterator(
 				filePathItem);
 
-		FileInstanceAbstract fileInstance;
+		ItemIterator itemIterator;
 
-		while ((fileInstance = filePathIterator.next()) != null) {
+		while ((itemIterator = filePathIterator.next()) != null) {
 
 			if (isAborted() || crawlMaster.isAborted())
 				break;
 
+			FileInstanceAbstract fileInstance = itemIterator.getFileInstance();
 			currentFileItem = new FileItem(fileInstance);
 
 			FileTypeEnum type = currentFileItem.getType();
 			if (type == FileTypeEnum.directory) {
-				checkDirectory();
+				checkDirectory((ItemDirectoryIterator) itemIterator, crawlQueue);
 			} else if (type == FileTypeEnum.file) {
 				if (!checkFile())
 					continue;
@@ -136,16 +138,39 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		return crawl;
 	}
 
-	private void checkDirectory() {
-		// Load directory from Index
+	private void checkDirectory(ItemDirectoryIterator itemDirectory,
+			FileCrawlQueue crawlQueue) throws UnsupportedEncodingException,
+			SearchLibException, URISyntaxException {
 
-		// Compare to current file list
+		// Load directory from Index
+		FileInstanceAbstract fileInstance = itemDirectory.getFileInstance();
+		FilePathItem filePathItem = fileInstance.getFilePathItem();
+		HashMap<String, FileInfo> indexFileMap = new HashMap<String, FileInfo>();
+		fileManager.getFileInfoList(fileInstance.getURI(), indexFileMap);
+
+		// If the filePathItem does not support subdir
+		if (!filePathItem.isWithSubDir())
+			for (FileInfo fileInfo : indexFileMap.values())
+				if (fileInfo.getType() == FileTypeEnum.directory)
+					crawlQueue.deleteParent(currentStats, fileInfo.getUri());
+
+		// Remove existing files from the map
+		for (FileInstanceAbstract file : itemDirectory.getFiles())
+			indexFileMap.remove(file.getURI().toASCIIString());
+
+		// The file that remain in the map can be removed
+		if (indexFileMap.size() > 0)
+			for (FileInfo fileInfo : indexFileMap.values())
+				if (fileInfo.getType() == FileTypeEnum.directory)
+					crawlQueue.deleteParent(currentStats, fileInfo.getUri());
+				else if (fileInfo.getType() == FileTypeEnum.file)
+					crawlQueue.delete(currentStats, fileInfo.getUri());
 	}
 
 	private boolean checkFile() throws UnsupportedEncodingException,
 			SearchLibException, URISyntaxException {
 		FileInfo oldFileInfo = fileManager
-				.getFileInfo(currentFileItem.getURI());
+				.getFileInfo(currentFileItem.getUri());
 		// The file is a new file
 		if (oldFileInfo == null)
 			return true;
@@ -172,7 +197,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	@Override
 	public String getCurrentInfo() {
 		if (currentFileItem != null)
-			return currentFileItem.getURI().toASCIIString();
+			return currentFileItem.getDirectory();
 		return "";
 	}
 

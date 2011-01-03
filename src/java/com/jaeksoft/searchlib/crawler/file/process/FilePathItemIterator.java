@@ -52,16 +52,15 @@ public class FilePathItemIterator {
 		}
 	}
 
-	protected FileInstanceAbstract next() throws URISyntaxException {
+	protected ItemIterator next() throws URISyntaxException {
 		lock.lock();
 		try {
 			for (;;) {
 				if (itemIterator == null)
 					return null;
-				FileInstanceAbstract f = itemIterator.getFileInstance();
+				ItemIterator i = itemIterator;
 				itemIterator = itemIterator.next();
-				if (f != null)
-					return f;
+				return i;
 			}
 		} finally {
 			lock.unlock();

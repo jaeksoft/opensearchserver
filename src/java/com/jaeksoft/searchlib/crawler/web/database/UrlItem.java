@@ -36,9 +36,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
@@ -52,9 +51,6 @@ public class UrlItem implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -4043010587042224473L;
-
-	final private static Logger logger = Logger.getLogger(UrlItem.class
-			.getCanonicalName());
 
 	private String url;
 	private String contentDispositionFilename;
@@ -245,7 +241,7 @@ public class UrlItem implements Serializable {
 		try {
 			contentLength = getContentLengthFormat().parse(v).longValue();
 		} catch (ParseException e) {
-			logger.log(Level.SEVERE, e.getMessage(), e);
+			Logging.logger.error(e.getMessage(), e);
 		}
 
 	}
@@ -398,7 +394,7 @@ public class UrlItem implements Serializable {
 		try {
 			when = getWhenDateFormat().parse(d);
 		} catch (ParseException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
+			Logging.logger.error(e.getMessage(), e);
 			setWhenNow();
 		}
 

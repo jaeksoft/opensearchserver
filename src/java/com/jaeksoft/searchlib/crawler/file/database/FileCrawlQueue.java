@@ -46,15 +46,18 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 
 	private List<CrawlFile> updateCrawlList;
 	private List<String> deleteUriList;
+	private List<String> deleteParentUriList;
 
 	private List<CrawlFile> workingUpdateCrawlList;
 	private List<String> workingDeleteUriList;
+	private List<String> workingDeleteParentUriList;
 
 	public FileCrawlQueue(Config config, PropertyManager propertyManager)
 			throws SearchLibException {
 		super(config, propertyManager.getIndexDocumentBufferSize().getValue());
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
 		this.deleteUriList = new ArrayList<String>(0);
+		this.deleteParentUriList = new ArrayList<String>(0);
 	}
 
 	public void add(CrawlStatistics crawlStats, CrawlFile crawl)
@@ -78,6 +81,16 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		}
 	}
 
+	public void deleteParent(CrawlStatistics crawlStats, String parentUri) {
+		rwl.r.lock();
+		try {
+			deleteParentUriList.add(parentUri);
+			crawlStats.incPendingDeleteCount();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	protected boolean shouldWePersist() {
 		rwl.r.lock();
@@ -85,6 +98,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 			if (updateCrawlList.size() >= getMaxBufferSize())
 				return true;
 			if (deleteUriList.size() >= getMaxBufferSize())
+				return true;
+			if (deleteParentUriList.size() >= getMaxBufferSize())
 				return true;
 			return false;
 		} finally {
@@ -100,6 +115,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 				return true;
 			if (workingDeleteUriList != null)
 				return true;
+			if (workingDeleteParentUriList != null)
+				return true;
 			return false;
 		} finally {
 			rwl.r.unlock();
@@ -112,9 +129,11 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		try {
 			workingUpdateCrawlList = updateCrawlList;
 			workingDeleteUriList = deleteUriList;
+			workingDeleteParentUriList = deleteParentUriList;
 
 			updateCrawlList = new ArrayList<CrawlFile>(0);
 			deleteUriList = new ArrayList<String>(0);
+			deleteParentUriList = new ArrayList<String>(0);
 
 			getSessionStats().resetPending();
 		} finally {
@@ -128,6 +147,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		try {
 			workingUpdateCrawlList = null;
 			workingDeleteUriList = null;
+			workingDeleteParentUriList = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -140,6 +160,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		FileManager fileManager = getConfig().getFileManager();
 		CrawlStatistics sessionStats = getSessionStats();
 		boolean needReload = false;
+		if (deleteParentCollection(workingDeleteParentUriList, sessionStats))
+			needReload = true;
 		if (deleteCollection(workingDeleteUriList, sessionStats))
 			needReload = true;
 		if (updateCrawls(workingUpdateCrawlList, sessionStats))
@@ -153,7 +175,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
 
-		FileManager manager = (FileManager) getConfig().getFileManager();
+		FileManager manager = getConfig().getFileManager();
 		manager.updateCrawls(workUpdateCrawlList);
 		if (sessionStats != null)
 			sessionStats.addUpdatedCount(workUpdateCrawlList.size());
@@ -166,8 +188,22 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		if (workDeleteUriList.size() == 0)
 			return false;
 
-		FileManager manager = (FileManager) getConfig().getFileManager();
-		int nbFilesDeleted = manager.deleteByFilename(workDeleteUriList) ? 1
+		FileManager manager = getConfig().getFileManager();
+		int nbFilesDeleted = manager.deleteByUri(workDeleteUriList) ? 1 : 0;
+		if (sessionStats != null)
+			sessionStats.addDeletedCount(nbFilesDeleted);
+		setContainedData();
+		return true;
+	}
+
+	protected boolean deleteParentCollection(
+			List<String> workDeleteParentUriList, CrawlStatistics sessionStats)
+			throws SearchLibException {
+		if (workDeleteParentUriList.size() == 0)
+			return false;
+
+		FileManager manager = getConfig().getFileManager();
+		int nbFilesDeleted = manager.deleteByParentUri(workDeleteParentUriList) ? 1
 				: 0;
 		if (sessionStats != null)
 			sessionStats.addDeletedCount(nbFilesDeleted);

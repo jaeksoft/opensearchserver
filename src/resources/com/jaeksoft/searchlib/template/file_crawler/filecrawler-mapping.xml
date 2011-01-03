@@ -25,6 +25,7 @@
 	<link source="title" target="title" />
 	<link source="title" target="titleExact" />
 	<link source="directory" target="directory" />
+	<link source="subDirectory" target="subDirectory" />
 	<link source="fileSystemDate" target="fileSystemDate" />
 	<link source="lang" target="lang" />
 	<link source="crawlDate" target="crawlDate" />

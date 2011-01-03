@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,11 +29,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
@@ -48,9 +47,6 @@ import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 
 public class CrawlFile {
-
-	final private static Logger logger = Logger.getLogger(CrawlFile.class
-			.getCanonicalName());
 
 	private final FileItem fileItem;
 	private Parser parser;
@@ -112,27 +108,27 @@ public class CrawlFile {
 			} catch (FileNotFoundException e) {
 				fileItem.setFetchStatus(FetchStatus.GONE);
 			} catch (LimitException e) {
-				logger.warning(e.toString() + " ("
-						+ fileItem.getURI().toString() + ")");
+				Logging.logger.warn(e.toString() + " (" + fileItem.getUri()
+						+ ")", e);
 				fileItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
 				setError(e.getMessage());
 			} catch (InstantiationException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.warn(e.getMessage(), e);
 				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (IllegalAccessException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.warn(e.getMessage(), e);
 				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (ClassNotFoundException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.warn(e.getMessage(), e);
 				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (IOException e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.warn(e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
 			} catch (Exception e) {
-				logger.log(Level.WARNING, e.getMessage(), e);
+				Logging.logger.warn(e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
 			} finally {
 				if (fis != null)
