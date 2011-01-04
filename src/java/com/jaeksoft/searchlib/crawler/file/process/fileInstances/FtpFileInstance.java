@@ -24,10 +24,52 @@
 
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 
 public class FtpFileInstance extends FileInstanceAbstract {
+
+	private FTPFile[] ftpFiles;
+
+	public FtpFileInstance() {
+		ftpFiles = null;
+	}
+
+	private FtpFileInstance(FilePathItem filePathItem, FtpFileInstance parent,
+			FTPFile ftpFile) throws URISyntaxException, SearchLibException {
+		init(filePathItem, parent, parent.getPath() + '/' + ftpFile.getName());
+	}
+
+	@Override
+	public void init() throws SearchLibException {
+		FTPClient f = null;
+		try {
+			f = ftpConnect();
+			FTPFile[] files = f.listFiles(getPath());
+		} catch (SocketException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			ftpQuietDisconnect(f);
+		}
+	}
+
+	@Override
+	public URI getURI() {
+		return null;
+	}
 
 	@Override
 	public FileTypeEnum getFileType() {
@@ -35,15 +77,32 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		return null;
 	}
 
+	private FTPClient ftpConnect() throws SocketException, IOException {
+		FilePathItem fpi = getFilePathItem();
+		FTPClient f = new FTPClient();
+		f.connect(fpi.getHost());
+		f.login(fpi.getUsername(), fpi.getPassword());
+		return f;
+	}
+
+	private void ftpQuietDisconnect(FTPClient f) {
+		if (f == null)
+			return;
+		try {
+			f.disconnect();
+		} catch (IOException e) {
+			Logging.logger.warn(e);
+		}
+	}
+
 	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories() {
-		// TODO Auto-generated method stub
+	public FileInstanceAbstract[] listFilesOnly() throws SearchLibException {
 		return null;
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() {
-		// TODO Auto-generated method stub
+	public FileInstanceAbstract[] listFilesAndDirectories()
+			throws SearchLibException {
 		return null;
 	}
 
@@ -57,12 +116,6 @@ public class FtpFileInstance extends FileInstanceAbstract {
 	public Long getFileSize() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void init() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

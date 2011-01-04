@@ -52,7 +52,7 @@ public class FilePathItemIterator {
 		}
 	}
 
-	protected ItemIterator next() throws URISyntaxException {
+	protected ItemIterator next() throws URISyntaxException, SearchLibException {
 		lock.lock();
 		try {
 			for (;;) {

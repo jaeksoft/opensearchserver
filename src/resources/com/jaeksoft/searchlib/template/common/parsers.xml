@@ -22,7 +22,7 @@
 	<parser name="FileSytem parser" class="com.jaeksoft.searchlib.parser.FileSystemParser"
 		sizeLimit="0" />
 	<parser name="DOC parser" class="com.jaeksoft.searchlib.parser.DocParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<contentType>application/msword</contentType>
 		<extension>doc</extension>
 		<map>
@@ -37,7 +37,7 @@
 		</map>
 	</parser>
 	<parser name="XLS parser" class="com.jaeksoft.searchlib.parser.XlsParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<contentType>application/vnd.ms-excel</contentType>
 		<extension>xls</extension>
 		<map>
@@ -52,7 +52,7 @@
 		</map>
 	</parser>
 	<parser name="DOCX parser" class="com.jaeksoft.searchlib.parser.DocxParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<contentType>application/vnd.openxmlformats-officedocument.wordprocessingml.document
 		</contentType>
 		<extension>docx</extension>
@@ -70,7 +70,7 @@
 		</map>
 	</parser>
 	<parser name="XLSX parser" class="com.jaeksoft.searchlib.parser.XlsxParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<contentType>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 		</contentType>
 		<extension>xlsx</extension>
@@ -88,7 +88,7 @@
 		</map>
 	</parser>
 	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser"
-		sizeLimit="8388608" defaultCharset="UTF-8">
+		sizeLimit="33554432" defaultCharset="UTF-8">
 		<contentType>text/html</contentType>
 		<extension>htm</extension>
 		<extension>html</extension>
@@ -103,7 +103,7 @@
 		</map>
 	</parser>
 	<parser name="PDF parser" class="com.jaeksoft.searchlib.parser.PdfParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>pdf</extension>
 		<contentType>application/pdf</contentType>
 		<map>
@@ -118,7 +118,7 @@
 		</map>
 	</parser>
 	<parser name="PPT parser" class="com.jaeksoft.searchlib.parser.PptParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>ppt</extension>
 		<contentType>application/vnd.ms-powerpoint
 		</contentType>
@@ -130,7 +130,7 @@
 		</map>
 	</parser>
 	<parser name="PPTX parser" class="com.jaeksoft.searchlib.parser.PptxParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>pptx</extension>
 		<contentType>application/vnd.openxmlformats-officedocument.presentationml.presentation
 		</contentType>
@@ -148,7 +148,7 @@
 		</map>
 	</parser>
 	<parser name="ODT parser" class="com.jaeksoft.searchlib.parser.OdtParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>odt</extension>
 		<contentType>application/vnd.oasis.opendocument.text
 		</contentType>
@@ -164,7 +164,7 @@
 		</map>
 	</parser>
 	<parser name="ODS/ODF parser" class="com.jaeksoft.searchlib.parser.OdsParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>odf</extension>
 		<extension>ods</extension>
 		<contentType>application/vnd.oasis.opendocument.spreadsheet
@@ -183,7 +183,7 @@
 		</map>
 	</parser>
 	<parser name="RTF parser" class="com.jaeksoft.searchlib.parser.RtfParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>rtf</extension>
 		<contentType>application/rtf</contentType>
 		<map>
@@ -192,7 +192,7 @@
 		</map>
 	</parser>
 	<parser name="Text parser" class="com.jaeksoft.searchlib.parser.TextParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>txt</extension>
 		<contentType>text/plain</contentType>
 		<map>
@@ -201,7 +201,7 @@
 		</map>
 	</parser>
 	<parser name="Audio parser" class="com.jaeksoft.searchlib.parser.AudioParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>mp3</extension>
 		<extension>mp4</extension>
 		<extension>wav</extension>
@@ -217,7 +217,7 @@
 		</map>
 	</parser>
 	<parser name="Torrent parser" class="com.jaeksoft.searchlib.parser.TorrentParser"
-		sizeLimit="8388608">
+		sizeLimit="33554432">
 		<extension>torrent</extension>
 		<contentType>application/x-bittorrent</contentType>
 		<map>

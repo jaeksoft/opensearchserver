@@ -26,8 +26,10 @@ package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
@@ -50,14 +52,20 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	private LocalFileInstance(FilePathItem filePathItem,
-			FileInstanceAbstract parent, File file) throws URISyntaxException {
+			FileInstanceAbstract parent, File file) throws URISyntaxException,
+			SearchLibException {
 		init(filePathItem, parent, file.getAbsolutePath());
 		this.file = file;
 	}
 
 	@Override
 	public void init() {
-		file = new File(getURI());
+		file = new File(getPath());
+	}
+
+	@Override
+	public URI getURI() {
+		return file.toURI();
 	}
 
 	@Override
@@ -70,7 +78,7 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	private FileInstanceAbstract[] buildFileInstanceArray(File[] files)
-			throws URISyntaxException {
+			throws URISyntaxException, SearchLibException {
 		if (files == null)
 			return null;
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
@@ -82,12 +90,13 @@ public class LocalFileInstance extends FileInstanceAbstract {
 
 	@Override
 	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException {
+			throws URISyntaxException, SearchLibException {
 		return buildFileInstanceArray(file.listFiles());
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException {
+	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
+			SearchLibException {
 		return buildFileInstanceArray(file.listFiles(new FileOnlyFilter()));
 	}
 

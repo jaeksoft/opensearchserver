@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 
 public abstract class ItemIterator {
@@ -56,7 +57,7 @@ public abstract class ItemIterator {
 
 	protected abstract FileInstanceAbstract getFileInstanceImpl();
 
-	protected ItemIterator next() throws URISyntaxException {
+	protected ItemIterator next() throws URISyntaxException, SearchLibException {
 		lock.lock();
 		try {
 			ItemIterator next = nextImpl();
@@ -70,11 +71,12 @@ public abstract class ItemIterator {
 		}
 	}
 
-	protected abstract ItemIterator nextImpl() throws URISyntaxException;
+	protected abstract ItemIterator nextImpl() throws URISyntaxException,
+			SearchLibException;
 
 	protected static ItemIterator create(ItemIterator parent,
 			FileInstanceAbstract fileInstance, boolean withSubDir)
-			throws URISyntaxException {
+			throws URISyntaxException, SearchLibException {
 		FileTypeEnum type = fileInstance.getFileType();
 		if (type == FileTypeEnum.directory)
 			return new ItemDirectoryIterator(parent, fileInstance, withSubDir);

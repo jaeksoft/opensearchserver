@@ -37,7 +37,7 @@ public abstract class FileInstanceAbstract {
 
 	protected FilePathItem filePathItem;
 
-	private URI uri;
+	private String path;
 
 	final public static FileInstanceAbstract create(FilePathItem filePathItem,
 			FileInstanceAbstract parent, String path) throws SearchLibException {
@@ -59,24 +59,25 @@ public abstract class FileInstanceAbstract {
 	}
 
 	final protected void init(FilePathItem filePathItem,
-			FileInstanceAbstract parent, String path) throws URISyntaxException {
+			FileInstanceAbstract parent, String path)
+			throws URISyntaxException, SearchLibException {
 		this.filePathItem = filePathItem;
 		this.parent = parent;
-		uri = new URI(filePathItem.getType().getScheme(),
-				filePathItem.getUsername(), filePathItem.getHost(), -1, path,
-				null, null);
+		this.path = path;
 		init();
 	}
 
-	public abstract void init();
+	public abstract void init() throws SearchLibException;
+
+	public abstract URI getURI();
 
 	public abstract FileTypeEnum getFileType();
 
 	public abstract FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException;
+			throws URISyntaxException, SearchLibException;
 
 	public abstract FileInstanceAbstract[] listFilesOnly()
-			throws URISyntaxException;
+			throws URISyntaxException, SearchLibException;
 
 	public abstract Long getLastModified();
 
@@ -90,7 +91,7 @@ public abstract class FileInstanceAbstract {
 		return parent;
 	}
 
-	public URI getURI() {
-		return uri;
+	public String getPath() {
+		return path;
 	}
 }
