@@ -28,6 +28,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -38,7 +40,9 @@ public class FileInfo {
 
 	private FileTypeEnum type;
 
-	public String uriString;
+	private String uriString;
+
+	private String name;
 
 	public FileInfo() {
 		init();
@@ -94,12 +98,22 @@ public class FileInfo {
 		return uriString;
 	}
 
-	public void setUri(String uriString) {
+	private void setName(String fullPath) {
+		this.name = FilenameUtils.getBaseName(fullPath);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setUri(String uriString) throws URISyntaxException {
 		this.uriString = uriString;
+		setName(new URI(uriString).getPath());
 	}
 
 	public void setUri(URI uri) {
 		this.uriString = uri.toASCIIString();
+		setName(uri.getPath());
 	}
 
 	/**

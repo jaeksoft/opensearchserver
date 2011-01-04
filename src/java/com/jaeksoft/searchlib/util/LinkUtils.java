@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -133,6 +133,14 @@ public class LinkUtils {
 			Logging.logger.warn(e.getMessage(), e);
 			return null;
 		}
+	}
+
+	public final static String concatPath(String path1, String path2) {
+		StringBuffer sb = new StringBuffer(path1);
+		if (!path1.endsWith("/") && !path2.startsWith("/"))
+			sb.append('/');
+		sb.append(path2);
+		return sb.toString();
 	}
 
 }

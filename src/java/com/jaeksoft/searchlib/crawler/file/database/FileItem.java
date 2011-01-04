@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,9 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -95,7 +92,7 @@ public class FileItem extends FileInfo implements Serializable {
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
 	private Long crawlDate;
-	private long size;
+	private Long size;
 	private String extension;
 	private Status status;
 
@@ -117,7 +114,7 @@ public class FileItem extends FileInfo implements Serializable {
 		parserStatus = ParserStatus.NOT_PARSED;
 		indexStatus = IndexStatus.NOT_INDEXED;
 		crawlDate = null;
-		size = 0;
+		size = null;
 		extension = "";
 	}
 
@@ -275,7 +272,8 @@ public class FileItem extends FileInfo implements Serializable {
 				parserStatus.value);
 		indexDocument.set(FileItemFieldEnum.indexStatus.name(),
 				indexStatus.value);
-		indexDocument.set(FileItemFieldEnum.fileSize.name(), getSize());
+		if (size != null)
+			indexDocument.set(FileItemFieldEnum.fileSize.name(), size);
 		if (extension != null)
 			indexDocument
 					.set(FileItemFieldEnum.fileExtension.name(), extension);
@@ -385,7 +383,7 @@ public class FileItem extends FileInfo implements Serializable {
 		}
 	}
 
-	public long getSize() {
+	public Long getSize() {
 		return size;
 	}
 
@@ -393,15 +391,15 @@ public class FileItem extends FileInfo implements Serializable {
 		return StringUtils.humanBytes(size);
 	}
 
-	public void setSize(long size) {
+	public void setSize(Long size) {
 		this.size = size;
 	}
 
 	public void setSize(String size) {
 		try {
-			this.size = Long.parseLong(size);
+			this.size = new Long(size);
 		} catch (NumberFormatException e) {
-			this.size = 0;
+			this.size = null;
 		}
 	}
 
@@ -411,21 +409,6 @@ public class FileItem extends FileInfo implements Serializable {
 
 	public void setExtension(String extension) {
 		this.extension = extension;
-	}
-
-	public File getFile() throws URISyntaxException {
-		String uri = getUri();
-		if (uri == null)
-			return null;
-		return new File(new URI(uri));
-	}
-
-	public FileInputStream getFileInputStream() throws FileNotFoundException,
-			URISyntaxException {
-		File file = getFile();
-		if (file == null)
-			return null;
-		return new FileInputStream(file);
 	}
 
 }

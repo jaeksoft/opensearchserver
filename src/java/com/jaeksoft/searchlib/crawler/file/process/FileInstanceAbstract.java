@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -38,6 +40,8 @@ public abstract class FileInstanceAbstract {
 	protected FilePathItem filePathItem;
 
 	private String path;
+
+	private URI uri;
 
 	final public static FileInstanceAbstract create(FilePathItem filePathItem,
 			FileInstanceAbstract parent, String path) throws SearchLibException {
@@ -64,12 +68,14 @@ public abstract class FileInstanceAbstract {
 		this.filePathItem = filePathItem;
 		this.parent = parent;
 		this.path = path;
-		init();
+		this.uri = init();
 	}
 
-	public abstract void init() throws SearchLibException;
+	public abstract URI init() throws SearchLibException, URISyntaxException;
 
-	public abstract URI getURI();
+	public URI getURI() {
+		return uri;
+	}
 
 	public abstract FileTypeEnum getFileType();
 
@@ -83,6 +89,8 @@ public abstract class FileInstanceAbstract {
 
 	public abstract Long getFileSize();
 
+	public abstract InputStream getInputStream() throws IOException;
+
 	public FilePathItem getFilePathItem() {
 		return filePathItem;
 	}
@@ -94,4 +102,5 @@ public abstract class FileInstanceAbstract {
 	public String getPath() {
 		return path;
 	}
+
 }

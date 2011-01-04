@@ -24,12 +24,21 @@
 
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 
 public class SmbFileInstance extends FileInstanceAbstract {
+
+	@Override
+	public URI init() {
+		return null;
+		// TODO Auto-generated method stub
+
+	}
 
 	@Override
 	public FileTypeEnum getFileType() {
@@ -62,13 +71,8 @@ public class SmbFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public void init() {
+	public InputStream getInputStream() throws IOException {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public URI getURI() {
 		return null;
 	}
 

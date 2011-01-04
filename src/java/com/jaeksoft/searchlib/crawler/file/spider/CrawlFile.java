@@ -24,9 +24,9 @@
 
 package com.jaeksoft.searchlib.crawler.file.spider;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 
@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.LimitException;
 import com.jaeksoft.searchlib.parser.Parser;
@@ -49,16 +50,19 @@ import com.jaeksoft.searchlib.parser.ParserSelector;
 public class CrawlFile {
 
 	private IndexDocument targetIndexDocument;
+	private final FileInstanceAbstract fileInstance;
 	private final FileItem fileItem;
 	private Parser parser;
 	private String error;
 	private final FieldMap fileFieldMap;
 	private final Config config;
 
-	public CrawlFile(FileItem fileItem, Config config,
-			CrawlStatistics currentStats) throws SearchLibException {
+	public CrawlFile(FileInstanceAbstract fileInstance, FileItem fileItem,
+			Config config, CrawlStatistics currentStats)
+			throws SearchLibException {
 		this.targetIndexDocument = null;
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
+		this.fileInstance = fileInstance;
 		this.fileItem = fileItem;
 		this.fileItem.setCrawlDate(System.currentTimeMillis());
 		this.parser = null;
@@ -73,11 +77,11 @@ public class CrawlFile {
 	 */
 	public void download() {
 		synchronized (this) {
-			FileInputStream fis = null;
+			InputStream is = null;
 			try {
 				ParserSelector parserSelector = config.getParserSelector();
-				Parser parser = parserSelector.getParser(fileItem.getFile()
-						.getName(), null);
+				Parser parser = parserSelector.getParser(fileItem.getName(),
+						null);
 
 				// Get default parser
 				if (parser == null)
@@ -95,10 +99,9 @@ public class CrawlFile {
 				fileItem.populate(sourceDocument);
 
 				parser.setSourceDocument(sourceDocument);
-				fis = fileItem.getFileInputStream();
-				parser.parseContent(fis);
-				parser.addField(ParserFieldEnum.filename, fileItem.getFile()
-						.getName());
+				is = fileInstance.getInputStream();
+				parser.parseContent(is);
+				parser.addField(ParserFieldEnum.filename, fileItem.getName());
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
 				fileItem.setFetchStatus(FetchStatus.FETCHED);
@@ -133,8 +136,8 @@ public class CrawlFile {
 				Logging.logger.warn(e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
 			} finally {
-				if (fis != null)
-					IOUtils.closeQuietly(fis);
+				if (is != null)
+					IOUtils.closeQuietly(is);
 			}
 		}
 	}

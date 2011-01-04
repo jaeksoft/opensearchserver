@@ -100,7 +100,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 					continue;
 			}
 
-			CrawlFile crawl = crawl();
+			CrawlFile crawl = crawl(fileInstance);
 			if (crawl != null)
 				crawlQueue.add(currentStats, crawl);
 
@@ -111,15 +111,16 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		crawlQueue.index(!crawlMaster.isRunning());
 	}
 
-	private CrawlFile crawl() throws SearchLibException {
+	private CrawlFile crawl(FileInstanceAbstract fileInstance)
+			throws SearchLibException {
 
 		sleepInterval();
 
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
-		CrawlFile crawl = new CrawlFile(currentFileItem, getConfig(),
-				currentStats);
+		CrawlFile crawl = new CrawlFile(fileInstance, currentFileItem,
+				getConfig(), currentStats);
 
 		// Fetch started
 		currentStats.incFetchedCount();

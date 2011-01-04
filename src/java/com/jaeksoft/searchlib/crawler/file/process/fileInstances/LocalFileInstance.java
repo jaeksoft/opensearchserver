@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -59,12 +61,8 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public void init() {
+	public URI init() {
 		file = new File(getPath());
-	}
-
-	@Override
-	public URI getURI() {
 		return file.toURI();
 	}
 
@@ -108,6 +106,13 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	@Override
 	public Long getFileSize() {
 		return file.length();
+	}
+
+	@Override
+	public FileInputStream getInputStream() throws IOException {
+		if (file == null)
+			return null;
+		return new FileInputStream(file);
 	}
 
 }
