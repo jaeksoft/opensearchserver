@@ -37,6 +37,7 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -148,7 +149,8 @@ public class FileItem extends FileInfo implements Serializable {
 
 	}
 
-	public FileItem(FileInstanceAbstract fileInstance) {
+	public FileItem(FileInstanceAbstract fileInstance)
+			throws SearchLibException {
 		this();
 		setRepository(fileInstance.getFilePathItem().toString());
 		setUri(fileInstance.getURI());

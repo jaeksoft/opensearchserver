@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.util.Properties;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -50,6 +52,8 @@ public class StartStopListener implements ServletContextListener {
 		Logging.initLogger();
 		Logging.logger.info("OSS IS STARTING");
 		try {
+			Properties prop = System.getProperties();
+			prop.setProperty("java.protocol.handler.pkgs", "jcifs");
 			TaskManager.start();
 		} catch (SearchLibException e) {
 			Logging.logger.error(e);

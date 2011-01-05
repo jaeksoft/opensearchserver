@@ -219,6 +219,10 @@ public class FilePathEditController extends CommonController {
 		return !isLocalFileType();
 	}
 
+	public boolean isDomain() {
+		return currentFilePath.getType() == FileInstanceEnum.SmbFileInstance;
+	}
+
 	public boolean isNotSelectedFile() {
 		return currentFile != null;
 	}

@@ -38,6 +38,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private FileInstanceEnum type;
 	private String host;
 	private String path;
+	private String domain;
+
 	private String username;
 	private String password;
 	private boolean withSub;
@@ -49,6 +51,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		type = FileInstanceEnum.LocalFileInstance;
 		host = null;
 		path = null;
+		domain = null;
 		username = null;
 		password = null;
 		withSub = false;
@@ -63,6 +66,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		destFilePath.type = type;
 		destFilePath.host = host;
 		destFilePath.path = path;
+		destFilePath.domain = domain;
 		destFilePath.username = username;
 		destFilePath.password = password;
 		destFilePath.enabled = enabled;
@@ -104,6 +108,21 @@ public class FilePathItem implements Comparable<FilePathItem> {
 
 	public void setEnabled(boolean b) {
 		this.enabled = b;
+	}
+
+	/**
+	 * @return the domain
+	 */
+	public String getDomain() {
+		return domain;
+	}
+
+	/**
+	 * @param domain
+	 *            the domain to set
+	 */
+	public void setDomain(String domain) {
+		this.domain = domain;
 	}
 
 	/**
@@ -181,6 +200,10 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		this.delay = delay;
 	}
 
+	public boolean isGuest() {
+		return username == null && domain == null;
+	}
+
 	/**
 	 * Create a new FilePathItem instance by reading XML
 	 * 
@@ -193,6 +216,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		String type = DomUtils.getAttributeText(node, "type");
 		if (type != null)
 			filePathItem.setType(FileInstanceEnum.valueOf(type));
+		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");
 		if (password != null)
@@ -219,12 +243,12 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 */
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
 			throws SAXException {
-		xmlWriter.startElement(nodeName, "type", type.name(), "username",
-				username, "password",
-				password == null ? null : StringUtils.base64encode(password),
-				"host", host, "withSub", withSub ? "yes" : "no",
-				"ignoreHidden", ignoreHidden ? "yes" : "no", "enabled",
-				enabled ? "yes" : "no", "delay", Integer.toString(delay));
+		xmlWriter.startElement(nodeName, "type", type.name(), "domain", domain,
+				"username", username, "password", password == null ? null
+						: StringUtils.base64encode(password), "host", host,
+				"withSub", withSub ? "yes" : "no", "ignoreHidden",
+				ignoreHidden ? "yes" : "no", "enabled", enabled ? "yes" : "no",
+				"delay", Integer.toString(delay));
 		if (path != null)
 			xmlWriter.textNode(path);
 		xmlWriter.endElement();
@@ -254,6 +278,11 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (host != null)
 			if ((c = host.compareTo(fpi.host)) != 0)
 				return c;
+		if ((c = compareNullValues(domain, fpi.domain)) != 0)
+			return c;
+		if (domain != null)
+			if ((c = domain.compareTo(fpi.domain)) != 0)
+				return c;
 		if ((c = compareNullValues(username, fpi.username)) != 0)
 			return c;
 		if (username != null)
@@ -272,6 +301,10 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		StringBuffer sb = new StringBuffer();
 		sb.append(type.getScheme());
 		sb.append("://");
+		if (domain != null) {
+			sb.append(domain);
+			sb.append(';');
+		}
 		if (username != null) {
 			sb.append(username);
 			sb.append('@');
@@ -286,4 +319,5 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		}
 		return sb.toString();
 	}
+
 }

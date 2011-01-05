@@ -77,7 +77,7 @@ public abstract class FileInstanceAbstract {
 		return uri;
 	}
 
-	public abstract FileTypeEnum getFileType();
+	public abstract FileTypeEnum getFileType() throws SearchLibException;
 
 	public abstract FileInstanceAbstract[] listFilesAndDirectories()
 			throws URISyntaxException, SearchLibException;
@@ -85,9 +85,9 @@ public abstract class FileInstanceAbstract {
 	public abstract FileInstanceAbstract[] listFilesOnly()
 			throws URISyntaxException, SearchLibException;
 
-	public abstract Long getLastModified();
+	public abstract Long getLastModified() throws SearchLibException;
 
-	public abstract Long getFileSize();
+	public abstract Long getFileSize() throws SearchLibException;
 
 	public abstract InputStream getInputStream() throws IOException;
 
