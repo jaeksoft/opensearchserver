@@ -26,11 +26,8 @@ package com.jaeksoft.searchlib.crawler.file.spider;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-
-import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -77,7 +74,6 @@ public class CrawlFile {
 	 */
 	public void download() {
 		synchronized (this) {
-			InputStream is = null;
 			try {
 				ParserSelector parserSelector = config.getParserSelector();
 				Parser parser = parserSelector.getParser(fileItem.getName(),
@@ -99,8 +95,7 @@ public class CrawlFile {
 				fileItem.populate(sourceDocument);
 
 				parser.setSourceDocument(sourceDocument);
-				is = fileInstance.getInputStream();
-				parser.parseContent(is);
+				parser.parseContent(fileInstance);
 				parser.addField(ParserFieldEnum.filename, fileItem.getName());
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
@@ -135,9 +130,6 @@ public class CrawlFile {
 			} catch (Exception e) {
 				Logging.logger.warn(e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
-			} finally {
-				if (is != null)
-					IOUtils.closeQuietly(is);
 			}
 		}
 	}

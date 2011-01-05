@@ -26,16 +26,19 @@ package com.jaeksoft.searchlib.crawler.file.database;
 
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpsFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance;
 
 public enum FileInstanceEnum {
 
-	LocalFileInstance("local file", "file", LocalFileInstance.class),
+	LocalFileInstance("Local files", "file", LocalFileInstance.class),
 
-	SmbFileInstance("smb/cifs", "smb", SmbFileInstance.class),
+	SmbFileInstance("SMB/CIFS", "smb", SmbFileInstance.class),
 
-	FtpFileInstance("ftp", "ftp", FtpFileInstance.class);
+	FtpFileInstance("FTP", "ftp", FtpFileInstance.class),
+
+	FtpsFileInstance("FTP over SSL", "ftps", FtpsFileInstance.class);
 
 	private String label;
 

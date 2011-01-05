@@ -52,7 +52,9 @@ public class StringUtils {
 		}
 	}
 
-	public static String humanBytes(long size) {
+	public static String humanBytes(Long size) {
+		if (size == null)
+			return null;
 		SizeUnit selectedUnit = SizeUnit.BYTE;
 		for (SizeUnit unit : SizeUnit.values()) {
 			if (unit.check(size))

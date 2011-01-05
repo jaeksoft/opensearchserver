@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -74,7 +75,8 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		return null;
 	}
 
-	private FTPClient ftpConnect() throws SocketException, IOException {
+	protected FTPClient ftpConnect() throws SocketException, IOException,
+			NoSuchAlgorithmException {
 		FilePathItem fpi = getFilePathItem();
 		FTPClient f = new FTPClient();
 		f.connect(fpi.getHost());
@@ -126,6 +128,8 @@ public class FtpFileInstance extends FileInstanceAbstract {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
 		} finally {
 			ftpQuietDisconnect(f);
 		}
@@ -144,6 +148,8 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} finally {
 			ftpQuietDisconnect(f);
@@ -170,6 +176,8 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		try {
 			f = ftpConnect();
 			return f.retrieveFileStream(getPath());
+		} catch (NoSuchAlgorithmException e) {
+			throw new IOException(e);
 		} finally {
 			ftpQuietDisconnect(f);
 		}

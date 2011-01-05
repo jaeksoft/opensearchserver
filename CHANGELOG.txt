@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3151757: Upgrade to PDFBox 1.4.x
 - 3141193: FTP/FTPS support in the file crawler
 - 3141192: SMB/CIFS support in file crawler
 - 3034238: Crawler able to log in protected web site

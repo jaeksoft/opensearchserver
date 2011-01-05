@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,7 +32,10 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
+import org.apache.commons.io.IOUtils;
+
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -162,6 +165,31 @@ public abstract class Parser {
 	final public void parseContent(Reader reader) throws IOException {
 		limitReader = new LimitReader(reader, sizeLimit);
 		parseContent(limitReader);
+	}
+
+	final public void parseContent(FileInstanceAbstract fileInstance)
+			throws IOException {
+		if (!requireContent())
+			return;
+		InputStream is = null;
+		try {
+			is = fileInstance.getInputStream();
+			parseContent(is);
+		} finally {
+			if (is != null)
+				IOUtils.closeQuietly(is);
+		}
+	}
+
+	/**
+	 * Returns TRUE if the content need to be downloaded for text extraction.
+	 * 
+	 * Return FALSE for listing only
+	 * 
+	 * @return
+	 */
+	protected boolean requireContent() {
+		return true;
 	}
 
 	public LimitInputStream getLimitInputStream() {
