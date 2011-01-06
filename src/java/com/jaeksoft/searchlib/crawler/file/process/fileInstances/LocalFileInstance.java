@@ -30,11 +30,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 
 public class LocalFileInstance extends FileInstanceAbstract {
 
@@ -113,6 +115,11 @@ public class LocalFileInstance extends FileInstanceAbstract {
 		if (file == null)
 			return null;
 		return new FileInputStream(file);
+	}
+
+	@Override
+	public List<SecurityAccess> getSecurity() throws IOException {
+		return null;
 	}
 
 }

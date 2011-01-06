@@ -30,8 +30,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import jcifs.smb.ACE;
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SID;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
@@ -40,6 +44,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class SmbFileInstance extends FileInstanceAbstract {
@@ -170,4 +175,42 @@ public class SmbFileInstance extends FileInstanceAbstract {
 		return smbFile.getInputStream();
 	}
 
+	@Override
+	public List<SecurityAccess> getSecurity() throws IOException {
+		SmbFile smbFile = getSmbFile();
+		ACE[] aces = smbFile.getSecurity();
+		if (aces == null)
+			return null;
+		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
+		for (ACE ace : aces) {
+			if ((ace.getAccessMask() & ACE.FILE_READ_DATA) == 0)
+				continue;
+			SID sid = ace.getSID();
+			SecurityAccess access = new SecurityAccess();
+			access.setId(sid.toString());
+			if (ace.isAllow())
+				access.setGrant(SecurityAccess.Grant.ALLOW);
+			else
+				access.setGrant(SecurityAccess.Grant.DENY);
+			switch (sid.getType()) {
+			case SID.SID_TYPE_USER:
+				access.setType(SecurityAccess.Type.USER);
+				break;
+			case SID.SID_TYPE_DOM_GRP:
+			case SID.SID_TYPE_DOMAIN:
+			case SID.SID_TYPE_ALIAS:
+			case SID.SID_TYPE_WKN_GRP:
+				access.setType(SecurityAccess.Type.GROUP);
+				break;
+			case SID.SID_TYPE_DELETED:
+			case SID.SID_TYPE_INVALID:
+			case SID.SID_TYPE_UNKNOWN:
+			case SID.SID_TYPE_USE_NONE:
+				break;
+			}
+			accesses.add(access);
+		}
+		return accesses;
+
+	}
 }

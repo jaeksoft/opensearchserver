@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
@@ -88,6 +89,8 @@ public abstract class FileInstanceAbstract {
 	public abstract Long getLastModified() throws SearchLibException;
 
 	public abstract Long getFileSize() throws SearchLibException;
+
+	public abstract List<SecurityAccess> getSecurity() throws IOException;
 
 	public abstract InputStream getInputStream() throws IOException;
 
