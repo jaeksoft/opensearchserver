@@ -190,17 +190,22 @@ public class FtpFileInstance extends FileInstanceAbstract {
 	public List<SecurityAccess> getSecurity() throws IOException {
 		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
 
-		SecurityAccess access = new SecurityAccess();
-		access.setGrant(SecurityAccess.Grant.ALLOW);
-		access.setType(SecurityAccess.Type.USER);
-		access.setId(ftpFile.getUser());
-		accesses.add(access);
+		if (ftpFile.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION)) {
+			SecurityAccess access = new SecurityAccess();
+			access.setGrant(SecurityAccess.Grant.ALLOW);
+			access.setType(SecurityAccess.Type.USER);
+			access.setId(ftpFile.getUser());
+			accesses.add(access);
+		}
 
-		access = new SecurityAccess();
-		access.setGrant(SecurityAccess.Grant.ALLOW);
-		access.setType(SecurityAccess.Type.GROUP);
-		access.setId(ftpFile.getGroup());
-		accesses.add(access);
+		if (ftpFile
+				.hasPermission(FTPFile.GROUP_ACCESS, FTPFile.READ_PERMISSION)) {
+			SecurityAccess access = new SecurityAccess();
+			access.setGrant(SecurityAccess.Grant.ALLOW);
+			access.setType(SecurityAccess.Type.GROUP);
+			access.setId(ftpFile.getGroup());
+			accesses.add(access);
+		}
 
 		return accesses;
 	}
