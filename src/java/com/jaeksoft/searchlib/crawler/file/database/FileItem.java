@@ -38,9 +38,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
-import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
-import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -83,15 +80,12 @@ public class FileItem extends FileInfo implements Serializable {
 		return new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
 	}
 
-	public String repository;
-	public String directory;
-	public List<String> subDirectory;
+	private String repository;
+	private String directory;
+	private List<String> subDirectory;
 	private Integer contentLength;
 	private String lang;
 	private String langMethod;
-	private FetchStatus fetchStatus;
-	private ParserStatus parserStatus;
-	private IndexStatus indexStatus;
 	private Long crawlDate;
 	private Long size;
 	private String extension;
@@ -111,9 +105,6 @@ public class FileItem extends FileInfo implements Serializable {
 		contentLength = null;
 		lang = null;
 		langMethod = null;
-		fetchStatus = FetchStatus.UN_FETCHED;
-		parserStatus = ParserStatus.NOT_PARSED;
-		indexStatus = IndexStatus.NOT_INDEXED;
 		crawlDate = null;
 		size = null;
 		extension = "";
@@ -133,13 +124,6 @@ public class FileItem extends FileInfo implements Serializable {
 		setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
 
 		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
-
-		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
-
-		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
-				0));
-
-		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.name(), 0));
 
 		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
 
@@ -176,12 +160,6 @@ public class FileItem extends FileInfo implements Serializable {
 		return crawlDate;
 	}
 
-	public FetchStatus getFetchStatus() {
-		if (fetchStatus == null)
-			return FetchStatus.UN_FETCHED;
-		return fetchStatus;
-	}
-
 	public String getFullLang() {
 		StringBuffer sb = new StringBuffer();
 		if (lang != null)
@@ -200,12 +178,6 @@ public class FileItem extends FileInfo implements Serializable {
 		return indexDocument;
 	}
 
-	public IndexStatus getIndexStatus() {
-		if (indexStatus == null)
-			return IndexStatus.NOT_INDEXED;
-		return indexStatus;
-	}
-
 	public String getLang() {
 		return lang;
 	}
@@ -222,20 +194,8 @@ public class FileItem extends FileInfo implements Serializable {
 		return subDirectory;
 	}
 
-	public ParserStatus getParserStatus() {
-		if (parserStatus == null)
-			return ParserStatus.NOT_PARSED;
-		return parserStatus;
-	}
-
 	public Status getStatus() {
 		return status;
-	}
-
-	public boolean isStatusFull() {
-		return fetchStatus == FetchStatus.FETCHED
-				&& parserStatus == ParserStatus.PARSED
-				&& indexStatus == IndexStatus.INDEXED;
 	}
 
 	public void populate(IndexDocument indexDocument)
@@ -269,11 +229,11 @@ public class FileItem extends FileInfo implements Serializable {
 			indexDocument.set(FileItemFieldEnum.langMethod.name(), langMethod);
 
 		indexDocument.set(FileItemFieldEnum.fetchStatus.name(),
-				fetchStatus.value);
+				getFetchStatus().value);
 		indexDocument.set(FileItemFieldEnum.parserStatus.name(),
-				parserStatus.value);
+				getParserStatus().value);
 		indexDocument.set(FileItemFieldEnum.indexStatus.name(),
-				indexStatus.value);
+				getIndexStatus().value);
 		if (size != null)
 			indexDocument.set(FileItemFieldEnum.fileSize.name(), size);
 		if (extension != null)
@@ -300,32 +260,6 @@ public class FileItem extends FileInfo implements Serializable {
 		}
 	}
 
-	public void setFetchStatus(FetchStatus status) {
-		this.fetchStatus = status;
-	}
-
-	public void setFetchStatusInt(int v) {
-		this.fetchStatus = FetchStatus.find(v);
-	}
-
-	private void setFetchStatusInt(String v) {
-		if (v != null)
-			setFetchStatusInt(Integer.parseInt(v));
-	}
-
-	public void setIndexStatus(IndexStatus status) {
-		this.indexStatus = status;
-	}
-
-	public void setIndexStatusInt(int v) {
-		this.indexStatus = IndexStatus.find(v);
-	}
-
-	private void setIndexStatusInt(String v) {
-		if (v != null)
-			setIndexStatusInt(Integer.parseInt(v));
-	}
-
 	public void setLang(String lang) {
 		this.lang = lang;
 	}
@@ -344,19 +278,6 @@ public class FileItem extends FileInfo implements Serializable {
 
 	public void setSubDirectory(List<String> subDirectory) {
 		this.subDirectory = subDirectory;
-	}
-
-	public void setParserStatus(ParserStatus status) {
-		this.parserStatus = status;
-	}
-
-	public void setParserStatusInt(int v) {
-		this.parserStatus = ParserStatus.find(v);
-	}
-
-	private void setParserStatusInt(String v) {
-		if (v != null)
-			setParserStatusInt(Integer.parseInt(v));
 	}
 
 	public String getRepository() {

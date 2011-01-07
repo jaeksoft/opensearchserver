@@ -49,7 +49,8 @@
 		</request>
 		<request name="fileInfo" defaultOperator="and" start="0" rows="0">
 			<query>$$</query>
-			<returnFields>uri,fileSystemDate,fileType</returnFields>
+			<returnFields>uri,fileSystemDate,fileType,parserStatus,fetchStatus,indexStatus
+			</returnFields>
 		</request>
 	</requests>
 </configuration>

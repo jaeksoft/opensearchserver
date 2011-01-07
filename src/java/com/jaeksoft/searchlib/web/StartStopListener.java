@@ -54,11 +54,12 @@ public class StartStopListener implements ServletContextListener {
 		try {
 			Properties prop = System.getProperties();
 			prop.setProperty("java.protocol.handler.pkgs", "jcifs");
+			jcifs.Config.setProperty("jicfs.resolveOrder", "LMHOSTS,WINS,DNS");
+			jcifs.Config.setProperty("resolveOrder", "LMHOSTS,WINS,DNS");
 			TaskManager.start();
 		} catch (SearchLibException e) {
 			Logging.logger.error(e);
 		}
 		ClientCatalog.openAll();
 	}
-
 }

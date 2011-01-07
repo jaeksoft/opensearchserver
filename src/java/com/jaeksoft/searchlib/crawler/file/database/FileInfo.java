@@ -31,18 +31,21 @@ import java.net.URISyntaxException;
 import org.apache.commons.io.FilenameUtils;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileInfo {
 
 	private Long fileSystemDate;
-
 	private FileTypeEnum type;
-
 	private String uriString;
-
 	private String name;
+	private FetchStatus fetchStatus;
+	private ParserStatus parserStatus;
+	private IndexStatus indexStatus;
 
 	public FileInfo() {
 		init();
@@ -57,12 +60,19 @@ public class FileInfo {
 		if (s != null)
 			setType(FileTypeEnum.valueOf(s));
 		setUri(doc.getValue(FileItemFieldEnum.uri.name(), 0));
+		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
+		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
+				0));
+		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.name(), 0));
 	}
 
 	protected void init() {
 		fileSystemDate = null;
 		type = null;
 		uriString = null;
+		fetchStatus = FetchStatus.UN_FETCHED;
+		parserStatus = ParserStatus.NOT_PARSED;
+		indexStatus = IndexStatus.NOT_INDEXED;
 	}
 
 	public Long getFileSystemDate() {
@@ -99,7 +109,7 @@ public class FileInfo {
 	}
 
 	private void setName(String fullPath) {
-		this.name = FilenameUtils.getBaseName(fullPath);
+		this.name = FilenameUtils.getName(fullPath);
 	}
 
 	public String getName() {
@@ -116,10 +126,75 @@ public class FileInfo {
 		setName(uri.getPath());
 	}
 
+	public FetchStatus getFetchStatus() {
+		if (fetchStatus == null)
+			return FetchStatus.UN_FETCHED;
+		return fetchStatus;
+	}
+
+	public void setFetchStatus(FetchStatus status) {
+		this.fetchStatus = status;
+	}
+
+	public void setFetchStatusInt(int v) {
+		this.fetchStatus = FetchStatus.find(v);
+	}
+
+	private void setFetchStatusInt(String v) {
+		if (v != null)
+			setFetchStatusInt(Integer.parseInt(v));
+	}
+
+	public IndexStatus getIndexStatus() {
+		if (indexStatus == null)
+			return IndexStatus.NOT_INDEXED;
+		return indexStatus;
+	}
+
+	public void setIndexStatus(IndexStatus status) {
+		this.indexStatus = status;
+	}
+
+	public void setIndexStatusInt(int v) {
+		this.indexStatus = IndexStatus.find(v);
+	}
+
+	private void setIndexStatusInt(String v) {
+		if (v != null)
+			setIndexStatusInt(Integer.parseInt(v));
+	}
+
+	public ParserStatus getParserStatus() {
+		if (parserStatus == null)
+			return ParserStatus.NOT_PARSED;
+		return parserStatus;
+	}
+
+	public void setParserStatus(ParserStatus status) {
+		this.parserStatus = status;
+	}
+
+	public void setParserStatusInt(int v) {
+		this.parserStatus = ParserStatus.find(v);
+	}
+
+	private void setParserStatusInt(String v) {
+		if (v != null)
+			setParserStatusInt(Integer.parseInt(v));
+	}
+
+	public boolean isStatusFull() {
+		return fetchStatus == FetchStatus.FETCHED
+				&& parserStatus == ParserStatus.PARSED
+				&& indexStatus == IndexStatus.INDEXED;
+	}
+
 	/**
 	 * Test if a new crawl is needed
 	 */
 	public boolean isNewCrawlNeeded(FileInfo newFileInfo) {
+		if (!isStatusFull())
+			return true;
 		if (fileSystemDate == null)
 			return true;
 		if (type == null)

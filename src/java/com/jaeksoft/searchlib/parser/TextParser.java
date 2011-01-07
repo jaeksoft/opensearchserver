@@ -43,14 +43,15 @@ public class TextParser extends Parser {
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
-		String content = null;
+		byte[] bytes = IOUtils.toByteArray(inputStream);
 		CharsetDetector detector = new CharsetDetector();
-		detector.setText(inputStream);
+		detector.setText(bytes);
 		CharsetMatch match = detector.detect();
+		String content = null;
 		if (match != null)
 			content = match.getString();
 		else
-			content = IOUtils.toString(inputStream);
+			content = new String(bytes);
 		addField(ParserFieldEnum.content, content);
 	}
 
