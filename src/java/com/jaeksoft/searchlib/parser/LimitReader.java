@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,9 @@ import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.security.NoSuchAlgorithmException;
+
+import com.jaeksoft.searchlib.util.Md5Spliter;
 
 public class LimitReader extends Reader {
 
@@ -36,6 +39,7 @@ public class LimitReader extends Reader {
 	private long limit;
 	private CharArrayWriter outputCache;
 	private CharArrayReader inputCache;
+	private String hashMD5;
 
 	public LimitReader(Reader reader, long limit) {
 		this.reader = reader;
@@ -43,10 +47,26 @@ public class LimitReader extends Reader {
 		this.isComplete = true;
 		this.outputCache = new CharArrayWriter();
 		this.inputCache = null;
+		this.hashMD5 = null;
 	}
 
 	public boolean isComplete() {
 		return isComplete;
+	}
+
+	public String getMD5Hash() throws NoSuchAlgorithmException {
+		if (!isComplete)
+			return null;
+		if (hashMD5 != null)
+			return hashMD5;
+		hashMD5 = Md5Spliter.getMD5Hash(outputCache.toString().getBytes());
+		return hashMD5;
+	}
+
+	public Integer getSize() {
+		if (!isComplete)
+			return null;
+		return outputCache.size();
 	}
 
 	@Override

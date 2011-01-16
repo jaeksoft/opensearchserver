@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,17 +31,7 @@ import java.util.regex.Pattern;
 
 public class Md5Spliter {
 
-	private static MessageDigest md5 = null;
-
-	private static String getMD5Hash(String data, String key)
-			throws NoSuchAlgorithmException {
-		if (md5 == null)
-			md5 = MessageDigest.getInstance("MD5");
-		byte result[] = null;
-		synchronized (md5) {
-			md5.update(data.getBytes());
-			result = md5.digest(key.getBytes());
-		}
+	final private static String generateHash(byte[] result) {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < result.length; i++) {
 			String s = Integer.toHexString(result[i]);
@@ -54,6 +44,20 @@ public class Md5Spliter {
 			}
 		}
 		return sb.toString();
+	}
+
+	final public static String getMD5Hash(byte[] data)
+			throws NoSuchAlgorithmException {
+		MessageDigest md5 = MessageDigest.getInstance("MD5");
+		md5.update(data);
+		return generateHash(md5.digest());
+	}
+
+	final public static String getMD5Hash(String data, String key)
+			throws NoSuchAlgorithmException {
+		MessageDigest md5 = MessageDigest.getInstance("MD5");
+		md5.update(data.getBytes());
+		return generateHash(md5.digest(key.getBytes()));
 	}
 
 	private Pattern keyPattern;

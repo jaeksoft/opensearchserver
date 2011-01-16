@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+
+import com.jaeksoft.searchlib.util.Md5Spliter;
 
 public class LimitInputStream extends InputStream {
 
@@ -36,6 +39,7 @@ public class LimitInputStream extends InputStream {
 	private long limit;
 	private ByteArrayOutputStream outputCache;
 	private ByteArrayInputStream inputCache;
+	private String hashMD5;
 
 	public LimitInputStream(InputStream inputStream, long limit)
 			throws IOException {
@@ -44,6 +48,7 @@ public class LimitInputStream extends InputStream {
 		this.isComplete = false;
 		outputCache = new ByteArrayOutputStream();
 		inputCache = null;
+		hashMD5 = null;
 	}
 
 	@Override
@@ -63,6 +68,21 @@ public class LimitInputStream extends InputStream {
 
 	public boolean isComplete() {
 		return isComplete;
+	}
+
+	public String getMD5Hash() throws NoSuchAlgorithmException {
+		if (!isComplete)
+			return null;
+		if (hashMD5 != null)
+			return hashMD5;
+		hashMD5 = Md5Spliter.getMD5Hash(outputCache.toString().getBytes());
+		return hashMD5;
+	}
+
+	public Integer getSize() {
+		if (!isComplete)
+			return null;
+		return outputCache.size();
 	}
 
 	public void restartFromCache() {

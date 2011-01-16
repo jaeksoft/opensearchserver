@@ -94,7 +94,8 @@ public class Crawl {
 
 	private void parseContent(InputStream inputStream)
 			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, IOException, SearchLibException {
+			ClassNotFoundException, IOException, SearchLibException,
+			NoSuchAlgorithmException {
 		if (parserSelector == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
@@ -121,6 +122,7 @@ public class Crawl {
 		urlItem.setContentTypeCharset(parser.getFieldValue(
 				ParserFieldEnum.charset, 0));
 		urlItem.setParserStatus(ParserStatus.PARSED);
+		urlItem.setMd5size(parser.getMd5size());
 		this.parser = parser;
 	}
 

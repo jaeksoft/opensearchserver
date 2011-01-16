@@ -60,6 +60,8 @@ public enum UrlItemFieldEnum {
 
 	fetchStatus,
 
-	indexStatus;
+	indexStatus,
+
+	md5size;
 
 }

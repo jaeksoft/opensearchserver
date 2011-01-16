@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -71,6 +71,7 @@ public class UrlItem implements Serializable {
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
 	private int count;
+	private String md5size;
 
 	public UrlItem() {
 		url = null;
@@ -92,7 +93,7 @@ public class UrlItem implements Serializable {
 		parserStatus = ParserStatus.NOT_PARSED;
 		indexStatus = IndexStatus.NOT_INDEXED;
 		count = 0;
-
+		md5size = null;
 	}
 
 	public UrlItem(ResultDocument doc) {
@@ -119,6 +120,7 @@ public class UrlItem implements Serializable {
 		setParserStatusInt(doc
 				.getValue(UrlItemFieldEnum.parserStatus.name(), 0));
 		setIndexStatusInt(doc.getValue(UrlItemFieldEnum.indexStatus.name(), 0));
+		setMd5size(doc.getValue(UrlItemFieldEnum.md5size.name(), 0));
 	}
 
 	public UrlItem(Map<?, ?> map) {
@@ -150,6 +152,7 @@ public class UrlItem implements Serializable {
 		setParserStatusInt((String) map.get(UrlItemFieldEnum.parserStatus
 				.name()));
 		setIndexStatusInt((String) map.get(UrlItemFieldEnum.indexStatus.name()));
+		setMd5size((String) map.get(UrlItemFieldEnum.md5size.name()));
 	}
 
 	public UrlItem(String sUrl) {
@@ -472,6 +475,8 @@ public class UrlItem implements Serializable {
 				parserStatus.value);
 		indexDocument.set(UrlItemFieldEnum.indexStatus.name(),
 				indexStatus.value);
+		if (md5size != null)
+			indexDocument.set(UrlItemFieldEnum.md5size.name(), md5size);
 	}
 
 	public String getLang() {
@@ -510,6 +515,14 @@ public class UrlItem implements Serializable {
 		if (parserStatus.targetStatus != TargetStatus.TARGET_UPDATE)
 			return parserStatus.targetStatus;
 		return indexStatus.targetStatus;
+	}
+
+	public String getMd5size() {
+		return md5size;
+	}
+
+	public void setMd5size(String md5size) {
+		this.md5size = md5size;
 	}
 
 }

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.io.IOUtils;
 
@@ -231,6 +232,16 @@ public abstract class Parser {
 			if (fileInputStream != null)
 				fileInputStream.close();
 		}
+	}
+
+	public String getMd5size() throws NoSuchAlgorithmException {
+		String hash = null;
+		if (limitInputStream != null)
+			hash = limitInputStream.getMD5Hash() + '_'
+					+ limitInputStream.getSize();
+		else if (limitReader != null)
+			hash = limitReader.getMD5Hash() + '_' + limitReader.getSize();
+		return hash;
 	}
 
 	public boolean equals(Parser one) {
