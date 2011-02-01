@@ -30,6 +30,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
@@ -47,10 +48,15 @@ public class StartStopListener implements ServletContextListener {
 		ClientCatalog.closeAll();
 	}
 
+	protected ClientFactory getClientFactory() {
+		return new ClientFactory();
+	}
+
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		Logging.initLogger();
 		Logging.logger.info("OSS IS STARTING");
+		ClientFactory.setInstance(getClientFactory());
 		try {
 			Properties prop = System.getProperties();
 			prop.setProperty("java.protocol.handler.pkgs", "jcifs");

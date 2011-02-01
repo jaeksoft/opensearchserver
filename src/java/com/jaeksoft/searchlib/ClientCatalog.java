@@ -95,7 +95,8 @@ public class ClientCatalog {
 				throw new SearchLibException("Security alert: "
 						+ indexDirectory
 						+ " is outside OPENSEARCHSERVER_DATA (" + dataDir + ")");
-			client = new Client(indexDirectory, true, false);
+			client = ClientFactory.INSTANCE.newClient(indexDirectory, true,
+					false);
 			CLIENTS.put(indexDirectory, client);
 			return client;
 		} finally {
@@ -353,7 +354,8 @@ public class ClientCatalog {
 			client.trash(trashDir);
 			getTempReceiveDir(client).renameTo(clientDir);
 			CLIENTS.remove(clientDir);
-			CLIENTS.put(clientDir, new Client(clientDir, true, true));
+			CLIENTS.put(clientDir,
+					ClientFactory.INSTANCE.newClient(clientDir, true, true));
 			PushEvent.CLIENT_SWITCH.publish(webapp, client);
 		} finally {
 			w.unlock();
