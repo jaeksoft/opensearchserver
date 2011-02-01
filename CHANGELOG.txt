@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3169421: Japanese and Korean support
 - 3159477: Identify identical web pages
 - 3151757: Upgrade to PDFBox 1.4.x
 - 3141193: FTP/FTPS support in the file crawler

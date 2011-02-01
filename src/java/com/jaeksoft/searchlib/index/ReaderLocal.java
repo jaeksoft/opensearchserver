@@ -281,6 +281,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				indexSearcher = null;
 			}
 			if (indexReader != null) {
+				org.apache.lucene.search.FieldCache.DEFAULT.purge(indexReader);
 				indexReader.close();
 				indexReader = null;
 			}

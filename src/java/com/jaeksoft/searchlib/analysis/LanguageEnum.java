@@ -46,6 +46,10 @@ public enum LanguageEnum {
 
 	ITALIAN("Italian", "it"),
 
+	JAPANESE("Japansese", "ja"),
+
+	KOREAN("Korean", "kr"),
+
 	NORWEGIAN("Norwegian", "no"),
 
 	PORTUGUESE("Portuguese", "pt"),

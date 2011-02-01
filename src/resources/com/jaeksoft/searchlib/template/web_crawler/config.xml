@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<!--   License Agreement for Jaeksoft Open Search Server -->
-	<!--   -->
-	<!--   Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft -->
-	<!--   -->
-	<!--   This file is part of Jaeksoft Open Search Server. -->
-	<!--   http://www.open-search-server.com -->
-	<!--   -->
-	<!--   Jaeksoft Open Search Server is free software: you can -->
-	<!--   redistribute it and/or modify it under the terms of  -->
-	<!--   the GNU General Public License as published by the -->
-	<!--   Free Software Foundation, either version 3 of the  -->
-	<!--   License, or (at your option) any later version. -->
-	<!--   -->
-	<!--   Jaeksoft Open Search Server is distributed in the -->
-	<!--   hope that it will be useful, but WITHOUT ANY  -->
-	<!--   WARRANTY; without even the implied warranty of -->
-	<!--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
-	<!--   -->
-	<!--   See the GNU General Public License for more details. -->
+<!-- License Agreement for Jaeksoft Open Search Server -->
+<!-- -->
+<!-- Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft -->
+<!-- -->
+<!-- This file is part of Jaeksoft Open Search Server. -->
+<!-- http://www.open-search-server.com -->
+<!-- -->
+<!-- Jaeksoft Open Search Server is free software: you can -->
+<!-- redistribute it and/or modify it under the terms of -->
+<!-- the GNU General Public License as published by the -->
+<!-- Free Software Foundation, either version 3 of the -->
+<!-- License, or (at your option) any later version. -->
+<!-- -->
+<!-- Jaeksoft Open Search Server is distributed in the -->
+<!-- hope that it will be useful, but WITHOUT ANY -->
+<!-- WARRANTY; without even the implied warranty of -->
+<!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
+<!-- -->
+<!-- See the GNU General Public License for more details. -->
 <configuration>
 	<indices>
 		<index name="index" searchCache="100" filterCache="100"
@@ -27,13 +27,13 @@
 
 		<analyzers>
 
-			<!--  Default standard analyzer -->
+			<!-- Default standard analyzer -->
 			<analyzer name="StandardAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
 				<filter class="ISOLatin1AccentFilter" />
 			</analyzer>
 
-			<!--  Default text analyser -->
+			<!-- Default text analyser -->
 			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
 			</analyzer>
@@ -43,7 +43,7 @@
 				<filter class="ChineseFilter" />
 			</analyzer>
 
-			<!--  Danish -->
+			<!-- Danish -->
 			<analyzer name="TextAnalyzer" lang="da"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -51,7 +51,7 @@
 				<filter class="SnowballDanishFilter" />
 			</analyzer>
 
-			<!--  Dutch -->
+			<!-- Dutch -->
 			<analyzer name="TextAnalyzer" lang="nl"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -59,14 +59,14 @@
 				<filter class="DutchStemFilter" />
 			</analyzer>
 
-			<!--  English -->
+			<!-- English -->
 			<analyzer name="TextAnalyzer" lang="en"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
 				<filter class="SnowballEnglishFilter" />
 			</analyzer>
 
-			<!--  Finish -->
+			<!-- Finish -->
 			<analyzer name="TextAnalyzer" lang="fi"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -74,7 +74,7 @@
 				<filter class="SnowballFinnishFilter" />
 			</analyzer>
 
-			<!--  French -->
+			<!-- French -->
 			<analyzer name="TextAnalyzer" lang="fr"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -82,7 +82,7 @@
 				<filter class="FrenchStemFilter" />
 			</analyzer>
 
-			<!--  German -->
+			<!-- German -->
 			<analyzer name="TextAnalyzer" lang="de"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -98,7 +98,13 @@
 				<filter class="SnowballItalianFilter" />
 			</analyzer>
 
-			<!--  Norwegian -->
+			<!-- Japanese -->
+			<analyzer name="TextAnalyzer" lang="ja" tokenizer="CJKTokenizer" />
+
+			<!-- Korean -->
+			<analyzer name="TextAnalyzer" lang="kr" tokenizer="CJKTokenizer" />
+
+			<!-- Norwegian -->
 			<analyzer name="TextAnalyzer" lang="no"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -106,7 +112,7 @@
 				<filter class="SnowballNorwegianFilter" />
 			</analyzer>
 
-			<!--  Portuguese -->
+			<!-- Portuguese -->
 			<analyzer name="TextAnalyzer" lang="pt"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -114,7 +120,7 @@
 				<filter class="SnowballPortugueseFilter" />
 			</analyzer>
 
-			<!--  Romanian -->
+			<!-- Romanian -->
 			<analyzer name="TextAnalyzer" lang="ro"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -122,12 +128,12 @@
 				<filter class="SnowballRomanianFilter" />
 			</analyzer>
 
-			<!--  Russian -->
+			<!-- Russian -->
 			<analyzer name="TextAnalyzer" lang="ru" tokenizer="RussianLetterTokenizer">
 				<filter class="RussianStemFilter" />
 			</analyzer>
 
-			<!--  Spanish -->
+			<!-- Spanish -->
 			<analyzer name="TextAnalyzer" lang="es"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -135,7 +141,7 @@
 				<filter class="SnowballSpanishFilter" />
 			</analyzer>
 
-			<!--  Swedish -->
+			<!-- Swedish -->
 			<analyzer name="TextAnalyzer" lang="sv"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -143,7 +149,7 @@
 				<filter class="SnowballSwedishFilter" />
 			</analyzer>
 
-			<!--  Turkish -->
+			<!-- Turkish -->
 			<analyzer name="TextAnalyzer" lang="tr"
 				tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
