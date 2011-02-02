@@ -51,8 +51,8 @@ public class ConfigFileRotation {
 
 	private void init(File directory, String masterName, String tempName,
 			String oldName) {
+		lock.lock();
 		try {
-			lock.lock();
 			this.masterFile = new File(directory, masterName);
 			this.tempFile = new File(directory, tempName);
 			this.oldFile = new File(directory, oldName);
@@ -70,8 +70,8 @@ public class ConfigFileRotation {
 	}
 
 	public void abort() {
+		lock.lock();
 		try {
-			lock.lock();
 			freeTempPrintWriter();
 		} finally {
 			lock.unlock();
@@ -79,8 +79,8 @@ public class ConfigFileRotation {
 	}
 
 	public void rotate() throws IOException {
+		lock.lock();
 		try {
-			lock.lock();
 			freeTempPrintWriter();
 			if (oldFile.exists())
 				oldFile.delete();
@@ -94,9 +94,22 @@ public class ConfigFileRotation {
 		}
 	}
 
-	public PrintWriter getTempPrintWriter() throws IOException {
+	public void delete() throws IOException {
+		lock.lock();
 		try {
-			lock.lock();
+			freeTempPrintWriter();
+			if (oldFile.exists())
+				oldFile.delete();
+			if (masterFile.exists())
+				FileUtils.moveFile(masterFile, oldFile);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public PrintWriter getTempPrintWriter() throws IOException {
+		lock.lock();
+		try {
 			if (tempPrintWriter != null)
 				return tempPrintWriter;
 			if (!tempFile.exists())
