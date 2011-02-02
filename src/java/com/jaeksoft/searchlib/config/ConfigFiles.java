@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,8 +36,8 @@ public class ConfigFiles {
 	private final Lock lock = new ReentrantLock(true);
 
 	public ConfigFiles() {
+		lock.lock();
 		try {
-			lock.lock();
 			configFiles = new TreeMap<String, ConfigFileRotation>();
 		} finally {
 			lock.unlock();
@@ -49,8 +49,8 @@ public class ConfigFiles {
 	}
 
 	public ConfigFileRotation get(File directory, String masterName) {
+		lock.lock();
 		try {
-			lock.lock();
 			String key = getKey(directory, masterName);
 			ConfigFileRotation cfr = configFiles.get(key);
 			if (cfr != null)

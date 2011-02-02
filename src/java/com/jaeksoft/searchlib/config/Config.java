@@ -156,7 +156,7 @@ public abstract class Config {
 
 	protected final ReadWriteLock rwl = new ReadWriteLock();
 
-	private final Lock longTermLock = new ReentrantLock();
+	protected final Lock longTermLock = new ReentrantLock();
 
 	private Mailer mailer = null;
 
@@ -166,7 +166,7 @@ public abstract class Config {
 
 	private JobList jobList = null;
 
-	private ConfigFiles configFiles = null;
+	protected ConfigFiles configFiles = null;
 
 	private String urlManagerClass = null;
 
