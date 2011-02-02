@@ -24,9 +24,11 @@
 
 package com.jaeksoft.searchlib.index;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Schema;
 
 public interface BeforeUpdateInterface {
 
-	public void update(Schema schema, IndexDocument document);
+	public void update(Schema schema, IndexDocument document)
+			throws SearchLibException;
 }
