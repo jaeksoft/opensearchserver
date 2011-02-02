@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,31 +24,9 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.util.Collection;
-
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 
-public interface WriterInterface {
+public interface BeforeUpdateInterface {
 
-	public boolean deleteDocument(Schema schema, String uniqueField)
-			throws SearchLibException;
-
-	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws SearchLibException;
-
-	public int deleteDocuments(SearchRequest query) throws SearchLibException;
-
-	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate)
-			throws SearchLibException;
-
-	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws SearchLibException;
-
-	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents) throws SearchLibException;
-
-	public void optimize() throws SearchLibException;
-
+	public void update(Schema schema, IndexDocument document);
 }

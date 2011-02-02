@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -188,6 +188,11 @@ public class WriterLocal extends WriterAbstract {
 			NoSuchAlgorithmException, SearchLibException {
 		if (!acceptDocument(document))
 			return false;
+
+		if (beforeUpdateList != null)
+			for (BeforeUpdateInterface beforeUpdate : beforeUpdateList)
+				beforeUpdate.update(schema, document);
+
 		Document doc = getLuceneDocument(schema, document);
 		PerFieldAnalyzerWrapper pfa = schema.getIndexPerFieldAnalyzer(document
 				.getLang());

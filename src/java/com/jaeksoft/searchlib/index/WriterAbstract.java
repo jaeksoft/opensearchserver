@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.index;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.jaeksoft.searchlib.util.Md5Spliter;
 
@@ -32,6 +34,7 @@ public abstract class WriterAbstract implements WriterInterface {
 
 	private Md5Spliter md5spliter = null;
 	private String keyField = null;
+	protected List<BeforeUpdateInterface> beforeUpdateList = null;
 
 	protected WriterAbstract(IndexConfig indexConfig) {
 		this.md5spliter = null;
@@ -52,4 +55,12 @@ public abstract class WriterAbstract implements WriterInterface {
 		return md5spliter.acceptAnyKey(fieldContent.getValues());
 	}
 
+	@Override
+	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate) {
+		if (beforeUpdate == null)
+			return;
+		if (beforeUpdateList == null)
+			beforeUpdateList = new ArrayList<BeforeUpdateInterface>();
+		beforeUpdateList.add(beforeUpdate);
+	}
 }

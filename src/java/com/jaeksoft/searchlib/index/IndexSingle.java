@@ -161,6 +161,22 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
+	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate)
+			throws SearchLibException {
+		if (!online)
+			throw new SearchLibException("Index is offline");
+		if (readonly)
+			throw new SearchLibException("Index is read only");
+		rwl.r.lock();
+		try {
+			if (writer != null)
+				writer.addBeforeUpdate(beforeUpdate);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws SearchLibException {
 		if (!online)

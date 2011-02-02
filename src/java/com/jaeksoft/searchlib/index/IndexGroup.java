@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -111,6 +111,14 @@ public class IndexGroup extends IndexAbstract {
 		for (IndexAbstract index : indices.values())
 			stats.add(index.getStatistics());
 		return stats;
+	}
+
+	@Override
+	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate)
+			throws SearchLibException {
+		for (IndexAbstract index : getIndices())
+			index.addBeforeUpdate(beforeUpdate);
+
 	}
 
 	@Override
