@@ -154,7 +154,7 @@ public abstract class Config {
 
 	private File indexDir;
 
-	private final ReadWriteLock rwl = new ReadWriteLock();
+	protected final ReadWriteLock rwl = new ReadWriteLock();
 
 	private final Lock longTermLock = new ReentrantLock();
 
