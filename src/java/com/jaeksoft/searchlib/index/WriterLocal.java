@@ -234,6 +234,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} finally {
+			close();
 			l.unlock();
 		}
 	}
@@ -267,6 +268,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} finally {
+			close();
 			l.unlock();
 		}
 
@@ -317,6 +319,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
+			close();
 			l.unlock();
 		}
 	}
@@ -345,6 +348,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
+			close();
 			l.unlock();
 		}
 	}
@@ -378,6 +382,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
+			close();
 			l.unlock();
 		}
 	}
@@ -408,6 +413,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
 		} finally {
+			close();
 			l.unlock();
 		}
 	}
