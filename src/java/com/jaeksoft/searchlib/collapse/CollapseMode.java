@@ -45,13 +45,15 @@ public enum CollapseMode {
 		for (CollapseMode mode : values())
 			if (mode.code == code)
 				return mode;
-		return null;
+		return COLLAPSE_OFF;
 	}
 
 	public static CollapseMode valueOfLabel(String label) {
+		if (label == null)
+			return COLLAPSE_OFF;
 		for (CollapseMode mode : values())
 			if (label.equals(mode.label))
 				return mode;
-		return null;
+		return COLLAPSE_OFF;
 	}
 }

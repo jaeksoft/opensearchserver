@@ -71,7 +71,7 @@ public class RenderXml implements Render {
 	}
 
 	private void renderPrefix() throws ParseException, SyntaxError,
-			SearchLibException {
+			SearchLibException, IOException {
 		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		writer.println("<response>");
 		writer.println("<header>");

@@ -33,7 +33,9 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similar.MoreLikeThis;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -144,6 +146,12 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	@Override
 	public Query rewrite(Query query) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MoreLikeThis getMoreLikeThis() throws SearchLibException {
 		// TODO Auto-generated method stub
 		return null;
 	}

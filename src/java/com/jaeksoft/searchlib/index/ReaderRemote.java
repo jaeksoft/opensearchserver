@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -179,6 +180,11 @@ public class ReaderRemote extends ReaderAbstract implements ReaderInterface {
 
 	@Override
 	public Query rewrite(Query query) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public MoreLikeThis getMoreLikeThis() throws SearchLibException {
 		throw new RuntimeException("Not yet implemented");
 	}
 

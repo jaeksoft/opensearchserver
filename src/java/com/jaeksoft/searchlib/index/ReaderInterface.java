@@ -32,6 +32,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similar.MoreLikeThis;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
@@ -58,6 +59,8 @@ public interface ReaderInterface {
 			throws SearchLibException;
 
 	public abstract Query rewrite(Query query) throws SearchLibException;
+
+	public abstract MoreLikeThis getMoreLikeThis() throws SearchLibException;
 
 	public Result search(SearchRequest searchRequest) throws SearchLibException;
 

@@ -34,6 +34,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similar.MoreLikeThis;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -488,6 +489,20 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (reader != null)
 				return reader.rewrite(query);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public MoreLikeThis getMoreLikeThis() throws SearchLibException {
+		if (!online)
+			throw new SearchLibException("Index is offline");
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				return reader.getMoreLikeThis();
 			return null;
 		} finally {
 			rwl.r.unlock();

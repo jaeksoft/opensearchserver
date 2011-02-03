@@ -52,6 +52,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
@@ -256,6 +257,16 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.r.lock();
 		try {
 			return indexReader.getFieldNames(FieldOption.ALL);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public MoreLikeThis getMoreLikeThis() {
+		rwl.r.lock();
+		try {
+			return new MoreLikeThis(indexReader);
 		} finally {
 			rwl.r.unlock();
 		}

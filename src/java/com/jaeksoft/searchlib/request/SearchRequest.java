@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.util.Version;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -52,6 +53,8 @@ import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.RootExpression;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.IndexAbstract;
+import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -94,6 +97,14 @@ public class SearchRequest implements Externalizable {
 	private String collapseField;
 	private int collapseMax;
 	private CollapseMode collapseMode;
+	private boolean isMoreLikeThis;
+	private String moreLikeThisDocQuery;
+	private FieldList<Field> moreLikeThisFieldList;
+	private int moreLikeThisMinWordLen;
+	private int moreLikeThisMaxWordLen;
+	private int moreLikeThisMinDocFreq;
+	private int moreLikeThisMinTermFreq;
+	private String moreLikeThisStopWords;
 	private int start;
 	private int rows;
 	private LanguageEnum lang;
@@ -128,9 +139,19 @@ public class SearchRequest implements Externalizable {
 		this.documentFieldList = null;
 		this.facetFieldList = new FieldList<FacetField>();
 		this.spellCheckFieldList = new FieldList<SpellCheckField>();
+
 		this.collapseField = null;
 		this.collapseMax = 2;
 		this.collapseMode = CollapseMode.COLLAPSE_OFF;
+
+		this.isMoreLikeThis = false;
+		this.moreLikeThisFieldList = new FieldList<Field>();
+		this.moreLikeThisMinWordLen = 0;
+		this.moreLikeThisMaxWordLen = 0;
+		this.moreLikeThisMinDocFreq = 0;
+		this.moreLikeThisMinTermFreq = 0;
+		this.moreLikeThisStopWords = null;
+
 		this.start = 0;
 		this.rows = 10;
 		this.lang = null;
@@ -170,9 +191,20 @@ public class SearchRequest implements Externalizable {
 					searchRequest.facetFieldList);
 			this.spellCheckFieldList = new FieldList<SpellCheckField>(
 					searchRequest.spellCheckFieldList);
+
 			this.collapseField = searchRequest.collapseField;
 			this.collapseMax = searchRequest.collapseMax;
 			this.collapseMode = searchRequest.collapseMode;
+
+			this.isMoreLikeThis = searchRequest.isMoreLikeThis;
+			this.moreLikeThisFieldList = new FieldList<Field>(
+					searchRequest.moreLikeThisFieldList);
+			this.moreLikeThisMinWordLen = searchRequest.moreLikeThisMinWordLen;
+			this.moreLikeThisMaxWordLen = searchRequest.moreLikeThisMaxWordLen;
+			this.moreLikeThisMinDocFreq = searchRequest.moreLikeThisMinDocFreq;
+			this.moreLikeThisMinTermFreq = searchRequest.moreLikeThisMinTermFreq;
+			this.moreLikeThisStopWords = searchRequest.moreLikeThisStopWords;
+
 			this.withDocuments = searchRequest.withDocuments;
 			this.withSortValues = searchRequest.withSortValues;
 			this.start = searchRequest.start;
@@ -207,7 +239,7 @@ public class SearchRequest implements Externalizable {
 			QueryParser.Operator defaultOperator, int start, int rows,
 			String codeLang, String patternQuery, String queryString,
 			String scoreFunction, boolean delete, boolean withDocuments,
-			boolean withSortValues, boolean noCache, boolean debug) {
+			boolean withSortValues, boolean debug) {
 		this(config);
 		this.requestName = requestName;
 		this.allowLeadingWildcard = allowLeadingWildcard;
@@ -317,8 +349,29 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
+	private Query getMoreLikeThisQuery() throws SearchLibException, IOException {
+		Config config = getConfig();
+		IndexAbstract index = config.getIndex();
+		SearchRequest searchRequest = config.getNewSearchRequest();
+		searchRequest.setRows(1);
+		searchRequest.setQueryString(moreLikeThisDocQuery);
+		Result result = index.search(searchRequest);
+		if (result.getNumFound() == 0)
+			return null;
+		int docId = result.getDocs()[0].doc;
+		MoreLikeThis mlt = index.getMoreLikeThis();
+		mlt.setMinWordLen(moreLikeThisMinWordLen);
+		mlt.setMaxWordLen(moreLikeThisMaxWordLen);
+		mlt.setMinDocFreq(moreLikeThisMinDocFreq);
+		mlt.setMinTermFreq(moreLikeThisMinTermFreq);
+		if (moreLikeThisStopWords != null)
+			mlt.setStopWords(getConfig().getStopWordsManager().getWords(
+					moreLikeThisStopWords));
+		return mlt.like(docId);
+	}
+
 	public Query getQuery() throws ParseException, SyntaxError,
-			SearchLibException {
+			SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			if (complexQuery != null)
@@ -330,11 +383,15 @@ public class SearchRequest implements Externalizable {
 		try {
 			if (complexQuery != null)
 				return complexQuery;
-			queryParser = getQueryParser();
-			String fq = getFinalQuery();
-			if (fq == null)
-				return null;
-			complexQuery = queryParser.parse(fq);
+			if (isMoreLikeThis) {
+				complexQuery = getMoreLikeThisQuery();
+			} else {
+				queryParser = getQueryParser();
+				String fq = getFinalQuery();
+				if (fq == null)
+					return null;
+				complexQuery = queryParser.parse(fq);
+			}
 			queryParsed = complexQuery.toString();
 			if (scoreFunction != null)
 				complexQuery = RootExpression.getQuery(complexQuery,
@@ -390,7 +447,7 @@ public class SearchRequest implements Externalizable {
 	}
 
 	public String getQueryParsed() throws ParseException, SyntaxError,
-			SearchLibException {
+			SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			getQuery();
@@ -750,6 +807,193 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
+	/**
+	 * @return the moreLikeThisDocQuery
+	 */
+	public String getMoreLikeThisDocQuery() {
+		rwl.r.lock();
+		try {
+			return moreLikeThisDocQuery;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the isMoreLikeThis
+	 */
+	public boolean isMoreLikeThis() {
+		rwl.r.lock();
+		try {
+			return isMoreLikeThis;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param isMoreLikeThis
+	 *            the isMoreLikeThis to set
+	 */
+	public void setMoreLikeThis(boolean isMoreLikeThis) {
+		rwl.w.lock();
+		try {
+			this.isMoreLikeThis = isMoreLikeThis;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @param moreLikeThisDocQuery
+	 *            the moreLikeThisDocQuery to set
+	 */
+	public void setMoreLikeThisDocQuery(String moreLikeThisDocQuery) {
+		rwl.w.lock();
+		try {
+			this.moreLikeThisDocQuery = moreLikeThisDocQuery;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the moreLikeThisFieldList
+	 */
+	public FieldList<Field> getMoreLikeThisFieldList() {
+		rwl.r.lock();
+		try {
+			return moreLikeThisFieldList;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the moreLikeThisMinWordLen
+	 */
+	public int getMoreLikeThisMinWordLen() {
+		rwl.r.lock();
+		try {
+			return moreLikeThisMinWordLen;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param moreLikeThisMinWordLen
+	 *            the moreLikeThisMinWordLen to set
+	 */
+	public void setMoreLikeThisMinWordLen(int moreLikeThisMinWordLen) {
+		rwl.w.lock();
+		try {
+			this.moreLikeThisMinWordLen = moreLikeThisMinWordLen;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the moreLikeThisMaxWordLen
+	 */
+	public int getMoreLikeThisMaxWordLen() {
+		rwl.r.lock();
+		try {
+			return moreLikeThisMaxWordLen;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param moreLikeThisMaxWordLen
+	 *            the moreLikeThisMaxWordLen to set
+	 */
+	public void setMoreLikeThisMaxWordLen(int moreLikeThisMaxWordLen) {
+		rwl.w.lock();
+		try {
+			this.moreLikeThisMaxWordLen = moreLikeThisMaxWordLen;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the moreLikeThisMinDocFreq
+	 */
+	public int getMoreLikeThisMinDocFreq() {
+		rwl.r.lock();
+		try {
+			return moreLikeThisMinDocFreq;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param moreLikeThisMinDocFreq
+	 *            the moreLikeThisMinDocFreq to set
+	 */
+	public void setMoreLikeThisMinDocFreq(int moreLikeThisMinDocFreq) {
+		rwl.w.lock();
+		try {
+			this.moreLikeThisMinDocFreq = moreLikeThisMinDocFreq;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the moreLikeThisMinTermFreq
+	 */
+	public int getMoreLikeThisMinTermFreq() {
+		rwl.r.lock();
+		try {
+			return moreLikeThisMinTermFreq;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param moreLikeThisMinTermFreq
+	 *            the moreLikeThisMinTermFreq to set
+	 */
+	public void setMoreLikeThisMinTermFreq(int moreLikeThisMinTermFreq) {
+		rwl.w.lock();
+		try {
+			this.moreLikeThisMinTermFreq = moreLikeThisMinTermFreq;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the moreLikeThisStopWords
+	 */
+	public String getMoreLikeThisStopWords() {
+		rwl.r.lock();
+		try {
+			return moreLikeThisStopWords;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param moreLikeThisStopWords
+	 *            the moreLikeThisStopWords to set
+	 */
+	public void setMoreLikeThisStopWords(String moreLikeThisStopWords) {
+		rwl.w.lock();
+		try {
+			this.moreLikeThisStopWords = moreLikeThisStopWords;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	public final static String[] CONTROL_CHARS = { "\\", "^", "\"", "~", ":" };
 
 	public final static String[] RANGE_CHARS = { "(", ")", "{", "}", "[", "]" };
@@ -856,7 +1100,31 @@ public class SearchRequest implements Externalizable {
 				XPathParser.getAttributeValue(node, "rows"),
 				XPathParser.getAttributeString(node, "lang"),
 				xpp.getNodeString(node, "query"), null, xpp.getNodeString(node,
-						"scoreFunction"), false, true, false, false, false);
+						"scoreFunction"), false, true, false, false);
+
+		searchRequest.setCollapseMode(CollapseMode.valueOfLabel(XPathParser
+				.getAttributeString(node, "collapseMode")));
+		searchRequest.setCollapseField(XPathParser.getAttributeString(node,
+				"collapseField"));
+		searchRequest.setCollapseMax(XPathParser.getAttributeValue(node,
+				"collapseMax"));
+
+		Node mltNode = xpp.getNode(node, "moreLikeThis");
+		if (mltNode != null) {
+			searchRequest.setMoreLikeThis("yes".equalsIgnoreCase(XPathParser
+					.getAttributeString(mltNode, "active")));
+			searchRequest.setMoreLikeThisMinWordLen(XPathParser
+					.getAttributeValue(mltNode, "minWordLen"));
+			searchRequest.setMoreLikeThisMaxWordLen(XPathParser
+					.getAttributeValue(mltNode, "maxWordLen"));
+			searchRequest.setMoreLikeThisMinTermFreq(XPathParser
+					.getAttributeValue(mltNode, "minTermFreq"));
+			searchRequest.setMoreLikeThisMinDocFreq(XPathParser
+					.getAttributeValue(mltNode, "minDocFreq"));
+			searchRequest.setMoreLikeThisStopWords(XPathParser
+					.getAttributeString(mltNode, "stopWords"));
+			searchRequest.setMoreLikeThisDocQuery(xpp.getNodeString(mltNode));
+		}
 
 		FieldList<Field> returnFields = searchRequest.getReturnFieldList();
 		FieldList<SchemaField> fieldList = config.getSchema().getFieldList();
@@ -911,7 +1179,18 @@ public class SearchRequest implements Externalizable {
 				Integer.toString(phraseSlop), "defaultOperator",
 				getDefaultOperator(), "start", Integer.toString(start), "rows",
 				Integer.toString(rows), "lang", lang != null ? lang.getCode()
-						: null);
+						: null, "collapseMode", collapseMode.getLabel(),
+				"collapseField", collapseField, "collapseMax", Integer
+						.toString(collapseMax));
+
+		xmlWriter.startElement("moreLikeThis", "minWordLen",
+				Integer.toString(moreLikeThisMinWordLen), "maxWordLen",
+				Integer.toString(moreLikeThisMaxWordLen), "minDocFreq",
+				Integer.toString(moreLikeThisMinDocFreq), "minTermFreq",
+				Integer.toString(moreLikeThisMinTermFreq), "stopWords",
+				moreLikeThisStopWords, "active", isMoreLikeThis ? "yes" : "no");
+		xmlWriter.textNode(moreLikeThisDocQuery);
+		xmlWriter.endElement();
 
 		if (patternQuery != null && patternQuery.trim().length() > 0) {
 			xmlWriter.startElement("query");

@@ -40,6 +40,7 @@ import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similar.MoreLikeThis;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -317,6 +318,11 @@ public class IndexGroup extends IndexAbstract {
 
 	@Override
 	public Query rewrite(Query query) throws SearchLibException {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public MoreLikeThis getMoreLikeThis() {
 		throw new RuntimeException("Not yet implemented");
 	}
 
