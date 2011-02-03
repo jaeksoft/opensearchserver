@@ -49,11 +49,15 @@ public class IndexController extends CommonController {
 		release = null;
 	}
 
+	protected String getEdition() {
+		return "community edition";
+	}
+
 	public String getRelease() throws IOException {
 		synchronized (this) {
 			if (release != null)
 				return release;
-			release = "Open Search Server";
+			release = "OpenSearchServer (" + getEdition() + ")";
 			InputStream is = null;
 			try {
 				is = getDesktop().getWebApp().getResourceAsStream("/version");
