@@ -365,6 +365,8 @@ public class SearchRequest implements Externalizable {
 		mlt.setMaxWordLen(moreLikeThisMaxWordLen);
 		mlt.setMinDocFreq(moreLikeThisMinDocFreq);
 		mlt.setMinTermFreq(moreLikeThisMinTermFreq);
+		mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
+		mlt.setAnalyzer(config.getSchema().getQueryPerFieldAnalyzer(lang));
 		if (moreLikeThisStopWords != null)
 			mlt.setStopWords(getConfig().getStopWordsManager().getWords(
 					moreLikeThisStopWords));
