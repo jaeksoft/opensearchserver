@@ -1166,6 +1166,28 @@ public abstract class Config {
 			for (String value : values)
 				facetList.add(FacetField.buildFacetField(value, true, true));
 		}
+
+		if ((p = httpRequest.getParameter("mlt")) != null)
+			searchRequest.setMoreLikeThis("yes".equalsIgnoreCase(p));
+
+		if ((p = httpRequest.getParameter("mlt.docquery")) != null)
+			searchRequest.setMoreLikeThisDocQuery(p);
+
+		if ((p = httpRequest.getParameter("mlt.minwordlen")) != null)
+			searchRequest.setMoreLikeThisMinWordLen(Integer.parseInt(p));
+
+		if ((p = httpRequest.getParameter("mlt.maxwordlen")) != null)
+			searchRequest.setMoreLikeThisMaxWordLen(Integer.parseInt(p));
+
+		if ((p = httpRequest.getParameter("mlt.mindocfreq")) != null)
+			searchRequest.setMoreLikeThisMinDocFreq(Integer.parseInt(p));
+
+		if ((p = httpRequest.getParameter("mlt.mintermfreq")) != null)
+			searchRequest.setMoreLikeThisMinTermFreq(Integer.parseInt(p));
+
+		if ((p = httpRequest.getParameter("mlt.stopwords")) != null)
+			searchRequest.setMoreLikeThisStopWords(p);
+
 		return searchRequest;
 	}
 

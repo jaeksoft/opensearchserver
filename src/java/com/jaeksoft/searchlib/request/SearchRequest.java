@@ -28,6 +28,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.StringReader;
 import java.util.Iterator;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -353,14 +354,14 @@ public class SearchRequest implements Externalizable {
 	private Query getMoreLikeThisQuery() throws SearchLibException, IOException {
 		Config config = getConfig();
 		IndexAbstract index = config.getIndex();
+		MoreLikeThis mlt = index.getMoreLikeThis();
 		SearchRequest searchRequest = config.getNewSearchRequest();
 		searchRequest.setRows(1);
 		searchRequest.setQueryString(moreLikeThisDocQuery);
 		Result result = index.search(searchRequest);
 		if (result.getNumFound() == 0)
-			return null;
+			return mlt.like(new StringReader(""));
 		int docId = result.getDocs()[0].doc;
-		MoreLikeThis mlt = index.getMoreLikeThis();
 		mlt.setMinWordLen(moreLikeThisMinWordLen);
 		mlt.setMaxWordLen(moreLikeThisMaxWordLen);
 		mlt.setMinDocFreq(moreLikeThisMinDocFreq);
@@ -1126,6 +1127,7 @@ public class SearchRequest implements Externalizable {
 					.getAttributeValue(mltNode, "minDocFreq"));
 			searchRequest.setMoreLikeThisStopWords(XPathParser
 					.getAttributeString(mltNode, "stopWords"));
+
 			NodeList mltFieldsNodes = xpp.getNodeList(mltNode, "fields/field");
 			if (mltFieldsNodes != null) {
 				FieldList<Field> moreLikeThisFields = searchRequest
