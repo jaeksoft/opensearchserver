@@ -204,6 +204,7 @@ public class SearchRequest implements Externalizable {
 			this.moreLikeThisMinDocFreq = searchRequest.moreLikeThisMinDocFreq;
 			this.moreLikeThisMinTermFreq = searchRequest.moreLikeThisMinTermFreq;
 			this.moreLikeThisStopWords = searchRequest.moreLikeThisStopWords;
+			this.moreLikeThisDocQuery = searchRequest.moreLikeThisDocQuery;
 
 			this.withDocuments = searchRequest.withDocuments;
 			this.withSortValues = searchRequest.withSortValues;
@@ -1123,7 +1124,20 @@ public class SearchRequest implements Externalizable {
 					.getAttributeValue(mltNode, "minDocFreq"));
 			searchRequest.setMoreLikeThisStopWords(XPathParser
 					.getAttributeString(mltNode, "stopWords"));
-			searchRequest.setMoreLikeThisDocQuery(xpp.getNodeString(mltNode));
+			NodeList mltFieldsNodes = xpp.getNodeList(mltNode, "fields/field");
+			if (mltFieldsNodes != null) {
+				FieldList<Field> moreLikeThisFields = searchRequest
+						.getMoreLikeThisFieldList();
+				for (int i = 0; i < mltFieldsNodes.getLength(); i++) {
+					Field field = Field.fromXmlConfig(mltFieldsNodes.item(i));
+					if (field != null)
+						moreLikeThisFields.add(field);
+				}
+			}
+			Node mltDocQueryNode = xpp.getNode(mltNode, "docQuery");
+			if (mltDocQueryNode != null)
+				searchRequest.setMoreLikeThisDocQuery(xpp
+						.getNodeString(mltDocQueryNode));
 		}
 
 		FieldList<Field> returnFields = searchRequest.getReturnFieldList();
@@ -1189,7 +1203,16 @@ public class SearchRequest implements Externalizable {
 				Integer.toString(moreLikeThisMinDocFreq), "minTermFreq",
 				Integer.toString(moreLikeThisMinTermFreq), "stopWords",
 				moreLikeThisStopWords, "active", isMoreLikeThis ? "yes" : "no");
-		xmlWriter.textNode(moreLikeThisDocQuery);
+		if (moreLikeThisFieldList.size() > 0) {
+			xmlWriter.startElement("fields");
+			moreLikeThisFieldList.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
+		if (moreLikeThisDocQuery != null && moreLikeThisDocQuery.length() > 0) {
+			xmlWriter.startElement("docQuery");
+			xmlWriter.textNode(moreLikeThisDocQuery);
+			xmlWriter.endElement();
+		}
 		xmlWriter.endElement();
 
 		if (patternQuery != null && patternQuery.trim().length() > 0) {

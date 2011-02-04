@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.zk.ui.Component;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Field;
@@ -42,6 +44,8 @@ public class MoreLikeThisController extends AbstractQueryController {
 
 	private List<String> fieldsLeft;
 
+	private List<String> stopWordsList;
+
 	private String selectedField;
 
 	public MoreLikeThisController() throws SearchLibException {
@@ -51,9 +55,11 @@ public class MoreLikeThisController extends AbstractQueryController {
 	@Override
 	protected void reset() throws SearchLibException {
 		fieldsLeft = null;
+		stopWordsList = null;
+		selectedField = null;
 	}
 
-	public List<String> getFields() throws SearchLibException {
+	public List<String> getFieldsLeft() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
@@ -72,16 +78,53 @@ public class MoreLikeThisController extends AbstractQueryController {
 		}
 	}
 
-	@Override
-	public void reloadPage() {
+	/**
+	 * @return the selectedField
+	 */
+	public String getSelectedField() {
+		return selectedField;
+	}
+
+	/**
+	 * @param selectedField
+	 *            the selectedField to set
+	 */
+	public void setSelectedField(String selectedField) {
+		this.selectedField = selectedField;
+	}
+
+	public void onAddField() throws SearchLibException {
+		getRequest().getMoreLikeThisFieldList().add(new Field(selectedField));
+		reloadPage();
+	}
+
+	public void onRemoveField(Component component) throws SearchLibException {
+		Field field = (Field) component.getParent().getAttribute("mltField");
+		getRequest().getMoreLikeThisFieldList().remove(field);
+		reloadPage();
+	}
+
+	public List<String> getStopWordsList() throws SearchLibException {
 		synchronized (this) {
-			fieldsLeft = null;
-			super.reloadPage();
+			Client client = getClient();
+			if (client == null)
+				return null;
+			if (stopWordsList != null)
+				return stopWordsList;
+			stopWordsList = new ArrayList<String>();
+			stopWordsList.add("");
+			String[] list = client.getStopWordsManager().getList();
+			if (list != null)
+				for (String s : list)
+					stopWordsList.add(s);
+			return stopWordsList;
 		}
 	}
 
 	@Override
 	protected void eventSchemaChange() throws SearchLibException {
+		reset();
 		reloadPage();
 	}
+
 }
