@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -308,6 +308,15 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
+	private SearchRequest getSearchRequest(FileManager fileManager)
+			throws SearchLibException {
+		return fileManager.fileQuery(getRepository(), getLike(), getLang(),
+				null, getMinContentLength(), getMaxContentLength(),
+				getFetchStatus(), getParserStatus(), getIndexStatus(),
+				getDateStart(), getDateEnd(), getDateModifiedStart(),
+				getDateModifiedEnd(), getFileType(), null);
+	}
+
 	public List<FileItem> getFileList() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
@@ -318,12 +327,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 			fileList = new ArrayList<FileItem>();
 			FileManager fileManager = client.getFileManager();
-			SearchRequest searchRequest = fileManager.fileQuery(
-					getRepository(), getLike(), getLang(), null,
-					getMinContentLength(), getMaxContentLength(),
-					getFetchStatus(), getParserStatus(), getIndexStatus(),
-					getDateStart(), getDateEnd(), getDateModifiedStart(),
-					getDateModifiedEnd(), getFileType(), null);
+			SearchRequest searchRequest = getSearchRequest(fileManager);
 
 			totalSize = (int) fileManager.getFiles(searchRequest, Field.URI,
 					true, getPageSize() * getActivePage(), getPageSize(),

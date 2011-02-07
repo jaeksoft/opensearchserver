@@ -328,6 +328,32 @@ public class FileManager {
 		}
 	}
 
+	public final void deleteByRepository(String repository)
+			throws SearchLibException {
+		try {
+			deleteByRepositoryFromTargetIndex(repository);
+			deleteByRepositoryFromFileDBIndex(repository);
+		} catch (SearchLibException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
 	public final boolean deleteByUri(List<String> rowToDelete)
 			throws SearchLibException {
 		try {
@@ -378,7 +404,7 @@ public class FileManager {
 				Field.SUBDIRECTORY.setQueryString(searchRequest, path, true);
 				fileDbClient.deleteDocuments(searchRequest);
 
-				if (!mappedPath.isEmpty()) {
+				if (mappedPath != null && !mappedPath.isEmpty()) {
 					SearchRequest deleteRequestTarget = targetClient
 							.getNewSearchRequest();
 					deleteRequestTarget.setQueryString(Field.buildQuery(
@@ -460,7 +486,7 @@ public class FileManager {
 		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
 				.getLinks(FileItemFieldEnum.directory.name());
 
-		if (mappedPath.isEmpty())
+		if (mappedPath == null || mappedPath.isEmpty())
 			return false;
 
 		SearchRequest deleteRequestTarget = targetClient.getNewSearchRequest();
@@ -468,6 +494,52 @@ public class FileManager {
 				.getName(), rowToDelete, true));
 
 		targetClient.deleteDocuments(deleteRequestTarget);
+		return true;
+	}
+
+	/**
+	 * delete file item from this repository
+	 * 
+	 * @param repository
+	 * @throws SearchLibException
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws SyntaxError
+	 * @throws URISyntaxException
+	 * @throws ClassNotFoundException
+	 * @throws InterruptedException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	private final void deleteByRepositoryFromFileDBIndex(String repository)
+			throws SearchLibException, IOException, ParseException,
+			SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, InstantiationException,
+			IllegalAccessException {
+
+		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
+		deleteRequest.setQueryString(Field.buildQuery(
+				Field.REPOSITORY.toString(), repository, true));
+		fileDbClient.deleteDocuments(deleteRequest);
+	}
+
+	private final boolean deleteByRepositoryFromTargetIndex(String repository)
+			throws SearchLibException, IOException, ParseException,
+			SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, InstantiationException,
+			IllegalAccessException {
+
+		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
+				.getLinks(FileItemFieldEnum.repository.toString());
+
+		if (mappedPath == null || mappedPath.isEmpty())
+			return false;
+
+		SearchRequest deleteRequest = targetClient.getNewSearchRequest();
+		deleteRequest.setQueryString(mappedPath.get(0).getName() + ":\""
+				+ repository + "\"");
+
+		targetClient.deleteDocuments(deleteRequest);
 		return true;
 	}
 

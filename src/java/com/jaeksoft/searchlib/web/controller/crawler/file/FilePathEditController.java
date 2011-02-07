@@ -78,6 +78,8 @@ public class FilePathEditController extends CommonController {
 		@Override
 		protected void onYes() throws SearchLibException {
 			Client client = getClient();
+			client.getFileManager().deleteByRepository(
+					deleteFilePath.toString());
 			client.getFilePathManager().remove(deleteFilePath);
 			onCancel();
 		}

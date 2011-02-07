@@ -2,7 +2,7 @@
 
 rem  License Agreement for Jaeksoft Open Search Server
 rem	 
-rem	 Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+rem	 Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
 rem	 
 rem	 http://www.open-search-server.com
 rem	 
@@ -24,7 +24,7 @@ rem	 If not, see <http://www.gnu.org/licenses/>.
 
 if "%OS%" == "Windows_NT" setlocal
 
-set EXECUTABLE=%cd%\apache-tomcat-6.0.29\bin\shutdown.bat
+set EXECUTABLE=%cd%\apache-tomcat-6.0.32\bin\shutdown.bat
 
 if exist "%EXECUTABLE%" goto okExec
 echo Cannot find %EXECUTABLE%
@@ -33,7 +33,7 @@ goto end
 
 :okExec
 
-cd %cd%\apache-tomcat-6.0.29
+cd %cd%\apache-tomcat-6.0.32
 call "%EXECUTABLE%"
 
 :end
