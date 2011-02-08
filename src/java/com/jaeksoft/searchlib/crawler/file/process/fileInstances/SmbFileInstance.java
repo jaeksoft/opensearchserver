@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,6 +48,11 @@ import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class SmbFileInstance extends FileInstanceAbstract {
+
+	static {
+		System.setProperty("java.protocol.handler.pkgs", "jcifs");
+		System.setProperty("jicfs.resolveOrder", "LMHOSTS,DNS,WINS");
+	}
 
 	private SmbFile smbFileStore;
 

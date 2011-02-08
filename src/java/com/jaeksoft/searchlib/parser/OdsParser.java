@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.parser;
 import java.io.IOException;
 
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
-import org.odftoolkit.odfdom.doc.office.OdfOfficeSpreadsheet;
+import org.odftoolkit.odfdom.dom.element.office.OfficeSpreadsheetElement;
 import org.w3c.dom.Document;
 
 import com.jaeksoft.searchlib.Logging;
@@ -54,7 +54,7 @@ public class OdsParser extends OOParser {
 					.loadDocument(inputStream);
 
 			// get root of all content of a text document
-			OdfOfficeSpreadsheet officeText = odf.getContentRoot();
+			OfficeSpreadsheetElement officeText = odf.getContentRoot();
 
 			scanNodes(officeText.getChildNodes(), ParserFieldEnum.content);
 

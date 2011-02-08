@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,8 +23,6 @@
  **/
 
 package com.jaeksoft.searchlib.web;
-
-import java.util.Properties;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -58,10 +56,6 @@ public class StartStopListener implements ServletContextListener {
 		Logging.logger.info("OSS IS STARTING");
 		ClientFactory.setInstance(getClientFactory());
 		try {
-			Properties prop = System.getProperties();
-			prop.setProperty("java.protocol.handler.pkgs", "jcifs");
-			jcifs.Config.setProperty("jicfs.resolveOrder", "LMHOSTS,WINS,DNS");
-			jcifs.Config.setProperty("resolveOrder", "LMHOSTS,WINS,DNS");
 			TaskManager.start();
 		} catch (SearchLibException e) {
 			Logging.logger.error(e);
