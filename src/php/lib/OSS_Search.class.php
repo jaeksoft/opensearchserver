@@ -2,7 +2,7 @@
 /*
  *  This file is part of Jaeksoft OpenSearchServer.
  *
- *  Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ *  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  *
  *  http://www.open-search-server.com
  *
@@ -44,7 +44,8 @@ class OSS_Search {
 	protected $collapse;
 	protected $facet;
 	protected $sortBy;
-	
+	protected $moreLikeThis;
+
 	protected $login;
 	protected $apiKey;
 
@@ -61,18 +62,20 @@ class OSS_Search {
 
 		$this->enginePath	= $ossAPI->getEnginePath();
 		$this->index		= $ossAPI->getIndex();
-		
+
 		$this->credential($login, $apiKey);
-		
+
 		$this->rows($rows);
 		$this->start($start);
-		
+
 		$this->field	= array();
 		$this->filter	= array();
 		$this->sort		= array();
 		$this->facets	= array();
 		$this->collapse	= array('field' => null, 'max' => null, 'mode' => null);
-		
+		$this->moreLikeThis = array('active' => null, 'docquery' => null, 'minwordlen' => null,
+			'maxwordlen' => null, 'mindocfreq' => null, 'mintermfreq' => null, 'stopwords' => null);
+
 	}
 
 	/**
@@ -126,7 +129,7 @@ class OSS_Search {
 		$this->filter[] = $filter;
 		return $this;
 	}
-	
+
 	/**
 	 * @param $login string
 	 * @param $apiKey string
@@ -139,15 +142,15 @@ class OSS_Search {
 			$this->apiKey	= null;
 			return;
 		}
-		
+
 		// Else parse and affect new credentials
 		if (empty($login) || empty($apiKey)) {
 			if (class_exists('OSSException'))
-				throw new UnexpectedValueException('You must provide a login and an api key to use credential.');
+			throw new UnexpectedValueException('You must provide a login and an api key to use credential.');
 			trigger_error(__CLASS__.'::'.__METHOD__.': You must provide a login and an api key to use credential.', E_USER_ERROR);
 			return false;
 		}
-		
+
 		$this->login	= $login;
 		$this->apiKey	= $apiKey;
 	}
@@ -181,7 +184,7 @@ class OSS_Search {
 	 */
 	public function sort($fields) {
 		foreach ((array)$fields as $field)
-			$this->sort[] = $field;
+		$this->sort[] = $field;
 		return $this;
 	}
 
@@ -217,6 +220,34 @@ class OSS_Search {
 		return $this;
 	}
 
+	public function moreLikeThisActive($active) {
+		$this->moreLikeThis['active'] = $active;
+	}
+
+	public function moreLikeThisDocQuery($docQuery) {
+		$this->moreLikeThis['docquery'] = $active;
+	}
+
+	public function moreLikeThisMinWordLen($minwordlen) {
+		$this->moreLikeThis['minwordlen'] = $minwordlen;
+	}
+
+	public function moreLikeThisMaxWordLen($maxwordlen) {
+		$this->moreLikeThis['maxwordlen'] = $maxwordlen;
+	}
+
+	public function moreLikeThisMinDocFreq($mindocfreq) {
+		$this->moreLikeThis['mindocfreq'] = $mindocfreq;
+	}
+
+	public function moreLikeThisMinTermFreq($mintermfreq) {
+		$this->moreLikeThis['mintermfreq'] = $mintermfreq;
+	}
+
+	public function moreLikeThisMinStopWords($stopwords) {
+		$this->moreLikeThis['stopwords'] = $stopwords;
+	}
+
 	/**
 	 * @return SimpleXMLElement False if the query produced an error
 	 * FIXME Must think about OSS_API inteegration inside OSS_Search
@@ -240,13 +271,13 @@ class OSS_Search {
 	protected function prepareQueryString() {
 
 		$queryChunks = array();
-		
+
 		// If credential provided, include them in the query url
 		if (!empty($this->login)) {
 			$queryChunks[] = "login=" . $this->login;
 			$queryChunks[] = "key="   . $this->apiKey;
 		}
-		
+
 		$queryChunks[] = 'q='.urlencode((empty($this->query) ? "*:*" : $this->query));
 
 		if (!empty($this->index))	 $queryChunks[] = 'use='  . $this->index;
@@ -281,18 +312,27 @@ class OSS_Search {
 			$facet  = $options['multi'] ? 'facet.multi=' : 'facet=';
 			$facet .= $field;
 			if ($options['min'] !== null)
-				$facet .= '('.$options['min'].')';
+			$facet .= '('.$options['min'].')';
 			$queryChunks[] = $facet;
 		}
 
 		// Collapsing
 		if ($this->collapse['field'])
-			$queryChunks[] = 'collapse.field='.$this->collapse['field'];
+		$queryChunks[] = 'collapse.field='.$this->collapse['field'];
 		if ($this->collapse['mode'] !== null)
-			$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
+		$queryChunks[] = 'collapse.mode='.$this->collapse['mode'];
 		if ($this->collapse['max'] !== null)
-			$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
-		
+		$queryChunks[] = 'collapse.max='.(int)$this->collapse['max'];
+
+		// MoreLikeThis
+		if ($this->moreLikeThis['active']) $queryChunks[] = 'mlt=yes';
+		if ($this->moreLikeThis['docquery']) $queryChunks[] = 'mlt.docquery='.urlencode($this->moreLikeThis['docquery']);
+		if ($this->moreLikeThis['minwordlen']) $queryChunks[] = 'mlt.minwordlen='.(int)$this->moreLikeThis['minwordlen'];
+		if ($this->moreLikeThis['maxwordlen']) $queryChunks[] = 'mlt.maxwordlen='.(int)$this->moreLikeThis['maxwordlen'];
+		if ($this->moreLikeThis['mindocfreq']) $queryChunks[] = 'mlt.mindocfreq='.(int)$this->moreLikeThis['mindocfreq'];
+		if ($this->moreLikeThis['mintermfreq']) $queryChunks[] = 'mlt.mintermfreq='.(int)$this->moreLikeThis['mintermfreq'];
+		if ($this->moreLikeThis['stopwords']) $queryChunks[] = 'mlt.stopwords='.urlencode($this->moreLikeThis['stopwords']);
+
 		return $this->enginePath.'/'.OSS_API::API_SELECT.'?'.implode('&', $queryChunks);
 
 	}
