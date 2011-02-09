@@ -218,6 +218,9 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		if (name == null)
 			return null;
 		JobItem jobItem = new JobItem(name);
+		Node cronNode = xpp.getNode(node, "cron");
+		if (cronNode != null)
+			jobItem.getCron().fromXml(cronNode);
 		jobItem.setActive(active);
 		NodeList tasks = xpp.getNodeList(node, "task");
 		for (int i = 0; i < tasks.getLength(); i++) {

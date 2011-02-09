@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -117,13 +117,23 @@ public class ReplicationThread extends ThreadAbstract implements
 		}
 	}
 
+	private final static String[] NOT_PUSHED = { "replication.xml",
+			"replication_old.xml", "jobss.xml", "jobs_old.xml" };
+
 	@Override
 	public void file(File file) throws SearchLibException {
 		try {
 			if (file.isFile()) {
-				if (!file.getName().equals("replication.xml"))
-					if (!file.getName().equals("replication_old.xml"))
-						PushServlet.call_file(client, replicationItem, file);
+				String filename = file.getName();
+				boolean pushed = true;
+				for (String notPushed : NOT_PUSHED) {
+					if (filename.equals(notPushed)) {
+						pushed = false;
+						break;
+					}
+				}
+				if (pushed)
+					PushServlet.call_file(client, replicationItem, file);
 			} else {
 				PushServlet.call_directory(client, replicationItem, file);
 			}

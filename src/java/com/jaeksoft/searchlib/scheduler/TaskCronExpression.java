@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -180,21 +180,17 @@ public class TaskCronExpression {
 	private final static String XML_NODE_DAYOFWEEK = "dayOfWeek";
 	private final static String XML_NODE_YEAR = "year";
 
-	public TaskCronExpression fromXml(Node node) {
-		TaskCronExpression cron = new TaskCronExpression();
+	public void fromXml(Node node) {
 		NamedNodeMap attributes = node.getAttributes();
 		if (attributes == null)
-			return cron;
-		cron.setSeconds(XPathParser.getAttributeString(node, XML_NODE_SECONDS));
-		cron.setMinutes(XPathParser.getAttributeString(node, XML_NODE_MINUTES));
-		cron.setHours(XPathParser.getAttributeString(node, XML_NODE_HOURS));
-		cron.setSeconds(XPathParser.getAttributeString(node,
-				XML_NODE_DAYOFMONTH));
-		cron.setSeconds(XPathParser.getAttributeString(node, XML_NODE_MONTH));
-		cron.setSeconds(XPathParser
-				.getAttributeString(node, XML_NODE_DAYOFWEEK));
-		cron.setSeconds(XPathParser.getAttributeString(node, XML_NODE_YEAR));
-		return cron;
+			return;
+		setSeconds(XPathParser.getAttributeString(node, XML_NODE_SECONDS));
+		setMinutes(XPathParser.getAttributeString(node, XML_NODE_MINUTES));
+		setHours(XPathParser.getAttributeString(node, XML_NODE_HOURS));
+		setSeconds(XPathParser.getAttributeString(node, XML_NODE_DAYOFMONTH));
+		setSeconds(XPathParser.getAttributeString(node, XML_NODE_MONTH));
+		setSeconds(XPathParser.getAttributeString(node, XML_NODE_DAYOFWEEK));
+		setSeconds(XPathParser.getAttributeString(node, XML_NODE_YEAR));
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
