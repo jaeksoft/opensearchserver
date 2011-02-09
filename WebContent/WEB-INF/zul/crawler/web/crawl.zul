@@ -95,42 +95,57 @@
 			<listbox
 				model="@{crawlProcess.webCrawlMaster.statistics}">
 				<auxhead>
-					<auxheader label="Start time" width="130px" />
-					<auxheader label="Fetched" align="center"
-						colspan="2" width="60px" />
+					<auxheader label="Start time"
+						tooltiptext="Start time" />
+					<auxheader label="Fetched" tooltiptext="Fetched"
+						align="center" colspan="2" />
 					<auxheader align="center" colspan="2"
-						label="Old url host" width="80px" />
+						label="Old url host" tooltiptext="Old url host" />
 					<auxheader align="center" colspan="2"
-						label="New url host" width="80px" />
-					<auxheader label="Parsed" width="40px" />
+						label="New url host" tooltiptext="New url host" />
+					<auxheader label="Parsed" tooltiptext="Parsed" />
 					<auxheader align="center" colspan="2"
-						label="New url" width="80px" />
+						label="New url" tooltiptext="New url" />
 					<auxheader align="center" colspan="2"
-						label="Updated" width="80px" />
-					<auxheader label="Ignored" width="40px" />
+						label="Updated" tooltiptext="Updated" />
+					<auxheader label="Ignored" tooltiptext="Ignored" />
 					<auxheader align="center" colspan="2"
-						label="Deleted" width="80px" />
-					<auxheader align="center" colspan="2" label="Url(s)"
-						width="80px" />
+						label="Deleted" tooltiptext="Deleted" />
+					<auxheader align="center" colspan="2" label="URL(s)"
+						tooltiptext="URL(s)" />
 				</auxhead>
 				<listhead sizable="true">
-					<listheader width="130px" />
-					<listheader label="Count" width="40px" />
-					<listheader label="Rate" width="40px" />
-					<listheader label="Processed" width="40px" />
-					<listheader label="Total" width="40px" />
-					<listheader label="Processed" width="40px" />
-					<listheader label="Total" width="40px" />
+					<listheader />
+					<listheader label="Count" tooltiptext="Count"
+						width="50px" />
+					<listheader label="Rate" tooltiptext="Rate"
+						width="50px" />
+					<listheader label="Processed"
+						tooltiptext="Processed" width="50px" />
+					<listheader label="Total" tooltiptext="Total"
+						width="50px" />
+					<listheader label="Processed"
+						tooltiptext="Processed" width="50px" />
+					<listheader label="Total" tooltiptext="Total"
+						width="50px" />
 					<listheader width="40px" />
-					<listheader label="Pending" width="40px" />
-					<listheader label="Committed" width="40px" />
-					<listheader label="Pending" width="40px" />
-					<listheader label="Committed" width="40px" />
-					<listheader width="40px" />
-					<listheader label="Pending" width="40px" />
-					<listheader label="Committed" width="40px" />
-					<listheader label="Processed" width="40px" />
-					<listheader label="Total" width="40px" />
+					<listheader label="Pending" tooltiptext="Pending"
+						width="50px" />
+					<listheader label="Committed"
+						tooltiptext="Committed" width="50px" />
+					<listheader label="Pending" tooltiptext="Pending"
+						width="50px" />
+					<listheader label="Committed"
+						tooltiptext="Committed" width="50px" />
+					<listheader width="50px" />
+					<listheader label="Pending" tooltiptext="Pending"
+						width="50px" />
+					<listheader label="Committed"
+						tooltiptext="Committed" width="50px" />
+					<listheader label="Processed"
+						tooltiptext="Processed" width="50px" />
+					<listheader label="Total" tooltiptext="Total"
+						width="50px" />
 				</listhead>
 				<listitem self="@{each=stat}">
 					<listcell label="@{stat.startDate}" />
@@ -166,17 +181,27 @@
 			<listbox model="@{crawlProcess.webCrawlMaster.threads}"
 				mold="paging" pageSize="20">
 				<listhead sizable="true">
-					<listheader label="Current host name" />
-					<listheader width="50px" label="Type" />
-					<listheader width="50px" label="Fetched" />
-					<listheader width="50px" label="Fetch rate" />
-					<listheader width="50px" label="New url" />
-					<listheader width="50px" label="Updated" />
-					<listheader width="50px" label="Ignored" />
-					<listheader width="50px" label="Deleted" />
-					<listheader width="50px" label="Url" />
-					<listheader width="50px" label="Total" />
-					<listheader label="Status" />
+					<listheader label="Current host name"
+						tooltiptext="Current host name" />
+					<listheader width="50px" label="Type"
+						tooltiptext="Type" />
+					<listheader width="50px" label="Fetched"
+						tooltiptext="Fetched" />
+					<listheader width="50px" label="Rate"
+						tooltiptext="Fetch rate" />
+					<listheader width="50px" label="New url"
+						tooltiptext="New url" />
+					<listheader width="50px" label="Updated"
+						tooltiptext="Updated" />
+					<listheader width="50px" label="Ignored"
+						tooltiptext="Ignored" />
+					<listheader width="50px" label="Deleted"
+						tooltiptext="Deleted" />
+					<listheader width="50px" label="URL(s)"
+						tooltiptext="URL(s)" />
+					<listheader width="50px" label="Total"
+						tooltiptext="Total" />
+					<listheader label="Status" tooltiptext="Status" />
 					<listheader
 						visible="@{crawlProcess.properties.debug.value}" label="Debug" />
 				</listhead>
