@@ -75,6 +75,10 @@ public class LocalFileInstance extends FileInstanceAbstract {
 		return null;
 	}
 
+	protected File getFile() {
+		return file;
+	}
+
 	private FileInstanceAbstract[] buildFileInstanceArray(File[] files)
 			throws URISyntaxException, SearchLibException {
 		if (files == null)

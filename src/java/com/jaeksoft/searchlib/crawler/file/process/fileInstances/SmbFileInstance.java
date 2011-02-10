@@ -67,7 +67,7 @@ public class SmbFileInstance extends FileInstanceAbstract {
 		return new URI("smb", filePathItem.getHost(), getPath(), null);
 	}
 
-	private SmbFile getSmbFile() throws MalformedURLException {
+	protected SmbFile getSmbFile() throws MalformedURLException {
 		if (smbFileStore != null)
 			return smbFileStore;
 		URL url = getURI().toURL();

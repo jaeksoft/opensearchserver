@@ -75,6 +75,10 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		return null;
 	}
 
+	protected FTPFile getFTPFile() {
+		return ftpFile;
+	}
+
 	protected FTPClient ftpConnect() throws SocketException, IOException,
 			NoSuchAlgorithmException {
 		FilePathItem fpi = getFilePathItem();

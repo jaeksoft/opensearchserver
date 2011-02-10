@@ -114,12 +114,6 @@ https://jna.dev.java.net/
 Rely on LGPL license 2.1
 
 ----------------------------------------
-Tokyo Cabinet
-Copyright (C) 2006-2009 Fal Labs
-http://fallabs.com/tokyocabinet/
-Rely on LGPL license 2.1
-
-----------------------------------------
 Quartz Scheduler
 Copyright 2001-2009 Terracotta, Inc.
 http://www.quartz-scheduler.org
