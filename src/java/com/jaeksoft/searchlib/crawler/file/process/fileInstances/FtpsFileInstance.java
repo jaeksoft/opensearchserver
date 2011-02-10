@@ -31,11 +31,29 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPSClient;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 
 public class FtpsFileInstance extends FtpFileInstance {
+
+	public FtpsFileInstance() {
+		super();
+	}
+
+	public FtpsFileInstance(FilePathItem filePathItem, FtpFileInstance parent,
+			FTPFile ftpFile) throws URISyntaxException, SearchLibException {
+		super(filePathItem, parent, ftpFile);
+	}
+
+	@Override
+	protected FtpFileInstance newInstance(FilePathItem filePathItem,
+			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
+			SearchLibException {
+		return new FtpsFileInstance(filePathItem, parent, ftpFile);
+	}
 
 	@Override
 	public URI init() throws URISyntaxException {

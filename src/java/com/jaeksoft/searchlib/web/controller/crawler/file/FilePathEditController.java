@@ -91,8 +91,11 @@ public class FilePathEditController extends CommonController {
 
 	@Override
 	protected void reset() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return;
 		selectedFilePath = null;
-		currentFilePath = new FilePathItem();
+		currentFilePath = new FilePathItem(client);
 		currentFile = null;
 		currentFolder = null;
 	}
@@ -101,7 +104,7 @@ public class FilePathEditController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getFileManager().getFileTypeList();
+		return client.getFileManager().getFileTypeEnum().getList();
 	}
 
 	@Override

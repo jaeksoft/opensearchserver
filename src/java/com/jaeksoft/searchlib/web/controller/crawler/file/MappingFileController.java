@@ -80,6 +80,11 @@ public class MappingFileController extends CrawlerController implements
 		}
 	}
 
+	@Override
+	protected void eventSchemaChange() throws SearchLibException {
+		reloadPage();
+	}
+
 	public List<SchemaField> getIndexFieldList() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();

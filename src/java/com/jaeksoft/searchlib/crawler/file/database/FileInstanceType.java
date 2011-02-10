@@ -25,28 +25,10 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpsFileInstance;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
 public class FileInstanceType extends ExtensibleEnumItem<FileInstanceType> {
-
-	public final static ExtensibleEnum<FileInstanceType> ENUM = new ExtensibleEnum<FileInstanceType>();
-
-	public final static FileInstanceType LocalFileInstance = new FileInstanceType(
-			"LocalFileInstance", "Local files", "file", LocalFileInstance.class);
-
-	public final static FileInstanceType SmbFileInstance = new FileInstanceType(
-			"SmbFileInstance", "SMB/CIFS", "smb", SmbFileInstance.class);
-
-	public final static FileInstanceType FtpFileInstance = new FileInstanceType(
-			"FtpFileInstance", "FTP", "ftp", FtpFileInstance.class);
-
-	public final static FileInstanceType FtpsFileInstance = new FileInstanceType(
-			"FtpsFileInstance", "FTP over SSL", "ftps", FtpsFileInstance.class);
 
 	private String label;
 
@@ -54,9 +36,10 @@ public class FileInstanceType extends ExtensibleEnumItem<FileInstanceType> {
 
 	private Class<? extends FileInstanceAbstract> classInstance;
 
-	protected FileInstanceType(String name, String label, String scheme,
+	public FileInstanceType(ExtensibleEnum<FileInstanceType> enumeration,
+			String name, String label, String scheme,
 			Class<? extends FileInstanceAbstract> classInstance) {
-		super(ENUM, name);
+		super(enumeration, name);
 		this.label = label;
 		this.scheme = scheme;
 		this.classInstance = classInstance;
@@ -87,10 +70,6 @@ public class FileInstanceType extends ExtensibleEnumItem<FileInstanceType> {
 	public FileInstanceAbstract getNewInstance() throws InstantiationException,
 			IllegalAccessException {
 		return classInstance.newInstance();
-	}
-
-	public FileInstanceType getDefault() {
-		return LocalFileInstance;
 	}
 
 }

@@ -54,6 +54,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.map.Target;
 
 public class FileManager {
@@ -141,6 +142,8 @@ public class FileManager {
 
 	private final Client fileDbClient;
 	private final Client targetClient;
+
+	private ExtensibleEnum<FileInstanceType> fileInstanceTypeEnum = null;
 
 	public FileManager(Client client, File dataDir) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
@@ -609,8 +612,17 @@ public class FileManager {
 		return query.toString();
 	}
 
-	public List<FileInstanceType> getFileTypeList() {
-		return FileInstanceType.ENUM.getList();
+	protected ExtensibleEnum<FileInstanceType> getNewFileInstanceTypeEnum() {
+		return new FileInstanceTypeEnum();
+	}
+
+	public ExtensibleEnum<FileInstanceType> getFileTypeEnum() {
+		synchronized (this) {
+			if (fileInstanceTypeEnum != null)
+				return fileInstanceTypeEnum;
+			fileInstanceTypeEnum = getNewFileInstanceTypeEnum();
+			return fileInstanceTypeEnum;
+		}
 	}
 
 }

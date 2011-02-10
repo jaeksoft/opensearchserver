@@ -55,8 +55,9 @@ public class SmbFileInstance extends FileInstanceAbstract {
 		smbFileStore = null;
 	}
 
-	private SmbFileInstance(FilePathItem filePathItem, SmbFileInstance parent,
-			SmbFile smbFile) throws URISyntaxException, SearchLibException {
+	protected SmbFileInstance(FilePathItem filePathItem,
+			SmbFileInstance parent, SmbFile smbFile) throws URISyntaxException,
+			SearchLibException {
 		init(filePathItem, parent,
 				LinkUtils.concatPath(parent.getPath(), smbFile.getName()));
 		this.smbFileStore = smbFile;
@@ -98,6 +99,12 @@ public class SmbFileInstance extends FileInstanceAbstract {
 		}
 	}
 
+	protected SmbFileInstance newInstance(FilePathItem filePathItem,
+			SmbFileInstance parent, SmbFile smbFile) throws URISyntaxException,
+			SearchLibException {
+		return new SmbFileInstance(filePathItem, parent, smbFile);
+	}
+
 	private FileInstanceAbstract[] buildFileInstanceArray(SmbFile[] files)
 			throws URISyntaxException, SearchLibException {
 		if (files == null)
@@ -105,7 +112,7 @@ public class SmbFileInstance extends FileInstanceAbstract {
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
 		int i = 0;
 		for (SmbFile file : files)
-			fileInstances[i++] = new SmbFileInstance(filePathItem, this, file);
+			fileInstances[i++] = newInstance(filePathItem, this, file);
 		return fileInstances;
 	}
 

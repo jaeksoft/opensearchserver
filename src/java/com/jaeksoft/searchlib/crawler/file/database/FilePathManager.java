@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,6 +40,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -52,11 +53,12 @@ public class FilePathManager {
 
 	private final File filePathFile;
 
-	public FilePathManager(File indexDir) throws SearchLibException {
+	public FilePathManager(Config config, File indexDir)
+			throws SearchLibException {
 		filePathFile = new File(indexDir, "filePaths.xml");
 		filePathMap = new TreeMap<FilePathItem, FilePathItem>();
 		try {
-			load();
+			load(config);
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
@@ -70,9 +72,9 @@ public class FilePathManager {
 		}
 	}
 
-	private void load() throws ParserConfigurationException, SAXException,
-			IOException, XPathExpressionException, SearchLibException,
-			URISyntaxException {
+	private void load(Config config) throws ParserConfigurationException,
+			SAXException, IOException, XPathExpressionException,
+			SearchLibException, URISyntaxException {
 		if (!filePathFile.exists())
 			return;
 
@@ -83,7 +85,7 @@ public class FilePathManager {
 
 		List<FilePathItem> filePathList = new ArrayList<FilePathItem>(l);
 		for (int i = 0; i < l; i++)
-			filePathList.add(FilePathItem.fromXml(nodeList.item(i)));
+			filePathList.add(FilePathItem.fromXml(config, nodeList.item(i)));
 		addListWithoutStoreAndLock(filePathList, true);
 	}
 

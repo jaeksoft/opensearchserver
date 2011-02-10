@@ -50,8 +50,9 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		ftpFile = null;
 	}
 
-	private FtpFileInstance(FilePathItem filePathItem, FtpFileInstance parent,
-			FTPFile ftpFile) throws URISyntaxException, SearchLibException {
+	protected FtpFileInstance(FilePathItem filePathItem,
+			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
+			SearchLibException {
 		init(filePathItem, parent,
 				LinkUtils.concatPath(parent.getPath(), ftpFile.getName()));
 		this.ftpFile = ftpFile;
@@ -98,6 +99,12 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		}
 	}
 
+	protected FtpFileInstance newInstance(FilePathItem filePathItem,
+			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
+			SearchLibException {
+		return new FtpFileInstance(filePathItem, parent, ftpFile);
+	}
+
 	private FileInstanceAbstract[] buildFileInstanceArray(FTPFile[] files)
 			throws URISyntaxException, SearchLibException {
 		if (files == null)
@@ -105,7 +112,7 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
 		int i = 0;
 		for (FTPFile file : files)
-			fileInstances[i++] = new FtpFileInstance(filePathItem, this, file);
+			fileInstances[i++] = newInstance(filePathItem, this, file);
 		return fileInstances;
 	}
 

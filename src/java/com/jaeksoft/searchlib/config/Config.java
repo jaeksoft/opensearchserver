@@ -995,7 +995,7 @@ public abstract class Config {
 		try {
 			if (filePatternManager != null)
 				return filePatternManager;
-			return filePatternManager = new FilePathManager(indexDir);
+			return filePatternManager = new FilePathManager(this, indexDir);
 		} finally {
 			rwl.w.unlock();
 		}

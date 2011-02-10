@@ -29,6 +29,8 @@ import java.net.URISyntaxException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -47,8 +49,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private boolean enabled;
 	private int delay;
 
-	public FilePathItem() {
-		type = FileInstanceType.ENUM.getFirst();
+	public FilePathItem(Config config) throws SearchLibException {
+		this.type = config.getFileManager().getFileTypeEnum().getFirst();
 		host = null;
 		path = null;
 		domain = null;
@@ -209,13 +211,16 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * 
 	 * @param node
 	 * @return
+	 * @throws SearchLibException
 	 */
-	public static FilePathItem fromXml(Node node) {
-		FilePathItem filePathItem = new FilePathItem();
+	public static FilePathItem fromXml(Config config, Node node)
+			throws SearchLibException {
+		FilePathItem filePathItem = new FilePathItem(config);
 		filePathItem.setPath(DomUtils.getText(node));
 		String type = DomUtils.getAttributeText(node, "type");
 		if (type != null)
-			filePathItem.setType(FileInstanceType.ENUM.getValue(type));
+			filePathItem.setType(config.getFileManager().getFileTypeEnum()
+					.getValue(type));
 		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");
