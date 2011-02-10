@@ -610,7 +610,7 @@ public class FileManager {
 	}
 
 	public List<FileInstanceType> getFileTypeList() {
-		return FileInstanceType.getList();
+		return FileInstanceType.ENUM.getList();
 	}
 
 }

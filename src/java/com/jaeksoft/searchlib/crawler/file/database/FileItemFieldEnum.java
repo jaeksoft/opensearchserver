@@ -24,14 +24,12 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
+import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
-public class FileItemFieldEnum extends ExtensibleEnum<FileItemFieldEnum> {
+public class FileItemFieldEnum extends ExtensibleEnumItem<FileItemFieldEnum> {
 
-	private final static List<FileItemFieldEnum> list = new ArrayList<FileItemFieldEnum>();
+	public final static ExtensibleEnum<FileItemFieldEnum> ENUM = new ExtensibleEnum<FileItemFieldEnum>();
 
 	public final static FileItemFieldEnum repository = new FileItemFieldEnum(
 			"repository");
@@ -79,12 +77,7 @@ public class FileItemFieldEnum extends ExtensibleEnum<FileItemFieldEnum> {
 			"fileType");
 
 	protected FileItemFieldEnum(String name) {
-		super(name);
-	}
-
-	@Override
-	protected List<FileItemFieldEnum> getValues() {
-		return list;
+		super(ENUM, name);
 	}
 
 }

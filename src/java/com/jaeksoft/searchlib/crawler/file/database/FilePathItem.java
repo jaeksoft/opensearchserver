@@ -48,7 +48,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private int delay;
 
 	public FilePathItem() {
-		type = FileInstanceType.getDefault();
+		type = FileInstanceType.ENUM.getFirst();
 		host = null;
 		path = null;
 		domain = null;
@@ -215,7 +215,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		filePathItem.setPath(DomUtils.getText(node));
 		String type = DomUtils.getAttributeText(node, "type");
 		if (type != null)
-			filePathItem.setType(FileInstanceType.getValue(type));
+			filePathItem.setType(FileInstanceType.ENUM.getValue(type));
 		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");

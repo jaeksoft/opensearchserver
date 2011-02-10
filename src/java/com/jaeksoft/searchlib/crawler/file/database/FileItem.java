@@ -116,7 +116,8 @@ public class FileItem extends FileInfo implements Serializable {
 
 		setRepository(doc.getValue(FileItemFieldEnum.repository.getName(), 0));
 		setDirectory(doc.getValue(FileItemFieldEnum.directory.getName(), 0));
-		setSubDirectory(doc.getValueList(FileItemFieldEnum.directory.getName()));
+		setSubDirectory(doc.getValueList(FileItemFieldEnum.subDirectory
+				.getName()));
 
 		setContentLength(doc.getValue(
 				FileItemFieldEnum.contentLength.getName(), 0));

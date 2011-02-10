@@ -24,19 +24,17 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpsFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
+import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
-public class FileInstanceType extends ExtensibleEnum<FileInstanceType> {
+public class FileInstanceType extends ExtensibleEnumItem<FileInstanceType> {
 
-	private static final List<FileInstanceType> _values = new ArrayList<FileInstanceType>();
+	public final static ExtensibleEnum<FileInstanceType> ENUM = new ExtensibleEnum<FileInstanceType>();
 
 	public final static FileInstanceType LocalFileInstance = new FileInstanceType(
 			"LocalFileInstance", "Local files", "file", LocalFileInstance.class);
@@ -58,7 +56,7 @@ public class FileInstanceType extends ExtensibleEnum<FileInstanceType> {
 
 	protected FileInstanceType(String name, String label, String scheme,
 			Class<? extends FileInstanceAbstract> classInstance) {
-		super(name);
+		super(ENUM, name);
 		this.label = label;
 		this.scheme = scheme;
 		this.classInstance = classInstance;
@@ -91,20 +89,8 @@ public class FileInstanceType extends ExtensibleEnum<FileInstanceType> {
 		return classInstance.newInstance();
 	}
 
-	@Override
-	protected List<FileInstanceType> getValues() {
-		return _values;
-	}
-
-	public static List<FileInstanceType> getList() {
-		return _values;
-	}
-
-	public static FileInstanceType getDefault() {
+	public FileInstanceType getDefault() {
 		return LocalFileInstance;
 	}
 
-	public static FileInstanceType getValue(String name) {
-		return (FileInstanceType) ExtensibleEnum.getValue(getList(), name);
-	}
 }

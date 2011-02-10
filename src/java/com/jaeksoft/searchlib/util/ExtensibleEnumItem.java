@@ -24,36 +24,23 @@
 
 package com.jaeksoft.searchlib.util;
 
-import java.util.ArrayList;
-import java.util.List;
+public abstract class ExtensibleEnumItem<T extends ExtensibleEnumItem<T>>
+		implements Comparable<T> {
 
-public class ExtensibleEnum<T extends ExtensibleEnumItem<T>> {
+	public String name;
 
-	private List<T> list;
-
-	public ExtensibleEnum() {
-		this.list = new ArrayList<T>();
+	@SuppressWarnings("unchecked")
+	protected ExtensibleEnumItem(ExtensibleEnum<T> en, String name) {
+		this.name = name;
+		en.add((T) this);
 	}
 
-	public void add(T extensibleEnumItem) {
-		list.add(extensibleEnumItem);
-
+	public final String getName() {
+		return name;
 	}
 
-	public List<T> getList() {
-		return list;
-	}
-
-	public final T getValue(String name) {
-		if (name == null || list == null)
-			return null;
-		for (T item : list)
-			if (item.name.equals(name))
-				return item;
-		return null;
-	}
-
-	public T getFirst() {
-		return list.get(0);
+	@Override
+	public int compareTo(T o) {
+		return name.compareTo(o.name);
 	}
 }
