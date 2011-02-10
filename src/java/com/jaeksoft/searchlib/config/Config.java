@@ -1001,6 +1001,12 @@ public abstract class Config {
 		}
 	}
 
+	protected FileManager getNewFileManagerInstance()
+			throws FileNotFoundException, SearchLibException,
+			URISyntaxException {
+		return new FileManager((Client) this, indexDir);
+	}
+
 	public FileManager getFileManager() throws SearchLibException {
 		rwl.r.lock();
 		try {
@@ -1013,7 +1019,7 @@ public abstract class Config {
 		try {
 			if (fileManager != null)
 				return fileManager;
-			return fileManager = new FileManager((Client) this, indexDir);
+			return fileManager = getNewFileManagerInstance();
 		} catch (FileNotFoundException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {

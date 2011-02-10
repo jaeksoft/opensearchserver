@@ -97,8 +97,11 @@ public class FilePathEditController extends CommonController {
 		currentFolder = null;
 	}
 
-	public List<FileInstanceType> getTypeList() {
-		return FileInstanceType.getList();
+	public List<FileInstanceType> getTypeList() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getFileManager().getFileTypeList();
 	}
 
 	@Override

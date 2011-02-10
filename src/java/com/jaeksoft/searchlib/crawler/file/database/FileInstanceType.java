@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class FileInstanceType extends ExtensibleEnum<FileInstanceType> {
 
-	private static final List<FileInstanceType> values = new ArrayList<FileInstanceType>();
+	private static final List<FileInstanceType> _values = new ArrayList<FileInstanceType>();
 
 	public final static FileInstanceType LocalFileInstance = new FileInstanceType(
 			"LocalFileInstance", "Local files", "file", LocalFileInstance.class);
@@ -56,7 +56,7 @@ public class FileInstanceType extends ExtensibleEnum<FileInstanceType> {
 
 	private Class<? extends FileInstanceAbstract> classInstance;
 
-	private FileInstanceType(String name, String label, String scheme,
+	protected FileInstanceType(String name, String label, String scheme,
 			Class<? extends FileInstanceAbstract> classInstance) {
 		super(name);
 		this.label = label;
@@ -93,11 +93,11 @@ public class FileInstanceType extends ExtensibleEnum<FileInstanceType> {
 
 	@Override
 	protected List<FileInstanceType> getValues() {
-		return values;
+		return _values;
 	}
 
 	public static List<FileInstanceType> getList() {
-		return values;
+		return _values;
 	}
 
 	public static FileInstanceType getDefault() {
@@ -105,6 +105,6 @@ public class FileInstanceType extends ExtensibleEnum<FileInstanceType> {
 	}
 
 	public static FileInstanceType getValue(String name) {
-		return (FileInstanceType) ExtensibleEnum.getValue(values, name);
+		return (FileInstanceType) ExtensibleEnum.getValue(getList(), name);
 	}
 }

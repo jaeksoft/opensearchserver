@@ -609,4 +609,8 @@ public class FileManager {
 		return query.toString();
 	}
 
+	public List<FileInstanceType> getFileTypeList() {
+		return FileInstanceType.getList();
+	}
+
 }
