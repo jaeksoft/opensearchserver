@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class FilePathItem implements Comparable<FilePathItem> {
 
-	private FileInstanceEnum type;
+	private FileInstanceType type;
 	private String host;
 	private String path;
 	private String domain;
@@ -48,7 +48,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private int delay;
 
 	public FilePathItem() {
-		type = FileInstanceEnum.LocalFileInstance;
+		type = FileInstanceType.getDefault();
 		host = null;
 		path = null;
 		domain = null;
@@ -78,11 +78,11 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * 
 	 * @param type
 	 */
-	public void setType(FileInstanceEnum type) {
+	public void setType(FileInstanceType type) {
 		this.type = type;
 	}
 
-	public FileInstanceEnum getType() {
+	public FileInstanceType getType() {
 		return type;
 	}
 
@@ -215,7 +215,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		filePathItem.setPath(DomUtils.getText(node));
 		String type = DomUtils.getAttributeText(node, "type");
 		if (type != null)
-			filePathItem.setType(FileInstanceEnum.valueOf(type));
+			filePathItem.setType(FileInstanceType.getValue(type));
 		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");
@@ -243,12 +243,12 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 */
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
 			throws SAXException {
-		xmlWriter.startElement(nodeName, "type", type.name(), "domain", domain,
-				"username", username, "password", password == null ? null
-						: StringUtils.base64encode(password), "host", host,
-				"withSub", withSub ? "yes" : "no", "ignoreHidden",
-				ignoreHidden ? "yes" : "no", "enabled", enabled ? "yes" : "no",
-				"delay", Integer.toString(delay));
+		xmlWriter.startElement(nodeName, "type", type.getName(), "domain",
+				domain, "username", username, "password",
+				password == null ? null : StringUtils.base64encode(password),
+				"host", host, "withSub", withSub ? "yes" : "no",
+				"ignoreHidden", ignoreHidden ? "yes" : "no", "enabled",
+				enabled ? "yes" : "no", "delay", Integer.toString(delay));
 		if (path != null)
 			xmlWriter.textNode(path);
 		xmlWriter.endElement();

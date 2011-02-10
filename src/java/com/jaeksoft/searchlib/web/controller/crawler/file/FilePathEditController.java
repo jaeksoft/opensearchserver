@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,7 +39,7 @@ import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.file.database.FileInstanceEnum;
+import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.web.controller.AlertController;
@@ -97,8 +97,8 @@ public class FilePathEditController extends CommonController {
 		currentFolder = null;
 	}
 
-	public FileInstanceEnum[] getTypeList() {
-		return FileInstanceEnum.values();
+	public List<FileInstanceType> getTypeList() {
+		return FileInstanceType.getList();
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class FilePathEditController extends CommonController {
 		this.selectedFilePath = filePathItem;
 		try {
 			filePathItem.copyTo(currentFilePath);
-			if (filePathItem.getType() == FileInstanceEnum.LocalFileInstance) {
+			if ("file".equals(filePathItem.getType().getScheme())) {
 				File f = new File(filePathItem.getPath());
 				if (f.exists()) {
 					setCurrentFolder(f.getParentFile());
@@ -214,7 +214,7 @@ public class FilePathEditController extends CommonController {
 	}
 
 	public boolean isLocalFileType() {
-		return currentFilePath.getType() == FileInstanceEnum.LocalFileInstance;
+		return "file".equals(currentFilePath.getType().getScheme());
 	}
 
 	public boolean isNotLocalFileType() {
@@ -222,7 +222,7 @@ public class FilePathEditController extends CommonController {
 	}
 
 	public boolean isDomain() {
-		return currentFilePath.getType() == FileInstanceEnum.SmbFileInstance;
+		return "smb".equals(currentFilePath.getType().getScheme());
 	}
 
 	public boolean isNotSelectedFile() {
@@ -255,11 +255,11 @@ public class FilePathEditController extends CommonController {
 		reloadBrowser();
 	}
 
-	public FileInstanceEnum getCurrentFileType() {
+	public FileInstanceType getCurrentFileType() {
 		return currentFilePath.getType();
 	}
 
-	public void setCurrentFileType(FileInstanceEnum type) {
+	public void setCurrentFileType(FileInstanceType type) {
 		currentFilePath.setType(type);
 		reloadPage();
 	}

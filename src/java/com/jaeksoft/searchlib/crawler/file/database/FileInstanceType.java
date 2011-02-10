@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,21 +24,31 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpsFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance;
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
-public enum FileInstanceEnum {
+public class FileInstanceType extends ExtensibleEnum<FileInstanceType> {
 
-	LocalFileInstance("Local files", "file", LocalFileInstance.class),
+	private static final List<FileInstanceType> values = new ArrayList<FileInstanceType>();
 
-	SmbFileInstance("SMB/CIFS", "smb", SmbFileInstance.class),
+	public final static FileInstanceType LocalFileInstance = new FileInstanceType(
+			"LocalFileInstance", "Local files", "file", LocalFileInstance.class);
 
-	FtpFileInstance("FTP", "ftp", FtpFileInstance.class),
+	public final static FileInstanceType SmbFileInstance = new FileInstanceType(
+			"SmbFileInstance", "SMB/CIFS", "smb", SmbFileInstance.class);
 
-	FtpsFileInstance("FTP over SSL", "ftps", FtpsFileInstance.class);
+	public final static FileInstanceType FtpFileInstance = new FileInstanceType(
+			"FtpFileInstance", "FTP", "ftp", FtpFileInstance.class);
+
+	public final static FileInstanceType FtpsFileInstance = new FileInstanceType(
+			"FtpsFileInstance", "FTP over SSL", "ftps", FtpsFileInstance.class);
 
 	private String label;
 
@@ -46,8 +56,9 @@ public enum FileInstanceEnum {
 
 	private Class<? extends FileInstanceAbstract> classInstance;
 
-	private FileInstanceEnum(String label, String scheme,
+	private FileInstanceType(String name, String label, String scheme,
 			Class<? extends FileInstanceAbstract> classInstance) {
+		super(name);
 		this.label = label;
 		this.scheme = scheme;
 		this.classInstance = classInstance;
@@ -80,4 +91,20 @@ public enum FileInstanceEnum {
 		return classInstance.newInstance();
 	}
 
+	@Override
+	protected List<FileInstanceType> getValues() {
+		return values;
+	}
+
+	public static List<FileInstanceType> getList() {
+		return values;
+	}
+
+	public static FileInstanceType getDefault() {
+		return LocalFileInstance;
+	}
+
+	public static FileInstanceType getValue(String name) {
+		return (FileInstanceType) ExtensibleEnum.getValue(values, name);
+	}
 }

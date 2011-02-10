@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,37 +24,67 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
-public enum FileItemFieldEnum {
+import java.util.ArrayList;
+import java.util.List;
 
-	repository,
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
-	name,
+public class FileItemFieldEnum extends ExtensibleEnum<FileItemFieldEnum> {
 
-	uri,
+	private final static List<FileItemFieldEnum> list = new ArrayList<FileItemFieldEnum>();
 
-	directory,
+	public final static FileItemFieldEnum repository = new FileItemFieldEnum(
+			"repository");
 
-	subDirectory,
+	public final static FileItemFieldEnum name = new FileItemFieldEnum("name");
 
-	lang,
+	public final static FileItemFieldEnum uri = new FileItemFieldEnum("uri");
 
-	langMethod,
+	public final static FileItemFieldEnum directory = new FileItemFieldEnum(
+			"directory");
 
-	contentLength,
+	public final static FileItemFieldEnum subDirectory = new FileItemFieldEnum(
+			"subDirectory");
 
-	parserStatus,
+	public final static FileItemFieldEnum lang = new FileItemFieldEnum("lang");
 
-	fetchStatus,
+	public final static FileItemFieldEnum langMethod = new FileItemFieldEnum(
+			"langMethod");
 
-	indexStatus,
+	public final static FileItemFieldEnum contentLength = new FileItemFieldEnum(
+			"contentLength");
 
-	crawlDate,
+	public final static FileItemFieldEnum parserStatus = new FileItemFieldEnum(
+			"parserStatus");
 
-	fileSystemDate,
+	public final static FileItemFieldEnum fetchStatus = new FileItemFieldEnum(
+			"fetchStatus");
 
-	fileSize,
+	public final static FileItemFieldEnum indexStatus = new FileItemFieldEnum(
+			"indexStatus");
 
-	fileExtension,
+	public final static FileItemFieldEnum crawlDate = new FileItemFieldEnum(
+			"repository");
 
-	fileType;
+	public final static FileItemFieldEnum fileSystemDate = new FileItemFieldEnum(
+			"fileSystemDate");
+
+	public final static FileItemFieldEnum fileSize = new FileItemFieldEnum(
+			"fileSize");
+
+	public final static FileItemFieldEnum fileExtension = new FileItemFieldEnum(
+			"fileExtension");
+
+	public final static FileItemFieldEnum fileType = new FileItemFieldEnum(
+			"fileType");
+
+	protected FileItemFieldEnum(String name) {
+		super(name);
+	}
+
+	@Override
+	protected List<FileItemFieldEnum> getValues() {
+		return list;
+	}
+
 }

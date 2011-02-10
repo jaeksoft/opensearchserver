@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -54,16 +54,18 @@ public class FileInfo {
 	public FileInfo(ResultDocument doc) throws UnsupportedEncodingException,
 			URISyntaxException {
 		this();
-		setFileSystemDate(doc.getValue(FileItemFieldEnum.fileSystemDate.name(),
-				0));
-		String s = doc.getValue(FileItemFieldEnum.fileType.name(), 0);
+		setFileSystemDate(doc.getValue(
+				FileItemFieldEnum.fileSystemDate.getName(), 0));
+		String s = doc.getValue(FileItemFieldEnum.fileType.getName(), 0);
 		if (s != null)
 			setType(FileTypeEnum.valueOf(s));
-		setUri(doc.getValue(FileItemFieldEnum.uri.name(), 0));
-		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.name(), 0));
-		setParserStatusInt(doc.getValue(FileItemFieldEnum.parserStatus.name(),
+		setUri(doc.getValue(FileItemFieldEnum.uri.getName(), 0));
+		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.getName(),
 				0));
-		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.name(), 0));
+		setParserStatusInt(doc.getValue(
+				FileItemFieldEnum.parserStatus.getName(), 0));
+		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.getName(),
+				0));
 	}
 
 	protected void init() {

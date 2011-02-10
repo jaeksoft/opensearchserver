@@ -47,6 +47,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -305,6 +306,16 @@ public class FileManager {
 		}
 	}
 
+	public FileItem getNewFileItem(ResultDocument doc)
+			throws UnsupportedEncodingException, URISyntaxException {
+		return new FileItem(doc);
+	}
+
+	public FileItem getNewFileItem(FileInstanceAbstract fileInstance)
+			throws SearchLibException {
+		return new FileItem(fileInstance);
+	}
+
 	public long getFiles(SearchRequest searchRequest, Field orderBy,
 			boolean orderAsc, long start, long rows, List<FileItem> list)
 			throws SearchLibException {
@@ -316,7 +327,7 @@ public class FileManager {
 			Result result = fileDbClient.search(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result)
-					list.add(new FileItem(doc));
+					list.add(getNewFileItem(doc));
 			return result.getNumFound();
 
 		} catch (IOException e) {
@@ -393,7 +404,7 @@ public class FileManager {
 			return false;
 		try {
 			List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
-					.getLinks(FileItemFieldEnum.subDirectory.name());
+					.getLinks(FileItemFieldEnum.subDirectory.getName());
 
 			for (String uriString : rowToDelete) {
 				URI uri = new URI(uriString);
@@ -458,7 +469,7 @@ public class FileManager {
 		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 
 		deleteRequest.setQueryString(buildQueryString(
-				FileItemFieldEnum.directory.name(), rowToDelete, true));
+				FileItemFieldEnum.directory.getName(), rowToDelete, true));
 		fileDbClient.deleteDocuments(deleteRequest);
 	}
 
@@ -484,7 +495,7 @@ public class FileManager {
 			IllegalAccessException {
 
 		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(FileItemFieldEnum.directory.name());
+				.getLinks(FileItemFieldEnum.directory.getName());
 
 		if (mappedPath == null || mappedPath.isEmpty())
 			return false;

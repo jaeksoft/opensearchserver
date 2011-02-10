@@ -90,7 +90,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 				break;
 
 			FileInstanceAbstract fileInstance = itemIterator.getFileInstance();
-			currentFileItem = new FileItem(fileInstance);
+			currentFileItem = fileManager.getNewFileItem(fileInstance);
 
 			FileTypeEnum type = currentFileItem.getType();
 			if (type == FileTypeEnum.directory) {

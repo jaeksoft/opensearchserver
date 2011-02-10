@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -114,22 +114,22 @@ public class FileItem extends FileInfo implements Serializable {
 			URISyntaxException {
 		super(doc);
 
-		setRepository(doc.getValue(FileItemFieldEnum.repository.name(), 0));
-		setDirectory(doc.getValue(FileItemFieldEnum.directory.name(), 0));
-		setSubDirectory(doc.getValueList(FileItemFieldEnum.directory.name()));
+		setRepository(doc.getValue(FileItemFieldEnum.repository.getName(), 0));
+		setDirectory(doc.getValue(FileItemFieldEnum.directory.getName(), 0));
+		setSubDirectory(doc.getValueList(FileItemFieldEnum.directory.getName()));
 
-		setContentLength(doc
-				.getValue(FileItemFieldEnum.contentLength.name(), 0));
+		setContentLength(doc.getValue(
+				FileItemFieldEnum.contentLength.getName(), 0));
 
-		setLang(doc.getValue(FileItemFieldEnum.lang.name(), 0));
+		setLang(doc.getValue(FileItemFieldEnum.lang.getName(), 0));
 
-		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.name(), 0));
+		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.getName(), 0));
 
-		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.name(), 0));
+		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.getName(), 0));
 
-		setSize(doc.getValue(FileItemFieldEnum.fileSize.name(), 0));
+		setSize(doc.getValue(FileItemFieldEnum.fileSize.getName(), 0));
 
-		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.name(), 0));
+		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.getName(), 0));
 
 	}
 
@@ -201,47 +201,49 @@ public class FileItem extends FileInfo implements Serializable {
 	public void populate(IndexDocument indexDocument)
 			throws UnsupportedEncodingException {
 
-		indexDocument.set(FileItemFieldEnum.repository.name(), getRepository());
+		indexDocument.set(FileItemFieldEnum.repository.getName(),
+				getRepository());
 
-		indexDocument.set(FileItemFieldEnum.uri.name(), getUri());
+		indexDocument.set(FileItemFieldEnum.uri.getName(), getUri());
 
 		if (directory != null)
-			indexDocument.set(FileItemFieldEnum.directory.name(), directory);
+			indexDocument.set(FileItemFieldEnum.directory.getName(), directory);
 
-		indexDocument.set(FileItemFieldEnum.subDirectory.name(),
+		indexDocument.set(FileItemFieldEnum.subDirectory.getName(),
 				getSubDirectory());
 
 		if (crawlDate != null)
-			indexDocument.set(FileItemFieldEnum.crawlDate.name(),
+			indexDocument.set(FileItemFieldEnum.crawlDate.getName(),
 					StringUtils.longToHexString(crawlDate));
 
 		Long fsd = getFileSystemDate();
 		if (fsd != null)
-			indexDocument.set(FileItemFieldEnum.fileSystemDate.name(),
+			indexDocument.set(FileItemFieldEnum.fileSystemDate.getName(),
 					StringUtils.longToHexString(fsd));
 
 		if (contentLength != null)
-			indexDocument.set(FileItemFieldEnum.contentLength.name(),
+			indexDocument.set(FileItemFieldEnum.contentLength.getName(),
 					getContentLengthFormat().format(contentLength));
 		if (lang != null)
-			indexDocument.set(FileItemFieldEnum.lang.name(), lang);
+			indexDocument.set(FileItemFieldEnum.lang.getName(), lang);
 		if (langMethod != null)
-			indexDocument.set(FileItemFieldEnum.langMethod.name(), langMethod);
+			indexDocument.set(FileItemFieldEnum.langMethod.getName(),
+					langMethod);
 
-		indexDocument.set(FileItemFieldEnum.fetchStatus.name(),
+		indexDocument.set(FileItemFieldEnum.fetchStatus.getName(),
 				getFetchStatus().value);
-		indexDocument.set(FileItemFieldEnum.parserStatus.name(),
+		indexDocument.set(FileItemFieldEnum.parserStatus.getName(),
 				getParserStatus().value);
-		indexDocument.set(FileItemFieldEnum.indexStatus.name(),
+		indexDocument.set(FileItemFieldEnum.indexStatus.getName(),
 				getIndexStatus().value);
 		if (size != null)
-			indexDocument.set(FileItemFieldEnum.fileSize.name(), size);
+			indexDocument.set(FileItemFieldEnum.fileSize.getName(), size);
 		if (extension != null)
-			indexDocument
-					.set(FileItemFieldEnum.fileExtension.name(), extension);
+			indexDocument.set(FileItemFieldEnum.fileExtension.getName(),
+					extension);
 		FileTypeEnum t = getType();
 		if (t != null)
-			indexDocument.set(FileItemFieldEnum.fileType.name(), t.name());
+			indexDocument.set(FileItemFieldEnum.fileType.getName(), t.name());
 	}
 
 	public void setContentLength(int v) {
