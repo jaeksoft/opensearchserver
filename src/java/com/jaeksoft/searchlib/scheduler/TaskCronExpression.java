@@ -187,10 +187,10 @@ public class TaskCronExpression {
 		setSeconds(XPathParser.getAttributeString(node, XML_NODE_SECONDS));
 		setMinutes(XPathParser.getAttributeString(node, XML_NODE_MINUTES));
 		setHours(XPathParser.getAttributeString(node, XML_NODE_HOURS));
-		setSeconds(XPathParser.getAttributeString(node, XML_NODE_DAYOFMONTH));
-		setSeconds(XPathParser.getAttributeString(node, XML_NODE_MONTH));
-		setSeconds(XPathParser.getAttributeString(node, XML_NODE_DAYOFWEEK));
-		setSeconds(XPathParser.getAttributeString(node, XML_NODE_YEAR));
+		setDayOfMonth(XPathParser.getAttributeString(node, XML_NODE_DAYOFMONTH));
+		setMonth(XPathParser.getAttributeString(node, XML_NODE_MONTH));
+		setDayOfWeek(XPathParser.getAttributeString(node, XML_NODE_DAYOFWEEK));
+		setYear(XPathParser.getAttributeString(node, XML_NODE_YEAR));
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {

@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3178432: Wrong cron values in the scheduler
 - 3175585: More like this feature
 - 3169421: Japanese and Korean support
 - 3159477: Identify identical web pages

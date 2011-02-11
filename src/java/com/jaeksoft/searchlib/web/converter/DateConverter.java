@@ -50,6 +50,6 @@ public class DateConverter implements TypeConverter {
 		if (l == -1)
 			return "Unknown";
 		return DateFormat.getDateTimeInstance(DateFormat.SHORT,
-				DateFormat.SHORT).format(new Date(l));
+				DateFormat.MEDIUM).format(new Date(l));
 	}
 }

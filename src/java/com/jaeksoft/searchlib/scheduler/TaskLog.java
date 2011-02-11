@@ -97,4 +97,9 @@ public class TaskLog {
 		return error;
 	}
 
+	@Override
+	public String toString() {
+		return getStartDate() + getTask().getName();
+	}
+
 }

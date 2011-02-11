@@ -27,7 +27,7 @@
 	<panel title="List of last logs " border="normal"
 		visible="@{schedulerlogs.jobSelected}">
 		<toolbar>
-			<button label="Refresh" action="onRefresh" />
+			<button label="Refresh" forward="onReload" />
 		</toolbar>
 		<panelchildren>
 			<listbox model="@{schedulerlogs.selectedJob.jobLog.logs}"
