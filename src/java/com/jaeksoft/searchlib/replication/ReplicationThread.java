@@ -118,7 +118,7 @@ public class ReplicationThread extends ThreadAbstract implements
 	}
 
 	private final static String[] NOT_PUSHED = { "replication.xml",
-			"replication_old.xml", "jobss.xml", "jobs_old.xml" };
+			"replication_old.xml", "jobs.xml", "jobs_old.xml" };
 
 	@Override
 	public void file(File file) throws SearchLibException {
