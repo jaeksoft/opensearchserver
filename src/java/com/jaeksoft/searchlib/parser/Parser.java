@@ -141,21 +141,12 @@ public abstract class Parser {
 		return valueItem.getValue();
 	}
 
-	public String getMergedBodyText(int maxChar, String sep,
+	public String getMergedBodyText(int maxChar, String separator,
 			ParserFieldEnum field) {
-		StringBuffer sb = new StringBuffer();
 		FieldContent fc = getFieldContent(field);
-		if (fc != null) {
-			for (FieldValueItem valueItem : fc.getValues()) {
-				sb.append(valueItem.getValue());
-				if (sb.length() > maxChar)
-					break;
-				sb.append(sep);
-			}
-		}
-		if (sb.length() > maxChar)
-			return sb.substring(0, maxChar);
-		return sb.toString();
+		if (fc == null)
+			return "";
+		return fc.getMergedValues(maxChar, separator);
 	}
 
 	protected abstract void parseContent(LimitInputStream inputStream)

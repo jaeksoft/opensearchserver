@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -98,6 +98,28 @@ public class FieldContent implements Externalizable, Collecter<FieldValueItem> {
 
 	public List<FieldValueItem> getValues() {
 		return values;
+	}
+
+	public String getMergedValues(String separator) {
+		StringBuffer sb = new StringBuffer();
+		for (FieldValueItem item : values) {
+			sb.append(item.getValue());
+			sb.append(separator);
+		}
+		return sb.toString();
+	}
+
+	public String getMergedValues(int max, String separator) {
+		StringBuffer sb = new StringBuffer();
+		for (FieldValueItem item : values) {
+			sb.append(item.getValue());
+			if (sb.length() > max)
+				break;
+			sb.append(separator);
+		}
+		if (sb.length() > max)
+			sb.setLength(max);
+		return sb.toString();
 	}
 
 	public void remove(int index) {
