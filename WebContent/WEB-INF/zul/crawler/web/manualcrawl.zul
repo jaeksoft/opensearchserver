@@ -109,7 +109,7 @@
 									<listbox
 										model="@{fieldContent.values}" mold="paging" pageSize="10">
 										<listitem
-											self="@{each='fieldValue'}" label="@{fieldValue}" />
+											self="@{each='fieldValue'}" label="@{fieldValue.value}" />
 									</listbox>
 								</panelchildren>
 							</panel>
