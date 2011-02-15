@@ -102,23 +102,31 @@ public class FieldContent implements Externalizable, Collecter<FieldValueItem> {
 
 	public String getMergedValues(String separator) {
 		StringBuffer sb = new StringBuffer();
+		boolean first = true;
 		for (FieldValueItem item : values) {
+			if (first)
+				first = false;
+			else
+				sb.append(separator);
 			sb.append(item.getValue());
-			sb.append(separator);
 		}
 		return sb.toString();
 	}
 
 	public String getMergedValues(int max, String separator) {
 		StringBuffer sb = new StringBuffer();
+		boolean first = true;
 		for (FieldValueItem item : values) {
+			if (first)
+				first = false;
+			else
+				sb.append(separator);
 			sb.append(item.getValue());
-			if (sb.length() > max)
+			if (sb.length() > max) {
+				sb.setLength(max);
 				break;
-			sb.append(separator);
+			}
 		}
-		if (sb.length() > max)
-			sb.setLength(max);
 		return sb.toString();
 	}
 
