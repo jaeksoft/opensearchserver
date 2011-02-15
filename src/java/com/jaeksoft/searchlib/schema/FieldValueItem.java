@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.document.Fieldable;
 
 public class FieldValueItem {
@@ -78,6 +81,16 @@ public class FieldValueItem {
 		for (Fieldable fieldable : fieldables)
 			array[i++] = new FieldValueItem(fieldable);
 		return array;
+	}
+
+	final public static List<String> buildArrayList(
+			List<FieldValueItem> fieldValueItemList) {
+		if (fieldValueItemList == null)
+			return null;
+		List<String> list = new ArrayList<String>(fieldValueItemList.size());
+		for (FieldValueItem item : fieldValueItemList)
+			list.add(item.value);
+		return list;
 	}
 
 }

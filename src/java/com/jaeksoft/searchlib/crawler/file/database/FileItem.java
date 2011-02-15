@@ -119,8 +119,8 @@ public class FileItem extends FileInfo implements Serializable {
 				FileItemFieldEnum.repository.getName(), 0));
 		setDirectory(doc.getValueContent(FileItemFieldEnum.directory.getName(),
 				0));
-		setSubDirectory(doc.getValueList(FileItemFieldEnum.subDirectory
-				.getName()));
+		setSubDirectory(FieldValueItem.buildArrayList(doc
+				.getValueList(FileItemFieldEnum.subDirectory.getName())));
 
 		setContentLength(doc.getValueContent(
 				FileItemFieldEnum.contentLength.getName(), 0));
@@ -285,10 +285,8 @@ public class FileItem extends FileInfo implements Serializable {
 		this.directory = directoryUri.toASCIIString();
 	}
 
-	public void setSubDirectory(List<FieldValueItem> subDirectoryList) {
-		this.subDirectory = new ArrayList<String>();
-		for (FieldValueItem item : subDirectoryList)
-			subDirectory.add(item.getValue());
+	public void setSubDirectory(List<String> subDirectoryList) {
+		this.subDirectory = subDirectoryList;
 	}
 
 	public String getRepository() {
