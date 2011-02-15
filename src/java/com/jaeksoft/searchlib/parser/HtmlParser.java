@@ -55,6 +55,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -389,11 +390,16 @@ public class HtmlParser extends Parser {
 		String charset = null;
 		IndexDocument sourceDocument = getSourceDocument();
 		if (sourceDocument != null) {
-			charset = sourceDocument.getFieldValue(
-					UrlItemFieldEnum.contentTypeCharset.name(), 0).getValue();
-			if (charset == null)
-				charset = getSourceDocument().getFieldValue(
-						UrlItemFieldEnum.contentEncoding.name(), 0).getValue();
+			FieldValueItem fieldValueItem = sourceDocument.getFieldValue(
+					UrlItemFieldEnum.contentTypeCharset.name(), 0);
+			if (fieldValueItem != null)
+				charset = fieldValueItem.getValue();
+			if (charset == null) {
+				fieldValueItem = sourceDocument.getFieldValue(
+						UrlItemFieldEnum.contentEncoding.name(), 0);
+				if (fieldValueItem != null)
+					charset = fieldValueItem.getValue();
+			}
 		}
 		boolean charsetWasNull = charset == null;
 		if (charsetWasNull)

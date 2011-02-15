@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -187,7 +187,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
 		UrlManagerAbstract urlManager = getConfig().getUrlManager();
-		urlManager.updateCrawls(workUpdateCrawlList);
+		urlManager.updateCrawlTarget(workUpdateCrawlList);
+		urlManager.updateCrawlUrlDb(workUpdateCrawlList);
 		if (sessionStats != null)
 			sessionStats.addUpdatedCount(workUpdateCrawlList.size());
 		return true;

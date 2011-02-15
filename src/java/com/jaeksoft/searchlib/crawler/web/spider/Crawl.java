@@ -46,10 +46,12 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -65,6 +67,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 public class Crawl {
 
 	private IndexDocument targetIndexDocument;
+	private HostUrlList hostUrlList;
 	private UrlItem urlItem;
 	private CredentialManager credentialManager;
 	private String userAgent;
@@ -75,22 +78,31 @@ public class Crawl {
 	private List<String> discoverLinks;
 	private FieldMap urlFieldMap;
 	private URI redirectUrlLocation;
+	private boolean inclusionEnabled;
+	private boolean exclusionEnabled;
 
-	public Crawl(UrlItem urlItem, Config config, ParserSelector parserSelector,
-			CredentialManager credentialManager) throws SearchLibException {
+	public Crawl(HostUrlList hostUrlList, UrlItem urlItem, Config config,
+			ParserSelector parserSelector, CredentialManager credentialManager)
+			throws SearchLibException {
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		this.hostUrlList = hostUrlList;
 		this.targetIndexDocument = null;
 		this.urlFieldMap = config.getWebCrawlerFieldMap();
 		this.discoverLinks = null;
 		this.urlItem = urlItem;
 		this.urlItem.setWhenNow();
 		this.credentialManager = credentialManager;
-		this.userAgent = config.getWebPropertyManager().getUserAgent()
-				.getValue().toLowerCase();
+		this.userAgent = propertyManager.getUserAgent().getValue()
+				.toLowerCase();
 		this.parser = null;
 		this.parserSelector = parserSelector;
 		this.config = config;
 		this.error = null;
 		this.redirectUrlLocation = null;
+		this.exclusionEnabled = propertyManager.getExclusionEnabled()
+				.getValue();
+		this.inclusionEnabled = propertyManager.getInclusionEnabled()
+				.getValue();
 	}
 
 	private void parseContent(InputStream inputStream)
@@ -280,6 +292,10 @@ public class Crawl {
 		return urlItem;
 	}
 
+	public HostUrlList getHostUrlList() {
+		return hostUrlList;
+	}
+
 	public IndexDocument getTargetIndexDocument() throws SearchLibException,
 			MalformedURLException {
 		synchronized (this) {
@@ -324,10 +340,12 @@ public class Crawl {
 			String link = linkItem.getValue();
 			try {
 				URL url = new URL(link);
-				if (exclusionManager.matchPattern(url) != null)
-					continue;
-				if (inclusionManager.matchPattern(url) == null)
-					continue;
+				if (exclusionManager != null)
+					if (exclusionManager.matchPattern(url))
+						continue;
+				if (inclusionManager != null)
+					if (!inclusionManager.matchPattern(url))
+						continue;
 				newUrlList.add(link);
 			} catch (MalformedURLException e) {
 				Logging.logger.warn(link + " " + e.getMessage(), e);
@@ -349,10 +367,10 @@ public class Crawl {
 			if (parser == null || !urlItem.isStatusFull())
 				return discoverLinks;
 			UrlManagerAbstract urlManager = config.getUrlManager();
-			PatternManager inclusionManager = config
-					.getInclusionPatternManager();
-			PatternManager exclusionManager = config
-					.getExclusionPatternManager();
+			PatternManager inclusionManager = inclusionEnabled ? config
+					.getInclusionPatternManager() : null;
+			PatternManager exclusionManager = exclusionEnabled ? config
+					.getExclusionPatternManager() : null;
 			discoverLinks(urlManager, inclusionManager, exclusionManager,
 					parser.getFieldContent(ParserFieldEnum.internal_link),
 					discoverLinks);

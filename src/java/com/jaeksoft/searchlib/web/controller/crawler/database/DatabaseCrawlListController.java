@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -94,14 +94,15 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		currentCrawl = new DatabaseCrawl(getCrawlMaster());
+		currentCrawl = null;
 		DatabaseCrawlMaster cm = getCrawlMaster();
 		if (cm != null)
 			new DatabaseCrawl(cm);
 		selectedCrawl = null;
 		dbCrawlList = null;
 		sqlColumn = null;
-		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false, null);
+		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false,
+				null, false);
 		selectedIndexField = null;
 	}
 
@@ -115,6 +116,14 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	public boolean notSelected() {
 		return !selected();
+	}
+
+	public boolean isEditing() {
+		return currentCrawl != null;
+	}
+
+	public boolean isNotEditing() {
+		return !isEditing();
 	}
 
 	public DatabaseCrawl getSelectedCrawl() {
@@ -153,7 +162,8 @@ public class DatabaseCrawlListController extends CrawlerController {
 		currentCrawl.getFieldMap().add(sqlColumn, dbFieldTarget);
 		sqlColumn = null;
 		selectedIndexField = null;
-		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false, null);
+		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false,
+				null, false);
 		reloadPage();
 	}
 
@@ -189,13 +199,14 @@ public class DatabaseCrawlListController extends CrawlerController {
 		DatabaseCrawl oldCurrentCrawl = currentCrawl;
 		selectedCrawl = null;
 		currentCrawl = new DatabaseCrawl(getCrawlMaster());
-		oldCurrentCrawl.copyTo(currentCrawl);
+		if (oldCurrentCrawl != null)
+			oldCurrentCrawl.copyTo(currentCrawl);
 		currentCrawl.setName(null);
 		reloadPage();
 	}
 
 	public void onCancel() throws SearchLibException {
-		currentCrawl = new DatabaseCrawl(getCrawlMaster());
+		currentCrawl = null;
 		selectedCrawl = null;
 		reloadPage();
 	}
@@ -216,6 +227,14 @@ public class DatabaseCrawlListController extends CrawlerController {
 		if (item == null)
 			return;
 		new DeleteAlert(item);
+	}
+
+	public void edit(Component comp) throws SearchLibException,
+			InterruptedException {
+		DatabaseCrawl item = getDatabaseCrawlItem(comp);
+		if (item == null)
+			return;
+		setSelectedCrawl(item);
 	}
 
 	public void execute(Component comp) throws SearchLibException,

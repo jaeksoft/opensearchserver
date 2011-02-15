@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,11 +56,15 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	private long nextTimeTarget;
 	private HostUrlList hostUrlList;
 	private Crawl currentCrawl;
+	private boolean exclusionEnabled;
+	private boolean inclusionEnabled;
+	private UrlCrawlQueue crawlQueue;
 
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
 			CrawlStatistics sessionStats, HostUrlList hostUrlList)
 			throws SearchLibException {
 		super(config, crawlMaster);
+		this.crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 		this.currentUrlItem = null;
 		this.currentCrawl = null;
 		currentStats = new CrawlStatistics(sessionStats);
@@ -73,6 +77,8 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 				.getValue(), false);
 		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
 				.getUserAgent().getValue(), true);
+		exclusionEnabled = propertyManager.getExclusionEnabled().getValue();
+		inclusionEnabled = propertyManager.getInclusionEnabled().getValue();
 
 	}
 
@@ -91,11 +97,11 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 
 		Iterator<UrlItem> iterator = urlList.iterator();
 		WebCrawlMaster crawlMaster = (WebCrawlMaster) getThreadMaster();
-		UrlCrawlQueue crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 
 		while (iterator.hasNext()) {
 
-			if (hostUrlList.getListType() != ListType.MANUAL) {
+			ListType listType = hostUrlList.getListType();
+			if (listType == ListType.NEW_URL || listType == ListType.OLD_URL) {
 				if (isAborted() || crawlMaster.isAborted())
 					break;
 
@@ -114,7 +120,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		}
 
 		setStatus(CrawlStatus.INDEXATION);
-		crawlMaster.getCrawlQueue().index(!crawlMaster.isRunning());
+		crawlQueue.index(!crawlMaster.isRunning());
 
 	}
 
@@ -126,7 +132,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		currentStats.incUrlCount();
 
 		CredentialManager credentialManager = config.getWebCredentialManager();
-		Crawl crawl = new Crawl(currentUrlItem, config,
+		Crawl crawl = new Crawl(hostUrlList, currentUrlItem, config,
 				config.getParserSelector(), credentialManager);
 
 		try {
@@ -139,13 +145,13 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 			PatternManager exclusionManager = config
 					.getExclusionPatternManager();
 			if (url != null)
-				if (inclusionManager.matchPattern(url) == null) {
+				if (inclusionEnabled && !inclusionManager.matchPattern(url)) {
 					currentUrlItem
 							.setFetchStatus(FetchStatus.NOT_IN_INCLUSION_LIST);
 					url = null;
 				}
 			if (url != null)
-				if (exclusionManager.matchPattern(url) != null) {
+				if (exclusionEnabled && exclusionManager.matchPattern(url)) {
 					currentUrlItem
 							.setFetchStatus(FetchStatus.BLOCKED_BY_EXCLUSION_LIST);
 					url = null;

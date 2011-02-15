@@ -40,7 +40,8 @@ public class WebPropertyManager extends PropertyManager {
 	private PropertyItem<String> userAgent;
 	private PropertyItem<Boolean> replicationAfterSession;
 	private PropertyItem<String> replicationTarget;
-	private PropertyItem<Boolean> debug;
+	private PropertyItem<Boolean> exclusionEnabled;
+	private PropertyItem<Boolean> inclusionEnabled;
 
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
@@ -53,7 +54,8 @@ public class WebPropertyManager extends PropertyManager {
 		replicationAfterSession = newBooleanProperty("replicationAfterSession",
 				false);
 		replicationTarget = newStringProperty("replicationTarget", "");
-		debug = newBooleanProperty("debug", false);
+		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
+		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 	}
 
 	public PropertyItem<Integer> getFetchInterval() {
@@ -84,8 +86,12 @@ public class WebPropertyManager extends PropertyManager {
 		return replicationTarget;
 	}
 
-	public PropertyItem<Boolean> getDebug() {
-		return debug;
+	public PropertyItem<Boolean> getInclusionEnabled() {
+		return inclusionEnabled;
+	}
+
+	public PropertyItem<Boolean> getExclusionEnabled() {
+		return exclusionEnabled;
 	}
 
 	public PropertyItem<Integer> getDelayBetweenAccesses() {

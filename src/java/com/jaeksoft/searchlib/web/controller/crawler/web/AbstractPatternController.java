@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
 import com.jaeksoft.searchlib.crawler.common.database.Selector;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
@@ -116,10 +117,13 @@ public abstract class AbstractPatternController extends CrawlerController
 		return like;
 	}
 
-	protected abstract PatternManager getPatternManager(Client client)
+	protected abstract PatternManager getPatternManager()
 			throws SearchLibException;
 
 	protected abstract boolean isInclusion();
+
+	public abstract PropertyItem<Boolean> getEnabled()
+			throws SearchLibException;
 
 	public List<PatternItem> getPatternList() {
 		synchronized (this) {
@@ -129,7 +133,7 @@ public abstract class AbstractPatternController extends CrawlerController
 				Client client = getClient();
 				if (client == null)
 					return null;
-				PatternManager patternManager = getPatternManager(client);
+				PatternManager patternManager = getPatternManager();
 				patternList = new ArrayList<PatternItem>();
 				totalSize = patternManager.getPatterns(like, getActivePage()
 						* getPageSize(), getPageSize(), patternList);
@@ -173,7 +177,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		synchronized (this) {
 			if (!isWebCrawlerEditPatternsRights())
 				throw new SearchLibException("Not allowed");
-			PatternManager patternManager = getPatternManager(getClient());
+			PatternManager patternManager = getPatternManager();
 			try {
 				deleteSelection(patternManager);
 			} catch (SearchLibException e) {
@@ -252,7 +256,7 @@ public abstract class AbstractPatternController extends CrawlerController
 				throw new SearchLibException("Not allowed");
 			List<PatternItem> list = PatternManager.getPatternList(pattern);
 			if (list.size() > 0) {
-				getPatternManager(getClient()).addList(list, false);
+				getPatternManager().addList(list, false);
 				if (isInclusion())
 					getClient().getUrlManager().injectPrefix(list);
 			}

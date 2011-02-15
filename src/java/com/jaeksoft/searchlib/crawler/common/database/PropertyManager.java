@@ -90,9 +90,9 @@ public abstract class PropertyManager {
 				name, defaultValue);
 		String value = properties.getProperty(name);
 		if (value != null)
-			if ("1".equals(value) || "true".equalsIgnoreCase(value)
-					|| "yes".equalsIgnoreCase(value))
-				propertyItem.initValue(true);
+			propertyItem.initValue("1".equals(value)
+					|| "true".equalsIgnoreCase(value)
+					|| "yes".equalsIgnoreCase(value));
 		return propertyItem;
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 
 public class ExclusionController extends AbstractPatternController {
@@ -39,8 +40,10 @@ public class ExclusionController extends AbstractPatternController {
 	}
 
 	@Override
-	protected PatternManager getPatternManager(Client client)
-			throws SearchLibException {
+	protected PatternManager getPatternManager() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
 		return client.getExclusionPatternManager();
 	}
 
@@ -49,4 +52,11 @@ public class ExclusionController extends AbstractPatternController {
 		return false;
 	}
 
+	@Override
+	public PropertyItem<Boolean> getEnabled() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getWebPropertyManager().getExclusionEnabled();
+	}
 }

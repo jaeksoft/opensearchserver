@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -223,10 +223,11 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				.getWebPropertyManager().getMaxUrlPerSession().getValue();
 	}
 
-	public WebCrawlThread manualCrawl(URL url) throws SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	public WebCrawlThread manualCrawl(URL url, HostUrlList.ListType listType)
+			throws SearchLibException, ParseException, IOException,
+			SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, InstantiationException,
+			IllegalAccessException {
 		Config config = getConfig();
 		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 		UrlItem urlItem = config.getUrlManager().getUrlToFetch(url);
@@ -235,7 +236,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		urlItemList.add(urlItem);
 		HostUrlList hostUrlList = new HostUrlList(urlItemList, new NamedItem(
 				url.getHost()));
-		hostUrlList.setListType(HostUrlList.ListType.MANUAL);
+		hostUrlList.setListType(listType);
 		WebCrawlThread crawlThread = new WebCrawlThread(config, this,
 				new CrawlStatistics(), hostUrlList);
 		crawlThread.execute();

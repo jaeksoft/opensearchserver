@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,15 +41,19 @@ public class DatabaseFieldTarget extends Target {
 
 	private boolean filePath;
 
+	private boolean crawlUrl;
+
 	private String filePathPrefix;
 
 	public DatabaseFieldTarget(String targetName, boolean removeTag,
-			boolean convertHtmlEntities, boolean filePath, String filePathPrefix) {
+			boolean convertHtmlEntities, boolean filePath,
+			String filePathPrefix, boolean crawlUrl) {
 		super(targetName);
 		this.removeTag = removeTag;
 		this.convertHtmlEntities = convertHtmlEntities;
 		this.filePathPrefix = filePathPrefix;
 		this.filePath = filePath;
+		this.crawlUrl = crawlUrl;
 	}
 
 	public DatabaseFieldTarget(String targetName, Node targetNode) {
@@ -68,6 +72,9 @@ public class DatabaseFieldTarget extends Target {
 					"filePath")))
 				filePath = true;
 			filePathPrefix = DomUtils.getAttributeText(node, "filePathPrefix");
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
+					"crawlUrl")))
+				crawlUrl = true;
 		}
 	}
 
@@ -75,7 +82,7 @@ public class DatabaseFieldTarget extends Target {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no",
 				"convertHtmlEntities", convertHtmlEntities ? "yes" : "no",
 				"filePath", filePath ? "yes" : "no", "filePathPrefix",
-				filePathPrefix);
+				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no");
 		xmlWriter.endElement();
 	}
 
@@ -148,4 +155,22 @@ public class DatabaseFieldTarget extends Target {
 		return !isFilePath();
 	}
 
+	/**
+	 * @param crawlUrl
+	 *            the crawlUrl to set
+	 */
+	public void setCrawlUrl(boolean crawlUrl) {
+		this.crawlUrl = crawlUrl;
+	}
+
+	/**
+	 * @return the crawlUrl
+	 */
+	public boolean isCrawlUrl() {
+		return crawlUrl;
+	}
+
+	public boolean isNotCrawlUrl() {
+		return !crawlUrl;
+	}
 }

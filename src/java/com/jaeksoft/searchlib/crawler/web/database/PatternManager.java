@@ -251,17 +251,17 @@ public class PatternManager {
 		}
 	}
 
-	public PatternItem matchPattern(URL url) {
+	final public boolean matchPattern(URL url) {
 		rwl.r.lock();
 		try {
 			List<PatternItem> patternList = patternMap.get(url.getHost());
 			if (patternList == null)
-				return null;
+				return false;
 			String sUrl = url.toExternalForm();
 			for (PatternItem patternItem : patternList)
 				if (patternItem.match(sUrl))
-					return patternItem;
-			return null;
+					return true;
+			return false;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -273,7 +273,7 @@ public class PatternManager {
 		List<PatternItem> patternList = new ArrayList<PatternItem>();
 		while (it.hasNext()) {
 			InjectUrlItem item = it.next();
-			if (matchPattern(item.getURL()) != null)
+			if (matchPattern(item.getURL()))
 				continue;
 			patternList.add(new PatternItem(item.getURL()));
 		}

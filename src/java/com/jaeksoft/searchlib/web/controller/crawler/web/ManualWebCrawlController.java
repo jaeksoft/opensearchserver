@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
@@ -89,7 +90,7 @@ public class ManualWebCrawlController extends CommonController {
 			if (currentCrawlThread != null && currentCrawlThread.isRunning())
 				throw new SearchLibException("A crawl is already running");
 			currentCrawlThread = getClient().getWebCrawlMaster().manualCrawl(
-					new URL(url));
+					new URL(url), ListType.MANUAL);
 			currentCrawlThread.waitForStart(60);
 			reloadPage();
 		}

@@ -19,13 +19,14 @@
 
 	<panel
 		title="List of existing database crawl - click on an crawl name to edit it"
-		border="normal">
+		border="normal" visible="@{dbCrawlList.notEditing}">
 		<toolbar>
 			<button label="Refresh" forward="onListRefresh" />
+			<space />
+			<button label="New crawl..." forward="onNew" />
 		</toolbar>
 		<panelchildren>
 			<listbox id="crawllistbox"
-				selectedItem="@{dbCrawlList.selectedCrawl}"
 				model="@{dbCrawlList.databaseCrawlList.array}" mold="paging"
 				pageSize="20">
 				<listhead>
@@ -36,7 +37,7 @@
 						tooltiptext="last duration time" width="100px" />
 					<listheader label="Status" width="100px" />
 					<listheader label="Info" width="150px" />
-					<listheader label="Action" width="100px"
+					<listheader label="Action" width="150px"
 						align="center" />
 				</listhead>
 				<listitem self="@{each=dbcrawlitem}">
@@ -51,20 +52,30 @@
 					<listcell
 						label="@{dbcrawlitem.lastCrawlThread.countInfo}" />
 					<listcell>
-						<button tooltiptext="Execute the crawl process"
-							disabled="@{dbcrawlitem.crawlThread}"
-							image="/images/action_check.png"
-							onClick="dbCrawlList.execute(self)">
-							<custom-attributes
-								dbcrawlitem="@{dbcrawlitem}" />
-						</button>
-						<space />
-						<button tooltiptext="Delete crawl process"
-							image="/images/action_delete.png"
-							onClick="dbCrawlList.delete(self)">
-							<custom-attributes
-								dbcrawlitem="@{dbcrawlitem}" />
-						</button>
+						<hbox align="center">
+							<button
+								tooltiptext="Edit the database crawl" label="Edit"
+								onClick="dbCrawlList.edit(self)">
+								<custom-attributes
+									dbcrawlitem="@{dbcrawlitem}" />
+							</button>
+							<space />
+							<button
+								tooltiptext="Execute the crawl process"
+								disabled="@{dbcrawlitem.crawlThread}"
+								image="/images/action_check.png"
+								onClick="dbCrawlList.execute(self)">
+								<custom-attributes
+									dbcrawlitem="@{dbcrawlitem}" />
+							</button>
+							<space />
+							<button tooltiptext="Delete crawl process"
+								image="/images/action_delete.png"
+								onClick="dbCrawlList.delete(self)">
+								<custom-attributes
+									dbcrawlitem="@{dbcrawlitem}" />
+							</button>
+						</hbox>
 					</listcell>
 				</listitem>
 			</listbox>
@@ -73,7 +84,8 @@
 
 	<separator height="10" />
 
-	<panel title="@{dbCrawlList.currentEditMode}" border="normal">
+	<panel title="@{dbCrawlList.currentEditMode}" border="normal"
+		visible="@{dbCrawlList.editing}">
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
@@ -154,12 +166,15 @@
 									align="center" width="180px" />
 								<listheader width="50px" label="Tags"
 									tooltiptext="Remove tag" align="center" />
-								<listheader width="50px" label="Entities"
-									tooltiptext="Convert HTML entities" align="center" />
+								<listheader width="50px"
+									label="Entities" tooltiptext="Convert HTML entities"
+									align="center" />
 								<listheader width="50px" label="File"
 									tooltiptext="Contains a file path" align="center" />
 								<listheader label="File path prefix"
 									align="center" />
+								<listheader width="50px" label="URL"
+									tooltiptext="Crawl the given URL" align="center" />
 								<listheader width="100px" label="Action"
 									align="center" />
 							</listhead>
@@ -195,6 +210,11 @@
 										value="@{dbCrawlList.dbFieldTarget.filePathPrefix}" />
 								</auxheader>
 								<auxheader align="center">
+									<checkbox
+										tooltiptext="Crawl the given URL"
+										checked="@{dbCrawlList.dbFieldTarget.crawlUrl}" />
+								</auxheader>
+								<auxheader align="center">
 									<button label="add"
 										forward="onAddField" />
 								</auxheader>
@@ -217,6 +237,10 @@
 								<listcell
 									label="@{fieldlink.target.filePathPrefix}" />
 								<listcell>
+									<checkbox disabled="true"
+										checked="@{fieldlink.target.crawlUrl}" />
+								</listcell>
+								<listcell>
 									<button tooltiptext="Remove"
 										image="/images/action_delete.png"
 										onClick="dbCrawlList.removeLink(self)">
@@ -231,7 +255,7 @@
 					</row>
 				</rows>
 				<foot>
-					<footer span="3">
+					<footer span="8">
 						<vbox width="100%" align="center">
 							<hbox visible="@{dbCrawlList.selected}">
 								<button label="Cancel"
@@ -243,7 +267,7 @@
 							</hbox>
 							<hbox
 								visible="@{dbCrawlList.notSelected}">
-								<button label="Reset"
+								<button label="Cancel"
 									forward="onCancel" />
 								<button label="Create" forward="onSave" />
 							</hbox>

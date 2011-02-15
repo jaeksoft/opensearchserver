@@ -18,6 +18,8 @@
 	use="com.jaeksoft.searchlib.web.controller.crawler.web.ExclusionController">
 	<vbox width="99%"
 		visible="@{exclusion.webCrawlerEditPatternsRights}">
+		<checkbox label="Enabled" checked="@{exclusion.enabled.value}" />
+		<separator />
 		<label>For example:</label>
 		<label>
 			Enter http://www.open-search-server.com if you only want to

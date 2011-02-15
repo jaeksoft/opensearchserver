@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,13 @@ public class HostUrlList {
 
 	public enum ListType {
 
-		OLD_URL("old"), NEW_URL("new"), MANUAL("manual");
+		OLD_URL("old"),
+
+		NEW_URL("new"),
+
+		MANUAL("manual"),
+
+		DBCRAWL("dbcrawl");
 
 		private String name;
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -130,7 +131,13 @@ public abstract class UrlManagerAbstract {
 		return new Date(System.currentTimeMillis() - l);
 	}
 
-	public void updateCrawls(List<Crawl> crawls) throws SearchLibException {
+	/**
+	 * Update the targeted index with crawl results
+	 * 
+	 * @param crawls
+	 * @throws SearchLibException
+	 */
+	public void updateCrawlTarget(List<Crawl> crawls) throws SearchLibException {
 		try {
 			if (crawls == null)
 				return;
@@ -142,9 +149,12 @@ public abstract class UrlManagerAbstract {
 			for (Crawl crawl : crawls) {
 				if (crawl == null)
 					continue;
+				if (crawl.getHostUrlList().getListType() == ListType.DBCRAWL)
+					continue;
 				IndexDocument indexDocument = crawl.getTargetIndexDocument();
 				TargetStatus targetStatus = crawl.getUrlItem()
 						.getTargetResult();
+
 				if (targetStatus == TargetStatus.TARGET_UPDATE)
 					documentsToUpdate.add(indexDocument);
 				else if (targetStatus == TargetStatus.TARGET_DELETE)
@@ -154,16 +164,6 @@ public abstract class UrlManagerAbstract {
 				targetClient.updateDocuments(documentsToUpdate);
 			if (documentsToDelete.size() > 0)
 				targetClient.deleteDocuments(documentsToDelete);
-
-			// Update URL DB
-			List<UrlItem> urlItems = new ArrayList<UrlItem>();
-			for (Crawl crawl : crawls) {
-				if (crawl == null)
-					continue;
-				urlItems.add(crawl.getUrlItem());
-			}
-			updateUrlItems(urlItems);
-
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -177,6 +177,24 @@ public abstract class UrlManagerAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	/**
+	 * Update the URL database with crawl results
+	 * 
+	 * @param crawls
+	 * @throws SearchLibException
+	 */
+	public void updateCrawlUrlDb(List<Crawl> crawls) throws SearchLibException {
+		if (crawls == null)
+			return;
+		List<UrlItem> urlItems = new ArrayList<UrlItem>();
+		for (Crawl crawl : crawls) {
+			if (crawl == null)
+				continue;
+			urlItems.add(crawl.getUrlItem());
+		}
+		updateUrlItems(urlItems);
 	}
 
 }

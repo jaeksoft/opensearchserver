@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -115,6 +115,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				dbPrimaryKey = null;
 			boolean merge = false;
 			setStatus(CrawlStatus.CRAWL);
+			DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
 			while (resultSet.next()) {
 				if (dbPrimaryKey != null) {
 					merge = false;
@@ -133,8 +134,9 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				}
 				IndexDocument newFieldContents = new IndexDocument(
 						databaseCrawl.getLang());
-				databaseCrawl.getFieldMap()
-						.mapResultSet(client.getParserSelector(), resultSet,
+				databaseFieldMap
+						.mapResultSet(client.getWebCrawlMaster(),
+								client.getParserSelector(), resultSet,
 								newFieldContents);
 				if (merge && lastFieldContent != null) {
 					indexDocument.addIfNotAlreadyHere(newFieldContents);
@@ -143,8 +145,13 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				lastFieldContent = newFieldContents;
 			}
 			index(indexDocumentList, 0);
-			if (updatedIndexDocumentCount > 0)
+			if (updatedIndexDocumentCount > 0) {
+				if (databaseFieldMap.isUrl()) {
+					setStatus(CrawlStatus.OPTMIZING_INDEX);
+					client.getUrlManager().reload(true);
+				}
 				client.reload();
+			}
 		} finally {
 			if (transaction != null)
 				transaction.close();

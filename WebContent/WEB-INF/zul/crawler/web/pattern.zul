@@ -18,6 +18,8 @@
 	use="com.jaeksoft.searchlib.web.controller.crawler.web.PatternController">
 	<vbox width="99%"
 		visible="@{pattern.webCrawlerEditPatternsRights}">
+		<checkbox label="Enabled" checked="@{pattern.enabled.value}" />
+		<separator />
 		<label>For example:</label>
 		<label>
 			Enter http://www.open-search-server.com if you only want to
@@ -36,6 +38,7 @@
 			value="@{pattern.pattern}" />
 		<button label="Add" forward="onAdd" />
 	</vbox>
+
 	<separator />
 	<hbox>
 		<label>Filter:</label>

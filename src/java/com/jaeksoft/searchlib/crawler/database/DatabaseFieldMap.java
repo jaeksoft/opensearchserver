@@ -26,19 +26,25 @@ package com.jaeksoft.searchlib.crawler.database;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
@@ -60,10 +66,21 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 		target.writeXml(xmlWriter);
 	}
 
-	public void mapResultSet(ParserSelector parserSelector,
-			ResultSet resultSet, IndexDocument target) throws SQLException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException, MalformedURLException {
+	public boolean isUrl() {
+		for (GenericLink<String, DatabaseFieldTarget> link : getList()) {
+			DatabaseFieldTarget dfTarget = link.getTarget();
+			if (dfTarget.isCrawlUrl())
+				return true;
+		}
+		return false;
+	}
+
+	public void mapResultSet(WebCrawlMaster webCrawlMaster,
+			ParserSelector parserSelector, ResultSet resultSet,
+			IndexDocument target) throws SQLException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException,
+			ParseException, IOException, SyntaxError, URISyntaxException,
+			InterruptedException {
 		ResultSetMetaData metaData = resultSet.getMetaData();
 		TreeSet<String> columns = new TreeSet<String>();
 		int columnCount = metaData.getColumnCount();
@@ -91,6 +108,14 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 						parser.populate(target);
 					}
 				}
+			}
+			if (dfTarget.isCrawlUrl()) {
+				WebCrawlThread crawlThread = webCrawlMaster.manualCrawl(
+						new URL(content), ListType.DBCRAWL);
+				crawlThread.waitForStart(60);
+				crawlThread.waitForEnd(60);
+				target.add(crawlThread.getCurrentCrawl()
+						.getTargetIndexDocument());
 			}
 
 			if (dfTarget.isConvertHtmlEntities())
