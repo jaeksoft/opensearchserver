@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
@@ -339,11 +340,15 @@ public class ResultController extends AbstractQueryController implements
 		treecell.setParent(treerow);
 	}
 
+	private void renderValue(Treerow treerow, FieldValueItem value) {
+		renderValue(treerow, value.getValue());
+	}
+
 	private void renderField(Treerow treerow, FieldValue fieldValue) {
 		new Treecell(fieldValue.toString()).setParent(treerow);
 		Treecell treecell;
 		if (fieldValue.getValuesCount() > 0)
-			treecell = new Treecell(fieldValue.getValueArray()[0]);
+			treecell = new Treecell(fieldValue.getValueArray()[0].getValue());
 		else
 			treecell = new Treecell();
 		treecell.setParent(treerow);
@@ -356,7 +361,8 @@ public class ResultController extends AbstractQueryController implements
 			renderValue(treerow, (String) data);
 		else if (data instanceof FieldValue)
 			renderField(treerow, (FieldValue) data);
+		else if (data instanceof FieldValueItem)
+			renderValue(treerow, (FieldValueItem) data);
 		treerow.setParent(item);
 	}
-
 }

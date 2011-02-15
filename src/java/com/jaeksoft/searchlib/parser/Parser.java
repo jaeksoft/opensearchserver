@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public abstract class Parser {
 
@@ -112,14 +113,14 @@ public abstract class Parser {
 			return;
 		if (value.length() == 0)
 			return;
-		parserDocument.add(field.name(), value);
+		parserDocument.add(field.name(), new FieldValueItem(value));
 	}
 
 	public void addDirectFields(String[] fields, String value) {
 		if (directDocument == null)
 			directDocument = new IndexDocument();
 		for (String field : fields)
-			directDocument.add(field, value);
+			directDocument.add(field, new FieldValueItem(value));
 	}
 
 	protected void addField(ParserFieldEnum field, Object object) {
@@ -133,7 +134,11 @@ public abstract class Parser {
 	}
 
 	public String getFieldValue(ParserFieldEnum field, int pos) {
-		return parserDocument.getFieldValue(field.name(), pos);
+		FieldValueItem valueItem = parserDocument.getFieldValue(field.name(),
+				pos);
+		if (valueItem == null)
+			return null;
+		return valueItem.getValue();
 	}
 
 	public String getMergedBodyText(int maxChar, String sep,
@@ -141,8 +146,8 @@ public abstract class Parser {
 		StringBuffer sb = new StringBuffer();
 		FieldContent fc = getFieldContent(field);
 		if (fc != null) {
-			for (String value : fc.getValues()) {
-				sb.append(value);
+			for (FieldValueItem valueItem : fc.getValues()) {
+				sb.append(valueItem.getValue());
 				if (sb.length() > maxChar)
 					break;
 				sb.append(sep);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class SnippetFieldValue extends FieldValue implements Externalizable {
 
@@ -45,7 +46,7 @@ public class SnippetFieldValue extends FieldValue implements Externalizable {
 	public SnippetFieldValue() {
 	}
 
-	public SnippetFieldValue(Field field, List<String> values,
+	public SnippetFieldValue(Field field, List<FieldValueItem> values,
 			boolean highlighted) {
 		super(field, values);
 		this.highlighted = highlighted;

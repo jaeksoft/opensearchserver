@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -171,5 +171,12 @@ public class XPathParser {
 		if (value == null)
 			return 0;
 		return Long.parseLong(value);
+	}
+
+	public static Float getAttributeFloat(Node node, String attributeName) {
+		String value = getAttributeString(node, attributeName);
+		if (value == null)
+			return null;
+		return Float.parseFloat(value);
 	}
 }

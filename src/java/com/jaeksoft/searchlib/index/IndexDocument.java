@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.External.Collecter;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -117,7 +118,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 				String textContent = xpp.getNodeString(valueNode);
 				if (removeTag)
 					textContent = StringUtils.removeTag(textContent);
-				add(fieldName, textContent);
+				Float boost = XPathParser.getAttributeFloat(valueNode, "boost");
+				add(fieldName, textContent, boost);
 			}
 		}
 		NodeList binaryNodes = xpp.getNodeList(documentNode, "binary");
@@ -153,26 +155,22 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		return fc;
 	}
 
-	private void addField(String field, String value) {
+	public void add(String field, FieldValueItem fieldValueItem) {
 		FieldContent fc = getFieldContent(field);
-		fc.add(value);
+		fc.add(fieldValueItem);
 		fieldContentArray = null;
 	}
 
-	public void addEmptyField(String field) {
-		addField(field, "");
-	}
-
-	public void add(String field, String value) {
+	public void add(String field, String value, Float boost) {
 		if (value.length() == 0)
 			return;
-		addField(field, value);
+		add(field, new FieldValueItem(value, boost));
 	}
 
-	public void add(String field, List<String> values) {
+	public void add(String field, List<FieldValueItem> values) {
 		if (values == null)
 			return;
-		for (String value : values)
+		for (FieldValueItem value : values)
 			add(field, value);
 	}
 
@@ -196,16 +194,9 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			addIfNotAlreadyHere(fc);
 	}
 
-	public void add(String field, Object value) {
-		if (value == null)
-			throw new java.lang.NullPointerException("Null value on field "
-					+ field);
-		add(field, value.toString());
-	}
-
-	public void add(Map<?, ?> fieldMap) {
-		for (Map.Entry<?, ?> entry : fieldMap.entrySet())
-			add(entry.getKey().toString(), entry.getValue());
+	public void add(Map<String, FieldValueItem> fieldMap) {
+		for (Map.Entry<String, FieldValueItem> entry : fieldMap.entrySet())
+			add(entry.getKey(), entry.getValue());
 	}
 
 	public void add(IndexDocument source) {
@@ -217,10 +208,10 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		FieldContent fc = fields.get(field);
 		if (fc != null)
 			fc.clear();
-		add(field, value);
+		add(field, value, null);
 	}
 
-	public void set(String field, List<String> values) {
+	public void set(String field, List<FieldValueItem> values) {
 		FieldContent fc = fields.get(field);
 		if (fc != null)
 			fc.clear();
@@ -243,7 +234,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		return fields.get(fieldName);
 	}
 
-	public String getFieldValue(String fieldName, int pos) {
+	public FieldValueItem getFieldValue(String fieldName, int pos) {
 		if (fields == null)
 			return null;
 		FieldContent fc = fields.get(fieldName);

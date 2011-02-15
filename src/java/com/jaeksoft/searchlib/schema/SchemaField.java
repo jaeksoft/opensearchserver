@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -80,11 +80,16 @@ public class SchemaField extends Field {
 		this.termVector = TermVector.fromValue(termVector);
 	}
 
-	public org.apache.lucene.document.Field getLuceneField(String value) {
+	final public org.apache.lucene.document.Field getLuceneField(String value,
+			Float boost) {
 		try {
-			return new org.apache.lucene.document.Field(name, value, stored
-					.getLuceneStore(), indexed.getLuceneIndex(indexAnalyzer),
-					termVector.getLuceneTermVector());
+			org.apache.lucene.document.Field field = new org.apache.lucene.document.Field(
+					name, value, stored.luceneStore,
+					indexed.getLuceneIndex(indexAnalyzer),
+					termVector.luceneTermVector);
+			if (boost != null)
+				field.setBoost(boost);
+			return field;
 		} catch (java.lang.NullPointerException e) {
 			throw new NullPointerException("Erreur on field " + name);
 		}

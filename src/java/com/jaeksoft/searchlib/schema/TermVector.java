@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,28 +34,30 @@ public enum TermVector {
 			"Term vectors are not recorded. This prevents using snippets in this field.",
 			org.apache.lucene.document.Field.TermVector.NO);
 
-	private String description;
-	private org.apache.lucene.document.Field.TermVector luceneTermVector;
+	final public String description;
+	final public org.apache.lucene.document.Field.TermVector luceneTermVector;
+	final public String value;
 
 	private TermVector(String description,
 			org.apache.lucene.document.Field.TermVector luceneTermVector) {
 		this.description = description;
 		this.luceneTermVector = luceneTermVector;
+		this.value = name().toLowerCase();
 	}
 
-	public String getDescription() {
+	final public String getDescription() {
 		return description;
 	}
 
-	public org.apache.lucene.document.Field.TermVector getLuceneTermVector() {
+	final public org.apache.lucene.document.Field.TermVector getLuceneTermVector() {
 		return luceneTermVector;
 	}
 
-	public String getValue() {
-		return name().toLowerCase();
+	final public String getValue() {
+		return value;
 	}
 
-	public static TermVector fromValue(String value) {
+	final public static TermVector fromValue(String value) {
 		for (TermVector fs : values())
 			if (fs.name().equalsIgnoreCase(value))
 				return fs;

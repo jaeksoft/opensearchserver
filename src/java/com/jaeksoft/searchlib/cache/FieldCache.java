@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.cache;
 import java.io.IOException;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 
@@ -36,8 +37,10 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
-public class FieldCache extends LRUCache<FieldContentCacheKey, String[]> {
+public class FieldCache extends
+		LRUCache<FieldContentCacheKey, FieldValueItem[]> {
 
 	public FieldCache(int maxSize) {
 		super(maxSize);
@@ -53,10 +56,10 @@ public class FieldCache extends LRUCache<FieldContentCacheKey, String[]> {
 		for (Field field : fieldList) {
 			FieldContentCacheKey key = new FieldContentCacheKey(
 					field.getName(), docId);
-			String[] values = getAndPromote(key);
-			if (values != null)
+			FieldValueItem[] values = getAndPromote(key);
+			if (values != null) {
 				documentFields.add(new FieldValue(field, values));
-			else
+			} else
 				missingField.add(field);
 		}
 
@@ -64,12 +67,15 @@ public class FieldCache extends LRUCache<FieldContentCacheKey, String[]> {
 		if (missingField.size() > 0) {
 			Document document = reader.getDocFields(docId, missingField);
 			for (Field field : missingField) {
-				FieldContentCacheKey key = new FieldContentCacheKey(field
-						.getName(), docId);
-				String[] values = document.getValues(field.getName());
-				if (values != null) {
-					documentFields.add(new FieldValue(field, values));
-					put(key, values);
+				FieldContentCacheKey key = new FieldContentCacheKey(
+						field.getName(), docId);
+				Fieldable[] fieldables = document
+						.getFieldables(field.getName());
+				if (fieldables != null) {
+					FieldValueItem[] valueItems = FieldValueItem
+							.buildArray(fieldables);
+					documentFields.add(new FieldValue(field, valueItems));
+					put(key, valueItems);
 				}
 			}
 		}

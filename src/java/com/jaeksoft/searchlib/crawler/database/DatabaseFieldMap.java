@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -96,7 +97,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 				content = StringEscapeUtils.unescapeHtml(content);
 			if (dfTarget.isRemoveTag())
 				content = StringUtils.removeTag(content);
-			target.add(dfTarget.getName(), content);
+			target.add(dfTarget.getName(), new FieldValueItem(content));
 		}
 	}
 }

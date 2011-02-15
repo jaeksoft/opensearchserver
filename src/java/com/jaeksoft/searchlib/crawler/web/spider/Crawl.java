@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -60,6 +60,7 @@ import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class Crawl {
 
@@ -316,10 +317,11 @@ public class Crawl {
 			throws NoSuchAlgorithmException, IOException, SearchLibException {
 		if (urlFieldContent == null)
 			return;
-		List<String> links = urlFieldContent.getValues();
+		List<FieldValueItem> links = urlFieldContent.getValues();
 		if (links == null)
 			return;
-		for (String link : links) {
+		for (FieldValueItem linkItem : links) {
+			String link = linkItem.getValue();
 			try {
 				URL url = new URL(link);
 				if (exclusionManager.matchPattern(url) != null)

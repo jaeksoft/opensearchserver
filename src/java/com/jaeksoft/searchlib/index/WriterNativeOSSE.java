@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.util.Collection;
 
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
@@ -65,7 +66,8 @@ public class WriterNativeOSSE extends WriterAbstract {
 		Pointer doc = OsseLibrary.INSTANCE.document_new();
 		for (FieldContent fieldContent : document) {
 			WString field = new WString(fieldContent.getField());
-			for (String value : fieldContent.getValues()) {
+			for (FieldValueItem valueItem : fieldContent.getValues()) {
+				String value = valueItem.getValue();
 				String[] terms = value.split("\\s");
 				if (terms.length > 0) {
 					WString[] wTerms = new WString[terms.length];

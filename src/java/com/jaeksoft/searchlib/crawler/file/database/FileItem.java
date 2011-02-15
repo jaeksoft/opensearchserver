@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileItem extends FileInfo implements Serializable {
@@ -114,23 +115,28 @@ public class FileItem extends FileInfo implements Serializable {
 			URISyntaxException {
 		super(doc);
 
-		setRepository(doc.getValue(FileItemFieldEnum.repository.getName(), 0));
-		setDirectory(doc.getValue(FileItemFieldEnum.directory.getName(), 0));
+		setRepository(doc.getValueContent(
+				FileItemFieldEnum.repository.getName(), 0));
+		setDirectory(doc.getValueContent(FileItemFieldEnum.directory.getName(),
+				0));
 		setSubDirectory(doc.getValueList(FileItemFieldEnum.subDirectory
 				.getName()));
 
-		setContentLength(doc.getValue(
+		setContentLength(doc.getValueContent(
 				FileItemFieldEnum.contentLength.getName(), 0));
 
-		setLang(doc.getValue(FileItemFieldEnum.lang.getName(), 0));
+		setLang(doc.getValueContent(FileItemFieldEnum.lang.getName(), 0));
 
-		setLangMethod(doc.getValue(FileItemFieldEnum.langMethod.getName(), 0));
+		setLangMethod(doc.getValueContent(
+				FileItemFieldEnum.langMethod.getName(), 0));
 
-		setCrawlDate(doc.getValue(FileItemFieldEnum.crawlDate.getName(), 0));
+		setCrawlDate(doc.getValueContent(FileItemFieldEnum.crawlDate.getName(),
+				0));
 
-		setSize(doc.getValue(FileItemFieldEnum.fileSize.getName(), 0));
+		setSize(doc.getValueContent(FileItemFieldEnum.fileSize.getName(), 0));
 
-		setExtension(doc.getValue(FileItemFieldEnum.fileExtension.getName(), 0));
+		setExtension(doc.getValueContent(
+				FileItemFieldEnum.fileExtension.getName(), 0));
 
 	}
 
@@ -279,8 +285,10 @@ public class FileItem extends FileInfo implements Serializable {
 		this.directory = directoryUri.toASCIIString();
 	}
 
-	public void setSubDirectory(List<String> subDirectory) {
-		this.subDirectory = subDirectory;
+	public void setSubDirectory(List<FieldValueItem> subDirectoryList) {
+		this.subDirectory = new ArrayList<String>();
+		for (FieldValueItem item : subDirectoryList)
+			subDirectory.add(item.getValue());
 	}
 
 	public String getRepository() {

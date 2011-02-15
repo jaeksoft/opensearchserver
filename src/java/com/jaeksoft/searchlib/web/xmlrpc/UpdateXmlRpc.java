@@ -38,11 +38,13 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class UpdateXmlRpc extends AbstractXmlRpc {
 
-	public Map<String, ?> updateDocument(String index, LanguageEnum lang,
-			Map<?, ?> document) throws SearchLibException, NamingException,
+	public Map<String, FieldValueItem> updateDocument(String index,
+			LanguageEnum lang, Map<String, FieldValueItem> document)
+			throws SearchLibException, NamingException,
 			NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
@@ -53,15 +55,16 @@ public class UpdateXmlRpc extends AbstractXmlRpc {
 		return newInfoMap("Updated");
 	}
 
-	public Map<String, ?> updateDocuments(String index, LanguageEnum lang,
-			List<Map<?, ?>> documents) throws SearchLibException,
-			NamingException, NoSuchAlgorithmException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
+	public Map<String, FieldValueItem> updateDocuments(String index,
+			LanguageEnum lang, List<Map<String, FieldValueItem>> documents)
+			throws SearchLibException, NamingException,
+			NoSuchAlgorithmException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		Client client = ClientCatalog.getClient(index);
 		List<IndexDocument> indexDocuments = new ArrayList<IndexDocument>(
 				documents.size());
-		for (Map<?, ?> document : documents) {
+		for (Map<String, FieldValueItem> document : documents) {
 			IndexDocument indexDocument = new IndexDocument(lang);
 			indexDocument.add(document);
 			indexDocuments.add(indexDocument);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -390,10 +390,10 @@ public class HtmlParser extends Parser {
 		IndexDocument sourceDocument = getSourceDocument();
 		if (sourceDocument != null) {
 			charset = sourceDocument.getFieldValue(
-					UrlItemFieldEnum.contentTypeCharset.name(), 0);
+					UrlItemFieldEnum.contentTypeCharset.name(), 0).getValue();
 			if (charset == null)
 				charset = getSourceDocument().getFieldValue(
-						UrlItemFieldEnum.contentEncoding.name(), 0);
+						UrlItemFieldEnum.contentEncoding.name(), 0).getValue();
 		}
 		boolean charsetWasNull = charset == null;
 		if (charsetWasNull)
@@ -487,7 +487,7 @@ public class HtmlParser extends Parser {
 			URL currentURL = getBaseHref(doc);
 			if (currentURL == null)
 				currentURL = new URL(getSourceDocument().getFieldValue(
-						UrlItemFieldEnum.url.name(), 0));
+						UrlItemFieldEnum.url.name(), 0).getValue());
 			for (Node node : nodes) {
 				String href = DomUtils.getAttributeText(node, "href");
 				String rel = DomUtils.getAttributeText(node, "rel");

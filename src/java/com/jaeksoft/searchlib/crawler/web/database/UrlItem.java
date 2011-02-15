@@ -35,7 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
@@ -44,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class UrlItem implements Serializable {
 
@@ -98,61 +98,34 @@ public class UrlItem implements Serializable {
 
 	public UrlItem(ResultDocument doc) {
 		this();
-		setUrl(doc.getValue(UrlItemFieldEnum.url.name(), 0));
-		setHost(doc.getValue(UrlItemFieldEnum.host.name(), 0));
+		setUrl(doc.getValueContent(UrlItemFieldEnum.url.name(), 0));
+		setHost(doc.getValueContent(UrlItemFieldEnum.host.name(), 0));
 		setSubHost(doc.getValueList(UrlItemFieldEnum.subhost.name()));
-		setContentDispositionFilename(doc.getValue(
+		setContentDispositionFilename(doc.getValueContent(
 				UrlItemFieldEnum.contentDispositionFilename.name(), 0));
-		setContentBaseType(doc.getValue(
+		setContentBaseType(doc.getValueContent(
 				UrlItemFieldEnum.contentBaseType.name(), 0));
-		setContentTypeCharset(doc.getValue(
+		setContentTypeCharset(doc.getValueContent(
 				UrlItemFieldEnum.contentTypeCharset.name(), 0));
-		setContentLength(doc.getValue(UrlItemFieldEnum.contentLength.name(), 0));
-		setContentEncoding(doc.getValue(
+		setContentLength(doc.getValueContent(
+				UrlItemFieldEnum.contentLength.name(), 0));
+		setContentEncoding(doc.getValueContent(
 				UrlItemFieldEnum.contentEncoding.name(), 0));
-		setLang(doc.getValue(UrlItemFieldEnum.lang.name(), 0));
-		setLangMethod(doc.getValue(UrlItemFieldEnum.langMethod.name(), 0));
-		setWhen(doc.getValue(UrlItemFieldEnum.when.name(), 0));
-		setRobotsTxtStatusInt(doc.getValue(
+		setLang(doc.getValueContent(UrlItemFieldEnum.lang.name(), 0));
+		setLangMethod(doc
+				.getValueContent(UrlItemFieldEnum.langMethod.name(), 0));
+		setWhen(doc.getValueContent(UrlItemFieldEnum.when.name(), 0));
+		setRobotsTxtStatusInt(doc.getValueContent(
 				UrlItemFieldEnum.robotsTxtStatus.name(), 0));
-		setFetchStatusInt(doc.getValue(UrlItemFieldEnum.fetchStatus.name(), 0));
-		setResponseCode(doc.getValue(UrlItemFieldEnum.responseCode.name(), 0));
-		setParserStatusInt(doc
-				.getValue(UrlItemFieldEnum.parserStatus.name(), 0));
-		setIndexStatusInt(doc.getValue(UrlItemFieldEnum.indexStatus.name(), 0));
-		setMd5size(doc.getValue(UrlItemFieldEnum.md5size.name(), 0));
-	}
-
-	public UrlItem(Map<?, ?> map) {
-		this();
-		setUrl((String) map.get(UrlItemFieldEnum.url.name()));
-		String host = (String) map.get(UrlItemFieldEnum.host.name());
-		if (host != null) {
-			setHost(host);
-			setSubHost(buildSubHost(host));
-		}
-		setContentDispositionFilename((String) map
-				.get(UrlItemFieldEnum.contentDispositionFilename.name()));
-		setContentBaseType((String) map.get(UrlItemFieldEnum.contentBaseType
-				.name()));
-		setContentTypeCharset((String) map
-				.get(UrlItemFieldEnum.contentTypeCharset.name()));
-		setContentLength((String) map
-				.get(UrlItemFieldEnum.contentLength.name()));
-		setContentEncoding((String) map.get(UrlItemFieldEnum.contentEncoding
-				.name()));
-		setLang((String) map.get(UrlItemFieldEnum.lang.name()));
-		setLangMethod((String) map.get(UrlItemFieldEnum.langMethod.name()));
-		setWhen(new Date(Long.parseLong((String) map.get(UrlItemFieldEnum.when
-				.name()))));
-		setRobotsTxtStatusInt((String) map.get(UrlItemFieldEnum.robotsTxtStatus
-				.name()));
-		setFetchStatusInt((String) map.get(UrlItemFieldEnum.fetchStatus.name()));
-		setResponseCode((String) map.get(UrlItemFieldEnum.responseCode.name()));
-		setParserStatusInt((String) map.get(UrlItemFieldEnum.parserStatus
-				.name()));
-		setIndexStatusInt((String) map.get(UrlItemFieldEnum.indexStatus.name()));
-		setMd5size((String) map.get(UrlItemFieldEnum.md5size.name()));
+		setFetchStatusInt(doc.getValueContent(
+				UrlItemFieldEnum.fetchStatus.name(), 0));
+		setResponseCode(doc.getValueContent(
+				UrlItemFieldEnum.responseCode.name(), 0));
+		setParserStatusInt(doc.getValueContent(
+				UrlItemFieldEnum.parserStatus.name(), 0));
+		setIndexStatusInt(doc.getValueContent(
+				UrlItemFieldEnum.indexStatus.name(), 0));
+		setMd5size(doc.getValueContent(UrlItemFieldEnum.md5size.name(), 0));
 	}
 
 	public UrlItem(String sUrl) {
@@ -164,8 +137,13 @@ public class UrlItem implements Serializable {
 		return subhost;
 	}
 
-	public void setSubHost(List<String> subhost) {
-		this.subhost = subhost;
+	public void setSubHost(List<FieldValueItem> subhostlist) {
+		this.subhost = null;
+		if (subhostlist == null)
+			return;
+		this.subhost = new ArrayList<String>();
+		for (FieldValueItem item : subhostlist)
+			this.subhost.add(item.getValue());
 	}
 
 	public String getHost() {

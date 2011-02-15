@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
@@ -286,13 +287,16 @@ public class WriterLocal extends WriterAbstract {
 				Analyzer analyzer = schema.getAnalyzer(field, lang);
 				CompiledAnalyzer compiledAnalyzer = (analyzer == null) ? null
 						: analyzer.getIndexAnalyzer();
-				for (String value : fieldContent.getValues()) {
+				for (FieldValueItem valueItem : fieldContent.getValues()) {
+					if (valueItem == null)
+						continue;
+					String value = valueItem.getValue();
 					if (value == null)
 						continue;
 					if (compiledAnalyzer != null)
 						if (!compiledAnalyzer.isAnyToken(fieldName, value))
 							continue;
-					doc.add(field.getLuceneField(value));
+					doc.add(field.getLuceneField(value, valueItem.getBoost()));
 				}
 			}
 		}

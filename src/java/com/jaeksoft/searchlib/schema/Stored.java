@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,27 +38,29 @@ public enum Stored {
 			"The content of this field is stored, and queries can thus return it. This setting is useful for large bodies of text.",
 			Store.COMPRESS);
 
-	private String description;
-	private Store luceneStore;
+	final private String description;
+	final public Store luceneStore;
+	final public String value;
 
 	private Stored(String description, Store luceneStore) {
 		this.description = description;
 		this.luceneStore = luceneStore;
+		this.value = name().toLowerCase();
 	}
 
-	public String getDescription() {
+	final public String getDescription() {
 		return description;
 	}
 
-	public Store getLuceneStore() {
+	final public Store getLuceneStore() {
 		return luceneStore;
 	}
 
-	public String getValue() {
-		return name().toLowerCase();
+	final public String getValue() {
+		return value;
 	}
 
-	public static Stored fromValue(String value) {
+	final public static Stored fromValue(String value) {
 		for (Stored fs : values())
 			if (fs.name().equalsIgnoreCase(value))
 				return fs;

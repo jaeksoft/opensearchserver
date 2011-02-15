@@ -54,18 +54,18 @@ public class FileInfo {
 	public FileInfo(ResultDocument doc) throws UnsupportedEncodingException,
 			URISyntaxException {
 		this();
-		setFileSystemDate(doc.getValue(
+		setFileSystemDate(doc.getValueContent(
 				FileItemFieldEnum.fileSystemDate.getName(), 0));
-		String s = doc.getValue(FileItemFieldEnum.fileType.getName(), 0);
+		String s = doc.getValueContent(FileItemFieldEnum.fileType.getName(), 0);
 		if (s != null)
 			setType(FileTypeEnum.valueOf(s));
-		setUri(doc.getValue(FileItemFieldEnum.uri.getName(), 0));
-		setFetchStatusInt(doc.getValue(FileItemFieldEnum.fetchStatus.getName(),
-				0));
-		setParserStatusInt(doc.getValue(
+		setUri(doc.getValueContent(FileItemFieldEnum.uri.getName(), 0));
+		setFetchStatusInt(doc.getValueContent(
+				FileItemFieldEnum.fetchStatus.getName(), 0));
+		setParserStatusInt(doc.getValueContent(
 				FileItemFieldEnum.parserStatus.getName(), 0));
-		setIndexStatusInt(doc.getValue(FileItemFieldEnum.indexStatus.getName(),
-				0));
+		setIndexStatusInt(doc.getValueContent(
+				FileItemFieldEnum.indexStatus.getName(), 0));
 	}
 
 	protected void init() {

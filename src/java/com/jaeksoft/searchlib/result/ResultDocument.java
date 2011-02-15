@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.util.External;
@@ -71,7 +72,7 @@ public class ResultDocument implements Externalizable {
 			returnFields.add(documentFields.get(field));
 
 		for (SnippetField field : documentsRequest.getSnippetFieldList()) {
-			List<String> snippets = new ArrayList<String>();
+			List<FieldValueItem> snippets = new ArrayList<FieldValueItem>();
 			boolean isSnippet = field.getSnippets(doc, reader, documentFields
 					.get(field).getValueArray(), snippets);
 			SnippetFieldValue fieldValue = new SnippetFieldValue(field,
@@ -88,66 +89,66 @@ public class ResultDocument implements Externalizable {
 		return snippetFields;
 	}
 
-	public String[] getValueArray(Field field) {
+	public FieldValueItem[] getValueArray(Field field) {
 		return returnFields.get(field).getValueArray();
 	}
 
-	public List<String> getValueList(Field field) {
+	public List<FieldValueItem> getValueList(Field field) {
 		return getValueList(field.getName());
 	}
 
-	public String[] getValueArray(String fieldName) {
+	public FieldValueItem[] getValueArray(String fieldName) {
 		return returnFields.get(fieldName).getValueArray();
 	}
 
-	public List<String> getValueList(String fieldName) {
+	public List<FieldValueItem> getValueList(String fieldName) {
 		FieldValue fieldValue = returnFields.get(fieldName);
 		if (fieldValue == null)
 			return null;
 		return fieldValue.getValueList();
 	}
 
-	public String getValue(Field field, int pos) {
-		String[] values = getValueArray(field);
+	public String getValueContent(Field field, int pos) {
+		FieldValueItem[] values = getValueArray(field);
 		if (values == null)
 			return null;
 		if (pos >= values.length)
 			return null;
-		return values[pos];
+		return values[pos].getValue();
 	}
 
-	public String getValue(String fieldName, int pos) {
+	public String getValueContent(String fieldName, int pos) {
 		FieldValue field = returnFields.get(fieldName);
 		if (field == null)
 			return null;
-		return getValue(field, pos);
+		return getValueContent(field, pos);
 	}
 
-	public String[] getSnippetArray(SnippetField field) {
+	public FieldValueItem[] getSnippetArray(SnippetField field) {
 		return snippetFields.get(field).getValueArray();
 	}
 
-	public List<String> getSnippetValue(SnippetField field) {
+	public List<FieldValueItem> getSnippetValue(SnippetField field) {
 		return snippetFields.get(field).getValueList();
 	}
 
-	public String[] getSnippetArray(String fieldName) {
+	public FieldValueItem[] getSnippetArray(String fieldName) {
 		return snippetFields.get(fieldName).getValueArray();
 	}
 
-	public List<String> getSnippetList(String fieldName) {
+	public List<FieldValueItem> getSnippetList(String fieldName) {
 		SnippetFieldValue snippetFieldValue = snippetFields.get(fieldName);
 		if (snippetFieldValue == null)
 			return null;
 		return snippetFieldValue.getValueList();
 	}
 
-	public List<String> getSnippetList(Field field) {
+	public List<FieldValueItem> getSnippetList(Field field) {
 		return getSnippetList(field.getName());
 	}
 
-	public String getSnippet(String fieldName, int pos) {
-		String[] values = getSnippetArray(fieldName);
+	public FieldValueItem getSnippet(String fieldName, int pos) {
+		FieldValueItem[] values = getSnippetArray(fieldName);
 		if (values == null)
 			return null;
 		if (pos >= values.length)

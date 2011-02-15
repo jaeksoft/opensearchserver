@@ -29,6 +29,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import com.jaeksoft.searchlib.schema.FieldValueItem;
+
 public class Md5Spliter {
 
 	final private static String generateHash(byte[] result) {
@@ -67,12 +69,13 @@ public class Md5Spliter {
 			this.keyPattern = Pattern.compile(keyPattern);
 	}
 
-	public boolean acceptAnyKey(Collection<String> keys)
+	public boolean acceptAnyKey(Collection<FieldValueItem> keys)
 			throws NoSuchAlgorithmException {
 		if (keyPattern == null)
 			return true;
-		for (String key : keys)
-			if (keyPattern.matcher(getMD5Hash(key, "gisi")).matches())
+		for (FieldValueItem key : keys)
+			if (keyPattern.matcher(getMD5Hash(key.getValue(), "gisi"))
+					.matches())
 				return true;
 		return false;
 	}

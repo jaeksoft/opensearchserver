@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
@@ -137,14 +138,21 @@ public class RenderXml implements Render {
 	private void renderField(ResultDocument doc, Field field)
 			throws CorruptIndexException, IOException {
 		String fieldName = field.getName();
-		List<String> values = doc.getValueList(field);
+		List<FieldValueItem> values = doc.getValueList(field);
 		if (values == null)
 			return;
-		for (String v : values) {
+		for (FieldValueItem v : values) {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
-			writer.print("\">");
-			writer.print(xmlTextRender(v));
+			writer.print('"');
+			Float b = v.getBoost();
+			if (b != null) {
+				writer.print(" boost=\"");
+				writer.print(b);
+				writer.print('"');
+			}
+			writer.print('>');
+			writer.print(xmlTextRender(v.getValue()));
 			writer.println("</field>");
 		}
 	}
@@ -152,18 +160,18 @@ public class RenderXml implements Render {
 	private void renderSnippetValue(ResultDocument doc, SnippetField field)
 			throws IOException {
 		String fieldName = field.getName();
-		String[] snippets = doc.getSnippetArray(field);
+		FieldValueItem[] snippets = doc.getSnippetArray(field);
 		if (snippets == null)
 			return;
 		boolean highlighted = doc.isHighlighted(field.getName());
-		for (String snippet : snippets) {
+		for (FieldValueItem snippet : snippets) {
 			writer.print("\t\t<snippet name=\"");
 			writer.print(fieldName);
 			writer.print('"');
 			if (highlighted)
 				writer.print(" highlighted=\"yes\"");
 			writer.print('>');
-			writer.print(xmlTextRender(snippet));
+			writer.print(xmlTextRender(snippet.getValue()));
 			writer.println("\t\t</snippet>");
 		}
 	}

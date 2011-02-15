@@ -31,10 +31,11 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class FieldContent implements Externalizable, Collecter<String> {
+public class FieldContent implements Externalizable, Collecter<FieldValueItem> {
 
 	/**
 	 * 
@@ -42,10 +43,10 @@ public class FieldContent implements Externalizable, Collecter<String> {
 	private static final long serialVersionUID = -4734981884898319100L;
 
 	private String field;
-	private List<String> values;
+	private List<FieldValueItem> values;
 
 	public FieldContent() {
-		values = new ArrayList<String>();
+		values = new ArrayList<FieldValueItem>();
 	}
 
 	public FieldContent(String field) {
@@ -57,7 +58,7 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		return field;
 	}
 
-	public void add(String value) {
+	public void add(FieldValueItem value) {
 		values.add(value);
 	}
 
@@ -66,7 +67,7 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		if (values.size() < fc2size)
 			return false;
 		int i = values.size() - fc2size;
-		for (String v : fc2.values)
+		for (FieldValueItem v : fc2.values)
 			if (!v.equals(values.get(i++)))
 				return false;
 		return true;
@@ -76,21 +77,26 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		values.addAll(fc2.values);
 	}
 
+	@Override
+	public void addObject(FieldValueItem valueItem) {
+		values.add(valueItem);
+	}
+
 	public void clear() {
 		values.clear();
 	}
 
-	public String getValue(int pos) {
+	public FieldValueItem getValue(int pos) {
 		if (values == null)
 			return null;
 		return values.get(pos);
 	}
 
-	public void setValue(int pos, String value) {
+	public void setValue(int pos, FieldValueItem value) {
 		values.set(pos, value);
 	}
 
-	public List<String> getValues() {
+	public List<FieldValueItem> getValues() {
 		return values;
 	}
 
@@ -109,25 +115,6 @@ public class FieldContent implements Externalizable, Collecter<String> {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeObject(field, out);
 		External.writeCollection(values, out);
-
-	}
-
-	@Override
-	public void addObject(String value) {
-		add(value);
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer result = new StringBuffer();
-		if (getValues() != null) {
-			for (String value : getValues()) {
-				result.append("key[").append(field).append(']');
-				result.append(" value[").append(value).append("]\n");
-			}
-		}
-
-		return result.toString();
 	}
 
 	public boolean isEquals(FieldContent fc) {
@@ -136,8 +123,8 @@ public class FieldContent implements Externalizable, Collecter<String> {
 		if (values.size() != fc.values.size())
 			return false;
 		int i = 0;
-		for (String v1 : values) {
-			String v2 = fc.values.get(i++);
+		for (FieldValueItem v1 : values) {
+			FieldValueItem v2 = fc.values.get(i++);
 			if (v1 == null) {
 				if (v2 != null)
 					return false;

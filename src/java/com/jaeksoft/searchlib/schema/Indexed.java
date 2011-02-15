@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,28 +34,30 @@ public enum Indexed {
 	NO(
 			"The content of the field is not indexed, and queries cannot be executed within that field.");
 
-	private String description;
+	final public String description;
+	final public String value;
 
 	private Indexed(String description) {
 		this.description = description;
+		this.value = name().toLowerCase();
 	}
 
-	public String getDescription() {
+	final public String getDescription() {
 		return description;
 	}
 
-	public String getValue() {
-		return name().toLowerCase();
+	final public String getValue() {
+		return value;
 	}
 
-	public static Indexed fromValue(String value) {
+	final public static Indexed fromValue(String value) {
 		for (Indexed fs : values())
 			if (fs.name().equalsIgnoreCase(value))
 				return fs;
 		return Indexed.NO;
 	}
 
-	public Index getLuceneIndex(String indexAnalyzer) {
+	final public Index getLuceneIndex(String indexAnalyzer) {
 		return indexAnalyzer == null ? Index.NOT_ANALYZED : Index.ANALYZED;
 	}
 

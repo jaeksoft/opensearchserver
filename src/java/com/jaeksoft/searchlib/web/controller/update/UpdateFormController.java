@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,8 +30,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zul.Doublebox;
 import org.zkoss.zul.Image;
 import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
@@ -43,6 +45,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -103,7 +106,7 @@ public class UpdateFormController extends CommonController implements
 			if (selectedField == null)
 				return;
 			IndexDocument idxDoc = getIndexDocument();
-			idxDoc.addEmptyField(selectedField.getName());
+			idxDoc.add(selectedField.getName(), new FieldValueItem(""));
 			reloadPage();
 		}
 	}
@@ -154,7 +157,7 @@ public class UpdateFormController extends CommonController implements
 					.size());
 			int i = 0;
 			for (@SuppressWarnings("unused")
-			String value : fieldContent.getValues())
+			FieldValueItem valueItem : fieldContent.getValues())
 				fieldValueList.add(new FieldValue(i++, fieldContent));
 		}
 
@@ -179,11 +182,21 @@ public class UpdateFormController extends CommonController implements
 		}
 
 		public String getValue() {
-			return fieldContent.getValue(index);
+			return fieldContent.getValue(index).getValue();
 		}
 
 		public void setValue(String value) {
-			fieldContent.setValue(index, value);
+			fieldContent.setValue(index, new FieldValueItem(value, getBoost()));
+		}
+
+		public float getBoost() {
+			Float b = fieldContent.getValue(index).getBoost();
+			return b == null ? 1.0f : b;
+		}
+
+		public void setBoost(Double boost) {
+			Float b = boost == null ? null : boost.floatValue();
+			fieldContent.setValue(index, new FieldValueItem(getValue(), b));
 		}
 
 		public void remove() {
@@ -192,18 +205,29 @@ public class UpdateFormController extends CommonController implements
 
 		@Override
 		public void onEvent(Event event) throws Exception {
-			Textbox textbox = (Textbox) event.getTarget();
-			setValue(textbox.getValue());
+			Component target = event.getTarget();
+			if (target instanceof Textbox)
+				setValue(((Textbox) target).getValue());
+			if (target instanceof Doublebox)
+				setBoost(((Doublebox) target).getValue());
 		}
-
 	}
 
 	@Override
 	public void render(Listitem item, Object data) throws Exception {
 		FieldValue fieldValue = (FieldValue) data;
+
 		Listcell listcell = new Listcell();
+		Doublebox doublebox = new Doublebox();
+		doublebox.setWidth("99%");
+		doublebox.setValue(fieldValue.getBoost());
+		doublebox.addEventListener("onChange", fieldValue);
+		doublebox.setParent(listcell);
+		listcell.setParent(item);
+
+		listcell = new Listcell();
 		Textbox textbox = new Textbox();
-		textbox.setWidth("100%");
+		textbox.setWidth("99%");
 		textbox.setRows(3);
 		textbox.setValue(fieldValue.getValue());
 		textbox.addEventListener("onChange", fieldValue);

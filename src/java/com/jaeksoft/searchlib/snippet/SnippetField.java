@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -312,9 +313,9 @@ public class SnippetField extends Field implements Externalizable {
 		return currentVector;
 	}
 
-	public boolean getSnippets(int docId, ReaderLocal reader, String[] values,
-			List<String> snippets) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
+	public boolean getSnippets(int docId, ReaderLocal reader,
+			FieldValueItem[] values, List<FieldValueItem> snippets)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 
 		if (values == null)
 			return false;
@@ -329,7 +330,8 @@ public class SnippetField extends Field implements Externalizable {
 		int startOffset = 0;
 		FragmentList fragments = new FragmentList();
 		int vectorOffset = 0;
-		for (String value : values) {
+		for (FieldValueItem valueItem : values) {
+			String value = valueItem.getValue();
 			if (value != null) {
 				// VectorOffset++ depends of EndOffset bug #patch Lucene 579 and
 				// 1458
@@ -360,7 +362,7 @@ public class SnippetField extends Field implements Externalizable {
 					separator, fragmentIterator, fragment);
 			if (snippet != null)
 				if (snippet.length() > 0)
-					snippets.add(snippet.toString());
+					snippets.add(new FieldValueItem(snippet.toString()));
 		}
 		if (snippets.size() > 0)
 			return true;
@@ -370,7 +372,7 @@ public class SnippetField extends Field implements Externalizable {
 				fragmentIterator, fragmentIterator.next());
 		if (snippet != null)
 			if (snippet.length() > 0)
-				snippets.add(snippet.toString());
+				snippets.add(new FieldValueItem(snippet.toString()));
 		return false;
 	}
 

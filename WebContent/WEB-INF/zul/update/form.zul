@@ -48,8 +48,9 @@
 									model="@{fieldDocument.fieldValueList}"
 									itemRenderer="@{updateForm}">
 									<listhead>
-										<listheader />
-										<listheader width="20px" />
+										<listheader label="Boost" width="60px" />
+										<listheader label="Value" />
+										<listheader width="25px" />
 									</listhead>
 								</listbox>
 							</panelchildren>

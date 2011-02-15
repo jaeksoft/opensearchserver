@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -67,10 +68,10 @@ public class FieldMap extends FieldMapGeneric<Target> {
 			FieldContent fc = source.getField(link.getSource());
 			String targetField = link.getTarget().getName();
 			if (fc != null) {
-				List<String> values = fc.getValues();
+				List<FieldValueItem> values = fc.getValues();
 				if (values != null)
-					for (String value : values)
-						target.add(targetField, value);
+					for (FieldValueItem valueItem : values)
+						target.add(targetField, valueItem);
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import org.zkoss.zul.Panelchildren;
 import org.zkoss.zul.event.ListDataListener;
 
 import com.jaeksoft.searchlib.index.FieldContent;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class FieldContentModel implements BindingListModel {
 
@@ -43,8 +44,8 @@ public class FieldContentModel implements BindingListModel {
 	@Override
 	public int indexOf(Object data) {
 		int i = 0;
-		for (String value : fieldContent.getValues())
-			if (value == data)
+		for (FieldValueItem valueItem : fieldContent.getValues())
+			if (valueItem == data)
 				return i;
 			else
 				i++;

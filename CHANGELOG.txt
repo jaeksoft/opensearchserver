@@ -9,7 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
-- 3178432: Wrong cron values in the scheduler
+- 3182097: Adding field boost support
 - 3175585: More like this feature
 - 3169421: Japanese and Korean support
 - 3159477: Identify identical web pages
@@ -64,6 +64,7 @@ New features:
 - 2900449: Upgrade PDFBox to 0.8
 
 Bug fixes:
+- 3178432: Wrong cron values in the scheduler
 - 3104065: File crawler crashes with java.io.EOFException
 - 3090248: Statistics configuration lost when adding fields
 - 3051308: <base href= ""/> is not interpreted

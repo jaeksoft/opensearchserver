@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,21 +24,15 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jaeksoft.searchlib.util.External;
-
-public class FieldValue extends Field implements Externalizable {
+public class FieldValue extends Field {
 
 	private static final long serialVersionUID = -6131981428734961071L;
 
-	private String[] valueArray;
-	private transient List<String> valueList;
+	private FieldValueItem[] valueArray;
+	private transient List<FieldValueItem> valueList;
 
 	public FieldValue() {
 	}
@@ -54,12 +48,12 @@ public class FieldValue extends Field implements Externalizable {
 		this.valueArray = field.valueArray;
 	}
 
-	public FieldValue(Field field, String[] values) {
+	public FieldValue(Field field, FieldValueItem[] values) {
 		super(field.name);
 		setValues(values);
 	}
 
-	public FieldValue(Field field, List<String> values) {
+	public FieldValue(Field field, List<FieldValueItem> values) {
 		super(field.name);
 		setValues(values);
 	}
@@ -70,49 +64,35 @@ public class FieldValue extends Field implements Externalizable {
 		return valueArray.length;
 	}
 
-	public String[] getValueArray() {
+	public FieldValueItem[] getValueArray() {
 		return valueArray;
 	}
 
-	public List<String> getValueList() {
+	public List<FieldValueItem> getValueList() {
 		if (valueList != null)
 			return valueList;
 		if (valueArray == null)
 			return null;
-		valueList = new ArrayList<String>();
-		for (String value : valueArray)
+		valueList = new ArrayList<FieldValueItem>();
+		for (FieldValueItem value : valueArray)
 			valueList.add(value);
 		return valueList;
 	}
 
-	public void setValues(String[] values) {
+	public void setValues(FieldValueItem[] values) {
 		valueArray = values;
 		valueList = null;
 	}
 
-	public void setValues(List<String> values) {
+	public void setValues(List<FieldValueItem> values) {
 		if (values == null) {
 			valueArray = null;
 			valueList = null;
 			return;
 		}
-		valueArray = new String[values.size()];
+		valueArray = new FieldValueItem[values.size()];
 		values.toArray(valueArray);
 		valueList = null;
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		super.readExternal(in);
-		valueArray = External.readStringArray(in);
-		valueList = null;
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
-		External.writeStringArray(valueArray, out);
 	}
 
 	@Override
