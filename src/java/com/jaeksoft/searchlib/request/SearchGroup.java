@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -59,7 +59,6 @@ public class SearchGroup extends AbstractGroupRequest<SearchThread> {
 		super(indexGroup, threadPool, 300);
 		newDocumentCount = 0;
 		resultGroup = new ResultGroup(searchRequest);
-		debug = resultGroup.getDebug();
 		int rows = searchRequest.getRows();
 		if (rows == 0) {
 			run();

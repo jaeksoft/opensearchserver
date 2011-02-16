@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,7 +39,6 @@ import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
-import com.jaeksoft.searchlib.util.Debug;
 
 public class ResultGroup extends Result {
 
@@ -59,8 +58,6 @@ public class ResultGroup extends Result {
 	public void addResult(Result result) throws IOException {
 		synchronized (this) {
 
-			Debug dbg = debug != null ? debug.addChildren() : null;
-
 			if (result.getMaxScore() > maxScore)
 				maxScore = result.getMaxScore();
 
@@ -72,8 +69,6 @@ public class ResultGroup extends Result {
 				}
 			}
 
-			if (dbg != null)
-				dbg.setInfo("addResult " + result.hashCode());
 		}
 	}
 
@@ -88,8 +83,6 @@ public class ResultGroup extends Result {
 	 */
 	public void populate(Result result) throws IOException {
 
-		Debug dbg = debug != null ? debug.addChildren() : null;
-
 		synchronized (this) {
 
 			if (result.getNumFound() == 0)
@@ -103,8 +96,6 @@ public class ResultGroup extends Result {
 			setDocs(notCollapsedDocs);
 		}
 
-		if (dbg != null)
-			dbg.setInfo("Populate " + result.hashCode());
 	}
 
 	private void setDoc(Result result) {
@@ -188,16 +179,10 @@ public class ResultGroup extends Result {
 	}
 
 	public void expungeFacet() {
-		Debug dbg = debug != null ? debug.addChildren() : null;
-		try {
-			if (facetList == null)
-				return;
-			for (Facet facet : facetList)
-				((FacetGroup) facet).expunge();
-		} finally {
-			if (dbg != null)
-				dbg.setInfo("expungeFacet");
-		}
+		if (facetList == null)
+			return;
+		for (Facet facet : facetList)
+			((FacetGroup) facet).expunge();
 	}
 
 	public void loadDocuments(IndexGroup indexGroup) throws ParseException,

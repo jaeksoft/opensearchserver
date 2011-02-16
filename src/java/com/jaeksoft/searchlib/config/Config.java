@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -76,6 +76,7 @@ import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.index.IndexSingle;
+import com.jaeksoft.searchlib.logreport.LogReportManager;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginTemplateList;
 import com.jaeksoft.searchlib.render.Render;
@@ -169,6 +170,8 @@ public abstract class Config {
 	protected ConfigFiles configFiles = null;
 
 	private String urlManagerClass = null;
+
+	private LogReportManager logReportManager = null;
 
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists, boolean disableCrawler)
@@ -716,11 +719,20 @@ public abstract class Config {
 	}
 
 	public StatisticsList getStatisticsList() throws SearchLibException {
+		rwl.r.lock();
 		try {
-			if (statisticsList == null)
-				statisticsList = StatisticsList.fromXmlConfig(xppConfig,
-						xppConfig.getNode("/configuration/statistics"),
-						getStatStorage());
+			if (statisticsList != null)
+				return statisticsList;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (statisticsList != null)
+				return statisticsList;
+			statisticsList = StatisticsList.fromXmlConfig(xppConfig,
+					xppConfig.getNode("/configuration/statistics"),
+					getStatStorage());
 			return statisticsList;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -734,6 +746,28 @@ public abstract class Config {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public LogReportManager getLogReportManager() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (logReportManager != null)
+				return logReportManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (logReportManager != null)
+				return logReportManager;
+			return logReportManager = new LogReportManager(getIndexName());
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -1111,8 +1145,17 @@ public abstract class Config {
 		if ((p = httpRequest.getParameter("withDocs")) != null)
 			searchRequest.setWithDocument(true);
 
-		if ((p = httpRequest.getParameter("debug")) != null)
-			searchRequest.setDebug(true);
+		if ((p = httpRequest.getParameter("log")) != null)
+			searchRequest.setLogReport(true);
+
+		if (searchRequest.isLogReport()) {
+			for (int i = 1; i <= 10; i++) {
+				p = httpRequest.getParameter("log" + i);
+				if (p == null)
+					break;
+				searchRequest.addCustomLog(p);
+			}
+		}
 
 		String[] values;
 
@@ -1322,6 +1365,11 @@ public abstract class Config {
 	private void closeQuiet() {
 		try {
 			getIndex().close();
+		} catch (Exception e) {
+			Logging.logger.warn(e.getMessage(), e);
+		}
+		try {
+			getLogReportManager().close();
 		} catch (Exception e) {
 			Logging.logger.warn(e.getMessage(), e);
 		}

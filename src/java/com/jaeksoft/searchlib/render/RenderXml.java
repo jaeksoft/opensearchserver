@@ -49,7 +49,6 @@ import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
-import com.jaeksoft.searchlib.util.Debug;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderXml implements Render {
@@ -80,9 +79,6 @@ public class RenderXml implements Render {
 		writer.print("\t<query>");
 		writer.print(searchRequest.getQueryParsed());
 		writer.println("</query>");
-		Debug debug = result.getDebug();
-		if (debug != null)
-			debug.xmlInfo(writer);
 		writer.println("</header>");
 	}
 

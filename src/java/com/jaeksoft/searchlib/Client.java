@@ -186,11 +186,12 @@ public class Client extends Config {
 
 	public Result search(SearchRequest searchRequest) throws SearchLibException {
 		Timer timer = null;
+		Result result = null;
 		SearchLibException exception = null;
 		try {
 			searchRequest.init(this);
 			timer = searchRequest.getTimer();
-			Result result = getIndex().search(searchRequest);
+			result = getIndex().search(searchRequest);
 			return result;
 		} catch (SearchLibException e) {
 			exception = e;
@@ -200,6 +201,7 @@ public class Client extends Config {
 				if (exception != null)
 					timer.setError(exception);
 				getStatisticsList().addSearch(timer);
+				getLogReportManager().log(searchRequest, timer, result);
 			}
 		}
 	}

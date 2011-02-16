@@ -113,9 +113,6 @@ public class ResultSingle extends Result {
 
 		searchRequest.getTimer().setInfo(searchRequest.toString());
 
-		if (debug != null)
-			debug.setInfo(this);
-
 	}
 
 	private ResultScoreDoc[] fetch() throws IOException, ParseException,

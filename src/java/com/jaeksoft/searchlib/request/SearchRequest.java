@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -115,7 +117,8 @@ public class SearchRequest implements Externalizable {
 	private String queryParsed;
 	private boolean withDocuments;
 	private boolean withSortValues;
-	private boolean debug;
+	private boolean withLogReport;
+	private List<String> customLogs;
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -124,6 +127,7 @@ public class SearchRequest implements Externalizable {
 		config = null;
 		timer = null;
 		finalTime = 0;
+		customLogs = null;
 	}
 
 	public SearchRequest(Config config) {
@@ -166,7 +170,8 @@ public class SearchRequest implements Externalizable {
 		this.queryParsed = null;
 		this.timer = new Timer("Search request");
 		this.finalTime = 0;
-		this.debug = false;
+		this.withLogReport = false;
+		this.customLogs = null;
 	}
 
 	public SearchRequest(SearchRequest searchRequest) {
@@ -218,7 +223,7 @@ public class SearchRequest implements Externalizable {
 			this.patternQuery = searchRequest.patternQuery;
 			this.scoreFunction = searchRequest.scoreFunction;
 			this.queryParsed = null;
-			this.debug = searchRequest.debug;
+			this.withLogReport = searchRequest.withLogReport;
 		} finally {
 			searchRequest.rwl.r.unlock();
 		}
@@ -241,7 +246,7 @@ public class SearchRequest implements Externalizable {
 			QueryParser.Operator defaultOperator, int start, int rows,
 			String codeLang, String patternQuery, String queryString,
 			String scoreFunction, boolean delete, boolean withDocuments,
-			boolean withSortValues, boolean debug) {
+			boolean withSortValues) {
 		this(config);
 		this.requestName = requestName;
 		this.allowLeadingWildcard = allowLeadingWildcard;
@@ -258,7 +263,6 @@ public class SearchRequest implements Externalizable {
 		this.scoreFunction = scoreFunction;
 		this.withDocuments = withDocuments;
 		this.withSortValues = withSortValues;
-		this.debug = debug;
 	}
 
 	public void init(Config config) {
@@ -662,19 +666,39 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
-	public void setDebug(boolean debug) {
+	public void setLogReport(boolean withLogReport) {
 		rwl.w.lock();
 		try {
-			this.debug = debug;
+			this.withLogReport = withLogReport;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public boolean isDebug() {
+	public boolean isLogReport() {
 		rwl.r.lock();
 		try {
-			return debug;
+			return withLogReport;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void addCustomLog(String p) {
+		rwl.w.lock();
+		try {
+			if (customLogs == null)
+				customLogs = new ArrayList<String>(0);
+			customLogs.add(p);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public List<String> getCustomLogs() {
+		rwl.r.lock();
+		try {
+			return customLogs;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -1104,7 +1128,7 @@ public class SearchRequest implements Externalizable {
 				XPathParser.getAttributeValue(node, "rows"),
 				XPathParser.getAttributeString(node, "lang"),
 				xpp.getNodeString(node, "query"), null, xpp.getNodeString(node,
-						"scoreFunction"), false, true, false, false);
+						"scoreFunction"), false, true, false);
 
 		searchRequest.setCollapseMode(CollapseMode.valueOfLabel(XPathParser
 				.getAttributeString(node, "collapseMode")));
@@ -1301,7 +1325,7 @@ public class SearchRequest implements Externalizable {
 		queryParsed = External.readUTF(in);
 		withDocuments = in.readBoolean();
 		withSortValues = in.readBoolean();
-		debug = in.readBoolean();
+		withLogReport = in.readBoolean();
 	}
 
 	@Override
@@ -1338,7 +1362,7 @@ public class SearchRequest implements Externalizable {
 
 		out.writeBoolean(withDocuments);
 		out.writeBoolean(withSortValues);
-		out.writeBoolean(debug);
+		out.writeBoolean(withLogReport);
 	}
 
 }

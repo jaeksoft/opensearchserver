@@ -59,7 +59,7 @@ import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class ClientCatalog {
 
-	static final String OPENSEARCHSERVER_DATA = System
+	public static final String OPENSEARCHSERVER_DATA = System
 			.getenv("OPENSEARCHSERVER_DATA");
 
 	private static volatile Map<File, Client> CLIENTS = new TreeMap<File, Client>();

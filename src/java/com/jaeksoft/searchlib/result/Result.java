@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,6 @@ import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
-import com.jaeksoft.searchlib.util.Debug;
 import com.jaeksoft.searchlib.util.External;
 
 public abstract class Result implements Externalizable,
@@ -49,7 +48,6 @@ public abstract class Result implements Externalizable,
 	protected float maxScore;
 	protected int collapsedDocCount;
 	private ResultDocuments resultDocuments;
-	transient protected Debug debug;
 
 	protected Result() {
 		searchRequest = null;
@@ -63,8 +61,6 @@ public abstract class Result implements Externalizable,
 		this.collapsedDocCount = 0;
 		this.docs = new ResultScoreDoc[0];
 		this.searchRequest = searchRequest;
-		if (searchRequest.isDebug())
-			debug = new Debug();
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		if (searchRequest.getSpellCheckFieldList().size() > 0)
@@ -74,10 +70,6 @@ public abstract class Result implements Externalizable,
 
 	public SearchRequest getSearchRequest() {
 		return this.searchRequest;
-	}
-
-	public Debug getDebug() {
-		return debug;
 	}
 
 	public void setSearchRequest(SearchRequest searchRequest) {

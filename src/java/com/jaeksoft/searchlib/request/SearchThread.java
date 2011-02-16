@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -69,10 +69,6 @@ public class SearchThread extends AbstractGroupRequestThread {
 		searchRequest.setStart(searchRequest.getEnd());
 		searchRequest.setRows(step);
 		Result result = reader.search(searchRequest);
-
-		Debug dbg = resultGroup.getDebug();
-		if (dbg != null)
-			dbg.addChildren(result.getDebug());
 
 		if (searchRequest.getStart() == 0)
 			resultGroup.addResult(result);
