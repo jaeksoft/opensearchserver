@@ -1334,8 +1334,8 @@ public abstract class Config {
 		boolean isWebCrawlMaster;
 		boolean isDatabaseCrawlMaster;
 		boolean isUrlManager;
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
 			isFileCrawlMaster = fileCrawlMaster != null;
 			isWebCrawlMaster = webCrawlMaster != null;
 			isDatabaseCrawlMaster = databaseCrawlMaster != null;

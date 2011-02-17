@@ -25,84 +25,34 @@
 package com.jaeksoft.searchlib.logreport;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class LogReportManager {
 
-	final private ReadWriteLock rwl = new ReadWriteLock();
+	final private DailyLogger logger;
 
-	private long timeLimit;
-
-	private File dirLog;
-
-	private PrintWriter printWriter = null;
-	private FileWriter fileWriter = null;
-
-	private String indexName;
-
-	private SimpleDateFormat dailyFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-	private SimpleDateFormat fullFormat = new SimpleDateFormat(
+	private SimpleDateFormat timeStampFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
 	public LogReportManager(String indexName) throws IOException {
-		this.indexName = indexName;
-		dirLog = new File(ClientCatalog.OPENSEARCHSERVER_DATA, "logs");
+		File dirLog = new File(ClientCatalog.OPENSEARCHSERVER_DATA, "logs");
 		if (!dirLog.exists())
 			dirLog.mkdir();
-		setTimeLimit(System.currentTimeMillis());
+		logger = new DailyLogger(dirLog, "report." + indexName, timeStampFormat);
 	}
 
-	public void close() throws IOException {
-		rwl.w.lock();
-		try {
-			if (printWriter != null) {
-				printWriter.close();
-				printWriter = null;
-			}
-			if (fileWriter != null) {
-				fileWriter.close();
-				fileWriter = null;
-			}
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	private void setTimeLimit(long millis) throws IOException {
-		rwl.w.lock();
-		try {
-			close();
-			Calendar cal = Calendar.getInstance();
-			cal.setTimeInMillis(millis);
-			cal.set(Calendar.HOUR, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			cal.set(Calendar.MILLISECOND, 0);
-			StringBuffer sb = new StringBuffer("report.");
-			sb.append(indexName);
-			sb.append('.');
-			sb.append(dailyFormat.format(cal.getTime()));
-			cal.add(Calendar.DAY_OF_MONTH, 1);
-			timeLimit = cal.getTimeInMillis();
-			fileWriter = new FileWriter(new File(dirLog, sb.toString()));
-			printWriter = new PrintWriter(fileWriter);
-		} finally {
-			rwl.w.unlock();
-		}
+	public void close() {
+		logger.close();
 	}
 
 	final public void log(SearchRequest searchRequest, Timer timer,
@@ -111,36 +61,28 @@ public class LogReportManager {
 			return;
 		if (!searchRequest.isLogReport())
 			return;
-		rwl.w.lock();
 		try {
-			long time = System.currentTimeMillis();
-			if (time >= timeLimit)
-				setTimeLimit(time);
-			printWriter.print(fullFormat.format(time));
-			printWriter.print('\u0009');
-			printWriter.print(URLEncoder.encode(searchRequest.getQueryString(),
-					"UTF-8"));
-			printWriter.print('\u0009');
+			StringBuffer sb = new StringBuffer();
+			sb.append('\u0009');
+			sb.append(URLEncoder.encode(searchRequest.getQueryString(), "UTF-8"));
+			sb.append('\u0009');
 			if (timer != null)
-				printWriter.print(timer.duration());
-			printWriter.print('\u0009');
+				sb.append(timer.duration());
+			sb.append('\u0009');
 			if (result != null)
-				printWriter.print(result.getNumFound());
-			printWriter.print('\u0009');
-			printWriter.print(searchRequest.getStart());
+				sb.append(result.getNumFound());
+			sb.append('\u0009');
+			sb.append(searchRequest.getStart());
 			List<String> customLogs = searchRequest.getCustomLogs();
 			if (customLogs != null) {
 				for (String customLog : customLogs) {
-					printWriter.print('\u0009');
-					printWriter.print(URLEncoder.encode(customLog, "UTF-8"));
+					sb.append('\u0009');
+					sb.append(URLEncoder.encode(customLog, "UTF-8"));
 				}
 			}
-			printWriter.println();
-			printWriter.flush();
-		} catch (IOException e) {
+			logger.log(sb.toString());
+		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
-		} finally {
-			rwl.w.unlock();
 		}
 	}
 }

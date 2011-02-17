@@ -66,8 +66,10 @@ public class TaskManager implements Job {
 	public static void stop() throws SearchLibException {
 		lock.lock();
 		try {
-			if (scheduler != null)
+			if (scheduler != null) {
 				scheduler.shutdown();
+				scheduler = null;
+			}
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -79,37 +81,35 @@ public class TaskManager implements Job {
 			TaskCronExpression cron) throws SearchLibException {
 		lock.lock();
 		try {
-			try {
-				Trigger trigger = new CronTrigger(jobName, indexName,
-						cron.getStringExpression());
+			if (scheduler == null)
+				throw new SearchLibException("The scheduler is not availalbe.");
+			Trigger trigger = new CronTrigger(jobName, indexName,
+					cron.getStringExpression());
 
-				// CHECK IF IT ALREADY EXIST
-				JobDetail jobDetail = scheduler
-						.getJobDetail(jobName, indexName);
-				if (jobDetail != null) {
-					Trigger[] triggers = scheduler.getTriggersOfJob(jobName,
-							indexName);
-					if (triggers != null) {
-						for (Trigger tr : triggers) {
-							if (tr instanceof CronTrigger) {
-								CronTrigger ctr = (CronTrigger) tr;
-								if (ctr.getCronExpression().equals(
-										cron.getStringExpression()))
-									return;
-							}
+			// CHECK IF IT ALREADY EXIST
+			JobDetail jobDetail = scheduler.getJobDetail(jobName, indexName);
+			if (jobDetail != null) {
+				Trigger[] triggers = scheduler.getTriggersOfJob(jobName,
+						indexName);
+				if (triggers != null) {
+					for (Trigger tr : triggers) {
+						if (tr instanceof CronTrigger) {
+							CronTrigger ctr = (CronTrigger) tr;
+							if (ctr.getCronExpression().equals(
+									cron.getStringExpression()))
+								return;
 						}
 					}
-					scheduler.deleteJob(jobName, indexName);
 				}
-
-				JobDetail job = new JobDetail(jobName, indexName,
-						TaskManager.class);
-				scheduler.scheduleJob(job, trigger);
-			} catch (ParseException e) {
-				throw new SearchLibException(e);
-			} catch (SchedulerException e) {
-				throw new SearchLibException(e);
+				scheduler.deleteJob(jobName, indexName);
 			}
+
+			JobDetail job = new JobDetail(jobName, indexName, TaskManager.class);
+			scheduler.scheduleJob(job, trigger);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SchedulerException e) {
+			throw new SearchLibException(e);
 		} finally {
 			lock.unlock();
 		}
