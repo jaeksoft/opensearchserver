@@ -172,11 +172,6 @@
 	</panel>
 	<separator />
 	<panel title="Thread list" collapsible="true" border="normal">
-		<toolbar>
-			<checkbox label="Show debug information"
-				visible="@{crawlProcess.admin}"
-				checked="@{crawlProcess.properties.debug.value}" />
-		</toolbar>
 		<panelchildren>
 			<listbox model="@{crawlProcess.webCrawlMaster.threads}"
 				mold="paging" pageSize="20">
@@ -202,8 +197,6 @@
 					<listheader width="50px" label="Total"
 						tooltiptext="Total" />
 					<listheader label="Status" tooltiptext="Status" />
-					<listheader
-						visible="@{crawlProcess.properties.debug.value}" label="Debug" />
 				</listhead>
 				<listitem self="@{each=thread}">
 					<listcell
@@ -226,9 +219,6 @@
 					<listcell
 						label="@{thread.currentStatistics.urlListSize}" />
 					<listcell label="@{thread.statusInfo}" />
-					<listcell
-						visible="@{crawlProcess.properties.debug.value}"
-						label="@{thread.debugInfo}" />
 				</listitem>
 			</listbox>
 		</panelchildren>
