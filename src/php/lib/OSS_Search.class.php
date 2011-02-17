@@ -45,6 +45,8 @@ class OSS_Search {
 	protected $facet;
 	protected $sortBy;
 	protected $moreLikeThis;
+	protected $log;
+	protected $customLogs;
 
 	protected $login;
 	protected $apiKey;
@@ -75,7 +77,8 @@ class OSS_Search {
 		$this->collapse	= array('field' => null, 'max' => null, 'mode' => null);
 		$this->moreLikeThis = array('active' => null, 'docquery' => null, 'minwordlen' => null,
 			'maxwordlen' => null, 'mindocfreq' => null, 'mintermfreq' => null, 'stopwords' => null);
-
+		$this->log = false;
+		$this->customLogs = array();
 	}
 
 	/**
@@ -248,6 +251,15 @@ class OSS_Search {
 		$this->moreLikeThis['stopwords'] = $stopwords;
 	}
 
+	public function setLog($log = false) {
+		$this->log = $log;
+	}
+
+	public function setCustomLog($pos, $log) {
+		$this->customLogs[(int)$pos] = $log;
+	}
+
+
 	/**
 	 * @return SimpleXMLElement False if the query produced an error
 	 * FIXME Must think about OSS_API inteegration inside OSS_Search
@@ -332,6 +344,15 @@ class OSS_Search {
 		if ($this->moreLikeThis['mindocfreq']) $queryChunks[] = 'mlt.mindocfreq='.(int)$this->moreLikeThis['mindocfreq'];
 		if ($this->moreLikeThis['mintermfreq']) $queryChunks[] = 'mlt.mintermfreq='.(int)$this->moreLikeThis['mintermfreq'];
 		if ($this->moreLikeThis['stopwords']) $queryChunks[] = 'mlt.stopwords='.urlencode($this->moreLikeThis['stopwords']);
+
+		// Logs and customLogs
+		if ($this->log) $queryChunks[] = 'log='.$this->log;
+		foreach($this->customLogs as $pos => $customLog) {
+			$queryChunks[] = 'log'.$pos.'='.urlencode($customLog);
+		}
+
+		var_dump($this->customLogs);
+		var_dump($queryChunks);
 
 		return $this->enginePath.'/'.OSS_API::API_SELECT.'?'.implode('&', $queryChunks);
 
