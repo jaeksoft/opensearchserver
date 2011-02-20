@@ -91,6 +91,17 @@ public abstract class CommonController extends Window implements AfterCompose,
 			scopeAttribute.set(this, value);
 	}
 
+	protected Object getRecursiveComponentAttribute(Component component,
+			String attributeName) {
+		Object attr = null;
+		while (component != null)
+			if ((attr = component.getAttribute("requestentry")) != null)
+				return attr;
+			else
+				component = component.getParent();
+		return null;
+	}
+
 	public Client getClient() throws SearchLibException {
 		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
 	}

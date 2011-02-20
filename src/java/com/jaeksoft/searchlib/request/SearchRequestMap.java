@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.request;
 
-import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -100,12 +100,8 @@ public class SearchRequestMap {
 		xmlWriter.endElement();
 	}
 
-	public Set<String> getNameList() {
-		return map.keySet();
-	}
-
-	public Collection<SearchRequest> getRequests() {
-		return map.values();
+	public Set<Entry<String, SearchRequest>> getRequests() {
+		return map.entrySet();
 	}
 
 	public void remove(String requestName) {

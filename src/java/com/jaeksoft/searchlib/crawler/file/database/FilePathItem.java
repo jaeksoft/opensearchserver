@@ -259,41 +259,30 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		xmlWriter.endElement();
 	}
 
-	private static int compareNullValues(Object v1, Object v2) {
-		if (v1 == null) {
-			if (v2 == null)
-				return 0;
-			return -1;
-		}
-		if (v2 == null)
-			return 1;
-		return 0;
-	}
-
 	@Override
 	public int compareTo(FilePathItem fpi) {
 		int c;
-		if ((c = compareNullValues(type, fpi.type)) != 0)
+		if ((c = StringUtils.compareNullValues(type, fpi.type)) != 0)
 			return c;
 		if (type != null)
 			if ((c = type.compareTo(fpi.type)) != 0)
 				return c;
-		if ((c = compareNullValues(host, fpi.host)) != 0)
+		if ((c = StringUtils.compareNullValues(host, fpi.host)) != 0)
 			return c;
 		if (host != null)
 			if ((c = host.compareTo(fpi.host)) != 0)
 				return c;
-		if ((c = compareNullValues(domain, fpi.domain)) != 0)
+		if ((c = StringUtils.compareNullValues(domain, fpi.domain)) != 0)
 			return c;
 		if (domain != null)
 			if ((c = domain.compareTo(fpi.domain)) != 0)
 				return c;
-		if ((c = compareNullValues(username, fpi.username)) != 0)
+		if ((c = StringUtils.compareNullValues(username, fpi.username)) != 0)
 			return c;
 		if (username != null)
 			if ((c = username.compareTo(fpi.username)) != 0)
 				return c;
-		if ((c = compareNullValues(path, fpi.path)) != 0)
+		if ((c = StringUtils.compareNullValues(path, fpi.path)) != 0)
 			return c;
 		if (path != null)
 			if ((c = path.compareTo(fpi.path)) != 0)

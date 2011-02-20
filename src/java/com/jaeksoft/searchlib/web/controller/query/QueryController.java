@@ -28,20 +28,20 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.xml.sax.SAXException;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.AlertController;
@@ -55,32 +55,20 @@ public final class QueryController extends AbstractQueryController {
 	 */
 	private static final long serialVersionUID = 3182630816725436838L;
 
-	private String selectedRequestName;
+	private String requestName;
+
+	private Entry<String, SearchRequest> selectedRequest;
 
 	public QueryController() throws SearchLibException {
 		super();
-		selectedRequestName = null;
+		reset();
 	}
 
 	@Override
 	protected void reset() throws SearchLibException {
-		selectedRequestName = null;
+		selectedRequest = null;
 		setRequest(null);
 		setResult(null);
-	}
-
-	@Override
-	public SearchRequest getRequest() throws SearchLibException {
-		SearchRequest request = super.getRequest();
-		if (request != null)
-			return request;
-		Client client = getClient();
-		if (client == null)
-			return null;
-		request = client.getNewSearchRequest();
-		setRequest(request);
-		PushEvent.QUERY_EDIT_REQUEST.publish(request);
-		return request;
 	}
 
 	public String getRequestApiCall() throws SearchLibException,
@@ -93,8 +81,9 @@ public final class QueryController extends AbstractQueryController {
 			return null;
 		String url = getBaseUrl() + "/search?use="
 				+ URLEncoder.encode(client.getIndexName(), "UTF-8");
-		if (selectedRequestName != null)
-			url += "&qt=" + URLEncoder.encode(selectedRequestName, "UTF-8");
+		String requestName = request.getRequestName();
+		if (requestName != null && requestName.length() > 0)
+			url += "&qt=" + URLEncoder.encode(requestName, "UTF-8");
 		String q = request.getQueryString();
 		if (q == null || q.length() == 0)
 			q = "*:*";
@@ -105,43 +94,131 @@ public final class QueryController extends AbstractQueryController {
 		return url;
 	}
 
+	@Override
+	protected void eventRequestListChange() throws SearchLibException {
+		reloadPage();
+	}
+
 	public void setRequest(SearchRequest request) {
 		ScopeAttribute.QUERY_SEARCH_REQUEST.set(this, request);
 	}
 
-	public void setSelectedRequest(String requestName) {
-		this.selectedRequestName = requestName;
+	public boolean isEditing() throws SearchLibException {
+		return getRequest() != null;
 	}
 
-	public String getSelectedRequest() {
-		return selectedRequestName;
+	public boolean isNotEditing() throws SearchLibException {
+		return !isEditing();
 	}
 
-	public Set<String> getRequests() throws SearchLibException {
+	public boolean isNotSelectedRequest() {
+		return !isSelectedRequest();
+	}
+
+	public boolean isSelectedRequest() {
+		return selectedRequest != null;
+	}
+
+	public Entry<String, SearchRequest> getSelectedRequest() {
+		return selectedRequest;
+	}
+
+	public void setSelectedRequest(Entry<String, SearchRequest> entry)
+			throws SearchLibException {
+		selectedRequest = entry;
+		reloadPage();
+	}
+
+	/**
+	 * @param requestName
+	 *            the requestName to set
+	 */
+	public void setRequestName(String requestName) {
+		this.requestName = requestName;
+	}
+
+	/**
+	 * @return the requestName
+	 */
+	public String getRequestName() {
+		return requestName;
+	}
+
+	private boolean checkRequestName() throws InterruptedException,
+			SearchLibException {
+		if (requestName == null || requestName.length() == 0) {
+			new AlertController("Please enter a name");
+			return false;
+		}
+		Client client = getClient();
+		if (client.getSearchRequestMap().get(requestName) != null) {
+			new AlertController("This name is already used.");
+			return false;
+		}
+		return true;
+	}
+
+	private void newEdit(SearchRequest newRequest) {
+		newRequest.setRequestName(requestName);
+		setRequest(newRequest);
+		reloadPage();
+		PushEvent.QUERY_EDIT_REQUEST.publish(newRequest);
+	}
+
+	public void onNew() throws SearchLibException, InterruptedException {
+		if (!checkRequestName())
+			return;
+		newEdit(getClient().getNewSearchRequest());
+	}
+
+	public void onNewCopy() throws InterruptedException, SearchLibException {
+		if (!checkRequestName())
+			return;
+		newEdit(getClient().getNewSearchRequest(selectedRequest.getKey()));
+	}
+
+	@SuppressWarnings("unchecked")
+	private Entry<String, SearchRequest> getRequestEntry(Component comp) {
+		return (Entry<String, SearchRequest>) getRecursiveComponentAttribute(
+				comp, "requestentry");
+	}
+
+	public void doEditQuery(Component comp) throws SearchLibException {
+		Entry<String, SearchRequest> entry = getRequestEntry(comp);
+		if (entry == null)
+			return;
+		setRequest(getClient().getNewSearchRequest(entry.getKey()));
+		PushEvent.QUERY_EDIT_REQUEST.publish(getRequest());
+	}
+
+	public void doDeleteQuery(Component comp) throws SearchLibException,
+			InterruptedException {
+		Entry<String, SearchRequest> entry = getRequestEntry(comp);
+		if (entry == null)
+			return;
+		if (!isSchemaRights())
+			throw new SearchLibException("Not allowed");
+		new RemoveAlert(entry.getKey());
+	}
+
+	public Set<Entry<String, SearchRequest>> getRequests()
+			throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		SearchRequestMap searchRequestMap = client.getSearchRequestMap();
-		Set<String> set = searchRequestMap.getNameList();
-		if (selectedRequestName == null
-				|| searchRequestMap.get(selectedRequestName) == null) {
-			Iterator<String> it = set.iterator();
-			if (it.hasNext())
-				setSelectedRequest(it.next());
-		}
-		return set;
+		return client.getSearchRequestMap().getRequests();
 	}
 
 	public void setResult(Result result) {
 		ScopeAttribute.QUERY_SEARCH_RESULT.set(this, result);
 	}
 
-	public void onLoadRequest() throws SearchLibException {
-		setRequest(getClient().getNewSearchRequest(selectedRequestName));
-		PushEvent.QUERY_EDIT_REQUEST.publish(getRequest());
+	public void onCancel() throws SearchLibException {
+		reset();
+		reloadPage();
 	}
 
-	public void onSaveRequest() throws SearchLibException,
+	public void onSave() throws SearchLibException,
 			TransformerConfigurationException, IOException, SAXException {
 		if (!isSchemaRights())
 			throw new SearchLibException("Not allowed");
@@ -149,8 +226,7 @@ public final class QueryController extends AbstractQueryController {
 		SearchRequest request = getRequest();
 		client.getSearchRequestMap().put(request);
 		client.saveRequests();
-		setSelectedRequest(request.getRequestName());
-		reloadPage();
+		onCancel();
 		PushEvent.REQUEST_LIST_CHANGED.publish(client);
 	}
 
@@ -173,14 +249,6 @@ public final class QueryController extends AbstractQueryController {
 			PushEvent.REQUEST_LIST_CHANGED.publish(client);
 		}
 
-	}
-
-	public void onRemove() throws SearchLibException,
-			TransformerConfigurationException, IOException, SAXException,
-			InterruptedException {
-		if (!isSchemaRights())
-			throw new SearchLibException("Not allowed");
-		new RemoveAlert(getSelectedRequest());
 	}
 
 	public void onSearch() throws IOException, ParseException, SyntaxError,

@@ -1,6 +1,6 @@
 /**   
  *
- * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -123,5 +123,16 @@ public class StringUtils {
 
 	public final static long hexStringToLong(String s) {
 		return Long.parseLong(s, 16);
+	}
+
+	public final static int compareNullValues(Object v1, Object v2) {
+		if (v1 == null) {
+			if (v2 == null)
+				return 0;
+			return -1;
+		}
+		if (v2 == null)
+			return 1;
+		return 0;
 	}
 }
