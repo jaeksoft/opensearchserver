@@ -9,6 +9,8 @@ http://sourceforge.net/tracker/?group_id=260863
 Open Search Server 1.2
 
 New features:
+- 3176150: time/date stamp
+- 3186042: Disable not being allowed (robots.txt)	
 - 3182953: Crawl URL from a database	
 - 3182950: Pattern and exclusion list deactivable
 - 3182097: Adding field boost support

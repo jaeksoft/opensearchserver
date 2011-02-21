@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,6 +42,7 @@ public class WebPropertyManager extends PropertyManager {
 	private PropertyItem<String> replicationTarget;
 	private PropertyItem<Boolean> exclusionEnabled;
 	private PropertyItem<Boolean> inclusionEnabled;
+	private PropertyItem<Boolean> robotsTxtEnabled;
 
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
@@ -56,6 +57,7 @@ public class WebPropertyManager extends PropertyManager {
 		replicationTarget = newStringProperty("replicationTarget", "");
 		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
+		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
 	}
 
 	public PropertyItem<Integer> getFetchInterval() {
@@ -96,6 +98,10 @@ public class WebPropertyManager extends PropertyManager {
 
 	public PropertyItem<Integer> getDelayBetweenAccesses() {
 		return delayBetweenAccesses;
+	}
+
+	public PropertyItem<Boolean> getRobotsTxtEnabled() {
+		return robotsTxtEnabled;
 	}
 
 }

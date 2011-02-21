@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -84,6 +85,13 @@ public class RobotsTxtController extends CrawlerController {
 		robotsTxtList = new RobotsTxt[1];
 		robotsTxtList[0] = robotsTxt;
 		return robotsTxtList;
+	}
+
+	public PropertyItem<Boolean> getEnabled() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getWebPropertyManager().getRobotsTxtEnabled();
 	}
 
 	public void onSearch() throws IOException, URISyntaxException,

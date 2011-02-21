@@ -80,6 +80,7 @@ public class Crawl {
 	private URI redirectUrlLocation;
 	private boolean inclusionEnabled;
 	private boolean exclusionEnabled;
+	private boolean robotsTxtEnabled;
 
 	public Crawl(HostUrlList hostUrlList, UrlItem urlItem, Config config,
 			ParserSelector parserSelector, CredentialManager credentialManager)
@@ -102,6 +103,8 @@ public class Crawl {
 		this.exclusionEnabled = propertyManager.getExclusionEnabled()
 				.getValue();
 		this.inclusionEnabled = propertyManager.getInclusionEnabled()
+				.getValue();
+		this.robotsTxtEnabled = propertyManager.getRobotsTxtEnabled()
 				.getValue();
 	}
 
@@ -141,10 +144,13 @@ public class Crawl {
 
 	public boolean checkRobotTxtAllow(HttpDownloader httpDownloader)
 			throws MalformedURLException, SearchLibException {
-		RobotsTxt robotsTxt = config.getRobotsTxtCache().getRobotsTxt(
-				httpDownloader, config, urlItem.getURL(), false);
-		RobotsTxtStatus robotsTxtStatus = robotsTxt.getStatus(userAgent,
-				urlItem);
+		RobotsTxtStatus robotsTxtStatus;
+		if (robotsTxtEnabled) {
+			RobotsTxt robotsTxt = config.getRobotsTxtCache().getRobotsTxt(
+					httpDownloader, config, urlItem.getURL(), false);
+			robotsTxtStatus = robotsTxt.getStatus(userAgent, urlItem);
+		} else
+			robotsTxtStatus = RobotsTxtStatus.DISABLED;
 		urlItem.setRobotsTxtStatus(robotsTxtStatus);
 		if (robotsTxtStatus != RobotsTxtStatus.ALLOW
 				&& robotsTxtStatus != RobotsTxtStatus.NO_ROBOTSTXT) {

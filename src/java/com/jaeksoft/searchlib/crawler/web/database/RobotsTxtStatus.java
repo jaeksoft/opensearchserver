@@ -38,6 +38,8 @@ public enum RobotsTxtStatus {
 
 	ERROR(4, "Error", TargetStatus.TARGET_DO_NOTHING),
 
+	DISABLED(5, "Disabled", TargetStatus.TARGET_UPDATE),
+
 	ALL(99, "All", null);
 
 	public int value;
