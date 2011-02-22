@@ -323,27 +323,52 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
-	public void setDateStart(Date v) {
+	public void setEventDateStart(Date v) {
 		synchronized (this) {
 			ScopeAttribute.SEARCH_URL_DATE_START.set(this, v);
 		}
 	}
 
-	public Date getDateStart() {
+	public Date getEventDateStart() {
 		synchronized (this) {
 			return (Date) ScopeAttribute.SEARCH_URL_DATE_START.get(this);
 		}
 	}
 
-	public void setDateEnd(Date v) {
+	public void setEventDateEnd(Date v) {
 		synchronized (this) {
 			ScopeAttribute.SEARCH_URL_DATE_END.set(this, v);
 		}
 	}
 
-	public Date getDateEnd() {
+	public Date getEventDateEnd() {
 		synchronized (this) {
 			return (Date) ScopeAttribute.SEARCH_URL_DATE_END.get(this);
+		}
+	}
+
+	public void setModifiedDateStart(Date v) {
+		synchronized (this) {
+			ScopeAttribute.SEARCH_URL_DATE_MODIFIED_START.set(this, v);
+		}
+	}
+
+	public Date getModifiedDateStart() {
+		synchronized (this) {
+			return (Date) ScopeAttribute.SEARCH_URL_DATE_MODIFIED_START
+					.get(this);
+		}
+	}
+
+	public void setModifiedDateEnd(Date v) {
+		synchronized (this) {
+			ScopeAttribute.SEARCH_URL_DATE_MODIFIED_END.set(this, v);
+		}
+	}
+
+	public Date getModifiedDateEnd() {
+		synchronized (this) {
+			return (Date) ScopeAttribute.SEARCH_URL_DATE_MODIFIED_END.get(this);
 		}
 	}
 
@@ -370,15 +395,14 @@ public class UrlController extends CommonController implements AfterCompose {
 	private long getUrlList(SearchTemplate urlSearchTemplate,
 			UrlManagerAbstract urlManager, int start, int rows,
 			List<UrlItem> urlList) throws SearchLibException {
-		return urlManager
-				.getUrls(urlSearchTemplate, getLike(), getHost(),
-						isWithSubDomain(), getLang(), getLangMethod(),
-						getContentBaseType(), getContentTypeCharset(),
-						getContentEncoding(), getMinContentLength(),
-						getMaxContentLength(), getRobotsTxtStatus(),
-						getFetchStatus(), getResponseCode(), getParserStatus(),
-						getIndexStatus(), getDateStart(), getDateEnd(), null,
-						false, start, rows, urlList);
+		return urlManager.getUrls(urlSearchTemplate, getLike(), getHost(),
+				isWithSubDomain(), getLang(), getLangMethod(),
+				getContentBaseType(), getContentTypeCharset(),
+				getContentEncoding(), getMinContentLength(),
+				getMaxContentLength(), getRobotsTxtStatus(), getFetchStatus(),
+				getResponseCode(), getParserStatus(), getIndexStatus(),
+				getEventDateStart(), getEventDateEnd(), getModifiedDateStart(),
+				getModifiedDateEnd(), null, false, start, rows, urlList);
 	}
 
 	private void computeUrlList() throws SearchLibException {

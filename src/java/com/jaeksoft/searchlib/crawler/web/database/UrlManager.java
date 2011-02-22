@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -68,7 +68,8 @@ public class UrlManager extends UrlManagerAbstract {
 				"contentLength"), LANG("lang"), LANGMETHOD("langMethod"), ROBOTSTXTSTATUS(
 				"robotsTxtStatus"), FETCHSTATUS("fetchStatus"), RESPONSECODE(
 				"responseCode"), PARSERSTATUS("parserStatus"), INDEXSTATUS(
-				"indexStatus"), HOST("host"), SUBHOST("subhost");
+				"indexStatus"), HOST("host"), SUBHOST("subhost"), LASTMODIFIEDDATE(
+				"lastModifiedDate");
 
 		private String name;
 
@@ -420,7 +421,8 @@ public class UrlManager extends UrlManagerAbstract {
 			Integer minContentLength, Integer maxContentLength,
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startDate, Date endDate)
+			IndexStatus indexStatus, Date startDate, Date endDate,
+			Date startModifiedDate, Date endModifiedDate)
 			throws SearchLibException {
 		try {
 			SearchRequest searchRequest = urlDbClient
@@ -523,6 +525,20 @@ public class UrlManager extends UrlManagerAbstract {
 				Field.WHEN.addFilterRange(searchRequest, from, to);
 			}
 
+			if (startModifiedDate != null || endModifiedDate != null) {
+				String from, to;
+				SimpleDateFormat df = UrlItem.getWhenDateFormat();
+				if (startModifiedDate == null)
+					from = "00000000000000";
+				else
+					from = df.format(startModifiedDate);
+				if (endModifiedDate == null)
+					to = "99999999999999";
+				else
+					to = df.format(endModifiedDate);
+				Field.LASTMODIFIEDDATE.addFilterRange(searchRequest, from, to);
+			}
+
 			if (query.length() == 0)
 				query.append("*:*");
 			searchRequest.setQueryString(query.toString().trim());
@@ -559,13 +575,15 @@ public class UrlManager extends UrlManagerAbstract {
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, boolean orderAsc, long start, long rows,
-			List<UrlItem> list) throws SearchLibException {
+			Date startModifiedDate, Date endModifiedDate, Field orderBy,
+			boolean orderAsc, long start, long rows, List<UrlItem> list)
+			throws SearchLibException {
 		SearchRequest searchRequest = urlQuery(urlSearchTemplate, like, host,
 				includingSubDomain, lang, langMethod, contentBaseType,
 				contentTypeCharset, contentEncoding, minContentLength,
 				maxContentLength, robotsTxtStatus, fetchStatus, responseCode,
-				parserStatus, indexStatus, startDate, endDate);
+				parserStatus, indexStatus, startDate, endDate,
+				startModifiedDate, endModifiedDate);
 		return getUrls(searchRequest, orderBy, orderAsc, start, rows, list);
 	}
 

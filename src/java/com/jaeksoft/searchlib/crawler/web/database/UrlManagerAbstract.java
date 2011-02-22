@@ -100,8 +100,9 @@ public abstract class UrlManagerAbstract {
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Field orderBy, boolean orderAsc, long start, long rows,
-			List<UrlItem> list) throws SearchLibException;
+			Date startModifiedDate, Date endModifiedDate, Field orderBy,
+			boolean orderAsc, long start, long rows, List<UrlItem> list)
+			throws SearchLibException;
 
 	public void injectPrefix(List<PatternItem> patternList)
 			throws SearchLibException {

@@ -22,7 +22,7 @@ New features:
 - 3141192: SMB/CIFS support in file crawler
 - 3034238: Crawler able to log in protected web site
 - 3011773: Add Quartz as scheduler service
-- 3138603: Upgrade Tomcat to version 6.0.29
+- 3138603: Upgrade Tomcat to version 6.0.xx
 - 3103055: Convert HTML entities
 - 3087916: Upgrade to PDFBox 1.2
 - 3043692: Torrent Parser

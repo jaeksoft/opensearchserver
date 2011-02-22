@@ -20,7 +20,10 @@
 		multiple="false" checkmark="false">
 		<listhead sizable="true">
 			<listheader width="20%" label="Url" />
-			<listheader width="140px" label="Date" />
+			<listheader width="140px" label="Ev. Date"
+				tooltiptext="Last event date" />
+			<listheader width="140px" label="Mod. date"
+				tooltiptext="Last modified date" />
 			<listheader label="Type" />
 			<listheader label="Charset" />
 			<listheader label="Encoding" />
@@ -44,9 +47,17 @@
 			<auxheader>
 				<vbox>
 					<datebox compact="true"
-						value="@{searchUrl.dateStart}" />
+						value="@{searchUrl.eventDateStart}" />
 					<datebox compact="true"
-						value="@{searchUrl.dateEnd}" />
+						value="@{searchUrl.eventDateEnd}" />
+				</vbox>
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<datebox compact="true"
+						value="@{searchUrl.modifiedDateStart}" />
+					<datebox compact="true"
+						value="@{searchUrl.modifiedDateEnd}" />
 				</vbox>
 			</auxheader>
 			<auxheader>
@@ -106,7 +117,10 @@
 		</auxhead>
 		<listitem self="@{each='url'}">
 			<listcell label="@{url.url}" />
-			<listcell label="@{url.when,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+			<listcell
+				label="@{url.when,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+			<listcell
+				label="@{url.lastModifiedDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 			<listcell label="@{url.contentBaseType}" />
 			<listcell label="@{url.contentTypeCharset}" />
 			<listcell label="@{url.contentEncoding}" />
@@ -121,7 +135,7 @@
 			<listcell label="@{url.Host}" />
 		</listitem>
 		<listfoot>
-			<listfooter span="14">
+			<listfooter span="15">
 				<paging id="paging" detailed="true"
 					totalSize="@{searchUrl.totalSize}" pageSize="@{searchUrl.pageSize}"
 					activePage="@{searchUrl.activePage}" />

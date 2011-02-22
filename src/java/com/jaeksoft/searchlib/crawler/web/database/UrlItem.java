@@ -72,6 +72,7 @@ public class UrlItem implements Serializable {
 	private IndexStatus indexStatus;
 	private int count;
 	private String md5size;
+	private Date lastModifiedDate;
 
 	public UrlItem() {
 		url = null;
@@ -94,6 +95,7 @@ public class UrlItem implements Serializable {
 		indexStatus = IndexStatus.NOT_INDEXED;
 		count = 0;
 		md5size = null;
+		lastModifiedDate = null;
 	}
 
 	public UrlItem(ResultDocument doc) {
@@ -126,6 +128,8 @@ public class UrlItem implements Serializable {
 		setIndexStatusInt(doc.getValueContent(
 				UrlItemFieldEnum.indexStatus.name(), 0));
 		setMd5size(doc.getValueContent(UrlItemFieldEnum.md5size.name(), 0));
+		setLastModifiedDate(doc.getValueContent(
+				UrlItemFieldEnum.lastModifiedDate.name(), 0));
 	}
 
 	public UrlItem(String sUrl) {
@@ -359,6 +363,23 @@ public class UrlItem implements Serializable {
 
 	}
 
+	public Date getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	protected void setLastModifiedDate(String d) {
+		try {
+			this.lastModifiedDate = d == null ? null : getWhenDateFormat()
+					.parse(d);
+		} catch (ParseException e) {
+			Logging.logger.error(e.getMessage(), e);
+		}
+	}
+
+	public void setLastModifiedDate(Date d) {
+		this.lastModifiedDate = d;
+	}
+
 	final static SimpleDateFormat getWhenDateFormat() {
 		return new SimpleDateFormat("yyyyMMddHHmmss");
 	}
@@ -367,7 +388,7 @@ public class UrlItem implements Serializable {
 		return new DecimalFormat("00000000000000");
 	}
 
-	public void setWhen(String d) {
+	protected void setWhen(String d) {
 		if (d == null) {
 			setWhenNow();
 			return;
@@ -413,9 +434,9 @@ public class UrlItem implements Serializable {
 
 	public void populate(IndexDocument indexDocument)
 			throws MalformedURLException {
+		SimpleDateFormat df = getWhenDateFormat();
 		indexDocument.set(UrlItemFieldEnum.url.name(), getUrl());
-		indexDocument.set(UrlItemFieldEnum.when.name(), getWhenDateFormat()
-				.format(when));
+		indexDocument.set(UrlItemFieldEnum.when.name(), df.format(when));
 		URL url = getURL();
 		if (url != null) {
 			indexDocument.set(UrlItemFieldEnum.host.name(), url.getHost());
@@ -455,6 +476,9 @@ public class UrlItem implements Serializable {
 				indexStatus.value);
 		if (md5size != null)
 			indexDocument.set(UrlItemFieldEnum.md5size.name(), md5size);
+		if (lastModifiedDate != null)
+			indexDocument.set(UrlItemFieldEnum.lastModifiedDate.name(),
+					df.format(lastModifiedDate));
 	}
 
 	public String getLang() {

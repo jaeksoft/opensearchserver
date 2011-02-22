@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
@@ -127,10 +128,10 @@ public class Crawl {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
 		}
-
 		IndexDocument sourceDocument = new IndexDocument();
 		urlItem.populate(sourceDocument);
 		parser.setSourceDocument(sourceDocument);
+		Date parserStartDate = new Date();
 		parser.parseContent(inputStream);
 		urlItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
 		urlItem.setLangMethod(parser.getFieldValue(ParserFieldEnum.lang_method,
@@ -138,7 +139,20 @@ public class Crawl {
 		urlItem.setContentTypeCharset(parser.getFieldValue(
 				ParserFieldEnum.charset, 0));
 		urlItem.setParserStatus(ParserStatus.PARSED);
-		urlItem.setMd5size(parser.getMd5size());
+		String oldMd5size = urlItem.getMd5size();
+		String newMd5size = parser.getMd5size();
+		urlItem.setMd5size(newMd5size);
+		Date oldLastModifiedTime = urlItem.getLastModifiedDate();
+		Date newLastModifiedTime = null;
+		if (oldLastModifiedTime == null)
+			newLastModifiedTime = parserStartDate;
+		else {
+			if (oldMd5size != null && newMd5size != null)
+				if (!oldMd5size.equals(newMd5size))
+					newLastModifiedTime = parserStartDate;
+		}
+		if (newLastModifiedTime != null)
+			urlItem.setLastModifiedDate(newLastModifiedTime);
 		this.parser = parser;
 	}
 
