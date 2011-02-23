@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
+import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
@@ -116,8 +117,13 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 						new URL(content), ListType.DBCRAWL);
 				crawlThread.waitForStart(60);
 				crawlThread.waitForEnd(60);
-				target.add(crawlThread.getCurrentCrawl()
-						.getTargetIndexDocument());
+				Crawl crawl = crawlThread.getCurrentCrawl();
+				if (crawl != null) {
+					IndexDocument targetIndexDocument = crawl
+							.getTargetIndexDocument();
+					if (targetIndexDocument != null)
+						target.add(targetIndexDocument);
+				}
 			}
 
 			if (dfTarget.isConvertHtmlEntities())
