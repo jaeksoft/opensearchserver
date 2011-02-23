@@ -171,6 +171,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
+	@Deprecated
 	public void addDocument(Document document) throws CorruptIndexException,
 			LockObtainFailedException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
