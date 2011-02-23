@@ -104,6 +104,10 @@ public class SearchRequestMap {
 		return map.entrySet();
 	}
 
+	public Set<String> getNameList() {
+		return map.keySet();
+	}
+
 	public void remove(String requestName) {
 		map.remove(requestName);
 	}
