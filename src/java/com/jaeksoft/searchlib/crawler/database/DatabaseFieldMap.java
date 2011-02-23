@@ -94,6 +94,8 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 			if (content == null)
 				continue;
 			DatabaseFieldTarget dfTarget = link.getTarget();
+			if (dfTarget == null)
+				continue;
 			if (dfTarget.isFilePath()) {
 				File file = new File(dfTarget.getFilePathPrefix() + content);
 				if (file.exists()) {
