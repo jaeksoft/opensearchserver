@@ -1,4 +1,4 @@
-Jaeksoft Open Search Server
+Jaeksoft OpenSearchServer
 http://www.open-search-server.com
 -----------------------
 CHANGE LOG
@@ -6,7 +6,7 @@ CHANGE LOG
 All new features and bugs are described here:
 http://sourceforge.net/tracker/?group_id=260863
 
-Open Search Server 1.2
+OpenSearchServer 1.2.1
 
 New features:
 - 3176150: time/date stamp
@@ -17,6 +17,13 @@ New features:
 - 3175585: More like this feature
 - 3169421: Japanese and Korean support
 - 3159477: Identify identical web pages
+
+Bug fixes:
+- 3178432: Wrong cron values in the scheduler
+
+OpenSearchServer 1.2
+
+New features:
 - 3151757: Upgrade to PDFBox 1.4.x
 - 3141193: FTP/FTPS support in the file crawler
 - 3141192: SMB/CIFS support in file crawler
@@ -68,7 +75,6 @@ New features:
 - 2900449: Upgrade PDFBox to 0.8
 
 Bug fixes:
-- 3178432: Wrong cron values in the scheduler
 - 3104065: File crawler crashes with java.io.EOFException
 - 3090248: Statistics configuration lost when adding fields
 - 3051308: <base href= ""/> is not interpreted
@@ -81,12 +87,12 @@ Bug fixes:
 - 2982541: Phrase synonyms generate unwanted words
 - 2934214: Shifted highlighting on snippet
 
-Open Search Server 1.1.4
+OpenSearchServer 1.1.4
 
 New features:
 - 2995116: Replace Javamail library
 
-Open Search Server 1.1.3
+OpenSearchServer 1.1.3
 
 Bug fixes
 - 2989836: Statistics are not set up in template
@@ -96,7 +102,7 @@ Bug fixes
 Changes:
 - 2989831: Update the documentation link (wiki)
 
-Open Search Server 1.1.2
+OpenSearchServer 1.1.2
 
 New features:
 - 2910029: Lucene read only support
@@ -111,7 +117,7 @@ Bug fixes
 - 2898343: Behaviour problem of wildcard function
 - 2899784: duplication of returned field in returned xml
 
-Open Search Server 1.1.1
+OpenSearchServer 1.1.1
 
 Bug fixes
 - 2886651: Default operator is not preserved when saving query
@@ -120,7 +126,7 @@ Bug fixes
 - 2884344: Renaming a field then deleting: not removed from the bo
 - 2884275: Duplicated documents when using empty index template
 
-Open Search Server 1.1
+OpenSearchServer 1.1
 
 New features
 - 2882224: Stress test for insertion
@@ -169,7 +175,7 @@ Bug fixes
 - 2823851: setclasspath.bat: blocking problem with some checks
 - 2820276: Add button is inactive on update form
 
-Open Search Server 1.0 beta 2
+OpenSearchServer 1.0 beta 2
 
 New features
 - 2812149: Updated Zkoss to version 3.6.2
