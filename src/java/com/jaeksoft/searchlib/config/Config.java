@@ -98,6 +98,7 @@ import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.screenshot.ScreenshotManager;
 
 public abstract class Config {
 
@@ -144,6 +145,8 @@ public abstract class Config {
 	private DatabaseCrawlMaster databaseCrawlMaster = null;
 
 	private DatabaseCrawlList databaseCrawlList = null;
+
+	private ScreenshotManager screenshotManager = null;
 
 	private FieldMap webCrawlerFieldMap = null;
 
@@ -673,6 +676,24 @@ public abstract class Config {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public ScreenshotManager getScreenshotManager() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (screenshotManager != null)
+				return screenshotManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (screenshotManager != null)
+				return screenshotManager;
+			return screenshotManager = new ScreenshotManager(indexDir);
 		} finally {
 			rwl.w.unlock();
 		}
