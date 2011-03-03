@@ -28,6 +28,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -38,7 +39,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
 public class ScreenshotThread extends ThreadAbstract {
 
@@ -141,8 +141,7 @@ public class ScreenshotThread extends ThreadAbstract {
 			initDriver();
 			driver.get(url);
 			data = driver.getScreenshotAs(OutputType.BYTES);
-			BufferedImage image = ImageIO.read(new ByteInputStream(data,
-					data.length));
+			BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
 			if (image.getWidth() < captureWidth)
 				image = scaleWidth(image);
 			if (image.getHeight() < captureHeight)
