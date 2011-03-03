@@ -26,9 +26,8 @@ package com.jaeksoft.searchlib.crawler.web.screenshot;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
-
-import org.apache.tomcat.util.net.URL;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -73,4 +72,24 @@ public class ScreenshotManager {
 		return thread;
 	}
 
+	public void delete(String url) throws SearchLibException {
+		getPngFile(url).delete();
+	}
+
+	private static final void purge(File directory, long timeLimit) {
+		for (File file : directory.listFiles()) {
+			if (file.isDirectory()) {
+				purge(file, timeLimit);
+			} else {
+				if (file.lastModified() < timeLimit)
+					file.delete();
+			}
+		}
+		if (directory.list().length == 0)
+			directory.delete();
+	}
+
+	public void purgeOldFiles(long timeLimit) {
+		purge(screenshotDir, timeLimit);
+	}
 }
