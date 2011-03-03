@@ -25,6 +25,7 @@
 			<tab id="tabCrawlerWebUrl" label="Url browser" />
 			<tab id="tabCrawlerWebCrawl" label="Crawl process" />
 			<tab id="tabCrawlerManualWebCrawl" label="Manual crawl" />
+			<tab id="tabCrawlerScreenshot" label="Screenshot" />
 			<tab id="tabCrawlerCredential" label="Authentication" />
 			<tab id="tabCrawlerWebMapping" label="Field mapping"
 				visible="@{webcrawler.webCrawlerParametersRights}" />
@@ -48,6 +49,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerManualWebCrawl.onSelect">
 				<include src="WEB-INF/zul/crawler/web/manualcrawl.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerScreenshot.onSelect">
+				<include src="WEB-INF/zul/crawler/web/screenshot.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerCredential.onSelect">
 				<include src="WEB-INF/zul/crawler/web/credential.zul" />

@@ -68,6 +68,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
+import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterList;
@@ -98,7 +99,6 @@ import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.screenshot.ScreenshotManager;
 
 public abstract class Config {
 
@@ -693,7 +693,7 @@ public abstract class Config {
 		try {
 			if (screenshotManager != null)
 				return screenshotManager;
-			return screenshotManager = new ScreenshotManager(indexDir);
+			return screenshotManager = new ScreenshotManager(this);
 		} finally {
 			rwl.w.unlock();
 		}
