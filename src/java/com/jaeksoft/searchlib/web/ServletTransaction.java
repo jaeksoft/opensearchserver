@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
@@ -39,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.TransformerConfigurationException;
 
+import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WebApp;
 import org.zkoss.zk.ui.http.WebManager;
@@ -224,5 +228,26 @@ public class ServletTransaction {
 
 	public WebApp getWebApp() {
 		return WebManager.getWebApp(servlet.getServletContext());
+	}
+
+	public void sendFile(File file, String contentType)
+			throws SearchLibException {
+		response.setContentType(contentType);
+		response.addHeader("Content-Disposition", "attachment; filename="
+				+ file.getName());
+		FileInputStream inputStream = null;
+		try {
+			inputStream = new FileInputStream(file);
+			ServletOutputStream outputStream = getOutputStream();
+			IOUtils.copy(inputStream, outputStream);
+			outputStream.close();
+		} catch (FileNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			if (inputStream != null)
+				IOUtils.closeQuietly(inputStream);
+		}
 	}
 }

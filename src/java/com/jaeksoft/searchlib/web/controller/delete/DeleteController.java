@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
@@ -146,18 +146,16 @@ public class DeleteController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		String url = getBaseUrl() + "/delete?use="
-				+ URLEncoder.encode(client.getIndexName(), "UTF-8");
+		StringBuffer sb = AbstractServlet.getApiUrl(getBaseUrl(), "/delete",
+				client, getLoggedUser());
 		String q = request.getQueryString();
 		if (q == null)
 			q = "";
 		else
 			q = q.replaceAll("\n", " ");
-		url += "&q=" + URLEncoder.encode(q, "UTF-8");
-		User user = getLoggedUser();
-		if (user != null)
-			url += "&" + user.getApiCallParameters();
-		return url;
+		sb.append("&q=");
+		sb.append(URLEncoder.encode(q, "UTF-8"));
+		return sb.toString();
 	}
 
 	@Override

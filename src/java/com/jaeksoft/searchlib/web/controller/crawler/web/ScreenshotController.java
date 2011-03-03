@@ -23,14 +23,18 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import org.apache.lucene.queryParser.ParseException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.web.ScreenshotServlet;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class ScreenshotController extends CrawlerController {
@@ -46,6 +50,10 @@ public class ScreenshotController extends CrawlerController {
 
 	private int captureHeight;
 
+	private int resizeWidth;
+
+	private int resizeHeight;
+
 	private ScreenshotThread currentScreenshotThread;
 
 	public ScreenshotController() throws SearchLibException {
@@ -59,6 +67,8 @@ public class ScreenshotController extends CrawlerController {
 		currentScreenshotThread = null;
 		setCaptureWidth(1024);
 		setCaptureHeight(768);
+		setResizeWidth(240);
+		setResizeHeight(180);
 	}
 
 	/**
@@ -106,6 +116,36 @@ public class ScreenshotController extends CrawlerController {
 		return captureWidth;
 	}
 
+	/**
+	 * @param resizeWidth
+	 *            the resizeWidth to set
+	 */
+	public void setResizeWidth(int resizeWidth) {
+		this.resizeWidth = resizeWidth;
+	}
+
+	/**
+	 * @param resizeHeight
+	 *            the resizeHeight to set
+	 */
+	public void setResizeHeight(int resizeHeight) {
+		this.resizeHeight = resizeHeight;
+	}
+
+	/**
+	 * @return the resizeHeight
+	 */
+	public int getResizeHeight() {
+		return resizeHeight;
+	}
+
+	/**
+	 * @return the captureWidth
+	 */
+	public int getResizeWidth() {
+		return resizeWidth;
+	}
+
 	public void onCapture() throws SearchLibException, ParseException,
 			IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException,
@@ -115,7 +155,8 @@ public class ScreenshotController extends CrawlerController {
 					&& currentScreenshotThread.isRunning())
 				throw new SearchLibException("A capture is already running");
 			currentScreenshotThread = getClient().getScreenshotManager()
-					.capture(url, captureWidth, captureHeight);
+					.capture(url, captureWidth, captureHeight, resizeWidth,
+							resizeHeight);
 			currentScreenshotThread.waitForStart(60);
 			reloadPage();
 		}
@@ -131,5 +172,40 @@ public class ScreenshotController extends CrawlerController {
 				return false;
 			return currentScreenshotThread.isRunning();
 		}
+	}
+
+	public BufferedImage getImage() {
+		synchronized (this) {
+			if (currentScreenshotThread == null)
+				return null;
+			return currentScreenshotThread.getImage();
+		}
+	}
+
+	public boolean isImageAvailable() {
+		return getImage() != null;
+	}
+
+	public String getApiCaptureUrl() throws SearchLibException,
+			UnsupportedEncodingException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		if (url == null)
+			return null;
+		return ScreenshotServlet.captureUrl(getBaseUrl(), client,
+				getLoggedUser(), url, captureWidth, captureHeight, resizeWidth,
+				resizeHeight);
+	}
+
+	public String getApiImageUrl() throws SearchLibException,
+			UnsupportedEncodingException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		if (url == null)
+			return null;
+		return ScreenshotServlet.imageUrl(getBaseUrl(), client,
+				getLoggedUser(), url);
 	}
 }

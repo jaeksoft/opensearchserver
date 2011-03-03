@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -333,9 +333,11 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public String getApiCallParameters() throws UnsupportedEncodingException {
-		return "login=" + URLEncoder.encode(name, "UTF-8") + "&key="
-				+ getApiKey();
+	public void appendApiCallParameters(StringBuffer sb)
+			throws UnsupportedEncodingException {
+		sb.append("&login=");
+		sb.append(URLEncoder.encode(name, "UTF-8"));
+		sb.append("&key=");
+		sb.append(getApiKey());
 	}
-
 }

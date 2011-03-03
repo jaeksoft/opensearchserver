@@ -24,38 +24,49 @@
 
 package com.jaeksoft.searchlib.crawler.web.screenshot;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.io.FileUtils;
+import javax.imageio.ImageIO;
+
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
 public class ScreenshotThread extends ThreadAbstract {
 
 	private String url;
 	private byte[] data;
-	private int width, height;
+	private int captureWidth, captureHeight;
+	private int resizeWidth, resizeHeight;
 	private FirefoxDriver driver;
 	private File destFile;
+	private BufferedImage finalImage;
 
 	private final ReentrantLock lock = new ReentrantLock();
 
-	public ScreenshotThread(Config config, String url, int width, int height,
-			File destFile) {
+	public ScreenshotThread(Config config, String url, int captureWidth,
+			int captureHeight, int resizeWidth, int resizeHeight, File destFile) {
 		super(config, null);
+		finalImage = null;
 		this.destFile = destFile;
 		driver = null;
 		this.url = url;
 		data = null;
-		this.width = width;
-		this.height = height;
+		this.captureWidth = captureWidth;
+		this.captureHeight = captureHeight;
+		this.resizeWidth = resizeWidth;
+		this.resizeHeight = resizeHeight;
 	}
 
-	private void initDriver() {
+	private final void initDriver() {
 		lock.lock();
 		try {
 			driver = new FirefoxDriver();
@@ -65,22 +76,89 @@ public class ScreenshotThread extends ThreadAbstract {
 
 	}
 
+	private final BufferedImage scaleWidth(BufferedImage image) {
+		BufferedImage scaledImage = new BufferedImage(captureWidth,
+				image.getHeight(), image.getType());
+		Graphics2D graphics2D = scaledImage.createGraphics();
+		graphics2D.drawImage(image, (captureWidth - image.getWidth()) / 2, 0,
+				image.getWidth(), image.getHeight(), null);
+		graphics2D.dispose();
+		return scaledImage;
+	}
+
+	private final BufferedImage scaleHeight(BufferedImage image) {
+		BufferedImage scaledImage = new BufferedImage(image.getWidth(),
+				captureHeight, image.getType());
+		Graphics2D graphics2D = scaledImage.createGraphics();
+		graphics2D.drawImage(image, 0, (captureHeight - image.getHeight()) / 2,
+				image.getWidth(), image.getHeight(), null);
+		graphics2D.dispose();
+		return scaledImage;
+	}
+
+	private final BufferedImage extractSubImage(BufferedImage image) {
+		int left = (image.getWidth() - captureWidth) / 2;
+		return image.getSubimage(left, 0, captureWidth, captureHeight);
+	}
+
+	private final BufferedImage resizeImage(BufferedImage image) {
+		int type = (image.getTransparency() == Transparency.OPAQUE) ? BufferedImage.TYPE_INT_RGB
+				: BufferedImage.TYPE_INT_ARGB;
+		BufferedImage ret = (BufferedImage) image;
+		int w = image.getWidth();
+		int h = image.getHeight();
+
+		while (w != resizeWidth || h != resizeHeight) {
+			if (w > resizeWidth) {
+				w /= 2;
+				if (w < resizeWidth)
+					w = resizeWidth;
+			}
+
+			if (h > resizeHeight) {
+				h /= 2;
+				if (h < resizeHeight)
+					h = resizeHeight;
+			}
+
+			BufferedImage tmp = new BufferedImage(w, h, type);
+
+			Graphics2D g2 = tmp.createGraphics();
+			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g2.drawImage(ret, 0, 0, w, h, null);
+			g2.dispose();
+
+			ret = tmp;
+		}
+
+		return ret;
+	}
+
 	@Override
 	public void runner() throws Exception {
 		try {
 			initDriver();
 			driver.get(url);
 			data = driver.getScreenshotAs(OutputType.BYTES);
-			if (destFile != null)
-				FileUtils.writeByteArrayToFile(destFile, data);
-
+			BufferedImage image = ImageIO.read(new ByteInputStream(data,
+					data.length));
+			if (image.getWidth() < captureWidth)
+				image = scaleWidth(image);
+			if (image.getHeight() < captureHeight)
+				image = scaleHeight(image);
+			image = extractSubImage(image);
+			if (resizeWidth != captureWidth && resizeHeight != captureHeight)
+				image = resizeImage(image);
+			ImageIO.write(image, "png", destFile);
+			finalImage = image;
 		} finally {
 			release();
 		}
 	}
 
-	public File getPngFile() {
-		return destFile;
+	public BufferedImage getImage() {
+		return finalImage;
 	}
 
 	@Override

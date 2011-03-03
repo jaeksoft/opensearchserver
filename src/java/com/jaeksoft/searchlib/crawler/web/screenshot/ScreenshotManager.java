@@ -47,28 +47,30 @@ public class ScreenshotManager {
 			screenshotDir.mkdir();
 	}
 
-	private final File getPngFile(String url) throws MalformedURLException,
-			NoSuchAlgorithmException {
-		URL u = new URL(url);
-		String md5host = Md5Spliter.getMD5Hash(u.getHost().getBytes());
-		File dirPath = new File(screenshotDir, md5host.substring(0, 1)
-				+ File.separator + md5host.substring(1, 2));
-		dirPath.mkdirs();
-		return new File(dirPath, Md5Spliter.getMD5Hash(url.getBytes()) + ".png");
-	}
-
-	public ScreenshotThread capture(String url, int width, int height)
-			throws SearchLibException {
+	public final File getPngFile(String url) throws SearchLibException {
 		try {
-			ScreenshotThread thread = new ScreenshotThread(config, url, width,
-					height, getPngFile(url));
-			thread.execute();
-			return thread;
+			URL u = new URL(url);
+			String md5host = Md5Spliter.getMD5Hash(u.getHost().getBytes());
+			File dirPath = new File(screenshotDir, md5host.substring(0, 1)
+					+ File.separator + md5host.substring(1, 2));
+			dirPath.mkdirs();
+			return new File(dirPath, Md5Spliter.getMD5Hash(url.getBytes())
+					+ ".png");
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public ScreenshotThread capture(String url, int captureWidth,
+			int captureHeight, int resizeWidth, int resizeHeight)
+			throws SearchLibException {
+		ScreenshotThread thread = new ScreenshotThread(config, url,
+				captureWidth, captureHeight, resizeWidth, resizeHeight,
+				getPngFile(url));
+		thread.execute();
+		return thread;
 	}
 
 }

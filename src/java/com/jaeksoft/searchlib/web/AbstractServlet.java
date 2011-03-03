@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,8 +28,10 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -40,10 +42,12 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.http.HttpException;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.UriRead;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
@@ -227,5 +231,18 @@ public abstract class AbstractServlet extends HttpServlet {
 			if (uwo != null)
 				uwo.close();
 		}
+	}
+
+	public final static StringBuffer getApiUrl(String baseUrl,
+			String servletPathName, Client client, User user)
+			throws UnsupportedEncodingException {
+		StringBuffer sb = new StringBuffer();
+		sb.append(baseUrl);
+		sb.append(servletPathName);
+		sb.append("?use=");
+		sb.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));
+		if (user != null)
+			user.appendApiCallParameters(sb);
+		return sb;
 	}
 }

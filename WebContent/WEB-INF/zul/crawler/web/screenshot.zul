@@ -27,28 +27,58 @@
 				<textbox cols="100" value="@{screenshot.url}"
 					readonly="@{screenshot.refresh}" />
 			</row>
+		</rows>
+	</grid>
+	<grid>
+		<columns>
+			<column align="right" width="200px" />
+			<column />
+			<column align="right" width="200px" />
+			<column />
+		</columns>
+		<rows>
 			<row>
 				<label value="Capture width: " />
 				<intbox value="@{screenshot.captureWidth}"
 					readonly="@{screenshot.refresh}" />
-			</row>
-			<row>
 				<label value="Capture height: " />
 				<intbox value="@{screenshot.captureHeight}"
 					readonly="@{screenshot.refresh}" />
 			</row>
+			<row>
+				<label value="Resize width: " />
+				<intbox value="@{screenshot.resizeWidth}"
+					readonly="@{screenshot.refresh}" />
+				<label value="Resize height: " />
+				<intbox value="@{screenshot.resizeHeight}"
+					readonly="@{screenshot.refresh}" />
+			</row>
 		</rows>
 		<foot>
-			<footer span="2">
-				<hbox>
-					<button label="Capture" forward="onCapture"
-						disabled="@{screenshot.refresh}" />
-					<image visible="@{screenshot.refresh}"
-						src="/images/ajax-loader.gif" />
-				</hbox>
+			<footer span="4">
+				<vbox width="100%" align="center">
+					<hbox>
+						<button label="Capture" forward="onCapture"
+							disabled="@{screenshot.refresh}" />
+						<image visible="@{screenshot.refresh}"
+							src="/images/ajax-loader.gif" />
+					</hbox>
+				</vbox>
 			</footer>
 		</foot>
 	</grid>
+	<vbox visible="@{screenshot.imageAvailable}">
+		<image id="img" content="@{screenshot.image}" />
+		<hbox>
+			<button label="Image URL"
+				tooltiptext="@{screenshot.getApiImageUrl}"
+				href="@{screenshot.getApiImageUrl}" />
+			<space />
+			<button label="Capture URL"
+				tooltiptext="@{screenshot.getApiCaptureUrl}"
+				href="@{screenshot.getApiCaptureUrl}" target="_blank" />
+		</hbox>
+	</vbox>
 	<timer delay="3000" repeats="true" onTimer="screenshot.onTimer()"
 		running="@{screenshot.refresh}" />
 </window>

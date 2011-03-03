@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,7 +43,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
@@ -79,19 +79,19 @@ public final class QueryController extends AbstractQueryController {
 		SearchRequest request = getRequest();
 		if (request == null)
 			return null;
-		String url = getBaseUrl() + "/search?use="
-				+ URLEncoder.encode(client.getIndexName(), "UTF-8");
+		StringBuffer sb = AbstractServlet.getApiUrl(getBaseUrl(), "/search",
+				client, getLoggedUser());
 		String requestName = request.getRequestName();
-		if (requestName != null && requestName.length() > 0)
-			url += "&qt=" + URLEncoder.encode(requestName, "UTF-8");
+		if (requestName != null && requestName.length() > 0) {
+			sb.append("&qt=");
+			sb.append(URLEncoder.encode(requestName, "UTF-8"));
+		}
 		String q = request.getQueryString();
 		if (q == null || q.length() == 0)
 			q = "*:*";
-		url += "&q=" + URLEncoder.encode(q, "UTF-8");
-		User user = getLoggedUser();
-		if (user != null)
-			url += "&" + user.getApiCallParameters();
-		return url;
+		sb.append("&q=");
+		sb.append(URLEncoder.encode(q, "UTF-8"));
+		return sb.toString();
 	}
 
 	@Override
