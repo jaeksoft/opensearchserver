@@ -143,7 +143,7 @@ public class ClientCatalog {
 		File file = new File(getDataDir(), indexName);
 		if (!file.exists())
 			return null;
-		return new LastModifiedAndSize(file);
+		return new LastModifiedAndSize(file, false);
 	}
 
 	public static final Client getClient(String indexName)

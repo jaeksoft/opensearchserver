@@ -14,11 +14,11 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="screenshot"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.ScreenshotController">
+<zk>
 	<grid>
 		<columns>
 			<column align="right" width="200px" />
+			<column />
 			<column />
 		</columns>
 		<rows>
@@ -26,46 +26,17 @@
 				<label value="URL to capture: " />
 				<textbox cols="100" value="@{screenshot.url}"
 					readonly="@{screenshot.refresh}" />
+				<hbox>
+					<button label="Check" onClick="screenshot.onCheck()"
+						disabled="@{screenshot.refresh}" />
+					<space />
+					<button label="Capture"
+						onClick="screenshot.onCapture()" disabled="@{screenshot.refresh}" />
+					<image visible="@{screenshot.refresh}"
+						src="/images/ajax-loader.gif" />
+				</hbox>
 			</row>
 		</rows>
-	</grid>
-	<grid>
-		<columns>
-			<column align="right" width="200px" />
-			<column />
-			<column align="right" width="200px" />
-			<column />
-		</columns>
-		<rows>
-			<row>
-				<label value="Capture width: " />
-				<intbox value="@{screenshot.captureWidth}"
-					readonly="@{screenshot.refresh}" />
-				<label value="Capture height: " />
-				<intbox value="@{screenshot.captureHeight}"
-					readonly="@{screenshot.refresh}" />
-			</row>
-			<row>
-				<label value="Resize width: " />
-				<intbox value="@{screenshot.resizeWidth}"
-					readonly="@{screenshot.refresh}" />
-				<label value="Resize height: " />
-				<intbox value="@{screenshot.resizeHeight}"
-					readonly="@{screenshot.refresh}" />
-			</row>
-		</rows>
-		<foot>
-			<footer span="4">
-				<vbox width="100%" align="center">
-					<hbox>
-						<button label="Capture" forward="onCapture"
-							disabled="@{screenshot.refresh}" />
-						<image visible="@{screenshot.refresh}"
-							src="/images/ajax-loader.gif" />
-					</hbox>
-				</vbox>
-			</footer>
-		</foot>
 	</grid>
 	<vbox visible="@{screenshot.imageAvailable}">
 		<image id="img" content="@{screenshot.image}" />
@@ -81,4 +52,4 @@
 	</vbox>
 	<timer delay="3000" repeats="true" onTimer="screenshot.onTimer()"
 		running="@{screenshot.refresh}" />
-</window>
+</zk>

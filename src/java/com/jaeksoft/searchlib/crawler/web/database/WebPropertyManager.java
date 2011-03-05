@@ -43,6 +43,11 @@ public class WebPropertyManager extends PropertyManager {
 	private PropertyItem<Boolean> exclusionEnabled;
 	private PropertyItem<Boolean> inclusionEnabled;
 	private PropertyItem<Boolean> robotsTxtEnabled;
+	private PropertyItem<String> screenshotMethod;
+	private PropertyItem<Integer> screenshotCaptureWidth;
+	private PropertyItem<Integer> screenshotCaptureHeight;
+	private PropertyItem<Integer> screenshotResizeWidth;
+	private PropertyItem<Integer> screenshotResizeHeight;
 
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
@@ -58,6 +63,14 @@ public class WebPropertyManager extends PropertyManager {
 		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
+		screenshotMethod = newStringProperty("screenshotMethod", "");
+		screenshotCaptureWidth = newIntegerProperty("screenshotCaptureWidth",
+				1024);
+		screenshotCaptureHeight = newIntegerProperty("screenshotCaptureHeight",
+				768);
+		screenshotResizeWidth = newIntegerProperty("screenshotResizeWidth", 240);
+		screenshotResizeHeight = newIntegerProperty("screenshotResizeHeight",
+				180);
 	}
 
 	public PropertyItem<Integer> getFetchInterval() {
@@ -104,4 +117,23 @@ public class WebPropertyManager extends PropertyManager {
 		return robotsTxtEnabled;
 	}
 
+	public PropertyItem<String> getScreenshotMethod() {
+		return screenshotMethod;
+	}
+
+	public PropertyItem<Integer> getScreenshotCaptureWidth() {
+		return screenshotCaptureWidth;
+	}
+
+	public PropertyItem<Integer> getScreenshotCaptureHeight() {
+		return screenshotCaptureHeight;
+	}
+
+	public PropertyItem<Integer> getScreenshotResizeWidth() {
+		return screenshotResizeWidth;
+	}
+
+	public PropertyItem<Integer> getScreenshotResizeHeight() {
+		return screenshotResizeHeight;
+	}
 }

@@ -24,55 +24,160 @@
 
 package com.jaeksoft.searchlib.crawler.web.screenshot;
 
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.imageio.ImageIO;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyItemListener;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.Md5Spliter;
 
-public class ScreenshotManager {
+public class ScreenshotManager implements PropertyItemListener {
 
 	private File screenshotDir;
 
 	private Config config;
 
-	public ScreenshotManager(Config config) {
+	private final ReentrantLock captureLock = new ReentrantLock();
+
+	private ScreenshotMethodEnum screenshotMethodEnum;
+
+	private ScreenshotMethod screenshotMethod;
+
+	private Dimension captureDimension;
+
+	private Dimension resizeDimension;
+
+	public ScreenshotManager(Config config) throws SearchLibException {
 		this.config = config;
 		screenshotDir = new File(config.getDirectory(), "screenshot");
 		if (!screenshotDir.exists())
 			screenshotDir.mkdir();
+		screenshotMethodEnum = new ScreenshotMethodEnum();
+		WebPropertyManager props = config.getWebPropertyManager();
+		screenshotMethod = getMethod(props);
+		captureDimension = getCaptureDimension(props);
+		resizeDimension = getResizeDimension(props);
+		props.getScreenshotCaptureHeight().addListener(this);
+		props.getScreenshotCaptureWidth().addListener(this);
+		props.getScreenshotResizeHeight().addListener(this);
+		props.getScreenshotResizeWidth().addListener(this);
+		props.getScreenshotMethod().addListener(this);
 	}
 
-	public final File getPngFile(String url) throws SearchLibException {
+	private final File buildFile(URL url) throws SearchLibException {
 		try {
-			URL u = new URL(url);
-			String md5host = Md5Spliter.getMD5Hash(u.getHost().getBytes());
+			String md5host = Md5Spliter.getMD5Hash(url.getHost().getBytes());
 			File dirPath = new File(screenshotDir, md5host.substring(0, 1)
 					+ File.separator + md5host.substring(1, 2));
-			dirPath.mkdirs();
-			return new File(dirPath, Md5Spliter.getMD5Hash(url.getBytes())
-					+ ".png");
-		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
+			return new File(dirPath, Md5Spliter.getMD5Hash(url.toExternalForm()
+					.getBytes()) + ".png");
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		}
 	}
 
-	public ScreenshotThread capture(String url, int captureWidth,
-			int captureHeight, int resizeWidth, int resizeHeight)
-			throws SearchLibException {
-		ScreenshotThread thread = new ScreenshotThread(config, url,
-				captureWidth, captureHeight, resizeWidth, resizeHeight,
-				getPngFile(url));
-		thread.execute();
-		return thread;
+	public final File getPngFile(URL url) throws SearchLibException {
+		File file = buildFile(url);
+		return file.exists() ? file : null;
 	}
 
-	public void delete(String url) throws SearchLibException {
+	public final BufferedImage getImage(URL url) throws SearchLibException,
+			IOException {
+		File file = buildFile(url);
+		return file.exists() ? ImageIO.read(file) : null;
+	}
+
+	public List<ScreenshotMethod> getMethodList() {
+		return screenshotMethodEnum.getList();
+	}
+
+	private ScreenshotMethod getMethod(WebPropertyManager props) {
+		String name = props.getScreenshotMethod().getValue();
+		ScreenshotMethod method = screenshotMethodEnum.getValue(name);
+		if (method == null)
+			method = screenshotMethodEnum.getFirst();
+		return method;
+	}
+
+	public ScreenshotMethod getMethod() throws SearchLibException {
+		return screenshotMethod;
+	}
+
+	private Dimension getCaptureDimension(WebPropertyManager props)
+			throws SearchLibException {
+		Dimension dimension = new Dimension(props.getScreenshotCaptureWidth()
+				.getValue(), props.getScreenshotCaptureHeight().getValue());
+		return dimension;
+	}
+
+	public Dimension getCaptureDimension() {
+		return captureDimension;
+	}
+
+	private Dimension getResizeDimension(WebPropertyManager props) {
+		Dimension dimension = new Dimension(props.getScreenshotResizeWidth()
+				.getValue(), props.getScreenshotResizeHeight().getValue());
+		return dimension;
+	}
+
+	public Dimension getResizeDimension() {
+		return resizeDimension;
+	}
+
+	public void setMethod(ScreenshotMethod method) throws IOException,
+			SearchLibException {
+		config.getWebPropertyManager().getScreenshotMethod()
+				.setValue(method.getName());
+	}
+
+	@Override
+	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
+		WebPropertyManager props = config.getWebPropertyManager();
+		if (prop == props.getScreenshotCaptureHeight()
+				|| prop == props.getScreenshotCaptureWidth())
+			captureDimension = getCaptureDimension(props);
+		else if (prop == props.getScreenshotResizeHeight()
+				|| prop == props.getScreenshotResizeWidth())
+			resizeDimension = getResizeDimension(props);
+		else if (prop == props.getScreenshotMethod())
+			screenshotMethod = getMethod(props);
+	}
+
+	public ScreenshotThread capture(URL url) throws SearchLibException {
+		if (!screenshotMethod.doScreenshot(url))
+			return null;
+		captureLock.lock();
+		try {
+			ScreenshotThread thread = new ScreenshotThread(config, this, url);
+			thread.execute();
+			return thread;
+		} finally {
+			captureLock.unlock();
+		}
+	}
+
+	public void store(URL url, BufferedImage image) throws SearchLibException,
+			IOException {
+		File file = buildFile(url);
+		File parentDir = file.getParentFile();
+		if (!parentDir.exists())
+			parentDir.mkdirs();
+		ImageIO.write(image, "png", file);
+	}
+
+	public void delete(URL url) throws SearchLibException {
 		getPngFile(url).delete();
 	}
 
@@ -92,4 +197,9 @@ public class ScreenshotManager {
 	public void purgeOldFiles(long timeLimit) {
 		purge(screenshotDir, timeLimit);
 	}
+
+	public LastModifiedAndSize getInfos() throws SearchLibException {
+		return new LastModifiedAndSize(screenshotDir, true);
+	}
+
 }

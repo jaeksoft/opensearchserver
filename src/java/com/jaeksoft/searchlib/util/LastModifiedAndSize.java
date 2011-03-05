@@ -1,6 +1,6 @@
 /**   
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,16 +29,24 @@ import com.jaeksoft.searchlib.SearchLibException;
 
 public class LastModifiedAndSize implements RecursiveDirectoryBrowser.CallBack {
 
+	private final boolean fileOnly;
+
 	private long lastModified;
 
 	private long size;
 
+	private long count;
+
 	private File lastModifiedFile;
 
-	public LastModifiedAndSize(File file) throws SearchLibException {
+	public LastModifiedAndSize(File file, boolean fileOnly)
+			throws SearchLibException {
+		this.fileOnly = fileOnly;
 		lastModifiedFile = file;
-		lastModified = file.lastModified();
-		size = file.length();
+		lastModified = 0;
+		size = 0;
+		count = 0;
+		file(file);
 		new RecursiveDirectoryBrowser(file, this);
 	}
 
@@ -54,14 +62,21 @@ public class LastModifiedAndSize implements RecursiveDirectoryBrowser.CallBack {
 		return lastModifiedFile;
 	}
 
+	public long getCount() {
+		return count;
+	}
+
 	@Override
-	public void file(File file) throws SearchLibException {
+	public final void file(File file) throws SearchLibException {
+		if (fileOnly && file.isDirectory())
+			return;
 		long l = file.lastModified();
 		if (l > lastModified) {
 			lastModified = l;
 			lastModifiedFile = file;
 		}
 		size += file.length();
+		count++;
 	}
 
 }

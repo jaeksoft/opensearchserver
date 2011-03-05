@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,22 +45,17 @@ public class ScreenshotServlet extends AbstractServlet {
 	private static final long serialVersionUID = -3693856378071358552L;
 
 	private void doCapture(ServletTransaction transaction,
-			ScreenshotManager screenshotManager, String url,
+			ScreenshotManager screenshotManager, URL url,
 			HttpServletRequest request) throws SearchLibException {
-		int captureWidth = Integer.parseInt(request
-				.getParameter("captureWidth"));
-		int captureHeight = Integer.parseInt(request
-				.getParameter("captureHeight"));
-		int resizeWidth = Integer.parseInt(request.getParameter("resizeWidth"));
-		int resizeHeight = Integer.parseInt(request
-				.getParameter("resizeHeight"));
-		screenshotManager.capture(url, captureWidth, captureHeight,
-				resizeWidth, resizeHeight).waitForEnd(300);
+		if (!screenshotManager.getMethod().doScreenshot(url))
+			throw new SearchLibException(
+					"The capture is not allowed by the current method");
+		screenshotManager.capture(url).waitForEnd(300);
 		transaction.addXmlResponse("Status", "OK");
 	}
 
 	private void doImage(ServletTransaction transaction,
-			ScreenshotManager screenshotManager, String url)
+			ScreenshotManager screenshotManager, URL url)
 			throws SearchLibException {
 		File file = screenshotManager.getPngFile(url);
 		if (file == null) {
@@ -70,29 +66,18 @@ public class ScreenshotServlet extends AbstractServlet {
 	}
 
 	public final static String captureUrl(String baseUrl, Client client,
-			User user, String screenshotUrl, int captureWidth,
-			int captureHeight, int resizeWidth, int resizeHeight)
-			throws UnsupportedEncodingException {
+			User user, URL screenshotUrl) throws UnsupportedEncodingException {
 		StringBuffer sb = getApiUrl(baseUrl, "/screenshot", client, user);
 		sb.append("&action=capture&url=");
-		sb.append(URLEncoder.encode(screenshotUrl, "UTF-8"));
-		sb.append("&captureWidth=");
-		sb.append(Integer.toString(captureWidth));
-		sb.append("&captureHeight=");
-		sb.append(Integer.toString(captureHeight));
-		sb.append("&resizeWidth=");
-		sb.append(Integer.toString(resizeWidth));
-		sb.append("&resizeHeight=");
-		sb.append(Integer.toString(resizeHeight));
+		sb.append(URLEncoder.encode(screenshotUrl.toExternalForm(), "UTF-8"));
 		return sb.toString();
 	}
 
 	public final static String imageUrl(String baseUrl, Client client,
-			User user, String screenshotUrl)
-			throws UnsupportedEncodingException {
+			User user, URL screenshotUrl) throws UnsupportedEncodingException {
 		StringBuffer sb = getApiUrl(baseUrl, "/screenshot", client, user);
 		sb.append("&action=image&url=");
-		sb.append(URLEncoder.encode(screenshotUrl, "UTF-8"));
+		sb.append(URLEncoder.encode(screenshotUrl.toExternalForm(), "UTF-8"));
 		return sb.toString();
 	}
 
@@ -110,7 +95,7 @@ public class ScreenshotServlet extends AbstractServlet {
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
 			HttpServletRequest request = transaction.getServletRequest();
 			String action = request.getParameter("action");
-			String url = request.getParameter("url");
+			URL url = new URL(request.getParameter("url"));
 			if ("capture".equalsIgnoreCase(action))
 				doCapture(transaction, screenshotManager, url, request);
 			if ("image".equalsIgnoreCase(action))

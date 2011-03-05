@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,11 +25,17 @@
 package com.jaeksoft.searchlib.crawler.common.database;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+
+import com.jaeksoft.searchlib.SearchLibException;
 
 public class PropertyItem<T> {
 
 	private PropertyManager propertyManager;
+
+	private List<PropertyItemListener> listeners;
 
 	private String name;
 
@@ -39,6 +45,13 @@ public class PropertyItem<T> {
 		this.propertyManager = propertyManager;
 		this.name = name;
 		this.value = value;
+		this.listeners = null;
+	}
+
+	public void addListener(PropertyItemListener listener) {
+		if (listeners == null)
+			listeners = new ArrayList<PropertyItemListener>(1);
+		listeners.add(listener);
 	}
 
 	public String getName() {
@@ -57,12 +70,15 @@ public class PropertyItem<T> {
 		this.value = value;
 	}
 
-	public void setValue(T value) throws IOException {
+	public void setValue(T value) throws IOException, SearchLibException {
 		if (value != null && this.value != null)
 			if (value.equals(this.value))
 				return;
 		this.value = value;
 		propertyManager.put(this);
+		if (listeners != null)
+			for (PropertyItemListener listener : listeners)
+				listener.hasBeenSet(this);
 	}
 
 	public boolean isValue() {

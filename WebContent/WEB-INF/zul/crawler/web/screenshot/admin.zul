@@ -1,0 +1,71 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer
+	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of Jaeksoft OpenSearchServer.
+	Jaeksoft OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	Jaeksoft OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<zk>
+	<grid>
+		<columns>
+			<column align="right" width="200px" />
+			<column align="left" width="200px" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label value="Screenshot method: " />
+				<listbox model="@{screenshot.methodList}" mold="select"
+					selectedItem="@{screenshot.method}">
+					<listitem self="@{each=method}"
+						label="@{method.name}" />
+				</listbox>
+				<space />
+			</row>
+			<row>
+				<label value="Capture width: " />
+				<intbox value="@{screenshot.properties.screenshotCaptureWidth.value}"
+					readonly="@{screenshot.refresh}" />
+				<label value="Maximum width size of the capture" />
+			</row>
+			<row>
+				<label value="Capture height: " />
+				<intbox value="@{screenshot.properties.screenshotCaptureHeight.value}"
+					readonly="@{screenshot.refresh}" />
+				<label value="Maxixum height size of the capture" />
+			</row>
+			<row>
+				<label value="Resize width: " />
+				<intbox value="@{screenshot.properties.screenshotResizeWidth.value}"
+					readonly="@{screenshot.refresh}" />
+				<label value="Resize width size of the capture" />
+			</row>
+			<row>
+				<label value="Resize height: " />
+				<intbox value="@{screenshot.properties.screenshotResizeHeight.value}"
+					readonly="@{screenshot.refresh}" />
+				<label value="Resize height size of the capture" />
+			</row>
+			<row>
+				<label value="Screenshot count: " />
+				<label value="@{screenshot.infos.count}" />
+				<button label="Info" onClick="screenshot.onInfos()" />
+			</row>
+			<row>
+				<label value="Total size: " />
+				<label
+					value="@{screenshot.infos.size,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
+				<button label="Info" onClick="screenshot.onInfos()" />
+			</row>
+		</rows>
+	</grid>
+</zk>

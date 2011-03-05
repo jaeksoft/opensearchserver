@@ -51,7 +51,7 @@
 				<include src="WEB-INF/zul/crawler/web/manualcrawl.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerScreenshot.onSelect">
-				<include src="WEB-INF/zul/crawler/web/screenshot.zul" />
+				<include src="WEB-INF/zul/crawler/web/screenshot/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerCredential.onSelect">
 				<include src="WEB-INF/zul/crawler/web/credential.zul" />
