@@ -148,4 +148,10 @@ public class UrlManagerNative extends UrlManagerAbstract {
 		return 0;
 	}
 
+	@Override
+	public boolean exists(String sUrl) throws SearchLibException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

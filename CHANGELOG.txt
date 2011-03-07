@@ -10,6 +10,7 @@ OpenSearchServer 1.2.2
 
 New features:
 - 3175074: screenshot of an webpage
+- 3094822: SiteMap functionnality
 
 Bug fixes:
 - 3192429: Not the correct definition of the Russian language.

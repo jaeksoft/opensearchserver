@@ -30,6 +30,7 @@
 			<tab id="tabCrawlerWebMapping" label="Field mapping"
 				visible="@{webcrawler.webCrawlerParametersRights}" />
 			<tab id="tabCrawlerWebRobotsTxt" label="Robots.txt" />
+			<tab id="tabCrawlerWebSitemap" label="Site Map" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -51,7 +52,8 @@
 				<include src="WEB-INF/zul/crawler/web/manualcrawl.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerScreenshot.onSelect">
-				<include src="WEB-INF/zul/crawler/web/screenshot/index.zul" />
+				<include
+					src="WEB-INF/zul/crawler/web/screenshot/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerCredential.onSelect">
 				<include src="WEB-INF/zul/crawler/web/credential.zul" />
@@ -61,6 +63,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebRobotsTxt.onSelect">
 				<include src="WEB-INF/zul/crawler/web/robotstxt.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebSitemap.onSelect">
+				<include src="WEB-INF/zul/crawler/web/sitemap.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

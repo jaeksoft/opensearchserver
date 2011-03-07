@@ -63,6 +63,8 @@ public abstract class UrlManagerAbstract {
 
 	public abstract void reload(boolean optimize) throws SearchLibException;
 
+	public abstract boolean exists(String sUrl) throws SearchLibException;
+
 	public abstract void deleteUrls(Collection<String> workDeleteUrlList)
 			throws SearchLibException;
 

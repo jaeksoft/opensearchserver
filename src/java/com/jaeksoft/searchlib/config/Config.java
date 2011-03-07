@@ -28,7 +28,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
@@ -63,6 +65,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
+import com.jaeksoft.searchlib.crawler.web.database.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
@@ -83,6 +86,8 @@ import com.jaeksoft.searchlib.plugin.IndexPluginTemplateList;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
+import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.replication.ReplicationThread;
@@ -124,6 +129,8 @@ public abstract class Config {
 
 	private UrlFilterList urlFilterList = null;
 
+	private SiteMapList siteMapList = null;
+
 	private FilePathManager filePatternManager = null;
 
 	private FileManager fileManager = null;
@@ -147,6 +154,8 @@ public abstract class Config {
 	private DatabaseCrawlList databaseCrawlList = null;
 
 	private ScreenshotManager screenshotManager = null;
+
+	private RendererManager rendererManager = null;
 
 	private FieldMap webCrawlerFieldMap = null;
 
@@ -699,6 +708,89 @@ public abstract class Config {
 		}
 	}
 
+	private File getRendererDirectory() {
+		File directory = new File(getDirectory(), "renderers");
+		if (!directory.exists())
+			directory.mkdir();
+		return directory;
+	}
+
+	public RendererManager getRendererManager() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (rendererManager != null)
+				return rendererManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (rendererManager != null)
+				return rendererManager;
+			return rendererManager = new RendererManager(this,
+					getRendererDirectory());
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void save(Renderer renderer) throws SearchLibException,
+			UnsupportedEncodingException {
+		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
+				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+						"UTF-8");
+				renderer.writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} catch (TransformerConfigurationException e) {
+				throw new SearchLibException(e);
+			} catch (SAXException e) {
+				throw new SearchLibException(e);
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			} finally {
+				rwl.w.unlock();
+			}
+		} finally {
+			longTermLock.unlock();
+			cfr.abort();
+		}
+
+	}
+
+	public void delete(Renderer renderer) throws SearchLibException,
+			IOException {
+		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
+				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				cfr.delete();
+			} finally {
+				rwl.w.unlock();
+			}
+		} finally {
+			longTermLock.unlock();
+			cfr.abort();
+		}
+	}
+
 	public String getIndexName() {
 		return getDirectory().getName();
 	}
@@ -973,6 +1065,53 @@ public abstract class Config {
 					"web_credentials.xml");
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	public SiteMapList getSiteMapList() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (siteMapList != null)
+				return siteMapList;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (siteMapList != null)
+				return siteMapList;
+			return siteMapList = new SiteMapList(indexDir,
+					"webcrawler-sitemap.xml");
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void saveSiteMapList() throws SearchLibException {
+		ConfigFileRotation cfr = configFiles.get(indexDir,
+				"webcrawler-sitemap.xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
+						"UTF-8");
+				getSiteMapList().writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			longTermLock.unlock();
+			cfr.abort();
 		}
 	}
 

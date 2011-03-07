@@ -33,7 +33,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.lucene.queryParser.ParseException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -46,11 +51,14 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
+import com.jaeksoft.searchlib.crawler.web.database.SiteMapItem;
+import com.jaeksoft.searchlib.crawler.web.database.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.util.DomUtils;
 
 public class WebCrawlMaster extends CrawlMasterAbstract {
 
@@ -99,6 +107,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			synchronized (oldHostList) {
 				oldHostList.clear();
 			}
+			extractSiteMapList();
 			extractHostList();
 
 			while (!isAborted()) {
@@ -153,6 +162,53 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		urlManager.getNewHostToFetch(fetchIntervalDate, maxUrlPerSession,
 				newHostList);
 		currentStats.addNewHostListSize(newHostList.size());
+	}
+
+	private void extractSiteMapList() throws SearchLibException {
+		SiteMapList siteMapList = getConfig().getSiteMapList();
+
+		if (siteMapList != null && siteMapList.getArray() != null) {
+			UrlManagerAbstract urlManager = getConfig().getUrlManager();
+			List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
+			for (SiteMapItem siteMap : siteMapList.getArray()) {
+				List<String> urls = getListOfUrls(siteMap.getUri());
+				for (String uri : urls) {
+					if (!urlManager.exists(uri)) {
+						workInsertUrlList.add(new UrlItem(uri));
+					}
+				}
+			}
+			if (workInsertUrlList.size() > 0)
+				urlManager.updateUrlItems(workInsertUrlList);
+		}
+	}
+
+	private List<String> getListOfUrls(String uri) {
+		List<String> urls = new ArrayList<String>();
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			// Using factory get an instance of document builder
+			DocumentBuilder db = dbf.newDocumentBuilder();
+
+			// parse using builder to get DOM representation of the XML file
+			Document doc = db.parse(uri);
+			if (doc != null) {
+				List<Node> nodes = DomUtils.getAllNodes(doc, "loc");
+				if (nodes != null) {
+					for (Node node : nodes) {
+						String href = DomUtils.getText(node);
+						if (href != null && !href.equalsIgnoreCase("")) {
+							// check url format
+							URL newUrl = new URL(href);
+							urls.add(newUrl.toExternalForm());
+						}
+					}
+				}
+			}
+		} catch (Exception ex) {
+			Logging.logger.warn(ex);
+		}
+		return urls;
 	}
 
 	private NamedItem getNextHost() {

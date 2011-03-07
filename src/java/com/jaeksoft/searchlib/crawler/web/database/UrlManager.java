@@ -185,7 +185,8 @@ public class UrlManager extends UrlManagerAbstract {
 		}
 	}
 
-	private boolean exists(String sUrl) throws SearchLibException {
+	@Override
+	public boolean exists(String sUrl) throws SearchLibException {
 		SearchRequest request = getUrlSearchRequest();
 		request.setQueryString("url:\"" + sUrl + '"');
 		return (getUrls(request, null, false, 0, 0, null) > 0);
