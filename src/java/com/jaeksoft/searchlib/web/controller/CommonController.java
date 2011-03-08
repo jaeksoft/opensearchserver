@@ -95,7 +95,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 			String attributeName) {
 		Object attr = null;
 		while (component != null)
-			if ((attr = component.getAttribute("requestentry")) != null)
+			if ((attr = component.getAttribute(attributeName)) != null)
 				return attr;
 			else
 				component = component.getParent();

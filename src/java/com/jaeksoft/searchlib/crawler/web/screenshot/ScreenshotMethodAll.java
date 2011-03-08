@@ -24,16 +24,18 @@
 
 package com.jaeksoft.searchlib.crawler.web.screenshot;
 
-import com.jaeksoft.searchlib.util.ExtensibleEnum;
+import java.net.URL;
 
-public class ScreenshotMethodEnum extends ExtensibleEnum<ScreenshotMethod> {
+public class ScreenshotMethodAll extends ScreenshotMethod {
 
-	public ScreenshotMethodEnum() {
+	protected ScreenshotMethodAll(ScreenshotMethodEnum en) {
+		super(en, "All");
+	}
 
-		new ScreenshotMethod(this, "No screenshot");
-
-		new ScreenshotMethodHomepage(this);
-
-		new ScreenshotMethodAll(this);
+	@Override
+	public boolean doScreenshot(URL url) {
+		if (url == null)
+			return false;
+		return true;
 	}
 }

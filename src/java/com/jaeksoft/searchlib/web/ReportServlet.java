@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.mail.HtmlEmail;
 
@@ -64,8 +62,7 @@ public class ReportServlet extends AbstractServlet {
 		pw.println("<html>");
 		pw.println("<p>" + statType + " - " + statPeriod.getName() + "</p>");
 		pw.println("<table cellpadding=\"1\" cellspacing=\"0\" border=\"1\">");
-		pw
-				.println("<tr><th>Period start time</th><th>Count</th><th>Average</th><th>Min</th><th>Max</th><th>Error</th></tr>");
+		pw.println("<tr><th>Period start time</th><th>Count</th><th>Average</th><th>Min</th><th>Max</th><th>Error</th></tr>");
 		for (Aggregate aggr : statistics.getArray()) {
 			pw.println("<tr>");
 			pw.println("<td>" + aggr.getStartTime() + "</td>");
@@ -84,11 +81,10 @@ public class ReportServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-			HttpServletRequest request = transaction.getServletRequest();
-			Client client = ClientCatalog
-					.getClient(request.getParameter("use"));
-			String report = request.getParameter("report");
-			String emails = request.getParameter("emails");
+			Client client = ClientCatalog.getClient(transaction
+					.getParameterString("use"));
+			String report = transaction.getParameterString("report");
+			String emails = transaction.getParameterString("emails");
 			if (emails == null)
 				return;
 			HtmlEmail htmlEmail = client.getMailer().getHtmlEmail(emails, null);
@@ -96,8 +92,8 @@ public class ReportServlet extends AbstractServlet {
 			PrintWriter pw = new PrintWriter(sw);
 			if ("statistics".equals(report)) {
 				htmlEmail.setSubject("OpenSearchServer statistics report");
-				doStatistics(client, request.getParameter("stat"), request
-						.getParameter("period"), pw);
+				doStatistics(client, transaction.getParameterString("stat"),
+						transaction.getParameterString("period"), pw);
 			}
 			pw.close();
 			sw.close();

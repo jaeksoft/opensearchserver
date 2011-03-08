@@ -19,7 +19,7 @@
 		<listbox model="@{renderer.renderers}" mold="paging"
 			selectedItem="@{classifier.selectedRenderer}" pageSize="10">
 			<auxhead>
-				<auxheader colspan="5">
+				<auxheader colspan="2">
 					<button label="New renderer..."
 						onClick="renderer.onNew()" />
 				</auxheader>
@@ -29,7 +29,7 @@
 				<listheader label="Action" width="200px" />
 			</listhead>
 			<listitem self="@{each=item}">
-				<custom-attributes requestentry="@{item}" />
+				<custom-attributes rendererItem="@{item}" />
 				<listcell label="@{item.name}"
 					onDoubleClick="renderer.doEdit(self)" />
 				<listcell>

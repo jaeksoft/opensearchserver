@@ -104,6 +104,7 @@ import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public abstract class Config {
 
@@ -1266,51 +1267,51 @@ public abstract class Config {
 		}
 	}
 
-	public SearchRequest getNewSearchRequest(HttpServletRequest httpRequest)
+	public SearchRequest getNewSearchRequest(ServletTransaction transaction)
 			throws ParseException, SyntaxError, SearchLibException {
 
-		String requestName = httpRequest.getParameter("qt");
-		if (requestName == null)
-			requestName = "search";
+		String requestName = transaction.getParameterString("qt", "search");
 		SearchRequest searchRequest = getNewSearchRequest(requestName);
 		if (searchRequest == null)
 			searchRequest = getNewSearchRequest();
 
 		String p;
+		Integer i;
+		Boolean b;
 
-		if ((p = httpRequest.getParameter("query")) != null)
+		if ((p = transaction.getParameterString("query")) != null)
 			searchRequest.setQueryString(p);
-		else if ((p = httpRequest.getParameter("q")) != null)
+		else if ((p = transaction.getParameterString("q")) != null)
 			searchRequest.setQueryString(p);
 
-		if ((p = httpRequest.getParameter("start")) != null)
-			searchRequest.setStart(Integer.parseInt(p));
+		if ((i = transaction.getParameterInteger("start")) != null)
+			searchRequest.setStart(i);
 
-		if ((p = httpRequest.getParameter("rows")) != null)
-			searchRequest.setRows(Integer.parseInt(p));
+		if ((i = transaction.getParameterInteger("rows")) != null)
+			searchRequest.setRows(i);
 
-		if ((p = httpRequest.getParameter("lang")) != null)
+		if ((p = transaction.getParameterString("lang")) != null)
 			searchRequest.setLang(LanguageEnum.findByCode(p));
 
-		if ((p = httpRequest.getParameter("collapse.mode")) != null)
+		if ((p = transaction.getParameterString("collapse.mode")) != null)
 			searchRequest.setCollapseMode(CollapseMode.valueOfLabel(p));
 
-		if ((p = httpRequest.getParameter("collapse.field")) != null)
+		if ((p = transaction.getParameterString("collapse.field")) != null)
 			searchRequest.setCollapseField(getSchema().getFieldList().get(p)
 					.getName());
 
-		if ((p = httpRequest.getParameter("collapse.max")) != null)
-			searchRequest.setCollapseMax(Integer.parseInt(p));
+		if ((i = transaction.getParameterInteger("collapse.max")) != null)
+			searchRequest.setCollapseMax(i);
 
-		if ((p = httpRequest.getParameter("withDocs")) != null)
+		if ((p = transaction.getParameterString("withDocs")) != null)
 			searchRequest.setWithDocument(true);
 
-		if ((p = httpRequest.getParameter("log")) != null)
+		if ((p = transaction.getParameterString("log")) != null)
 			searchRequest.setLogReport(true);
 
 		if (searchRequest.isLogReport()) {
-			for (int i = 1; i <= 10; i++) {
-				p = httpRequest.getParameter("log" + i);
+			for (int j = 1; j <= 10; j++) {
+				p = transaction.getParameterString("log" + j);
 				if (p == null)
 					break;
 				searchRequest.addCustomLog(p);
@@ -1319,7 +1320,7 @@ public abstract class Config {
 
 		String[] values;
 
-		if ((values = httpRequest.getParameterValues("fq")) != null) {
+		if ((values = transaction.getParameterValues("fq")) != null) {
 			FilterList fl = searchRequest.getFilterList();
 			for (String value : values)
 				if (value != null)
@@ -1327,7 +1328,7 @@ public abstract class Config {
 						fl.add(value, Filter.Source.REQUEST);
 		}
 
-		if ((values = httpRequest.getParameterValues("rf")) != null) {
+		if ((values = transaction.getParameterValues("rf")) != null) {
 			FieldList<Field> rf = searchRequest.getReturnFieldList();
 			for (String value : values)
 				if (value != null)
@@ -1335,7 +1336,7 @@ public abstract class Config {
 						rf.add(new Field(getSchema().getFieldList().get(value)));
 		}
 
-		if ((values = httpRequest.getParameterValues("hl")) != null) {
+		if ((values = transaction.getParameterValues("hl")) != null) {
 			FieldList<SnippetField> snippetFields = searchRequest
 					.getSnippetFieldList();
 			for (String value : values)
@@ -1343,58 +1344,58 @@ public abstract class Config {
 						.get(value).getName()));
 		}
 
-		if ((values = httpRequest.getParameterValues("fl")) != null) {
+		if ((values = transaction.getParameterValues("fl")) != null) {
 			FieldList<Field> returnFields = searchRequest.getReturnFieldList();
 			for (String value : values)
 				returnFields.add(getSchema().getFieldList().get(value));
 		}
 
-		if ((values = httpRequest.getParameterValues("sort")) != null) {
+		if ((values = transaction.getParameterValues("sort")) != null) {
 			SortList sortList = searchRequest.getSortList();
 			for (String value : values)
 				sortList.add(value);
 		}
 
-		if ((values = httpRequest.getParameterValues("facet")) != null) {
+		if ((values = transaction.getParameterValues("facet")) != null) {
 			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
 			for (String value : values)
 				facetList.add(FacetField.buildFacetField(value, false, false));
 		}
-		if ((values = httpRequest.getParameterValues("facet.collapse")) != null) {
+		if ((values = transaction.getParameterValues("facet.collapse")) != null) {
 			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
 			for (String value : values)
 				facetList.add(FacetField.buildFacetField(value, false, true));
 		}
-		if ((values = httpRequest.getParameterValues("facet.multi")) != null) {
+		if ((values = transaction.getParameterValues("facet.multi")) != null) {
 			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
 			for (String value : values)
 				facetList.add(FacetField.buildFacetField(value, true, false));
 		}
-		if ((values = httpRequest.getParameterValues("facet.multi.collapse")) != null) {
+		if ((values = transaction.getParameterValues("facet.multi.collapse")) != null) {
 			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
 			for (String value : values)
 				facetList.add(FacetField.buildFacetField(value, true, true));
 		}
 
-		if ((p = httpRequest.getParameter("mlt")) != null)
-			searchRequest.setMoreLikeThis("yes".equalsIgnoreCase(p));
+		if ((b = transaction.getParameterBoolean("mlt", "yes")) != null)
+			searchRequest.setMoreLikeThis(b);
 
-		if ((p = httpRequest.getParameter("mlt.docquery")) != null)
+		if ((p = transaction.getParameterString("mlt.docquery")) != null)
 			searchRequest.setMoreLikeThisDocQuery(p);
 
-		if ((p = httpRequest.getParameter("mlt.minwordlen")) != null)
-			searchRequest.setMoreLikeThisMinWordLen(Integer.parseInt(p));
+		if ((i = transaction.getParameterInteger("mlt.minwordlen")) != null)
+			searchRequest.setMoreLikeThisMinWordLen(i);
 
-		if ((p = httpRequest.getParameter("mlt.maxwordlen")) != null)
-			searchRequest.setMoreLikeThisMaxWordLen(Integer.parseInt(p));
+		if ((i = transaction.getParameterInteger("mlt.maxwordlen")) != null)
+			searchRequest.setMoreLikeThisMaxWordLen(i);
 
-		if ((p = httpRequest.getParameter("mlt.mindocfreq")) != null)
-			searchRequest.setMoreLikeThisMinDocFreq(Integer.parseInt(p));
+		if ((i = transaction.getParameterInteger("mlt.mindocfreq")) != null)
+			searchRequest.setMoreLikeThisMinDocFreq(i);
 
-		if ((p = httpRequest.getParameter("mlt.mintermfreq")) != null)
-			searchRequest.setMoreLikeThisMinTermFreq(Integer.parseInt(p));
+		if ((i = transaction.getParameterInteger("mlt.mintermfreq")) != null)
+			searchRequest.setMoreLikeThisMinTermFreq(i);
 
-		if ((p = httpRequest.getParameter("mlt.stopwords")) != null)
+		if ((p = transaction.getParameterString("mlt.stopwords")) != null)
 			searchRequest.setMoreLikeThisStopWords(p);
 
 		return searchRequest;

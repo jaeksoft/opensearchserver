@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -31,7 +31,6 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -111,12 +110,10 @@ public class PatternServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 
-			HttpServletRequest request = transaction.getServletRequest();
-
-			boolean bDeleteAll = "yes"
-					.equals(request.getParameter("deleteAll"));
-			boolean bExclusion = "exclusion".equals(request
-					.getParameter("type"));
+			boolean bDeleteAll = transaction.getParameterBoolean("deleteAll",
+					"yes", false);
+			boolean bExclusion = transaction.getParameterBoolean("type",
+					"exclusion", false);
 
 			PatternManager patternManager = bExclusion ? client
 					.getExclusionPatternManager() : client
@@ -124,15 +121,14 @@ public class PatternServlet extends AbstractServlet {
 			UrlManagerAbstract urlManager = client.getUrlManager();
 
 			PrintWriter writer = transaction.getWriter("utf-8");
-			String contentType = transaction.getServletResponse()
-					.getContentType();
+			String contentType = transaction.getResponseContentType();
 			Method method = transaction.getMethod();
 			List<PatternItem> patternList = null;
 			if (contentType != null
 					&& contentType
 							.startsWith("application/x-www-form-urlencoded"))
 				patternList = inject(patternManager,
-						request.getParameter("inject"), bDeleteAll);
+						transaction.getParameterString("inject"), bDeleteAll);
 			else if ((method == Method.PUT || method == Method.POST)
 					&& (contentType == null || contentType
 							.startsWith("text/plain")))

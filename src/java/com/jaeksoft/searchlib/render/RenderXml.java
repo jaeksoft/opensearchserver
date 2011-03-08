@@ -238,7 +238,7 @@ public class RenderXml implements Render {
 
 	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
-		servletTransaction.getServletResponse().setContentType("text/xml");
+		servletTransaction.setResponseContentType("text/xml");
 		render(servletTransaction.getWriter("UTF-8"));
 	}
 }

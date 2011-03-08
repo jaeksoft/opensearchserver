@@ -26,13 +26,14 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -45,12 +46,15 @@ public class ScreenshotServlet extends AbstractServlet {
 	private static final long serialVersionUID = -3693856378071358552L;
 
 	private void doCapture(ServletTransaction transaction,
-			ScreenshotManager screenshotManager, URL url,
-			HttpServletRequest request) throws SearchLibException {
+			ScreenshotManager screenshotManager,
+			CredentialManager credentialManager, URL url)
+			throws SearchLibException, MalformedURLException {
 		if (!screenshotManager.getMethod().doScreenshot(url))
 			throw new SearchLibException(
 					"The capture is not allowed by the current method");
-		screenshotManager.capture(url).waitForEnd(300);
+		CredentialItem credentialItem = credentialManager.getCredential(url
+				.toExternalForm());
+		screenshotManager.capture(url, credentialItem, true, 300);
 		transaction.addXmlResponse("Status", "OK");
 	}
 
@@ -93,11 +97,13 @@ public class ScreenshotServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
-			HttpServletRequest request = transaction.getServletRequest();
-			String action = request.getParameter("action");
-			URL url = new URL(request.getParameter("url"));
+			CredentialManager credentialManager = client
+					.getWebCredentialManager();
+			String action = transaction.getParameterString("action");
+			URL url = new URL(transaction.getParameterString("url"));
 			if ("capture".equalsIgnoreCase(action))
-				doCapture(transaction, screenshotManager, url, request);
+				doCapture(transaction, screenshotManager, credentialManager,
+						url);
 			if ("image".equalsIgnoreCase(action))
 				doImage(transaction, screenshotManager, url);
 

@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -35,10 +36,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyItemListener;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.Md5Spliter;
@@ -155,13 +158,17 @@ public class ScreenshotManager implements PropertyItemListener {
 			screenshotMethod = getMethod(props);
 	}
 
-	public ScreenshotThread capture(URL url) throws SearchLibException {
+	public ScreenshotThread capture(URL url, CredentialItem credentialItem,
+			boolean waitForEnd, int secTimeOut) throws SearchLibException {
 		if (!screenshotMethod.doScreenshot(url))
 			return null;
 		captureLock.lock();
 		try {
-			ScreenshotThread thread = new ScreenshotThread(config, this, url);
+			ScreenshotThread thread = new ScreenshotThread(config, this, url,
+					credentialItem);
 			thread.execute();
+			if (waitForEnd)
+				thread.waitForEnd(secTimeOut);
 			return thread;
 		} finally {
 			captureLock.unlock();
@@ -179,6 +186,17 @@ public class ScreenshotManager implements PropertyItemListener {
 
 	public void delete(URL url) throws SearchLibException {
 		getPngFile(url).delete();
+	}
+
+	public void delete(List<String> urlList) throws SearchLibException {
+		for (String u : urlList) {
+			try {
+				URL url = new URL(u);
+				getPngFile(url).delete();
+			} catch (MalformedURLException e) {
+				Logging.logger.warn(e);
+			}
+		}
 	}
 
 	private static final void purge(File directory, long timeLimit) {

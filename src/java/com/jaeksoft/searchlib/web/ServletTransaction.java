@@ -81,6 +81,8 @@ public class ServletTransaction {
 
 	private Method method;
 
+	private XmlWriter xmlWriter;
+
 	private Map<String, String> xmlResponse;
 
 	public ServletTransaction(AbstractServlet servlet,
@@ -94,20 +96,13 @@ public class ServletTransaction {
 		xmlResponse = null;
 		writer = null;
 		reader = null;
+		xmlWriter = null;
 		out = null;
 		in = null;
 	}
 
 	public Method getMethod() {
 		return method;
-	}
-
-	public HttpServletRequest getServletRequest() {
-		return this.request;
-	}
-
-	public HttpServletResponse getServletResponse() {
-		return this.response;
 	}
 
 	public User getLoggedUser() throws SearchLibException, InterruptedException {
@@ -175,6 +170,22 @@ public class ServletTransaction {
 		return writer;
 	}
 
+	public XmlWriter getXmlWriter(String encoding, String docType)
+			throws SearchLibException {
+		if (xmlWriter != null)
+			return xmlWriter;
+		try {
+			xmlWriter = new XmlWriter(getWriter(encoding), encoding, docType);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+		return xmlWriter;
+	}
+
 	public ServletOutputStream getOutputStream() throws IOException {
 		if (writer != null)
 			throw new IOException("Writer delivered before");
@@ -205,14 +216,21 @@ public class ServletTransaction {
 		return classDetail;
 	}
 
-	public void writeXmlResponse() throws IOException,
-			TransformerConfigurationException, SAXException {
+	public final String getResponseContentType() {
+		return response.getContentType();
+	}
+
+	public final void setResponseContentType(String contentType) {
+		response.setContentType(contentType);
+	}
+
+	public void writeXmlResponse() throws SearchLibException, SAXException {
 		if (xmlResponse == null)
 			return;
 		if (xmlResponse.size() == 0)
 			return;
-		response.setContentType("text/xml");
-		XmlWriter xmlWriter = new XmlWriter(getWriter("UTF-8"), "UTF-8");
+		getXmlWriter("UTF-8", null);
+		setResponseContentType("text/xml");
 
 		xmlWriter.startElement("response");
 
@@ -249,5 +267,76 @@ public class ServletTransaction {
 			if (inputStream != null)
 				IOUtils.closeQuietly(inputStream);
 		}
+	}
+
+	public final String getParameterString(String name) {
+		return request.getParameter(name);
+	}
+
+	public final String getParameterString(String name, String defaultValue) {
+		String p = request.getParameter(name);
+		return p == null ? defaultValue : p;
+	}
+
+	public final Integer getParameterInteger(String name) {
+		return getParameterInteger(name, null);
+	}
+
+	public final int getParameterLong(String name, int defaultValue) {
+		return getParameterLong(name, new Integer(defaultValue));
+	}
+
+	public final Integer getParameterInteger(String name, Integer defaultValue) {
+		String p = request.getParameter(name);
+		return p == null ? defaultValue : Integer.parseInt(p);
+	}
+
+	public final Long getParameterLong(String name) {
+		return getParameterLong(name, null);
+	}
+
+	public final long getParameterLong(String name, long defaultValue) {
+		return getParameterLong(name, new Long(defaultValue));
+	}
+
+	public final Long getParameterLong(String name, Long defaultValue) {
+		String p = request.getParameter(name);
+		return p == null ? defaultValue : Long.parseLong(p);
+	}
+
+	public final Boolean getParameterBoolean(String name) {
+		return getParameterBoolean(name, null);
+	}
+
+	public final boolean getParameterBoolean(String name, boolean defaultValue) {
+		Boolean b = getParameterBoolean(name, null);
+		return b == null ? defaultValue : b;
+	}
+
+	public final boolean getParameterBoolean(String name, String valueExpected,
+			boolean defaultValue) {
+		Boolean b = getParameterBoolean(name, valueExpected);
+		return b == null ? defaultValue : b;
+	}
+
+	public final Boolean getParameterBoolean(String name, String valueExpected) {
+		String p = request.getParameter(name);
+		if (p == null)
+			return null;
+		if (valueExpected != null)
+			return valueExpected.equalsIgnoreCase(p);
+		return true;
+	}
+
+	public final String[] getParameterValues(String name) {
+		return request.getParameterValues(name);
+	}
+
+	public String getRequestContentType() {
+		return request.getContentType();
+	}
+
+	public void setRequestAttribute(String name, Object value) {
+		request.setAttribute(name, value);
 	}
 }

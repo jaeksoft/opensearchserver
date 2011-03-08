@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,7 +32,6 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import javax.naming.NamingException;
-import javax.servlet.ServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FilenameUtils;
@@ -56,7 +55,6 @@ public class PushServlet extends AbstractServlet {
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
-		ServletRequest request = transaction.getServletRequest();
 		try {
 
 			User user = transaction.getLoggedUser();
@@ -65,7 +63,7 @@ public class PushServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 
-			String cmd = request.getParameter("cmd");
+			String cmd = transaction.getParameterString("cmd");
 			if (CALL_XML_CMD_INIT.equals(cmd)) {
 				transaction.addXmlResponse(CALL_XML_KEY_CMD, CALL_XML_CMD_INIT);
 				ClientCatalog.receive_init(client);
@@ -83,18 +81,19 @@ public class PushServlet extends AbstractServlet {
 			}
 
 			transaction.addXmlResponse(CALL_XML_KEY_CMD, CALL_XML_CMD_FILEPATH);
-			String filePath = request.getParameter(CALL_XML_CMD_FILEPATH);
+			String filePath = transaction
+					.getParameterString(CALL_XML_CMD_FILEPATH);
 			if (FilenameUtils.getName(filePath).startsWith(".")) {
 				transaction.addXmlResponse(XML_CALL_KEY_STATUS,
 						XML_CALL_KEY_STATUS_OK);
 				return;
 			}
 
-			if ("dir".equals(request.getParameter("type")))
+			if (transaction.getParameterBoolean("type", "dir", false))
 				ClientCatalog.receive_dir(client, filePath);
 			else
 				ClientCatalog.receive_file(client, filePath,
-						request.getInputStream());
+						transaction.getInputStream());
 
 			transaction.addXmlResponse(XML_CALL_KEY_STATUS,
 					XML_CALL_KEY_STATUS_OK);

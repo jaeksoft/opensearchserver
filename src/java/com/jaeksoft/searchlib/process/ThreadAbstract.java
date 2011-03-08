@@ -137,22 +137,22 @@ public abstract class ThreadAbstract implements Runnable {
 
 	}
 
-	public boolean waitForStart(int timeOut) {
-		long t = System.currentTimeMillis();
+	public boolean waitForStart(int secTimeOut) {
+		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
 		while (getStartTime() == 0) {
-			if (timeOut != 0)
-				if (System.currentTimeMillis() < t)
+			if (secTimeOut != 0)
+				if (System.currentTimeMillis() > finalTime)
 					return false;
 			sleepMs(100);
 		}
 		return true;
 	}
 
-	public boolean waitForEnd(int timeOut) {
-		long t = System.currentTimeMillis();
+	public boolean waitForEnd(int secTimeOut) {
+		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
 		while (isRunning())
-			if (timeOut != 0)
-				if (System.currentTimeMillis() < t)
+			if (secTimeOut != 0)
+				if (System.currentTimeMillis() > finalTime)
 					return false;
 		sleepMs(100);
 		return true;

@@ -333,11 +333,13 @@ public class UrlItem implements Serializable {
 		synchronized (this) {
 			if (checkedUri != null)
 				return checkedUri;
-			URL url = getURL();
+			URL url;
+			url = getURL();
 			checkedUri = new URI(url.getProtocol(), url.getUserInfo(),
 					url.getHost(), url.getPort(), url.getPath(),
 					url.getQuery(), url.getRef());
 			return checkedUri;
+
 		}
 	}
 

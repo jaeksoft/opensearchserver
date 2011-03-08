@@ -14,4 +14,43 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<zk></zk>
+<panel title="@{renderer.currentEditMode}" border="normal">
+	<panelchildren>
+		<grid>
+			<columns sizable="false">
+				<column align="right" width="150px" />
+				<column align="left" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Renderer name: " />
+					<textbox value="@{renderer.currentRenderer.name}"
+						readonly="@{renderer.selected}" cols="50" />
+				</row>
+			</rows>
+			<foot>
+				<footer span="2">
+					<vbox width="100%" align="center">
+						<hbox visible="@{renderer.selected}">
+							<button label="Cancel"
+								onClick="renderer.onCancel()" />
+							<space width="10px" />
+							<button label="Save"
+								onClick="renderer.onSave()" />
+							<space width="30px" />
+							<button label="Delete"
+								onClick="renderer.onDelete()" />
+						</hbox>
+						<hbox visible="@{renderer.notSelected}">
+							<button label="Cancel"
+								onClick="renderer.onCancel()" />
+							<space width="10px" />
+							<button label="Create"
+								onClick="renderer.onSave()" />
+						</hbox>
+					</vbox>
+				</footer>
+			</foot>
+		</grid>
+	</panelchildren>
+</panel>

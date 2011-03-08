@@ -175,6 +175,8 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 					&& currentUrlItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 				currentUrlItem.setIndexStatus(IndexStatus.INDEXED);
 				currentStats.incParsedCount();
+				config.getScreenshotManager().capture(url,
+						crawl.getCredentialItem(), true, 120);
 			} else
 				currentStats.incIgnoredCount();
 

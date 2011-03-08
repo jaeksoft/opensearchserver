@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,7 +31,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -76,11 +75,11 @@ public class IndexServlet extends AbstractServlet {
 		return updateDoc(client, indexRequest.getCollection());
 	}
 
-	private int doObjectRequest(Client client, HttpServletRequest request)
+	private int doObjectRequest(Client client, ServletTransaction transaction)
 			throws ServletException {
 		StreamReadObject readObject = null;
 		try {
-			readObject = new StreamReadObject(request.getInputStream());
+			readObject = new StreamReadObject(transaction.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof IndexRequest)
 				return updateDoc(client, (IndexRequest) obj);
@@ -101,7 +100,6 @@ public class IndexServlet extends AbstractServlet {
 			throws ServletException {
 		try {
 
-			HttpServletRequest request = transaction.getServletRequest();
 			String indexName = transaction.getIndexName();
 
 			User user = transaction.getLoggedUser();
@@ -109,13 +107,13 @@ public class IndexServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
-			String ct = request.getContentType();
+			String ct = transaction.getRequestContentType();
 			Object result = null;
 			if (ct != null && ct.toLowerCase().contains("xml"))
-				result = client.updateXmlDocuments(new InputSource(request
+				result = client.updateXmlDocuments(new InputSource(transaction
 						.getInputStream()));
 			else
-				result = doObjectRequest(client, request);
+				result = doObjectRequest(client, transaction);
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Count", result.toString());
 		} catch (IOException e) {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,8 +23,6 @@
  **/
 
 package com.jaeksoft.searchlib.web;
-
-import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -55,9 +53,7 @@ public class DatabaseServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 
-			HttpServletRequest request = transaction.getServletRequest();
-
-			String name = request.getParameter("name");
+			String name = transaction.getParameterString("name");
 			DatabaseCrawl databaseCrawl = client.getDatabaseCrawlList().get(
 					name);
 			if (databaseCrawl == null)

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
@@ -54,11 +52,11 @@ public class SearchServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 2241064786260022955L;
 
-	private Render doObjectRequest(Client client, HttpServletRequest httpRequest)
+	private Render doObjectRequest(Client client, ServletTransaction transaction)
 			throws ServletException {
 		StreamReadObject sro = null;
 		try {
-			sro = new StreamReadObject(httpRequest.getInputStream());
+			sro = new StreamReadObject(transaction.getInputStream());
 			SearchRequest searchRequest = (SearchRequest) sro.read();
 			Result result = client.search(searchRequest);
 			return new RenderObject(result);
@@ -71,14 +69,16 @@ public class SearchServlet extends AbstractServlet {
 	}
 
 	private Render doQueryRequest(Client client,
-			HttpServletRequest httpRequest, String render, String jsp)
-			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException, InstantiationException, IllegalAccessException {
-		SearchRequest searchRequest = client.getNewSearchRequest(httpRequest);
+			ServletTransaction transaction, String render) throws IOException,
+			ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
+		SearchRequest searchRequest = client.getNewSearchRequest(transaction);
 		Result result = client.search(searchRequest);
-		if ("jsp".equals(render) && jsp != null)
+		if ("jsp".equals(render)) {
+			String jsp = transaction.getParameterString("jsp");
 			return new RenderJsp(jsp, result);
+		}
 		return new RenderXml(result);
 	}
 
@@ -95,14 +95,12 @@ public class SearchServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
-			HttpServletRequest request = transaction.getServletRequest();
 			Render render = null;
-			String p = request.getParameter("render");
+			String p = transaction.getParameterString("render");
 			if ("object".equalsIgnoreCase(p))
-				render = doObjectRequest(client, request);
+				render = doObjectRequest(client, transaction);
 			else
-				render = doQueryRequest(client, request, p,
-						request.getParameter("jsp"));
+				render = doQueryRequest(client, transaction, p);
 
 			render.render(transaction);
 

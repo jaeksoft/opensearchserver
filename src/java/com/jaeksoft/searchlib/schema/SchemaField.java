@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.schema;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.DOMException;
@@ -37,6 +36,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class SchemaField extends Field {
 
@@ -188,15 +188,15 @@ public class SchemaField extends Field {
 		return fieldList;
 	}
 
-	public static SchemaField fromHttpRequest(HttpServletRequest request)
+	public static SchemaField fromHttpRequest(ServletTransaction transaction)
 			throws SearchLibException {
-		String name = request.getParameter("field.name");
+		String name = transaction.getParameterString("field.name");
 		if (name == null)
 			throw new SearchLibException("No field name");
-		String indexAnalyzer = request.getParameter("field.analyzer");
-		String stored = request.getParameter("field.stored");
-		String indexed = request.getParameter("field.indexed");
-		String termVector = request.getParameter("field.termVector");
+		String indexAnalyzer = transaction.getParameterString("field.analyzer");
+		String stored = transaction.getParameterString("field.stored");
+		String indexed = transaction.getParameterString("field.indexed");
+		String termVector = transaction.getParameterString("field.termVector");
 		return new SchemaField(name, stored, indexed, termVector, indexAnalyzer);
 	}
 

@@ -165,8 +165,10 @@ public abstract class UrlManagerAbstract {
 			}
 			if (documentsToUpdate.size() > 0)
 				targetClient.updateDocuments(documentsToUpdate);
-			if (documentsToDelete.size() > 0)
+			if (documentsToDelete.size() > 0) {
 				targetClient.deleteDocuments(documentsToDelete);
+				targetClient.getScreenshotManager().delete(documentsToDelete);
+			}
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

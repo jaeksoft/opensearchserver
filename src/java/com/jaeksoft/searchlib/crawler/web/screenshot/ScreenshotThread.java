@@ -30,6 +30,7 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -37,8 +38,10 @@ import javax.imageio.ImageIO;
 
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 
 public class ScreenshotThread extends ThreadAbstract {
@@ -50,11 +53,12 @@ public class ScreenshotThread extends ThreadAbstract {
 	private FirefoxDriver driver;
 	private ScreenshotManager screenshotManager;
 	private BufferedImage finalImage;
+	private CredentialItem credentialItem;
 
 	private final ReentrantLock lock = new ReentrantLock();
 
 	public ScreenshotThread(Config config, ScreenshotManager screenshotManager,
-			URL url) {
+			URL url, CredentialItem credentialItem) {
 		super(config, null);
 		driver = null;
 		this.url = url;
@@ -63,12 +67,15 @@ public class ScreenshotThread extends ThreadAbstract {
 		this.screenshotManager = screenshotManager;
 		this.capture = screenshotManager.getCaptureDimension();
 		this.resize = screenshotManager.getResizeDimension();
+		this.credentialItem = credentialItem;
 	}
 
 	private final void initDriver() {
 		lock.lock();
 		try {
-			driver = new FirefoxDriver();
+			FirefoxProfile profile = new FirefoxProfile();
+			profile.setPreference("network.http.phishy-userpass-length", 255);
+			driver = new FirefoxDriver(profile);
 		} finally {
 			lock.unlock();
 		}
@@ -139,7 +146,15 @@ public class ScreenshotThread extends ThreadAbstract {
 	public void runner() throws Exception {
 		try {
 			initDriver();
-			driver.get(url.toExternalForm());
+			String sUrl;
+			if (credentialItem != null) {
+				sUrl = new URI(url.getProtocol(),
+						credentialItem.getURLUserInfo(), url.getHost(),
+						url.getPort(), url.getPath(), url.getQuery(),
+						url.getRef()).toString();
+			} else
+				sUrl = url.toExternalForm();
+			driver.get(sUrl);
 			data = driver.getScreenshotAs(OutputType.BYTES);
 			BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
 			if (image.getWidth() < capture.width)

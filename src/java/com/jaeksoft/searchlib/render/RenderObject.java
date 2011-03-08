@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.render;
 import java.io.Externalizable;
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.lucene.index.CorruptIndexException;
 
 import com.jaeksoft.searchlib.remote.StreamWriteObject;
@@ -46,8 +44,8 @@ public class RenderObject implements Render {
 	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
 
-		HttpServletResponse response = servletTransaction.getServletResponse();
-		response.setContentType("application/x-java-serialized-object");
+		servletTransaction
+				.setResponseContentType("application/x-java-serialized-object");
 		// response.setHeader("Content-Encoding", "gzip");
 		StreamWriteObject writeObject = null;
 		IOException err = null;

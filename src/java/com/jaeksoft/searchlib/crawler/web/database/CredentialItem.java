@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.web.database;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -124,6 +125,14 @@ public class CredentialItem {
 
 	public boolean match(String sUrl) {
 		return sUrl.startsWith(pattern);
+	}
+
+	public String getURLUserInfo() throws UnsupportedEncodingException {
+		StringBuffer sb = new StringBuffer();
+		sb.append(URLEncoder.encode(username, "UTF-8"));
+		sb.append(':');
+		sb.append(URLEncoder.encode(password, "UTF-8"));
+		return sb.toString();
 	}
 
 }

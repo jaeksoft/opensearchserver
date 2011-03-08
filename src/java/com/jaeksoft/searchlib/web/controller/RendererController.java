@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.zkoss.zk.ui.Component;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
@@ -103,6 +105,31 @@ public class RendererController extends CommonController {
 		return !isSelected();
 	}
 
+	private Renderer getRenderer(Component comp) {
+		return (Renderer) getRecursiveComponentAttribute(comp, "rendererItem");
+	}
+
+	public void doEdit(Component comp) {
+		Renderer renderer = getRenderer(comp);
+		if (renderer == null)
+			return;
+		selectedRenderer = renderer;
+		currentRenderer = new Renderer(renderer);
+		reloadPage();
+	}
+
+	public void doDelete(Component comp) throws SearchLibException, IOException {
+		Renderer renderer = getRenderer(comp);
+		if (renderer == null)
+			return;
+		Client client = getClient();
+		if (client == null)
+			return;
+		client.getRendererManager().remove(renderer);
+		client.delete(renderer);
+		onCancel();
+	}
+
 	public void onNew() {
 		currentRenderer = new Renderer();
 		reloadPage();
@@ -128,15 +155,6 @@ public class RendererController extends CommonController {
 		onCancel();
 	}
 
-	public void onDelete() throws SearchLibException, IOException {
-		Client client = getClient();
-		if (client == null)
-			return;
-		client.getRendererManager().remove(selectedRenderer);
-		client.delete(selectedRenderer);
-		onCancel();
-	}
-
 	public Renderer getCurrentRenderer() {
 		return currentRenderer;
 	}
@@ -146,11 +164,6 @@ public class RendererController extends CommonController {
 	}
 
 	public void setSelectedRenderer(Renderer renderer) {
-		if (renderer == null)
-			return;
-		selectedRenderer = renderer;
-		currentRenderer = new Renderer(renderer);
-		reloadPage();
 	}
 
 }

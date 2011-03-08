@@ -46,6 +46,8 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String name;
 
+	private String requestName;
+
 	public Renderer() {
 		name = null;
 	}
@@ -95,6 +97,21 @@ public class Renderer implements Comparable<Renderer> {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the requestName to set
+	 */
+	public void setRequestName(String requestName) {
+		this.requestName = requestName;
+	}
+
+	/**
+	 * @return the requestName
+	 */
+	public String getRequestName() {
+		return requestName;
 	}
 
 	@Override

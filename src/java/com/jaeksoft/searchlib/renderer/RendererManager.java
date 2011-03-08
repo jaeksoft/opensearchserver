@@ -26,7 +26,8 @@ package com.jaeksoft.searchlib.renderer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -44,13 +45,13 @@ public class RendererManager {
 
 	private Renderer[] array;
 
-	private TreeSet<Renderer> set;
+	private TreeMap<String, Renderer> map;
 
 	public RendererManager(Config config, File directory)
 			throws SearchLibException, XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException {
 		array = null;
-		set = new TreeSet<Renderer>();
+		map = new TreeMap<String, Renderer>();
 		for (File f : directory.listFiles()) {
 			if (f.isFile()) {
 				String fname = f.getName();
@@ -66,8 +67,10 @@ public class RendererManager {
 	}
 
 	private void buildArray() {
-		array = new Renderer[set.size()];
-		set.toArray(array);
+		array = new Renderer[map.size()];
+		int i = 0;
+		for (Map.Entry<String, Renderer> entry : map.entrySet())
+			array[i++] = entry.getValue();
 	}
 
 	public Renderer[] getArray() {
@@ -82,20 +85,29 @@ public class RendererManager {
 	public void add(Renderer item) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			if (set.contains(item))
+			if (map.containsKey(item.getName()))
 				throw new SearchLibException("This item already exists");
-			set.add(item);
+			map.put(item.getName(), item);
 			buildArray();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
+	public Renderer get(String rendererName) {
+		rwl.r.lock();
+		try {
+			return map.get(rendererName);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void replace(Renderer oldItem, Renderer newItem) {
 		rwl.w.lock();
 		try {
-			set.remove(oldItem);
-			set.add(newItem);
+			map.remove(oldItem.getName());
+			map.put(newItem.getName(), newItem);
 			buildArray();
 		} finally {
 			rwl.w.unlock();
@@ -105,7 +117,7 @@ public class RendererManager {
 	public void remove(Renderer item) {
 		rwl.w.lock();
 		try {
-			set.remove(item);
+			map.remove(item.getName());
 			buildArray();
 		} finally {
 			rwl.w.unlock();

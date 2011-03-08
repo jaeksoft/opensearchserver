@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,7 +46,7 @@ public class MonitorServlet extends AbstractServlet {
 			if (user != null && !user.isAdmin() && !user.isMonitoring())
 				throw new SearchLibException("Not permitted");
 
-			transaction.getServletResponse().setContentType("text/xml");
+			transaction.setResponseContentType("text/xml");
 			XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
 					"UTF-8");
 			xmlWriter.startElement("response");

@@ -71,6 +71,7 @@ public class Crawl {
 	private HostUrlList hostUrlList;
 	private UrlItem urlItem;
 	private CredentialManager credentialManager;
+	private CredentialItem credentialItem;
 	private String userAgent;
 	private ParserSelector parserSelector;
 	private Config config;
@@ -86,6 +87,8 @@ public class Crawl {
 	public Crawl(HostUrlList hostUrlList, UrlItem urlItem, Config config,
 			ParserSelector parserSelector, CredentialManager credentialManager)
 			throws SearchLibException {
+		this.credentialManager = credentialManager;
+		this.credentialItem = null;
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		this.hostUrlList = hostUrlList;
 		this.targetIndexDocument = null;
@@ -93,7 +96,6 @@ public class Crawl {
 		this.discoverLinks = null;
 		this.urlItem = urlItem;
 		this.urlItem.setWhenNow();
-		this.credentialManager = credentialManager;
 		this.userAgent = propertyManager.getUserAgent().getValue()
 				.toLowerCase();
 		this.parser = null;
@@ -185,8 +187,9 @@ public class Crawl {
 			try {
 				URI uri = urlItem.getCheckedURI();
 
-				CredentialItem credentialItem = credentialManager == null ? null
+				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(uri.toURL());
+
 				httpDownloader.get(uri, credentialItem);
 
 				String contentDispositionFilename = httpDownloader
@@ -314,6 +317,10 @@ public class Crawl {
 
 	public HostUrlList getHostUrlList() {
 		return hostUrlList;
+	}
+
+	public CredentialItem getCredentialItem() {
+		return credentialItem;
 	}
 
 	public IndexDocument getTargetIndexDocument() throws SearchLibException,

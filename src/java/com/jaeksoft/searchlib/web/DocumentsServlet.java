@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
@@ -51,11 +49,11 @@ public class DocumentsServlet extends AbstractServlet {
 	 * 
 	 */
 
-	private Render doObjectRequest(Client client, HttpServletRequest httpRequest)
-			throws ServletException {
+	private Render doObjectRequest(Client client,
+			ServletTransaction servletTransaction) throws ServletException {
 		StreamReadObject sro = null;
 		try {
-			sro = new StreamReadObject(httpRequest.getInputStream());
+			sro = new StreamReadObject(servletTransaction.getInputStream());
 			DocumentsRequest documentsRequest = (DocumentsRequest) sro.read();
 			ResultDocuments resultDocuments = client
 					.documents(documentsRequest);
@@ -74,9 +72,6 @@ public class DocumentsServlet extends AbstractServlet {
 
 		try {
 
-			HttpServletRequest httpRequest = servletTransaction
-					.getServletRequest();
-
 			User user = servletTransaction.getLoggedUser();
 			if (user != null
 					&& !user.hasRole(servletTransaction.getIndexName(),
@@ -85,7 +80,7 @@ public class DocumentsServlet extends AbstractServlet {
 
 			Client client = servletTransaction.getClient();
 
-			Render render = doObjectRequest(client, httpRequest);
+			Render render = doObjectRequest(client, servletTransaction);
 
 			render.render(servletTransaction);
 
@@ -98,7 +93,7 @@ public class DocumentsServlet extends AbstractServlet {
 	public static ResultDocuments documents(URI uri,
 			DocumentsRequest documentsRequest) throws IOException,
 			URISyntaxException, ClassNotFoundException {
-		return (ResultDocuments) sendReceiveObject(buildUri(uri, "/documents",
-				null, null), documentsRequest);
+		return (ResultDocuments) sendReceiveObject(
+				buildUri(uri, "/documents", null, null), documentsRequest);
 	}
 }

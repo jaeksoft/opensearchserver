@@ -35,6 +35,7 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotMethod;
@@ -103,14 +104,19 @@ public class ScreenshotController extends CrawlerController {
 			if (currentScreenshotThread != null
 					&& currentScreenshotThread.isRunning())
 				throw new SearchLibException("A capture is already running");
-			ScreenshotManager screenshotManager = getClient()
-					.getScreenshotManager();
+			Client client = getClient();
+			if (client == null)
+				return;
+			ScreenshotManager screenshotManager = client.getScreenshotManager();
 			if (!screenshotManager.getMethod().doScreenshot(url)) {
 				new AlertController(
 						"The capture is not allowed by the current method");
 				return;
 			}
-			currentScreenshotThread = screenshotManager.capture(url);
+			CredentialItem credentialItem = client.getWebCredentialManager()
+					.getCredential(url.toExternalForm());
+			currentScreenshotThread = screenshotManager.capture(url,
+					credentialItem, false, 0);
 			currentScreenshotThread.waitForStart(60);
 			checkedImage = null;
 			reloadPage();

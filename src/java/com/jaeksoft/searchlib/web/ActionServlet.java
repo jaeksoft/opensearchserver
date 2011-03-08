@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.web;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 
@@ -42,15 +40,14 @@ public class ActionServlet extends AbstractServlet {
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-			HttpServletRequest request = transaction.getServletRequest();
 			Client client = transaction.getClient();
-			String action = request.getParameter("action");
+			String action = transaction.getParameterString("action");
 			if ("optimize".equalsIgnoreCase(action))
 				client.optimize();
 			else if ("swap".equalsIgnoreCase(action)) {
-				String p = request.getParameter("version");
-				long version = (p == null) ? 0 : Long.parseLong(p);
-				boolean deleteOld = (request.getParameter("deleteOld") != null);
+				long version = transaction.getParameterLong("version", 0);
+				boolean deleteOld = transaction.getParameterBoolean(
+						"deleteOld", false);
 				client.getIndex().swap(version, deleteOld);
 			} else if ("reload".equalsIgnoreCase(action)) {
 				client.reload();

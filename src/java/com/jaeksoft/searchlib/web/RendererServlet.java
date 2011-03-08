@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,28 +24,25 @@
 
 package com.jaeksoft.searchlib.web;
 
-import java.io.PrintWriter;
-import java.util.HashSet;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
-@Deprecated
-public class StatServlet extends AbstractServlet {
+public class RendererServlet extends AbstractServlet {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6835267443840241748L;
+	private static final long serialVersionUID = -9214023062084084833L;
 
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
-
 		try {
-
 			User user = transaction.getLoggedUser();
 			if (user != null
 					&& !user.hasRole(transaction.getIndexName(),
@@ -54,21 +51,25 @@ public class StatServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 
-			String reload = transaction.getParameterString("reload");
+			Renderer renderer = client.getRendererManager().get(
+					transaction.getParameterString("name"));
+			if (renderer == null)
+				throw new SearchLibException("The renderer has not been found");
+			String query = transaction.getParameterString("query");
+			if (query == null)
+				throw new SearchLibException("There is not query");
+			SearchRequest request = client.getNewSearchRequest(renderer
+					.getRequestName());
+			if (request == null)
+				throw new SearchLibException("No request has been found");
+			request.setQueryString(query);
+			Result result = client.search(request);
 
-			if (reload != null)
-				client.reload();
-
-			PrintWriter writer = transaction.getWriter("UTF-8");
-			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-			HashSet<String> classDetail = new HashSet<String>();
-			String[] values = transaction.getParameterValues("details");
-			if (values != null)
-				for (String value : values)
-					classDetail.add(value);
+			transaction.setRequestAttribute("result", result);
+			transaction.setRequestAttribute("renderer", renderer);
+			transaction.forward("/jsp/renderer.jsp");
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
-
 }

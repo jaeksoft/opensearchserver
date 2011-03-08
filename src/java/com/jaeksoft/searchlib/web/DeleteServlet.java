@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,7 +30,6 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.http.HttpException;
@@ -80,12 +79,12 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	private int doObjectRequest(Client client, HttpServletRequest request)
+	private int doObjectRequest(Client client, ServletTransaction transaction)
 			throws ServletException {
 		StreamReadObject readObject = null;
 		try {
 
-			readObject = new StreamReadObject(request.getInputStream());
+			readObject = new StreamReadObject(transaction.getInputStream());
 			Object obj = readObject.read();
 			if (obj instanceof DeleteRequest) {
 				return deleteUniqDocs(client,
@@ -112,16 +111,15 @@ public class DeleteServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 
-			HttpServletRequest request = transaction.getServletRequest();
-			String uniq = request.getParameter("uniq");
-			String q = request.getParameter("q");
+			String uniq = transaction.getParameterString("uniq");
+			String q = transaction.getParameterString("q");
 			Integer result = null;
 			if (uniq != null)
 				result = deleteUniqDoc(client, uniq);
 			else if (q != null)
 				result = deleteByQuery(client, q);
 			else
-				result = doObjectRequest(client, request);
+				result = doObjectRequest(client, transaction);
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Deleted", result.toString());
 		} catch (Exception e) {
