@@ -19,23 +19,26 @@
 		<listbox model="@{renderer.renderers}" mold="paging"
 			selectedItem="@{classifier.selectedRenderer}" pageSize="10">
 			<auxhead>
-				<auxheader colspan="2">
+				<auxheader colspan="3">
 					<button label="New renderer..."
 						onClick="renderer.onNew()" />
 				</auxheader>
 			</auxhead>
 			<listhead>
 				<listheader label="Name" />
+				<listheader label="Request" />
 				<listheader label="Action" width="200px" />
 			</listhead>
 			<listitem self="@{each=item}">
 				<custom-attributes rendererItem="@{item}" />
 				<listcell label="@{item.name}"
 					onDoubleClick="renderer.doEdit(self)" />
+				<listcell label="@{item.requestName}"
+					onDoubleClick="renderer.doEdit(self)" />
 				<listcell>
 					<hbox align="center">
-						<button label="View"
-							onClick="renderer.doView(self)" />
+						<button label="View" href="@{item.apiUrl}"
+							target="_blank" />
 						<button label="Edit"
 							onClick="renderer.doEdit(self)" />
 						<space width="10px" />

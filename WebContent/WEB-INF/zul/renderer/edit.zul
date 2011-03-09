@@ -14,43 +14,66 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<panel title="@{renderer.currentEditMode}" border="normal">
-	<panelchildren>
-		<grid>
-			<columns sizable="false">
-				<column align="right" width="150px" />
-				<column align="left" />
-			</columns>
-			<rows>
-				<row>
-					<label value="Renderer name: " />
-					<textbox value="@{renderer.currentRenderer.name}"
-						readonly="@{renderer.selected}" cols="50" />
-				</row>
-			</rows>
-			<foot>
-				<footer span="2">
-					<vbox width="100%" align="center">
-						<hbox visible="@{renderer.selected}">
-							<button label="Cancel"
-								onClick="renderer.onCancel()" />
-							<space width="10px" />
-							<button label="Save"
-								onClick="renderer.onSave()" />
-							<space width="30px" />
-							<button label="Delete"
-								onClick="renderer.onDelete()" />
-						</hbox>
-						<hbox visible="@{renderer.notSelected}">
-							<button label="Cancel"
-								onClick="renderer.onCancel()" />
-							<space width="10px" />
-							<button label="Create"
-								onClick="renderer.onSave()" />
-						</hbox>
-					</vbox>
-				</footer>
-			</foot>
-		</grid>
-	</panelchildren>
-</panel>
+<zk>
+	<panel title="@{renderer.currentEditMode}" border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" width="150px" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Renderer name: " />
+						<textbox
+							value="@{renderer.currentRenderer.name}"
+							readonly="@{renderer.selected}" cols="50" />
+					</row>
+					<row>
+						<label value="Request name: " />
+						<combobox model="@{renderer.requestList}"
+							width="200px" value="@{renderer.currentRenderer.requestName}" />
+					</row>
+				</rows>
+				<foot>
+					<footer span="2">
+						<vbox width="100%" align="center">
+							<hbox visible="@{renderer.selected}">
+								<button label="Cancel"
+									onClick="renderer.onCancel()" />
+								<space width="10px" />
+								<button label="Save"
+									onClick="renderer.onSave()" />
+							</hbox>
+							<hbox visible="@{renderer.notSelected}">
+								<button label="Cancel"
+									onClick="renderer.onCancel()" />
+								<space width="10px" />
+								<button label="Create"
+									onClick="renderer.onSave()" />
+							</hbox>
+						</vbox>
+					</footer>
+				</foot>
+			</grid>
+		</panelchildren>
+	</panel>
+	<panel title="Testing the iframe" border="normal">
+		<caption>
+			<hbox align="center">
+				<label value="IFrame pixel size (width x height): " />
+				<intbox value="@{renderer.iframeWidth}" />
+				<label value=" x " />
+				<intbox value="@{renderer.iframeHeight}" />
+				<space />
+				<button label="Test" onClick="renderer.onTest(self)" />
+			</hbox>
+		</caption>
+		<panelchildren>
+			<iframe visible="@{renderer.testable}"
+				style="border: 1px solid gray" scrolling="auto" id="iframetest"
+				width="@{renderer.iframeWidthPx}"
+				height="@{renderer.iframeHeightPx}" />
+		</panelchildren>
+	</panel>
+</zk>

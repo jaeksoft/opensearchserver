@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.renderer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -36,11 +37,13 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.RendererServlet;
 
 public class Renderer implements Comparable<Renderer> {
 
 	private final static String RENDERER_ITEM_ROOTNODE_NAME = "renderer";
 	private final static String RENDERER_ITEM_ROOT_ATTR_NAME = "name";
+	private final static String RENDERER_ITEM_ROOT_ATTR_REQUEST = "request";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -50,6 +53,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	public Renderer() {
 		name = null;
+		requestName = null;
 	}
 
 	public Renderer(File file) throws ParserConfigurationException,
@@ -63,6 +67,8 @@ public class Renderer implements Comparable<Renderer> {
 			return;
 		setName(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_NAME));
+		setRequestName(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_REQUEST));
 	}
 
 	public Renderer(Renderer source) {
@@ -76,6 +82,7 @@ public class Renderer implements Comparable<Renderer> {
 			target.rwl.w.lock();
 			try {
 				target.name = name;
+				target.requestName = requestName;
 			} finally {
 				target.rwl.w.unlock();
 			}
@@ -123,11 +130,15 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement(RENDERER_ITEM_ROOTNODE_NAME,
-					RENDERER_ITEM_ROOT_ATTR_NAME, name);
+					RENDERER_ITEM_ROOT_ATTR_NAME, name,
+					RENDERER_ITEM_ROOT_ATTR_REQUEST, requestName);
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
+	public String getApiUrl() throws UnsupportedEncodingException {
+		return RendererServlet.doRenderer(name, null);
+	}
 }

@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
@@ -31,6 +34,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class RendererServlet extends AbstractServlet {
 
@@ -56,20 +60,31 @@ public class RendererServlet extends AbstractServlet {
 			if (renderer == null)
 				throw new SearchLibException("The renderer has not been found");
 			String query = transaction.getParameterString("query");
-			if (query == null)
-				throw new SearchLibException("There is not query");
 			SearchRequest request = client.getNewSearchRequest(renderer
 					.getRequestName());
 			if (request == null)
 				throw new SearchLibException("No request has been found");
-			request.setQueryString(query);
-			Result result = client.search(request);
-
-			transaction.setRequestAttribute("result", result);
+			if (query != null && query.length() > 0) {
+				request.setQueryString(query);
+				Result result = client.search(request);
+				transaction.setRequestAttribute("result", result);
+			}
 			transaction.setRequestAttribute("renderer", renderer);
-			transaction.forward("/jsp/renderer.jsp");
+			transaction.forward("/WEB-INF/jsp/renderer.jsp");
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
+	}
+
+	public static String doRenderer(String name, String query)
+			throws UnsupportedEncodingException {
+		StringBuffer sb = CommonController.getApiUrl("/renderer");
+		sb.append("&name=");
+		sb.append(URLEncoder.encode(name, "UTF-8"));
+		if (query != null) {
+			sb.append("&query=");
+			sb.append(URLEncoder.encode(query, "UTF-8"));
+		}
+		return sb.toString();
 	}
 }

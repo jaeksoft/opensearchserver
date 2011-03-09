@@ -24,13 +24,14 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zul.Iframe;
+import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -47,6 +48,28 @@ public class RendererController extends CommonController {
 
 	private Renderer selectedRenderer;
 	private Renderer currentRenderer;
+	private boolean isTestable;
+
+	private class DeleteAlert extends AlertController {
+
+		private Renderer deleteRenderer;
+
+		protected DeleteAlert(Renderer deleteRenderer)
+				throws InterruptedException {
+			super("Please, confirm that you want to delete the renderer: "
+					+ deleteRenderer.getName(), Messagebox.YES | Messagebox.NO,
+					Messagebox.QUESTION);
+			this.deleteRenderer = deleteRenderer;
+		}
+
+		@Override
+		protected void onYes() throws SearchLibException {
+			Client client = getClient();
+			client.getRendererManager().remove(deleteRenderer);
+			client.delete(deleteRenderer);
+			onCancel();
+		}
+	}
 
 	public RendererController() throws SearchLibException {
 		super();
@@ -57,6 +80,7 @@ public class RendererController extends CommonController {
 	protected void reset() throws SearchLibException {
 		currentRenderer = null;
 		selectedRenderer = null;
+		isTestable = false;
 	}
 
 	public Renderer[] getRenderers() throws SearchLibException {
@@ -118,16 +142,11 @@ public class RendererController extends CommonController {
 		reloadPage();
 	}
 
-	public void doDelete(Component comp) throws SearchLibException, IOException {
+	public void doDelete(Component comp) throws InterruptedException {
 		Renderer renderer = getRenderer(comp);
 		if (renderer == null)
 			return;
-		Client client = getClient();
-		if (client == null)
-			return;
-		client.getRendererManager().remove(renderer);
-		client.delete(renderer);
-		onCancel();
+		new DeleteAlert(renderer);
 	}
 
 	public void onNew() {
@@ -138,6 +157,7 @@ public class RendererController extends CommonController {
 	public void onCancel() {
 		currentRenderer = null;
 		selectedRenderer = null;
+		isTestable = false;
 		reloadPage();
 	}
 
@@ -155,6 +175,19 @@ public class RendererController extends CommonController {
 		onCancel();
 	}
 
+	public void onTest(Component comp) throws UnsupportedEncodingException {
+		isTestable = true;
+		Iframe iframe = (Iframe) comp.getFellow("iframetest", true);
+		iframe.setSrc(null);
+		if (currentRenderer != null)
+			iframe.setSrc(currentRenderer.getApiUrl());
+		reloadPage();
+	}
+
+	public boolean isTestable() {
+		return isTestable;
+	}
+
 	public Renderer getCurrentRenderer() {
 		return currentRenderer;
 	}
@@ -166,4 +199,29 @@ public class RendererController extends CommonController {
 	public void setSelectedRenderer(Renderer renderer) {
 	}
 
+	public Integer getIframeWidth() {
+		return (Integer) getAttribute(ScopeAttribute.RENDERER_IFRAME_WIDTH,
+				new Integer(700));
+	}
+
+	public Integer getIframeHeight() {
+		return (Integer) getAttribute(ScopeAttribute.RENDERER_IFRAME_HEIGHT,
+				new Integer(400));
+	}
+
+	public String getIframeWidthPx() {
+		return getIframeWidth() + "px";
+	}
+
+	public String getIframeHeightPx() {
+		return getIframeHeight() + "px";
+	}
+
+	public void setIframeWidth(Integer width) {
+		setAttribute(ScopeAttribute.RENDERER_IFRAME_WIDTH, width);
+	}
+
+	public void setIframeHeight(Integer height) {
+		setAttribute(ScopeAttribute.RENDERER_IFRAME_HEIGHT, height);
+	}
 }

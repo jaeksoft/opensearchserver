@@ -773,22 +773,27 @@ public abstract class Config {
 
 	}
 
-	public void delete(Renderer renderer) throws SearchLibException,
-			IOException {
-		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
-				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
+	public void delete(Renderer renderer) throws SearchLibException {
 		if (!longTermLock.tryLock())
 			throw new SearchLibException("Replication in process");
+		ConfigFileRotation cfr = null;
 		try {
 			rwl.w.lock();
 			try {
+				cfr = configFiles
+						.get(getRendererDirectory(),
+								URLEncoder.encode(renderer.getName(), "UTF-8")
+										+ ".xml");
 				cfr.delete();
+			} catch (IOException e) {
+				throw new SearchLibException(e);
 			} finally {
 				rwl.w.unlock();
 			}
 		} finally {
 			longTermLock.unlock();
-			cfr.abort();
+			if (cfr != null)
+				cfr.abort();
 		}
 	}
 
@@ -891,6 +896,8 @@ public abstract class Config {
 
 	public SearchRequest getNewSearchRequest(String requestName)
 			throws SearchLibException {
+		if (requestName == null)
+			throw new SearchLibException("No request name");
 		return new SearchRequest(getSearchRequestMap().get(requestName));
 	}
 

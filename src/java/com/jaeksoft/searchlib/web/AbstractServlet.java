@@ -233,11 +233,9 @@ public abstract class AbstractServlet extends HttpServlet {
 		}
 	}
 
-	public final static StringBuffer getApiUrl(String baseUrl,
+	public final static StringBuffer getApiUrl(StringBuffer sb,
 			String servletPathName, Client client, User user)
 			throws UnsupportedEncodingException {
-		StringBuffer sb = new StringBuffer();
-		sb.append(baseUrl);
 		sb.append(servletPathName);
 		sb.append("?use=");
 		sb.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));

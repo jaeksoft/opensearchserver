@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import org.apache.http.HttpException;
@@ -48,6 +49,7 @@ import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.web.AbstractServlet;
 
 public abstract class CommonController extends Window implements AfterCompose,
 		EventListener {
@@ -75,11 +77,41 @@ public abstract class CommonController extends Window implements AfterCompose,
 		isComposed = true;
 	}
 
-	protected String getBaseUrl() {
-		Execution exe = Executions.getCurrent();
+	final protected static StringBuffer getBaseUrl(Execution exe) {
 		int port = exe.getServerPort();
-		return exe.getScheme() + "://" + exe.getServerName()
-				+ ((port == 80) ? "" : ":" + port) + exe.getContextPath();
+		StringBuffer sb = new StringBuffer();
+		sb.append(exe.getScheme());
+		sb.append("://");
+		sb.append(exe.getServerName());
+		if (port != 80) {
+			sb.append(":");
+			sb.append(port);
+		}
+		sb.append(exe.getContextPath());
+		return sb;
+
+	}
+
+	final public static StringBuffer getBaseUrl() {
+		Execution exe = Executions.getCurrent();
+		return getBaseUrl(exe);
+	}
+
+	final public static StringBuffer getApiUrl(String servletPathName)
+			throws UnsupportedEncodingException {
+		Execution exe = Executions.getCurrent();
+		StringBuffer sb = getBaseUrl();
+		Client client = (Client) exe.getSession().getAttribute(
+				ScopeAttribute.CURRENT_CLIENT.name());
+		User user = (User) exe.getSession().getAttribute(
+				ScopeAttribute.LOGGED_USER.name());
+		return AbstractServlet.getApiUrl(sb, servletPathName, client, user);
+	}
+
+	protected Object getAttribute(ScopeAttribute scopeAttribute,
+			Object defaultValue) {
+		Object o = scopeAttribute.get(this);
+		return o == null ? defaultValue : o;
 	}
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute) {

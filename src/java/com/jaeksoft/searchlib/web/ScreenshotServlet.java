@@ -69,17 +69,18 @@ public class ScreenshotServlet extends AbstractServlet {
 		transaction.sendFile(file, "image/png");
 	}
 
-	public final static String captureUrl(String baseUrl, Client client,
-			User user, URL screenshotUrl) throws UnsupportedEncodingException {
-		StringBuffer sb = getApiUrl(baseUrl, "/screenshot", client, user);
+	public final static String captureUrl(StringBuffer sbBaseUrl,
+			Client client, User user, URL screenshotUrl)
+			throws UnsupportedEncodingException {
+		StringBuffer sb = getApiUrl(sbBaseUrl, "/screenshot", client, user);
 		sb.append("&action=capture&url=");
 		sb.append(URLEncoder.encode(screenshotUrl.toExternalForm(), "UTF-8"));
 		return sb.toString();
 	}
 
-	public final static String imageUrl(String baseUrl, Client client,
+	public final static String imageUrl(StringBuffer sbBbaseUrl, Client client,
 			User user, URL screenshotUrl) throws UnsupportedEncodingException {
-		StringBuffer sb = getApiUrl(baseUrl, "/screenshot", client, user);
+		StringBuffer sb = getApiUrl(sbBbaseUrl, "/screenshot", client, user);
 		sb.append("&action=image&url=");
 		sb.append(URLEncoder.encode(screenshotUrl.toExternalForm(), "UTF-8"));
 		return sb.toString();
