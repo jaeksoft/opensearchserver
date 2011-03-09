@@ -36,6 +36,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -69,7 +70,9 @@ public class XPathParser {
 	public XPathParser(InputSource inputSource) throws SAXException,
 			IOException, ParserConfigurationException {
 		this();
-		setRoot(getBuilder().parse(inputSource));
+		Document document = getBuilder().parse(inputSource);
+		document.normalize();
+		setRoot(document);
 	}
 
 	public XPathParser(InputStream inputStream) throws SAXException,
@@ -156,26 +159,26 @@ public class XPathParser {
 		Node n = attr.getNamedItem(attributeName);
 		if (n == null)
 			return null;
-		return n.getNodeValue();
+		return n.getTextContent();
 	}
 
 	public static int getAttributeValue(Node node, String attributeName) {
 		String value = getAttributeString(node, attributeName);
-		if (value == null)
+		if (value == null || value.length() == 0)
 			return 0;
 		return Integer.parseInt(value);
 	}
 
 	public static long getAttributeLong(Node node, String attributeName) {
 		String value = getAttributeString(node, attributeName);
-		if (value == null)
+		if (value == null || value.length() == 0)
 			return 0;
 		return Long.parseLong(value);
 	}
 
 	public static Float getAttributeFloat(Node node, String attributeName) {
 		String value = getAttributeString(node, attributeName);
-		if (value == null)
+		if (value == null || value.length() == 0)
 			return null;
 		return Float.parseFloat(value);
 	}

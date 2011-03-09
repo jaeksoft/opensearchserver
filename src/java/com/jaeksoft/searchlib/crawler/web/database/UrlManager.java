@@ -366,7 +366,7 @@ public class UrlManager extends UrlManagerAbstract {
 		}
 		searchRequest.setRows((int) limit);
 		Result result = urlDbClient.search(searchRequest);
-		for (ResultDocument item : result)
+		for (ResultDocument item : result.getDocuments())
 			urlList.add(new UrlItem(item));
 	}
 
@@ -411,7 +411,7 @@ public class UrlManager extends UrlManagerAbstract {
 		}
 		searchRequest.setRows((int) limit);
 		Result result = urlDbClient.search(searchRequest);
-		for (ResultDocument item : result)
+		for (ResultDocument item : result.getDocuments())
 			urlList.add(new UrlItem(item));
 	}
 
@@ -559,7 +559,7 @@ public class UrlManager extends UrlManagerAbstract {
 				searchRequest.addSort(orderBy.name, !orderAsc);
 			Result result = urlDbClient.search(searchRequest);
 			if (list != null)
-				for (ResultDocument doc : result)
+				for (ResultDocument doc : result.getDocuments())
 					list.add(new UrlItem(doc));
 			return result.getNumFound();
 		} catch (RuntimeException e) {

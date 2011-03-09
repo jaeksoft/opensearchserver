@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.result.ResultDocuments;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -71,13 +71,10 @@ public class IndexSingle extends IndexAbstract {
 			reader = new ReaderNativeOSSE(configDir, indexConfig);
 			writer = new WriterNativeOSSE(configDir, indexConfig,
 					(ReaderNativeOSSE) reader);
-		} else if (indexConfig.getRemoteUri() == null) {
+		} else {
 			reader = ReaderLocal.fromConfig(configDir, indexConfig,
 					createIfNotExists);
 			writer = new WriterLocal(indexConfig, (ReaderLocal) reader);
-		} else {
-			reader = new ReaderRemote(indexConfig);
-			writer = new WriterRemote(indexConfig);
 		}
 	}
 
@@ -273,7 +270,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public ResultDocuments documents(DocumentsRequest documentsRequest)
+	public ResultDocument[] documents(DocumentsRequest documentsRequest)
 			throws SearchLibException {
 		if (!online)
 			throw new SearchLibException("Index is offline");

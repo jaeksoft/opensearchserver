@@ -65,11 +65,6 @@ http://www.jthink.net/jaudiotagger/
 Rely on Lesser General Public License
 
 ----------------------------------------
-JTidy
-http://jtidy.sourceforge.net
-Rely on LICENCE-JTIDY
-
-----------------------------------------
 NekoHTML by Andy Clark
 http://nekohtml.sourceforge.net/
 Rely on LICENCE-APACHE2

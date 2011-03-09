@@ -78,7 +78,6 @@ import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
-import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.logreport.LogReportManager;
 import com.jaeksoft.searchlib.parser.ParserSelector;
@@ -258,8 +257,8 @@ public abstract class Config {
 			SearchLibException, XPathExpressionException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "config.xml");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-					"UTF-8");
+			XmlWriter xmlWriter = new XmlWriter(
+					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 			xmlWriter.startElement("configuration");
 			getIndex().writeXmlConfig(xmlWriter);
 			getSchema().writeXmlConfig(xmlWriter);
@@ -288,8 +287,8 @@ public abstract class Config {
 		try {
 			rwl.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-						"UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getParserSelector().writeXmlConfig(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -310,8 +309,8 @@ public abstract class Config {
 			JobList jobList = getJobList();
 			rwl.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-						"UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				jobList.writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -339,7 +338,7 @@ public abstract class Config {
 		try {
 			rwl.w.lock();
 			try {
-				PrintWriter pw = cfr.getTempPrintWriter();
+				PrintWriter pw = cfr.getTempPrintWriter("UTF-8");
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 				getReplicationList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
@@ -360,7 +359,7 @@ public abstract class Config {
 		try {
 			rwl.w.lock();
 			try {
-				PrintWriter pw = cfr.getTempPrintWriter();
+				PrintWriter pw = cfr.getTempPrintWriter("UTF-8");
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 				getSearchRequestMap().writeXmlConfig(xmlWriter);
 				xmlWriter.endDocument();
@@ -409,16 +408,12 @@ public abstract class Config {
 			IllegalAccessException, ClassNotFoundException {
 		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
 		switch (nodeList.getLength()) {
-		case 0:
+		default:
 			return null;
 		case 1:
 			return new IndexSingle(indexDir, new IndexConfig(xpp,
 					xpp.getNode("/configuration/indices/index")),
 					createIndexIfNotExists);
-		default:
-			return new IndexGroup(indexDir, xpp,
-					xpp.getNode("/configuration/indices"),
-					createIndexIfNotExists, getThreadPool());
 		}
 	}
 
@@ -482,8 +477,8 @@ public abstract class Config {
 		try {
 			rwl.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-						"UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getDatabaseCrawlList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -752,8 +747,8 @@ public abstract class Config {
 		try {
 			rwl.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-						"UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				renderer.writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -1103,8 +1098,8 @@ public abstract class Config {
 		try {
 			rwl.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-						"UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getSiteMapList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -1150,8 +1145,8 @@ public abstract class Config {
 		try {
 			rwl.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-						"UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getUrlFilterList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();

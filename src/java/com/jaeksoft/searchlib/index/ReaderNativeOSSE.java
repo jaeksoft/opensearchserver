@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.index.osse.OsseLibrary;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
-import com.jaeksoft.searchlib.result.ResultDocuments;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.sun.jna.Pointer;
 
 public class ReaderNativeOSSE extends ReaderAbstract {
@@ -61,7 +61,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public ResultDocuments documents(DocumentsRequest documentsRequest) {
+	public ResultDocument[] documents(DocumentsRequest documentsRequest) {
 		// TODO Auto-generated method stub
 		return null;
 	}

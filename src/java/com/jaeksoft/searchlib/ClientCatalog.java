@@ -272,8 +272,8 @@ public class ClientCatalog {
 			IOException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(getDataDir(), "users.xml");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter(),
-					"UTF-8");
+			XmlWriter xmlWriter = new XmlWriter(
+					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 			getUserList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();

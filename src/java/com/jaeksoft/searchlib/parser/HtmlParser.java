@@ -46,8 +46,6 @@ import org.knallgrau.utils.textcat.TextCategorizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.tidy.Configuration;
-import org.w3c.tidy.Tidy;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -225,28 +223,28 @@ public class HtmlParser extends Parser {
 		return (Document) sax2dom.getDOM();
 	}
 
-	private static Document tidyDomDocument(String charset,
-			LimitInputStream inputStream) throws LimitException {
-		Tidy tidy = new Tidy();
-		tidy.setQuiet(true);
-		tidy.setOnlyErrors(false);
-		tidy.setShowWarnings(false);
-
-		if ("utf-8".equalsIgnoreCase(charset))
-			tidy.setCharEncoding(Configuration.UTF8);
-		else if ("iso-8859-1".equalsIgnoreCase(charset))
-			tidy.setCharEncoding(Configuration.LATIN1);
-		else if ("macroman".equalsIgnoreCase(charset))
-			tidy.setCharEncoding(Configuration.MACROMAN);
-		else if ("iso-2022".equalsIgnoreCase(charset))
-			tidy.setCharEncoding(Configuration.ISO2022);
-
-		// Création de l'arbre DOM avec Tidy
-		Document dom = tidy.parseDOM(inputStream, null);
-		if (!inputStream.isComplete())
-			throw new LimitException();
-		return dom;
-	}
+	// private static Document tidyDomDocument(String charset,
+	// LimitInputStream inputStream) throws LimitException {
+	// Tidy tidy = new Tidy();
+	// tidy.setQuiet(true);
+	// tidy.setOnlyErrors(false);
+	// tidy.setShowWarnings(false);
+	//
+	// if ("utf-8".equalsIgnoreCase(charset))
+	// tidy.setCharEncoding(Configuration.UTF8);
+	// else if ("iso-8859-1".equalsIgnoreCase(charset))
+	// tidy.setCharEncoding(Configuration.LATIN1);
+	// else if ("macroman".equalsIgnoreCase(charset))
+	// tidy.setCharEncoding(Configuration.MACROMAN);
+	// else if ("iso-2022".equalsIgnoreCase(charset))
+	// tidy.setCharEncoding(Configuration.ISO2022);
+	//
+	// // Création de l'arbre DOM avec Tidy
+	// Document dom = tidy.parseDOM(inputStream, null);
+	// if (!inputStream.isComplete())
+	// throw new LimitException();
+	// return dom;
+	// }
 
 	private String getTitleText(Document doc, String[] path) {
 		List<Node> nodes = DomUtils.getNodes(doc, path);
@@ -350,21 +348,21 @@ public class HtmlParser extends Parser {
 				doc = null;
 			}
 		}
-		if (doc == null) {
-			try {
-				inputStream.restartFromCache();
-				doc = tidyDomDocument(charset, inputStream);
-				if (checkDocument(doc))
-					return doc;
-				else
-					doc = null;
-			} catch (LimitException e) {
-				throw e;
-			} catch (Exception e) {
-				Logging.logger.error(e.getMessage(), e);
-				doc = null;
-			}
-		}
+		// if (doc == null) {
+		// try {
+		// inputStream.restartFromCache();
+		// doc = tidyDomDocument(charset, inputStream);
+		// if (checkDocument(doc))
+		// return doc;
+		// else
+		// doc = null;
+		// } catch (LimitException e) {
+		// throw e;
+		// } catch (Exception e) {
+		// Logging.logger.error(e.getMessage(), e);
+		// doc = null;
+		// }
+		// }
 		if (doc == null) {
 			try {
 				inputStream.restartFromCache();

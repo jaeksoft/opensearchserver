@@ -71,7 +71,6 @@ import com.jaeksoft.searchlib.request.DocumentRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -652,7 +651,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public ResultDocuments documents(DocumentsRequest documentsRequest)
+	public ResultDocument[] documents(DocumentsRequest documentsRequest)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
@@ -660,12 +659,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 					.getRequestedDocuments();
 			if (requestedDocuments == null)
 				return null;
-			ResultDocuments documents = new ResultDocuments(
-					requestedDocuments.length);
+			ResultDocument[] documents = new ResultDocument[requestedDocuments.length];
 			int i = 0;
 			for (DocumentRequest documentRequest : requestedDocuments)
-				documents.set(i++, new ResultDocument(documentsRequest,
-						documentRequest.doc, this));
+				documents[i++] = new ResultDocument(documentsRequest,
+						documentRequest.doc, this);
 			return documents;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

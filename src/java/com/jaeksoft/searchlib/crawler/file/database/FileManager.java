@@ -329,7 +329,7 @@ public class FileManager {
 				searchRequest.addSort(orderBy.name, !orderAsc);
 			Result result = fileDbClient.search(searchRequest);
 			if (list != null)
-				for (ResultDocument doc : result)
+				for (ResultDocument doc : result.getDocuments())
 					list.add(getNewFileItem(doc));
 			return result.getNumFound();
 

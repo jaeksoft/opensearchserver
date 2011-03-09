@@ -50,7 +50,7 @@ public class XmlWriter {
 
 	private Matcher controlMatcher;
 
-	public XmlWriter(PrintWriter out, String encoding, String docType)
+	public XmlWriter(PrintWriter out, String encoding)
 			throws TransformerConfigurationException, SAXException {
 		StreamResult streamResult = new StreamResult(out);
 		SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory
@@ -59,8 +59,7 @@ public class XmlWriter {
 		Transformer serializer = transformerHandler.getTransformer();
 		serializer.setOutputProperty(OutputKeys.ENCODING, encoding);
 		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-		if (docType != null)
-			serializer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, docType);
+		serializer.setOutputProperty(OutputKeys.METHOD, "xml");
 		transformerHandler.setResult(streamResult);
 		startedElementStack = new Stack<String>();
 		transformerHandler.startDocument();
@@ -68,11 +67,6 @@ public class XmlWriter {
 		Pattern p = Pattern.compile("\\p{Cntrl}");
 		controlMatcher = p.matcher("");
 
-	}
-
-	public XmlWriter(PrintWriter out, String encoding)
-			throws TransformerConfigurationException, SAXException {
-		this(out, encoding, null);
 	}
 
 	public void textNode(Object data) throws SAXException {

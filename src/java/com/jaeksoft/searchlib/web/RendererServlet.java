@@ -66,6 +66,12 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("No request has been found");
 			if (query != null && query.length() > 0) {
 				request.setQueryString(query);
+				Integer page = transaction.getParameterInteger("page");
+				if (page != null) {
+					if (page < 1)
+						page = 1;
+					request.setStart(request.getRows() * (page - 1));
+				}
 				Result result = client.search(request);
 				transaction.setRequestAttribute("result", result);
 			}
@@ -85,6 +91,7 @@ public class RendererServlet extends AbstractServlet {
 			sb.append("&query=");
 			sb.append(URLEncoder.encode(query, "UTF-8"));
 		}
+		System.out.println(sb.toString());
 		return sb.toString();
 	}
 }

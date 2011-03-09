@@ -191,6 +191,7 @@
 		<servlet-name>Renderer</servlet-name>
 		<url-pattern>/renderer</url-pattern>
 	</servlet-mapping>
+
 	<listener>
 		<listener-class>com.jaeksoft.searchlib.web.StartStopListener</listener-class>
 	</listener>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -107,14 +107,14 @@ public class ConfigFileRotation {
 		}
 	}
 
-	public PrintWriter getTempPrintWriter() throws IOException {
+	public PrintWriter getTempPrintWriter(String encoding) throws IOException {
 		lock.lock();
 		try {
 			if (tempPrintWriter != null)
 				return tempPrintWriter;
 			if (!tempFile.exists())
 				FileUtils.touch(tempFile);
-			tempPrintWriter = new PrintWriter(tempFile);
+			tempPrintWriter = new PrintWriter(tempFile, encoding);
 			return tempPrintWriter;
 		} finally {
 			lock.unlock();

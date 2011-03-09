@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,7 +32,6 @@ import javax.naming.NamingException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexAbstract;
-import com.jaeksoft.searchlib.index.IndexGroup;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class IndexController extends CommonController {
@@ -53,11 +52,7 @@ public class IndexController extends CommonController {
 		if (client == null)
 			return list;
 		IndexAbstract index = client.getIndex();
-		if (index instanceof IndexGroup) {
-			for (IndexAbstract idx : ((IndexGroup) index).getIndices())
-				list.add(idx);
-		} else
-			list.add(index);
+		list.add(index);
 		return list;
 	}
 

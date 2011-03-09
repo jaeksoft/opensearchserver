@@ -28,7 +28,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Iterator;
 
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
@@ -36,8 +35,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 import com.jaeksoft.searchlib.util.External;
 
-public abstract class Result implements Externalizable,
-		Iterable<ResultDocument> {
+public abstract class Result implements Externalizable {
 
 	transient protected SearchRequest searchRequest;
 	transient protected CollapseAbstract collapse;
@@ -47,7 +45,7 @@ public abstract class Result implements Externalizable,
 	protected int numFound;
 	protected float maxScore;
 	protected int collapsedDocCount;
-	private ResultDocuments resultDocuments;
+	private ResultDocument[] resultDocuments;
 
 	protected Result() {
 		searchRequest = null;
@@ -84,7 +82,7 @@ public abstract class Result implements Externalizable,
 		return this.spellCheckList;
 	}
 
-	protected void setDocuments(ResultDocuments resultDocuments) {
+	protected void setDocuments(ResultDocument[] resultDocuments) {
 		this.resultDocuments = resultDocuments;
 	}
 
@@ -95,14 +93,7 @@ public abstract class Result implements Externalizable,
 			return null;
 		if (pos >= getDocLength())
 			return null;
-		return resultDocuments.get(pos - searchRequest.getStart());
-	}
-
-	@Override
-	public Iterator<ResultDocument> iterator() {
-		if (resultDocuments == null)
-			return new ResultDocuments(0).iterator();
-		return resultDocuments.iterator();
+		return resultDocuments[pos - searchRequest.getStart()];
 	}
 
 	public float getMaxScore() {
@@ -129,6 +120,10 @@ public abstract class Result implements Externalizable,
 		if (end > len)
 			end = len;
 		return end - searchRequest.getStart();
+	}
+
+	public ResultDocument[] getDocuments() {
+		return resultDocuments;
 	}
 
 	public ResultScoreDoc[] getDocs() {
@@ -225,7 +220,7 @@ public abstract class Result implements Externalizable,
 		}
 		if (resultDocuments != null) {
 			sb.append(' ');
-			sb.append(resultDocuments.size());
+			sb.append(resultDocuments.length);
 			sb.append("resultDocuments.");
 		}
 		sb.append(" MaxScore: ");

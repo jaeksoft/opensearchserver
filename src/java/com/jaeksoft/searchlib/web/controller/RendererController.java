@@ -224,4 +224,5 @@ public class RendererController extends CommonController {
 	public void setIframeHeight(Integer height) {
 		setAttribute(ScopeAttribute.RENDERER_IFRAME_HEIGHT, height);
 	}
+
 }

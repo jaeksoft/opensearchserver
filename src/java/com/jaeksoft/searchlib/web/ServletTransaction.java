@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -170,12 +171,11 @@ public class ServletTransaction {
 		return writer;
 	}
 
-	public XmlWriter getXmlWriter(String encoding, String docType)
-			throws SearchLibException {
+	public XmlWriter getXmlWriter(String encoding) throws SearchLibException {
 		if (xmlWriter != null)
 			return xmlWriter;
 		try {
-			xmlWriter = new XmlWriter(getWriter(encoding), encoding, docType);
+			xmlWriter = new XmlWriter(getWriter(encoding), encoding);
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
@@ -229,7 +229,7 @@ public class ServletTransaction {
 			return;
 		if (xmlResponse.size() == 0)
 			return;
-		getXmlWriter("UTF-8", null);
+		getXmlWriter("UTF-8");
 		setResponseContentType("text/xml");
 
 		xmlWriter.startElement("response");
@@ -288,7 +288,9 @@ public class ServletTransaction {
 
 	public final Integer getParameterInteger(String name, Integer defaultValue) {
 		String p = request.getParameter(name);
-		return p == null ? defaultValue : Integer.parseInt(p);
+		if (p == null || p.length() == 0)
+			return defaultValue;
+		return Integer.parseInt(p);
 	}
 
 	public final Long getParameterLong(String name) {
@@ -301,7 +303,9 @@ public class ServletTransaction {
 
 	public final Long getParameterLong(String name, Long defaultValue) {
 		String p = request.getParameter(name);
-		return p == null ? defaultValue : Long.parseLong(p);
+		if (p == null || p.length() == 0)
+			return defaultValue;
+		return Long.parseLong(p);
 	}
 
 	public final Boolean getParameterBoolean(String name) {
@@ -310,13 +314,17 @@ public class ServletTransaction {
 
 	public final boolean getParameterBoolean(String name, boolean defaultValue) {
 		Boolean b = getParameterBoolean(name, null);
-		return b == null ? defaultValue : b;
+		if (b == null)
+			return defaultValue;
+		return b;
 	}
 
 	public final boolean getParameterBoolean(String name, String valueExpected,
 			boolean defaultValue) {
 		Boolean b = getParameterBoolean(name, valueExpected);
-		return b == null ? defaultValue : b;
+		if (b == null)
+			return defaultValue;
+		return b;
 	}
 
 	public final Boolean getParameterBoolean(String name, String valueExpected) {
@@ -338,5 +346,10 @@ public class ServletTransaction {
 
 	public void setRequestAttribute(String name, Object value) {
 		request.setAttribute(name, value);
+	}
+
+	public void setRequestEncoding(String encoding)
+			throws UnsupportedEncodingException {
+		request.setCharacterEncoding(encoding);
 	}
 }
