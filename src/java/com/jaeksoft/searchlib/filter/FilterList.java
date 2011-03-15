@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -78,8 +78,8 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 		filterList.add(filter);
 	}
 
-	public void add(String req, Source src) {
-		addObject(new Filter(req, src));
+	public void add(String req, boolean negative, Source src) {
+		addObject(new Filter(req, negative, src));
 	}
 
 	public void remove(Filter filter) {

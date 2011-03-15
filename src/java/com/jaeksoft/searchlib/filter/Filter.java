@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,6 +53,8 @@ public class Filter implements Externalizable {
 
 	private Source source;
 
+	private boolean negative;
+
 	public enum Source {
 		CONFIGXML, REQUEST
 	}
@@ -61,8 +63,9 @@ public class Filter implements Externalizable {
 		query = null;
 	}
 
-	public Filter(String req, Source src) {
+	public Filter(String req, boolean negative, Source src) {
 		this.source = src;
+		this.negative = negative;
 		this.queryString = req;
 		this.query = null;
 	}
@@ -91,21 +94,31 @@ public class Filter implements Externalizable {
 		return this.source;
 	}
 
+	public boolean isNegative() {
+		return negative;
+	}
+
+	public void setNegative(boolean negative) {
+		this.negative = negative;
+	}
+
 	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		queryString = External.readUTF(in);
 		source = Source.valueOf(External.readUTF(in));
+		negative = in.readBoolean();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		External.writeUTF(queryString, out);
 		External.writeUTF(source.name(), out);
+		out.writeBoolean(negative);
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("filter");
+		xmlWriter.startElement("filter", "negative", negative ? "yes" : "no");
 		xmlWriter.textNode(queryString);
 		xmlWriter.endElement();
 	}

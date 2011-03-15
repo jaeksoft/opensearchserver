@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,11 +56,14 @@ public class FilterHits extends org.apache.lucene.search.Filter {
 			docSet.and(filterHits.docSet);
 	}
 
-	public FilterHits(Query query, ReaderLocal reader) throws IOException,
-			ParseException {
+	public FilterHits(Query query, boolean negative, ReaderLocal reader)
+			throws IOException, ParseException {
 		FilterCollector collector = new FilterCollector(reader.maxDoc());
 		reader.search(query, null, collector);
 		docSet = collector.bitSet;
+		if (negative)
+			docSet.flip(0, docSet.size());
+
 	}
 
 	private class FilterCollector extends Collector {

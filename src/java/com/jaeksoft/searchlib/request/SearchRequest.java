@@ -503,10 +503,10 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
-	public void addFilter(String req) throws ParseException {
+	public void addFilter(String req, boolean negative) throws ParseException {
 		rwl.w.lock();
 		try {
-			this.filterList.add(req, Filter.Source.REQUEST);
+			this.filterList.add(req, negative, Filter.Source.REQUEST);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -1200,8 +1200,13 @@ public class SearchRequest implements Externalizable {
 
 		FilterList filterList = searchRequest.getFilterList();
 		nodes = xpp.getNodeList(node, "filters/filter");
-		for (int i = 0; i < nodes.getLength(); i++)
-			filterList.add(xpp.getNodeString(nodes.item(i)), Source.CONFIGXML);
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node n = nodes.item(i);
+			filterList
+					.add(xpp.getNodeString(n), "yes".equals(XPathParser
+							.getAttributeString(n, "negative")),
+							Source.CONFIGXML);
+		}
 
 		SortList sortList = searchRequest.getSortList();
 		nodes = xpp.getNodeList(node, "sort/field");

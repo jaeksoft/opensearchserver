@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,7 +53,7 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 			if (filterHits != null)
 				return filterHits;
 			Query query = filter.getQuery(defaultField, analyzer);
-			filterHits = new FilterHits(query, reader);
+			filterHits = new FilterHits(query, filter.isNegative(), reader);
 			put(filterCacheKey, filterHits);
 			return filterHits;
 		} finally {

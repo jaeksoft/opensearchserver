@@ -81,14 +81,14 @@ public class UrlManager extends UrlManagerAbstract {
 				throws ParseException {
 			StringBuffer sb = new StringBuffer();
 			addQuery(sb, value);
-			request.addFilter(sb.toString());
+			request.addFilter(sb.toString(), false);
 		}
 
 		private void addFilterRange(SearchRequest request, Object from,
 				Object to) throws ParseException {
 			StringBuffer sb = new StringBuffer();
 			addQueryRange(sb, from, to);
-			request.addFilter(sb.toString());
+			request.addFilter(sb.toString(), false);
 		}
 
 		private void addQuery(StringBuffer sb, Object value) {
@@ -245,7 +245,7 @@ public class UrlManager extends UrlManagerAbstract {
 		query.append("when:[00000000000000 TO ");
 		query.append(UrlItem.getWhenDateFormat().format(fetchIntervalDate));
 		query.append("]");
-		request.addFilter(query.toString());
+		request.addFilter(query.toString(), false);
 	}
 
 	private void filterQueryToFetchNew(SearchRequest request,
@@ -253,12 +253,12 @@ public class UrlManager extends UrlManagerAbstract {
 		StringBuffer query = new StringBuffer();
 		query.append("fetchStatus:");
 		query.append(FetchStatus.UN_FETCHED.value);
-		request.addFilter(query.toString());
+		request.addFilter(query.toString(), false);
 		query = new StringBuffer();
 		query.append("when:[");
 		query.append(UrlItem.getWhenDateFormat().format(fetchIntervalDate));
 		query.append(" TO 99999999999999]");
-		request.addFilter(query.toString());
+		request.addFilter(query.toString(), false);
 	}
 
 	private void getFacetLimit(Field field, SearchRequest searchRequest,
@@ -346,7 +346,7 @@ public class UrlManager extends UrlManagerAbstract {
 		SearchRequest searchRequest = urlDbClient.getNewSearchRequest(field
 				+ "Facet");
 		searchRequest.setQueryString(queryString);
-		searchRequest.getFilterList().add(field + ":" + start + "*",
+		searchRequest.getFilterList().add(field + ":" + start + "*", false,
 				Source.REQUEST);
 		getFacetLimit(field, searchRequest, limit, list);
 	}
@@ -357,8 +357,9 @@ public class UrlManager extends UrlManagerAbstract {
 		SearchRequest searchRequest = urlDbClient
 				.getNewSearchRequest("urlSearch");
 		try {
-			searchRequest.addFilter("host:\""
-					+ SearchRequest.escapeQuery(host.getName()) + "\"");
+			searchRequest.addFilter(
+					"host:\"" + SearchRequest.escapeQuery(host.getName())
+							+ "\"", false);
 			searchRequest.setQueryString("*:*");
 			filterQueryToFetchOld(searchRequest, fetchIntervalDate);
 		} catch (ParseException e) {
@@ -375,7 +376,8 @@ public class UrlManager extends UrlManagerAbstract {
 		SearchRequest searchRequest = urlDbClient
 				.getNewSearchRequest("urlSearch");
 		try {
-			searchRequest.addFilter("url:\"" + url.toExternalForm() + "\"");
+			searchRequest.addFilter("url:\"" + url.toExternalForm() + "\"",
+					false);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
@@ -402,8 +404,9 @@ public class UrlManager extends UrlManagerAbstract {
 		SearchRequest searchRequest = urlDbClient
 				.getNewSearchRequest("urlSearch");
 		try {
-			searchRequest.addFilter("host:\""
-					+ SearchRequest.escapeQuery(host.getName()) + "\"");
+			searchRequest.addFilter(
+					"host:\"" + SearchRequest.escapeQuery(host.getName())
+							+ "\"", false);
 			searchRequest.setQueryString("*:*");
 			filterQueryToFetchNew(searchRequest, fetchIntervalDate);
 		} catch (ParseException e) {

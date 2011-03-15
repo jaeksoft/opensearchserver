@@ -1327,7 +1327,15 @@ public abstract class Config {
 			for (String value : values)
 				if (value != null)
 					if (value.trim().length() > 0)
-						fl.add(value, Filter.Source.REQUEST);
+						fl.add(value, false, Filter.Source.REQUEST);
+		}
+
+		if ((values = transaction.getParameterValues("fqn")) != null) {
+			FilterList fl = searchRequest.getFilterList();
+			for (String value : values)
+				if (value != null)
+					if (value.trim().length() > 0)
+						fl.add(value, true, Filter.Source.REQUEST);
 		}
 
 		if ((values = transaction.getParameterValues("rf")) != null) {

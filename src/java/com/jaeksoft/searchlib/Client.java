@@ -196,6 +196,9 @@ public class Client extends Config {
 		} catch (SearchLibException e) {
 			exception = e;
 			throw e;
+		} catch (Exception e) {
+			exception = new SearchLibException(e);
+			throw exception;
 		} finally {
 			if (timer != null) {
 				if (exception != null)

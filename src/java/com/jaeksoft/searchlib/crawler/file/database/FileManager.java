@@ -84,14 +84,14 @@ public class FileManager {
 				throws ParseException {
 			StringBuffer sb = new StringBuffer();
 			addQuery(sb, value, true);
-			request.addFilter(sb.toString());
+			request.addFilter(sb.toString(), false);
 		}
 
 		private void addFilterRange(SearchRequest request, Object from,
 				Object to) throws ParseException {
 			StringBuffer sb = new StringBuffer();
 			addQueryRange(sb, from, to);
-			request.addFilter(sb.toString());
+			request.addFilter(sb.toString(), false);
 		}
 
 		private final void addQuery(StringBuffer sb, Object value, boolean quote) {

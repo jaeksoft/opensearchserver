@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,13 +34,18 @@ public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
 
 	private String query;
 
+	private boolean isNegative;
+
 	public FilterCacheKey(Filter filter, Field defaultField, Analyzer analyzer)
 			throws ParseException {
 		query = filter.getQuery(defaultField, analyzer).toString();
+		isNegative = filter.isNegative();
 	}
 
 	@Override
 	public int compareTo(FilterCacheKey o) {
+		if (isNegative != o.isNegative)
+			return isNegative ? -1 : 1;
 		return query.compareTo(o.query);
 	}
 
