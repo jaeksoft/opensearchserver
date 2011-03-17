@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -175,6 +175,11 @@ public class FieldList<T extends Field> implements
 		Set<String> set = fieldsName.keySet();
 		String[] names = new String[set.size()];
 		return set.toArray(names);
+	}
+
+	public void toNameList(List<String> nameList) {
+		for (String name : fieldsName.keySet())
+			nameList.add(name);
 	}
 
 	@Override

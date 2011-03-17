@@ -91,7 +91,6 @@ public class RendererServlet extends AbstractServlet {
 			sb.append("&query=");
 			sb.append(URLEncoder.encode(query, "UTF-8"));
 		}
-		System.out.println(sb.toString());
 		return sb.toString();
 	}
 }

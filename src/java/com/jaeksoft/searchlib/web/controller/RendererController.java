@@ -36,8 +36,10 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.renderer.RendererField;
+import com.jaeksoft.searchlib.renderer.RendererFieldType;
 import com.jaeksoft.searchlib.renderer.RendererManager;
-import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class RendererController extends CommonController {
 
@@ -49,6 +51,8 @@ public class RendererController extends CommonController {
 	private Renderer selectedRenderer;
 	private Renderer currentRenderer;
 	private boolean isTestable;
+	private RendererField currentRendererField;
+	private RendererField selectedRendererField;
 
 	private class DeleteAlert extends AlertController {
 
@@ -79,6 +83,7 @@ public class RendererController extends CommonController {
 	@Override
 	protected void reset() throws SearchLibException {
 		currentRenderer = null;
+		currentRendererField = null;
 		selectedRenderer = null;
 		isTestable = false;
 	}
@@ -102,17 +107,6 @@ public class RendererController extends CommonController {
 				: "Edit the selected renderer";
 	}
 
-	public List<String> getFieldList() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		List<String> fields = new ArrayList<String>();
-		fields.add(null);
-		for (SchemaField field : client.getSchema().getFieldList())
-			fields.add(field.getName());
-		return fields;
-	}
-
 	public boolean isEditing() {
 		return currentRenderer != null;
 	}
@@ -129,6 +123,14 @@ public class RendererController extends CommonController {
 		return !isSelected();
 	}
 
+	public boolean isFieldSelected() {
+		return selectedRendererField != null;
+	}
+
+	public boolean isNotFieldSelected() {
+		return !isFieldSelected();
+	}
+
 	private Renderer getRenderer(Component comp) {
 		return (Renderer) getRecursiveComponentAttribute(comp, "rendererItem");
 	}
@@ -139,6 +141,7 @@ public class RendererController extends CommonController {
 			return;
 		selectedRenderer = renderer;
 		currentRenderer = new Renderer(renderer);
+		currentRendererField = new RendererField();
 		reloadPage();
 	}
 
@@ -151,6 +154,42 @@ public class RendererController extends CommonController {
 
 	public void onNew() {
 		currentRenderer = new Renderer();
+		currentRendererField = new RendererField();
+		reloadPage();
+	}
+
+	public void onRendererFieldSave() {
+		if (selectedRendererField == null)
+			currentRenderer.addField(currentRendererField);
+		else
+			currentRendererField.copyTo(selectedRendererField);
+		onRendererFieldCancel();
+		reloadPage();
+	}
+
+	private RendererField getRendererField(Component comp) {
+		return (RendererField) getRecursiveComponentAttribute(comp,
+				"rendererFieldItem");
+	}
+
+	public void onRendererFieldRemove(Component comp) {
+		currentRenderer.removeField(getRendererField(comp));
+		reloadPage();
+	}
+
+	public void onRendererFieldUp(Component comp) {
+		currentRenderer.fieldUp(getRendererField(comp));
+		reloadPage();
+	}
+
+	public void onRendererFieldDown(Component comp) {
+		currentRenderer.fieldDown(getRendererField(comp));
+		reloadPage();
+	}
+
+	public void onRendererFieldCancel() {
+		currentRendererField = new RendererField();
+		selectedRendererField = null;
 		reloadPage();
 	}
 
@@ -184,12 +223,34 @@ public class RendererController extends CommonController {
 		reloadPage();
 	}
 
+	public String getIFrameHtmlCode() throws UnsupportedEncodingException,
+			InterruptedException {
+		if (currentRenderer == null)
+			return null;
+		return currentRenderer.getIFrameHtmlCode(getIframeWidthPx(),
+				getIframeHeightPx());
+	}
+
 	public boolean isTestable() {
 		return isTestable;
 	}
 
 	public Renderer getCurrentRenderer() {
 		return currentRenderer;
+	}
+
+	public RendererField getCurrentRendererField() {
+		return currentRendererField;
+	}
+
+	public RendererField getSelectedRendererField() {
+		return selectedRendererField;
+	}
+
+	public void setSelectedRendererField(RendererField field) {
+		selectedRendererField = field;
+		currentRendererField = new RendererField(field);
+		reloadPage();
 	}
 
 	public Renderer getSelectedClassifier() {
@@ -225,4 +286,42 @@ public class RendererController extends CommonController {
 		setAttribute(ScopeAttribute.RENDERER_IFRAME_HEIGHT, height);
 	}
 
+	public RendererFieldType[] getFieldTypeList() {
+		return RendererFieldType.values();
+	}
+
+	public List<String> getFieldList() throws SearchLibException {
+		if (currentRendererField == null || currentRenderer == null)
+			return null;
+		Client client = getClient();
+		if (client == null)
+			return null;
+		SearchRequest request = client.getSearchRequestMap().get(
+				currentRenderer.getRequestName());
+		if (request == null)
+			return null;
+		List<String> nameList = new ArrayList<String>();
+		nameList.add(null);
+		request.getReturnFieldList().toNameList(nameList);
+		return nameList;
+	}
+
+	public List<String> getFieldOrSnippetList() throws SearchLibException {
+		if (currentRendererField == null || currentRenderer == null)
+			return null;
+		Client client = getClient();
+		if (client == null)
+			return null;
+		SearchRequest request = client.getSearchRequestMap().get(
+				currentRenderer.getRequestName());
+		if (request == null)
+			return null;
+		List<String> nameList = new ArrayList<String>();
+		nameList.add(null);
+		if (currentRendererField.getFieldType() == RendererFieldType.FIELD)
+			request.getReturnFieldList().toNameList(nameList);
+		else if (currentRendererField.getFieldType() == RendererFieldType.SNIPPET)
+			request.getSnippetFieldList().toNameList(nameList);
+		return nameList;
+	}
 }

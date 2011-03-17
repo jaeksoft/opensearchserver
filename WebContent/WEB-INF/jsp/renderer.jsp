@@ -3,11 +3,8 @@
    "http://www.w3.org/TR/html4/loose.dtd">
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=utf-8"
 	language="java"%>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-</head>
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
 <%@ page import="com.jaeksoft.searchlib.result.Result"%>
 <%@ page import="com.jaeksoft.searchlib.request.SearchRequest"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
@@ -24,6 +21,15 @@
 	Result result = (Result) request.getAttribute("result");
 	Paging paging = result == null ? null : new Paging(result, 10);
 %>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+.osscmnrdr {
+<%=renderer.getStyle()%>
+}
+</style>
+</head>
 <body>
 	<form method="get">
 		<%
@@ -42,42 +48,56 @@
 			}
 			}
 		%>
-		<input type="text" name="query" value="<%=query%>" /> <input
-			type="submit" value="Search" />
+		<input class="osscmnrdr" type="text" style="<%=renderer.getInputStyle()%>" name="query" value="<%=query%>" /> <input class="osscmnrdr"
+			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />
 	</form>
-
+	<br/>
 	<%
-		if (result != null) {
+		if (result != null && result.getDocumentCount() > 0) {
 			SearchRequest searchRequest = result.getSearchRequest();
 			int start = searchRequest.getStart();
 			int end = searchRequest.getStart() + result.getDocumentCount();
 	%>
-	<ol style="margin: 0pt; padding: 0pt; list-style: none outside none;">
+	<ul style="margin: 0px; padding: 0px; list-style-type: none">
 		<%
 			for (int i = start; i < end; i++) {
-					ResultDocument document = result.getDocument(i);
-					String url = document.getValueContent("url", 0);
-					FieldValueItem fvi = document.getSnippet("title", 0);
-					String title = fvi == null ? null : fvi.getValue();
-					fvi = document.getSnippet("content", 0);
-					String content = fvi == null ? null : fvi.getValue();
+					ResultDocument resultDocument = result.getDocument(i);
 		%>
-		<li><h2>
-				<a target="_top" href="<%=url%>"><%=title%></a>
-			</h2>
-			<div><%=content%><br /> <span><%=url%></span>
+		<li>
+		<%
+					for (RendererField rendererField : renderer.getFields()) {
+						String url = rendererField.getUrlField(resultDocument);
+						if (url != null)
+							if (url.length() == 0)
+								url = null;
+						FieldValueItem[] fieldValueItems = rendererField.getFieldValue(resultDocument);
+						for (FieldValueItem fieldValueItem : fieldValueItems) {
+		%>
+			<div class="osscmnrdr" style="<%=rendererField.getStyle()%>">
+			<% if (url != null) { %>
+				<a target="_top" href="<%=url%>">
+			<% } %>
+			<%=fieldValueItem.getValue()%>
+			<% if (url != null) { %>
+				</a>
+			<% } %>
 			</div>
+		<%
+						} // end loop fieldValueItem	
+				} // (end loop renderer fields)
+		%>
+		<br/>
 		</li>
 		<%
 			} // (end loop documents)
 		%>
-	</ol>
+	</ul>
 	<table>
 		<tr>
 			<%
 				for (int i = paging.getLeftPage(); i <= paging.getRightPage(); i++) {
 			%>
-			<td><a href="<%=getUrl.toString()%>&page=<%=i%>"><%=i%></a></td>
+			<td><a href="<%=getUrl.toString()%>&page=<%=i%>" class="osscmnrdr"><%=i%></a></td>
 			<%
 				} // (end loop paging)
 			%>
