@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.2
 
 New features:
+- 3253614: Upgrade to PDFBox 1.5.x
 - 2973374: Upgrade to ZKoss 5.0.6
 - 3213190: Negative filtering
 - 3175074: Screenshot of a webpage
