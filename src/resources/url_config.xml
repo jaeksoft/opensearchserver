@@ -19,25 +19,25 @@
 	</indices>
 	<schema>
 		<fields default="url" unique="url">
-			<field name="lang" indexed="yes" stored="yes" />
-			<field name="langMethod" indexed="yes" stored="yes" />
-			<field name="contentBaseType" indexed="yes" stored="yes" />
-			<field name="contentTypeCharset" indexed="yes" stored="yes" />
-			<field name="contentEncoding" indexed="yes" stored="yes" />
-			<field name="contentLength" indexed="yes" stored="yes" />
-			<field name="url" indexed="yes" stored="yes" />
-			<field name="outlink" indexed="yes" />
-			<field name="inlink" indexed="yes" />
-			<field name="host" indexed="yes" stored="yes" />
+			<field name="lang" indexed="yes" stored="no" />
+			<field name="langMethod" indexed="yes" stored="no" />
+			<field name="contentBaseType" indexed="yes" stored="no" />
+			<field name="contentTypeCharset" indexed="yes" stored="no" />
+			<field name="contentEncoding" indexed="yes" stored="no" />
+			<field name="contentLength" indexed="yes" stored="no" />
+			<field name="url" indexed="yes" stored="no" />
+			<field name="outlink" indexed="no" />
+			<field name="inlink" indexed="no" />
+			<field name="host" indexed="yes" stored="no" />
 			<field name="subhost" indexed="yes" stored="no" />
-			<field name="when" indexed="yes" stored="yes" />
-			<field name="responseCode" indexed="yes" stored="yes" />
-			<field name="robotsTxtStatus" indexed="yes" stored="yes" />
-			<field name="parserStatus" indexed="yes" stored="yes" />
-			<field name="fetchStatus" indexed="yes" stored="yes" />
-			<field name="indexStatus" indexed="yes" stored="yes" />
-			<field name="md5size" indexed="yes" stored="yes" />
-			<field name="lastModifiedDate" indexed="yes" stored="yes" />
+			<field name="when" indexed="yes" stored="no" />
+			<field name="responseCode" indexed="yes" stored="no" />
+			<field name="robotsTxtStatus" indexed="yes" stored="no" />
+			<field name="parserStatus" indexed="yes" stored="no" />
+			<field name="fetchStatus" indexed="yes" stored="no" />
+			<field name="indexStatus" indexed="yes" stored="no" />
+			<field name="md5size" indexed="yes" stored="no" />
+			<field name="lastModifiedDate" indexed="yes" stored="no" />
 		</fields>
 	</schema>
 	<requests>

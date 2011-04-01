@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHitCacheKey;
 import com.jaeksoft.searchlib.index.DocSetHits;
+import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
@@ -40,8 +41,11 @@ import com.jaeksoft.searchlib.schema.Schema;
 
 public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 
-	public SearchCache(int maxSize) {
-		super(maxSize);
+	private IndexConfig indexConfig;
+
+	public SearchCache(IndexConfig indexConfig) {
+		super("Search cache", indexConfig.getSearchCache());
+		this.indexConfig = indexConfig;
 	}
 
 	public DocSetHits get(ReaderLocal reader, SearchRequest searchRequest,
@@ -63,5 +67,11 @@ public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	@Override
+	public void setMaxSize(int newMaxSize) {
+		super.setMaxSize(newMaxSize);
+		indexConfig.setSearchCache(newMaxSize);
 	}
 }

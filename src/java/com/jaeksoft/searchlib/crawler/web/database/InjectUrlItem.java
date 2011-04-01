@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -102,23 +102,23 @@ public class InjectUrlItem {
 	}
 
 	public void populate(IndexDocument indexDocument) {
-		indexDocument.set(UrlItemFieldEnum.url.name(), getUrl());
-		indexDocument.set(UrlItemFieldEnum.when.name(), UrlItem
+		indexDocument.setString(UrlItemFieldEnum.url.name(), getUrl());
+		indexDocument.setString(UrlItemFieldEnum.when.name(), UrlItem
 				.getWhenDateFormat().format(new Date()));
 		URL url = getURL();
 		if (url != null) {
 			String hostname = url.getHost();
-			indexDocument.set(UrlItemFieldEnum.host.name(), hostname);
-			indexDocument.set(UrlItemFieldEnum.subhost.name(),
+			indexDocument.setString(UrlItemFieldEnum.host.name(), hostname);
+			indexDocument.setStringList(UrlItemFieldEnum.subhost.name(),
 					UrlItem.buildSubHost(hostname));
 		}
-		indexDocument.set(UrlItemFieldEnum.fetchStatus.name(),
+		indexDocument.setObject(UrlItemFieldEnum.fetchStatus.name(),
 				FetchStatus.UN_FETCHED.value);
-		indexDocument.set(UrlItemFieldEnum.parserStatus.name(),
+		indexDocument.setObject(UrlItemFieldEnum.parserStatus.name(),
 				ParserStatus.NOT_PARSED.value);
-		indexDocument.set(UrlItemFieldEnum.indexStatus.name(),
+		indexDocument.setObject(UrlItemFieldEnum.indexStatus.name(),
 				IndexStatus.NOT_INDEXED.value);
-		indexDocument.set(UrlItemFieldEnum.robotsTxtStatus.name(),
+		indexDocument.setObject(UrlItemFieldEnum.robotsTxtStatus.name(),
 				RobotsTxtStatus.UNKNOWN.value);
 	}
 

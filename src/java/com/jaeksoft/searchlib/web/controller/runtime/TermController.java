@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,7 @@ import org.apache.lucene.index.TermEnum;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -91,6 +92,12 @@ public class TermController extends CommonController {
 			termList = null;
 			fieldList = null;
 			currentField = null;
+			try {
+				if (currentTermEnum != null)
+					currentTermEnum.close();
+			} catch (IOException e) {
+				Logging.logger.warn(e);
+			}
 			currentTermEnum = null;
 		}
 	}
@@ -118,8 +125,10 @@ public class TermController extends CommonController {
 
 	private void setTermEnum() throws IOException, SearchLibException {
 		synchronized (this) {
-			if (currentTermEnum != null)
+			if (currentTermEnum != null) {
 				currentTermEnum.close();
+				currentTermEnum = null;
+			}
 			currentTermEnum = buildTermEnum();
 		}
 	}
@@ -252,6 +261,7 @@ public class TermController extends CommonController {
 						break;
 				}
 				pw.close();
+				termEnum.close();
 				pw = null;
 				Filedownload.save(new FileInputStream(tempFile),
 						"text/csv; charset-UTF-8", "OSS_term_freq_"

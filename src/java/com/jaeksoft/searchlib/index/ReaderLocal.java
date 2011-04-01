@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -42,6 +44,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.index.TermPositions;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Explanation;
@@ -75,6 +78,7 @@ import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
@@ -139,12 +143,12 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	private void initCache(int searchCache, int filterCache, int fieldCache) {
+	private void initCache(IndexConfig indexConfig) {
 		rwl.w.lock();
 		try {
-			this.searchCache = new SearchCache(searchCache);
-			this.filterCache = new FilterCache(filterCache);
-			this.fieldCache = new FieldCache(fieldCache);
+			this.searchCache = new SearchCache(indexConfig);
+			this.filterCache = new FilterCache(indexConfig);
+			this.fieldCache = new FieldCache(indexConfig);
 			// TODO replace value 100 by number of field in schema
 			this.spellCheckerCache = new SpellCheckerCache(100);
 		} finally {
@@ -545,8 +549,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 					indexConfig.getSimilarityClass(), indexConfig.getReadOnly());
 		}
 
-		reader.initCache(indexConfig.getSearchCache(),
-				indexConfig.getFilterCache(), indexConfig.getFieldCache());
+		reader.initCache(indexConfig);
 		return reader;
 	}
 
@@ -645,6 +648,65 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.r.lock();
 		try {
 			return fieldCache.get(this, docId, fieldList);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public FieldList<FieldValue> getTermsVectorFields(int docId,
+			FieldList<Field> fieldList) throws IOException {
+		rwl.r.lock();
+		try {
+			FieldList<FieldValue> fieldValueList = new FieldList<FieldValue>();
+			for (Field field : fieldList) {
+				TermFreqVector termFreqVector = indexReader.getTermFreqVector(
+						docId, field.getName());
+				if (termFreqVector == null)
+					continue;
+				String[] terms = termFreqVector.getTerms();
+				if (terms == null)
+					continue;
+				FieldValueItem[] fieldValueItem = new FieldValueItem[terms.length];
+				int i = 0;
+				for (String term : terms)
+					fieldValueItem[i++] = new FieldValueItem(term);
+				fieldValueList.add(new FieldValue(field, fieldValueItem));
+			}
+			return fieldValueList;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public FieldList<FieldValue> getTerms(int docId, FieldList<Field> fieldList)
+			throws IOException {
+		rwl.r.lock();
+		try {
+			TermPositions termPosition = indexReader.termPositions();
+			FieldList<FieldValue> fieldValueList = new FieldList<FieldValue>();
+			for (Field field : fieldList) {
+				String fieldName = field.getName();
+				List<FieldValueItem> fieldValueItemList = new ArrayList<FieldValueItem>();
+				TermEnum termEnum = indexReader.terms(new Term(fieldName, ""));
+				Term term = termEnum.term();
+				if (termEnum == null || !term.field().equals(fieldName))
+					continue;
+				do {
+					term = termEnum.term();
+					if (!term.field().equals(fieldName))
+						break;
+					termPosition.seek(term);
+					if (!termPosition.skipTo(docId)
+							|| termPosition.doc() != docId)
+						continue;
+					fieldValueItemList.add(new FieldValueItem(term.text()));
+				} while (termEnum.next());
+				termEnum.close();
+				if (fieldValueItemList.size() > 0)
+					fieldValueList
+							.add(new FieldValue(field, fieldValueItemList));
+			}
+			return fieldValueList;
 		} finally {
 			rwl.r.unlock();
 		}

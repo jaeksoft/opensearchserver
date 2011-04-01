@@ -192,7 +192,9 @@ public class ScreenshotManager implements PropertyItemListener {
 		for (String u : urlList) {
 			try {
 				URL url = new URL(u);
-				getPngFile(url).delete();
+				File f = getPngFile(url);
+				if (f != null)
+					getPngFile(url).delete();
 			} catch (MalformedURLException e) {
 				Logging.logger.warn(e);
 			}

@@ -33,6 +33,7 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldContentCacheKey;
+import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -42,8 +43,11 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 public class FieldCache extends
 		LRUCache<FieldContentCacheKey, FieldValueItem[]> {
 
-	public FieldCache(int maxSize) {
-		super(maxSize);
+	private IndexConfig indexConfig;
+
+	public FieldCache(IndexConfig indexConfig) {
+		super("Field cache", indexConfig.getFieldCache());
+		this.indexConfig = indexConfig;
 	}
 
 	public FieldList<FieldValue> get(ReaderLocal reader, int docId,
@@ -51,15 +55,16 @@ public class FieldCache extends
 			IOException, ParseException, SyntaxError {
 		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
 		FieldList<Field> missingField = new FieldList<Field>();
+		FieldList<Field> termField = new FieldList<Field>();
 
 		// Getting available fields
 		for (Field field : fieldList) {
 			FieldContentCacheKey key = new FieldContentCacheKey(
 					field.getName(), docId);
 			FieldValueItem[] values = getAndPromote(key);
-			if (values != null) {
+			if (values != null)
 				documentFields.add(new FieldValue(field, values));
-			} else
+			else
 				missingField.add(field);
 		}
 
@@ -71,15 +76,32 @@ public class FieldCache extends
 						field.getName(), docId);
 				Fieldable[] fieldables = document
 						.getFieldables(field.getName());
-				if (fieldables != null) {
+				if (fieldables != null && fieldables.length > 0) {
 					FieldValueItem[] valueItems = FieldValueItem
 							.buildArray(fieldables);
 					documentFields.add(new FieldValue(field, valueItems));
 					put(key, valueItems);
-				}
+				} else
+					termField.add(field);
+			}
+		}
+
+		if (termField.size() > 0) {
+			FieldList<FieldValue> fieldValueList = reader.getTerms(docId,
+					termField);
+			for (FieldValue fieldValue : fieldValueList) {
+				FieldContentCacheKey key = new FieldContentCacheKey(
+						fieldValue.getName(), docId);
+				documentFields.add(fieldValue);
+				put(key, fieldValue.getValueArray());
 			}
 		}
 		return documentFields;
+	}
 
+	@Override
+	public void setMaxSize(int newMaxSize) {
+		super.setMaxSize(newMaxSize);
+		indexConfig.setFieldCache(newMaxSize);
 	}
 }

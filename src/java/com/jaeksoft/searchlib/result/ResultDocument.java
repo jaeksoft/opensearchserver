@@ -68,8 +68,11 @@ public class ResultDocument implements Externalizable {
 		returnFields = new FieldList<FieldValue>();
 		snippetFields = new FieldList<SnippetFieldValue>();
 
-		for (Field field : documentsRequest.getReturnFieldList())
-			returnFields.add(documentFields.get(field));
+		for (Field field : documentsRequest.getReturnFieldList()) {
+			FieldValue fieldValue = documentFields.get(field);
+			if (fieldValue != null)
+				returnFields.add(fieldValue);
+		}
 
 		for (SnippetField field : documentsRequest.getSnippetFieldList()) {
 			List<FieldValueItem> snippets = new ArrayList<FieldValueItem>();

@@ -33,13 +33,17 @@ import org.apache.lucene.search.Query;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.FilterCacheKey;
 import com.jaeksoft.searchlib.filter.FilterHits;
+import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
 
 public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 
-	public FilterCache(int maxSize) {
-		super(maxSize);
+	private IndexConfig indexConfig;
+
+	public FilterCache(IndexConfig indexConfig) {
+		super("Filter cache", indexConfig.getFilterCache());
+		this.indexConfig = indexConfig;
 	}
 
 	public FilterHits get(ReaderLocal reader, Field defaultField,
@@ -59,5 +63,11 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	@Override
+	public void setMaxSize(int newMaxSize) {
+		super.setMaxSize(newMaxSize);
+		indexConfig.setFilterCache(newMaxSize);
 	}
 }

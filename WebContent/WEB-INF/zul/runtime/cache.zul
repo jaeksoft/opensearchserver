@@ -17,80 +17,35 @@
 <window id="caches"
 	use="com.jaeksoft.searchlib.web.controller.runtime.CacheController">
 	<button label="Refresh" forward="onReload" />
-	<tabbox>
-		<tabs>
-			<tab id="tabCacheSearch" label="Search cache"
-				selected="true" />
-			<tab id="tabCacheFilter" label="Filter cache" />
-			<tab id="tabCacheField" label="Field cache" />
-		</tabs>
-		<tabpanels>
-			<tabpanel>
-				<listbox model="@{caches.searchCacheList}">
-					<listhead>
-						<listheader label="size" />
-						<listheader label="max size" />
-						<listheader label="hit ratio" />
-						<listheader label="lookups" />
-						<listheader label="hits" />
-						<listheader label="inserts" />
-						<listheader label="evictions" />
-					</listhead>
-					<listitem self="@{each='item'}">
-						<listcell label="@{item.cache.size}" />
-						<listcell label="@{item.cache.maxSize}" />
-						<listcell label="@{item.cache.hitRatioPercent}" />
-						<listcell label="@{item.cache.lookups}" />
-						<listcell label="@{item.cache.hits}" />
-						<listcell label="@{item.cache.inserts}" />
-						<listcell label="@{item.cache.evictions}" />
-					</listitem>
-				</listbox>
-			</tabpanel>
-			<tabpanel>
-				<listbox model="@{caches.filterCacheList}">
-					<listhead>
-						<listheader label="size" />
-						<listheader label="max size" />
-						<listheader label="hit ratio" />
-						<listheader label="lookups" />
-						<listheader label="hits" />
-						<listheader label="inserts" />
-						<listheader label="evictions" />
-					</listhead>
-					<listitem self="@{each='item'}">
-						<listcell label="@{item.cache.size}" />
-						<listcell label="@{item.cache.maxSize}" />
-						<listcell label="@{item.cache.hitRatioPercent}" />
-						<listcell label="@{item.cache.lookups}" />
-						<listcell label="@{item.cache.hits}" />
-						<listcell label="@{item.cache.inserts}" />
-						<listcell label="@{item.cache.evictions}" />
-					</listitem>
-				</listbox>
-			</tabpanel>
-			<tabpanel>
-				<listbox model="@{caches.fieldCacheList}">
-					<listhead>
-						<listheader label="size" />
-						<listheader label="max size" />
-						<listheader label="hit ratio" />
-						<listheader label="lookups" />
-						<listheader label="hits" />
-						<listheader label="inserts" />
-						<listheader label="evictions" />
-					</listhead>
-					<listitem self="@{each='item'}">
-						<listcell label="@{item.cache.size}" />
-						<listcell label="@{item.cache.maxSize}" />
-						<listcell label="@{item.cache.hitRatioPercent}" />
-						<listcell label="@{item.cache.lookups}" />
-						<listcell label="@{item.cache.hits}" />
-						<listcell label="@{item.cache.inserts}" />
-						<listcell label="@{item.cache.evictions}" />
-					</listitem>
-				</listbox>
-			</tabpanel>
-		</tabpanels>
-	</tabbox>
+	<listbox model="@{caches.cacheList}">
+		<listhead>
+			<listheader label="Name" />
+			<listheader label="Size" width="60px" align="right" />
+			<listheader label="Max size" width="80px" />
+			<listheader label="Action" width="80px" />
+			<listheader label="Hit ratio" width="60px" align="right" />
+			<listheader label="Lookups" width="60px" align="right" />
+			<listheader label="Hits" width="60px" align="right" />
+			<listheader label="Inserts" width="60px" align="right" />
+			<listheader label="Evictions" width="60px" align="right" />
+		</listhead>
+		<listitem self="@{each='cache'}">
+			<custom-attributes cacheItem="@{cache}" />
+			<listcell label="@{cache.name}" />
+			<listcell label="@{cache.size}" />
+			<listcell>
+				<intbox value="@{cache.maxSize}"
+					forward="onChange=onSave" width="60px" />
+			</listcell>
+			<listcell>
+				<button label="Flush" onClick="caches.doFlush(self)" />
+			</listcell>
+			<listcell label="@{cache.hitRatioPercent}" />
+			<listcell label="@{cache.lookups}" />
+			<listcell label="@{cache.hits}" />
+			<listcell label="@{cache.inserts}" />
+			<listcell label="@{cache.evictions}" />
+		</listitem>
+	</listbox>
+
 </window>

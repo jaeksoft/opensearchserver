@@ -24,12 +24,15 @@
 
 package com.jaeksoft.searchlib.web.controller.runtime;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Event;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.cache.FieldCache;
-import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.LRUCache;
-import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -41,9 +44,7 @@ public class CacheController extends CommonController {
 	 */
 	private static final long serialVersionUID = 6570698209309006505L;
 
-	private CacheItem<?>[] searchCacheList;
-	private CacheItem<?>[] filterCacheList;
-	private CacheItem<?>[] fieldCacheList;
+	private List<LRUCache<?, ?>> cacheList;
 
 	public CacheController() throws SearchLibException {
 		super();
@@ -51,94 +52,50 @@ public class CacheController extends CommonController {
 
 	@Override
 	protected void reset() {
-		searchCacheList = null;
-		filterCacheList = null;
-		fieldCacheList = null;
+		cacheList = null;
 	}
 
-	private Object[] getIndexList() throws SearchLibException {
+	public IndexSingle getIndexSingle() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			IndexAbstract index = client.getIndex();
+			IndexAbstract indexAbstract = client.getIndex();
+			if (indexAbstract == null)
+				return null;
+			return (IndexSingle) indexAbstract;
+		}
+	}
+
+	public List<LRUCache<?, ?>> getCacheList() throws SearchLibException {
+		synchronized (this) {
+			if (cacheList != null)
+				return cacheList;
+			IndexSingle index = getIndexSingle();
 			if (index == null)
 				return null;
-			Object[] list = { index };
-			return list;
-		}
-	}
-
-	public class CacheItem<T extends LRUCache<?, ?>> {
-		private IndexSingle index;
-		private T cache;
-
-		private CacheItem(IndexSingle index, T cache) {
-			this.index = index;
-			this.cache = cache;
-		}
-
-		public T getCache() {
-			return cache;
-		}
-
-		public IndexSingle getIndex() {
-			return index;
+			cacheList = new ArrayList<LRUCache<?, ?>>(3);
+			cacheList.add(index.getSearchCache());
+			cacheList.add(index.getFilterCache());
+			cacheList.add(index.getFieldCache());
+			return cacheList;
 		}
 
 	}
 
-	public CacheItem<?>[] getSearchCacheList() throws SearchLibException {
+	public void doFlush(Component comp) {
 		synchronized (this) {
-			if (searchCacheList != null)
-				return searchCacheList;
-			Object[] indexList = getIndexList();
-			if (indexList == null)
-				return null;
-			searchCacheList = new CacheItem<?>[indexList.length];
-			int i = 0;
-			for (Object o : indexList) {
-				IndexSingle index = (IndexSingle) o;
-				searchCacheList[i++] = new CacheItem<SearchCache>(index,
-						index.getSearchCache());
-			}
-			return searchCacheList;
+			LRUCache<?, ?> cache = (LRUCache<?, ?>) getRecursiveComponentAttribute(
+					comp, "cacheItem");
+			cache.clear();
+			reloadPage();
 		}
 	}
 
-	public CacheItem<?>[] getFilterCacheList() throws SearchLibException {
+	public void onSave(Event event) throws SearchLibException {
 		synchronized (this) {
-			if (filterCacheList != null)
-				return filterCacheList;
-			Object[] indexList = getIndexList();
-			if (indexList == null)
-				return null;
-			filterCacheList = new CacheItem<?>[indexList.length];
-			int i = 0;
-			for (Object o : indexList) {
-				IndexSingle index = (IndexSingle) o;
-				filterCacheList[i++] = new CacheItem<FilterCache>(index,
-						index.getFilterCache());
-			}
-			return filterCacheList;
-		}
-	}
-
-	public CacheItem<?>[] getFieldCacheList() throws SearchLibException {
-		synchronized (this) {
-			if (fieldCacheList != null)
-				return fieldCacheList;
-			Object[] indexList = getIndexList();
-			if (indexList == null)
-				return null;
-			fieldCacheList = new CacheItem<?>[indexList.length];
-			int i = 0;
-			for (Object o : indexList) {
-				IndexSingle index = (IndexSingle) o;
-				fieldCacheList[i++] = new CacheItem<FieldCache>(index,
-						index.getFieldCache());
-			}
-			return fieldCacheList;
+			getClient().saveConfig();
+			reloadPage();
 		}
 	}
 

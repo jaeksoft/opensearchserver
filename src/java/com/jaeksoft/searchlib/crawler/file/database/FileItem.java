@@ -208,49 +208,51 @@ public class FileItem extends FileInfo implements Serializable {
 	public void populate(IndexDocument indexDocument)
 			throws UnsupportedEncodingException {
 
-		indexDocument.set(FileItemFieldEnum.repository.getName(),
+		indexDocument.setString(FileItemFieldEnum.repository.getName(),
 				getRepository());
 
-		indexDocument.set(FileItemFieldEnum.uri.getName(), getUri());
+		indexDocument.setString(FileItemFieldEnum.uri.getName(), getUri());
 
 		if (directory != null)
-			indexDocument.set(FileItemFieldEnum.directory.getName(), directory);
+			indexDocument.setString(FileItemFieldEnum.directory.getName(),
+					directory);
 
-		indexDocument.set(FileItemFieldEnum.subDirectory.getName(),
+		indexDocument.setStringList(FileItemFieldEnum.subDirectory.getName(),
 				getSubDirectory());
 
 		if (crawlDate != null)
-			indexDocument.set(FileItemFieldEnum.crawlDate.getName(),
+			indexDocument.setString(FileItemFieldEnum.crawlDate.getName(),
 					StringUtils.longToHexString(crawlDate));
 
 		Long fsd = getFileSystemDate();
 		if (fsd != null)
-			indexDocument.set(FileItemFieldEnum.fileSystemDate.getName(),
+			indexDocument.setString(FileItemFieldEnum.fileSystemDate.getName(),
 					StringUtils.longToHexString(fsd));
 
 		if (contentLength != null)
-			indexDocument.set(FileItemFieldEnum.contentLength.getName(),
+			indexDocument.setString(FileItemFieldEnum.contentLength.getName(),
 					getContentLengthFormat().format(contentLength));
 		if (lang != null)
-			indexDocument.set(FileItemFieldEnum.lang.getName(), lang);
+			indexDocument.setString(FileItemFieldEnum.lang.getName(), lang);
 		if (langMethod != null)
-			indexDocument.set(FileItemFieldEnum.langMethod.getName(),
+			indexDocument.setString(FileItemFieldEnum.langMethod.getName(),
 					langMethod);
 
-		indexDocument.set(FileItemFieldEnum.fetchStatus.getName(),
+		indexDocument.setObject(FileItemFieldEnum.fetchStatus.getName(),
 				getFetchStatus().value);
-		indexDocument.set(FileItemFieldEnum.parserStatus.getName(),
+		indexDocument.setObject(FileItemFieldEnum.parserStatus.getName(),
 				getParserStatus().value);
-		indexDocument.set(FileItemFieldEnum.indexStatus.getName(),
+		indexDocument.setObject(FileItemFieldEnum.indexStatus.getName(),
 				getIndexStatus().value);
 		if (size != null)
-			indexDocument.set(FileItemFieldEnum.fileSize.getName(), size);
+			indexDocument.setObject(FileItemFieldEnum.fileSize.getName(), size);
 		if (extension != null)
-			indexDocument.set(FileItemFieldEnum.fileExtension.getName(),
+			indexDocument.setString(FileItemFieldEnum.fileExtension.getName(),
 					extension);
 		FileTypeEnum t = getType();
 		if (t != null)
-			indexDocument.set(FileItemFieldEnum.fileType.getName(), t.name());
+			indexDocument.setString(FileItemFieldEnum.fileType.getName(),
+					t.name());
 	}
 
 	public void setContentLength(int v) {

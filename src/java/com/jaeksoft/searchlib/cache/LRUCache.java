@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -72,6 +72,8 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	private TreeMap<K, K> tree;
 	private EvictionQueue queue;
 
+	private final String name;
+
 	private volatile int size;
 	private volatile int maxSize;
 	private volatile long evictions;
@@ -79,7 +81,8 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 	private volatile long hits;
 	private volatile long inserts;
 
-	protected LRUCache(int maxSize) {
+	protected LRUCache(String name, int maxSize) {
+		this.name = name;
 		queue = (maxSize == 0) ? null : new EvictionQueue(maxSize);
 		tree = new TreeMap<K, K>();
 		this.maxSize = maxSize;
@@ -88,6 +91,19 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 		this.inserts = 0;
 		this.hits = 0;
 		this.size = 0;
+	}
+
+	public void setMaxSize(int newMaxSize) {
+		if (queue == null)
+			return;
+		rwl.w.lock();
+		try {
+			maxSize = newMaxSize;
+			if (newMaxSize < size)
+				clear();
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	final protected V getAndPromote(K key) {
@@ -149,7 +165,7 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
 	@Override
 	final public String toString() {
-		return getClass().getSimpleName() + " " + size + "/" + maxSize;
+		return this.getClass().getName() + " " + size + "/" + maxSize;
 	}
 
 	final public void xmlInfo(PrintWriter writer) {
@@ -160,6 +176,10 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 				+ "\" hits=\"" + hits + "\" inserts=\"" + inserts
 				+ "\" evictions=\"" + evictions + "\">");
 		writer.println("</cache>");
+	}
+
+	final public String getName() {
+		return name;
 	}
 
 	final public int getSize() {

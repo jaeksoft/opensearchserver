@@ -167,17 +167,43 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		add(field, new FieldValueItem(value, boost));
 	}
 
-	public void add(String field, List<FieldValueItem> values) {
+	public void addObject(String field, Object object) {
+		if (object == null)
+			return;
+		addString(field, object.toString());
+	}
+
+	public void addString(String field, String string) {
+		if (string == null)
+			return;
+		add(field, new FieldValueItem(string));
+	}
+
+	public void addFieldValueList(String field, List<FieldValueItem> values) {
 		if (values == null)
 			return;
 		for (FieldValueItem value : values)
 			add(field, value);
 	}
 
+	public void addObjectList(String field, List<Object> values) {
+		if (values == null)
+			return;
+		for (Object value : values)
+			addObject(field, value.toString());
+	}
+
+	public void addStringList(String field, List<String> values) {
+		if (values == null)
+			return;
+		for (String value : values)
+			addString(field, value);
+	}
+
 	public void add(String field, FieldContent fieldContent) {
 		if (fieldContent == null)
 			return;
-		add(field, fieldContent.getValues());
+		addFieldValueList(field, fieldContent.getValues());
 	}
 
 	private void addIfNotAlreadyHere(FieldContent fieldContent) {
@@ -204,22 +230,36 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			add(fc.getField(), fc);
 	}
 
-	public void set(String field, String value) {
+	public void setString(String field, String value) {
 		FieldContent fc = fields.get(field);
 		if (fc != null)
 			fc.clear();
 		add(field, value, null);
 	}
 
-	public void set(String field, List<FieldValueItem> values) {
+	public void setStringList(String field, List<String> values) {
 		FieldContent fc = fields.get(field);
 		if (fc != null)
 			fc.clear();
-		add(field, values);
+		addStringList(field, values);
 	}
 
-	public void set(String field, Object value) {
-		set(field, value.toString());
+	public void setFieldValueItems(String field, List<FieldValueItem> values) {
+		FieldContent fc = fields.get(field);
+		if (fc != null)
+			fc.clear();
+		addFieldValueList(field, values);
+	}
+
+	public void setObjectList(String field, List<Object> values) {
+		FieldContent fc = fields.get(field);
+		if (fc != null)
+			fc.clear();
+		addObjectList(field, values);
+	}
+
+	public void setObject(String field, Object value) {
+		setString(field, value.toString());
 	}
 
 	public LanguageEnum getLang() {

@@ -113,7 +113,7 @@ public class ReturnedController extends AbstractQueryController implements
 				return null;
 			FieldList<Field> fields = request.getReturnFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
-				if (field.isStored())
+				if (field.isStored() || field.isIndexed())
 					if (fields.get(field.getName()) == null) {
 						if (selectedReturn == null)
 							selectedReturn = field.getName();
