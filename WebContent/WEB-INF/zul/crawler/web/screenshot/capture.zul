@@ -39,7 +39,7 @@
 		</rows>
 	</grid>
 	<vbox visible="@{screenshot.imageAvailable}">
-		<image id="img" content="@{screenshot.image}" />
+		<image id="img" />
 		<hbox>
 			<button label="Image URL"
 				tooltiptext="@{screenshot.getApiImageUrl}"

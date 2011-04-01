@@ -24,11 +24,11 @@
 		</tabs>
 		<tabpanels>
 			<tabpanel>
-				<include
+				<include id="capture"
 					src="WEB-INF/zul/crawler/web/screenshot/capture.zul" />
 			</tabpanel>
 			<tabpanel>
-				<include
+				<include id="admin"
 					src="WEB-INF/zul/crawler/web/screenshot/admin.zul" />
 			</tabpanel>
 		</tabpanels>

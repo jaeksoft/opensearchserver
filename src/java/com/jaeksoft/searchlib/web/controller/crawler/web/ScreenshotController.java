@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.List;
 
 import org.apache.lucene.queryParser.ParseException;
+import org.zkoss.zul.Image;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -57,7 +58,7 @@ public class ScreenshotController extends CrawlerController {
 
 	private ScreenshotThread currentScreenshotThread;
 
-	private BufferedImage checkedImage;
+	private BufferedImage currentImage;
 
 	private LastModifiedAndSize screenshotInfos;
 
@@ -70,7 +71,7 @@ public class ScreenshotController extends CrawlerController {
 	public void reset() {
 		url = null;
 		currentScreenshotThread = null;
-		checkedImage = null;
+		currentImage = null;
 	}
 
 	/**
@@ -118,7 +119,7 @@ public class ScreenshotController extends CrawlerController {
 			currentScreenshotThread = screenshotManager.capture(url,
 					credentialItem, false, 0);
 			currentScreenshotThread.waitForStart(60);
-			checkedImage = null;
+			setImage(null);
 			reloadPage();
 		}
 	}
@@ -126,14 +127,18 @@ public class ScreenshotController extends CrawlerController {
 	public void onCheck() throws SearchLibException, InterruptedException,
 			IOException {
 		synchronized (this) {
-			checkedImage = getClient().getScreenshotManager().getImage(url);
-			if (checkedImage == null)
+			currentImage = getClient().getScreenshotManager().getImage(url);
+			if (currentImage == null)
 				new AlertController("Screenshot not found.");
+			setImage(currentImage);
 			reloadPage();
 		}
 	}
 
 	public void onTimer() {
+		if (currentImage == null)
+			if (currentScreenshotThread != null)
+				setImage(currentScreenshotThread.getImage());
 		reloadPage();
 	}
 
@@ -145,18 +150,17 @@ public class ScreenshotController extends CrawlerController {
 		}
 	}
 
-	public BufferedImage getImage() {
+	public void setImage(BufferedImage img) {
 		synchronized (this) {
-			if (checkedImage != null)
-				return checkedImage;
-			if (currentScreenshotThread == null)
-				return null;
-			return currentScreenshotThread.getImage();
+			currentImage = img;
+			Image image = (Image) getFellow("capture").getFellow("img");
+			if (img != null)
+				image.setContent(img);
 		}
 	}
 
 	public boolean isImageAvailable() {
-		return getImage() != null;
+		return currentImage != null;
 	}
 
 	public String getApiCaptureUrl() throws SearchLibException,
