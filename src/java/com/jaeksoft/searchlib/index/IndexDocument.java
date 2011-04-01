@@ -162,7 +162,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	}
 
 	public void add(String field, String value, Float boost) {
-		if (value.length() == 0)
+		if (value == null || value.length() == 0)
 			return;
 		add(field, new FieldValueItem(value, boost));
 	}
@@ -173,10 +173,10 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		addString(field, object.toString());
 	}
 
-	public void addString(String field, String string) {
-		if (string == null)
+	public void addString(String field, String value) {
+		if (value == null)
 			return;
-		add(field, new FieldValueItem(string));
+		add(field, new FieldValueItem(value));
 	}
 
 	public void addFieldValueList(String field, List<FieldValueItem> values) {
