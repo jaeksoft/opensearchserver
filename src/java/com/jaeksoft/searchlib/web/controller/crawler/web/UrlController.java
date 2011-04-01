@@ -470,6 +470,8 @@ public class UrlController extends CommonController implements AfterCompose {
 						break;
 					uList.clear();
 					currentPos += 1000;
+					if (currentPos >= totalSize)
+						break;
 				}
 
 				pw.close();
