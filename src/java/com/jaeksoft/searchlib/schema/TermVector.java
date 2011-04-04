@@ -30,6 +30,9 @@ public enum TermVector {
 			"The position and offsets of the words/token are recorded. This allows for extracting snippets from this field.",
 			org.apache.lucene.document.Field.TermVector.WITH_POSITIONS_OFFSETS),
 
+	YES("Store the term vectors of each document",
+			org.apache.lucene.document.Field.TermVector.YES),
+
 	NO(
 			"Term vectors are not recorded. This prevents using snippets in this field.",
 			org.apache.lucene.document.Field.TermVector.NO);

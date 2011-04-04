@@ -56,7 +56,7 @@ public interface ReaderInterface {
 			throws SearchLibException;
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws SearchLibException;
+			throws IOException;
 
 	public abstract Query rewrite(Query query) throws SearchLibException;
 

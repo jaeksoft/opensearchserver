@@ -83,6 +83,14 @@ public class FieldValueItem {
 		return array;
 	}
 
+	final public static FieldValueItem[] buildArray(String[] values) {
+		FieldValueItem[] array = new FieldValueItem[values.length];
+		int i = 0;
+		for (String value : values)
+			array[i++] = new FieldValueItem(value);
+		return array;
+	}
+
 	final public static List<String> buildArrayList(
 			List<FieldValueItem> fieldValueItemList) {
 		if (fieldValueItemList == null)

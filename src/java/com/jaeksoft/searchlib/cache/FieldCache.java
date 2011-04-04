@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -55,9 +56,9 @@ public class FieldCache extends
 			IOException, ParseException, SyntaxError {
 		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
 		FieldList<Field> missingField = new FieldList<Field>();
-		FieldList<Field> termField = new FieldList<Field>();
+		FieldList<Field> vectorField = new FieldList<Field>();
 
-		// Getting available fields
+		// Getting available fields in the cache
 		for (Field field : fieldList) {
 			FieldContentCacheKey key = new FieldContentCacheKey(
 					field.getName(), docId);
@@ -68,7 +69,7 @@ public class FieldCache extends
 				missingField.add(field);
 		}
 
-		// Check missing fields
+		// Check missing fields from store
 		if (missingField.size() > 0) {
 			Document document = reader.getDocFields(docId, missingField);
 			for (Field field : missingField) {
@@ -82,20 +83,26 @@ public class FieldCache extends
 					documentFields.add(new FieldValue(field, valueItems));
 					put(key, valueItems);
 				} else
-					termField.add(field);
+					vectorField.add(field);
 			}
 		}
 
-		if (termField.size() > 0) {
-			FieldList<FieldValue> fieldValueList = reader.getTerms(docId,
-					termField);
-			for (FieldValue fieldValue : fieldValueList) {
-				FieldContentCacheKey key = new FieldContentCacheKey(
-						fieldValue.getName(), docId);
-				documentFields.add(fieldValue);
-				put(key, fieldValue.getValueArray());
+		// Check missing fields from vector
+		if (vectorField.size() > 0) {
+			for (Field field : vectorField) {
+				String fieldName = field.getName();
+				FieldContentCacheKey key = new FieldContentCacheKey(fieldName,
+						docId);
+				TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
+				if (tfv != null) {
+					FieldValueItem[] valueItems = FieldValueItem.buildArray(tfv
+							.getTerms());
+					documentFields.add(new FieldValue(field, valueItems));
+					put(key, valueItems);
+				}
 			}
 		}
+
 		return documentFields;
 	}
 

@@ -207,12 +207,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws SearchLibException {
+			throws IOException {
 		rwl.r.lock();
 		try {
 			return indexReader.getTermFreqVector(docId, field);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}

@@ -211,7 +211,7 @@ public class SchemaField extends Field {
 	public boolean valid() throws SearchLibException {
 		if (name == null || name.trim().length() == 0)
 			throw new SearchLibException("Field name cannot be empty!");
-		if (termVector == TermVector.POSITIONS_OFFSETS && !isIndexed())
+		if (termVector != TermVector.NO && !isIndexed())
 			throw new SearchLibException(
 					"TermVector request Indexed to be set to yes!");
 		return true;

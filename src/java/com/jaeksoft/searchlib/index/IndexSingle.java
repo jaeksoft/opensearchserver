@@ -362,9 +362,9 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws SearchLibException {
+			throws IOException {
 		if (!online)
-			throw new SearchLibException("Index is offline");
+			throw new IOException("Index is offline");
 		rwl.r.lock();
 		try {
 			if (reader != null)
