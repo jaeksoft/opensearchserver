@@ -47,9 +47,11 @@ public abstract class Result implements Externalizable {
 	protected int collapsedDocCount;
 	private ResultDocument[] resultDocuments;
 
+	private final static ResultDocument[] noDocuments = new ResultDocument[0];
+
 	protected Result() {
 		searchRequest = null;
-		resultDocuments = null;
+		resultDocuments = noDocuments;
 	}
 
 	protected Result(SearchRequest searchRequest) {
@@ -83,7 +85,8 @@ public abstract class Result implements Externalizable {
 	}
 
 	protected void setDocuments(ResultDocument[] resultDocuments) {
-		this.resultDocuments = resultDocuments;
+		this.resultDocuments = resultDocuments == null ? noDocuments
+				: resultDocuments;
 	}
 
 	public ResultDocument getDocument(int pos) {
