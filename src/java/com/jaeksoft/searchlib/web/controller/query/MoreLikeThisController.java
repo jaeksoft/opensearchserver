@@ -31,6 +31,7 @@ import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -64,10 +65,13 @@ public class MoreLikeThisController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
+			SearchRequest request = getRequest();
+			if (request == null)
+				return null;
 			if (fieldsLeft != null)
 				return fieldsLeft;
 			fieldsLeft = new ArrayList<String>();
-			FieldList<Field> fields = getRequest().getMoreLikeThisFieldList();
+			FieldList<Field> fields = request.getMoreLikeThisFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (fields.get(field.getName()) == null) {
 					if (selectedField == null)

@@ -38,6 +38,7 @@ import org.zkoss.zul.api.Listitem;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
@@ -109,8 +110,11 @@ public class SortedController extends AbstractQueryController implements
 			Client client = getClient();
 			if (client == null)
 				return null;
+			SearchRequest request = getRequest();
+			if (request == null)
+				return null;
 			sortFieldLeft = new ArrayList<String>();
-			FieldList<SortField> sortFields = getRequest().getSortList()
+			FieldList<SortField> sortFields = request.getSortList()
 					.getFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())

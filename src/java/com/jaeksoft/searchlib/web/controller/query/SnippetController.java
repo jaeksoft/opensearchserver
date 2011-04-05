@@ -32,6 +32,7 @@ import org.zkoss.zul.RowRenderer;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.TermVector;
@@ -84,10 +85,13 @@ public class SnippetController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
+			SearchRequest request = getRequest();
+			if (request == null)
+				return null;
 			if (snippetFieldLeft != null)
 				return snippetFieldLeft;
 			snippetFieldLeft = new ArrayList<String>();
-			FieldList<SnippetField> snippetFields = getRequest()
+			FieldList<SnippetField> snippetFields = request
 					.getSnippetFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isStored())
