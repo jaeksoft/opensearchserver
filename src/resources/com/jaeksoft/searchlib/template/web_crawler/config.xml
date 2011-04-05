@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for Jaeksoft Open Search Server -->
 <!-- -->
-<!-- Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of Jaeksoft Open Search Server. -->
 <!-- http://www.open-search-server.com -->
@@ -160,7 +160,7 @@
 		</analyzers>
 
 		<fields default="content" unique="url">
-			<field name="lang" indexed="yes" stored="yes" />
+			<field name="lang" indexed="yes" stored="no" termVector="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
@@ -169,15 +169,15 @@
 				stored="compress" termVector="positions_offsets" />
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
-			<field name="contentBaseType" indexed="yes" stored="yes" />
-			<field name="url" indexed="yes" stored="yes" />
+			<field name="contentBaseType" indexed="yes" stored="no" termVector="yes" />
+			<field name="url" indexed="yes" stored="no" termVector="yes" />
 			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
 				termVector="positions_offsets" />
 			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
 				termVector="positions_offsets" />
 			<field name="metaDescription" indexed="no" stored="compress" />
 			<field name="metaKeywords" indexed="no" stored="compress" />
-			<field name="host" indexed="yes" stored="yes" />
+			<field name="host" indexed="yes" stored="no" termVector="yes" />
 			<field name="subhost" indexed="yes" stored="no" />
 		</fields>
 	</schema>
