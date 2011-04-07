@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,6 +61,8 @@ public class OdsParser extends OOParser {
 			Document docOwner = officeText.getOwnerDocument();
 			if (docOwner != null)
 				scanNodes(docOwner.getChildNodes(), ParserFieldEnum.author);
+
+			langDetection(10000, ParserFieldEnum.content);
 
 		} catch (IOException e) {
 			Logging.logger.error(e.getMessage(), e);

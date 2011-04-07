@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,6 +53,7 @@ public class TextParser extends Parser {
 		else
 			content = new String(bytes);
 		addField(ParserFieldEnum.content, content);
+		langDetection(10000, ParserFieldEnum.content);
 	}
 
 	@Override

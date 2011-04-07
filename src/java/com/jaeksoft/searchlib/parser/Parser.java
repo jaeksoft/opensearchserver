@@ -32,8 +32,10 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import org.apache.commons.io.IOUtils;
+import org.knallgrau.utils.textcat.TextCategorizer;
 
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
@@ -41,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.Lang;
 
 public abstract class Parser {
 
@@ -147,6 +150,24 @@ public abstract class Parser {
 		if (fc == null)
 			return "";
 		return fc.getMergedValues(maxChar, separator);
+	}
+
+	protected Locale langDetection(int textLength, ParserFieldEnum parserField) {
+		Locale lang = null;
+		String langMethod = null;
+		String text = getMergedBodyText(textLength, " ", parserField);
+		if (text == null)
+			return null;
+		langMethod = "ngram recognition";
+		String textcat = new TextCategorizer().categorize(text, text.length());
+		lang = Lang.findLocaleDescription(textcat);
+
+		if (lang == null)
+			return null;
+
+		addField(ParserFieldEnum.lang, lang.getLanguage());
+		addField(ParserFieldEnum.lang_method, langMethod);
+		return lang;
 	}
 
 	protected abstract void parseContent(LimitInputStream inputStream)

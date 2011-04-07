@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,14 +25,10 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import org.apache.poi.POIXMLProperties.CoreProperties;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.knallgrau.utils.textcat.TextCategorizer;
-
-import com.jaeksoft.searchlib.util.Lang;
 
 public class DocxParser extends Parser {
 
@@ -65,21 +61,7 @@ public class DocxParser extends Parser {
 		String content = word.getText();
 		addField(ParserFieldEnum.content, content.replaceAll("\\s+", " "));
 
-		// Identification de la langue:
-		Locale lang = null;
-		String langMethod = null;
-		String text = getMergedBodyText(1000, " ", ParserFieldEnum.content);
-		if (text != null) {
-			langMethod = "ngram recognition";
-			String textcat = new TextCategorizer().categorize(text,
-					text.length());
-			lang = Lang.findLocaleDescription(textcat);
-		}
-
-		if (lang != null) {
-			addField(ParserFieldEnum.lang, lang.getLanguage());
-			addField(ParserFieldEnum.lang_method, langMethod);
-		}
+		langDetection(10000, ParserFieldEnum.content);
 
 	}
 

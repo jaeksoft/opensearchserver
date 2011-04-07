@@ -42,7 +42,6 @@ import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.DomSerializer;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
-import org.knallgrau.utils.textcat.TextCategorizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -553,20 +552,13 @@ public class HtmlParser extends Parser {
 			langMethod = "meta dc.language";
 			lang = Lang.findLocaleISO639(metaDcLanguage);
 		}
-		if (lang == null) {
-			String text = getMergedBodyText(1000, " ", ParserFieldEnum.body);
-			if (text != null) {
-				langMethod = "ngram recognition";
-				String textcat = new TextCategorizer().categorize(text,
-						text.length());
-				lang = Lang.findLocaleDescription(textcat);
-			}
-		}
 
 		if (lang != null) {
 			addField(ParserFieldEnum.lang, lang.getLanguage());
 			addField(ParserFieldEnum.lang_method, langMethod);
-		}
+		} else
+			lang = langDetection(10000, ParserFieldEnum.body);
+
 	}
 
 	@Override

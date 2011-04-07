@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -81,6 +81,9 @@ public class PdfParser extends Parser {
 					addField(ParserFieldEnum.content,
 							frag.replaceAll("\\s+", " ").trim());
 			}
+			pdf.close();
+			pdf = null;
+			langDetection(10000, ParserFieldEnum.content);
 		} finally {
 			if (pdf != null)
 				pdf.close();

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.parser;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Locale;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.POIXMLProperties.CoreProperties;
@@ -35,9 +34,6 @@ import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.xslf.XSLFSlideShow;
 import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
 import org.apache.xmlbeans.XmlException;
-import org.knallgrau.utils.textcat.TextCategorizer;
-
-import com.jaeksoft.searchlib.util.Lang;
 
 public class PptxParser extends Parser {
 
@@ -85,21 +81,7 @@ public class PptxParser extends Parser {
 			String content = poiExtractor.getText(true, true);
 			addField(ParserFieldEnum.content, content.replaceAll("\\s+", " "));
 
-			// Identification de la langue:
-			Locale lang = null;
-			String langMethod = null;
-			String text = getMergedBodyText(1000, " ", ParserFieldEnum.content);
-			if (text != null) {
-				langMethod = "ngram recognition";
-				String textcat = new TextCategorizer().categorize(text,
-						text.length());
-				lang = Lang.findLocaleDescription(textcat);
-			}
-
-			if (lang != null) {
-				addField(ParserFieldEnum.lang, lang.getLanguage());
-				addField(ParserFieldEnum.lang_method, langMethod);
-			}
+			langDetection(10000, ParserFieldEnum.content);
 
 		} catch (OpenXML4JException e) {
 			throw new IOException(e);
