@@ -97,6 +97,14 @@ public class RendererField {
 	/**
 	 * @return the style
 	 */
+	public String getCustomStyle()
+	{
+			String tes="width:100%;";
+		return tes;
+		
+	}
+	
+	
 	public String getStyle() {
 		return style;
 	}
@@ -105,6 +113,7 @@ public class RendererField {
 	 * @param style
 	 *            the style to set
 	 */
+	
 	public void setStyle(String style) {
 		this.style = style;
 	}
@@ -146,7 +155,7 @@ public class RendererField {
 			return resultDocument.getSnippetArray(fieldName);
 		return null;
 	}
-
+	
 	public String getUrlField(ResultDocument resultDocument) {
 		if (urlFieldName == null)
 			return null;

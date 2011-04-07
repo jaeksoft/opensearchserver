@@ -25,12 +25,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
-.osscmnrdr {
 <%=renderer.getStyle()%>
-}
+
 </style>
 </head>
 <body>
+
 	<form method="get">
 		<%
 			StringBuffer getUrl = new StringBuffer("?query=");
@@ -48,9 +48,11 @@
 			}
 			}
 		%>
+		<IMG alt="" src="images/oss_logo.png" wiedth="60px" height="60px" />
 		<input class="osscmnrdr" type="text" style="<%=renderer.getInputStyle()%>" name="query" value="<%=query%>" /> <input class="osscmnrdr"
 			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />
 	</form>
+	<HR />
 	<br/>
 	<%
 		if (result != null && result.getDocumentCount() > 0) {
@@ -62,6 +64,7 @@
 		<%
 			for (int i = start; i < end; i++) {
 					ResultDocument resultDocument = result.getDocument(i);
+					
 		%>
 		<li>
 		<%
