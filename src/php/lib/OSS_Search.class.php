@@ -351,9 +351,6 @@ class OSS_Search {
 			$queryChunks[] = 'log'.$pos.'='.urlencode($customLog);
 		}
 
-		var_dump($this->customLogs);
-		var_dump($queryChunks);
-
 		return $this->enginePath.'/'.OSS_API::API_SELECT.'?'.implode('&', $queryChunks);
 
 	}

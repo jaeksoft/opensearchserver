@@ -55,8 +55,9 @@ public class FieldCache extends
 			FieldList<Field> fieldList) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
 		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
-		FieldList<Field> missingField = new FieldList<Field>();
+		FieldList<Field> storeField = new FieldList<Field>();
 		FieldList<Field> vectorField = new FieldList<Field>();
+		FieldList<Field> missingField = new FieldList<Field>();
 
 		// Getting available fields in the cache
 		for (Field field : fieldList) {
@@ -66,13 +67,13 @@ public class FieldCache extends
 			if (values != null)
 				documentFields.add(new FieldValue(field, values));
 			else
-				missingField.add(field);
+				storeField.add(field);
 		}
 
 		// Check missing fields from store
-		if (missingField.size() > 0) {
-			Document document = reader.getDocFields(docId, missingField);
-			for (Field field : missingField) {
+		if (storeField.size() > 0) {
+			Document document = reader.getDocFields(docId, storeField);
+			for (Field field : storeField) {
 				FieldContentCacheKey key = new FieldContentCacheKey(
 						field.getName(), docId);
 				Fieldable[] fieldables = document
@@ -99,9 +100,14 @@ public class FieldCache extends
 							.getTerms());
 					documentFields.add(new FieldValue(field, valueItems));
 					put(key, valueItems);
-				}
+				} else
+					missingField.add(field);
 			}
 		}
+
+		if (missingField.size() > 0)
+			for (Field field : missingField)
+				documentFields.add(new FieldValue(field));
 
 		return documentFields;
 	}

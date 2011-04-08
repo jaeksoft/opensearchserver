@@ -34,13 +34,20 @@ public class FieldValue extends Field {
 	private FieldValueItem[] valueArray;
 	private transient List<FieldValueItem> valueList;
 
+	private final static FieldValueItem[] emptyValueArray = new FieldValueItem[0];
+
 	public FieldValue() {
 	}
 
 	protected FieldValue(String name) {
 		super(name);
-		valueArray = null;
+		valueArray = emptyValueArray;
 		valueList = null;
+	}
+
+	public FieldValue(Field field) {
+		this(field.name);
+
 	}
 
 	public FieldValue(FieldValue field) {
@@ -86,7 +93,7 @@ public class FieldValue extends Field {
 
 	public void setValues(List<FieldValueItem> values) {
 		if (values == null) {
-			valueArray = null;
+			valueArray = emptyValueArray;
 			valueList = null;
 			return;
 		}
