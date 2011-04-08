@@ -63,8 +63,6 @@ public class Renderer implements Comparable<Renderer> {
 	private String inputStyle;
 
 	private String searchButtonLabel;
-	private String hyperlink,fonts;
-
 	private List<RendererField> fields;
 
 	public Renderer() {
@@ -217,30 +215,10 @@ public class Renderer implements Comparable<Renderer> {
 	 * @return the style
 	 */
 	public String getStyle() {
-		
-		style=setHyperLinkStyle("FF0000","00FF00","FF00FF","0000FF");
-		style+="\n"+setFont("Arial");
+
 		return style;
 	}
-	public String setFont(String font)
-	{
-		fonts=".osscmnrdr{";
-		
-		fonts+="font-style:normal;";
-		fonts+="font-size:14px;";
-		fonts+="font-family:"+font+";";
-		fonts+="}";
-		return fonts;
-	}
-public String setHyperLinkStyle(String link,String visited,String hover,String active)
-{
-	hyperlink="a:link {color:#"+link+";} ";
-	hyperlink+="a:visited {color:#"+visited+";}";
-	hyperlink+="a:hover {color:#"+hover+";}";
-	hyperlink+="a:active {color:#"+active+";}";
-	return hyperlink;
-	
-}
+
 	/**
 	 * @return the name
 	 */

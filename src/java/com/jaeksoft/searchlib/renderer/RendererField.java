@@ -97,12 +97,7 @@ public class RendererField {
 	/**
 	 * @return the style
 	 */
-	public String getCustomStyle()
-	{
-			String tes="width:100%;";
-		return tes;
-		
-	}
+
 	
 	
 	public String getStyle() {

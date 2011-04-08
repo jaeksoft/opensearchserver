@@ -25,8 +25,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
+.osscmnrdr{
 <%=renderer.getStyle()%>
-
+}
 </style>
 </head>
 <body>
@@ -48,11 +49,13 @@
 			}
 			}
 		%>
-		<IMG alt="" src="images/oss_logo.png" wiedth="60px" height="60px" />
-		<input class="osscmnrdr" type="text" style="<%=renderer.getInputStyle()%>" name="query" value="<%=query%>" /> <input class="osscmnrdr"
+		
+		 
+		<input class="osscmnrdr" size="60" type="text" style="<%=renderer.getInputStyle()%>" name="query" value="<%=query%>" /> <input class="osscmnrdr"
 			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />
+			 
 	</form>
-	<HR />
+ 
 	<br/>
 	<%
 		if (result != null && result.getDocumentCount() > 0) {
@@ -109,5 +112,11 @@
 	<%
 		} // (if result != null)
 	%>
+	<hr />
+	<div align="right">
+	<a href="http://www.open-search-server.com/">
+	 <label>Enterprise Search Made Yours.</label></a>
+	 <img alt="OPENSEARCHSERVER" src=" images/oss_logo_32.png" style="vertical-align:baseline;"/>
+	 </div>
 </body>
 </html>
