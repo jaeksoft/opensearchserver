@@ -115,37 +115,29 @@
 						tooltiptext="URL(s)" />
 				</auxhead>
 				<listhead sizable="true">
+					<listheader width="150px" />
+					<listheader label="Count" tooltiptext="Count" />
+					<listheader label="Rate" tooltiptext="Rate" />
+					<listheader label="Processed"
+						tooltiptext="Processed" />
+					<listheader label="Total" tooltiptext="Total" />
+					<listheader label="Processed"
+						tooltiptext="Processed" />
+					<listheader label="Total" tooltiptext="Total" />
 					<listheader />
-					<listheader label="Count" tooltiptext="Count"
-						width="50px" />
-					<listheader label="Rate" tooltiptext="Rate"
-						width="50px" />
-					<listheader label="Processed"
-						tooltiptext="Processed" width="50px" />
-					<listheader label="Total" tooltiptext="Total"
-						width="50px" />
-					<listheader label="Processed"
-						tooltiptext="Processed" width="50px" />
-					<listheader label="Total" tooltiptext="Total"
-						width="50px" />
-					<listheader width="40px" />
-					<listheader label="Pending" tooltiptext="Pending"
-						width="50px" />
+					<listheader label="Pending" tooltiptext="Pending" />
 					<listheader label="Committed"
-						tooltiptext="Committed" width="50px" />
-					<listheader label="Pending" tooltiptext="Pending"
-						width="50px" />
+						tooltiptext="Committed" />
+					<listheader label="Pending" tooltiptext="Pending" />
 					<listheader label="Committed"
-						tooltiptext="Committed" width="50px" />
-					<listheader width="50px" />
-					<listheader label="Pending" tooltiptext="Pending"
-						width="50px" />
+						tooltiptext="Committed" />
+					<listheader />
+					<listheader label="Pending" tooltiptext="Pending" />
 					<listheader label="Committed"
 						tooltiptext="Committed" width="50px" />
 					<listheader label="Processed"
-						tooltiptext="Processed" width="50px" />
-					<listheader label="Total" tooltiptext="Total"
-						width="50px" />
+						tooltiptext="Processed" />
+					<listheader label="Total" tooltiptext="Total" />
 				</listhead>
 				<listitem self="@{each=stat}">
 					<listcell label="@{stat.startDate}" />
@@ -178,23 +170,23 @@
 				<listhead sizable="true">
 					<listheader label="Current host name"
 						tooltiptext="Current host name" />
-					<listheader width="50px" label="Type"
+					<listheader width="60px" label="Type"
 						tooltiptext="Type" />
-					<listheader width="50px" label="Fetched"
+					<listheader width="60px" label="Fetched"
 						tooltiptext="Fetched" />
-					<listheader width="50px" label="Rate"
+					<listheader width="60px" label="Rate"
 						tooltiptext="Fetch rate" />
-					<listheader width="50px" label="New url"
+					<listheader width="60px" label="New url"
 						tooltiptext="New url" />
-					<listheader width="50px" label="Updated"
+					<listheader width="60px" label="Updated"
 						tooltiptext="Updated" />
-					<listheader width="50px" label="Ignored"
+					<listheader width="60px" label="Ignored"
 						tooltiptext="Ignored" />
-					<listheader width="50px" label="Deleted"
+					<listheader width="60px" label="Deleted"
 						tooltiptext="Deleted" />
-					<listheader width="50px" label="URL(s)"
+					<listheader width="60px" label="URL(s)"
 						tooltiptext="URL(s)" />
-					<listheader width="50px" label="Total"
+					<listheader width="60px" label="Total"
 						tooltiptext="Total" />
 					<listheader label="Status" tooltiptext="Status" />
 				</listhead>
