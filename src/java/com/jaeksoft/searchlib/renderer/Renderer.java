@@ -47,10 +47,13 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOTNODE_NAME = "renderer";
 	private final static String RENDERER_ITEM_ROOT_ATTR_NAME = "name";
 	private final static String RENDERER_ITEM_ROOT_ATTR_REQUEST = "request";
-	private final static String RENDERER_ITEM_ROOT_ATTR_INPUTSTYLE = "inputStyle";
 	private final static String RENDERER_ITEM_ROOT_ATTR_SEARCHBUTTONLABEL = "searchButtonLabel";
 	private final static String RENDERER_ITEM_NODE_NAME_FIELD = "field";
-	private final static String RENDERER_ITEM_NODE_STYLE = "style";
+	private final static String RENDERER_ITEM_NODE_COMMON_STYLE = "style";
+	private final static String RENDERER_ITEM_NODE_INPUT_STYLE = "inputStyle";
+	private final static String RENDERER_ITEM_NODE_BUTTON_STYLE = "buttonStyle";
+	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE = "autocompleteStyle";
+	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE = "autocompleteSelectedStyle";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -58,18 +61,28 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String requestName;
 
-	private String style;
+	private String commonStyle;
 
 	private String inputStyle;
 
+	private String buttonStyle;
+
+	private String autocompleteStyle;
+
+	private String autocompleteSelectedStyle;
+
 	private String searchButtonLabel;
+
 	private List<RendererField> fields;
 
 	public Renderer() {
 		name = null;
 		requestName = null;
-		style = null;
+		commonStyle = null;
 		inputStyle = null;
+		buttonStyle = null;
+		autocompleteStyle = null;
+		autocompleteSelectedStyle = null;
 		searchButtonLabel = "Search";
 		fields = new ArrayList<RendererField>();
 	}
@@ -87,17 +100,22 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_NAME));
 		setRequestName(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_REQUEST));
-		setInputStyle(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_INPUTSTYLE));
 		setSearchButtonLabel(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_SEARCHBUTTONLABEL));
-		Node styleNode = xpp.getNode(rootNode, RENDERER_ITEM_NODE_STYLE);
-		if (styleNode != null)
-			setStyle(styleNode.getTextContent());
+		setCommonStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_COMMON_STYLE));
+		setInputStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_INPUT_STYLE));
+		setButtonStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_BUTTON_STYLE));
+		setAutocompleteStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE));
+		setAutocompleteSelectedStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE));
 		NodeList nodeList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeList.getLength(); i++)
-			addField(new RendererField(nodeList.item(i)));
+			addField(new RendererField(xpp, nodeList.item(i)));
 	}
 
 	public Renderer(Renderer source) {
@@ -112,8 +130,11 @@ public class Renderer implements Comparable<Renderer> {
 			try {
 				target.name = name;
 				target.requestName = requestName;
-				target.style = style;
+				target.commonStyle = commonStyle;
 				target.inputStyle = inputStyle;
+				target.buttonStyle = buttonStyle;
+				target.autocompleteStyle = autocompleteStyle;
+				target.autocompleteSelectedStyle = autocompleteSelectedStyle;
 				target.searchButtonLabel = searchButtonLabel;
 				target.fields.clear();
 				for (RendererField field : fields)
@@ -204,19 +225,63 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param style
-	 *            the style to set
+	 * @param commonStyle
+	 *            the commonStyle to set
 	 */
-	public void setStyle(String style) {
-		this.style = style;
+	public void setCommonStyle(String commonStyle) {
+		this.commonStyle = commonStyle;
 	}
 
 	/**
-	 * @return the style
+	 * @return the commonStyle
 	 */
-	public String getStyle() {
+	public String getCommonStyle() {
+		return commonStyle;
+	}
 
-		return style;
+	/**
+	 * @return the buttonStyle
+	 */
+	public String getButtonStyle() {
+		return buttonStyle;
+	}
+
+	/**
+	 * @param buttonStyle
+	 *            the buttonStyle to set
+	 */
+	public void setButtonStyle(String buttonStyle) {
+		this.buttonStyle = buttonStyle;
+	}
+
+	/**
+	 * @return the autocompleteStyle
+	 */
+	public String getAutocompleteStyle() {
+		return autocompleteStyle;
+	}
+
+	/**
+	 * @param autocompleteStyle
+	 *            the autocompleteStyle to set
+	 */
+	public void setAutocompleteStyle(String autocompleteStyle) {
+		this.autocompleteStyle = autocompleteStyle;
+	}
+
+	/**
+	 * @return the autocompleteSelectedStyle
+	 */
+	public String getAutocompleteSelectedStyle() {
+		return autocompleteSelectedStyle;
+	}
+
+	/**
+	 * @param autocompleteSelectedStyle
+	 *            the autocompleteSelectedStyle to set
+	 */
+	public void setAutocompleteSelectedStyle(String autocompleteSelectedStyle) {
+		this.autocompleteSelectedStyle = autocompleteSelectedStyle;
 	}
 
 	/**
@@ -297,12 +362,19 @@ public class Renderer implements Comparable<Renderer> {
 			xmlWriter.startElement(RENDERER_ITEM_ROOTNODE_NAME,
 					RENDERER_ITEM_ROOT_ATTR_NAME, name,
 					RENDERER_ITEM_ROOT_ATTR_REQUEST, requestName,
-					RENDERER_ITEM_ROOT_ATTR_INPUTSTYLE, inputStyle,
 					RENDERER_ITEM_ROOT_ATTR_SEARCHBUTTONLABEL,
 					searchButtonLabel);
-			xmlWriter.startElement(RENDERER_ITEM_NODE_STYLE);
-			xmlWriter.textNode(style);
-			xmlWriter.endElement();
+			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_COMMON_STYLE,
+					commonStyle);
+			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_INPUT_STYLE,
+					inputStyle);
+			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_BUTTON_STYLE,
+					buttonStyle);
+			xmlWriter.writeSubTextNodeIfAny(
+					RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, autocompleteStyle);
+			xmlWriter.writeSubTextNodeIfAny(
+					RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE,
+					autocompleteSelectedStyle);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
 			xmlWriter.endElement();

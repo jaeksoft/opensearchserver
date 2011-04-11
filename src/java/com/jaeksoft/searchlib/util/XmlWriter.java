@@ -110,4 +110,13 @@ public class XmlWriter {
 		transformerHandler.endElement("", "", startedElementStack.pop());
 	}
 
+	public void writeSubTextNodeIfAny(String nodeName, String content)
+			throws SAXException {
+		if (content == null)
+			return;
+		startElement(nodeName);
+		textNode(content);
+		endElement();
+	}
+
 }

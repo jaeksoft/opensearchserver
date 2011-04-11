@@ -26,8 +26,25 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
 .osscmnrdr{
-<%=renderer.getStyle()%>
+<%=renderer.getCommonStyle()==null?"":renderer.getCommonStyle()%>
 }
+.ossinputrdr{
+<%=renderer.getInputStyle()==null?"":renderer.getInputStyle()%>
+}
+.ossbuttonrdr{
+<%=renderer.getButtonStyle()==null?"":renderer.getButtonStyle()%>
+}
+<%
+	int j = 0;
+	for (RendererField rendererField : renderer.getFields()) {
+		j++;
+%>
+.ossfieldrdr<%=j%>{
+<%=rendererField.getStyle()==null?"":rendererField.getStyle()%>
+}
+<%
+	}
+%>
 </style>
 </head>
 <body>
@@ -51,7 +68,8 @@
 		%>
 		
 		 
-		<input class="osscmnrdr" size="60" type="text" style="<%=renderer.getInputStyle()%>" name="query" value="<%=query%>" /> <input class="osscmnrdr"
+		<input class="osscmnrdr ossinputrdr" size="60" type="text" name="query" value="<%=query%>" />
+		<input class="osscmnrdr ossbuttonrdr"
 			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />
 			 
 	</form>
@@ -71,7 +89,9 @@
 		%>
 		<li>
 		<%
+					j = 0;
 					for (RendererField rendererField : renderer.getFields()) {
+						j++;
 						String url = rendererField.getUrlField(resultDocument);
 						if (url != null)
 							if (url.length() == 0)
@@ -79,7 +99,7 @@
 						FieldValueItem[] fieldValueItems = rendererField.getFieldValue(resultDocument);
 						for (FieldValueItem fieldValueItem : fieldValueItems) {
 		%>
-			<div class="osscmnrdr" style="<%=rendererField.getStyle()%>">
+			<div class="osscmnrdr ossfieldrdr<%=j%>">
 			<% if (url != null) { %>
 				<a target="_top" href="<%=url%>">
 			<% } %>

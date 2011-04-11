@@ -182,4 +182,13 @@ public class XPathParser {
 			return null;
 		return Float.parseFloat(value);
 	}
+
+	final public String getSubNodeTextIfAny(Node parentNode, String nodeName)
+			throws XPathExpressionException {
+		Node node = getNode(parentNode, nodeName);
+		if (node == null)
+			return null;
+		return node.getTextContent();
+	}
+
 }

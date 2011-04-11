@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.renderer;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -46,7 +48,7 @@ public class RendererField {
 
 	private final static String RENDERER_FIELD_ATTR_FIELD_TYPE = "fieldType";
 
-	private final static String RENDERER_FIELD_ATTR_CSS_STYLE = "cssStyle";
+	private final static String RENDERER_FIELD_NODE_CSS_STYLE = "cssStyle";
 
 	private final static String RENDERER_FIELD_ATTR_URL_FIELDNAME = "urlFieldName";
 
@@ -57,13 +59,13 @@ public class RendererField {
 		urlFieldName = "";
 	}
 
-	public RendererField(Node node) {
+	public RendererField(XPathParser xpp, Node node)
+			throws XPathExpressionException {
 		fieldName = XPathParser.getAttributeString(node,
 				RENDERER_FIELD_ATTR_FIELDNAME);
 		setFieldType(RendererFieldType.find(XPathParser.getAttributeString(
 				node, RENDERER_FIELD_ATTR_FIELD_TYPE)));
-		style = XPathParser.getAttributeString(node,
-				RENDERER_FIELD_ATTR_CSS_STYLE);
+		style = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE);
 		urlFieldName = XPathParser.getAttributeString(node,
 				RENDERER_FIELD_ATTR_URL_FIELDNAME);
 	}
@@ -98,8 +100,6 @@ public class RendererField {
 	 * @return the style
 	 */
 
-	
-	
 	public String getStyle() {
 		return style;
 	}
@@ -108,7 +108,7 @@ public class RendererField {
 	 * @param style
 	 *            the style to set
 	 */
-	
+
 	public void setStyle(String style) {
 		this.style = style;
 	}
@@ -150,7 +150,7 @@ public class RendererField {
 			return resultDocument.getSnippetArray(fieldName);
 		return null;
 	}
-	
+
 	public String getUrlField(ResultDocument resultDocument) {
 		if (urlFieldName == null)
 			return null;
@@ -161,8 +161,8 @@ public class RendererField {
 			throws SAXException {
 		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME,
 				fieldName, RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
-				RENDERER_FIELD_ATTR_CSS_STYLE, style,
 				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName);
+		xmlWriter.writeSubTextNodeIfAny(RENDERER_FIELD_NODE_CSS_STYLE, style);
 		xmlWriter.endElement();
 	}
 }

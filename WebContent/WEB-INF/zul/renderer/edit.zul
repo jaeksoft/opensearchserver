@@ -42,13 +42,33 @@
 					<row>
 						<label value="Common CSS style: " />
 						<textbox
-							value="@{renderer.currentRenderer.style}" cols="100"
+							value="@{renderer.currentRenderer.commonStyle}" cols="100"
 							multiline="true" rows="5" />
 					</row>
 					<row>
 						<label value="Input CSS style: " />
 						<textbox
-							value="@{renderer.currentRenderer.inputStyle}" cols="100" />
+							value="@{renderer.currentRenderer.inputStyle}" cols="100"
+							multiline="true" rows="5" />
+					</row>
+					<row>
+						<label value="Button CSS style: " />
+						<textbox
+							value="@{renderer.currentRenderer.buttonStyle}" cols="100"
+							multiline="true" rows="5" />
+					</row>
+					<row>
+						<label value="Autocomplete CSS style: " />
+						<textbox
+							value="@{renderer.currentRenderer.autocompleteStyle}" cols="100"
+							multiline="true" rows="5" />
+					</row>
+					<row>
+						<label
+							value="Autocomplete selected CSS style: " />
+						<textbox
+							value="@{renderer.currentRenderer.autocompleteSelectedStyle}"
+							cols="100" multiline="true" rows="5" />
 					</row>
 					<row>
 						<label value="Fields: " />
@@ -75,7 +95,8 @@
 								</auxheader>
 								<auxheader>
 									<textbox
-										value="@{renderer.currentRendererField.style}" width="95%" />
+										value="@{renderer.currentRendererField.style}" width="95%"
+										multiline="true" rows="3" />
 								</auxheader>
 								<auxheader>
 									<listbox
