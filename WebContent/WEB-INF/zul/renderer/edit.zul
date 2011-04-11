@@ -70,6 +70,37 @@
 							value="@{renderer.currentRenderer.autocompleteSelectedStyle}"
 							cols="100" multiline="true" rows="5" />
 					</row>
+						<row>
+						<label
+							value="AnchorLink: " />
+						<textbox
+							value="@{renderer.currentRenderer.alink}"
+							cols="100" multiline="true" rows="5" />
+					</row>
+					 
+						<row>
+						<label
+							value="AnchorLink Visited: " />
+						<textbox
+							value="@{renderer.currentRenderer.avisited}"
+							cols="100" multiline="true" rows="5" />
+					 
+					</row>
+						<row>
+						<label
+							value="AnchorLink Active: " />
+						<textbox
+							value="@{renderer.currentRenderer.aactive}"
+							cols="100" multiline="true" rows="5" />
+				 
+					</row>
+						<row>
+						<label
+							value="AnchorLink Hover: " />
+						<textbox
+							value="@{renderer.currentRenderer.ahover}"
+							cols="100" multiline="true" rows="5" />
+					</row>
 					<row>
 						<label value="Fields: " />
 						<listbox

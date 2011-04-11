@@ -54,6 +54,10 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_BUTTON_STYLE = "buttonStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE = "autocompleteStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE = "autocompleteSelectedStyle";
+	private final static String RENDERER_ITEM_NODE_ALINK = "alink";
+	private final static String RENDERER_ITEM_NODE_AVISITED = "avisited";
+	private final static String RENDERER_ITEM_NODE_AACTIVE = "aactive";
+	private final static String RENDERER_ITEM_NODE_AHOVER = "ahover";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -72,6 +76,14 @@ public class Renderer implements Comparable<Renderer> {
 	private String autocompleteSelectedStyle;
 
 	private String searchButtonLabel;
+
+	private String alink;
+
+	private String avisited;
+
+	private String aactive;
+
+	private String ahover;
 
 	private List<RendererField> fields;
 
@@ -112,6 +124,12 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE));
 		setAutocompleteSelectedStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE));
+		setAactive(xpp
+				.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AACTIVE));
+		setAhover(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AHOVER));
+		setAlink(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_ALINK));
+		setAvisited(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AVISITED));
 		NodeList nodeList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeList.getLength(); i++)
@@ -136,6 +154,10 @@ public class Renderer implements Comparable<Renderer> {
 				target.autocompleteStyle = autocompleteStyle;
 				target.autocompleteSelectedStyle = autocompleteSelectedStyle;
 				target.searchButtonLabel = searchButtonLabel;
+				target.aactive = aactive;
+				target.ahover = ahover;
+				target.alink = alink;
+				target.avisited = avisited;
 				target.fields.clear();
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
@@ -244,6 +266,38 @@ public class Renderer implements Comparable<Renderer> {
 	 */
 	public String getButtonStyle() {
 		return buttonStyle;
+	}
+
+	public final String getAlink() {
+		return alink;
+	}
+
+	public final void setAlink(String alink) {
+		this.alink = alink;
+	}
+
+	public final String getAvisited() {
+		return avisited;
+	}
+
+	public final void setAvisited(String avisited) {
+		this.avisited = avisited;
+	}
+
+	public final String getAactive() {
+		return aactive;
+	}
+
+	public final void setAactive(String aactive) {
+		this.aactive = aactive;
+	}
+
+	public final String getAhover() {
+		return ahover;
+	}
+
+	public final void setAhover(String ahover) {
+		this.ahover = ahover;
 	}
 
 	/**
