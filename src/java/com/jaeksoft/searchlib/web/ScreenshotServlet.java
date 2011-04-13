@@ -58,6 +58,15 @@ public class ScreenshotServlet extends AbstractServlet {
 		transaction.addXmlResponse("Status", "OK");
 	}
 
+	final private String getPublicFileName(File file) {
+		StringBuffer sb = new StringBuffer(file.getName());
+		File p = file.getParentFile();
+		sb.insert(0, p.getName());
+		p = p.getParentFile();
+		sb.insert(0, p.getName());
+		return sb.toString();
+	}
+
 	private void doImage(ServletTransaction transaction,
 			ScreenshotManager screenshotManager, URL url)
 			throws SearchLibException {
@@ -66,12 +75,18 @@ public class ScreenshotServlet extends AbstractServlet {
 			transaction.addXmlResponse("Error", "File not found");
 			return;
 		}
-		StringBuffer sb = new StringBuffer(file.getName());
-		File p = file.getParentFile();
-		sb.insert(0, p.getName());
-		p = p.getParentFile();
-		sb.insert(0, p.getName());
-		transaction.sendFile(file, sb.toString(), "image/png");
+		transaction.sendFile(file, getPublicFileName(file), "image/png");
+	}
+
+	private void doCheck(ServletTransaction transaction,
+			ScreenshotManager screenshotManager, URL url)
+			throws SearchLibException {
+		File file = screenshotManager.getPngFile(url);
+		if (file == null) {
+			transaction.addXmlResponse("Error", "File not found");
+			return;
+		}
+		transaction.addXmlResponse("Check", getPublicFileName(file));
 	}
 
 	public final static String captureUrl(StringBuffer sbBaseUrl,
@@ -110,8 +125,10 @@ public class ScreenshotServlet extends AbstractServlet {
 			if ("capture".equalsIgnoreCase(action))
 				doCapture(transaction, screenshotManager, credentialManager,
 						url);
-			if ("image".equalsIgnoreCase(action))
+			else if ("image".equalsIgnoreCase(action))
 				doImage(transaction, screenshotManager, url);
+			else if ("check".equalsIgnoreCase(action))
+				doCheck(transaction, screenshotManager, url);
 
 		} catch (Exception e) {
 			throw new ServletException(e);
