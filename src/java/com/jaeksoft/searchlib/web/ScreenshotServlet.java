@@ -66,7 +66,12 @@ public class ScreenshotServlet extends AbstractServlet {
 			transaction.addXmlResponse("Error", "File not found");
 			return;
 		}
-		transaction.sendFile(file, "image/png");
+		StringBuffer sb = new StringBuffer(file.getName());
+		File p = file.getParentFile();
+		sb.insert(0, p.getName());
+		p = p.getParentFile();
+		sb.insert(0, p.getName());
+		transaction.sendFile(file, sb.toString(), "image/png");
 	}
 
 	public final static String captureUrl(StringBuffer sbBaseUrl,

@@ -248,11 +248,11 @@ public class ServletTransaction {
 		return WebManager.getWebApp(servlet.getServletContext());
 	}
 
-	public void sendFile(File file, String contentType)
+	public void sendFile(File file, String filename, String contentType)
 			throws SearchLibException {
 		response.setContentType(contentType);
 		response.addHeader("Content-Disposition", "attachment; filename="
-				+ file.getName());
+				+ filename);
 		FileInputStream inputStream = null;
 		try {
 			inputStream = new FileInputStream(file);
