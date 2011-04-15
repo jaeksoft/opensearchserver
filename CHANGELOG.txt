@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.2
 
 New features:
+- 3287318: Upgrade to seleniumhq 2.x	
 - 3266524: Return terms from non stored fields	
 - 3266520: Cache management in Web UI
 - 3253614: Upgrade to PDFBox 1.5.x
