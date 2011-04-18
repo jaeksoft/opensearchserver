@@ -21,6 +21,8 @@
 #	You should have received a copy of the GNU General Public License
 #	along with Jaeksoft OpenSearchServer. 
 #	If not, see <http://www.gnu.org/licenses/>.
+
+cd `dirname "$0"`
 	
 EXECUTABLE=apache-tomcat-6.0.32/bin/startup.sh
 
@@ -30,7 +32,14 @@ if [ ! -x "$EXECUTABLE" ]; then
     exit 1
 fi
 
-OPENSEARCHSERVER_DATA=`pwd`/data
-export OPENSEARCHSERVER_DATA
+CONFIGFILE=/etc/sysconfig/opensearchserver
+if [ -f "$CONFIGFILE" ]; then
+    . "$CONFIGFILE"
+fi
+
+if [ -z "$OPENSEARCHSERVER_DATA" ]; then
+     OPENSEARCHSERVER_DATA=`pwd`/data
+     export OPENSEARCHSERVER_DATA
+fi
 
 exec "$EXECUTABLE"

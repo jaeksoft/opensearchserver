@@ -22,6 +22,8 @@
 #	along with Jaeksoft OpenSearchServer. 
 #	If not, see <http://www.gnu.org/licenses/>.
 
+cd `dirname "$0"`
+
 EXECUTABLE=apache-tomcat-6.0.32/bin/shutdown.sh
 
 if [ ! -x "$EXECUTABLE" ]; then
