@@ -19,6 +19,7 @@ New features:
 - 3094822: SiteMap functionnality
 
 Bug fixes:
+- 3290939: NPE when no default field is selected
 - 3278815: The language is not detected in PDF files
 - 3192429: Not the correct definition of the Russian language
 

@@ -415,8 +415,11 @@ public class SearchRequest implements Externalizable {
 		if (queryParser != null)
 			return queryParser;
 		Schema schema = getConfig().getSchema();
-		queryParser = new QueryParser(Version.LUCENE_29, schema.getFieldList()
-				.getDefaultField().getName(),
+		Field field = schema.getFieldList().getDefaultField();
+		if (field == null)
+			throw new SearchLibException(
+					"Please select a default field in the schema");
+		queryParser = new QueryParser(Version.LUCENE_29, field.getName(),
 				schema.getQueryPerFieldAnalyzer(getLang()));
 		queryParser.setAllowLeadingWildcard(allowLeadingWildcard);
 		queryParser.setPhraseSlop(phraseSlop);
