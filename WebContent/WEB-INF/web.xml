@@ -124,7 +124,10 @@
 		<servlet-name>Renderer</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.RendererServlet</servlet-class>
 	</servlet>
-
+<servlet>
+        <servlet-name>SearchTemplate</servlet-name>
+        <servlet-class>com.jaeksoft.searchlib.web.SearchTemplateServlet</servlet-class>
+    </servlet>
 	<servlet-mapping>
 		<servlet-name>Basket</servlet-name>
 		<url-pattern>/basket</url-pattern>
@@ -191,7 +194,10 @@
 		<servlet-name>Renderer</servlet-name>
 		<url-pattern>/renderer</url-pattern>
 	</servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>SearchTemplate</servlet-name>
+        <url-pattern>/searchtemplate</url-pattern>
+    </servlet-mapping>
 	<listener>
 		<listener-class>com.jaeksoft.searchlib.web.StartStopListener</listener-class>
 	</listener>
