@@ -40,7 +40,7 @@ public class DocumentRequest implements Externalizable {
 
 	public int doc;
 
-	protected int pos;
+	public int pos;
 
 	public DocumentRequest() {
 	}
