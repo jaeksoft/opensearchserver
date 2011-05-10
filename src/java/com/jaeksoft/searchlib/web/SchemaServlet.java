@@ -80,11 +80,25 @@ public class SchemaServlet extends AbstractServlet {
 
 		Client client = transaction.getClient();
 		Schema schema = client.getSchema();
-
+		String defaultField = transaction.getParameterString("field.default");
+		String uniqueField = transaction.getParameterString("field.unique");
 		SchemaField schemaField = SchemaField.fromHttpRequest(transaction);
 		transaction.addXmlResponse("Info", "field '" + schemaField.getName()
 				+ "' added/updated");
-		return schema.getFieldList().addOrSet(schemaField);
+		schema.getFieldList().addOrSet(schemaField);
+		if (defaultField != null) {
+			if (defaultField.equalsIgnoreCase("yes")) {
+				schema.getFieldList().setDefaultField(
+						transaction.getParameterString("field.name"));
+			}
+		}
+		if (uniqueField != null) {
+			if (uniqueField.equalsIgnoreCase("yes")) {
+				schema.getFieldList().setUniqueField(
+						transaction.getParameterString("field.name"));
+			}
+		}
+		return true;
 	}
 
 	private boolean deleteField(User user, ServletTransaction transaction)
@@ -96,7 +110,6 @@ public class SchemaServlet extends AbstractServlet {
 
 		Client client = transaction.getClient();
 		Schema schema = client.getSchema();
-
 		String name = transaction.getParameterString("field.name");
 		SchemaFieldList sfl = schema.getFieldList();
 		SchemaField field = sfl.get(name);
