@@ -34,7 +34,7 @@ public class FacetItemCountComparator implements Comparator<FacetItem> {
 			return -1;
 		if (item1.count > item2.count)
 			return 1;
-		return 0;
+		return item1.term.compareTo(item2.term);
 	}
 
 }
