@@ -31,9 +31,9 @@ public class FacetItemCountComparator implements Comparator<FacetItem> {
 	@Override
 	final public int compare(FacetItem item1, FacetItem item2) {
 		if (item1.count < item2.count)
-			return -1;
-		if (item1.count > item2.count)
 			return 1;
+		if (item1.count > item2.count)
+			return -1;
 		return item1.term.compareTo(item2.term);
 	}
 
