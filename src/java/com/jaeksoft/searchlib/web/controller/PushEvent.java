@@ -87,18 +87,21 @@ public enum PushEvent {
 	 */
 	FILEPATH_EDIT(EventQueues.SESSION);
 
-	private String scope;
+	private final String eventName;
+
+	private final String scope;
 
 	private PushEvent(String scope) {
 		this.scope = scope;
+		this.eventName = "OSS_EVENT_" + name();
 	}
 
 	private Event newEvent(Object data) {
-		return new Event(name(), null, data);
+		return new Event(eventName, null, data);
 	}
 
 	private Event newEvent() {
-		return new Event(name());
+		return new Event(eventName);
 	}
 
 	private static EventQueue getQueue(String scope) {
@@ -130,11 +133,18 @@ public enum PushEvent {
 	}
 
 	public static PushEvent isEvent(Event event) {
-		return PushEvent.valueOf(event.getName());
+		String evName = event.getName();
+		if (evName == null)
+			return null;
+		for (PushEvent pv : PushEvent.values())
+			if (evName.equals(pv.eventName))
+				return pv;
+		return null;
 	}
 
 	public static void suscribe(EventListener eventListener) {
 		for (PushEvent pushEvent : PushEvent.values())
 			pushEvent.subscribe(eventListener);
 	}
+
 }
