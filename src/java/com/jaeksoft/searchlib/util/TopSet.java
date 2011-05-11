@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,35 +24,40 @@
 
 package com.jaeksoft.searchlib.util;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.TreeSet;
 
-public class TopSet {
-	private Collection<String> source;
-	private final TreeMap<Integer, String> treeMap;
+public class TopSet<T> {
+
+	private final TreeSet<T> treeSet;
+
 	private int max;
 
-	public TopSet(Collection<String> source, int max) {
-		this.source = source;
+	/**
+	 * Build a sorted set from an array. The size of the Set is limited by the
+	 * max parameter.
+	 * 
+	 * @param array
+	 * @param comparator
+	 * @param max
+	 */
+	public TopSet(T[] array, Comparator<T> comparator, int max) {
 		this.max = max;
-		this.treeMap = new TreeMap<Integer, String>();
-		generateTreeMap();
+		this.treeSet = new TreeSet<T>(comparator);
+		generateTreeMap(array);
 	}
 
-	public TreeMap<Integer, String> getTreeMap() {
-		return treeMap;
-	}
-
-	private void generateTreeMap() {
-		Iterator<String> itr = source.iterator();
+	private void generateTreeMap(T[] array) {
 		int i = 0;
-		while (itr.hasNext()) {
-			treeMap.put(i, itr.next());
-			if (i > max)
-				treeMap.pollFirstEntry();
-			i++;
+		for (T item : array) {
+			treeSet.add(item);
+			if (i++ > max)
+				treeSet.pollFirst();
 		}
-
 	}
+
+	public TreeSet<T> getTreeMap() {
+		return treeSet;
+	}
+
 }
