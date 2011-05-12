@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web.controller.scheduler;
 
+import java.util.List;
+
 import javax.naming.NamingException;
 
 import org.zkoss.zk.ui.Component;
@@ -34,7 +36,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.scheduler.JobList;
-import com.jaeksoft.searchlib.scheduler.TaskEnum;
+import com.jaeksoft.searchlib.scheduler.TaskEnumItem;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -51,7 +53,7 @@ public class SchedulerEditController extends CommonController {
 
 	private JobItem currentJob;
 
-	private TaskEnum selectedTask;
+	private TaskEnumItem selectedTask;
 
 	private TaskItem currentTask;
 
@@ -83,7 +85,9 @@ public class SchedulerEditController extends CommonController {
 	protected void reset() throws SearchLibException {
 		selectedJob = null;
 		currentJob = new JobItem("New job");
-		setSelectedTask(TaskEnum.DatabaseCrawlerRun);
+		Client client = getClient();
+		if (client != null)
+			setSelectedTask(client.getJobTaskEnum().getFirst());
 	}
 
 	@Override
@@ -124,8 +128,11 @@ public class SchedulerEditController extends CommonController {
 		return !selected();
 	}
 
-	public TaskEnum[] getTaskEnum() {
-		return TaskEnum.values();
+	public List<TaskEnumItem> getTaskEnum() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getJobTaskEnum().getList();
 	}
 
 	/**
@@ -133,7 +140,7 @@ public class SchedulerEditController extends CommonController {
 	 *            the selectedTask to set
 	 * @throws SearchLibException
 	 */
-	public void setSelectedTask(TaskEnum selectedTask)
+	public void setSelectedTask(TaskEnumItem selectedTask)
 			throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -146,7 +153,7 @@ public class SchedulerEditController extends CommonController {
 	/**
 	 * @return the selectedTask
 	 */
-	public TaskEnum getSelectedTask() {
+	public TaskEnumItem getSelectedTask() {
 		return selectedTask;
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,46 +31,25 @@ import com.jaeksoft.searchlib.scheduler.task.TaskOptimizeIndex;
 import com.jaeksoft.searchlib.scheduler.task.TaskReplicationRun;
 import com.jaeksoft.searchlib.scheduler.task.TaskWebCrawlerStart;
 import com.jaeksoft.searchlib.scheduler.task.TaskWebCrawlerStop;
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
-public enum TaskEnum {
+public class TaskEnum extends ExtensibleEnum<TaskEnumItem> {
 
-	DatabaseCrawlerRun(TaskDatabaseCrawlerRun.class),
+	public TaskEnum() {
+		new TaskEnumItem(this, TaskDatabaseCrawlerRun.class);
 
-	FileCrawlerStart(TaskFileCrawlerStart.class),
+		new TaskEnumItem(this, TaskFileCrawlerStart.class);
 
-	FileCrawlerStop(TaskFileCrawlerStop.class),
+		new TaskEnumItem(this, TaskFileCrawlerStop.class);
 
-	OptimizeIndex(TaskOptimizeIndex.class),
+		new TaskEnumItem(this, TaskOptimizeIndex.class);
 
-	ReplicationRun(TaskReplicationRun.class),
+		new TaskEnumItem(this, TaskReplicationRun.class);
 
-	WebCrawlerStart(TaskWebCrawlerStart.class),
+		new TaskEnumItem(this, TaskWebCrawlerStart.class);
 
-	WebCrawlerStop(TaskWebCrawlerStop.class);
+		new TaskEnumItem(this, TaskWebCrawlerStop.class);
 
-	private TaskAbstract task;
-
-	private TaskEnum(Class<? extends TaskAbstract> taskClass) {
-		try {
-			this.task = taskClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * 
-	 * @return the task abstract
-	 */
-	public TaskAbstract getTask() {
-		return task;
-	}
-
-	@Override
-	public String toString() {
-		return task.getName();
 	}
 
 	/**
@@ -79,10 +58,10 @@ public enum TaskEnum {
 	 * @param taskClass
 	 * @return
 	 */
-	public static TaskAbstract findClass(String taskClass) {
-		for (TaskEnum te : values())
-			if (taskClass.equals(te.task.getClass().getSimpleName()))
-				return te.getTask();
+	public TaskAbstract findClass(String taskClass) {
+		for (TaskEnumItem item : getList())
+			if (taskClass.equals(item.getTask().getClass().getSimpleName()))
+				return item.getTask();
 		return null;
 	}
 }

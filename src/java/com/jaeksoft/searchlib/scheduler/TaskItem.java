@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -79,7 +79,8 @@ public class TaskItem {
 		String taskClass = XPathParser.getAttributeString(node, "class");
 		if (taskClass == null)
 			return null;
-		TaskAbstract taskAbstract = TaskEnum.findClass(taskClass);
+		TaskAbstract taskAbstract = config.getJobTaskEnum()
+				.findClass(taskClass);
 		if (taskAbstract == null)
 			return null;
 		TaskItem taskItem = new TaskItem(config, taskAbstract);

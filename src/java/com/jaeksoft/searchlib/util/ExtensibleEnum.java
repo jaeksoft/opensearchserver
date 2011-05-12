@@ -48,7 +48,7 @@ public class ExtensibleEnum<T extends ExtensibleEnumItem<T>> {
 		if (name == null || list == null)
 			return null;
 		for (T item : list)
-			if (item.name.equals(name))
+			if (item.getName().equals(name))
 				return item;
 		return null;
 	}

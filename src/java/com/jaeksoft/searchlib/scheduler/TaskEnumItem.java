@@ -22,30 +22,38 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.scheduler;
 
-public abstract class ExtensibleEnumItem<T extends ExtensibleEnumItem<T>>
-		implements Comparable<T> {
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
+import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
-	private String name;
+public class TaskEnumItem extends ExtensibleEnumItem<TaskEnumItem> {
 
-	@SuppressWarnings("unchecked")
-	protected ExtensibleEnumItem(ExtensibleEnum<T> en, String name) {
-		setName(name);
-		en.add((T) this);
+	private TaskAbstract task;
+
+	protected TaskEnumItem(ExtensibleEnum<TaskEnumItem> en,
+			Class<? extends TaskAbstract> taskClass) {
+		super(en, null);
+		try {
+			this.task = taskClass.newInstance();
+			setName(task.getName());
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	protected void setName(String name) {
-		this.name = name;
-
-	}
-
-	public final String getName() {
-		return name;
+	/**
+	 * 
+	 * @return the task abstract
+	 */
+	public TaskAbstract getTask() {
+		return task;
 	}
 
 	@Override
-	public int compareTo(T o) {
-		return name.compareTo(o.name);
+	public String toString() {
+		return getName();
 	}
 }

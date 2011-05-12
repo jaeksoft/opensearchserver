@@ -94,6 +94,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.scheduler.JobList;
+import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -184,6 +185,8 @@ public abstract class Config {
 	private String urlManagerClass = null;
 
 	private LogReportManager logReportManager = null;
+
+	private TaskEnum taskEnum = null;
 
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists, boolean disableCrawler)
@@ -605,6 +608,23 @@ public abstract class Config {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public TaskEnum getJobTaskEnum() {
+		rwl.r.lock();
+		try {
+			if (taskEnum != null)
+				return taskEnum;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			taskEnum = new TaskEnum();
+			return taskEnum;
 		} finally {
 			rwl.w.unlock();
 		}
