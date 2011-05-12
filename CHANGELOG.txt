@@ -14,7 +14,7 @@ New features:
 - 3266524: Return terms from non stored fields	
 - 3266520: Cache management in Web UI
 - 3253614: Upgrade to PDFBox 1.5.x
-- 2973374: Upgrade to ZKoss 5.0.6
+- 2973374: Upgrade to ZKoss 5.0.x
 - 3213190: Negative filtering
 - 3175074: Screenshot of a webpage
 - 3094822: SiteMap functionnality
