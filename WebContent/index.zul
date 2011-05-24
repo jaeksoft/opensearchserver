@@ -16,8 +16,7 @@
 -->
 <window id="index" border="normal"
 	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/oss_logo_32.png"
-		label="@{index.release}">
+	<caption image="images/oss_logo_32.png" label="@{index.version}">
 		<hbox align="center">
 			<label visible="@{index.logged}" value="Connected as: " />
 			<label visible="@{index.logged}"

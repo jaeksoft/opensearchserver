@@ -19,11 +19,12 @@
 	<panel title="Create a new index" border="normal"
 		visible="@{home.adminOrNoUser}">
 		<panelchildren>
-			<grid>
+			<grid width="100%">
 				<columns sizable="false">
 					<column align="right" width="100px" />
 					<column align="left" width="200px" />
 					<column align="left" />
+					<column width="200px" />
 				</columns>
 				<rows>
 					<row>
@@ -32,6 +33,10 @@
 							width="95%" />
 						<label
 							value="Choose a name for the index that will be created" />
+						<cell rowspan="3">
+							<iframe src="@{home.version.updateUrl}"
+								width="250px" height="100px" scrolling="false" />
+						</cell>
 					</row>
 					<row>
 						<label value="Template: " />
@@ -64,10 +69,12 @@
 			<listbox id="indexlist" selectedItem="@{home.clientName}"
 				mold="paging" pageSize="20" model="@{home.clientCatalog}">
 				<auxhead>
-				<auxheader align="center" label="Index name" />
-				<auxheader align="center" label="Crawl status" colspan="3"/>
-				<auxheader align="center" label="Informations" colspan="2"/>
-				<auxheader align="center" label="Action" />
+					<auxheader align="center" label="Index name" />
+					<auxheader align="center" label="Crawl status"
+						colspan="3" />
+					<auxheader align="center" label="Informations"
+						colspan="2" />
+					<auxheader align="center" label="Action" />
 				</auxhead>
 				<listhead>
 					<listheader />
@@ -78,13 +85,16 @@
 						align="right" />
 					<listheader width="100px" label="Size"
 						align="right" />
-					<listheader width="100px" align="center"  />
+					<listheader width="100px" align="center" />
 				</listhead>
 				<listitem self="@{each='catalogitem'}">
 					<listcell label="@{catalogitem.indexName}" />
-					<listcell label="@{catalogitem.client.webCrawlMaster.statusInfo}" />
-					<listcell label="@{catalogitem.client.databaseCrawlMaster.statusInfo}" />
-					<listcell label="@{catalogitem.client.fileCrawlMaster.statusInfo}" />
+					<listcell
+						label="@{catalogitem.client.webCrawlMaster.statusInfo}" />
+					<listcell
+						label="@{catalogitem.client.databaseCrawlMaster.statusInfo}" />
+					<listcell
+						label="@{catalogitem.client.fileCrawlMaster.statusInfo}" />
 					<listcell
 						tooltiptext="@{catalogitem.lastModifiedFile}"
 						label="@{catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
