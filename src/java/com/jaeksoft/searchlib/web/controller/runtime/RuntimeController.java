@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,10 @@ public class RuntimeController extends CommonController {
 
 	@Override
 	protected void reset() {
+	}
+
+	public boolean isCommandsRights() throws SearchLibException {
+		return isAdminOrNoUser() && isInstanceValid();
 	}
 
 }

@@ -49,29 +49,26 @@ public class IndexController extends CommonController {
 		return " Index: " + indexName;
 	}
 
-	public boolean isQueryRights() throws SearchLibException {
-		if (!isLogged() || !isInstanceValid())
-			return false;
-		if (isNoUserList())
-			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(), Role.GROUP_INDEX);
-	}
-
 	public boolean isCrawlerRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
 		if (isNoUserList())
 			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_WEB_CRAWLER, Role.GROUP_FILE_CRAWLER);
+				Role.GROUP_WEB_CRAWLER, Role.GROUP_FILE_CRAWLER,
+				Role.GROUP_DATABASE_CRAWLER);
+	}
+
+	public boolean isSchedulerRights() throws SearchLibException {
+		return isQueryRights();
+	}
+
+	public boolean isReplicationRights() throws SearchLibException {
+		return isQueryRights();
 	}
 
 	public boolean isRuntimeRights() throws SearchLibException {
-		if (!isLogged() || !isInstanceValid())
-			return false;
-		if (isNoUserList())
-			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(), Role.GROUP_INDEX);
+		return isAdminOrMonitoringOrNoUser() || isInstanceValid();
 	}
 
 	public boolean isPrivilegeRights() throws SearchLibException {

@@ -369,6 +369,14 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return getClient().getIndexName();
 	}
 
+	public boolean isQueryRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(), Role.GROUP_INDEX);
+	}
+
 	public boolean isUpdateRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;

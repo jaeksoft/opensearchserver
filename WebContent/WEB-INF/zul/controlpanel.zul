@@ -32,12 +32,12 @@
 				label="Delete" />
 			<tab id="tabCrawler" visible="@{index.crawlerRights}"
 				label="Crawler" />
-			<tab id="tabScheduler" visible="@{index.runtimeRights}"
+			<tab id="tabScheduler" visible="@{index.schedulerRights}"
 				label="Scheduler" />
 			<tab id="tabRuntime" visible="@{index.runtimeRights}"
 				label="Runtime" />
-			<tab id="tabReplication" visible="@{index.runtimeRights}"
-				label="Replication" />
+			<tab id="tabReplication"
+				visible="@{index.replicationRights}" label="Replication" />
 			<tab id="tabPrivileges" visible="@{index.privilegeRights}"
 				label="Privileges" />
 		</tabs>
