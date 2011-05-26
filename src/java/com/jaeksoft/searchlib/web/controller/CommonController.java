@@ -63,6 +63,8 @@ public abstract class CommonController extends Window implements AfterCompose,
 
 	private AnnotateDataBinder binder = null;
 
+	private static Version version = null;
+
 	public CommonController() throws SearchLibException {
 		super();
 		isComposed = false;
@@ -132,6 +134,19 @@ public abstract class CommonController extends Window implements AfterCompose,
 			else
 				component = component.getParent();
 		return null;
+	}
+
+	private synchronized Version getSyncVersion() throws IOException {
+		if (version != null)
+			return version;
+		version = new Version(getDesktop().getWebApp(), getEdition());
+		return version;
+	}
+
+	public Version getVersion() throws IOException {
+		if (version != null)
+			return version;
+		return getSyncVersion();
 	}
 
 	public Client getClient() throws SearchLibException {
@@ -343,11 +358,23 @@ public abstract class CommonController extends Window implements AfterCompose,
 	protected void eventQueryEditRequest(SearchRequest data) {
 	}
 
+	protected String getEdition() {
+		return "community edition";
+	}
+
 	protected String getIndexName() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
 		return getClient().getIndexName();
+	}
+
+	public boolean isQueryRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(), Role.GROUP_INDEX);
 	}
 
 	public boolean isUpdateRights() throws SearchLibException {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,6 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
 
@@ -38,49 +34,12 @@ public class IndexController extends CommonController {
 	 */
 	private static final long serialVersionUID = -7590913483471357743L;
 
-	private String release;
-
 	public IndexController() throws SearchLibException {
 		super();
 	}
 
 	@Override
 	protected void reset() {
-		release = null;
-	}
-
-	protected String getEdition() {
-		return "community edition";
-	}
-
-	public String getRelease() throws IOException {
-		synchronized (this) {
-			if (release != null)
-				return release;
-			release = "OpenSearchServer (" + getEdition() + ")";
-			InputStream is = null;
-			try {
-				is = getDesktop().getWebApp().getResourceAsStream("/version");
-				if (is != null) {
-					Properties properties = new Properties();
-					properties.load(is);
-					String version = properties.getProperty("VERSION");
-					String stage = properties.getProperty("STAGE");
-					String revision = properties.getProperty("REVISION");
-					String build = properties.getProperty("BUILD");
-
-					release += " v" + version + " - " + stage;
-					if (revision != null)
-						release += " - rev " + revision;
-					if (build != null)
-						release += " - build " + build;
-				}
-			} finally {
-				if (is != null)
-					is.close();
-			}
-			return release;
-		}
 	}
 
 	public String getIndexTitle() throws SearchLibException {
@@ -90,29 +49,26 @@ public class IndexController extends CommonController {
 		return " Index: " + indexName;
 	}
 
-	public boolean isQueryRights() throws SearchLibException {
-		if (!isLogged() || !isInstanceValid())
-			return false;
-		if (isNoUserList())
-			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(), Role.GROUP_INDEX);
-	}
-
 	public boolean isCrawlerRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
 		if (isNoUserList())
 			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_WEB_CRAWLER, Role.GROUP_FILE_CRAWLER);
+				Role.GROUP_WEB_CRAWLER, Role.GROUP_FILE_CRAWLER,
+				Role.GROUP_DATABASE_CRAWLER);
+	}
+
+	public boolean isSchedulerRights() throws SearchLibException {
+		return isQueryRights();
+	}
+
+	public boolean isReplicationRights() throws SearchLibException {
+		return isQueryRights();
 	}
 
 	public boolean isRuntimeRights() throws SearchLibException {
-		if (!isLogged() || !isInstanceValid())
-			return false;
-		if (isNoUserList())
-			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(), Role.GROUP_INDEX);
+		return isAdminOrMonitoringOrNoUser() || isInstanceValid();
 	}
 
 	public boolean isPrivilegeRights() throws SearchLibException {

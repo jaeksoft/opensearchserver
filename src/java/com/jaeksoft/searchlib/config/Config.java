@@ -265,8 +265,10 @@ public abstract class Config {
 			xmlWriter.startElement("configuration");
 			getIndex().writeXmlConfig(xmlWriter);
 			getSchema().writeXmlConfig(xmlWriter);
-			if (urlManagerClass != null)
+			if (urlManagerClass != null) {
 				xmlWriter.startElement("urlManager", "class", urlManagerClass);
+				xmlWriter.endElement();
+			}
 			getStatisticsList().writeXmlConfig(xmlWriter);
 			IndexPluginTemplateList iptl = getIndexPluginTemplateList();
 			if (iptl != null)

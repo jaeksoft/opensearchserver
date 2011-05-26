@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.2
 
 New features:
+- 3307328: Update notification
 - 3300872: Scheduler task list extensible
 - 3287318: Upgrade to seleniumhq 2.x	
 - 3266524: Return terms from non stored fields	
@@ -20,6 +21,7 @@ New features:
 - 3094822: SiteMap functionnality
 
 Bug fixes:
+- 3307873: Runtime/System panel not visible
 - 3290939: NPE when no default field is selected
 - 3278815: The language is not detected in PDF files
 - 3192429: Not the correct definition of the Russian language

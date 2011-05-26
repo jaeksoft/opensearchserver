@@ -1,6 +1,6 @@
 <!--
 	License Agreement for Jaeksoft OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of Jaeksoft OpenSearchServer.
 	Jaeksoft OpenSearchServer is free software: you can
@@ -19,14 +19,19 @@
 	<tabbox>
 		<tabs>
 			<tab id="tabRuntimeStatistics" label="Statistics"
-				selected="true" />
+				selected="@{runtime.instanceValid}"
+				visible="@{runtime.instanceValid}" />
 			<tab id="tabRuntimeCommands" label="Commands"
-				visible="@{runtime.adminOrNoUser}" />
-			<tab id="tabRuntimeCache" label="Cache" />
-			<tab id="tabRuntimeIndex" label="Index" />
-			<tab id="tabRuntimeTerms" label="Terms" />
+				visible="@{runtime.commandsRights}" />
+			<tab id="tabRuntimeCache" label="Cache"
+				visible="@{runtime.instanceValid}" />
+			<tab id="tabRuntimeIndex" label="Index"
+				visible="@{runtime.instanceValid}" />
+			<tab id="tabRuntimeTerms" label="Terms"
+				visible="@{runtime.instanceValid}" />
 			<tab id="tabRuntimeSystem" label="System"
-				visible="@{runtime.adminOrMonitoringOrNoUser}" />
+				visible="@{runtime.adminOrMonitoringOrNoUser}"
+				selected="@{runtime.instanceNotValid}" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -44,7 +49,7 @@
 			<tabpanel fulfill="tabRuntimeTerms.onSelect">
 				<include src="WEB-INF/zul/runtime/terms.zul" />
 			</tabpanel>
-			<tabpanel fulfill="tabRuntimeSystem.onSelect">
+			<tabpanel>
 				<include src="WEB-INF/zul/runtime/system.zul" />
 			</tabpanel>
 		</tabpanels>

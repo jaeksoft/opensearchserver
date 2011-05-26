@@ -55,10 +55,6 @@ public class StreamWriteObject {
 			}
 			oos = null;
 		}
-		/*
-		 * if (gos != null) { try { if (bFlush) gos.flush(); gos.close(); }
-		 * catch (IOException e) { e.printStackTrace(); } gos = null; }
-		 */
 	}
 
 }

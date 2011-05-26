@@ -32,7 +32,12 @@ if [ ! -x "$EXECUTABLE" ]; then
     exit 1
 fi
 
-CONFIGFILE=/etc/sysconfig/opensearchserver
+SYSCONFIGFILE=/etc/sysconfig/opensearchserver
+if [ -f "$SYSCONFIGFILE" ]; then
+    . "$SYSCONFIGFILE"
+fi
+
+CONFIGFILE=/etc/opensearchserver
 if [ -f "$CONFIGFILE" ]; then
     . "$CONFIGFILE"
 fi
