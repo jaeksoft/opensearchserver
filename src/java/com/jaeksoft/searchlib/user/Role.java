@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,7 +46,11 @@ public enum Role {
 
 	DATABASE_CRAWLER_EDIT_PARAMETERS("Database crawler: edit parameters"),
 
-	DATABASE_CRAWLER_START_STOP("Database crawler: start  and stop");
+	DATABASE_CRAWLER_START_STOP("Database crawler: start  and stop"),
+
+	CONNECTOR_CRAWLER_EDIT("Connector crawler: edit"),
+
+	CONNECTOR_CRAWLER_EXECUTE("connector crawler: execute");
 
 	private String label;
 
@@ -61,6 +65,9 @@ public enum Role {
 
 	public static Role[] GROUP_DATABASE_CRAWLER = {
 			DATABASE_CRAWLER_EDIT_PARAMETERS, DATABASE_CRAWLER_START_STOP };
+
+	public static Role[] GROUP_CONNECTOR_CRAWLER = { CONNECTOR_CRAWLER_EDIT,
+			CONNECTOR_CRAWLER_EXECUTE };
 
 	private Role(String label) {
 		this.label = label;

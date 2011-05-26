@@ -139,4 +139,30 @@ public class CrawlerController extends CommonController {
 				Role.DATABASE_CRAWLER_START_STOP);
 	}
 
+	public boolean isConnectorCrawlerRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.GROUP_CONNECTOR_CRAWLER);
+	}
+
+	public boolean isConnectorCrawlerEditRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.CONNECTOR_CRAWLER_EDIT);
+	}
+
+	public boolean isConnectorCrawlerExecuteRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.CONNECTOR_CRAWLER_EXECUTE);
+	}
 }

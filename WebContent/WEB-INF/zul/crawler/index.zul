@@ -21,9 +21,11 @@
 			<tab id="tabWebCrawler" label="Web" selected="true"
 				visible="@{crawler.webCrawlerRights}" />
 			<tab id="tabDatabaseCrawler" label="Database"
-				visible="@{crawler.fileCrawlerRights}" />
+				visible="@{crawler.databaseCrawlerRights}" />
 			<tab id="tabFileCrawler" label="Files"
 				visible="@{crawler.fileCrawlerRights}" />
+			<tab id="tabConnectorCrawler" label="Connector"
+				visible="@{crawler.connectorCrawlerRights}" />
 		</tabs>
 
 		<tabpanels>
@@ -38,6 +40,10 @@
 
 			<tabpanel fulfill="tabFileCrawler.onSelect">
 				<include src="WEB-INF/zul/crawler/file/index.zul" />
+			</tabpanel>
+
+			<tabpanel fulfill="tabConnectorCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/connector/index.zul" />
 			</tabpanel>
 
 		</tabpanels>
