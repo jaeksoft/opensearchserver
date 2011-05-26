@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.2
 
 New features:
+- 3307328: Update notification
 - 3300872: Scheduler task list extensible
 - 3287318: Upgrade to seleniumhq 2.x	
 - 3266524: Return terms from non stored fields	
