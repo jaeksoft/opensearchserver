@@ -45,7 +45,7 @@ public class ScreenshotServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = -3693856378071358552L;
 
-	private void doCapture(ServletTransaction transaction,
+	final public static void doCapture(ServletTransaction transaction,
 			ScreenshotManager screenshotManager,
 			CredentialManager credentialManager, URL url)
 			throws SearchLibException, MalformedURLException {
@@ -55,10 +55,11 @@ public class ScreenshotServlet extends AbstractServlet {
 		CredentialItem credentialItem = credentialManager.getCredential(url
 				.toExternalForm());
 		screenshotManager.capture(url, credentialItem, true, 300);
-		transaction.addXmlResponse("Status", "OK");
+		if (transaction != null)
+			transaction.addXmlResponse("Status", "OK");
 	}
 
-	final private String getPublicFileName(File file) {
+	final private static String getPublicFileName(File file) {
 		StringBuffer sb = new StringBuffer(file.getName());
 		File p = file.getParentFile();
 		sb.insert(0, p.getName());
@@ -67,26 +68,22 @@ public class ScreenshotServlet extends AbstractServlet {
 		return sb.toString();
 	}
 
-	private void doImage(ServletTransaction transaction,
+	final public static void doImage(ServletTransaction transaction,
 			ScreenshotManager screenshotManager, URL url)
 			throws SearchLibException {
 		File file = screenshotManager.getPngFile(url);
-		if (file == null) {
-			transaction.addXmlResponse("Error", "File not found");
-			return;
-		}
-		transaction.sendFile(file, getPublicFileName(file), "image/png");
+		if (file == null)
+			throw new SearchLibException("File not found");
+		if (transaction != null)
+			transaction.sendFile(file, getPublicFileName(file), "image/png");
 	}
 
-	private void doCheck(ServletTransaction transaction,
-			ScreenshotManager screenshotManager, URL url)
-			throws SearchLibException {
+	final public static String doCheck(ScreenshotManager screenshotManager,
+			URL url) throws SearchLibException {
 		File file = screenshotManager.getPngFile(url);
-		if (file == null) {
-			transaction.addXmlResponse("Error", "File not found");
-			return;
-		}
-		transaction.addXmlResponse("Check", getPublicFileName(file));
+		if (file == null)
+			throw new SearchLibException("File not found");
+		return getPublicFileName(file);
 	}
 
 	public final static String captureUrl(StringBuffer sbBaseUrl,
@@ -128,11 +125,11 @@ public class ScreenshotServlet extends AbstractServlet {
 			else if ("image".equalsIgnoreCase(action))
 				doImage(transaction, screenshotManager, url);
 			else if ("check".equalsIgnoreCase(action))
-				doCheck(transaction, screenshotManager, url);
+				transaction.addXmlResponse("Check",
+						doCheck(screenshotManager, url));
 
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
-
 }

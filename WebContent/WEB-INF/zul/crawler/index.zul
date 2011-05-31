@@ -42,10 +42,6 @@
 				<include src="WEB-INF/zul/crawler/file/index.zul" />
 			</tabpanel>
 
-			<tabpanel fulfill="tabConnectorCrawler.onSelect">
-				<include src="WEB-INF/zul/crawler/connector/index.zul" />
-			</tabpanel>
-
 		</tabpanels>
 	</tabbox>
 </window>
