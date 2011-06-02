@@ -44,7 +44,7 @@ public class CacheController extends CommonController {
 	 */
 	private static final long serialVersionUID = 6570698209309006505L;
 
-	private List<LRUCache<?, ?>> cacheList;
+	private transient List<LRUCache<?, ?>> cacheList;
 
 	public CacheController() throws SearchLibException {
 		super();

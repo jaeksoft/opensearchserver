@@ -61,9 +61,9 @@ public class ResultController extends AbstractQueryController implements
 	 */
 	private static final long serialVersionUID = -3462760563129892850L;
 
-	private List<Document> documents;
+	private transient List<Document> documents;
 
-	private Facet selectedFacet;
+	private transient Facet selectedFacet;
 
 	public ResultController() throws SearchLibException {
 		super();

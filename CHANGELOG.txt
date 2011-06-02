@@ -13,6 +13,7 @@ New features:
 - 3310489: Web Crawler API
 
 Bug fixes:
+- 3310825: WriteAbortedException in catalina.out when Tomcat restarts
 - 3310716: Index deletion and re-creation issue
 
 OpenSearchServer 1.2.2

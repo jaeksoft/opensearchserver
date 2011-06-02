@@ -45,11 +45,11 @@ public class HomeController extends CommonController {
 	 */
 	private static final long serialVersionUID = 2896471240596574094L;
 
-	private String indexName;
+	private transient String indexName;
 
-	private TemplateList indexTemplate;
+	private transient TemplateList indexTemplate;
 
-	private Set<ClientCatalogItem> catalogItems;
+	private transient Set<ClientCatalogItem> catalogItems;
 
 	public HomeController() throws SearchLibException {
 		super();
@@ -134,7 +134,7 @@ public class HomeController extends CommonController {
 
 	private class EraseIndexAlert extends AlertController {
 
-		private String indexName;
+		private transient String indexName;
 
 		protected EraseIndexAlert(String indexName) throws InterruptedException {
 			super("Please, confirm that you want to erase the index: "

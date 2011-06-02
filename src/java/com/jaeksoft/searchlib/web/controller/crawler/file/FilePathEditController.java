@@ -53,15 +53,15 @@ public class FilePathEditController extends CommonController {
 	 */
 	private static final long serialVersionUID = -46755671370102218L;
 
-	private FilePathItem selectedFilePath;
+	private transient FilePathItem selectedFilePath;
 
-	private FilePathItem currentFilePath;
+	private transient FilePathItem currentFilePath;
 
-	private File currentFile;
+	private transient File currentFile;
 
-	private File currentFolder;
+	private transient File currentFolder;
 
-	private List<File> currentFolderList;
+	private transient List<File> currentFolderList;
 
 	private class DeleteAlert extends AlertController {
 

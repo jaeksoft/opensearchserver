@@ -42,13 +42,13 @@ public class RobotsTxtController extends CrawlerController {
 	 */
 	private static final long serialVersionUID = -5532994554753193496L;
 
-	private int pageSize;
+	private transient int pageSize;
 
-	private String searchString;
+	private transient String searchString;
 
-	private RobotsTxt[] robotsTxtList;
+	private transient RobotsTxt[] robotsTxtList;
 
-	private RobotsTxt selectedRobotsTxt;
+	private transient RobotsTxt selectedRobotsTxt;
 
 	public RobotsTxtController() throws SearchLibException {
 		super();

@@ -47,9 +47,9 @@ public class ManualWebCrawlController extends CommonController {
 	 */
 	private static final long serialVersionUID = 4805144758692963031L;
 
-	private String url;
+	private transient String url;
 
-	private WebCrawlThread currentCrawlThread;
+	private transient WebCrawlThread currentCrawlThread;
 
 	public ManualWebCrawlController() throws SearchLibException {
 		super();

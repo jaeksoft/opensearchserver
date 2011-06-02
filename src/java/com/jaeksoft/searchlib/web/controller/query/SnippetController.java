@@ -45,11 +45,11 @@ public class SnippetController extends AbstractQueryController {
 	 */
 	private static final long serialVersionUID = -1641413871487856522L;
 
-	private String selectedSnippet;
+	private transient String selectedSnippet;
 
-	private List<String> snippetFieldLeft;
+	private transient List<String> snippetFieldLeft;
 
-	private RowRenderer rowRenderer;
+	private transient RowRenderer rowRenderer;
 
 	public SnippetController() throws SearchLibException {
 		super();

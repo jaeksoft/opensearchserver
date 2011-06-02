@@ -38,7 +38,7 @@ public class SchedulerLogsController extends CommonController {
 	 */
 	private static final long serialVersionUID = -7922439239702754021L;
 
-	private JobItem selectedJob;
+	private transient JobItem selectedJob;
 
 	public SchedulerLogsController() throws SearchLibException, NamingException {
 		super();

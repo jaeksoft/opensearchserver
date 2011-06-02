@@ -48,11 +48,11 @@ public class RendererController extends CommonController {
 	 */
 	private static final long serialVersionUID = 481885249271682931L;
 
-	private Renderer selectedRenderer;
-	private Renderer currentRenderer;
-	private boolean isTestable;
-	private RendererField currentRendererField;
-	private RendererField selectedRendererField;
+	private transient Renderer selectedRenderer;
+	private transient Renderer currentRenderer;
+	private transient boolean isTestable;
+	private transient RendererField currentRendererField;
+	private transient RendererField selectedRendererField;
 
 	private class DeleteAlert extends AlertController {
 

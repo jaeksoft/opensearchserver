@@ -38,7 +38,7 @@ public class CrawlFileController extends CrawlerController {
 	 */
 	private static final long serialVersionUID = 5309269960746544920L;
 
-	private int sheetRows;
+	private transient int sheetRows;
 
 	public CrawlFileController() throws SearchLibException {
 		super();

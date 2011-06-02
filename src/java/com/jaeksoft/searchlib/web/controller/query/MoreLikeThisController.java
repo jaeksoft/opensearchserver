@@ -43,11 +43,11 @@ public class MoreLikeThisController extends AbstractQueryController {
 	 */
 	private static final long serialVersionUID = -2872605532103762800L;
 
-	private List<String> fieldsLeft;
+	private transient List<String> fieldsLeft;
 
-	private List<String> stopWordsList;
+	private transient List<String> stopWordsList;
 
-	private String selectedField;
+	private transient String selectedField;
 
 	public MoreLikeThisController() throws SearchLibException {
 		super();

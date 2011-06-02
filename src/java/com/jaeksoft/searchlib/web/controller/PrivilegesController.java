@@ -43,19 +43,19 @@ public class PrivilegesController extends CommonController {
 	 */
 	private static final long serialVersionUID = -7649444539904657758L;
 
-	private User user;
+	private transient User user;
 
-	private String confirmPassword;
+	private transient String confirmPassword;
 
-	private String selectedUserName;
+	private transient String selectedUserName;
 
-	private IndexRole selectedIndexRole;
+	private transient IndexRole selectedIndexRole;
 
-	private ClientCatalogItem selectedIndex;
+	private transient ClientCatalogItem selectedIndex;
 
-	private String selectedRole;
+	private transient String selectedRole;
 
-	private Set<ClientCatalogItem> indexList;
+	private transient Set<ClientCatalogItem> indexList;
 
 	public PrivilegesController() throws SearchLibException {
 		super();

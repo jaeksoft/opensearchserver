@@ -44,13 +44,13 @@ public class RepositoryController extends CrawlerController {
 	 */
 	private static final long serialVersionUID = -1207354816338087824L;
 
-	private List<FilePathItem> filePathItemList = null;
+	private transient List<FilePathItem> filePathItemList = null;
 
-	private int pageSize;
+	private transient int pageSize;
 
-	private int totalSize;
+	private transient int totalSize;
 
-	private int activePage;
+	private transient int activePage;
 
 	public RepositoryController() throws SearchLibException {
 		super();

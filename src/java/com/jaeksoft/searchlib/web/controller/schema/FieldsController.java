@@ -48,15 +48,15 @@ public class FieldsController extends CommonController {
 	 */
 	private static final long serialVersionUID = -8974865544547689492L;
 
-	private SchemaField field;
+	private transient SchemaField field;
 
-	private SchemaField selectedField;
+	private transient SchemaField selectedField;
 
-	private List<String> indexedFields;
+	private transient List<String> indexedFields;
 
-	private List<SchemaField> schemaFieldList;
+	private transient List<SchemaField> schemaFieldList;
 
-	private List<String> analyzerNameList;
+	private transient List<String> analyzerNameList;
 
 	public FieldsController() throws SearchLibException {
 		super();

@@ -59,11 +59,11 @@ public abstract class CommonController extends Window implements AfterCompose,
 	 */
 	private static final long serialVersionUID = -3581269068713587866L;
 
-	private boolean isComposed;
+	private transient boolean isComposed;
 
-	private AnnotateDataBinder binder = null;
+	private transient AnnotateDataBinder binder = null;
 
-	private static Version version = null;
+	private transient static Version version = null;
 
 	public CommonController() throws SearchLibException {
 		super();

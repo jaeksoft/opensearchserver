@@ -42,13 +42,13 @@ public abstract class CommonDirectoryController extends CommonController {
 	 */
 	private static final long serialVersionUID = 8852402691915840607L;
 
-	private String editName;
+	private transient String editName;
 
-	private String content;
+	private transient String content;
 
 	protected class DeleteAlert extends AlertController {
 
-		private String deleteListName;
+		private transient String deleteListName;
 
 		protected DeleteAlert(String listname) throws InterruptedException {
 			super("Please, confirm that you want to delete the list: "

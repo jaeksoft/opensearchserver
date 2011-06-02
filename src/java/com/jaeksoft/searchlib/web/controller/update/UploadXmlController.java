@@ -48,7 +48,7 @@ public class UploadXmlController extends CommonController {
 	 */
 	private static final long serialVersionUID = 1806972305859799181L;
 
-	private int updatedCount;
+	private transient int updatedCount;
 
 	public UploadXmlController() throws SearchLibException {
 		super();

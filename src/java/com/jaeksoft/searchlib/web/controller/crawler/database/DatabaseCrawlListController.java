@@ -75,17 +75,17 @@ public class DatabaseCrawlListController extends CrawlerController {
 		}
 	}
 
-	private DatabaseCrawl currentCrawl;
+	private transient DatabaseCrawl currentCrawl;
 
-	private DatabaseCrawl selectedCrawl;
+	private transient DatabaseCrawl selectedCrawl;
 
-	private DatabaseCrawlList dbCrawlList;
+	private transient DatabaseCrawlList dbCrawlList;
 
-	private String sqlColumn;
+	private transient String sqlColumn;
 
-	private SchemaField selectedIndexField;
+	private transient SchemaField selectedIndexField;
 
-	private DatabaseFieldTarget dbFieldTarget;
+	private transient DatabaseFieldTarget dbFieldTarget;
 
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {

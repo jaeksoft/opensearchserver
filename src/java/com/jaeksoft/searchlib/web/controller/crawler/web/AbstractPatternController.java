@@ -51,19 +51,19 @@ public abstract class AbstractPatternController extends CrawlerController
 	 */
 	private static final long serialVersionUID = 8704978554029382442L;
 
-	transient private List<PatternItem> patternList = null;
+	private transient List<PatternItem> patternList;
 
-	private String like;
+	private transient String like;
 
-	private String pattern;
+	private transient String pattern;
 
-	private int pageSize;
+	private transient int pageSize;
 
-	private int totalSize;
+	private transient int totalSize;
 
-	private int activePage;
+	private transient int activePage;
 
-	private Set<String> selection;
+	private transient Set<String> selection;
 
 	public AbstractPatternController() throws SearchLibException {
 		super();

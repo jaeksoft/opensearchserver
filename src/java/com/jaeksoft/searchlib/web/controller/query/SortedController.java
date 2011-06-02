@@ -51,9 +51,9 @@ public class SortedController extends AbstractQueryController implements
 	 */
 	private static final long serialVersionUID = -6525895947880411384L;
 
-	private String selectedSort;
+	private transient String selectedSort;
 
-	private List<String> sortFieldLeft;
+	private transient List<String> sortFieldLeft;
 
 	public SortedController() throws SearchLibException {
 		super();

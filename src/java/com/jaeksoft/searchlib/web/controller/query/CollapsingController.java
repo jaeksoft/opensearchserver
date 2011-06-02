@@ -39,7 +39,7 @@ public class CollapsingController extends AbstractQueryController {
 	 */
 	private static final long serialVersionUID = 4269436181925550723L;
 
-	private List<String> indexedFields;
+	private transient List<String> indexedFields;
 
 	public CollapsingController() throws SearchLibException {
 		super();

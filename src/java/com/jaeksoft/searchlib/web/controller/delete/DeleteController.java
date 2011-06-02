@@ -88,9 +88,9 @@ public class DeleteController extends CommonController {
 
 	}
 
-	private SearchRequest request;
+	private transient SearchRequest request;
 
-	private boolean isChecked;
+	private transient boolean isChecked;
 
 	public DeleteController() throws SearchLibException {
 		super();

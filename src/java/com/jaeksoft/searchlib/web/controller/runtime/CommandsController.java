@@ -42,9 +42,9 @@ public class CommandsController extends CommonController {
 	 */
 	private static final long serialVersionUID = -7911006190658783502L;
 
-	private Date lastReload;
+	private transient Date lastReload;
 
-	private Date lastOptimize;
+	private transient Date lastOptimize;
 
 	public CommandsController() throws SearchLibException {
 		super();

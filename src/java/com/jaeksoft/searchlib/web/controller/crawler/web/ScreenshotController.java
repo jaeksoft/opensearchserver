@@ -54,13 +54,13 @@ public class ScreenshotController extends CrawlerController {
 	 */
 	private static final long serialVersionUID = 5859798476907958475L;
 
-	private URL url;
+	private transient URL url;
 
-	private ScreenshotThread currentScreenshotThread;
+	private transient ScreenshotThread currentScreenshotThread;
 
-	private BufferedImage currentImage;
+	private transient BufferedImage currentImage;
 
-	private LastModifiedAndSize screenshotInfos;
+	private transient LastModifiedAndSize screenshotInfos;
 
 	public ScreenshotController() throws SearchLibException {
 		super();
@@ -72,6 +72,7 @@ public class ScreenshotController extends CrawlerController {
 		url = null;
 		currentScreenshotThread = null;
 		currentImage = null;
+		screenshotInfos = null;
 	}
 
 	/**

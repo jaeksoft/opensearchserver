@@ -48,9 +48,9 @@ public class ReturnedController extends AbstractQueryController implements
 	 */
 	private static final long serialVersionUID = -9118404394554950556L;
 
-	private String selectedReturn;
+	private transient String selectedReturn;
 
-	private List<String> fieldLeft;
+	private transient List<String> fieldLeft;
 
 	public ReturnedController() throws SearchLibException {
 		super();

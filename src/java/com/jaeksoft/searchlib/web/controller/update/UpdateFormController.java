@@ -59,11 +59,11 @@ public class UpdateFormController extends CommonController implements
 	 */
 	private static final long serialVersionUID = 1542486102205983915L;
 
-	private IndexDocument indexDocument;
+	private transient IndexDocument indexDocument;
 
-	private List<FieldDocument> fieldDocumentList;
+	private transient List<FieldDocument> fieldDocumentList;
 
-	private SchemaField selectedField;
+	private transient SchemaField selectedField;
 
 	public UpdateFormController() throws SearchLibException {
 		super();

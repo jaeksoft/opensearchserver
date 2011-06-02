@@ -53,9 +53,9 @@ public class MappingController extends CrawlerController implements
 	 */
 	private static final long serialVersionUID = 4912079093808208146L;
 
-	private SchemaField selectedUrlField;
+	private transient SchemaField selectedUrlField;
 
-	private SchemaField selectedIndexField;
+	private transient SchemaField selectedIndexField;
 
 	public MappingController() throws SearchLibException {
 		super();

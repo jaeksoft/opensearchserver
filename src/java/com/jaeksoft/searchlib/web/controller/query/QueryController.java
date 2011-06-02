@@ -55,9 +55,9 @@ public final class QueryController extends AbstractQueryController {
 	 */
 	private static final long serialVersionUID = 3182630816725436838L;
 
-	private String requestName;
+	private transient String requestName;
 
-	private Entry<String, SearchRequest> selectedRequest;
+	private transient Entry<String, SearchRequest> selectedRequest;
 
 	public QueryController() throws SearchLibException {
 		super();

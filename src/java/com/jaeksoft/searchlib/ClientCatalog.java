@@ -62,7 +62,7 @@ public class ClientCatalog {
 	public static final String OPENSEARCHSERVER_DATA = System
 			.getenv("OPENSEARCHSERVER_DATA");
 
-	private static volatile Map<File, Client> CLIENTS = new TreeMap<File, Client>();
+	private static transient volatile Map<File, Client> CLIENTS = new TreeMap<File, Client>();
 
 	private static final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(
 			true);

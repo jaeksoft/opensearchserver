@@ -49,17 +49,17 @@ public class SchedulerEditController extends CommonController {
 	 */
 	private static final long serialVersionUID = -5736529335058096440L;
 
-	private JobItem selectedJob;
+	private transient JobItem selectedJob;
 
-	private JobItem currentJob;
+	private transient JobItem currentJob;
 
-	private TaskEnumItem selectedTask;
+	private transient TaskEnumItem selectedTask;
 
-	private TaskItem currentTask;
+	private transient TaskItem currentTask;
 
 	private class DeleteAlert extends AlertController {
 
-		private JobItem deleteJob;
+		private transient JobItem deleteJob;
 
 		protected DeleteAlert(JobItem deleteJob) throws InterruptedException {
 			super("Please, confirm that you want to delete the job: "

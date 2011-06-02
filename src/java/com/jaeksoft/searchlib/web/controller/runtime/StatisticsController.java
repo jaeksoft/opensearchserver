@@ -39,13 +39,13 @@ public class StatisticsController extends CommonController {
 	 */
 	private static final long serialVersionUID = 2420054165684926096L;
 
-	private StatisticsAbstract selectedStat;
+	private transient StatisticsAbstract selectedStat;
 
-	private StatisticTypeEnum selectedType;
+	private transient StatisticTypeEnum selectedType;
 
-	private List<StatisticsAbstract> statList;
+	private transient List<StatisticsAbstract> statList;
 
-	private Boolean showLastError;
+	private transient Boolean showLastError;
 
 	public StatisticsController() throws SearchLibException {
 		super();

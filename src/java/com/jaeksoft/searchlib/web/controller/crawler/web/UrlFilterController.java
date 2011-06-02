@@ -42,7 +42,7 @@ public class UrlFilterController extends CrawlerController {
 
 	private class DeleteAlert extends AlertController {
 
-		private UrlFilterItem urlFilterItem;
+		private transient UrlFilterItem urlFilterItem;
 
 		protected DeleteAlert(UrlFilterItem urlFilterItem)
 				throws InterruptedException {
@@ -60,9 +60,9 @@ public class UrlFilterController extends CrawlerController {
 		}
 	}
 
-	private UrlFilterItem selectedFilter;
+	private transient UrlFilterItem selectedFilter;
 
-	private UrlFilterItem currentFilter;
+	private transient UrlFilterItem currentFilter;
 
 	public UrlFilterController() throws SearchLibException {
 		super();

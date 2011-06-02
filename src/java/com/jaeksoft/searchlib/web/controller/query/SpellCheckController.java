@@ -43,11 +43,11 @@ public class SpellCheckController extends AbstractQueryController {
 	 */
 	private static final long serialVersionUID = -5132791474383971273L;
 
-	private String selectedField;
+	private transient String selectedField;
 
-	private List<String> fieldLeft;
+	private transient List<String> fieldLeft;
 
-	private RowRenderer rowRenderer;
+	private transient RowRenderer rowRenderer;
 
 	public SpellCheckController() throws SearchLibException {
 		super();

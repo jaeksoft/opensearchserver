@@ -38,7 +38,7 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 	 */
 	private static final long serialVersionUID = -1902174922255951773L;
 
-	private boolean debug;
+	private transient boolean debug = false;
 
 	public DatabaseCrawlProcessController() throws SearchLibException,
 			NamingException {

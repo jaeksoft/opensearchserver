@@ -61,27 +61,27 @@ public class AnalyzersController extends CommonController implements
 	 */
 	private static final long serialVersionUID = -556387199220890770L;
 
-	private String selectedName;
+	private transient String selectedName;
 
-	private Analyzer selectedAnalyzer;
+	private transient Analyzer selectedAnalyzer;
 
-	private Analyzer editAnalyzer;
+	private transient Analyzer editAnalyzer;
 
-	private Analyzer currentAnalyzer;
+	private transient Analyzer currentAnalyzer;
 
-	private FilterFactory currentFilter;
+	private transient FilterFactory currentFilter;
 
-	private FilterEnum selectedFilter;
+	private transient FilterEnum selectedFilter;
 
-	private String testText;
+	private transient String testText;
 
-	private String testType;
+	private transient String testType;
 
-	private List<DebugTokenFilter> testList;
+	private transient List<DebugTokenFilter> testList;
 
 	private class DeleteAlert extends AlertController {
 
-		private Analyzer deleteAnalyzer;
+		private transient Analyzer deleteAnalyzer;
 
 		protected DeleteAlert(Analyzer deleteAnalyzer)
 				throws InterruptedException {

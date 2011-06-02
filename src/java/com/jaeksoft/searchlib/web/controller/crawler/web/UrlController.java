@@ -56,11 +56,11 @@ public class UrlController extends CommonController implements AfterCompose {
 	 */
 	private static final long serialVersionUID = 2429849843906661914L;
 
-	private List<UrlItem> urlList;
+	private transient List<UrlItem> urlList;
 
-	private int totalSize;
+	private transient int totalSize;
 
-	private int activePage;
+	private transient int activePage;
 
 	public UrlController() throws SearchLibException {
 		super();

@@ -46,25 +46,25 @@ public class CredentialController extends CrawlerController {
 	 */
 	private static final long serialVersionUID = -3206340453522545180L;
 
-	transient private List<CredentialItem> credentialList = null;
+	private transient List<CredentialItem> credentialList;
 
-	private String like;
+	private transient String like;
 
-	private String pattern;
+	private transient String pattern;
 
-	private int pageSize;
+	private transient int pageSize;
 
-	private int totalSize;
+	private transient int totalSize;
 
-	private int activePage;
+	private transient int activePage;
 
-	private CredentialItem selectedCredential;
+	private transient CredentialItem selectedCredential;
 
-	private CredentialItem currentCredential;
+	private transient CredentialItem currentCredential;
 
 	private class DeleteAlert extends AlertController {
 
-		private CredentialItem deleteCredential;
+		private transient CredentialItem deleteCredential;
 
 		protected DeleteAlert(CredentialItem deleteCredential)
 				throws InterruptedException {

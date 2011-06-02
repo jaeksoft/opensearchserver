@@ -54,7 +54,7 @@ public class UploadDocumentController extends CommonController {
 	 */
 	private static final long serialVersionUID = -5038289778698152000L;
 
-	private Panelchildren basketComponent;
+	private transient Panelchildren basketComponent;
 
 	public UploadDocumentController() throws SearchLibException {
 		super();

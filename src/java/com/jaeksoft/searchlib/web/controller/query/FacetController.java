@@ -44,11 +44,11 @@ public class FacetController extends AbstractQueryController {
 	 */
 	private static final long serialVersionUID = 5748867672639969504L;
 
-	private String selectedFacet;
+	private transient String selectedFacet;
 
-	private List<String> fieldLeft;
+	private transient List<String> fieldLeft;
 
-	private RowRenderer rowRenderer;
+	private transient RowRenderer rowRenderer;
 
 	public FacetController() throws SearchLibException {
 		super();

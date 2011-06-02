@@ -35,7 +35,7 @@ public class SystemController extends CommonController {
 	 */
 	private static final long serialVersionUID = -6358001462419893725L;
 
-	private Monitor monitor;
+	private transient Monitor monitor;
 
 	public SystemController() throws SearchLibException {
 		super();

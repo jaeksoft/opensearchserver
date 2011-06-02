@@ -41,7 +41,7 @@ public class SiteMapController extends CrawlerController {
 
 	private class DeleteAlert extends AlertController {
 
-		private SiteMapItem siteMapItem;
+		private transient SiteMapItem siteMapItem;
 
 		protected DeleteAlert(SiteMapItem siteMapItem)
 				throws InterruptedException {
@@ -59,9 +59,9 @@ public class SiteMapController extends CrawlerController {
 		}
 	}
 
-	private SiteMapItem selectedSiteMap;
+	private transient SiteMapItem selectedSiteMap;
 
-	private SiteMapItem currentSiteMap;
+	private transient SiteMapItem currentSiteMap;
 
 	public SiteMapController() throws SearchLibException {
 		super();

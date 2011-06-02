@@ -45,9 +45,9 @@ public class ReplicationController extends CommonController {
 	 */
 	private static final long serialVersionUID = 1517834105476217906L;
 
-	private ReplicationItem selectedItem;
+	private transient ReplicationItem selectedItem;
 
-	private ReplicationItem currentItem;
+	private transient ReplicationItem currentItem;
 
 	public ReplicationController() throws SearchLibException, NamingException {
 		super();

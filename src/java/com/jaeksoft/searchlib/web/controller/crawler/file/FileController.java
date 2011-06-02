@@ -53,11 +53,11 @@ public class FileController extends CrawlerController implements AfterCompose {
 	 */
 	private static final long serialVersionUID = 2429849843906661914L;
 
-	private List<FileItem> fileList;
+	private transient List<FileItem> fileList;
 
-	private int totalSize;
+	private transient int totalSize;
 
-	private int activePage;
+	private transient int activePage;
 
 	public FileController() throws SearchLibException {
 		super();

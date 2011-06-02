@@ -71,15 +71,15 @@ public class TermController extends CommonController {
 		}
 	}
 
-	private List<TermFreq> termList;
+	private transient List<TermFreq> termList;
 
-	private String searchTerm;
+	private transient String searchTerm;
 
-	private TermEnum currentTermEnum;
+	private transient TermEnum currentTermEnum;
 
-	private List<String> fieldList;
+	private transient List<String> fieldList;
 
-	private String currentField;
+	private transient String currentField;
 
 	public TermController() throws SearchLibException {
 		super();

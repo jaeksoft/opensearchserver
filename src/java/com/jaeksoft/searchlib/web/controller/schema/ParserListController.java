@@ -57,11 +57,11 @@ public class ParserListController extends CommonController implements
 	 */
 	private static final long serialVersionUID = -5149273791608440407L;
 
-	private ParserFactory selectedParser;
+	private transient ParserFactory selectedParser;
 
-	private SchemaField selectedIndexField;
+	private transient SchemaField selectedIndexField;
 
-	private ParserFieldEnum selectedParserField;
+	private transient ParserFieldEnum selectedParserField;
 
 	public ParserListController() throws SearchLibException {
 		super();

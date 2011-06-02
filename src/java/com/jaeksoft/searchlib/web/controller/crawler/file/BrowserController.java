@@ -42,19 +42,19 @@ public class BrowserController extends CrawlerController implements
 
 	private static final long serialVersionUID = 6735801464584819587L;
 
-	private List<FilePathItem> filePathItemList = null;
+	private transient List<FilePathItem> filePathItemList = null;
 
-	private File[] currentFileList;
+	private transient File[] currentFileList;
 
-	private List<File> folderTree;
+	private transient List<File> folderTree;
 
-	private File currentFile;
+	private transient File currentFile;
 
-	private File selectedFile;
+	private transient File selectedFile;
 
-	private boolean withSubDir;
+	private transient boolean withSubDir;
 
-	private FilePathItem selectedFilePathItem;
+	private transient FilePathItem selectedFilePathItem;
 
 	public BrowserController() throws SearchLibException {
 		super();
