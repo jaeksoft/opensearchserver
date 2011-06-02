@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.web;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -45,6 +45,37 @@ public class WebCrawlerServlet extends AbstractServlet {
 		STARTED, STARTING, STOPPED, STOPPING;
 	}
 
+	protected void doCrawlMaster(CrawlMasterAbstract crawlMaster,
+			ServletTransaction transaction) {
+
+		String action = transaction.getParameterString("action");
+
+		int timeOut = transaction.getParameterInteger("timeout", 1200);
+
+		if (Action.STOP.name().equalsIgnoreCase(action)) {
+			crawlMaster.abort();
+			if (crawlMaster.waitForEnd(timeOut))
+				transaction.addXmlResponse("info", InfoStatus.STOPPED.name());
+			else
+				transaction.addXmlResponse("info", InfoStatus.STOPPING.name());
+		} else if (Action.START.name().equalsIgnoreCase(action)) {
+			crawlMaster.start();
+			if (crawlMaster.waitForStart(timeOut))
+				transaction.addXmlResponse("info", InfoStatus.STARTED.name());
+			else
+				transaction.addXmlResponse("info", InfoStatus.STARTING.name());
+		} else if (Action.STATUS.name().equalsIgnoreCase(action)) {
+			if (crawlMaster.isAborting())
+				transaction.addXmlResponse("info", InfoStatus.STOPPING.name());
+			else if (crawlMaster.isRunning())
+				transaction.addXmlResponse("info", InfoStatus.STARTED.name());
+			else
+				transaction.addXmlResponse("info", InfoStatus.STOPPED.name());
+		} else
+			transaction.addXmlResponse("info", Action.EMTPY.name());
+		transaction.addXmlResponse("status", "OK");
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
@@ -57,42 +88,8 @@ public class WebCrawlerServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
+			doCrawlMaster(client.getWebCrawlMaster(), transaction);
 
-			String action = transaction.getParameterString("action");
-
-			int timeOut = transaction.getParameterInteger("timeout", 1200);
-
-			WebCrawlMaster webCrawlMaster = client.getWebCrawlMaster();
-
-			if (Action.STOP.name().equalsIgnoreCase(action)) {
-				webCrawlMaster.abort();
-				if (webCrawlMaster.waitForEnd(timeOut))
-					transaction.addXmlResponse("info",
-							InfoStatus.STOPPED.name());
-				else
-					transaction.addXmlResponse("info",
-							InfoStatus.STOPPING.name());
-			} else if (Action.START.name().equalsIgnoreCase(action)) {
-				webCrawlMaster.start();
-				if (webCrawlMaster.waitForStart(timeOut))
-					transaction.addXmlResponse("info",
-							InfoStatus.STARTED.name());
-				else
-					transaction.addXmlResponse("info",
-							InfoStatus.STARTING.name());
-			} else if (Action.STATUS.name().equalsIgnoreCase(action)) {
-				if (webCrawlMaster.isAborting())
-					transaction.addXmlResponse("info",
-							InfoStatus.STOPPING.name());
-				else if (webCrawlMaster.isRunning())
-					transaction.addXmlResponse("info",
-							InfoStatus.STARTED.name());
-				else
-					transaction.addXmlResponse("info",
-							InfoStatus.STOPPED.name());
-			} else
-				transaction.addXmlResponse("info", Action.EMTPY.name());
-			transaction.addXmlResponse("status", "OK");
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
