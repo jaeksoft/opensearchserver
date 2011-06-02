@@ -24,8 +24,6 @@
 				visible="@{crawler.databaseCrawlerRights}" />
 			<tab id="tabFileCrawler" label="Files"
 				visible="@{crawler.fileCrawlerRights}" />
-			<tab id="tabConnectorCrawler" label="Connector"
-				visible="@{crawler.connectorCrawlerRights}" />
 		</tabs>
 
 		<tabpanels>

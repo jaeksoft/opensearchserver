@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- License Agreement for Jaeksoft OpenSearchServer Copyright (C) 2008-2009 
+<!-- License Agreement for Jaeksoft OpenSearchServer Copyright (C) 2008-2011 
 	Emmanuel Keller / Jaeksoft http://www.open-search-server.com This file is 
 	part of Jaeksoft OpenSearchServer. Jaeksoft OpenSearchServer is free software: 
 	you can redistribute it and/or modify it under the terms of the GNU General 
@@ -124,10 +124,18 @@
 		<servlet-name>Renderer</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.RendererServlet</servlet-class>
 	</servlet>
-<servlet>
-        <servlet-name>SearchTemplate</servlet-name>
-        <servlet-class>com.jaeksoft.searchlib.web.SearchTemplateServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>SearchTemplate</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.SearchTemplateServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>FileCrawler</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.FileCrawlerServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>WebCrawler</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.WebCrawlerServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>Basket</servlet-name>
 		<url-pattern>/basket</url-pattern>
@@ -194,10 +202,18 @@
 		<servlet-name>Renderer</servlet-name>
 		<url-pattern>/renderer</url-pattern>
 	</servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>SearchTemplate</servlet-name>
-        <url-pattern>/searchtemplate</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SearchTemplate</servlet-name>
+		<url-pattern>/searchtemplate</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>FileCrawler</servlet-name>
+		<url-pattern>/filecrawler</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebCrawler</servlet-name>
+		<url-pattern>/webcrawler</url-pattern>
+	</servlet-mapping>
 	<listener>
 		<listener-class>com.jaeksoft.searchlib.web.StartStopListener</listener-class>
 	</listener>

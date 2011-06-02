@@ -6,6 +6,12 @@ CHANGE LOG
 All new features and bugs are described here:
 http://sourceforge.net/tracker/?group_id=260863
 
+OpenSearchServer 1.2.3
+
+New features:
+- 3310490: File Crawler API
+- 3310489: Web Crawler API
+ 
 OpenSearchServer 1.2.2
 
 New features:
