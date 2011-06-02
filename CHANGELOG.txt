@@ -11,7 +11,10 @@ OpenSearchServer 1.2.3
 New features:
 - 3310490: File Crawler API
 - 3310489: Web Crawler API
- 
+
+Bug fixes:
+- 3310716: Index deletion and re-creation issue
+
 OpenSearchServer 1.2.2
 
 New features:

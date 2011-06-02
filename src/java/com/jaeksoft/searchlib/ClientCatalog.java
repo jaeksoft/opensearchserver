@@ -229,8 +229,14 @@ public class ClientCatalog {
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
 		Client client = getClient(indexName);
-		client.close();
-		client.delete();
+		w.lock();
+		try {
+			CLIENTS.remove(client.getDirectory());
+			client.close();
+			client.delete();
+		} finally {
+			w.unlock();
+		}
 	}
 
 	public static UserList getUserList() throws SearchLibException {
