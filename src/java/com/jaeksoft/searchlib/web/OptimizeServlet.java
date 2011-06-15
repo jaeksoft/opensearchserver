@@ -44,6 +44,7 @@ public class OptimizeServlet extends AbstractServlet {
 			if (user != null && !user.hasRole(indexName, Role.INDEX_UPDATE))
 				throw new SearchLibException("Not permitted");
 			transaction.getClient().optimize();
+			transaction.addXmlResponse("Status", "OK");
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

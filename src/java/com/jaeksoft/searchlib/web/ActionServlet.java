@@ -29,6 +29,8 @@ import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
 public class ActionServlet extends AbstractServlet {
 	/**
@@ -42,6 +44,10 @@ public class ActionServlet extends AbstractServlet {
 		try {
 			Client client = transaction.getClient();
 			String action = transaction.getParameterString("action");
+			User user = transaction.getLoggedUser();
+			if (user != null
+					&& !user.hasRole(client.getIndexName(), Role.INDEX_UPDATE))
+				throw new SearchLibException("Not permitted");
 			if ("optimize".equalsIgnoreCase(action))
 				client.optimize();
 			else if ("swap".equalsIgnoreCase(action)) {
@@ -55,6 +61,7 @@ public class ActionServlet extends AbstractServlet {
 				client.getIndex().setOnline(true);
 			else if ("offline".equalsIgnoreCase(action))
 				client.getIndex().setOnline(false);
+			transaction.addXmlResponse("Status", "OK");
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

@@ -13,6 +13,8 @@ New features:
 - 3310489: Web Crawler API
 
 Bug fixes:
+- 3316826: Optimize API don't return any feedback
+- 3316820: Action API returns a blank page
 - 3310825: WriteAbortedException in catalina.out when Tomcat restarts
 - 3310716: Index deletion and re-creation issue
 
