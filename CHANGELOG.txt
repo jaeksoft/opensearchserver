@@ -17,6 +17,7 @@ Bug fixes:
 - 3316820: Action API returns a blank page
 - 3310825: WriteAbortedException in catalina.out when Tomcat restarts
 - 3310716: Index deletion and re-creation issue
+- 3305045: Malformed base tag causes crawling error
 
 OpenSearchServer 1.2.2
 

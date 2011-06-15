@@ -272,14 +272,25 @@ public class HtmlParser extends Parser {
 		return metas;
 	}
 
-	private static URL getBaseHref(Document doc) throws MalformedURLException {
+	private static URL getBaseHref(Document doc) {
 		String[] p = { "html", "head", "base" };
 		List<Node> list = DomUtils.getNodes(doc, p);
 		if (list == null)
 			return null;
 		if (list.size() == 0)
 			return null;
-		return new URL(DomUtils.getAttributeText(list.get(0), "href"));
+		Node node = list.get(0);
+		if (node == null)
+			return null;
+		String url = DomUtils.getAttributeText(node, "href");
+		if (url == null)
+			return null;
+		try {
+			return new URL(url);
+		} catch (MalformedURLException e) {
+			Logging.logger.warn(e);
+			return null;
+		}
 	}
 
 	private static String getMetaContent(Node node) {
