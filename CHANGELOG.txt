@@ -11,6 +11,7 @@ OpenSearchServer 1.2.3
 New features:
 - 3310490: File Crawler API
 - 3310489: Web Crawler API
+- 2958005: Upgrade Apache HttpClient library to 4.1.1
 
 Bug fixes:
 - 3316826: Optimize API don't return any feedback
