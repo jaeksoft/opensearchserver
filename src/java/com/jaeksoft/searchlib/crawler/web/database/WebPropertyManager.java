@@ -48,6 +48,8 @@ public class WebPropertyManager extends PropertyManager {
 	private PropertyItem<Integer> screenshotCaptureHeight;
 	private PropertyItem<Integer> screenshotResizeWidth;
 	private PropertyItem<Integer> screenshotResizeHeight;
+	private PropertyItem<String> proxyHost;
+	private PropertyItem<Integer> proxyPort;
 
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
@@ -71,6 +73,16 @@ public class WebPropertyManager extends PropertyManager {
 		screenshotResizeWidth = newIntegerProperty("screenshotResizeWidth", 240);
 		screenshotResizeHeight = newIntegerProperty("screenshotResizeHeight",
 				180);
+		proxyHost = newStringProperty("proxyHost", "");
+		proxyPort = newIntegerProperty("proxyPort", 0);
+	}
+
+	public PropertyItem<String> getProxyHost() {
+		return proxyHost;
+	}
+
+	public PropertyItem<Integer> getProxyPort() {
+		return proxyPort;
 	}
 
 	public PropertyItem<Integer> getFetchInterval() {

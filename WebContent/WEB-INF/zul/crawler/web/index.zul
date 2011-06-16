@@ -1,6 +1,6 @@
 <!--
 	License Agreement for Jaeksoft OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of Jaeksoft OpenSearchServer.
 	Jaeksoft OpenSearchServer is free software: you can
@@ -25,6 +25,7 @@
 			<tab id="tabCrawlerWebUrl" label="Url browser" />
 			<tab id="tabCrawlerWebCrawl" label="Crawl process" />
 			<tab id="tabCrawlerManualWebCrawl" label="Manual crawl" />
+			<tab id="tabCrawlerproxy" label="Proxy" />
 			<tab id="tabCrawlerScreenshot" label="Screenshot" />
 			<tab id="tabCrawlerCredential" label="Authentication" />
 			<tab id="tabCrawlerWebMapping" label="Field mapping"
@@ -50,6 +51,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerManualWebCrawl.onSelect">
 				<include src="WEB-INF/zul/crawler/web/manualcrawl.zul" />
+			</tabpanel>
+				<tabpanel fulfill="tabCrawlerproxy.onSelect">
+				<include src="WEB-INF/zul/crawler/web/proxy.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerScreenshot.onSelect">
 				<include
