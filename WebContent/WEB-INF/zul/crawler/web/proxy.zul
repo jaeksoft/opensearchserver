@@ -23,6 +23,11 @@
 			<column align="left" />
 		</columns>
 		<rows>
+		<row>
+				<checkbox label="Enabled" checked="@{proxy.properties.proxyEnabled.value}" />
+				<space />
+				<space />
+			</row>
 			<row>
 				<label value="Proxy Host :" />
 				<textbox id="proxyHost" width="95%" value="@{proxy.properties.proxyHost.value}"/>
@@ -33,11 +38,7 @@
 				<textbox id="proxyPort" width="35%" value="@{proxy.properties.proxyPort.value}"/>
 				<space />
 			</row>
-			<row>
-				<space />
-				<button id="setProxy" label="Set Proxy" onClick="proxy.onSave()"/>
-				<space />
-			</row>
+			
 		</rows>
 </grid>			
 </window>

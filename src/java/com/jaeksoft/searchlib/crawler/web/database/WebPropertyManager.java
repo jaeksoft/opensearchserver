@@ -50,6 +50,7 @@ public class WebPropertyManager extends PropertyManager {
 	private PropertyItem<Integer> screenshotResizeHeight;
 	private PropertyItem<String> proxyHost;
 	private PropertyItem<Integer> proxyPort;
+	private PropertyItem<Boolean> proxyEnabled;
 
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
@@ -75,10 +76,15 @@ public class WebPropertyManager extends PropertyManager {
 				180);
 		proxyHost = newStringProperty("proxyHost", "");
 		proxyPort = newIntegerProperty("proxyPort", 0);
+		proxyEnabled = newBooleanProperty("proxyEnabled", false);
 	}
 
 	public PropertyItem<String> getProxyHost() {
 		return proxyHost;
+	}
+
+	public PropertyItem<Boolean> getProxyEnabled() {
+		return proxyEnabled;
 	}
 
 	public PropertyItem<Integer> getProxyPort() {

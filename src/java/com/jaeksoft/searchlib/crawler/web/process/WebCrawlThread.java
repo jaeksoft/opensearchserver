@@ -58,6 +58,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	private Crawl currentCrawl;
 	private boolean exclusionEnabled;
 	private boolean inclusionEnabled;
+	private boolean proxyEnabled;
 	private UrlCrawlQueue crawlQueue;
 
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
@@ -73,10 +74,21 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 				.getValue();
 		nextTimeTarget = 0;
 		this.hostUrlList = hostUrlList;
-		httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
-				.getValue(), false);
-		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
-				.getUserAgent().getValue(), true);
+		this.proxyEnabled = propertyManager.getProxyEnabled().getValue();
+		if (proxyEnabled) {
+			httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
+					.getValue(), false, propertyManager.getProxyHost()
+					.getValue(), propertyManager.getProxyPort().getValue());
+			httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
+					.getUserAgent().getValue(), true, propertyManager
+					.getProxyHost().getValue(), propertyManager.getProxyPort()
+					.getValue());
+		} else {
+			httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
+					.getValue(), false, null, 0);
+			httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
+					.getUserAgent().getValue(), true, null, 0);
+		}
 		exclusionEnabled = propertyManager.getExclusionEnabled().getValue();
 		inclusionEnabled = propertyManager.getInclusionEnabled().getValue();
 

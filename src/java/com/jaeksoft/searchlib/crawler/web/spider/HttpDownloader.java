@@ -30,6 +30,7 @@ import java.net.URI;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
@@ -41,6 +42,7 @@ import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.params.BasicHttpParams;
@@ -63,7 +65,8 @@ public class HttpDownloader {
 	private StatusLine statusLine = null;
 	private RedirectStrategy redirectStrategy;
 
-	public HttpDownloader(String userAgent, boolean bFollowRedirect) {
+	public HttpDownloader(String userAgent, boolean bFollowRedirect,
+			String proxyHost, int proxyPort) {
 		redirectStrategy = new DefaultRedirectStrategy();
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
@@ -72,7 +75,11 @@ public class HttpDownloader {
 		paramsBean.setUserAgent(userAgent);
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		httpClient = new DefaultHttpClient(params);
-
+		if (proxyHost != null && proxyPort != 0) {
+			HttpHost proxy = new HttpHost(proxyHost, proxyPort);
+			httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
+					proxy);
+		}
 		// TIMEOUT ?
 		// RETRY HANDLER ?
 	}
