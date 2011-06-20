@@ -14,6 +14,7 @@ New features:
 - 2958005: Upgrade Apache HttpClient library to 4.1.1
 
 Bug fixes:
+- 3323250: Invalid XML when the query includes an ampersand
 - 3316826: Optimize API don't return any feedback
 - 3316820: Action API returns a blank page
 - 3310825: WriteAbortedException in catalina.out when Tomcat restarts

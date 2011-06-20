@@ -77,7 +77,7 @@ public class RenderXml implements Render {
 		writer.println("<header>");
 		writer.println("\t<status>0</status>");
 		writer.print("\t<query>");
-		writer.print(searchRequest.getQueryParsed());
+		writer.print(StringEscapeUtils.escapeXml(searchRequest.getQueryParsed()));
 		writer.println("</query>");
 		writer.println("</header>");
 	}
