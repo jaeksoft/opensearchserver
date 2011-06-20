@@ -75,7 +75,7 @@ public class HttpDownloader {
 		paramsBean.setUserAgent(userAgent);
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		httpClient = new DefaultHttpClient(params);
-		if (proxyHost != null && proxyPort != 0) {
+		if (proxyHost != null && proxyHost.length() > 0 && proxyPort != 0) {
 			HttpHost proxy = new HttpHost(proxyHost, proxyPort);
 			httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
 					proxy);

@@ -75,7 +75,7 @@ public class WebPropertyManager extends PropertyManager {
 		screenshotResizeHeight = newIntegerProperty("screenshotResizeHeight",
 				180);
 		proxyHost = newStringProperty("proxyHost", "");
-		proxyPort = newIntegerProperty("proxyPort", 0);
+		proxyPort = newIntegerProperty("proxyPort", 8080);
 		proxyEnabled = newBooleanProperty("proxyEnabled", false);
 	}
 
