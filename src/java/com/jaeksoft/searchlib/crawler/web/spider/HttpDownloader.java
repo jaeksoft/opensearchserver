@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,11 +37,12 @@ import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.RedirectHandler;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultRedirectHandler;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParamBean;
@@ -60,10 +61,10 @@ public class HttpDownloader {
 	private HttpResponse httpResponse = null;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
-	private RedirectHandler redirectHandler;
+	private RedirectStrategy redirectStrategy;
 
 	public HttpDownloader(String userAgent, boolean bFollowRedirect) {
-		redirectHandler = new DefaultRedirectHandler();
+		redirectStrategy = new DefaultRedirectStrategy();
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
 		paramsBean.setVersion(HttpVersion.HTTP_1_1);
@@ -93,7 +94,7 @@ public class HttpDownloader {
 		synchronized (this) {
 			if (httpEntity != null) {
 				try {
-					httpEntity.consumeContent();
+					EntityUtils.consume(httpEntity);
 				} catch (IOException e) {
 					Logging.logger.warn(e.getMessage(), e);
 				}
@@ -135,9 +136,14 @@ public class HttpDownloader {
 				return null;
 			if (httpContext == null)
 				return null;
-			if (!redirectHandler.isRedirectRequested(httpResponse, httpContext))
+			if (!redirectStrategy.isRedirected(httpGet, httpResponse,
+					httpContext))
 				return null;
-			return redirectHandler.getLocationURI(httpResponse, httpContext);
+			HttpUriRequest httpUri = redirectStrategy.getRedirect(httpGet,
+					httpResponse, httpContext);
+			if (httpUri == null)
+				return null;
+			return httpUri.getURI();
 		}
 	}
 
