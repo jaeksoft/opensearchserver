@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.3
 
 New features:
+- 3344564: Adding Snippet Field Size and Tag from the API
 - 3310490: File Crawler API
 - 3310489: Web Crawler API
 - 2958005: Upgrade Apache HttpClient library to 4.1.1

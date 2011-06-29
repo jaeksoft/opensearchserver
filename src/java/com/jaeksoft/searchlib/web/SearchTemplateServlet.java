@@ -103,10 +103,17 @@ public class SearchTemplateServlet extends AbstractServlet {
 	}
 
 	private boolean setSnippetField(User user, ServletTransaction transaction)
-			throws SearchLibException, NamingException {
+			throws SearchLibException, NamingException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 
 		String searchTemplate = transaction.getParameterString("qt.name");
+		int maxSnippetSize = Integer.parseInt(transaction
+				.getParameterString("qt.maxSnippetSize"));
+		String tag = transaction.getParameterString("qt.tag");
+		int maxSnippetNo = Integer.parseInt(transaction
+				.getParameterString("qt.maxSnippetNo"));
 		String snippetField = transaction.getParameterString("snippetfield");
+		String fragmenter = transaction.getParameterString("qt.fragmenter");
 		Client client = transaction.getClient();
 		if (client.getSearchRequestMap().get(searchTemplate) != null) {
 			SearchRequest request = client.getSearchRequestMap().get(
@@ -114,6 +121,12 @@ public class SearchTemplateServlet extends AbstractServlet {
 			if (snippetField != null) {
 				request.getSnippetFieldList().add(
 						new SnippetField(snippetField));
+				SnippetField snippetFieldParameter = request
+						.getSnippetFieldList().get(snippetField);
+				snippetFieldParameter.setMaxSnippetSize(maxSnippetSize);
+				snippetFieldParameter.setMaxSnippetNumber(maxSnippetNo);
+				snippetFieldParameter.setTag(tag);
+				snippetFieldParameter.setFragmenter(fragmenter);
 				client.getSearchRequestMap().put(request);
 				client.saveRequests();
 				transaction.addXmlResponse("Status", "OK");
