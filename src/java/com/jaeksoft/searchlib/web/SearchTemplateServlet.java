@@ -107,11 +107,10 @@ public class SearchTemplateServlet extends AbstractServlet {
 			IllegalAccessException, ClassNotFoundException {
 
 		String searchTemplate = transaction.getParameterString("qt.name");
-		int maxSnippetSize = Integer.parseInt(transaction
-				.getParameterString("qt.maxSnippetSize"));
+		String maxSnippetSize = transaction
+				.getParameterString("qt.maxSnippetSize");
 		String tag = transaction.getParameterString("qt.tag");
-		int maxSnippetNo = Integer.parseInt(transaction
-				.getParameterString("qt.maxSnippetNo"));
+		String maxSnippetNo = transaction.getParameterString("qt.maxSnippetNo");
 		String snippetField = transaction.getParameterString("snippetfield");
 		String fragmenter = transaction.getParameterString("qt.fragmenter");
 		Client client = transaction.getClient();
@@ -123,10 +122,16 @@ public class SearchTemplateServlet extends AbstractServlet {
 						new SnippetField(snippetField));
 				SnippetField snippetFieldParameter = request
 						.getSnippetFieldList().get(snippetField);
-				snippetFieldParameter.setMaxSnippetSize(maxSnippetSize);
-				snippetFieldParameter.setMaxSnippetNumber(maxSnippetNo);
-				snippetFieldParameter.setTag(tag);
-				snippetFieldParameter.setFragmenter(fragmenter);
+				if (maxSnippetSize != null && !maxSnippetSize.equals(""))
+					snippetFieldParameter.setMaxSnippetSize(Integer
+							.parseInt(maxSnippetSize));
+				if (maxSnippetNo != null && !maxSnippetNo.equals(""))
+					snippetFieldParameter.setMaxSnippetNumber(Integer
+							.parseInt(maxSnippetNo));
+				if (tag != null && !tag.equals(""))
+					snippetFieldParameter.setTag(tag);
+				if (fragmenter != null && !fragmenter.equals(""))
+					snippetFieldParameter.setFragmenter(fragmenter);
 				client.getSearchRequestMap().put(request);
 				client.saveRequests();
 				transaction.addXmlResponse("Status", "OK");
