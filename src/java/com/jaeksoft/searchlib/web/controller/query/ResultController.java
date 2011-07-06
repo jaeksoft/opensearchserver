@@ -24,7 +24,10 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +47,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -304,6 +308,27 @@ public class ResultController extends AbstractQueryController implements
 		String explanation = client.explain(result.getSearchRequest(), docId);
 		Filedownload.save(explanation, "text/plain; charset-UTF-8",
 				"Score explanation " + docId + ".txt");
+	}
+
+	public void exportSearchResultToCsv() throws Exception {
+		Client client = getClient();
+		if (client == null)
+			return;
+		Result result = getResult();
+		if (result == null)
+			return;
+
+		PrintWriter pw = null;
+		try {
+			File tempFile = File.createTempFile("OSS_Search_Result", "csv");
+			pw = new PrintWriter(tempFile);
+			new RenderCSV(result).renderCSV(pw);
+			Filedownload.save(new FileInputStream(tempFile),
+					"text/csv; charset-UTF-8", "OSS_Search_Result.csv");
+		} finally {
+			if (pw != null)
+				pw.close();
+		}
 	}
 
 	public boolean isSpellCheckValid() {

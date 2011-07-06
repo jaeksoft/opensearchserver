@@ -21,6 +21,7 @@
 		<caption>
 			<button label="XML/HTTP API call" target="_blank"
 				href="@{query.requestApiCall}" />
+			<button label="Export search result" visible="@{result.documentFound}" onClick="result.exportSearchResultToCsv()" />
 		</caption>
 		<panelchildren>
 			<grid>
