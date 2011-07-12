@@ -149,6 +149,7 @@
 					value="@{searchUrl.recordNumber}" />
 				<space width="50px" />
 				<button label="Export URLs…" forward="onExportURLs" />
+				<button label="Export SitemMap" forward="onExportSiteMap" />
 			</listfooter>
 		</listfoot>
 	</listbox>

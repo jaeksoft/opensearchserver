@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
@@ -444,6 +445,54 @@ public class UrlController extends CommonController implements AfterCompose {
 	public IndexStatus[] getIndexStatusList() {
 		synchronized (this) {
 			return IndexStatus.values();
+		}
+	}
+
+	public void onExportSiteMap() throws IOException, SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+
+			PrintWriter pw = null;
+			try {
+				File tempFile = File.createTempFile("OSS_SiteMap", "xml");
+				pw = new PrintWriter(tempFile);
+				pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+				pw.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
+				int currentPos = 0;
+				List<UrlItem> uList = new ArrayList<UrlItem>();
+
+				for (;;) {
+					totalSize = (int) getUrlList(SearchTemplate.urlSearch,
+							client.getUrlManager(), currentPos, 1000, uList);
+					for (UrlItem u : uList) {
+						pw.println("<url>");
+						pw.println("<loc>"
+								+ StringEscapeUtils.escapeXml(u.getUrl())
+								+ "</loc>");
+						if (u.getLastModifiedDate() != null)
+							pw.println("<lastmod>" + u.getLastModifiedDate()
+									+ "</lastmod>");
+						pw.println("</url>");
+					}
+					pw.println("</urlset>");
+					if (uList.size() == 0)
+						break;
+					uList.clear();
+					currentPos += 1000;
+					if (currentPos >= totalSize)
+						break;
+				}
+
+				pw.close();
+				pw = null;
+				Filedownload.save(new FileInputStream(tempFile),
+						"text/xml; charset-UTF-8", "OSS_SiteMap.xml");
+			} finally {
+				if (pw != null)
+					pw.close();
+			}
 		}
 	}
 

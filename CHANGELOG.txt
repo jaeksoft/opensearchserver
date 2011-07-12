@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.3
 
 New features:
+- 3353874: OSS could be a great sitemap generator
 - 3356222: Export the search result into csv file
 - 3344564: Adding Snippet Field Size and Tag from the API
 - 3310490: File Crawler API
