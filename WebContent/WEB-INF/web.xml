@@ -136,6 +136,10 @@
 		<servlet-name>WebCrawler</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.WebCrawlerServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>URLBrowser</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.URLBrowserServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>Basket</servlet-name>
 		<url-pattern>/basket</url-pattern>
@@ -213,6 +217,10 @@
 	<servlet-mapping>
 		<servlet-name>WebCrawler</servlet-name>
 		<url-pattern>/webcrawler</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>URLBrowser</servlet-name>
+		<url-pattern>/urlbrowser</url-pattern>
 	</servlet-mapping>
 	<listener>
 		<listener-class>com.jaeksoft.searchlib.web.StartStopListener</listener-class>

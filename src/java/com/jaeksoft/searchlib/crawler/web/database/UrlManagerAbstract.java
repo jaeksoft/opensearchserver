@@ -27,14 +27,21 @@ package com.jaeksoft.searchlib.crawler.web.database;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.xml.transform.TransformerConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -46,6 +53,7 @@ import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class UrlManagerAbstract {
 
@@ -182,6 +190,112 @@ public abstract class UrlManagerAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public File exportSiteMap(Client client, String host) {
+		return createSiteMap(client, host);
+	}
+
+	public File exportURLs(Client client, String host) {
+		return createURLs(client, host);
+	}
+
+	private File createURLs(Client client, String host) {
+		PrintWriter pw = null;
+		File tempFile = null;
+		try {
+			tempFile = File.createTempFile("OSS_web_crawler_URLs", "txt");
+			pw = new PrintWriter(tempFile);
+			int currentPos = 0;
+			List<UrlItem> uList = new ArrayList<UrlItem>();
+			for (;;) {
+				int totalSize;
+				totalSize = (int) getUrlList(SearchTemplate.urlSearch,
+						client.getUrlManager(), currentPos, 1000, uList, host);
+				for (UrlItem u : uList) {
+					pw.println(u.getUrl());
+				}
+				if (uList.size() == 0)
+					break;
+				uList.clear();
+				currentPos += 1000;
+				if (currentPos >= totalSize)
+					break;
+			}
+			pw.close();
+			pw = null;
+
+		} catch (SearchLibException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (pw != null)
+				pw.close();
+		}
+		return tempFile;
+	}
+
+	private File createSiteMap(Client client, String host) {
+		PrintWriter pw = null;
+		File tempFile = null;
+		try {
+			tempFile = File.createTempFile("OSS_web_crawler_URLs", "xml");
+			pw = new PrintWriter(tempFile);
+			DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+			xmlWriter.startElement("urlset", "xmlns",
+					"http://www.sitemaps.org/schemas/sitemap/0.9");
+			int currentPos = 0;
+			List<UrlItem> uList = new ArrayList<UrlItem>();
+			for (;;) {
+				int totalSize;
+				totalSize = (int) getUrlList(SearchTemplate.urlSearch,
+						client.getUrlManager(), currentPos, 1000, uList, host);
+				for (UrlItem u : uList) {
+					xmlWriter.startElement("url");
+					xmlWriter.writeSubTextNodeIfAny("loc", u.getUrl());
+					if (u.getLastModifiedDate() != null)
+						xmlWriter.writeSubTextNodeIfAny("lastmod",
+								dateformat.format(u.getLastModifiedDate()));
+					xmlWriter.endElement();
+
+				}
+				if (uList.size() == 0)
+					break;
+				uList.clear();
+				currentPos += 1000;
+				if (currentPos >= totalSize)
+					break;
+			}
+			xmlWriter.endElement();
+			xmlWriter.endDocument();
+			pw.close();
+			pw = null;
+
+		} catch (SearchLibException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+		} finally {
+			if (pw != null)
+				pw.close();
+		}
+		return tempFile;
+	}
+
+	private long getUrlList(SearchTemplate urlSearchTemplate,
+			UrlManagerAbstract urlManager, int start, int rows,
+			List<UrlItem> urlList, String host) throws SearchLibException {
+		return urlManager
+				.getUrls(urlSearchTemplate, null, host, false, null, null,
+						null, null, null, null, null, null, null, null, null,
+						null, null, null, null, null, null, false, start, rows,
+						urlList);
 	}
 
 	/**

@@ -26,9 +26,6 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,7 +48,6 @@ import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract.SearchTemplate;
-import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -459,44 +455,13 @@ public class UrlController extends CommonController implements AfterCompose {
 			Client client = getClient();
 			if (client == null)
 				return;
-
-			PrintWriter pw = null;
+			File file;
 			try {
-				File tempFile = File.createTempFile("OSS_SiteMap", "xml");
-				pw = new PrintWriter(tempFile);
-				DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
-				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-				xmlWriter.startElement("urlset", "xmlns",
-						"http://www.sitemaps.org/schemas/sitemap/0.9");
-				int currentPos = 0;
-				List<UrlItem> uList = new ArrayList<UrlItem>();
-				for (;;) {
-					totalSize = (int) getUrlList(SearchTemplate.urlSearch,
-							client.getUrlManager(), currentPos, 1000, uList);
-					for (UrlItem u : uList) {
-						xmlWriter.startElement("url");
-						xmlWriter.writeSubTextNodeIfAny("loc", u.getUrl());
-						if (u.getLastModifiedDate() != null)
-							xmlWriter.writeSubTextNodeIfAny("lastmod",
-									dateformat.format(u.getLastModifiedDate()));
-						xmlWriter.endElement();
-					}
-					if (uList.size() == 0)
-						break;
-					uList.clear();
-					currentPos += 1000;
-					if (currentPos >= totalSize)
-						break;
-				}
-				xmlWriter.endElement();
-				xmlWriter.endDocument();
-				pw.close();
-				pw = null;
-				Filedownload.save(new FileInputStream(tempFile),
+				file = client.getUrlManager().exportSiteMap(client, null);
+				Filedownload.save(new FileInputStream(file),
 						"text/xml; charset-UTF-8", "OSS_SiteMap.xml");
-			} finally {
-				if (pw != null)
-					pw.close();
+			} catch (SearchLibException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -506,37 +471,13 @@ public class UrlController extends CommonController implements AfterCompose {
 			Client client = getClient();
 			if (client == null)
 				return;
-
-			PrintWriter pw = null;
+			File file;
 			try {
-				File tempFile = File.createTempFile("OSS_web_crawler_URLs",
-						"csv");
-				pw = new PrintWriter(tempFile);
-
-				int currentPos = 0;
-				List<UrlItem> uList = new ArrayList<UrlItem>();
-				for (;;) {
-					totalSize = (int) getUrlList(SearchTemplate.urlSearch,
-							client.getUrlManager(), currentPos, 1000, uList);
-					for (UrlItem u : uList)
-						pw.println(u.getUrl());
-					if (uList.size() == 0)
-						break;
-					uList.clear();
-					currentPos += 1000;
-					if (currentPos >= totalSize)
-						break;
-				}
-
-				pw.close();
-				pw = null;
-				Filedownload
-						.save(new FileInputStream(tempFile),
-								"text/plain; charset-UTF-8",
-								"OSS_web_crawler_URLs.txt");
-			} finally {
-				if (pw != null)
-					pw.close();
+				file = client.getUrlManager().exportURLs(client, null);
+				Filedownload.save(new FileInputStream(file),
+						"text/plain; charset-UTF-8", "OSS_SiteMap.txt");
+			} catch (SearchLibException e) {
+				e.printStackTrace();
 			}
 		}
 	}
