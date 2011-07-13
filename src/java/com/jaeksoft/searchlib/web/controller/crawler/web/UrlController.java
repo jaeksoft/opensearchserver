@@ -27,11 +27,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import javax.xml.transform.TransformerConfigurationException;
+
+import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
@@ -47,6 +51,7 @@ import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract.SearchTemplate;
+import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -448,7 +453,8 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
-	public void onExportSiteMap() throws IOException, SearchLibException {
+	public void onExportSiteMap() throws IOException, SearchLibException,
+			TransformerConfigurationException, SAXException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
@@ -458,25 +464,23 @@ public class UrlController extends CommonController implements AfterCompose {
 			try {
 				File tempFile = File.createTempFile("OSS_SiteMap", "xml");
 				pw = new PrintWriter(tempFile);
-				pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-				pw.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
+				DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+				xmlWriter.startElement("urlset", "xmlns",
+						"http://www.sitemaps.org/schemas/sitemap/0.9");
 				int currentPos = 0;
 				List<UrlItem> uList = new ArrayList<UrlItem>();
-
 				for (;;) {
 					totalSize = (int) getUrlList(SearchTemplate.urlSearch,
 							client.getUrlManager(), currentPos, 1000, uList);
 					for (UrlItem u : uList) {
-						pw.println("<url>");
-						pw.println("<loc>"
-								+ StringEscapeUtils.escapeXml(u.getUrl())
-								+ "</loc>");
+						xmlWriter.startElement("url");
+						xmlWriter.writeSubTextNodeIfAny("loc", u.getUrl());
 						if (u.getLastModifiedDate() != null)
-							pw.println("<lastmod>" + u.getLastModifiedDate()
-									+ "</lastmod>");
-						pw.println("</url>");
+							xmlWriter.writeSubTextNodeIfAny("lastmod",
+									dateformat.format(u.getLastModifiedDate()));
+						xmlWriter.endElement();
 					}
-					pw.println("</urlset>");
 					if (uList.size() == 0)
 						break;
 					uList.clear();
@@ -484,7 +488,8 @@ public class UrlController extends CommonController implements AfterCompose {
 					if (currentPos >= totalSize)
 						break;
 				}
-
+				xmlWriter.endElement();
+				xmlWriter.endDocument();
 				pw.close();
 				pw = null;
 				Filedownload.save(new FileInputStream(tempFile),
