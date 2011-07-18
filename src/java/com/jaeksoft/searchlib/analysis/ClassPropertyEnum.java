@@ -24,28 +24,49 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-public enum ClassPropertyEnum {
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
+import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
-	CLASS(false, "Class", "The name of the class"),
+public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
+	public final static ExtensibleEnum<ClassPropertyEnum> ENUM = new ExtensibleEnum<ClassPropertyEnum>();
 
-	SCOPE(false, "Scope", "The scope of the class"),
+	public final static ClassPropertyEnum SCOPE = new ClassPropertyEnum(false,
+			"scope", "Scope", "The scope of the class");
 
-	FILE(true, "List", "The name of the list"),
+	public final static ClassPropertyEnum CLASS = new ClassPropertyEnum(false,
+			"class", "Class", "The name of the class");
 
-	MIN_GRAM(true, "Min gram size", "The smallest n-gram to generate"),
+	public final static ClassPropertyEnum FILE = new ClassPropertyEnum(true,
+			"file", "List", "The name of the list");
 
-	MAX_GRAM(true, "Max gram size", "The largest n-gram to generate"),
+	public final static ClassPropertyEnum SIZE_LIMIT = new ClassPropertyEnum(
+			false, "sizeLimit", "sizeLimit",
+			"The Size Limit of the file to be Parsed ");
 
-	SIDE(true, "Edge side",
-			"Specifies which side of the input the n-gram should be generated from"),
+	public final static ClassPropertyEnum PARSER_NAME = new ClassPropertyEnum(
+			false, "name", "name", "The name of the parser ");
 
-	TOKEN_SEPARATOR(true, "Token separator",
-			"The string to use when joining adjacent tokens to form a shingle"),
+	public final static ClassPropertyEnum MIN_GRAM = new ClassPropertyEnum(
+			true, "min_gram", "Min gram size",
+			"The smallest n-gram to generate");
 
-	MAX_SHINGLE_SIZE(true, "Max shingle size",
-			"Set the max shingle size (default: 2)"),
+	public final static ClassPropertyEnum MAX_GRAM = new ClassPropertyEnum(
+			true, "max_gram", "Max gram size", "The largest n-gram to generate");
 
-	MIN_SHINGLE_SIZE(true, "Min shingle size",
+	public final static ClassPropertyEnum SIDE = new ClassPropertyEnum(true,
+			"side", "Edge side",
+			"Specifies which side of the input the n-gram should be generated from");
+
+	public final static ClassPropertyEnum TOKEN_SEPARATOR = new ClassPropertyEnum(
+			true, "token_separator", "Token separator",
+			"The string to use when joining adjacent tokens to form a shingle");
+
+	public final static ClassPropertyEnum MAX_SHINGLE_SIZE = new ClassPropertyEnum(
+			true, "max_shingle_size", "Max shingle size",
+			"Set the max shingle size (default: 2)");
+
+	public final static ClassPropertyEnum MIN_SHINGLE_SIZE = new ClassPropertyEnum(
+			true, "min_shingle_size", "Min shingle size",
 			"Set the min shingle size (default: 1)");
 
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
@@ -57,8 +78,13 @@ public enum ClassPropertyEnum {
 
 	private String info;
 
-	private ClassPropertyEnum(boolean isUser, String label, String info) {
+	private String xmlAttributeName;
+
+	private ClassPropertyEnum(boolean isUser, String xmlAttributeName,
+			String label, String info) {
+		super(ENUM, label);
 		this.isUser = isUser;
+		this.xmlAttributeName = xmlAttributeName;
 		this.label = label;
 		this.info = info;
 	}
@@ -69,7 +95,7 @@ public enum ClassPropertyEnum {
 	 * @return
 	 */
 	public String getAttribute() {
-		return name().toLowerCase();
+		return xmlAttributeName;
 	}
 
 	/**
@@ -94,6 +120,10 @@ public enum ClassPropertyEnum {
 	 */
 	public String getInfo() {
 		return info;
+	}
+
+	public static ClassPropertyEnum valueOf(String enumValue) {
+		return ClassPropertyEnum.ENUM.getValue(enumValue);
 	}
 
 }

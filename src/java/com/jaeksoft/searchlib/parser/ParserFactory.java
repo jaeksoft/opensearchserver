@@ -34,16 +34,16 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassFactory;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class ParserFactory implements Comparable<ParserFactory> {
+public class ParserFactory extends ClassFactory implements
+		Comparable<ParserFactory> {
 
-	private String parserName;
-	private String className;
-	private long sizeLimit;
 	private String defaultCharset;
 
 	private Set<String> mimeTypeList;
@@ -56,22 +56,33 @@ public class ParserFactory implements Comparable<ParserFactory> {
 
 	public ParserFactory(Config config, String parserName, String className,
 			long sizeLimit, FieldMap fieldMap, String defaultCharset) {
-		this.config = config;
-		this.parserName = parserName;
-		this.className = className;
-		if (this.className.indexOf('.') == -1)
-			this.className = "com.jaeksoft.searchlib.parser." + className;
-		this.sizeLimit = sizeLimit;
-		this.fieldMap = fieldMap;
-		this.defaultCharset = defaultCharset == null ? "UTF-8" : defaultCharset;
-		mimeTypeList = null;
-		extensionList = null;
+		try {
+			Object[] PARSERNAME = { parserName };
+			Object[] SIZELIMIT = { sizeLimit };
+			addProperty(ClassPropertyEnum.PARSER_NAME, null, PARSERNAME);
+			addProperty(ClassPropertyEnum.SIZE_LIMIT, null, SIZELIMIT);
+
+			getProperty(ClassPropertyEnum.PARSER_NAME).setValue(parserName);
+			getProperty(ClassPropertyEnum.SIZE_LIMIT).setValue(
+					Long.toString(sizeLimit));
+			getProperty(ClassPropertyEnum.CLASS).setValue(className);
+
+			this.config = config;
+			this.fieldMap = fieldMap;
+			this.defaultCharset = defaultCharset == null ? "UTF-8"
+					: defaultCharset;
+			mimeTypeList = null;
+			extensionList = null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public Parser getNewParser() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SearchLibException {
-		Parser parser = (Parser) Class.forName(className).newInstance();
-		parser.setSizeLimit(sizeLimit);
+		Parser parser = (Parser) Class.forName(getClassName()).newInstance();
+		parser.setSizeLimit(getSizeLimit());
 		parser.setFieldMap(fieldMap);
 		parser.setDefaultCharset(defaultCharset);
 		if (config != null)
@@ -80,11 +91,12 @@ public class ParserFactory implements Comparable<ParserFactory> {
 	}
 
 	public String getParserName() {
-		return parserName;
+		return getProperty(ClassPropertyEnum.PARSER_NAME).getValue();
 	}
 
 	public long getSizeLimit() {
-		return sizeLimit;
+		return Long.parseLong(getProperty(ClassPropertyEnum.SIZE_LIMIT)
+				.getValue());
 	}
 
 	public FieldMap getFieldMap() {
@@ -144,7 +156,6 @@ public class ParserFactory implements Comparable<ParserFactory> {
 			String extension = xpp.getNodeString(extensionNode);
 			parserFactory.addExtension(extension);
 		}
-
 		return parserFactory;
 	}
 
@@ -158,12 +169,13 @@ public class ParserFactory implements Comparable<ParserFactory> {
 
 	@Override
 	public int compareTo(ParserFactory parserFactory) {
-		return className.compareTo(parserFactory.className);
+		return getClassName().compareTo(parserFactory.getClassName());
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("parser", "name", parserName, "class",
-				className, "sizeLimit", Long.toString(sizeLimit));
+
+		xmlWriter.startElement("parser", getAttributes());
+
 		if (mimeTypeList != null) {
 			for (String mimeType : mimeTypeList) {
 				xmlWriter.startElement("contentType");
