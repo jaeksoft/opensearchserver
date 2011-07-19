@@ -80,7 +80,7 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	private String xmlAttributeName;
 
-	private ClassPropertyEnum(boolean isUser, String xmlAttributeName,
+	protected ClassPropertyEnum(boolean isUser, String xmlAttributeName,
 			String label, String info) {
 		super(ENUM, label);
 		this.isUser = isUser;
