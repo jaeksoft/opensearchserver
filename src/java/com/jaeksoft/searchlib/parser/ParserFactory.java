@@ -208,4 +208,8 @@ public class ParserFactory extends ClassFactory implements
 		xmlWriter.endElement();
 
 	}
+
+	public String getAttributeValue(ClassPropertyEnum classPropertyEnum) {
+		return getProperty(classPropertyEnum).getValue();
+	}
 }

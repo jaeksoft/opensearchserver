@@ -28,34 +28,27 @@
 		
 	</hbox>
 		<separator height="5px" />
-	<vbox width="100%" visible="@{parserList.parserSelected}">
+	<vbox width="100%" visible="@{parserList.selectedParser}">
 		<panel title="Parser Attributes" border="normal">
 			<panelchildren>
-			<listbox>
-					<listhead>
-						<listheader label="Property" />
-						<listheader label="Value" />
-					 </listhead>
-				 <listitem>
-				 	<listcell>
-						<listbox mold="select" 
-					 	 	selectedItem="@{parserList.selectedAttributeField}" 
-					 	 	model="@{parserList.selectedParser.newParser.propertyList}">
-								<listitem self="@{each=parserproperty}"
-									label="@{parserproperty.label}" />
-							</listbox>
-					</listcell>
-					<listcell>
-							<textbox id="selectedAttributeValue"/>
-					</listcell>
-					 
-					
-					</listitem>
-					<listfoot>
-					<listfooter>	<button tooltiptext="Save Parser Attribute" label="Save"
-										  forward="onParserAttributeAdd" />
-						</listfooter></listfoot>
-						</listbox>
+				<listbox visible="@{parserList.selectedParser}"
+							model="@{parserList.selectedParser.newParser.propertyList}">
+										<listhead>
+											<listheader align="right"
+												width="150px" />
+											<listheader />
+										</listhead>
+										<listitem
+											self="@{each='parserproperty'}">
+											<listcell>
+												<label
+													value="@{parserproperty.label}" />
+												<label value=": " />
+											</listcell>
+											<listcell
+												label="@{parserproperty.value}" />
+										</listitem>
+									</listbox>
 			</panelchildren>
 		</panel>
 		</vbox>
