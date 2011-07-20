@@ -38,9 +38,12 @@ import org.zkoss.zul.Image;
 import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.zul.Textbox;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
@@ -62,6 +65,8 @@ public class ParserListController extends CommonController implements
 	private transient SchemaField selectedIndexField;
 
 	private transient ParserFieldEnum selectedParserField;
+
+	private transient ClassPropertyEnum selectedAttributeField;
 
 	public ParserListController() throws SearchLibException {
 		super();
@@ -175,10 +180,46 @@ public class ParserListController extends CommonController implements
 		}
 	}
 
+	public ClassPropertyEnum getSelectedAttributeField() {
+		try {
+			if (selectedAttributeField == null) {
+				ClassPropertyEnum[] classPropertyEnum = getSelectedParser()
+						.getNewParser().getPropertyList();
+				if (classPropertyEnum != null && classPropertyEnum.length > 0)
+					selectedAttributeField = classPropertyEnum[0];
+
+			}
+		} catch (Exception e) {
+			Logging.logger.error(e);
+		}
+		return selectedAttributeField;
+	}
+
+	public void setSelectedAttributeField(
+			ClassPropertyEnum selectedAttributeField) {
+		synchronized (this) {
+
+			this.selectedAttributeField = selectedAttributeField;
+		}
+	}
+
 	public FieldMap getFieldMap() {
 		if (selectedParser == null)
 			return null;
 		return selectedParser.getFieldMap();
+	}
+
+	public void onParserAttributeAdd() throws SearchLibException,
+			TransformerConfigurationException, IOException, SAXException {
+		Textbox selectedAttributeValue = (Textbox) this
+				.getFellow("selectedAttributeValue");
+		String selectedValue = selectedAttributeValue.getValue();
+		if (selectedValue != null && !selectedValue.equals("")) {
+			Object[] valueList = { getSelectedAttributeField().getLabel() };
+			selectedParser.addAttributes(getSelectedAttributeField(), null,
+					valueList, selectedValue);
+			getClient().saveParsers();
+		}
 	}
 
 	public void onAdd() throws SearchLibException,
