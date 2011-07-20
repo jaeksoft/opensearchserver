@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,6 @@ import java.util.TreeMap;
 import com.jaeksoft.searchlib.parser.LimitInputStream;
 import com.jaeksoft.searchlib.parser.LimitReader;
 import com.jaeksoft.searchlib.parser.Parser;
-import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 
 /**
  * Contient la liste des clauses "Disallow" d'un fichier "robots.txt" regroup�
@@ -48,7 +47,7 @@ public class DisallowList extends Parser {
 	private Map<String, DisallowSet> list;
 
 	public DisallowList() {
-		super(null);
+		super(null, null);
 		list = null;
 	}
 
@@ -136,11 +135,6 @@ public class DisallowList extends Parser {
 		if (list == null)
 			return 0;
 		return list.size();
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return null;
 	}
 
 }

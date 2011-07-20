@@ -30,6 +30,8 @@ import org.apache.poi.POIXMLProperties.CoreProperties;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class DocxParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
@@ -38,8 +40,10 @@ public class DocxParser extends Parser {
 			ParserFieldEnum.lang, ParserFieldEnum.lang_method,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
+
 	protected DocxParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	@Override
@@ -68,11 +72,6 @@ public class DocxParser extends Parser {
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
 		throw new IOException("Unsupported");
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
 	}
 
 }

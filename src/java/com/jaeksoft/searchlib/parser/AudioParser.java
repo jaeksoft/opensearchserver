@@ -42,6 +42,8 @@ import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagField;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class AudioParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.artist,
@@ -51,14 +53,11 @@ public class AudioParser extends Parser {
 			ParserFieldEnum.composer, ParserFieldEnum.grouping,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
-	public AudioParser() {
-		super(fl);
-		AudioFileIO.logger.setLevel(Level.OFF);
-	}
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
 
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
+	public AudioParser() {
+		super(fl, props);
+		AudioFileIO.logger.setLevel(Level.OFF);
 	}
 
 	private void closeQuiet(final OutputStream os) {

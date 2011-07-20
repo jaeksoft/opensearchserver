@@ -30,14 +30,17 @@ import org.apache.commons.io.IOUtils;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
 public class TextParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.content,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
+
 	public TextParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	@Override
@@ -59,11 +62,6 @@ public class TextParser extends Parser {
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
 		throw new IOException("Unsupported");
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
 	}
 
 }

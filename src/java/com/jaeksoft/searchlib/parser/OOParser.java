@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,8 @@ import java.io.IOException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public abstract class OOParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
@@ -39,8 +41,10 @@ public abstract class OOParser extends Parser {
 			ParserFieldEnum.number_of_pages, ParserFieldEnum.filename,
 			ParserFieldEnum.content_type };
 
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
+
 	public OOParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	/**
@@ -57,11 +61,6 @@ public abstract class OOParser extends Parser {
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
 		throw new IOException("Unsupported");
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
 	}
 
 	protected void scanNodes(NodeList nodeList, ParserFieldEnum selectedField) {

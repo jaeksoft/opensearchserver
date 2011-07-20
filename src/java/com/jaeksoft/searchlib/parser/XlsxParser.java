@@ -30,6 +30,8 @@ import org.apache.poi.POIXMLProperties.CoreProperties;
 import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class XlsxParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
@@ -38,8 +40,10 @@ public class XlsxParser extends Parser {
 			ParserFieldEnum.lang, ParserFieldEnum.lang_method,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
+
 	public XlsxParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	@Override
@@ -71,11 +75,6 @@ public class XlsxParser extends Parser {
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
 		throw new IOException("Unsupported");
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
 	}
 
 }

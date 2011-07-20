@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.parser.torrent.MetaInfo;
 
 public class TorrentParser extends Parser {
@@ -40,13 +41,10 @@ public class TorrentParser extends Parser {
 			ParserFieldEnum.info_hash, ParserFieldEnum.info_hash_urlencoded,
 			ParserFieldEnum.comment, ParserFieldEnum.creation_date };
 
-	public TorrentParser() {
-		super(fl);
-	}
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
 
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
+	public TorrentParser() {
+		super(fl, props);
 	}
 
 	/**

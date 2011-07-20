@@ -30,13 +30,17 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.rtf.RTFEditorKit;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class RtfParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.content,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
+
 	public RtfParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	@Override
@@ -66,10 +70,4 @@ public class RtfParser extends Parser {
 			throw new IOException(e);
 		}
 	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
-	}
-
 }

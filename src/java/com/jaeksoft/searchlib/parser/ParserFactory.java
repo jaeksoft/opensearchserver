@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassFactory;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -74,7 +75,7 @@ public class ParserFactory extends ClassFactory implements
 			mimeTypeList = null;
 			extensionList = null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logging.logger.error(e);
 		}
 
 	}

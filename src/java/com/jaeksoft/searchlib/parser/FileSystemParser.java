@@ -26,12 +26,16 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class FileSystemParser extends Parser {
 
 	private static ParserFieldEnum[] fl = {};
 
+	private static ClassPropertyEnum[] props = {};
+
 	public FileSystemParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	@Override
@@ -47,11 +51,6 @@ public class FileSystemParser extends Parser {
 
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
 	}
 
 }

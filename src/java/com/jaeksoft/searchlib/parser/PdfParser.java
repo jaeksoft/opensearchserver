@@ -31,6 +31,8 @@ import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.util.PDFTextStripper;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class PdfParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
@@ -41,8 +43,10 @@ public class PdfParser extends Parser {
 			ParserFieldEnum.number_of_pages, ParserFieldEnum.filename,
 			ParserFieldEnum.content_type };
 
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
+
 	public PdfParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	@Override
@@ -93,11 +97,6 @@ public class PdfParser extends Parser {
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
 		throw new IOException("Unsupported");
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
 	}
 
 }

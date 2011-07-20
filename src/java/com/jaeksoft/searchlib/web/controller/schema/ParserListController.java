@@ -142,7 +142,7 @@ public class ParserListController extends CommonController implements
 			if (selectedParser == null)
 				return null;
 			ParserFieldEnum[] parserFieldList = selectedParser.getNewParser()
-					.getParserFieldList();
+					.getFieldList();
 			if (parserFieldList == null)
 				return null;
 			if (selectedParserField == null && parserFieldList.length > 0)

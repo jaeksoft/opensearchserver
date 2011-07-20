@@ -29,6 +29,8 @@ import java.io.IOException;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class DocParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
@@ -36,8 +38,10 @@ public class DocParser extends Parser {
 			ParserFieldEnum.content, ParserFieldEnum.lang,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
+
 	public DocParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	@Override
@@ -67,11 +71,6 @@ public class DocParser extends Parser {
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
 		throw new IOException("Unsupported");
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
 	}
 
 }

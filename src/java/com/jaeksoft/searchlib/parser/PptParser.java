@@ -31,14 +31,18 @@ import org.apache.poi.hslf.model.TextRun;
 import org.apache.poi.hslf.record.TextHeaderAtom;
 import org.apache.poi.hslf.usermodel.SlideShow;
 
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class PptParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
 			ParserFieldEnum.note, ParserFieldEnum.body, ParserFieldEnum.other,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
+	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
+
 	public PptParser() {
-		super(fl);
+		super(fl, props);
 	}
 
 	@Override
@@ -82,11 +86,6 @@ public class PptParser extends Parser {
 	@Override
 	protected void parseContent(LimitReader reader) throws IOException {
 		throw new IOException("Unsupported");
-	}
-
-	@Override
-	public ParserFieldEnum[] getParserFieldList() {
-		return fl;
 	}
 
 }
