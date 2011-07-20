@@ -31,24 +31,30 @@
 	<vbox width="100%" visible="@{parserList.selectedParser}">
 		<panel title="Parser Attributes" border="normal">
 			<panelchildren>
-				<listbox visible="@{parserList.selectedParser}"
-							model="@{parserList.selectedParser.newParser.propertyList}">
-										<listhead>
-											<listheader align="right"
-												width="150px" />
-											<listheader />
-										</listhead>
-										<listitem
-											self="@{each='parserproperty'}">
-											<listcell>
-												<label
-													value="@{parserproperty.label}" />
-												<label value=": " />
-											</listcell>
-											<listcell
-												label="@{parserproperty.value}" />
-										</listitem>
-									</listbox>
+			<grid      
+          model="@{parserList.selectedParser.userProperties}">
+          <columns>
+           <column width="150px"
+            align="right" />
+           <column />
+          </columns>
+          <rows>
+           <row
+            self="@{each='property'}">
+            <label
+             tooltiptext="@{property.classPropertyEnum.info}"
+             value="@{property.classPropertyEnum.label}" />
+            <vbox>
+             <textbox
+              visible="@{property.textbox}" value="@{property.value}" />
+             <listbox
+              mold="select" visible="@{property.valueList}"
+              model="@{property.valueList}"
+              selectedItem="@{property.value}" />
+            </vbox>
+           </row>
+          </rows>
+         </grid>
 			</panelchildren>
 		</panel>
 		</vbox>

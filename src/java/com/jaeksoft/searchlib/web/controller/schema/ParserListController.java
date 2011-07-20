@@ -25,9 +25,7 @@
 package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,7 +41,6 @@ import org.zkoss.zul.ListitemRenderer;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
@@ -65,7 +62,6 @@ public class ParserListController extends CommonController implements
 	private transient SchemaField selectedIndexField;
 
 	private transient ParserFieldEnum selectedParserField;
-	private HashMap<String, String> attributes;
 
 	public ParserListController() throws SearchLibException {
 		super();
@@ -76,33 +72,6 @@ public class ParserListController extends CommonController implements
 		selectedParser = null;
 		selectedIndexField = null;
 		selectedParserField = null;
-	}
-
-	public HashMap<String, String> getAttributes() {
-		attributes = new HashMap<String, String>();
-		ClassPropertyEnum[] classPropertyEnums;
-		try {
-			classPropertyEnums = getSelectedParser().getNewParser()
-					.getPropertyList();
-			for (ClassPropertyEnum classPropertyEnum : classPropertyEnums) {
-				attributes.put(classPropertyEnum.getLabel(),
-						selectedParser.getAttributeValue(classPropertyEnum));
-			}
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SearchLibException e) {
-			e.printStackTrace();
-		}
-		return attributes;
-
-	}
-
-	public void setAttributes(HashMap<String, String> attributes) {
-		this.attributes = attributes;
 	}
 
 	public Set<ParserFactory> getParserSet() {
@@ -210,18 +179,6 @@ public class ParserListController extends CommonController implements
 		if (selectedParser == null)
 			return null;
 		return selectedParser.getFieldMap();
-	}
-
-	public void onPropertiesSave() throws SearchLibException,
-			TransformerConfigurationException, IOException, SAXException {
-		if (attributes != null)
-			for (Entry<String, String> entry : attributes.entrySet()) {
-				Object[] valueList = { entry.getKey() };
-				selectedParser.addAttributes(
-						ClassPropertyEnum.ENUM.getValue(entry.getKey()), null,
-						valueList, entry.getValue());
-			}
-		getClient().saveParsers();
 	}
 
 	public void onAdd() throws SearchLibException,

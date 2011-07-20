@@ -37,6 +37,7 @@ import java.util.Locale;
 import org.apache.commons.io.IOUtils;
 import org.knallgrau.utils.textcat.TextCategorizer;
 
+import com.jaeksoft.searchlib.analysis.ClassFactory;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
@@ -46,7 +47,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.Lang;
 
-public abstract class Parser {
+public abstract class Parser extends ClassFactory {
 
 	private long sizeLimit;
 
@@ -72,6 +73,7 @@ public abstract class Parser {
 
 	protected Parser(ParserFieldEnum[] fieldList,
 			ClassPropertyEnum[] propertyList) {
+
 		this.fieldList = fieldList;
 		this.propertyList = propertyList;
 		sizeLimit = 0;
@@ -82,6 +84,9 @@ public abstract class Parser {
 		urlFilterList = null;
 		limitReader = null;
 		limitInputStream = null;
+		for (ClassPropertyEnum props : propertyList) {
+			addProperty(props, null, null);
+		}
 	}
 
 	public void setFieldMap(FieldMap fieldMap) {

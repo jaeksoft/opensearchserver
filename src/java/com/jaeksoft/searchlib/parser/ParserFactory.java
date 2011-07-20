@@ -108,15 +108,6 @@ public class ParserFactory extends ClassFactory implements
 		return this.defaultCharset;
 	}
 
-	public void addAttributes(ClassPropertyEnum classPropertyEnum,
-			String defaultValue, Object[] valueList, String attributeValue)
-			throws SearchLibException {
-		if (attributeValue != null && !attributeValue.equals("")) {
-			addProperty(classPropertyEnum, defaultValue, valueList);
-			getProperty(classPropertyEnum).setValue(attributeValue);
-		}
-	}
-
 	public void addExtension(String extension) {
 		synchronized (this) {
 			if (extensionList == null)
@@ -209,7 +200,4 @@ public class ParserFactory extends ClassFactory implements
 
 	}
 
-	public String getAttributeValue(ClassPropertyEnum classPropertyEnum) {
-		return getProperty(classPropertyEnum).getValue();
-	}
 }
