@@ -49,6 +49,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
@@ -72,10 +73,8 @@ public class HtmlParser extends Parser {
 			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
-	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
-
 	public HtmlParser() {
-		super(fl, props);
+		super(fl);
 		synchronized (this) {
 			if (sentenceTagSet.size() == 0) {
 				sentenceTagSet.add("p");
@@ -104,6 +103,13 @@ public class HtmlParser extends Parser {
 				sentenceTagSet.add("ul");
 			}
 		}
+	}
+
+	@Override
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
+		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null);
 	}
 
 	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
@@ -414,7 +420,7 @@ public class HtmlParser extends Parser {
 		}
 		boolean charsetWasNull = charset == null;
 		if (charsetWasNull)
-			charset = getDefaultCharset();
+			charset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET).getValue();
 
 		Document doc = htmlParserLine(charset, inputStream);
 		if (doc == null)

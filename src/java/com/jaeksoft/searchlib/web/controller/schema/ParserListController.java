@@ -59,6 +59,8 @@ public class ParserListController extends CommonController implements
 
 	private transient ParserFactory selectedParser;
 
+	private transient ParserFactory currentParser;
+
 	private transient SchemaField selectedIndexField;
 
 	private transient ParserFieldEnum selectedParserField;
@@ -69,6 +71,7 @@ public class ParserListController extends CommonController implements
 
 	@Override
 	protected void reset() {
+		currentParser = null;
 		selectedParser = null;
 		selectedIndexField = null;
 		selectedParserField = null;
@@ -85,17 +88,23 @@ public class ParserListController extends CommonController implements
 		}
 	}
 
-	public void setSelectedParser(ParserFactory parser) {
+	public void setSelectedParser(ParserFactory parser)
+			throws SearchLibException {
 		selectedParser = parser;
+		currentParser = ParserFactory.create(selectedParser);
 		reloadPage();
 	}
 
-	public ParserFactory getSelectedParser() {
+	public ParserFactory getCurrentParser() {
+		return currentParser;
+	}
+
+	public ParserFactory getSelectedParser() throws SearchLibException {
 		if (selectedParser == null) {
 			Set<ParserFactory> parserSet = getParserSet();
 			if (parserSet != null)
 				if (parserSet.size() > 0)
-					selectedParser = parserSet.iterator().next();
+					setSelectedParser(parserSet.iterator().next());
 		}
 		return selectedParser;
 	}
@@ -105,18 +114,18 @@ public class ParserListController extends CommonController implements
 	}
 
 	public boolean isParserExtension() {
-		if (selectedParser == null)
+		if (currentParser == null)
 			return false;
-		Set<String> extensionSet = selectedParser.getExtensionSet();
+		Set<String> extensionSet = currentParser.getExtensionSet();
 		if (extensionSet == null)
 			return false;
 		return extensionSet.size() > 0;
 	}
 
 	public boolean isParserMimeType() {
-		if (selectedParser == null)
+		if (currentParser == null)
 			return false;
-		Set<String> mimeTypeSet = selectedParser.getMimeTypeSet();
+		Set<String> mimeTypeSet = currentParser.getMimeTypeSet();
 		if (mimeTypeSet == null)
 			return false;
 		return mimeTypeSet.size() > 0;
@@ -139,10 +148,9 @@ public class ParserListController extends CommonController implements
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
 		synchronized (this) {
-			if (selectedParser == null)
+			if (currentParser == null)
 				return null;
-			ParserFieldEnum[] parserFieldList = selectedParser.getNewParser()
-					.getFieldList();
+			ParserFieldEnum[] parserFieldList = currentParser.getFieldList();
 			if (parserFieldList == null)
 				return null;
 			if (selectedParserField == null && parserFieldList.length > 0)
@@ -176,9 +184,9 @@ public class ParserListController extends CommonController implements
 	}
 
 	public FieldMap getFieldMap() {
-		if (selectedParser == null)
+		if (currentParser == null)
 			return null;
-		return selectedParser.getFieldMap();
+		return currentParser.getFieldMap();
 	}
 
 	public void onAdd() throws SearchLibException,
@@ -189,8 +197,18 @@ public class ParserListController extends CommonController implements
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.add(selectedParserField.name(),
 				new Target(selectedIndexField.getName()));
-		getClient().saveParsers();
 		reloadPage();
+	}
+
+	public void onSave() throws TransformerConfigurationException, IOException,
+			SAXException, SearchLibException {
+		if (currentParser == null)
+			return;
+		Client client = getClient();
+		client.getParserSelector().replaceParserFactory(selectedParser,
+				currentParser);
+		client.saveParsers();
+		setSelectedParser(currentParser);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -201,7 +219,6 @@ public class ParserListController extends CommonController implements
 				.getData();
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
-		getClient().saveParsers();
 		reloadPage();
 	}
 

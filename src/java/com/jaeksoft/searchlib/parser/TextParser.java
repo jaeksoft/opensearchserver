@@ -30,6 +30,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
 public class TextParser extends Parser {
@@ -37,10 +38,14 @@ public class TextParser extends Parser {
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.content,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
-	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
-
 	public TextParser() {
-		super(fl, props);
+		super(fl);
+	}
+
+	@Override
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
 	@Override

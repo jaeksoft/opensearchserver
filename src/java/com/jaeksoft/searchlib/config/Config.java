@@ -1449,7 +1449,7 @@ public abstract class Config {
 		return render;
 	}
 
-	public RobotsTxtCache getRobotsTxtCache() {
+	public RobotsTxtCache getRobotsTxtCache() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (robotsTxtCache != null)

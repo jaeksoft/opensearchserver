@@ -40,8 +40,12 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			"file", "List", "The name of the list");
 
 	public final static ClassPropertyEnum SIZE_LIMIT = new ClassPropertyEnum(
-			false, "sizeLimit", "sizeLimit",
-			"The Size Limit of the file to be Parsed ");
+			true, "sizeLimit", "Size Limit",
+			"The Size Limit of the file to be Parsed");
+
+	public final static ClassPropertyEnum DEFAULT_CHARSET = new ClassPropertyEnum(
+			true, "defaultCharset", "Default Charset",
+			"The charset to use if not charset is found");
 
 	public final static ClassPropertyEnum PARSER_NAME = new ClassPropertyEnum(
 			false, "name", "name", "The name of the parser ");
@@ -82,7 +86,7 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	protected ClassPropertyEnum(boolean isUser, String xmlAttributeName,
 			String label, String info) {
-		super(ENUM, label);
+		super(ENUM, xmlAttributeName);
 		this.isUser = isUser;
 		this.xmlAttributeName = xmlAttributeName;
 		this.label = label;

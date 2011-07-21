@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,7 @@ import java.util.TreeMap;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 
@@ -54,11 +55,11 @@ public abstract class ClassFactory {
 		packageName = null;
 	}
 
-	final protected void addProperty(ClassPropertyEnum classPropertyEnum,
+	final public ClassProperty addProperty(ClassPropertyEnum classPropertyEnum,
 			String defaultValue, Object[] valueList) {
 		ClassProperty classProperty = properties.get(classPropertyEnum);
 		if (classProperty != null)
-			return;
+			return classProperty;
 		classProperty = new ClassProperty(this, classPropertyEnum,
 				defaultValue, valueList);
 		properties.put(classPropertyEnum, classProperty);
@@ -67,6 +68,7 @@ public abstract class ClassFactory {
 				userProperties = new ArrayList<ClassProperty>();
 			userProperties.add(classProperty);
 		}
+		return classProperty;
 	}
 
 	/**
@@ -109,11 +111,14 @@ public abstract class ClassFactory {
 		for (int i = 0; i < l; i++) {
 			Node attr = nnm.item(i);
 			ClassPropertyEnum propEnum = ClassPropertyEnum.valueOf(attr
-					.getNodeName().toUpperCase());
+					.getNodeName());
 			if (propEnum != null) {
 				ClassProperty prop = getProperty(propEnum);
 				if (prop != null)
 					prop.setValue(attr.getNodeValue());
+			} else {
+				Logging.logger
+						.warn("Property not found: " + attr.getNodeName());
 			}
 		}
 	}
@@ -218,4 +223,5 @@ public abstract class ClassFactory {
 	public List<ClassProperty> getUserProperties() {
 		return userProperties;
 	}
+
 }

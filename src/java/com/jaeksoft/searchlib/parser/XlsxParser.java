@@ -30,6 +30,7 @@ import org.apache.poi.POIXMLProperties.CoreProperties;
 import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
 public class XlsxParser extends Parser {
@@ -40,10 +41,14 @@ public class XlsxParser extends Parser {
 			ParserFieldEnum.lang, ParserFieldEnum.lang_method,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
-	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
-
 	public XlsxParser() {
-		super(fl, props);
+		super(fl);
+	}
+
+	@Override
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
 	@Override

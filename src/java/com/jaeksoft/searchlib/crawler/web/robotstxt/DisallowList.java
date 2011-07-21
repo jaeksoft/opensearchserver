@@ -47,7 +47,7 @@ public class DisallowList extends Parser {
 	private Map<String, DisallowSet> list;
 
 	public DisallowList() {
-		super(null, null);
+		super(null);
 		list = null;
 	}
 

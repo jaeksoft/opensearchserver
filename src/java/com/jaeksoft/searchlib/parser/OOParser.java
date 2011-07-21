@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
 public abstract class OOParser extends Parser {
@@ -41,10 +42,14 @@ public abstract class OOParser extends Parser {
 			ParserFieldEnum.number_of_pages, ParserFieldEnum.filename,
 			ParserFieldEnum.content_type };
 
-	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
-
 	public OOParser() {
-		super(fl, props);
+		super(fl);
+	}
+
+	@Override
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
 	/**

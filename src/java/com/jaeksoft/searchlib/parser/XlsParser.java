@@ -30,6 +30,7 @@ import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.hssf.extractor.ExcelExtractor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
 public class XlsParser extends Parser {
@@ -39,10 +40,14 @@ public class XlsParser extends Parser {
 			ParserFieldEnum.content, ParserFieldEnum.lang,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
-	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
-
 	public XlsParser() {
-		super(fl, props);
+		super(fl);
+	}
+
+	@Override
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
 	@Override

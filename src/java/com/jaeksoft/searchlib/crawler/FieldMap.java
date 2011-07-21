@@ -44,6 +44,9 @@ import com.jaeksoft.searchlib.util.map.Target;
 
 public class FieldMap extends FieldMapGeneric<Target> {
 
+	public FieldMap() {
+	}
+
 	public FieldMap(File file) throws XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException {
 		super(file, "/map");

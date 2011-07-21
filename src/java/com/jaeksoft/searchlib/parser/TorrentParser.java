@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.parser.torrent.MetaInfo;
 
@@ -41,10 +42,14 @@ public class TorrentParser extends Parser {
 			ParserFieldEnum.info_hash, ParserFieldEnum.info_hash_urlencoded,
 			ParserFieldEnum.comment, ParserFieldEnum.creation_date };
 
-	private static ClassPropertyEnum[] props = { ClassPropertyEnum.SIZE_LIMIT };
-
 	public TorrentParser() {
-		super(fl, props);
+		super(fl);
+	}
+
+	@Override
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
 	/**

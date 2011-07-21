@@ -24,49 +24,48 @@
 			<listitem self="@{each=parser}"
 				label="@{parser.parserName}" />
 		</listbox>
-		
-		
+		<button label="Save" forward="onSave" />
 	</hbox>
-		<separator height="5px" />
-	<vbox width="100%" visible="@{parserList.selectedParser}">
+	<separator height="5px" />
+	<vbox width="100%" visible="@{parserList.parserSelected}">
 		<panel title="Parser Attributes" border="normal">
 			<panelchildren>
-			<grid      
-          model="@{parserList.selectedParser.userProperties}">
-          <columns>
-           <column width="150px"
-            align="right" />
-           <column />
-          </columns>
-          <rows>
-           <row
-            self="@{each='property'}">
-            <label
-             tooltiptext="@{property.classPropertyEnum.info}"
-             value="@{property.classPropertyEnum.label}" />
-            <vbox>
-             <textbox
-              visible="@{property.textbox}" value="@{property.value}" />
-             <listbox
-              mold="select" visible="@{property.valueList}"
-              model="@{property.valueList}"
-              selectedItem="@{property.value}" />
-            </vbox>
-           </row>
-          </rows>
-         </grid>
+				<grid
+					model="@{parserList.currentParser.userProperties}">
+					<columns>
+						<column width="150px" align="right" />
+						<column width="250px" align="left" />
+						<column align="left" />
+					</columns>
+					<rows>
+						<row self="@{each='property'}">
+							<label
+								tooltiptext="@{property.classPropertyEnum.info}"
+								value="@{property.classPropertyEnum.label}" />
+							<vbox>
+								<textbox visible="@{property.textbox}"
+									value="@{property.value}" />
+								<listbox mold="select"
+									visible="@{property.valueList}" model="@{property.valueList}"
+									selectedItem="@{property.value}" />
+							</vbox>
+							<label
+								value="@{property.classPropertyEnum.info}" />
+						</row>
+					</rows>
+				</grid>
 			</panelchildren>
 		</panel>
-		</vbox>
-		
-		<separator height="5px" />
+	</vbox>
+
+	<separator height="5px" />
 	<separator height="5px" />
 	<vbox width="100%" visible="@{parserList.parserSelected}">
 		<panel title="Supported extension" border="normal">
 			<panelchildren>
 				<grid width="100%"
 					visible="@{parserList.parserExtension}"
-					model="@{parserList.selectedParser.extensionSet}"
+					model="@{parserList.currentParser.extensionSet}"
 					fixedLayout="true">
 					<rows>
 						<row self="@{each=entry}">
@@ -81,7 +80,7 @@
 			<panelchildren>
 				<grid width="100%"
 					visible="@{parserList.parserMimeType}"
-					model="@{parserList.selectedParser.mimeTypeSet}"
+					model="@{parserList.currentParser.mimeTypeSet}"
 					fixedLayout="true">
 					<rows>
 						<row self="@{each=entry}">
@@ -111,7 +110,7 @@
 					<button label="add" forward="onAdd" />
 				</hbox>
 				<listbox
-					model="@{parserList.selectedParser.fieldMap.list}"
+					model="@{parserList.currentParser.fieldMap.list}"
 					itemRenderer="@{parserList}">
 					<listhead>
 						<listheader label="Parser field" />

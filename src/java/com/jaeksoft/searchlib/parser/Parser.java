@@ -37,19 +37,13 @@ import java.util.Locale;
 import org.apache.commons.io.IOUtils;
 import org.knallgrau.utils.textcat.TextCategorizer;
 
-import com.jaeksoft.searchlib.analysis.ClassFactory;
-import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
-import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
-import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.Lang;
 
-public abstract class Parser extends ClassFactory {
-
-	private long sizeLimit;
+public abstract class Parser extends ParserFactory {
 
 	private IndexDocument sourceDocument;
 
@@ -57,50 +51,23 @@ public abstract class Parser extends ClassFactory {
 
 	private IndexDocument directDocument;
 
-	private ParserFieldEnum[] fieldList;
-
-	private ClassPropertyEnum[] propertyList;
-
-	private FieldMap fieldMap;
-
-	private UrlFilterItem[] urlFilterList;
-
-	private String defaultCharset;
-
 	private LimitReader limitReader;
 
 	private LimitInputStream limitInputStream;
 
-	protected Parser(ParserFieldEnum[] fieldList,
-			ClassPropertyEnum[] propertyList) {
-
-		this.fieldList = fieldList;
-		this.propertyList = propertyList;
-		sizeLimit = 0;
+	protected Parser(ParserFieldEnum[] fieldList) {
+		super(fieldList);
 		sourceDocument = null;
 		directDocument = null;
 		parserDocument = new IndexDocument();
-		defaultCharset = null;
-		urlFilterList = null;
 		limitReader = null;
 		limitInputStream = null;
-		for (ClassPropertyEnum props : propertyList) {
-			addProperty(props, null, null);
-		}
-	}
-
-	public void setFieldMap(FieldMap fieldMap) {
-		this.fieldMap = fieldMap;
 	}
 
 	public void populate(IndexDocument indexDocument) {
 		fieldMap.mapIndexDocument(parserDocument, indexDocument);
 		if (directDocument != null)
 			indexDocument.add(directDocument);
-	}
-
-	public void setSizeLimit(long l) {
-		sizeLimit = l;
 	}
 
 	public IndexDocument getSourceDocument() {
@@ -113,14 +80,6 @@ public abstract class Parser extends ClassFactory {
 
 	public IndexDocument getParserDocument() {
 		return parserDocument;
-	}
-
-	public ParserFieldEnum[] getFieldList() {
-		return fieldList;
-	}
-
-	public ClassPropertyEnum[] getPropertyList() {
-		return propertyList;
 	}
 
 	public void addField(ParserFieldEnum field, String value) {
@@ -188,12 +147,12 @@ public abstract class Parser extends ClassFactory {
 	protected abstract void parseContent(LimitReader reader) throws IOException;
 
 	final public void parseContent(InputStream inputStream) throws IOException {
-		limitInputStream = new LimitInputStream(inputStream, sizeLimit);
+		limitInputStream = new LimitInputStream(inputStream, getSizeLimit());
 		parseContent(limitInputStream);
 	}
 
 	final public void parseContent(Reader reader) throws IOException {
-		limitReader = new LimitReader(reader, sizeLimit);
+		limitReader = new LimitReader(reader, getSizeLimit());
 		parseContent(limitReader);
 	}
 
@@ -275,29 +234,6 @@ public abstract class Parser extends ClassFactory {
 
 	public boolean equals(Parser one) {
 		return this.getClass().getName().equals(one.getClass().getName());
-	}
-
-	public void setDefaultCharset(String defaultCharset) {
-		this.defaultCharset = defaultCharset;
-	}
-
-	public String getDefaultCharset() {
-		return defaultCharset;
-	}
-
-	/**
-	 * @param urlFilterList
-	 *            the urlFilterList to set
-	 */
-	public void setUrlFilterList(UrlFilterItem[] urlFilterList) {
-		this.urlFilterList = urlFilterList;
-	}
-
-	/**
-	 * @return the urlFilterList
-	 */
-	public UrlFilterItem[] getUrlFilterList() {
-		return urlFilterList;
 	}
 
 }

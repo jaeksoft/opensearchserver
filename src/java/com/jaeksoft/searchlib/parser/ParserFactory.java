@@ -33,79 +33,61 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassFactory;
+import com.jaeksoft.searchlib.analysis.ClassProperty;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ParserFactory extends ClassFactory implements
 		Comparable<ParserFactory> {
 
-	private String defaultCharset;
+	final private static String PARSER_PACKAGE = "com.jaeksoft.searchlib.parser";
 
 	private Set<String> mimeTypeList;
 
 	private Set<String> extensionList;
 
-	private FieldMap fieldMap;
+	protected FieldMap fieldMap;
 
-	private Config config;
+	private UrlFilterItem[] urlFilterList;
 
-	public ParserFactory(Config config, String parserName, String className,
-			long sizeLimit, FieldMap fieldMap, String defaultCharset) {
-		try {
-			Object[] PARSERNAME = { parserName };
-			Object[] SIZELIMIT = { sizeLimit };
-			addProperty(ClassPropertyEnum.PARSER_NAME, null, PARSERNAME);
-			addProperty(ClassPropertyEnum.SIZE_LIMIT, null, SIZELIMIT);
+	private ParserFieldEnum[] fieldList;
 
-			getProperty(ClassPropertyEnum.PARSER_NAME).setValue(parserName);
-			getProperty(ClassPropertyEnum.SIZE_LIMIT).setValue(
-					Long.toString(sizeLimit));
-			getProperty(ClassPropertyEnum.CLASS).setValue(className);
-
-			this.config = config;
-			this.fieldMap = fieldMap;
-			this.defaultCharset = defaultCharset == null ? "UTF-8"
-					: defaultCharset;
-			mimeTypeList = null;
-			extensionList = null;
-		} catch (Exception e) {
-			Logging.logger.error(e);
-		}
-
+	protected ParserFactory(ParserFieldEnum[] fieldList) {
+		this.fieldList = fieldList;
 	}
 
-	public Parser getNewParser() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException {
-		Parser parser = (Parser) Class.forName(getClassName()).newInstance();
-		parser.setSizeLimit(getSizeLimit());
-		parser.setFieldMap(fieldMap);
-		parser.setDefaultCharset(defaultCharset);
-		if (config != null)
-			parser.setUrlFilterList(config.getUrlFilterList().getArray());
-		return parser;
+	@Override
+	protected void initProperties() throws SearchLibException {
+		addProperty(ClassPropertyEnum.PARSER_NAME, "", null);
+	}
+
+	public ParserFieldEnum[] getFieldList() {
+		return fieldList;
 	}
 
 	public String getParserName() {
 		return getProperty(ClassPropertyEnum.PARSER_NAME).getValue();
 	}
 
-	public long getSizeLimit() {
-		return Long.parseLong(getProperty(ClassPropertyEnum.SIZE_LIMIT)
-				.getValue());
+	public void setParserName(String parserName) throws SearchLibException {
+		getProperty(ClassPropertyEnum.PARSER_NAME).setValue(parserName);
+	}
+
+	protected long getSizeLimit() {
+		ClassProperty prop = getProperty(ClassPropertyEnum.SIZE_LIMIT);
+		if (prop == null)
+			return 0;
+		return Long.parseLong(prop.getValue());
 	}
 
 	public FieldMap getFieldMap() {
 		return fieldMap;
-	}
-
-	public String getDefaultCharset() {
-		return this.defaultCharset;
 	}
 
 	public void addExtension(String extension) {
@@ -124,25 +106,23 @@ public class ParserFactory extends ClassFactory implements
 		}
 	}
 
-	public static ParserFactory fromXmlConfig(Config config,
-			ParserSelector parserSelector, XPathParser xpp, Node parserNode)
-			throws XPathExpressionException {
+	/**
+	 * Create a new ParserFactory by reading the attributes of an XML node
+	 * 
+	 * @param config
+	 * @param node
+	 * @return a ParserFactory
+	 * @throws SearchLibException
+	 * @throws XPathExpressionException
+	 */
+	public static ParserFactory create(Config config, XPathParser xpp,
+			Node parserNode) throws SearchLibException,
+			XPathExpressionException {
+		ParserFactory parserFactory = (ParserFactory) ClassFactory.create(
+				config, PARSER_PACKAGE, parserNode);
 
-		String parserClassName = XPathParser.getAttributeString(parserNode,
-				"class");
-		if (parserClassName == null)
-			return null;
-
-		String parserName = XPathParser.getAttributeString(parserNode, "name");
-		if (parserName == null)
-			parserName = parserClassName;
-
-		FieldMap fieldMap = new FieldMap(xpp, xpp.getNode(parserNode, "map"));
-		long sizeLimit = XPathParser.getAttributeValue(parserNode, "sizeLimit");
-		String defaultCharset = XPathParser.getAttributeString(parserNode,
-				"defaultCharset");
-		ParserFactory parserFactory = new ParserFactory(config, parserName,
-				parserClassName, sizeLimit, fieldMap, defaultCharset);
+		parserFactory.fieldMap = new FieldMap(xpp, xpp.getNode(parserNode,
+				"map"));
 
 		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
 		for (int j = 0; j < mimeNodes.getLength(); j++) {
@@ -160,12 +140,57 @@ public class ParserFactory extends ClassFactory implements
 		return parserFactory;
 	}
 
+	public static ParserFactory create(String parserName, String className)
+			throws SearchLibException {
+		ParserFactory parserFactory = (ParserFactory) ClassFactory.create(null,
+				PARSER_PACKAGE, className);
+		parserFactory.setParserName(parserName);
+		return parserFactory;
+	}
+
+	/**
+	 * Clone a Parser
+	 * 
+	 * @param filter
+	 * @return a FilterFactory
+	 * @throws SearchLibException
+	 */
+	public static ParserFactory create(ParserFactory parser)
+			throws SearchLibException {
+		ParserFactory newParser = (ParserFactory) ClassFactory.create(parser);
+		newParser.fieldMap = new FieldMap();
+		parser.fieldMap.copyTo(newParser.fieldMap);
+		if (parser.config != null)
+			newParser.setUrlFilterList(parser.config.getUrlFilterList()
+					.getArray());
+		if (parser.extensionList != null)
+			newParser.extensionList = new TreeSet<String>(parser.extensionList);
+		if (parser.mimeTypeList != null)
+			newParser.mimeTypeList = new TreeSet<String>(parser.mimeTypeList);
+		return newParser;
+	}
+
 	public Set<String> getExtensionSet() {
 		return extensionList;
 	}
 
 	public Set<String> getMimeTypeSet() {
 		return mimeTypeList;
+	}
+
+	/**
+	 * @param urlFilterList
+	 *            the urlFilterList to set
+	 */
+	public void setUrlFilterList(UrlFilterItem[] urlFilterList) {
+		this.urlFilterList = urlFilterList;
+	}
+
+	/**
+	 * @return the urlFilterList
+	 */
+	public UrlFilterItem[] getUrlFilterList() {
+		return urlFilterList;
 	}
 
 	@Override

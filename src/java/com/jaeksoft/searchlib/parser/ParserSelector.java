@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,10 +41,13 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ParserSelector {
+
+	private ReadWriteLock rwl = new ReadWriteLock();
 
 	private ParserFactory fileCrawlerDefaultParserFactory;
 	private ParserFactory webCrawlerDefaultParserFactory;
@@ -62,94 +65,155 @@ public class ParserSelector {
 
 	public void setFileCrawlerDefaultParserFactory(
 			ParserFactory fileCrawlerDefaultParserFactory) {
-		this.fileCrawlerDefaultParserFactory = fileCrawlerDefaultParserFactory;
+		rwl.w.lock();
+		try {
+			this.fileCrawlerDefaultParserFactory = fileCrawlerDefaultParserFactory;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public Parser getFileCrawlerDefaultParser() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SearchLibException {
-		if (fileCrawlerDefaultParserFactory == null)
-			return null;
-		return fileCrawlerDefaultParserFactory.getNewParser();
+		rwl.r.lock();
+		try {
+			if (fileCrawlerDefaultParserFactory == null)
+				return null;
+			return (Parser) ParserFactory
+					.create(fileCrawlerDefaultParserFactory);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void setWebCrawlerDefaultParserFactory(
 			ParserFactory webCrawlerDefaultParserFactory) {
-		this.webCrawlerDefaultParserFactory = webCrawlerDefaultParserFactory;
+		rwl.w.lock();
+		try {
+			this.webCrawlerDefaultParserFactory = webCrawlerDefaultParserFactory;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public Parser getWebCrawlerDefaultParser() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SearchLibException {
-		if (webCrawlerDefaultParserFactory == null)
-			return null;
-		return webCrawlerDefaultParserFactory.getNewParser();
+		rwl.r.lock();
+		try {
+			if (webCrawlerDefaultParserFactory == null)
+				return null;
+			return (Parser) ParserFactory
+					.create(webCrawlerDefaultParserFactory);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
-	private void addParserFactory(ParserFactory parserFactory) {
-		Set<String> extensionSet = parserFactory.getExtensionSet();
-		if (extensionSet != null)
-			for (String extension : extensionSet)
-				extensionParserMap.put(extension, parserFactory);
+	private void rebuildParserMap() {
+		extensionParserMap.clear();
+		mimeTypeParserMap.clear();
+		for (ParserFactory parserFactory : parserFactorySet) {
+			Set<String> extensionSet = parserFactory.getExtensionSet();
+			if (extensionSet != null)
+				for (String extension : extensionSet)
+					extensionParserMap.put(extension, parserFactory);
+			Set<String> mimeTypeSet = parserFactory.getMimeTypeSet();
+			if (mimeTypeSet != null)
+				for (String mimeType : mimeTypeSet)
+					mimeTypeParserMap.put(mimeType, parserFactory);
+		}
+	}
 
-		Set<String> mimeTypeSet = parserFactory.getMimeTypeSet();
-		if (mimeTypeSet != null)
-			for (String mimeType : mimeTypeSet)
-				mimeTypeParserMap.put(mimeType, parserFactory);
+	public void replaceParserFactory(ParserFactory oldParser,
+			ParserFactory newParser) {
+		rwl.w.lock();
+		try {
+			parserFactorySet.remove(oldParser);
+			parserFactorySet.add(newParser);
+			rebuildParserMap();
+		} finally {
+			rwl.w.unlock();
+		}
 
-		parserFactorySet.add(parserFactory);
 	}
 
 	public Set<ParserFactory> getParserFactorySet() {
-		return parserFactorySet;
+		rwl.r.lock();
+		try {
+			return parserFactorySet;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private Parser getParser(ParserFactory parserFactory)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
-		if (parserFactory == null)
-			return null;
-		return parserFactory.getNewParser();
+		rwl.r.lock();
+		try {
+			if (parserFactory == null)
+				return null;
+			return (Parser) ParserFactory.create(parserFactory);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private Parser getParserFromExtension(String extension)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, MalformedURLException, SearchLibException {
-		ParserFactory parserFactory = null;
-		if (extensionParserMap != null && extension != null)
-			parserFactory = extensionParserMap.get(extension);
+		rwl.r.lock();
+		try {
+			ParserFactory parserFactory = null;
+			if (extensionParserMap != null && extension != null)
+				parserFactory = extensionParserMap.get(extension);
 
-		return getParser(parserFactory);
+			return getParser(parserFactory);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private Parser getParserFromMimeType(String contentBaseType)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, MalformedURLException, SearchLibException {
-		ParserFactory parserFactory = null;
-		if (mimeTypeParserMap != null)
-			parserFactory = mimeTypeParserMap.get(contentBaseType);
-		return getParser(parserFactory);
+		rwl.r.lock();
+		try {
+			ParserFactory parserFactory = null;
+			if (mimeTypeParserMap != null)
+				parserFactory = mimeTypeParserMap.get(contentBaseType);
+			return getParser(parserFactory);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public Parser getParser(String filename, String contentBaseType)
 			throws MalformedURLException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SearchLibException {
-		Parser parser = null;
-		if (contentBaseType != null)
-			parser = getParserFromMimeType(contentBaseType);
-		if (parser == null && filename != null)
-			parser = getParserFromExtension(FilenameUtils
-					.getExtension(filename));
-		if (parser == null)
-			return null;
-		if (filename != null)
-			parser.addField(ParserFieldEnum.filename, filename);
-		if (contentBaseType != null)
-			parser.addField(ParserFieldEnum.content_type, contentBaseType);
-		return parser;
+		rwl.r.lock();
+		try {
+			Parser parser = null;
+			if (contentBaseType != null)
+				parser = getParserFromMimeType(contentBaseType);
+			if (parser == null && filename != null)
+				parser = getParserFromExtension(FilenameUtils
+						.getExtension(filename));
+			if (parser == null)
+				return null;
+			if (filename != null)
+				parser.addField(ParserFieldEnum.filename, filename);
+			if (contentBaseType != null)
+				parser.addField(ParserFieldEnum.content_type, contentBaseType);
+			return parser;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public static ParserSelector fromXmlConfig(Config config, XPathParser xpp,
 			Node parentNode) throws XPathExpressionException, DOMException,
-			IOException {
+			IOException, SearchLibException {
 		ParserSelector selector = new ParserSelector();
 		if (parentNode == null)
 			return selector;
@@ -163,11 +227,11 @@ public class ParserSelector {
 		NodeList parserNodes = xpp.getNodeList(parentNode, "parser");
 		for (int i = 0; i < parserNodes.getLength(); i++) {
 			Node parserNode = parserNodes.item(i);
-			ParserFactory parserFactory = ParserFactory.fromXmlConfig(config,
-					selector, xpp, parserNode);
+			ParserFactory parserFactory = ParserFactory.create(config, xpp,
+					parserNode);
 
 			if (parserFactory != null) {
-				selector.addParserFactory(parserFactory);
+				selector.parserFactorySet.add(parserFactory);
 				if (fileCrawlerDefaultParserName != null
 						&& parserFactory.getParserName().equals(
 								fileCrawlerDefaultParserName))
@@ -176,18 +240,22 @@ public class ParserSelector {
 						&& parserFactory.getParserName().equals(
 								webCrawlerDefaultParserName))
 					selector.setWebCrawlerDefaultParserFactory(parserFactory);
+				selector.rebuildParserMap();
 			}
-
 		}
-
 		return selector;
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("parsers");
-		for (ParserFactory parser : parserFactorySet)
-			parser.writeXmlConfig(xmlWriter);
-		xmlWriter.endElement();
+		rwl.r.lock();
+		try {
+			xmlWriter.startElement("parsers");
+			for (ParserFactory parser : parserFactorySet)
+				parser.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 }
