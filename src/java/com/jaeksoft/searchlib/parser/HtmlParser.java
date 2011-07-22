@@ -171,13 +171,14 @@ public class HtmlParser extends Parser {
 			getBodyTextContent(sb, children.item(i), bAddBlock, directFields);
 
 		if (bAddBlock && nodeName != null && sb.length() > 0) {
+			String currentTag = nodeName.toLowerCase();
 			boolean bForSentence = sb.charAt(sb.length() - 1) != '.'
-					&& sentenceTagSet.contains(nodeName.toLowerCase());
+					&& sentenceTagSet.contains(currentTag);
 			if (bForSentence || bEnterDirectField) {
 				if (directFields != null)
 					addDirectFields(directFields, sb.toString());
 				else
-					addField(ParserFieldEnum.body, sb);
+					addFieldBody(currentTag, sb.toString());
 				sb.setLength(0);
 			}
 		}
@@ -400,6 +401,14 @@ public class HtmlParser extends Parser {
 		return doc;
 	}
 
+	protected void addFieldTitle(String value) {
+		addField(ParserFieldEnum.title, value);
+	}
+
+	protected void addFieldBody(String tag, String value) {
+		addField(ParserFieldEnum.body, value);
+	}
+
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
@@ -468,7 +477,7 @@ public class HtmlParser extends Parser {
 
 		addField(ParserFieldEnum.charset, charset);
 
-		addField(ParserFieldEnum.title, getTitle(doc));
+		addFieldTitle(getTitle(doc));
 
 		String metaRobots = null;
 

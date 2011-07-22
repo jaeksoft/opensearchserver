@@ -90,11 +90,26 @@ public abstract class Parser extends ParserFactory {
 		parserDocument.add(field.name(), new FieldValueItem(value));
 	}
 
+	public void addField(ParserFieldEnum field, String value, Float boost) {
+		if (value == null)
+			return;
+		if (value.length() == 0)
+			return;
+		parserDocument.add(field.name(), new FieldValueItem(value, boost));
+	}
+
 	public void addDirectFields(String[] fields, String value) {
 		if (directDocument == null)
 			directDocument = new IndexDocument();
 		for (String field : fields)
 			directDocument.add(field, new FieldValueItem(value));
+	}
+
+	public void addDirectFields(String[] fields, String value, Float boost) {
+		if (directDocument == null)
+			directDocument = new IndexDocument();
+		for (String field : fields)
+			directDocument.add(field, new FieldValueItem(value, boost));
 	}
 
 	protected void addField(ParserFieldEnum field, Object object) {
