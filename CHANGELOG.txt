@@ -19,6 +19,7 @@ New features:
 - 2958005: Upgrade Apache HttpClient library to 4.1.1
 
 Bug fixes:
+- 3376106: The mapping of inlink and outlink is broken	
 - 3346206: NPE when Fragmenter is set through API.
 - 3323250: Invalid XML when the query includes an ampersand
 - 3316826: Optimize API don't return any feedback

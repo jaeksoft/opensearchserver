@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -73,6 +74,8 @@ public class UrlItem implements Serializable {
 	private int count;
 	private String md5size;
 	private Date lastModifiedDate;
+	private List<String> outLinks;
+	private List<String> inLinks;
 
 	public UrlItem() {
 		url = null;
@@ -87,6 +90,8 @@ public class UrlItem implements Serializable {
 		langMethod = null;
 		host = null;
 		subhost = null;
+		outLinks = null;
+		inLinks = null;
 		when = new Date();
 		robotsTxtStatus = RobotsTxtStatus.UNKNOWN;
 		fetchStatus = FetchStatus.UN_FETCHED;
@@ -103,6 +108,8 @@ public class UrlItem implements Serializable {
 		setUrl(doc.getValueContent(UrlItemFieldEnum.url.name(), 0));
 		setHost(doc.getValueContent(UrlItemFieldEnum.host.name(), 0));
 		setSubHost(doc.getValueList(UrlItemFieldEnum.subhost.name()));
+		addOutLinks(doc.getValueList(UrlItemFieldEnum.outlink.name()));
+		addInLinks(doc.getValueList(UrlItemFieldEnum.inlink.name()));
 		setContentDispositionFilename(doc.getValueContent(
 				UrlItemFieldEnum.contentDispositionFilename.name(), 0));
 		setContentBaseType(doc.getValueContent(
@@ -141,6 +148,14 @@ public class UrlItem implements Serializable {
 		return subhost;
 	}
 
+	public List<String> getOutLinks() {
+		return outLinks;
+	}
+
+	public List<String> getInLinks() {
+		return inLinks;
+	}
+
 	public void setSubHost(List<FieldValueItem> subhostlist) {
 		this.subhost = null;
 		if (subhostlist == null)
@@ -148,6 +163,48 @@ public class UrlItem implements Serializable {
 		this.subhost = new ArrayList<String>();
 		for (FieldValueItem item : subhostlist)
 			this.subhost.add(item.getValue());
+	}
+
+	public void clearOutLinks() {
+		if (outLinks == null)
+			return;
+		outLinks.clear();
+	}
+
+	public void addOutLinks(List<FieldValueItem> linkList) {
+		if (linkList == null)
+			return;
+		if (outLinks == null)
+			outLinks = new ArrayList<String>();
+		for (FieldValueItem item : linkList)
+			outLinks.add(item.getValue());
+	}
+
+	public void addOutLinks(FieldContent fieldContent) {
+		if (fieldContent == null)
+			return;
+		addOutLinks(fieldContent.getValues());
+	}
+
+	public void clearInLinks() {
+		if (inLinks == null)
+			return;
+		inLinks.clear();
+	}
+
+	public void addInLinks(List<FieldValueItem> linkList) {
+		if (linkList == null)
+			return;
+		if (inLinks == null)
+			inLinks = new ArrayList<String>();
+		for (FieldValueItem item : linkList)
+			inLinks.add(item.getValue());
+	}
+
+	public void addInLinks(FieldContent fieldContent) {
+		if (fieldContent == null)
+			return;
+		addInLinks(fieldContent.getValues());
 	}
 
 	public String getHost() {
@@ -446,6 +503,12 @@ public class UrlItem implements Serializable {
 			indexDocument.setStringList(UrlItemFieldEnum.subhost.name(),
 					buildSubHost(url.getHost()));
 		}
+		if (inLinks != null)
+			indexDocument
+					.setStringList(UrlItemFieldEnum.inlink.name(), inLinks);
+		if (outLinks != null)
+			indexDocument.setStringList(UrlItemFieldEnum.outlink.name(),
+					outLinks);
 		if (responseCode != null)
 			indexDocument.setObject(UrlItemFieldEnum.responseCode.name(),
 					responseCode);

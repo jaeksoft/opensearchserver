@@ -68,7 +68,8 @@ public class HtmlParser extends Parser {
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
 			ParserFieldEnum.body, ParserFieldEnum.meta_keywords,
 			ParserFieldEnum.meta_description, ParserFieldEnum.meta_robots,
-			ParserFieldEnum.internal_link, ParserFieldEnum.internal_nofollow,
+			ParserFieldEnum.internal_link,
+			ParserFieldEnum.internal_link_nofollow,
 			ParserFieldEnum.external_link,
 			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
@@ -538,7 +539,7 @@ public class HtmlParser extends Parser {
 						if (follow)
 							field = ParserFieldEnum.internal_link;
 						else
-							field = ParserFieldEnum.internal_nofollow;
+							field = ParserFieldEnum.internal_link_nofollow;
 					} else {
 						if (follow)
 							field = ParserFieldEnum.external_link;

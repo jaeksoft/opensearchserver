@@ -73,7 +73,7 @@ public enum ParserFieldEnum {
 
 	charset,
 
-	internal_nofollow,
+	internal_link_nofollow,
 
 	external_link_nofollow,
 

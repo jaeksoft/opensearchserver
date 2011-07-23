@@ -30,8 +30,8 @@
 			<field name="contentLength" indexed="yes" stored="no"
 				termVector="yes" />
 			<field name="url" indexed="yes" stored="yes" termVector="yes" />
-			<field name="outlink" indexed="no" termVector="yes" />
-			<field name="inlink" indexed="no" termVector="yes" />
+			<field name="outlink" indexed="yes" termVector="yes" />
+			<field name="inlink" indexed="yes" termVector="yes" />
 			<field name="host" indexed="yes" stored="no" termVector="yes" />
 			<field name="subhost" indexed="yes" stored="no" termVector="yes" />
 			<field name="when" indexed="yes" stored="no" termVector="yes" />

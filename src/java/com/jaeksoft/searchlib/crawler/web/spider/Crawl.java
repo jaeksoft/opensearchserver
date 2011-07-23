@@ -135,6 +135,16 @@ public class Crawl {
 		parser.setSourceDocument(sourceDocument);
 		Date parserStartDate = new Date();
 		parser.parseContent(inputStream);
+		urlItem.clearInLinks();
+		urlItem.addInLinks(parser
+				.getFieldContent(ParserFieldEnum.internal_link));
+		urlItem.addInLinks(parser
+				.getFieldContent(ParserFieldEnum.internal_link_nofollow));
+		urlItem.clearOutLinks();
+		urlItem.addOutLinks(parser
+				.getFieldContent(ParserFieldEnum.external_link));
+		urlItem.addOutLinks(parser
+				.getFieldContent(ParserFieldEnum.external_link_nofollow));
 		urlItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
 		urlItem.setLangMethod(parser.getFieldValue(ParserFieldEnum.lang_method,
 				0));
