@@ -87,7 +87,7 @@ public class IndexServlet extends AbstractServlet {
 				return updateDoc(client, (IndexDocument) obj);
 			throw new ServletException("Nothing to do");
 		} catch (Exception e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 			throw new ServletException(e);
 		} finally {
 			if (readObject != null)

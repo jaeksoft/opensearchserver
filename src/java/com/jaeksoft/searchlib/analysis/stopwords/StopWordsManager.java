@@ -100,7 +100,7 @@ public class StopWordsManager extends AbstractDirectoryManager {
 				try {
 					br.close();
 				} catch (IOException e) {
-					Logging.logger.warn(e.getMessage(), e);
+					Logging.warn(e.getMessage(), e);
 				}
 			}
 		}

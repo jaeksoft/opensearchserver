@@ -187,6 +187,17 @@ public class ParserSelector {
 		}
 	}
 
+	public ParserFactory checkParserFromExtension(String extension) {
+		rwl.r.lock();
+		try {
+			if (extensionParserMap != null && extension != null)
+				return extensionParserMap.get(extension);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	private Parser getParserFromMimeType(String contentBaseType)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, MalformedURLException, SearchLibException {
@@ -196,6 +207,17 @@ public class ParserSelector {
 			if (mimeTypeParserMap != null)
 				parserFactory = mimeTypeParserMap.get(contentBaseType);
 			return getParser(parserFactory);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public ParserFactory checkParserFromMimeType(String mimeType) {
+		rwl.r.lock();
+		try {
+			if (mimeTypeParserMap != null && mimeType != null)
+				return mimeTypeParserMap.get(mimeType);
+			return null;
 		} finally {
 			rwl.r.unlock();
 		}

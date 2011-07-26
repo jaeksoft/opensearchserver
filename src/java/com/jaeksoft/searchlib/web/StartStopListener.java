@@ -37,11 +37,11 @@ public class StartStopListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
-		Logging.logger.info("OSS SHUTDOWN");
+		Logging.info("OSS SHUTDOWN");
 		try {
 			TaskManager.stop();
 		} catch (SearchLibException e) {
-			Logging.logger.error(e);
+			Logging.error(e);
 		}
 		ClientCatalog.closeAll();
 	}
@@ -53,12 +53,12 @@ public class StartStopListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		Logging.initLogger();
-		Logging.logger.info("OSS IS STARTING");
+		Logging.info("OSS IS STARTING");
 		ClientFactory.setInstance(getClientFactory());
 		try {
 			TaskManager.start();
 		} catch (SearchLibException e) {
-			Logging.logger.error(e);
+			Logging.error(e);
 		}
 		ClientCatalog.openAll();
 	}

@@ -117,8 +117,7 @@ public abstract class ClassFactory {
 				if (prop != null)
 					prop.setValue(attr.getNodeValue());
 			} else {
-				Logging.logger
-						.warn("Property not found: " + attr.getNodeName());
+				Logging.warn("Property not found: " + attr.getNodeName());
 			}
 		}
 	}

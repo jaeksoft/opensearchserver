@@ -86,7 +86,7 @@ public abstract class UriHttp {
 				httpEntity = null;
 			}
 		} catch (IOException e) {
-			Logging.logger.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage(), e);
 		}
 		httpEntity = null;
 		if (httpClient != null) {

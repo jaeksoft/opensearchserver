@@ -51,7 +51,7 @@ public class StreamWriteObject {
 					oos.flush();
 				oos.close();
 			} catch (IOException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 			}
 			oos = null;
 		}

@@ -109,8 +109,7 @@ public class ClientCatalog {
 		try {
 
 			for (ClientCatalogItem catalogItem : getClientCatalog(null)) {
-				Logging.logger.info("OSS load index "
-						+ catalogItem.getIndexName());
+				Logging.info("OSS load index " + catalogItem.getIndexName());
 				getClient(catalogItem.getIndexName());
 			}
 		} catch (SearchLibException e) {
@@ -126,8 +125,7 @@ public class ClientCatalog {
 		w.lock();
 		try {
 			for (Client client : CLIENTS.values()) {
-				Logging.logger
-						.info("OSS unload index " + client.getIndexName());
+				Logging.info("OSS unload index " + client.getIndexName());
 				client.close();
 			}
 		} finally {

@@ -50,7 +50,7 @@ public class StreamReadObject {
 			try {
 				ois.close();
 			} catch (IOException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 			}
 			ois = null;
 		}

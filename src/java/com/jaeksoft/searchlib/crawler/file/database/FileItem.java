@@ -267,7 +267,7 @@ public class FileItem extends FileInfo implements Serializable {
 		try {
 			contentLength = getContentLengthFormat().parse(v).intValue();
 		} catch (ParseException e) {
-			Logging.logger.error(e.getMessage());
+			Logging.error(e.getMessage());
 		}
 	}
 
@@ -313,7 +313,7 @@ public class FileItem extends FileInfo implements Serializable {
 		try {
 			crawlDate = StringUtils.hexStringToLong(d);
 		} catch (NumberFormatException e) {
-			Logging.logger.warn(e.getMessage());
+			Logging.warn(e.getMessage());
 		}
 	}
 

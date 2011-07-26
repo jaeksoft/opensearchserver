@@ -196,7 +196,7 @@ public class ScreenshotManager implements PropertyItemListener {
 				if (f != null)
 					getPngFile(url).delete();
 			} catch (MalformedURLException e) {
-				Logging.logger.warn(e);
+				Logging.warn(e);
 			}
 		}
 	}

@@ -92,7 +92,7 @@ public class HttpDownloader {
 				if (httpClient != null)
 					httpClient.getConnectionManager().shutdown();
 			} catch (Exception e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 			}
 		}
 	}
@@ -103,7 +103,7 @@ public class HttpDownloader {
 				try {
 					EntityUtils.consume(httpEntity);
 				} catch (IOException e) {
-					Logging.logger.warn(e.getMessage(), e);
+					Logging.warn(e.getMessage(), e);
 				}
 				httpEntity = null;
 			}

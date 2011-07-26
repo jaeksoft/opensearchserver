@@ -264,7 +264,7 @@ public class JobItem extends UniqueNameItem<JobItem> {
 			else
 				TaskManager.removeJob(config.getIndexName(), getName());
 		} catch (SearchLibException e) {
-			Logging.logger.error(e);
+			Logging.error(e);
 			setLastError(e);
 		} finally {
 			rwl.r.unlock();

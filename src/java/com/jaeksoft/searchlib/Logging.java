@@ -1,7 +1,7 @@
 /**   
  * License Agreement for Jaeksoft OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Properties;
 
 import org.apache.log4j.BasicConfigurator;
@@ -36,7 +37,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class Logging {
 
-	public static Logger logger = null;
+	private static Logger logger = null;
 
 	private static void configure() {
 
@@ -93,4 +94,50 @@ public class Logging {
 		logger = Logger.getRootLogger();
 	}
 
+	private final static boolean noLogger(PrintStream ps, Object msg,
+			Exception e) {
+		if (logger != null)
+			return false;
+		if (msg != null)
+			ps.println(msg);
+		if (e != null)
+			e.printStackTrace();
+		return true;
+	}
+
+	public final static void error(Object msg, Exception e) {
+		if (noLogger(System.err, msg, e))
+			return;
+		logger.error(msg, e);
+	}
+
+	public final static void error(Object msg) {
+		if (noLogger(System.err, msg, null))
+			return;
+		logger.error(msg);
+	}
+
+	public final static void warn(Object msg, Exception e) {
+		if (noLogger(System.err, msg, e))
+			return;
+		logger.warn(msg, e);
+	}
+
+	public final static void warn(Object msg) {
+		if (noLogger(System.err, msg, null))
+			return;
+		logger.warn(msg);
+	}
+
+	public final static void info(Object msg, Exception e) {
+		if (noLogger(System.out, msg, e))
+			return;
+		logger.info(msg, e);
+	}
+
+	public final static void info(Object msg) {
+		if (noLogger(System.out, msg, null))
+			return;
+		logger.info(msg);
+	}
 }

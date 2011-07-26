@@ -111,11 +111,25 @@ public class ParserFactory extends ClassFactory implements
 		}
 	}
 
+	public void removeExtension(String extension) {
+		synchronized (this) {
+			if (extensionList != null)
+				extensionList.remove(extension);
+		}
+	}
+
 	public void addMimeType(String mimeType) {
 		synchronized (this) {
 			if (mimeTypeList == null)
 				mimeTypeList = new TreeSet<String>();
 			mimeTypeList.add(mimeType);
+		}
+	}
+
+	public void removeMimeType(String mimeType) {
+		synchronized (this) {
+			if (mimeTypeList != null)
+				mimeTypeList.remove(mimeType);
 		}
 	}
 

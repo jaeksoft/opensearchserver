@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
 
@@ -70,6 +71,10 @@ public class ParserController extends CommonController implements
 	private transient ParserFieldEnum selectedParserField;
 
 	private transient ParserType parserType;
+
+	private transient String currentExtension;
+
+	private transient String currentMimeType;
 
 	private class DeleteAlert extends AlertController {
 
@@ -313,6 +318,74 @@ public class ParserController extends CommonController implements
 		image.addForward(null, this, "onLinkRemove", data);
 		image.setParent(listcell);
 		listcell.setParent(item);
+	}
+
+	/**
+	 * @return the currentExtension
+	 */
+	public String getCurrentExtension() {
+		return currentExtension;
+	}
+
+	/**
+	 * @param currentExtension
+	 *            the currentExtension to set
+	 */
+	public void setCurrentExtension(String currentExtension) {
+		this.currentExtension = currentExtension;
+	}
+
+	/**
+	 * @return the currentMimeType
+	 */
+	public String getCurrentMimeType() {
+		return currentMimeType;
+	}
+
+	/**
+	 * @param currentMimeType
+	 *            the currentMimeType to set
+	 */
+	public void setCurrentMimeType(String currentMimeType) {
+		this.currentMimeType = currentMimeType;
+	}
+
+	public void onAddExtension() throws MalformedURLException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException {
+		if (currentExtension == null || currentExtension.trim().length() == 0)
+			return;
+		ParserFactory p = getClient().getParserSelector()
+				.checkParserFromExtension(currentExtension);
+		if (p != null && p != selectedParser)
+			throw new SearchLibException("This extension is already affected");
+		currentParser.addExtension(currentExtension.trim());
+		reloadPage();
+	}
+
+	public void onDeleteExtension(Component comp) {
+		currentParser.removeExtension((String) getRecursiveComponentAttribute(
+				comp, "extensionItem"));
+		reloadPage();
+	}
+
+	public void onAddMimeType() throws MalformedURLException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException {
+		if (currentMimeType == null || currentMimeType.trim().length() == 0)
+			return;
+		ParserFactory p = getClient().getParserSelector()
+				.checkParserFromMimeType(currentMimeType);
+		if (p != null && p != selectedParser)
+			throw new SearchLibException("This MIME type is already affected");
+		currentParser.addMimeType(currentMimeType.trim());
+		reloadPage();
+	}
+
+	public void onDeleteMimeType(Component comp) {
+		currentParser.removeMimeType((String) getRecursiveComponentAttribute(
+				comp, "mimeTypeItem"));
+		reloadPage();
 	}
 
 }

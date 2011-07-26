@@ -57,7 +57,7 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 			indexPluginList = new IndexPluginList(getConfig()
 					.getIndexPluginTemplateList());
 		} catch (SearchLibException e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 			setStatus(CrawlStatus.ERROR);
 			setInfo(e.getMessage());
 			return;

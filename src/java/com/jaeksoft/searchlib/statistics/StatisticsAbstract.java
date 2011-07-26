@@ -89,8 +89,8 @@ public abstract class StatisticsAbstract {
 			if (currentAggregate == null
 					|| startTime >= currentAggregate.nextStart) {
 				if (currentAggregate != null && writeToLog)
-					Logging.logger.info(type + " - " + getPeriod().getName()
-							+ " - " + currentAggregate);
+					Logging.info(type + " - " + getPeriod().getName() + " - "
+							+ currentAggregate);
 				currentAggregate = newAggregate(timer.getStartTime());
 				addAggregate(currentAggregate);
 			}

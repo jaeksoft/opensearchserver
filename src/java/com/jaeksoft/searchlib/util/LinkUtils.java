@@ -130,7 +130,7 @@ public class LinkUtils {
 		try {
 			return new URL(uri);
 		} catch (MalformedURLException e) {
-			Logging.logger.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage(), e);
 			return null;
 		}
 	}

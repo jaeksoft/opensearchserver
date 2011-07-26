@@ -283,7 +283,7 @@ public class UrlItem implements Serializable {
 		try {
 			contentLength = getContentLengthFormat().parse(v).longValue();
 		} catch (ParseException e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 		}
 
 	}
@@ -431,7 +431,7 @@ public class UrlItem implements Serializable {
 			this.lastModifiedDate = d == null ? null : getWhenDateFormat()
 					.parse(d);
 		} catch (ParseException e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 		}
 	}
 
@@ -455,7 +455,7 @@ public class UrlItem implements Serializable {
 		try {
 			when = getWhenDateFormat().parse(d);
 		} catch (ParseException e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 			setWhenNow();
 		}
 

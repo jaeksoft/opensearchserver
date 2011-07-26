@@ -106,7 +106,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 						try {
 							parser.parseContent(file);
 						} catch (IOException e) {
-							Logging.logger.warn(e.getMessage(), e);
+							Logging.warn(e.getMessage(), e);
 						}
 						parser.populate(target);
 					}

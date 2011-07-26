@@ -63,7 +63,7 @@ public class IndexDirectory {
 			try {
 				directory.close();
 			} catch (IOException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 			}
 			directory = null;
 		}

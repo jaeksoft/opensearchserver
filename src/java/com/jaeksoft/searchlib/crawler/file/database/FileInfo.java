@@ -93,7 +93,7 @@ public class FileInfo {
 		try {
 			fileSystemDate = StringUtils.hexStringToLong(d);
 		} catch (NumberFormatException e) {
-			Logging.logger.warn(e.getMessage());
+			Logging.warn(e.getMessage());
 			fileSystemDate = null;
 		}
 	}

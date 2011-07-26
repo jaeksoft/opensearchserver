@@ -82,7 +82,7 @@ public class Timer {
 		try {
 			sw.close();
 		} catch (IOException e) {
-			Logging.logger.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage(), e);
 		}
 		this.error = sw.toString();
 	}

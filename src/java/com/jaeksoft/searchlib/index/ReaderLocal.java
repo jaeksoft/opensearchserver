@@ -304,7 +304,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				indexDirectory = null;
 			}
 		} catch (IOException e) {
-			Logging.logger.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage(), e);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -479,13 +479,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				else if (r.getVersion() > reader.getVersion())
 					reader = r;
 			} catch (IOException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 			} catch (InstantiationException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 			} catch (IllegalAccessException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 			}
 		}
 		return reader;
@@ -502,13 +502,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				if (reader.getVersion() == version)
 					return reader;
 			} catch (IOException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 			} catch (InstantiationException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 			} catch (IllegalAccessException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 			}
 		}
 		return null;

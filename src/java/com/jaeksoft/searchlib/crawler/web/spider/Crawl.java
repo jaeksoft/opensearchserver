@@ -241,40 +241,39 @@ public class Crawl {
 					urlItem.setFetchStatus(FetchStatus.HTTP_ERROR);
 				}
 			} catch (FileNotFoundException e) {
-				Logging.logger.info("FileNotFound: " + urlItem.getUrl());
+				Logging.info("FileNotFound: " + urlItem.getUrl());
 				urlItem.setFetchStatus(FetchStatus.GONE);
 				setError("FileNotFound: " + urlItem.getUrl());
 			} catch (LimitException e) {
-				Logging.logger.warn(e.toString() + " (" + urlItem.getUrl()
-						+ ")");
+				Logging.warn(e.toString() + " (" + urlItem.getUrl() + ")");
 				urlItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
 				setError(e.getMessage());
 			} catch (InstantiationException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (IllegalAccessException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (ClassNotFoundException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (URISyntaxException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
 				setError(e.getMessage());
 			} catch (MalformedURLException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
 				setError(e.getMessage());
 			} catch (IOException e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
 			} catch (Exception e) {
-				Logging.logger.error(e.getMessage(), e);
+				Logging.error(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
 			}
@@ -282,7 +281,7 @@ public class Crawl {
 				if (is != null)
 					is.close();
 			} catch (IOException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 			}
 		}
 	}
@@ -385,7 +384,7 @@ public class Crawl {
 						continue;
 				newUrlList.add(link);
 			} catch (MalformedURLException e) {
-				Logging.logger.warn(link + " " + e.getMessage(), e);
+				Logging.warn(link + " " + e.getMessage(), e);
 			}
 		}
 		urlManager.removeExisting(newUrlList);

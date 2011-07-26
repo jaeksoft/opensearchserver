@@ -85,7 +85,7 @@ public class WriterLocal extends WriterAbstract {
 				return;
 			IndexWriter.unlock(dir);
 		} catch (IOException e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 		}
 	}
 
@@ -96,9 +96,9 @@ public class WriterLocal extends WriterAbstract {
 				try {
 					indexWriter.close();
 				} catch (CorruptIndexException e) {
-					Logging.logger.error(e.getMessage(), e);
+					Logging.error(e.getMessage(), e);
 				} catch (IOException e) {
-					Logging.logger.error(e.getMessage(), e);
+					Logging.error(e.getMessage(), e);
 				} finally {
 					unlock();
 				}
@@ -156,16 +156,16 @@ public class WriterLocal extends WriterAbstract {
 				try {
 					indexWriter.close();
 				} catch (CorruptIndexException e) {
-					Logging.logger.error(e.getMessage(), e);
+					Logging.error(e.getMessage(), e);
 				} catch (IOException e) {
-					Logging.logger.error(e.getMessage(), e);
+					Logging.error(e.getMessage(), e);
 				}
 			}
 			if (directory != null) {
 				try {
 					directory.close();
 				} catch (IOException e) {
-					Logging.logger.error(e.getMessage(), e);
+					Logging.error(e.getMessage(), e);
 				}
 			}
 		}

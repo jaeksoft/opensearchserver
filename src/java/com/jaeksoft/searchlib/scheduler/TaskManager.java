@@ -170,9 +170,9 @@ public class TaskManager implements Job {
 			if (jobItem != null)
 				jobItem.run(client);
 		} catch (SearchLibException e) {
-			Logging.logger.error(e);
+			Logging.error(e);
 		} catch (NamingException e) {
-			Logging.logger.error(e);
+			Logging.error(e);
 		}
 
 	}

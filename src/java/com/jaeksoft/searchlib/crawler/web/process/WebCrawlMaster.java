@@ -81,8 +81,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		oldHostList = new LinkedList<NamedItem>();
 		newHostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
-			Logging.logger.info("Webcrawler is starting for "
-					+ config.getIndexName());
+			Logging.info("Webcrawler is starting for " + config.getIndexName());
 			start();
 		}
 	}
@@ -206,7 +205,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				}
 			}
 		} catch (Exception ex) {
-			Logging.logger.warn(ex);
+			Logging.warn(ex);
 		}
 		return urls;
 	}

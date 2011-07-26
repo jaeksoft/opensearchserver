@@ -1569,19 +1569,19 @@ public abstract class Config {
 		try {
 			getIndex().close();
 		} catch (Exception e) {
-			Logging.logger.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage(), e);
 		}
 		try {
 			getLogReportManager().close();
 		} catch (Exception e) {
-			Logging.logger.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage(), e);
 		}
 		try {
 			StatisticsList statList = getStatisticsList();
 			if (statList != null)
 				statList.save(getStatStorage());
 		} catch (Exception e) {
-			Logging.logger.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage(), e);
 		}
 	}
 
@@ -1589,7 +1589,7 @@ public abstract class Config {
 		try {
 			prepareClose(true);
 		} catch (SearchLibException e) {
-			Logging.logger.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage(), e);
 		}
 		longTermLock.lock();
 		try {

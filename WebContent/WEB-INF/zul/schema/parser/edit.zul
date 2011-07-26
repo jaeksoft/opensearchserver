@@ -70,11 +70,27 @@
 	<vbox width="100%">
 		<panel title="Supported extension" border="normal">
 			<panelchildren>
+				<hbox align="center">
+					<label value="Enter an extension to add: " />
+					<textbox cols="10"
+						value="@{parser.currentExtension}" />
+					<button label="Add"
+						onClick="parser.onAddExtension()" />
+				</hbox>
 				<grid width="100%" visible="@{parser.parserExtension}"
-					model="@{parser.currentParser.extensionSet}" fixedLayout="true">
+					model="@{parser.currentParser.extensionSet}">
+					<columns>
+						<column label="Extension" />
+						<column label="Action" />
+					</columns>
 					<rows>
-						<row self="@{each=entry}">
-							<label value="@{entry}" />
+						<row self="@{each=extensionItem}">
+							<label value="@{extensionItem}" />
+							<image src="/images/action_delete.png"
+								onClick="parser.onDeleteExtension(self)">
+								<custom-attributes
+									extensionItem="@{extensionItem}" />
+							</image>
 						</row>
 					</rows>
 				</grid>
@@ -83,11 +99,27 @@
 		<separator height="5px" />
 		<panel title="Supported MIME type" border="normal">
 			<panelchildren>
+				<hbox align="center">
+					<label value="Enter a MIME type to add: " />
+					<textbox cols="50"
+						value="@{parser.currentMimeType}" />
+					<button label="Add"
+						onClick="parser.onAddMimeType()" />
+				</hbox>
 				<grid width="100%" visible="@{parser.parserMimeType}"
 					model="@{parser.currentParser.mimeTypeSet}" fixedLayout="true">
+					<columns>
+						<column label="MIME type" />
+						<column label="Action" />
+					</columns>
 					<rows>
-						<row self="@{each=entry}">
-							<label value="@{entry}" />
+						<row self="@{each=mimeTypeItem}">
+							<label value="@{mimeTypeItem}" />
+							<image src="/images/action_delete.png"
+								onClick="parser.onDeleteMimeType(self)">
+								<custom-attributes
+									mimeTypeItem="@{mimeTypeItem}" />
+							</image>
 						</row>
 					</rows>
 				</grid>
@@ -99,21 +131,21 @@
 				<hbox align="center">
 					<listbox mold="select"
 						model="@{parser.parserFieldList}"
-						selectedItem="@{parserEdit.selectedParserField}">
+						selectedItem="@{parser.selectedParserField}">
 						<listitem self="@{each='parserField'}"
 							label="@{parserField.name}" />
 					</listbox>
 					<label>linked in</label>
 					<listbox mold="select"
 						model="@{parser.indexFieldList}"
-						selectedItem="@{parserEdit.selectedIndexField}">
+						selectedItem="@{parser.selectedIndexField}">
 						<listitem self="@{each='indexField'}"
 							label="@{indexField.name}" />
 					</listbox>
 					<button label="add" forward="onAdd" />
 				</hbox>
 				<listbox model="@{parser.currentParser.fieldMap.list}"
-					itemRenderer="@{parserEdit}">
+					itemRenderer="@{parser}">
 					<listhead>
 						<listheader label="Parser field" />
 						<listheader label="Index field" />

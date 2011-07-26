@@ -108,27 +108,27 @@ public class CrawlFile {
 			} catch (FileNotFoundException e) {
 				fileItem.setFetchStatus(FetchStatus.GONE);
 			} catch (LimitException e) {
-				Logging.logger.warn(e.toString() + " (" + fileItem.getUri()
+				Logging.warn(e.toString() + " (" + fileItem.getUri()
 						+ ")", e);
 				fileItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
 				setError(e.getMessage());
 			} catch (InstantiationException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (IllegalAccessException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (ClassNotFoundException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (IOException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
 			} catch (Exception e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
 			}
 		}

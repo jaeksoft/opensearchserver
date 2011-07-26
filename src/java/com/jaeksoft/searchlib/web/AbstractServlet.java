@@ -98,10 +98,10 @@ public abstract class AbstractServlet extends HttpServlet {
 				transaction.writeXmlResponse();
 			} catch (Exception e) {
 				try {
-					Logging.logger.error(e.getMessage(), e);
+					Logging.error(e.getMessage(), e);
 					response.sendError(500, e.getMessage());
 				} catch (IOException e1) {
-					Logging.logger.warn(e1.getMessage(), e1);
+					Logging.warn(e1.getMessage(), e1);
 				}
 			}
 		}

@@ -125,7 +125,7 @@ public class SearchServlet extends AbstractServlet {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 			err = e;
 		} finally {
 			if (uwo != null)

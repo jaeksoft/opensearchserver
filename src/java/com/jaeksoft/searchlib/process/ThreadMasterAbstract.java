@@ -130,7 +130,7 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 					rwl.w.unlock();
 				}
 			} catch (InterruptedException e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 			}
 			sleepSec(1);
 		}

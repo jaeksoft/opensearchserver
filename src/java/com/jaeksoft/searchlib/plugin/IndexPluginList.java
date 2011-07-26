@@ -74,7 +74,7 @@ public class IndexPluginList {
 					if (reader != null)
 						reader.restartFromCache();
 				} catch (IOException e) {
-					Logging.logger.warn(e.getMessage(), e);
+					Logging.warn(e.getMessage(), e);
 				}
 				if (!cachePlugin.run(client, contentType, inputStream, reader,
 						indexDocument))

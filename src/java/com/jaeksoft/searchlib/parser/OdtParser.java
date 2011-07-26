@@ -65,9 +65,9 @@ public class OdtParser extends OOParser {
 			langDetection(10000, ParserFieldEnum.content);
 
 		} catch (IOException e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 		} catch (Exception e) {
-			Logging.logger.error(e.getMessage(), e);
+			Logging.error(e.getMessage(), e);
 		}
 	}
 

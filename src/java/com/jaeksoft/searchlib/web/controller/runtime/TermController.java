@@ -96,7 +96,7 @@ public class TermController extends CommonController {
 				if (currentTermEnum != null)
 					currentTermEnum.close();
 			} catch (IOException e) {
-				Logging.logger.warn(e);
+				Logging.warn(e);
 			}
 			currentTermEnum = null;
 		}

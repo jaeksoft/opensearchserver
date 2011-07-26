@@ -299,7 +299,7 @@ public class HtmlParser extends Parser {
 		try {
 			return new URL(url);
 		} catch (MalformedURLException e) {
-			Logging.logger.warn(e);
+			Logging.warn(e);
 			return null;
 		}
 	}
@@ -350,7 +350,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				doc = null;
 			}
 		}
@@ -365,7 +365,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				doc = null;
 			}
 		}
@@ -380,7 +380,7 @@ public class HtmlParser extends Parser {
 		// } catch (LimitException e) {
 		// throw e;
 		// } catch (Exception e) {
-		// Logging.logger.error(e.getMessage(), e);
+		// Logging.error(e.getMessage(), e);
 		// doc = null;
 		// }
 		// }
@@ -395,7 +395,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				Logging.logger.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				doc = null;
 			}
 		}

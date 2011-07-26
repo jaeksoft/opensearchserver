@@ -95,7 +95,7 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		try {
 			f.disconnect();
 		} catch (IOException e) {
-			Logging.logger.warn(e);
+			Logging.warn(e);
 		}
 	}
 
