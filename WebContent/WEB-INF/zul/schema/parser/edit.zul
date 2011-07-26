@@ -1,6 +1,6 @@
 <!--
 	License Agreement for Jaeksoft OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of Jaeksoft OpenSearchServer.
 	Jaeksoft OpenSearchServer is free software: you can
@@ -14,24 +14,33 @@
 	copy of the GNU General Public License along with Jaeksoft OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="parserList"
-	use="com.jaeksoft.searchlib.web.controller.schema.ParserListController">
-	<hbox align="center">
-		<label value="Type of parser: " />
-		<listbox mold="select"
-			selectedItem="@{parserList.selectedParser}"
-			model="@{parserList.parserSet}">
-			<listitem self="@{each=parser}"
-				label="@{parser.parserName}" />
-		</listbox>
-		<button label="Save" forward="onSave" />
-	</hbox>
-	<separator height="5px" />
-	<vbox width="100%" visible="@{parserList.parserSelected}">
+<zk>
+	<vbox width="100%">
 		<panel title="Parser Attributes" border="normal">
 			<panelchildren>
-				<grid
-					model="@{parserList.currentParser.userProperties}">
+				<grid>
+					<columns>
+						<column width="150px" align="right" />
+						<column width="250px" align="left" />
+						<column align="left" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Name" />
+							<textbox
+								value="@{parser.currentParser.parserName}" />
+							<label
+								value="Choose a name for this parser" />
+						</row>
+						<row>
+							<label value="Type" />
+							<label
+								value="@{parser.currentParser.parserType.name}" />
+							<label value="The type of this parser" />
+						</row>
+					</rows>
+				</grid>
+				<grid model="@{parser.currentParser.userProperties}">
 					<columns>
 						<column width="150px" align="right" />
 						<column width="250px" align="left" />
@@ -57,16 +66,12 @@
 			</panelchildren>
 		</panel>
 	</vbox>
-
 	<separator height="5px" />
-	<separator height="5px" />
-	<vbox width="100%" visible="@{parserList.parserSelected}">
+	<vbox width="100%">
 		<panel title="Supported extension" border="normal">
 			<panelchildren>
-				<grid width="100%"
-					visible="@{parserList.parserExtension}"
-					model="@{parserList.currentParser.extensionSet}"
-					fixedLayout="true">
+				<grid width="100%" visible="@{parser.parserExtension}"
+					model="@{parser.currentParser.extensionSet}" fixedLayout="true">
 					<rows>
 						<row self="@{each=entry}">
 							<label value="@{entry}" />
@@ -78,10 +83,8 @@
 		<separator height="5px" />
 		<panel title="Supported MIME type" border="normal">
 			<panelchildren>
-				<grid width="100%"
-					visible="@{parserList.parserMimeType}"
-					model="@{parserList.currentParser.mimeTypeSet}"
-					fixedLayout="true">
+				<grid width="100%" visible="@{parser.parserMimeType}"
+					model="@{parser.currentParser.mimeTypeSet}" fixedLayout="true">
 					<rows>
 						<row self="@{each=entry}">
 							<label value="@{entry}" />
@@ -95,23 +98,22 @@
 			<panelchildren>
 				<hbox align="center">
 					<listbox mold="select"
-						model="@{parserList.parserFieldList}"
-						selectedItem="@{parserList.selectedParserField}">
+						model="@{parser.parserFieldList}"
+						selectedItem="@{parserEdit.selectedParserField}">
 						<listitem self="@{each='parserField'}"
 							label="@{parserField.name}" />
 					</listbox>
 					<label>linked in</label>
 					<listbox mold="select"
-						model="@{parserList.indexFieldList}"
-						selectedItem="@{parserList.selectedIndexField}">
+						model="@{parser.indexFieldList}"
+						selectedItem="@{parserEdit.selectedIndexField}">
 						<listitem self="@{each='indexField'}"
 							label="@{indexField.name}" />
 					</listbox>
 					<button label="add" forward="onAdd" />
 				</hbox>
-				<listbox
-					model="@{parserList.currentParser.fieldMap.list}"
-					itemRenderer="@{parserList}">
+				<listbox model="@{parser.currentParser.fieldMap.list}"
+					itemRenderer="@{parserEdit}">
 					<listhead>
 						<listheader label="Parser field" />
 						<listheader label="Index field" />
@@ -121,4 +123,17 @@
 			</panelchildren>
 		</panel>
 	</vbox>
-</window>
+	<separator height="5px" />
+	<vbox width="100%" align="center">
+		<hbox visible="@{parser.parserSelected}">
+			<button label="Cancel" onClick="parser.onCancel()" />
+			<space width="10px" />
+			<button label="Save" onClick="parser.onSave()" />
+		</hbox>
+		<hbox visible="@{parser.noParserSelected}">
+			<button label="Cancel" onClick="parser.onCancel()" />
+			<space width="10px" />
+			<button label="Create" onClick="parser.onSave()" />
+		</hbox>
+	</vbox>
+</zk>

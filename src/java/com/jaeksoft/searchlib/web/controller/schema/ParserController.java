@@ -33,23 +33,27 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.Image;
 import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
+import com.jaeksoft.searchlib.parser.ParserType;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.Target;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class ParserListController extends CommonController implements
+public class ParserController extends CommonController implements
 		ListitemRenderer {
 
 	/**
@@ -65,7 +69,30 @@ public class ParserListController extends CommonController implements
 
 	private transient ParserFieldEnum selectedParserField;
 
-	public ParserListController() throws SearchLibException {
+	private transient ParserType parserType;
+
+	private class DeleteAlert extends AlertController {
+
+		private ParserFactory deleteParser;
+
+		protected DeleteAlert(ParserFactory deleteParser)
+				throws InterruptedException {
+			super("Please, confirm that you want to delete the parser: "
+					+ deleteParser.getParserName(), Messagebox.YES
+					| Messagebox.NO, Messagebox.QUESTION);
+			this.deleteParser = deleteParser;
+		}
+
+		@Override
+		protected void onYes() throws SearchLibException {
+			Client client = getClient();
+			client.getParserSelector().remove(deleteParser);
+			client.saveParsers();
+			onCancel();
+		}
+	}
+
+	public ParserController() throws SearchLibException {
 		super();
 	}
 
@@ -88,29 +115,47 @@ public class ParserListController extends CommonController implements
 		}
 	}
 
-	public void setSelectedParser(ParserFactory parser)
-			throws SearchLibException {
-		selectedParser = parser;
-		currentParser = ParserFactory.create(selectedParser);
-		reloadPage();
-	}
-
 	public ParserFactory getCurrentParser() {
 		return currentParser;
 	}
 
+	public ParserType getSelectedParserType() throws SearchLibException {
+		if (parserType == null)
+			parserType = getParserTypeList().get(0);
+		return parserType;
+	}
+
+	public void setSelectedParserType(ParserType parserType) {
+		this.parserType = parserType;
+	}
+
+	public List<ParserType> getParserTypeList() throws SearchLibException {
+		return getClient().getParserSelector().getParserTypeEnum().getList();
+	}
+
+	public void setSelectedParser(ParserFactory parser)
+			throws SearchLibException {
+		selectedParser = parser;
+	}
+
 	public ParserFactory getSelectedParser() throws SearchLibException {
-		if (selectedParser == null) {
-			Set<ParserFactory> parserSet = getParserSet();
-			if (parserSet != null)
-				if (parserSet.size() > 0)
-					setSelectedParser(parserSet.iterator().next());
-		}
 		return selectedParser;
+	}
+
+	public boolean isEditing() {
+		return currentParser != null;
+	}
+
+	public boolean isNotEditing() {
+		return !isEditing();
 	}
 
 	public boolean isParserSelected() {
 		return selectedParser != null;
+	}
+
+	public boolean isNoParserSelected() {
+		return !isParserSelected();
 	}
 
 	public boolean isParserExtension() {
@@ -189,6 +234,39 @@ public class ParserListController extends CommonController implements
 		return currentParser.getFieldMap();
 	}
 
+	private ParserFactory getParser(Component comp) {
+		return (ParserFactory) getRecursiveComponentAttribute(comp,
+				"parserItem");
+	}
+
+	public void doEdit(Component comp) throws SearchLibException {
+		ParserFactory parser = getParser(comp);
+		if (parser == null)
+			return;
+		selectedParser = parser;
+		currentParser = ParserFactory.create(parser);
+		reloadPage();
+	}
+
+	public void doDelete(Component comp) throws InterruptedException {
+		ParserFactory parser = getParser(comp);
+		if (parser == null)
+			return;
+		new DeleteAlert(parser);
+	}
+
+	public void onNew() throws SearchLibException {
+		currentParser = ParserFactory.create(getClient(), "New parser",
+				parserType.getParserClass().getCanonicalName());
+		reloadPage();
+	}
+
+	public void onCancel() {
+		currentParser = null;
+		selectedParser = null;
+		reloadPage();
+	}
+
 	public void onAdd() throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
@@ -208,7 +286,9 @@ public class ParserListController extends CommonController implements
 		client.getParserSelector().replaceParserFactory(selectedParser,
 				currentParser);
 		client.saveParsers();
-		setSelectedParser(currentParser);
+		selectedParser = currentParser;
+		currentParser = null;
+		reloadPage();
 	}
 
 	@SuppressWarnings("unchecked")

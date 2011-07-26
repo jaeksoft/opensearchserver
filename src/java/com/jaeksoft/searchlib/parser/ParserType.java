@@ -22,39 +22,26 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.parser;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
+import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
-public class ExtensibleEnum<T extends ExtensibleEnumItem<T>> {
+public class ParserType extends ExtensibleEnumItem<ParserType> {
 
-	private List<T> list;
+	private Class<? extends Parser> parserClass;
 
-	public ExtensibleEnum() {
-		this.list = new ArrayList<T>();
+	protected ParserType(ExtensibleEnum<ParserType> en, String name,
+			Class<? extends Parser> parserClass) {
+		super(en, name);
+		this.parserClass = parserClass;
 	}
 
-	public void add(T extensibleEnumItem) {
-		list.add(extensibleEnumItem);
-
-	}
-
-	public List<T> getList() {
-		return list;
-	}
-
-	public final T getValue(String name) {
-		if (name == null || list == null)
-			return null;
-		for (T item : list)
-			if (item.getName().equals(name))
-				return item;
-		return null;
-	}
-
-	public T getFirst() {
-		return list.get(0);
+	/**
+	 * @return the parserClass
+	 */
+	public Class<? extends Parser> getParserClass() {
+		return parserClass;
 	}
 
 }

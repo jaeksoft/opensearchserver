@@ -54,10 +54,12 @@ public class ParserSelector {
 	private Set<ParserFactory> parserFactorySet;
 	private Map<String, ParserFactory> mimeTypeParserMap;
 	private Map<String, ParserFactory> extensionParserMap;
+	private ParserTypeEnum parserTypeEnum;
 
 	public ParserSelector() {
 		fileCrawlerDefaultParserFactory = null;
 		webCrawlerDefaultParserFactory = null;
+		parserTypeEnum = null;
 		mimeTypeParserMap = new TreeMap<String, ParserFactory>();
 		extensionParserMap = new TreeMap<String, ParserFactory>();
 		parserFactorySet = new TreeSet<ParserFactory>();
@@ -125,11 +127,13 @@ public class ParserSelector {
 	}
 
 	public void replaceParserFactory(ParserFactory oldParser,
-			ParserFactory newParser) {
+			ParserFactory newParser) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			parserFactorySet.remove(oldParser);
-			parserFactorySet.add(newParser);
+			if (oldParser != null)
+				parserFactorySet.remove(oldParser);
+			if (!parserFactorySet.add(newParser))
+				throw new SearchLibException("Error, parser not added");
 			rebuildParserMap();
 		} finally {
 			rwl.w.unlock();
@@ -143,6 +147,15 @@ public class ParserSelector {
 			return parserFactorySet;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public void remove(ParserFactory deleteParser) {
+		rwl.w.lock();
+		try {
+			parserFactorySet.remove(deleteParser);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -255,6 +268,19 @@ public class ParserSelector {
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	protected ParserTypeEnum getNewParserTypeEnum() {
+		return new ParserTypeEnum();
+	}
+
+	final public ParserTypeEnum getParserTypeEnum() {
+		synchronized (this) {
+			if (parserTypeEnum != null)
+				return parserTypeEnum;
+			parserTypeEnum = getNewParserTypeEnum();
+			return parserTypeEnum;
 		}
 	}
 

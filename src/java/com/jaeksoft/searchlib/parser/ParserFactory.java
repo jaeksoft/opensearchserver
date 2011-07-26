@@ -58,8 +58,11 @@ public class ParserFactory extends ClassFactory implements
 
 	private ParserFieldEnum[] fieldList;
 
+	private ParserType parserType;
+
 	protected ParserFactory(ParserFieldEnum[] fieldList) {
 		this.fieldList = fieldList;
+		this.parserType = null;
 	}
 
 	@Override
@@ -73,6 +76,16 @@ public class ParserFactory extends ClassFactory implements
 
 	public String getParserName() {
 		return getProperty(ClassPropertyEnum.PARSER_NAME).getValue();
+	}
+
+	public ParserType getParserType() throws SearchLibException {
+		if (parserType != null)
+			return parserType;
+		if (config == null)
+			return null;
+		parserType = config.getParserSelector().getParserTypeEnum()
+				.find(this.getClass());
+		return parserType;
 	}
 
 	public void setParserName(String parserName) throws SearchLibException {
@@ -140,10 +153,11 @@ public class ParserFactory extends ClassFactory implements
 		return parserFactory;
 	}
 
-	public static ParserFactory create(String parserName, String className)
-			throws SearchLibException {
+	public static ParserFactory create(Config config, String parserName,
+			String className) throws SearchLibException {
 		ParserFactory parserFactory = (ParserFactory) ClassFactory.create(null,
 				PARSER_PACKAGE, className);
+		parserFactory.config = config;
 		parserFactory.setParserName(parserName);
 		return parserFactory;
 	}
@@ -159,7 +173,8 @@ public class ParserFactory extends ClassFactory implements
 			throws SearchLibException {
 		ParserFactory newParser = (ParserFactory) ClassFactory.create(parser);
 		newParser.fieldMap = new FieldMap();
-		parser.fieldMap.copyTo(newParser.fieldMap);
+		if (parser.fieldMap != null)
+			parser.fieldMap.copyTo(newParser.fieldMap);
 		if (parser.config != null)
 			newParser.setUrlFilterList(parser.config.getUrlFilterList()
 					.getArray());
@@ -195,6 +210,9 @@ public class ParserFactory extends ClassFactory implements
 
 	@Override
 	public int compareTo(ParserFactory parserFactory) {
+		int c;
+		if ((c = getParserName().compareTo(parserFactory.getParserName())) != 0)
+			return c;
 		return getClassName().compareTo(parserFactory.getClassName());
 	}
 

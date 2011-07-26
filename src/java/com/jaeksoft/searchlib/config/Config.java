@@ -284,8 +284,7 @@ public abstract class Config {
 		}
 	}
 
-	public void saveParsers() throws IOException,
-			TransformerConfigurationException, SAXException, SearchLibException {
+	public void saveParsers() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "parsers.xml");
 		if (!longTermLock.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -297,6 +296,12 @@ public abstract class Config {
 				getParserSelector().writeXmlConfig(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
+			} catch (TransformerConfigurationException e) {
+				throw new SearchLibException(e);
+			} catch (SAXException e) {
+				throw new SearchLibException(e);
+			} catch (IOException e) {
+				throw new SearchLibException(e);
 			} finally {
 				rwl.w.unlock();
 			}
@@ -576,7 +581,13 @@ public abstract class Config {
 		}
 	}
 
-	public ParserSelector getParserSelector() throws SearchLibException {
+	protected ParserSelector getNewParserSelector(XPathParser xpp, Node node)
+			throws XPathExpressionException, DOMException, IOException,
+			SearchLibException {
+		return ParserSelector.fromXmlConfig(this, xpp, node);
+	}
+
+	final public ParserSelector getParserSelector() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (parserSelector != null)
@@ -591,13 +602,12 @@ public abstract class Config {
 			File parserFile = new File(indexDir, "parsers.xml");
 			if (parserFile.exists()) {
 				XPathParser xpp = new XPathParser(parserFile);
-				parserSelector = ParserSelector.fromXmlConfig(this, xpp,
+				parserSelector = getNewParserSelector(xpp,
 						xpp.getNode("/parsers"));
 			} else {
 				Node node = xppConfig.getNode("/configuration/parsers");
 				if (node != null)
-					parserSelector = ParserSelector.fromXmlConfig(this,
-							xppConfig, node);
+					parserSelector = getNewParserSelector(xppConfig, node);
 			}
 			return parserSelector;
 		} catch (XPathExpressionException e) {
@@ -1226,7 +1236,7 @@ public abstract class Config {
 		return new FileManager((Client) this, indexDir);
 	}
 
-	public FileManager getFileManager() throws SearchLibException {
+	final public FileManager getFileManager() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (fileManager != null)

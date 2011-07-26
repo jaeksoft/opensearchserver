@@ -1,6 +1,6 @@
 <!--
 	License Agreement for Jaeksoft OpenSearchServer
-	Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of Jaeksoft OpenSearchServer.
 	Jaeksoft OpenSearchServer is free software: you can
@@ -18,7 +18,7 @@
 	<tabs>
 		<tab id="tabFields" label="Fields" selected="true" />
 		<tab id="tabAnalyzers" label="Analyzers" />
-		<tab id="tabParserList" label="Parser list" />
+		<tab id="tabParser" label="Parser list" />
 		<tab id="tabStopWords" label="Stop words" />
 		<tab id="tabSynonyms" label="Synonyms" />
 	</tabs>
@@ -29,8 +29,8 @@
 		<tabpanel fulfill="tabAnalyzers.onSelect">
 			<include src="WEB-INF/zul/schema/analyzers.zul" />
 		</tabpanel>
-		<tabpanel fulfill="tabParserList.onSelect">
-			<include src="WEB-INF/zul/schema/parserList.zul" />
+		<tabpanel fulfill="tabParser.onSelect">
+			<include src="WEB-INF/zul/schema/parser/index.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tabStopWords.onSelect">
 			<include src="WEB-INF/zul/schema/stopWords.zul" />
