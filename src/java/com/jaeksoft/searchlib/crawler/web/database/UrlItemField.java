@@ -29,7 +29,7 @@ import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
 public class UrlItemField extends ExtensibleEnumItem<UrlItemField> {
 
-	protected UrlItemField(ExtensibleEnum<UrlItemField> en, String name) {
+	public UrlItemField(ExtensibleEnum<UrlItemField> en, String name) {
 		super(en, name);
 	}
 
