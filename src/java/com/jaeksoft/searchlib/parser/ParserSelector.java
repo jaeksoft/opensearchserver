@@ -65,6 +65,13 @@ public class ParserSelector {
 		parserFactorySet = new TreeSet<ParserFactory>();
 	}
 
+	public ParserSelector(Config config, XPathParser xpp, Node parentNode)
+			throws XPathExpressionException, DOMException, IOException,
+			SearchLibException {
+		this();
+		fromXmlConfig(config, xpp, parentNode);
+	}
+
 	public void setFileCrawlerDefaultParserFactory(
 			ParserFactory fileCrawlerDefaultParserFactory) {
 		rwl.w.lock();
@@ -246,12 +253,9 @@ public class ParserSelector {
 		}
 	}
 
-	public static ParserSelector fromXmlConfig(Config config, XPathParser xpp,
-			Node parentNode) throws XPathExpressionException, DOMException,
-			IOException, SearchLibException {
-		ParserSelector selector = new ParserSelector();
-		if (parentNode == null)
-			return selector;
+	private void fromXmlConfig(Config config, XPathParser xpp, Node parentNode)
+			throws XPathExpressionException, DOMException, IOException,
+			SearchLibException {
 
 		String fileCrawlerDefaultParserName = XPathParser.getAttributeString(
 				parentNode, "fileCrawlerDefault");
@@ -266,19 +270,18 @@ public class ParserSelector {
 					parserNode);
 
 			if (parserFactory != null) {
-				selector.parserFactorySet.add(parserFactory);
+				parserFactorySet.add(parserFactory);
 				if (fileCrawlerDefaultParserName != null
 						&& parserFactory.getParserName().equals(
 								fileCrawlerDefaultParserName))
-					selector.setFileCrawlerDefaultParserFactory(parserFactory);
+					setFileCrawlerDefaultParserFactory(parserFactory);
 				if (webCrawlerDefaultParserName != null
 						&& parserFactory.getParserName().equals(
 								webCrawlerDefaultParserName))
-					selector.setWebCrawlerDefaultParserFactory(parserFactory);
-				selector.rebuildParserMap();
+					setWebCrawlerDefaultParserFactory(parserFactory);
+				rebuildParserMap();
 			}
 		}
-		return selector;
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {

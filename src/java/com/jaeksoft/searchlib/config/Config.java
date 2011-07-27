@@ -584,7 +584,7 @@ public abstract class Config {
 	protected ParserSelector getNewParserSelector(XPathParser xpp, Node node)
 			throws XPathExpressionException, DOMException, IOException,
 			SearchLibException {
-		return ParserSelector.fromXmlConfig(this, xpp, node);
+		return new ParserSelector(this, xpp, node);
 	}
 
 	final public ParserSelector getParserSelector() throws SearchLibException {
