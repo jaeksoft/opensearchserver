@@ -121,7 +121,7 @@ public class Crawl {
 						.getParserSelector());
 	}
 
-	private void parseContent(InputStream inputStream)
+	protected void parseContent(InputStream inputStream)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException, SearchLibException,
 			NoSuchAlgorithmException {
