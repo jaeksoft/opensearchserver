@@ -69,9 +69,10 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			updateCrawlList.add(crawl);
 			currentStats.incPendingUpdateCount();
 			List<String> discoverLinks = crawl.getDiscoverLinks();
+			UrlManagerAbstract urlManager = getConfig().getUrlManager();
 			if (discoverLinks != null) {
 				for (String link : discoverLinks)
-					insertUrlList.add(new UrlItem(link));
+					insertUrlList.add(urlManager.getNewUrlItem(link));
 				currentStats.addPendingNewUrlCount(discoverLinks.size());
 			}
 		} finally {

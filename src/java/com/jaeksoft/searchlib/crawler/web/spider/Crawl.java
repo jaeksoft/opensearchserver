@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
+import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
@@ -83,6 +84,7 @@ public class Crawl {
 	private boolean inclusionEnabled;
 	private boolean exclusionEnabled;
 	private boolean robotsTxtEnabled;
+	private final UrlItemFieldEnum urlItemFieldEnum;
 
 	public Crawl(HostUrlList hostUrlList, UrlItem urlItem, Config config,
 			ParserSelector parserSelector, CredentialManager credentialManager)
@@ -109,6 +111,8 @@ public class Crawl {
 				.getValue();
 		this.robotsTxtEnabled = propertyManager.getRobotsTxtEnabled()
 				.getValue();
+		this.urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
+
 	}
 
 	private void parseContent(InputStream inputStream)
@@ -131,7 +135,7 @@ public class Crawl {
 			return;
 		}
 		IndexDocument sourceDocument = new IndexDocument();
-		urlItem.populate(sourceDocument);
+		urlItem.populate(sourceDocument, urlItemFieldEnum);
 		parser.setSourceDocument(sourceDocument);
 		Date parserStartDate = new Date();
 		parser.parseContent(inputStream);
@@ -342,7 +346,7 @@ public class Crawl {
 					LanguageEnum.findByCode(urlItem.getLang()));
 
 			IndexDocument urlIndexDocument = new IndexDocument();
-			urlItem.populate(urlIndexDocument);
+			urlItem.populate(urlIndexDocument, urlItemFieldEnum);
 			urlFieldMap.mapIndexDocument(urlIndexDocument, targetIndexDocument);
 
 			if (parser != null)
@@ -355,7 +359,7 @@ public class Crawl {
 				if (!indexPluginList.run((Client) config, getContentType(),
 						getInputStream(), getReader(), targetIndexDocument)) {
 					urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
-					urlItem.populate(urlIndexDocument);
+					urlItem.populate(urlIndexDocument, urlItemFieldEnum);
 				}
 			}
 

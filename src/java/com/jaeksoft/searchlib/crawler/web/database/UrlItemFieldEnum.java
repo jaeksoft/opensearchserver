@@ -24,46 +24,59 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
-public enum UrlItemFieldEnum {
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
-	url,
+public class UrlItemFieldEnum extends ExtensibleEnum<UrlItemField> {
 
-	lang,
+	final public UrlItemField url = new UrlItemField(this, "url");
 
-	langMethod,
+	final public UrlItemField lang = new UrlItemField(this, "lang");
 
-	contentDispositionFilename,
+	final public UrlItemField langMethod = new UrlItemField(this, "langMethod");
 
-	contentBaseType,
+	final public UrlItemField contentDispositionFilename = new UrlItemField(
+			this, "contentDispositionFilename");
 
-	contentTypeCharset,
+	final public UrlItemField contentBaseType = new UrlItemField(this,
+			"contentBaseType");
 
-	contentEncoding,
+	final public UrlItemField contentTypeCharset = new UrlItemField(this,
+			"contentTypeCharset");
 
-	contentLength,
+	final public UrlItemField contentEncoding = new UrlItemField(this,
+			"contentEncoding");
 
-	outlink,
+	final public UrlItemField contentLength = new UrlItemField(this,
+			"contentLength");
 
-	inlink,
+	final public UrlItemField outlink = new UrlItemField(this, "outlink");
 
-	host,
+	final public UrlItemField inlink = new UrlItemField(this, "inlink");
 
-	subhost,
+	final public UrlItemField host = new UrlItemField(this, "host");
 
-	when,
+	final public UrlItemField subhost = new UrlItemField(this, "subhost");
 
-	responseCode,
+	final public UrlItemField when = new UrlItemField(this, "when");
 
-	robotsTxtStatus,
+	final public UrlItemField responseCode = new UrlItemField(this,
+			"responseCode");
 
-	parserStatus,
+	final public UrlItemField robotsTxtStatus = new UrlItemField(this,
+			"robotsTxtStatus");
 
-	fetchStatus,
+	final public UrlItemField parserStatus = new UrlItemField(this,
+			"parserStatus");
 
-	indexStatus,
+	final public UrlItemField fetchStatus = new UrlItemField(this,
+			"fetchStatus");
 
-	md5size,
+	final public UrlItemField indexStatus = new UrlItemField(this,
+			"indexStatus");
 
-	lastModifiedDate;
+	final public UrlItemField md5size = new UrlItemField(this, "md5size");
+
+	final public UrlItemField lastModifiedDate = new UrlItemField(this,
+			"lastModifiedDate");
 
 }

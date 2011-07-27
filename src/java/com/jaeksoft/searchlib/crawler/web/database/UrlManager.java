@@ -186,6 +186,16 @@ public class UrlManager extends UrlManagerAbstract {
 	}
 
 	@Override
+	public UrlItem getNewUrlItem() {
+		return new UrlItem();
+	}
+
+	@Override
+	public UrlItemFieldEnum getNewUrlItemFieldEnum() {
+		return new UrlItemFieldEnum();
+	}
+
+	@Override
 	public boolean exists(String sUrl) throws SearchLibException {
 		SearchRequest request = getUrlSearchRequest();
 		request.setQueryString("url:\"" + sUrl + '"');
@@ -209,7 +219,7 @@ public class UrlManager extends UrlManagerAbstract {
 					if (exists(item.getUrl()))
 						item.setStatus(InjectUrlItem.Status.ALREADY);
 					else
-						injectList.add(item.getIndexDocument());
+						injectList.add(item.getIndexDocument(urlItemFieldEnum));
 				}
 				if (injectList.size() == 0)
 					return;
@@ -368,7 +378,7 @@ public class UrlManager extends UrlManagerAbstract {
 		searchRequest.setRows((int) limit);
 		Result result = urlDbClient.search(searchRequest);
 		for (ResultDocument item : result.getDocuments())
-			urlList.add(new UrlItem(item));
+			urlList.add(getNewUrlItem(item));
 	}
 
 	@Override
@@ -385,7 +395,7 @@ public class UrlManager extends UrlManagerAbstract {
 		Result result = urlDbClient.search(searchRequest);
 		if (result.getDocumentCount() == 0)
 			return null;
-		return new UrlItem(result.getDocument(0));
+		return getNewUrlItem(result.getDocument(0));
 
 	}
 
@@ -415,7 +425,7 @@ public class UrlManager extends UrlManagerAbstract {
 		searchRequest.setRows((int) limit);
 		Result result = urlDbClient.search(searchRequest);
 		for (ResultDocument item : result.getDocuments())
-			urlList.add(new UrlItem(item));
+			urlList.add(getNewUrlItem(item));
 	}
 
 	private SearchRequest urlQuery(SearchTemplate urlSearchTemplate,
@@ -563,7 +573,7 @@ public class UrlManager extends UrlManagerAbstract {
 			Result result = urlDbClient.search(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result.getDocuments())
-					list.add(new UrlItem(doc));
+					list.add(getNewUrlItem(doc));
 			return result.getNumFound();
 		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
@@ -603,7 +613,7 @@ public class UrlManager extends UrlManagerAbstract {
 	public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
 		try {
 			IndexDocument indexDocument = new IndexDocument();
-			urlItem.populate(indexDocument);
+			urlItem.populate(indexDocument, urlItemFieldEnum);
 			urlDbClient.updateDocument(indexDocument);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
@@ -632,7 +642,7 @@ public class UrlManager extends UrlManagerAbstract {
 				if (urlItem == null)
 					continue;
 				IndexDocument indexDocument = new IndexDocument();
-				urlItem.populate(indexDocument);
+				urlItem.populate(indexDocument, urlItemFieldEnum);
 				documents.add(indexDocument);
 			}
 			if (documents.size() > 0)

@@ -154,4 +154,16 @@ public class UrlManagerNative extends UrlManagerAbstract {
 		return false;
 	}
 
+	@Override
+	public UrlItem getNewUrlItem() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected UrlItemFieldEnum getNewUrlItemFieldEnum() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

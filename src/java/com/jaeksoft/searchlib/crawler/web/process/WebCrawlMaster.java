@@ -173,7 +173,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				List<String> urls = getListOfUrls(siteMap.getUri());
 				for (String uri : urls) {
 					if (!urlManager.exists(uri)) {
-						workInsertUrlList.add(new UrlItem(uri));
+						workInsertUrlList.add(urlManager.getNewUrlItem(uri));
 					}
 				}
 			}
@@ -284,10 +284,11 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		Config config = getConfig();
+		UrlManagerAbstract urlManager = config.getUrlManager();
 		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
-		UrlItem urlItem = config.getUrlManager().getUrlToFetch(url);
+		UrlItem urlItem = urlManager.getUrlToFetch(url);
 		if (urlItem == null)
-			urlItem = new UrlItem(url.toExternalForm());
+			urlItem = urlManager.getNewUrlItem(url.toExternalForm());
 		urlItemList.add(urlItem);
 		HostUrlList hostUrlList = new HostUrlList(urlItemList, new NamedItem(
 				url.getHost()));

@@ -53,6 +53,7 @@ import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class UrlManagerAbstract {
@@ -61,7 +62,13 @@ public abstract class UrlManagerAbstract {
 		urlSearch, urlExport;
 	}
 
-	protected Client targetClient;
+	protected Client targetClient = null;
+
+	protected UrlItemFieldEnum urlItemFieldEnum;
+
+	public UrlManagerAbstract() {
+		urlItemFieldEnum = getNewUrlItemFieldEnum();
+	}
 
 	public abstract void init(Client client, File dataDir)
 			throws SearchLibException, URISyntaxException,
@@ -101,6 +108,26 @@ public abstract class UrlManagerAbstract {
 
 	public abstract void inject(List<InjectUrlItem> list)
 			throws SearchLibException;
+
+	public abstract UrlItem getNewUrlItem();
+
+	protected abstract UrlItemFieldEnum getNewUrlItemFieldEnum();
+
+	public final UrlItemFieldEnum getUrlItemFieldEnum() {
+		return urlItemFieldEnum;
+	}
+
+	public final UrlItem getNewUrlItem(String url) {
+		UrlItem ui = getNewUrlItem();
+		ui.setUrl(url);
+		return ui;
+	}
+
+	final protected UrlItem getNewUrlItem(ResultDocument item) {
+		UrlItem ui = getNewUrlItem();
+		ui.init(item, urlItemFieldEnum);
+		return ui;
+	}
 
 	public abstract long getUrls(SearchTemplate urlSearchTemplate, String like,
 			String host, boolean includingSubDomain, String lang,

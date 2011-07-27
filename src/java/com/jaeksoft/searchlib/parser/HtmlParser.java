@@ -74,6 +74,8 @@ public class HtmlParser extends Parser {
 			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
 			ParserFieldEnum.filename, ParserFieldEnum.content_type };
 
+	private UrlItemFieldEnum urlItemFieldEnum = null;
+
 	public HtmlParser() {
 		super(fl);
 		synchronized (this) {
@@ -111,6 +113,8 @@ public class HtmlParser extends Parser {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null);
+		if (config != null)
+			urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
 	}
 
 	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
@@ -418,12 +422,12 @@ public class HtmlParser extends Parser {
 		IndexDocument sourceDocument = getSourceDocument();
 		if (sourceDocument != null) {
 			FieldValueItem fieldValueItem = sourceDocument.getFieldValue(
-					UrlItemFieldEnum.contentTypeCharset.name(), 0);
+					urlItemFieldEnum.contentTypeCharset.getName(), 0);
 			if (fieldValueItem != null)
 				charset = fieldValueItem.getValue();
 			if (charset == null) {
 				fieldValueItem = sourceDocument.getFieldValue(
-						UrlItemFieldEnum.contentEncoding.name(), 0);
+						urlItemFieldEnum.contentEncoding.getName(), 0);
 				if (fieldValueItem != null)
 					charset = fieldValueItem.getValue();
 			}
@@ -520,7 +524,7 @@ public class HtmlParser extends Parser {
 			URL currentURL = getBaseHref(doc);
 			if (currentURL == null)
 				currentURL = new URL(getSourceDocument().getFieldValue(
-						UrlItemFieldEnum.url.name(), 0).getValue());
+						urlItemFieldEnum.url.getName(), 0).getValue());
 			for (Node node : nodes) {
 				String href = DomUtils.getAttributeText(node, "href");
 				String rel = DomUtils.getAttributeText(node, "rel");

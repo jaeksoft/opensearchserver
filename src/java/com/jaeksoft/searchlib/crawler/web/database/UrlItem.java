@@ -77,7 +77,7 @@ public class UrlItem implements Serializable {
 	private List<String> outLinks;
 	private List<String> inLinks;
 
-	public UrlItem() {
+	protected UrlItem() {
 		url = null;
 		cachedUrl = null;
 		checkedUri = null;
@@ -103,45 +103,39 @@ public class UrlItem implements Serializable {
 		lastModifiedDate = null;
 	}
 
-	public UrlItem(ResultDocument doc) {
-		this();
-		setUrl(doc.getValueContent(UrlItemFieldEnum.url.name(), 0));
-		setHost(doc.getValueContent(UrlItemFieldEnum.host.name(), 0));
-		setSubHost(doc.getValueList(UrlItemFieldEnum.subhost.name()));
-		addOutLinks(doc.getValueList(UrlItemFieldEnum.outlink.name()));
-		addInLinks(doc.getValueList(UrlItemFieldEnum.inlink.name()));
+	protected void init(ResultDocument doc, UrlItemFieldEnum urlItemFieldEnum) {
+		setUrl(doc.getValueContent(urlItemFieldEnum.url.getName(), 0));
+		setHost(doc.getValueContent(urlItemFieldEnum.host.getName(), 0));
+		setSubHost(doc.getValueList(urlItemFieldEnum.subhost.getName()));
+		addOutLinks(doc.getValueList(urlItemFieldEnum.outlink.getName()));
+		addInLinks(doc.getValueList(urlItemFieldEnum.inlink.getName()));
 		setContentDispositionFilename(doc.getValueContent(
-				UrlItemFieldEnum.contentDispositionFilename.name(), 0));
+				urlItemFieldEnum.contentDispositionFilename.getName(), 0));
 		setContentBaseType(doc.getValueContent(
-				UrlItemFieldEnum.contentBaseType.name(), 0));
+				urlItemFieldEnum.contentBaseType.getName(), 0));
 		setContentTypeCharset(doc.getValueContent(
-				UrlItemFieldEnum.contentTypeCharset.name(), 0));
+				urlItemFieldEnum.contentTypeCharset.getName(), 0));
 		setContentLength(doc.getValueContent(
-				UrlItemFieldEnum.contentLength.name(), 0));
+				urlItemFieldEnum.contentLength.getName(), 0));
 		setContentEncoding(doc.getValueContent(
-				UrlItemFieldEnum.contentEncoding.name(), 0));
-		setLang(doc.getValueContent(UrlItemFieldEnum.lang.name(), 0));
-		setLangMethod(doc
-				.getValueContent(UrlItemFieldEnum.langMethod.name(), 0));
-		setWhen(doc.getValueContent(UrlItemFieldEnum.when.name(), 0));
+				urlItemFieldEnum.contentEncoding.getName(), 0));
+		setLang(doc.getValueContent(urlItemFieldEnum.lang.getName(), 0));
+		setLangMethod(doc.getValueContent(
+				urlItemFieldEnum.langMethod.getName(), 0));
+		setWhen(doc.getValueContent(urlItemFieldEnum.when.getName(), 0));
 		setRobotsTxtStatusInt(doc.getValueContent(
-				UrlItemFieldEnum.robotsTxtStatus.name(), 0));
+				urlItemFieldEnum.robotsTxtStatus.getName(), 0));
 		setFetchStatusInt(doc.getValueContent(
-				UrlItemFieldEnum.fetchStatus.name(), 0));
+				urlItemFieldEnum.fetchStatus.getName(), 0));
 		setResponseCode(doc.getValueContent(
-				UrlItemFieldEnum.responseCode.name(), 0));
+				urlItemFieldEnum.responseCode.getName(), 0));
 		setParserStatusInt(doc.getValueContent(
-				UrlItemFieldEnum.parserStatus.name(), 0));
+				urlItemFieldEnum.parserStatus.getName(), 0));
 		setIndexStatusInt(doc.getValueContent(
-				UrlItemFieldEnum.indexStatus.name(), 0));
-		setMd5size(doc.getValueContent(UrlItemFieldEnum.md5size.name(), 0));
+				urlItemFieldEnum.indexStatus.getName(), 0));
+		setMd5size(doc.getValueContent(urlItemFieldEnum.md5size.getName(), 0));
 		setLastModifiedDate(doc.getValueContent(
-				UrlItemFieldEnum.lastModifiedDate.name(), 0));
-	}
-
-	public UrlItem(String sUrl) {
-		this();
-		setUrl(sUrl);
+				urlItemFieldEnum.lastModifiedDate.getName(), 0));
 	}
 
 	public List<String> getSubHost() {
@@ -491,60 +485,64 @@ public class UrlItem implements Serializable {
 		return subhost;
 	}
 
-	public void populate(IndexDocument indexDocument)
-			throws MalformedURLException {
+	public void populate(IndexDocument indexDocument,
+			UrlItemFieldEnum urlItemFieldEnum) throws MalformedURLException {
 		SimpleDateFormat df = getWhenDateFormat();
-		indexDocument.setString(UrlItemFieldEnum.url.name(), getUrl());
-		indexDocument.setString(UrlItemFieldEnum.when.name(), df.format(when));
+		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
+		indexDocument.setString(urlItemFieldEnum.when.getName(),
+				df.format(when));
 		URL url = getURL();
 		if (url != null) {
-			indexDocument
-					.setString(UrlItemFieldEnum.host.name(), url.getHost());
-			indexDocument.setStringList(UrlItemFieldEnum.subhost.name(),
+			indexDocument.setString(urlItemFieldEnum.host.getName(),
+					url.getHost());
+			indexDocument.setStringList(urlItemFieldEnum.subhost.getName(),
 					buildSubHost(url.getHost()));
 		}
 		if (inLinks != null)
-			indexDocument
-					.setStringList(UrlItemFieldEnum.inlink.name(), inLinks);
+			indexDocument.setStringList(urlItemFieldEnum.inlink.getName(),
+					inLinks);
 		if (outLinks != null)
-			indexDocument.setStringList(UrlItemFieldEnum.outlink.name(),
+			indexDocument.setStringList(urlItemFieldEnum.outlink.getName(),
 					outLinks);
 		if (responseCode != null)
-			indexDocument.setObject(UrlItemFieldEnum.responseCode.name(),
+			indexDocument.setObject(urlItemFieldEnum.responseCode.getName(),
 					responseCode);
 		if (contentDispositionFilename != null)
 			indexDocument.setString(
-					UrlItemFieldEnum.contentDispositionFilename.name(),
+					urlItemFieldEnum.contentDispositionFilename.getName(),
 					contentDispositionFilename);
 		if (contentBaseType != null)
-			indexDocument.setString(UrlItemFieldEnum.contentBaseType.name(),
+			indexDocument.setString(urlItemFieldEnum.contentBaseType.getName(),
 					contentBaseType);
 		if (contentTypeCharset != null)
-			indexDocument.setString(UrlItemFieldEnum.contentTypeCharset.name(),
+			indexDocument.setString(
+					urlItemFieldEnum.contentTypeCharset.getName(),
 					contentTypeCharset);
 		if (contentLength != null)
-			indexDocument.setString(UrlItemFieldEnum.contentLength.name(),
+			indexDocument.setString(urlItemFieldEnum.contentLength.getName(),
 					getContentLengthFormat().format(contentLength));
 		if (contentEncoding != null)
-			indexDocument.setString(UrlItemFieldEnum.contentEncoding.name(),
+			indexDocument.setString(urlItemFieldEnum.contentEncoding.getName(),
 					contentEncoding);
 		if (lang != null)
-			indexDocument.setString(UrlItemFieldEnum.lang.name(), lang);
+			indexDocument.setString(urlItemFieldEnum.lang.getName(), lang);
 		if (langMethod != null)
-			indexDocument.setString(UrlItemFieldEnum.langMethod.name(),
+			indexDocument.setString(urlItemFieldEnum.langMethod.getName(),
 					langMethod);
-		indexDocument.setObject(UrlItemFieldEnum.robotsTxtStatus.name(),
+		indexDocument.setObject(urlItemFieldEnum.robotsTxtStatus.getName(),
 				robotsTxtStatus.value);
-		indexDocument.setObject(UrlItemFieldEnum.fetchStatus.name(),
+		indexDocument.setObject(urlItemFieldEnum.fetchStatus.getName(),
 				fetchStatus.value);
-		indexDocument.setObject(UrlItemFieldEnum.parserStatus.name(),
+		indexDocument.setObject(urlItemFieldEnum.parserStatus.getName(),
 				parserStatus.value);
-		indexDocument.setObject(UrlItemFieldEnum.indexStatus.name(),
+		indexDocument.setObject(urlItemFieldEnum.indexStatus.getName(),
 				indexStatus.value);
 		if (md5size != null)
-			indexDocument.setString(UrlItemFieldEnum.md5size.name(), md5size);
+			indexDocument
+					.setString(urlItemFieldEnum.md5size.getName(), md5size);
 		if (lastModifiedDate != null)
-			indexDocument.setString(UrlItemFieldEnum.lastModifiedDate.name(),
+			indexDocument.setString(
+					urlItemFieldEnum.lastModifiedDate.getName(),
 					df.format(lastModifiedDate));
 	}
 

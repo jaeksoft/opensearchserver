@@ -101,30 +101,31 @@ public class InjectUrlItem {
 		status = v;
 	}
 
-	public void populate(IndexDocument indexDocument) {
-		indexDocument.setString(UrlItemFieldEnum.url.name(), getUrl());
-		indexDocument.setString(UrlItemFieldEnum.when.name(), UrlItem
+	public void populate(IndexDocument indexDocument,
+			UrlItemFieldEnum urlItemFieldEnum) {
+		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
+		indexDocument.setString(urlItemFieldEnum.when.getName(), UrlItem
 				.getWhenDateFormat().format(new Date()));
 		URL url = getURL();
 		if (url != null) {
 			String hostname = url.getHost();
-			indexDocument.setString(UrlItemFieldEnum.host.name(), hostname);
-			indexDocument.setStringList(UrlItemFieldEnum.subhost.name(),
+			indexDocument.setString(urlItemFieldEnum.host.getName(), hostname);
+			indexDocument.setStringList(urlItemFieldEnum.subhost.getName(),
 					UrlItem.buildSubHost(hostname));
 		}
-		indexDocument.setObject(UrlItemFieldEnum.fetchStatus.name(),
+		indexDocument.setObject(urlItemFieldEnum.fetchStatus.getName(),
 				FetchStatus.UN_FETCHED.value);
-		indexDocument.setObject(UrlItemFieldEnum.parserStatus.name(),
+		indexDocument.setObject(urlItemFieldEnum.parserStatus.getName(),
 				ParserStatus.NOT_PARSED.value);
-		indexDocument.setObject(UrlItemFieldEnum.indexStatus.name(),
+		indexDocument.setObject(urlItemFieldEnum.indexStatus.getName(),
 				IndexStatus.NOT_INDEXED.value);
-		indexDocument.setObject(UrlItemFieldEnum.robotsTxtStatus.name(),
+		indexDocument.setObject(urlItemFieldEnum.robotsTxtStatus.getName(),
 				RobotsTxtStatus.UNKNOWN.value);
 	}
 
-	public IndexDocument getIndexDocument() {
+	public IndexDocument getIndexDocument(UrlItemFieldEnum urlItemFieldEnum) {
 		IndexDocument indexDocument = new IndexDocument();
-		populate(indexDocument);
+		populate(indexDocument, urlItemFieldEnum);
 		return indexDocument;
 	}
 }
