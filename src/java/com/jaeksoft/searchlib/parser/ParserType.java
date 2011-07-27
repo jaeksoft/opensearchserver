@@ -31,7 +31,7 @@ public class ParserType extends ExtensibleEnumItem<ParserType> {
 
 	private Class<? extends Parser> parserClass;
 
-	protected ParserType(ExtensibleEnum<ParserType> en, String name,
+	public ParserType(ExtensibleEnum<ParserType> en, String name,
 			Class<? extends Parser> parserClass) {
 		super(en, name);
 		this.parserClass = parserClass;
