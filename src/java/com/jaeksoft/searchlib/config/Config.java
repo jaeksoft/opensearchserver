@@ -973,7 +973,15 @@ public abstract class Config {
 		}
 	}
 
-	public UrlManagerAbstract getUrlManager() throws SearchLibException {
+	protected UrlManagerAbstract getNewUrlManagerInstance()
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		return (UrlManagerAbstract) Class.forName(
+				"com.jaeksoft.searchlib.crawler.web.database."
+						+ urlManagerClass).newInstance();
+	}
+
+	final public UrlManagerAbstract getUrlManager() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (urlManager != null)
@@ -985,9 +993,7 @@ public abstract class Config {
 		try {
 			if (urlManager != null)
 				return urlManager;
-			UrlManagerAbstract ua = (UrlManagerAbstract) Class.forName(
-					"com.jaeksoft.searchlib.crawler.web.database."
-							+ urlManagerClass).newInstance();
+			UrlManagerAbstract ua = getNewUrlManagerInstance();
 			ua.init((Client) this, indexDir);
 			return urlManager = ua;
 		} catch (FileNotFoundException e) {
