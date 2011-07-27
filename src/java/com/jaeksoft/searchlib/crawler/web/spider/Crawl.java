@@ -54,6 +54,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -87,9 +88,8 @@ public class Crawl {
 	private final UrlItemFieldEnum urlItemFieldEnum;
 
 	public Crawl(HostUrlList hostUrlList, UrlItem urlItem, Config config,
-			ParserSelector parserSelector, CredentialManager credentialManager)
-			throws SearchLibException {
-		this.credentialManager = credentialManager;
+			ParserSelector parserSelector) throws SearchLibException {
+		this.credentialManager = config.getWebCredentialManager();
 		this.credentialItem = null;
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		this.hostUrlList = hostUrlList;
@@ -113,6 +113,12 @@ public class Crawl {
 				.getValue();
 		this.urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
 
+	}
+
+	public Crawl(WebCrawlThread crawlThread) throws SearchLibException {
+		this(crawlThread.getHostUrlList(), crawlThread.getCurrentUrlItem(),
+				crawlThread.getConfig(), crawlThread.getConfig()
+						.getParserSelector());
 	}
 
 	private void parseContent(InputStream inputStream)

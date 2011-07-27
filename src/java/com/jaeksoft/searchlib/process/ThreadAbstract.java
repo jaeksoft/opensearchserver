@@ -304,7 +304,7 @@ public abstract class ThreadAbstract implements Runnable {
 		}
 	}
 
-	protected ThreadMasterAbstract getThreadMaster() {
+	final protected ThreadMasterAbstract getThreadMaster() {
 		rwl.r.lock();
 		try {
 			return threadMaster;

@@ -507,6 +507,10 @@ public abstract class Config {
 		}
 	}
 
+	protected WebCrawlMaster getNewWebCrawlMaster() throws SearchLibException {
+		return new WebCrawlMaster(this);
+	}
+
 	public WebCrawlMaster getWebCrawlMaster() throws SearchLibException {
 		rwl.r.lock();
 		try {
@@ -519,7 +523,7 @@ public abstract class Config {
 		try {
 			if (webCrawlMaster != null)
 				return webCrawlMaster;
-			return webCrawlMaster = new WebCrawlMaster(this);
+			return webCrawlMaster = getNewWebCrawlMaster();
 		} finally {
 			rwl.w.unlock();
 		}

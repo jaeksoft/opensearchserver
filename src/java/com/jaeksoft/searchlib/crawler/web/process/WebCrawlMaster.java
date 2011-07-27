@@ -57,6 +57,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.util.DomUtils;
 
@@ -276,6 +277,12 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 	public boolean isFull() throws SearchLibException {
 		return currentStats.getFetchedCount() >= getConfig()
 				.getWebPropertyManager().getMaxUrlPerSession().getValue();
+	}
+
+	public Crawl getNewCrawl(WebCrawlThread crawlThread)
+			throws SearchLibException {
+		return new Crawl(crawlThread);
+
 	}
 
 	public WebCrawlThread manualCrawl(URL url, HostUrlList.ListType listType)
