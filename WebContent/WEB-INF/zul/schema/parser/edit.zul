@@ -142,7 +142,7 @@
 						<listitem self="@{each='indexField'}"
 							label="@{indexField.name}" />
 					</listbox>
-					<button label="add" forward="onAdd" />
+					<button label="add" onClick="parser.onAdd()" />
 				</hbox>
 				<listbox model="@{parser.currentParser.fieldMap.list}"
 					itemRenderer="@{parser}">
