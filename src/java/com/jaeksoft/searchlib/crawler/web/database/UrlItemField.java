@@ -36,28 +36,28 @@ public class UrlItemField extends ExtensibleEnumItem<UrlItemField> {
 		super(en, name);
 	}
 
-	void addFilterQuery(SearchRequest request, Object value)
+	public void addFilterQuery(SearchRequest request, Object value)
 			throws ParseException {
 		StringBuffer sb = new StringBuffer();
 		addQuery(sb, value);
 		request.addFilter(sb.toString(), false);
 	}
 
-	void addFilterRange(SearchRequest request, Object from, Object to)
+	public void addFilterRange(SearchRequest request, Object from, Object to)
 			throws ParseException {
 		StringBuffer sb = new StringBuffer();
 		addQueryRange(sb, from, to);
 		request.addFilter(sb.toString(), false);
 	}
 
-	void addQuery(StringBuffer sb, Object value) {
+	public void addQuery(StringBuffer sb, Object value) {
 		sb.append(" ");
 		sb.append(name);
 		sb.append(":");
 		sb.append(value);
 	}
 
-	void addQueryRange(StringBuffer sb, Object from, Object to) {
+	public void addQueryRange(StringBuffer sb, Object from, Object to) {
 		sb.append(" ");
 		sb.append(name);
 		sb.append(":[");
