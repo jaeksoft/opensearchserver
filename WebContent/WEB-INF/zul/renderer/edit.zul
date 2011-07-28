@@ -31,7 +31,7 @@
 					</row>
 					<row>
 						<label value="Request name: " />
-						<combobox model="@{renderer.requestList}"
+						<combobox model="@{renderer.requestList}" onChange="renderer.reloadPage()"
 							width="200px" value="@{renderer.currentRenderer.requestName}" />
 					</row>
 					<row>

@@ -85,8 +85,10 @@ public class RendererServlet extends AbstractServlet {
 	public static String doRenderer(String name, String query)
 			throws UnsupportedEncodingException {
 		StringBuffer sb = CommonController.getApiUrl("/renderer");
-		sb.append("&name=");
-		sb.append(URLEncoder.encode(name, "UTF-8"));
+		if (name != null) {
+			sb.append("&name=");
+			sb.append(URLEncoder.encode(name, "UTF-8"));
+		}
 		if (query != null) {
 			sb.append("&query=");
 			sb.append(URLEncoder.encode(query, "UTF-8"));

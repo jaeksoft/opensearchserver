@@ -257,9 +257,6 @@ public class RendererController extends CommonController {
 		return selectedRenderer;
 	}
 
-	public void setSelectedRenderer(Renderer renderer) {
-	}
-
 	public Integer getIframeWidth() {
 		return (Integer) getAttribute(ScopeAttribute.RENDERER_IFRAME_WIDTH,
 				new Integer(700));

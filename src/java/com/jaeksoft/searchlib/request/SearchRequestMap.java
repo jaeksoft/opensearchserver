@@ -43,11 +43,6 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SearchRequestMap {
 
-	/**
-	 * RequestList est une liste de Request.
-	 */
-	private static final long serialVersionUID = -7165162765377426369L;
-
 	private Map<String, SearchRequest> map;
 
 	/**
@@ -90,6 +85,8 @@ public class SearchRequestMap {
 	}
 
 	public SearchRequest get(String requestName) {
+		if (requestName == null)
+			return null;
 		return map.get(requestName);
 	}
 

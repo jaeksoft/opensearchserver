@@ -17,7 +17,7 @@
 <panel title="List of existing renderer" border="normal">
 	<panelchildren>
 		<listbox model="@{renderer.renderers}" mold="paging"
-			selectedItem="@{renderer.selectedRenderer}" pageSize="10">
+			 pageSize="10">
 			<auxhead>
 				<auxheader colspan="3">
 					<button label="New renderer..."
