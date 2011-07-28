@@ -36,34 +36,47 @@ public class UrlItemField extends ExtensibleEnumItem<UrlItemField> {
 		super(en, name);
 	}
 
-	public void addFilterQuery(SearchRequest request, Object value)
-			throws ParseException {
+	public void addFilterQuery(SearchRequest request, Object value,
+			boolean quote) throws ParseException {
 		StringBuffer sb = new StringBuffer();
-		addQuery(sb, value);
+		addQuery(sb, value, quote);
 		request.addFilter(sb.toString(), false);
 	}
 
-	public void addFilterRange(SearchRequest request, Object from, Object to)
-			throws ParseException {
+	public void addFilterRange(SearchRequest request, Object from, Object to,
+			boolean quote) throws ParseException {
 		StringBuffer sb = new StringBuffer();
-		addQueryRange(sb, from, to);
+		addQueryRange(sb, from, to, quote);
 		request.addFilter(sb.toString(), false);
 	}
 
-	public void addQuery(StringBuffer sb, Object value) {
+	public void addQuery(StringBuffer sb, Object value, boolean quote) {
 		sb.append(" ");
 		sb.append(name);
 		sb.append(":");
+		if (quote)
+			sb.append('"');
 		sb.append(value);
+		if (quote)
+			sb.append('"');
 	}
 
-	public void addQueryRange(StringBuffer sb, Object from, Object to) {
+	public void addQueryRange(StringBuffer sb, Object from, Object to,
+			boolean quote) {
 		sb.append(" ");
 		sb.append(name);
 		sb.append(":[");
+		if (quote)
+			sb.append('"');
 		sb.append(from);
+		if (quote)
+			sb.append('"');
 		sb.append(" TO ");
+		if (quote)
+			sb.append('"');
 		sb.append(to);
+		if (quote)
+			sb.append('"');
 		sb.append("]");
 	}
 

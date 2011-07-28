@@ -397,7 +397,7 @@ public class UrlManager extends UrlManagerAbstract {
 							SearchRequest.AND_OR_NOT_CHARS);
 					like = SearchRequest.escapeQuery(like,
 							SearchRequest.CONTROL_CHARS);
-					urlItemFieldEnum.url.addQuery(query, like);
+					urlItemFieldEnum.url.addQuery(query, like, false);
 				}
 			}
 			if (host != null) {
@@ -405,61 +405,62 @@ public class UrlManager extends UrlManagerAbstract {
 				if (host.length() > 0)
 					if (includingSubDomain)
 						urlItemFieldEnum.subhost.addFilterQuery(searchRequest,
-								SearchRequest.escapeQuery(host));
+								SearchRequest.escapeQuery(host), false);
 					else
 						urlItemFieldEnum.host.addFilterQuery(searchRequest,
-								SearchRequest.escapeQuery(host));
+								SearchRequest.escapeQuery(host), false);
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
 					urlItemFieldEnum.lang.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(lang));
+							SearchRequest.escapeQuery(lang), false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
 					urlItemFieldEnum.langMethod.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(langMethod));
+							SearchRequest.escapeQuery(langMethod), false);
 			}
 			if (contentBaseType != null) {
 				contentBaseType = contentBaseType.trim();
 				if (contentBaseType.length() > 0)
 					urlItemFieldEnum.contentBaseType.addFilterQuery(
 							searchRequest,
-							SearchRequest.escapeQuery(contentBaseType));
+							SearchRequest.escapeQuery(contentBaseType), false);
 			}
 			if (contentTypeCharset != null) {
 				contentTypeCharset = contentTypeCharset.trim();
 				if (contentTypeCharset.length() > 0)
 					urlItemFieldEnum.contentTypeCharset.addFilterQuery(
 							searchRequest,
-							SearchRequest.escapeQuery(contentTypeCharset));
+							SearchRequest.escapeQuery(contentTypeCharset),
+							false);
 			}
 			if (contentEncoding != null) {
 				contentEncoding = contentEncoding.trim();
 				if (contentEncoding.length() > 0)
 					urlItemFieldEnum.contentEncoding.addFilterQuery(
 							searchRequest,
-							SearchRequest.escapeQuery(contentEncoding));
+							SearchRequest.escapeQuery(contentEncoding), false);
 			}
 
 			if (robotsTxtStatus != null
 					&& robotsTxtStatus != RobotsTxtStatus.ALL)
 				urlItemFieldEnum.robotsTxtStatus.addFilterQuery(searchRequest,
-						robotsTxtStatus.value);
+						robotsTxtStatus.value, false);
 			if (responseCode != null)
 				urlItemFieldEnum.responseCode.addFilterQuery(searchRequest,
-						responseCode);
+						responseCode, false);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
 				urlItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
-						fetchStatus.value);
+						fetchStatus.value, false);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
 				urlItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
-						parserStatus.value);
+						parserStatus.value, false);
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
 				urlItemFieldEnum.indexStatus.addFilterQuery(searchRequest,
-						indexStatus.value);
+						indexStatus.value, false);
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
@@ -472,7 +473,8 @@ public class UrlManager extends UrlManagerAbstract {
 					to = df.format(Integer.MAX_VALUE);
 				else
 					to = df.format(maxContentLength);
-				urlItemFieldEnum.contentLength.addQueryRange(query, from, to);
+				urlItemFieldEnum.contentLength.addQueryRange(query, from, to,
+						false);
 			}
 
 			if (startDate != null || endDate != null) {
@@ -486,7 +488,8 @@ public class UrlManager extends UrlManagerAbstract {
 					to = "99999999999999";
 				else
 					to = df.format(endDate);
-				urlItemFieldEnum.when.addFilterRange(searchRequest, from, to);
+				urlItemFieldEnum.when.addFilterRange(searchRequest, from, to,
+						false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -501,7 +504,7 @@ public class UrlManager extends UrlManagerAbstract {
 				else
 					to = df.format(endModifiedDate);
 				urlItemFieldEnum.lastModifiedDate.addFilterRange(searchRequest,
-						from, to);
+						from, to, false);
 			}
 
 			if (query.length() == 0)
