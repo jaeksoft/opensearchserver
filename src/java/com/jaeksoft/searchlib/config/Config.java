@@ -333,7 +333,7 @@ public abstract class Config {
 			} finally {
 				rwl.w.unlock();
 			}
-			jobList.checkExecution(this);
+			jobList.checkExecution();
 		} finally {
 			longTermLock.unlock();
 			cfr.abort();
@@ -660,7 +660,7 @@ public abstract class Config {
 				return jobList;
 			File file = new File(indexDir, "jobs.xml");
 			jobList = JobList.fromXml(this, file);
-			jobList.checkExecution(this);
+			jobList.checkExecution();
 			return jobList;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);

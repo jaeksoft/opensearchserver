@@ -70,17 +70,31 @@
 				mold="paging" pageSize="20" model="@{home.clientCatalog}">
 				<auxhead>
 					<auxheader align="center" label="Index name" />
-					<auxheader align="center" label="Crawl status"
+					<auxheader align="center" label="Crawlers"
 						colspan="3" />
+					<auxheader align="center" label="Scheduler"
+						colspan="3" />
+					<auxheader align="center" label="Replication"
+						colspan="2" />
 					<auxheader align="center" label="Informations"
 						colspan="2" />
 					<auxheader align="center" label="Action" />
 				</auxhead>
 				<listhead>
 					<listheader />
-					<listheader label="Web" />
-					<listheader label="Database" />
-					<listheader label="File" />
+					<listheader label="Web crawler" align="center" />
+					<listheader label="Database crawler" align="center" />
+					<listheader label="File crawler" align="center" />
+					<listheader label="R"
+						tooltiptext="Number of running jobs" width="40px" align="center" />
+					<listheader label="A"
+						tooltiptext="Number of active jobs" width="40px" align="center" />
+					<listheader label="N" tooltiptext="Number of jobs" width="40px"
+						align="center" />
+					<listheader label="R"
+						tooltiptext="Number of replication items" width="50px" align="center" />
+					<listheader label="N"
+						tooltiptext="Number of running replication items" width="50px" align="center" />
 					<listheader width="150px" label="Last modified"
 						align="right" />
 					<listheader width="100px" label="Size"
@@ -95,6 +109,16 @@
 						label="@{catalogitem.client.databaseCrawlMaster.statusInfo}" />
 					<listcell
 						label="@{catalogitem.client.fileCrawlMaster.statusInfo}" />
+					<listcell
+						label="@{catalogitem.client.jobList.runningCount}" />
+					<listcell
+						label="@{catalogitem.client.jobList.activeCount}" />
+					<listcell
+						label="@{catalogitem.client.jobList.count}" />
+					<listcell
+						label="@{catalogitem.client.replicationMaster.threadsCount}" />
+					<listcell
+						label="@{catalogitem.client.replicationList.set.size}" />
 					<listcell
 						tooltiptext="@{catalogitem.lastModifiedFile}"
 						label="@{catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />

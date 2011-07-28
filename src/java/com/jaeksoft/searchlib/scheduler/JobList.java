@@ -44,13 +44,16 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class JobList {
 
+	private Config config;
+
 	private ReadWriteLock rwl = new ReadWriteLock();
 
 	private Map<String, JobItem> jobs;
 
 	private JobItem[] jobsCache;
 
-	public JobList() {
+	public JobList(Config config) {
+		this.config = config;
 		jobs = new TreeMap<String, JobItem>();
 		jobsCache = null;
 	}
@@ -140,6 +143,15 @@ public class JobList {
 		}
 	}
 
+	public int getCount() {
+		rwl.r.lock();
+		try {
+			return jobs.size();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	private final static String JOBS_ROOTNODE_NAME = "jobs";
 
 	/**
@@ -156,7 +168,7 @@ public class JobList {
 	public static JobList fromXml(Config config, File file)
 			throws XPathExpressionException, ParserConfigurationException,
 			SAXException, IOException {
-		JobList jobList = new JobList();
+		JobList jobList = new JobList(config);
 		if (!file.exists())
 			return jobList;
 		XPathParser xpp = new XPathParser(file);
@@ -191,7 +203,7 @@ public class JobList {
 		}
 	}
 
-	public void checkExecution(Config config) throws SearchLibException {
+	public void checkExecution() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			for (JobItem job : jobs.values())
@@ -209,6 +221,19 @@ public class JobList {
 					if (jobItem == null)
 						TaskManager.removeJob(indexName, jobName);
 				}
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public int getRunningCount() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			String[] jobNames = TaskManager
+					.getActiveJobs(config.getIndexName());
+			if (jobNames == null)
+				return 0;
+			return jobNames.length;
 		} finally {
 			rwl.r.unlock();
 		}

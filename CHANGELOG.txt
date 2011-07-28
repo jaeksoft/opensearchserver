@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.3
 
 New features:
+- 3380911: Scheduler informations in home view	
 - 3370376: Parser have editable parameters
 - 3366055: URLBrowser API
 - 3353874: OSS could be a great sitemap generator
