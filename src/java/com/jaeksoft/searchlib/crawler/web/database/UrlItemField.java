@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import org.apache.lucene.queryParser.ParseException;
+
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
@@ -33,4 +36,39 @@ public class UrlItemField extends ExtensibleEnumItem<UrlItemField> {
 		super(en, name);
 	}
 
+	void addFilterQuery(SearchRequest request, Object value)
+			throws ParseException {
+		StringBuffer sb = new StringBuffer();
+		addQuery(sb, value);
+		request.addFilter(sb.toString(), false);
+	}
+
+	void addFilterRange(SearchRequest request, Object from, Object to)
+			throws ParseException {
+		StringBuffer sb = new StringBuffer();
+		addQueryRange(sb, from, to);
+		request.addFilter(sb.toString(), false);
+	}
+
+	void addQuery(StringBuffer sb, Object value) {
+		sb.append(" ");
+		sb.append(name);
+		sb.append(":");
+		sb.append(value);
+	}
+
+	void addQueryRange(StringBuffer sb, Object from, Object to) {
+		sb.append(" ");
+		sb.append(name);
+		sb.append(":[");
+		sb.append(from);
+		sb.append(" TO ");
+		sb.append(to);
+		sb.append("]");
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
 }

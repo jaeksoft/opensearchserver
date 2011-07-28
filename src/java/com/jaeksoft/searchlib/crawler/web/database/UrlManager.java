@@ -61,61 +61,7 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 
 public class UrlManager extends UrlManagerAbstract {
 
-	public enum Field {
-
-		URL("url"), WHEN("when"), CONTENTBASETYPE("contentBaseType"), CONTENTTYPECHARSET(
-				"contentTypeCharset"), CONTENTENCODING("contentEncoding"), CONTENTLENGTH(
-				"contentLength"), LANG("lang"), LANGMETHOD("langMethod"), ROBOTSTXTSTATUS(
-				"robotsTxtStatus"), FETCHSTATUS("fetchStatus"), RESPONSECODE(
-				"responseCode"), PARSERSTATUS("parserStatus"), INDEXSTATUS(
-				"indexStatus"), HOST("host"), SUBHOST("subhost"), LASTMODIFIEDDATE(
-				"lastModifiedDate");
-
-		private String name;
-
-		private Field(String name) {
-			this.name = name;
-		}
-
-		private void addFilterQuery(SearchRequest request, Object value)
-				throws ParseException {
-			StringBuffer sb = new StringBuffer();
-			addQuery(sb, value);
-			request.addFilter(sb.toString(), false);
-		}
-
-		private void addFilterRange(SearchRequest request, Object from,
-				Object to) throws ParseException {
-			StringBuffer sb = new StringBuffer();
-			addQueryRange(sb, from, to);
-			request.addFilter(sb.toString(), false);
-		}
-
-		private void addQuery(StringBuffer sb, Object value) {
-			sb.append(" ");
-			sb.append(name);
-			sb.append(":");
-			sb.append(value);
-		}
-
-		private void addQueryRange(StringBuffer sb, Object from, Object to) {
-			sb.append(" ");
-			sb.append(name);
-			sb.append(":[");
-			sb.append(from);
-			sb.append(" TO ");
-			sb.append(to);
-			sb.append("]");
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-
-	}
-
-	private Client urlDbClient;
+	protected Client urlDbClient;
 
 	@Override
 	public void init(Client client, File dataDir) throws SearchLibException,
@@ -271,10 +217,10 @@ public class UrlManager extends UrlManagerAbstract {
 		request.addFilter(query.toString(), false);
 	}
 
-	private void getFacetLimit(Field field, SearchRequest searchRequest,
+	private void getFacetLimit(UrlItemField field, SearchRequest searchRequest,
 			int limit, List<NamedItem> list) throws SearchLibException {
 		Result result = urlDbClient.search(searchRequest);
-		Facet facet = result.getFacetList().getByField(field.name);
+		Facet facet = result.getFacetList().getByField(field.getName());
 		for (FacetItem facetItem : facet) {
 			if (limit-- == 0)
 				break;
@@ -332,7 +278,7 @@ public class UrlManager extends UrlManagerAbstract {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
-		getFacetLimit(Field.HOST, searchRequest, limit, hostList);
+		getFacetLimit(urlItemFieldEnum.host, searchRequest, limit, hostList);
 	}
 
 	@Override
@@ -345,14 +291,14 @@ public class UrlManager extends UrlManagerAbstract {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
-		getFacetLimit(Field.HOST, searchRequest, limit, hostList);
+		getFacetLimit(urlItemFieldEnum.host, searchRequest, limit, hostList);
 	}
 
-	public void getStartingWith(String queryString, Field field, String start,
-			int limit, List<NamedItem> list) throws ParseException,
-			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException {
+	public void getStartingWith(String queryString, UrlItemField field,
+			String start, int limit, List<NamedItem> list)
+			throws ParseException, IOException, SyntaxError,
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			SearchLibException, InstantiationException, IllegalAccessException {
 		SearchRequest searchRequest = urlDbClient.getNewSearchRequest(field
 				+ "Facet");
 		searchRequest.setQueryString(queryString);
@@ -451,64 +397,68 @@ public class UrlManager extends UrlManagerAbstract {
 							SearchRequest.AND_OR_NOT_CHARS);
 					like = SearchRequest.escapeQuery(like,
 							SearchRequest.CONTROL_CHARS);
-					Field.URL.addQuery(query, like);
+					urlItemFieldEnum.url.addQuery(query, like);
 				}
 			}
 			if (host != null) {
 				host = host.trim();
 				if (host.length() > 0)
 					if (includingSubDomain)
-						Field.SUBHOST.addFilterQuery(searchRequest,
+						urlItemFieldEnum.subhost.addFilterQuery(searchRequest,
 								SearchRequest.escapeQuery(host));
 					else
-						Field.HOST.addFilterQuery(searchRequest,
+						urlItemFieldEnum.host.addFilterQuery(searchRequest,
 								SearchRequest.escapeQuery(host));
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
-					Field.LANG.addFilterQuery(searchRequest,
+					urlItemFieldEnum.lang.addFilterQuery(searchRequest,
 							SearchRequest.escapeQuery(lang));
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					Field.LANGMETHOD.addFilterQuery(searchRequest,
+					urlItemFieldEnum.langMethod.addFilterQuery(searchRequest,
 							SearchRequest.escapeQuery(langMethod));
 			}
 			if (contentBaseType != null) {
 				contentBaseType = contentBaseType.trim();
 				if (contentBaseType.length() > 0)
-					Field.CONTENTBASETYPE.addFilterQuery(searchRequest,
+					urlItemFieldEnum.contentBaseType.addFilterQuery(
+							searchRequest,
 							SearchRequest.escapeQuery(contentBaseType));
 			}
 			if (contentTypeCharset != null) {
 				contentTypeCharset = contentTypeCharset.trim();
 				if (contentTypeCharset.length() > 0)
-					Field.CONTENTTYPECHARSET.addFilterQuery(searchRequest,
+					urlItemFieldEnum.contentTypeCharset.addFilterQuery(
+							searchRequest,
 							SearchRequest.escapeQuery(contentTypeCharset));
 			}
 			if (contentEncoding != null) {
 				contentEncoding = contentEncoding.trim();
 				if (contentEncoding.length() > 0)
-					Field.CONTENTENCODING.addFilterQuery(searchRequest,
+					urlItemFieldEnum.contentEncoding.addFilterQuery(
+							searchRequest,
 							SearchRequest.escapeQuery(contentEncoding));
 			}
 
 			if (robotsTxtStatus != null
 					&& robotsTxtStatus != RobotsTxtStatus.ALL)
-				Field.ROBOTSTXTSTATUS.addFilterQuery(searchRequest,
+				urlItemFieldEnum.robotsTxtStatus.addFilterQuery(searchRequest,
 						robotsTxtStatus.value);
 			if (responseCode != null)
-				Field.RESPONSECODE.addFilterQuery(searchRequest, responseCode);
+				urlItemFieldEnum.responseCode.addFilterQuery(searchRequest,
+						responseCode);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
-				Field.FETCHSTATUS.addFilterQuery(searchRequest,
+				urlItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
 						fetchStatus.value);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
-				Field.PARSERSTATUS.addFilterQuery(searchRequest,
+				urlItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
 						parserStatus.value);
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
-				Field.INDEXSTATUS.addFilterQuery(searchRequest,
+				urlItemFieldEnum.indexStatus.addFilterQuery(searchRequest,
 						indexStatus.value);
 
 			if (minContentLength != null || maxContentLength != null) {
@@ -522,7 +472,7 @@ public class UrlManager extends UrlManagerAbstract {
 					to = df.format(Integer.MAX_VALUE);
 				else
 					to = df.format(maxContentLength);
-				Field.CONTENTLENGTH.addQueryRange(query, from, to);
+				urlItemFieldEnum.contentLength.addQueryRange(query, from, to);
 			}
 
 			if (startDate != null || endDate != null) {
@@ -536,7 +486,7 @@ public class UrlManager extends UrlManagerAbstract {
 					to = "99999999999999";
 				else
 					to = df.format(endDate);
-				Field.WHEN.addFilterRange(searchRequest, from, to);
+				urlItemFieldEnum.when.addFilterRange(searchRequest, from, to);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -550,7 +500,8 @@ public class UrlManager extends UrlManagerAbstract {
 					to = "99999999999999";
 				else
 					to = df.format(endModifiedDate);
-				Field.LASTMODIFIEDDATE.addFilterRange(searchRequest, from, to);
+				urlItemFieldEnum.lastModifiedDate.addFilterRange(searchRequest,
+						from, to);
 			}
 
 			if (query.length() == 0)
@@ -562,14 +513,14 @@ public class UrlManager extends UrlManagerAbstract {
 		}
 	}
 
-	private long getUrls(SearchRequest searchRequest, Field orderBy,
+	private long getUrls(SearchRequest searchRequest, UrlItemField orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException {
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
 			if (orderBy != null)
-				searchRequest.addSort(orderBy.name, !orderAsc);
+				searchRequest.addSort(orderBy.getName(), !orderAsc);
 			Result result = urlDbClient.search(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result.getDocuments())
@@ -589,7 +540,7 @@ public class UrlManager extends UrlManagerAbstract {
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Date startModifiedDate, Date endModifiedDate, Field orderBy,
+			Date startModifiedDate, Date endModifiedDate, UrlItemField orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException {
 		SearchRequest searchRequest = urlQuery(urlSearchTemplate, like, host,

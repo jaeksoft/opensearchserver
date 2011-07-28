@@ -37,7 +37,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
 
 public class UrlManagerNative extends UrlManagerAbstract {
 
@@ -129,7 +128,7 @@ public class UrlManagerNative extends UrlManagerAbstract {
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Date startModifiedDate, Date endModifiedDate, Field orderBy,
+			Date startModifiedDate, Date endModifiedDate, UrlItemField orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException {
 		// TODO Auto-generated method stub

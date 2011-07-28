@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.util;
 public abstract class ExtensibleEnumItem<T extends ExtensibleEnumItem<T>>
 		implements Comparable<T> {
 
-	private String name;
+	protected String name;
 
 	@SuppressWarnings("unchecked")
 	protected ExtensibleEnumItem(ExtensibleEnum<T> en, String name) {

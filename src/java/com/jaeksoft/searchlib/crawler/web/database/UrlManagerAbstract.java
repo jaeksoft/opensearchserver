@@ -50,7 +50,6 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager.Field;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -137,7 +136,7 @@ public abstract class UrlManagerAbstract {
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Date startModifiedDate, Date endModifiedDate, Field orderBy,
+			Date startModifiedDate, Date endModifiedDate, UrlItemField orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException;
 

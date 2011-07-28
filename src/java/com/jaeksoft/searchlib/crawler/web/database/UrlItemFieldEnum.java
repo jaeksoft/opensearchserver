@@ -79,4 +79,7 @@ public class UrlItemFieldEnum extends ExtensibleEnum<UrlItemField> {
 	final public UrlItemField lastModifiedDate = new UrlItemField(this,
 			"lastModifiedDate");
 
+	final public UrlItemField reponseCode = new UrlItemField(this,
+			"responseCode");
+
 }
