@@ -65,7 +65,7 @@ public abstract class Parser extends ParserFactory {
 	}
 
 	public void populate(IndexDocument indexDocument) {
-		fieldMap.mapIndexDocument(parserDocument, indexDocument);
+		getFieldMap().mapIndexDocument(parserDocument, indexDocument);
 		if (directDocument != null)
 			indexDocument.add(directDocument);
 	}

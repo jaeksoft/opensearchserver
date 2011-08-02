@@ -52,7 +52,7 @@ public class ParserFactory extends ClassFactory implements
 
 	private Set<String> extensionList;
 
-	protected FieldMap fieldMap;
+	private FieldMap fieldMap;
 
 	private UrlFilterItem[] urlFilterList;
 
@@ -63,6 +63,10 @@ public class ParserFactory extends ClassFactory implements
 	protected ParserFactory(ParserFieldEnum[] fieldList) {
 		this.fieldList = fieldList;
 		this.parserType = null;
+		this.fieldMap = null;
+		urlFilterList = null;
+		mimeTypeList = null;
+		extensionList = null;
 	}
 
 	@Override
@@ -100,6 +104,8 @@ public class ParserFactory extends ClassFactory implements
 	}
 
 	public FieldMap getFieldMap() {
+		if (fieldMap == null)
+			fieldMap = new FieldMap();
 		return fieldMap;
 	}
 
