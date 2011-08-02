@@ -491,6 +491,8 @@ public class SearchRequest implements Externalizable {
 	public void setScoreFunction(String v) {
 		rwl.w.lock();
 		try {
+			if (v != null && v.trim().length() == 0)
+				v = null;
 			scoreFunction = v;
 		} finally {
 			rwl.w.unlock();

@@ -35,11 +35,14 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 	 */
 	private static final long serialVersionUID = -3408889704609057463L;
 
+	private Query subQuery;
+
 	private Expression expression;
 
 	protected ScoreFunctionQuery(Query subQuery, Expression expression)
 			throws SyntaxError {
 		super(subQuery);
+		this.subQuery = subQuery;
 		this.expression = expression;
 	}
 
@@ -47,6 +50,7 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 			ValueSourceQuery valueSourceQuery, Expression expression)
 			throws SyntaxError {
 		super(subQuery, valueSourceQuery);
+		this.subQuery = subQuery;
 		this.expression = expression;
 	}
 
@@ -54,6 +58,7 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 			ValueSourceQuery[] valueSourceQueries, Expression expression)
 			throws SyntaxError {
 		super(subQuery, valueSourceQueries);
+		this.subQuery = subQuery;
 		this.expression = expression;
 	}
 
@@ -69,7 +74,12 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 
 	@Override
 	public String toString() {
-		return expression.toString();
+		StringBuffer sb = new StringBuffer("score(");
+		if (subQuery != null)
+			sb.append(subQuery.toString());
+		sb.append(')');
+		if (expression != null)
+			sb.append(expression.toString());
+		return sb.toString();
 	}
-
 }
