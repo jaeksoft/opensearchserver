@@ -261,6 +261,7 @@ public class ParserController extends CommonController implements
 	}
 
 	public void onNew() throws SearchLibException {
+		selectedParser = null;
 		currentParser = ParserFactory.create(getClient(), "New parser",
 				parserType.getParserClass().getCanonicalName());
 		reloadPage();
