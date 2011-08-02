@@ -91,7 +91,7 @@ public class ParserController extends CommonController implements
 		@Override
 		protected void onYes() throws SearchLibException {
 			Client client = getClient();
-			client.getParserSelector().remove(deleteParser);
+			client.getParserSelector().replaceParserFactory(deleteParser, null);
 			client.saveParsers();
 			onCancel();
 		}

@@ -139,13 +139,13 @@ public class ParserSelector {
 		try {
 			if (oldParser != null)
 				parserFactorySet.remove(oldParser);
-			if (!parserFactorySet.add(newParser))
-				throw new SearchLibException("Error, parser not added");
+			if (newParser != null)
+				if (!parserFactorySet.add(newParser))
+					throw new SearchLibException("Error, parser not added");
 			rebuildParserMap();
 		} finally {
 			rwl.w.unlock();
 		}
-
 	}
 
 	public Set<ParserFactory> getParserFactorySet() {
@@ -154,15 +154,6 @@ public class ParserSelector {
 			return parserFactorySet;
 		} finally {
 			rwl.r.unlock();
-		}
-	}
-
-	public void remove(ParserFactory deleteParser) {
-		rwl.w.lock();
-		try {
-			parserFactorySet.remove(deleteParser);
-		} finally {
-			rwl.w.unlock();
 		}
 	}
 
