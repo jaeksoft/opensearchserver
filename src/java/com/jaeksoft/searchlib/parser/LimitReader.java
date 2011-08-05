@@ -37,13 +37,15 @@ public class LimitReader extends Reader {
 	private boolean isComplete;
 	private Reader reader;
 	private long limit;
-	private CharArrayWriter outputCache;
+	final private CharArrayWriter outputCache;
 	private CharArrayReader inputCache;
 	private String hashMD5;
+	final private boolean bNoLimit;
 
 	public LimitReader(Reader reader, long limit) {
 		this.reader = reader;
 		this.limit = limit;
+		this.bNoLimit = (limit == 0);
 		this.isComplete = true;
 		this.outputCache = new CharArrayWriter();
 		this.inputCache = null;
@@ -82,6 +84,8 @@ public class LimitReader extends Reader {
 		if (r == -1)
 			return r;
 		outputCache.write(cbuf, off, r);
+		if (bNoLimit)
+			return r;
 		limit -= r;
 		if (limit < 0) {
 			isComplete = false;

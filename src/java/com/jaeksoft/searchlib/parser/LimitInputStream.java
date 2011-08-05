@@ -37,14 +37,16 @@ public class LimitInputStream extends InputStream {
 	private boolean isComplete;
 	private InputStream inputStream;
 	private long limit;
-	private ByteArrayOutputStream outputCache;
+	final private ByteArrayOutputStream outputCache;
 	private ByteArrayInputStream inputCache;
 	private String hashMD5;
+	final private boolean bNoLimit;
 
 	public LimitInputStream(InputStream inputStream, long limit)
 			throws IOException {
 		this.inputStream = inputStream;
 		this.limit = limit;
+		this.bNoLimit = (limit == 0);
 		this.isComplete = false;
 		outputCache = new ByteArrayOutputStream();
 		inputCache = null;
@@ -52,10 +54,10 @@ public class LimitInputStream extends InputStream {
 	}
 
 	@Override
-	public int read() throws IOException {
+	final public int read() throws IOException {
 		if (inputCache != null)
 			return inputCache.read();
-		if (limit-- == 0)
+		if (!bNoLimit && limit-- == 0)
 			throw new LimitException();
 		int i = inputStream.read();
 		if (i == -1) {

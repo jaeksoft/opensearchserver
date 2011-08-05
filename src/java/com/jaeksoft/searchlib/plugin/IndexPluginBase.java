@@ -49,6 +49,7 @@ public class IndexPluginBase implements IndexPluginInterface {
 	@Override
 	public boolean run(IndexDocument indexDocument) {
 		logger.info("RUN");
+		System.out.println("PLUGIN IS RUNNING !");
 		return true;
 	}
 
