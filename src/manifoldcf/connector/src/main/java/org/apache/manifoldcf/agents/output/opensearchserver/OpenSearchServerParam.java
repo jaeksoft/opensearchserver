@@ -1,38 +1,33 @@
 package org.apache.manifoldcf.agents.output.opensearchserver;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.manifoldcf.agents.output.opensearchserver.OpenSearchServerParam.ParameterEnum;
 import org.apache.manifoldcf.core.interfaces.ConfigParams;
 import org.apache.manifoldcf.core.interfaces.IPostParameters;
 
-public class OpenSearchServerParam {
+public class OpenSearchServerParam extends HashMap<ParameterEnum, String> {
 
 	/**
 	 * Parameters constants
 	 */
-	private enum ParameterEnum {
+	public enum ParameterEnum {
 		SERVERLOCATION("http://localhost:8080/"),
 
 		INDEXNAME("index"),
 
 		USERNAME(""),
 
-		APIKEY("");
+		APIKEY(""),
+
+		FIELDLIST("");
 
 		final protected String defaultValue;
 
 		private ParameterEnum(String defaultValue) {
 			this.defaultValue = defaultValue;
 		}
-	}
-
-	final public ParameterEnum key;
-	final public String value;
-
-	protected OpenSearchServerParam(ParameterEnum key, String value) {
-		this.key = key;
-		this.value = value;
 	}
 
 	/**
@@ -42,36 +37,37 @@ public class OpenSearchServerParam {
 			ParameterEnum.SERVERLOCATION, ParameterEnum.INDEXNAME,
 			ParameterEnum.USERNAME, ParameterEnum.APIKEY };
 
+	final public static ParameterEnum[] SPECIFICATIONLIST = { ParameterEnum.FIELDLIST };
+
+	private static final long serialVersionUID = -1593234685772720029L;
+
 	/**
 	 * Build a set of OpenSearchServerParameters by reading ConfigParams. If the
 	 * value returned by ConfigParams.getParameter is null, the default value is
 	 * set.
 	 * 
+	 * @param paramList
 	 * @param params
-	 * @return
 	 */
-	final public static Set<OpenSearchServerParam> getParameters(
-			ParameterEnum[] paramList, ConfigParams params) {
-		Set<OpenSearchServerParam> ossParams = new HashSet<OpenSearchServerParam>();
+	public OpenSearchServerParam(ParameterEnum[] paramList, ConfigParams params) {
 		for (ParameterEnum param : paramList) {
 			String value = params.getParameter(param.name());
 			if (value == null)
 				value = param.defaultValue;
-			ossParams.add(new OpenSearchServerParam(param, value));
+			put(param, value);
 		}
-		return ossParams;
 	}
 
 	/**
 	 * Replace the variables ${PARAMNAME} with the value contained in the set.
 	 * 
 	 * @param text
-	 * @param params
+	 * @return
 	 */
-	final public static String replace(String text,
-			Set<OpenSearchServerParam> params) {
-		for (OpenSearchServerParam param : params)
-			text = text.replace("${" + param.key.name() + "}", param.value);
+	final public String replace(String text) {
+		for (Map.Entry<ParameterEnum, String> entry : this.entrySet())
+			text = text.replace("${" + entry.getKey().name() + "}",
+					entry.getValue());
 		return text;
 	}
 
@@ -83,4 +79,5 @@ public class OpenSearchServerParam {
 				parameters.setParameter(param.name(), p);
 		}
 	}
+
 }
