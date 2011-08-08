@@ -9,10 +9,12 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.manifoldcf.agents.interfaces.IOutputAddActivity;
+import org.apache.manifoldcf.agents.interfaces.IOutputNotifyActivity;
 import org.apache.manifoldcf.agents.interfaces.IOutputRemoveActivity;
 import org.apache.manifoldcf.agents.interfaces.RepositoryDocument;
 import org.apache.manifoldcf.agents.interfaces.ServiceInterruption;
 import org.apache.manifoldcf.agents.output.BaseOutputConnector;
+import org.apache.manifoldcf.agents.output.opensearchserver.OpenSearchServerAction.CommandEnum;
 import org.apache.manifoldcf.core.interfaces.ConfigParams;
 import org.apache.manifoldcf.core.interfaces.IHTTPOutput;
 import org.apache.manifoldcf.core.interfaces.IPostParameters;
@@ -22,11 +24,13 @@ import org.apache.manifoldcf.core.interfaces.ManifoldCFException;
 public class OpenSearchServerConnector extends BaseOutputConnector {
 
 	private final static String OPENSEARCHSERVER_INDEXATION_ACTIVITY = "Indexation";
-	private final static String OPENSEARCHSERVER_DELETION_ACTIVTY = "Deletion";
+	private final static String OPENSEARCHSERVER_DELETION_ACTIVITY = "Deletion";
+	private final static String OPENSEARCHSERVER_OPTIMIZE_ACTIVITY = "Optimize";
 
 	private final static String[] OPENSEARCHSERVER_ACTIVITIES = {
 			OPENSEARCHSERVER_INDEXATION_ACTIVITY,
-			OPENSEARCHSERVER_DELETION_ACTIVTY };
+			OPENSEARCHSERVER_DELETION_ACTIVITY,
+			OPENSEARCHSERVER_OPTIMIZE_ACTIVITY };
 
 	private final static String OPENSEARCHSERVER_TAB_PARAMETER = "Parameters";
 
@@ -165,9 +169,22 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 		long startTime = System.currentTimeMillis();
 		OpenSearchServerDelete od = new OpenSearchServerDelete(documentURI,
 				getParameters(null));
-		activities.recordActivity(startTime, OPENSEARCHSERVER_DELETION_ACTIVTY,
-				null, documentURI, od.getResultCode(),
-				od.getResultDescription());
+		activities.recordActivity(startTime,
+				OPENSEARCHSERVER_DELETION_ACTIVITY, null, documentURI,
+				od.getResultCode(), od.getResultDescription());
+	}
+
+	@Override
+	public void noteJobComplete(IOutputNotifyActivity activities)
+			throws ManifoldCFException, ServiceInterruption {
+		long startTime = System.currentTimeMillis();
+		OpenSearchServerAction oo = new OpenSearchServerAction(
+				CommandEnum.optimize, getParameters(null));
+		activities.recordActivity(startTime,
+				OPENSEARCHSERVER_OPTIMIZE_ACTIVITY, null,
+				oo.getCallUrlSnippet(), oo.getResultCode(),
+				oo.getResultDescription());
+
 	}
 
 }

@@ -24,9 +24,12 @@ public class OpenSearchServerConnection {
 
 	private String resultDescription;
 
+	private String callUrlSnippet;
+
 	protected OpenSearchServerConnection(OpenSearchServerParam params) {
 		resultCode = null;
 		resultDescription = null;
+		callUrlSnippet = null;
 		serverLocation = params.get(ParameterEnum.SERVERLOCATION);
 		indexName = params.get(ParameterEnum.INDEXNAME);
 		userName = params.get(ParameterEnum.USERNAME);
@@ -48,6 +51,7 @@ public class OpenSearchServerConnection {
 		url.append(command);
 		url.append("?use=");
 		url.append(urlEncode(indexName));
+		callUrlSnippet = url.toString();
 		if (userName != null && apiKey != null && userName.length() > 0
 				&& apiKey.length() > 0) {
 			url.append("&login=");
@@ -84,10 +88,24 @@ public class OpenSearchServerConnection {
 	}
 
 	private void setResultCode(int code) {
-		resultCode = (code == 0) ? null : Integer.toString(code);
+		switch (code) {
+		case 0:
+			resultCode = null;
+			break;
+		case 200:
+			resultCode = "OK";
+			break;
+		default:
+			resultCode = "ERR (" + code + ")";
+			break;
+		}
 	}
 
 	public String getResultCode() {
 		return resultCode;
+	}
+
+	public String getCallUrlSnippet() {
+		return callUrlSnippet;
 	}
 }
