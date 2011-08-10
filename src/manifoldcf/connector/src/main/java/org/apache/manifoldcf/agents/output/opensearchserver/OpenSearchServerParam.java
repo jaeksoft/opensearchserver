@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.manifoldcf.agents.output.opensearchserver.OpenSearchServerParam.ParameterEnum;
 import org.apache.manifoldcf.core.interfaces.ConfigParams;
+import org.apache.manifoldcf.core.interfaces.ConfigurationNode;
 import org.apache.manifoldcf.core.interfaces.IPostParameters;
 
 public class OpenSearchServerParam extends HashMap<ParameterEnum, String> {
@@ -21,7 +22,9 @@ public class OpenSearchServerParam extends HashMap<ParameterEnum, String> {
 
 		APIKEY(""),
 
-		FIELDLIST("");
+		FIELDLIST(""),
+
+		MAXFILESIZE("16777216");
 
 		final protected String defaultValue;
 
@@ -37,7 +40,9 @@ public class OpenSearchServerParam extends HashMap<ParameterEnum, String> {
 			ParameterEnum.SERVERLOCATION, ParameterEnum.INDEXNAME,
 			ParameterEnum.USERNAME, ParameterEnum.APIKEY };
 
-	final public static ParameterEnum[] SPECIFICATIONLIST = { ParameterEnum.FIELDLIST };
+	final public static ParameterEnum[] SPECIFICATIONLIST = { ParameterEnum.MAXFILESIZE };
+
+	final public static String OPENSEARCHSERVER_SPECS_NODE = "OPENSEARCHSERVER_SPECS_NODE";
 
 	private static final long serialVersionUID = -1593234685772720029L;
 
@@ -52,6 +57,25 @@ public class OpenSearchServerParam extends HashMap<ParameterEnum, String> {
 	public OpenSearchServerParam(ParameterEnum[] paramList, ConfigParams params) {
 		for (ParameterEnum param : paramList) {
 			String value = params.getParameter(param.name());
+			if (value == null)
+				value = param.defaultValue;
+			put(param, value);
+		}
+	}
+
+	/**
+	 * Build a set of OpenSearchServerParameters by reading an instance of
+	 * SpecificationNode.
+	 * 
+	 * @param paramList
+	 * @param node
+	 */
+	public OpenSearchServerParam(ParameterEnum[] paramList,
+			ConfigurationNode node) {
+		for (ParameterEnum param : paramList) {
+			String value = null;
+			if (node != null)
+				value = node.getAttributeValue(param.name());
 			if (value == null)
 				value = param.defaultValue;
 			put(param, value);
@@ -78,6 +102,24 @@ public class OpenSearchServerParam extends HashMap<ParameterEnum, String> {
 			if (p != null)
 				parameters.setParameter(param.name(), p);
 		}
+	}
+
+	public static void contextToSpecNode(ParameterEnum[] paramList,
+			IPostParameters variableContext, ConfigurationNode specNode) {
+		for (ParameterEnum param : paramList) {
+			String p = variableContext.getParameter(param.name().toLowerCase());
+			if (p != null)
+				specNode.setAttribute(param.name(), p);
+		}
+	}
+
+	public String getUniqueIndexIdentifier() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(get(ParameterEnum.SERVERLOCATION));
+		if (sb.charAt(sb.length() - 1) != '/')
+			sb.append('/');
+		sb.append(get(ParameterEnum.INDEXNAME));
+		return sb.toString();
 	}
 
 }

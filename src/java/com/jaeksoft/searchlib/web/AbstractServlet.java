@@ -93,6 +93,7 @@ public abstract class AbstractServlet extends HttpServlet {
 			}
 			transaction.addXmlResponse(XML_CALL_KEY_TRACE, sw.toString());
 			pw.close();
+			Logging.error(e);
 		} finally {
 			try {
 				transaction.writeXmlResponse();

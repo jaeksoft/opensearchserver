@@ -16,6 +16,6 @@ public class OpenSearchServerAction extends OpenSearchServerConnection {
 		url.append("&action=");
 		url.append(cmd.name());
 		GetMethod method = new GetMethod(url.toString());
-		call(method);
+		call(method, null);
 	}
 }

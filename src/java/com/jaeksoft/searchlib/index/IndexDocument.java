@@ -36,7 +36,6 @@ import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -132,9 +131,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			Parser parser = parserSelector.getParser(filename, contentType);
 			if (parser == null)
 				continue;
-			byte[] binaryDocument = Base64.decodeBase64(xpp.getNodeString(node)
-					.getBytes());
-			parser.parseContent(binaryDocument);
+			parser.parseContentBase64(xpp.getNodeString(node));
 			parser.populate(this);
 		}
 	}

@@ -34,6 +34,7 @@ import java.io.StringReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
+import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.IOUtils;
 import org.knallgrau.utils.textcat.TextCategorizer;
 
@@ -169,6 +170,19 @@ public abstract class Parser extends ParserFactory {
 	final public void parseContent(Reader reader) throws IOException {
 		limitReader = new LimitReader(reader, getSizeLimit());
 		parseContent(limitReader);
+	}
+
+	final public void parseContentBase64(String base64text) throws IOException {
+		InputStream is = IOUtils.toInputStream(base64text);
+		Base64InputStream b64is = new Base64InputStream(is);
+		try {
+			parseContent(b64is);
+		} finally {
+			if (b64is != null)
+				IOUtils.closeQuietly(b64is);
+			if (is != null)
+				IOUtils.closeQuietly(is);
+		}
 	}
 
 	final public void parseContent(FileInstanceAbstract fileInstance)

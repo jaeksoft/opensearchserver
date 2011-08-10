@@ -12,6 +12,6 @@ public class OpenSearchServerDelete extends OpenSearchServerConnection {
 		url.append("&uniq=");
 		url.append(urlEncode(documentURI));
 		GetMethod method = new GetMethod(url.toString());
-		call(method);
+		call(method, null);
 	}
 }

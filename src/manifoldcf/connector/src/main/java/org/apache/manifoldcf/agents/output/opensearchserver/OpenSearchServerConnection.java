@@ -1,14 +1,26 @@
 package org.apache.manifoldcf.agents.output.opensearchserver;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.io.IOUtils;
 import org.apache.manifoldcf.agents.output.opensearchserver.OpenSearchServerParam.ParameterEnum;
 import org.apache.manifoldcf.core.interfaces.ManifoldCFException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class OpenSearchServerConnection {
 
@@ -62,10 +74,16 @@ public class OpenSearchServerConnection {
 		return url;
 	}
 
-	protected void call(HttpMethod method) throws ManifoldCFException {
+	protected String call(HttpMethod method, String xPathQuery)
+			throws ManifoldCFException {
 		HttpClient hc = new HttpClient();
 		try {
 			hc.executeMethod(method);
+			if (xPathQuery != null)
+				return checkXmlResponse(xPathQuery,
+						method.getResponseBodyAsStream());
+			else
+				return IOUtils.toString(method.getResponseBodyAsStream());
 		} catch (HttpException e) {
 			throw new ManifoldCFException(e);
 		} catch (IOException e) {
@@ -76,6 +94,29 @@ public class OpenSearchServerConnection {
 				setResultDescription(method.getStatusText());
 				method.releaseConnection();
 			}
+		}
+	}
+
+	private String checkXmlResponse(String xPathQuery, InputStream inputStream)
+			throws ManifoldCFException {
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(true); // never forget this!
+			DocumentBuilder builder;
+			builder = dbf.newDocumentBuilder();
+			Document doc = builder.parse(inputStream);
+			XPathFactory factory = XPathFactory.newInstance();
+			XPath xpath = factory.newXPath();
+			XPathExpression xPathExpr = xpath.compile(xPathQuery);
+			return xPathExpr.evaluate(doc);
+		} catch (ParserConfigurationException e) {
+			throw new ManifoldCFException(e);
+		} catch (SAXException e) {
+			throw new ManifoldCFException(e);
+		} catch (IOException e) {
+			throw new ManifoldCFException(e);
+		} catch (XPathExpressionException e) {
+			throw new ManifoldCFException(e);
 		}
 	}
 
