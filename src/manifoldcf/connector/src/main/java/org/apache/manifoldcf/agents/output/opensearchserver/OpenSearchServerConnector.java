@@ -64,7 +64,10 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 			br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 			String line;
 			while ((line = br.readLine()) != null)
-				out.println(params.replace(line));
+				if (params != null)
+					out.println(params.replace(line));
+				else
+					out.println(line);
 		} catch (UnsupportedEncodingException e) {
 			throw new ManifoldCFException(e);
 		} catch (IOException e) {
@@ -84,6 +87,7 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 		super.outputConfigurationHeader(threadContext, out, parameters,
 				tabsArray);
 		tabsArray.add(OPENSEARCHSERVER_TAB_PARAMETER);
+		outputResource("configuration.js", out, null);
 	}
 
 	@Override
@@ -246,9 +250,9 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 				OpenSearchServerIndex oi = new OpenSearchServerIndex(
 						documentURI, inputStream, param);
 				activities.recordActivity(startTime,
-						OPENSEARCHSERVER_INDEXATION_ACTIVITY,
-						document.getBinaryLength(), documentURI,
-						oi.getResultCode(), oi.getResultDescription());
+						OPENSEARCHSERVER_INDEXATION_ACTIVITY, document
+								.getBinaryLength(), documentURI, oi.getResult()
+								.name(), oi.getResultDescription());
 			} finally {
 				IOUtils.closeQuietly(inputStream);
 				removeInstance(param);
@@ -265,8 +269,15 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 		OpenSearchServerDelete od = new OpenSearchServerDelete(documentURI,
 				getParameters(null));
 		activities.recordActivity(startTime,
-				OPENSEARCHSERVER_DELETION_ACTIVITY, null, documentURI,
-				od.getResultCode(), od.getResultDescription());
+				OPENSEARCHSERVER_DELETION_ACTIVITY, null, documentURI, od
+						.getResult().name(), od.getResultDescription());
+	}
+
+	@Override
+	public String check() throws ManifoldCFException {
+		OpenSearchServerSchema oss = new OpenSearchServerSchema(
+				getParameters(null));
+		return oss.getResult().name() + " " + oss.getResultDescription();
 	}
 
 	@Override
@@ -277,9 +288,8 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 				CommandEnum.optimize, getParameters(null));
 		activities.recordActivity(startTime,
 				OPENSEARCHSERVER_OPTIMIZE_ACTIVITY, null,
-				oo.getCallUrlSnippet(), oo.getResultCode(),
+				oo.getCallUrlSnippet(), oo.getResult().name(),
 				oo.getResultDescription());
-
 	}
 
 }

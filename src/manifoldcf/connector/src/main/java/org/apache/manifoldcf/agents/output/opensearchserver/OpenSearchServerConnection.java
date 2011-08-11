@@ -32,15 +32,19 @@ public class OpenSearchServerConnection {
 
 	private String apiKey;
 
-	private String resultCode;
-
 	private String resultDescription;
 
 	private String callUrlSnippet;
 
+	public enum Result {
+		OK, ERROR, UNKNOWN;
+	}
+
+	private Result result;
+
 	protected OpenSearchServerConnection(OpenSearchServerParam params) {
-		resultCode = null;
-		resultDescription = null;
+		result = Result.UNKNOWN;
+		resultDescription = "";
 		callUrlSnippet = null;
 		serverLocation = params.get(ParameterEnum.SERVERLOCATION);
 		indexName = params.get(ParameterEnum.INDEXNAME);
@@ -74,26 +78,39 @@ public class OpenSearchServerConnection {
 		return url;
 	}
 
-	protected String call(HttpMethod method, String xPathQuery)
-			throws ManifoldCFException {
+	protected void call(HttpMethod method, String xPathQuery,
+			String resultCheck, String errorMessage) throws ManifoldCFException {
 		HttpClient hc = new HttpClient();
 		try {
 			hc.executeMethod(method);
+			if (!checkResultCode(method.getStatusCode()))
+				return;
+			String result = null;
 			if (xPathQuery != null)
-				return checkXmlResponse(xPathQuery,
+				result = checkXmlResponse(xPathQuery,
 						method.getResponseBodyAsStream());
 			else
-				return IOUtils.toString(method.getResponseBodyAsStream());
+				result = IOUtils.toString(method.getResponseBodyAsStream());
+
+			if (resultCheck != null)
+				if (resultCheck.equals(result))
+					setResult(Result.OK);
+				else {
+					setResult(Result.ERROR);
+					if (errorMessage != null)
+						setResultDescription(errorMessage);
+				}
 		} catch (HttpException e) {
+			setResult(Result.ERROR);
+			setResultDescription(e.getMessage());
 			throw new ManifoldCFException(e);
 		} catch (IOException e) {
+			setResult(Result.ERROR);
+			setResultDescription(e.getMessage());
 			throw new ManifoldCFException(e);
 		} finally {
-			if (method != null) {
-				setResultCode(method.getStatusCode());
-				setResultDescription(method.getStatusText());
+			if (method != null)
 				method.releaseConnection();
-			}
 		}
 	}
 
@@ -121,29 +138,37 @@ public class OpenSearchServerConnection {
 	}
 
 	private void setResultDescription(String desc) {
-		resultDescription = desc;
+		resultDescription = desc == null ? "" : desc;
 	}
 
 	public String getResultDescription() {
 		return resultDescription;
 	}
 
-	private void setResultCode(int code) {
+	private void setResult(Result r) {
+		this.result = r;
+	}
+
+	private boolean checkResultCode(int code) {
 		switch (code) {
 		case 0:
-			resultCode = null;
-			break;
+			setResult(Result.UNKNOWN);
+			return false;
 		case 200:
-			resultCode = "OK";
-			break;
+			setResult(Result.OK);
+			return true;
+		case 404:
+			setResult(Result.ERROR);
+			setResultDescription("Server/page not found");
+			return false;
 		default:
-			resultCode = "ERR (" + code + ")";
-			break;
+			setResult(Result.ERROR);
+			return false;
 		}
 	}
 
-	public String getResultCode() {
-		return resultCode;
+	public Result getResult() {
+		return result;
 	}
 
 	public String getCallUrlSnippet() {

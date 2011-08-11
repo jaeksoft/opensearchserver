@@ -24,7 +24,23 @@ public class OpenSearchServerParam extends HashMap<ParameterEnum, String> {
 
 		FIELDLIST(""),
 
-		MAXFILESIZE("16777216");
+		MAXFILESIZE("16777216"),
+
+		MIMETYPES(
+				"application/msword\n"
+						+ "application/vnd.ms-excel\n"
+						+ "application/vnd.openxmlformats-officedocument.wordprocessingml.document\n"
+						+ "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\n"
+						+ "text/html\n"
+						+ "application/pdf\n"
+						+ "application/vnd.ms-powerpoint\n"
+						+ "application/vnd.openxmlformats-officedocument.presentationml.presentation\n"
+						+ "application/vnd.oasis.opendocument.text\n"
+						+ "application/vnd.oasis.opendocument.spreadsheet\n"
+						+ "application/vnd.oasis.opendocument.formula\n"
+						+ "application/rtf\n" + "text/plain\n" + "audio/mpeg\n"
+						+ "audio/x-wav\n" + "audio/ogg\n" + "audio/flac\n"
+						+ "application/x-bittorrent");
 
 		final protected String defaultValue;
 
@@ -40,7 +56,8 @@ public class OpenSearchServerParam extends HashMap<ParameterEnum, String> {
 			ParameterEnum.SERVERLOCATION, ParameterEnum.INDEXNAME,
 			ParameterEnum.USERNAME, ParameterEnum.APIKEY };
 
-	final public static ParameterEnum[] SPECIFICATIONLIST = { ParameterEnum.MAXFILESIZE };
+	final public static ParameterEnum[] SPECIFICATIONLIST = {
+			ParameterEnum.MAXFILESIZE, ParameterEnum.MIMETYPES };
 
 	final public static String OPENSEARCHSERVER_SPECS_NODE = "OPENSEARCHSERVER_SPECS_NODE";
 
