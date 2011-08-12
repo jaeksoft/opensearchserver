@@ -128,12 +128,10 @@ public class OpenSearchServerSpecs extends OpenSearchServerParam {
 	}
 
 	public boolean checkExtension(String extension) {
-		System.out.println("CheckExtension " + extension);
 		return extensionSet.contains(extension);
 	}
 
 	public boolean checkMimeType(String mimeType) {
-		System.out.println("CheckMimeType " + mimeType);
 		return mimeTypeSet.contains(mimeType);
 	}
 }

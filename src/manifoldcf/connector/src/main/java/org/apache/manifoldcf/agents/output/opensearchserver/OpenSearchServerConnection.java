@@ -1,7 +1,7 @@
 package org.apache.manifoldcf.agents.output.opensearchserver;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -19,6 +19,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.manifoldcf.core.interfaces.ManifoldCFException;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class OpenSearchServerConnection {
@@ -35,6 +36,13 @@ public class OpenSearchServerConnection {
 
 	private String callUrlSnippet;
 
+	private String response;
+
+	private Document xmlResponse;
+
+	protected String xPathStatus = "/response/entry[@key='Status']/text()";
+	protected String xPathException = "/response/entry[@key='Exception']/text()";
+
 	public enum Result {
 		OK, ERROR, UNKNOWN;
 	}
@@ -43,6 +51,8 @@ public class OpenSearchServerConnection {
 
 	protected OpenSearchServerConnection(OpenSearchServerConfig config) {
 		result = Result.UNKNOWN;
+		response = null;
+		xmlResponse = null;
 		resultDescription = "";
 		callUrlSnippet = null;
 		serverLocation = config.getServerLocation();
@@ -77,35 +87,18 @@ public class OpenSearchServerConnection {
 		return url;
 	}
 
-	protected void call(HttpMethod method, String xPathQuery,
-			String resultCheck, String errorMessage) throws ManifoldCFException {
+	protected void call(HttpMethod method) throws ManifoldCFException {
 		HttpClient hc = new HttpClient();
 		try {
 			hc.executeMethod(method);
 			if (!checkResultCode(method.getStatusCode()))
-				return;
-			String result = null;
-			if (xPathQuery != null)
-				result = checkXmlResponse(xPathQuery,
-						method.getResponseBodyAsStream());
-			else
-				result = IOUtils.toString(method.getResponseBodyAsStream());
-
-			if (resultCheck != null)
-				if (resultCheck.equals(result))
-					setResult(Result.OK);
-				else {
-					setResult(Result.ERROR);
-					if (errorMessage != null)
-						setResultDescription(errorMessage);
-				}
+				throw new ManifoldCFException(getResultDescription());
+			response = IOUtils.toString(method.getResponseBodyAsStream());
 		} catch (HttpException e) {
-			setResult(Result.ERROR);
-			setResultDescription(e.getMessage());
+			setResult(Result.ERROR, e.getMessage());
 			throw new ManifoldCFException(e);
 		} catch (IOException e) {
-			setResult(Result.ERROR);
-			setResultDescription(e.getMessage());
+			setResult(Result.ERROR, e.getMessage());
 			throw new ManifoldCFException(e);
 		} finally {
 			if (method != null)
@@ -113,55 +106,70 @@ public class OpenSearchServerConnection {
 		}
 	}
 
-	private String checkXmlResponse(String xPathQuery, InputStream inputStream)
-			throws ManifoldCFException {
+	private void readXmlResponse() throws ManifoldCFException {
+		if (xmlResponse != null)
+			return;
+		StringReader sw = null;
 		try {
+			sw = new StringReader(response);
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setNamespaceAware(true); // never forget this!
 			DocumentBuilder builder;
 			builder = dbf.newDocumentBuilder();
-			Document doc = builder.parse(inputStream);
-			XPathFactory factory = XPathFactory.newInstance();
-			XPath xpath = factory.newXPath();
-			XPathExpression xPathExpr = xpath.compile(xPathQuery);
-			return xPathExpr.evaluate(doc);
+			xmlResponse = builder.parse(new InputSource(sw));
 		} catch (ParserConfigurationException e) {
 			throw new ManifoldCFException(e);
 		} catch (SAXException e) {
 			throw new ManifoldCFException(e);
 		} catch (IOException e) {
 			throw new ManifoldCFException(e);
+		} finally {
+			if (sw != null)
+				IOUtils.closeQuietly(sw);
+		}
+	}
+
+	protected String checkXPath(String xPathQuery) throws ManifoldCFException {
+		try {
+			readXmlResponse();
+			XPathFactory factory = XPathFactory.newInstance();
+			XPath xpath = factory.newXPath();
+			XPathExpression xPathExpr = xpath.compile(xPathQuery);
+			return xPathExpr.evaluate(xmlResponse);
 		} catch (XPathExpressionException e) {
 			throw new ManifoldCFException(e);
 		}
 	}
 
-	private void setResultDescription(String desc) {
-		resultDescription = desc == null ? "" : desc;
+	protected void setResult(Result res, String desc) {
+		if (res != null)
+			result = res;
+		if (desc != null)
+			if (desc.length() > 0)
+				resultDescription = desc;
 	}
 
 	public String getResultDescription() {
 		return resultDescription;
 	}
 
-	private void setResult(Result r) {
-		this.result = r;
+	protected String getResponse() {
+		return response;
 	}
 
 	private boolean checkResultCode(int code) {
 		switch (code) {
 		case 0:
-			setResult(Result.UNKNOWN);
+			setResult(Result.UNKNOWN, null);
 			return false;
 		case 200:
-			setResult(Result.OK);
+			setResult(Result.OK, null);
 			return true;
 		case 404:
-			setResult(Result.ERROR);
-			setResultDescription("Server/page not found");
+			setResult(Result.ERROR, "Server/page not found");
 			return false;
 		default:
-			setResult(Result.ERROR);
+			setResult(Result.ERROR, null);
 			return false;
 		}
 	}

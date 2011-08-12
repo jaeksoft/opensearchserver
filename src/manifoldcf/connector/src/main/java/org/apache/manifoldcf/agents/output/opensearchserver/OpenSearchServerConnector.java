@@ -20,6 +20,7 @@ import org.apache.manifoldcf.agents.interfaces.RepositoryDocument;
 import org.apache.manifoldcf.agents.interfaces.ServiceInterruption;
 import org.apache.manifoldcf.agents.output.BaseOutputConnector;
 import org.apache.manifoldcf.agents.output.opensearchserver.OpenSearchServerAction.CommandEnum;
+import org.apache.manifoldcf.agents.output.opensearchserver.OpenSearchServerConnection.Result;
 import org.apache.manifoldcf.core.interfaces.ConfigParams;
 import org.apache.manifoldcf.core.interfaces.ConfigurationNode;
 import org.apache.manifoldcf.core.interfaces.IHTTPOutput;
@@ -43,6 +44,14 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 
 	private final static String OPENSEARCHSERVER_TAB_PARAMETER = "Parameters";
 	private final static String OPENSEARCHSERVER_TAB_OPENSEARCHSERVER = "OpenSearchServer";
+
+	private String specsCacheOutpuDescription;
+	private OpenSearchServerSpecs specsCache;
+
+	public OpenSearchServerConnector() {
+		specsCacheOutpuDescription = null;
+		specsCache = null;
+	}
 
 	@Override
 	public String[] getActivitiesList() {
@@ -152,14 +161,14 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 	 * getConfiguration() is used.
 	 * 
 	 * @param configParams
-	 * @return
 	 */
 	final private OpenSearchServerConfig getConfigParameters(
 			ConfigParams configParams) {
 		if (configParams == null)
 			configParams = getConfiguration();
-		OpenSearchServerConfig config = new OpenSearchServerConfig(configParams);
-		return config;
+		synchronized (this) {
+			return new OpenSearchServerConfig(configParams);
+		}
 	}
 
 	final private OpenSearchServerSpecs getSpecParameters(OutputSpecification os)
@@ -167,10 +176,17 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 		return new OpenSearchServerSpecs(getSpecNode(os));
 	}
 
-	final private OpenSearchServerSpecs getSpecParameters(
-			String outputDescription) throws ManifoldCFException {
+	final private OpenSearchServerSpecs getSpecsCache(String outputDescription)
+			throws ManifoldCFException {
 		try {
-			return new OpenSearchServerSpecs(new JSONObject(outputDescription));
+			synchronized (this) {
+				if (!outputDescription.equals(specsCacheOutpuDescription))
+					specsCache = null;
+				if (specsCache == null)
+					specsCache = new OpenSearchServerSpecs(new JSONObject(
+							outputDescription));
+				return specsCache;
+			}
 		} catch (JSONException e) {
 			throw new ManifoldCFException(e);
 		}
@@ -186,7 +202,7 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 	@Override
 	public boolean checkLengthIndexable(String outputDescription, long length)
 			throws ManifoldCFException, ServiceInterruption {
-		OpenSearchServerSpecs specs = getSpecParameters(outputDescription);
+		OpenSearchServerSpecs specs = getSpecsCache(outputDescription);
 		long maxFileSize = specs.getMaxFileSize();
 		if (length > maxFileSize)
 			return false;
@@ -196,7 +212,7 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 	@Override
 	public boolean checkDocumentIndexable(String outputDescription,
 			File localFile) throws ManifoldCFException, ServiceInterruption {
-		OpenSearchServerSpecs specs = getSpecParameters(outputDescription);
+		OpenSearchServerSpecs specs = getSpecsCache(outputDescription);
 		return specs.checkExtension(FilenameUtils.getExtension(localFile
 				.getName()));
 	}
@@ -204,7 +220,7 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 	@Override
 	public boolean checkMimeTypeIndexable(String outputDescription,
 			String mimeType) throws ManifoldCFException, ServiceInterruption {
-		OpenSearchServerSpecs specs = getSpecParameters(outputDescription);
+		OpenSearchServerSpecs specs = getSpecsCache(outputDescription);
 		return specs.checkMimeType(mimeType);
 	}
 
@@ -276,6 +292,8 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 						OPENSEARCHSERVER_INDEXATION_ACTIVITY, document
 								.getBinaryLength(), documentURI, oi.getResult()
 								.name(), oi.getResultDescription());
+				if (oi.getResult() != Result.OK)
+					return DOCUMENTSTATUS_REJECTED;
 			} finally {
 				IOUtils.closeQuietly(inputStream);
 				removeInstance(config);

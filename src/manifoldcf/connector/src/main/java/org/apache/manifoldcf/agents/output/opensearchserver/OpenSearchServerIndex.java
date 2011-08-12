@@ -71,8 +71,12 @@ public class OpenSearchServerIndex extends OpenSearchServerConnection {
 		PutMethod put = new PutMethod(url.toString());
 		RequestEntity entity = new IndexRequestEntity(documentURI, inputStream);
 		put.setRequestEntity(entity);
-		String xPath = "/response/entry[key='Status']/text()";
-		call(put, xPath, "OK", "Indexation failed");
+		call(put);
+		if ("OK".equals(checkXPath(xPathStatus)))
+			return;
+		String error = checkXPath(xPathException);
+		setResult(Result.ERROR, error);
+		System.err.println(getResponse());
 	}
 
 }

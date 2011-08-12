@@ -13,6 +13,9 @@ public class OpenSearchServerSchema extends OpenSearchServerConnection {
 		url.append("&cmd=indexList");
 		GetMethod method = new GetMethod(url.toString());
 		String xpath = "count(/response/index[@name='" + indexName + "'])";
-		call(method, xpath, "1", "Index not found");
+		call(method);
+		if ("1".equals(checkXPath(xpath)))
+			return;
+		setResult(Result.ERROR, "Index not found");
 	}
 }

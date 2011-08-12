@@ -12,7 +12,9 @@ public class OpenSearchServerDelete extends OpenSearchServerConnection {
 		url.append("&uniq=");
 		url.append(urlEncode(documentURI));
 		GetMethod method = new GetMethod(url.toString());
-		String xPath = "/response/entry[key='Status']/text()";
-		call(method, xPath, "OK", "Deletion failure");
+		call(method);
+		if ("OK".equals(checkXPath(xPathStatus)))
+			return;
+		setResult(Result.ERROR, checkXPath(xPathException));
 	}
 }

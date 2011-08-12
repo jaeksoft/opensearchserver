@@ -16,7 +16,9 @@ public class OpenSearchServerAction extends OpenSearchServerConnection {
 		url.append("&action=");
 		url.append(cmd.name());
 		GetMethod method = new GetMethod(url.toString());
-		String xPath = "/response/entry[key='Status']/text()";
-		call(method, xPath, "OK", "Command " + cmd.name() + "failed");
+		call(method);
+		if ("OK".equals(checkXPath(xPathStatus)))
+			return;
+		setResult(Result.ERROR, checkXPath(xPathException));
 	}
 }
