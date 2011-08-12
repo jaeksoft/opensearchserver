@@ -5,11 +5,10 @@ import org.apache.manifoldcf.core.interfaces.ManifoldCFException;
 
 public class OpenSearchServerSchema extends OpenSearchServerConnection {
 
-	public OpenSearchServerSchema(OpenSearchServerParam params)
+	public OpenSearchServerSchema(OpenSearchServerConfig config)
 			throws ManifoldCFException {
-		super(params);
-		String indexName = params
-				.get(OpenSearchServerParam.ParameterEnum.INDEXNAME);
+		super(config);
+		String indexName = config.getIndexName();
 		StringBuffer url = getApiUrl("schema");
 		url.append("&cmd=indexList");
 		GetMethod method = new GetMethod(url.toString());

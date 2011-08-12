@@ -1,6 +1,7 @@
 package org.apache.manifoldcf.agents.output.opensearchserver;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.manifoldcf.agents.interfaces.IOutputAddActivity;
 import org.apache.manifoldcf.agents.interfaces.IOutputNotifyActivity;
@@ -25,6 +27,8 @@ import org.apache.manifoldcf.core.interfaces.IPostParameters;
 import org.apache.manifoldcf.core.interfaces.IThreadContext;
 import org.apache.manifoldcf.core.interfaces.ManifoldCFException;
 import org.apache.manifoldcf.core.interfaces.SpecificationNode;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class OpenSearchServerConnector extends BaseOutputConnector {
 
@@ -39,9 +43,6 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 
 	private final static String OPENSEARCHSERVER_TAB_PARAMETER = "Parameters";
 	private final static String OPENSEARCHSERVER_TAB_OPENSEARCHSERVER = "OpenSearchServer";
-
-	// private final static String OPENSEARCHSERVER_TAB_FIELDMAPPING =
-	// "Field mapping";
 
 	@Override
 	public String[] getActivitiesList() {
@@ -96,7 +97,8 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 			throws ManifoldCFException, IOException {
 		super.outputConfigurationBody(threadContext, out, parameters, tabName);
 		if (OPENSEARCHSERVER_TAB_PARAMETER.equals(tabName)) {
-			outputResource("configuration.html", out, getParameters(parameters));
+			outputResource("configuration.html", out,
+					getConfigParameters(parameters));
 		}
 	}
 
@@ -112,7 +114,7 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 		int l = os.getChildCount();
 		for (int i = 0; i < l; i++) {
 			SpecificationNode node = os.getChild(i);
-			if (OpenSearchServerParam.OPENSEARCHSERVER_SPECS_NODE.equals(node
+			if (OpenSearchServerSpecs.OPENSEARCHSERVER_SPECS_NODE.equals(node
 					.getType())) {
 				return node;
 			}
@@ -137,57 +139,80 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 		boolean bAdd = (specNode == null);
 		if (bAdd) {
 			specNode = new SpecificationNode(
-					OpenSearchServerParam.OPENSEARCHSERVER_SPECS_NODE);
+					OpenSearchServerSpecs.OPENSEARCHSERVER_SPECS_NODE);
 		}
-		OpenSearchServerParam.contextToSpecNode(
-				OpenSearchServerParam.SPECIFICATIONLIST, variableContext,
-				specNode);
+		OpenSearchServerSpecs.contextToSpecNode(variableContext, specNode);
 		if (bAdd)
 			os.addChild(os.getChildCount(), specNode);
 		return null;
 	}
 
 	/**
-	 * Build a Set of OpenSearchServerParam. If configParams is null,
+	 * Build a Set of OpenSearchServer parameters. If configParams is null,
 	 * getConfiguration() is used.
 	 * 
 	 * @param configParams
 	 * @return
 	 */
-	final private OpenSearchServerParam getParameters(ConfigParams configParams) {
+	final private OpenSearchServerConfig getConfigParameters(
+			ConfigParams configParams) {
 		if (configParams == null)
 			configParams = getConfiguration();
-		OpenSearchServerParam parameters = new OpenSearchServerParam(
-				OpenSearchServerParam.CONFIGURATIONLIST, configParams);
-		return parameters;
+		OpenSearchServerConfig config = new OpenSearchServerConfig(configParams);
+		return config;
 	}
 
-	final private OpenSearchServerParam getSpecParameters(OutputSpecification os) {
-		return new OpenSearchServerParam(
-				OpenSearchServerParam.SPECIFICATIONLIST, getSpecNode(os));
+	final private OpenSearchServerSpecs getSpecParameters(OutputSpecification os)
+			throws ManifoldCFException {
+		return new OpenSearchServerSpecs(getSpecNode(os));
+	}
+
+	final private OpenSearchServerSpecs getSpecParameters(
+			String outputDescription) throws ManifoldCFException {
+		try {
+			return new OpenSearchServerSpecs(new JSONObject(outputDescription));
+		} catch (JSONException e) {
+			throw new ManifoldCFException(e);
+		}
 	}
 
 	@Override
-	public String getOutputDescription(OutputSpecification os) {
-		OpenSearchServerParam ossParam = new OpenSearchServerParam(
-				OpenSearchServerParam.SPECIFICATIONLIST, getSpecNode(os));
-		return ossParam.get(OpenSearchServerParam.ParameterEnum.MAXFILESIZE);
+	public String getOutputDescription(OutputSpecification os)
+			throws ManifoldCFException {
+		OpenSearchServerSpecs specs = new OpenSearchServerSpecs(getSpecNode(os));
+		return specs.toJson().toString();
 	}
 
 	@Override
 	public boolean checkLengthIndexable(String outputDescription, long length)
 			throws ManifoldCFException, ServiceInterruption {
-		long maxFileSize = Long.parseLong(outputDescription);
+		OpenSearchServerSpecs specs = getSpecParameters(outputDescription);
+		long maxFileSize = specs.getMaxFileSize();
 		if (length > maxFileSize)
 			return false;
 		return super.checkLengthIndexable(outputDescription, length);
 	}
 
 	@Override
+	public boolean checkDocumentIndexable(String outputDescription,
+			File localFile) throws ManifoldCFException, ServiceInterruption {
+		OpenSearchServerSpecs specs = getSpecParameters(outputDescription);
+		return specs.checkExtension(FilenameUtils.getExtension(localFile
+				.getName()));
+	}
+
+	@Override
+	public boolean checkMimeTypeIndexable(String outputDescription,
+			String mimeType) throws ManifoldCFException, ServiceInterruption {
+		OpenSearchServerSpecs specs = getSpecParameters(outputDescription);
+		return specs.checkMimeType(mimeType);
+	}
+
+	@Override
 	public void viewConfiguration(IThreadContext threadContext,
 			IHTTPOutput out, ConfigParams parameters)
 			throws ManifoldCFException, IOException {
-		outputResource("view.html", out, getParameters(parameters));
+		outputResource("view.html", out, getConfigParameters(parameters));
 	}
 
 	@Override
@@ -200,19 +225,17 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 	public String processConfigurationPost(IThreadContext threadContext,
 			IPostParameters variableContext, ConfigParams parameters)
 			throws ManifoldCFException {
-		OpenSearchServerParam.contextToConfig(
-				OpenSearchServerParam.CONFIGURATIONLIST, variableContext,
-				parameters);
+		OpenSearchServerConfig.contextToConfig(variableContext, parameters);
 		return null;
 	}
 
 	private static Map<String, Integer> ossInstances = null;
 
-	private synchronized final Integer addInstance(OpenSearchServerParam param) {
+	private synchronized final Integer addInstance(OpenSearchServerConfig config) {
 		if (ossInstances == null)
 			ossInstances = new TreeMap<String, Integer>();
 		synchronized (ossInstances) {
-			String uii = param.getUniqueIndexIdentifier();
+			String uii = config.getUniqueIndexIdentifier();
 			Integer count = ossInstances.get(uii);
 			if (count == null) {
 				count = new Integer(1);
@@ -223,11 +246,11 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 		}
 	}
 
-	private synchronized final void removeInstance(OpenSearchServerParam param) {
+	private synchronized final void removeInstance(OpenSearchServerConfig config) {
 		if (ossInstances == null)
 			return;
 		synchronized (ossInstances) {
-			String uii = param.getUniqueIndexIdentifier();
+			String uii = config.getUniqueIndexIdentifier();
 			Integer count = ossInstances.get(uii);
 			if (count == null)
 				return;
@@ -241,21 +264,21 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 			String outputDescription, RepositoryDocument document,
 			String authorityNameString, IOutputAddActivity activities)
 			throws ManifoldCFException, ServiceInterruption {
-		OpenSearchServerParam param = getParameters(null);
-		Integer count = addInstance(param);
+		OpenSearchServerConfig config = getConfigParameters(null);
+		Integer count = addInstance(config);
 		synchronized (count) {
 			InputStream inputStream = document.getBinaryStream();
 			try {
 				long startTime = System.currentTimeMillis();
 				OpenSearchServerIndex oi = new OpenSearchServerIndex(
-						documentURI, inputStream, param);
+						documentURI, inputStream, config);
 				activities.recordActivity(startTime,
 						OPENSEARCHSERVER_INDEXATION_ACTIVITY, document
 								.getBinaryLength(), documentURI, oi.getResult()
 								.name(), oi.getResultDescription());
 			} finally {
 				IOUtils.closeQuietly(inputStream);
-				removeInstance(param);
+				removeInstance(config);
 			}
 			return DOCUMENTSTATUS_ACCEPTED;
 		}
@@ -267,7 +290,7 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 			ServiceInterruption {
 		long startTime = System.currentTimeMillis();
 		OpenSearchServerDelete od = new OpenSearchServerDelete(documentURI,
-				getParameters(null));
+				getConfigParameters(null));
 		activities.recordActivity(startTime,
 				OPENSEARCHSERVER_DELETION_ACTIVITY, null, documentURI, od
 						.getResult().name(), od.getResultDescription());
@@ -276,7 +299,7 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 	@Override
 	public String check() throws ManifoldCFException {
 		OpenSearchServerSchema oss = new OpenSearchServerSchema(
-				getParameters(null));
+				getConfigParameters(null));
 		return oss.getResult().name() + " " + oss.getResultDescription();
 	}
 
@@ -285,7 +308,7 @@ public class OpenSearchServerConnector extends BaseOutputConnector {
 			throws ManifoldCFException, ServiceInterruption {
 		long startTime = System.currentTimeMillis();
 		OpenSearchServerAction oo = new OpenSearchServerAction(
-				CommandEnum.optimize, getParameters(null));
+				CommandEnum.optimize, getConfigParameters(null));
 		activities.recordActivity(startTime,
 				OPENSEARCHSERVER_OPTIMIZE_ACTIVITY, null,
 				oo.getCallUrlSnippet(), oo.getResult().name(),

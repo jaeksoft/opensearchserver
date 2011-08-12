@@ -65,8 +65,8 @@ public class OpenSearchServerIndex extends OpenSearchServerConnection {
 	}
 
 	public OpenSearchServerIndex(String documentURI, InputStream inputStream,
-			OpenSearchServerParam params) throws ManifoldCFException {
-		super(params);
+			OpenSearchServerConfig config) throws ManifoldCFException {
+		super(config);
 		StringBuffer url = getApiUrl("update");
 		PutMethod put = new PutMethod(url.toString());
 		RequestEntity entity = new IndexRequestEntity(documentURI, inputStream);

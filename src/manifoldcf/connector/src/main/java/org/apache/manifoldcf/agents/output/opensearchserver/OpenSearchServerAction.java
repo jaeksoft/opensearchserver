@@ -9,9 +9,9 @@ public class OpenSearchServerAction extends OpenSearchServerConnection {
 		optimize, reload;
 	}
 
-	public OpenSearchServerAction(CommandEnum cmd, OpenSearchServerParam params)
+	public OpenSearchServerAction(CommandEnum cmd, OpenSearchServerConfig config)
 			throws ManifoldCFException {
-		super(params);
+		super(config);
 		StringBuffer url = getApiUrl("action");
 		url.append("&action=");
 		url.append(cmd.name());

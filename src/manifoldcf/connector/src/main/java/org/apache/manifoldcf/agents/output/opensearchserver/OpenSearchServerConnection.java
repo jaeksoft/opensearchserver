@@ -17,7 +17,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.io.IOUtils;
-import org.apache.manifoldcf.agents.output.opensearchserver.OpenSearchServerParam.ParameterEnum;
 import org.apache.manifoldcf.core.interfaces.ManifoldCFException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -42,14 +41,14 @@ public class OpenSearchServerConnection {
 
 	private Result result;
 
-	protected OpenSearchServerConnection(OpenSearchServerParam params) {
+	protected OpenSearchServerConnection(OpenSearchServerConfig config) {
 		result = Result.UNKNOWN;
 		resultDescription = "";
 		callUrlSnippet = null;
-		serverLocation = params.get(ParameterEnum.SERVERLOCATION);
-		indexName = params.get(ParameterEnum.INDEXNAME);
-		userName = params.get(ParameterEnum.USERNAME);
-		apiKey = params.get(ParameterEnum.APIKEY);
+		serverLocation = config.getServerLocation();
+		indexName = config.getIndexName();
+		userName = config.getUserName();
+		apiKey = config.getApiKey();
 	}
 
 	protected final String urlEncode(String t) throws ManifoldCFException {
