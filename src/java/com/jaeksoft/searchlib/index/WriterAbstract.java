@@ -35,8 +35,10 @@ public abstract class WriterAbstract implements WriterInterface {
 	private Md5Spliter md5spliter = null;
 	private String keyField = null;
 	protected List<BeforeUpdateInterface> beforeUpdateList = null;
+	protected boolean optimizing;
 
 	protected WriterAbstract(IndexConfig indexConfig) {
+		optimizing = false;
 		this.md5spliter = null;
 		this.keyField = indexConfig.getKeyField();
 		if (indexConfig.getKeyMd5RegExp() != null)
@@ -63,4 +65,10 @@ public abstract class WriterAbstract implements WriterInterface {
 			beforeUpdateList = new ArrayList<BeforeUpdateInterface>();
 		beforeUpdateList.add(beforeUpdate);
 	}
+
+	@Override
+	public boolean isOptimizing() {
+		return optimizing;
+	}
+
 }

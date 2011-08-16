@@ -51,4 +51,6 @@ public interface WriterInterface {
 
 	public void optimize() throws SearchLibException;
 
+	public boolean isOptimizing();
+
 }

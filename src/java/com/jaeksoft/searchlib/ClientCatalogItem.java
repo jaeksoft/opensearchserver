@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.naming.NamingException;
 
@@ -65,6 +66,17 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		if (lastModifiedAndSize == null)
 			return null;
 		return lastModifiedAndSize.getLastModifiedFile();
+	}
+
+	public String getOptimizationStatus() throws SearchLibException,
+			NamingException, IOException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		if (client.isOptimizing())
+			return "Running";
+		return Boolean
+				.toString(client.getIndex().getStatistics().isOptimized());
 	}
 
 	@Override

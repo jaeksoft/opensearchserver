@@ -165,6 +165,10 @@ public class Client extends Config {
 		}
 	}
 
+	public boolean isOptimizing() {
+		return getIndex().isOptimizing();
+	}
+
 	public void reload() throws SearchLibException {
 		Timer timer = new Timer("Reload");
 		try {

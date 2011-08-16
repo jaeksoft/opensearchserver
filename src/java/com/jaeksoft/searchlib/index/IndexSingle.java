@@ -106,6 +106,18 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
+	public boolean isOptimizing() {
+		rwl.r.lock();
+		try {
+			if (writer != null)
+				return writer.isOptimizing();
+			return false;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws SearchLibException {
 		if (!online)

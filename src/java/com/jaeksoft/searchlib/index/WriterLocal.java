@@ -75,7 +75,6 @@ public class WriterLocal extends WriterAbstract {
 		this.indexWriter = null;
 		this.similarityClass = indexConfig.getSimilarityClass();
 		this.maxNumSegments = indexConfig.getMaxNumSegments();
-
 	}
 
 	private void unlock() {
@@ -309,6 +308,7 @@ public class WriterLocal extends WriterAbstract {
 		l.lock();
 		try {
 			open();
+			optimizing = true;
 			indexWriter.optimize(maxNumSegments, true);
 			close();
 		} catch (CorruptIndexException e) {
@@ -324,6 +324,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
+			optimizing = false;
 			close();
 			l.unlock();
 		}

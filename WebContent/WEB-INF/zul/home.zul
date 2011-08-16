@@ -76,6 +76,8 @@
 						colspan="3" />
 					<auxheader align="center" label="Replication"
 						colspan="2" />
+					<auxheader align="center" label="Opt."
+						tooltiptext="Optimization status" />
 					<auxheader align="center" label="Informations"
 						colspan="2" />
 					<auxheader align="center" label="Action" />
@@ -89,12 +91,16 @@
 						tooltiptext="Number of running jobs" width="40px" align="center" />
 					<listheader label="A"
 						tooltiptext="Number of active jobs" width="40px" align="center" />
-					<listheader label="N" tooltiptext="Number of jobs" width="40px"
-						align="center" />
+					<listheader label="N" tooltiptext="Number of jobs"
+						width="40px" align="center" />
 					<listheader label="R"
-						tooltiptext="Number of replication items" width="50px" align="center" />
+						tooltiptext="Number of replication items" width="50px"
+						align="center" />
 					<listheader label="N"
-						tooltiptext="Number of running replication items" width="50px" align="center" />
+						tooltiptext="Number of running replication items" width="50px"
+						align="center" />
+					<listheader label="status" width="60px"
+						tooltiptext="Optimization status" align="center" />
 					<listheader width="150px" label="Last modified"
 						align="right" />
 					<listheader width="100px" label="Size"
@@ -119,6 +125,7 @@
 						label="@{catalogitem.client.replicationMaster.threadsCount}" />
 					<listcell
 						label="@{catalogitem.client.replicationList.set.size}" />
+					<listcell label="@{catalogitem.optimizationStatus}" />
 					<listcell
 						tooltiptext="@{catalogitem.lastModifiedFile}"
 						label="@{catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
