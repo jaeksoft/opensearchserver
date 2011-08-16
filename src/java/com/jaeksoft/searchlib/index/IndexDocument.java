@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.Externalizable;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -126,12 +127,22 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		for (int i = 0; i < binaryCount; i++) {
 			Node node = binaryNodes.item(i);
 			String filename = XPathParser.getAttributeString(node, "fileName");
+			if (filename == null || filename.length() == 0)
+				filename = XPathParser.getAttributeString(node, "filename");
+			String filePath = XPathParser.getAttributeString(node, "filePath");
+			if (filePath == null || filePath.length() == 0)
+				filePath = XPathParser.getAttributeString(node, "filepath");
 			String contentType = XPathParser.getAttributeString(node,
 					"contentType");
 			Parser parser = parserSelector.getParser(filename, contentType);
 			if (parser == null)
 				continue;
-			parser.parseContentBase64(xpp.getNodeString(node));
+			String content = node.getTextContent();
+			if (content != null && content.length() > 0)
+				parser.parseContentBase64(content);
+			else if (filePath != null && filePath.length() > 0)
+				parser.parseContent(new File(filePath));
+
 			parser.populate(this);
 		}
 	}
