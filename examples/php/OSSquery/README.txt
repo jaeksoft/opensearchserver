@@ -1,9 +1,9 @@
-PHP example for Jaeksoft Open Search Server
+PHP example for OpenSearchServer
 
 Copyright Emmanuel Keller / Jaeksoft
 This programm is licensed under the GPL v3.
 
-Jaeksoft Open Search Server is a search engine build in JAVA,
+OpenSearchServer is a search engine build in JAVA,
 based on best JAVA technologies:
 
     * The lucene Text search engine library Apache Lucene

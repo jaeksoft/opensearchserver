@@ -1,4 +1,4 @@
-Jaeksoft OpenSearchServer
+OpenSearchServer
 http://www.open-search-server.com
 -----------------------
 CHANGE LOG
