@@ -149,10 +149,11 @@ public class UrlManager extends UrlManagerAbstract {
 	}
 
 	@Override
-	public void removeExisting(List<String> urlList) throws SearchLibException {
-		Iterator<String> it = urlList.iterator();
+	public void removeExisting(List<LinkItem> linkList)
+			throws SearchLibException {
+		Iterator<LinkItem> it = linkList.iterator();
 		while (it.hasNext())
-			if (exists(it.next()))
+			if (exists(it.next().getUrl()))
 				it.remove();
 	}
 

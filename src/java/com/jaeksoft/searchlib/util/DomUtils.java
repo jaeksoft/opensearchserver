@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -117,20 +117,24 @@ public class DomUtils {
 		return getText(attr);
 	}
 
-	final private static void getAllNodes(Node parent, String tagName,
+	final private static void getAllNodes(Node parent, String[] tags,
 			List<Node> nodes) {
-		if (parent.getNodeName().equals(tagName))
-			nodes.add(parent);
+		for (String tag : tags) {
+			if (parent.getNodeName().equals(tag)) {
+				nodes.add(parent);
+				break;
+			}
+		}
 		NodeList childrens = parent.getChildNodes();
 		int l = childrens.getLength();
 		for (int i = 0; i < l; i++)
-			getAllNodes(childrens.item(i), tagName, nodes);
+			getAllNodes(childrens.item(i), tags, nodes);
 
 	}
 
-	final public static List<Node> getAllNodes(Node parent, String tagName) {
+	final public static List<Node> getAllNodes(Node parent, String... tags) {
 		List<Node> nodes = new ArrayList<Node>();
-		getAllNodes(parent, tagName, nodes);
+		getAllNodes(parent, tags, nodes);
 		return nodes;
 	}
 

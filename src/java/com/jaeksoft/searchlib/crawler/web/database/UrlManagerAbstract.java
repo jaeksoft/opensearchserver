@@ -116,9 +116,11 @@ public abstract class UrlManagerAbstract {
 		return urlItemFieldEnum;
 	}
 
-	public final UrlItem getNewUrlItem(String url) {
+	public final UrlItem getNewUrlItem(LinkItem linkItem) {
 		UrlItem ui = getNewUrlItem();
-		ui.setUrl(url);
+		ui.setUrl(linkItem.getUrl());
+		ui.setParentUrl(linkItem.getParentUrl());
+		ui.setOrigin(linkItem.getOrigin());
 		return ui;
 	}
 
@@ -152,7 +154,7 @@ public abstract class UrlManagerAbstract {
 		inject(urlList);
 	}
 
-	public abstract void removeExisting(List<String> urlList)
+	public abstract void removeExisting(List<LinkItem> urlList)
 			throws SearchLibException;
 
 	// TODO : can be mutualised

@@ -30,6 +30,10 @@ public class UrlItemFieldEnum extends ExtensibleEnum<UrlItemField> {
 
 	final public UrlItemField url = new UrlItemField(this, "url");
 
+	final public UrlItemField parentUrl = new UrlItemField(this, "parentUrl");
+
+	final public UrlItemField origin = new UrlItemField(this, "origin");
+
 	final public UrlItemField lang = new UrlItemField(this, "lang");
 
 	final public UrlItemField langMethod = new UrlItemField(this, "langMethod");

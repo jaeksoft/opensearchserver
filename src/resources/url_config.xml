@@ -3,15 +3,15 @@
 <!-- Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft -->
 <!-- http://www.open-search-server.com -->
 <!-- This file is part of OpenSearchServer. -->
-<!-- OpenSearchServer is free software: you can redistribute it 
-	and/or modify it under the terms of the GNU General Public License as published 
-	by the Free Software Foundation, either version 3 of the License, or (at 
-	your option) any later version. OpenSearchServer is distributed 
-	in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
-	the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	See the GNU General Public License for more details. You should have received 
-	a copy of the GNU General Public License along with Jaeksoft Open Search 
-	Server. If not, see <http://www.gnu.org/licenses/>. -->
+<!-- OpenSearchServer is free software: you can redistribute it and/or modify 
+	it under the terms of the GNU General Public License as published by the 
+	Free Software Foundation, either version 3 of the License, or (at your option) 
+	any later version. OpenSearchServer is distributed in the hope that it will 
+	be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of 
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+	Public License for more details. You should have received a copy of the GNU 
+	General Public License along with Jaeksoft Open Search Server. If not, see 
+	<http://www.gnu.org/licenses/>. -->
 <configuration>
 	<indices>
 		<index name="url" searchCache="100" filterCache="100"
@@ -29,9 +29,9 @@
 				termVector="yes" />
 			<field name="contentLength" indexed="yes" stored="no"
 				termVector="yes" />
-			<field name="url" indexed="yes" stored="yes" termVector="yes" />
-			<field name="outlink" indexed="yes" termVector="yes" />
-			<field name="inlink" indexed="yes" termVector="yes" />
+			<field name="url" indexed="yes" stored="no" termVector="yes" />
+			<field name="outlink" indexed="yes" stored="no" termVector="yes" />
+			<field name="inlink" indexed="yes" stored="no" termVector="yes" />
 			<field name="host" indexed="yes" stored="no" termVector="yes" />
 			<field name="subhost" indexed="yes" stored="no" termVector="yes" />
 			<field name="when" indexed="yes" stored="no" termVector="yes" />
@@ -46,6 +46,8 @@
 			<field name="md5size" indexed="yes" stored="no" termVector="yes" />
 			<field name="lastModifiedDate" indexed="yes" stored="no"
 				termVector="yes" />
+			<field name="parentUrl" indexed="yes" stored="no" termVector="yes" />
+			<field name="origin" indexed="yes" stored="no" termVector="yes" />
 		</fields>
 	</schema>
 	<requests>
@@ -56,8 +58,8 @@
 				url,host,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
 				lang,langMethod,when,responseCode,
 				robotsTxtStatus,parserStatus,fetchStatus,indexStatus,
-				md5size,lastModifiedDate
-				</returnFields>
+				md5size,lastModifiedDate,parentUrl,origin
+			</returnFields>
 		</request>
 		<request name="urlExport" defaultOperator="and" start="0"
 			rows="0">

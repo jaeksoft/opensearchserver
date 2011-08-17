@@ -156,7 +156,7 @@
 				<filter class="SnowballTurkishFilter" />
 			</analyzer>
 		</analyzers>
-		<fields default="content" unique="path">
+		<fields default="content" unique="uri">
 			<!-- mandatory parameters -->
 			<field name="uri" indexed="yes" stored="yes" />
 			<field name="directory" indexed="yes" stored="yes" />

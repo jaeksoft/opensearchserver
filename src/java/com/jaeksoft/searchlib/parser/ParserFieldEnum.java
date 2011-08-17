@@ -45,6 +45,8 @@ public enum ParserFieldEnum {
 
 	external_link,
 
+	frameset_link,
+
 	creator,
 
 	author,

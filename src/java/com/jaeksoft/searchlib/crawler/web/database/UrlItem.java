@@ -76,6 +76,8 @@ public class UrlItem implements Serializable {
 	private Date lastModifiedDate;
 	private List<String> outLinks;
 	private List<String> inLinks;
+	private String parentUrl;
+	private LinkItem.Origin origin;
 
 	protected UrlItem() {
 		url = null;
@@ -101,6 +103,8 @@ public class UrlItem implements Serializable {
 		count = 0;
 		md5size = null;
 		lastModifiedDate = null;
+		parentUrl = null;
+		origin = null;
 	}
 
 	protected void init(ResultDocument doc, UrlItemFieldEnum urlItemFieldEnum) {
@@ -136,6 +140,11 @@ public class UrlItem implements Serializable {
 		setMd5size(doc.getValueContent(urlItemFieldEnum.md5size.getName(), 0));
 		setLastModifiedDate(doc.getValueContent(
 				urlItemFieldEnum.lastModifiedDate.getName(), 0));
+		setParentUrl(doc.getValueContent(urlItemFieldEnum.parentUrl.getName(),
+				0));
+		setOrigin(LinkItem.findOrigin(doc.getValueContent(
+				urlItemFieldEnum.origin.getName(), 0)));
+
 	}
 
 	public List<String> getSubHost() {
@@ -403,6 +412,22 @@ public class UrlItem implements Serializable {
 		cachedUrl = null;
 	}
 
+	public String getParentUrl() {
+		return parentUrl;
+	}
+
+	public void setParentUrl(String parentUrl) {
+		this.parentUrl = parentUrl;
+	}
+
+	public LinkItem.Origin getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(LinkItem.Origin origin) {
+		this.origin = origin;
+	}
+
 	public Date getWhen() {
 		return when;
 	}
@@ -544,6 +569,12 @@ public class UrlItem implements Serializable {
 			indexDocument.setString(
 					urlItemFieldEnum.lastModifiedDate.getName(),
 					df.format(lastModifiedDate));
+		if (parentUrl != null)
+			indexDocument.setString(urlItemFieldEnum.parentUrl.getName(),
+					parentUrl);
+		if (origin != null)
+			indexDocument.setString(urlItemFieldEnum.origin.getName(),
+					origin.name());
 	}
 
 	public String getLang() {

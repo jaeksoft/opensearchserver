@@ -48,6 +48,8 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
+import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
+import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
@@ -79,7 +81,7 @@ public class Crawl {
 	private Config config;
 	private Parser parser;
 	private String error;
-	private List<String> discoverLinks;
+	private List<LinkItem> discoverLinks;
 	private FieldMap urlFieldMap;
 	private URI redirectUrlLocation;
 	private boolean inclusionEnabled;
@@ -375,8 +377,9 @@ public class Crawl {
 
 	final private static void discoverLinks(UrlManagerAbstract urlManager,
 			PatternManager inclusionManager, PatternManager exclusionManager,
-			FieldContent urlFieldContent, List<String> newUrlList)
-			throws NoSuchAlgorithmException, IOException, SearchLibException {
+			FieldContent urlFieldContent, Origin origin, String parentUrl,
+			List<LinkItem> newUrlList) throws NoSuchAlgorithmException,
+			IOException, SearchLibException {
 		if (urlFieldContent == null)
 			return;
 		List<FieldValueItem> links = urlFieldContent.getValues();
@@ -392,7 +395,7 @@ public class Crawl {
 				if (inclusionManager != null)
 					if (!inclusionManager.matchPattern(url))
 						continue;
-				newUrlList.add(link);
+				newUrlList.add(new LinkItem(link, origin, parentUrl));
 			} catch (MalformedURLException e) {
 				Logging.warn(link + " " + e.getMessage(), e);
 			}
@@ -400,14 +403,16 @@ public class Crawl {
 		urlManager.removeExisting(newUrlList);
 	}
 
-	public List<String> getDiscoverLinks() throws NoSuchAlgorithmException,
+	public List<LinkItem> getDiscoverLinks() throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
 		synchronized (this) {
 			if (discoverLinks != null)
 				return discoverLinks;
-			discoverLinks = new ArrayList<String>();
+			String parentUrl = urlItem.getUrl();
+			discoverLinks = new ArrayList<LinkItem>();
 			if (redirectUrlLocation != null) {
-				discoverLinks.add(redirectUrlLocation.toString());
+				discoverLinks.add(new LinkItem(redirectUrlLocation.toString(),
+						Origin.redirect, parentUrl));
 				return discoverLinks;
 			}
 			if (parser == null || !urlItem.isStatusFull())
@@ -419,10 +424,13 @@ public class Crawl {
 					.getExclusionPatternManager() : null;
 			discoverLinks(urlManager, inclusionManager, exclusionManager,
 					parser.getFieldContent(ParserFieldEnum.internal_link),
-					discoverLinks);
+					Origin.content, parentUrl, discoverLinks);
 			discoverLinks(urlManager, inclusionManager, exclusionManager,
 					parser.getFieldContent(ParserFieldEnum.external_link),
-					discoverLinks);
+					Origin.content, parentUrl, discoverLinks);
+			discoverLinks(urlManager, inclusionManager, exclusionManager,
+					parser.getFieldContent(ParserFieldEnum.frameset_link),
+					Origin.frameset, parentUrl, discoverLinks);
 			return discoverLinks;
 		}
 	}

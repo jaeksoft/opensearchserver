@@ -80,16 +80,12 @@ public class PdfParser extends Parser {
 			}
 			int pages = pdf.getNumberOfPages();
 			addField(ParserFieldEnum.number_of_pages, pages);
-			for (int page = 0; page < pages; page++) {
-				PDFTextStripper stripper = new PDFTextStripper("UTF-8");
-				stripper.setStartPage(page);
-				stripper.setEndPage(page);
-				String text = stripper.getText(pdf);
-				String[] frags = text.split("\\n");
-				for (String frag : frags)
-					addField(ParserFieldEnum.content,
-							frag.replaceAll("\\s+", " ").trim());
-			}
+			PDFTextStripper stripper = new PDFTextStripper("UTF-8");
+			String text = stripper.getText(pdf);
+			String[] frags = text.split("\\n");
+			for (String frag : frags)
+				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " ")
+						.trim());
 			pdf.close();
 			pdf = null;
 			langDetection(10000, ParserFieldEnum.content);

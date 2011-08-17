@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
+import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
 import com.jaeksoft.searchlib.crawler.web.database.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.database.SiteMapList;
@@ -174,7 +175,9 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				List<String> urls = getListOfUrls(siteMap.getUri());
 				for (String uri : urls) {
 					if (!urlManager.exists(uri)) {
-						workInsertUrlList.add(urlManager.getNewUrlItem(uri));
+						workInsertUrlList.add(urlManager
+								.getNewUrlItem(new LinkItem(uri,
+										LinkItem.Origin.sitemap, null)));
 					}
 				}
 			}
@@ -295,7 +298,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 		UrlItem urlItem = urlManager.getUrlToFetch(url);
 		if (urlItem == null)
-			urlItem = urlManager.getNewUrlItem(url.toExternalForm());
+			urlItem = urlManager.getNewUrlItem(new LinkItem(url
+					.toExternalForm(), LinkItem.Origin.manual, null));
 		urlItemList.add(urlItem);
 		HostUrlList hostUrlList = new HostUrlList(urlItemList, new NamedItem(
 				url.getHost()));

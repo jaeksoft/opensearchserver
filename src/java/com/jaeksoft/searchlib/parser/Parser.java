@@ -173,7 +173,7 @@ public abstract class Parser extends ParserFactory {
 	}
 
 	final public void parseContentBase64(String base64text) throws IOException {
-		InputStream is = IOUtils.toInputStream(base64text);
+		InputStream is = new LargeStringInputString(base64text, 131072);
 		Base64InputStream b64is = new Base64InputStream(is);
 		try {
 			parseContent(b64is);

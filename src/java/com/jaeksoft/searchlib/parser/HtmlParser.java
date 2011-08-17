@@ -288,8 +288,7 @@ public class HtmlParser extends Parser {
 	}
 
 	private static URL getBaseHref(Document doc) {
-		String[] p = { "html", "head", "base" };
-		List<Node> list = DomUtils.getNodes(doc, p);
+		List<Node> list = DomUtils.getNodes(doc, "html", "head", "base");
 		if (list == null)
 			return null;
 		if (list.size() == 0)
@@ -519,15 +518,23 @@ public class HtmlParser extends Parser {
 
 		UrlFilterItem[] urlFilterList = getUrlFilterList();
 
-		List<Node> nodes = DomUtils.getAllNodes(doc, "a");
-		if (nodes != null && metaRobotsFollow) {
+		List<Node> nodes = DomUtils.getAllNodes(doc, "a", "frame");
+		IndexDocument srcDoc = getSourceDocument();
+		if (srcDoc != null && nodes != null && metaRobotsFollow) {
 			URL currentURL = getBaseHref(doc);
 			if (currentURL == null)
-				currentURL = new URL(getSourceDocument().getFieldValue(
+				currentURL = new URL(srcDoc.getFieldValue(
 						urlItemFieldEnum.url.getName(), 0).getValue());
 			for (Node node : nodes) {
-				String href = DomUtils.getAttributeText(node, "href");
-				String rel = DomUtils.getAttributeText(node, "rel");
+				String href = null;
+				String rel = null;
+				String nodeName = node.getNodeName();
+				if ("a".equals(nodeName)) {
+					href = DomUtils.getAttributeText(node, "href");
+					rel = DomUtils.getAttributeText(node, "rel");
+				} else if ("frame".equals(nodeName)) {
+					href = DomUtils.getAttributeText(node, "src");
+				}
 				boolean follow = true;
 				if (rel != null)
 					if (rel.contains("nofollow"))
@@ -555,12 +562,9 @@ public class HtmlParser extends Parser {
 			}
 		}
 
-		String[] p1 = { "html", "body" };
-		nodes = DomUtils.getNodes(doc, p1);
-		if (nodes == null || nodes.size() == 0) {
-			String[] p2 = { "html" };
-			nodes = DomUtils.getNodes(doc, p2);
-		}
+		nodes = DomUtils.getNodes(doc, "html", "body");
+		if (nodes == null || nodes.size() == 0)
+			nodes = DomUtils.getNodes(doc, "html");
 		if (nodes != null && nodes.size() > 0) {
 			StringBuffer sb = new StringBuffer();
 			getBodyTextContent(sb, nodes.get(0), true, null);

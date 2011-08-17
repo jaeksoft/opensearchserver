@@ -114,7 +114,8 @@ public class UrlManagerNative extends UrlManagerAbstract {
 	}
 
 	@Override
-	public void removeExisting(List<String> urlList) throws SearchLibException {
+	public void removeExisting(List<LinkItem> linkList)
+			throws SearchLibException {
 		// TODO Auto-generated method stub
 
 	}
