@@ -9,6 +9,11 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.3
 
 New features:
+- 3393063: Upgrade to SeleniumHQ 2.0.4
+- 3393052: Upgrade to NekoHTML 1.9.15
+- 3393047: Upgrade to TagSoup 1.2.1
+- 3393046: Upgrade to PDFBox 1.6.x
+- 3393032: Frameset support
 - 3392359: Drupal module for OpenSearchServer
 - 3380911: Scheduler informations in home view	
 - 3370376: Parser have editable parameters
