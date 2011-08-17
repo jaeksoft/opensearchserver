@@ -26,7 +26,7 @@ INSTALLATION
 
 CONFIGURATION
 -------------
-1)  Enabled the OpenSearchServer drupal module from 
+1)  Enable the OpenSearchServer drupal module from 
 	 http://your-website.com/admin/build/modules/
 	 
 2)  You'll now find a OpenSearchServer menu in the Site configuration

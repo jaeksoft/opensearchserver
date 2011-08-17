@@ -122,6 +122,13 @@ function annotate_schema(){
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
+ 
+ 'log_enable' => array(
+ 'description' => t('Enabling log for searching.'),
+ 'type' => 'varchar',
+ 'length' => '255',
+ 'not null' => TRUE,
+ 'not null' => TRUE),
  )
  );
    $schema['opensearchserver_type'] = array(

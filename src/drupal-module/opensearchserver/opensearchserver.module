@@ -21,7 +21,7 @@
  */
 if( !ini_get('safe_mode') ){
             set_time_limit(-1);
-	} 
+        } 
 require 'OSS_API.class.php';
 require 'misc.lib.php';
 require 'OSS_IndexDocument.class.php';
@@ -86,6 +86,7 @@ function opensearchserver_form_alter(&$form, $form_state, $form_id) {
 				'#maxlength' => 255);
 				
 				$form['basic']['inline']['submit'] = array('#type' => 'submit', '#value' => t('Search'));
+
 				$form['#validate'][] = 'opensearchserver_validate';
 				$form['#submit'][] = 'opensearchserver_submit';
 				$form['#token'] = FALSE;
@@ -112,7 +113,7 @@ function opensearchserver_form_alter(&$form, $form_state, $form_id) {
 					'#size' => 15,
 					'#maxlength' => 255,
 				  );
-				    $form['submit'] = array('#type' => 'submit', '#value' => t('Search'));
+				   	$form['submit'] = array('#type' => 'submit', '#value' => t('Search'));
 				  	$form['#submit'][] = 'opensearchserver_submit';
 					$form['#token'] = FALSE;
 					unset($form['#token']);
@@ -309,6 +310,13 @@ function admin_index_form()
 	'#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
+  
+   $form['log'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Logs'),
+	'#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
        $form['date']['timestamp'] = array(
         '#type' => 'select',
         '#title' => 'Select the Type of Date to be indexed',
@@ -324,6 +332,12 @@ function admin_index_form()
 		'#description' => t('Enable the Checkbox to enable Date filter '),
 		'#title' => t('Enable Date Filter'),
 		'#default_value' => $sdetails->date_filter,
+		     );
+	  $form['log']['log_enable'] = array(
+        '#type' => 'checkbox',
+		'#description' => t('Enable the Checkbox to enable Log for searching.<br/> The Search logs will be stored in a file called "report_[indexname].[currentDate]" and will be stored in log folder of the index directory.'),
+		'#title' => t('Enable Log for searching.'),
+		'#default_value' => $sdetails->log_enable,
 		     );
   $form['submit'] = array('#type' => 'submit', '#value' => t('Create-index / Save'),'#name'=>'save',);
   $form['StartIndexing'] = array('#type' => 'submit', '#value' => t('Re-index site'),'#name'=>'index');
@@ -407,7 +421,7 @@ function populate_db(&$form_state,$serverurl,$indexname,$username, $key)
 				db_query("TRUNCATE TABLE {opensearchserver_type}");
 				db_query("TRUNCATE TABLE {opensearchserver_categories}");
 				
-				db_query("INSERT INTO `{opensearchserver}` (`serverurl`, `indexname`, `username`, `key`,`last_indexed`,`delay`,`filter_enabled`,`signature`,`title_snippet`,`content_snippet`,`url_snippet`,`date`,`date_filter`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s','%s','%s','%s','%s','%s','%s')", $form_state['values']['serverurl'], $form_state['values']['indexname'], $form_state['values']['username'], $form_state['values']['key'],'',$form_state['values']['delay'],$form_state['values']['filters'],$form_state['values']['signature'],$form_state['values']['title_snippet'],$form_state['values']['content_snippet'],$form_state['values']['url_snippet'],$form_state['values']['timestamp'],$form_state['values']['date_filters']);
+				db_query("INSERT INTO `{opensearchserver}` (`serverurl`, `indexname`, `username`, `key`,`last_indexed`,`delay`,`filter_enabled`,`signature`,`title_snippet`,`content_snippet`,`url_snippet`,`date`,`date_filter`,`log_enable`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s')", $form_state['values']['serverurl'], $form_state['values']['indexname'], $form_state['values']['username'], $form_state['values']['key'],'',$form_state['values']['delay'],$form_state['values']['filters'],$form_state['values']['signature'],$form_state['values']['title_snippet'],$form_state['values']['content_snippet'],$form_state['values']['url_snippet'],$form_state['values']['timestamp'],$form_state['values']['date_filters'],$form_state['values']['log_enable']);
 				$types = db_query("SELECT DISTINCT type FROM {node_type}");
 			
 				while ($type = db_fetch_object($types)) 
@@ -645,16 +659,15 @@ function start_indexing($index,$serverDetails,$ossEnginePath, $ossEngineIndex)
 
 function opensearchserver_all() {
 	$arg = arg(NULL, $_GET['q']);
-	$result=getSearchResult($arg[2],$arg[3]);
+	$result=getSearchResult($arg[2]);
 	$timestamp_array = array("past24" => "Past 24 hours","pastweek"=>"Past week","pastmonth"=>"Past month","pastyear"=>"Past year");
-	
 		$cont=drupal_get_form('opensearchserver_page_form');
   		$signature = db_query("SELECT signature,filter_enabled,url_snippet,date_filter FROM {opensearchserver}");
 		$signaturedetails = db_fetch_object($signature);
 		
   		if (isset($result) && $result instanceof SimpleXMLElement) {
 		$ossResults = new OSS_Results($result);
-		
+		$cont.='<div id="results">';
 		if($ossResults->getResultFound()<=0)
 		{
 		 	$cont .='<table border="0" style="border:none">
@@ -670,7 +683,9 @@ function opensearchserver_all() {
 				<td rowspan="2">
               ';
 			  
-			$cont.='<div align="left" style="margin-top: 30px;"><p> No documents containing all your search terms were found.
+			$cont.='<div align="left" style="margin-top: 30px;">
+					
+					<p> No documents containing all your search terms were found.
 					</p><p>'.'Your Search Keyword <b>'.$arg[2].'</b> did not match any document.'.'</p><br/><p>Suggestions:</p>
 					<p>- Make sure all words are spelled correctly.</p>
 					<p>- Try different keywords.</p>
@@ -686,7 +701,6 @@ function opensearchserver_all() {
 		else
 		{
 		$resultTime = (float)$result->result['time'] / 1000;
-			 
 		$cont.='<div align="left">'.$ossResults->getResultFound().' documents found ('.$resultTime.' seconds)'.'</div>';
 		  
 		$max = ($ossResults->getResultStart() + $ossResults->getResultRows() > $ossResults->getResultFound()) ? $ossResults->getResultFound() : $ossResults->getResultStart() + $ossResults->getResultRows();
@@ -843,9 +857,9 @@ function opensearchserver_all() {
     <tr>
       <td></td>
     </tr>
-</table>';
+</table></div>';
 	 
-		
+	
  return $cont;
  unset($cont);
 }
@@ -867,6 +881,7 @@ function opensearchserver_all() {
  {
 	 if($query)
 	 {
+			global $user;
 			$getDetails = db_query("SELECT * FROM {opensearchserver}");
 			$serverDetails = db_fetch_object($getDetails);
 			$start = isset($_REQUEST['p']) ? $_REQUEST['p'] : null;
@@ -876,6 +891,18 @@ function opensearchserver_all() {
 			$query = trim($query);
 			$search = new OSS_Search($serverDetails->serverurl, $serverDetails->indexname, 10, $start);
 			$search->credential($serverDetails->username, $serverDetails->key);
+			if($serverDetails->log_enable)
+			{
+						$search->setLog(true);
+						$search->setCustomLog(1, session_id());
+						if ( $user->uid ) {
+								$search->setCustomLog (2, $user->name);
+						}
+						else {
+						  $search->setCustomLog (2,"Guest");
+						}
+						$search->setCustomLog (3, $_SERVER['REMOTE_ADDR']);
+			}
 			$search->facet('type',1);
 			$search->facet('taxonomy',1);
 			$filter=$_REQUEST['fq'];
