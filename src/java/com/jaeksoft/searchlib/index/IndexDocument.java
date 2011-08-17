@@ -140,8 +140,12 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			String content = node.getTextContent();
 			if (content != null && content.length() > 0)
 				parser.parseContentBase64(content);
-			else if (filePath != null && filePath.length() > 0)
-				parser.parseContent(new File(filePath));
+			else if (filePath != null && filePath.length() > 0) {
+				File f = new File(filePath);
+				if (f.isDirectory())
+					f = new File(f, filename);
+				parser.parseContent(f);
+			}
 
 			parser.populate(this);
 		}
