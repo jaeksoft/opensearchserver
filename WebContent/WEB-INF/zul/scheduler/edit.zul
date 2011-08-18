@@ -105,8 +105,8 @@
 												<label
 													value="@{property.name}" />
 												<combobox
-													model="@{property.valueList}" value="@{property.value}"
-													selectedItem="@{property.value}" />
+													cols="@{property.cols}" model="@{property.valueList}"
+													value="@{property.value}" selectedItem="@{property.value}" />
 											</row>
 										</rows>
 									</grid>
@@ -175,7 +175,8 @@
 								<button label="Delete"
 									forward="onDelete" />
 							</hbox>
-							<hbox visible="@{scheduleredit.notSelected}">
+							<hbox
+								visible="@{scheduleredit.notSelected}">
 								<button label="Create" forward="onSave" />
 							</hbox>
 						</vbox>

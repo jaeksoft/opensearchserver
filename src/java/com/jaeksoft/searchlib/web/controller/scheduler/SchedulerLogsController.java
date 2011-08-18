@@ -49,6 +49,11 @@ public class SchedulerLogsController extends CommonController {
 		selectedJob = null;
 	}
 
+	@Override
+	protected void eventJobEdit(JobItem jobItem) throws SearchLibException {
+		reloadPage();
+	}
+
 	public JobItem[] getJobs() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)

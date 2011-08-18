@@ -55,6 +55,8 @@ public class JobItem extends UniqueNameItem<JobItem> {
 
 	private boolean active;
 
+	private boolean running;
+
 	private SearchLibException lastError;
 
 	private JobLog jobLog;
@@ -68,6 +70,7 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		jobLog = new JobLog(200);
 		setLastError(null);
 		lastExecution = null;
+		running = false;
 	}
 
 	public void copy(JobItem job) {
@@ -174,11 +177,39 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 	}
 
-	public void run(Client client) {
-		rwl.r.lock();
-		TaskLog taskLog = null;
-		lastExecution = new Date();
+	private void runningEnd() {
+		rwl.w.lock();
 		try {
+			running = false;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private boolean runningRequest() {
+		rwl.w.lock();
+		try {
+			if (running) {
+				Logging.warn(getName() + " is already running");
+				return false;
+			}
+			running = true;
+			return true;
+		} finally {
+			rwl.w.unlock();
+		}
+
+	}
+
+	public void run(Client client) {
+		if (!runningRequest()) {
+			Logging.warn(getName() + " is already running");
+			return;
+		}
+		TaskLog taskLog = null;
+		rwl.r.lock();
+		try {
+			lastExecution = new Date();
 			for (TaskItem task : tasks) {
 				taskLog = new TaskLog(task);
 				jobLog.addLog(taskLog);
@@ -188,10 +219,13 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		} catch (SearchLibException e) {
 			taskLog.setError(e);
 			setLastError(e);
+			Logging.warn(e);
+			e.printStackTrace();
 		} finally {
 			if (taskLog != null)
 				taskLog.end();
 			rwl.r.unlock();
+			runningEnd();
 		}
 	}
 
@@ -251,6 +285,15 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		rwl.r.lock();
 		try {
 			return active;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public boolean isRunning() {
+		rwl.r.lock();
+		try {
+			return running;
 		} finally {
 			rwl.r.unlock();
 		}

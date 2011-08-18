@@ -71,4 +71,13 @@ public abstract class TaskAbstract {
 	public abstract void execute(Client client, TaskProperties properties)
 			throws SearchLibException;
 
+	/**
+	 * The width in col of the input text
+	 * 
+	 * @param config
+	 * @param name
+	 * @return
+	 */
+	public abstract int getPropertyCols(Config config, String name);
+
 }

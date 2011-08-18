@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -67,6 +67,10 @@ public class TaskProperty {
 	 */
 	public String getValue() {
 		return value;
+	}
+
+	public int getCols() {
+		return task.getPropertyCols(config, name);
 	}
 
 	/**

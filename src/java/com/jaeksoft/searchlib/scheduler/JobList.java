@@ -229,11 +229,11 @@ public class JobList {
 	public int getRunningCount() throws SearchLibException {
 		rwl.r.lock();
 		try {
-			String[] jobNames = TaskManager
-					.getActiveJobs(config.getIndexName());
-			if (jobNames == null)
-				return 0;
-			return jobNames.length;
+			int c = 0;
+			for (JobItem job : jobs.values())
+				if (job.isRunning())
+					c++;
+			return c;
 		} finally {
 			rwl.r.unlock();
 		}

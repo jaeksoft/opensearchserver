@@ -92,27 +92,39 @@ public class Client extends Config {
 		}
 	}
 
-	private int updateXmlDocuments(XPathParser xpp)
+	private int updateXmlDocuments(XPathParser xpp, int bufferSize)
 			throws XPathExpressionException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		NodeList nodeList = xpp.getNodeList("/index/document");
 		int l = nodeList.getLength();
-		Collection<IndexDocument> docList = new ArrayList<IndexDocument>();
-		for (int i = 0; i < l; i++)
+		Collection<IndexDocument> docList = new ArrayList<IndexDocument>(
+				bufferSize);
+		int docCount = 0;
+		for (int i = 0; i < l; i++) {
 			docList.add(new IndexDocument(getParserSelector(), xpp, nodeList
 					.item(i)));
-		return updateDocuments(docList);
+			if (docList.size() == bufferSize) {
+				docCount += updateDocuments(docList);
+				Logging.info(docCount + " / " + l + " XML document(s) indexed.");
+				docList.clear();
+			}
+		}
+		if (docList.size() > 0) {
+			docCount += updateDocuments(docList);
+			Logging.info(docCount + " / " + l + " XML document(s) indexed.");
+		}
+		return docCount;
 	}
 
-	public int updateXmlDocuments(InputSource inputSource)
+	public int updateXmlDocuments(InputSource inputSource, int bufferSize)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		XPathParser xpp = new XPathParser(inputSource);
-		return updateXmlDocuments(xpp);
+		return updateXmlDocuments(xpp, bufferSize);
 	}
 
 	public boolean deleteDocument(String uniqueField)

@@ -49,6 +49,11 @@ public class TaskFileCrawlerStart extends TaskAbstract {
 	}
 
 	@Override
+	public int getPropertyCols(Config config, String name) {
+		return 50;
+	}
+
+	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
 		CrawlFileMaster crawlMaster = client.getFileCrawlMaster();
@@ -57,4 +62,5 @@ public class TaskFileCrawlerStart extends TaskAbstract {
 		crawlMaster.start();
 		crawlMaster.waitForStart(0);
 	}
+
 }

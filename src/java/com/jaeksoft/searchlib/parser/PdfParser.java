@@ -25,12 +25,15 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.util.PDFTextStripper;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
@@ -54,6 +57,33 @@ public class PdfParser extends Parser {
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
+	private Calendar getCreationDate(PDDocumentInformation pdfInfo) {
+		try {
+			return pdfInfo.getCreationDate();
+		} catch (IOException e) {
+			Logging.warn(e);
+			return null;
+		}
+	}
+
+	private Calendar getModificationDate(PDDocumentInformation pdfInfo) {
+		try {
+			return pdfInfo.getCreationDate();
+		} catch (IOException e) {
+			Logging.warn(e);
+			return null;
+		}
+	}
+
+	private String getDate(Calendar cal) {
+		if (cal == null)
+			return null;
+		Date time = cal.getTime();
+		if (time == null)
+			return null;
+		return time.toString();
+	}
+
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
@@ -67,12 +97,12 @@ public class PdfParser extends Parser {
 				addField(ParserFieldEnum.author, info.getAuthor());
 				addField(ParserFieldEnum.producer, info.getProducer());
 				addField(ParserFieldEnum.keywords, info.getKeywords());
-				if (info.getCreationDate() != null)
-					addField(ParserFieldEnum.creation_date, info
-							.getCreationDate().getTime());
-				if (info.getModificationDate() != null)
-					addField(ParserFieldEnum.modification_date, info
-							.getModificationDate().getTime());
+				String d = getDate(getCreationDate(info));
+				if (d != null)
+					addField(ParserFieldEnum.creation_date, d);
+				d = getDate(getModificationDate(info));
+				if (d != null)
+					addField(ParserFieldEnum.modification_date, d);
 			}
 			PDDocumentCatalog catalog = pdf.getDocumentCatalog();
 			if (catalog != null) {

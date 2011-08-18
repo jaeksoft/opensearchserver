@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -50,6 +50,11 @@ public class TaskOptimizeIndex extends TaskAbstract {
 	@Override
 	public String[] getPropertyValues(Config config, String property) {
 		return null;
+	}
+
+	@Override
+	public int getPropertyCols(Config config, String name) {
+		return 50;
 	}
 
 	@Override

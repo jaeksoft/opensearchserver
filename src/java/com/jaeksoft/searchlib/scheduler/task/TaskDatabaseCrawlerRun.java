@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,6 +61,11 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	}
 
 	@Override
+	public int getPropertyCols(Config config, String name) {
+		return 50;
+	}
+
+	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
 		DatabaseCrawlMaster crawlMaster = client.getDatabaseCrawlMaster();
@@ -77,4 +82,5 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 			throw new SearchLibException(e);
 		}
 	}
+
 }

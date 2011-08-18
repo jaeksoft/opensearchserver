@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +45,7 @@ import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -96,11 +99,12 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	 * @throws InstantiationException
 	 * @throws DOMException
 	 * @throws IOException
+	 * @throws URISyntaxException
 	 */
 	public IndexDocument(ParserSelector parserSelector, XPathParser xpp,
 			Node documentNode) throws XPathExpressionException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, IOException {
+			ClassNotFoundException, IOException, URISyntaxException {
 		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				documentNode, "lang")));
 		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
@@ -134,21 +138,65 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 				filePath = XPathParser.getAttributeString(node, "filepath");
 			String contentType = XPathParser.getAttributeString(node,
 					"contentType");
-			Parser parser = parserSelector.getParser(filename, contentType);
-			if (parser == null)
-				continue;
+			if (contentType == null || contentType.length() == 0)
+				contentType = XPathParser.getAttributeString(node,
+						"contenttype");
 			String content = node.getTextContent();
-			if (content != null && content.length() > 0)
-				parser.parseContentBase64(content);
-			else if (filePath != null && filePath.length() > 0) {
-				File f = new File(filePath);
-				if (f.isDirectory())
-					f = new File(f, filename);
-				parser.parseContent(f);
-			}
-
-			parser.populate(this);
+			String url = XPathParser.getAttributeString(node, "url");
+			Parser parser = null;
+			if (url != null)
+				parser = binaryFromUrl(parserSelector, url);
+			else if (content != null && content.length() > 0)
+				parser = binaryFromBase64(parserSelector, filename,
+						contentType, content);
+			else if (filePath != null && filePath.length() > 0)
+				parser = binaryFromFile(parserSelector, filename, contentType,
+						filePath);
+			if (parser != null)
+				parser.populate(this);
 		}
+	}
+
+	private Parser binaryFromUrl(ParserSelector parserSelector, String url)
+			throws IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
+		HttpDownloader httpDownloader = new HttpDownloader(null, false, null, 0);
+		try {
+			httpDownloader.get(new URI(url), null);
+			Parser parser = parserSelector.getParser(null,
+					httpDownloader.getContentBaseType());
+			if (parser == null)
+				return null;
+			parser.parseContent(httpDownloader.getContent());
+			return parser;
+		} finally {
+			httpDownloader.release();
+		}
+	}
+
+	private Parser binaryFromBase64(ParserSelector parserSelector,
+			String filename, String contentType, String content)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException, IOException {
+		Parser parser = parserSelector.getParser(filename, contentType);
+		if (parser == null)
+			return null;
+		parser.parseContentBase64(content);
+		return parser;
+	}
+
+	private Parser binaryFromFile(ParserSelector parserSelector,
+			String filename, String contentType, String filePath)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException, IOException {
+		Parser parser = parserSelector.getParser(filename, contentType);
+		if (parser == null)
+			return null;
+		File f = new File(filePath);
+		if (f.isDirectory())
+			f = new File(f, filename);
+		parser.parseContent(f);
+		return parser;
 	}
 
 	public IndexDocument(IndexDocument sourceDocument) {

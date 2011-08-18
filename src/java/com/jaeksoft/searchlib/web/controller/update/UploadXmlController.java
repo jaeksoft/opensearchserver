@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -75,19 +75,21 @@ public class UploadXmlController extends CommonController {
 				if (media.isBinary()) {
 					byte[] bytes = media.getByteData();
 					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(new ByteArrayInputStream(bytes)));
+							new InputSource(new ByteArrayInputStream(bytes)),
+							50);
 				} else {
 					byte[] bytes = media.getStringData().getBytes();
 					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(new ByteArrayInputStream(bytes)));
+							new InputSource(new ByteArrayInputStream(bytes)),
+							50);
 				}
 			} else {
 				if (media.isBinary())
 					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(media.getStreamData()));
+							new InputSource(media.getStreamData()), 50);
 				else
 					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(media.getReaderData()));
+							new InputSource(media.getReaderData()), 50);
 			}
 		}
 

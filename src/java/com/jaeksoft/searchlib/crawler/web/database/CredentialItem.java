@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,6 +43,18 @@ public class CredentialItem {
 	private String username;
 
 	private String password;
+
+	public CredentialItem() {
+		pattern = null;
+		username = null;
+		password = null;
+	}
+
+	public CredentialItem(String pattern, String username, String password) {
+		this.pattern = pattern;
+		this.username = username;
+		this.password = password;
+	}
 
 	public static CredentialItem fromXml(Node node) {
 		CredentialItem credentialItem = new CredentialItem();
