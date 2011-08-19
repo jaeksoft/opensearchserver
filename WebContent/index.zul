@@ -27,8 +27,8 @@
 			<toolbarbutton label="Visit the OSS web site"
 				target="_blank" href="http://www.open-search-server.com" />
 			<space width="10px" />
-			<toolbarbutton label="Wiki documentation" target="_blank"
-				href="http://www.open-search-server.com/wiki/en" />
+			<toolbarbutton label="Documentation" target="_blank"
+				href="http://www.open-search-server.com/documentation" />
 		</hbox>
 	</caption>
 	<include src="@{index.currentPage}" />
