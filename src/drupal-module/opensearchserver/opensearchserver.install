@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  *  This file is part of Jaeksoft OpenSearchServer.
  *
@@ -19,16 +19,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Jaeksoft OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+ /**
+ * @file
+ *   Install and uninstall hooks for OpenSearchServer module.
+ */
+
 function opensearchserver_install() {
-     drupal_install_schema('annotate');     
+  drupal_install_schema('annotate');
 }
 function opensearchserver_uninstall() {
-   drupal_uninstall_schema('annotate');
-   db_query('DELETE FROM {system} WHERE name = "opensearchserver"');
-    
-}
-function annotate_schema(){
+  drupal_uninstall_schema('annotate');
+  db_query('DELETE FROM {system} WHERE name = "opensearchserver"');
 
+}
+function annotate_schema() {
   $schema['opensearchserver'] = array(
  'description' => t('The base table for saved articles.'),
  'fields' => array(
@@ -38,103 +43,102 @@ function annotate_schema(){
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
-  
-   'indexname' => array(
+
+ 'indexname' => array(
  'description' => t('The Index Name Of SearchServer Instant.'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
-  
-   'username' => array(
+
+ 'username' => array(
  'description' => t('The username. for authentication'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
-  
+
  'key' => array(
  'description' => t('The key for authetication.'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
   'last_indexed' => array(
  'description' => t('The last indexed timestamp.'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
   'delay' => array(
  'description' => t('The indexing delay.'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
   'filter_enabled' => array(
  'description' => t('Enabling the filter type.'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
  'signature' => array(
  'description' => t('The Signature of the post or page'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
  'title_snippet' => array(
  'description' => t('The Size of the title Snippet'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
  'content_snippet' => array(
  'description' => t('The Size of the conetnt Snippet'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
   'url_snippet' => array(
  'description' => t('The Size of the URL Snippet'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
  'date' => array(
  'description' => t('The Type of date need to be created for filtering.'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
   'date_filter' => array(
  'description' => t('Enabling Filter for date.'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE),
- 
+
  'log_enable' => array(
  'description' => t('Enabling log for searching.'),
  'type' => 'varchar',
  'length' => '255',
  'not null' => TRUE,
- 'not null' => TRUE),
- )
- );
-   $schema['opensearchserver_type'] = array(
+ 'not null' => TRUE), )
+  );
+  $schema['opensearchserver_type'] = array(
  'description' => t('The base table for saved articles.'),
  'fields' => array(
- 
+
  'type' => array(
  'type' => 'varchar',
  'length' => '255',
@@ -146,7 +150,7 @@ function annotate_schema(){
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE)));
- 
+
   $schema['opensearchserver_categories'] = array(
  'description' => t('The table for opensearchserver categories.'),
  'fields' => array(
@@ -167,7 +171,7 @@ function annotate_schema(){
  'length' => '255',
  'not null' => TRUE,
  'not null' => TRUE)));
- 
+
 return $schema;
 
 }
