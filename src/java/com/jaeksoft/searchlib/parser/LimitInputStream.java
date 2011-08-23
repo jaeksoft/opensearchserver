@@ -87,10 +87,17 @@ public class LimitInputStream extends InputStream {
 		return outputCache.size();
 	}
 
+	public void consume() throws IOException {
+		while (!isComplete)
+			while (read() != -1)
+				;
+	}
+
 	public void restartFromCache() {
 		if (inputCache == null)
 			inputCache = new ByteArrayInputStream(outputCache.toByteArray());
 		else
 			inputCache.reset();
 	}
+
 }

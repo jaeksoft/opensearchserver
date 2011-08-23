@@ -25,10 +25,14 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.poi.hpsf.SummaryInformation;
+import org.apache.poi.hwpf.OldWordFileFormatException;
+import org.apache.poi.hwpf.extractor.Word6Extractor;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
@@ -49,10 +53,8 @@ public class DocParser extends Parser {
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
-	@Override
-	protected void parseContent(LimitInputStream inputStream)
+	private void currentWordExtraction(InputStream inputStream)
 			throws IOException {
-
 		WordExtractor word = new WordExtractor(inputStream);
 
 		SummaryInformation info = word.getSummaryInformation();
@@ -67,6 +69,40 @@ public class DocParser extends Parser {
 			String[] frags = paragraph.split("\\n");
 			for (String frag : frags)
 				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " "));
+		}
+	}
+
+	private void oldWordExtraction(InputStream inputStream) throws IOException {
+		Word6Extractor word6 = new Word6Extractor(inputStream);
+		SummaryInformation si = word6.getSummaryInformation();
+		if (si != null) {
+			addField(ParserFieldEnum.title, si.getTitle());
+			addField(ParserFieldEnum.author, si.getAuthor());
+			addField(ParserFieldEnum.subject, si.getSubject());
+		}
+
+		String[] paragraphes = word6.getParagraphText();
+		for (String paragraph : paragraphes) {
+			String[] frags = paragraph.split("\\n");
+			for (String frag : frags)
+				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " "));
+		}
+	}
+
+	@Override
+	protected void parseContent(LimitInputStream inputStream)
+			throws IOException {
+		try {
+			try {
+				currentWordExtraction(inputStream);
+			} catch (OldWordFileFormatException e) {
+				inputStream.consume();
+				inputStream.restartFromCache();
+				oldWordExtraction(inputStream);
+			}
+		} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+			Logging.warn("POI 3.7 bug (exception catched)");
+			Logging.warn(e);
 		}
 
 		langDetection(10000, ParserFieldEnum.content);
