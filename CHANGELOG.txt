@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.3
 
 New features:
+- 3396935: Log files viewable in the user interface
 - 3393751: XML load sheduler task
 - 3393063: Upgrade to SeleniumHQ 2.0.4
 - 3393052: Upgrade to NekoHTML 1.9.15
