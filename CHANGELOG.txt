@@ -28,6 +28,7 @@ New features:
 - 2958005: Upgrade Apache HttpClient library to 4.1.1
 
 Bug fixes:
+- 3406657	File crawler error: unknown protocol: smb
 - 3406378: SQLite supports only TRANSACTION_SERIALIZABLE
 - 3396778: Word 95 or older format are not indexed	
 - 3386593: LimitException when reading Robots.txt	
