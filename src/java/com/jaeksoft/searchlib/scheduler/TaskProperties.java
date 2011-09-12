@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,16 +39,16 @@ public class TaskProperties {
 	private TaskProperty[] cache;
 
 	public TaskProperties(Config config, TaskAbstract task,
-			String[] propertyNames) {
+			TaskPropertyDef[] propertyDefs) {
 		map = new LinkedHashMap<String, TaskProperty>();
-		if (propertyNames == null)
+		if (propertyDefs == null)
 			return;
-		cache = new TaskProperty[propertyNames.length];
+		cache = new TaskProperty[propertyDefs.length];
 		int i = 0;
-		for (String propertyName : propertyNames) {
+		for (TaskPropertyDef propertyDef : propertyDefs) {
 			TaskProperty taskProperty = new TaskProperty(config, task,
-					propertyName);
-			map.put(propertyName, taskProperty);
+					propertyDef);
+			map.put(propertyDef.name, taskProperty);
 			cache[i++] = taskProperty;
 		}
 	}

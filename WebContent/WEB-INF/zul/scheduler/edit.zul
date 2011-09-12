@@ -104,9 +104,21 @@
 												self="@{each='property'}">
 												<label
 													value="@{property.name}" />
-												<combobox
-													cols="@{property.cols}" model="@{property.valueList}"
-													value="@{property.value}" selectedItem="@{property.value}" />
+												<hbox>
+													<combobox
+														visible="@{property.type.ctrlComboBox}"
+														cols="@{property.cols}" model="@{property.valueList}"
+														value="@{property.value}"
+														selectedItem="@{property.value}" />
+													<textbox
+														cols="@{property.cols}"
+														visible="@{property.type.ctrlTextBox}"
+														value="@{property.value}" />
+													<textbox
+														type="password" cols="@{property.cols}"
+														visible="@{property.type.ctrlPassword}"
+														value="@{property.value}" />
+												</hbox>
 											</row>
 										</rows>
 									</grid>
@@ -137,8 +149,11 @@
 													value="@{property2.name}" />
 												<label value=": " />
 											</listcell>
-											<listcell
-												label="@{property2.value}" />
+											<listcell>
+												<label
+													visible="@{property2.type.ctrlNotPassword}"
+													value="@{property2.value}" />
+											</listcell>
 										</listitem>
 									</listbox>
 								</listcell>

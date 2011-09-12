@@ -34,10 +34,15 @@ import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 
 public class TaskReplicationRun extends TaskAbstract {
 
-	private String[] propsName = { "replication name" };
+	final private TaskPropertyDef propReplicationName = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "replication name", 50);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propReplicationName };
 
 	@Override
 	public String getName() {
@@ -45,8 +50,8 @@ public class TaskReplicationRun extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyList() {
-		return propsName;
+	public TaskPropertyDef[] getPropertyList() {
+		return taskPropertyDefs;
 	}
 
 	@Override
@@ -63,16 +68,11 @@ public class TaskReplicationRun extends TaskAbstract {
 	}
 
 	@Override
-	public int getPropertyCols(Config config, String name) {
-		return 50;
-	}
-
-	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
 		ReplicationMaster replicationMaster = client.getReplicationMaster();
 		ReplicationList replicationList = client.getReplicationList();
-		String replicationName = properties.getValue(propsName[0]);
+		String replicationName = properties.getValue(propReplicationName.name);
 		if (replicationName == null)
 			return;
 		ReplicationItem replicationItem = replicationList.get(replicationName);

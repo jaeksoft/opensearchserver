@@ -32,10 +32,15 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 
 public class TaskDatabaseCrawlerRun extends TaskAbstract {
 
-	private String[] propsName = { "crawl name" };
+	final private TaskPropertyDef propCrawlName = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "crawl name", 50);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propCrawlName };
 
 	@Override
 	public String getName() {
@@ -43,8 +48,8 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyList() {
-		return propsName;
+	public TaskPropertyDef[] getPropertyList() {
+		return taskPropertyDefs;
 	}
 
 	@Override
@@ -61,16 +66,11 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	}
 
 	@Override
-	public int getPropertyCols(Config config, String name) {
-		return 50;
-	}
-
-	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
 		DatabaseCrawlMaster crawlMaster = client.getDatabaseCrawlMaster();
 		DatabaseCrawlList crawlList = client.getDatabaseCrawlList();
-		String crawlName = properties.getValue(propsName[0]);
+		String crawlName = properties.getValue(propCrawlName.name);
 		if (crawlName == null)
 			return;
 		DatabaseCrawl crawl = crawlList.get(crawlName);

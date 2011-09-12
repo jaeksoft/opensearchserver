@@ -36,21 +36,22 @@ public class TaskProperty {
 
 	private TaskAbstract task;
 
-	private String name;
-
 	private String value;
 
-	protected TaskProperty(Config config, TaskAbstract task, String propertyName) {
+	private TaskPropertyDef propertyDef;
+
+	protected TaskProperty(Config config, TaskAbstract task,
+			TaskPropertyDef propertyDef) {
 		this.config = config;
 		this.task = task;
-		this.name = propertyName;
+		this.propertyDef = propertyDef;
 		setValue(null);
 	}
 
 	protected TaskProperty(TaskProperty taskPropSource) {
 		this.config = taskPropSource.config;
 		this.task = taskPropSource.task;
-		this.name = taskPropSource.name;
+		this.propertyDef = taskPropSource.propertyDef;
 		this.value = taskPropSource.value;
 	}
 
@@ -69,15 +70,26 @@ public class TaskProperty {
 		return value;
 	}
 
+	/**
+	 * @return the type
+	 */
+	public TaskPropertyType getType() {
+		return propertyDef.type;
+
+	}
+
+	/**
+	 * @return the cols
+	 */
 	public int getCols() {
-		return task.getPropertyCols(config, name);
+		return propertyDef.cols;
 	}
 
 	/**
 	 * @return the property name
 	 */
 	public String getName() {
-		return name;
+		return propertyDef.name;
 	}
 
 	/**
@@ -86,7 +98,7 @@ public class TaskProperty {
 	 * @throws SearchLibException
 	 */
 	public String[] getValueList() throws SearchLibException {
-		return task.getPropertyValues(config, name);
+		return task.getPropertyValues(config, propertyDef.name);
 	}
 
 	/**
@@ -95,7 +107,7 @@ public class TaskProperty {
 	 * @throws SAXException
 	 */
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("property", "name", name);
+		xmlWriter.startElement("property", "name", propertyDef.name);
 		xmlWriter.textNode(value);
 		xmlWriter.endElement();
 	}
