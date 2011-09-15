@@ -1,0 +1,48 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="logs"
+	use="com.jaeksoft.searchlib.web.controller.runtime.LogsController">
+	<panel title="Logs" border="normal" width="100%" height="100%">
+		<toolbar>
+			<toolbarbutton label="Reload the file list"
+				forward="onReloadFileList" />
+			<toolbarbutton label="Reload the current log"
+				disabled="@{logs.fileNotSelected}" forward="onReloadCurrentLog" />
+			<toolbarbutton label="Go to the beginning"
+				disabled="@{logs.fileNotSelected}" forward="onGoToBeginning" />
+			<toolbarbutton label="Go to the end"
+				disabled="@{logs.fileNotSelected}" forward="onGoToEnd" />
+		</toolbar>
+		<panelchildren>
+			<hbox spacing="0" width="100%" height="100%">
+				<listbox width="300px" height="100%" mold="paging"
+					model="@{logs.logFiles}" selectedItem="@{logs.selectedFile}" />
+				<textbox id="logview" multiline="true" readonly="true"
+					hflex="true" vflex="true" value="@{logs.currentLog}" />
+			</hbox>
+		</panelchildren>
+	</panel>
+	<script type="text/javascript">
+		
+		<![CDATA[ function toTheEnd(txtBox) { var txtEle =
+		document.getElementById(txtBox); txtEle.scrollTop =
+		txtEle.scrollHeight; } function toTheBegining(txtBox) { var
+		txtEle = document.getElementById(txtBox); txtEle.scrollTop = 0;
+		} ]]>
+		
+	</script>
+</window>

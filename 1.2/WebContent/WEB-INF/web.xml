@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- License Agreement for OpenSearchServer Copyright (C) 2008-2011 
+	Emmanuel Keller / Jaeksoft http://www.open-search-server.com This file is 
+	part of OpenSearchServer. OpenSearchServer is free software: 
+	you can redistribute it and/or modify it under the terms of the GNU General 
+	Public License as published by the Free Software Foundation, either version 
+	3 of the License, or (at your option) any later version. OpenSearchServer 
+	is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+	PURPOSE. See the GNU General Public License for more details. You should 
+	have received a copy of the GNU General Public License along with Jaeksoft 
+	OpenSearchServer. If not, see <http://www.gnu.org/licenses/>. -->
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<display-name>open-search-server</display-name>
+	<listener>
+		<description>
+  	Used to cleanup when a session is destroyed</description>
+		<display-name>ZK Session cleaner</display-name>
+		<listener-class>org.zkoss.zk.ui.http.HttpSessionListener</listener-class>
+	</listener>
+	<servlet>
+		<description>
+  	The servlet loads the DSP pages</description>
+		<servlet-name>dspLoader</servlet-name>
+		<servlet-class>org.zkoss.web.servlet.dsp.InterpreterServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+  	The ZK loader for ZUML pages</description>
+		<servlet-name>zkLoader</servlet-name>
+		<servlet-class>org.zkoss.zk.ui.http.DHtmlLayoutServlet</servlet-class>
+		<init-param>
+			<param-name>update-uri</param-name>
+			<param-value>/zkau</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<description>
+  	The asynchronous update engine for ZK</description>
+		<servlet-name>auEngine</servlet-name>
+		<servlet-class>org.zkoss.zk.au.http.DHtmlUpdateServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>dspLoader</servlet-name>
+		<url-pattern>*.dsp</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>zkLoader</servlet-name>
+		<url-pattern>*.zul</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>zkLoader</servlet-name>
+		<url-pattern>*.zhtml</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>auEngine</servlet-name>
+		<url-pattern>/zkau/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>Basket</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.BasketServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Delete</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.DeleteServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Index</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.IndexServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Optimize</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.OptimizeServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Search</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.SearchServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Schema</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.SchemaServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Documents</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.DocumentsServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Database</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.DatabaseServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Stats</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.StatServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Push</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.PushServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Action</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.ActionServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Monitor</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.MonitorServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Pattern</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.PatternServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Report</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.ReportServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Screenshot</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.ScreenshotServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Renderer</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.RendererServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>SearchTemplate</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.SearchTemplateServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>FileCrawler</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.FileCrawlerServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>WebCrawler</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.WebCrawlerServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>URLBrowser</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.URLBrowserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Basket</servlet-name>
+		<url-pattern>/basket</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Delete</servlet-name>
+		<url-pattern>/delete</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Index</servlet-name>
+		<url-pattern>/index</url-pattern>
+		<url-pattern>/update</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Optimize</servlet-name>
+		<url-pattern>/optimize</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Search</servlet-name>
+		<url-pattern>/select</url-pattern>
+		<url-pattern>/search</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Schema</servlet-name>
+		<url-pattern>/schema</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Documents</servlet-name>
+		<url-pattern>/documents</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Database</servlet-name>
+		<url-pattern>/database</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Stats</servlet-name>
+		<url-pattern>/stats</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Push</servlet-name>
+		<url-pattern>/push</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Pattern</servlet-name>
+		<url-pattern>/pattern</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Action</servlet-name>
+		<url-pattern>/action</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Monitor</servlet-name>
+		<url-pattern>/monitor</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Report</servlet-name>
+		<url-pattern>/report</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Screenshot</servlet-name>
+		<url-pattern>/screenshot</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Renderer</servlet-name>
+		<url-pattern>/renderer</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SearchTemplate</servlet-name>
+		<url-pattern>/searchtemplate</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>FileCrawler</servlet-name>
+		<url-pattern>/filecrawler</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebCrawler</servlet-name>
+		<url-pattern>/webcrawler</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>URLBrowser</servlet-name>
+		<url-pattern>/urlbrowser</url-pattern>
+	</servlet-mapping>
+	<listener>
+		<listener-class>com.jaeksoft.searchlib.web.StartStopListener</listener-class>
+	</listener>
+
+	<!-- XML RPC -->
+	<servlet>
+		<servlet-name>XmlRpcServlet</servlet-name>
+		<servlet-class>org.apache.xmlrpc.webserver.XmlRpcServlet</servlet-class>
+		<init-param>
+			<param-name>enabledForExtensions</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>enabledForExceptions</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>XmlRpcServlet</servlet-name>
+		<url-pattern>/xmlrpc</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+		<welcome-file>index.zul</welcome-file>
+	</welcome-file-list>
+</web-app>
