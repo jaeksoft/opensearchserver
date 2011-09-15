@@ -47,6 +47,7 @@
 	<property name="tomcat-name" value="apache-tomcat-6.0.32" />
 	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
 	<property name="tomcat-config" location="pkg/tomcat_config" />
+	<property name="tomcat-bin" location="pkg/tomcat_bin" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
 
@@ -137,6 +138,11 @@
 		<!-- Copy examples -->
 		<copy todir="${dist}/${product}/examples">
 			<fileset dir="${examples}" />
+		</copy>
+
+		<!-- Copy bin -->
+		<copy todir="${dist}/${product}/${tomcat-name}/bin">
+			<fileset dir="${tomcat-bin}" />
 		</copy>
 
 		<!-- Copy lib -->
