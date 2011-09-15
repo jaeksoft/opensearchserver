@@ -1,8 +1,0 @@
-# File used by hudson to manage publication
-VERSION=1.2.3-trunk
-
-# STAGE options are "developer", "beta" or "stable"
-STAGE=stable
-
-# PUBLISH_SOURCEFORGE options are 1 or 0
-PUBLISH_SOURCEFORGE=0
