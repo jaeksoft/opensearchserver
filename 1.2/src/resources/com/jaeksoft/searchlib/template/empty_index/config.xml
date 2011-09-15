@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- License Agreement for OpenSearchServer -->
+<!-- -->
+<!-- Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft -->
+<!-- -->
+<!-- This file is part of OpenSearchServer. -->
+<!-- http://www.open-search-server.com -->
+<!-- -->
+<!-- OpenSearchServer is free software: you can -->
+<!-- redistribute it and/or modify it under the terms of -->
+<!-- the GNU General Public License as published by the -->
+<!-- Free Software Foundation, either version 3 of the -->
+<!-- License, or (at your option) any later version. -->
+<!-- -->
+<!-- OpenSearchServer is distributed in the -->
+<!-- hope that it will be useful, but WITHOUT ANY -->
+<!-- WARRANTY; without even the implied warranty of -->
+<!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
+<!-- -->
+<!-- See the GNU General Public License for more details. -->
+<configuration>
+	<indices>
+		<index name="index" searchCache="100" filterCache="100"
+			fieldCache="500" />
+	</indices>
+	<schema>
+		<analyzers>
+
+			<!-- Default standard analyzer -->
+			<analyzer name="StandardAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+			</analyzer>
+
+			<!-- Default text analyser -->
+			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+			</analyzer>
+
+			<!-- Chinese -->
+			<analyzer name="TextAnalyzer" lang="zh" tokenizer="ChineseTokenizer">
+				<filter class="ChineseFilter" />
+			</analyzer>
+
+			<!-- Danish -->
+			<analyzer name="TextAnalyzer" lang="da"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballDanishFilter" />
+			</analyzer>
+
+			<!-- Dutch -->
+			<analyzer name="TextAnalyzer" lang="nl"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="DutchStemFilter" />
+			</analyzer>
+
+			<!-- English -->
+			<analyzer name="TextAnalyzer" lang="en"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="SnowballEnglishFilter" />
+			</analyzer>
+
+			<!-- Finish -->
+			<analyzer name="TextAnalyzer" lang="fi"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballFinnishFilter" />
+			</analyzer>
+
+			<!-- French -->
+			<analyzer name="TextAnalyzer" lang="fr"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="FrenchStemFilter" />
+			</analyzer>
+
+			<!-- German -->
+			<analyzer name="TextAnalyzer" lang="de"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballGermanFilter" />
+			</analyzer>
+
+			<!-- Italian -->
+			<analyzer name="TextAnalyzer" lang="it"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballItalianFilter" />
+			</analyzer>
+
+			<!-- Japanese -->
+			<analyzer name="TextAnalyzer" lang="ja" tokenizer="CJKTokenizer" />
+
+			<!-- Korean -->
+			<analyzer name="TextAnalyzer" lang="kr" tokenizer="CJKTokenizer" />
+
+			<!-- Norwegian -->
+			<analyzer name="TextAnalyzer" lang="no"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballNorwegianFilter" />
+			</analyzer>
+
+			<!-- Portuguese -->
+			<analyzer name="TextAnalyzer" lang="pt"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballPortugueseFilter" />
+			</analyzer>
+
+			<!-- Romanian -->
+			<analyzer name="TextAnalyzer" lang="ro"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballRomanianFilter" />
+			</analyzer>
+
+			<!-- Russian -->
+			<analyzer name="TextAnalyzer" lang="ru" tokenizer="RussianLetterTokenizer">
+				<filter class="RussianStemFilter" />
+			</analyzer>
+
+			<!-- Spanish -->
+			<analyzer name="TextAnalyzer" lang="es"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballSpanishFilter" />
+			</analyzer>
+
+			<!-- Swedish -->
+			<analyzer name="TextAnalyzer" lang="sv"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballSwedishFilter" />
+			</analyzer>
+
+			<!-- Turkish -->
+			<analyzer name="TextAnalyzer" lang="tr"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="SnowballTurkishFilter" />
+			</analyzer>
+
+		</analyzers>
+
+		<fields />
+
+	</schema>
+
+	<statistics>
+		<statistic type="SEARCH" period="MINUTE" maxRetention="60"
+			writeToLog="no" />
+		<statistic type="SEARCH" period="HOUR" maxRetention="24"
+			writeToLog="yes" />
+		<statistic type="SEARCH" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+		<statistic type="UPDATE" period="HOUR" maxRetention="24"
+			writeToLog="yes" />
+		<statistic type="UPDATE" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+		<statistic type="DELETE" period="HOUR" maxRetention="24"
+			writeToLog="yes" />
+		<statistic type="DELETE" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+		<statistic type="RELOAD" period="HOUR" maxRetention="24"
+			writeToLog="yes" />
+		<statistic type="RELOAD" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+		<statistic type="OPTIMIZE" period="DAY" maxRetention="30"
+			writeToLog="yes" />
+	</statistics>
+
+</configuration>

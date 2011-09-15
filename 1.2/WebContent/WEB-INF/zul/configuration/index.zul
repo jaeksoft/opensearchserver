@@ -1,0 +1,10 @@
+<tabbox>
+	<tabs>
+		<tab id="tab1" label="Indices" selected="true" />
+	</tabs>
+	<tabpanels>
+		<tabpanel>
+			<include src="WEB-INF/zul/configuration/indices.zul" />
+		</tabpanel>
+	</tabpanels>
+</tabbox>
