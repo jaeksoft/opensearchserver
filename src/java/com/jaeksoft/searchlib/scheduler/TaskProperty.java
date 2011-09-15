@@ -28,6 +28,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class TaskProperty {
@@ -108,7 +109,10 @@ public class TaskProperty {
 	 */
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("property", "name", propertyDef.name);
-		xmlWriter.textNode(value);
+		if (propertyDef.type == TaskPropertyType.password)
+			xmlWriter.textNode(StringUtils.base64encode(value));
+		else
+			xmlWriter.textNode(value);
 		xmlWriter.endElement();
 	}
 }

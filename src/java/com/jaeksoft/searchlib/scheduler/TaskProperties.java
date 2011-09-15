@@ -27,9 +27,11 @@ package com.jaeksoft.searchlib.scheduler;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class TaskProperties {
@@ -68,6 +70,9 @@ public class TaskProperties {
 		TaskProperty prop = map.get(propertyName);
 		if (prop == null)
 			return;
+		if (prop.getType() == TaskPropertyType.password)
+			if (Base64.isBase64(value))
+				value = StringUtils.base64decode(value);
 		prop.setValue(value);
 	}
 

@@ -169,6 +169,9 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 				return null;
 			parser.parseContent(httpDownloader.getContent());
 			return parser;
+		} catch (IOException e) {
+			throw new SearchLibException("While getting binary from URL: "
+					+ url, e);
 		} finally {
 			httpDownloader.release();
 		}
