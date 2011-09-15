@@ -30,6 +30,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 
 public class TaskWebCrawlerStop extends TaskAbstract {
 
@@ -39,18 +40,13 @@ public class TaskWebCrawlerStop extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyList() {
+	public TaskPropertyDef[] getPropertyList() {
 		return null;
 	}
 
 	@Override
 	public String[] getPropertyValues(Config config, String property) {
 		return null;
-	}
-
-	@Override
-	public int getPropertyCols(Config config, String name) {
-		return 50;
 	}
 
 	@Override

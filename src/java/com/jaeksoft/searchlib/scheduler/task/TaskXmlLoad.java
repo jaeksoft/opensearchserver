@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,24 +42,25 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 
 public class TaskXmlLoad extends TaskAbstract {
 
-	private enum Properties {
-		URI("Uri"), LOGIN("Login"), PASSWORD("Password"), BUFFERSIZE(
-				"Buffer size");
+	final private TaskPropertyDef propUri = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Uri", 100);
 
-		private String label;
+	final private TaskPropertyDef propLogin = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Login", 50);
 
-		private Properties(String label) {
-			this.label = label;
-		}
+	final private TaskPropertyDef propPassword = new TaskPropertyDef(
+			TaskPropertyType.password, "Password", 20);
 
-	}
+	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Buffer size", 10);
 
-	private String[] propsName = { Properties.URI.label,
-			Properties.LOGIN.label, Properties.PASSWORD.label,
-			Properties.BUFFERSIZE.label };
+	final private TaskPropertyDef[] taskPropertyDefs = { propUri, propLogin,
+			propPassword, propBuffersize };
 
 	@Override
 	public String getName() {
@@ -67,8 +68,8 @@ public class TaskXmlLoad extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyList() {
-		return propsName;
+	public TaskPropertyDef[] getPropertyList() {
+		return taskPropertyDefs;
 	}
 
 	@Override
@@ -78,23 +79,12 @@ public class TaskXmlLoad extends TaskAbstract {
 	}
 
 	@Override
-	public int getPropertyCols(Config config, String name) {
-		if (Properties.URI.label.equals(name))
-			return 100;
-		if (Properties.LOGIN.label.equals(name))
-			return 50;
-		if (Properties.PASSWORD.label.equals(name))
-			return 20;
-		return 50;
-	}
-
-	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
-		String uri = properties.getValue(Properties.URI.label);
-		String login = properties.getValue(Properties.LOGIN.label);
-		String password = properties.getValue(Properties.PASSWORD.label);
-		String p = properties.getValue(Properties.BUFFERSIZE.label);
+		String uri = properties.getValue(propUri.name);
+		String login = properties.getValue(propLogin.name);
+		String password = properties.getValue(propPassword.name);
+		String p = properties.getValue(propBuffersize.name);
 		int bufferSize = 50;
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);

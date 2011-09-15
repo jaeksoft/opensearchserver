@@ -32,6 +32,8 @@
 			<tab id="tabRuntimeSystem" label="System"
 				visible="@{runtime.adminOrMonitoringOrNoUser}"
 				selected="@{runtime.instanceNotValid}" />
+			<tab id="tabRuntimeLogs" label="Logs"
+				visible="@{runtime.adminOrMonitoringOrNoUser}" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -51,6 +53,9 @@
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/runtime/system.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/runtime/logs.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

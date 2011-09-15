@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 
 public class TaskFileCrawlerStart extends TaskAbstract {
 
@@ -39,18 +40,13 @@ public class TaskFileCrawlerStart extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyList() {
+	public TaskPropertyDef[] getPropertyList() {
 		return null;
 	}
 
 	@Override
 	public String[] getPropertyValues(Config config, String property) {
 		return null;
-	}
-
-	@Override
-	public int getPropertyCols(Config config, String name) {
-		return 50;
 	}
 
 	@Override

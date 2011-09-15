@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,24 +22,25 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib;
+package com.jaeksoft.searchlib.scheduler;
 
-public class SearchLibException extends Exception {
+public enum TaskPropertyType {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1720638403781547142L;
+	textBox, password, comboBox;
 
-	public SearchLibException(Exception cause) {
-		super(cause);
+	public boolean isCtrlTextBox() {
+		return textBox == this;
 	}
 
-	public SearchLibException(String message, Exception cause) {
-		super(message, cause);
+	public boolean isCtrlPassword() {
+		return password == this;
 	}
 
-	public SearchLibException(String message) {
-		super(message);
+	public boolean isCtrlNotPassword() {
+		return password != this;
+	}
+
+	public boolean isCtrlComboBox() {
+		return comboBox == this;
 	}
 }

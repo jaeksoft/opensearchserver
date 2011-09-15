@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,12 +40,12 @@ public abstract class TaskAbstract {
 	/**
 	 * List of the properties
 	 * 
-	 * @return an array containing the name of the properties
+	 * @return an array containing the definition of the properties
 	 */
-	public abstract String[] getPropertyList();
+	public abstract TaskPropertyDef[] getPropertyList();
 
 	public boolean isProperty() {
-		String[] props = getPropertyList();
+		TaskPropertyDef[] props = getPropertyList();
 		if (props == null)
 			return false;
 		return props.length > 0;
@@ -70,14 +70,5 @@ public abstract class TaskAbstract {
 	 */
 	public abstract void execute(Client client, TaskProperties properties)
 			throws SearchLibException;
-
-	/**
-	 * The width in col of the input text
-	 * 
-	 * @param config
-	 * @param name
-	 * @return
-	 */
-	public abstract int getPropertyCols(Config config, String name);
 
 }

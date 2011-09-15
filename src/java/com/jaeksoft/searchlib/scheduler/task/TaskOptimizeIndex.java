@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 
 public class TaskOptimizeIndex extends TaskAbstract {
 
@@ -43,18 +44,13 @@ public class TaskOptimizeIndex extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyList() {
+	public TaskPropertyDef[] getPropertyList() {
 		return null;
 	}
 
 	@Override
 	public String[] getPropertyValues(Config config, String property) {
 		return null;
-	}
-
-	@Override
-	public int getPropertyCols(Config config, String name) {
-		return 50;
 	}
 
 	@Override

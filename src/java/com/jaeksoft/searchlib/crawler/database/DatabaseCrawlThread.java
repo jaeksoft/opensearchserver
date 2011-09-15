@@ -102,8 +102,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 
 		Transaction transaction = null;
 		try {
-			transaction = connectionManager.getNewTransaction(false,
-					java.sql.Connection.TRANSACTION_READ_COMMITTED);
+			transaction = connectionManager.getNewTransaction(false);
 			Query query = transaction.prepare(databaseCrawl.getSql());
 			ResultSet resultSet = query.getResultSet();
 			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>();

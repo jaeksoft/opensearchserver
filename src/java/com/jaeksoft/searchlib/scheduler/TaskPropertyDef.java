@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,24 +22,19 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib;
+package com.jaeksoft.searchlib.scheduler;
 
-public class SearchLibException extends Exception {
+public class TaskPropertyDef {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1720638403781547142L;
+	public final TaskPropertyType type;
 
-	public SearchLibException(Exception cause) {
-		super(cause);
-	}
+	public final String name;
 
-	public SearchLibException(String message, Exception cause) {
-		super(message, cause);
-	}
+	public int cols;
 
-	public SearchLibException(String message) {
-		super(message);
+	public TaskPropertyDef(TaskPropertyType type, String name, int cols) {
+		this.type = type;
+		this.name = name;
+		this.cols = cols;
 	}
 }
