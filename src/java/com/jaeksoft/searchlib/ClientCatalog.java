@@ -244,7 +244,8 @@ public class ClientCatalog {
 				File userFile = new File(getDataDir(), "users.xml");
 				if (userFile.exists()) {
 					XPathParser xpp = new XPathParser(userFile);
-					userList = UserList.fromXml(xpp, xpp.getNode("/users"));
+					userList = UserList.fromXml(xpp,
+							xpp.getNode("/" + UserList.usersElement));
 				} else
 					userList = new UserList();
 			}

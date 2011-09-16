@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -44,8 +45,16 @@ public class UserList {
 
 	private Map<String, User> users;
 
+	private String key;
+
+	public final static String usersElement = "users";
+
+	private final static String keyAttr = "key";
+
 	public UserList() {
 		users = new TreeMap<String, User>();
+		key = null;
+
 	}
 
 	public boolean add(User user) {
@@ -89,12 +98,23 @@ public class UserList {
 		}
 	}
 
+	private void setKey(String key) {
+		this.key = key;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
 	public static UserList fromXml(XPathParser xpp, Node parentNode)
 			throws XPathExpressionException {
 		UserList userList = new UserList();
 		if (parentNode == null)
 			return userList;
-		NodeList nodes = xpp.getNodeList(parentNode, "user");
+		String eKey = XPathParser.getAttributeString(parentNode, keyAttr);
+		if (eKey != null)
+			userList.setKey(StringUtils.base64decode(eKey));
+		NodeList nodes = xpp.getNodeList(parentNode, User.userElement);
 		if (nodes == null)
 			return userList;
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -107,7 +127,8 @@ public class UserList {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement("users");
+			String eKey = key != null ? StringUtils.base64encode(key) : null;
+			xmlWriter.startElement(usersElement, keyAttr, eKey);
 			for (User user : users.values())
 				user.writeXml(xmlWriter);
 			xmlWriter.endElement();
