@@ -44,6 +44,8 @@ public class User implements Comparable<User> {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
+	public final static String userElement = "user";
+
 	private String name;
 	private String password;
 	private String apiKey;
@@ -204,7 +206,7 @@ public class User implements Comparable<User> {
 		rwl.r.lock();
 		try {
 			String encodedPassword = StringUtils.base64encode(password);
-			xmlWriter.startElement("user", "name", name, "password",
+			xmlWriter.startElement(userElement, "name", name, "password",
 					encodedPassword, "isAdmin", isAdmin ? "yes" : "no");
 			for (IndexRole indexRole : indexRoles)
 				indexRole.writeXml(xmlWriter);
