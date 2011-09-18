@@ -1,0 +1,69 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="schedulerlist"
+	use="com.jaeksoft.searchlib.web.controller.scheduler.SchedulerListController">
+
+	<panel title="List of existing jobs and their settings"
+		border="normal">
+		<panelchildren>
+			<listbox id="joblist" model="@{schedulerlist.jobs}"
+				selectedItem="@{schedulerlist.selectedJob}">
+				<listhead>
+					<listheader label="Name" />
+					<listheader tooltiptext="Active" label="A"
+						width="50px" />
+					<listheader tooltiptext="Seconds" label="S"
+						width="50px" />
+					<listheader tooltiptext="Minutes" label="M"
+						width="50px" />
+					<listheader tooltiptext="Hours" label="H"
+						width="50px" />
+					<listheader tooltiptext="Day of month" label="DM"
+						width="50px" />
+					<listheader tooltiptext="Month" label="M"
+						width="50px" />
+					<listheader tooltiptext="Day of week" label="DW"
+						width="50px" />
+					<listheader tooltiptext="Year" label="W"
+						width="50px" />
+					<listheader label="Last start" width="150px" />
+					<listheader label="Last error" />
+				</listhead>
+				<listitem self="@{each=job}">
+					<listcell label="@{job.name}" />
+					<listcell>
+						<image src="images/action_check.png"
+							visible="@{job.active}" />
+					</listcell>
+					<listcell label="@{job.cron.seconds}" />
+					<listcell label="@{job.cron.minutes}" />
+					<listcell label="@{job.cron.hours}" />
+					<listcell label="@{job.cron.dayOfMonth}" />
+					<listcell label="@{job.cron.month}" />
+					<listcell label="@{job.cron.dayOfWeek}" />
+					<listcell label="@{job.cron.year}" />
+					<listcell
+						label="@{job.lastExecution,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+					<listcell label="@{job.lastError.message}" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+
+	<timer delay="5000" repeats="true" onTimer="schedulerlist.onTimer()"
+		running="@{schedulerlist.refresh}" />
+</window>

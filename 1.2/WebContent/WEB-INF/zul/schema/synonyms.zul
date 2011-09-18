@@ -1,0 +1,59 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="synonyms"
+	use="com.jaeksoft.searchlib.web.controller.schema.SynonymsController">
+	<panel title="Synonyms list" border="normal">
+		<panelchildren>
+			<listbox model="@{synonyms.manager.list}"
+				selectedItem="@{synonyms.editName}">
+				<listhead>
+					<listheader label="List name" />
+					<listheader width="50px" label="Action"
+						align="center" />
+				</listhead>
+				<auxhead>
+					<auxheader>
+						<textbox width="99%"
+							value="@{synonyms.editName}" readonly="@{isEdit}" />
+					</auxheader>
+					<auxheader>
+						<button image="/images/action_add.png"
+							forward="onAdd" />
+					</auxheader>
+				</auxhead>
+				<listitem self="@{each='listname'}">
+					<listcell label="@{listname}" />
+					<listcell>
+						<button image="/images/action_delete.png"
+							onClick="synonyms.onDelete(self)">
+							<custom-attributes listname="@{listname}" />
+						</button>
+					</listcell>
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<panel visible="@{synonyms.isEdit}" border="normal"
+		title="List content">
+		<toolbar>
+			<button label="Save" forward="onSave" />
+		</toolbar>
+		<panelchildren>
+			<textbox width="100%" multiline="true" height="300px"
+				value="@{synonyms.content}" />
+		</panelchildren>
+	</panel></window>
