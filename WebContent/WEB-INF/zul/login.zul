@@ -25,12 +25,14 @@
 			<rows>
 				<row>
 					<label value="Login: " />
-					<textbox id="login" cols="40" constraint="no empty" />
+					<textbox id="login" cols="40" constraint="no empty"
+						forward="onOK=onLogin" />
 				</row>
 				<row>
-					<label value="Password: " />
+					<label value="
+						Password: " />
 					<textbox id="password" cols="16" type="password"
-						constraint="no empty" />
+						constraint="no empty" forward="onOK=onLogin" />
 				</row>
 			</rows>
 			<foot>

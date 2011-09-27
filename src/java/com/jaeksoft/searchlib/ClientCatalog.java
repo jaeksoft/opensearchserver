@@ -124,7 +124,8 @@ public class ClientCatalog {
 	public static final void closeAll() {
 		w.lock();
 		try {
-			for (Client client : CLIENTS.values()) {
+			for (File file : CLIENTS.keySet()) {
+				Client client = CLIENTS.remove(file);
 				Logging.info("OSS unload index " + client.getIndexName());
 				client.close();
 			}
