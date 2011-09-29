@@ -74,11 +74,11 @@
 	</target>
 
 	<target name="compile-release" depends="init" description="compile the source ">
-		<javac debug="false" compiler="modern" optimize="true" target="1.5" srcdir="${src}" destdir="${build-release}" classpathref="project.class.path" />
+		<javac debug="false" compiler="modern" optimize="true" target="1.5" srcdir="${src}" destdir="${build-release}" classpathref="project.class.path" includeantruntime="false" />
 	</target>
 
 	<target name="compile-debug" depends="init" description="compile the source ">
-		<javac debug="true" compiler="modern" optimize="false" target="1.5" srcdir="${src}" destdir="${build-debug}" classpathref="project.class.path" />
+		<javac debug="true" compiler="modern" optimize="false" target="1.5" srcdir="${src}" destdir="${build-debug}" classpathref="project.class.path" includeantruntime="false" />
 	</target>
 
 	<target name="dist-jar-release" depends="compile-release">
