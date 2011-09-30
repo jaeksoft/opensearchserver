@@ -79,7 +79,7 @@ public final class QueryController extends AbstractQueryController {
 		SearchRequest request = getRequest();
 		if (request == null)
 			return null;
-		StringBuffer sb = AbstractServlet.getApiUrl(getBaseUrl(), "/search",
+		StringBuffer sb = AbstractServlet.getApiUrl(getBaseUrl(), "/select",
 				client, getLoggedUser());
 		String requestName = request.getRequestName();
 		if (requestName != null && requestName.length() > 0) {

@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServlet;
@@ -71,6 +73,8 @@ public abstract class AbstractServlet extends HttpServlet {
 	protected abstract void doRequest(ServletTransaction transaction)
 			throws ServletException;
 
+	public String serverURL;
+
 	final private void doRequest(HttpServletRequest request, Method method,
 			HttpServletResponse response) {
 
@@ -79,6 +83,7 @@ public abstract class AbstractServlet extends HttpServlet {
 
 		try {
 			doRequest(transaction);
+			serverURL = getCurrentServerURL(request);
 		} catch (Exception e) {
 			transaction.addXmlResponse(XML_CALL_KEY_STATUS,
 					XML_CALL_KEY_STATUS_ERROR);
@@ -106,6 +111,21 @@ public abstract class AbstractServlet extends HttpServlet {
 				}
 			}
 		}
+	}
+
+	public String getCurrentServerURL(HttpServletRequest request)
+			throws MalformedURLException {
+		String file = request.getRequestURI();
+		if (request.getQueryString() != null) {
+			file += '?' + request.getQueryString();
+		}
+		URL url = new URL(request.getScheme(), request.getServerName(),
+				request.getServerPort(), file);
+		return url.toString();
+	}
+
+	public String getServerURL() {
+		return serverURL;
 	}
 
 	@Override

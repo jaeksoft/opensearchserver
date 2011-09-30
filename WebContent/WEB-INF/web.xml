@@ -77,6 +77,10 @@
 		<servlet-class>com.jaeksoft.searchlib.web.OptimizeServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>Select</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.SelectServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>Search</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.SearchServlet</servlet-class>
 	</servlet>
@@ -158,9 +162,13 @@
 		<url-pattern>/optimize</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>Search</servlet-name>
+		<servlet-name>Select</servlet-name>
 		<url-pattern>/select</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Search</servlet-name>
 		<url-pattern>/search</url-pattern>
+		<url-pattern>/opensearch</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Schema</servlet-name>
