@@ -132,14 +132,14 @@ public class ClientCatalog {
 		w.lock();
 		try {
 			synchronized (CLIENTS) {
-				for (File file : CLIENTS.keySet()) {
-					Client client = CLIENTS.remove(file);
+				for (Client client : CLIENTS.values()) {
 					if (client != null) {
 						Logging.info("OSS unload index "
 								+ client.getIndexName());
 						client.close();
 					}
 				}
+				CLIENTS.clear();
 			}
 		} finally {
 			w.unlock();
