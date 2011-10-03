@@ -1,0 +1,12 @@
+#!/bin/sh
+
+chown -R tomcat6:tomcat6 /var/lib/opensearchserver
+ln -s /usr/share/opensearchserver-1.2/setenv.sh /usr/share/tomcat6/bin/setenv.sh
+chmod a+x /usr/share/opensearchserver-1.2/setenv.sh
+ln -s /usr/share/opensearchserver-1.2/open-search-server.war /var/lib/tomcat6/webapps/opensearchserver.war
+
+if which invoke-rc.d >/dev/null 2>&1; then
+	invoke-rc.d tomcat6 start
+else
+	/etc/init.d/tomcat6 start
+fi
