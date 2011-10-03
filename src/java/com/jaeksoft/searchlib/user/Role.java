@@ -48,9 +48,9 @@ public enum Role {
 
 	DATABASE_CRAWLER_START_STOP("Database crawler: start  and stop"),
 
-	CONNECTOR_CRAWLER_EDIT("Connector crawler: edit"),
+	INDEX_CRAWLER_EDIT("Index crawler: edit"),
 
-	CONNECTOR_CRAWLER_EXECUTE("connector crawler: execute");
+	INDEX_CRAWLER_EXECUTE("Index crawler: execute");
 
 	private String label;
 
@@ -66,8 +66,8 @@ public enum Role {
 	public static Role[] GROUP_DATABASE_CRAWLER = {
 			DATABASE_CRAWLER_EDIT_PARAMETERS, DATABASE_CRAWLER_START_STOP };
 
-	public static Role[] GROUP_CONNECTOR_CRAWLER = { CONNECTOR_CRAWLER_EDIT,
-			CONNECTOR_CRAWLER_EXECUTE };
+	public static Role[] GROUP_INDEX_CRAWLER = { INDEX_CRAWLER_EDIT,
+			INDEX_CRAWLER_EXECUTE };
 
 	private Role(String label) {
 		this.label = label;
