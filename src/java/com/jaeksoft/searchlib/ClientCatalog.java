@@ -78,18 +78,23 @@ public class ClientCatalog {
 
 		r.lock();
 		try {
-			Client client = CLIENTS.get(indexDirectory);
-			if (client != null)
-				return client;
+			synchronized (CLIENTS) {
+				Client client = CLIENTS.get(indexDirectory);
+				if (client != null)
+					return client;
+			}
 		} finally {
 			r.unlock();
 		}
 
 		w.lock();
 		try {
-			Client client = CLIENTS.get(indexDirectory);
-			if (client != null)
-				return client;
+			Client client = null;
+			synchronized (CLIENTS) {
+				client = CLIENTS.get(indexDirectory);
+				if (client != null)
+					return client;
+			}
 			File dataDir = new File(OPENSEARCHSERVER_DATA);
 			if (!indexDirectory.getParentFile().equals(dataDir))
 				throw new SearchLibException("Security alert: "
@@ -97,7 +102,9 @@ public class ClientCatalog {
 						+ " is outside OPENSEARCHSERVER_DATA (" + dataDir + ")");
 			client = ClientFactory.INSTANCE.newClient(indexDirectory, true,
 					false);
-			CLIENTS.put(indexDirectory, client);
+			synchronized (CLIENTS) {
+				CLIENTS.put(indexDirectory, client);
+			}
 			return client;
 		} finally {
 			w.unlock();
@@ -124,11 +131,14 @@ public class ClientCatalog {
 	public static final void closeAll() {
 		w.lock();
 		try {
-			for (File file : CLIENTS.keySet()) {
-				Client client = CLIENTS.remove(file);
-				if (client != null) {
-					Logging.info("OSS unload index " + client.getIndexName());
-					client.close();
+			synchronized (CLIENTS) {
+				for (File file : CLIENTS.keySet()) {
+					Client client = CLIENTS.remove(file);
+					if (client != null) {
+						Logging.info("OSS unload index "
+								+ client.getIndexName());
+						client.close();
+					}
 				}
 			}
 		} finally {
@@ -232,7 +242,9 @@ public class ClientCatalog {
 		Client client = getClient(indexName);
 		w.lock();
 		try {
-			CLIENTS.remove(client.getDirectory());
+			synchronized (CLIENTS) {
+				CLIENTS.remove(client.getDirectory());
+			}
 			client.close();
 			client.delete();
 		} finally {
@@ -361,9 +373,11 @@ public class ClientCatalog {
 		try {
 			client.trash(trashDir);
 			getTempReceiveDir(client).renameTo(clientDir);
-			CLIENTS.remove(clientDir);
-			CLIENTS.put(clientDir,
-					ClientFactory.INSTANCE.newClient(clientDir, true, true));
+			synchronized (CLIENTS) {
+				CLIENTS.remove(clientDir);
+				CLIENTS.put(clientDir,
+						ClientFactory.INSTANCE.newClient(clientDir, true, true));
+			}
 			PushEvent.CLIENT_SWITCH.publish(webapp, client);
 		} finally {
 			w.unlock();
