@@ -44,7 +44,7 @@
 	<property name="product" value="open-search-server" />
 	<property name="name-release" value="${product}" />
 	<property name="name-debug" value="${product}-debug" />
-	<property name="tomcat-name" value="apache-tomcat-6.0.32" />
+	<property name="tomcat-name" value="apache-tomcat-6.0.33" />
 	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
 	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="tomcat-bin" location="pkg/tomcat_bin" />

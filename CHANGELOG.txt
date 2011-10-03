@@ -6,6 +6,11 @@ CHANGE LOG
 All new features and bugs are described here:
 http://sourceforge.net/tracker/?group_id=260863
 
+OpenSearchServer 1.3
+
+New features:
+- 3417863: Upgrade Tomcat to version 6.0.33
+
 OpenSearchServer 1.2.3
 
 New features:
@@ -28,6 +33,7 @@ New features:
 - 2958005: Upgrade Apache HttpClient library to 4.1.1
 
 Bug fixes:
+- 3325102: Bug Report	Disabled Robots doesn't work
 - 3409814: Error: The document is really a RTF file
 - 3408193: Password of the XMLLoad task is not encrypted
 - 3406657: File crawler error: unknown protocol: smb
