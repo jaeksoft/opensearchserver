@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,36 +23,17 @@
  **/
 package com.jaeksoft.searchlib.web;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import org.apache.lucene.queryParser.ParseException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.render.Render;
-import com.jaeksoft.searchlib.render.RenderOpenSearch;
-import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
-public class SearchServlet extends AbstractServlet {
+public class SearchServlet extends SelectServlet {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4440539263609727717L;
-
-	private Render doQueryRequest(Client client,
-			ServletTransaction transaction, String serverURL)
-			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException, InstantiationException, IllegalAccessException {
-		SearchRequest searchRequest = client.getNewSearchRequest(transaction);
-		Result result = client.search(searchRequest);
-		return new RenderOpenSearch(result, serverURL);
-	}
 
 	@Override
 	protected void doRequest(ServletTransaction transaction)
@@ -65,7 +46,7 @@ public class SearchServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 			Client client = transaction.getClient();
 			Render render = null;
-			render = doQueryRequest(client, transaction, serverURL);
+			render = doQueryRequest(client, transaction, "");
 			render.render(transaction);
 		} catch (Exception e) {
 			throw new ServletException(e);

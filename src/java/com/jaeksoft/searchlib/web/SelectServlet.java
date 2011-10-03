@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderObject;
+import com.jaeksoft.searchlib.render.RenderOpenSearch;
 import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
@@ -68,18 +69,21 @@ public class SelectServlet extends AbstractServlet {
 		}
 	}
 
-	private Render doQueryRequest(Client client,
+	protected Render doQueryRequest(Client client,
 			ServletTransaction transaction, String render) throws IOException,
 			ParseException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
+
 		SearchRequest searchRequest = client.getNewSearchRequest(transaction);
+
 		Result result = client.search(searchRequest);
 		if ("jsp".equals(render)) {
 			String jsp = transaction.getParameterString("jsp");
 			return new RenderJsp(jsp, result);
-		}
-		return new RenderXml(result);
+		} else if ("xml".equals(render))
+			return new RenderXml(result);
+		return new RenderOpenSearch(result, serverURL);
 	}
 
 	@Override
@@ -99,9 +103,11 @@ public class SelectServlet extends AbstractServlet {
 			String p = transaction.getParameterString("render");
 			if ("object".equalsIgnoreCase(p))
 				render = doObjectRequest(client, transaction);
-			else
+			else {
+				if (p == null || p.equalsIgnoreCase(""))
+					p = "xml";
 				render = doQueryRequest(client, transaction, p);
-
+			}
 			render.render(transaction);
 
 		} catch (Exception e) {
