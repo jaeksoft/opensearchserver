@@ -87,8 +87,7 @@ public class ClientCatalog {
 
 		w.lock();
 		try {
-			Client client = null;
-			client = CLIENTS.get(indexDirectory);
+			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
 			File dataDir = new File(OPENSEARCHSERVER_DATA);

@@ -190,12 +190,13 @@ public class Crawl {
 		} else
 			robotsTxtStatus = RobotsTxtStatus.DISABLED;
 		urlItem.setRobotsTxtStatus(robotsTxtStatus);
-		if (robotsTxtStatus != RobotsTxtStatus.ALLOW
-				&& robotsTxtStatus != RobotsTxtStatus.NO_ROBOTSTXT) {
-			urlItem.setFetchStatus(FetchStatus.NOT_ALLOWED);
-			return false;
-		}
-		return true;
+		if (robotsTxtStatus == RobotsTxtStatus.DISABLED
+				|| robotsTxtStatus == RobotsTxtStatus.ALLOW)
+			return true;
+		if (robotsTxtStatus == RobotsTxtStatus.NO_ROBOTSTXT)
+			return true;
+		urlItem.setFetchStatus(FetchStatus.NOT_ALLOWED);
+		return false;
 	}
 
 	/**
