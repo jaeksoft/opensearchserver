@@ -124,11 +124,13 @@ public class ClientCatalog {
 	public static final void closeAll() {
 		w.lock();
 		try {
-			for (File file : CLIENTS.keySet()) {
-				Client client = CLIENTS.remove(file);
-				Logging.info("OSS unload index " + client.getIndexName());
-				client.close();
+			for (Client client : CLIENTS.values()) {
+				if (client != null) {
+					Logging.info("OSS unload index " + client.getIndexName());
+					client.close();
+				}
 			}
+			CLIENTS.clear();
 		} finally {
 			w.unlock();
 		}
