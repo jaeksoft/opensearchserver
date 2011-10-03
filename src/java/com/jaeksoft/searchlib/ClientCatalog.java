@@ -78,11 +78,9 @@ public class ClientCatalog {
 
 		r.lock();
 		try {
-			synchronized (CLIENTS) {
-				Client client = CLIENTS.get(indexDirectory);
-				if (client != null)
-					return client;
-			}
+			Client client = CLIENTS.get(indexDirectory);
+			if (client != null)
+				return client;
 		} finally {
 			r.unlock();
 		}
@@ -90,11 +88,9 @@ public class ClientCatalog {
 		w.lock();
 		try {
 			Client client = null;
-			synchronized (CLIENTS) {
-				client = CLIENTS.get(indexDirectory);
-				if (client != null)
-					return client;
-			}
+			client = CLIENTS.get(indexDirectory);
+			if (client != null)
+				return client;
 			File dataDir = new File(OPENSEARCHSERVER_DATA);
 			if (!indexDirectory.getParentFile().equals(dataDir))
 				throw new SearchLibException("Security alert: "
@@ -102,9 +98,7 @@ public class ClientCatalog {
 						+ " is outside OPENSEARCHSERVER_DATA (" + dataDir + ")");
 			client = ClientFactory.INSTANCE.newClient(indexDirectory, true,
 					false);
-			synchronized (CLIENTS) {
-				CLIENTS.put(indexDirectory, client);
-			}
+			CLIENTS.put(indexDirectory, client);
 			return client;
 		} finally {
 			w.unlock();
@@ -131,16 +125,13 @@ public class ClientCatalog {
 	public static final void closeAll() {
 		w.lock();
 		try {
-			synchronized (CLIENTS) {
-				for (Client client : CLIENTS.values()) {
-					if (client != null) {
-						Logging.info("OSS unload index "
-								+ client.getIndexName());
-						client.close();
-					}
+			for (Client client : CLIENTS.values()) {
+				if (client != null) {
+					Logging.info("OSS unload index " + client.getIndexName());
+					client.close();
 				}
-				CLIENTS.clear();
 			}
+			CLIENTS.clear();
 		} finally {
 			w.unlock();
 		}
@@ -242,9 +233,7 @@ public class ClientCatalog {
 		Client client = getClient(indexName);
 		w.lock();
 		try {
-			synchronized (CLIENTS) {
-				CLIENTS.remove(client.getDirectory());
-			}
+			CLIENTS.remove(client.getDirectory());
 			client.close();
 			client.delete();
 		} finally {
@@ -373,11 +362,9 @@ public class ClientCatalog {
 		try {
 			client.trash(trashDir);
 			getTempReceiveDir(client).renameTo(clientDir);
-			synchronized (CLIENTS) {
-				CLIENTS.remove(clientDir);
-				CLIENTS.put(clientDir,
-						ClientFactory.INSTANCE.newClient(clientDir, true, true));
-			}
+			CLIENTS.remove(clientDir);
+			CLIENTS.put(clientDir,
+					ClientFactory.INSTANCE.newClient(clientDir, true, true));
 			PushEvent.CLIENT_SWITCH.publish(webapp, client);
 		} finally {
 			w.unlock();
