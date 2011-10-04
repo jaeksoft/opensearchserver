@@ -38,8 +38,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.api.ApiManager;
 import com.jaeksoft.searchlib.api.OpenSearchApi;
+import com.jaeksoft.searchlib.web.SearchServlet;
 import com.jaeksoft.searchlib.web.controller.CommonController;
-
 
 public class OpenSearchController extends CommonController {
 	/**
@@ -60,14 +60,20 @@ public class OpenSearchController extends CommonController {
 		return client.getSearchRequestMap().getNameList();
 	}
 
-	public void onViewOpenSearch() throws SearchLibException,
+	public String getRequestApiCall() throws SearchLibException,
 			TransformerConfigurationException, WrongValueException,
 			IOException, SAXException, XPathExpressionException,
 			ParserConfigurationException {
 		searchRequest = (Combobox) getFellow("searchRequest");
+
 		Client client = getClient();
 		ApiManager apiManager = client.getApiManager();
 		apiManager.createNewApi(new OpenSearchApi(searchRequest.getText()));
+
+		StringBuffer sb = SearchServlet.getOpenSearchApiUrl(getBaseUrl(),
+				"/opensearch", client, getLoggedUser());
+		return sb.toString();
+
 	}
 
 	@Override

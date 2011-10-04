@@ -167,8 +167,8 @@
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Search</servlet-name>
-		<url-pattern>/search</url-pattern>
-		<url-pattern>/opensearch</url-pattern>
+		<url-pattern>/search/*</url-pattern>
+		<url-pattern>/opensearch/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Schema</servlet-name>

@@ -23,10 +23,16 @@
  **/
 package com.jaeksoft.searchlib.api;
 
-public abstract class Api {
+
+public class Api {
 
 	private String apiName;
 	private String queryTemplate;
+
+	public Api() {
+		apiName = null;
+		queryTemplate = null;
+	}
 
 	public Api(String apiName, String queryTemplate) {
 		this.queryTemplate = queryTemplate;

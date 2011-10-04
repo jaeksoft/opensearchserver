@@ -23,6 +23,7 @@
  **/
 package com.jaeksoft.searchlib.api;
 
+
 public class OpenSearchApi extends Api {
 
 	private static String OPENSEARCH_API_NAME = "opensearch";

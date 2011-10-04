@@ -39,7 +39,6 @@ import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderObject;
-import com.jaeksoft.searchlib.render.RenderOpenSearch;
 import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
@@ -81,9 +80,9 @@ public class SelectServlet extends AbstractServlet {
 		if ("jsp".equals(render)) {
 			String jsp = transaction.getParameterString("jsp");
 			return new RenderJsp(jsp, result);
-		} else if ("xml".equals(render))
-			return new RenderXml(result);
-		return new RenderOpenSearch(result, serverURL);
+		}
+		return new RenderXml(result);
+
 	}
 
 	@Override
@@ -103,11 +102,9 @@ public class SelectServlet extends AbstractServlet {
 			String p = transaction.getParameterString("render");
 			if ("object".equalsIgnoreCase(p))
 				render = doObjectRequest(client, transaction);
-			else {
-				if (p == null || p.equalsIgnoreCase(""))
-					p = "xml";
+			else
 				render = doQueryRequest(client, transaction, p);
-			}
+
 			render.render(transaction);
 
 		} catch (Exception e) {

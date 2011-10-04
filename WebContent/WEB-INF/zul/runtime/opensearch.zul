@@ -30,7 +30,7 @@
 			</row>
 			<row >
 			  <label value="" />
-				<button tooltiptext="View" label="View" onClick="opensearch.onViewOpenSearch();" />
+				<button tooltiptext="View" id="openSearchview" label="View" 	href="@{opensearch.requestApiCall}" />
 				<space />
 			</row>
 			

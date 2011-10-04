@@ -137,6 +137,14 @@ public class ServletTransaction {
 		return client;
 	}
 
+	public Client getClientApi(String use) throws SearchLibException,
+			NamingException {
+		if (client != null)
+			return client;
+		client = ClientCatalog.getClient(use);
+		return client;
+	}
+
 	public void addXmlResponse(String key, String value) {
 		if (xmlResponse == null)
 			xmlResponse = new LinkedHashMap<String, String>();

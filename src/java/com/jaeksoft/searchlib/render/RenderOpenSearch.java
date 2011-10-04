@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,13 +61,16 @@ public class RenderOpenSearch implements Render {
 	private SearchRequest searchRequest;
 	private Matcher controlMatcher;
 	private String serverURL;
+	private String outputEncoding;
 
-	public RenderOpenSearch(Result result, String serverURL) {
+	public RenderOpenSearch(Result result, String serverURL,
+			String outputEncoding) {
 		this.result = result;
 		this.searchRequest = result.getSearchRequest();
 		this.serverURL = serverURL;
 		Pattern p = Pattern.compile("\\p{Cntrl}");
 		controlMatcher = p.matcher("");
+		this.outputEncoding = outputEncoding;
 	}
 
 	private String xmlTextRender(String text) {
@@ -77,7 +80,12 @@ public class RenderOpenSearch implements Render {
 
 	private void renderPrefix() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
-		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		String encoding = null;
+		if (outputEncoding != null && !outputEncoding.equals(""))
+			encoding = outputEncoding;
+		else
+			encoding = "UTF-8";
+		writer.println("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>");
 		writer.println("<rss version=\"2.0\" "
 				+ " xmlns:OpenSearchServer=\"http://www.open-search-server.com/opensearch/1.0/\" "
 				+ " xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" "
@@ -185,12 +193,12 @@ public class RenderOpenSearch implements Render {
 			if ("title".equalsIgnoreCase(fieldName)) {
 
 				writer.print("\t<title>");
-				writer.print(StringEscapeUtils.escapeHtml(snippet.getValue()));
+				writer.print(StringEscapeUtils.escapeXml(snippet.getValue()));
 				writer.println("</title>");
 			} else if ("content".equalsIgnoreCase(fieldName)) {
 
 				writer.print("\t<description>");
-				writer.print(StringEscapeUtils.escapeHtml(snippet.getValue()));
+				writer.print(StringEscapeUtils.escapeXml(snippet.getValue()));
 				writer.println("</description>");
 			} else {
 				writer.print("\t\t<OpenSearchServer:");
@@ -279,6 +287,9 @@ public class RenderOpenSearch implements Render {
 	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
 		servletTransaction.setResponseContentType("text/xml");
-		render(servletTransaction.getWriter("UTF-8"));
+		if (outputEncoding != null && !outputEncoding.equals(""))
+			render(servletTransaction.getWriter(outputEncoding));
+		else
+			render(servletTransaction.getWriter("UTF-8"));
 	}
 }

@@ -55,12 +55,15 @@ public class ApiManager {
 	}
 
 	public void createNewApi(Api api) throws TransformerConfigurationException,
-			IOException, SAXException {
+			IOException, SAXException, XPathExpressionException,
+			ParserConfigurationException, SearchLibException {
 		create(api);
+
 	}
 
 	private void create(Api api) throws IOException, SAXException,
-			TransformerConfigurationException {
+			TransformerConfigurationException, XPathExpressionException,
+			ParserConfigurationException {
 		if (!apiFile.exists())
 			apiFile.createNewFile();
 		PrintWriter pw = new PrintWriter(apiFile);
@@ -91,13 +94,15 @@ public class ApiManager {
 
 	}
 
-	public void writeXml(XmlWriter xmlWriter, Api api) throws SAXException {
+	public void writeXml(XmlWriter xmlWriter, Api api) throws SAXException,
+			XPathExpressionException, ParserConfigurationException, IOException {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement(api.getApiName());
 			xmlWriter.writeSubTextNodeIfAny("querytemplate",
 					api.getQueryTemplate());
 			xmlWriter.endElement();
+
 		} finally {
 			rwl.r.unlock();
 		}

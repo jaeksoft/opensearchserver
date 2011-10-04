@@ -82,8 +82,8 @@ public abstract class AbstractServlet extends HttpServlet {
 				method, response);
 
 		try {
-			doRequest(transaction);
 			serverURL = getCurrentServerURL(request);
+			doRequest(transaction);
 		} catch (Exception e) {
 			transaction.addXmlResponse(XML_CALL_KEY_STATUS,
 					XML_CALL_KEY_STATUS_ERROR);
