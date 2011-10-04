@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.api;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -89,8 +90,18 @@ public class ApiManager {
 			throws XPathExpressionException, ParserConfigurationException,
 			SAXException, IOException {
 		XPathParser xpp = new XPathParser(apiFile);
-		NodeList nodeList = xpp.getNodeList("/api/" + apiName);
+		NodeList nodeList = xpp.getNodeList("/api/" + apiName
+				+ "/querytemplate");
 		return DomUtils.getText(nodeList.item(0));
+
+	}
+
+	public String getFieldName(String apiName) throws XPathExpressionException,
+			ParserConfigurationException, SAXException, IOException {
+		XPathParser xpp = new XPathParser(apiFile);
+		NodeList nodeList = xpp.getNodeList("/api/" + apiName + "/field");
+
+		return DomUtils.getAttributeText(nodeList.item(0), "name");
 
 	}
 
@@ -98,11 +109,18 @@ public class ApiManager {
 			XPathExpressionException, ParserConfigurationException, IOException {
 		rwl.r.lock();
 		try {
+			List<OpenSearchApi> openSearchApi = api.getOpenSearchApi();
+
 			xmlWriter.startElement(api.getApiName());
 			xmlWriter.writeSubTextNodeIfAny("querytemplate",
 					api.getQueryTemplate());
+			for (OpenSearchApi openApi : openSearchApi) {
+				xmlWriter.startElement("field", "name",
+						openApi.getOpenSearchField(), "target",
+						openApi.getField());
+				xmlWriter.endElement();
+			}
 			xmlWriter.endElement();
-
 		} finally {
 			rwl.r.unlock();
 		}

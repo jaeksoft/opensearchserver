@@ -23,29 +23,13 @@
  **/
 package com.jaeksoft.searchlib.api;
 
-public class OpenSearchApi {
+public enum OpenSearchTypes {
+	FIELD, SNIPPET;
 
-	private String field, openSearchField;
-
-	public OpenSearchApi(String field, String openSearchField) {
-		this.openSearchField = openSearchField;
-		this.field = field;
-	}
-
-	public String getField() {
-		return field;
-	}
-
-	public void setField(String field) {
-		this.field = field;
-	}
-
-	public String getOpenSearchField() {
-		return openSearchField;
-	}
-
-	public void setOpenSearchField(String openSearchField) {
-		this.openSearchField = openSearchField;
+	public static OpenSearchTypes find(String name) {
+		if (name == null)
+			return FIELD;
+		return valueOf(name);
 	}
 
 }

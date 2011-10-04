@@ -18,22 +18,76 @@
 	use="com.jaeksoft.searchlib.web.controller.runtime.OpenSearchController">
 <grid>
 		<columns>
-			<column align="right" />
+			<column align="right" width="30%"/>
 			<column align="left" />
+			 
 		</columns>
 		<rows>
 		 
 			<row>
 				<label value="Select the query template" />
-				<combobox id="searchRequest" model="@{opensearch.requestList}"  onChange="opensearch.reloadPage()" width="200px"  />
+				<combobox id="searchRequest" model="@{opensearch.requestList}"  onSelect="opensearch.onReload()" width="200px" selectedItem="@{opensearch.searchTemplate}" readonly="true"/>
 				<space />
 			</row>
-			<row >
-			  <label value="" />
-				<button tooltiptext="View" id="openSearchview" label="View" 	href="@{opensearch.requestApiCall}" />
+				<row>
+				<label value="Map the fields for OpenSearch" />
+				 		<listbox model="@{opensearch.list}" id="openSearchFields">
+		<listhead>
+			<listheader label="Field/Snippets" />
+			<listheader label="OpenSearch Fields" />
+			<listheader label="Action" />
+		</listhead>
+				<auxhead>
+					<auxheader>
+					<listbox
+						model="@{opensearch.fields}"
+						selectedItem="@{opensearch.fieldType}"
+						onSelect="opensearch.onReload()" 
+						mold="select" />
+							<listbox
+								model="@{opensearch.fieldList}"
+								selectedItem="@{opensearch.currentField}"
+								mold="select" />
+					</auxheader>
+					<auxheader>
+					<combobox
+								model="@{opensearch.openSearchFields}"
+								selectedItem="@{opensearch.currentOpenSearchField}" readonly="true"
+								 />
+					</auxheader>
+					<auxheader>
+						
+								<button tooltiptext="Add a field"
+										image="/images/action_add.png"
+										onClick="opensearch.onAdd()" />
+					</auxheader>
+				</auxhead>
+		 <listitem self="@{each='openSearchFieldList'}" value="@{list}" >  
+        <listcell label="@{openSearchFieldList.field}" />
+        <listcell label="@{openSearchFieldList.openSearchField}" />
+        <listcell>
+  		<button image="/images/action_delete.png" id="deleteField" forward="onClick=onDelete()">
+                <custom-attributes fieldId="@{openSearchFieldList.openSearchField}" />
+		</button>
+                </listcell>                
+     </listitem>
+	</listbox>
 				<space />
 			</row>
-			
+	 	
 		</rows>
-</grid>			
+		<foot>
+		<footer span="2">
+	<vbox width="100%" align="center">
+	<hbox>
+	   <button tooltiptext="Save" id="openSearchsave" label="Save" 	 onClick="opensearch.onSave()" />
+		<button tooltiptext="View" id="openSearchview" label="View" href="@{opensearch.requestApiCall}"/>
+	</hbox>
+    </vbox>
+		</footer>
+		</foot>
+</grid>		
+
+			 
+	
 </window>

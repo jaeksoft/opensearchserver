@@ -23,20 +23,19 @@
  **/
 package com.jaeksoft.searchlib.api;
 
+import java.util.List;
 
 public class Api {
 
 	private String apiName;
 	private String queryTemplate;
+	private List<OpenSearchApi> openSearchApi;
 
-	public Api() {
-		apiName = null;
-		queryTemplate = null;
-	}
-
-	public Api(String apiName, String queryTemplate) {
+	public Api(String openSearch, String queryTemplate,
+			List<OpenSearchApi> openSearchApi) {
+		this.apiName = openSearch;
 		this.queryTemplate = queryTemplate;
-		this.apiName = apiName;
+		this.openSearchApi = openSearchApi;
 	}
 
 	public String getApiName() {
@@ -55,4 +54,11 @@ public class Api {
 		this.queryTemplate = queryTemplate;
 	}
 
+	public List<OpenSearchApi> getOpenSearchApi() {
+		return openSearchApi;
+	}
+
+	public void setOpenSearchApi(List<OpenSearchApi> openSearchApi) {
+		this.openSearchApi = openSearchApi;
+	}
 }

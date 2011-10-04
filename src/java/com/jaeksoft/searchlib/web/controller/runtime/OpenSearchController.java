@@ -24,6 +24,10 @@
 package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,13 +36,21 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WrongValueException;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zul.api.Combobox;
+import org.zkoss.zul.api.Listbox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.api.Api;
 import com.jaeksoft.searchlib.api.ApiManager;
 import com.jaeksoft.searchlib.api.OpenSearchApi;
+import com.jaeksoft.searchlib.api.OpenSearchTypes;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.web.SearchServlet;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class OpenSearchController extends CommonController {
@@ -47,10 +59,63 @@ public class OpenSearchController extends CommonController {
 	 */
 	private static final long serialVersionUID = -899171123101262091L;
 	public Combobox searchRequest;
+	public Listbox openSearchFields;
+	private OpenSearchTypes fieldType;
+	private String searchTemplate, currentField;
+	private OpenSearchFields currentOpenSearchField;
+	private List<OpenSearchApi> opensearchApiList;
+
+	enum OpenSearchFields {
+		TITLE, DESCRIPTION, URL;
+	}
 
 	public OpenSearchController() throws SearchLibException {
 		super();
+		fieldType = null;
+		opensearchApiList = new ArrayList<OpenSearchApi>();
+		load();
+	}
 
+	public void load() {
+		Client client;
+		try {
+			client = getClient();
+			ApiManager apiManager = client.getApiManager();
+			if (apiManager.getvalue("opensearch") != null)
+				searchTemplate = apiManager.getvalue("opensearch");
+
+		} catch (SearchLibException e) {
+			e.printStackTrace();
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void onDelete(Event event) {
+		Event origin;
+		if (event instanceof ForwardEvent) {
+			origin = Events.getRealOrigin((ForwardEvent) event);
+		} else {
+			origin = event;
+		}
+		String filename = (String) origin.getTarget().getAttribute("fieldId");
+		for (Iterator<OpenSearchApi> iter = opensearchApiList.iterator(); iter
+				.hasNext();) {
+			OpenSearchApi api = iter.next();
+			if (api.getOpenSearchField().equalsIgnoreCase(filename)) {
+				iter.remove();
+			}
+		}
+
+		reloadPage();
 	}
 
 	public Set<String> getRequestList() throws SearchLibException {
@@ -60,20 +125,114 @@ public class OpenSearchController extends CommonController {
 		return client.getSearchRequestMap().getNameList();
 	}
 
+	public void onAdd() throws SearchLibException, UnsupportedEncodingException {
+		Boolean isAlreadyAdded = false;
+		if (opensearchApiList != null && opensearchApiList.size() != 0) {
+			for (Iterator<OpenSearchApi> iter = opensearchApiList.iterator(); iter
+					.hasNext();) {
+				OpenSearchApi api = iter.next();
+				if (api.getOpenSearchField().equalsIgnoreCase(
+						currentOpenSearchField.name())) {
+					isAlreadyAdded = true;
+					break;
+				}
+			}
+		}
+		if (isAlreadyAdded != null && !isAlreadyAdded) {
+			opensearchApiList.add(new OpenSearchApi(currentField,
+					currentOpenSearchField.name().toLowerCase()));
+		}
+		reloadPage();
+
+	}
+
+	public List<OpenSearchApi> getList() {
+		return opensearchApiList;
+	}
+
+	public List<String> getFieldList() throws SearchLibException,
+			InterruptedException {
+		if (fieldType == null)
+			return null;
+		Client client = getClient();
+		if (client == null)
+			return null;
+		if (searchTemplate == null)
+			new AlertController("Please Select an Query Template");
+		SearchRequest request = client.getSearchRequestMap()
+				.get(searchTemplate);
+		if (request == null)
+			return null;
+		List<String> nameList = new ArrayList<String>();
+		nameList.add(null);
+		if (fieldType == OpenSearchTypes.FIELD)
+			request.getReturnFieldList().toNameList(nameList);
+		else if (fieldType == OpenSearchTypes.SNIPPET)
+			request.getSnippetFieldList().toNameList(nameList);
+		return nameList;
+	}
+
+	public void onSave() throws WrongValueException,
+			TransformerConfigurationException, XPathExpressionException,
+			IOException, SAXException, ParserConfigurationException,
+			SearchLibException {
+		searchRequest = (Combobox) getFellow("searchRequest");
+		Client client = getClient();
+		ApiManager apiManager = client.getApiManager();
+		apiManager.createNewApi(new Api("opensearch", searchRequest.getText(),
+				opensearchApiList));
+	}
+
 	public String getRequestApiCall() throws SearchLibException,
 			TransformerConfigurationException, WrongValueException,
 			IOException, SAXException, XPathExpressionException,
 			ParserConfigurationException {
-		searchRequest = (Combobox) getFellow("searchRequest");
-
 		Client client = getClient();
-		ApiManager apiManager = client.getApiManager();
-		apiManager.createNewApi(new OpenSearchApi(searchRequest.getText()));
-
 		StringBuffer sb = SearchServlet.getOpenSearchApiUrl(getBaseUrl(),
 				"/opensearch", client, getLoggedUser());
 		return sb.toString();
 
+	}
+
+	public OpenSearchTypes[] getFields() {
+		return OpenSearchTypes.values();
+	}
+
+	public OpenSearchFields[] getOpenSearchFields() {
+		return OpenSearchFields.values();
+	}
+
+	public OpenSearchTypes getFieldType() {
+		return fieldType;
+	}
+
+	public void setFieldType(OpenSearchTypes fieldType) {
+		this.fieldType = fieldType;
+	}
+
+	public String getSearchTemplate() {
+		return searchTemplate;
+	}
+
+	public void setSearchTemplate(String searchTemplate) {
+		this.searchTemplate = searchTemplate;
+	}
+
+	public String getCurrentField() {
+		return currentField;
+	}
+
+	public void setCurrentField(String currentField) {
+		this.currentField = currentField;
+	}
+
+	public OpenSearchFields getCurrentOpenSearchField() {
+		return currentOpenSearchField;
+	}
+
+	public void setCurrentOpenSearchField(
+			OpenSearchFields currentOpenSearchField) {
+		this.currentOpenSearchField = currentOpenSearchField;
 	}
 
 	@Override
