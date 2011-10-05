@@ -14,6 +14,7 @@ New features:
 OpenSearchServer 1.2.3
 
 New features:
+- 3419014: Delete by query task in scheduler
 - 3396935: Log files viewable in the user interface
 - 3393751: XML load sheduler task
 - 3393063: Upgrade to SeleniumHQ 2.0.4
@@ -33,6 +34,7 @@ New features:
 - 2958005: Upgrade Apache HttpClient library to 4.1.1
 
 Bug fixes:
+- 3419013: Scheduler job end date error
 - 3325102: Bug Report	Disabled Robots doesn't work
 - 3409814: Error: The document is really a RTF file
 - 3408193: Password of the XMLLoad task is not encrypted

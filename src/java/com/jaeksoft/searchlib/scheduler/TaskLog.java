@@ -57,11 +57,12 @@ public class TaskLog {
 				taskProperties[i] = new TaskProperty(tp[i]);
 		}
 		startTime = System.currentTimeMillis();
-		endTime = startTime;
+		endTime = 0;
 	}
 
 	protected void end() {
 		endTime = System.currentTimeMillis();
+		endDate = null;
 		duration = endTime - startTime;
 	}
 
