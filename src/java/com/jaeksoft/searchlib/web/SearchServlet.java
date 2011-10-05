@@ -101,7 +101,7 @@ public class SearchServlet extends AbstractServlet {
 		ApiManager apiManager = client.getApiManager();
 
 		SearchRequest searchRequest = client.getNewSearchRequest(apiManager
-				.getvalue("opensearch").trim());
+				.getFieldValue("opensearch").trim());
 		searchRequest.setQueryString(transaction.getParameterString("q"));
 		if (transaction.getParameterInteger("start") != null)
 			searchRequest.setStart(transaction.getParameterInteger("start"));

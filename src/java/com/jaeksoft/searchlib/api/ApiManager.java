@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.api;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,7 +44,7 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ApiManager {
 
-	private File apiFile;
+	private static File apiFile;
 	private String API_ROOT_NODE = "api";
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -80,8 +81,9 @@ public class ApiManager {
 		}
 	}
 
-	public String getvalue(String apiName) throws XPathExpressionException,
-			ParserConfigurationException, SAXException, IOException {
+	public String getFieldValue(String apiName)
+			throws XPathExpressionException, ParserConfigurationException,
+			SAXException, IOException {
 		return getQueryTemplateName(apiName);
 
 	}
@@ -96,13 +98,44 @@ public class ApiManager {
 
 	}
 
-	public String getFieldName(String apiName) throws XPathExpressionException,
-			ParserConfigurationException, SAXException, IOException {
+	public static String getMappedValue(String apiName, String fieldName)
+			throws XPathExpressionException, ParserConfigurationException,
+			SAXException, IOException {
 		XPathParser xpp = new XPathParser(apiFile);
 		NodeList nodeList = xpp.getNodeList("/api/" + apiName + "/field");
+		String target = null;
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			if (DomUtils.getAttributeText(nodeList.item(i), "name")
+					.equalsIgnoreCase(fieldName)) {
+				target = DomUtils.getAttributeText(nodeList.item(i), "target");
+			}
 
-		return DomUtils.getAttributeText(nodeList.item(0), "name");
+		}
+		return target;
+	}
 
+	public List<OpenSearchApi> getOpenSearchFieldList(String apiName)
+			throws XPathExpressionException, ParserConfigurationException,
+			SAXException, IOException {
+		XPathParser xpp = new XPathParser(apiFile);
+		NodeList nodeList = xpp.getNodeList("/api/" + apiName + "/field");
+		List<OpenSearchApi> fieldsList = new ArrayList<OpenSearchApi>();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			String openSearchField = DomUtils.getAttributeText(
+					nodeList.item(i), "name");
+			String field = DomUtils
+					.getAttributeText(nodeList.item(i), "target");
+			fieldsList.add(new OpenSearchApi(field, openSearchField));
+		}
+		return fieldsList;
+
+	}
+
+	public boolean isAvailable() {
+		if (apiFile.exists())
+			return true;
+		else
+			return false;
 	}
 
 	public void writeXml(XmlWriter xmlWriter, Api api) throws SAXException,
@@ -110,14 +143,13 @@ public class ApiManager {
 		rwl.r.lock();
 		try {
 			List<OpenSearchApi> openSearchApi = api.getOpenSearchApi();
-
 			xmlWriter.startElement(api.getApiName());
 			xmlWriter.writeSubTextNodeIfAny("querytemplate",
 					api.getQueryTemplate());
 			for (OpenSearchApi openApi : openSearchApi) {
-				xmlWriter.startElement("field", "name",
-						openApi.getOpenSearchField(), "target",
-						openApi.getField());
+				xmlWriter.startElement("field", "name", openApi
+						.getOpenSearchField().toLowerCase(), "target", openApi
+						.getField().toLowerCase());
 				xmlWriter.endElement();
 			}
 			xmlWriter.endElement();

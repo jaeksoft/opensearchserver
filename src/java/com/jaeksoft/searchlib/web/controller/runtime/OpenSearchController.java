@@ -63,7 +63,7 @@ public class OpenSearchController extends CommonController {
 	private OpenSearchTypes fieldType;
 	private String searchTemplate, currentField;
 	private OpenSearchFields currentOpenSearchField;
-	private List<OpenSearchApi> opensearchApiList;
+	private List<OpenSearchApi> openSearchApiList;
 
 	enum OpenSearchFields {
 		TITLE, DESCRIPTION, URL;
@@ -71,19 +71,27 @@ public class OpenSearchController extends CommonController {
 
 	public OpenSearchController() throws SearchLibException {
 		super();
-		fieldType = null;
-		opensearchApiList = new ArrayList<OpenSearchApi>();
+		reloadPage();
 		load();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
+
 	}
 
 	public void load() {
 		Client client;
 		try {
+			openSearchApiList = new ArrayList<OpenSearchApi>();
 			client = getClient();
 			ApiManager apiManager = client.getApiManager();
-			if (apiManager.getvalue("opensearch") != null)
-				searchTemplate = apiManager.getvalue("opensearch");
-
+			if (apiManager.isAvailable()) {
+				if (apiManager.getFieldValue("opensearch") != null)
+					searchTemplate = apiManager.getFieldValue("opensearch");
+				openSearchApiList = apiManager
+						.getOpenSearchFieldList("opensearch");
+			}
 		} catch (SearchLibException e) {
 			e.printStackTrace();
 		} catch (TransformerConfigurationException e) {
@@ -107,7 +115,7 @@ public class OpenSearchController extends CommonController {
 			origin = event;
 		}
 		String filename = (String) origin.getTarget().getAttribute("fieldId");
-		for (Iterator<OpenSearchApi> iter = opensearchApiList.iterator(); iter
+		for (Iterator<OpenSearchApi> iter = openSearchApiList.iterator(); iter
 				.hasNext();) {
 			OpenSearchApi api = iter.next();
 			if (api.getOpenSearchField().equalsIgnoreCase(filename)) {
@@ -127,8 +135,8 @@ public class OpenSearchController extends CommonController {
 
 	public void onAdd() throws SearchLibException, UnsupportedEncodingException {
 		Boolean isAlreadyAdded = false;
-		if (opensearchApiList != null && opensearchApiList.size() != 0) {
-			for (Iterator<OpenSearchApi> iter = opensearchApiList.iterator(); iter
+		if (openSearchApiList != null && openSearchApiList.size() != 0) {
+			for (Iterator<OpenSearchApi> iter = openSearchApiList.iterator(); iter
 					.hasNext();) {
 				OpenSearchApi api = iter.next();
 				if (api.getOpenSearchField().equalsIgnoreCase(
@@ -139,15 +147,15 @@ public class OpenSearchController extends CommonController {
 			}
 		}
 		if (isAlreadyAdded != null && !isAlreadyAdded) {
-			opensearchApiList.add(new OpenSearchApi(currentField,
-					currentOpenSearchField.name().toLowerCase()));
+			openSearchApiList.add(new OpenSearchApi(currentField,
+					currentOpenSearchField.name()));
 		}
 		reloadPage();
 
 	}
 
 	public List<OpenSearchApi> getList() {
-		return opensearchApiList;
+		return openSearchApiList;
 	}
 
 	public List<String> getFieldList() throws SearchLibException,
@@ -180,7 +188,7 @@ public class OpenSearchController extends CommonController {
 		Client client = getClient();
 		ApiManager apiManager = client.getApiManager();
 		apiManager.createNewApi(new Api("opensearch", searchRequest.getText(),
-				opensearchApiList));
+				openSearchApiList));
 	}
 
 	public String getRequestApiCall() throws SearchLibException,
@@ -233,11 +241,6 @@ public class OpenSearchController extends CommonController {
 	public void setCurrentOpenSearchField(
 			OpenSearchFields currentOpenSearchField) {
 		this.currentOpenSearchField = currentOpenSearchField;
-	}
-
-	@Override
-	protected void reset() throws SearchLibException {
-
 	}
 
 }
