@@ -14,6 +14,8 @@ New features:
 OpenSearchServer 1.2.3
 
 New features:
+- 3421240: JSON response for OpenSearchServer
+- 3386107: OpenSearch Standards
 - 3419014: Delete by query task in scheduler
 - 3396935: Log files viewable in the user interface
 - 3393751: XML load sheduler task

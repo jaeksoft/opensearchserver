@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderJson;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderObject;
 import com.jaeksoft.searchlib.render.RenderXml;
@@ -75,13 +76,14 @@ public class SelectServlet extends AbstractServlet {
 			InstantiationException, IllegalAccessException {
 
 		SearchRequest searchRequest = client.getNewSearchRequest(transaction);
-
 		Result result = client.search(searchRequest);
 		if ("jsp".equals(render)) {
 			String jsp = transaction.getParameterString("jsp");
 			return new RenderJsp(jsp, result);
-		}
-		return new RenderXml(result);
+		} else if ("json".equals(render))
+			return new RenderJson(result);
+		else
+			return new RenderXml(result);
 
 	}
 
@@ -102,9 +104,11 @@ public class SelectServlet extends AbstractServlet {
 			String p = transaction.getParameterString("render");
 			if ("object".equalsIgnoreCase(p))
 				render = doObjectRequest(client, transaction);
-			else
+			else {
+				if (p == null || p.equalsIgnoreCase(""))
+					p = transaction.getParameterString("format");
 				render = doQueryRequest(client, transaction, p);
-
+			}
 			render.render(transaction);
 
 		} catch (Exception e) {
