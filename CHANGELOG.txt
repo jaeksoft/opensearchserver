@@ -9,13 +9,14 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3422180: Upgrade to ZK 5.0.8
 - 3417863: Upgrade Tomcat to version 6.0.33
+- 3421240: JSON response for OpenSearchServer
+- 3386107: OpenSearch Standards
 
 OpenSearchServer 1.2.3
 
 New features:
-- 3421240: JSON response for OpenSearchServer
-- 3386107: OpenSearch Standards
 - 3419014: Delete by query task in scheduler
 - 3396935: Log files viewable in the user interface
 - 3393751: XML load sheduler task
