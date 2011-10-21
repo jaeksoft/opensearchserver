@@ -113,7 +113,8 @@ public class IndexServlet extends AbstractServlet {
 			if (ct != null && ct.toLowerCase().contains("xml")) {
 				InputSource inputSource = new InputSource(
 						transaction.getReader());
-				result = client.updateXmlDocuments(inputSource, bufferSize);
+				result = client.updateXmlDocuments(inputSource, bufferSize,
+						null);
 			} else
 				result = doObjectRequest(client, transaction);
 			transaction.addXmlResponse("Status", "OK");
