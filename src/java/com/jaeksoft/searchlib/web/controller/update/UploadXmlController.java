@@ -76,20 +76,20 @@ public class UploadXmlController extends CommonController {
 					byte[] bytes = media.getByteData();
 					updatedCount += getClient().updateXmlDocuments(
 							new InputSource(new ByteArrayInputStream(bytes)),
-							50);
+							50, null);
 				} else {
 					byte[] bytes = media.getStringData().getBytes();
 					updatedCount += getClient().updateXmlDocuments(
 							new InputSource(new ByteArrayInputStream(bytes)),
-							50);
+							50, null);
 				}
 			} else {
 				if (media.isBinary())
 					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(media.getStreamData()), 50);
+							new InputSource(media.getStreamData()), 50, null);
 				else
 					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(media.getReaderData()), 50);
+							new InputSource(media.getReaderData()), 50, null);
 			}
 		}
 

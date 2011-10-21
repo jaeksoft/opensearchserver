@@ -43,6 +43,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
@@ -92,7 +93,8 @@ public class Client extends Config {
 		}
 	}
 
-	private int updateXmlDocuments(XPathParser xpp, int bufferSize)
+	private int updateXmlDocuments(XPathParser xpp, int bufferSize,
+			CredentialItem urlDefaultCredential)
 			throws XPathExpressionException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
@@ -104,7 +106,7 @@ public class Client extends Config {
 		int docCount = 0;
 		for (int i = 0; i < l; i++) {
 			docList.add(new IndexDocument(getParserSelector(), xpp, nodeList
-					.item(i)));
+					.item(i), urlDefaultCredential));
 			if (docList.size() == bufferSize) {
 				docCount += updateDocuments(docList);
 				Logging.info(docCount + " / " + l + " XML document(s) indexed.");
@@ -118,13 +120,14 @@ public class Client extends Config {
 		return docCount;
 	}
 
-	public int updateXmlDocuments(InputSource inputSource, int bufferSize)
+	public int updateXmlDocuments(InputSource inputSource, int bufferSize,
+			CredentialItem urlDefaultCredential)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		XPathParser xpp = new XPathParser(inputSource);
-		return updateXmlDocuments(xpp, bufferSize);
+		return updateXmlDocuments(xpp, bufferSize, urlDefaultCredential);
 	}
 
 	public boolean deleteDocument(String uniqueField)

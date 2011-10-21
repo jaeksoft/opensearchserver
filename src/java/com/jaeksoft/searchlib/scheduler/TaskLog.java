@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,8 +53,12 @@ public class TaskLog {
 		TaskProperty[] tp = taskItem.getProperties();
 		if (tp != null) {
 			taskProperties = new TaskProperty[tp.length];
-			for (int i = 0; i < taskProperties.length; i++)
-				taskProperties[i] = new TaskProperty(tp[i]);
+			for (int i = 0; i < taskProperties.length; i++) {
+				TaskProperty newTaskProp = new TaskProperty(tp[i]);
+				if (newTaskProp.getType() == TaskPropertyType.password)
+					newTaskProp.setValue("**hidden**");
+				taskProperties[i] = newTaskProp;
+			}
 		}
 		startTime = System.currentTimeMillis();
 		endTime = 0;

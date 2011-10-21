@@ -95,7 +95,8 @@ public class TaskXmlLoad extends TaskAbstract {
 				credentialItem = new CredentialItem(null, login, password);
 			httpDownloader.get(new URI(uri), credentialItem);
 			client.updateXmlDocuments(
-					new InputSource(httpDownloader.getContent()), bufferSize);
+					new InputSource(httpDownloader.getContent()), bufferSize,
+					credentialItem);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {
