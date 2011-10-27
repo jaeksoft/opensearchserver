@@ -82,7 +82,7 @@ public class LogsController extends CommonController {
 	}
 
 	public String getCurrentLog() throws IOException {
-		if (currentLog == null)
+		if (currentLog == null && selectedFile != null)
 			currentLog = Logging.readLogs(100000, selectedFile);
 		return currentLog;
 	}

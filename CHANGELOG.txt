@@ -29,6 +29,7 @@ New features:
 - 2958005: Upgrade Apache HttpClient library to 4.1.1
 
 Bug fixes:
+- 3429305: NullPointerException while index Word document
 - 3426912: Authorization error when loading binary with XML Load
 - 3419013: Scheduler job end date error
 - 3325102: Bug Report	Disabled Robots doesn't work
