@@ -50,6 +50,8 @@ import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.AbstractServlet;
+import com.jaeksoft.searchlib.web.StartStopListener;
+import com.jaeksoft.searchlib.web.Version;
 
 public abstract class CommonController extends Window implements AfterCompose,
 		EventListener {
@@ -62,8 +64,6 @@ public abstract class CommonController extends Window implements AfterCompose,
 	private transient boolean isComposed;
 
 	private transient AnnotateDataBinder binder = null;
-
-	private transient static Version version = null;
 
 	public CommonController() throws SearchLibException {
 		super();
@@ -136,17 +136,8 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return null;
 	}
 
-	public static synchronized Version getSyncVersion() throws IOException {
-		if (version != null)
-			return version;
-		version = new Version(getEdition());
-		return version;
-	}
-
 	public Version getVersion() throws IOException {
-		if (version != null)
-			return version;
-		return getSyncVersion();
+		return StartStopListener.getVersion();
 	}
 
 	public Client getClient() throws SearchLibException {
@@ -356,10 +347,6 @@ public abstract class CommonController extends Window implements AfterCompose,
 	}
 
 	protected void eventQueryEditRequest(SearchRequest data) {
-	}
-
-	protected static String getEdition() {
-		return "community edition";
 	}
 
 	protected String getIndexName() throws SearchLibException {
