@@ -85,7 +85,7 @@ public class TaskLog {
 	}
 
 	public Date getEndDate() {
-		if (endDate == null)
+		if (endDate == null && endTime != 0)
 			endDate = new Date(endTime);
 		return endDate;
 	}

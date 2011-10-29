@@ -24,6 +24,13 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.xml.transform.TransformerConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import com.jaeksoft.searchlib.Monitor;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
@@ -47,15 +54,21 @@ public class MonitorServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			transaction.setResponseContentType("text/xml");
-			XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
-					"UTF-8");
-			xmlWriter.startElement("response");
-			new Monitor().writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
+			PrintWriter pw = transaction.getWriter("UTF-8");
+			writeXmlMonitor(pw);
 
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
+	}
+
+	public void writeXmlMonitor(PrintWriter pw)
+			throws TransformerConfigurationException, SAXException,
+			SecurityException, SearchLibException, IOException {
+		XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+		new Monitor().writeXmlConfig(xmlWriter);
+		xmlWriter.startElement("response");
+		xmlWriter.endElement();
 	}
 
 }

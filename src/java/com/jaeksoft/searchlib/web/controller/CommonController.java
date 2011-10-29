@@ -136,10 +136,10 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return null;
 	}
 
-	private synchronized Version getSyncVersion() throws IOException {
+	public static synchronized Version getSyncVersion() throws IOException {
 		if (version != null)
 			return version;
-		version = new Version(getDesktop().getWebApp(), getEdition());
+		version = new Version(getEdition());
 		return version;
 	}
 
@@ -358,7 +358,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 	protected void eventQueryEditRequest(SearchRequest data) {
 	}
 
-	protected String getEdition() {
+	protected static String getEdition() {
 		return "community edition";
 	}
 

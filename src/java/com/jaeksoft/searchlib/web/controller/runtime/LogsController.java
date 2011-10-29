@@ -82,7 +82,7 @@ public class LogsController extends CommonController {
 	}
 
 	public String getCurrentLog() throws IOException {
-		if (currentLog == null)
+		if (currentLog == null && selectedFile != null)
 			currentLog = Logging.readLogs(100000, selectedFile);
 		return currentLog;
 	}
@@ -102,8 +102,8 @@ public class LogsController extends CommonController {
 		return selectedFile == null;
 	}
 
-	public void onReloadFileList() {
-		logFileList = null;
+	public void onReloadFileList() throws SearchLibException {
+		reset();
 		reloadPage();
 	}
 
@@ -119,6 +119,8 @@ public class LogsController extends CommonController {
 	}
 
 	public void onGoToEnd() {
+		if (currentLog == null)
+			return;
 		Textbox tb = (Textbox) getFellow("logview");
 		Clients.evalJavaScript("toTheEnd('" + tb.getUuid() + "')");
 		tb.setSelectionRange(currentLog.length(), currentLog.length());

@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
-public class TaskPropertyDef {
+public class TaskPropertyDef implements Comparable<TaskPropertyDef> {
 
 	public final TaskPropertyType type;
 
@@ -36,5 +36,10 @@ public class TaskPropertyDef {
 		this.type = type;
 		this.name = name;
 		this.cols = cols;
+	}
+
+	@Override
+	public int compareTo(TaskPropertyDef propDef) {
+		return name.compareTo(propDef.name);
 	}
 }

@@ -30,7 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Properties;
 
-import org.zkoss.zk.ui.WebApp;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class Version {
 
@@ -44,11 +44,11 @@ public class Version {
 
 	private String build = null;
 
-	public Version(WebApp webApp, String edition) throws IOException {
+	public Version(String edition) throws IOException {
 		InputStream is = null;
 		try {
 			this.edition = edition;
-			is = webApp.getResourceAsStream("/version");
+			is = StartStopListener.getResourceAsStream("/version");
 			if (is == null)
 				return;
 			Properties properties = new Properties();

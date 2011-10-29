@@ -73,18 +73,23 @@ public class TaskXmlLoad extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, String property)
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
 			throws SearchLibException {
+		return null;
+	}
+
+	@Override
+	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		return null;
 	}
 
 	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
-		String uri = properties.getValue(propUri.name);
-		String login = properties.getValue(propLogin.name);
-		String password = properties.getValue(propPassword.name);
-		String p = properties.getValue(propBuffersize.name);
+		String uri = properties.getValue(propUri);
+		String login = properties.getValue(propLogin);
+		String password = properties.getValue(propPassword);
+		String p = properties.getValue(propBuffersize);
 		int bufferSize = 50;
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);
