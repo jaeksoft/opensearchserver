@@ -57,15 +57,20 @@ public class TaskDeleteQuery extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, String property)
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
 			throws SearchLibException {
+		return null;
+	}
+
+	@Override
+	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		return null;
 	}
 
 	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
-		String query = properties.getValue(propQuery.name);
+		String query = properties.getValue(propQuery);
 		try {
 			SearchRequest request = client.getNewSearchRequest();
 			request.setQueryString(query);

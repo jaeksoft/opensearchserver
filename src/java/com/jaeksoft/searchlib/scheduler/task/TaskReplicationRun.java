@@ -55,7 +55,7 @@ public class TaskReplicationRun extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, String property)
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
 			throws SearchLibException {
 		ReplicationList replicationList = config.getReplicationList();
 		List<String> nameList = replicationList.getNameList();
@@ -68,11 +68,16 @@ public class TaskReplicationRun extends TaskAbstract {
 	}
 
 	@Override
+	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		return null;
+	}
+
+	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
 		ReplicationMaster replicationMaster = client.getReplicationMaster();
 		ReplicationList replicationList = client.getReplicationList();
-		String replicationName = properties.getValue(propReplicationName.name);
+		String replicationName = properties.getValue(propReplicationName);
 		if (replicationName == null)
 			return;
 		ReplicationItem replicationItem = replicationList.get(replicationName);

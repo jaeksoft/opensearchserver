@@ -53,7 +53,7 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, String property)
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
 			throws SearchLibException {
 		DatabaseCrawlList crawlList = config.getDatabaseCrawlList();
 		DatabaseCrawl[] crawls = crawlList.getArray();
@@ -66,11 +66,16 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	}
 
 	@Override
+	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		return null;
+	}
+
+	@Override
 	public void execute(Client client, TaskProperties properties)
 			throws SearchLibException {
 		DatabaseCrawlMaster crawlMaster = client.getDatabaseCrawlMaster();
 		DatabaseCrawlList crawlList = client.getDatabaseCrawlList();
-		String crawlName = properties.getValue(propCrawlName.name);
+		String crawlName = properties.getValue(propCrawlName);
 		if (crawlName == null)
 			return;
 		DatabaseCrawl crawl = crawlList.get(crawlName);

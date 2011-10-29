@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,13 +26,18 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.io.UnsupportedEncodingException;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.io.FileSystemUtils;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.StringBody;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.Version;
 
 public class Monitor {
 
@@ -56,6 +61,18 @@ public class Monitor {
 
 	public long getTotalMemory() {
 		return runtime.totalMemory();
+	}
+
+	public String getVersion() {
+		try {
+			Version version = CommonController.getSyncVersion();
+			if (version == null)
+				return null;
+			return version.toString();
+		} catch (IOException e) {
+			Logging.warn(e);
+			return null;
+		}
 	}
 
 	public double getMemoryRate() {
@@ -112,25 +129,28 @@ public class Monitor {
 			SearchLibException, SecurityException, IOException {
 		xmlWriter.startElement("system");
 
-		xmlWriter.startElement("availableProcessors", "value", Integer
-				.toString(getAvailableProcessors()));
+		xmlWriter.startElement("version", "value", getVersion());
 		xmlWriter.endElement();
 
-		xmlWriter.startElement("freeMemory", "value", Long
-				.toString(getFreeMemory()), "rate", Double
-				.toString(getMemoryRate()));
+		xmlWriter.startElement("availableProcessors", "value",
+				Integer.toString(getAvailableProcessors()));
 		xmlWriter.endElement();
 
-		xmlWriter.startElement("maxMemory", "value", Long
-				.toString(getMaxMemory()));
+		xmlWriter.startElement("freeMemory", "value",
+				Long.toString(getFreeMemory()), "rate",
+				Double.toString(getMemoryRate()));
 		xmlWriter.endElement();
 
-		xmlWriter.startElement("totalMemory", "value", Long
-				.toString(getTotalMemory()));
+		xmlWriter.startElement("maxMemory", "value",
+				Long.toString(getMaxMemory()));
 		xmlWriter.endElement();
 
-		xmlWriter.startElement("indexCount", "value", Integer
-				.toString(getIndexCount()));
+		xmlWriter.startElement("totalMemory", "value",
+				Long.toString(getTotalMemory()));
+		xmlWriter.endElement();
+
+		xmlWriter.startElement("indexCount", "value",
+				Integer.toString(getIndexCount()));
 		xmlWriter.endElement();
 
 		Double rate = getDiskRate();
@@ -159,5 +179,49 @@ public class Monitor {
 		}
 
 		xmlWriter.endElement();
+	}
+
+	private final void addIfNotNull(MultipartEntity reqEntity, String name,
+			String value) throws UnsupportedEncodingException {
+		if (value == null)
+			return;
+		reqEntity.addPart(name.replace('.', '_'), new StringBody(value));
+	}
+
+	public void writeToPost(MultipartEntity reqEntity)
+			throws SearchLibException {
+
+		try {
+			addIfNotNull(reqEntity, "version", getVersion());
+			addIfNotNull(reqEntity, "availableProcessors",
+					Integer.toString(getAvailableProcessors()));
+			addIfNotNull(reqEntity, "freeMemory",
+					Long.toString(getFreeMemory()));
+			addIfNotNull(reqEntity, "freeMemoryRate",
+					Double.toString(getMemoryRate()));
+			addIfNotNull(reqEntity, "maxMemory", Long.toString(getMaxMemory()));
+			addIfNotNull(reqEntity, "totalMemory",
+					Long.toString(getTotalMemory()));
+			addIfNotNull(reqEntity, "indexCount",
+					Integer.toString(getIndexCount()));
+			addIfNotNull(reqEntity, "freeDiskSpace", getFreeDiskSpace()
+					.toString());
+
+			Double rate = getDiskRate();
+			if (rate != null)
+				addIfNotNull(reqEntity, "freeDiskRate", rate.toString());
+
+			addIfNotNull(reqEntity, "dataDirectoryPath", getDataDirectoryPath());
+
+			for (Entry<Object, Object> prop : getProperties())
+				addIfNotNull(reqEntity, "property_" + prop.getKey().toString(),
+						prop.getValue().toString());
+
+		} catch (SecurityException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+
 	}
 }

@@ -89,7 +89,9 @@ public class TaskItem {
 			Node propNode = nodeList.item(i);
 			String name = XPathParser.getAttributeString(propNode, "name");
 			String value = xpp.getNodeString(propNode);
-			taskItem.userProperties.setValue(name, value);
+			TaskPropertyDef propDef = taskAbstract.findProperty(name);
+			if (propDef != null)
+				taskItem.userProperties.setValue(propDef, value);
 		}
 		return taskItem;
 	}

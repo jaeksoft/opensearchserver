@@ -46,7 +46,7 @@ public class TaskProperty {
 		this.config = config;
 		this.task = task;
 		this.propertyDef = propertyDef;
-		setValue(null);
+		setValue(task.getDefaultValue(config, propertyDef));
 	}
 
 	protected TaskProperty(TaskProperty taskPropSource) {
@@ -99,7 +99,7 @@ public class TaskProperty {
 	 * @throws SearchLibException
 	 */
 	public String[] getValueList() throws SearchLibException {
-		return task.getPropertyValues(config, propertyDef.name);
+		return task.getPropertyValues(config, propertyDef);
 	}
 
 	/**
@@ -109,9 +109,10 @@ public class TaskProperty {
 	 */
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("property", "name", propertyDef.name);
-		if (propertyDef.type == TaskPropertyType.password)
-			xmlWriter.textNode(StringUtils.base64encode(value));
-		else
+		if (propertyDef.type == TaskPropertyType.password) {
+			if (value != null && value.length() > 0)
+				xmlWriter.textNode(StringUtils.base64encode(value));
+		} else
 			xmlWriter.textNode(value);
 		xmlWriter.endElement();
 	}

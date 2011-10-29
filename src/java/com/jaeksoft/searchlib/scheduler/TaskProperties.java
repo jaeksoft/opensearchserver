@@ -36,13 +36,13 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class TaskProperties {
 
-	private Map<String, TaskProperty> map;
+	private Map<TaskPropertyDef, TaskProperty> map;
 
 	private TaskProperty[] cache;
 
 	public TaskProperties(Config config, TaskAbstract task,
 			TaskPropertyDef[] propertyDefs) {
-		map = new LinkedHashMap<String, TaskProperty>();
+		map = new LinkedHashMap<TaskPropertyDef, TaskProperty>();
 		if (propertyDefs == null)
 			return;
 		cache = new TaskProperty[propertyDefs.length];
@@ -50,7 +50,7 @@ public class TaskProperties {
 		for (TaskPropertyDef propertyDef : propertyDefs) {
 			TaskProperty taskProperty = new TaskProperty(config, task,
 					propertyDef);
-			map.put(propertyDef.name, taskProperty);
+			map.put(propertyDef, taskProperty);
 			cache[i++] = taskProperty;
 		}
 	}
@@ -59,15 +59,15 @@ public class TaskProperties {
 		return cache;
 	}
 
-	public String getValue(String propertyName) {
-		TaskProperty prop = map.get(propertyName);
+	public String getValue(TaskPropertyDef propertyDef) {
+		TaskProperty prop = map.get(propertyDef);
 		if (prop == null)
 			return null;
 		return prop.getValue();
 	}
 
-	public void setValue(String propertyName, String value) {
-		TaskProperty prop = map.get(propertyName);
+	public void setValue(TaskPropertyDef propertyDef, String value) {
+		TaskProperty prop = map.get(propertyDef);
 		if (prop == null)
 			return;
 		if (prop.getType() == TaskPropertyType.password)

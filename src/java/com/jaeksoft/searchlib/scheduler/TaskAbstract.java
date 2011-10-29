@@ -58,8 +58,8 @@ public abstract class TaskAbstract {
 	 * @param property
 	 * @return an array with the possible value name
 	 */
-	public abstract String[] getPropertyValues(Config config, String property)
-			throws SearchLibException;
+	public abstract String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef) throws SearchLibException;
 
 	/**
 	 * Implements the task execution
@@ -70,5 +70,31 @@ public abstract class TaskAbstract {
 	 */
 	public abstract void execute(Client client, TaskProperties properties)
 			throws SearchLibException;
+
+	/**
+	 * Returns the default value of the property
+	 * 
+	 * @param config
+	 * @param propertyDef
+	 * @return
+	 */
+	public abstract String getDefaultValue(Config config,
+			TaskPropertyDef propertyDef);
+
+	/**
+	 * Find a propertyDef from its name
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public TaskPropertyDef findProperty(String name) {
+		TaskPropertyDef[] propDefs = getPropertyList();
+		if (propDefs == null)
+			return null;
+		for (TaskPropertyDef propDef : propDefs)
+			if (propDef.name.equals(name))
+				return propDef;
+		return null;
+	}
 
 }

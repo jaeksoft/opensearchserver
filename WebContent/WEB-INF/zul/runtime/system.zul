@@ -37,6 +37,12 @@
 					</columns>
 					<rows>
 						<row>
+							<label value="Version" />
+							<label value="@{system.monitor.version}" />
+							<label
+								value="The running OpenSearchServer version" />
+						</row>
+						<row>
 							<label value="Available processors" />
 							<label
 								value="@{system.monitor.availableProcessors}" />
