@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.web;
 
-import java.io.InputStream;
+import java.io.IOException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -53,14 +53,27 @@ public class StartStopListener implements ServletContextListener {
 		return new ClientFactory();
 	}
 
-	public static ServletContext servletContext;
+	private static Version version = null;
+
+	public static final synchronized Version getVersion() {
+		return version;
+	}
+
+	protected String getEdition() {
+		return "community edition";
+	}
 
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		Logging.initLogger();
 		Logging.info("OSS IS STARTING");
 
-		servletContext = contextEvent.getServletContext();
+		ServletContext servletContext = contextEvent.getServletContext();
+		try {
+			version = new Version(servletContext, getEdition());
+		} catch (IOException e) {
+			Logging.error(e);
+		}
 
 		ClientFactory.setInstance(getClientFactory());
 		try {
@@ -71,9 +84,4 @@ public class StartStopListener implements ServletContextListener {
 		ClientCatalog.openAll();
 	}
 
-	public static InputStream getResourceAsStream(String path) {
-		if (servletContext == null)
-			return null;
-		return servletContext.getResourceAsStream(path);
-	}
 }

@@ -36,8 +36,8 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.controller.CommonController;
-import com.jaeksoft.searchlib.web.controller.Version;
+import com.jaeksoft.searchlib.web.StartStopListener;
+import com.jaeksoft.searchlib.web.Version;
 
 public class Monitor {
 
@@ -64,15 +64,10 @@ public class Monitor {
 	}
 
 	public String getVersion() {
-		try {
-			Version version = CommonController.getSyncVersion();
-			if (version == null)
-				return null;
-			return version.toString();
-		} catch (IOException e) {
-			Logging.warn(e);
+		Version version = StartStopListener.getVersion();
+		if (version == null)
 			return null;
-		}
+		return version.toString();
 	}
 
 	public double getMemoryRate() {

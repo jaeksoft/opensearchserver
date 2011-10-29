@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller;
+package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Properties;
 
-import com.jaeksoft.searchlib.web.StartStopListener;
+import javax.servlet.ServletContext;
 
 public class Version {
 
@@ -44,11 +44,12 @@ public class Version {
 
 	private String build = null;
 
-	public Version(String edition) throws IOException {
+	public Version(ServletContext servletContext, String edition)
+			throws IOException {
 		InputStream is = null;
 		try {
 			this.edition = edition;
-			is = StartStopListener.getResourceAsStream("/version");
+			is = servletContext.getResourceAsStream("/version");
 			if (is == null)
 				return;
 			Properties properties = new Properties();
