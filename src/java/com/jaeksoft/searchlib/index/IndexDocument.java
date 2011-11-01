@@ -43,6 +43,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
@@ -132,6 +133,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		int binaryCount = binaryNodes.getLength();
 		for (int i = 0; i < binaryCount; i++) {
 			Node node = binaryNodes.item(i);
+			boolean bFaultTolerant = "yes".equalsIgnoreCase(XPathParser
+					.getAttributeString(node, "faultTolerant"));
 			String filename = XPathParser.getAttributeString(node, "fileName");
 			if (filename == null || filename.length() == 0)
 				filename = XPathParser.getAttributeString(node, "filename");
@@ -145,6 +148,20 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 						"contenttype");
 			String content = node.getTextContent();
 			String url = XPathParser.getAttributeString(node, "url");
+			Parser parser = doBinary(url, content, filePath, filename,
+					parserSelector, contentType, urlDefaultCredential,
+					bFaultTolerant);
+			if (parser != null)
+				parser.populate(this);
+		}
+	}
+
+	private Parser doBinary(String url, String content, String filePath,
+			String filename, ParserSelector parserSelector, String contentType,
+			CredentialItem urlDefaultCredential, boolean bFaultTolerant)
+			throws IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
+		try {
 			Parser parser = null;
 			if (url != null)
 				parser = binaryFromUrl(parserSelector, url,
@@ -155,9 +172,36 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			else if (filePath != null && filePath.length() > 0)
 				parser = binaryFromFile(parserSelector, filename, contentType,
 						filePath);
-			if (parser != null)
-				parser.populate(this);
+			return parser;
+		} catch (IOException e) {
+			if (!bFaultTolerant)
+				throw e;
+			Logging.error(e);
+		} catch (URISyntaxException e) {
+			if (!bFaultTolerant)
+				throw e;
+			Logging.error(e);
+		} catch (InstantiationException e) {
+			if (!bFaultTolerant)
+				throw e;
+			Logging.error(e);
+		} catch (IllegalAccessException e) {
+			if (!bFaultTolerant)
+				throw e;
+			Logging.error(e);
+		} catch (ClassNotFoundException e) {
+			if (!bFaultTolerant)
+				throw e;
+		} catch (SearchLibException e) {
+			if (!bFaultTolerant)
+				throw e;
+			Logging.error(e);
+		} catch (NullPointerException e) {
+			if (!bFaultTolerant)
+				throw e;
+			Logging.error(e);
 		}
+		return null;
 	}
 
 	private Parser binaryFromUrl(ParserSelector parserSelector, String url,
@@ -174,8 +218,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			parser.parseContent(httpDownloader.getContent());
 			return parser;
 		} catch (IOException e) {
-			throw new SearchLibException("While getting binary from URL: "
-					+ url, e);
+			throw new SearchLibException(
+					"Parser error while getting binary from URL: " + url, e);
 		} finally {
 			httpDownloader.release();
 		}
