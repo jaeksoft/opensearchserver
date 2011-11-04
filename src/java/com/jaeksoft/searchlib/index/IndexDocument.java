@@ -192,6 +192,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		} catch (ClassNotFoundException e) {
 			if (!bFaultTolerant)
 				throw e;
+			Logging.error(e);
 		} catch (SearchLibException e) {
 			if (!bFaultTolerant)
 				throw e;
@@ -199,6 +200,18 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		} catch (NullPointerException e) {
 			if (!bFaultTolerant)
 				throw e;
+			Logging.error(e);
+		} catch (IllegalArgumentException e) {
+			if (!bFaultTolerant)
+				throw e;
+			Logging.error(e);
+		} catch (RuntimeException e) {
+			if (!bFaultTolerant)
+				throw new SearchLibException(e);
+			Logging.error(e);
+		} catch (Exception e) {
+			if (!bFaultTolerant)
+				throw new SearchLibException(e);
 			Logging.error(e);
 		}
 		return null;

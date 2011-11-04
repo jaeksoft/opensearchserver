@@ -133,6 +133,12 @@ public class Logging {
 		logger.error(msg);
 	}
 
+	public final static void error(Exception e) {
+		if (noLogger(System.out, e.getMessage(), e))
+			return;
+		logger.error(e.getMessage(), e);
+	}
+
 	public final static void warn(Object msg, Exception e) {
 		if (noLogger(System.err, msg, e))
 			return;
@@ -145,6 +151,12 @@ public class Logging {
 		logger.warn(msg);
 	}
 
+	public final static void warn(Exception e) {
+		if (noLogger(System.err, e.getMessage(), e))
+			return;
+		logger.warn(e.getMessage(), e);
+	}
+
 	public final static void info(Object msg, Exception e) {
 		if (noLogger(System.out, msg, e))
 			return;
@@ -155,6 +167,12 @@ public class Logging {
 		if (noLogger(System.out, msg, null))
 			return;
 		logger.info(msg);
+	}
+
+	public final static void info(Exception e) {
+		if (noLogger(System.out, e.getMessage(), e))
+			return;
+		logger.info(e.getMessage(), e);
 	}
 
 	public final static String readLogs(int lines, String fileName)
