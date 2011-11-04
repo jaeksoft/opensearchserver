@@ -202,6 +202,9 @@ public class WriterLocal extends WriterAbstract {
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
 			String uniqueFieldValue = doc.get(uniqueFieldName);
+			if (uniqueFieldValue == null)
+				throw new SearchLibException("The unique value is missing ("
+						+ uniqueFieldName + ")");
 			indexWriter.updateDocument(new Term(uniqueFieldName,
 					uniqueFieldValue), doc, pfa);
 		} else
