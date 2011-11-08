@@ -173,26 +173,6 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 				parser = binaryFromFile(parserSelector, filename, contentType,
 						filePath);
 			return parser;
-		} catch (IOException e) {
-			if (!bFaultTolerant)
-				throw e;
-			Logging.error(e);
-		} catch (URISyntaxException e) {
-			if (!bFaultTolerant)
-				throw e;
-			Logging.error(e);
-		} catch (InstantiationException e) {
-			if (!bFaultTolerant)
-				throw e;
-			Logging.error(e);
-		} catch (IllegalAccessException e) {
-			if (!bFaultTolerant)
-				throw e;
-			Logging.error(e);
-		} catch (ClassNotFoundException e) {
-			if (!bFaultTolerant)
-				throw e;
-			Logging.error(e);
 		} catch (SearchLibException e) {
 			if (!bFaultTolerant)
 				throw e;
@@ -218,9 +198,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	}
 
 	private Parser binaryFromUrl(ParserSelector parserSelector, String url,
-			CredentialItem credentialItem) throws IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+			CredentialItem credentialItem) throws SearchLibException {
 		HttpDownloader httpDownloader = new HttpDownloader(null, false, null, 0);
 		try {
 			httpDownloader.get(new URI(url), credentialItem);
@@ -230,7 +208,10 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 				return null;
 			parser.parseContent(httpDownloader.getContent());
 			return parser;
-		} catch (IOException e) {
+		} catch (RuntimeException e) {
+			throw new SearchLibException(
+					"Parser error while getting binary from URL: " + url, e);
+		} catch (Exception e) {
 			throw new SearchLibException(
 					"Parser error while getting binary from URL: " + url, e);
 		} finally {
@@ -240,27 +221,43 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 
 	private Parser binaryFromBase64(ParserSelector parserSelector,
 			String filename, String contentType, String content)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException, IOException {
-		Parser parser = parserSelector.getParser(filename, contentType);
-		if (parser == null)
-			return null;
-		parser.parseContentBase64(content);
-		return parser;
+			throws SearchLibException {
+		try {
+			Parser parser = parserSelector.getParser(filename, contentType);
+			if (parser == null)
+				return null;
+			parser.parseContentBase64(content);
+			return parser;
+		} catch (RuntimeException e) {
+			throw new SearchLibException("Parser error while getting binary : "
+					+ filename + " /" + contentType, e);
+		} catch (Exception e) {
+			throw new SearchLibException("Parser error while getting binary : "
+					+ filename + " /" + contentType, e);
+		}
 	}
 
 	private Parser binaryFromFile(ParserSelector parserSelector,
 			String filename, String contentType, String filePath)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException, IOException {
-		Parser parser = parserSelector.getParser(filename, contentType);
-		if (parser == null)
-			return null;
-		File f = new File(filePath);
-		if (f.isDirectory())
-			f = new File(f, filename);
-		parser.parseContent(f);
-		return parser;
+			throws SearchLibException {
+		try {
+			Parser parser = parserSelector.getParser(filename, contentType);
+			if (parser == null)
+				return null;
+			File f = new File(filePath);
+			if (f.isDirectory())
+				f = new File(f, filename);
+			parser.parseContent(f);
+			return parser;
+		} catch (RuntimeException e) {
+			throw new SearchLibException(
+					"Parser error while getting binary from file : " + filePath
+							+ " /" + filename, e);
+		} catch (Exception e) {
+			throw new SearchLibException(
+					"Parser error while getting binary from file : " + filePath
+							+ " /" + filename, e);
+		}
 	}
 
 	public IndexDocument(IndexDocument sourceDocument) {
