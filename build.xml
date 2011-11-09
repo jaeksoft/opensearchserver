@@ -113,7 +113,7 @@
 		</war>
 	</target>
 
-	<target name="dist" depends="dist-war-release,dist-war-debug">
+	<target name="dist" depends="dist-war-release,dist-war-debug,php-client,aspnet-client">
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
@@ -212,9 +212,23 @@
 
 	</target>
 
+	<!-- The tarball -->
 	<target name="dist-src">
 		<mkdir dir="${dist}" />
 		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**" />
+	</target>
+
+	<!-- The PHP library archive -->
+	<target name="php-client">
+		<mkdir dir="${dist}" />
+		<tar compression="gzip" destfile="${dist}/${name-release}_php-client.tar.gz" basedir="${src.php}" />
+		<zip encoding="windows-1250" destfile="${dist}/${name-release}_php-client.zip" basedir="${src.php}" />
+	</target>
+
+	<!-- The ASP.NET library archive -->
+	<target name="aspnet-client">
+		<mkdir dir="${dist}" />
+		<zip encoding="windows-1250" destfile="${dist}/${name-release}_aspnet-client.zip" basedir="${src.asp}" />
 	</target>
 
 	<target name="javadoc">
