@@ -2,7 +2,7 @@
 /*
  *  This file is part of OpenSearchServer.
  *
- *  Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ *  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  *
  *  http://www.open-search-server.com
  *
@@ -29,20 +29,20 @@
 header('Content-type: text/html; charset=UTF-8');
 
 define('BASE_DIR', dirname(__FILE__));
-require BASE_DIR.'/../lib/misc.lib.php';
-require BASE_DIR.'/../lib/OSS_API.class.php';
-require BASE_DIR.'/../lib/OSS_Search.class.php';
-require BASE_DIR.'/../lib/OSS_Results.class.php';
-require BASE_DIR.'/../lib/OSS_Paging.class.php';
+require BASE_DIR.'/../lib/oss_misc.lib.php';
+require BASE_DIR.'/../lib/oss_api.class.php';
+require BASE_DIR.'/../lib/oss_search.class.php';
+require BASE_DIR.'/../lib/oss_results.class.php';
+require BASE_DIR.'/../lib/oss_paging.class.php';
 
 define('MAX_PAGE_TO_LINK', 10);
 define('MAX_RESULT_PER_PAGE', 15);
 
-$ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
-$ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
-$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_websearch', 'webCrawler', 'engineIndex');
-$ossEngineLogin = configRequestValue('ossEngineLogin_contrib_filesearch', '', 'engineLogin');
-$ossEngineApiKey = configRequestValue('ossEngineApiKey_contrib_filesearch', '', 'engineApiKey');
+$ossEnginePath  = config_request_value('ossEnginePath', 'http://localhost:8080', 'engineURL');
+$ossEngineConnectTimeOut = config_request_value('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
+$ossEngineIndex = config_request_value('ossEngineIndex_contrib_websearch', 'webCrawler', 'engineIndex');
+$ossEngineLogin = config_request_value('ossEngineLogin_contrib_filesearch', '', 'engineLogin');
+$ossEngineApiKey = config_request_value('ossEngineApiKey_contrib_filesearch', '', 'engineApiKey');
 
 if (isset($_REQUEST['query'])) {
 
@@ -53,7 +53,7 @@ if (isset($_REQUEST['query'])) {
 	$rows  = isset($rows) ? max(1, min($rows, 50)) : MAX_RESULT_PER_PAGE;
 	$start = isset($start)    ? max(0, $start-1) * $rows : 0;
 
-	$search = new OSS_Search($ossEnginePath, $ossEngineIndex, $rows, $start);
+	$search = new OSSSearch($ossEnginePath, $ossEngineIndex, $rows, $start);
 	if (!empty($ossEngineLogin) && !empty($ossEngineApiKey)) {
 		$search->credential($ossEngineLogin, $ossEngineApiKey);
 	}
@@ -72,8 +72,8 @@ if (isset($_REQUEST['query'])) {
 	->execute($ossEngineConnectTimeOut);
 
 	if ($result instanceof SimpleXMLElement) {
-		$ossResults = new OSS_Results($result);
-		$ossPaging = new OSS_Paging($result);
+		$ossResults = new OSSResults($result);
+		$ossPaging = new OSSPaging($result);
 	}
 }
 ?>
@@ -189,7 +189,7 @@ function fsubmit()
 		<div class="lateralBorders" style="border-color: #EDEDED;">
 		<div class="lateralBorders" style="border-color: #E0E0E0;">
 		<div class="lateralBorders" style="padding: 15px; border-color: #B8B8B8;">
-		
+
 		<div id="options">
 			<form action="<?php echo basename(__FILE__); ?>" method="POST">
 				<fieldset id="option_fieldset">
@@ -203,13 +203,13 @@ function fsubmit()
 			<div id="options_title"
 				onclick="javascript:toggleClass(this.parentNode, 'show'); return false;">Options</div>
 			</div>
-		
+
 			<form action="<?php echo basename(__FILE__); ?>" name="search" method="GET">
 				<fieldset id="query_fieldset">
 					<input id="query" name="query" value="<?php if (isset($_REQUEST['query'])) echo htmlspecialchars($_REQUEST['query']); ?>" />
 					<input id="submit" type="submit" value="" />
 				</fieldset>
-			
+
 				<?php if (isset($search)): ?>
 					<p>You queried the search engine with the following call:<br />
 						<a style="padding-left: 15px;" class="lastQueryQtring" href="<?php echo $search->getLastQueryString(); ?>" target="_blank"><?php echo htmlentities(urldecode($search->getLastQueryString())); ?></a>
@@ -218,7 +218,7 @@ function fsubmit()
 
 				<?php if (isset($ossResults)): ?>
 					<?php if ($ossResults->getResultFound()): ?>
-					
+
 					<div class="result">
 						<span>Found
 							<?php if ($ossResults->getResultFound() == 1): ?>1 result
@@ -227,7 +227,7 @@ function fsubmit()
 						</span>
 						<span>(<?php printf('%0.2fs', $ossResults->getResultTime()); ?>)</span>
 					</div>
-					
+
 					<?php if (isset($ossResults) && count($ossResults->getFacets())): ?>
 					<div id="langs">
 						<?php foreach ($ossResults->getFacets() as $facet): ?>
@@ -244,20 +244,20 @@ function fsubmit()
 					</div>
 					<?php endif; ?>
 				</form>
-			
+
 				<div class="result">
 					<ul>
 						<?php
 							$max = ($ossResults->getResultStart() + $ossResults->getResultRows()> $ossResults->getResultFound())?$ossResults->getResultFound():$ossResults->getResultStart() + $ossResults->getResultRows();
 							for ($i = $ossResults->getResultStart(); $i < $max; $i++):
-							
+
 							$indice = $i +1;
 							$title	 = $ossResults->getField($i, 'title', true);
 							$url	 = $ossResults->getField($i, 'url');
 							$host	 = $ossResults->getField($i, 'host');
 							$type	 = $ossResults->getField($i, 'contentBaseType');
 							$content = $ossResults->getField($i, 'content', true);
-							
+
 							$subType = preg_replace('/^[^\/]+\//', '', $type);
 							?>
 							<?php if ($type == 'text/html' && !empty($content)): ?>
@@ -291,21 +291,21 @@ function fsubmit()
 							<?php if ($ossPaging->getResultLow() > 0):?>
 								<li><a href="<?php echo $ossPaging->getPageBaseURI(), 0; ?>">First&lt;&lt;</a></li>
 							<?php endif;?>
-						
+
 							<?php if ($ossPaging->getResultPrev() < $ossPaging->getResultLow()):?>
 								<li><a href="<?php echo $ossPaging->getPageBaseURI(), $ossPaging->getResultPrev(); ?>">Prev&lt;&lt;</a></li>
 							<?php endif;?>
-						
+
 							<?php for ($i = $ossPaging->getResultLow(); $i < $ossPaging->getResultHigh(); $i++): ?>
 								<li><a href="<?php echo $ossPaging->getPageBaseURI(), $i+1; ?>"
 							<?php if ($i == $ossPaging->getResultCurrentPage()): ?>
 								class="currentPage" <?php endif; ?>><?php echo $i + 1; ?></a></li>
 							<?php endfor;?>
-						
+
 							<?php if ($ossPaging->getResultNext() > $ossPaging->getResultHigh()):?>
 								<li><a href="<?php echo $ossPaging->getPageBaseURI(), $ossPaging->getResultNext(); ?>">&gt;&gt;Next</a></li>
 							<?php endif;?>
-						
+
 							<?php if ($ossPaging->getResultHigh()+1 < $ossPaging->getResultTotal()):?>
 								<li><a href="<?php echo $ossPaging->getPageBaseURI(), $ossPaging->getResultTotal(); ?>">&gt;&gt;Last</a></li>
 							<?php endif;?>
@@ -324,3 +324,4 @@ function fsubmit()
 	</div>
 </body>
 </html>
+

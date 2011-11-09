@@ -2,7 +2,7 @@
 /*
  *  This file is part of OpenSearchServer.
  *
- *  Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ *  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  *
  *  http://www.open-search-server.com
  *
@@ -30,25 +30,25 @@
 header('Content-type: text/html; charset=UTF-8');
 
 define('BASE_DIR', dirname(__FILE__));
-require BASE_DIR.'/../lib/misc.lib.php';
-require BASE_DIR.'/../lib/OSS_API.class.php';
-require BASE_DIR.'/../lib/OSS_Search.class.php';
+require BASE_DIR.'/../lib/oss_misc.lib.php';
+require BASE_DIR.'/../lib/oss_api.class.php';
+require BASE_DIR.'/../lib/oss_search.class.php';
 
 define('MAX_PAGE_TO_LINK', 10);
 
-$ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
-$ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
-$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_filesearch', 'fileCrawler', 'engineIndex');
-$ossEngineLogin = configRequestValue('ossEngineLogin_contrib_filesearch', '', 'engineLogin');
-$ossEngineApiKey = configRequestValue('ossEngineApiKey_contrib_filesearch', '', 'engineApiKey');
+$ossEnginePath  = config_request_value('ossEnginePath', 'http://localhost:8080', 'engineURL');
+$ossEngineConnectTimeOut = config_request_value('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
+$ossEngineIndex = config_request_value('ossEngineIndex_contrib_filesearch', 'fileCrawler', 'engineIndex');
+$ossEngineLogin = config_request_value('ossEngineLogin_contrib_filesearch', '', 'engineLogin');
+$ossEngineApiKey = config_request_value('ossEngineApiKey_contrib_filesearch', '', 'engineApiKey');
 
 if (isset($_REQUEST['query'])) {
-	
-	$search = new OSS_Search($ossEnginePath, $ossEngineIndex);
+
+	$search = new OSSSearch($ossEnginePath, $ossEngineIndex);
 	if (!empty($ossEngineLogin) && !empty($ossEngineApiKey)) {
 		$search->credential($ossEngineLogin, $ossEngineApiKey);
 	}
-	
+
 	if (!empty($_REQUEST['lang'])) {
 		$search->lang($_REQUEST['lang'])
 			   ->filter('lang:'.$_REQUEST['lang']);
@@ -178,7 +178,7 @@ if (isset($_REQUEST['query'])) {
 							<label>&nbsp;</label><input type="submit" value="save">
 						</fieldset>
 					</form>
-					<div id="options_title" onclick="javascript:toggleClass(this.parentNode, 'show'); return false;">Options</div>
+					<div id="options_title" onclick="javascript:toggleClass(this.parentNode, 'show'); return false; ">Options</div>
 				</div>
 				<form action="<?php echo basename(__FILE__); ?>" method="GET">
 
@@ -282,3 +282,4 @@ if (isset($_REQUEST['query'])) {
 		</div>
 	</body>
 </html>
+
