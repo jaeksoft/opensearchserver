@@ -2,7 +2,7 @@
 /*
  *  This file is part of OpenSearchServer.
  *
- *  Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ *  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  *
  *  http://www.open-search-server.com
  *
@@ -29,13 +29,13 @@
 header('Content-type: text/html; charset=UTF-8');
 
 define('BASE_DIR', dirname(__FILE__));
-require BASE_DIR.'/../lib/misc.lib.php';
-require BASE_DIR.'/../lib/OSS_API.class.php';
-require BASE_DIR.'/../lib/OSS_IndexDocument.class.php';
+require BASE_DIR.'/../lib/oss_misc.lib.php';
+require BASE_DIR.'/../lib/oss_api.class.php';
+require BASE_DIR.'/../lib/oss_indexdocument.class.php';
 
-$ossEnginePath  = configRequestValue('ossEnginePath', 'http://localhost:8080', 'engineURL');
-$ossEngineConnectTimeOut = configRequestValue('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
-$ossEngineIndex = configRequestValue('ossEngineIndex_contrib_feedIndexing', 'newsFeed', 'engineIndex');
+$ossEnginePath  = config_request_value('ossEnginePath', 'http://localhost:8080', 'engineURL');
+$ossEngineConnectTimeOut = config_request_value('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
+$ossEngineIndex = config_request_value('ossEngineIndex_contrib_feedIndexing', 'newsFeed', 'engineIndex');
 
 $sampleFeed = array(
 	'BlogEEE [fr, RSS2.0]' => array('http://feeds.feedburner.com/blogeee/articles', 'fr'),
@@ -59,14 +59,14 @@ if (isset($_REQUEST['feed'])) {
 		$newsFeedParser = NewsFeedParser::factory($xml);
 
 		// Create the index document with the helper
-		$index = new OSS_IndexDocument();
+		$index = new OSSIndexDocument();
 		// Simple isn't it ?
 		foreach ($newsFeedParser as $newsEntry) {
 			$document = $index->newDocument($_REQUEST['lang']);
 			$document->newField('channel_home', $newsFeedParser->getChannelHome());
 			$document->newField('channel_title', $newsFeedParser->getChannelTitle());
 			$document->newField('channel_subtitle', $newsFeedParser->getChannelSubtitle());
-			
+
 			$document->newField('id',		 $newsEntry->getId());
 			$document->newField('author',	 $newsEntry->getAuthor());
 			$document->newField('link',		 $newsEntry->getLink());
@@ -74,18 +74,18 @@ if (isset($_REQUEST['feed'])) {
 			$document->newField('content',	 strip_tags($newsEntry->getContent()));
 			$document->newField('summary',	 strip_tags($newsEntry->getSummary()));
 			$document->newField('title',	 strip_tags($newsEntry->getTitle()));
-			
+
 		}
-		
+
 		// Send the IndexDocument to the search server
-		$server = new OSS_API($ossEnginePath, $ossEngineIndex);
+		$server = new OSSAPI($ossEnginePath, $ossEngineIndex);
 		if ($server->update($index) === false) {
 			$errors[] = 'failedToUpdate';
 		}
 		else {
 			$feedIsIndexed = true;
 		}
-		
+
 	}
 
 }
@@ -245,3 +245,4 @@ if (isset($_REQUEST['feed'])) {
 	</body>
 </html>
 <?php echo $index->__toString(); ?>
+
