@@ -20,81 +20,85 @@
  *  along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!class_exists('OSS_API')) { trigger_error("OSS_Search won't work whitout OSS_API", E_USER_ERROR); die(); }
+/**
+ * @file
+ * Class to access OpenSearchServer API
+ */
 
- 
-class oss_delete {
+if (!class_exists('OssApi')) {
+  trigger_error("OssSearch won't work whitout OssApi", E_USER_ERROR); die();
+}
 
-	protected $enginePath;
-	protected $index;
-	
-	
-	 
-	 
-	public function __construct($enginePath, $index = null, $login = null, $apiKey = null) {
-		
-		$ossAPI = new OSS_API($enginePath, $index);
+class OssDelete {
 
-		$this->enginePath	= $ossAPI->getEnginePath();
-		$this->index		= $ossAPI->getIndex();
+  protected $enginePath;
+  protected $index;
 
-		$this->credential($login, $apiKey);
+  public function __construct($enginePath, $index = NULL, $login = NULL, $apiKey = NULL) {
+    $ossAPI = new OssApi($enginePath, $index);
+    $this->enginePath  = $ossAPI->getEnginePath();
+    $this->index    = $ossAPI->getIndex();
+    $this->credential($login, $apiKey);
+  }
 
-		 
-	}
- 
-	public function delete($query)
-		{
-			$params = array("q" => $query);	
-			$return = OSS_API::queryServerXML($this->getQueryURL(OSS_API::API_DELETE, $this->index	, OSS_API::API_SCHEMA_DELETE_FIELD, $params));
-			if ($return === false) return false;
-			return true;
-		}
-	public function credential($login, $apiKey) {
-		// Remove credentials
-		if (empty($login)) {
-			$this->login	= null;
-			$this->apiKey	= null;
-			return;
-		}
+  public function delete($query) {
+    $params = array("q" => $query);
+    $return = OssApi::queryServerXML($this->getQueryURL(OssApi::API_DELETE, $this->index  , OssApi::API_SCHEMA_DELETE_FIELD, $params));
+    if ($return === FALSE) {
+      return FALSE;
+    }
+    return TRUE;
+  }
 
-		// Else parse and affect new credentials
-		if (empty($login) || empty($apiKey)) {
-			if (class_exists('OSSException'))
-			throw new UnexpectedValueException('You must provide a login and an api key to use credential.');
-			trigger_error(__CLASS__.'::'.__METHOD__.': You must provide a login and an api key to use credential.', E_USER_ERROR);
-			return false;
-		}
+  public function credential($login, $apiKey) {
+    // Remove credentials
+    if (empty($login)) {
+      $this->login  = NULL;
+      $this->apiKey  = NULL;
+      return;
+    }
 
-		$this->login	= $login;
-		$this->apiKey	= $apiKey;
-	}
-	protected function getQueryURL($apiCall, $index = null, $cmd = null, $options = null) {
-		
-		$path = $this->enginePath.'/'.$apiCall;
-		$chunks = array();
-		
-		if (!empty($index)) $chunks[] = 'use='.urlencode($index);
-		
-		if (!empty($cmd)) $chunks[] = 'cmd='.urlencode($cmd);
-		
-		// If credential provided, include them in the query url
-		if (!empty($this->login)) {
-			$chunks[] = "login=". urlencode($this->login);
-			$chunks[] = "key="	. urlencode($this->apiKey);
-		}
-		
-		// Prepare additionnal parameters
-		if (is_array($options)) {
-			foreach ($options as $argName => $argValue) {
-				$chunks[] = $argName . "=" . urlencode($argValue);
-			}
-		}
-		
-		$path .= (strpos($path, '?') !== false ? '&' : '?') . implode("&", $chunks);
-		
-		return $path;
-	}
+    // Else parse and affect new credentials
+    if (empty($login) || empty($apiKey)) {
+      if (class_exists('OssException')) {
+        throw new UnexpectedValueException('You must provide a login and an api key to use credential.');
+      }
+      trigger_error(__CLASS__ . '::' . __METHOD__ . ': You must provide a login and an api key to use credential.', E_USER_ERROR);
+      return FALSE;
+    }
 
- 
+    $this->login  = $login;
+    $this->apiKey  = $apiKey;
+  }
+
+  protected function getQueryURL($apiCall, $index = NULL, $cmd = NULL, $options = NULL) {
+
+    $path = $this->enginePath . '/' . $apiCall;
+    $chunks = array();
+
+    if (!empty($index)) {
+      $chunks[] = 'use=' . urlencode($index);
+    }
+
+    if (!empty($cmd)) {
+      $chunks[] = 'cmd=' . urlencode($cmd);
+    }
+
+    // If credential provided, include them in the query url
+    if (!empty($this->login)) {
+      $chunks[] = "login=" . urlencode($this->login);
+      $chunks[] = "key="  . urlencode($this->apiKey);
+    }
+
+    // Prepare additionnal parameters
+    if (is_array($options)) {
+      foreach ($options as $argName => $argValue) {
+        $chunks[] = $argName . "=" . urlencode($argValue);
+      }
+    }
+
+    $path .= (strpos($path, '?') !== FALSE ? '&' : '?') . implode("&", $chunks);
+
+    return $path;
+  }
 }
