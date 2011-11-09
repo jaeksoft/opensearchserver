@@ -2,7 +2,7 @@
 <!--   
 	License Agreement for OpenSearchServer
 	
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
 	
 	http://www.open-search-server.com
 	
@@ -28,7 +28,6 @@
 	<property name="src" location="src/java" />
 	<property name="src.php" location="src/php" />
 	<property name="src.asp" location="src/asp" />
-	<property name="src.drupal-module" location="src/drupal-module" />
 	<property name="resources" location="src/resources" />
 	<property name="web" location="WebContent" />
 	<property name="lib" location="lib" />
@@ -159,12 +158,6 @@
 		<copy todir="${dist}/${product}/asp">
 			<fileset dir="${src.asp}" />
 		</copy>
-
-		<!-- Copy Drupal module source -->
-		<copy todir="${dist}/${product}/drupal-module">
-			<fileset dir="${src.drupal-module}" />
-		</copy>
-
 
 		<!-- Check executable file flag for batches -->
 		<chmod perm="ugo+x" type="file">
