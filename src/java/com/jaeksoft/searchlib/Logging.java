@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -200,7 +201,7 @@ public class Logging {
 			sw = new StringWriter();
 			pw = new PrintWriter(sw);
 			for (String l : list)
-				pw.println(l);
+				pw.println(StringEscapeUtils.escapeJava(l));
 			return sw.toString();
 		} finally {
 			if (br != null)
