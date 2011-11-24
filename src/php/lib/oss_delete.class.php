@@ -102,3 +102,4 @@ class OssDelete {
     return $path;
   }
 }
+?>
