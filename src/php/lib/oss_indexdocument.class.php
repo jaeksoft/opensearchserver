@@ -1,6 +1,6 @@
 <?php
 /*
-*  This file is part of OpenSearchServer.
+ *  This file is part of OpenSearchServer.
 *
 *  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
 *
@@ -395,3 +395,4 @@ class OssIndexDocument_Value {
   }
 
 }
+?>
