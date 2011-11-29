@@ -69,7 +69,7 @@ public class TaskUploadMonitor extends TaskAbstract {
 			TaskPropertyType.password, "Password", 20);
 
 	final private TaskPropertyDef propInstanceId = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Instance ID", 20);
+			TaskPropertyType.textBox, "Instance ID", 80);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propUrl, propLogin,
 			propPassword, propInstanceId };
