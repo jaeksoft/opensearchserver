@@ -24,12 +24,11 @@
 
 package com.jaeksoft.searchlib.web.converter;
 
+import java.text.DateFormat;
 import java.util.Date;
 
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zkplus.databind.TypeConverter;
-
-import com.ibm.icu.text.DateFormat;
 
 public class DateConverter implements TypeConverter {
 

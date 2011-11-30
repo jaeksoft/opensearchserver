@@ -93,7 +93,7 @@ public class TaskUploadMonitor extends TaskAbstract {
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		if (propertyDef == propUrl)
-			return "http://www.open-search-server.com/oss-monitor";
+			return "http://www.open-search-server.com/oss-monitor/";
 		return null;
 	}
 
