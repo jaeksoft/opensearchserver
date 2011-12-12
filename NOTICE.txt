@@ -119,3 +119,16 @@ JCIFS
 Copyright © 2010 The JCIFS Project
 http://jcifs.samba.org/
 Rely on LGPL license 2.1
+
+----------------------------------------
+PostgreSQL JDBC Client
+PostgreSQL is released under the PostgreSQL License, a liberal Open Source license, similar to the BSD or MIT licenses.
+PostgreSQL Database Management System (formerly known as Postgres, then as Postgres95)
+Portions Copyright (c) 1996-2010, The PostgreSQL Global Development Group
+http://www.postgresql.org
+
+----------------------------------------
+MySQL Connector/J
+Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
+http://www.mysql.com
+Reply on GPL v2 license with MySQL FOSS exception (LICENSE-MYSQL)	
