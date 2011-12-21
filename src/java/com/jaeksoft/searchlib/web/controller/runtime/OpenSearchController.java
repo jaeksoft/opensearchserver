@@ -85,6 +85,8 @@ public class OpenSearchController extends CommonController {
 		try {
 			openSearchApiList = new ArrayList<OpenSearchApi>();
 			client = getClient();
+			if (client == null)
+				return;
 			ApiManager apiManager = client.getApiManager();
 			if (apiManager.isAvailable()) {
 				if (apiManager.getFieldValue("opensearch") != null)
