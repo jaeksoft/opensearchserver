@@ -188,6 +188,8 @@ public class OpenSearchController extends CommonController {
 			SearchLibException {
 		searchRequest = (Combobox) getFellow("searchRequest");
 		Client client = getClient();
+		if (client == null)
+			return;
 		ApiManager apiManager = client.getApiManager();
 		apiManager.createNewApi(new Api("opensearch", searchRequest.getText(),
 				openSearchApiList));
@@ -198,6 +200,8 @@ public class OpenSearchController extends CommonController {
 			IOException, SAXException, XPathExpressionException,
 			ParserConfigurationException {
 		Client client = getClient();
+		if (client == null)
+			return null;
 		StringBuffer sb = SearchServlet.getOpenSearchApiUrl(getBaseUrl(),
 				"/opensearch", client, getLoggedUser());
 		return sb.toString();
