@@ -31,11 +31,11 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class LogReportManager {
 
@@ -45,7 +45,8 @@ public class LogReportManager {
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
 	public LogReportManager(String indexName) throws IOException {
-		File dirLog = new File(ClientCatalog.OPENSEARCHSERVER_DATA, "logs");
+		File dirLog = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+				"logs");
 		if (!dirLog.exists())
 			dirLog.mkdir();
 		logger = new DailyLogger(dirLog, "report." + indexName, timeStampFormat);

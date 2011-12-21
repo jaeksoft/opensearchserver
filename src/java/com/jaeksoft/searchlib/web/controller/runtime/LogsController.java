@@ -61,7 +61,8 @@ public class LogsController extends CommonController {
 		logFileList = null;
 	}
 
-	private final static String[] buildOrderedLogFiles() {
+	private final static String[] buildOrderedLogFiles()
+			throws SearchLibException {
 		File[] files = Logging.getLogFiles();
 		if (files == null)
 			return null;
@@ -75,13 +76,13 @@ public class LogsController extends CommonController {
 		return names;
 	}
 
-	public String[] getLogFiles() {
+	public String[] getLogFiles() throws SearchLibException {
 		if (logFileList == null)
 			logFileList = buildOrderedLogFiles();
 		return logFileList;
 	}
 
-	public String getCurrentLog() throws IOException {
+	public String getCurrentLog() throws IOException, SearchLibException {
 		if (currentLog == null && selectedFile != null)
 			currentLog = Logging.readLogs(100000, selectedFile);
 		return currentLog;

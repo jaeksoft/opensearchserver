@@ -41,22 +41,24 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.jaeksoft.searchlib.web.StartStopListener;
+
 public class Logging {
 
 	private static Logger logger = null;
 
 	private static void configure() {
 
-		File configLog = new File(ClientCatalog.OPENSEARCHSERVER_DATA,
-				"log4j.properties");
-		if (!configLog.exists()) {
-			PropertyConfigurator.configure(getLoggerProperties());
-			return;
-		}
-
 		Properties props = new Properties();
 		FileReader fileReader = null;
 		try {
+			File configLog = new File(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+					"log4j.properties");
+			if (!configLog.exists()) {
+				PropertyConfigurator.configure(getLoggerProperties());
+				return;
+			}
 			fileReader = new FileReader(configLog);
 			props.load(fileReader);
 			PropertyConfigurator.configure(props);
@@ -64,6 +66,9 @@ public class Logging {
 			BasicConfigurator.configure();
 			e.printStackTrace();
 		} catch (IOException e) {
+			BasicConfigurator.configure();
+			e.printStackTrace();
+		} catch (SearchLibException e) {
 			BasicConfigurator.configure();
 			e.printStackTrace();
 		} finally {
@@ -77,18 +82,19 @@ public class Logging {
 
 	}
 
-	private final static File getLogDirectory() {
-		return new File(ClientCatalog.OPENSEARCHSERVER_DATA, "logs");
+	private final static File getLogDirectory() throws SearchLibException {
+		return new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "logs");
 	}
 
-	public final static File[] getLogFiles() {
+	public final static File[] getLogFiles() throws SearchLibException {
 		File dirLog = getLogDirectory();
 		if (!dirLog.exists())
 			return null;
 		return dirLog.listFiles();
 	}
 
-	private final static Properties getLoggerProperties() {
+	private final static Properties getLoggerProperties()
+			throws SearchLibException {
 		File dirLog = getLogDirectory();
 		if (!dirLog.exists())
 			dirLog.mkdir();
@@ -97,8 +103,8 @@ public class Logging {
 		props.put("log4j.appender.R",
 				"org.apache.log4j.DailyRollingFileAppender");
 		props.put("log4j.appender.R.File", new File(
-				ClientCatalog.OPENSEARCHSERVER_DATA, "logs/oss.log")
-				.getAbsolutePath());
+				StartStopListener.OPENSEARCHSERVER_DATA_FILE, "logs"
+						+ File.separator + "oss.log").getAbsolutePath());
 		props.put("log4j.appender.R.DatePattern", "'.'yyyy-MM-dd");
 		props.put("log4j.appender.R.layout", "org.apache.log4j.PatternLayout");
 		props.put("log4j.appender.R.layout.ConversionPattern",
@@ -177,7 +183,7 @@ public class Logging {
 	}
 
 	public final static String readLogs(int lines, String fileName)
-			throws IOException {
+			throws IOException, SearchLibException {
 		if (fileName == null)
 			return null;
 		File logFile = new File(getLogDirectory(), fileName);

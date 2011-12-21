@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletContext;
@@ -37,6 +38,22 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 
 public class StartStopListener implements ServletContextListener {
+
+	public static File OPENSEARCHSERVER_DATA_FILE = null;
+
+	private static void initDataDir(ServletContext servletContext) {
+		String single_data = System.getenv("OPENSEARCHSERVER_DATA");
+		String multi_data = System.getenv("OPENSEARCHSERVER_MULTIDATA");
+		if (multi_data != null)
+			OPENSEARCHSERVER_DATA_FILE = new File(new File(multi_data),
+					servletContext.getContextPath());
+		else if (single_data != null)
+			OPENSEARCHSERVER_DATA_FILE = new File(single_data);
+		if (!OPENSEARCHSERVER_DATA_FILE.exists())
+			OPENSEARCHSERVER_DATA_FILE.mkdir();
+		System.out.println("OPENSEARCHSERVER_DATA_FILE IS: "
+				+ OPENSEARCHSERVER_DATA_FILE);
+	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
@@ -65,10 +82,13 @@ public class StartStopListener implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
+
+		ServletContext servletContext = contextEvent.getServletContext();
+		initDataDir(servletContext);
+
 		Logging.initLogger();
 		Logging.info("OSS IS STARTING");
 
-		ServletContext servletContext = contextEvent.getServletContext();
 		try {
 			version = new Version(servletContext, getEdition());
 		} catch (IOException e) {

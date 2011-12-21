@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map.Entry;
@@ -74,30 +73,33 @@ public class Monitor {
 		return ((double) getFreeMemory() / (double) getTotalMemory()) * 100;
 	}
 
-	public Long getFreeDiskSpace() throws SearchLibException,
-			SecurityException, IOException {
-		File dataDir = ClientCatalog.getDataDir();
+	public Long getFreeDiskSpace() throws SecurityException, IOException {
 		try {
-			if (dataDir.getClass().getDeclaredMethod("getFreeSpace") != null)
-				return dataDir.getFreeSpace();
+			if (StartStopListener.OPENSEARCHSERVER_DATA_FILE.getClass()
+					.getDeclaredMethod("getFreeSpace") != null)
+				return StartStopListener.OPENSEARCHSERVER_DATA_FILE
+						.getFreeSpace();
 		} catch (NoSuchMethodException e) {
 		}
-		return FileSystemUtils.freeSpaceKb(dataDir.getAbsolutePath()) * 1000;
+		return FileSystemUtils
+				.freeSpaceKb(StartStopListener.OPENSEARCHSERVER_DATA_FILE
+						.getAbsolutePath()) * 1000;
 	}
 
-	public Long getTotalDiskSpace() throws SearchLibException,
-			SecurityException, IOException {
-		File dataDir = ClientCatalog.getDataDir();
+	public Long getTotalDiskSpace() throws SecurityException, IOException {
 		try {
-			if (dataDir.getClass().getDeclaredMethod("getTotalSpace") != null)
-				return dataDir.getTotalSpace();
+			if (StartStopListener.OPENSEARCHSERVER_DATA_FILE.getClass()
+					.getDeclaredMethod("getTotalSpace") != null)
+				return StartStopListener.OPENSEARCHSERVER_DATA_FILE
+						.getTotalSpace();
 		} catch (NoSuchMethodException e) {
 		}
-		return FileSystemUtils.freeSpaceKb(dataDir.getAbsolutePath()) * 1000;
+		return FileSystemUtils
+				.freeSpaceKb(StartStopListener.OPENSEARCHSERVER_DATA_FILE
+						.getAbsolutePath()) * 1000;
 	}
 
-	public Double getDiskRate() throws SecurityException, SearchLibException,
-			IOException {
+	public Double getDiskRate() throws SecurityException, IOException {
 		Long free = getFreeDiskSpace();
 		Long total = getTotalDiskSpace();
 		if (free == null || total == null)
@@ -105,8 +107,8 @@ public class Monitor {
 		return ((double) free / (double) total) * 100;
 	}
 
-	public String getDataDirectoryPath() throws SearchLibException {
-		return ClientCatalog.getDataDir().getAbsolutePath();
+	public String getDataDirectoryPath() {
+		return StartStopListener.OPENSEARCHSERVER_DATA_FILE.getAbsolutePath();
 	}
 
 	public Set<Entry<Object, Object>> getProperties() {

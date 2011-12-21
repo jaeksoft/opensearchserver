@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,14 +25,47 @@
 package com.jaeksoft.searchlib;
 
 import java.io.File;
+import java.io.IOException;
+
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class ClientFactory {
 
 	public static ClientFactory INSTANCE = null;
 
-	public Client newClient(File initFileOrDir, boolean createIndexIfNotExists,
-			boolean disableCrawler) throws SearchLibException {
+	protected Client newClient(File initFileOrDir,
+			boolean createIndexIfNotExists, boolean disableCrawler)
+			throws SearchLibException {
 		return new Client(initFileOrDir, createIndexIfNotExists, disableCrawler);
+	}
+
+	private static boolean isSubDirectory(File base, File child)
+			throws IOException {
+		base = base.getCanonicalFile();
+		child = child.getCanonicalFile();
+		File parentFile = child;
+		while (parentFile != null) {
+			if (base.equals(parentFile)) {
+				return true;
+			}
+			parentFile = parentFile.getParentFile();
+		}
+		return false;
+	}
+
+	final public Client getNewClient(File initFileOrDir,
+			boolean createIndexIfNotExists, boolean disableCrawler)
+			throws SearchLibException {
+		try {
+			if (!isSubDirectory(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+					initFileOrDir))
+				throw new SearchLibException("Security alert: " + initFileOrDir
+						+ " is outside OPENSEARCHSERVER_DATA ("
+						+ StartStopListener.OPENSEARCHSERVER_DATA_FILE + ")");
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+		return newClient(initFileOrDir, createIndexIfNotExists, disableCrawler);
 	}
 
 	public static void setInstance(ClientFactory cf) {
