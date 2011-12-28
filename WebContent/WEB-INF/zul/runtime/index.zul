@@ -34,8 +34,8 @@
 				selected="@{runtime.instanceNotValid}" />
 			<tab id="tabRuntimeLogs" label="Logs"
 				visible="@{runtime.adminOrMonitoringOrNoUser}" />
-				<tab id="tabRuntimeOpenSearch" label="OpenSearch"
-				visible="@{runtime.adminOrMonitoringOrNoUser}" />
+			<tab id="tabRuntimeOpenSearch" label="OpenSearch"
+				visible="@{runtime.isQueryRights}" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -56,10 +56,10 @@
 			<tabpanel>
 				<include src="WEB-INF/zul/runtime/system.zul" />
 			</tabpanel>
-			<tabpanel>
+			<tabpanel fulfill="tabRuntimeLogs.onSelect">
 				<include src="WEB-INF/zul/runtime/logs.zul" />
 			</tabpanel>
-			<tabpanel>
+			<tabpanel fulfill="tabRuntimeOpenSearch.onSelect">
 				<include src="WEB-INF/zul/runtime/opensearch.zul" />
 			</tabpanel>
 		</tabpanels>

@@ -15,8 +15,9 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="logs"
-	use="com.jaeksoft.searchlib.web.controller.runtime.LogsController">
-	<panel title="Logs" border="normal" width="100%" height="100%">
+	use="com.jaeksoft.searchlib.web.controller.runtime.LogsController"
+	border="normal" vflex="true" hflex="true">
+	<panel title="Logs" border="normal" hflex="true" vflex="true">
 		<toolbar>
 			<button label="Reload the file list"
 				forward="onReloadFileList" />
@@ -29,8 +30,8 @@
 		</toolbar>
 		<panelchildren>
 			<hbox spacing="0" width="100%">
-				<listbox width="300px" model="@{logs.logFiles}"
-					rows="40" selectedItem="@{logs.selectedFile}" vflex="true" />
+				<listbox model="@{logs.logFiles}" sizedByContent="true"
+					selectedItem="@{logs.selectedFile}" height="400px" />
 				<textbox id="logview" multiline="true" readonly="true"
 					hflex="true" vflex="true" value="@{logs.currentLog}" />
 			</hbox>
@@ -38,35 +39,12 @@
 	</panel>
 	<script type="text/javascript">
 
-
-
-
-
-
-
-
-
-
-
-
-		
 		<![CDATA[ function toTheEnd(txtBox) { var txtEle =
 		document.getElementById(txtBox); txtEle.scrollTop =
 		txtEle.scrollHeight; } function toTheBegining(txtBox) { var
 		txtEle = document.getElementById(txtBox); txtEle.scrollTop = 0;
 		} ]]>
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-	</script>
+	
+		</script>
 </window>

@@ -75,6 +75,7 @@ public class Client extends Config {
 			ClassNotFoundException {
 		Timer timer = new Timer("Update document " + document.toString());
 		try {
+			checkMaxDocumentLimit(1);
 			return getIndex().updateDocument(getSchema(), document);
 		} finally {
 			getStatisticsList().addUpdate(timer);
@@ -87,6 +88,7 @@ public class Client extends Config {
 			ClassNotFoundException {
 		Timer timer = new Timer("Update " + documents.size() + " documents");
 		try {
+			checkMaxDocumentLimit(documents.size());
 			return getIndex().updateDocuments(getSchema(), documents);
 		} finally {
 			getStatisticsList().addUpdate(timer);
@@ -108,12 +110,14 @@ public class Client extends Config {
 			docList.add(new IndexDocument(this, getParserSelector(), xpp,
 					nodeList.item(i), urlDefaultCredential));
 			if (docList.size() == bufferSize) {
+				checkMaxDocumentLimit(docList.size());
 				docCount += updateDocuments(docList);
 				Logging.info(docCount + " / " + l + " XML document(s) indexed.");
 				docList.clear();
 			}
 		}
 		if (docList.size() > 0) {
+			checkMaxDocumentLimit(docList.size());
 			docCount += updateDocuments(docList);
 			Logging.info(docCount + " / " + l + " XML document(s) indexed.");
 		}
@@ -257,8 +261,11 @@ public class Client extends Config {
 		return getIndex().documents(documentsRequest);
 	}
 
-	public void checkChroot(File file) throws IOException, SearchLibException {
-		ClientFactory.INSTANCE.properties.checkChroot(indexDir, file);
+	protected final void checkMaxDocumentLimit(int additionalCount)
+			throws SearchLibException, IOException {
+		if (ClientFactory.INSTANCE.properties.getMaxDocumentLimit() == 0)
+			return;
+		ClientFactory.INSTANCE.properties.checkMaxDocumentLimit(ClientCatalog
+				.countAllDocuments() + additionalCount);
 	}
-
 }

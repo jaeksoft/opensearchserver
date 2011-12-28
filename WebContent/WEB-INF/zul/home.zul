@@ -49,8 +49,10 @@
 						<label
 							value="@{home.newIndexTemplate.template.description}" />
 					</row>
-					<row spans="3">
+					<row>
+						<cell />
 						<button label="Create" forward="onNewIndex" />
+						<cell />
 					</row>
 				</rows>
 			</grid>
@@ -67,9 +69,10 @@
 		</toolbar>
 		<panelchildren>
 			<listbox id="indexlist" selectedItem="@{home.clientName}"
-				mold="paging" pageSize="20" model="@{home.clientCatalog}">
+				sizedByContent="true" mold="paging" pageSize="20"
+				model="@{home.clientCatalog}">
 				<auxhead>
-					<auxheader align="center" label="Index name" />
+					<auxheader align="center" label="Index" />
 					<auxheader align="center" label="Crawlers"
 						colspan="3" />
 					<auxheader align="center" label="Scheduler"
@@ -79,42 +82,44 @@
 					<auxheader align="center" label="Opt."
 						tooltiptext="Optimization status" />
 					<auxheader align="center" label="Information"
-						colspan="2" />
+						colspan="3" />
 					<auxheader align="center" label="Action" />
+					<auxheader />
 				</auxhead>
 				<listhead>
-					<listheader />
+					<listheader label="name" />
 					<listheader label="Web crawler" align="center" />
 					<listheader label="Database crawler" align="center" />
 					<listheader label="File crawler" align="center" />
-					<listheader label="R"
-						tooltiptext="Number of running jobs" width="40px" align="center" />
-					<listheader label="A"
-						tooltiptext="Number of active jobs" width="40px" align="center" />
-					<listheader label="N" tooltiptext="Number of jobs"
-						width="40px" align="center" />
-					<listheader label="R"
-						tooltiptext="Number of replication items" width="50px"
-						align="center" />
-					<listheader label="N"
-						tooltiptext="Number of running replication items" width="50px"
-						align="center" />
-					<listheader label="status" width="60px"
+					<listheader label="R" width="30px"
+						tooltiptext="Number of running jobs" align="center" />
+					<listheader label="A" width="30px"
+						tooltiptext="Number of active jobs" align="center" />
+					<listheader label="N" width="30px"
+						tooltiptext="Number of jobs" align="center" />
+					<listheader label="R" width="40px"
+						tooltiptext="Number of replication items" align="center" />
+					<listheader label="N" width="40px"
+						tooltiptext="Number of running replication items" align="center" />
+					<listheader label="status"
 						tooltiptext="Optimization status" align="center" />
-					<listheader width="150px" label="Last modified"
-						align="right" />
-					<listheader width="100px" label="Size"
-						align="right" />
-					<listheader width="100px" align="center" />
+					<listheader label="Doc(s)" align="right" />
+					<listheader label="Last modified" align="right" />
+					<listheader label="Size" align="right" />
+					<listheader align="center" />
+					<listheader hflex="true" />
 				</listhead>
 				<listitem self="@{each='catalogitem'}">
 					<listcell label="@{catalogitem.indexName}" />
 					<listcell
-						label="@{catalogitem.client.webCrawlMaster.statusInfo}" />
+						tooltiptext="@{catalogitem.client.webCrawlMaster.statusInfo}"
+						label="@{catalogitem.client.webCrawlMaster.status}" />
 					<listcell
-						label="@{catalogitem.client.databaseCrawlMaster.statusInfo}" />
+						tooltiptext="@{catalogitem.client.databaseCrawlMaster.statusInfo}"
+						label="@{catalogitem.client.databaseCrawlMaster.status}" />
 					<listcell
-						label="@{catalogitem.client.fileCrawlMaster.statusInfo}" />
+						tooltiptext="@{catalogitem.client.fileCrawlMaster.statusInfo}"
+						label="@{catalogitem.client.fileCrawlMaster.status}" />
 					<listcell
 						label="@{catalogitem.client.jobList.runningCount}" />
 					<listcell
@@ -126,6 +131,8 @@
 					<listcell
 						label="@{catalogitem.client.replicationList.set.size}" />
 					<listcell label="@{catalogitem.optimizationStatus}" />
+					<listcell tooltiptext="@{catalogitem.numDocs}"
+						label="@{catalogitem.numDocs,converter='com.jaeksoft.searchlib.web.converter.IntegerConverter'}" />
 					<listcell
 						tooltiptext="@{catalogitem.lastModifiedFile}"
 						label="@{catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
@@ -148,6 +155,7 @@
 							</button>
 						</hbox>
 					</listcell>
+					<listcell />
 				</listitem>
 			</listbox>
 		</panelchildren>

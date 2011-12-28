@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +39,12 @@ import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
+import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
@@ -124,6 +127,8 @@ public class FilePathEditController extends CommonController {
 			}
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		}
 		reloadPage();
 	}
@@ -188,14 +193,18 @@ public class FilePathEditController extends CommonController {
 		onCancel();
 	}
 
-	public File[] getCurrentFileList() {
-		if (currentFolder == null)
-			return File.listRoots();
-		if (isIgnoreHidden())
-			return currentFolder
-					.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
-		else
-			return currentFolder.listFiles();
+	public File[] getCurrentFileList() throws SearchLibException, IOException {
+		synchronized (this) {
+			getCurrentFolder();
+			if (currentFolder == null) {
+				return File.listRoots();
+			}
+			if (isIgnoreHidden())
+				return currentFolder
+						.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
+			else
+				return currentFolder.listFiles();
+		}
 	}
 
 	public void setCurrentFile(File file) {
@@ -207,8 +216,16 @@ public class FilePathEditController extends CommonController {
 		return currentFile;
 	}
 
-	public File getCurrentFolder() {
-		return currentFolder;
+	public File getCurrentFolder() throws SearchLibException, IOException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			if (currentFolder == null
+					&& ClientFactory.INSTANCE.properties.isChroot())
+				setCurrentFolder(StartStopListener.OPENSEARCHSERVER_DATA_FILE);
+			return currentFolder;
+		}
 	}
 
 	public List<File> getFolderTree() {
@@ -247,15 +264,22 @@ public class FilePathEditController extends CommonController {
 		return selectedFilePath != null;
 	}
 
-	public void setCurrentFolder(File file) {
+	public void setCurrentFolder(File file) throws IOException {
+		if (!ClientFactory.INSTANCE.properties.checkChrootQuietly(file))
+			return;
 		currentFolder = file;
 		currentFolderList = null;
 		if (currentFolder != null) {
 			currentFolderList = new ArrayList<File>();
 			File f = currentFolder;
-			do {
+			for (;;) {
 				currentFolderList.add(0, f);
-			} while ((f = f.getParentFile()) != null);
+				f = f.getParentFile();
+				if (f == null)
+					break;
+				if (!ClientFactory.INSTANCE.properties.checkChrootQuietly(f))
+					break;
+			}
 		}
 		currentFile = null;
 		reloadBrowser();
@@ -283,7 +307,7 @@ public class FilePathEditController extends CommonController {
 		reloadComponent("filebrowser");
 	}
 
-	public void onOpenFile(Component component) {
+	public void onOpenFile(Component component) throws IOException {
 		File file = (File) component.getAttribute("file");
 		if (file.isDirectory())
 			setCurrentFolder(file);
@@ -296,7 +320,7 @@ public class FilePathEditController extends CommonController {
 		}
 	}
 
-	public void onParentFolder() {
+	public void onParentFolder() throws IOException {
 		if (currentFolder != null)
 			setCurrentFolder(currentFolder.getParentFile());
 	}

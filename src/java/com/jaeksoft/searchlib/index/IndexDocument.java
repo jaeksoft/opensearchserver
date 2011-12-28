@@ -173,8 +173,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 				parser = binaryFromBase64(parserSelector, filename,
 						contentType, content);
 			else if (filePath != null && filePath.length() > 0)
-				parser = binaryFromFile(client, parserSelector, filename,
-						contentType, filePath);
+				parser = binaryFromFile(parserSelector, filename, contentType,
+						filePath);
 			return parser;
 		} catch (SearchLibException e) {
 			if (!bFaultTolerant)
@@ -240,7 +240,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		}
 	}
 
-	private Parser binaryFromFile(Client client, ParserSelector parserSelector,
+	private Parser binaryFromFile(ParserSelector parserSelector,
 			String filename, String contentType, String filePath)
 			throws SearchLibException {
 		try {
@@ -250,7 +250,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			File f = new File(filePath);
 			if (f.isDirectory())
 				f = new File(f, filename);
-			parser.parseContent(client, f);
+			parser.parseContent(f);
 			return parser;
 		} catch (RuntimeException e) {
 			throw new SearchLibException(

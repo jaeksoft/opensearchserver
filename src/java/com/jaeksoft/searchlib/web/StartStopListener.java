@@ -70,7 +70,7 @@ public class StartStopListener implements ServletContextListener {
 		return new ClientFactory();
 	}
 
-	private static Version version = null;
+	private static transient Version version = null;
 
 	public static final synchronized Version getVersion() {
 		return version;

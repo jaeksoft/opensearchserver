@@ -92,7 +92,7 @@ public class AudioParser extends Parser {
 		} finally {
 			closeQuiet(os);
 		}
-		parseContent(file);
+		doParseContent(file);
 		file.delete();
 	}
 
@@ -119,7 +119,7 @@ public class AudioParser extends Parser {
 	}
 
 	@Override
-	public void parseContent(File file) throws IOException {
+	public void doParseContent(File file) throws IOException {
 		AudioFile f;
 		try {
 			f = AudioFileIO.read(file);

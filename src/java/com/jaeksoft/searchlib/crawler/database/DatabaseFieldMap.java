@@ -38,7 +38,6 @@ import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
@@ -77,7 +76,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 		return false;
 	}
 
-	public void mapResultSet(Client client, WebCrawlMaster webCrawlMaster,
+	public void mapResultSet(WebCrawlMaster webCrawlMaster,
 			ParserSelector parserSelector, ResultSet resultSet,
 			IndexDocument target) throws SQLException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SearchLibException,
@@ -105,7 +104,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 							null);
 					if (parser != null) {
 						try {
-							parser.parseContent(client, file);
+							parser.parseContent(file);
 						} catch (IOException e) {
 							Logging.warn(e.getMessage(), e);
 						}

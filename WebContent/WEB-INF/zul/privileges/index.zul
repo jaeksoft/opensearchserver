@@ -64,7 +64,7 @@
 							value="@{privileges.user.apiKey}" width="95%" />
 						<label value="Key to be used with API" />
 					</row>
-					<row>
+					<row visible="@{privileges.IndexListNotEmpty}">
 						<label
 							value="Add privileges on following index: " />
 						<vbox width="100%">
@@ -107,7 +107,7 @@
 					</listcell>
 				</listitem>
 			</listbox>
-			<vbox width="100%" align="right">
+			<vbox width="100%" align="center">
 				<hbox visible="@{privileges.selected}">
 					<button label="Cancel" forward="onCancel" />
 					<space width="10px" />

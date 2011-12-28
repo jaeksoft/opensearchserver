@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.FileDirUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class InstanceProperties {
 
@@ -59,7 +60,7 @@ public class InstanceProperties {
 			return;
 		maxDocumentLimit = XPathParser.getAttributeLong(node,
 				LIMIT_MAXDOCUMENTLIMIT_ATTR);
-		chroot = "true".equalsIgnoreCase(XPathParser.getAttributeString(node,
+		chroot = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node,
 				LIMIT_CHROOT_ATTR));
 	}
 
@@ -77,9 +78,16 @@ public class InstanceProperties {
 		return chroot;
 	}
 
-	public final void checkChroot(File parent, File file) throws IOException,
+	public final boolean checkChrootQuietly(File file) throws IOException {
+		if (!chroot)
+			return true;
+		return FileDirUtils.isSubDirectory(
+				StartStopListener.OPENSEARCHSERVER_DATA_FILE, file);
+	}
+
+	public final void checkChroot(File file) throws IOException,
 			SearchLibException {
-		if (!FileDirUtils.isSubDirectory(parent, file))
+		if (!checkChrootQuietly(file))
 			throw new SearchLibException(
 					"You are not allowed to reach this location in the file system: "
 							+ file.getAbsolutePath());
