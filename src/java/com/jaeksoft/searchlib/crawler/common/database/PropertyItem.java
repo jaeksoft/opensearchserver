@@ -31,7 +31,7 @@ import java.util.Properties;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class PropertyItem<T> {
+public class PropertyItem<T extends Comparable<T>> {
 
 	private PropertyManager propertyManager;
 
@@ -41,11 +41,18 @@ public class PropertyItem<T> {
 
 	private T value;
 
-	public PropertyItem(PropertyManager propertyManager, String name, T value) {
+	private T min;
+
+	private T max;
+
+	public PropertyItem(PropertyManager propertyManager, String name, T value,
+			T min, T max) {
 		this.propertyManager = propertyManager;
 		this.name = name;
 		this.value = value;
 		this.listeners = null;
+		this.min = min;
+		this.max = max;
 	}
 
 	public void addListener(PropertyItemListener listener) {
@@ -71,9 +78,16 @@ public class PropertyItem<T> {
 	}
 
 	public void setValue(T value) throws IOException, SearchLibException {
-		if (value != null && this.value != null)
-			if (value.equals(this.value))
+		if (value != null) {
+			if (min != null)
+				if (value.compareTo(min) < 0)
+					value = min;
+			if (max != null)
+				if (value.compareTo(max) > 0)
+					value = max;
+			if (this.value != null && value.equals(this.value))
 				return;
+		}
 		this.value = value;
 		propertyManager.put(this);
 		if (listeners != null)

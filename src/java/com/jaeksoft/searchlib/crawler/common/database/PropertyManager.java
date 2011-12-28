@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,8 +56,8 @@ public abstract class PropertyManager {
 			}
 		}
 		indexDocumentBufferSize = new PropertyItem<Integer>(this,
-				"indexDocumentBufferSize", 1000);
-		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10);
+				"indexDocumentBufferSize", 1000, null, null);
+		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10, null, null);
 		crawlEnabled = newBooleanProperty("crawlEnabled", false);
 	}
 
@@ -75,9 +75,10 @@ public abstract class PropertyManager {
 	}
 
 	protected PropertyItem<Integer> newIntegerProperty(String name,
-			Integer defaultValue) throws NumberFormatException, IOException {
+			Integer defaultValue, Integer min, Integer max)
+			throws NumberFormatException, IOException {
 		PropertyItem<Integer> propertyItem = new PropertyItem<Integer>(this,
-				name, defaultValue);
+				name, defaultValue, min, max);
 		String value = properties.getProperty(name);
 		if (value != null)
 			propertyItem.initValue(Integer.parseInt(value));
@@ -87,7 +88,7 @@ public abstract class PropertyManager {
 	protected PropertyItem<Boolean> newBooleanProperty(String name,
 			Boolean defaultValue) {
 		PropertyItem<Boolean> propertyItem = new PropertyItem<Boolean>(this,
-				name, defaultValue);
+				name, defaultValue, null, null);
 		String value = properties.getProperty(name);
 		if (value != null)
 			propertyItem.initValue("1".equals(value)
@@ -99,7 +100,7 @@ public abstract class PropertyManager {
 	protected PropertyItem<String> newStringProperty(String name,
 			String defaultValue) {
 		PropertyItem<String> propertyItem = new PropertyItem<String>(this,
-				name, defaultValue);
+				name, defaultValue, null, null);
 		String value = properties.getProperty(name);
 		if (value != null)
 			propertyItem.initValue(value);

@@ -41,6 +41,8 @@ public class InstanceProperties {
 
 	private long maxDocumentLimit = 0;
 
+	private int minCrawlerDelay = 0;
+
 	private boolean chroot = false;
 
 	private final static String LIMIT_NODEPATH = "/instanceProperties/limit";
@@ -48,6 +50,8 @@ public class InstanceProperties {
 	private final static String LIMIT_CHROOT_ATTR = "chroot";
 
 	private final static String LIMIT_MAXDOCUMENTLIMIT_ATTR = "maxDocumentLimit";
+
+	private final static String LIMIT_MINCRAWLERDELAY_ATTR = "minCrawlerDelay";
 
 	public InstanceProperties(File xmlFile)
 			throws ParserConfigurationException, SAXException, IOException,
@@ -62,6 +66,8 @@ public class InstanceProperties {
 				LIMIT_MAXDOCUMENTLIMIT_ATTR);
 		chroot = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node,
 				LIMIT_CHROOT_ATTR));
+		minCrawlerDelay = XPathParser.getAttributeValue(node,
+				LIMIT_MINCRAWLERDELAY_ATTR);
 	}
 
 	/**
@@ -69,6 +75,13 @@ public class InstanceProperties {
 	 */
 	public long getMaxDocumentLimit() {
 		return maxDocumentLimit;
+	}
+
+	/**
+	 * @return the minCrawlerDelay
+	 */
+	public int getMinCrawlerDelay() {
+		return minCrawlerDelay;
 	}
 
 	/**

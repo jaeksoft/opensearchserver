@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.web.database;
 import java.io.File;
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 
@@ -54,11 +55,13 @@ public class WebPropertyManager extends PropertyManager {
 
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
-		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 10);
-		fetchInterval = newIntegerProperty("fetchInterval", 30);
+		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 10,
+				ClientFactory.INSTANCE.properties.getMinCrawlerDelay(), null);
+		fetchInterval = newIntegerProperty("fetchInterval", 30, 1, null);
 		fetchIntervalUnit = newStringProperty("fechIntervalUnit", "days");
-		maxUrlPerHost = newIntegerProperty("maxUrlPerHost", 100);
-		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000);
+		maxUrlPerHost = newIntegerProperty("maxUrlPerHost", 100, 1, null);
+		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000, 1,
+				null);
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
 		replicationAfterSession = newBooleanProperty("replicationAfterSession",
 				false);
@@ -68,14 +71,15 @@ public class WebPropertyManager extends PropertyManager {
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
 		screenshotMethod = newStringProperty("screenshotMethod", "");
 		screenshotCaptureWidth = newIntegerProperty("screenshotCaptureWidth",
-				1024);
+				1024, 1, null);
 		screenshotCaptureHeight = newIntegerProperty("screenshotCaptureHeight",
-				768);
-		screenshotResizeWidth = newIntegerProperty("screenshotResizeWidth", 240);
+				768, 1, null);
+		screenshotResizeWidth = newIntegerProperty("screenshotResizeWidth",
+				240, 1, null);
 		screenshotResizeHeight = newIntegerProperty("screenshotResizeHeight",
-				180);
+				180, 1, null);
 		proxyHost = newStringProperty("proxyHost", "");
-		proxyPort = newIntegerProperty("proxyPort", 8080);
+		proxyPort = newIntegerProperty("proxyPort", 8080, null, null);
 		proxyEnabled = newBooleanProperty("proxyEnabled", false);
 	}
 
