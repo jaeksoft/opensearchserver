@@ -95,7 +95,7 @@ public class PropertyItem<T extends Comparable<T>> {
 				listener.hasBeenSet(this);
 	}
 
-	public boolean isValue() {
+	public Boolean isValue() {
 		if (value instanceof Boolean)
 			return (Boolean) value;
 		return false;
