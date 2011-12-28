@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,19 +32,22 @@ public class IndexStatistics {
 
 	private int maxDoc;
 	private int numDocs;
+	private int numDeletedDocs;
 	private boolean hasDeletions;
 	private boolean isOptimized;
 
 	protected IndexStatistics() {
 		maxDoc = 0;
 		numDocs = 0;
+		numDeletedDocs = 0;
 		hasDeletions = false;
 		isOptimized = false;
 	}
 
 	protected IndexStatistics(IndexReader indexReader) {
 		maxDoc = indexReader.maxDoc();
-		numDocs = indexReader.maxDoc();
+		numDocs = indexReader.numDocs();
+		numDeletedDocs = indexReader.numDeletedDocs();
 		hasDeletions = indexReader.hasDeletions();
 		isOptimized = indexReader.isOptimized();
 	}
@@ -52,25 +55,30 @@ public class IndexStatistics {
 	protected void add(IndexStatistics stats) {
 		maxDoc += stats.maxDoc;
 		numDocs += stats.numDocs;
+		numDeletedDocs += stats.numDeletedDocs;
 		if (stats.hasDeletions)
 			hasDeletions = stats.hasDeletions;
 		if (stats.isOptimized)
 			isOptimized = stats.isOptimized;
 	}
 
-	public int getMaxDoc() throws IOException {
+	final public int getMaxDoc() throws IOException {
 		return maxDoc;
 	}
 
-	public int getNumDocs() {
+	final public int getNumDocs() {
 		return numDocs;
 	}
 
-	public boolean isDeletions() {
+	final public int getNumDeletedDocs() {
+		return numDeletedDocs;
+	}
+
+	final public boolean isDeletions() {
 		return hasDeletions;
 	}
 
-	public boolean isOptimized() {
+	final public boolean isOptimized() {
 		return isOptimized;
 	}
 

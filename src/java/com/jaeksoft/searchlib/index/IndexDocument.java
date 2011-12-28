@@ -43,6 +43,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -103,8 +104,9 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public IndexDocument(ParserSelector parserSelector, XPathParser xpp,
-			Node documentNode, CredentialItem urlDefaultCredential)
+	public IndexDocument(Client client, ParserSelector parserSelector,
+			XPathParser xpp, Node documentNode,
+			CredentialItem urlDefaultCredential)
 			throws XPathExpressionException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException, URISyntaxException {
@@ -148,7 +150,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 						"contenttype");
 			String content = node.getTextContent();
 			String url = XPathParser.getAttributeString(node, "url");
-			Parser parser = doBinary(url, content, filePath, filename,
+			Parser parser = doBinary(url, content, filePath, filename, client,
 					parserSelector, contentType, urlDefaultCredential,
 					bFaultTolerant);
 			if (parser != null)
@@ -157,10 +159,11 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	}
 
 	private Parser doBinary(String url, String content, String filePath,
-			String filename, ParserSelector parserSelector, String contentType,
-			CredentialItem urlDefaultCredential, boolean bFaultTolerant)
-			throws IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException {
+			String filename, Client client, ParserSelector parserSelector,
+			String contentType, CredentialItem urlDefaultCredential,
+			boolean bFaultTolerant) throws IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException {
 		try {
 			Parser parser = null;
 			if (url != null)
@@ -170,8 +173,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 				parser = binaryFromBase64(parserSelector, filename,
 						contentType, content);
 			else if (filePath != null && filePath.length() > 0)
-				parser = binaryFromFile(parserSelector, filename, contentType,
-						filePath);
+				parser = binaryFromFile(client, parserSelector, filename,
+						contentType, filePath);
 			return parser;
 		} catch (SearchLibException e) {
 			if (!bFaultTolerant)
@@ -237,7 +240,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		}
 	}
 
-	private Parser binaryFromFile(ParserSelector parserSelector,
+	private Parser binaryFromFile(Client client, ParserSelector parserSelector,
 			String filename, String contentType, String filePath)
 			throws SearchLibException {
 		try {
@@ -247,7 +250,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			File f = new File(filePath);
 			if (f.isDirectory())
 				f = new File(f, filename);
-			parser.parseContent(f);
+			parser.parseContent(client, f);
 			return parser;
 		} catch (RuntimeException e) {
 			throw new SearchLibException(

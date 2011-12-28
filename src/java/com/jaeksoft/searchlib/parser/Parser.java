@@ -38,6 +38,8 @@ import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.IOUtils;
 import org.knallgrau.utils.textcat.TextCategorizer;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -240,7 +242,7 @@ public abstract class Parser extends ParserFactory {
 		}
 	}
 
-	public void parseContent(File file) throws IOException {
+	protected void parseContent(File file) throws IOException {
 		FileInputStream fileInputStream = null;
 		try {
 			fileInputStream = new FileInputStream(file);
@@ -249,6 +251,13 @@ public abstract class Parser extends ParserFactory {
 			if (fileInputStream != null)
 				fileInputStream.close();
 		}
+
+	}
+
+	final public void parseContent(Client client, File file)
+			throws IOException, SearchLibException {
+		client.checkChroot(file);
+		parseContent(file);
 	}
 
 	public String getMd5size() throws NoSuchAlgorithmException {

@@ -66,7 +66,7 @@ public class StartStopListener implements ServletContextListener {
 		ClientCatalog.closeAll();
 	}
 
-	protected ClientFactory getClientFactory() {
+	protected ClientFactory getClientFactory() throws SearchLibException {
 		return new ClientFactory();
 	}
 
@@ -95,8 +95,8 @@ public class StartStopListener implements ServletContextListener {
 			Logging.error(e);
 		}
 
-		ClientFactory.setInstance(getClientFactory());
 		try {
+			ClientFactory.setInstance(getClientFactory());
 			TaskManager.start();
 		} catch (SearchLibException e) {
 			Logging.error(e);

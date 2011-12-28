@@ -81,12 +81,10 @@ public class DocParser extends Parser {
 			addField(ParserFieldEnum.subject, si.getSubject());
 		}
 
-		String[] paragraphes = word6.getParagraphText();
-		for (String paragraph : paragraphes) {
-			String[] frags = paragraph.split("\\n");
-			for (String frag : frags)
-				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " "));
-		}
+		String text = word6.getText();
+		String[] frags = text.split("\\n");
+		for (String frag : frags)
+			addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " "));
 	}
 
 	@Override

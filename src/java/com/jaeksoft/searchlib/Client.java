@@ -105,8 +105,8 @@ public class Client extends Config {
 				bufferSize);
 		int docCount = 0;
 		for (int i = 0; i < l; i++) {
-			docList.add(new IndexDocument(getParserSelector(), xpp, nodeList
-					.item(i), urlDefaultCredential));
+			docList.add(new IndexDocument(this, getParserSelector(), xpp,
+					nodeList.item(i), urlDefaultCredential));
 			if (docList.size() == bufferSize) {
 				docCount += updateDocuments(docList);
 				Logging.info(docCount + " / " + l + " XML document(s) indexed.");
@@ -255,6 +255,10 @@ public class Client extends Config {
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, IllegalAccessException, InstantiationException {
 		return getIndex().documents(documentsRequest);
+	}
+
+	public void checkChroot(File file) throws IOException, SearchLibException {
+		ClientFactory.INSTANCE.properties.checkChroot(indexDir, file);
 	}
 
 }

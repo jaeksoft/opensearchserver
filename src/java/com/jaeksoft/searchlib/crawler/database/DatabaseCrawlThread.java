@@ -133,10 +133,9 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				}
 				IndexDocument newFieldContents = new IndexDocument(
 						databaseCrawl.getLang());
-				databaseFieldMap
-						.mapResultSet(client.getWebCrawlMaster(),
-								client.getParserSelector(), resultSet,
-								newFieldContents);
+				databaseFieldMap.mapResultSet(client,
+						client.getWebCrawlMaster(), client.getParserSelector(),
+						resultSet, newFieldContents);
 				if (merge && lastFieldContent != null) {
 					indexDocument.addIfNotAlreadyHere(newFieldContents);
 				} else

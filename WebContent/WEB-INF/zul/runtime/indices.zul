@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -16,24 +16,23 @@
 -->
 <window id="index"
 	use="com.jaeksoft.searchlib.web.controller.runtime.IndexController">
-	<grid model="@{index.indices}">
+	<grid model="@{index.indices}" sizedByContent="true">
 		<auxhead>
 			<auxheader colspan="11" align="center">
 				<button label="Refresh" forward="onReload" />
 			</auxheader>
 		</auxhead>
 		<columns>
-			<column width="40px" label="search"
-				tooltiptext="searchCache" />
-			<column width="40px" label="filter"
-				tooltiptext="filterCache" />
-			<column width="40px" label="field" tooltiptext="fieldCache" />
-			<column width="120px" label="remoteUrl" />
-			<column width="100px" label="keyField" />
-			<column width="100px" label="keyMd5RegExp" />
+			<column label="search" tooltiptext="searchCache" />
+			<column label="filter" tooltiptext="filterCache" />
+			<column label="field" tooltiptext="fieldCache" />
+			<column label="remoteUrl" />
+			<column label="keyField" />
+			<column label="keyMd5RegExp" />
 			<column label="numDocs" />
 			<column label="maxDoc" />
 			<column label="deletions?" />
+			<column label="numDeletedDocs" />
 			<column label="optimized?" />
 			<column label="readOnly?" />
 		</columns>
@@ -48,6 +47,7 @@
 				<label value="@{index.statistics.numDocs}" />
 				<label value="@{index.statistics.maxDoc}" />
 				<label value="@{index.statistics.deletions}" />
+				<label value="@{index.statistics.numDeletedDocs}" />
 				<label value="@{index.statistics.optimized}" />
 				<label value="@{index.indexConfig.readOnly}" />
 			</row>

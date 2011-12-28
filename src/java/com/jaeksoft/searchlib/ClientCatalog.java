@@ -129,6 +129,18 @@ public class ClientCatalog {
 		}
 	}
 
+	public static final long countAllDocuments() throws IOException {
+		r.lock();
+		try {
+			long count = 0;
+			for (Client client : CLIENTS.values())
+				count += client.getIndex().getStatistics().getNumDocs();
+			return count;
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public static final LastModifiedAndSize getLastModifiedAndSize(
 			String indexName) throws SearchLibException {
 		if (!isValidIndexName(indexName))

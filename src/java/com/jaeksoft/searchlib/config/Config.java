@@ -169,7 +169,7 @@ public abstract class Config {
 
 	private RobotsTxtCache robotsTxtCache = null;
 
-	private File indexDir;
+	protected final File indexDir;
 
 	protected final ReadWriteLock rwl = new ReadWriteLock();
 

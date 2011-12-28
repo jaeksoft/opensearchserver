@@ -27,11 +27,35 @@ package com.jaeksoft.searchlib;
 import java.io.File;
 import java.io.IOException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.xml.sax.SAXException;
+
+import com.jaeksoft.searchlib.util.FileDirUtils;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class ClientFactory {
 
 	public static ClientFactory INSTANCE = null;
+
+	public final InstanceProperties properties;
+
+	public ClientFactory() throws SearchLibException {
+		try {
+			properties = new InstanceProperties(new File(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+					"properties.xml"));
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
 
 	protected Client newClient(File initFileOrDir,
 			boolean createIndexIfNotExists, boolean disableCrawler)
@@ -39,26 +63,14 @@ public class ClientFactory {
 		return new Client(initFileOrDir, createIndexIfNotExists, disableCrawler);
 	}
 
-	private static boolean isSubDirectory(File base, File child)
-			throws IOException {
-		base = base.getCanonicalFile();
-		child = child.getCanonicalFile();
-		File parentFile = child;
-		while (parentFile != null) {
-			if (base.equals(parentFile)) {
-				return true;
-			}
-			parentFile = parentFile.getParentFile();
-		}
-		return false;
-	}
-
 	final public Client getNewClient(File initFileOrDir,
 			boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
 		try {
-			if (!isSubDirectory(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-					initFileOrDir))
+			if (!FileDirUtils
+					.isSubDirectory(
+							StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+							initFileOrDir))
 				throw new SearchLibException("Security alert: " + initFileOrDir
 						+ " is outside OPENSEARCHSERVER_DATA ("
 						+ StartStopListener.OPENSEARCHSERVER_DATA_FILE + ")");
