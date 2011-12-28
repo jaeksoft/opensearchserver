@@ -96,8 +96,8 @@ public class PropertyItem<T extends Comparable<T>> {
 	}
 
 	public Boolean isValue() {
-		if (value instanceof Boolean)
-			return (Boolean) value;
+		if (value.getClass().isAssignableFrom(Boolean.class))
+			return Boolean.class.cast(value);
 		return false;
 	}
 
