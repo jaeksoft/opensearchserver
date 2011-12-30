@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -72,6 +72,14 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static ClassPropertyEnum MIN_SHINGLE_SIZE = new ClassPropertyEnum(
 			true, "min_shingle_size", "Min shingle size",
 			"Set the min shingle size (default: 1)");
+
+	public final static ClassPropertyEnum FAULT_TOLERANT = new ClassPropertyEnum(
+			true, "fault_tolerant", "Fault tolerant",
+			"Decide wether or not the process will stops on errors");
+
+	public static final ClassPropertyEnum DOMAIN_EXTRACTION = new ClassPropertyEnum(
+			true, "domain_extraction", "Domain extraction",
+			"Select a domain extraction strategy");
 
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };

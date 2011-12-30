@@ -32,6 +32,8 @@ public enum FilterEnum {
 
 	DutchStemFilter("A filter that stems Dutch words."),
 
+	DomainFilter("A filter that extract the domain.tld from an URL."),
+
 	EdgeNGramFilter(
 			"This filter create n-grams from the beginning edge or ending edge of a input token"),
 

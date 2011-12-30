@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.DropboxFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpsFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
@@ -44,6 +45,9 @@ public class FileInstanceTypeEnum extends ExtensibleEnum<FileInstanceType> {
 
 		new FileInstanceType(this, "FtpsFileInstance", "FTP over SSL", "ftps",
 				FtpsFileInstance.class);
+
+		new FileInstanceType(this, "Dropbox", "Dropbox", "dropbox",
+				DropboxFileInstance.class);
 
 	}
 }
