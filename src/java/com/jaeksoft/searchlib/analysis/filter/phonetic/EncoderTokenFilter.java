@@ -21,19 +21,35 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.analysis.filter.domain;
+package com.jaeksoft.searchlib.analysis.filter.phonetic;
 
+import java.io.IOException;
+
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.StringEncoder;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
 
-public abstract class CommonDomainTokenFilter extends AbstractTermFilter {
+public class EncoderTokenFilter extends AbstractTermFilter {
 
-	protected boolean silent;
+	private StringEncoder encoder;
 
-	public CommonDomainTokenFilter(TokenStream input, boolean silent) {
+	public EncoderTokenFilter(TokenStream input, StringEncoder encoder) {
 		super(input);
-		this.silent = silent;
+		this.encoder = encoder;
 	}
 
+	@Override
+	public final boolean incrementToken() throws IOException {
+		current = captureState();
+		if (!input.incrementToken())
+			return false;
+		try {
+			createToken(encoder.encode(getTerm()));
+		} catch (EncoderException e) {
+			throw new IOException(e);
+		}
+		return true;
+	}
 }

@@ -21,45 +21,41 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.analysis.filter.domain;
+package com.jaeksoft.searchlib.analysis.filter.phonetic;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.language.bm.BeiderMorseEncoder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 
-import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
+import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
 
-public class AllDomainsTokenFilter extends CommonDomainTokenFilter {
+public class BeiderMorseTokenFilter extends AbstractTermFilter {
 
-	private List<String> subDomainQueue = null;
-
+	private String[] wordQueue = null;
 	private int currentPos = 0;
+	private BeiderMorseEncoder encoder;
 
-	public AllDomainsTokenFilter(TokenStream input, boolean silent) {
-		super(input, silent);
+	public BeiderMorseTokenFilter(TokenStream input) {
+		super(input);
+		encoder = new BeiderMorseEncoder();
 	}
 
 	private final boolean popToken() {
-		if (subDomainQueue == null)
+		if (wordQueue == null)
 			return false;
-		if (currentPos == subDomainQueue.size())
+		if (currentPos == wordQueue.length)
 			return false;
-		createToken(subDomainQueue.get(currentPos++));
+		createToken(wordQueue[currentPos++]);
 		return true;
 	}
 
-	private final void createTokens() throws MalformedURLException {
-		try {
-			URL url = new URL(new String(getTerm()));
-			subDomainQueue = UrlItem.buildSubHost(url.getHost());
-			currentPos = 0;
-		} catch (MalformedURLException e) {
-			if (!silent)
-				throw e;
-		}
+	private final void createTokens() throws EncoderException {
+		String encoded = encoder.encode(getTerm());
+		wordQueue = StringUtils.split(encoded, '|');
+		currentPos = 0;
 	}
 
 	@Override
@@ -70,7 +66,11 @@ public class AllDomainsTokenFilter extends CommonDomainTokenFilter {
 				return true;
 			if (!input.incrementToken())
 				return false;
-			createTokens();
+			try {
+				createTokens();
+			} catch (EncoderException e) {
+				throw new IOException(e);
+			}
 		}
 	}
 }

@@ -81,6 +81,9 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "domain_extraction", "Domain extraction",
 			"Select a domain extraction strategy");
 
+	public static final ClassPropertyEnum CODEC = new ClassPropertyEnum(true,
+			"codec", "Codec algorithm", "Select a encoder/decoder algorithm");
+
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };
 

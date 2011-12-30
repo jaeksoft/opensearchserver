@@ -47,6 +47,8 @@ public enum FilterEnum {
 	NGramFilter(
 			"This filter tokenizes the input into n-grams of the given size(s)."),
 
+	PhoneticFilter("A filter that encode words using phonetic algorithms."),
+
 	RussianStemFilter("A filter that stems Russian words."),
 
 	ShingleFilter(
