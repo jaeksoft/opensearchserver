@@ -24,14 +24,11 @@
 
 package com.jaeksoft.searchlib.render;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.sf.json.JSON;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
@@ -240,12 +237,7 @@ public class RenderXml implements Render {
 		renderFacets();
 		renderSpellChecks();
 		renderSuffix();
-		if ("json".equalsIgnoreCase(format)) {
-			JSON json = RenderJson.convertXmltoJson(new ByteArrayInputStream(
-					stringBuffer.toString().getBytes()));
-			writer.println(json.toString(2));
-		} else
-			writer.println(stringBuffer.toString());
+		writer.println(stringBuffer.toString());
 	}
 
 	public StringBuffer getXmlResults() {
