@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C)2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,9 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.spellcheck.SpellCheck;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderJson implements Render {
@@ -53,18 +56,16 @@ public class RenderJson implements Render {
 	private SearchRequest searchRequest;
 	private StringBuffer stringBuffer;
 	private String JSON_COLON = ":";
+	private String JSON_COMMA = ",";
 	private String JSON_OPENING_BRACE = "{";
 	private String JSON_CLOSING_BRACE = "}";
 	private String JSON_OPENING_SQUARE_BRACKET = "[";
 	private String JSON_CLOSING_SQUARE_BRACKET = "]";
 
-	private String JSON_COMMA = ",";
-
 	public RenderJson(Result result) {
 		this.result = result;
 		this.searchRequest = result.getSearchRequest();
 		this.stringBuffer = new StringBuffer();
-
 	}
 
 	private void renderPrefix() throws ParseException, SyntaxError,
@@ -91,7 +92,6 @@ public class RenderJson implements Render {
 		SearchRequest searchRequest = result.getSearchRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
-
 		stringBuffer.append(JSONObject.quote("result") + JSON_COLON
 				+ JSON_OPENING_BRACE);
 		stringBuffer.append(JSONObject.quote("numFound") + JSON_COLON);
@@ -112,12 +112,10 @@ public class RenderJson implements Render {
 			this.renderDocument(i, end);
 		stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
 		stringBuffer.append(JSON_CLOSING_BRACE);
-
 	}
 
 	private void renderDocument(int pos, int end) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
-
 		stringBuffer.append(JSON_OPENING_BRACE);
 		stringBuffer.append(JSONObject.quote("score") + JSON_COLON);
 		stringBuffer.append(result.getScore(pos) + JSON_COMMA);
@@ -148,11 +146,10 @@ public class RenderJson implements Render {
 			stringBuffer.append(JSONObject.quote("collapseCount") + JSON_COLON);
 			stringBuffer.append(cc + JSON_COMMA);
 		}
-		if (pos == end - 1) {
+		if (pos == end - 1)
 			stringBuffer.append(JSON_CLOSING_BRACE);
-		} else {
+		else
 			stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
-		}
 	}
 
 	private void renderField(ResultDocument doc, Field field)
@@ -169,7 +166,6 @@ public class RenderJson implements Render {
 			if (b != null) {
 				stringBuffer.append(JSONObject.quote("boost") + JSON_COLON);
 				stringBuffer.append(b + JSON_COMMA);
-
 			}
 			stringBuffer.append(JSONObject.quote("value") + JSON_COLON);
 			stringBuffer.append(JSONObject.quote(v.getValue()));
@@ -203,13 +199,12 @@ public class RenderJson implements Render {
 		FacetField facetField = facet.getFacetField();
 		int k = 0;
 		if (facet.getArray().length > 0) {
-			if (num == 0) {
+			if (num == 0)
 				stringBuffer.append(JSONObject.quote(facetField.getName())
 						+ JSON_COLON);
-			} else {
+			else
 				stringBuffer.append(JSON_COMMA
 						+ JSONObject.quote(facetField.getName()) + JSON_COLON);
-			}
 
 			stringBuffer.append(JSON_OPENING_SQUARE_BRACKET);
 			for (FacetItem facetItem : facet) {
@@ -224,10 +219,8 @@ public class RenderJson implements Render {
 				} else {
 					stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
 				}
-
 				k++;
 			}
-
 			stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
 		}
 	}
@@ -246,6 +239,56 @@ public class RenderJson implements Render {
 		stringBuffer.append(JSON_CLOSING_BRACE);
 	}
 
+	private void renderSpellCheck(SpellCheck spellCheck, int spellCount)
+			throws Exception {
+		stringBuffer.append(JSON_OPENING_BRACE);
+		for (SpellCheckItem spellCheckItem : spellCheck) {
+			stringBuffer.append(JSONObject.quote("word") + JSON_COLON);
+			stringBuffer.append(JSONObject.quote(StringEscapeUtils
+					.escapeXml(spellCheckItem.getWord())));
+			stringBuffer.append(JSON_COMMA + JSONObject.quote("suggest")
+					+ JSON_COLON + JSON_OPENING_SQUARE_BRACKET);
+			int suggestItemCount = 0;
+			for (String suggest : spellCheckItem.getSuggestions()) {
+				stringBuffer.append(JSON_OPENING_BRACE);
+				stringBuffer
+						.append(JSONObject.quote("value")
+								+ JSON_COLON
+								+ JSONObject.quote(StringEscapeUtils
+										.escapeXml(suggest)));
+				if (suggestItemCount == spellCheckItem.getSuggestions().length - 1)
+					stringBuffer.append(JSON_CLOSING_BRACE);
+				else
+					stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
+				suggestItemCount++;
+			}
+			stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
+		}
+		stringBuffer.append(JSON_CLOSING_BRACE);
+	}
+
+	private void renderSpellChecks() throws Exception {
+		SpellCheckList spellChecklist = result.getSpellCheckList();
+		if (spellChecklist == null)
+			return;
+		stringBuffer.append(JSON_COMMA + JSONObject.quote("spellcheck")
+				+ JSON_COLON + JSON_OPENING_BRACE);
+
+		int spellCount = 0;
+		for (SpellCheck spellCheck : spellChecklist) {
+			String fieldName = spellCheck.getFieldName();
+			stringBuffer.append(JSONObject.quote(fieldName) + JSON_COLON
+					+ JSON_OPENING_SQUARE_BRACKET);
+			renderSpellCheck(spellCheck, spellCount);
+			if (spellCount == spellChecklist.getList().size() - 1)
+				stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
+			else
+				stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET + JSON_COMMA);
+			spellCount++;
+		}
+		stringBuffer.append(JSON_CLOSING_BRACE);
+	}
+
 	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
 		servletTransaction.setResponseContentType("application/json");
@@ -253,15 +296,12 @@ public class RenderJson implements Render {
 	}
 
 	private void render(PrintWriter writer, String format) throws Exception {
-		if ("json".equalsIgnoreCase(format)) {
-			renderPrefix();
-			renderDocuments();
-			renderFacets();
-			renderSuffix();
-			JSONObject json = new JSONObject(stringBuffer.toString());
-			writer.println(json.toString(4));
-
-		}
-
+		renderPrefix();
+		renderDocuments();
+		renderFacets();
+		renderSpellChecks();
+		renderSuffix();
+		JSONObject json = new JSONObject(stringBuffer.toString());
+		writer.println(json.toString(4));
 	}
 }

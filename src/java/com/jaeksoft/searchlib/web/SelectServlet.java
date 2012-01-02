@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -77,14 +77,13 @@ public class SelectServlet extends AbstractServlet {
 
 		SearchRequest searchRequest = client.getNewSearchRequest(transaction);
 		Result result = client.search(searchRequest);
-		if ("jsp".equals(render)) {
+		if ("jsp".equalsIgnoreCase(render)) {
 			String jsp = transaction.getParameterString("jsp");
 			return new RenderJsp(jsp, result);
-		} else if ("json".equals(render))
+		} else if ("json".equalsIgnoreCase(render))
 			return new RenderJson(result);
 		else
 			return new RenderXml(result);
-
 	}
 
 	@Override
