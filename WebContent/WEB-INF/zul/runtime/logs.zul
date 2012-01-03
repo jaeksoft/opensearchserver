@@ -16,7 +16,7 @@
 -->
 <window id="logs"
 	use="com.jaeksoft.searchlib.web.controller.runtime.LogsController">
-	<panel title="Logs" border="normal" width="100%" height="100%">
+	<panel title="Logs" border="normal">
 		<toolbar>
 			<button label="Reload the file list"
 				forward="onReloadFileList" />
