@@ -14,7 +14,7 @@ New features:
 - 3466448: Multiple OpenSearchServer instances on one Tomcat server
 - 3466447: Adding NumDeletedDocs in Runtime/Index
 - 3466445: Upgrade Apache POI to 3.8	
-- 3422180: Upgrade to ZK 5.0.9
+- 3422180: Upgrade to ZK 5.0.10
 - 3417863: Upgrade Tomcat to version 6.0.35
 - 3421240: JSON response for OpenSearchServer
 - 3386107: OpenSearch Standards
