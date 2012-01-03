@@ -80,9 +80,10 @@ public class SelectServlet extends AbstractServlet {
 		if ("jsp".equalsIgnoreCase(render)) {
 			String jsp = transaction.getParameterString("jsp");
 			return new RenderJsp(jsp, result);
-		} else if ("json".equalsIgnoreCase(render))
-			return new RenderJson(result);
-		else
+		} else if ("json".equalsIgnoreCase(render)) {
+			String jsonIndent = transaction.getParameterString("indent");
+			return new RenderJson(result, jsonIndent);
+		} else
 			return new RenderXml(result);
 	}
 

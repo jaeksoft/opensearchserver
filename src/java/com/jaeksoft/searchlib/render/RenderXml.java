@@ -231,7 +231,7 @@ public class RenderXml implements Render {
 		stringBuffer.append("</spellcheck>");
 	}
 
-	public void render(PrintWriter writer, String format) throws Exception {
+	public void render(PrintWriter writer) throws Exception {
 		renderPrefix();
 		renderDocuments();
 		renderFacets();
@@ -247,6 +247,6 @@ public class RenderXml implements Render {
 	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
 		servletTransaction.setResponseContentType("text/xml");
-		render(servletTransaction.getWriter("UTF-8"), "xml");
+		render(servletTransaction.getWriter("UTF-8"));
 	}
 }

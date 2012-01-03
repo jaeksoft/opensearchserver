@@ -26,12 +26,13 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
@@ -54,254 +55,197 @@ public class RenderJson implements Render {
 
 	private Result result;
 	private SearchRequest searchRequest;
-	private StringBuffer stringBuffer;
-	private String JSON_COLON = ":";
-	private String JSON_COMMA = ",";
-	private String JSON_OPENING_BRACE = "{";
-	private String JSON_CLOSING_BRACE = "}";
-	private String JSON_OPENING_SQUARE_BRACKET = "[";
-	private String JSON_CLOSING_SQUARE_BRACKET = "]";
+	private String indent;
 
-	public RenderJson(Result result) {
+	public RenderJson(Result result, String jsonIndent) {
 		this.result = result;
 		this.searchRequest = result.getSearchRequest();
-		this.stringBuffer = new StringBuffer();
+		this.indent = jsonIndent;
 	}
 
-	private void renderPrefix() throws ParseException, SyntaxError,
-			SearchLibException, IOException {
-		stringBuffer.append(JSON_OPENING_BRACE);
-		stringBuffer.append(JSONObject.quote("response") + JSON_COLON
-				+ JSON_OPENING_BRACE);
-		stringBuffer.append(JSONObject.quote("header") + JSON_COLON
-				+ JSON_OPENING_BRACE);
-		stringBuffer.append(JSONObject.quote("status") + JSON_COLON);
-		stringBuffer.append(0 + JSON_COMMA);
-		stringBuffer.append(JSONObject.quote("query") + JSON_COLON);
-		stringBuffer.append(JSONObject.quote(StringEscapeUtils
-				.escapeXml(searchRequest.getQueryParsed())));
-		stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
+	@SuppressWarnings("unchecked")
+	private void renderPrefix(JSONObject jsonResponse) throws ParseException,
+			SyntaxError, SearchLibException, IOException {
+		JSONObject jsonHeader = new JSONObject();
+		jsonHeader.put("status", 0);
+		jsonHeader.put("query", searchRequest.getQueryParsed());
+		jsonResponse.put("header", jsonHeader);
+
 	}
 
-	private void renderSuffix() {
-		stringBuffer.append(JSON_CLOSING_BRACE + JSON_CLOSING_BRACE);
-	}
-
-	private void renderDocuments() throws CorruptIndexException, IOException,
-			ParseException, SyntaxError {
+	@SuppressWarnings("unchecked")
+	private void renderDocuments(JSONObject jsonResponse)
+			throws CorruptIndexException, IOException, ParseException,
+			SyntaxError {
 		SearchRequest searchRequest = result.getSearchRequest();
+		ArrayList<JSONObject> resultArrayList = new ArrayList<JSONObject>();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
-		stringBuffer.append(JSONObject.quote("result") + JSON_COLON
-				+ JSON_OPENING_BRACE);
-		stringBuffer.append(JSONObject.quote("numFound") + JSON_COLON);
-		stringBuffer.append(result.getNumFound() + JSON_COMMA);
-		stringBuffer.append(JSONObject.quote("collapsedDocCount") + JSON_COLON);
-		stringBuffer.append(result.getCollapseDocCount() + JSON_COMMA);
-		stringBuffer.append(JSONObject.quote("start") + JSON_COLON);
-		stringBuffer.append(searchRequest.getStart() + JSON_COMMA);
-		stringBuffer.append(JSONObject.quote("rows") + JSON_COLON);
-		stringBuffer.append(searchRequest.getRows() + JSON_COMMA);
-		stringBuffer.append(JSONObject.quote("maxScore") + JSON_COLON);
-		stringBuffer.append(result.getMaxScore() + JSON_COMMA);
-		stringBuffer.append(JSONObject.quote("time") + JSON_COLON);
-		stringBuffer.append(searchRequest.getFinalTime() + JSON_COMMA);
-		stringBuffer.append(JSONObject.quote("doc") + JSON_COLON
-				+ JSON_OPENING_SQUARE_BRACKET);
+		JSONObject jsonResult = new JSONObject();
+		jsonResult.put("numFound", result.getNumFound());
+		jsonResult.put("start", searchRequest.getStart());
+		jsonResult.put("rows", searchRequest.getRows());
+		jsonResult.put("maxScore", result.getMaxScore());
+		jsonResult.put("time", searchRequest.getFinalTime());
+		jsonResult.put("collapsedDocCount", searchRequest.getStart());
 		for (int i = start; i < end; i++)
-			this.renderDocument(i, end);
-		stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
-		stringBuffer.append(JSON_CLOSING_BRACE);
+			this.renderDocument(i, jsonResult, resultArrayList);
+		jsonResult.put("doc", resultArrayList);
+		jsonResponse.put("result", jsonResult);
 	}
 
-	private void renderDocument(int pos, int end) throws CorruptIndexException,
-			IOException, ParseException, SyntaxError {
-		stringBuffer.append(JSON_OPENING_BRACE);
-		stringBuffer.append(JSONObject.quote("score") + JSON_COLON);
-		stringBuffer.append(result.getScore(pos) + JSON_COMMA);
-		stringBuffer.append(JSONObject.quote("pos") + JSON_COLON);
-		stringBuffer.append(pos);
+	@SuppressWarnings("unchecked")
+	private void renderDocument(int pos, JSONObject jsonResult,
+			ArrayList<JSONObject> resultArrayList)
+			throws CorruptIndexException, IOException, ParseException,
+			SyntaxError {
+		JSONObject jsonDoc = new JSONObject();
+		ArrayList<JSONObject> jsonFieldList = new ArrayList<JSONObject>();
+		ArrayList<JSONObject> jsonSnippetList = new ArrayList<JSONObject>();
+		jsonDoc.put("numFound", result.getScore(pos));
+		jsonDoc.put("pos", searchRequest.getStart());
 		ResultDocument doc = result.getDocument(pos);
-		if (searchRequest.getReturnFieldList().size() > 0) {
-			stringBuffer.append(JSON_COMMA + JSONObject.quote("field")
-					+ JSON_COLON + JSON_OPENING_SQUARE_BRACKET);
-			for (Field field : searchRequest.getReturnFieldList())
-				renderField(doc, field);
-			stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
-
+		for (Field field : searchRequest.getReturnFieldList()) {
+			renderField(doc, field, jsonFieldList);
+			jsonDoc.put("field", jsonFieldList);
 		}
-		if (searchRequest.getSnippetFieldList().size() > 0) {
-			stringBuffer.append(JSON_COMMA + JSONObject.quote("snippet")
-					+ JSON_COLON + JSON_OPENING_SQUARE_BRACKET);
-			for (SnippetField field : searchRequest.getSnippetFieldList())
-				renderSnippetValue(doc, field);
-			if (pos == searchRequest.getSnippetFieldList().size() - 1) {
-				stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
-			} else {
-				stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET + JSON_COMMA);
-			}
+		for (SnippetField field : searchRequest.getSnippetFieldList()) {
+			renderSnippetValue(doc, field, jsonSnippetList);
+			jsonDoc.put("snippet", jsonSnippetList);
 		}
 		int cc = result.getCollapseCount(pos);
-		if (cc > 0) {
-			stringBuffer.append(JSONObject.quote("collapseCount") + JSON_COLON);
-			stringBuffer.append(cc + JSON_COMMA);
-		}
-		if (pos == end - 1)
-			stringBuffer.append(JSON_CLOSING_BRACE);
-		else
-			stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
+		if (cc > 0)
+			jsonDoc.put("collapseCount", cc);
+		resultArrayList.add(jsonDoc);
 	}
 
-	private void renderField(ResultDocument doc, Field field)
-			throws CorruptIndexException, IOException {
+	@SuppressWarnings("unchecked")
+	private void renderField(ResultDocument doc, Field field,
+			ArrayList<JSONObject> jsonFieldList) throws CorruptIndexException,
+			IOException {
 		String fieldName = field.getName();
 		List<FieldValueItem> values = doc.getValueList(field);
+		JSONObject jsonField = new JSONObject();
 		if (values == null)
 			return;
 		for (FieldValueItem v : values) {
-			stringBuffer.append(JSON_OPENING_BRACE);
-			stringBuffer.append(JSONObject.quote("name") + JSON_COLON);
-			stringBuffer.append(JSONObject.quote(fieldName) + JSON_COMMA);
+			jsonField.put("name", fieldName);
 			Float b = v.getBoost();
-			if (b != null) {
-				stringBuffer.append(JSONObject.quote("boost") + JSON_COLON);
-				stringBuffer.append(b + JSON_COMMA);
-			}
-			stringBuffer.append(JSONObject.quote("value") + JSON_COLON);
-			stringBuffer.append(JSONObject.quote(v.getValue()));
-			stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
+			if (b != null)
+				jsonField.put("boost", b);
+			jsonField.put("value", v.getValue());
+			jsonFieldList.add(jsonField);
 		}
 	}
 
-	private void renderSnippetValue(ResultDocument doc, SnippetField field)
-			throws IOException {
+	@SuppressWarnings("unchecked")
+	private void renderSnippetValue(ResultDocument doc, SnippetField field,
+			ArrayList<JSONObject> jsonSnippetList) throws IOException {
 		String fieldName = field.getName();
 		FieldValueItem[] snippets = doc.getSnippetArray(field);
+		JSONObject jsonSnippet = new JSONObject();
 		if (snippets == null)
 			return;
 		boolean highlighted = doc.isHighlighted(field.getName());
 		for (FieldValueItem snippet : snippets) {
-			stringBuffer.append(JSON_OPENING_BRACE);
-			stringBuffer.append(JSONObject.quote("name") + JSON_COLON);
-			stringBuffer.append(JSONObject.quote(fieldName) + JSON_COMMA);
-			if (highlighted) {
-				stringBuffer.append(JSONObject.quote("highlighted")
-						+ JSON_COLON);
-				stringBuffer.append(JSONObject.quote("yes") + JSON_COMMA);
-			}
-			stringBuffer.append(JSONObject.quote("value") + JSON_COLON);
-			stringBuffer.append(JSONObject.quote(snippet.getValue()));
-			stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
+			jsonSnippet.put("name", fieldName);
+			if (highlighted)
+				jsonSnippet.put("highlighted", "yes");
+			jsonSnippet.put("value", snippet.getValue());
+			jsonSnippetList.add(jsonSnippet);
 		}
 	}
 
-	private void renderFacet(Facet facet, int num) throws Exception {
-		FacetField facetField = facet.getFacetField();
-		int k = 0;
-		if (facet.getArray().length > 0) {
-			if (num == 0)
-				stringBuffer.append(JSONObject.quote(facetField.getName())
-						+ JSON_COLON);
-			else
-				stringBuffer.append(JSON_COMMA
-						+ JSONObject.quote(facetField.getName()) + JSON_COLON);
-
-			stringBuffer.append(JSON_OPENING_SQUARE_BRACKET);
-			for (FacetItem facetItem : facet) {
-				stringBuffer.append(JSON_OPENING_BRACE);
-				stringBuffer.append(JSONObject.quote("name") + JSON_COLON);
-				stringBuffer.append(JSONObject.quote(StringEscapeUtils
-						.escapeXml(facetItem.getTerm())) + JSON_COMMA);
-				stringBuffer.append(JSONObject.quote("count") + JSON_COLON);
-				stringBuffer.append(facetItem.getCount());
-				if (k == facet.getArray().length - 1) {
-					stringBuffer.append(JSON_CLOSING_BRACE);
-				} else {
-					stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
-				}
-				k++;
-			}
-			stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
-		}
-	}
-
-	private void renderFacets() throws Exception {
+	@SuppressWarnings("unchecked")
+	private void renderFacets(JSONObject jsonResponse) throws Exception {
 		FacetList facetList = result.getFacetList();
 		if (facetList == null)
 			return;
-		stringBuffer.append(JSON_COMMA + JSONObject.quote("faceting")
-				+ JSON_COLON + JSON_OPENING_BRACE);
-		int num = 0;
+		ArrayList<JSONObject> jsonFacetingList = new ArrayList<JSONObject>();
 		for (Facet facet : facetList) {
-			renderFacet(facet, num);
-			num++;
+			JSONObject jsonFaceting = new JSONObject();
+			FacetField facetField = facet.getFacetField();
+			jsonFaceting.put("fieldName", facetField.getName());
+			ArrayList<JSONObject> jsonFacetList = new ArrayList<JSONObject>();
+			renderFacet(facet, jsonFacetList);
+			jsonFaceting.put("facet", jsonFacetList);
+			jsonFacetingList.add(jsonFaceting);
 		}
-		stringBuffer.append(JSON_CLOSING_BRACE);
+		jsonResponse.put("faceting", jsonFacetingList);
 	}
 
-	private void renderSpellCheck(SpellCheck spellCheck, int spellCount)
+	@SuppressWarnings("unchecked")
+	private void renderFacet(Facet facet, ArrayList<JSONObject> jsonFacetList)
 			throws Exception {
-		stringBuffer.append(JSON_OPENING_BRACE);
-		for (SpellCheckItem spellCheckItem : spellCheck) {
-			stringBuffer.append(JSONObject.quote("word") + JSON_COLON);
-			stringBuffer.append(JSONObject.quote(StringEscapeUtils
-					.escapeXml(spellCheckItem.getWord())));
-			stringBuffer.append(JSON_COMMA + JSONObject.quote("suggest")
-					+ JSON_COLON + JSON_OPENING_SQUARE_BRACKET);
-			int suggestItemCount = 0;
-			for (String suggest : spellCheckItem.getSuggestions()) {
-				stringBuffer.append(JSON_OPENING_BRACE);
-				stringBuffer
-						.append(JSONObject.quote("value")
-								+ JSON_COLON
-								+ JSONObject.quote(StringEscapeUtils
-										.escapeXml(suggest)));
-				if (suggestItemCount == spellCheckItem.getSuggestions().length - 1)
-					stringBuffer.append(JSON_CLOSING_BRACE);
-				else
-					stringBuffer.append(JSON_CLOSING_BRACE + JSON_COMMA);
-				suggestItemCount++;
-			}
-			stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
+		for (FacetItem facetItem : facet) {
+			JSONObject jsonFacet = new JSONObject();
+			jsonFacet.put("name",
+					StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			jsonFacet.put("value", facetItem.getCount());
+			jsonFacetList.add(jsonFacet);
 		}
-		stringBuffer.append(JSON_CLOSING_BRACE);
+
 	}
 
-	private void renderSpellChecks() throws Exception {
+	@SuppressWarnings("unchecked")
+	private void renderSpellCheck(SpellCheck spellCheck,
+			ArrayList<JSONObject> jsonSpellCheckList) throws Exception {
+
+		for (SpellCheckItem spellCheckItem : spellCheck) {
+			JSONObject jsonSpellCheck = new JSONObject();
+			jsonSpellCheck.put("name",
+					StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
+			ArrayList<JSONObject> jsonSpellcheckWords = new ArrayList<JSONObject>();
+			for (String suggest : spellCheckItem.getSuggestions()) {
+				JSONObject jsonSpellSuggest = new JSONObject();
+				jsonSpellSuggest.put("suggest",
+						StringEscapeUtils.escapeXml(suggest));
+				jsonSpellcheckWords.add(jsonSpellSuggest);
+			}
+			jsonSpellCheck.put("suggestions", jsonSpellcheckWords);
+			jsonSpellCheckList.add(jsonSpellCheck);
+		}
+
+	}
+
+	@SuppressWarnings("unchecked")
+	private void renderSpellChecks(JSONObject jsonResponse) throws Exception {
 		SpellCheckList spellChecklist = result.getSpellCheckList();
+		ArrayList<JSONObject> jsonSpellCheckArray = new ArrayList<JSONObject>();
 		if (spellChecklist == null)
 			return;
-		stringBuffer.append(JSON_COMMA + JSONObject.quote("spellcheck")
-				+ JSON_COLON + JSON_OPENING_BRACE);
 
-		int spellCount = 0;
 		for (SpellCheck spellCheck : spellChecklist) {
+			JSONObject jsonSpellCheck = new JSONObject();
+			ArrayList<JSONObject> jsonSpellcheckList = new ArrayList<JSONObject>();
 			String fieldName = spellCheck.getFieldName();
-			stringBuffer.append(JSONObject.quote(fieldName) + JSON_COLON
-					+ JSON_OPENING_SQUARE_BRACKET);
-			renderSpellCheck(spellCheck, spellCount);
-			if (spellCount == spellChecklist.getList().size() - 1)
-				stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET);
-			else
-				stringBuffer.append(JSON_CLOSING_SQUARE_BRACKET + JSON_COMMA);
-			spellCount++;
+			jsonSpellCheck.put("fieldName", fieldName);
+			renderSpellCheck(spellCheck, jsonSpellcheckList);
+			jsonSpellCheck.put("word", jsonSpellcheckList);
+			jsonSpellCheckArray.add(jsonSpellCheck);
 		}
-		stringBuffer.append(JSON_CLOSING_BRACE);
+		jsonResponse.put("spellcheck", jsonSpellCheckArray);
 	}
 
 	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
 		servletTransaction.setResponseContentType("application/json");
-		render(servletTransaction.getWriter("UTF-8"), "json");
+		render(servletTransaction.getWriter("UTF-8"), indent);
 	}
 
-	private void render(PrintWriter writer, String format) throws Exception {
-		renderPrefix();
-		renderDocuments();
-		renderFacets();
-		renderSpellChecks();
-		renderSuffix();
-		JSONObject json = new JSONObject(stringBuffer.toString());
-		writer.println(json.toString(4));
+	@SuppressWarnings("unchecked")
+	private void render(PrintWriter writer, String indent) throws Exception {
+		JSONObject jsonResponse = new JSONObject();
+		renderPrefix(jsonResponse);
+		renderDocuments(jsonResponse);
+		renderFacets(jsonResponse);
+		renderSpellChecks(jsonResponse);
+		JSONObject json = new JSONObject();
+		json.put("response", jsonResponse);
+		if ("yes".equalsIgnoreCase(indent))
+			writer.println(new org.json.JSONObject(json.toJSONString())
+					.toString(4));
+		else
+			writer.println(json);
 	}
 }
