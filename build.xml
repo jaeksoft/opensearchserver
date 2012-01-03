@@ -229,7 +229,7 @@
 	</target>
 
 	<target name="javadoc">
-		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" />
+		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" classpathref="project.class.path" />
 	</target>
 
 	<target name="clean" description="clean up">
