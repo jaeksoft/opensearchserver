@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<renderer name="test" request="search" searchButtonLabel="Search">
+	<style>font-family: arial,sans-serif; font-size: small;
+	</style>
+	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url">
+		<cssStyle>font-size:medium;</cssStyle>
+	</field>
+	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" />
+	<field fieldName="url" fieldType="FIELD" urlFieldName="">
+		<cssStyle>color: #0E774A;</cssStyle>
+	</field>
+</renderer>
