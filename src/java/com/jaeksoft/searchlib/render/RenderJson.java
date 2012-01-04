@@ -29,7 +29,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.json.simple.JSONObject;
@@ -179,8 +178,7 @@ public class RenderJson implements Render {
 			throws Exception {
 		for (FacetItem facetItem : facet) {
 			JSONObject jsonFacet = new JSONObject();
-			jsonFacet.put("name",
-					StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			jsonFacet.put("name", facetItem.getTerm());
 			jsonFacet.put("value", facetItem.getCount());
 			jsonFacetList.add(jsonFacet);
 		}
@@ -193,13 +191,11 @@ public class RenderJson implements Render {
 
 		for (SpellCheckItem spellCheckItem : spellCheck) {
 			JSONObject jsonSpellCheck = new JSONObject();
-			jsonSpellCheck.put("name",
-					StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
+			jsonSpellCheck.put("name", spellCheckItem.getWord());
 			ArrayList<JSONObject> jsonSpellcheckWords = new ArrayList<JSONObject>();
 			for (String suggest : spellCheckItem.getSuggestions()) {
 				JSONObject jsonSpellSuggest = new JSONObject();
-				jsonSpellSuggest.put("suggest",
-						StringEscapeUtils.escapeXml(suggest));
+				jsonSpellSuggest.put("suggest", suggest);
 				jsonSpellcheckWords.add(jsonSpellSuggest);
 			}
 			jsonSpellCheck.put("suggestions", jsonSpellcheckWords);
