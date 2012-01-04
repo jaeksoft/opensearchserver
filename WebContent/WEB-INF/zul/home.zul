@@ -42,7 +42,7 @@
 						<label value="Template: " />
 						<listbox mold="select"
 							selectedItem="@{home.newIndexTemplate}"
-							model="@{home.templateList}" onSelect="home.onReload()">
+							model="@{home.templateList}">
 							<listitem self="@{each=telist}"
 								label="@{telist.template.publicName}" />
 						</listbox>

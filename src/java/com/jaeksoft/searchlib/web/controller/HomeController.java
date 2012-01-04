@@ -106,6 +106,7 @@ public class HomeController extends CommonController {
 
 	public void setNewIndexTemplate(TemplateList indexTemplate) {
 		this.indexTemplate = indexTemplate;
+		reloadPage();
 	}
 
 	public void onNewIndex() throws SearchLibException, InterruptedException,

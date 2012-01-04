@@ -146,9 +146,9 @@ a:active{
 	%>
 	<hr />
 	<div align="right">
-	<a href="http://www.open-search-server.com/">
-	 <label>Enterprise Search Made Yours.</label></a>
-	 <img alt="OPENSEARCHSERVER" src=" images/oss_logo_32.png" style="vertical-align:baseline;"/>
+		<a href="http://www.open-search-server.com/" target="_blank">
+	 				<label class="osscmnrdr">Enterprise Search Made Yours.</label></a>
+	 			<img alt="OPENSEARCHSERVER" src=" images/oss_logo_32.png" style="vertical-align:bottom" />
 	 </div>
 </body>
 </html>

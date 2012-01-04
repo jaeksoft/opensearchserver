@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<renderer name="test" request="search" searchButtonLabel="Search">
+<renderer name="default" request="search" searchButtonLabel="Search">
 	<style>font-family: arial,sans-serif; font-size: small;
 	</style>
 	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url">
