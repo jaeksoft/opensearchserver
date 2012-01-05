@@ -84,12 +84,6 @@ public class FragmentList {
 		return text.substring(0, pos);
 	}
 
-	final private static void appendSeparator(StringBuffer snippet,
-			String separator) {
-		snippet.append(separator);
-		snippet.append(' ');
-	}
-
 	/**
 	 * Append the next fragment. Return TRUE is the snippet is not at the
 	 * required size. Return FALSE is the snippet is large enough.
@@ -101,47 +95,41 @@ public class FragmentList {
 	 * @return
 	 */
 	final private static boolean leftAppend(Fragment fragment, int maxLength,
-			StringBuffer snippet, String separator) {
+			StringBuffer snippet, String separator, String[] tags) {
 		int maxLeft = maxLength - snippet.length();
 		if (maxLeft < 0)
 			return false; // The snippet is complete
-		String text = fragment.getFinalText();
+		String text = fragment.getFinalText(tags);
 		String appendText = firstLeft(text, maxLeft);
 		if (appendText == null)
 			return true; // Nothing to append
 		if (snippet.length() > 0)
 			if (fragment.isEdge())
-				appendSeparator(snippet, separator);
+				snippet.append(separator);
 		snippet.append(appendText);
 		if (appendText.length() == text.length())
 			return true; // We have added all the fragment
 		// The fragment has been truncated to fit, the snippet is large enough
-		appendSeparator(snippet, separator);
+		snippet.append(separator);
 		return false;
 	}
 
-	final private static void insertSeparator(StringBuffer snippet,
-			String separator) {
-		snippet.insert(0, ' ');
-		snippet.insert(0, separator);
-	}
-
 	final private static boolean rightAppend(Fragment fragment, int maxLength,
-			StringBuffer snippet, String separator) {
+			StringBuffer snippet, String separator, String[] tags) {
 		int maxLeft = maxLength - snippet.length();
 		if (maxLeft < 0)
 			return false;
-		String text = fragment.getFinalText();
+		String text = fragment.getFinalText(tags);
 		String appendText = lastRight(text, maxLeft);
 		if (appendText == null)
 			return true;
 		if (snippet.length() > 0)
 			if (fragment.isEdge())
-				insertSeparator(snippet, separator);
+				snippet.insert(0, separator);
 		snippet.insert(0, appendText);
 		if (appendText.length() == text.length())
 			return true;
-		insertSeparator(snippet, separator);
+		snippet.insert(0, separator);
 		return false;
 	}
 
@@ -155,22 +143,22 @@ public class FragmentList {
 	 * @return
 	 */
 	final protected StringBuffer getSnippet(int maxLength, String separator,
-			Fragment originalFragment) {
+			String[] tags, Fragment originalFragment) {
 
 		StringBuffer snippet = new StringBuffer();
-		if (!leftAppend(originalFragment, maxLength, snippet, separator))
+		if (!leftAppend(originalFragment, maxLength, snippet, separator, tags))
 			return snippet;
 		// First add next fragment (highlighted or not)
 		Fragment fragment = originalFragment.next();
 		while (fragment != null) {
-			if (!leftAppend(fragment, maxLength, snippet, separator))
+			if (!leftAppend(fragment, maxLength, snippet, separator, tags))
 				return snippet;
 			fragment = fragment.next();
 		}
 		// Then previous fragment (highlighted or not)
 		fragment = originalFragment.previous();
 		while (fragment != null) {
-			if (!rightAppend(fragment, maxLength, snippet, separator))
+			if (!rightAppend(fragment, maxLength, snippet, separator, tags))
 				return snippet;
 			fragment = originalFragment.previous();
 		}

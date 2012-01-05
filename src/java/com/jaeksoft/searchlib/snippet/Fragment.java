@@ -28,11 +28,15 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.memory.MemoryIndex;
 import org.apache.lucene.search.Query;
 
+import com.jaeksoft.searchlib.util.StringUtils;
+
 public class Fragment {
 
 	private String originalText;
 
 	private String highlightedText;
+
+	private String finalText;
 
 	private boolean inSnippet;
 
@@ -50,6 +54,7 @@ public class Fragment {
 			int vectorOffset, boolean isEdge) {
 		this.originalText = originalText;
 		this.highlightedText = null;
+		this.finalText = null;
 		this.inSnippet = false;
 		this.vectorOffset = vectorOffset;
 		this.isEdge = isEdge;
@@ -94,15 +99,19 @@ public class Fragment {
 		return originalText;
 	}
 
-	protected String getFinalText() {
+	protected String getFinalText(String[] allowedTags) {
 		inSnippet = true;
-		if (highlightedText != null)
-			return highlightedText;
-		return originalText;
+		if (finalText != null)
+			return finalText;
+		if (highlightedText != null) {
+			finalText = StringUtils.removeTag(highlightedText, allowedTags);
+		} else
+			finalText = originalText;
+		return finalText;
 	}
 
-	protected String getFinalText(int maxLength) {
-		String text = getFinalText();
+	protected String getFinalText(String[] allowedTags, int maxLength) {
+		String text = getFinalText(allowedTags);
 		if (maxLength > text.length())
 			return text;
 		int pos = maxLength;
@@ -114,12 +123,17 @@ public class Fragment {
 		return text.substring(0, pos);
 	}
 
-	public float score(String fieldName, Analyzer analyzer, Query query) {
+	public float score(String fieldName, Analyzer analyzer, Query query,
+			int maxLength) {
 		if (query == null || analyzer == null)
 			return 0;
 		MemoryIndex index = new MemoryIndex();
 		index.addField(fieldName, originalText, analyzer);
-		score = index.search(query);
+		float searchScore = index.search(query);
+		float sizeScore = (originalText.length() < maxLength) ? (float) originalText
+				.length() / (float) maxLength
+				: maxLength;
+		score = searchScore * sizeScore;
 		return score;
 	}
 

@@ -48,7 +48,6 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -56,6 +55,7 @@ public class SnippetField extends Field {
 
 	private FragmenterAbstract fragmenterTemplate;
 	private String tag;
+	private String[] tags;
 	private int maxDocChar;
 	private String separator;
 	private int maxSnippetSize;
@@ -71,7 +71,7 @@ public class SnippetField extends Field {
 			FragmenterAbstract fragmenterTemplate) {
 		super(fieldName);
 		this.searchTerms = null;
-		this.tag = tag;
+		setTag(tag);
 		this.maxDocChar = maxDocChar;
 		this.separator = separator;
 		this.maxSnippetSize = maxSnippetSize;
@@ -112,6 +112,12 @@ public class SnippetField extends Field {
 	 */
 	public void setTag(String tag) {
 		this.tag = tag;
+		if (tag != null && tag.length() > 0) {
+			tags = new String[2];
+			tags[0] = '<' + tag + '>';
+			tags[1] = "</" + tag + '>';
+		} else
+			tags = null;
 	}
 
 	/**
@@ -252,7 +258,6 @@ public class SnippetField extends Field {
 			Fragment fragment) {
 		if (currentVector == null)
 			return null;
-		boolean bTag = (tag != null && tag.length() > 0);
 		StringBuffer result = new StringBuffer();
 		String originalText = fragment.getOriginalText();
 		int originalTextLength = originalText.length();
@@ -265,18 +270,12 @@ public class SnippetField extends Field {
 			int start = currentVector.getStartOffset() - fragment.vectorOffset;
 			if (start >= startOffset) {
 				result.append(originalText.substring(pos, start - startOffset));
-				if (bTag) {
-					result.append("<");
-					result.append(tag);
-					result.append(">");
-				}
+				if (tags != null)
+					result.append(tags[0]);
 				result.append(originalText.substring(start - startOffset, end
 						- startOffset));
-				if (bTag) {
-					result.append("</");
-					result.append(tag);
-					result.append(">");
-				}
+				if (tags != null)
+					result.append(tags[1]);
 				pos = end - startOffset;
 			}
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
@@ -310,7 +309,6 @@ public class SnippetField extends Field {
 		for (FieldValueItem valueItem : values) {
 			String value = valueItem.getValue();
 			if (value != null) {
-				value = StringUtils.removeTag(value);
 				// VectorOffset++ depends of EndOffset bug #patch Lucene 579 and
 				// 1458
 				fragmenter.getFragments(value, fragments, vectorOffset++);
@@ -332,14 +330,14 @@ public class SnippetField extends Field {
 		Fragment bestScoreFragment = null;
 		fragment = Fragment.findNextHighlightedFragment(fragments.first());
 		while (fragment != null) {
-			fragment.score(name, analyzer, query);
+			fragment.score(name, analyzer, query, maxSnippetSize);
 			bestScoreFragment = Fragment.bestScore(bestScoreFragment, fragment);
 			fragment = Fragment.findNextHighlightedFragment(fragment.next());
 		}
 
 		if (bestScoreFragment != null) {
 			StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
-					separator, bestScoreFragment);
+					separator, tags, bestScoreFragment);
 			if (snippet != null)
 				if (snippet.length() > 0)
 					snippets.add(new FieldValueItem(snippet.toString()));
@@ -348,7 +346,7 @@ public class SnippetField extends Field {
 		}
 
 		StringBuffer snippet = fragments.getSnippet(maxSnippetSize, separator,
-				fragments.first());
+				tags, fragments.first());
 		if (snippet != null)
 			if (snippet.length() > 0)
 				snippets.add(new FieldValueItem(snippet.toString()));
