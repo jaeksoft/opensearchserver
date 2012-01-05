@@ -280,7 +280,7 @@ public class WriterLocal extends WriterAbstract {
 
 	private static Document getLuceneDocument(Schema schema,
 			IndexDocument document) throws IOException, SearchLibException {
-		schema.getQueryPerFieldAnalyzer(document.getLang());
+		schema.getIndexPerFieldAnalyzer(document.getLang());
 		Document doc = new Document();
 		LanguageEnum lang = document.getLang();
 		for (FieldContent fieldContent : document) {

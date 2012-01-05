@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -613,11 +613,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 			Schema schema = searchRequest.getConfig().getSchema();
 			Field defaultField = schema.getFieldList().getDefaultField();
-			Analyzer analyzer = schema.getQueryPerFieldAnalyzer(searchRequest
-					.getLang());
 
-			return searchCache.get(this, searchRequest, schema, defaultField,
-					analyzer);
+			return searchCache.get(this, searchRequest, schema, defaultField);
 
 		} finally {
 			rwl.r.unlock();

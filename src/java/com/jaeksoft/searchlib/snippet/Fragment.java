@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,10 @@
 
 package com.jaeksoft.searchlib.snippet;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.memory.MemoryIndex;
+import org.apache.lucene.search.Query;
+
 public class Fragment {
 
 	private String originalText;
@@ -36,12 +40,23 @@ public class Fragment {
 
 	private boolean isEdge;
 
-	protected Fragment(String originalText, int vectorOffset, boolean isEdge) {
+	private float score;
+
+	private Fragment previousFragment;
+
+	private Fragment nextFragment;
+
+	protected Fragment(Fragment previousFragment, String originalText,
+			int vectorOffset, boolean isEdge) {
 		this.originalText = originalText;
 		this.highlightedText = null;
 		this.inSnippet = false;
 		this.vectorOffset = vectorOffset;
 		this.isEdge = isEdge;
+		this.previousFragment = previousFragment;
+		this.nextFragment = null;
+		if (previousFragment != null)
+			previousFragment.nextFragment = this;
 	}
 
 	protected boolean isHighlighted() {
@@ -97,6 +112,56 @@ public class Fragment {
 		if (pos == 0)
 			pos = maxLength;
 		return text.substring(0, pos);
+	}
+
+	public float score(String fieldName, Analyzer analyzer, Query query) {
+		if (query == null || analyzer == null)
+			return 0;
+		MemoryIndex index = new MemoryIndex();
+		index.addField(fieldName, originalText, analyzer);
+		score = index.search(query);
+		return score;
+	}
+
+	/**
+	 * Returns the fragment which have the higher score. If the fragments has
+	 * the same score, the fragment1 is returned.
+	 * 
+	 * @param fragment1
+	 * @param fragment2
+	 * @return
+	 */
+	public static final Fragment bestScore(Fragment fragment1,
+			Fragment fragment2) {
+		if (fragment1 == null)
+			return fragment2;
+		if (fragment2 == null)
+			return fragment1;
+		return fragment2.score > fragment1.score ? fragment2 : fragment1;
+	}
+
+	public final Fragment next() {
+		return nextFragment;
+	}
+
+	public final Fragment previous() {
+		return previousFragment;
+	}
+
+	/**
+	 * Find the next highlighted fragment
+	 * 
+	 * @param iterator
+	 * @return
+	 */
+	final static protected Fragment findNextHighlightedFragment(
+			Fragment fragment) {
+		while (fragment != null) {
+			if (fragment.isHighlighted() && !fragment.isInSnippet())
+				return fragment;
+			fragment = fragment.next();
+		}
+		return null;
 	}
 
 }

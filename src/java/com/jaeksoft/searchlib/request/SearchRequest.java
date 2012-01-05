@@ -35,6 +35,7 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
@@ -85,6 +86,7 @@ public class SearchRequest implements Externalizable {
 	private transient Config config;
 	private transient Timer timer;
 	private transient long finalTime;
+	private transient Analyzer analyzer;
 
 	private String requestName;
 	private FilterList filterList;
@@ -162,6 +164,7 @@ public class SearchRequest implements Externalizable {
 		this.lang = null;
 		this.complexQuery = null;
 		this.primitiveQuery = null;
+		this.analyzer = null;
 		this.queryString = null;
 		this.patternQuery = null;
 		this.scoreFunction = null;
@@ -219,6 +222,7 @@ public class SearchRequest implements Externalizable {
 			this.lang = searchRequest.lang;
 			this.complexQuery = null;
 			this.primitiveQuery = null;
+			this.analyzer = null;
 			this.queryString = searchRequest.queryString;
 			this.patternQuery = searchRequest.patternQuery;
 			this.scoreFunction = searchRequest.scoreFunction;
@@ -236,6 +240,7 @@ public class SearchRequest implements Externalizable {
 			this.complexQuery = null;
 			this.primitiveQuery = null;
 			this.queryParser = null;
+			this.analyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -284,6 +289,29 @@ public class SearchRequest implements Externalizable {
 			return this.config;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	private Analyzer checkAnalyzer() throws SearchLibException {
+		if (analyzer == null)
+			analyzer = config.getSchema().getQueryPerFieldAnalyzer(lang);
+		return analyzer;
+	}
+
+	public Analyzer getAnalyzer() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (analyzer != null)
+				return analyzer;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			checkAnalyzer();
+			return analyzer;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -371,7 +399,7 @@ public class SearchRequest implements Externalizable {
 		mlt.setMinDocFreq(moreLikeThisMinDocFreq);
 		mlt.setMinTermFreq(moreLikeThisMinTermFreq);
 		mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
-		mlt.setAnalyzer(config.getSchema().getQueryPerFieldAnalyzer(lang));
+		mlt.setAnalyzer(checkAnalyzer());
 		if (moreLikeThisStopWords != null)
 			mlt.setStopWords(getConfig().getStopWordsManager().getWords(
 					moreLikeThisStopWords));
@@ -420,7 +448,7 @@ public class SearchRequest implements Externalizable {
 			throw new SearchLibException(
 					"Please select a default field in the schema");
 		queryParser = new QueryParser(Version.LUCENE_29, field.getName(),
-				schema.getQueryPerFieldAnalyzer(getLang()));
+				checkAnalyzer());
 		queryParser.setAllowLeadingWildcard(allowLeadingWildcard);
 		queryParser.setPhraseSlop(phraseSlop);
 		queryParser.setDefaultOperator(defaultOperator);
@@ -773,7 +801,10 @@ public class SearchRequest implements Externalizable {
 	public void setLang(LanguageEnum lang) {
 		rwl.w.lock();
 		try {
+			if (this.lang == lang)
+				return;
 			this.lang = lang;
+			analyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}

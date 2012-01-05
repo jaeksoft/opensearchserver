@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,17 +24,14 @@
 
 package com.jaeksoft.searchlib.snippet;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermPositionVector;
 import org.apache.lucene.index.TermVectorOffsetInfo;
@@ -51,50 +48,45 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SnippetField extends Field implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4048179036729127707L;
+public class SnippetField extends Field {
 
 	private FragmenterAbstract fragmenterTemplate;
 	private String tag;
 	private int maxDocChar;
 	private String separator;
 	private int maxSnippetSize;
-	private int maxSnippetNumber;
 	private String[] searchTerms;
+	private Query query;
+	private Analyzer analyzer;
 
 	public SnippetField() {
 	}
 
 	private SnippetField(String fieldName, String tag, int maxDocChar,
-			String separator, int maxSnippetNumber, int maxSnippetSize,
+			String separator, int maxSnippetSize,
 			FragmenterAbstract fragmenterTemplate) {
 		super(fieldName);
 		this.searchTerms = null;
 		this.tag = tag;
 		this.maxDocChar = maxDocChar;
 		this.separator = separator;
-		this.maxSnippetNumber = maxSnippetNumber;
 		this.maxSnippetSize = maxSnippetSize;
 		this.fragmenterTemplate = fragmenterTemplate;
 	}
 
 	public SnippetField(String fieldName) {
-		this(fieldName, "em", Integer.MAX_VALUE, "...", 5, 200,
+		this(fieldName, "em", Integer.MAX_VALUE, "...", 200,
 				FragmenterAbstract.NOFRAGMENTER);
 	}
 
 	@Override
 	public Field duplicate() {
 		return new SnippetField(name, tag, maxDocChar, separator,
-				maxSnippetNumber, maxSnippetSize, fragmenterTemplate);
+				maxSnippetSize, fragmenterTemplate);
 	}
 
 	public String getFragmenter() {
@@ -168,21 +160,6 @@ public class SnippetField extends Field implements Externalizable {
 	}
 
 	/**
-	 * @return the maxSnippetNumber
-	 */
-	public int getMaxSnippetNumber() {
-		return maxSnippetNumber;
-	}
-
-	/**
-	 * @param maxSnippetNumber
-	 *            the maxSnippetNumber to set
-	 */
-	public void setMaxSnippetNumber(int maxSnippetNumber) {
-		this.maxSnippetNumber = maxSnippetNumber;
-	}
-
-	/**
 	 * Retourne la liste des champs "snippet".
 	 * 
 	 * @param xPath
@@ -221,8 +198,7 @@ public class SnippetField extends Field implements Externalizable {
 		if (separator == null)
 			separator = "...";
 		SnippetField field = new SnippetField(source.get(fieldName).getName(),
-				tag, maxDocChar, separator, maxSnippetNumber, maxSnippetSize,
-				fragmenter);
+				tag, maxDocChar, separator, maxSnippetSize, fragmenter);
 		target.add(field);
 	}
 
@@ -253,7 +229,8 @@ public class SnippetField extends Field implements Externalizable {
 	public void initSearchTerms(SearchRequest searchRequest)
 			throws ParseException, SyntaxError, IOException, SearchLibException {
 		synchronized (this) {
-			Query query = searchRequest.getSnippetQuery();
+			this.query = searchRequest.getSnippetQuery();
+			this.analyzer = searchRequest.getAnalyzer();
 			Set<Term> terms = new HashSet<Term>();
 			query.extractTerms(terms);
 			String[] tempTerms = new String[terms.size()];
@@ -333,43 +310,45 @@ public class SnippetField extends Field implements Externalizable {
 		for (FieldValueItem valueItem : values) {
 			String value = valueItem.getValue();
 			if (value != null) {
+				value = StringUtils.removeTag(value);
 				// VectorOffset++ depends of EndOffset bug #patch Lucene 579 and
 				// 1458
 				fragmenter.getFragments(value, fragments, vectorOffset++);
 				if (fragments.getTotalSize() > maxDocChar)
 					break;
-
 			}
 		}
 		if (fragments.size() == 0)
 			return false;
-		ListIterator<Fragment> fragmentIterator = fragments.iterator();
-		while (fragmentIterator.hasNext()) {
-			Fragment fragment = fragmentIterator.next();
+
+		Fragment fragment = fragments.first();
+		while (fragment != null) {
 			currentVector = checkValue(currentVector, vectorIterator,
 					startOffset, fragment);
 			startOffset += fragment.getOriginalText().length();
+			fragment = fragment.next();
 		}
 
-		fragmentIterator = fragments.iterator();
-		int snippetCounter = maxSnippetNumber;
-		while (snippetCounter-- != 0) {
-			Fragment fragment = fragments
-					.findNextHighlightedFragment(fragmentIterator);
-			if (fragment == null)
-				break;
+		Fragment bestScoreFragment = null;
+		fragment = Fragment.findNextHighlightedFragment(fragments.first());
+		while (fragment != null) {
+			fragment.score(name, analyzer, query);
+			bestScoreFragment = Fragment.bestScore(bestScoreFragment, fragment);
+			fragment = Fragment.findNextHighlightedFragment(fragment.next());
+		}
+
+		if (bestScoreFragment != null) {
 			StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
-					separator, fragmentIterator, fragment);
+					separator, bestScoreFragment);
 			if (snippet != null)
 				if (snippet.length() > 0)
 					snippets.add(new FieldValueItem(snippet.toString()));
+			if (snippets.size() > 0)
+				return true;
 		}
-		if (snippets.size() > 0)
-			return true;
 
-		fragmentIterator = fragments.iterator();
 		StringBuffer snippet = fragments.getSnippet(maxSnippetSize, separator,
-				fragmentIterator, fragmentIterator.next());
+				fragments.first());
 		if (snippet != null)
 			if (snippet.length() > 0)
 				snippets.add(new FieldValueItem(snippet.toString()));
@@ -377,36 +356,10 @@ public class SnippetField extends Field implements Externalizable {
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		super.readExternal(in);
-		fragmenterTemplate = External.readObject(in);
-		tag = External.readUTF(in);
-		maxDocChar = in.readInt();
-		separator = External.readUTF(in);
-		maxSnippetSize = in.readInt();
-		maxSnippetNumber = in.readInt();
-		searchTerms = External.readStringArray(in);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
-		External.writeObject(fragmenterTemplate, out);
-		External.writeUTF(tag, out);
-		out.writeInt(maxDocChar);
-		External.writeUTF(separator, out);
-		out.writeInt(maxSnippetSize);
-		out.writeInt(maxSnippetNumber);
-		External.writeStringArray(searchTerms, out);
-	}
-
-	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("field", "name", name, "tag", tag, "maxDocChar",
 				Integer.toString(maxDocChar), "separator", separator,
 				"maxSnippetSize", Integer.toString(maxSnippetSize),
-				"maxSnippetNumber", Integer.toString(maxSnippetNumber),
 				"fragmenterClass",
 				fragmenterTemplate != null ? fragmenterTemplate.getClass()
 						.getSimpleName() : null);
@@ -429,8 +382,6 @@ public class SnippetField extends Field implements Externalizable {
 		if ((c = separator.compareTo(f.separator)) != 0)
 			return c;
 		if ((c = maxSnippetSize - f.maxSnippetSize) != 0)
-			return c;
-		if ((c = maxSnippetNumber - f.maxSnippetNumber) != 0)
 			return c;
 		return 0;
 	}

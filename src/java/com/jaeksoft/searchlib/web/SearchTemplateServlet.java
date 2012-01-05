@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C)2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -110,7 +110,6 @@ public class SearchTemplateServlet extends AbstractServlet {
 		String maxSnippetSize = transaction
 				.getParameterString("qt.maxSnippetSize");
 		String tag = transaction.getParameterString("qt.tag");
-		String maxSnippetNo = transaction.getParameterString("qt.maxSnippetNo");
 		String snippetField = transaction.getParameterString("snippetfield");
 		String fragmenter = transaction.getParameterString("qt.fragmenter");
 		Client client = transaction.getClient();
@@ -125,9 +124,6 @@ public class SearchTemplateServlet extends AbstractServlet {
 				if (maxSnippetSize != null && !maxSnippetSize.equals(""))
 					snippetFieldParameter.setMaxSnippetSize(Integer
 							.parseInt(maxSnippetSize));
-				if (maxSnippetNo != null && !maxSnippetNo.equals(""))
-					snippetFieldParameter.setMaxSnippetNumber(Integer
-							.parseInt(maxSnippetNo));
 				if (tag != null && !tag.equals(""))
 					snippetFieldParameter.setTag(tag);
 				if (fragmenter != null && !fragmenter.equals(""))

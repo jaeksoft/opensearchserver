@@ -24,7 +24,6 @@
 			<column label="Tag" />
 			<column label="Separator" />
 			<column label="Max snippet size" />
-			<column label="Max snippet number" />
 			<column label="Max field size" />
 			<column label="Action" />
 		</columns>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,12 +49,12 @@ public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 	}
 
 	public DocSetHits get(ReaderLocal reader, SearchRequest searchRequest,
-			Schema schema, Field defaultField, Analyzer analyzer)
-			throws ParseException, SyntaxError, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+			Schema schema, Field defaultField) throws ParseException,
+			SyntaxError, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		rwl.w.lock();
 		try {
+			Analyzer analyzer = searchRequest.getAnalyzer();
 			DocSetHitCacheKey key = new DocSetHitCacheKey(searchRequest,
 					defaultField, analyzer);
 			DocSetHits dsh = getAndPromote(key);
