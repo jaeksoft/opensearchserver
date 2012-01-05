@@ -37,6 +37,13 @@
 				<filter class="LowerCaseFilter" />
 			</analyzer>
 
+			<!-- Phonetic analyzer -->
+			<analyzer name="PhoneticAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="PhoneticFilter" codec="Beider Morse" scope="QUERY_INDEX" />
+			</analyzer>
+
 			<!-- Chinese -->
 			<analyzer name="TextAnalyzer" lang="zh" tokenizer="ChineseTokenizer">
 				<filter class="ChineseFilter" />
@@ -156,6 +163,7 @@
 				<filter class="SnowballTurkishFilter" />
 			</analyzer>
 		</analyzers>
+
 		<fields default="content" unique="uri">
 			<!-- mandatory parameters -->
 			<field name="uri" indexed="yes" stored="yes" />
@@ -166,15 +174,17 @@
 			<!-- mandatory parameters -->
 			<field name="lang" indexed="yes" stored="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
-				stored="compress" termVector="positions_offsets" />
+				stored="yes" termVector="positions_offsets" />
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="compress" termVector="positions_offsets" />
+				stored="no" termVector="no" />
+			<field name="titlePhonetic" analyzer="PhoneticAnalyzer"
+				indexed="yes" stored="no" termVector="no" />
 			<field name="content" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="compress" termVector="positions_offsets" />
-			<field name="metaDescription" indexed="no" stored="compress" />
-			<field name="metaKeywords" indexed="no" stored="compress" />
+				stored="no" termVector="no" />
+			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
+				indexed="yes" stored="no" termVector="no" />
 		</fields>
 	</schema>
 

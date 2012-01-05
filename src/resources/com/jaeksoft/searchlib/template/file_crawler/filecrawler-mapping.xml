@@ -22,8 +22,10 @@
 	<link source="uri" target="uri" />
 	<link source="content" target="content" />
 	<link source="content" target="contentExact" />
+	<link source="content" target="contentPhonetic" />
 	<link source="title" target="title" />
 	<link source="title" target="titleExact" />
+	<link source="title" target="titlePhonetic" />
 	<link source="directory" target="directory" />
 	<link source="subDirectory" target="subDirectory" />
 	<link source="fileSystemDate" target="fileSystemDate" />

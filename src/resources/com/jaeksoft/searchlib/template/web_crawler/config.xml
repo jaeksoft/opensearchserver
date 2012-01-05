@@ -33,6 +33,13 @@
 				<filter class="ISOLatin1AccentFilter" />
 			</analyzer>
 
+			<!-- Phonetic analyzer -->
+			<analyzer name="PhoneticAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="PhoneticFilter" codec="Beider Morse" scope="QUERY_INDEX" />
+			</analyzer>
+
 			<!-- Default text analyser -->
 			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
 				<filter class="LowerCaseFilter" />
@@ -162,19 +169,26 @@
 		<fields default="content" unique="url">
 			<field name="lang" indexed="yes" stored="no" termVector="yes" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
-				stored="compress" termVector="positions_offsets" />
+				stored="yes" termVector="positions_offsets" />
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="compress" termVector="positions_offsets" />
+				stored="no" termVector="no" />
+			<field name="titlePhonetic" analyzer="PhoneticAnalyzer"
+				indexed="yes" stored="no" termVector="no" />
 			<field name="content" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="compress" termVector="positions_offsets" />
-			<field name="contentBaseType" indexed="yes" stored="no" termVector="yes" />
+				stored="no" termVector="no" />
+			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
+				indexed="yes" stored="no" termVector="no" />
+			<field name="contentBaseType" indexed="yes" stored="no"
+				termVector="yes" />
 			<field name="url" indexed="yes" stored="no" termVector="yes" />
 			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
-				termVector="positions_offsets" />
+				termVector="no" />
 			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
-				termVector="positions_offsets" />
+				termVector="no" />
+			<field name="urlPhonetic" indexed="yes" stored="no"
+				analyzer="PhoneticAnalyzer" termVector="no" />
 			<field name="metaDescription" indexed="no" stored="compress" />
 			<field name="metaKeywords" indexed="no" stored="compress" />
 			<field name="host" indexed="yes" stored="no" termVector="yes" />

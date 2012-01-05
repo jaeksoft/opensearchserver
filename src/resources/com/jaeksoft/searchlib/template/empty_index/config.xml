@@ -37,6 +37,13 @@
 				<filter class="LowerCaseFilter" />
 			</analyzer>
 
+			<!-- Phonetic analyzer -->
+			<analyzer name="PhoneticAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="PhoneticFilter" codec="Beider Morse" scope="QUERY_INDEX" />
+			</analyzer>
+
 			<!-- Chinese -->
 			<analyzer name="TextAnalyzer" lang="zh" tokenizer="ChineseTokenizer">
 				<filter class="ChineseFilter" />

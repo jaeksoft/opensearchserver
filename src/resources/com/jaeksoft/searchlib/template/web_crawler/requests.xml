@@ -25,19 +25,16 @@
 	<request name="search" phraseSlop="2" defaultOperator="AND"
 		start="0" rows="10" lang="en">
 
-		<query>title:($$)^10 OR title:("$$")^10
-			OR
-			titleExact:($$)^10 OR titleExact:("$$")^10
-			OR url:($$)^5 OR
-			url:("$$")^5
-			OR urlSplit:($$)^5 OR urlSplit:("$$")^5
-			OR
-			urlExact:($$)^5
-			OR urlExact:("$$")^5
-			OR content:($$) OR
-			content:("$$")
-			OR
-			contentExact:($$) OR contentExact:("$$")</query>
+		<query>title:($$)^10 OR title:("$$")^10 OR
+titleExact:($$)^10 OR titleExact:("$$")^10 OR
+titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10 OR
+url:($$)^5 OR url:("$$")^5 OR
+urlSplit:($$)^5 OR urlSplit:("$$")^5 OR
+urlExact:($$)^5 OR urlExact:("$$")^5 OR
+urlPhonetic:($$)^5 OR urlPhonetic:("$$")^5 OR
+content:($$) OR content:("$$") OR
+contentExact:($$) OR contentExact:("$$") OR
+contentPhonetic:($$) OR contentPhonetic:("$$")</query>
 
 		<returnFields>
 			<field name="url" />
