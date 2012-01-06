@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,9 +40,7 @@ public enum CrawlStatus {
 
 	INDEXATION("Indexation"),
 
-	OPTMIZING_INDEX("Optimizing index"),
-
-	PUBLISH_INDEX("Publishing index"),
+	OPTIMIZATION("database optimization"),
 
 	EXTRACTING_URLS("Extracting urls"),
 

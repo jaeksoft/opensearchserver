@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,8 +43,7 @@ public class PptxParser extends Parser {
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
 			ParserFieldEnum.creator, ParserFieldEnum.subject,
 			ParserFieldEnum.description, ParserFieldEnum.content,
-			ParserFieldEnum.lang, ParserFieldEnum.lang_method,
-			ParserFieldEnum.filename, ParserFieldEnum.content_type };
+			ParserFieldEnum.lang, ParserFieldEnum.lang_method };
 
 	public PptxParser() {
 		super(fl);

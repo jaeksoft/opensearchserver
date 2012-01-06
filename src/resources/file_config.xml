@@ -18,17 +18,14 @@
 			fieldCache="500" />
 	</indices>
 	<schema>
-		<fields default="content" unique="uri">
+		<fields default="uri" unique="uri">
+			<field name="uri" indexed="yes" stored="no" termVector="yes" />
 			<field name="repository" indexed="yes" stored="no" termVector="yes" />
-			<field name="uri" indexed="yes" stored="yes" termVector="yes" />
 			<field name="directory" indexed="yes" stored="no" termVector="yes" />
 			<field name="subDirectory" indexed="yes" stored="no"
 				termVector="yes" />
-			<field name="content" indexed="yes" stored="no" termVector="yes" />
 			<field name="lang" indexed="yes" stored="no" termVector="yes" />
 			<field name="langMethod" indexed="yes" stored="no" termVector="yes" />
-			<field name="contentLength" indexed="yes" stored="no"
-				termVector="yes" />
 			<field name="parserStatus" indexed="yes" stored="no"
 				termVector="yes" />
 			<field name="fetchStatus" indexed="yes" stored="no" termVector="yes" />
@@ -36,6 +33,7 @@
 			<field name="fileSystemDate" indexed="yes" stored="no"
 				termVector="yes" />
 			<field name="crawlDate" indexed="yes" stored="no" termVector="yes" />
+			<field name="fileName" indexed="yes" stored="no" termVector="yes" />
 			<field name="fileSize" indexed="yes" stored="no" termVector="yes" />
 			<field name="fileExtension" indexed="yes" stored="no"
 				termVector="yes" />
@@ -48,14 +46,14 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				repository,uri,directory,subDirectory,content,contentLength,
-				lang,langMethod,parserStatus,fetchStatus,indexStatus,fileSystemDate
-				crawlDate,fileSize,fileExtension,fileType
+				uri,repository,directory,subDirectory, lang,langMethod,
+				parserStatus,fetchStatus,indexStatus,fileSystemDate,
+				crawlDate,fileName,fileSize,fileExtension,fileType,md5size
 			</returnFields>
 		</request>
 		<request name="fileInfo" defaultOperator="and" start="0" rows="0">
 			<query>$$</query>
-			<returnFields>uri,fileSystemDate,fileType,parserStatus,fetchStatus,indexStatus
+			<returnFields>uri,fileSystemDate,fileType,fileSize,parserStatus,fetchStatus,indexStatus
 			</returnFields>
 		</request>
 	</requests>

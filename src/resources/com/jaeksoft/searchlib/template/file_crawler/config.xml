@@ -166,13 +166,12 @@
 
 		<fields default="content" unique="uri">
 			<!-- mandatory parameters -->
-			<field name="uri" indexed="yes" stored="yes" />
-			<field name="directory" indexed="yes" stored="yes" />
-			<field name="subDirectory" indexed="yes" stored="no" />
-			<field name="crawlDate" indexed="yes" stored="yes" />
-			<field name="fileSystemDate" indexed="yes" stored="yes" />
-			<!-- mandatory parameters -->
-			<field name="lang" indexed="yes" stored="yes" />
+			<field name="uri" indexed="yes" stored="no" termVector="yes" />
+			<field name="directory" indexed="yes" stored="no" termVector="yes" />
+			<field name="subDirectory" indexed="yes" stored="no" termVector="yes" />
+			<field name="fileSystemDate" indexed="yes" stored="no"  termVector="yes" />
+			<field name="fileSize" indexed="yes" stored="no" termVector="yes" />
+			<field name="lang" indexed="yes" stored="no" termVector="yes"/>
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="yes" termVector="positions_offsets" />
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
@@ -184,6 +183,12 @@
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
 				stored="no" termVector="no" />
 			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
+				indexed="yes" stored="no" termVector="no" />
+			<field name="fileName" analyzer="TextAnalyzer" indexed="yes"
+				stored="yes" termVector="positions_offsets" />
+			<field name="fileNameExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="no" termVector="no" />
+			<field name="fileNamePhonetic" analyzer="PhoneticAnalyzer"
 				indexed="yes" stored="no" termVector="no" />
 		</fields>
 	</schema>

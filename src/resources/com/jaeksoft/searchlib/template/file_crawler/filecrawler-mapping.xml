@@ -20,15 +20,13 @@
 	<!--   See the GNU General Public License for more details. -->
 <map>
 	<link source="uri" target="uri" />
-	<link source="content" target="content" />
-	<link source="content" target="contentExact" />
-	<link source="content" target="contentPhonetic" />
-	<link source="title" target="title" />
-	<link source="title" target="titleExact" />
-	<link source="title" target="titlePhonetic" />
+	<link source="fileName" target="fileName" />
+	<link source="fileName" target="fileNameExact" />
+	<link source="fileName" target="fileNamePhonetic" />
 	<link source="directory" target="directory" />
 	<link source="subDirectory" target="subDirectory" />
 	<link source="fileSystemDate" target="fileSystemDate" />
+	<link source="fileSize" target="fileSize" />
 	<link source="lang" target="lang" />
-	<link source="crawlDate" target="crawlDate" />
+	<link source="md5size" target="md5size" />
 </map>

@@ -29,8 +29,6 @@ public enum ParserFieldEnum {
 
 	title,
 
-	filename,
-
 	body,
 
 	meta_keywords,
@@ -80,8 +78,6 @@ public enum ParserFieldEnum {
 	external_link_nofollow,
 
 	lang,
-
-	content_type,
 
 	artist,
 

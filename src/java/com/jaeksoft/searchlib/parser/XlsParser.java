@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,8 +37,7 @@ public class XlsParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
 			ParserFieldEnum.author, ParserFieldEnum.subject,
-			ParserFieldEnum.content, ParserFieldEnum.lang,
-			ParserFieldEnum.filename, ParserFieldEnum.content_type };
+			ParserFieldEnum.content, ParserFieldEnum.lang };
 
 	public XlsParser() {
 		super(fl);

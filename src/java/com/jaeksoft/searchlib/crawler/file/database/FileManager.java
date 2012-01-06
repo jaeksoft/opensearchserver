@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -65,14 +65,13 @@ public class FileManager {
 
 	public enum Field {
 
-		URI("uri"), CONTENTBASETYPE("contentBaseType"), CONTENTTYPECHARSET(
-				"contentTypeCharset"), CONTENTENCODING("contentEncoding"), CONTENTLENGTH(
-				"contentLength"), CRAWLDATE("crawlDate"), LANG("lang"), LANGMETHOD(
-				"langMethod"), FETCHSTATUS("fetchStatus"), RESPONSECODE(
-				"responseCode"), PARSERSTATUS("parserStatus"), INDEXSTATUS(
-				"indexStatus"), FILETYPE("fileType"), FILESYSTEMDATE(
-				"fileSystemDate"), SUBDIRECTORY("subDirectory"), REPOSITORY(
-				"repository"), DIRECTORY("directory");
+		URI("uri"), REPOSITORY("repository"), CRAWLDATE("crawlDate"), LANG(
+				"lang"), LANGMETHOD("langMethod"), FETCHSTATUS("fetchStatus"), PARSERSTATUS(
+				"parserStatus"), INDEXSTATUS("indexStatus"), FILETYPE(
+				"fileType"), FILESIZE("fileSize"), FILESYSTEMDATE(
+				"fileSystemDate"), FILEEXTENSION("fileExtension"), SUBDIRECTORY(
+				"subDirectory"), FILENAME("fileName"), DIRECTORY("directory"), MD5SIZE(
+				"md5size");
 
 		private final String name;
 
@@ -171,30 +170,29 @@ public class FileManager {
 		targetClient.reload();
 	}
 
-	public SearchRequest fileQuery(String repository, String like, String lang,
-			String langMethod, Integer minContentLength,
-			Integer maxContentLength, FetchStatus fetchStatus,
-			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
-			Date endDate, Date startModifiedDate, Date endModifiedDate,
-			FileTypeEnum fileType, String subDirectory)
+	public SearchRequest fileQuery(String repository, String fileName,
+			String lang, String langMethod, Integer minSize, Integer maxSize,
+			String fileExtension, FetchStatus fetchStatus,
+			ParserStatus parserStatus, IndexStatus indexStatus,
+			Date startcrawlDate, Date endCrawlDate, Date startModifiedDate,
+			Date endModifiedDate, FileTypeEnum fileType, String subDirectory)
 			throws SearchLibException {
 		try {
 
 			SearchRequest searchRequest = fileDbClient
 					.getNewSearchRequest(FILE_SEARCH);
 
-			if (repository != null)
-				Field.REPOSITORY.addFilterQuery(searchRequest, repository);
-
 			StringBuffer query = new StringBuffer();
-			if (like != null) {
-				like = like.trim();
-				if (like.length() > 0) {
-					Field.URI.addQuery(query, SearchRequest.escapeQuery(like),
-							false);
-					query.append("*");
-				}
+
+			if (fileName != null)
+				Field.FILENAME.addQuery(query, fileName, true);
+
+			if (repository != null) {
+				repository = repository.trim();
+				if (repository.length() > 0)
+					Field.REPOSITORY.addFilterQuery(searchRequest, repository);
 			}
+
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
@@ -221,31 +219,31 @@ public class FileManager {
 			if (fileType != null && fileType != FileTypeEnum.ALL)
 				Field.FILETYPE.addFilterQuery(searchRequest, fileType.name());
 
-			if (minContentLength != null || maxContentLength != null) {
+			if (minSize != null || maxSize != null) {
 				String from, to;
 				DecimalFormat df = FileItem.getContentLengthFormat();
-				if (minContentLength == null)
+				if (fileExtension == null)
 					from = df.format(0);
 				else
-					from = df.format(minContentLength);
-				if (maxContentLength == null)
+					from = df.format(fileExtension);
+				if (maxSize == null)
 					to = df.format(Integer.MAX_VALUE);
 				else
-					to = df.format(maxContentLength);
-				Field.CONTENTLENGTH.addQueryRange(query, from, to);
+					to = df.format(maxSize);
+				Field.FILESIZE.addFilterRange(searchRequest, from, to);
 			}
 
-			if (startDate != null || endDate != null) {
+			if (startcrawlDate != null || endCrawlDate != null) {
 				String from, to;
 				SimpleDateFormat df = FileItem.getDateFormat();
-				if (startDate == null)
+				if (startcrawlDate == null)
 					from = "00000000000000";
 				else
-					from = df.format(startDate);
-				if (endDate == null)
+					from = df.format(startcrawlDate);
+				if (endCrawlDate == null)
 					to = "99999999999999";
 				else
-					to = df.format(endDate);
+					to = df.format(endCrawlDate);
 				Field.CRAWLDATE.addFilterRange(searchRequest, from, to);
 			}
 

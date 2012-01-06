@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,8 +37,7 @@ import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 public class PptParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.note, ParserFieldEnum.body, ParserFieldEnum.other,
-			ParserFieldEnum.filename, ParserFieldEnum.content_type };
+			ParserFieldEnum.note, ParserFieldEnum.body, ParserFieldEnum.other };
 
 	public PptParser() {
 		super(fl);

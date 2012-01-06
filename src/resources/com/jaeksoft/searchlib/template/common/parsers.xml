@@ -245,13 +245,20 @@
 		sizeLimit="33554432">
 		<extension>mp3</extension>
 		<extension>mp4</extension>
+		<extension>m4a</extension>
+		<extension>m4p</extension>
 		<extension>wav</extension>
 		<extension>ogg</extension>
 		<extension>flac</extension>
 		<contentType>audio/mpeg</contentType>
+		<contentType>audio/wav</contentType>
 		<contentType>audio/x-wav</contentType>
 		<contentType>audio/ogg</contentType>
+		<contentType>audio/vorbis</contentType>
 		<contentType>audio/flac</contentType>
+		<contentType>audio/mp4</contentType>
+		<contentType>audio/mp4a-latm</contentType>
+		<contentType>application/ogg</contentType>
 		<map>
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />

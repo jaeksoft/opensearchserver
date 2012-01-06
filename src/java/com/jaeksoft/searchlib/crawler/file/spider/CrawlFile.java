@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -76,8 +76,8 @@ public class CrawlFile {
 		synchronized (this) {
 			try {
 				ParserSelector parserSelector = config.getParserSelector();
-				Parser parser = parserSelector.getParser(fileItem.getName(),
-						null);
+				Parser parser = parserSelector.getParser(
+						fileItem.getFileName(), null);
 
 				// Get default parser
 				if (parser == null)
@@ -96,7 +96,6 @@ public class CrawlFile {
 
 				parser.setSourceDocument(sourceDocument);
 				parser.parseContent(fileInstance);
-				parser.addField(ParserFieldEnum.filename, fileItem.getName());
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
 				fileItem.setFetchStatus(FetchStatus.FETCHED);
@@ -108,8 +107,7 @@ public class CrawlFile {
 			} catch (FileNotFoundException e) {
 				fileItem.setFetchStatus(FetchStatus.GONE);
 			} catch (LimitException e) {
-				Logging.warn(e.toString() + " (" + fileItem.getUri()
-						+ ")", e);
+				Logging.warn(e.toString() + " (" + fileItem.getUri() + ")", e);
 				fileItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
 				setError(e.getMessage());
 			} catch (InstantiationException e) {

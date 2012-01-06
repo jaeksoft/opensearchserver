@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -146,7 +146,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			index(indexDocumentList, 0);
 			if (updatedIndexDocumentCount > 0) {
 				if (databaseFieldMap.isUrl()) {
-					setStatus(CrawlStatus.OPTMIZING_INDEX);
+					setStatus(CrawlStatus.OPTIMIZATION);
 					client.getUrlManager().reload(true);
 				}
 				client.reload();

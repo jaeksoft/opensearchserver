@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -92,7 +92,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 			FileInstanceAbstract fileInstance = itemIterator.getFileInstance();
 			currentFileItem = fileManager.getNewFileItem(fileInstance);
 
-			FileTypeEnum type = currentFileItem.getType();
+			FileTypeEnum type = currentFileItem.getFileType();
 			if (type == FileTypeEnum.directory) {
 				checkDirectory((ItemDirectoryIterator) itemIterator, crawlQueue);
 			} else if (type == FileTypeEnum.file) {
@@ -152,7 +152,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		// If the filePathItem does not support subdir
 		if (!filePathItem.isWithSubDir())
 			for (FileInfo fileInfo : indexFileMap.values())
-				if (fileInfo.getType() == FileTypeEnum.directory)
+				if (fileInfo.getFileType() == FileTypeEnum.directory)
 					crawlQueue.deleteParent(currentStats, fileInfo.getUri());
 
 		// Remove existing files from the map
@@ -162,9 +162,9 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		// The file that remain in the map can be removed
 		if (indexFileMap.size() > 0)
 			for (FileInfo fileInfo : indexFileMap.values())
-				if (fileInfo.getType() == FileTypeEnum.directory)
+				if (fileInfo.getFileType() == FileTypeEnum.directory)
 					crawlQueue.deleteParent(currentStats, fileInfo.getUri());
-				else if (fileInfo.getType() == FileTypeEnum.file)
+				else if (fileInfo.getFileType() == FileTypeEnum.file)
 					crawlQueue.delete(currentStats, fileInfo.getUri());
 	}
 

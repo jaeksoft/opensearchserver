@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -101,6 +101,18 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
+	public void setExtension(String v) {
+		synchronized (this) {
+			ScopeAttribute.SEARCH_FILE_FILE_EXTENSION.set(this, v);
+		}
+	}
+
+	public String getExtension() {
+		synchronized (this) {
+			return (String) ScopeAttribute.SEARCH_FILE_FILE_EXTENSION.get(this);
+		}
+	}
+
 	public void setMinContentLength(Integer v) {
 		synchronized (this) {
 			ScopeAttribute.SEARCH_FILE_MIN_CONTENT_LENGTH.set(this, v);
@@ -129,14 +141,14 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	public void setFetchStatus(FetchStatus v) {
 		synchronized (this) {
-			setAttribute("searchUrlFetchStatus", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_FETCH_STATUS.set(this, v);
 		}
 	}
 
 	public FetchStatus getFetchStatus() {
 		synchronized (this) {
-			FetchStatus st = (FetchStatus) getAttribute("searchUrlFetchStatus",
-					SESSION_SCOPE);
+			FetchStatus st = (FetchStatus) ScopeAttribute.SEARCH_FILE_FETCH_STATUS
+					.get(this);
 			if (st == null)
 				return FetchStatus.ALL;
 			return st;
@@ -145,14 +157,14 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	public void setParserStatus(ParserStatus v) {
 		synchronized (this) {
-			setAttribute("searchUrlParserStatus", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_PARSER_STATUS.set(this, v);
 		}
 	}
 
 	public ParserStatus getParserStatus() {
 		synchronized (this) {
-			ParserStatus status = (ParserStatus) getAttribute(
-					"searchUrlParserStatus", SESSION_SCOPE);
+			ParserStatus status = (ParserStatus) ScopeAttribute.SEARCH_FILE_PARSER_STATUS
+					.get(this);
 			if (status == null)
 				return ParserStatus.ALL;
 			return status;
@@ -161,14 +173,14 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	public void setIndexStatus(IndexStatus v) {
 		synchronized (this) {
-			setAttribute("searchUrlIndexStatus", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_INDEX_STATUS.set(this, v);
 		}
 	}
 
 	public IndexStatus getIndexStatus() {
 		synchronized (this) {
-			IndexStatus status = (IndexStatus) getAttribute(
-					"searchUrlIndexStatus", SESSION_SCOPE);
+			IndexStatus status = (IndexStatus) ScopeAttribute.SEARCH_FILE_INDEX_STATUS
+					.get(this);
 			if (status == null)
 				return IndexStatus.ALL;
 			return status;
@@ -177,67 +189,68 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	public void setFileType(FileTypeEnum v) {
 		synchronized (this) {
+			ScopeAttribute.SEARCH_FILE_FILE_TYPE.set(this, v);
 			setAttribute("searchUrlFileType", v, SESSION_SCOPE);
 		}
 	}
 
 	public FileTypeEnum getFileType() {
 		synchronized (this) {
-			FileTypeEnum type = (FileTypeEnum) getAttribute(
-					"searchUrlFileType", SESSION_SCOPE);
+			FileTypeEnum type = (FileTypeEnum) ScopeAttribute.SEARCH_FILE_FILE_TYPE
+					.get(this);
 			if (type == null)
 				return FileTypeEnum.ALL;
 			return type;
 		}
 	}
 
-	public void setLike(String v) {
+	public void setFileName(String v) {
 		synchronized (this) {
-			setAttribute("searchUrlLike", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_FILE_NAME.set(this, v);
 		}
 	}
 
-	public String getLike() {
+	public String getFileName() {
 		synchronized (this) {
-			return (String) getAttribute("searchUrlLike", SESSION_SCOPE);
+			return (String) ScopeAttribute.SEARCH_FILE_FILE_NAME.get(this);
 		}
 	}
 
 	public void setPageSize(Integer v) {
 		synchronized (this) {
-			setAttribute("searchUrlSheetRows", v, SESSION_SCOPE);
+			ScopeAttribute.SEARCH_FILE_SHEET_ROWS.set(this, v);
 		}
 	}
 
 	public Integer getPageSize() {
 		synchronized (this) {
-			Integer v = (Integer) getAttribute("searchUrlSheetRows",
-					SESSION_SCOPE);
+			Integer v = (Integer) ScopeAttribute.SEARCH_FILE_SHEET_ROWS
+					.get(this);
 			if (v == null)
 				v = 10;
 			return v;
 		}
 	}
 
-	public void setDateStart(Date v) {
+	public void setCrawlDateStart(Date v) {
 		synchronized (this) {
 			ScopeAttribute.SEARCH_FILE_DATE_START.set(this, v);
 		}
 	}
 
-	public Date getDateStart() {
+	public Date getCrawlDateStart() {
 		synchronized (this) {
 			return (Date) ScopeAttribute.SEARCH_FILE_DATE_START.get(this);
 		}
 	}
 
-	public void setDateEnd(Date v) {
+	public void setCrawlDateEnd(Date v) {
 		synchronized (this) {
 			ScopeAttribute.SEARCH_FILE_DATE_END.set(this, v);
 		}
 	}
 
-	public Date getDateEnd() {
+	public Date getCrawlDateEnd() {
 		synchronized (this) {
 			return (Date) ScopeAttribute.SEARCH_FILE_DATE_END.get(this);
 		}
@@ -310,11 +323,12 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	private SearchRequest getSearchRequest(FileManager fileManager)
 			throws SearchLibException {
-		return fileManager.fileQuery(getRepository(), getLike(), getLang(),
+		return fileManager.fileQuery(getRepository(), getFileName(), getLang(),
 				null, getMinContentLength(), getMaxContentLength(),
-				getFetchStatus(), getParserStatus(), getIndexStatus(),
-				getDateStart(), getDateEnd(), getDateModifiedStart(),
-				getDateModifiedEnd(), getFileType(), null);
+				getExtension(), getFetchStatus(), getParserStatus(),
+				getIndexStatus(), getCrawlDateStart(), getCrawlDateEnd(),
+				getDateModifiedStart(), getDateModifiedEnd(), getFileType(),
+				null);
 	}
 
 	public List<FileItem> getFileList() throws SearchLibException {

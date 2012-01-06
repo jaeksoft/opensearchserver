@@ -31,18 +31,23 @@ import java.net.URISyntaxException;
 import org.apache.commons.io.FilenameUtils;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileInfo {
 
 	private Long fileSystemDate;
-	private FileTypeEnum type;
+	private FileTypeEnum fileType;
 	private String uriString;
-	private String name;
+	private String fileName;
+	private String fileExtension;
+	private Long fileSize;
 	private FetchStatus fetchStatus;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
@@ -53,13 +58,19 @@ public class FileInfo {
 
 	public FileInfo(ResultDocument doc) throws UnsupportedEncodingException,
 			URISyntaxException {
-		this();
+		init();
 		setFileSystemDate(doc.getValueContent(
 				FileItemFieldEnum.fileSystemDate.getName(), 0));
 		String s = doc.getValueContent(FileItemFieldEnum.fileType.getName(), 0);
 		if (s != null)
-			setType(FileTypeEnum.valueOf(s));
+			setFileType(FileTypeEnum.valueOf(s));
 		setUri(doc.getValueContent(FileItemFieldEnum.uri.getName(), 0));
+		setFileName(doc
+				.getValueContent(FileItemFieldEnum.fileName.getName(), 0));
+		setFileExtension(doc.getValueContent(
+				FileItemFieldEnum.fileExtension.getName(), 0));
+		setFileSize(doc
+				.getValueContent(FileItemFieldEnum.fileSize.getName(), 0));
 		setFetchStatusInt(doc.getValueContent(
 				FileItemFieldEnum.fetchStatus.getName(), 0));
 		setParserStatusInt(doc.getValueContent(
@@ -68,9 +79,20 @@ public class FileInfo {
 				FileItemFieldEnum.indexStatus.getName(), 0));
 	}
 
+	public FileInfo(FileInstanceAbstract fileInstance)
+			throws SearchLibException {
+		init();
+		setUriFileNameExtension(fileInstance.getURI());
+		setFileSystemDate(fileInstance.getLastModified());
+		setFileSize(fileInstance.getFileSize());
+	}
+
 	protected void init() {
 		fileSystemDate = null;
-		type = null;
+		fileType = null;
+		fileSize = null;
+		fileName = null;
+		fileExtension = null;
 		uriString = null;
 		fetchStatus = FetchStatus.UN_FETCHED;
 		parserStatus = ParserStatus.NOT_PARSED;
@@ -98,34 +120,62 @@ public class FileInfo {
 		}
 	}
 
-	public FileTypeEnum getType() {
-		return type;
+	public FileTypeEnum getFileType() {
+		return fileType;
 	}
 
-	public void setType(FileTypeEnum type) {
-		this.type = type;
+	public void setFileType(FileTypeEnum type) {
+		this.fileType = type;
 	}
 
 	public String getUri() {
 		return uriString;
 	}
 
-	private void setName(String fullPath) {
-		this.name = FilenameUtils.getName(fullPath);
+	private void setFileName(String fullPath) {
+		this.fileName = FilenameUtils.getName(fullPath);
 	}
 
-	public String getName() {
-		return name;
+	public String getFileName() {
+		return fileName;
 	}
 
-	public void setUri(String uriString) throws URISyntaxException {
+	public String getFileExtension() {
+		return fileExtension;
+	}
+
+	public void setFileExtension(String fileExtension) {
+		this.fileExtension = fileExtension;
+	}
+
+	private void setFileSize(String size) {
+		if (size != null)
+			this.fileSize = Long.parseLong(size);
+	}
+
+	private void setFileSize(long size) {
+		this.fileSize = size;
+	}
+
+	public Long getFileSize() {
+		return fileSize;
+	}
+
+	public String getHumanSize() {
+		if (fileSize == null)
+			return null;
+		return StringUtils.humanBytes(fileSize);
+	}
+
+	private void setUriFileNameExtension(URI uri) {
+		String path = uri.getPath();
+		setUri(uri.toASCIIString());
+		setFileName(FilenameUtils.getName(path));
+		setFileExtension(FilenameUtils.getExtension(fileName));
+	}
+
+	private void setUri(String uriString) {
 		this.uriString = uriString;
-		setName(new URI(uriString).getPath());
-	}
-
-	public void setUri(URI uri) {
-		this.uriString = uri.toASCIIString();
-		setName(uri.getPath());
 	}
 
 	public FetchStatus getFetchStatus() {
@@ -199,13 +249,37 @@ public class FileInfo {
 			return true;
 		if (fileSystemDate == null)
 			return true;
-		if (type == null)
+		if (fileType == null)
 			return true;
 		if (!fileSystemDate.equals(newFileInfo.fileSystemDate))
 			return true;
-		if (type != newFileInfo.type)
+		if (fileType != newFileInfo.fileType)
 			return true;
+		if (fileSize != null && newFileInfo.fileSize != null)
+			if (fileSize != newFileInfo.fileSize)
+				return true;
 		return false;
+	}
+
+	public void populate(IndexDocument indexDocument) {
+		if (fileSystemDate != null)
+			indexDocument.setString(FileItemFieldEnum.fileSystemDate.getName(),
+					FileItem.getDateFormat().format(fileSystemDate));
+		if (fileSize != null)
+			indexDocument.setString(FileItemFieldEnum.fileSize.getName(),
+					fileSize.toString());
+		indexDocument.setObject(FileItemFieldEnum.fetchStatus.getName(),
+				fetchStatus.value);
+		indexDocument.setObject(FileItemFieldEnum.parserStatus.getName(),
+				parserStatus.value);
+		indexDocument.setObject(FileItemFieldEnum.indexStatus.getName(),
+				indexStatus.value);
+		if (fileType != null)
+			indexDocument.setString(FileItemFieldEnum.fileType.getName(),
+					fileType.name());
+		if (fileExtension != null)
+			indexDocument.setString(FileItemFieldEnum.fileExtension.getName(),
+					fileExtension);
 	}
 
 }

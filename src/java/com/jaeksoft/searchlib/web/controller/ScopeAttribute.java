@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -91,6 +91,10 @@ public enum ScopeAttribute {
 
 	SEARCH_FILE_LANG(Component.SESSION_SCOPE),
 
+	SEARCH_FILE_FILE_TYPE(Component.SESSION_SCOPE),
+
+	SEARCH_FILE_FILE_EXTENSION(Component.SESSION_SCOPE),
+
 	SEARCH_FILE_LANG_METHOD(Component.SESSION_SCOPE),
 
 	SEARCH_FILE_MIN_CONTENT_LENGTH(Component.SESSION_SCOPE),
@@ -103,7 +107,7 @@ public enum ScopeAttribute {
 
 	SEARCH_FILE_INDEX_STATUS(Component.SESSION_SCOPE),
 
-	SEARCH_FILE_LIKE(Component.SESSION_SCOPE),
+	SEARCH_FILE_FILE_NAME(Component.SESSION_SCOPE),
 
 	SEARCH_FILE_SHEET_ROWS(Component.SESSION_SCOPE),
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -234,10 +234,6 @@ public class ParserSelector {
 						.getExtension(filename));
 			if (parser == null)
 				return null;
-			if (filename != null)
-				parser.addField(ParserFieldEnum.filename, filename);
-			if (contentBaseType != null)
-				parser.addField(ParserFieldEnum.content_type, contentBaseType);
 			return parser;
 		} finally {
 			rwl.r.unlock();

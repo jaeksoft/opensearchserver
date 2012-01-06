@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,12 +27,15 @@ package com.jaeksoft.searchlib.crawler.file.database;
 import java.io.File;
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 
 public class FilePropertyManager extends PropertyManager {
 
 	public FilePropertyManager(File file) throws IOException {
 		super(file);
+		indexDocumentBufferSize = new PropertyItem<Integer>(this,
+				"indexDocumentBufferSize", 50, null, null);
 	}
 
 }

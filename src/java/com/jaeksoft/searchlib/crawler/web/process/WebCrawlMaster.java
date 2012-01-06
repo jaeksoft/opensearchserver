@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -137,7 +137,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			setStatus(CrawlStatus.INDEXATION);
 			urlCrawlQueue.index(true);
 			if (currentStats.getUrlCount() > 0) {
-				setStatus(CrawlStatus.OPTMIZING_INDEX);
+				setStatus(CrawlStatus.OPTIMIZATION);
 				config.getUrlManager().reload(true);
 			}
 			sleepSec(5);

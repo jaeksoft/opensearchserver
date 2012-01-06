@@ -165,7 +165,7 @@ public class ClientCatalog {
 	public static final Set<ClientCatalogItem> getClientCatalog(User user)
 			throws SearchLibException {
 		File[] files = StartStopListener.OPENSEARCHSERVER_DATA_FILE
-				.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
+				.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
 		Set<ClientCatalogItem> set = new TreeSet<ClientCatalogItem>();
 		for (File file : files) {
 			if (!file.isDirectory())

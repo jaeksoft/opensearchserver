@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,7 +31,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.apache.commons.io.FilenameUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -51,8 +50,7 @@ public class AudioParser extends Parser {
 			ParserFieldEnum.album, ParserFieldEnum.title,
 			ParserFieldEnum.track, ParserFieldEnum.year, ParserFieldEnum.genre,
 			ParserFieldEnum.comment, ParserFieldEnum.album_artist,
-			ParserFieldEnum.composer, ParserFieldEnum.grouping,
-			ParserFieldEnum.filename, ParserFieldEnum.content_type };
+			ParserFieldEnum.composer, ParserFieldEnum.grouping };
 
 	public AudioParser() {
 		super(fl);
@@ -77,11 +75,7 @@ public class AudioParser extends Parser {
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
-		String filename = this.getFieldValue(ParserFieldEnum.filename, 0);
-		if (filename == null)
-			return;
-		File file = File.createTempFile(FilenameUtils.getBaseName(filename),
-				"." + FilenameUtils.getExtension(filename));
+		File file = File.createTempFile("oss_temp", "audio_parser");
 		OutputStream os = new FileOutputStream(file);
 		try {
 			byte[] buffer = new byte[4096];
@@ -103,7 +97,7 @@ public class AudioParser extends Parser {
 
 	private void addFields(Tag tag, FieldKey fieldKey,
 			ParserFieldEnum parserField) {
-		List<TagField> list = tag.get(fieldKey.name());
+		List<TagField> list = tag.getFields(fieldKey);
 		if (list != null && list.size() > 0) {
 			for (TagField field : list)
 				addField(parserField, field);

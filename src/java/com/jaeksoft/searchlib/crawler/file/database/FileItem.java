@@ -29,7 +29,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,12 +83,9 @@ public class FileItem extends FileInfo implements Serializable {
 	private String repository;
 	private String directory;
 	private List<String> subDirectory;
-	private Integer contentLength;
 	private String lang;
 	private String langMethod;
 	private Long crawlDate;
-	private Long size;
-	private String extension;
 	private Status status;
 
 	protected FileItem() {
@@ -103,12 +99,9 @@ public class FileItem extends FileInfo implements Serializable {
 		repository = null;
 		directory = null;
 		subDirectory = null;
-		contentLength = null;
 		lang = null;
 		langMethod = null;
 		crawlDate = null;
-		size = null;
-		extension = "";
 	}
 
 	public FileItem(ResultDocument doc) throws UnsupportedEncodingException,
@@ -122,9 +115,6 @@ public class FileItem extends FileInfo implements Serializable {
 		setSubDirectory(FieldValueItem.buildArrayList(doc
 				.getValueList(FileItemFieldEnum.subDirectory.getName())));
 
-		setContentLength(doc.getValueContent(
-				FileItemFieldEnum.contentLength.getName(), 0));
-
 		setLang(doc.getValueContent(FileItemFieldEnum.lang.getName(), 0));
 
 		setLangMethod(doc.getValueContent(
@@ -133,18 +123,18 @@ public class FileItem extends FileInfo implements Serializable {
 		setCrawlDate(doc.getValueContent(FileItemFieldEnum.crawlDate.getName(),
 				0));
 
-		setSize(doc.getValueContent(FileItemFieldEnum.fileSize.getName(), 0));
+		setFileSystemDate(doc.getValueContent(
+				FileItemFieldEnum.fileSystemDate.getName(), 0));
 
-		setExtension(doc.getValueContent(
+		setFileExtension(doc.getValueContent(
 				FileItemFieldEnum.fileExtension.getName(), 0));
 
 	}
 
 	public FileItem(FileInstanceAbstract fileInstance)
 			throws SearchLibException {
-		this();
+		super(fileInstance);
 		setRepository(fileInstance.getFilePathItem().toString());
-		setUri(fileInstance.getURI());
 		FileInstanceAbstract parentFileInstance = fileInstance.getParent();
 		if (parentFileInstance != null)
 			setDirectory(parentFileInstance.getURI());
@@ -153,14 +143,7 @@ public class FileItem extends FileInfo implements Serializable {
 		while ((dir = dir.getParent()) != null)
 			subDirectory.add(dir.getURI().getPath());
 		setCrawlDate(System.currentTimeMillis());
-		setFileSystemDate(fileInstance.getLastModified());
-		setSize(fileInstance.getFileSize());
-		setExtension(FilenameUtils.getExtension(getUri()));
-		setType(fileInstance.getFileType());
-	}
-
-	public Integer getContentLength() {
-		return contentLength;
+		setFileExtension(FilenameUtils.getExtension(getUri()));
 	}
 
 	public Long getCrawlDate() {
@@ -205,9 +188,9 @@ public class FileItem extends FileInfo implements Serializable {
 		return status;
 	}
 
-	public void populate(IndexDocument indexDocument)
-			throws UnsupportedEncodingException {
-
+	@Override
+	public void populate(IndexDocument indexDocument) {
+		super.populate(indexDocument);
 		indexDocument.setString(FileItemFieldEnum.repository.getName(),
 				getRepository());
 
@@ -224,51 +207,12 @@ public class FileItem extends FileInfo implements Serializable {
 			indexDocument.setString(FileItemFieldEnum.crawlDate.getName(),
 					StringUtils.longToHexString(crawlDate));
 
-		Long fsd = getFileSystemDate();
-		if (fsd != null)
-			indexDocument.setString(FileItemFieldEnum.fileSystemDate.getName(),
-					StringUtils.longToHexString(fsd));
-
-		if (contentLength != null)
-			indexDocument.setString(FileItemFieldEnum.contentLength.getName(),
-					getContentLengthFormat().format(contentLength));
 		if (lang != null)
 			indexDocument.setString(FileItemFieldEnum.lang.getName(), lang);
 		if (langMethod != null)
 			indexDocument.setString(FileItemFieldEnum.langMethod.getName(),
 					langMethod);
 
-		indexDocument.setObject(FileItemFieldEnum.fetchStatus.getName(),
-				getFetchStatus().value);
-		indexDocument.setObject(FileItemFieldEnum.parserStatus.getName(),
-				getParserStatus().value);
-		indexDocument.setObject(FileItemFieldEnum.indexStatus.getName(),
-				getIndexStatus().value);
-		if (size != null)
-			indexDocument.setObject(FileItemFieldEnum.fileSize.getName(), size);
-		if (extension != null)
-			indexDocument.setString(FileItemFieldEnum.fileExtension.getName(),
-					extension);
-		FileTypeEnum t = getType();
-		if (t != null)
-			indexDocument.setString(FileItemFieldEnum.fileType.getName(),
-					t.name());
-	}
-
-	public void setContentLength(int v) {
-		contentLength = v;
-	}
-
-	private void setContentLength(String v) {
-		if (v == null)
-			return;
-		if (v.length() == 0)
-			return;
-		try {
-			contentLength = getContentLengthFormat().parse(v).intValue();
-		} catch (ParseException e) {
-			Logging.error(e.getMessage());
-		}
 	}
 
 	public void setLang(String lang) {
@@ -315,34 +259,6 @@ public class FileItem extends FileInfo implements Serializable {
 		} catch (NumberFormatException e) {
 			Logging.warn(e.getMessage());
 		}
-	}
-
-	public Long getSize() {
-		return size;
-	}
-
-	public String getHumanSize() {
-		return StringUtils.humanBytes(size);
-	}
-
-	public void setSize(Long size) {
-		this.size = size;
-	}
-
-	public void setSize(String size) {
-		try {
-			this.size = new Long(size);
-		} catch (NumberFormatException e) {
-			this.size = null;
-		}
-	}
-
-	public String getExtension() {
-		return extension;
-	}
-
-	public void setExtension(String extension) {
-		this.extension = extension;
 	}
 
 }

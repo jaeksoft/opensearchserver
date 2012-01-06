@@ -34,8 +34,6 @@ public class FileItemFieldEnum extends ExtensibleEnumItem<FileItemFieldEnum> {
 	public final static FileItemFieldEnum repository = new FileItemFieldEnum(
 			"repository");
 
-	public final static FileItemFieldEnum name = new FileItemFieldEnum("name");
-
 	public final static FileItemFieldEnum uri = new FileItemFieldEnum("uri");
 
 	public final static FileItemFieldEnum directory = new FileItemFieldEnum(
@@ -48,9 +46,6 @@ public class FileItemFieldEnum extends ExtensibleEnumItem<FileItemFieldEnum> {
 
 	public final static FileItemFieldEnum langMethod = new FileItemFieldEnum(
 			"langMethod");
-
-	public final static FileItemFieldEnum contentLength = new FileItemFieldEnum(
-			"contentLength");
 
 	public final static FileItemFieldEnum parserStatus = new FileItemFieldEnum(
 			"parserStatus");
@@ -66,6 +61,9 @@ public class FileItemFieldEnum extends ExtensibleEnumItem<FileItemFieldEnum> {
 
 	public final static FileItemFieldEnum fileSystemDate = new FileItemFieldEnum(
 			"fileSystemDate");
+
+	public final static FileItemFieldEnum fileName = new FileItemFieldEnum(
+			"fileName");
 
 	public final static FileItemFieldEnum fileSize = new FileItemFieldEnum(
 			"fileSize");
