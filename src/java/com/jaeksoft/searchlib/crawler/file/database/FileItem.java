@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,6 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileItem extends FileInfo implements Serializable {
 
@@ -74,10 +74,6 @@ public class FileItem extends FileInfo implements Serializable {
 
 	final static SimpleDateFormat getDateFormat() {
 		return new SimpleDateFormat("yyyyMMddHHmmss");
-	}
-
-	public final static SimpleDateFormat getNiceDateFormat() {
-		return new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
 	}
 
 	private String repository;
@@ -123,11 +119,10 @@ public class FileItem extends FileInfo implements Serializable {
 		setCrawlDate(doc.getValueContent(FileItemFieldEnum.crawlDate.getName(),
 				0));
 
-		setFileSystemDate(doc.getValueContent(
-				FileItemFieldEnum.fileSystemDate.getName(), 0));
-
 		setFileExtension(doc.getValueContent(
 				FileItemFieldEnum.fileExtension.getName(), 0));
+
+		System.out.println("REPOSITORY ResultDocument = " + repository);
 
 	}
 
@@ -144,6 +139,8 @@ public class FileItem extends FileInfo implements Serializable {
 			subDirectory.add(dir.getURI().getPath());
 		setCrawlDate(System.currentTimeMillis());
 		setFileExtension(FilenameUtils.getExtension(getUri()));
+
+		System.out.println("REPOSITORY FileInstanceAbstract = " + repository);
 	}
 
 	public Long getCrawlDate() {
@@ -191,8 +188,12 @@ public class FileItem extends FileInfo implements Serializable {
 	@Override
 	public void populate(IndexDocument indexDocument) {
 		super.populate(indexDocument);
-		indexDocument.setString(FileItemFieldEnum.repository.getName(),
-				getRepository());
+
+		if (repository != null) {
+			System.out.println("populate setString repository " + repository);
+			indexDocument.setString(FileItemFieldEnum.repository.getName(),
+					repository);
+		}
 
 		indexDocument.setString(FileItemFieldEnum.uri.getName(), getUri());
 
@@ -205,7 +206,7 @@ public class FileItem extends FileInfo implements Serializable {
 
 		if (crawlDate != null)
 			indexDocument.setString(FileItemFieldEnum.crawlDate.getName(),
-					StringUtils.longToHexString(crawlDate));
+					FileItem.getDateFormat().format(crawlDate));
 
 		if (lang != null)
 			indexDocument.setString(FileItemFieldEnum.lang.getName(), lang);
@@ -223,15 +224,16 @@ public class FileItem extends FileInfo implements Serializable {
 		this.langMethod = langMethod;
 	}
 
-	public void setDirectory(String directory) {
+	private void setDirectory(String directory) {
 		this.directory = directory;
 	}
 
 	public void setDirectory(URI directoryUri) {
-		this.directory = directoryUri.toASCIIString();
+		if (directoryUri != null)
+			this.directory = directoryUri.toASCIIString();
 	}
 
-	public void setSubDirectory(List<String> subDirectoryList) {
+	private void setSubDirectory(List<String> subDirectoryList) {
 		this.subDirectory = subDirectoryList;
 	}
 
@@ -239,24 +241,20 @@ public class FileItem extends FileInfo implements Serializable {
 		return repository;
 	}
 
-	public void setRepository(String r) {
+	private void setRepository(String r) {
 		this.repository = r;
-	}
-
-	public void setStatus(Status v) {
-		status = v;
 	}
 
 	public void setCrawlDate(long d) {
 		crawlDate = d;
 	}
 
-	public void setCrawlDate(String d) {
+	private void setCrawlDate(String d) {
 		if (d == null)
 			return;
 		try {
-			crawlDate = StringUtils.hexStringToLong(d);
-		} catch (NumberFormatException e) {
+			crawlDate = FileItem.getDateFormat().parse(d).getTime();
+		} catch (ParseException e) {
 			Logging.warn(e.getMessage());
 		}
 	}

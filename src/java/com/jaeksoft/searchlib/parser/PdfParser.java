@@ -24,10 +24,12 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -86,9 +88,13 @@ public class PdfParser extends Parser {
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
+		RandomAccessFile raf = null;
 		PDDocument pdf = null;
+		File tempFile = null;
 		try {
-			pdf = PDDocument.load(inputStream);
+			tempFile = File.createTempFile("oss", "pdfparser");
+			raf = new RandomAccessFile(tempFile, "rw");
+			pdf = PDDocument.load(inputStream, raf, true);
 			PDDocumentInformation info = pdf.getDocumentInformation();
 			if (info != null) {
 				addField(ParserFieldEnum.title, info.getTitle());
@@ -121,6 +127,10 @@ public class PdfParser extends Parser {
 		} finally {
 			if (pdf != null)
 				pdf.close();
+			if (raf != null)
+				raf.close();
+			if (tempFile != null)
+				tempFile.delete();
 		}
 	}
 

@@ -1,6 +1,6 @@
 /**   
  *
- * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -114,36 +114,6 @@ public class StringUtils {
 	 */
 	public final static String base64decode(String base64String) {
 		return new String(Base64.decodeBase64(base64String));
-	}
-
-	private final static String[] zeroArray = {
-			org.apache.commons.lang.StringUtils.repeat("0", 1),
-			org.apache.commons.lang.StringUtils.repeat("0", 2),
-			org.apache.commons.lang.StringUtils.repeat("0", 3),
-			org.apache.commons.lang.StringUtils.repeat("0", 4),
-			org.apache.commons.lang.StringUtils.repeat("0", 5),
-			org.apache.commons.lang.StringUtils.repeat("0", 6),
-			org.apache.commons.lang.StringUtils.repeat("0", 7),
-			org.apache.commons.lang.StringUtils.repeat("0", 8),
-			org.apache.commons.lang.StringUtils.repeat("0", 9),
-			org.apache.commons.lang.StringUtils.repeat("0", 10),
-			org.apache.commons.lang.StringUtils.repeat("0", 11),
-			org.apache.commons.lang.StringUtils.repeat("0", 12),
-			org.apache.commons.lang.StringUtils.repeat("0", 13),
-			org.apache.commons.lang.StringUtils.repeat("0", 14),
-			org.apache.commons.lang.StringUtils.repeat("0", 15),
-			org.apache.commons.lang.StringUtils.repeat("0", 16) };
-
-	public final static String longToHexString(long value) {
-		String s = Long.toString(value, 16);
-		int l = 16 - s.length();
-		if (l <= 0)
-			return s;
-		return zeroArray[l - 1] + s;
-	}
-
-	public final static long hexStringToLong(String s) {
-		return Long.parseLong(s, 16);
 	}
 
 	public final static int compareNullValues(Object v1, Object v2) {

@@ -17,12 +17,12 @@
 <window id="searchPath"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.FileController">
 
-	<listbox fixedLayout="true" model="@{searchPath.fileList}"
-		multiple="false" checkmark="false">
+	<listbox model="@{searchPath.fileList}" multiple="false"
+		checkmark="false" sizedByContent="true">
 		<listhead sizable="true">
-			<listheader width="20%" label="File" />
-			<listheader width="140px" label="Index Date" />
-			<listheader width="140px" label="Modified date" />
+			<listheader label="File" />
+			<listheader label="Index Date" />
+			<listheader label="Modified date" />
 			<listheader label="Type" />
 			<listheader label="Extension" />
 			<listheader label="Size" />
@@ -30,22 +30,19 @@
 			<listheader label="Fetch" />
 			<listheader label="Parsing" />
 			<listheader label="Index" />
+			<listheader label="Repository" />
+			<listheader hflex="true" />
 		</listhead>
 		<auxhead>
 			<auxheader>
-				<vbox>
-					<listbox mold="select" width="90%"
-						model="@{searchPath.repositoryList}"
-						selectedItem="@{searchPath.repository}" />
-					<textbox width="90%" value="@{searchPath.like}" />
-				</vbox>
+				<textbox width="90%" value="@{searchPath.fileName}" />
 			</auxheader>
 			<auxheader>
 				<vbox>
 					<datebox compact="true"
-						value="@{searchPath.dateStart}" />
+						value="@{searchPath.crawlDateStart}" />
 					<datebox compact="true"
-						value="@{searchPath.dateEnd}" />
+						value="@{searchPath.crawlDateEnd}" />
 				</vbox>
 			</auxheader>
 			<auxheader>
@@ -57,7 +54,7 @@
 				</vbox>
 			</auxheader>
 			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
+				<listbox mold="select" width="100%"
 					model="@{searchPath.fileTypeList}"
 					selectedItem="@{searchPath.fileType}" />
 			</auxheader>
@@ -68,45 +65,52 @@
 			</auxheader>
 
 			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
+				<listbox mold="select" width="100%"
 					model="@{searchPath.fetchStatusList}"
 					selectedItem="@{searchPath.fetchStatus}" />
 			</auxheader>
 
 			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
+				<listbox mold="select" width="100%"
 					model="@{searchPath.parserStatusList}"
 					selectedItem="@{searchPath.parserStatus}" />
 			</auxheader>
 			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
+				<listbox mold="select" width="100%"
 					model="@{searchPath.indexStatusList}"
 					selectedItem="@{searchPath.indexStatus}" />
 			</auxheader>
-
+			<auxheader>
+				<listbox mold="select" width="100%"
+					model="@{searchPath.repositoryList}"
+					selectedItem="@{searchPath.repository}" />
+			</auxheader>
+			<auxheader />
 		</auxhead>
 		<auxhead>
-			<auxheader colspan="10" align="center">
+			<auxheader colspan="12" align="left">
 				<button label="Search" forward="onSearch" />
 			</auxheader>
 		</auxhead>
 		<listitem self="@{each='file'}">
-			<listcell label="@{file.uri}" />
+			<listcell label="@{file.fileName}"
+				tooltiptext="@{file.uri}" />
 			<listcell
 				label="@{file.crawlDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 			<listcell
 				label="@{file.fileSystemDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-			<listcell label="@{file.type}" />
-			<listcell label="@{file.extension}" />
+			<listcell label="@{file.fileType}" />
+			<listcell label="@{file.fileExtension}" />
 			<listcell label="@{file.humanSize}" />
 			<listcell label="@{file.lang}" />
 			<listcell label="@{file.fetchStatus}" />
 			<listcell label="@{file.ParserStatus}" />
 			<listcell label="@{file.IndexStatus}" />
+			<listcell label="@{file.repository}" />
+			<listcell />
 		</listitem>
 		<listfoot>
-
-			<listfooter span="10">
+			<listfooter span="12">
 				<paging id="paging" detailed="true"
 					totalSize="@{searchPath.totalSize}"
 					pageSize="@{searchPath.pageSize}"

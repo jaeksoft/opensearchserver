@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.file.database;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -83,8 +84,21 @@ public class FileInfo {
 			throws SearchLibException {
 		init();
 		setUriFileNameExtension(fileInstance.getURI());
+
+		URI uri = fileInstance.getURI();
+		setUri(uri.toASCIIString());
+
+		String path = uri.getPath();
+		if (FileTypeEnum.file == fileInstance.getFileType())
+			setFileName(FilenameUtils.getName(path));
+		else
+			setFileName(FilenameUtils.getName(FilenameUtils
+					.getPathNoEndSeparator(path)));
+		setFileExtension(FilenameUtils.getExtension(fileName));
+
 		setFileSystemDate(fileInstance.getLastModified());
 		setFileSize(fileInstance.getFileSize());
+		setFileType(fileInstance.getFileType());
 	}
 
 	protected void init() {
@@ -107,14 +121,14 @@ public class FileInfo {
 		fileSystemDate = d;
 	}
 
-	public void setFileSystemDate(String d) {
+	private void setFileSystemDate(String d) {
 		if (d == null) {
 			fileSystemDate = null;
 			return;
 		}
 		try {
-			fileSystemDate = StringUtils.hexStringToLong(d);
-		} catch (NumberFormatException e) {
+			fileSystemDate = FileItem.getDateFormat().parse(d).getTime();
+		} catch (ParseException e) {
 			Logging.warn(e.getMessage());
 			fileSystemDate = null;
 		}
@@ -124,7 +138,7 @@ public class FileInfo {
 		return fileType;
 	}
 
-	public void setFileType(FileTypeEnum type) {
+	private void setFileType(FileTypeEnum type) {
 		this.fileType = type;
 	}
 
@@ -132,8 +146,8 @@ public class FileInfo {
 		return uriString;
 	}
 
-	private void setFileName(String fullPath) {
-		this.fileName = FilenameUtils.getName(fullPath);
+	private void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 	public String getFileName() {
@@ -268,6 +282,9 @@ public class FileInfo {
 		if (fileSize != null)
 			indexDocument.setString(FileItemFieldEnum.fileSize.getName(),
 					fileSize.toString());
+		if (fileName != null)
+			indexDocument.setString(FileItemFieldEnum.fileName.getName(),
+					fileName.toString());
 		indexDocument.setObject(FileItemFieldEnum.fetchStatus.getName(),
 				fetchStatus.value);
 		indexDocument.setObject(FileItemFieldEnum.parserStatus.getName(),
