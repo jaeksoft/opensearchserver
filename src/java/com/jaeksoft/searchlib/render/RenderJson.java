@@ -86,7 +86,7 @@ public class RenderJson implements Render {
 		jsonResult.put("rows", searchRequest.getRows());
 		jsonResult.put("maxScore", result.getMaxScore());
 		jsonResult.put("time", searchRequest.getFinalTime());
-		jsonResult.put("collapsedDocCount", searchRequest.getStart());
+		jsonResult.put("collapsedDocCount", result.getCollapseDocCount());
 		for (int i = start; i < end; i++)
 			this.renderDocument(i, jsonResult, resultArrayList);
 		jsonResult.put("doc", resultArrayList);
@@ -101,7 +101,7 @@ public class RenderJson implements Render {
 		JSONObject jsonDoc = new JSONObject();
 		ArrayList<JSONObject> jsonFieldList = new ArrayList<JSONObject>();
 		ArrayList<JSONObject> jsonSnippetList = new ArrayList<JSONObject>();
-		jsonDoc.put("numFound", result.getScore(pos));
+		jsonDoc.put("score", result.getScore(pos));
 		jsonDoc.put("pos", searchRequest.getStart());
 		ResultDocument doc = result.getDocument(pos);
 		for (Field field : searchRequest.getReturnFieldList()) {
@@ -112,9 +112,11 @@ public class RenderJson implements Render {
 			renderSnippetValue(doc, field, jsonSnippetList);
 			jsonDoc.put("snippet", jsonSnippetList);
 		}
+
 		int cc = result.getCollapseCount(pos);
 		if (cc > 0)
 			jsonDoc.put("collapseCount", cc);
+
 		resultArrayList.add(jsonDoc);
 	}
 
