@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3471808: Consecutive duplicate characters filter
 - 3469777: Scored snippets
 - 3467459: Phonetic filters
 - 3467437: A filter to extract the domain information
@@ -19,6 +20,11 @@ New features:
 - 3417863: Upgrade Tomcat to version 6.0.35
 - 3421240: JSON response for OpenSearchServer
 - 3386107: OpenSearch Standards
+
+OpenSearchServer 1.2.4
+
+Bug fixes:
+- 3471749: Out Of Memory Error while indexing PDF document
 
 OpenSearchServer 1.2.3
 

@@ -85,45 +85,59 @@ public class PdfParser extends Parser {
 		return time.toString();
 	}
 
+	private void extractContent(PDDocument pdf) throws IOException {
+		PDDocumentInformation info = pdf.getDocumentInformation();
+		if (info != null) {
+			addField(ParserFieldEnum.title, info.getTitle());
+			addField(ParserFieldEnum.subject, info.getSubject());
+			addField(ParserFieldEnum.author, info.getAuthor());
+			addField(ParserFieldEnum.producer, info.getProducer());
+			addField(ParserFieldEnum.keywords, info.getKeywords());
+			String d = getDate(getCreationDate(info));
+			if (d != null)
+				addField(ParserFieldEnum.creation_date, d);
+			d = getDate(getModificationDate(info));
+			if (d != null)
+				addField(ParserFieldEnum.modification_date, d);
+		}
+		PDDocumentCatalog catalog = pdf.getDocumentCatalog();
+		if (catalog != null) {
+			addField(ParserFieldEnum.language, catalog.getLanguage());
+		}
+		int pages = pdf.getNumberOfPages();
+		addField(ParserFieldEnum.number_of_pages, pages);
+		PDFTextStripper stripper = new PDFTextStripper("UTF-8");
+		String text = stripper.getText(pdf);
+		String[] frags = text.split("\\n");
+		for (String frag : frags)
+			addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " ")
+					.trim());
+		langDetection(10000, ParserFieldEnum.content);
+	}
+
+	@Override
+	public void doParseContent(File file) throws IOException {
+		PDDocument pdf = null;
+		try {
+			pdf = PDDocument.load(file);
+			extractContent(pdf);
+		} finally {
+			if (pdf != null)
+				pdf.close();
+		}
+	}
+
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
-		RandomAccessFile raf = null;
 		PDDocument pdf = null;
+		RandomAccessFile raf = null;
 		File tempFile = null;
 		try {
 			tempFile = File.createTempFile("oss", "pdfparser");
 			raf = new RandomAccessFile(tempFile, "rw");
 			pdf = PDDocument.load(inputStream, raf, true);
-			PDDocumentInformation info = pdf.getDocumentInformation();
-			if (info != null) {
-				addField(ParserFieldEnum.title, info.getTitle());
-				addField(ParserFieldEnum.subject, info.getSubject());
-				addField(ParserFieldEnum.author, info.getAuthor());
-				addField(ParserFieldEnum.producer, info.getProducer());
-				addField(ParserFieldEnum.keywords, info.getKeywords());
-				String d = getDate(getCreationDate(info));
-				if (d != null)
-					addField(ParserFieldEnum.creation_date, d);
-				d = getDate(getModificationDate(info));
-				if (d != null)
-					addField(ParserFieldEnum.modification_date, d);
-			}
-			PDDocumentCatalog catalog = pdf.getDocumentCatalog();
-			if (catalog != null) {
-				addField(ParserFieldEnum.language, catalog.getLanguage());
-			}
-			int pages = pdf.getNumberOfPages();
-			addField(ParserFieldEnum.number_of_pages, pages);
-			PDFTextStripper stripper = new PDFTextStripper("UTF-8");
-			String text = stripper.getText(pdf);
-			String[] frags = text.split("\\n");
-			for (String frag : frags)
-				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " ")
-						.trim());
-			pdf.close();
-			pdf = null;
-			langDetection(10000, ParserFieldEnum.content);
+			extractContent(pdf);
 		} finally {
 			if (pdf != null)
 				pdf.close();

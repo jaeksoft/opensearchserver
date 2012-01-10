@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,6 +48,8 @@ public enum FilterEnum {
 			"This filter tokenizes the input into n-grams of the given size(s)."),
 
 	PhoneticFilter("A filter that encode words using phonetic algorithms."),
+
+	RemoveDuplicateCharactersFilter("Remove consecutive duplicate characters."),
 
 	RussianStemFilter("A filter that stems Russian words."),
 

@@ -84,6 +84,18 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public static final ClassPropertyEnum CODEC = new ClassPropertyEnum(true,
 			"codec", "Codec algorithm", "Select a encoder/decoder algorithm");
 
+	public static ClassPropertyEnum REMOVE_DUPLICATE_LETTERS = new ClassPropertyEnum(
+			true, "removeDuplicateLetters", "Duplicate letters",
+			"Detect and remove consecutive duplicate letters");
+
+	public static ClassPropertyEnum REMOVE_DUPLICATE_DIGITS = new ClassPropertyEnum(
+			true, "removeDuplicateDigits", "Duplicate digits",
+			"Detect and remove consecutive duplicate digits");
+
+	public static ClassPropertyEnum REMOVE_DUPLICATE_WHITESPACES = new ClassPropertyEnum(
+			true, "removeDuplicateWhiteSpaces", "Duplicate spaces",
+			"Detect and remove consecutive duplicate white spaces");
+
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };
 
