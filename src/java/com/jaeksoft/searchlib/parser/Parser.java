@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,6 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.knallgrau.utils.textcat.TextCategorizer;
 
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -185,10 +186,22 @@ public abstract class Parser extends ParserFactory {
 		}
 	}
 
+	final private void doParseContent(LocalFileInstance localFileInstance)
+			throws IOException {
+		File file = new File(localFileInstance.getURI());
+		if (localFileInstance.getFileSize() > getSizeLimit())
+			throw new LimitException();
+		parseContent(file);
+	}
+
 	final public void parseContent(FileInstanceAbstract fileInstance)
 			throws IOException {
 		if (!requireContent())
 			return;
+		if (fileInstance instanceof LocalFileInstance) {
+			doParseContent((LocalFileInstance) fileInstance);
+			return;
+		}
 		InputStream is = null;
 		try {
 			is = fileInstance.getInputStream();

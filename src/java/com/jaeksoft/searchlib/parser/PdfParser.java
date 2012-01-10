@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,12 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -84,44 +86,66 @@ public class PdfParser extends Parser {
 		return time.toString();
 	}
 
+	private void extractContent(PDDocument pdf) throws IOException {
+		PDDocumentInformation info = pdf.getDocumentInformation();
+		if (info != null) {
+			addField(ParserFieldEnum.title, info.getTitle());
+			addField(ParserFieldEnum.subject, info.getSubject());
+			addField(ParserFieldEnum.author, info.getAuthor());
+			addField(ParserFieldEnum.producer, info.getProducer());
+			addField(ParserFieldEnum.keywords, info.getKeywords());
+			String d = getDate(getCreationDate(info));
+			if (d != null)
+				addField(ParserFieldEnum.creation_date, d);
+			d = getDate(getModificationDate(info));
+			if (d != null)
+				addField(ParserFieldEnum.modification_date, d);
+		}
+		PDDocumentCatalog catalog = pdf.getDocumentCatalog();
+		if (catalog != null) {
+			addField(ParserFieldEnum.language, catalog.getLanguage());
+		}
+		int pages = pdf.getNumberOfPages();
+		addField(ParserFieldEnum.number_of_pages, pages);
+		PDFTextStripper stripper = new PDFTextStripper("UTF-8");
+		String text = stripper.getText(pdf);
+		String[] frags = text.split("\\n");
+		for (String frag : frags)
+			addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " ")
+					.trim());
+		langDetection(10000, ParserFieldEnum.content);
+	}
+
+	@Override
+	public void parseContent(File file) throws IOException {
+		PDDocument pdf = null;
+		try {
+			pdf = PDDocument.load(file);
+			extractContent(pdf);
+		} finally {
+			if (pdf != null)
+				pdf.close();
+		}
+	}
+
 	@Override
 	protected void parseContent(LimitInputStream inputStream)
 			throws IOException {
 		PDDocument pdf = null;
+		RandomAccessFile raf = null;
+		File tempFile = null;
 		try {
-			pdf = PDDocument.load(inputStream);
-			PDDocumentInformation info = pdf.getDocumentInformation();
-			if (info != null) {
-				addField(ParserFieldEnum.title, info.getTitle());
-				addField(ParserFieldEnum.subject, info.getSubject());
-				addField(ParserFieldEnum.author, info.getAuthor());
-				addField(ParserFieldEnum.producer, info.getProducer());
-				addField(ParserFieldEnum.keywords, info.getKeywords());
-				String d = getDate(getCreationDate(info));
-				if (d != null)
-					addField(ParserFieldEnum.creation_date, d);
-				d = getDate(getModificationDate(info));
-				if (d != null)
-					addField(ParserFieldEnum.modification_date, d);
-			}
-			PDDocumentCatalog catalog = pdf.getDocumentCatalog();
-			if (catalog != null) {
-				addField(ParserFieldEnum.language, catalog.getLanguage());
-			}
-			int pages = pdf.getNumberOfPages();
-			addField(ParserFieldEnum.number_of_pages, pages);
-			PDFTextStripper stripper = new PDFTextStripper("UTF-8");
-			String text = stripper.getText(pdf);
-			String[] frags = text.split("\\n");
-			for (String frag : frags)
-				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " ")
-						.trim());
-			pdf.close();
-			pdf = null;
-			langDetection(10000, ParserFieldEnum.content);
+			tempFile = File.createTempFile("oss", "pdfparser");
+			raf = new RandomAccessFile(tempFile, "rw");
+			pdf = PDDocument.load(inputStream, raf, true);
+			extractContent(pdf);
 		} finally {
 			if (pdf != null)
 				pdf.close();
+			if (raf != null)
+				raf.close();
+			if (tempFile != null)
+				tempFile.delete();
 		}
 	}
 
