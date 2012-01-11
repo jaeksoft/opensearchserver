@@ -233,7 +233,7 @@ public class FieldsController extends CommonController {
 	}
 
 	@Override
-	protected void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange() throws SearchLibException {
 		schemaFieldList = null;
 		indexedFields = null;
 		analyzerNameList = null;

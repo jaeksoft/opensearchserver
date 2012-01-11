@@ -50,7 +50,7 @@ public class SchedulerListController extends CommonController {
 	}
 
 	@Override
-	protected void eventJobEdit(JobItem job) throws SearchLibException {
+	public void eventJobEdit(JobItem job) throws SearchLibException {
 		reloadPage();
 	}
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- License Agreement for OpenSearchServer -->
+<!-- Copyright (C) 2012 Emmanuel Keller / Jaeksoft -->
+<!-- http://www.open-search-server.com -->
+<!-- This file is part of OpenSearchServer. -->
+<!-- OpenSearchServer is free software: you can redistribute it and/or modify 
+	it under the terms of the GNU General Public License as published by the 
+	Free Software Foundation, either version 3 of the License, or (at your option) 
+	any later version. OpenSearchServer is distributed in the hope that it will 
+	be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of 
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+	Public License for more details. You should have received a copy of the GNU 
+	General Public License along with Jaeksoft Open Search Server. If not, see 
+	<http://www.gnu.org/licenses/>. -->
+<configuration>
+	<indices>
+		<index name="autocompletion" searchCache="100" filterCache="100"
+			fieldCache="500" />
+	</indices>
+	<schema>
+		<analyzers>
+			<analyzer name="AutocompletionAnalyzer" lang="">
+				<tokenizer class="LetterOrDigitTokenizerFactory" />
+				<filter class="EdgeNGramFilter" max_gram="100" min_gram="1"
+					scope="QUERY_INDEX" side="front" />
+			</analyzer>
+		</analyzers>
+		<fields default="term" unique="term">
+			<field name="term" indexed="yes" stored="no" termVector="no" />
+			<field name="ngram" indexed="yes" stored="no" termVector="no"
+				analyzer="AutocompletionAnalyzer" />
+		</fields>
+	</schema>
+	<requests>
+		<request name="search" defaultOperator="and" start="0" rows="0"
+			allowLeadingWildcard="yes">
+			<query>$$</query>
+			<returnFields>
+				term
+			</returnFields>
+		</request>
+	</requests>
+</configuration>

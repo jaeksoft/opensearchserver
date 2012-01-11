@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.poi.util.IOUtils;
+
 public abstract class PropertyManager {
 
 	private File propFile;
@@ -52,7 +54,7 @@ public abstract class PropertyManager {
 				throw e;
 			} finally {
 				if (inputStream != null)
-					inputStream.close();
+					IOUtils.closeQuietly(inputStream);
 			}
 		}
 		indexDocumentBufferSize = new PropertyItem<Integer>(this,
@@ -70,7 +72,7 @@ public abstract class PropertyManager {
 			throw e;
 		} finally {
 			if (fos != null)
-				fos.close();
+				IOUtils.closeQuietly(fos);
 		}
 	}
 

@@ -71,7 +71,7 @@ public class RepositoryController extends CrawlerController {
 	}
 
 	@Override
-	protected void eventFilePathEdit(FilePathItem filePathItem)
+	public void eventFilePathEdit(FilePathItem filePathItem)
 			throws SearchLibException {
 		onRefresh();
 	}

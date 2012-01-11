@@ -26,30 +26,22 @@ package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.util.List;
 
+import org.zkoss.zk.ui.event.Event;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.CommonComposer;
 
-public class AutoCompletionController extends CommonController {
+public class AutoCompletionComposer extends CommonComposer {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2654142296653263306L;
 
-	private SchemaField field;
-
-	public AutoCompletionController() throws SearchLibException {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	protected void reset() throws SearchLibException {
-		// TODO Auto-generated method stub
-
-	}
+	private SchemaField field = null;
 
 	public List<SchemaField> getFieldList() throws SearchLibException {
 		synchronized (this) {
@@ -60,10 +52,23 @@ public class AutoCompletionController extends CommonController {
 		}
 	}
 
+	public AutoCompletionManager getAutoCompletionManager()
+			throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getAutoCompletionManager();
+	}
+
 	/**
 	 * @return the field
+	 * @throws SearchLibException
 	 */
-	public SchemaField getField() {
+	public SchemaField getField() throws SearchLibException {
+		Client client = getClient();
+		AutoCompletionManager manager = getAutoCompletionManager();
+		if (field == null && manager != null && client != null)
+			field = client.getSchema().getFieldList().get(manager.getField());
 		return field;
 	}
 
@@ -73,6 +78,26 @@ public class AutoCompletionController extends CommonController {
 	 */
 	public void setField(SchemaField field) {
 		this.field = field;
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onBuild$window(Event event) throws SearchLibException {
+		AutoCompletionManager manager = getAutoCompletionManager();
+		if (manager == null)
+			return;
+		manager.build();
+	}
+
+	public void onSave$window(Event event) throws SearchLibException {
+		AutoCompletionManager manager = getAutoCompletionManager();
+		if (manager == null || field == null)
+			return;
+		manager.setField(field.getName());
 	}
 
 }

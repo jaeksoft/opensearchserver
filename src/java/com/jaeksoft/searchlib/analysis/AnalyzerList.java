@@ -44,11 +44,6 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class AnalyzerList {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1994552936047860059L;
-
 	private Map<String, List<Analyzer>> nameListMap;
 	private Map<String, Analyzer> nameLangMap;
 

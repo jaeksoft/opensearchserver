@@ -1,3 +1,4 @@
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit"?>
 <!--
 	License Agreement for OpenSearchServer
 	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
@@ -14,35 +15,39 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="autocompletion"
-	use="com.jaeksoft.searchlib.web.controller.schema.AutoCompletionController">
-	<panel title="Auto-completion" border="normal" width="100%">
+<window id="window"
+	apply="com.jaeksoft.searchlib.web.controller.schema.AutoCompletionComposer">
+	<panel title="Auto-completion" border="normal">
 		<panelchildren>
-			<listbox sizedByContent="true">
-				<listhead>
-					<listheader align="right" />
-					<listheader align="left" />
-					<listheader align="left" />
-				</listhead>
-				<listitem>
-					<listcell>
+			<grid sizedByContent="true">
+				<columns>
+					<column align="right" />
+					<column align="left" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
 						<label value="Fields" />
-						<listbox mold="select"
-							selectedItem="@{autocompletion.field}"
-							model="@{autocompletion.fieldList}">
+						<listbox id="fields"
+							model="@{window$composer.fieldList}" mold="select"
+							selectedItem="@{window$composer.field}">
 							<listitem self="@{each=field}"
 								label="@{field.name}" />
 						</listbox>
 						<label
 							value="Select which field will be used to populate the auto-completion" />
-					</listcell>
-				</listitem>
-				<listfoot>
-					<listfooter span="3">
-						<button label="Build" />
-					</listfooter>
-				</listfoot>
-			</listbox>
+					</row>
+				</rows>
+				<foot>
+					<footer span="3">
+						<hbox align="center" width="100%">
+							<button label="Save" forward="onSave" />
+							<space />
+							<button label="Build" forward="onBuild" />
+						</hbox>
+					</footer>
+				</foot>
+			</grid>
 		</panelchildren>
 	</panel>
 </window>

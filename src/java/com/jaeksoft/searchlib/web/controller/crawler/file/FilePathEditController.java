@@ -111,7 +111,7 @@ public class FilePathEditController extends CommonController {
 	}
 
 	@Override
-	protected void eventFilePathEdit(FilePathItem filePathItem)
+	public void eventFilePathEdit(FilePathItem filePathItem)
 			throws SearchLibException {
 		if (filePathItem == null)
 			return;

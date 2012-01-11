@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
@@ -82,7 +83,7 @@ public abstract class UriHttp {
 	public void close() {
 		try {
 			if (httpEntity != null) {
-				httpEntity.consumeContent();
+				EntityUtils.consume(httpEntity);
 				httpEntity = null;
 			}
 		} catch (IOException e) {

@@ -91,7 +91,7 @@ public class SchedulerEditController extends CommonController {
 	}
 
 	@Override
-	protected void eventJobEdit(JobItem job) throws SearchLibException {
+	public void eventJobEdit(JobItem job) throws SearchLibException {
 		if (job == null)
 			return;
 		this.selectedJob = job;

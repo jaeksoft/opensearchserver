@@ -95,7 +95,7 @@ public final class QueryController extends AbstractQueryController {
 	}
 
 	@Override
-	protected void eventRequestListChange() throws SearchLibException {
+	public void eventRequestListChange() throws SearchLibException {
 		reloadPage();
 	}
 

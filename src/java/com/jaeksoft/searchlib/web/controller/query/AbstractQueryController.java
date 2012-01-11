@@ -54,12 +54,12 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	@Override
-	protected void eventQueryEditResult(Result result) {
+	public void eventQueryEditResult(Result result) {
 		reloadPage();
 	}
 
 	@Override
-	protected void eventQueryEditRequest(SearchRequest request) {
+	public void eventQueryEditRequest(SearchRequest request) {
 		reloadPage();
 	}
 

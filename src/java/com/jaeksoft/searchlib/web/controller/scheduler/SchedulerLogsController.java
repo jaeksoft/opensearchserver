@@ -50,7 +50,7 @@ public class SchedulerLogsController extends CommonController {
 	}
 
 	@Override
-	protected void eventJobEdit(JobItem jobItem) throws SearchLibException {
+	public void eventJobEdit(JobItem jobItem) throws SearchLibException {
 		reloadPage();
 	}
 

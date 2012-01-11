@@ -54,7 +54,7 @@ import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.Version;
 
 public abstract class CommonController extends Window implements AfterCompose,
-		EventListener {
+		EventListener, EventInterface {
 
 	/**
 	 * 
@@ -140,6 +140,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return StartStopListener.getVersion();
 	}
 
+	@Override
 	public Client getClient() throws SearchLibException {
 		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
 	}
@@ -166,6 +167,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return "WEB-INF/zul/" + page;
 	}
 
+	@Override
 	public User getLoggedUser() {
 		return (User) getAttribute(ScopeAttribute.LOGGED_USER);
 	}
@@ -239,73 +241,22 @@ public abstract class CommonController extends Window implements AfterCompose,
 		Executions.sendRedirect("/");
 	}
 
-	private boolean sameClient(Event event) throws SearchLibException {
-		Client client = (Client) event.getData();
-		if (client == null)
-			return false;
-		Client localClient = getClient();
-		if (localClient == null)
-			return false;
-		return client.getIndexName().equals(localClient.getIndexName());
-	}
-
-	private boolean sameUser(Event event) throws SearchLibException {
-		User user = (User) event.getData();
-		if (user == null)
-			return false;
-		if (!isLogged())
-			return false;
-		return user.equals(getLoggedUser());
-	}
-
 	@Override
 	final public void onEvent(Event event) throws UiException {
-		PushEvent pushEvent = PushEvent.isEvent(event);
-		if (pushEvent == null)
-			return;
-		try {
-			if (pushEvent == PushEvent.FLUSH_PRIVILEGES) {
-				ClientCatalog.flushPrivileges();
-				if (sameUser(event)) {
-					eventFlushPrivileges();
-					onLogout();
-				}
-			} else if (pushEvent == PushEvent.CLIENT_CHANGE)
-				eventClientChange();
-			else if (pushEvent == PushEvent.CLIENT_SWITCH)
-				eventClientSwitch((Client) event.getData());
-			else if (pushEvent == PushEvent.DOCUMENT_UPDATED) {
-				if (sameClient(event))
-					eventDocumentUpdate();
-			} else if (pushEvent == PushEvent.REQUEST_LIST_CHANGED) {
-				if (sameClient(event))
-					eventRequestListChange();
-			} else if (pushEvent == PushEvent.SCHEMA_CHANGED) {
-				if (sameClient(event))
-					eventSchemaChange();
-			} else if (pushEvent == PushEvent.LOG_OUT)
-				eventLogout();
-			else if (pushEvent == PushEvent.QUERY_EDIT_REQUEST)
-				eventQueryEditRequest((SearchRequest) event.getData());
-			else if (pushEvent == PushEvent.QUERY_EDIT_RESULT)
-				eventQueryEditResult((Result) event.getData());
-			else if (pushEvent == PushEvent.JOB_EDIT)
-				eventJobEdit((JobItem) event.getData());
-			else if (pushEvent == PushEvent.FILEPATH_EDIT)
-				eventFilePathEdit((FilePathItem) event.getData());
-		} catch (SearchLibException e) {
-			throw new UiException(e);
-		}
+		EventDispatch.dispatch(this, event);
+
 	}
 
 	protected abstract void reset() throws SearchLibException;
 
-	protected void eventClientChange() throws SearchLibException {
+	@Override
+	public void eventClientChange() throws SearchLibException {
 		reset();
 		reloadPage();
 	}
 
-	protected void eventClientSwitch(Client client) throws SearchLibException {
+	@Override
+	public void eventClientSwitch(Client client) throws SearchLibException {
 		if (client == null)
 			return;
 		Client currentClient = getClient();
@@ -317,36 +268,45 @@ public abstract class CommonController extends Window implements AfterCompose,
 		reloadPage();
 	}
 
-	protected void eventFlushPrivileges() throws SearchLibException {
+	@Override
+	public void eventFlushPrivileges() throws SearchLibException {
 		reset();
 		reloadPage();
 	}
 
-	protected void eventDocumentUpdate() throws SearchLibException {
+	@Override
+	public void eventDocumentUpdate() throws SearchLibException {
 	}
 
-	protected void eventRequestListChange() throws SearchLibException {
+	@Override
+	public void eventRequestListChange() throws SearchLibException {
 	}
 
-	protected void eventSchemaChange() throws SearchLibException {
+	@Override
+	public void eventSchemaChange() throws SearchLibException {
 	}
 
-	protected void eventJobEdit(JobItem jobItem) throws SearchLibException {
+	@Override
+	public void eventJobEdit(JobItem jobItem) throws SearchLibException {
 	}
 
-	protected void eventFilePathEdit(FilePathItem filePathItem)
+	@Override
+	public void eventFilePathEdit(FilePathItem filePathItem)
 			throws SearchLibException {
 	}
 
-	protected void eventLogout() throws SearchLibException {
+	@Override
+	public void eventLogout() throws SearchLibException {
 		reset();
 		reloadPage();
 	}
 
-	protected void eventQueryEditResult(Result data) {
+	@Override
+	public void eventQueryEditResult(Result data) {
 	}
 
-	protected void eventQueryEditRequest(SearchRequest data) {
+	@Override
+	public void eventQueryEditRequest(SearchRequest data) {
 	}
 
 	protected String getIndexName() throws SearchLibException {

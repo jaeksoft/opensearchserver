@@ -159,23 +159,23 @@ public class DeleteController extends CommonController {
 	}
 
 	@Override
-	protected void eventClientChange() throws SearchLibException {
+	public void eventClientChange() throws SearchLibException {
 		reset();
 		reloadPage();
 	}
 
 	@Override
-	protected void eventFlushPrivileges() throws SearchLibException {
+	public void eventFlushPrivileges() throws SearchLibException {
 		reset();
 		reloadPage();
 	}
 
 	@Override
-	protected void eventDocumentUpdate() throws SearchLibException {
+	public void eventDocumentUpdate() throws SearchLibException {
 	}
 
 	@Override
-	protected void eventLogout() throws SearchLibException {
+	public void eventLogout() throws SearchLibException {
 		reset();
 		reloadPage();
 	}
