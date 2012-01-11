@@ -21,6 +21,7 @@
 		<tab id="tabParser" label="Parser list" />
 		<tab id="tabStopWords" label="Stop words" />
 		<tab id="tabSynonyms" label="Synonyms" />
+		<tab id="tabAutoCompletion" label="Auto-completion" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
@@ -37,6 +38,9 @@
 		</tabpanel>
 		<tabpanel fulfill="tabSynonyms.onSelect">
 			<include src="WEB-INF/zul/schema/synonyms.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabAutoCompletion.onSelect">
+			<include src="WEB-INF/zul/schema/autocompletion.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>
