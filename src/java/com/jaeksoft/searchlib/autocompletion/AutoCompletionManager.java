@@ -50,16 +50,20 @@ public class AutoCompletionManager {
 
 	private AutoCompletionBuildThread buildThread;
 
-	private Properties properties;
-
 	private File propFile;
 
 	private SchemaField termField;
+
+	private int propRows;
+
+	private String propField;
 
 	private final static String autoCompletionProperties = "autocompletion-properties.xml";
 	private final static String autoCompletionSubDirectory = "autocompletion";
 	private final static String autoCompletionConfigPath = "/autocompletion_config.xml";
 	private final static String autoCompletionPropertyField = "field";
+	private final static String autoCompletionPropertyRows = "rows";
+	private final static String autoCompletionPropertyRowsDefault = "10";
 	public final static String autoCompletionSchemaFieldTerm = "term";
 	public final static String autoCompletionSchemaFieldFreq = "freq";
 
@@ -75,7 +79,7 @@ public class AutoCompletionManager {
 			subDir.mkdir();
 		this.autoCompClient = new Client(subDir, autoCompletionConfigPath, true);
 		propFile = new File(config.getDirectory(), autoCompletionProperties);
-		properties = new Properties();
+		Properties properties = new Properties();
 		if (propFile.exists()) {
 			FileInputStream inputStream = null;
 			try {
@@ -86,6 +90,9 @@ public class AutoCompletionManager {
 					IOUtils.closeQuietly(inputStream);
 			}
 		}
+		propField = properties.getProperty(autoCompletionPropertyField);
+		propRows = Integer.parseInt(properties.getProperty(
+				autoCompletionPropertyRows, autoCompletionPropertyRowsDefault));
 		buildThread = new AutoCompletionBuildThread((Client) config,
 				autoCompClient);
 		SchemaFieldList schemaFieldList = autoCompClient.getSchema()
@@ -97,6 +104,11 @@ public class AutoCompletionManager {
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(propFile);
+			Properties properties = new Properties();
+			if (propField != null)
+				properties.setProperty(autoCompletionPropertyField, propField);
+			properties.setProperty(autoCompletionPropertyRows,
+					Integer.toString(propRows));
 			properties.storeToXML(fos, "");
 		} finally {
 			if (fos != null)
@@ -104,23 +116,45 @@ public class AutoCompletionManager {
 		}
 	}
 
-	final private String getPropertyField() {
-		return properties.getProperty(autoCompletionPropertyField);
-	}
-
 	public String getField() {
 		rwl.r.lock();
 		try {
-			return getPropertyField();
+			return propField;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public void setField(String field) throws SearchLibException {
+	public void setField(String field) {
 		rwl.w.lock();
 		try {
-			properties.setProperty(autoCompletionPropertyField, field);
+			this.propField = field;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public int getRows() {
+		rwl.r.lock();
+		try {
+			return propRows;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setRows(int rows) {
+		rwl.w.lock();
+		try {
+			propRows = rows;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void save() throws SearchLibException {
+		rwl.w.lock();
+		try {
 			saveProperties();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -162,7 +196,7 @@ public class AutoCompletionManager {
 		rwl.w.lock();
 		try {
 			checkIfRunning();
-			buildThread.init(getPropertyField());
+			buildThread.init(propField);
 			buildThread.execute();
 			buildThread.waitForStart(60);
 		} finally {
@@ -170,11 +204,13 @@ public class AutoCompletionManager {
 		}
 	}
 
-	public Result search(String query, int rows) throws SearchLibException {
+	public Result search(String query, Integer rows) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (query == null || query.length() == 0)
 				return null;
+			if (rows == null)
+				rows = propRows;
 			SearchRequest searchRequest = autoCompClient.getNewSearchRequest();
 			searchRequest.setQueryString(query);
 			searchRequest.setDefaultOperator("AND");

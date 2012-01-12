@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- License Agreement for OpenSearchServer Copyright (C) 2008-2011 
-	Emmanuel Keller / Jaeksoft http://www.open-search-server.com This file is 
-	part of OpenSearchServer. OpenSearchServer is free software: 
-	you can redistribute it and/or modify it under the terms of the GNU General 
-	Public License as published by the Free Software Foundation, either version 
-	3 of the License, or (at your option) any later version. OpenSearchServer 
-	is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-	PURPOSE. See the GNU General Public License for more details. You should 
-	have received a copy of the GNU General Public License along with Jaeksoft 
-	OpenSearchServer. If not, see <http://www.gnu.org/licenses/>. -->
+<!-- License Agreement for OpenSearchServer Copyright (C) 2008-2011 Emmanuel 
+	Keller / Jaeksoft http://www.open-search-server.com This file is part of 
+	OpenSearchServer. OpenSearchServer is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. OpenSearchServer is distributed in 
+	the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the 
+	implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	See the GNU General Public License for more details. You should have received 
+	a copy of the GNU General Public License along with Jaeksoft OpenSearchServer. 
+	If not, see <http://www.gnu.org/licenses/>. -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
@@ -60,6 +60,10 @@
 		<servlet-name>auEngine</servlet-name>
 		<url-pattern>/zkau/*</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>AutoCompletion</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.AutoCompletionServlet</servlet-class>
+	</servlet>
 	<servlet>
 		<servlet-name>Basket</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.BasketServlet</servlet-class>
@@ -144,6 +148,10 @@
 		<servlet-name>URLBrowser</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.URLBrowserServlet</servlet-class>
 	</servlet>
+	<servlet-mapping>
+		<servlet-name>AutoCompletion</servlet-name>
+		<url-pattern>/autocompletion</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Basket</servlet-name>
 		<url-pattern>/basket</url-pattern>

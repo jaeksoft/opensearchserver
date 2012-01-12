@@ -27,15 +27,20 @@
 				</columns>
 				<rows>
 					<row>
-						<label value="Fields" />
-						<listbox id="fields"
-							model="@{window$composer.fieldList}" mold="select"
-							selectedItem="@{window$composer.field}">
+						<label value="Field source" />
+						<listbox model="@{window$composer.fieldList}"
+							mold="select" selectedItem="@{window$composer.field}">
 							<listitem self="@{each=field}"
 								label="@{field.name}" />
 						</listbox>
 						<label
 							value="Select which field will be used to populate the auto-completion" />
+					</row>
+					<row>
+						<label value="Number of suggestion" />
+						<intbox value="@{window$composer.rows}" />
+						<label
+							value="Set how many suggestions will be submitted" />
 					</row>
 					<row>
 						<label value="Build status" />

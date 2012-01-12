@@ -24,10 +24,13 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.PrintWriter;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -53,14 +56,20 @@ public class AutoCompletionServlet extends AbstractServlet {
 			Integer rows = transaction.getParameterInteger("rows", 10);
 			String query = transaction.getParameterString("query");
 			AutoCompletionManager manager = client.getAutoCompletionManager();
+			transaction.setResponseContentType("text/plain");
+			PrintWriter pw = transaction.getWriter("UTF-8");
 			Result result = manager.search(query, rows);
 			if (result == null)
 				return;
-
+			ResultDocument[] documents = result.getDocuments();
+			if (documents == null)
+				return;
+			for (ResultDocument document : documents)
+				pw.println(document.getValueContent(
+						AutoCompletionManager.autoCompletionSchemaFieldTerm, 0));
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 
 	}
-
 }

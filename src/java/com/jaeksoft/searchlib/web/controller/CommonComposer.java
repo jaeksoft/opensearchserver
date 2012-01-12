@@ -164,4 +164,11 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 	@Override
 	public void eventQueryEditRequest(SearchRequest data) {
 	}
+
+	@Override
+	public final void onEvent(Event event) throws Exception {
+		super.onEvent(event);
+		EventDispatch.dispatch(this, event);
+
+	}
 }

@@ -49,6 +49,8 @@ public class AutoCompletionComposer extends CommonComposer {
 
 	private SchemaField field = null;
 
+	private int rows = 10;
+
 	private Combobox combo;
 
 	public List<SchemaField> getFieldList() throws SearchLibException {
@@ -93,8 +95,9 @@ public class AutoCompletionComposer extends CommonComposer {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		// TODO Auto-generated method stub
-
+		field = null;
+		if (combo != null)
+			combo.getChildren().clear();
 	}
 
 	public void onBuild$window(Event event) throws SearchLibException {
@@ -111,6 +114,8 @@ public class AutoCompletionComposer extends CommonComposer {
 		if (manager == null || field == null)
 			return;
 		manager.setField(field.getName());
+		manager.setRows(rows);
+		manager.save();
 	}
 
 	public void onTimer$timer() {
@@ -126,7 +131,7 @@ public class AutoCompletionComposer extends CommonComposer {
 		if (manager == null)
 			return;
 		String[] resultArray = new String[0];
-		Result result = manager.search(inputEvent.getValue(), 10);
+		Result result = manager.search(inputEvent.getValue(), rows);
 		if (result != null) {
 			ResultDocument[] documents = result.getDocuments();
 			if (documents != null) {
@@ -142,5 +147,20 @@ public class AutoCompletionComposer extends CommonComposer {
 		}
 		ListModel listModel = new ListModelArray(resultArray);
 		combo.setModel(listModel);
+	}
+
+	/**
+	 * @return the rows
+	 */
+	public int getRows() {
+		return rows;
+	}
+
+	/**
+	 * @param rows
+	 *            the rows to set
+	 */
+	public void setRows(int rows) {
+		this.rows = rows;
 	}
 }
