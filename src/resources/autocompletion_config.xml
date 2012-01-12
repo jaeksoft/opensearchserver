@@ -28,7 +28,7 @@
 			</analyzer>
 		</analyzers>
 		<fields default="term">
-			<field name="term" indexed="yes" stored="no" termVector="no"
+			<field name="term" indexed="yes" stored="yes" termVector="no"
 				analyzer="AutocompletionAnalyzer" />
 			<field name="freq" indexed="yes" stored="no" termvector="yes" />
 		</fields>

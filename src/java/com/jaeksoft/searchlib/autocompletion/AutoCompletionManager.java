@@ -36,6 +36,10 @@ import org.apache.poi.util.IOUtils;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class AutoCompletionManager {
@@ -50,10 +54,14 @@ public class AutoCompletionManager {
 
 	private File propFile;
 
+	private SchemaField termField;
+
 	private final static String autoCompletionProperties = "autocompletion-properties.xml";
 	private final static String autoCompletionSubDirectory = "autocompletion";
 	private final static String autoCompletionConfigPath = "/autocompletion_config.xml";
 	private final static String autoCompletionPropertyField = "field";
+	public final static String autoCompletionSchemaFieldTerm = "term";
+	public final static String autoCompletionSchemaFieldFreq = "freq";
 
 	public final static String getPropertyField(Properties props) {
 		return props.getProperty(autoCompletionPropertyField);
@@ -80,6 +88,9 @@ public class AutoCompletionManager {
 		}
 		buildThread = new AutoCompletionBuildThread((Client) config,
 				autoCompClient);
+		SchemaFieldList schemaFieldList = autoCompClient.getSchema()
+				.getFieldList();
+		termField = schemaFieldList.get(autoCompletionSchemaFieldTerm);
 	}
 
 	private void saveProperties() throws IOException {
@@ -156,6 +167,24 @@ public class AutoCompletionManager {
 			buildThread.waitForStart(60);
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	public Result search(String query, int rows) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (query == null || query.length() == 0)
+				return null;
+			SearchRequest searchRequest = autoCompClient.getNewSearchRequest();
+			searchRequest.setQueryString(query);
+			searchRequest.setDefaultOperator("AND");
+			searchRequest.setRows(rows);
+			searchRequest.getSortList()
+					.add(autoCompletionSchemaFieldFreq, true);
+			searchRequest.getReturnFieldList().add(termField);
+			return autoCompClient.search(searchRequest);
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 }

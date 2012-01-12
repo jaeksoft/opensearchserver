@@ -29,10 +29,14 @@ import java.util.List;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.InputEvent;
 import org.zkoss.zul.Combobox;
+import org.zkoss.zul.ListModel;
+import org.zkoss.zul.ListModelArray;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
+import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.web.controller.CommonComposer;
 
@@ -110,11 +114,30 @@ public class AutoCompletionComposer extends CommonComposer {
 		reloadPage();
 	}
 
-	public void onChanging$combo(Event event) {
+	public void onChanging$combo(Event event) throws SearchLibException {
 		Event ev = getOriginalEvent(event);
 		if (!(ev instanceof InputEvent))
 			return;
 		InputEvent inputEvent = (InputEvent) ev;
-		System.out.println(inputEvent.getValue());
+		AutoCompletionManager manager = getAutoCompletionManager();
+		if (manager == null)
+			return;
+		String[] resultArray = new String[0];
+		Result result = manager.search(inputEvent.getValue(), 10);
+		if (result != null) {
+			ResultDocument[] documents = result.getDocuments();
+			if (documents != null) {
+				resultArray = new String[documents.length];
+				int i = 0;
+				for (ResultDocument resDoc : documents) {
+					resultArray[i++] = resDoc
+							.getValueContent(
+									AutoCompletionManager.autoCompletionSchemaFieldTerm,
+									0);
+				}
+			}
+		}
+		ListModel listModel = new ListModelArray(resultArray);
+		combo.setModel(listModel);
 	}
 }
