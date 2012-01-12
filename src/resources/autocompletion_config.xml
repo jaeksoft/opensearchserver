@@ -21,14 +21,16 @@
 		<analyzers>
 			<analyzer name="AutocompletionAnalyzer" lang="">
 				<tokenizer class="LetterOrDigitTokenizerFactory" />
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
 				<filter class="EdgeNGramFilter" max_gram="100" min_gram="1"
 					scope="QUERY_INDEX" side="front" />
 			</analyzer>
 		</analyzers>
-		<fields default="term" unique="term">
-			<field name="term" indexed="yes" stored="no" termVector="no" />
-			<field name="ngram" indexed="yes" stored="no" termVector="no"
+		<fields default="term">
+			<field name="term" indexed="yes" stored="no" termVector="no"
 				analyzer="AutocompletionAnalyzer" />
+			<field name="freq" indexed="yes" stored="no" termvector="yes" />
 		</fields>
 	</schema>
 	<requests>

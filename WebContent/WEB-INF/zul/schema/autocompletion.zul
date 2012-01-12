@@ -37,17 +37,40 @@
 						<label
 							value="Select which field will be used to populate the auto-completion" />
 					</row>
+					<row>
+						<label value="Build status" />
+						<label
+							value="@{window$composer.autoCompletionManager.buildThread.status}" />
+						<label value="The status of the build process" />
+					</row>
+					<row>
+						<label value="Number of terms" />
+						<label
+							value="@{window$composer.autoCompletionManager.buildThread.indexNumDocs}" />
+						<label
+							value="The number of terms in the auto-completion index" />
+					</row>
+					<row>
+						<label value="Testing" />
+						<combobox id="combo" cols="50" autodrop="true"
+							buttonVisible="false" />
+						<label
+							value="Enter any text here to test the autocompletion" />
+					</row>
 				</rows>
 				<foot>
 					<footer span="3">
 						<hbox align="center" width="100%">
 							<button label="Save" forward="onSave" />
 							<space />
-							<button label="Build" forward="onBuild" />
+							<button label="Build" forward="onBuild"
+								disable="@{window$composer.autoCompletionManager.buildThread.running}" />
 						</hbox>
 					</footer>
 				</foot>
 			</grid>
 		</panelchildren>
 	</panel>
+	<timer id="timer" delay="5000" repeats="true"
+		running="@{window$composer.autoCompletionManager.buildThread.running}" />
 </window>

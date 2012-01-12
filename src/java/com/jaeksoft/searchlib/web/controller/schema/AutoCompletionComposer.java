@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.web.controller.schema;
 import java.util.List;
 
 import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.InputEvent;
+import org.zkoss.zul.Combobox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -42,6 +44,8 @@ public class AutoCompletionComposer extends CommonComposer {
 	private static final long serialVersionUID = -2654142296653263306L;
 
 	private SchemaField field = null;
+
+	private Combobox combo;
 
 	public List<SchemaField> getFieldList() throws SearchLibException {
 		synchronized (this) {
@@ -90,7 +94,9 @@ public class AutoCompletionComposer extends CommonComposer {
 		AutoCompletionManager manager = getAutoCompletionManager();
 		if (manager == null)
 			return;
-		manager.build();
+		onSave$window(event);
+		manager.startBuild();
+		reloadPage();
 	}
 
 	public void onSave$window(Event event) throws SearchLibException {
@@ -100,4 +106,15 @@ public class AutoCompletionComposer extends CommonComposer {
 		manager.setField(field.getName());
 	}
 
+	public void onTimer$timer() {
+		reloadPage();
+	}
+
+	public void onChanging$combo(Event event) {
+		Event ev = getOriginalEvent(event);
+		if (!(ev instanceof InputEvent))
+			return;
+		InputEvent inputEvent = (InputEvent) ev;
+		System.out.println(inputEvent.getValue());
+	}
 }

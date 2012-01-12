@@ -42,9 +42,9 @@ public class AutoCompletionManager {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	protected Client autoCompClient;
+	private Client autoCompClient;
 
-	protected Client targetClient;
+	private AutoCompletionBuildThread buildThread;
 
 	private Properties properties;
 
@@ -55,6 +55,10 @@ public class AutoCompletionManager {
 	private final static String autoCompletionConfigPath = "/autocompletion_config.xml";
 	private final static String autoCompletionPropertyField = "field";
 
+	public final static String getPropertyField(Properties props) {
+		return props.getProperty(autoCompletionPropertyField);
+	}
+
 	public AutoCompletionManager(Config config) throws SearchLibException,
 			InvalidPropertiesFormatException, IOException {
 		File subDir = new File(config.getDirectory(),
@@ -62,7 +66,6 @@ public class AutoCompletionManager {
 		if (!subDir.exists())
 			subDir.mkdir();
 		this.autoCompClient = new Client(subDir, autoCompletionConfigPath, true);
-		this.targetClient = (Client) config;
 		propFile = new File(config.getDirectory(), autoCompletionProperties);
 		properties = new Properties();
 		if (propFile.exists()) {
@@ -75,6 +78,8 @@ public class AutoCompletionManager {
 					IOUtils.closeQuietly(inputStream);
 			}
 		}
+		buildThread = new AutoCompletionBuildThread((Client) config,
+				autoCompClient);
 	}
 
 	private void saveProperties() throws IOException {
@@ -88,10 +93,14 @@ public class AutoCompletionManager {
 		}
 	}
 
+	final private String getPropertyField() {
+		return properties.getProperty(autoCompletionPropertyField);
+	}
+
 	public String getField() {
 		rwl.r.lock();
 		try {
-			return properties.getProperty(autoCompletionPropertyField);
+			return getPropertyField();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -118,9 +127,35 @@ public class AutoCompletionManager {
 		}
 	}
 
-	public void build() {
-		// TODO Auto-generated method stub
-
+	public AutoCompletionBuildThread getBuildThread() {
+		rwl.r.lock();
+		try {
+			return buildThread;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
+	private void checkIfRunning() throws SearchLibException {
+		if (buildThread.isRunning())
+			throw new SearchLibException("The build is already running");
+	}
+
+	public void startBuild() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkIfRunning();
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			checkIfRunning();
+			buildThread.init(getPropertyField());
+			buildThread.execute();
+			buildThread.waitForStart(60);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 }
