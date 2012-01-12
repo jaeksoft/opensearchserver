@@ -75,8 +75,11 @@ public class AutoCompletionComposer extends CommonComposer {
 	public SchemaField getField() throws SearchLibException {
 		Client client = getClient();
 		AutoCompletionManager manager = getAutoCompletionManager();
-		if (field == null && manager != null && client != null)
-			field = client.getSchema().getFieldList().get(manager.getField());
+		if (field == null && manager != null && client != null) {
+			String f = manager.getField();
+			if (f != null && f.length() > 0)
+				field = client.getSchema().getFieldList().get(f);
+		}
 		return field;
 	}
 
