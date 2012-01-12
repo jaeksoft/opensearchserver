@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -419,7 +419,7 @@ public class HtmlParser extends Parser {
 
 		String charset = null;
 		IndexDocument sourceDocument = getSourceDocument();
-		if (sourceDocument != null) {
+		if (sourceDocument != null && urlItemFieldEnum != null) {
 			FieldValueItem fieldValueItem = sourceDocument.getFieldValue(
 					urlItemFieldEnum.contentTypeCharset.getName(), 0);
 			if (fieldValueItem != null)
@@ -522,9 +522,12 @@ public class HtmlParser extends Parser {
 		IndexDocument srcDoc = getSourceDocument();
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {
 			URL currentURL = getBaseHref(doc);
-			if (currentURL == null)
-				currentURL = new URL(srcDoc.getFieldValue(
-						urlItemFieldEnum.url.getName(), 0).getValue());
+			if (currentURL == null && urlItemFieldEnum != null) {
+				FieldValueItem fvi = srcDoc.getFieldValue(
+						urlItemFieldEnum.url.getName(), 0);
+				if (fvi != null)
+					currentURL = new URL(fvi.getValue());
+			}
 			for (Node node : nodes) {
 				String href = null;
 				String rel = null;
@@ -542,8 +545,9 @@ public class HtmlParser extends Parser {
 				URL newUrl = null;
 				if (href != null)
 					if (!href.startsWith("javascript:"))
-						newUrl = LinkUtils.getLink(currentURL, href, follow,
-								false, true, urlFilterList);
+						if (currentURL != null)
+							newUrl = LinkUtils.getLink(currentURL, href,
+									follow, false, true, urlFilterList);
 				if (newUrl != null) {
 					ParserFieldEnum field = null;
 					if (newUrl.getHost().equalsIgnoreCase(currentURL.getHost())) {

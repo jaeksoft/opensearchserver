@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.4
 
 Bug fixes:
+- 3472905: Error while crawling local HTML file
 - 3471749: Out Of Memory Error while indexing PDF document
 
 OpenSearchServer 1.2.3
