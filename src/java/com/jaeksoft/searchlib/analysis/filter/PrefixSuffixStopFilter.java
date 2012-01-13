@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,38 +24,56 @@
 
 package com.jaeksoft.searchlib.analysis.filter;
 
-import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.analysis.filter.stop.PrefixSuffixFilter;
+import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 
-public class StopFilter extends FilterFactory {
+public class PrefixSuffixStopFilter extends FilterFactory {
 
-	private CharArraySet words;
+	private String[] prefixArray = null;
+	private String[] suffixArray = null;
+	private String prefixList = null;
+	private String suffixList = null;
+	private String tokenSeparator = null;
+	private StopWordsManager stopWordsManager = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		String[] values = config.getStopWordsManager().getList();
 		String value = (values != null && values.length > 0) ? values[0] : null;
-		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
+		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null);
+		addProperty(ClassPropertyEnum.PREFIX_FILE_LIST, value, values);
+		addProperty(ClassPropertyEnum.SUFFIX_FILE_LIST, value, values);
+		stopWordsManager = config.getStopWordsManager();
 	}
 
 	@Override
 	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		if (prop != ClassPropertyEnum.FILE_LIST)
-			return;
 		if (value == null || value.length() == 0)
 			return;
-		words = config.getStopWordsManager().getWords(value);
+		if (prop == ClassPropertyEnum.PREFIX_FILE_LIST)
+			prefixList = value;
+		else if (prop == ClassPropertyEnum.SUFFIX_FILE_LIST)
+			suffixList = value;
+		else if (prop == ClassPropertyEnum.TOKEN_SEPARATOR)
+			tokenSeparator = value;
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.StopFilter(false, tokenStream,
-				words);
+		if (prefixArray == null && prefixList != null
+				&& prefixList.length() > 0)
+			prefixArray = stopWordsManager.getPrefixArray(prefixList,
+					tokenSeparator);
+		if (suffixArray == null)
+			suffixArray = stopWordsManager.getSuffixArray(suffixList,
+					tokenSeparator);
+		return new PrefixSuffixFilter(tokenStream, prefixArray, suffixArray);
 	}
 }

@@ -49,6 +49,9 @@ public enum FilterEnum {
 
 	PhoneticFilter("A filter that encode words using phonetic algorithms."),
 
+	PrefixSuffixStopFilter(
+			"This filter removes words which match with prefixes or suffixes of a given term list."),
+
 	RemoveDuplicateCharactersFilter("Remove consecutive duplicate characters."),
 
 	RussianStemFilter("A filter that stems Russian words."),

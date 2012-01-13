@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -104,6 +104,16 @@ public class StopWordsManager extends AbstractDirectoryManager {
 				}
 			}
 		}
+	}
+
+	// TODO
+	public String[] getPrefixArray(String listName, String tokenSeparator) {
+		return null;
+	}
+
+	// TODO
+	public String[] getSuffixArray(String listName, String tokenSeparator) {
+		return null;
 	}
 
 	@Override
