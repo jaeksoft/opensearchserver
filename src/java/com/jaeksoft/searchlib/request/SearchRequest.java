@@ -400,9 +400,10 @@ public class SearchRequest implements Externalizable {
 		mlt.setMinTermFreq(moreLikeThisMinTermFreq);
 		mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
 		mlt.setAnalyzer(checkAnalyzer());
-		if (moreLikeThisStopWords != null)
-			mlt.setStopWords(getConfig().getStopWordsManager().getWords(
-					moreLikeThisStopWords));
+		// TODO restore stop words
+		// if (moreLikeThisStopWords != null)
+		// mlt.setStopWords(getConfig().getStopWordsManager().getWords(
+		// moreLikeThisStopWords));
 		return mlt.like(docId);
 	}
 

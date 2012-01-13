@@ -117,7 +117,7 @@ public class MoreLikeThisController extends AbstractQueryController {
 				return stopWordsList;
 			stopWordsList = new ArrayList<String>();
 			stopWordsList.add("");
-			String[] list = client.getStopWordsManager().getList();
+			String[] list = client.getStopWordsManager().getList(false);
 			if (list != null)
 				for (String s : list)
 					stopWordsList.add(s);

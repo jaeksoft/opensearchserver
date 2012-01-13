@@ -40,7 +40,7 @@ public class SynonymFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		String[] values = config.getSynonymsManager().getList();
+		String[] values = config.getSynonymsManager().getList(false);
 		String value = (values != null && values.length > 0) ? values[0] : null;
 		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
 	}

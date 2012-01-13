@@ -24,96 +24,122 @@
 
 package com.jaeksoft.searchlib.analysis.stopwords;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.lucene.analysis.CharArraySet;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.filter.stop.PrefixArray;
+import com.jaeksoft.searchlib.analysis.filter.stop.SuffixArray;
+import com.jaeksoft.searchlib.analysis.filter.stop.WordArray;
 import com.jaeksoft.searchlib.config.Config;
 
 public class StopWordsManager extends AbstractDirectoryManager {
 
-	private Map<String, CharArraySet> wordsMap;
+	private Map<String, WordArray> wordArrayMap;
+	private Map<String, PrefixArray> prefixArrayMap;
+	private Map<String, SuffixArray> suffixArrayMap;
 
 	public StopWordsManager(Config config, File directory) {
 		super(config, directory);
-		wordsMap = new TreeMap<String, CharArraySet>();
+		wordArrayMap = new TreeMap<String, WordArray>();
+		prefixArrayMap = new TreeMap<String, PrefixArray>();
+		suffixArrayMap = new TreeMap<String, SuffixArray>();
 	}
 
-	public CharArraySet getWords(String listname) throws SearchLibException {
+	private final static String getListKey(String listname,
+			String tokenSeparator, boolean ignoreCase) {
+		return listname + "||" + tokenSeparator + "||" + ignoreCase;
+	}
+
+	private final WordArray getOrCreateWordArray(String listName,
+			boolean ignoreCase) throws IOException {
+		String listKey = getListKey(listName, null, ignoreCase);
+		WordArray wordArray = wordArrayMap.get(listKey);
+		if (wordArray != null)
+			return wordArray;
+		wordArray = new WordArray(getFile(listName), ignoreCase);
+		wordArrayMap.put(listKey, wordArray);
+		return wordArray;
+	}
+
+	public final WordArray getWordArray(String listName, boolean ignoreCase) {
+		String listKey = getListKey(listName, null, ignoreCase);
 		rwl.r.lock();
 		try {
-			CharArraySet words = wordsMap.get(listname);
-			if (words != null)
-				return words;
+			WordArray wordArray = wordArrayMap.get(listKey);
+			if (wordArray != null)
+				return wordArray;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			CharArraySet words = wordsMap.get(listname);
-			if (words != null)
-				return words;
-			words = getNewCharArraySet(listname);
-			wordsMap.put(listname, words);
-			return words;
+			return getOrCreateWordArray(listName, ignoreCase);
+		} catch (IOException e) {
+			Logging.error(e);
+			return null;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	private CharArraySet getNewCharArraySet(String listname)
-			throws SearchLibException {
-		BufferedReader br = null;
+	public PrefixArray getPrefixArray(String listName, String tokenSeparator,
+			boolean ignoreCase) {
+		String listKey = getListKey(listName, tokenSeparator, ignoreCase);
+		rwl.r.lock();
 		try {
-			CharArraySet words = wordsMap.get(listname);
-			if (words != null)
-				return words;
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(
-					getFile(listname)), "UTF-8"));
-			words = new CharArraySet(0, true);
-			String line;
-			while ((line = br.readLine()) != null) {
-				line = line.trim();
-				if (line.length() > 0) {
-					words.add(line);
-				}
-			}
-			return words;
-		} catch (UnsupportedEncodingException e) {
-			throw new SearchLibException(e);
-		} catch (FileNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+			PrefixArray prefixArray = prefixArrayMap.get(listKey);
+			if (prefixArray != null)
+				return prefixArray;
 		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					Logging.warn(e.getMessage(), e);
-				}
-			}
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			PrefixArray prefixArray = prefixArrayMap.get(listKey);
+			if (prefixArray != null)
+				return prefixArray;
+			WordArray wordArray = getOrCreateWordArray(listName, ignoreCase);
+			prefixArray = new PrefixArray(wordArray, ignoreCase, tokenSeparator);
+			prefixArrayMap.put(listKey, prefixArray);
+			return prefixArray;
+		} catch (IOException e) {
+			Logging.error(e);
+			return null;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
-	// TODO
-	public String[] getPrefixArray(String listName, String tokenSeparator) {
-		return null;
-	}
-
-	// TODO
-	public String[] getSuffixArray(String listName, String tokenSeparator) {
-		return null;
+	public SuffixArray getSuffixArray(String listName, String tokenSeparator,
+			boolean ignoreCase) {
+		String listKey = getListKey(listName, tokenSeparator, ignoreCase);
+		rwl.r.lock();
+		try {
+			SuffixArray suffixArray = suffixArrayMap.get(listKey);
+			if (suffixArray != null)
+				return suffixArray;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			SuffixArray suffixArray = suffixArrayMap.get(listKey);
+			if (suffixArray != null)
+				return suffixArray;
+			WordArray wordArray = getOrCreateWordArray(listName, ignoreCase);
+			suffixArray = new SuffixArray(wordArray, ignoreCase, tokenSeparator);
+			suffixArrayMap.put(listKey, suffixArray);
+			return suffixArray;
+		} catch (IOException e) {
+			Logging.error(e);
+			return null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
@@ -121,7 +147,9 @@ public class StopWordsManager extends AbstractDirectoryManager {
 		rwl.w.lock();
 		try {
 			super.delete(name);
-			wordsMap.remove(name);
+			wordArrayMap.clear();
+			prefixArrayMap.clear();
+			suffixArrayMap.clear();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -133,8 +161,9 @@ public class StopWordsManager extends AbstractDirectoryManager {
 		rwl.w.lock();
 		try {
 			super.saveContent(name, content);
-			wordsMap.remove(name);
-			wordsMap.put(name, getNewCharArraySet(name));
+			wordArrayMap.clear();
+			prefixArrayMap.clear();
+			suffixArrayMap.clear();
 		} finally {
 			rwl.w.unlock();
 		}

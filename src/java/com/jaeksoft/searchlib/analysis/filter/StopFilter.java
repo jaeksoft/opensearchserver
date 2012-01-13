@@ -24,38 +24,46 @@
 
 package com.jaeksoft.searchlib.analysis.filter;
 
-import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.analysis.filter.stop.StopWordFilter;
+import com.jaeksoft.searchlib.analysis.filter.stop.WordArray;
+import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 
 public class StopFilter extends FilterFactory {
 
-	private CharArraySet words;
+	private String wordList = null;
+	private boolean ignoreCase = false;
+	private StopWordsManager stopWordsManager = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		String[] values = config.getStopWordsManager().getList();
+		String[] values = config.getStopWordsManager().getList(false);
 		String value = (values != null && values.length > 0) ? values[0] : null;
 		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
+		addProperty(ClassPropertyEnum.IGNORE_CASE, Boolean.FALSE.toString(),
+				ClassPropertyEnum.BOOLEAN_LIST);
+		stopWordsManager = config.getStopWordsManager();
 	}
 
 	@Override
 	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		if (prop != ClassPropertyEnum.FILE_LIST)
-			return;
-		if (value == null || value.length() == 0)
-			return;
-		words = config.getStopWordsManager().getWords(value);
+		if (prop == ClassPropertyEnum.FILE_LIST)
+			wordList = value;
+		else if (prop == ClassPropertyEnum.IGNORE_CASE)
+			ignoreCase = Boolean.parseBoolean(value);
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.StopFilter(false, tokenStream,
-				words);
+		WordArray wordArray = null;
+		if (wordList != null && wordList.length() > 0)
+			wordArray = stopWordsManager.getWordArray(wordList, ignoreCase);
+		return new StopWordFilter(tokenStream, wordArray, ignoreCase);
 	}
 }

@@ -30,30 +30,22 @@ import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
 
-public class PrefixSuffixFilter extends AbstractTermFilter {
+public class StopWordFilter extends AbstractTermFilter {
 
-	private final PrefixArray prefixArray;
-	private final SuffixArray suffixArray;
+	private final WordArray wordArray;
 	private final boolean ignoreCase;
 
-	public PrefixSuffixFilter(TokenStream input, PrefixArray prefixArray,
-			SuffixArray suffixArray, boolean ignoreCase) {
+	public StopWordFilter(TokenStream input, WordArray wordArray,
+			boolean ignoreCase) {
 		super(input);
-		this.prefixArray = prefixArray;
-		this.suffixArray = suffixArray;
+		this.wordArray = wordArray;
 		this.ignoreCase = ignoreCase;
 	}
 
 	private final boolean keepTerm(String term) {
 		if (ignoreCase)
 			term = term.toLowerCase();
-		if (prefixArray != null)
-			if (prefixArray.match(term))
-				return false;
-		if (suffixArray != null)
-			if (suffixArray.match(term))
-				return false;
-		return true;
+		return !wordArray.match(term);
 	}
 
 	@Override

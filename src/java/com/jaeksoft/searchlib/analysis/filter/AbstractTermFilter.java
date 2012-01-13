@@ -65,7 +65,7 @@ public abstract class AbstractTermFilter extends TokenFilter {
 		final int length = termAtt.termLength();
 		char[] text = new char[length];
 		for (int i = 0; i < length; i++)
-			text[i] = buffer[i++];
+			text[i] = buffer[i];
 		return new String(text);
 	}
 

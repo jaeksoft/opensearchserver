@@ -29,24 +29,27 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.analysis.filter.stop.PrefixArray;
 import com.jaeksoft.searchlib.analysis.filter.stop.PrefixSuffixFilter;
+import com.jaeksoft.searchlib.analysis.filter.stop.SuffixArray;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 
 public class PrefixSuffixStopFilter extends FilterFactory {
 
-	private String[] prefixArray = null;
-	private String[] suffixArray = null;
 	private String prefixList = null;
 	private String suffixList = null;
 	private String tokenSeparator = null;
+	private boolean ignoreCase = false;
 	private StopWordsManager stopWordsManager = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		String[] values = config.getStopWordsManager().getList();
+		String[] values = config.getStopWordsManager().getList(true);
 		String value = (values != null && values.length > 0) ? values[0] : null;
 		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null);
+		addProperty(ClassPropertyEnum.IGNORE_CASE, Boolean.FALSE.toString(),
+				ClassPropertyEnum.BOOLEAN_LIST);
 		addProperty(ClassPropertyEnum.PREFIX_FILE_LIST, value, values);
 		addProperty(ClassPropertyEnum.SUFFIX_FILE_LIST, value, values);
 		stopWordsManager = config.getStopWordsManager();
@@ -63,17 +66,21 @@ public class PrefixSuffixStopFilter extends FilterFactory {
 			suffixList = value;
 		else if (prop == ClassPropertyEnum.TOKEN_SEPARATOR)
 			tokenSeparator = value;
+		else if (prop == ClassPropertyEnum.IGNORE_CASE)
+			ignoreCase = Boolean.parseBoolean(value);
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		if (prefixArray == null && prefixList != null
-				&& prefixList.length() > 0)
+		PrefixArray prefixArray = null;
+		SuffixArray suffixArray = null;
+		if (prefixList != null && prefixList.length() > 0)
 			prefixArray = stopWordsManager.getPrefixArray(prefixList,
-					tokenSeparator);
-		if (suffixArray == null)
+					tokenSeparator, ignoreCase);
+		if (suffixList != null && suffixList.length() > 0)
 			suffixArray = stopWordsManager.getSuffixArray(suffixList,
-					tokenSeparator);
-		return new PrefixSuffixFilter(tokenStream, prefixArray, suffixArray);
+					tokenSeparator, ignoreCase);
+		return new PrefixSuffixFilter(tokenStream, prefixArray, suffixArray,
+				ignoreCase);
 	}
 }

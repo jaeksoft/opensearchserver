@@ -59,20 +59,27 @@ public class AbstractDirectoryManager {
 		return config;
 	}
 
-	public String[] getList() {
+	public String[] getList(boolean addEmptyOne) {
 		rwl.r.lock();
 		try {
 			File[] files = directory.listFiles(new FileOnly());
 			if (files == null)
 				return null;
-			String[] list = new String[files.length];
+			String[] list = addEmptyOne ? new String[files.length + 1]
+					: new String[files.length];
 			int i = 0;
+			if (addEmptyOne)
+				list[i++] = "";
 			for (File file : files)
 				list[i++] = file.getName();
 			return list;
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public String[] getList() {
+		return getList(false);
 	}
 
 	protected File getFile(String name) {
