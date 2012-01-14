@@ -20,7 +20,7 @@
 		border="normal">
 		<panelchildren>
 			<listbox model="@{synonyms.manager.list}"
-				sizedByContent="true" width="100%">
+				sizedByContent="true">
 				<listhead>
 					<listheader label="List name" hflex="true" />
 					<listheader label="Action" align="center" />

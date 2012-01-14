@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -51,6 +51,7 @@ public class WebPropertyManager extends PropertyManager {
 	private PropertyItem<Integer> screenshotResizeHeight;
 	private PropertyItem<String> proxyHost;
 	private PropertyItem<Integer> proxyPort;
+	private PropertyItem<String> proxyExclusion;
 	private PropertyItem<Boolean> proxyEnabled;
 
 	public WebPropertyManager(File file) throws IOException {
@@ -80,11 +81,16 @@ public class WebPropertyManager extends PropertyManager {
 				180, 1, null);
 		proxyHost = newStringProperty("proxyHost", "");
 		proxyPort = newIntegerProperty("proxyPort", 8080, null, null);
+		proxyExclusion = newStringProperty("proxyExclusion", "");
 		proxyEnabled = newBooleanProperty("proxyEnabled", false);
 	}
 
 	public PropertyItem<String> getProxyHost() {
 		return proxyHost;
+	}
+
+	public PropertyItem<String> getProxyExclusion() {
+		return proxyExclusion;
 	}
 
 	public PropertyItem<Boolean> getProxyEnabled() {

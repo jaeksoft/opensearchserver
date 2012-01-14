@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -16,29 +16,32 @@
 -->
 <window id="proxy" border="none"
 	use="com.jaeksoft.searchlib.web.controller.crawler.web.ProxyController">
-<grid>
+	<grid hflex="true">
 		<columns>
-			<column align="right" width="200px" />
-			<column align="left" width="200px" />
+			<column align="right" />
 			<column align="left" />
 		</columns>
 		<rows>
-		<row>
-				<checkbox label="Enabled" checked="@{proxy.properties.proxyEnabled.value}" />
-				<space />
+			<row>
+				<checkbox label="Enabled"
+					checked="@{proxy.properties.proxyEnabled.value}" />
 				<space />
 			</row>
 			<row>
 				<label value="Proxy Host :" />
-				<textbox id="proxyHost" width="95%" value="@{proxy.properties.proxyHost.value}"/>
-				<space />
+				<textbox id="proxyHost" cols="50"
+					value="@{proxy.properties.proxyHost.value}" />
 			</row>
 			<row>
 				<label value="Proxy Port :" />
-				<textbox id="proxyPort" width="35%" value="@{proxy.properties.proxyPort.value}"/>
-				<space />
+				<intbox id="proxyPort" cols="10"
+					value="@{proxy.properties.proxyPort.value}" />
 			</row>
-			
+			<row>
+				<label value="Proxy exclusion :" />
+				<textbox id="proxyExclusion" cols="80" rows="10" multiline="true"
+					value="@{proxy.properties.proxyExclusion.value}" />
+			</row>
 		</rows>
-</grid>			
+	</grid>
 </window>
