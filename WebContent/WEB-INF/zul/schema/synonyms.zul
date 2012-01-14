@@ -16,14 +16,14 @@
 -->
 <window id="synonyms"
 	use="com.jaeksoft.searchlib.web.controller.schema.SynonymsController">
-	<panel title="Synonyms list" border="normal">
+	<panel visible="@{synonyms.isNotEdit}" title="Synonyms list"
+		border="normal">
 		<panelchildren>
 			<listbox model="@{synonyms.manager.list}"
-				selectedItem="@{synonyms.editName}">
+				sizedByContent="true" width="100%">
 				<listhead>
-					<listheader label="List name" />
-					<listheader width="50px" label="Action"
-						align="center" />
+					<listheader label="List name" hflex="true" />
+					<listheader label="Action" align="center" />
 				</listhead>
 				<auxhead>
 					<auxheader>
@@ -38,22 +38,33 @@
 				<listitem self="@{each='listname'}">
 					<listcell label="@{listname}" />
 					<listcell>
-						<button image="/images/action_delete.png"
-							onClick="synonyms.onDelete(self)">
-							<custom-attributes listname="@{listname}" />
-						</button>
+						<hbox align="center">
+							<button label="Edit"
+								onClick="synonyms.onEdit(self)">
+								<custom-attributes
+									listname="@{listname}" />
+							</button>
+							<button image="/images/action_delete.png"
+								onClick="synonyms.onDelete(self)">
+								<custom-attributes
+									listname="@{listname}" />
+							</button>
+						</hbox>
 					</listcell>
 				</listitem>
 			</listbox>
 		</panelchildren>
 	</panel>
 	<panel visible="@{synonyms.isEdit}" border="normal"
-		title="List content">
+		title="@{synonyms.currentName}">
 		<toolbar>
+			<button label="Cancel" forward="onCancel" />
+			<space />
 			<button label="Save" forward="onSave" />
 		</toolbar>
 		<panelchildren>
 			<textbox width="100%" multiline="true" height="300px"
 				value="@{synonyms.content}" />
 		</panelchildren>
-	</panel></window>
+	</panel>
+</window>

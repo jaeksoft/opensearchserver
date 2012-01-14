@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,10 +45,6 @@ public class SynonymsController extends CommonDirectoryController {
 		if (client == null)
 			return null;
 		return client.getSynonymsManager();
-	}
-
-	@Override
-	protected void reset() throws SearchLibException {
 	}
 
 }

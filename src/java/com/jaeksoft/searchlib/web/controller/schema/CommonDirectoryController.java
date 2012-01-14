@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,6 +46,8 @@ public abstract class CommonDirectoryController extends CommonController {
 
 	private transient String content;
 
+	private transient String currentName;
+
 	protected class DeleteAlert extends AlertController {
 
 		private transient String deleteListName;
@@ -73,17 +75,49 @@ public abstract class CommonDirectoryController extends CommonController {
 	public abstract AbstractDirectoryManager getManager()
 			throws SearchLibException;
 
-	public void onAdd() throws IOException, SearchLibException {
+	public void onAdd() throws IOException, SearchLibException,
+			InterruptedException {
 		Client client = getClient();
 		if (client == null)
 			return;
 		AbstractDirectoryManager manager = getManager();
 		if (manager == null)
 			return;
-		manager.create(getEditName());
-		client.getSchema().recompileAnalyzers();
-		client.reload();
+		if (editName == null || editName.length() == 0) {
+			new AlertController("Please enter a valid name", Messagebox.ERROR);
+			return;
+		}
+		if (manager.exists(editName)) {
+			new AlertController("This name already exists", Messagebox.ERROR);
+			return;
+		}
+		currentName = editName;
 		reloadPage();
+	}
+
+	public void onEdit(Component comp) throws SearchLibException, IOException {
+		String name = (String) comp.getAttribute("listname");
+		if (name == null)
+			return;
+		AbstractDirectoryManager manager = getManager();
+		if (manager == null)
+			return;
+		currentName = name;
+		content = manager.getContent(name);
+		reloadPage();
+	}
+
+	public void onCancel() {
+		currentName = null;
+		content = null;
+		reloadPage();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
+		editName = null;
+		content = null;
+		currentName = null;
 	}
 
 	public void onSave() throws IOException, InterruptedException,
@@ -94,11 +128,12 @@ public abstract class CommonDirectoryController extends CommonController {
 		AbstractDirectoryManager manager = getManager();
 		if (manager == null)
 			return;
-		manager.saveContent(getEditName(), getContent());
-		new AlertController("List saved!", Messagebox.INFORMATION);
+		if (!manager.exists(currentName))
+			manager.create(currentName);
+		manager.saveContent(currentName, content);
 		client.getSchema().recompileAnalyzers();
 		client.reload();
-		reloadPage();
+		onCancel();
 	}
 
 	public void onDelete(Component comp) throws InterruptedException {
@@ -108,11 +143,12 @@ public abstract class CommonDirectoryController extends CommonController {
 		new DeleteAlert(name);
 	}
 
-	public boolean isEdit() throws SearchLibException {
-		AbstractDirectoryManager manager = getManager();
-		if (manager == null)
-			return false;
-		return manager.exists(getEditName());
+	public boolean isEdit() {
+		return currentName != null;
+	}
+
+	public boolean isNotEdit() {
+		return !isEdit();
 	}
 
 	/**
@@ -121,12 +157,8 @@ public abstract class CommonDirectoryController extends CommonController {
 	 * @throws SearchLibException
 	 * @throws IOException
 	 */
-	public void setEditName(String editName) throws SearchLibException,
-			IOException {
+	public void setEditName(String editName) {
 		this.editName = editName;
-		AbstractDirectoryManager manager = getManager();
-		if (manager.exists(editName))
-			setContent(manager.getContent(editName));
 	}
 
 	/**
@@ -134,6 +166,14 @@ public abstract class CommonDirectoryController extends CommonController {
 	 */
 	public String getEditName() {
 		return editName;
+	}
+
+	/**
+	 * 
+	 * @return the currentName
+	 */
+	public String getCurrentName() {
+		return currentName;
 	}
 
 	/**

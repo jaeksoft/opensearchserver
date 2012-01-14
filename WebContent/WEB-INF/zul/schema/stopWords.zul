@@ -16,14 +16,14 @@
 -->
 <window id="stopwords"
 	use="com.jaeksoft.searchlib.web.controller.schema.StopWordsController">
-	<panel title="Stop words list" border="normal">
+	<panel visible="@{stopwords.isNotEdit}" title="Stop words list"
+		border="normal">
 		<panelchildren>
 			<listbox model="@{stopwords.manager.list}"
-				selectedItem="@{stopwords.editName}">
+				sizedByContent="true" width="100%">
 				<listhead>
-					<listheader label="List name" />
-					<listheader width="50px" label="Action"
-						align="center" />
+					<listheader label="List name" hflex="true" />
+					<listheader label="Action" align="center" />
 				</listhead>
 				<auxhead>
 					<auxheader>
@@ -38,18 +38,28 @@
 				<listitem self="@{each='listname'}">
 					<listcell label="@{listname}" />
 					<listcell>
-						<button image="/images/action_delete.png"
-							onClick="stopwords.onDelete(self)">
-							<custom-attributes listname="@{listname}" />
-						</button>
+						<hbox align="center">
+							<button label="Edit"
+								onClick="stopwords.onEdit(self)">
+								<custom-attributes
+									listname="@{listname}" />
+							</button>
+							<button image="/images/action_delete.png"
+								onClick="stopwords.onDelete(self)">
+								<custom-attributes
+									listname="@{listname}" />
+							</button>
+						</hbox>
 					</listcell>
 				</listitem>
 			</listbox>
 		</panelchildren>
 	</panel>
 	<panel visible="@{stopwords.isEdit}" border="normal"
-		title="List content">
+		title="@{stopwords.currentName}">
 		<toolbar>
+			<button label="Cancel" forward="onCancel" />
+			<space />
 			<button label="Save" forward="onSave" />
 		</toolbar>
 		<panelchildren>
