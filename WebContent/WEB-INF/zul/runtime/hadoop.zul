@@ -25,12 +25,17 @@
 					<column align="left" />
 					<column align="left" />
 				</columns>
+				<rows>
+					<row>
+						<label value="Configuration" />
+						<label multiline="true"
+							value="@{window$composer.configuration}" />
+					</row>
+				</rows>
 				<foot>
 					<footer span="3">
 						<hbox align="center" width="100%">
-							<button label="Save" forward="onSave" />
-							<space />
-							<button label="Check" forward="onCheck" />
+							<button label="Reload" forward="onReload" />
 						</hbox>
 					</footer>
 				</foot>

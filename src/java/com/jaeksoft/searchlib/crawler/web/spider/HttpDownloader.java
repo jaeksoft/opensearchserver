@@ -51,9 +51,10 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
-public class HttpDownloader {
+public class HttpDownloader implements DownloadItem {
 
 	private DefaultHttpClient httpClient = null;
 	private HttpGet httpGet = null;
@@ -135,23 +136,29 @@ public class HttpDownloader {
 		}
 	}
 
-	public URI getRedirectLocation() throws ProtocolException {
+	@Override
+	public URI getRedirectLocation() throws SearchLibException {
 		synchronized (this) {
 			if (httpResponse == null)
 				return null;
 			if (httpContext == null)
 				return null;
-			if (!redirectStrategy.isRedirected(httpGet, httpResponse,
-					httpContext))
-				return null;
-			HttpUriRequest httpUri = redirectStrategy.getRedirect(httpGet,
-					httpResponse, httpContext);
-			if (httpUri == null)
-				return null;
-			return httpUri.getURI();
+			try {
+				if (!redirectStrategy.isRedirected(httpGet, httpResponse,
+						httpContext))
+					return null;
+				HttpUriRequest httpUri = redirectStrategy.getRedirect(httpGet,
+						httpResponse, httpContext);
+				if (httpUri == null)
+					return null;
+				return httpUri.getURI();
+			} catch (ProtocolException e) {
+				throw new SearchLibException(e);
+			}
 		}
 	}
 
+	@Override
 	public Long getContentLength() {
 		synchronized (this) {
 			if (httpEntity == null)
@@ -160,6 +167,7 @@ public class HttpDownloader {
 		}
 	}
 
+	@Override
 	public String getContentDispositionFilename() {
 		if (httpResponse == null)
 			return null;
@@ -176,6 +184,7 @@ public class HttpDownloader {
 		return f.replace("\"", "");
 	}
 
+	@Override
 	public String getContentBaseType() {
 		synchronized (this) {
 			if (httpEntity == null)
@@ -191,6 +200,7 @@ public class HttpDownloader {
 		}
 	}
 
+	@Override
 	public String getContentTypeCharset() {
 		synchronized (this) {
 			if (httpEntity == null)
@@ -199,6 +209,7 @@ public class HttpDownloader {
 		}
 	}
 
+	@Override
 	public String getContentEncoding() {
 		synchronized (this) {
 			if (httpEntity == null)
@@ -211,6 +222,7 @@ public class HttpDownloader {
 
 	}
 
+	@Override
 	public InputStream getContent() throws IllegalStateException, IOException {
 		synchronized (this) {
 			if (httpEntity == null)
@@ -219,6 +231,7 @@ public class HttpDownloader {
 		}
 	}
 
+	@Override
 	public Integer getStatusCode() {
 		synchronized (this) {
 			if (statusLine == null)

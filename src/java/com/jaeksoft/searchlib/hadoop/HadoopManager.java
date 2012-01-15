@@ -24,12 +24,10 @@
 
 package com.jaeksoft.searchlib.hadoop;
 
+import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.InvalidPropertiesFormatException;
-import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -40,29 +38,49 @@ import org.apache.poi.util.IOUtils;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public class HadoopManager {
+public class HadoopManager implements Closeable {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private File propFile;
+	private FileSystem fileSystem;
 
-	private Properties properties;
-
-	private final static String CONFIGURATION_FILE = "hadoop.xml";
+	private Configuration configuration;
 
 	public HadoopManager(File dataDir) throws InvalidPropertiesFormatException,
 			IOException {
-		propFile = new File(dataDir, CONFIGURATION_FILE);
-		properties = new Properties();
-		if (propFile.exists()) {
-			FileInputStream inputStream = null;
-			try {
-				inputStream = new FileInputStream(propFile);
-				properties.loadFromXML(inputStream);
-			} finally {
-				if (inputStream != null)
-					IOUtils.closeQuietly(inputStream);
-			}
+		configuration = new Configuration();
+		fileSystem = FileSystem.get(configuration);
+	}
+
+	@Override
+	public void close() {
+		rwl.w.lock();
+		try {
+			IOUtils.closeQuietly(fileSystem);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public String getConfiguration() throws IOException {
+		rwl.r.lock();
+		try {
+			if (configuration == null)
+				return null;
+			return configuration.toString();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void reloadConfiguration() throws IOException {
+		rwl.w.lock();
+		try {
+			configuration.reloadConfiguration();
+			IOUtils.closeQuietly(fileSystem);
+			fileSystem = FileSystem.get(configuration);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -112,19 +130,4 @@ public class HadoopManager {
 		}
 	}
 
-	public void save() throws IOException {
-		rwl.w.lock();
-		try {
-			FileOutputStream fos = null;
-			try {
-				fos = new FileOutputStream(propFile);
-				properties.storeToXML(fos, "");
-			} finally {
-				if (fos != null)
-					IOUtils.closeQuietly(fos);
-			}
-		} finally {
-			rwl.w.unlock();
-		}
-	}
 }
