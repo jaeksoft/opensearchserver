@@ -73,7 +73,7 @@ public class HadoopManager {
 			Configuration conf = new Configuration();
 			fs = FileSystem.get(conf);
 			System.out.println("CHECK HADOOP " + fs.getHomeDirectory());
-			write(fs, "OSS_FILE_TEST", "OSS STRING TEST");
+			write(fs, "OSS_FILE_TEST", "OSS STRING TEST", true);
 			System.out.println(read(fs, "OSS_FILE_TEST"));
 		} finally {
 			rwl.r.unlock();
@@ -101,7 +101,7 @@ public class HadoopManager {
 		if (fs.exists(fsPath)) {
 			if (!replace)
 				throw new IOException("Output already exists: " + path);
-			fs.delete(fsPath);
+			fs.delete(fsPath, false);
 		}
 		FSDataOutputStream out = fs.create(fsPath);
 		try {
