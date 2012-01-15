@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -106,7 +107,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	 */
 	public IndexDocument(Client client, ParserSelector parserSelector,
 			XPathParser xpp, Node documentNode,
-			CredentialItem urlDefaultCredential)
+			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler)
 			throws XPathExpressionException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException, URISyntaxException {
@@ -152,7 +153,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			String url = XPathParser.getAttributeString(node, "url");
 			Parser parser = doBinary(url, content, filePath, filename, client,
 					parserSelector, contentType, urlDefaultCredential,
-					bFaultTolerant);
+					proxyHandler, bFaultTolerant);
 			if (parser != null)
 				parser.populate(this);
 		}
@@ -161,14 +162,14 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	private Parser doBinary(String url, String content, String filePath,
 			String filename, Client client, ParserSelector parserSelector,
 			String contentType, CredentialItem urlDefaultCredential,
-			boolean bFaultTolerant) throws IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+			ProxyHandler proxyHandler, boolean bFaultTolerant)
+			throws IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		try {
 			Parser parser = null;
 			if (url != null)
 				parser = binaryFromUrl(parserSelector, url,
-						urlDefaultCredential);
+						urlDefaultCredential, proxyHandler);
 			else if (content != null && content.length() > 0)
 				parser = binaryFromBase64(parserSelector, filename,
 						contentType, content);
@@ -201,8 +202,10 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	}
 
 	private Parser binaryFromUrl(ParserSelector parserSelector, String url,
-			CredentialItem credentialItem) throws SearchLibException {
-		HttpDownloader httpDownloader = new HttpDownloader(null, false, null, 0);
+			CredentialItem credentialItem, ProxyHandler proxyHandler)
+			throws SearchLibException {
+		HttpDownloader httpDownloader = new HttpDownloader(null, false,
+				proxyHandler);
 		try {
 			httpDownloader.get(new URI(url), credentialItem);
 			Parser parser = parserSelector.getParser(null,

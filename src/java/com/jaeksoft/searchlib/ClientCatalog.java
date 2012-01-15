@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.InvalidPropertiesFormatException;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -48,6 +49,7 @@ import org.zkoss.zk.ui.WebApp;
 
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
+import com.jaeksoft.searchlib.hadoop.HadoopManager;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -188,6 +190,22 @@ public class ClientCatalog {
 					+ "' is not allowed");
 		return getClientCatalog(null)
 				.contains(new ClientCatalogItem(indexName));
+	}
+
+	private static HadoopManager hadoopManager = null;
+
+	public static synchronized final HadoopManager getHadoopManager()
+			throws SearchLibException {
+		if (hadoopManager != null)
+			return hadoopManager;
+		try {
+			return hadoopManager = new HadoopManager(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
+		} catch (InvalidPropertiesFormatException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	final private static boolean isValidIndexName(String name) {

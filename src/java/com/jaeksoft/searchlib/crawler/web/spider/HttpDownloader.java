@@ -30,7 +30,6 @@ import java.net.URI;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
@@ -42,7 +41,6 @@ import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
-import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.params.BasicHttpParams;
@@ -64,9 +62,10 @@ public class HttpDownloader {
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
 	private RedirectStrategy redirectStrategy;
+	private ProxyHandler proxyHandler;
 
 	public HttpDownloader(String userAgent, boolean bFollowRedirect,
-			String proxyHost, int proxyPort) {
+			ProxyHandler proxyHandler) {
 		redirectStrategy = new DefaultRedirectStrategy();
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
@@ -75,11 +74,8 @@ public class HttpDownloader {
 		paramsBean.setUserAgent(userAgent);
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		httpClient = new DefaultHttpClient(params);
-		if (proxyHost != null && proxyHost.length() > 0 && proxyPort != 0) {
-			HttpHost proxy = new HttpHost(proxyHost, proxyPort);
-			httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
-					proxy);
-		}
+		this.proxyHandler = proxyHandler;
+		;
 		// TIMEOUT ?
 		// RETRY HANDLER ?
 	}
@@ -117,6 +113,8 @@ public class HttpDownloader {
 	public void get(URI uri, CredentialItem credentialItem) throws IOException {
 		synchronized (this) {
 			reset();
+			if (proxyHandler != null)
+				proxyHandler.check(httpClient, uri);
 			CredentialsProvider credential = httpClient
 					.getCredentialsProvider();
 			if (credentialItem == null)

@@ -315,4 +315,5 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 	public CrawlQueueAbstract getCrawlQueue() {
 		return urlCrawlQueue;
 	}
+
 }

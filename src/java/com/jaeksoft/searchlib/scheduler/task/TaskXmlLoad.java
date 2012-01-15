@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
@@ -93,7 +94,10 @@ public class TaskXmlLoad extends TaskAbstract {
 		int bufferSize = 50;
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);
-		HttpDownloader httpDownloader = new HttpDownloader(null, false, null, 0);
+		ProxyHandler proxyHandler = client.getWebPropertyManager()
+				.getProxyHandler();
+		HttpDownloader httpDownloader = new HttpDownloader(null, false,
+				proxyHandler);
 		try {
 			CredentialItem credentialItem = null;
 			if (login != null && password != null)
@@ -101,7 +105,7 @@ public class TaskXmlLoad extends TaskAbstract {
 			httpDownloader.get(new URI(uri), credentialItem);
 			client.updateXmlDocuments(
 					new InputSource(httpDownloader.getContent()), bufferSize,
-					credentialItem);
+					credentialItem, proxyHandler);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {

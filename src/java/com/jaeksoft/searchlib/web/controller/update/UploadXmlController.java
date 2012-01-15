@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,7 +38,9 @@ import org.zkoss.util.media.Media;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.UploadEvent;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class UploadXmlController extends CommonController {
@@ -71,25 +73,28 @@ public class UploadXmlController extends CommonController {
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		synchronized (this) {
+			Client client = getClient();
+			ProxyHandler proxyHandler = client.getWebPropertyManager()
+					.getProxyHandler();
 			if (media.inMemory()) {
 				if (media.isBinary()) {
 					byte[] bytes = media.getByteData();
-					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(new ByteArrayInputStream(bytes)),
-							50, null);
+					updatedCount += client.updateXmlDocuments(new InputSource(
+							new ByteArrayInputStream(bytes)), 50, null,
+							proxyHandler);
 				} else {
 					byte[] bytes = media.getStringData().getBytes();
-					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(new ByteArrayInputStream(bytes)),
-							50, null);
+					updatedCount += client.updateXmlDocuments(new InputSource(
+							new ByteArrayInputStream(bytes)), 50, null,
+							proxyHandler);
 				}
 			} else {
 				if (media.isBinary())
-					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(media.getStreamData()), 50, null);
+					updatedCount += client.updateXmlDocuments(new InputSource(
+							media.getStreamData()), 50, null, proxyHandler);
 				else
-					updatedCount += getClient().updateXmlDocuments(
-							new InputSource(media.getReaderData()), 50, null);
+					updatedCount += client.updateXmlDocuments(new InputSource(
+							media.getReaderData()), 50, null, proxyHandler);
 			}
 		}
 

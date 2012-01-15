@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,6 +44,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
@@ -96,7 +97,7 @@ public class Client extends Config {
 	}
 
 	private int updateXmlDocuments(XPathParser xpp, int bufferSize,
-			CredentialItem urlDefaultCredential)
+			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler)
 			throws XPathExpressionException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
@@ -108,7 +109,7 @@ public class Client extends Config {
 		int docCount = 0;
 		for (int i = 0; i < l; i++) {
 			docList.add(new IndexDocument(this, getParserSelector(), xpp,
-					nodeList.item(i), urlDefaultCredential));
+					nodeList.item(i), urlDefaultCredential, proxyHandler));
 			if (docList.size() == bufferSize) {
 				checkMaxDocumentLimit(docList.size());
 				docCount += updateDocuments(docList);
@@ -125,13 +126,14 @@ public class Client extends Config {
 	}
 
 	public int updateXmlDocuments(InputSource inputSource, int bufferSize,
-			CredentialItem urlDefaultCredential)
+			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		XPathParser xpp = new XPathParser(inputSource);
-		return updateXmlDocuments(xpp, bufferSize, urlDefaultCredential);
+		return updateXmlDocuments(xpp, bufferSize, urlDefaultCredential,
+				proxyHandler);
 	}
 
 	public boolean deleteDocument(String uniqueField)
@@ -268,4 +270,5 @@ public class Client extends Config {
 		ClientFactory.INSTANCE.properties.checkMaxDocumentLimit(ClientCatalog
 				.countAllDocuments() + additionalCount);
 	}
+
 }

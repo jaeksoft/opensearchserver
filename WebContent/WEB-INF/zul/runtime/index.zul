@@ -36,6 +36,8 @@
 				visible="@{runtime.adminOrMonitoringOrNoUser}" />
 			<tab id="tabRuntimeOpenSearch" label="OpenSearch"
 				visible="@{runtime.isQueryRights}" />
+			<tab id="tabRuntimeHadoop" label="Hadoop"
+				visible="@{runtime.adminOrMonitoringOrNoUser}" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -61,6 +63,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabRuntimeOpenSearch.onSelect">
 				<include src="WEB-INF/zul/runtime/opensearch.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntimeHadoop.onSelect">
+				<include src="WEB-INF/zul/runtime/hadoop.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

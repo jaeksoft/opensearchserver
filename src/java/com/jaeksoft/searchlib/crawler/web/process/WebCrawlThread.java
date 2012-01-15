@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -57,7 +57,6 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	private Crawl currentCrawl;
 	private boolean exclusionEnabled;
 	private boolean inclusionEnabled;
-	private boolean proxyEnabled;
 	private UrlCrawlQueue crawlQueue;
 
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
@@ -73,21 +72,11 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 				.getValue();
 		nextTimeTarget = 0;
 		this.hostUrlList = hostUrlList;
-		this.proxyEnabled = propertyManager.getProxyEnabled().getValue();
-		if (proxyEnabled) {
-			httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
-					.getValue(), false, propertyManager.getProxyHost()
-					.getValue(), propertyManager.getProxyPort().getValue());
-			httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
-					.getUserAgent().getValue(), true, propertyManager
-					.getProxyHost().getValue(), propertyManager.getProxyPort()
-					.getValue());
-		} else {
-			httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
-					.getValue(), false, null, 0);
-			httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
-					.getUserAgent().getValue(), true, null, 0);
-		}
+		httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
+				.getValue(), false, propertyManager.getProxyHandler());
+		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
+				.getUserAgent().getValue(), true,
+				propertyManager.getProxyHandler());
 		exclusionEnabled = propertyManager.getExclusionEnabled().getValue();
 		inclusionEnabled = propertyManager.getInclusionEnabled().getValue();
 

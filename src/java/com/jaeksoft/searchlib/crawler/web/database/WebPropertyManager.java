@@ -28,10 +28,14 @@ import java.io.File;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.ClientFactory;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
+import com.jaeksoft.searchlib.crawler.common.database.PropertyItemListener;
 import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 
-public class WebPropertyManager extends PropertyManager {
+public class WebPropertyManager extends PropertyManager implements
+		PropertyItemListener {
 
 	private PropertyItem<Integer> delayBetweenAccesses;
 	private PropertyItem<Integer> fetchInterval;
@@ -53,6 +57,8 @@ public class WebPropertyManager extends PropertyManager {
 	private PropertyItem<Integer> proxyPort;
 	private PropertyItem<String> proxyExclusion;
 	private PropertyItem<Boolean> proxyEnabled;
+
+	private ProxyHandler proxyHandler = null;
 
 	public WebPropertyManager(File file) throws IOException {
 		super(file);
@@ -83,6 +89,9 @@ public class WebPropertyManager extends PropertyManager {
 		proxyPort = newIntegerProperty("proxyPort", 8080, null, null);
 		proxyExclusion = newStringProperty("proxyExclusion", "");
 		proxyEnabled = newBooleanProperty("proxyEnabled", false);
+		proxyHost.addListener(this);
+		proxyPort.addListener(this);
+		proxyExclusion.addListener(this);
 	}
 
 	public PropertyItem<String> getProxyHost() {
@@ -163,5 +172,23 @@ public class WebPropertyManager extends PropertyManager {
 
 	public PropertyItem<Integer> getScreenshotResizeHeight() {
 		return screenshotResizeHeight;
+	}
+
+	@Override
+	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
+		synchronized (this) {
+			if (prop == proxyHost || prop == proxyPort
+					|| prop == proxyExclusion)
+				proxyHandler = null;
+		}
+	}
+
+	public ProxyHandler getProxyHandler() throws SearchLibException {
+		synchronized (this) {
+			if (proxyHandler != null)
+				return proxyHandler;
+			proxyHandler = new ProxyHandler(this);
+			return proxyHandler;
+		}
 	}
 }
