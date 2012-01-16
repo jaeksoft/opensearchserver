@@ -84,23 +84,7 @@ public class HadoopManager implements Closeable {
 		}
 	}
 
-	public void check() throws IOException {
-		rwl.r.lock();
-		FileSystem fs = null;
-		try {
-			Configuration conf = new Configuration();
-			fs = FileSystem.get(conf);
-			System.out.println("CHECK HADOOP " + fs.getHomeDirectory());
-			write(fs, "OSS_FILE_TEST", "OSS STRING TEST", true);
-			System.out.println(read(fs, "OSS_FILE_TEST"));
-		} finally {
-			rwl.r.unlock();
-			if (fs != null)
-				IOUtils.closeQuietly(fs);
-		}
-	}
-
-	private String read(FileSystem fs, String path) throws IOException {
+	public String read(FileSystem fs, String path) throws IOException {
 		Path fsPath = new Path(path);
 		if (!fs.exists(fsPath))
 			throw new IOException("Input file not found: " + path);
@@ -113,7 +97,7 @@ public class HadoopManager implements Closeable {
 		}
 	}
 
-	private void write(FileSystem fs, String path, String content,
+	public void write(FileSystem fs, String path, String content,
 			boolean replace) throws IOException {
 		Path fsPath = new Path(path);
 		if (fs.exists(fsPath)) {

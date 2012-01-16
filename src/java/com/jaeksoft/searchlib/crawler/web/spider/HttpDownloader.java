@@ -54,7 +54,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
-public class HttpDownloader implements DownloadItem {
+public class HttpDownloader extends DownloaderAbstract {
 
 	private DefaultHttpClient httpClient = null;
 	private HttpGet httpGet = null;

@@ -30,7 +30,7 @@ import java.net.URI;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public interface DownloadItem {
+public interface DownloaderInterface {
 
 	public URI getRedirectLocation() throws SearchLibException;
 
@@ -44,7 +44,9 @@ public interface DownloadItem {
 
 	public String getContentEncoding();
 
+	public Integer getStatusCode();
+
 	public InputStream getContent() throws IllegalStateException, IOException;
 
-	public Integer getStatusCode();
+	public String getMetaAsJson();
 }
