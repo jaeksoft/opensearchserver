@@ -36,6 +36,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.methods.HttpGet;
@@ -51,10 +52,9 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
-public class HttpDownloader extends DownloaderAbstract {
+public class HttpDownloader {
 
 	private DefaultHttpClient httpClient = null;
 	private HttpGet httpGet = null;
@@ -111,7 +111,8 @@ public class HttpDownloader extends DownloaderAbstract {
 		}
 	}
 
-	public void get(URI uri, CredentialItem credentialItem) throws IOException {
+	public DownloadItem get(URI uri, CredentialItem credentialItem)
+			throws ClientProtocolException, IOException {
 		synchronized (this) {
 			reset();
 			if (proxyHandler != null)
@@ -133,11 +134,21 @@ public class HttpDownloader extends DownloaderAbstract {
 				statusLine = httpResponse.getStatusLine();
 				httpEntity = httpResponse.getEntity();
 			}
+			DownloadItem downloadItem = new DownloadItem();
+			downloadItem.setRedirectLocation(getRedirectLocation());
+			downloadItem.setContentLength(getContentLength());
+			downloadItem
+					.setContentDispositionFilename(getContentDispositionFilename());
+			downloadItem.setContentBaseType(getContentBaseType());
+			downloadItem.setContentEncoding(getContentEncoding());
+			downloadItem.setContentTypeCharset(getContentTypeCharset());
+			downloadItem.setStatusCode(getStatusCode());
+			downloadItem.setContentInputStream(getContent());
+			return downloadItem;
 		}
 	}
 
-	@Override
-	public URI getRedirectLocation() throws SearchLibException {
+	private URI getRedirectLocation() {
 		synchronized (this) {
 			if (httpResponse == null)
 				return null;
@@ -153,13 +164,13 @@ public class HttpDownloader extends DownloaderAbstract {
 					return null;
 				return httpUri.getURI();
 			} catch (ProtocolException e) {
-				throw new SearchLibException(e);
+				Logging.error(e);
+				return null;
 			}
 		}
 	}
 
-	@Override
-	public Long getContentLength() {
+	private Long getContentLength() {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;
@@ -167,8 +178,7 @@ public class HttpDownloader extends DownloaderAbstract {
 		}
 	}
 
-	@Override
-	public String getContentDispositionFilename() {
+	private String getContentDispositionFilename() {
 		if (httpResponse == null)
 			return null;
 		Header header = httpResponse.getFirstHeader("Content-Disposition");
@@ -184,8 +194,7 @@ public class HttpDownloader extends DownloaderAbstract {
 		return f.replace("\"", "");
 	}
 
-	@Override
-	public String getContentBaseType() {
+	private String getContentBaseType() {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;
@@ -200,8 +209,7 @@ public class HttpDownloader extends DownloaderAbstract {
 		}
 	}
 
-	@Override
-	public String getContentTypeCharset() {
+	private String getContentTypeCharset() {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;
@@ -209,8 +217,7 @@ public class HttpDownloader extends DownloaderAbstract {
 		}
 	}
 
-	@Override
-	public String getContentEncoding() {
+	private String getContentEncoding() {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;
@@ -222,8 +229,7 @@ public class HttpDownloader extends DownloaderAbstract {
 
 	}
 
-	@Override
-	public InputStream getContent() throws IllegalStateException, IOException {
+	private InputStream getContent() throws IllegalStateException, IOException {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;
@@ -231,8 +237,7 @@ public class HttpDownloader extends DownloaderAbstract {
 		}
 	}
 
-	@Override
-	public Integer getStatusCode() {
+	private Integer getStatusCode() {
 		synchronized (this) {
 			if (statusLine == null)
 				return null;

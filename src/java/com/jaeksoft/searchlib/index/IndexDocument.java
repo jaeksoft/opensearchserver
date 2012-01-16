@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.parser.Parser;
@@ -207,12 +208,13 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		HttpDownloader httpDownloader = new HttpDownloader(null, false,
 				proxyHandler);
 		try {
-			httpDownloader.get(new URI(url), credentialItem);
+			DownloadItem downloadItem = httpDownloader.get(new URI(url),
+					credentialItem);
 			Parser parser = parserSelector.getParser(null,
-					httpDownloader.getContentBaseType());
+					downloadItem.getContentBaseType());
 			if (parser == null)
 				return null;
-			parser.parseContent(httpDownloader.getContent());
+			parser.parseContent(downloadItem.getContentInputStream());
 			return parser;
 		} catch (RuntimeException e) {
 			throw new SearchLibException(

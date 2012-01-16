@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
@@ -102,10 +103,11 @@ public class TaskXmlLoad extends TaskAbstract {
 			CredentialItem credentialItem = null;
 			if (login != null && password != null)
 				credentialItem = new CredentialItem(null, login, password);
-			httpDownloader.get(new URI(uri), credentialItem);
+			DownloadItem downloadItem = httpDownloader.get(new URI(uri),
+					credentialItem);
 			client.updateXmlDocuments(
-					new InputSource(httpDownloader.getContent()), bufferSize,
-					credentialItem, proxyHandler);
+					new InputSource(downloadItem.getContentInputStream()),
+					bufferSize, credentialItem, proxyHandler);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {

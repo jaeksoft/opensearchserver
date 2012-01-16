@@ -213,36 +213,32 @@ public class Crawl {
 				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(uri.toURL());
 
-				httpDownloader.get(uri, credentialItem);
+				DownloadItem downloadItem = httpDownloader.get(uri,
+						credentialItem);
 
-				String contentDispositionFilename = httpDownloader
-						.getContentDispositionFilename();
-				urlItem.setContentDispositionFilename(contentDispositionFilename);
+				urlItem.setContentDispositionFilename(downloadItem
+						.getContentDispositionFilename());
 
-				String contentBaseType = httpDownloader.getContentBaseType();
-				urlItem.setContentBaseType(contentBaseType);
+				urlItem.setContentBaseType(downloadItem.getContentBaseType());
 
-				String contentTypeCharset = httpDownloader
-						.getContentTypeCharset();
-				urlItem.setContentTypeCharset(contentTypeCharset);
+				urlItem.setContentTypeCharset(downloadItem
+						.getContentTypeCharset());
 
-				String encoding = httpDownloader.getContentEncoding();
-				urlItem.setContentEncoding(encoding);
+				urlItem.setContentEncoding(downloadItem.getContentEncoding());
 
-				Long contentLength = httpDownloader.getContentLength();
-				urlItem.setContentLength(contentLength);
+				urlItem.setContentLength(downloadItem.getContentLength());
 
 				urlItem.setFetchStatus(FetchStatus.FETCHED);
 
-				Integer code = httpDownloader.getStatusCode();
+				Integer code = downloadItem.getStatusCode();
 				if (code == null)
 					throw new IOException("Http status is null");
 
 				urlItem.setResponseCode(code);
-				redirectUrlLocation = httpDownloader.getRedirectLocation();
+				redirectUrlLocation = downloadItem.getRedirectLocation();
 
 				if (code >= 200 && code < 300) {
-					is = httpDownloader.getContent();
+					is = downloadItem.getContentInputStream();
 					parseContent(is);
 				} else if ("301".equals(code)) {
 					urlItem.setFetchStatus(FetchStatus.REDIR_PERM);

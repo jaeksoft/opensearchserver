@@ -28,61 +28,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-import com.jaeksoft.searchlib.SearchLibException;
-
-public class HadoopDownloader extends DownloaderAbstract {
-
-	private URI redirectLocation;
-	private Long contentLength;
-	private String contentDispositionFilename;
-	private String contentBaseType;
-	private String contentTypeCharset;
-	private String contentEncoding;
-	private Integer statusCode;
+public class HadoopDownloader {
 
 	public HadoopDownloader() {
 	}
 
-	public boolean get(URI uri) {
-		return false;
+	public DownloadItem get(URI uri) {
+		return null;
 	}
 
-	@Override
-	public URI getRedirectLocation() throws SearchLibException {
-		return redirectLocation;
-	}
-
-	@Override
-	public Long getContentLength() {
-		return contentLength;
-	}
-
-	@Override
-	public String getContentDispositionFilename() {
-		return contentDispositionFilename;
-	}
-
-	@Override
-	public String getContentBaseType() {
-		return contentBaseType;
-	}
-
-	@Override
-	public String getContentTypeCharset() {
-		return contentTypeCharset;
-	}
-
-	@Override
-	public String getContentEncoding() {
-		return contentEncoding;
-	}
-
-	@Override
-	public Integer getStatusCode() {
-		return statusCode;
-	}
-
-	@Override
 	public InputStream getContent() throws IllegalStateException, IOException {
 		// TODO Auto-generated method stub
 		return null;
