@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -216,8 +216,13 @@ public class Crawl {
 				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(uri.toURL());
 
-				DownloadItem downloadItem = httpDownloader.get(uri,
-						credentialItem);
+				DownloadItem downloadItem = ClientCatalog.getHadoopManager()
+						.loadCache(uri);
+
+				boolean fromCache = (downloadItem != null);
+
+				if (!fromCache)
+					downloadItem = httpDownloader.get(uri, credentialItem);
 
 				urlItem.setContentDispositionFilename(downloadItem
 						.getContentDispositionFilename());
@@ -241,8 +246,11 @@ public class Crawl {
 				redirectUrlLocation = downloadItem.getRedirectLocation();
 
 				if (code >= 200 && code < 300) {
-					is = ClientCatalog.getHadoopManager().storeCache(
-							downloadItem);
+					if (!fromCache)
+						is = ClientCatalog.getHadoopManager().storeCache(
+								downloadItem);
+					else
+						is = downloadItem.getContentInputStream();
 					parseContent(is);
 				} else if ("301".equals(code)) {
 					urlItem.setFetchStatus(FetchStatus.REDIR_PERM);

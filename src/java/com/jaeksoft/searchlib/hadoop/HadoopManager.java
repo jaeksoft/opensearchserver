@@ -198,6 +198,7 @@ public class HadoopManager implements Closeable {
 			InputStream is = downloadItem.getContentInputStream();
 			write(path, is);
 			IOUtils.closeQuietly(is);
+			System.out.println("STORE CACHE " + uri.toString());
 			return fileSystem.open(path);
 		} finally {
 			rwl.r.unlock();
@@ -219,6 +220,7 @@ public class HadoopManager implements Closeable {
 			downloadItem.loadMetaFromJson(json);
 			path = exists(uriToPath(uri, CONTENT_EXTENSION));
 			downloadItem.setContentInputStream(fileSystem.open(path));
+			System.out.println("LOAD CACHE " + uri.toString());
 			return downloadItem;
 		} finally {
 			rwl.r.unlock();
