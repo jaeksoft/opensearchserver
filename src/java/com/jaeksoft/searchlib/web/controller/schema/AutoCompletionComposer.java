@@ -26,13 +26,11 @@ package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.util.List;
 
-import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.InputEvent;
 import org.zkoss.zul.Combobox;
 import org.zkoss.zul.ListModel;
 import org.zkoss.zul.ListModelArray;
-import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -48,8 +46,6 @@ public class AutoCompletionComposer extends CommonComposer {
 	 * 
 	 */
 	private static final long serialVersionUID = -2654142296653263306L;
-
-	private Window window;
 
 	private SchemaField field = null;
 
@@ -168,8 +164,4 @@ public class AutoCompletionComposer extends CommonComposer {
 		this.rows = rows;
 	}
 
-	@Override
-	protected Component getMainComponent() {
-		return window;
-	}
 }

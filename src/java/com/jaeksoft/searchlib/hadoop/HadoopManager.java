@@ -56,11 +56,19 @@ public class HadoopManager implements Closeable {
 
 	private final static String HADOOP_PROPERTY_ENABLED = "enabled";
 
+	private final static String HADOOP_PROPERTY_EXPIRATION_VALUE = "expirationValue";
+
+	private final static String HADOOP_PROPERTY_EXPIRATION_UNIT = "expirationUnit";
+
 	private FileSystem fileSystem;
 
 	private Configuration configuration;
 
 	private boolean enabled;
+
+	private int expirationValue;
+
+	private String expirationUnit;
 
 	private File propFile;
 
@@ -73,13 +81,19 @@ public class HadoopManager implements Closeable {
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
 		enabled = "true".equals(properties.getProperty(HADOOP_PROPERTY_ENABLED,
 				"false"));
-
+		expirationValue = Integer.parseInt(properties.getProperty(
+				HADOOP_PROPERTY_EXPIRATION_VALUE, "0"));
+		expirationUnit = properties.getProperty(
+				HADOOP_PROPERTY_EXPIRATION_UNIT, "days");
 	}
 
 	private void save() throws IOException {
 		Properties properties = new Properties();
 		properties.setProperty(HADOOP_PROPERTY_ENABLED,
 				Boolean.toString(enabled));
+		properties.setProperty(HADOOP_PROPERTY_EXPIRATION_VALUE,
+				Integer.toString(expirationValue));
+		properties.setProperty(HADOOP_PROPERTY_EXPIRATION_UNIT, expirationUnit);
 		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
@@ -133,17 +147,13 @@ public class HadoopManager implements Closeable {
 
 	private Path checkPath(String path, boolean replace) throws IOException {
 		Path fsPath = new Path(path);
-		if (fileSystem.exists(fsPath)) {
-			if (!replace)
-				throw new IOException("Output already exists: " + path);
-			fileSystem.delete(fsPath, false);
-		} else
+		if (!fileSystem.exists(fsPath))
 			fileSystem.mkdirs(fsPath.getParent());
 		return fsPath;
 	}
 
 	private void write(Path path, String content) throws IOException {
-		FSDataOutputStream out = fileSystem.create(path);
+		FSDataOutputStream out = fileSystem.create(path, true);
 		try {
 			out.writeUTF(content);
 		} finally {
@@ -152,7 +162,7 @@ public class HadoopManager implements Closeable {
 	}
 
 	private void write(Path path, InputStream in) throws IOException {
-		FSDataOutputStream out = fileSystem.create(path);
+		FSDataOutputStream out = fileSystem.create(path, true);
 		try {
 			IOUtils.copy(in, out);
 		} finally {
@@ -160,10 +170,11 @@ public class HadoopManager implements Closeable {
 		}
 	}
 
+	private final static String PATH_HTTP_DOWNLOAD_CACHE = "/opensearchserver/http-download-cache";
+
 	private String uriToPath(URI uri, String extension) {
 		String key = StringUtils.base64encode(uri.toASCIIString());
-		StringBuffer sb = new StringBuffer(
-				"/opensearchserver/http-download-cache");
+		StringBuffer sb = new StringBuffer(PATH_HTTP_DOWNLOAD_CACHE);
 		int l = key.length();
 		int i = 0;
 		while (l > 0) {
@@ -227,6 +238,15 @@ public class HadoopManager implements Closeable {
 		}
 	}
 
+	public void flushCache() throws IOException {
+		rwl.r.lock();
+		try {
+			fileSystem.delete(new Path(PATH_HTTP_DOWNLOAD_CACHE), true);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	/**
 	 * @return the enabled
 	 */
@@ -250,7 +270,45 @@ public class HadoopManager implements Closeable {
 			this.enabled = enabled;
 			save();
 		} finally {
-			rwl.r.unlock();
+			rwl.w.unlock();
 		}
 	}
+
+	/**
+	 * @return the expirationValue
+	 */
+	public int getExpirationValue() {
+		return expirationValue;
+	}
+
+	/**
+	 * @param expirationValue
+	 *            the expirationValue to set
+	 */
+	public void setExpirationValue(int expirationValue) {
+		this.expirationValue = expirationValue;
+	}
+
+	private final static String[] expirationUnitValues = { "year", "months",
+			"days", "hours", "minutes" };
+
+	public String[] getExpirationUnitValues() {
+		return expirationUnitValues;
+	}
+
+	/**
+	 * @return the expirationUnit
+	 */
+	public String getExpirationUnit() {
+		return expirationUnit;
+	}
+
+	/**
+	 * @param expirationUnit
+	 *            the expirationUnit to set
+	 */
+	public void setExpirationUnit(String expirationUnit) {
+		this.expirationUnit = expirationUnit;
+	}
+
 }

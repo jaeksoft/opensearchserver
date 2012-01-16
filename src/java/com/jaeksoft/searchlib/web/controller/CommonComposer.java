@@ -52,6 +52,8 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 	@Override
 	public void doAfterCompose(Component comp) throws Exception {
 		super.doAfterCompose(comp);
+		binder = new AnnotateDataBinder(comp);
+		binder.loadAll();
 		PushEvent.suscribe(this);
 	}
 
@@ -98,12 +100,10 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 			binder.loadComponent(component);
 	}
 
-	protected abstract Component getMainComponent();
-
 	public void reloadPage() {
 		if (binder == null)
 			return;
-		binder.loadComponent(getMainComponent());
+		binder.loadAll();
 	}
 
 	protected abstract void reset() throws SearchLibException;

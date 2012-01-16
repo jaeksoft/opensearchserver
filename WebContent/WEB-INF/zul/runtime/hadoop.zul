@@ -1,4 +1,3 @@
-<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit"?>
 <!--
 	License Agreement for OpenSearchServer
 	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
@@ -38,11 +37,25 @@
 							value="@{window$composer.hadoopManager.configuration}" />
 						<space />
 					</row>
+					<row>
+						<label value="Cache validity" />
+						<hbox align="center">
+							<intbox constraint="no empty, no negative"
+								value="@{window$composer.hadoopManager.expirationValue}" />
+							<listbox
+								model="@{window$composer.hadoopManager.expirationUnitValues}"
+								mold="select"
+								selectedItem="@{window$composer.hadoopManager.expirationUnit}" />
+						</hbox>
+						<space />
+					</row>
 				</rows>
 				<foot>
 					<footer span="3">
 						<hbox align="center" width="100%">
 							<button label="Reload" forward="onReload" />
+							<space />
+							<button label="Flush" forward="onFlush" />
 						</hbox>
 					</footer>
 				</foot>
