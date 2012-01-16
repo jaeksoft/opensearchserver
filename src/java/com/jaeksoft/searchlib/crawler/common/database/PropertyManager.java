@@ -25,12 +25,10 @@
 package com.jaeksoft.searchlib.crawler.common.database;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.poi.util.IOUtils;
+import com.jaeksoft.searchlib.util.PropertiesUtils;
 
 public abstract class PropertyManager {
 
@@ -44,19 +42,7 @@ public abstract class PropertyManager {
 
 	protected PropertyManager(File file) throws IOException {
 		propFile = file;
-		properties = new Properties();
-		if (propFile.exists()) {
-			FileInputStream inputStream = null;
-			try {
-				inputStream = new FileInputStream(propFile);
-				properties.loadFromXML(inputStream);
-			} catch (IOException e) {
-				throw e;
-			} finally {
-				if (inputStream != null)
-					IOUtils.closeQuietly(inputStream);
-			}
-		}
+		properties = PropertiesUtils.loadFromXml(propFile);
 		indexDocumentBufferSize = new PropertyItem<Integer>(this,
 				"indexDocumentBufferSize", 1000, null, null);
 		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10, null, null);
@@ -64,16 +50,7 @@ public abstract class PropertyManager {
 	}
 
 	protected void save() throws IOException {
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(propFile);
-			properties.storeToXML(fos, "");
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (fos != null)
-				IOUtils.closeQuietly(fos);
-		}
+		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
 	protected PropertyItem<Integer> newIntegerProperty(String name,

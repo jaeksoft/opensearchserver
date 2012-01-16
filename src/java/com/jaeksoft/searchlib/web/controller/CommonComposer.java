@@ -98,9 +98,12 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 			binder.loadComponent(component);
 	}
 
+	protected abstract Component getMainComponent();
+
 	public void reloadPage() {
-		if (binder != null)
-			binder.loadAll();
+		if (binder == null)
+			return;
+		binder.loadComponent(getMainComponent());
 	}
 
 	protected abstract void reset() throws SearchLibException;

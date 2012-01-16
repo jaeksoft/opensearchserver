@@ -25,13 +25,9 @@
 package com.jaeksoft.searchlib.autocompletion;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
-
-import org.apache.poi.util.IOUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -40,6 +36,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class AutoCompletionManager {
@@ -79,17 +76,7 @@ public class AutoCompletionManager {
 			subDir.mkdir();
 		this.autoCompClient = new Client(subDir, autoCompletionConfigPath, true);
 		propFile = new File(config.getDirectory(), autoCompletionProperties);
-		Properties properties = new Properties();
-		if (propFile.exists()) {
-			FileInputStream inputStream = null;
-			try {
-				inputStream = new FileInputStream(propFile);
-				properties.loadFromXML(inputStream);
-			} finally {
-				if (inputStream != null)
-					IOUtils.closeQuietly(inputStream);
-			}
-		}
+		Properties properties = PropertiesUtils.loadFromXml(propFile);
 		propField = properties.getProperty(autoCompletionPropertyField);
 		propRows = Integer.parseInt(properties.getProperty(
 				autoCompletionPropertyRows, autoCompletionPropertyRowsDefault));
@@ -101,19 +88,12 @@ public class AutoCompletionManager {
 	}
 
 	private void saveProperties() throws IOException {
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(propFile);
-			Properties properties = new Properties();
-			if (propField != null)
-				properties.setProperty(autoCompletionPropertyField, propField);
-			properties.setProperty(autoCompletionPropertyRows,
-					Integer.toString(propRows));
-			properties.storeToXML(fos, "");
-		} finally {
-			if (fos != null)
-				IOUtils.closeQuietly(fos);
-		}
+		Properties properties = new Properties();
+		if (propField != null)
+			properties.setProperty(autoCompletionPropertyField, propField);
+		properties.setProperty(autoCompletionPropertyRows,
+				Integer.toString(propRows));
+		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
 	public String getField() {

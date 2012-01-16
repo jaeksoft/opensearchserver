@@ -134,7 +134,7 @@ public class HttpDownloader {
 				statusLine = httpResponse.getStatusLine();
 				httpEntity = httpResponse.getEntity();
 			}
-			DownloadItem downloadItem = new DownloadItem();
+			DownloadItem downloadItem = new DownloadItem(uri);
 			downloadItem.setRedirectLocation(getRedirectLocation());
 			downloadItem.setContentLength(getContentLength());
 			downloadItem

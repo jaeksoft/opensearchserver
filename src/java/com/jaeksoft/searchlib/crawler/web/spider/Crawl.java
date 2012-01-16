@@ -36,7 +36,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -238,7 +241,8 @@ public class Crawl {
 				redirectUrlLocation = downloadItem.getRedirectLocation();
 
 				if (code >= 200 && code < 300) {
-					is = downloadItem.getContentInputStream();
+					is = ClientCatalog.getHadoopManager().storeCache(
+							downloadItem);
 					parseContent(is);
 				} else if ("301".equals(code)) {
 					urlItem.setFetchStatus(FetchStatus.REDIR_PERM);
@@ -286,12 +290,8 @@ public class Crawl {
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
 			}
-			try {
-				if (is != null)
-					is.close();
-			} catch (IOException e) {
-				Logging.warn(e.getMessage(), e);
-			}
+			if (is != null)
+				IOUtils.closeQuietly(is);
 		}
 	}
 

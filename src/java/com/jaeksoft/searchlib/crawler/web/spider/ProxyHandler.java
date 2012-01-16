@@ -70,7 +70,6 @@ public class ProxyHandler {
 		} finally {
 			IOUtils.closeQuietly(br);
 		}
-		System.out.println("exclusionSet size: " + exclusionSet.size());
 	}
 
 	public void check(HttpClient httpClient, URI uri) {

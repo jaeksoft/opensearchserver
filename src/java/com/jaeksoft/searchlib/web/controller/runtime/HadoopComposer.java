@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.Window;
 
@@ -47,11 +48,9 @@ public class HadoopComposer extends CommonComposer {
 	protected void reset() throws SearchLibException {
 	}
 
-	public String getConfiguration() throws SearchLibException, IOException {
-		HadoopManager manager = ClientCatalog.getHadoopManager();
-		if (manager == null)
-			return null;
-		return manager.getConfiguration();
+	public HadoopManager getHadoopManager() throws SearchLibException,
+			IOException {
+		return ClientCatalog.getHadoopManager();
 	}
 
 	public void onReload$window(Event event) throws SearchLibException,
@@ -61,5 +60,10 @@ public class HadoopComposer extends CommonComposer {
 			return;
 		manager.reloadConfiguration();
 		reloadComponent(window);
+	}
+
+	@Override
+	protected Component getMainComponent() {
+		return window;
 	}
 }

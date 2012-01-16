@@ -27,9 +27,16 @@
 				</columns>
 				<rows>
 					<row>
+						<label value="Enabled" />
+						<checkbox
+							checked="@{window$composer.hadoopManager.enabled}" />
+						<space />
+					</row>
+					<row>
 						<label value="Configuration" />
 						<label multiline="true"
-							value="@{window$composer.configuration}" />
+							value="@{window$composer.hadoopManager.configuration}" />
+						<space />
 					</row>
 				</rows>
 				<foot>

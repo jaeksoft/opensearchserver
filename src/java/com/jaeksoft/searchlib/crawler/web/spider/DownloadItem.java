@@ -26,11 +26,14 @@ package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 
-import org.json.simple.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DownloadItem {
 
+	private URI uri;
 	private URI redirectLocation = null;
 	private Long contentLength = null;
 	private String contentDispositionFilename = null;
@@ -40,11 +43,8 @@ public class DownloadItem {
 	private Integer statusCode = null;
 	private InputStream contentInputStream = null;
 
-	@SuppressWarnings("unchecked")
-	private final void put(JSONObject json, Object key, Object value) {
-		if (value == null)
-			return;
-		json.put(key, value);
+	public DownloadItem(URI uri) {
+		this.uri = uri;
 	}
 
 	protected final static String KEY_REDIRECT_LOCATION = "KEY_REDIRECT_LOCATION";
@@ -55,16 +55,61 @@ public class DownloadItem {
 	protected final static String KEY_CONTENT_ENCODING = "KEY_CONTENT_ENCODING";
 	protected final static String KEY_STATUS_CODE = "KEY_STATUS_CODE";
 
-	public String getMetaAsJson() {
+	public String getMetaAsJson() throws JSONException {
 		JSONObject json = new JSONObject();
-		put(json, KEY_REDIRECT_LOCATION, redirectLocation);
-		put(json, KEY_CONTENT_LENGTH, contentLength);
-		put(json, KEY_CONTENT_DISPOSITION_FILENAME, contentDispositionFilename);
-		put(json, KEY_CONTENT_BASE_TYPE, contentBaseType);
-		put(json, KEY_CONTENT_TYPE_CHARSET, contentTypeCharset);
-		put(json, KEY_CONTENT_ENCODING, contentEncoding);
-		put(json, KEY_CONTENT_ENCODING, statusCode);
+
+		if (redirectLocation != null)
+			json.put(KEY_REDIRECT_LOCATION, redirectLocation.toASCIIString());
+
+		if (contentLength != null)
+			json.put(KEY_CONTENT_LENGTH, contentLength);
+
+		if (contentDispositionFilename != null)
+			json.put(KEY_CONTENT_DISPOSITION_FILENAME,
+					contentDispositionFilename);
+
+		if (contentBaseType != null)
+			json.put(KEY_CONTENT_BASE_TYPE, contentBaseType);
+
+		if (contentTypeCharset != null)
+			json.put(KEY_CONTENT_TYPE_CHARSET, contentTypeCharset);
+
+		if (contentEncoding != null)
+			json.put(KEY_CONTENT_ENCODING, contentEncoding);
+
+		if (statusCode != null)
+			json.put(KEY_STATUS_CODE, statusCode);
+
 		return json.toString();
+	}
+
+	public void loadMetaFromJson(org.json.JSONObject json)
+			throws URISyntaxException, JSONException {
+
+		if (json.has(KEY_REDIRECT_LOCATION)) {
+			String s = json.getString(KEY_REDIRECT_LOCATION);
+			if (s != null)
+				redirectLocation = new URI(s);
+		}
+		if (json.has(KEY_CONTENT_LENGTH))
+			contentLength = json.getLong(KEY_CONTENT_LENGTH);
+
+		if (json.has(KEY_CONTENT_DISPOSITION_FILENAME))
+			contentDispositionFilename = json
+					.getString(KEY_CONTENT_DISPOSITION_FILENAME);
+
+		if (json.has(KEY_CONTENT_BASE_TYPE))
+			contentBaseType = json.getString(KEY_CONTENT_BASE_TYPE);
+
+		if (json.has(KEY_CONTENT_TYPE_CHARSET))
+			contentBaseType = json.getString(KEY_CONTENT_TYPE_CHARSET);
+
+		if (json.has(KEY_CONTENT_ENCODING))
+			contentEncoding = json.getString(KEY_CONTENT_ENCODING);
+
+		if (json.has(KEY_STATUS_CODE))
+			statusCode = json.getInt(KEY_STATUS_CODE);
+
 	}
 
 	/**
@@ -186,4 +231,12 @@ public class DownloadItem {
 	public void setContentInputStream(InputStream contentInputStream) {
 		this.contentInputStream = contentInputStream;
 	}
+
+	/**
+	 * @return the uri
+	 */
+	public URI getUri() {
+		return uri;
+	}
+
 }
