@@ -98,20 +98,6 @@ public class SnippetFieldRenderer implements RowRenderer {
 		}
 	}
 
-	public class SnippetNumberListener extends FragmenterListener {
-
-		protected SnippetNumberListener(SnippetField snippetField) {
-			super(snippetField);
-		}
-
-		@Override
-		public void onEvent(Event event) throws Exception {
-			Intbox intbox = (Intbox) event.getTarget();
-			if (intbox != null)
-				snippetField.setMaxSnippetNumber(intbox.getValue());
-		}
-	}
-
 	public class DocCharListener extends FragmenterListener {
 
 		protected DocCharListener(SnippetField snippetField) {
@@ -163,12 +149,6 @@ public class SnippetFieldRenderer implements RowRenderer {
 		intbox.setConstraint("no empty, no negative");
 		intbox.setCols(5);
 		intbox.addEventListener("onChange", new SnippetSizeListener(field));
-		intbox.setParent(row);
-
-		intbox = new Intbox(field.getMaxSnippetNumber());
-		intbox.setCols(3);
-		intbox.setConstraint("no empty, no negative");
-		intbox.addEventListener("onChange", new SnippetNumberListener(field));
 		intbox.setParent(row);
 
 		intbox = new Intbox(field.getMaxDocChar());

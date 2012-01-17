@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,11 +24,19 @@
 
 package com.jaeksoft.searchlib.snippet;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.memory.MemoryIndex;
+import org.apache.lucene.search.Query;
+
+import com.jaeksoft.searchlib.util.StringUtils;
+
 public class Fragment {
 
 	private String originalText;
 
 	private String highlightedText;
+
+	private String finalText;
 
 	private boolean inSnippet;
 
@@ -36,12 +44,24 @@ public class Fragment {
 
 	private boolean isEdge;
 
-	protected Fragment(String originalText, int vectorOffset, boolean isEdge) {
+	private float score;
+
+	private Fragment previousFragment;
+
+	private Fragment nextFragment;
+
+	protected Fragment(Fragment previousFragment, String originalText,
+			int vectorOffset, boolean isEdge) {
 		this.originalText = originalText;
 		this.highlightedText = null;
+		this.finalText = null;
 		this.inSnippet = false;
 		this.vectorOffset = vectorOffset;
 		this.isEdge = isEdge;
+		this.previousFragment = previousFragment;
+		this.nextFragment = null;
+		if (previousFragment != null)
+			previousFragment.nextFragment = this;
 	}
 
 	protected boolean isHighlighted() {
@@ -79,15 +99,19 @@ public class Fragment {
 		return originalText;
 	}
 
-	protected String getFinalText() {
+	protected String getFinalText(String[] allowedTags) {
 		inSnippet = true;
-		if (highlightedText != null)
-			return highlightedText;
-		return originalText;
+		if (finalText != null)
+			return finalText;
+		if (highlightedText != null) {
+			finalText = StringUtils.removeTag(highlightedText, allowedTags);
+		} else
+			finalText = originalText;
+		return finalText;
 	}
 
-	protected String getFinalText(int maxLength) {
-		String text = getFinalText();
+	protected String getFinalText(String[] allowedTags, int maxLength) {
+		String text = getFinalText(allowedTags);
 		if (maxLength > text.length())
 			return text;
 		int pos = maxLength;
@@ -97,6 +121,61 @@ public class Fragment {
 		if (pos == 0)
 			pos = maxLength;
 		return text.substring(0, pos);
+	}
+
+	public float score(String fieldName, Analyzer analyzer, Query query,
+			int maxLength) {
+		if (query == null || analyzer == null)
+			return 0;
+		MemoryIndex index = new MemoryIndex();
+		index.addField(fieldName, originalText, analyzer);
+		float searchScore = index.search(query);
+		float sizeScore = (originalText.length() < maxLength) ? (float) originalText
+				.length() / (float) maxLength
+				: maxLength;
+		score = searchScore * sizeScore;
+		return score;
+	}
+
+	/**
+	 * Returns the fragment which have the higher score. If the fragments has
+	 * the same score, the fragment1 is returned.
+	 * 
+	 * @param fragment1
+	 * @param fragment2
+	 * @return
+	 */
+	public static final Fragment bestScore(Fragment fragment1,
+			Fragment fragment2) {
+		if (fragment1 == null)
+			return fragment2;
+		if (fragment2 == null)
+			return fragment1;
+		return fragment2.score > fragment1.score ? fragment2 : fragment1;
+	}
+
+	public final Fragment next() {
+		return nextFragment;
+	}
+
+	public final Fragment previous() {
+		return previousFragment;
+	}
+
+	/**
+	 * Find the next highlighted fragment
+	 * 
+	 * @param iterator
+	 * @return
+	 */
+	final static protected Fragment findNextHighlightedFragment(
+			Fragment fragment) {
+		while (fragment != null) {
+			if (fragment.isHighlighted() && !fragment.isInSnippet())
+				return fragment;
+			fragment = fragment.next();
+		}
+		return null;
 	}
 
 }

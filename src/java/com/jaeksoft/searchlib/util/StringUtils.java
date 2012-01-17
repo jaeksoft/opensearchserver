@@ -1,6 +1,6 @@
 /**   
  *
- * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.util;
 
 import java.text.DecimalFormat;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
@@ -69,10 +70,30 @@ public class StringUtils {
 	private final static Pattern removeEndTagBlockPattern = Pattern
 			.compile("[^\\p{Punct}].<\\/(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>");
 
-	public static String removeTag(String text) {
+	public static final String removeTag(String text) {
 		text = removeSpacePattern.matcher(text).replaceAll(" ");
 		text = removeEndTagBlockPattern.matcher(text).replaceAll(". ");
 		return removeTagPattern.matcher(text).replaceAll("");
+	}
+
+	public static final String removeTag(String text, String[] allowedTags) {
+		if (allowedTags == null)
+			return removeSpacePattern.matcher(text).replaceAll(" ");
+		StringBuffer sb = new StringBuffer();
+		Matcher matcher = removeTagPattern.matcher(text);
+		while (matcher.find()) {
+			boolean allowed = false;
+			String group = matcher.group();
+			for (String tag : allowedTags) {
+				if (tag.equals(group)) {
+					allowed = true;
+					break;
+				}
+			}
+			matcher.appendReplacement(sb, allowed ? group : "");
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
 	}
 
 	/**
