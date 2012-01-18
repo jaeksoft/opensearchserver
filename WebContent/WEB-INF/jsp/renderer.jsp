@@ -61,7 +61,7 @@ a:active{
 <%=renderer.getAutocompleteStyle()==null?"":renderer.getAutocompleteStyle()%>
 }
 #ossautocompletelist {
-<%=renderer.getAutocompleteSelectedStyle()==null?"":renderer.getAutocompleteSelectedStyle()%>
+<%=renderer.getAutocompleteListStyle()==null?"":renderer.getAutocompleteListStyle()%>
 }
 .ossautocomplete_link {
 <%=renderer.getAutocompleteLinkStyle()==null?"":renderer.getAutocompleteLinkStyle()%>
@@ -97,7 +97,9 @@ a:active{
 		<input class="osscmnrdr ossinputrdr" size="60" type="text" id="query" name="query" value="<%=query%>" onkeyup="autosuggest(event)" autocomplete="off"/>
 		<input class="osscmnrdr ossbuttonrdr"
 			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />
+				<div style="position:absolute;">
 					<div id="ossautocomplete"></div>
+				</div>
 	</form>
  
 	<br/>

@@ -67,7 +67,7 @@
 						<label
 							value="Autocomplete List CSS style: " />
 						<textbox
-							value="@{renderer.currentRenderer.autocompleteSelectedStyle}"
+							value="@{renderer.currentRenderer.autocompleteListStyle}"
 							cols="100" multiline="true" rows="5" />
 					</row>
 					<row>

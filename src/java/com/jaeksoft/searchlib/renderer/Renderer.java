@@ -53,7 +53,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_INPUT_STYLE = "inputStyle";
 	private final static String RENDERER_ITEM_NODE_BUTTON_STYLE = "buttonStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE = "autocompleteStyle";
-	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE = "autocompleteSelectedStyle";
+	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE = "autocompleteListStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE = "autocompleteLinkStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE = "autocompleteLinkHoverStyle";
 	private final static String RENDERER_ITEM_NODE_ALINK = "alink";
@@ -75,7 +75,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String autocompleteStyle;
 
-	private String autocompleteSelectedStyle;
+	private String autocompleteListStyle;
 
 	private String autocompleteLinkStyle;
 
@@ -100,7 +100,7 @@ public class Renderer implements Comparable<Renderer> {
 		inputStyle = null;
 		buttonStyle = null;
 		autocompleteStyle = null;
-		autocompleteSelectedStyle = null;
+		autocompleteListStyle = null;
 		autocompleteLinkStyle = null;
 		autocompleteLinkHoverStyle = null;
 		searchButtonLabel = "Search";
@@ -130,8 +130,8 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_BUTTON_STYLE));
 		setAutocompleteStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE));
-		setAutocompleteSelectedStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE));
+		setAutocompleteListStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE));
 		setAutocompleteLinkStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE));
 		setAutocompleteLinkHoverStyle(xpp.getSubNodeTextIfAny(rootNode,
@@ -164,7 +164,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.inputStyle = inputStyle;
 				target.buttonStyle = buttonStyle;
 				target.autocompleteStyle = autocompleteStyle;
-				target.autocompleteSelectedStyle = autocompleteSelectedStyle;
+				target.autocompleteListStyle = autocompleteListStyle;
 				target.autocompleteLinkStyle = autocompleteLinkStyle;
 				target.autocompleteLinkHoverStyle = autocompleteLinkHoverStyle;
 				target.searchButtonLabel = searchButtonLabel;
@@ -338,18 +338,18 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @return the autocompleteSelectedStyle
+	 * @return the autocompleteListStyle
 	 */
-	public String getAutocompleteSelectedStyle() {
-		return autocompleteSelectedStyle;
+	public String getAutocompleteListStyle() {
+		return autocompleteListStyle;
 	}
 
 	/**
-	 * @param autocompleteSelectedStyle
-	 *            the autocompleteSelectedStyle to set
+	 * @param autocompleteListStyle
+	 *            the autocompleteListStyle to set
 	 */
-	public void setAutocompleteSelectedStyle(String autocompleteSelectedStyle) {
-		this.autocompleteSelectedStyle = autocompleteSelectedStyle;
+	public void setAutocompleteListStyle(String autocompleteListStyle) {
+		this.autocompleteListStyle = autocompleteListStyle;
 	}
 
 	public String getAutocompleteLinkStyle() {
@@ -457,8 +457,8 @@ public class Renderer implements Comparable<Renderer> {
 			xmlWriter.writeSubTextNodeIfAny(
 					RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, autocompleteStyle);
 			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE,
-					autocompleteSelectedStyle);
+					RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE,
+					autocompleteListStyle);
 			xmlWriter.writeSubTextNodeIfAny(
 					RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE,
 					autocompleteLinkStyle);
