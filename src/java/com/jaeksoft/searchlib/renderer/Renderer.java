@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -54,6 +54,8 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_BUTTON_STYLE = "buttonStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE = "autocompleteStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE = "autocompleteSelectedStyle";
+	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE = "autocompleteLinkStyle";
+	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE = "autocompleteLinkHoverStyle";
 	private final static String RENDERER_ITEM_NODE_ALINK = "alink";
 	private final static String RENDERER_ITEM_NODE_AVISITED = "avisited";
 	private final static String RENDERER_ITEM_NODE_AACTIVE = "aactive";
@@ -75,6 +77,10 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String autocompleteSelectedStyle;
 
+	private String autocompleteLinkStyle;
+
+	private String autocompleteLinkHoverStyle;
+
 	private String searchButtonLabel;
 
 	private String alink;
@@ -95,6 +101,8 @@ public class Renderer implements Comparable<Renderer> {
 		buttonStyle = null;
 		autocompleteStyle = null;
 		autocompleteSelectedStyle = null;
+		autocompleteLinkStyle = null;
+		autocompleteLinkHoverStyle = null;
 		searchButtonLabel = "Search";
 		fields = new ArrayList<RendererField>();
 	}
@@ -124,6 +132,10 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE));
 		setAutocompleteSelectedStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE));
+		setAutocompleteLinkStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE));
+		setAutocompleteLinkHoverStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE));
 		setAactive(xpp
 				.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AACTIVE));
 		setAhover(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AHOVER));
@@ -153,6 +165,8 @@ public class Renderer implements Comparable<Renderer> {
 				target.buttonStyle = buttonStyle;
 				target.autocompleteStyle = autocompleteStyle;
 				target.autocompleteSelectedStyle = autocompleteSelectedStyle;
+				target.autocompleteLinkStyle = autocompleteLinkStyle;
+				target.autocompleteLinkHoverStyle = autocompleteLinkHoverStyle;
 				target.searchButtonLabel = searchButtonLabel;
 				target.aactive = aactive;
 				target.ahover = ahover;
@@ -338,6 +352,22 @@ public class Renderer implements Comparable<Renderer> {
 		this.autocompleteSelectedStyle = autocompleteSelectedStyle;
 	}
 
+	public String getAutocompleteLinkStyle() {
+		return autocompleteLinkStyle;
+	}
+
+	public void setAutocompleteLinkStyle(String autocompleteLinkStyle) {
+		this.autocompleteLinkStyle = autocompleteLinkStyle;
+	}
+
+	public String getAutocompleteLinkHoverStyle() {
+		return autocompleteLinkHoverStyle;
+	}
+
+	public void setAutocompleteLinkHoverStyle(String autocompleteLinkHoverStyle) {
+		this.autocompleteLinkHoverStyle = autocompleteLinkHoverStyle;
+	}
+
 	/**
 	 * @return the name
 	 */
@@ -429,6 +459,12 @@ public class Renderer implements Comparable<Renderer> {
 			xmlWriter.writeSubTextNodeIfAny(
 					RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE,
 					autocompleteSelectedStyle);
+			xmlWriter.writeSubTextNodeIfAny(
+					RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE,
+					autocompleteLinkStyle);
+			xmlWriter.writeSubTextNodeIfAny(
+					RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE,
+					autocompleteLinkHoverStyle);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
 			xmlWriter.endElement();

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -65,9 +65,23 @@
 					</row>
 					<row>
 						<label
-							value="Autocomplete selected CSS style: " />
+							value="Autocomplete List CSS style: " />
 						<textbox
 							value="@{renderer.currentRenderer.autocompleteSelectedStyle}"
+							cols="100" multiline="true" rows="5" />
+					</row>
+					<row>
+						<label
+							value="Autocomplete Link CSS style: " />
+						<textbox
+							value="@{renderer.currentRenderer.autocompleteLinkStyle}"
+							cols="100" multiline="true" rows="5" />
+					</row>
+					<row>
+						<label
+							value="Autocomplete Link Hover CSS style: " />
+						<textbox
+							value="@{renderer.currentRenderer.autocompleteLinkHoverStyle}"
 							cols="100" multiline="true" rows="5" />
 					</row>
 						<row>
