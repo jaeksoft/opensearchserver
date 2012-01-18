@@ -100,7 +100,6 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 		Term term = null;
 		List<IndexDocument> buffer = new ArrayList<IndexDocument>();
 		while ((term = termEnum.term()) != null) {
-			System.out.println(term);
 			if (!fieldName.equals(term.field()))
 				break;
 			IndexDocument indexDocument = new IndexDocument();
