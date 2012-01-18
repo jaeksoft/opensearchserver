@@ -218,7 +218,6 @@ public abstract class CommonController extends Window implements AfterCompose,
 	public void reloadPage() {
 		if (binder != null)
 			binder.loadAll();
-		System.out.println("RELOAD PAGE " + binder);
 	}
 
 	public void onReload() throws IOException, URISyntaxException,

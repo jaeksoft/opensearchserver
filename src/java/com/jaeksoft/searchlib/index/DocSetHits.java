@@ -59,7 +59,7 @@ public class DocSetHits {
 		final private long bitSetSize = bitset.size();
 
 		@Override
-		public void collect(int docId) {
+		final public void collect(int docId) {
 			lastDocId = docId;
 			collectedDocs[docNumFound++] = docId;
 			bitset.fastSet(docId);
@@ -84,7 +84,6 @@ public class DocSetHits {
 			float sc = scorer.score();
 			if (sc > maxScore)
 				maxScore = sc;
-
 		}
 	}
 

@@ -33,7 +33,7 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3408889704609057463L;
+	private static final long serialVersionUID = -8153528644026354484L;
 
 	private Query subQuery;
 

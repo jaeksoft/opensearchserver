@@ -24,22 +24,13 @@
 
 package com.jaeksoft.searchlib.snippet;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.List;
 
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
-public class SnippetFieldValue extends FieldValue implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2819968548098199426L;
+public class SnippetFieldValue extends FieldValue {
 
 	private boolean highlighted;
 
@@ -56,16 +47,4 @@ public class SnippetFieldValue extends FieldValue implements Externalizable {
 		return highlighted;
 	}
 
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		super.readExternal(in);
-		highlighted = in.readBoolean();
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
-		out.writeBoolean(highlighted);
-	}
 }

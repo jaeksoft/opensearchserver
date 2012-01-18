@@ -53,18 +53,16 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderXml implements Render {
 
+	private PrintWriter writer;
 	private Result result;
 	private SearchRequest searchRequest;
 	private Matcher controlMatcher;
-	private StringBuffer stringBuffer;
 
 	public RenderXml(Result result) {
 		this.result = result;
 		this.searchRequest = result.getSearchRequest();
 		Pattern p = Pattern.compile("\\p{Cntrl}");
 		controlMatcher = p.matcher("");
-		this.stringBuffer = new StringBuffer();
-
 	}
 
 	private String xmlTextRender(String text) {
@@ -74,19 +72,18 @@ public class RenderXml implements Render {
 
 	private void renderPrefix() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
-		stringBuffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		stringBuffer.append("<response>");
-		stringBuffer.append("<header>");
-		stringBuffer.append("\t<status>0</status>");
-		stringBuffer.append("\t<query>");
-		stringBuffer.append(StringEscapeUtils.escapeXml(searchRequest
-				.getQueryParsed()));
-		stringBuffer.append("</query>");
-		stringBuffer.append("</header>");
+		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		writer.println("<response>");
+		writer.println("<header>");
+		writer.println("\t<status>0</status>");
+		writer.print("\t<query>");
+		writer.print(StringEscapeUtils.escapeXml(searchRequest.getQueryParsed()));
+		writer.println("</query>");
+		writer.println("</header>");
 	}
 
 	private void renderSuffix() {
-		stringBuffer.append("</response>");
+		writer.println("</response>");
 	}
 
 	private void renderDocuments() throws CorruptIndexException, IOException,
@@ -94,31 +91,31 @@ public class RenderXml implements Render {
 		SearchRequest searchRequest = result.getSearchRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
-		stringBuffer.append("<result name=\"response\" numFound=\"");
-		stringBuffer.append(result.getNumFound());
-		stringBuffer.append("\" collapsedDocCount=\"");
-		stringBuffer.append(result.getCollapseDocCount());
-		stringBuffer.append("\" start=\"");
-		stringBuffer.append(searchRequest.getStart());
-		stringBuffer.append("\" rows=\"");
-		stringBuffer.append(searchRequest.getRows());
-		stringBuffer.append("\" maxScore=\"");
-		stringBuffer.append(result.getMaxScore());
-		stringBuffer.append("\" time=\"");
-		stringBuffer.append(searchRequest.getFinalTime());
-		stringBuffer.append("\">");
+		writer.print("<result name=\"response\" numFound=\"");
+		writer.print(result.getNumFound());
+		writer.print("\" collapsedDocCount=\"");
+		writer.print(result.getCollapseDocCount());
+		writer.print("\" start=\"");
+		writer.print(searchRequest.getStart());
+		writer.print("\" rows=\"");
+		writer.print(searchRequest.getRows());
+		writer.print("\" maxScore=\"");
+		writer.print(result.getMaxScore());
+		writer.print("\" time=\"");
+		writer.print(searchRequest.getFinalTime());
+		writer.println("\">");
 		for (int i = start; i < end; i++)
 			this.renderDocument(i);
-		stringBuffer.append("</result>");
+		writer.println("</result>");
 	}
 
 	private void renderDocument(int pos) throws CorruptIndexException,
 			IOException, ParseException, SyntaxError {
-		stringBuffer.append("\t<doc score=\"");
-		stringBuffer.append(result.getScore(pos));
-		stringBuffer.append("\" pos=\"");
-		stringBuffer.append(pos);
-		stringBuffer.append("\">");
+		writer.print("\t<doc score=\"");
+		writer.print(result.getScore(pos));
+		writer.print("\" pos=\"");
+		writer.print(pos);
+		writer.println("\">");
 		ResultDocument doc = result.getDocument(pos);
 		for (Field field : searchRequest.getReturnFieldList())
 			renderField(doc, field);
@@ -127,11 +124,11 @@ public class RenderXml implements Render {
 
 		int cc = result.getCollapseCount(pos);
 		if (cc > 0) {
-			stringBuffer.append("\t\t<collapseCount>");
-			stringBuffer.append(cc);
-			stringBuffer.append("</collapseCount>");
+			writer.print("\t\t<collapseCount>");
+			writer.print(cc);
+			writer.println("</collapseCount>");
 		}
-		stringBuffer.append("\t</doc>");
+		writer.println("\t</doc>");
 	}
 
 	private void renderField(ResultDocument doc, Field field)
@@ -141,18 +138,18 @@ public class RenderXml implements Render {
 		if (values == null)
 			return;
 		for (FieldValueItem v : values) {
-			stringBuffer.append("\t\t<field name=\"");
-			stringBuffer.append(fieldName);
-			stringBuffer.append('"');
+			writer.print("\t\t<field name=\"");
+			writer.print(fieldName);
+			writer.print('"');
 			Float b = v.getBoost();
 			if (b != null) {
-				stringBuffer.append(" boost=\"");
-				stringBuffer.append(b);
-				stringBuffer.append('"');
+				writer.print(" boost=\"");
+				writer.print(b);
+				writer.print('"');
 			}
-			stringBuffer.append('>');
-			stringBuffer.append(xmlTextRender(v.getValue()));
-			stringBuffer.append("</field>");
+			writer.print('>');
+			writer.print(xmlTextRender(v.getValue()));
+			writer.println("</field>");
 		}
 	}
 
@@ -164,84 +161,79 @@ public class RenderXml implements Render {
 			return;
 		boolean highlighted = doc.isHighlighted(field.getName());
 		for (FieldValueItem snippet : snippets) {
-			stringBuffer.append("\t\t<snippet name=\"");
-			stringBuffer.append(fieldName);
-			stringBuffer.append('"');
+			writer.print("\t\t<snippet name=\"");
+			writer.print(fieldName);
+			writer.print('"');
 			if (highlighted)
-				stringBuffer.append(" highlighted=\"yes\"");
-			stringBuffer.append('>');
-			stringBuffer.append(xmlTextRender(snippet.getValue()));
-			stringBuffer.append("\t\t</snippet>");
+				writer.print(" highlighted=\"yes\"");
+			writer.print('>');
+			writer.print(xmlTextRender(snippet.getValue()));
+			writer.println("\t\t</snippet>");
 		}
 	}
 
 	private void renderFacet(Facet facet) throws Exception {
 		FacetField facetField = facet.getFacetField();
-		stringBuffer.append("\t\t<field name=\"");
-		stringBuffer.append(facetField.getName());
-		stringBuffer.append("\">");
+		writer.print("\t\t<field name=\"");
+		writer.print(facetField.getName());
+		writer.println("\">");
 		for (FacetItem facetItem : facet) {
-			stringBuffer.append("\t\t\t<facet name=\"");
-			stringBuffer
-					.append(StringEscapeUtils.escapeXml(facetItem.getTerm()));
-			stringBuffer.append("\">");
-			stringBuffer.append(facetItem.getCount());
-			stringBuffer.append("</facet>");
+			writer.print("\t\t\t<facet name=\"");
+			writer.print(StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			writer.print("\">");
+			writer.print(facetItem.getCount());
+			writer.print("</facet>");
 		}
-		stringBuffer.append("\t\t</field>");
+		writer.println("\t\t</field>");
 	}
 
 	private void renderFacets() throws Exception {
 		FacetList facetList = result.getFacetList();
 		if (facetList == null)
 			return;
-		stringBuffer.append("<faceting>");
+		writer.println("<faceting>");
 		for (Facet facet : facetList)
 			renderFacet(facet);
-		stringBuffer.append("</faceting>");
+		writer.println("</faceting>");
 	}
 
 	private void renderSpellCheck(SpellCheck spellCheck) throws Exception {
 		String fieldName = spellCheck.getFieldName();
-		stringBuffer.append("\t\t<field name=\"");
-		stringBuffer.append(fieldName);
-		stringBuffer.append("\">");
+		writer.print("\t\t<field name=\"");
+		writer.print(fieldName);
+		writer.println("\">");
 		for (SpellCheckItem spellCheckItem : spellCheck) {
-			stringBuffer.append("\t\t\t<word name=\"");
-			stringBuffer.append(StringEscapeUtils.escapeXml(spellCheckItem
-					.getWord()));
-			stringBuffer.append("\">");
+			writer.print("\t\t\t<word name=\"");
+			writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
+			writer.println("\">");
 			for (String suggest : spellCheckItem.getSuggestions()) {
-				stringBuffer.append("\t\t\t\t<suggest>");
-				stringBuffer.append(StringEscapeUtils.escapeXml(suggest));
-				stringBuffer.append("</suggest>");
+				writer.print("\t\t\t\t<suggest>");
+				writer.print(StringEscapeUtils.escapeXml(suggest));
+				writer.println("</suggest>");
 			}
-			stringBuffer.append("\t\t\t</word>");
+			writer.println("\t\t\t</word>");
 		}
-		stringBuffer.append("\t\t</field>");
+		writer.println("\t\t</field>");
 	}
 
 	private void renderSpellChecks() throws Exception {
 		SpellCheckList spellChecklist = result.getSpellCheckList();
 		if (spellChecklist == null)
 			return;
-		stringBuffer.append("<spellcheck>");
+		writer.println("<spellcheck>");
 		for (SpellCheck spellCheck : spellChecklist)
 			renderSpellCheck(spellCheck);
-		stringBuffer.append("</spellcheck>");
+		writer.println("</spellcheck>");
 	}
 
 	public void render(PrintWriter writer) throws Exception {
+		this.writer = writer;
 		renderPrefix();
 		renderDocuments();
 		renderFacets();
 		renderSpellChecks();
 		renderSuffix();
-		writer.println(stringBuffer.toString());
-	}
 
-	public StringBuffer getXmlResults() {
-		return stringBuffer;
 	}
 
 	@Override

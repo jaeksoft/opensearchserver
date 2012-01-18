@@ -24,10 +24,7 @@
 
 package com.jaeksoft.searchlib.facet;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,12 +41,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class FacetField extends Field implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -941940505054128025L;
+public class FacetField extends Field {
 
 	private int minCount;
 
@@ -167,23 +159,6 @@ public class FacetField extends Field implements Externalizable {
 			fieldName = value;
 
 		return new FacetField(fieldName, minCount, multivalued, postCollapsing);
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		super.readExternal(in);
-		minCount = in.readInt();
-		multivalued = in.readBoolean();
-		postCollapsing = in.readBoolean();
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
-		out.writeInt(minCount);
-		out.writeBoolean(multivalued);
-		out.writeBoolean(postCollapsing);
 	}
 
 	@Override
