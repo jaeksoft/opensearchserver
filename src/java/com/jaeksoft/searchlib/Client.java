@@ -96,6 +96,18 @@ public class Client extends Config {
 		}
 	}
 
+	private final int updateBuffer(Collection<IndexDocument> docList,
+			int docCount, int docTotal) throws SearchLibException, IOException,
+			NoSuchAlgorithmException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		checkMaxDocumentLimit(docList.size());
+		docCount += updateDocuments(docList);
+		docList.clear();
+		Logging.info(docCount + " / " + docTotal + " XML document(s) indexed.");
+		return docCount;
+	}
+
 	private int updateXmlDocuments(XPathParser xpp, int bufferSize,
 			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler)
 			throws XPathExpressionException, NoSuchAlgorithmException,
@@ -110,18 +122,11 @@ public class Client extends Config {
 		for (int i = 0; i < l; i++) {
 			docList.add(new IndexDocument(this, getParserSelector(), xpp,
 					nodeList.item(i), urlDefaultCredential, proxyHandler));
-			if (docList.size() == bufferSize) {
-				checkMaxDocumentLimit(docList.size());
-				docCount += updateDocuments(docList);
-				Logging.info(docCount + " / " + l + " XML document(s) indexed.");
-				docList.clear();
-			}
+			if (docList.size() == bufferSize)
+				docCount = updateBuffer(docList, docCount, l);
 		}
-		if (docList.size() > 0) {
-			checkMaxDocumentLimit(docList.size());
-			docCount += updateDocuments(docList);
-			Logging.info(docCount + " / " + l + " XML document(s) indexed.");
-		}
+		if (docList.size() > 0)
+			docCount = updateBuffer(docList, docCount, l);
 		return docCount;
 	}
 

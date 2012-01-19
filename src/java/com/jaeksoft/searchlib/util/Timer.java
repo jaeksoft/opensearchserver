@@ -39,6 +39,7 @@ public class Timer {
 
 	public Timer(String info) {
 		reset();
+		setInfo(info);
 	}
 
 	public void reset() {

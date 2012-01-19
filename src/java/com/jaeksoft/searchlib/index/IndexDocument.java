@@ -31,6 +31,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -88,6 +89,22 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			this.lang = LanguageEnum.findByCode(lang.getLanguage());
 	}
 
+	private final List<String> getCopyFieldList(XPathParser xpp, Node fieldNode)
+			throws XPathExpressionException {
+		NodeList copyNodes = xpp.getNodeList(fieldNode, "copy");
+		int copyCount = copyNodes.getLength();
+		if (copyCount == 0)
+			return null;
+		List<String> copyList = new ArrayList<String>();
+		for (int k = 0; k < copyCount; k++) {
+			String f = XPathParser.getAttributeString(copyNodes.item(k),
+					"field");
+			if (f != null)
+				copyList.add(f);
+		}
+		return copyList;
+	}
+
 	/**
 	 * Create a new instance of IndexDocument from an XML structure <br/>
 	 * <field name="FIELDNAME"><br/>
@@ -118,6 +135,7 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		int fieldsCount = fieldNodes.getLength();
 		for (int i = 0; i < fieldsCount; i++) {
 			Node fieldNode = fieldNodes.item(i);
+			List<String> copyFieldList = getCopyFieldList(xpp, fieldNode);
 			String fieldName = XPathParser
 					.getAttributeString(fieldNode, "name");
 			NodeList valueNodes = xpp.getNodeList(fieldNode, "value");
@@ -131,6 +149,9 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 					textContent = StringUtils.removeTag(textContent);
 				Float boost = XPathParser.getAttributeFloat(valueNode, "boost");
 				add(fieldName, textContent, boost);
+				if (copyFieldList != null)
+					for (String f : copyFieldList)
+						add(f, textContent, boost);
 			}
 		}
 		NodeList binaryNodes = xpp.getNodeList(documentNode, "binary");
