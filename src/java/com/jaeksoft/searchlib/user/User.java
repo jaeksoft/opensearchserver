@@ -218,12 +218,16 @@ public class User implements Comparable<User> {
 
 	@Override
 	public int compareTo(User u) {
+		if (u == null)
+			return -1;
 		return name.compareTo(u.name);
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		User u = (User) o;
+		if (u == null)
+			return false;
 		return name.equals(u.name);
 	}
 
