@@ -356,8 +356,8 @@ public class SearchRequest implements Externalizable {
 		if (patternQuery != null && patternQuery.length() > 0
 				&& queryString != null) {
 			String escQuery = escapeQuery(queryString);
-			finalQuery = patternQuery.replace("$$$", queryString);
-			finalQuery = finalQuery.replace("$$", escQuery);
+			finalQuery = patternQuery.replace("$$$", escQuery);
+			finalQuery = finalQuery.replace("$$", queryString);
 		} else
 			finalQuery = queryString;
 
