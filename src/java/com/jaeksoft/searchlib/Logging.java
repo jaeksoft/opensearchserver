@@ -77,7 +77,7 @@ public class Logging {
 
 	}
 
-	private final static File getLogDirectory() {
+	public final static File getLogDirectory() {
 		return new File(ClientCatalog.OPENSEARCHSERVER_DATA, "logs");
 	}
 

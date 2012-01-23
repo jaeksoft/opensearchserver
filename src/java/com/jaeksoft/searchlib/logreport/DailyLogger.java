@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -58,14 +58,14 @@ public class DailyLogger {
 	private FileWriter fileWriter = null;
 
 	public DailyLogger(File parentDir, String filePrefix,
-			SimpleDateFormat timeStampFormat) throws IOException {
+			SimpleDateFormat timeStampFormat) {
 		this.parentDir = parentDir;
 		this.filePrefix = filePrefix;
 		this.timeStampFormat = timeStampFormat;
 		setTimeLimit(System.currentTimeMillis());
 	}
 
-	private void setTimeLimit(long millis) throws IOException {
+	private void setTimeLimit(long millis) {
 		lock.lock();
 		try {
 			close();

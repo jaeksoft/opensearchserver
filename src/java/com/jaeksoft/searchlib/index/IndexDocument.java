@@ -43,11 +43,11 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -176,23 +176,23 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		} catch (SearchLibException e) {
 			if (!bFaultTolerant)
 				throw e;
-			Logging.error(e);
+			ErrorParserLogger.log(url, filename, filePath, e);
 		} catch (NullPointerException e) {
 			if (!bFaultTolerant)
 				throw e;
-			Logging.error(e);
+			ErrorParserLogger.log(url, filename, filePath, e);
 		} catch (IllegalArgumentException e) {
 			if (!bFaultTolerant)
 				throw e;
-			Logging.error(e);
+			ErrorParserLogger.log(url, filename, filePath, e);
 		} catch (RuntimeException e) {
 			if (!bFaultTolerant)
 				throw new SearchLibException(e);
-			Logging.error(e);
+			ErrorParserLogger.log(url, filename, filePath, e);
 		} catch (Exception e) {
+			ErrorParserLogger.log(url, filename, filePath, e);
 			if (!bFaultTolerant)
 				throw new SearchLibException(e);
-			Logging.error(e);
 		}
 		return null;
 	}

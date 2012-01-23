@@ -34,12 +34,14 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 
 public class StartStopListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
+		ErrorParserLogger.close();
 		Logging.info("OSS SHUTDOWN");
 		try {
 			TaskManager.stop();
@@ -67,14 +69,13 @@ public class StartStopListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		Logging.initLogger();
 		Logging.info("OSS IS STARTING");
-
+		ErrorParserLogger.init();
 		ServletContext servletContext = contextEvent.getServletContext();
 		try {
 			version = new Version(servletContext, getEdition());
 		} catch (IOException e) {
 			Logging.error(e);
 		}
-
 		ClientFactory.setInstance(getClientFactory());
 		try {
 			TaskManager.start();
