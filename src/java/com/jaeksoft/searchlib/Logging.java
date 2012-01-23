@@ -82,7 +82,7 @@ public class Logging {
 
 	}
 
-	private final static File getLogDirectory() throws SearchLibException {
+	public final static File getLogDirectory() {
 		return new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "logs");
 	}
 

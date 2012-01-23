@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,53 +45,52 @@ import org.xml.sax.SAXException;
 
 public class XPathParser {
 
-	private XPath xPath;
-	private Node rootNode;
-	private File currentFile;
+	private final static XPathFactory xPathfactory = XPathFactory.newInstance();
+	private final static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
+			.newInstance();
 
-	public XPathParser() {
-		XPathFactory xPathfactory = XPathFactory.newInstance();
-		xPath = xPathfactory.newXPath();
-		currentFile = null;
+	private final XPath xPath;
+	private final Node rootNode;
+	private final File currentFile;
+
+	private XPathParser(File currentFile, Node rootNode) {
+		synchronized (xPathfactory) {
+			xPath = xPathfactory.newXPath();
+		}
+		this.currentFile = currentFile;
+		this.rootNode = rootNode;
 	}
 
-	private DocumentBuilder getBuilder() throws ParserConfigurationException {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		return factory.newDocumentBuilder();
+	private final static DocumentBuilder getNewDocumentBuilder()
+			throws ParserConfigurationException {
+		synchronized (documentBuilderFactory) {
+			return documentBuilderFactory.newDocumentBuilder();
+		}
 	}
 
 	public XPathParser(File file) throws ParserConfigurationException,
 			SAXException, IOException {
-		this();
-		currentFile = file;
-		setRoot(getBuilder().parse(currentFile.getAbsoluteFile()));
+		this(file, getNewDocumentBuilder().parse(file.getAbsoluteFile()));
 	}
 
 	public XPathParser(InputSource inputSource) throws SAXException,
 			IOException, ParserConfigurationException {
-		this();
-		Document document = getBuilder().parse(inputSource);
+		this(null, getNewDocumentBuilder().parse(inputSource));
+		Document document = (Document) rootNode;
 		document.normalize();
-		setRoot(document);
 	}
 
 	public XPathParser(InputStream inputStream) throws SAXException,
 			IOException, ParserConfigurationException {
-		this();
-		setRoot(getBuilder().parse(inputStream));
+		this(null, getNewDocumentBuilder().parse(inputStream));
 	}
 
 	public XPathParser(Node rootNode) {
-		this();
-		setRoot(rootNode);
+		this(null, rootNode);
 	}
 
 	public File getCurrentFile() {
 		return currentFile;
-	}
-
-	private void setRoot(Node rootNode) {
-		this.rootNode = rootNode;
 	}
 
 	public Object evaluate(Node parentNode, String query)

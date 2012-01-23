@@ -45,13 +45,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
+import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -124,13 +124,13 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	 * @throws URISyntaxException
 	 */
 	public IndexDocument(Client client, ParserSelector parserSelector,
-			XPathParser xpp, Node documentNode,
-			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler)
-			throws XPathExpressionException, SearchLibException,
-			InstantiationException, IllegalAccessException,
+			Node documentNode, CredentialItem urlDefaultCredential,
+			ProxyHandler proxyHandler) throws XPathExpressionException,
+			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException, URISyntaxException {
 		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				documentNode, "lang")));
+		XPathParser xpp = new XPathParser(documentNode);
 		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
 		int fieldsCount = fieldNodes.getLength();
 		for (int i = 0; i < fieldsCount; i++) {
@@ -200,25 +200,25 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 						filePath);
 			return parser;
 		} catch (SearchLibException e) {
+			ErrorParserLogger.log(url, filename, filePath, e);
 			if (!bFaultTolerant)
 				throw e;
-			Logging.error(e);
 		} catch (NullPointerException e) {
+			ErrorParserLogger.log(url, filename, filePath, e);
 			if (!bFaultTolerant)
 				throw e;
-			Logging.error(e);
 		} catch (IllegalArgumentException e) {
+			ErrorParserLogger.log(url, filename, filePath, e);
 			if (!bFaultTolerant)
 				throw e;
-			Logging.error(e);
 		} catch (RuntimeException e) {
+			ErrorParserLogger.log(url, filename, filePath, e);
 			if (!bFaultTolerant)
 				throw new SearchLibException(e);
-			Logging.error(e);
 		} catch (Exception e) {
+			ErrorParserLogger.log(url, filename, filePath, e);
 			if (!bFaultTolerant)
 				throw new SearchLibException(e);
-			Logging.error(e);
 		}
 		return null;
 	}

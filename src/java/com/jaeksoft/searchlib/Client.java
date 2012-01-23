@@ -26,6 +26,9 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -105,6 +108,9 @@ public class Client extends Config {
 		docCount += updateDocuments(docList);
 		docList.clear();
 		Logging.info(docCount + " / " + docTotal + " XML document(s) indexed.");
+		MemoryMXBean mxbean = ManagementFactory.getMemoryMXBean();
+		MemoryUsage mu = mxbean.getHeapMemoryUsage();
+		System.out.println(mu);
 		return docCount;
 	}
 
@@ -120,10 +126,11 @@ public class Client extends Config {
 				bufferSize);
 		int docCount = 0;
 		for (int i = 0; i < l; i++) {
-			docList.add(new IndexDocument(this, getParserSelector(), xpp,
-					nodeList.item(i), urlDefaultCredential, proxyHandler));
+			docList.add(new IndexDocument(this, getParserSelector(), nodeList
+					.item(i), urlDefaultCredential, proxyHandler));
 			if (docList.size() == bufferSize)
 				docCount = updateBuffer(docList, docCount, l);
+
 		}
 		if (docList.size() > 0)
 			docCount = updateBuffer(docList, docCount, l);
