@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Random;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.Document;
@@ -189,9 +188,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 	private List<String> getListOfUrls(String uri) {
 		List<String> urls = new ArrayList<String>();
 		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			// Using factory get an instance of document builder
-			DocumentBuilder db = dbf.newDocumentBuilder();
+			DocumentBuilder db = DomUtils.getNewDocumentBuilder(false, true);
 
 			// parse using builder to get DOM representation of the XML file
 			Document doc = db.parse(uri);

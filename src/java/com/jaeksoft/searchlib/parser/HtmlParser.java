@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.xalan.xsltc.trax.SAX2DOM;
-import org.cyberneko.html.parsers.DOMParser;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.DomSerializer;
 import org.htmlcleaner.HtmlCleaner;
@@ -189,6 +189,15 @@ public class HtmlParser extends Parser {
 		}
 	}
 
+	/**
+	 * Parse the HTML/XHTML document using HtmlCleaner parser
+	 * 
+	 * @param charset
+	 * @param inputStream
+	 * @return
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
 	private static Document htmlCleanerDomDocument(String charset,
 			LimitInputStream inputStream) throws IOException,
 			ParserConfigurationException {
@@ -201,10 +210,21 @@ public class HtmlParser extends Parser {
 		return new DomSerializer(props, true).createDOM(node);
 	}
 
+	/**
+	 * Parse the HTML/XHTML document using NekoHTML parser
+	 * 
+	 * @param charset
+	 * @param inputStream
+	 * @return
+	 * @throws XPathExpressionException
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
 	private static Document nekoHtmlDomDocument(String charset,
 			LimitInputStream inputStream) throws XPathExpressionException,
 			SAXException, IOException, ParserConfigurationException {
-		DOMParser parser = new DOMParser();
+		org.cyberneko.html.parsers.DOMParser parser = new org.cyberneko.html.parsers.DOMParser();
 		parser.setFeature("http://xml.org/sax/features/namespaces", true);
 		parser.setFeature(
 				"http://cyberneko.org/html/features/balance-tags/ignore-outside-content",
@@ -223,6 +243,17 @@ public class HtmlParser extends Parser {
 		return parser.getDocument();
 	}
 
+	/**
+	 * Parse the HTML/XHTML document using TagSoup parser
+	 * 
+	 * @param charset
+	 * @param inputStream
+	 * @return
+	 * @throws XPathExpressionException
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
 	private static Document tagSoupDomDocument(String charset,
 			LimitInputStream inputStream) throws XPathExpressionException,
 			SAXException, IOException, ParserConfigurationException {
@@ -235,6 +266,25 @@ public class HtmlParser extends Parser {
 		inputSource.setEncoding(charset);
 		parser.parse(inputSource);
 		return (Document) sax2dom.getDOM();
+	}
+
+	/**
+	 * Parse the HTML/XHTML document using standard DOM parser
+	 * 
+	 * @param charset
+	 * @param inputStream
+	 * @return
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	private static Document xmlDomDocument(String charset,
+			LimitInputStream inputStream) throws SAXException, IOException,
+			ParserConfigurationException {
+		DocumentBuilder builder = DomUtils.getNewDocumentBuilder(false, true);
+		InputSource inputSource = new InputSource(inputStream);
+		inputSource.setEncoding(charset);
+		return builder.parse(inputSource);
 	}
 
 	// private static Document tidyDomDocument(String charset,
@@ -341,10 +391,27 @@ public class HtmlParser extends Parser {
 	}
 
 	private Document htmlParserLine(String charset, LimitInputStream inputStream)
-			throws LimitException {
+			throws IOException {
+		inputStream.consume();
 		Document doc = null;
 		if (doc == null) {
 			try {
+				inputStream.restartFromCache();
+				doc = xmlDomDocument(charset, inputStream);
+				if (checkDocument(doc))
+					return doc;
+				else
+					doc = null;
+			} catch (LimitException e) {
+				throw e;
+			} catch (Exception e) {
+				Logging.warn(e.getMessage(), e);
+				doc = null;
+			}
+		}
+		if (doc == null) {
+			try {
+				inputStream.restartFromCache();
 				doc = tagSoupDomDocument(charset, inputStream);
 				if (checkDocument(doc))
 					return doc;
