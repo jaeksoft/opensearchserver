@@ -72,7 +72,7 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
-	public void saveSchema(Client client, Schema schema)
+	public static void saveSchema(Client client, Schema schema)
 			throws SearchLibException {
 		client.saveConfig();
 		schema.recompileAnalyzers();

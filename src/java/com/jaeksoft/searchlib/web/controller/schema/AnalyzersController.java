@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,9 +49,9 @@ import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.web.SchemaServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
-import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class AnalyzersController extends CommonController implements
 		ListitemRenderer {
@@ -253,9 +253,7 @@ public class AnalyzersController extends CommonController implements
 			selectedAnalyzer.copyFrom(currentAnalyzer);
 		else
 			client.getSchema().getAnalyzerList().add(currentAnalyzer);
-		client.getSchema().recompileAnalyzers();
-		client.saveConfig();
-		PushEvent.SCHEMA_CHANGED.publish(client);
+		SchemaServlet.saveSchema(client, client.getSchema());
 		onCancel();
 	}
 
