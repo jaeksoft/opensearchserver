@@ -44,50 +44,46 @@ import org.xml.sax.SAXException;
 
 public class XPathParser {
 
-	private XPath xPath;
-	private Node rootNode;
-	private File currentFile;
+	private final static XPathFactory xPathfactory = XPathFactory.newInstance();
 
-	public XPathParser() {
-		XPathFactory xPathfactory = XPathFactory.newInstance();
-		xPath = xPathfactory.newXPath();
-		currentFile = null;
+	private final XPath xPath;
+	private final Node rootNode;
+	private final File currentFile;
+
+	private XPathParser(File currentFile, Node rootNode) {
+		synchronized (xPathfactory) {
+			xPath = xPathfactory.newXPath();
+		}
+		this.currentFile = currentFile;
+		this.rootNode = rootNode;
 	}
 
 	public XPathParser(File file) throws ParserConfigurationException,
 			SAXException, IOException {
-		this();
-		currentFile = file;
-		setRoot(DomUtils.getNewDocumentBuilder(false, true).parse(
-				currentFile.getAbsoluteFile()));
+		this(file, DomUtils.getNewDocumentBuilder(false, true).parse(
+				file.getAbsoluteFile()));
 	}
 
 	public XPathParser(InputSource inputSource) throws SAXException,
 			IOException, ParserConfigurationException {
-		this();
-		Document document = DomUtils.getNewDocumentBuilder(false, true).parse(
-				inputSource);
+		this(null, DomUtils.getNewDocumentBuilder(false, true).parse(
+				inputSource));
+		Document document = (Document) rootNode;
 		document.normalize();
-		setRoot(document);
 	}
 
 	public XPathParser(InputStream inputStream) throws SAXException,
 			IOException, ParserConfigurationException {
-		this();
-		setRoot(DomUtils.getNewDocumentBuilder(false, true).parse(inputStream));
+		this(null, DomUtils.getNewDocumentBuilder(false, true).parse(
+				inputStream));
 	}
 
 	public XPathParser(Node rootNode) {
-		this();
-		setRoot(rootNode);
+		this(null, rootNode);
 	}
 
 	public File getCurrentFile() {
 		return currentFile;
-	}
-
-	private void setRoot(Node rootNode) {
-		this.rootNode = rootNode;
 	}
 
 	public Object evaluate(Node parentNode, String query)
