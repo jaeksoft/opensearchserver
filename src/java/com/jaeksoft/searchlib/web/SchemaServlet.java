@@ -72,12 +72,11 @@ public class SchemaServlet extends AbstractServlet {
 		return true;
 	}
 
-	private void saveSchema(Client client, Schema schema)
+	public void saveSchema(Client client, Schema schema)
 			throws SearchLibException {
 		client.saveConfig();
 		schema.recompileAnalyzers();
 		PushEvent.SCHEMA_CHANGED.publish(client);
-
 	}
 
 	private boolean setField(User user, ServletTransaction transaction)
