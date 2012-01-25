@@ -58,6 +58,12 @@
 							multiline="true" rows="5" />
 					</row>
 					<row>
+						<label value="Documents Found CSS style: " />
+						<textbox
+							value="@{renderer.currentRenderer.documentFoundStyle}" cols="100"
+							multiline="true" rows="5" />
+					</row>
+					<row>
 						<label value="Autocomplete CSS style: " />
 						<textbox
 							value="@{renderer.currentRenderer.autocompleteStyle}" cols="100"

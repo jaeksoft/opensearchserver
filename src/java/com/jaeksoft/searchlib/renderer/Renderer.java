@@ -56,6 +56,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE = "autocompleteListStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE = "autocompleteLinkStyle";
 	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE = "autocompleteLinkHoverStyle";
+	private final static String RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE = "documentFoundStyle";
 	private final static String RENDERER_ITEM_NODE_ALINK = "alink";
 	private final static String RENDERER_ITEM_NODE_AVISITED = "avisited";
 	private final static String RENDERER_ITEM_NODE_AACTIVE = "aactive";
@@ -72,6 +73,8 @@ public class Renderer implements Comparable<Renderer> {
 	private String inputStyle;
 
 	private String buttonStyle;
+
+	private String documentFoundStyle;
 
 	private String autocompleteStyle;
 
@@ -99,6 +102,7 @@ public class Renderer implements Comparable<Renderer> {
 		commonStyle = null;
 		inputStyle = null;
 		buttonStyle = null;
+		documentFoundStyle = null;
 		autocompleteStyle = null;
 		autocompleteListStyle = null;
 		autocompleteLinkStyle = null;
@@ -128,6 +132,8 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_INPUT_STYLE));
 		setButtonStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_BUTTON_STYLE));
+		setDocumentFoundStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE));
 		setAutocompleteStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE));
 		setAutocompleteListStyle(xpp.getSubNodeTextIfAny(rootNode,
@@ -163,6 +169,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.commonStyle = commonStyle;
 				target.inputStyle = inputStyle;
 				target.buttonStyle = buttonStyle;
+				target.documentFoundStyle = documentFoundStyle;
 				target.autocompleteStyle = autocompleteStyle;
 				target.autocompleteListStyle = autocompleteListStyle;
 				target.autocompleteLinkStyle = autocompleteLinkStyle;
@@ -322,6 +329,14 @@ public class Renderer implements Comparable<Renderer> {
 		this.buttonStyle = buttonStyle;
 	}
 
+	public String getDocumentFoundStyle() {
+		return documentFoundStyle;
+	}
+
+	public void setDocumentFoundStyle(String documentFoundStyle) {
+		this.documentFoundStyle = documentFoundStyle;
+	}
+
 	/**
 	 * @return the autocompleteStyle
 	 */
@@ -454,6 +469,8 @@ public class Renderer implements Comparable<Renderer> {
 					inputStyle);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_BUTTON_STYLE,
 					buttonStyle);
+			xmlWriter.writeSubTextNodeIfAny(
+					RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE, documentFoundStyle);
 			xmlWriter.writeSubTextNodeIfAny(
 					RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, autocompleteStyle);
 			xmlWriter.writeSubTextNodeIfAny(

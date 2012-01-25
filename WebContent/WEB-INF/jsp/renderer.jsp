@@ -69,7 +69,9 @@ a:active{
 .ossautocomplete_link_over {
 <%=renderer.getAutocompleteLinkHoverStyle()==null?"":renderer.getAutocompleteLinkHoverStyle()%>
 }
-
+.ossnumfound {
+<%=renderer.getDocumentFoundStyle()==null?"":renderer.getDocumentFoundStyle()%>
+}
 
 </style>
 </head>
@@ -108,7 +110,9 @@ a:active{
 			SearchRequest searchRequest = result.getSearchRequest();
 			int start = searchRequest.getStart();
 			int end = searchRequest.getStart() + result.getDocumentCount();
+			float time=(float)(searchRequest.getFinalTime());
 	%>
+	<div class="ossnumfound"><%=result.getDocumentCount()%> documents found (<%=time/1000 %> seconds)</div>
 	<ul style="margin: 0px; padding: 0px; list-style-type: none">
 		<%
 			for (int i = start; i < end; i++) {
