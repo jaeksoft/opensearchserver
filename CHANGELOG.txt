@@ -28,6 +28,7 @@ New features:
 
 Bug fixes:
 - 3479548: Report log files are truncated
+- 3476578: UTF-8 character as separator in snippet field
 - 3475446: head indexed instead of body (using <script /> in head)
 - 3476551: Query with Quotation Marks has unusual results	
 - 3472905: Error while crawling local HTML file

@@ -166,7 +166,16 @@ public class AutoCompletionManager {
 			throw new SearchLibException("The build is already running");
 	}
 
-	public void startBuild() throws SearchLibException {
+	private void builder(Long endTimeOut) throws SearchLibException {
+		checkIfRunning();
+		buildThread.init(propField);
+		buildThread.execute();
+		buildThread.waitForStart(60);
+		if (endTimeOut != null)
+			buildThread.waitForEnd(600);
+	}
+
+	public void build(Long waitForEndTimeOut) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkIfRunning();
@@ -175,10 +184,7 @@ public class AutoCompletionManager {
 		}
 		rwl.w.lock();
 		try {
-			checkIfRunning();
-			buildThread.init(propField);
-			buildThread.execute();
-			buildThread.waitForStart(60);
+			builder(waitForEndTimeOut);
 		} finally {
 			rwl.w.unlock();
 		}
