@@ -87,7 +87,8 @@ public class DailyLogger {
 	}
 
 	final private void open() throws IOException {
-		fileWriter = new FileWriter(new File(parentDir, currentLogFileName));
+		fileWriter = new FileWriter(new File(parentDir, currentLogFileName),
+				true);
 		printWriter = new PrintWriter(fileWriter);
 	}
 

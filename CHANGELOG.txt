@@ -30,6 +30,7 @@ Bug fixes:
 - 3476551: Query with Quotation Marks has unusual results	
 - 3472905: Error while crawling local HTML file
 - 3471749: Out Of Memory Error while indexing PDF document
+- 3479548: Report log files are truncated
 
 OpenSearchServer 1.2.3
 
