@@ -52,8 +52,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_COMMON_STYLE = "style";
 	private final static String RENDERER_ITEM_NODE_INPUT_STYLE = "inputStyle";
 	private final static String RENDERER_ITEM_NODE_BUTTON_STYLE = "buttonStyle";
-	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE = "autocompleteStyle";
-	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE = "autocompleteSelectedStyle";
+	private final static String RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE = "documentFoundStyle";
 	private final static String RENDERER_ITEM_NODE_ALINK = "alink";
 	private final static String RENDERER_ITEM_NODE_AVISITED = "avisited";
 	private final static String RENDERER_ITEM_NODE_AACTIVE = "aactive";
@@ -71,9 +70,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String buttonStyle;
 
-	private String autocompleteStyle;
-
-	private String autocompleteSelectedStyle;
+	private String documentFoundStyle;
 
 	private String searchButtonLabel;
 
@@ -93,8 +90,7 @@ public class Renderer implements Comparable<Renderer> {
 		commonStyle = null;
 		inputStyle = null;
 		buttonStyle = null;
-		autocompleteStyle = null;
-		autocompleteSelectedStyle = null;
+		documentFoundStyle = null;
 		searchButtonLabel = "Search";
 		fields = new ArrayList<RendererField>();
 	}
@@ -120,10 +116,8 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_INPUT_STYLE));
 		setButtonStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_BUTTON_STYLE));
-		setAutocompleteStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE));
-		setAutocompleteSelectedStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE));
+		setDocumentFoundStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE));
 		setAactive(xpp
 				.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AACTIVE));
 		setAhover(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AHOVER));
@@ -151,8 +145,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.commonStyle = commonStyle;
 				target.inputStyle = inputStyle;
 				target.buttonStyle = buttonStyle;
-				target.autocompleteStyle = autocompleteStyle;
-				target.autocompleteSelectedStyle = autocompleteSelectedStyle;
+				target.documentFoundStyle = documentFoundStyle;
 				target.searchButtonLabel = searchButtonLabel;
 				target.aactive = aactive;
 				target.ahover = ahover;
@@ -308,34 +301,12 @@ public class Renderer implements Comparable<Renderer> {
 		this.buttonStyle = buttonStyle;
 	}
 
-	/**
-	 * @return the autocompleteStyle
-	 */
-	public String getAutocompleteStyle() {
-		return autocompleteStyle;
+	public String getDocumentFoundStyle() {
+		return documentFoundStyle;
 	}
 
-	/**
-	 * @param autocompleteStyle
-	 *            the autocompleteStyle to set
-	 */
-	public void setAutocompleteStyle(String autocompleteStyle) {
-		this.autocompleteStyle = autocompleteStyle;
-	}
-
-	/**
-	 * @return the autocompleteSelectedStyle
-	 */
-	public String getAutocompleteSelectedStyle() {
-		return autocompleteSelectedStyle;
-	}
-
-	/**
-	 * @param autocompleteSelectedStyle
-	 *            the autocompleteSelectedStyle to set
-	 */
-	public void setAutocompleteSelectedStyle(String autocompleteSelectedStyle) {
-		this.autocompleteSelectedStyle = autocompleteSelectedStyle;
+	public void setDocumentFoundStyle(String documentFoundStyle) {
+		this.documentFoundStyle = documentFoundStyle;
 	}
 
 	/**
@@ -425,10 +396,7 @@ public class Renderer implements Comparable<Renderer> {
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_BUTTON_STYLE,
 					buttonStyle);
 			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, autocompleteStyle);
-			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_AUTOCOMPLETESELECTED_STYLE,
-					autocompleteSelectedStyle);
+					RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE, documentFoundStyle);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
 			xmlWriter.endElement();
