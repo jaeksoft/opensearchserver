@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermPositionVector;
@@ -58,6 +59,7 @@ public class SnippetField extends Field {
 	private String[] tags;
 	private int maxDocChar;
 	private String separator;
+	private String unescapedSeparator;
 	private int maxSnippetSize;
 	private String[] searchTerms;
 	private Query query;
@@ -73,7 +75,7 @@ public class SnippetField extends Field {
 		this.searchTerms = null;
 		setTag(tag);
 		this.maxDocChar = maxDocChar;
-		this.separator = separator;
+		setSeparator(separator);
 		this.maxSnippetSize = maxSnippetSize;
 		this.fragmenterTemplate = fragmenterTemplate;
 	}
@@ -148,6 +150,8 @@ public class SnippetField extends Field {
 	 */
 	public void setSeparator(String separator) {
 		this.separator = separator;
+		unescapedSeparator = separator == null ? null : StringEscapeUtils
+				.unescapeHtml(separator);
 	}
 
 	/**
@@ -337,7 +341,7 @@ public class SnippetField extends Field {
 
 		if (bestScoreFragment != null) {
 			StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
-					separator, tags, bestScoreFragment);
+					unescapedSeparator, tags, bestScoreFragment);
 			if (snippet != null)
 				if (snippet.length() > 0)
 					snippets.add(new FieldValueItem(snippet.toString()));
@@ -345,8 +349,8 @@ public class SnippetField extends Field {
 				return true;
 		}
 
-		StringBuffer snippet = fragments.getSnippet(maxSnippetSize, separator,
-				tags, fragments.first());
+		StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
+				unescapedSeparator, tags, fragments.first());
 		if (snippet != null)
 			if (snippet.length() > 0)
 				snippets.add(new FieldValueItem(snippet.toString()));
