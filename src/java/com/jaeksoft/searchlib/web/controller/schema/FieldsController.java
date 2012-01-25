@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,9 +37,9 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
+import com.jaeksoft.searchlib.web.SchemaServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
-import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class FieldsController extends CommonController {
 
@@ -95,11 +95,9 @@ public class FieldsController extends CommonController {
 		Client client = getClient();
 		Schema schema = client.getSchema();
 		schema.getFieldList().remove(selectedField);
-		client.saveConfig();
-		schema.recompileAnalyzers();
 		field = new SchemaField();
 		selectedField = null;
-		PushEvent.SCHEMA_CHANGED.publish(client);
+		SchemaServlet.saveSchema(client, schema);
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException {
@@ -117,11 +115,9 @@ public class FieldsController extends CommonController {
 			selectedField.copy(field);
 		else
 			schema.getFieldList().add(field);
-		client.saveConfig();
-		schema.recompileAnalyzers();
 		field = new SchemaField();
 		selectedField = null;
-		PushEvent.SCHEMA_CHANGED.publish(client);
+		SchemaServlet.saveSchema(client, schema);
 	}
 
 	public void setSelectedField(SchemaField selectedField) {
@@ -209,9 +205,9 @@ public class FieldsController extends CommonController {
 	public void setSelectedUnique(String field) throws SearchLibException,
 			InterruptedException {
 		Client client = getClient();
-		client.getSchema().getFieldList().setUniqueField(field);
-		client.saveConfig();
-		PushEvent.SCHEMA_CHANGED.publish(client);
+		Schema schema = client.getSchema();
+		schema.getFieldList().setUniqueField(field);
+		SchemaServlet.saveSchema(client, schema);
 	}
 
 	public String getSelectedDefault() throws SearchLibException {
@@ -227,9 +223,9 @@ public class FieldsController extends CommonController {
 	public void setSelectedDefault(String field) throws SearchLibException,
 			InterruptedException {
 		Client client = getClient();
-		client.getSchema().getFieldList().setDefaultField(field);
-		client.saveConfig();
-		PushEvent.SCHEMA_CHANGED.publish(client);
+		Schema schema = client.getSchema();
+		schema.getFieldList().setDefaultField(field);
+		SchemaServlet.saveSchema(client, schema);
 	}
 
 	@Override

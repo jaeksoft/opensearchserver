@@ -27,6 +27,7 @@ New features:
 - 3469777: Scored snippets
 
 Bug fixes:
+- 3479649: SetField and DeleteField API don't update config.xml
 - 3479548: Report log files are truncated
 - 3476578: UTF-8 character as separator in snippet field
 - 3475446: head indexed instead of body (using <script /> in head)
