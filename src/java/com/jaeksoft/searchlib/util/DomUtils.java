@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,10 @@ package com.jaeksoft.searchlib.util;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -138,4 +142,22 @@ public class DomUtils {
 		return nodes;
 	}
 
+	private final static DocumentBuilderFactory DOCUMENTBUILDERFACTORY = DocumentBuilderFactory
+			.newInstance();
+
+	public final static DocumentBuilder getNewDocumentBuilder(boolean loadDtd,
+			boolean errorSilent) throws ParserConfigurationException {
+		synchronized (DOCUMENTBUILDERFACTORY) {
+			if (!loadDtd)
+				DOCUMENTBUILDERFACTORY
+						.setFeature(
+								"http://apache.org/xml/features/nonvalidating/load-external-dtd",
+								false);
+			DocumentBuilder builder = DOCUMENTBUILDERFACTORY
+					.newDocumentBuilder();
+			builder.setErrorHandler(errorSilent ? ParserErrorHandler.SILENT_ERROR_HANDLER
+					: ParserErrorHandler.STANDARD_ERROR_HANDLER);
+			return builder;
+		}
+	}
 }

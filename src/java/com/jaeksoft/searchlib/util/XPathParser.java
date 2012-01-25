@@ -28,8 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -46,8 +44,6 @@ import org.xml.sax.SAXException;
 public class XPathParser {
 
 	private final static XPathFactory xPathfactory = XPathFactory.newInstance();
-	private final static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
-			.newInstance();
 
 	private final XPath xPath;
 	private final Node rootNode;
@@ -61,28 +57,24 @@ public class XPathParser {
 		this.rootNode = rootNode;
 	}
 
-	private final static DocumentBuilder getNewDocumentBuilder()
-			throws ParserConfigurationException {
-		synchronized (documentBuilderFactory) {
-			return documentBuilderFactory.newDocumentBuilder();
-		}
-	}
-
 	public XPathParser(File file) throws ParserConfigurationException,
 			SAXException, IOException {
-		this(file, getNewDocumentBuilder().parse(file.getAbsoluteFile()));
+		this(file, DomUtils.getNewDocumentBuilder(false, true).parse(
+				file.getAbsoluteFile()));
 	}
 
 	public XPathParser(InputSource inputSource) throws SAXException,
 			IOException, ParserConfigurationException {
-		this(null, getNewDocumentBuilder().parse(inputSource));
+		this(null, DomUtils.getNewDocumentBuilder(false, true).parse(
+				inputSource));
 		Document document = (Document) rootNode;
 		document.normalize();
 	}
 
 	public XPathParser(InputStream inputStream) throws SAXException,
 			IOException, ParserConfigurationException {
-		this(null, getNewDocumentBuilder().parse(inputStream));
+		this(null, DomUtils.getNewDocumentBuilder(false, true).parse(
+				inputStream));
 	}
 
 	public XPathParser(Node rootNode) {
