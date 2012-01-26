@@ -164,6 +164,22 @@
 				<filter class="SnowballTurkishFilter" />
 			</analyzer>
 
+			<!-- Autocompletion -->
+			<analyzer name="Autocompletion" lang="">
+				<tokenizer class="LetterOrDigitTokenizerFactory" />
+				<filter class="ShingleFilter" max_shingle_size="5"
+					min_shingle_size="1" scope="QUERY_INDEX" token_separator=" " />
+				<filter class="PrefixSuffixStopFilter" ignore_case="true"
+					prefixList="English stop words" scope="QUERY_INDEX" suffixList="English stop words"
+					token_separator=" " />
+				<filter class="PrefixSuffixStopFilter" ignore_case="true"
+					prefixList="French stop words" scope="QUERY_INDEX" suffixList="French stop words"
+					token_separator=" " />
+				<filter class="PrefixSuffixStopFilter" ignore_case="true"
+					prefixList="German stop words" scope="QUERY_INDEX" suffixList="German stop words"
+					token_separator=" " />
+			</analyzer>
+
 		</analyzers>
 
 		<fields default="content" unique="url">

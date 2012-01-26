@@ -30,8 +30,19 @@ public class EmptyIndex extends TemplateAbstract {
 
 	public final static String root = "empty_index";
 
-	public final static String[] resources = { "config.xml", "parsers.xml",
-			"renderers" + File.separator + "default.xml" };
+	public final static String[] resources = {
+
+	"config.xml", "parsers.xml",
+
+	"renderers" + File.separator + "default.xml",
+
+	"stopwords" + File.separator + "English stop words",
+
+	"stopwords" + File.separator + "French stop words",
+
+	"stopwords" + File.separator + "German stop words",
+
+	};
 
 	public final static String publicName = "Empty index";
 
