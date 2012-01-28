@@ -149,4 +149,15 @@ public enum ScopeAttribute {
 		}
 	}
 
+	public void remove(Component component) {
+		switch (scope) {
+		case Component.SESSION_SCOPE:
+			Sessions.getCurrent().removeAttribute(name());
+			break;
+		default:
+			component.removeAttribute(name(), scope);
+			break;
+		}
+
+	}
 }

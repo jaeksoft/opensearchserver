@@ -25,17 +25,14 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
-import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJson;
 import com.jaeksoft.searchlib.render.RenderJsp;
@@ -117,29 +114,4 @@ public class SelectServlet extends AbstractServlet {
 
 	}
 
-	public static Result search(URI uri, SearchRequest searchRequest,
-			String indexName) throws IOException, URISyntaxException {
-		uri = buildUri(uri, "/select", null, "render=object");
-		UriWriteObject uwo = null;
-		IOException err = null;
-		Result res = null;
-		try {
-			uwo = new UriWriteObject(uri, searchRequest);
-			if (uwo.getResponseCode() != 200)
-				throw new IOException(uwo.getResponseMessage());
-			res = (Result) uwo.getResponseObject();
-			res.setSearchRequest(searchRequest);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			Logging.error(e.getMessage(), e);
-			err = e;
-		} finally {
-			if (uwo != null)
-				uwo.close();
-			if (err != null)
-				throw err;
-		}
-		return res;
-	}
 }

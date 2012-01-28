@@ -78,7 +78,7 @@
 					<tab id="tabFilter" label="Filters" />
 					<tab id="tabCollapsing" label="Collapsing" />
 					<tab id="tabMoreLikeThis" label="More like this" />
-					<tab id="tabScoreFunction" label="Score function" />
+					<tab id="tabScoreFunction" label="Scoring" />
 					<tab id="tabSpellCheck" label="SpellCheck" />
 				</tabs>
 				<tabpanels>

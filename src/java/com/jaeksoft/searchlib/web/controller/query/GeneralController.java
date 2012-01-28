@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller.query;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class GeneralController extends AbstractQueryController {
 
@@ -39,6 +40,8 @@ public class GeneralController extends AbstractQueryController {
 
 	@Override
 	protected void reset() throws SearchLibException {
+		ScopeAttribute.QUERY_SEARCH_REQUEST.remove(this);
+		ScopeAttribute.QUERY_SEARCH_RESULT.remove(this);
 	}
 
 }
