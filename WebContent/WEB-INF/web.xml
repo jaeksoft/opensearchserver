@@ -14,7 +14,7 @@
 	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	id="WebApp_ID" version="2.5">
-	<display-name>open-search-server</display-name>
+	<display-name>OpenSearchServer v1.3 CE</display-name>
 	<listener>
 		<description>
   	Used to cleanup when a session is destroyed</description>
