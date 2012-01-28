@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scoring;
 
+import java.io.IOException;
+
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.CustomScoreProvider;
@@ -33,33 +35,57 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 
 	private static final long serialVersionUID = -8913463918851953771L;
 
+	private final AdvancedScoreItem[] scoreItems;
+
+	private AdvancedScoreItemValue[] scoreItemValues;
+
+	private final float norm;
+
 	private class AdvancedScoreProvider extends CustomScoreProvider {
 
-		public AdvancedScoreProvider(IndexReader reader) {
+		public AdvancedScoreProvider(IndexReader reader) throws IOException {
 			super(reader);
+			scoreItemValues = new AdvancedScoreItemValue[scoreItems.length];
+			int i = 0;
+			for (AdvancedScoreItem scoreItem : scoreItems)
+				scoreItemValues[i++] = AdvancedScoreItemValue.getInstance(
+						scoreItem, reader, norm);
 		}
 
 		@Override
 		final public float customScore(int doc, float subQueryScore,
 				float valSrcScore) {
-			return 0;
+
+			float sc = 0;
+			for (AdvancedScoreItemValue scoreItemValue : scoreItemValues)
+				sc += scoreItemValue.getValue(doc, subQueryScore);
+			return sc;
 		}
 
 		@Override
 		final public float customScore(int doc, float subQueryScore,
 				float[] valSrcScores) {
-			return 0;
+			return customScore(doc, subQueryScore, 0);
 		}
 
 	}
 
 	public AdvancedScoreQuery(Query subQuery, AdvancedScore advancedScore) {
 		super(subQuery);
+		scoreItems = advancedScore.getArray();
+		float n = 0;
+		for (AdvancedScoreItem scoreItem : scoreItems)
+			n += scoreItem.getWeight();
+		norm = n;
 	}
 
 	@Override
 	final public CustomScoreProvider getCustomScoreProvider(IndexReader reader) {
-		return new AdvancedScoreProvider(reader);
+		try {
+			return new AdvancedScoreProvider(reader);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

@@ -32,6 +32,8 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class AdvancedScoreItem {
 
+	public final static String SCORE_ITEM_SCORE_FIELD = "SCORE";
+
 	public final static String SCORE_ITEM_FIELD_ATTR = "fieldName";
 
 	public final static String SCORE_ITEM_ASCENDING_ATTR = "ascending";
@@ -45,7 +47,7 @@ public class AdvancedScoreItem {
 	private float weight;
 
 	public AdvancedScoreItem() {
-		fieldName = "SCORE";
+		fieldName = SCORE_ITEM_SCORE_FIELD;
 		ascending = false;
 		weight = 1;
 	}
@@ -72,8 +74,12 @@ public class AdvancedScoreItem {
 	/**
 	 * @return the ascending
 	 */
-	public boolean isAscending() {
+	final public boolean isAscending() {
 		return ascending;
+	}
+
+	final public boolean isScore() {
+		return SCORE_ITEM_SCORE_FIELD.equals(fieldName);
 	}
 
 	/**
