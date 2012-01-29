@@ -68,6 +68,15 @@ public class DomUtils {
 		getNodes(parent, 0, path, nodes);
 	}
 
+	final public static String getTextNode(Node parent, String... path) {
+		List<Node> nodes = DomUtils.getNodes(parent, path);
+		if (nodes == null)
+			return null;
+		if (nodes.size() < 1)
+			return null;
+		return DomUtils.getText(nodes.get(0));
+	}
+
 	final public static List<Node> getNodes(Node parent, String... path) {
 		if (path == null)
 			return null;
