@@ -30,10 +30,10 @@ import org.zkoss.zk.ui.event.Event;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.hadoop.HadoopManager;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.web.controller.CommonComposer;
 
-public class HadoopComposer extends CommonComposer {
+public class CrawlCacheComposer extends CommonComposer {
 
 	/**
 	 * 
@@ -44,14 +44,14 @@ public class HadoopComposer extends CommonComposer {
 	protected void reset() throws SearchLibException {
 	}
 
-	public HadoopManager getHadoopManager() throws SearchLibException,
+	public CrawlCacheManager getCrawlCacheManager() throws SearchLibException,
 			IOException {
-		return ClientCatalog.getHadoopManager();
+		return ClientCatalog.getCrawlCacheManager();
 	}
 
 	public void onReload$window(Event event) throws SearchLibException,
 			IOException {
-		HadoopManager manager = ClientCatalog.getHadoopManager();
+		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
 		if (manager == null)
 			return;
 		manager.reloadConfiguration();
@@ -60,7 +60,7 @@ public class HadoopComposer extends CommonComposer {
 
 	public void onFlush$window(Event event) throws SearchLibException,
 			IOException {
-		HadoopManager manager = ClientCatalog.getHadoopManager();
+		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
 		if (manager == null)
 			return;
 		manager.flushCache();

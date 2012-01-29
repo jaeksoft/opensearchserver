@@ -216,8 +216,8 @@ public class Crawl {
 				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(uri.toURL());
 
-				DownloadItem downloadItem = ClientCatalog.getHadoopManager()
-						.loadCache(uri);
+				DownloadItem downloadItem = ClientCatalog
+						.getCrawlCacheManager().loadCache(uri);
 
 				boolean fromCache = (downloadItem != null);
 
@@ -247,7 +247,7 @@ public class Crawl {
 
 				if (code >= 200 && code < 300) {
 					if (!fromCache)
-						is = ClientCatalog.getHadoopManager().storeCache(
+						is = ClientCatalog.getCrawlCacheManager().storeCache(
 								downloadItem);
 					else
 						is = downloadItem.getContentInputStream();

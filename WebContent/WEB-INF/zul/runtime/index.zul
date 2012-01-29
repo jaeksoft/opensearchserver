@@ -36,7 +36,7 @@
 				visible="@{runtime.adminOrMonitoringOrNoUser}" />
 			<tab id="tabRuntimeOpenSearch" label="OpenSearch"
 				visible="@{runtime.isQueryRights}" />
-			<tab id="tabRuntimeHadoop" label="Hadoop"
+			<tab id="tabRuntimeCrawlCache" label="Crawl cache"
 				visible="@{runtime.adminOrMonitoringOrNoUser}" />
 		</tabs>
 		<tabpanels>
@@ -64,8 +64,8 @@
 			<tabpanel fulfill="tabRuntimeOpenSearch.onSelect">
 				<include src="WEB-INF/zul/runtime/opensearch.zul" />
 			</tabpanel>
-			<tabpanel fulfill="tabRuntimeHadoop.onSelect">
-				<include src="WEB-INF/zul/runtime/hadoop.zul" />
+			<tabpanel fulfill="tabRuntimeCrawlCache.onSelect">
+				<include src="WEB-INF/zul/runtime/crawlCache.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

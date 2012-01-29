@@ -15,8 +15,8 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="window"
-	apply="com.jaeksoft.searchlib.web.controller.runtime.HadoopComposer">
-	<panel title="Hadoop" border="normal">
+	apply="com.jaeksoft.searchlib.web.controller.runtime.CrawlCacheComposer">
+	<panel title="Crawl cache" border="normal">
 		<panelchildren>
 			<grid sizedByContent="true">
 				<columns>
@@ -28,24 +28,24 @@
 					<row>
 						<label value="Enabled" />
 						<checkbox
-							checked="@{window$composer.hadoopManager.enabled}" />
+							checked="@{window$composer.crawlCacheManager.enabled}" />
 						<space />
 					</row>
 					<row>
 						<label value="Configuration" />
 						<label multiline="true"
-							value="@{window$composer.hadoopManager.configuration}" />
+							value="@{window$composer.crawlCacheManager.configuration}" />
 						<space />
 					</row>
 					<row>
 						<label value="Cache validity" />
 						<hbox align="center">
 							<intbox constraint="no empty, no negative"
-								value="@{window$composer.hadoopManager.expirationValue}" />
+								value="@{window$composer.crawlCacheManager.expirationValue}" />
 							<listbox
-								model="@{window$composer.hadoopManager.expirationUnitValues}"
+								model="@{window$composer.crawlCacheManager.expirationUnitValues}"
 								mold="select"
-								selectedItem="@{window$composer.hadoopManager.expirationUnit}" />
+								selectedItem="@{window$composer.crawlCacheManager.expirationUnit}" />
 						</hbox>
 						<space />
 					</row>

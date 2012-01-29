@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.hadoop;
+package com.jaeksoft.searchlib.crawler.cache;
 
 import java.io.Closeable;
 import java.io.File;
@@ -48,17 +48,17 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
-public class HadoopManager implements Closeable {
+public class CrawlCacheManager implements Closeable {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private final static String HADOOP_PROPERTY_FILE = "hadoop.xml";
+	private final static String CRAWLCACHE_PROPERTY_FILE = "crawlCache.xml";
 
-	private final static String HADOOP_PROPERTY_ENABLED = "enabled";
+	private final static String CRAWLCACHE_PROPERTY_ENABLED = "enabled";
 
-	private final static String HADOOP_PROPERTY_EXPIRATION_VALUE = "expirationValue";
+	private final static String CRAWLCACHE_PROPERTY_EXPIRATION_VALUE = "expirationValue";
 
-	private final static String HADOOP_PROPERTY_EXPIRATION_UNIT = "expirationUnit";
+	private final static String CRAWCACHE_PROPERTY_EXPIRATION_UNIT = "expirationUnit";
 
 	private FileSystem fileSystem;
 
@@ -72,28 +72,29 @@ public class HadoopManager implements Closeable {
 
 	private File propFile;
 
-	public HadoopManager(File dataDir) throws InvalidPropertiesFormatException,
-			IOException {
+	public CrawlCacheManager(File dataDir)
+			throws InvalidPropertiesFormatException, IOException {
 		configuration = null;
 		fileSystem = null;
 		propFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				HADOOP_PROPERTY_FILE);
+				CRAWLCACHE_PROPERTY_FILE);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
-		enabled = "true".equals(properties.getProperty(HADOOP_PROPERTY_ENABLED,
-				"false"));
+		enabled = "true".equals(properties.getProperty(
+				CRAWLCACHE_PROPERTY_ENABLED, "false"));
 		expirationValue = Integer.parseInt(properties.getProperty(
-				HADOOP_PROPERTY_EXPIRATION_VALUE, "0"));
+				CRAWLCACHE_PROPERTY_EXPIRATION_VALUE, "0"));
 		expirationUnit = properties.getProperty(
-				HADOOP_PROPERTY_EXPIRATION_UNIT, "days");
+				CRAWCACHE_PROPERTY_EXPIRATION_UNIT, "days");
 	}
 
 	private void save() throws IOException {
 		Properties properties = new Properties();
-		properties.setProperty(HADOOP_PROPERTY_ENABLED,
+		properties.setProperty(CRAWLCACHE_PROPERTY_ENABLED,
 				Boolean.toString(enabled));
-		properties.setProperty(HADOOP_PROPERTY_EXPIRATION_VALUE,
+		properties.setProperty(CRAWLCACHE_PROPERTY_EXPIRATION_VALUE,
 				Integer.toString(expirationValue));
-		properties.setProperty(HADOOP_PROPERTY_EXPIRATION_UNIT, expirationUnit);
+		properties.setProperty(CRAWCACHE_PROPERTY_EXPIRATION_UNIT,
+				expirationUnit);
 		PropertiesUtils.storeToXml(properties, propFile);
 	}
 

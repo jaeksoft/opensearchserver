@@ -49,7 +49,7 @@ import org.zkoss.zk.ui.WebApp;
 
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
-import com.jaeksoft.searchlib.hadoop.HadoopManager;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -192,14 +192,14 @@ public class ClientCatalog {
 				.contains(new ClientCatalogItem(indexName));
 	}
 
-	private static HadoopManager hadoopManager = null;
+	private static CrawlCacheManager crawlCacheManager = null;
 
-	public static synchronized final HadoopManager getHadoopManager()
+	public static synchronized final CrawlCacheManager getCrawlCacheManager()
 			throws SearchLibException {
-		if (hadoopManager != null)
-			return hadoopManager;
+		if (crawlCacheManager != null)
+			return crawlCacheManager;
 		try {
-			return hadoopManager = new HadoopManager(
+			return crawlCacheManager = new CrawlCacheManager(
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
 		} catch (InvalidPropertiesFormatException e) {
 			throw new SearchLibException(e);
