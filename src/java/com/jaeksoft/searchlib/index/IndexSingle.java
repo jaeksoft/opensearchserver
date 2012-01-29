@@ -267,14 +267,14 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public String explain(SearchRequest searchRequest, int docId)
+	public String explain(SearchRequest searchRequest, int docId, boolean bHtml)
 			throws SearchLibException {
 		if (!online)
 			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
 			if (reader != null)
-				return reader.explain(searchRequest, docId);
+				return reader.explain(searchRequest, docId, bHtml);
 			return null;
 		} finally {
 			rwl.r.unlock();

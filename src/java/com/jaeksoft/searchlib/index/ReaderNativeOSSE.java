@@ -139,7 +139,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public String explain(SearchRequest searchRequest, int docId) {
+	public String explain(SearchRequest searchRequest, int docId, boolean bHtml) {
 		// TODO Auto-generated method stub
 		return null;
 	}

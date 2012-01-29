@@ -246,14 +246,14 @@ public class Client extends Config {
 		}
 	}
 
-	public String explain(SearchRequest searchRequest, int docId)
+	public String explain(SearchRequest searchRequest, int docId, boolean bHtml)
 			throws SearchLibException {
 		Timer timer = null;
 		SearchLibException exception = null;
 		try {
 			searchRequest.init(this);
 			timer = searchRequest.getTimer();
-			return getIndex().explain(searchRequest, docId);
+			return getIndex().explain(searchRequest, docId, bHtml);
 		} catch (SearchLibException e) {
 			exception = e;
 		} finally {

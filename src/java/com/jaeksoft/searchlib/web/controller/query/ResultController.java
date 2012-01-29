@@ -34,13 +34,16 @@ import java.util.List;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.AbstractTreeModel;
 import org.zkoss.zul.Filedownload;
+import org.zkoss.zul.Html;
 import org.zkoss.zul.TreeModel;
 import org.zkoss.zul.Treecell;
 import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.TreeitemRenderer;
 import org.zkoss.zul.Treerow;
+import org.zkoss.zul.api.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -305,9 +308,13 @@ public class ResultController extends AbstractQueryController implements
 		if (document == null)
 			return;
 		int docId = document.getDocId();
-		String explanation = client.explain(result.getSearchRequest(), docId);
-		Filedownload.save(explanation, "text/plain; charset-UTF-8",
-				"Score explanation " + docId + ".txt");
+		String explanation = client.explain(result.getSearchRequest(), docId,
+				true);
+		Window win = (Window) Executions.createComponents(
+				"/WEB-INF/zul/query/result/explanation.zul", null, null);
+		Html html = (Html) win.getFellow("htmlExplain", true);
+		html.setContent(explanation);
+		win.doModal();
 	}
 
 	public void exportSearchResultToCsv() throws Exception {

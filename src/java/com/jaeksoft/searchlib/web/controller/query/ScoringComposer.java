@@ -92,7 +92,6 @@ public class ScoringComposer extends CommonComposer {
 		if (client == null)
 			return null;
 		List<String> fieldList = new ArrayList<String>();
-		fieldList.add("SCORE");
 		for (SchemaField schemaField : client.getSchema().getFieldList())
 			if (schemaField.isIndexed())
 				fieldList.add(schemaField.getName());

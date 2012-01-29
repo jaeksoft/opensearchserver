@@ -32,8 +32,6 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class AdvancedScoreItem {
 
-	public final static String SCORE_ITEM_SCORE_FIELD = "SCORE";
-
 	public final static String SCORE_ITEM_FIELD_ATTR = "fieldName";
 
 	public final static String SCORE_ITEM_ASCENDING_ATTR = "ascending";
@@ -44,10 +42,10 @@ public class AdvancedScoreItem {
 
 	private String fieldName;
 
-	private float weight;
+	private int weight;
 
 	public AdvancedScoreItem() {
-		fieldName = SCORE_ITEM_SCORE_FIELD;
+		fieldName = null;
 		ascending = false;
 		weight = 1;
 	}
@@ -67,7 +65,7 @@ public class AdvancedScoreItem {
 				SCORE_ITEM_FIELD_ATTR);
 		this.ascending = "true".equalsIgnoreCase(XPathParser
 				.getAttributeString(node, SCORE_ITEM_ASCENDING_ATTR));
-		this.weight = XPathParser.getAttributeFloat(node,
+		this.weight = XPathParser.getAttributeValue(node,
 				SCORE_ITEM_WEIGHT_ATTR);
 	}
 
@@ -76,10 +74,6 @@ public class AdvancedScoreItem {
 	 */
 	final public boolean isAscending() {
 		return ascending;
-	}
-
-	final public boolean isScore() {
-		return SCORE_ITEM_SCORE_FIELD.equals(fieldName);
 	}
 
 	/**
@@ -120,7 +114,7 @@ public class AdvancedScoreItem {
 	/**
 	 * @return the weight
 	 */
-	public float getWeight() {
+	public int getWeight() {
 		return weight;
 	}
 
@@ -128,7 +122,7 @@ public class AdvancedScoreItem {
 	 * @param weight
 	 *            the weight to set
 	 */
-	public void setWeight(float weight) {
+	public void setWeight(int weight) {
 		this.weight = weight;
 	}
 
@@ -138,6 +132,18 @@ public class AdvancedScoreItem {
 				Boolean.toString(ascending), SCORE_ITEM_WEIGHT_ATTR,
 				Float.toString(weight));
 		xmlWriter.endElement();
+	}
+
+	public String name() {
+		StringBuffer sb = new StringBuffer();
+		if (ascending)
+			sb.append("ord(");
+		else
+			sb.append("rord(");
+		sb.append(fieldName);
+		sb.append(")*");
+		sb.append(weight);
+		return sb.toString();
 	}
 
 }

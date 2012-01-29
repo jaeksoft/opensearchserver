@@ -64,7 +64,7 @@ public interface ReaderInterface {
 
 	public Result search(SearchRequest searchRequest) throws SearchLibException;
 
-	public String explain(SearchRequest searchRequest, int docId)
+	public String explain(SearchRequest searchRequest, int docId, boolean bHtml)
 			throws SearchLibException;
 
 	public ResultDocument[] documents(DocumentsRequest documentsRequest)

@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.scoring;
 import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.OrdFieldSource;
 import org.apache.lucene.search.function.ReverseOrdFieldSource;
@@ -35,31 +36,31 @@ import org.apache.lucene.search.function.ValueSource;
 public class AdvancedScoreItemValue {
 
 	private final DocValues docValues;
-	private final float factor;
+	private final float weight;
+	private final float maxValue;
 
-	protected AdvancedScoreItemValue() {
-		docValues = null;
-		factor = 0;
-	}
-
-	private AdvancedScoreItemValue(AdvancedScoreItem scoreItem,
-			IndexReader reader, float norm) throws IOException {
+	public AdvancedScoreItemValue(AdvancedScoreItem scoreItem,
+			IndexReader reader) throws IOException {
 		String fieldName = scoreItem.getFieldName();
 		ValueSource valueSource = scoreItem.isAscending() ? valueSource = new OrdFieldSource(
 				fieldName) : new ReverseOrdFieldSource(fieldName);
 		docValues = valueSource.getValues(reader);
-		factor = (docValues.getMaxValue() * scoreItem.getWeight()) / norm;
+		weight = scoreItem.getWeight();
+		maxValue = docValues.getMaxValue();
 	}
 
-	public float getValue(int doc, float score) {
-		return factor / docValues.floatVal(doc);
+	public final float getValue(int doc) {
+		return docValues.floatVal(doc) / maxValue * weight;
 	}
 
-	public static final AdvancedScoreItemValue getInstance(
-			AdvancedScoreItem scoreItem, IndexReader reader, float norm)
-			throws IOException {
-		if (scoreItem.isScore())
-			return new AdvancedScoreItemScore(scoreItem);
-		return new AdvancedScoreItemValue(scoreItem, reader, norm);
+	public final Explanation getExplanation(int doc) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("maxValue=");
+		sb.append(maxValue);
+		sb.append(", weight=");
+		sb.append(weight);
+		sb.append(", docValue=");
+		sb.append(docValues.floatVal(doc));
+		return new Explanation(getValue(doc), sb.toString());
 	}
 }

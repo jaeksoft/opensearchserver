@@ -74,8 +74,8 @@ public class HadoopManager implements Closeable {
 
 	public HadoopManager(File dataDir) throws InvalidPropertiesFormatException,
 			IOException {
-		configuration = new Configuration();
-		fileSystem = FileSystem.get(configuration);
+		configuration = null;
+		fileSystem = null;
 		propFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 				HADOOP_PROPERTY_FILE);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
@@ -121,8 +121,11 @@ public class HadoopManager implements Closeable {
 	public void reloadConfiguration() throws IOException {
 		rwl.w.lock();
 		try {
+			if (configuration == null)
+				configuration = new Configuration();
 			configuration.reloadConfiguration();
-			IOUtils.closeQuietly(fileSystem);
+			if (fileSystem != null)
+				IOUtils.closeQuietly(fileSystem);
 			fileSystem = FileSystem.get(configuration);
 		} finally {
 			rwl.w.unlock();
