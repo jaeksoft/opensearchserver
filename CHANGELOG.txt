@@ -23,6 +23,7 @@ New features:
 OpenSearchServer 1.2.4
 
 New features:
+- 3482151: Monitor API response gives error
 - 3477836: A separated error log for the parser	
 - 3469777: Scored snippets
 
