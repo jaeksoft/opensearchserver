@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,9 @@ public class LimitInputStream extends InputStream {
 	private ByteArrayInputStream inputCache;
 	private String hashMD5;
 	final private boolean bNoLimit;
+	final private byte[] readBuffer;
+	private int readBufferSize;
+	private int readBufferPos;
 
 	public LimitInputStream(InputStream inputStream, long limit)
 			throws IOException {
@@ -51,21 +54,30 @@ public class LimitInputStream extends InputStream {
 		outputCache = new ByteArrayOutputStream();
 		inputCache = null;
 		hashMD5 = null;
+		readBufferSize = 0;
+		readBufferPos = 0;
+		readBuffer = new byte[65536];
 	}
 
 	@Override
 	final public int read() throws IOException {
 		if (inputCache != null)
 			return inputCache.read();
-		if (!bNoLimit && limit-- == 0)
-			throw new LimitException();
-		int i = inputStream.read();
-		if (i == -1) {
+		if (readBufferPos < readBufferSize)
+			return readBuffer[readBufferPos++];
+		readBufferPos = 0;
+		readBufferSize = inputStream.read(readBuffer);
+		if (readBufferSize == -1) {
 			isComplete = true;
 			return -1;
 		}
-		outputCache.write(i);
-		return i;
+		outputCache.write(readBuffer, 0, readBufferSize);
+		if (!bNoLimit) {
+			limit -= readBufferSize;
+			if (limit < 0)
+				throw new LimitException();
+		}
+		return read();
 	}
 
 	public boolean isComplete() {
