@@ -66,8 +66,8 @@ public class MonitorServlet extends AbstractServlet {
 			throws TransformerConfigurationException, SAXException,
 			SecurityException, SearchLibException, IOException {
 		XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-		new Monitor().writeXmlConfig(xmlWriter);
 		xmlWriter.startElement("response");
+		new Monitor().writeXmlConfig(xmlWriter);
 		xmlWriter.endElement();
 	}
 
