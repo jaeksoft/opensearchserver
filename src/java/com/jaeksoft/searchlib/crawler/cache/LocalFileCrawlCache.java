@@ -25,12 +25,16 @@
 package com.jaeksoft.searchlib.crawler.cache;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.util.IOUtils;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -39,41 +43,120 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private File rootPath = null;
+	private String rootPath = null;
 
 	@Override
 	public void close() {
-		rootPath = null;
+		rwl.w.lock();
+		try {
+			rootPath = null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
 	public String getInfos() throws IOException {
-		return rootPath != null ? rootPath.getAbsolutePath() : null;
+		rwl.r.lock();
+		try {
+			return rootPath;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public void init(String configString) throws IOException {
-		// TODO Auto-generated method stub
+		rwl.w.lock();
+		try {
+			File f = new File(configString);
+			if (!f.exists())
+				throw new IOException("The folder " + f.getAbsolutePath()
+						+ " does not exists");
+			if (!f.isDirectory())
+				throw new IOException("The folder " + f.getAbsolutePath()
+						+ " does not exists");
+			rootPath = f.getAbsolutePath();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private final static String PATH_HTTP_DOWNLOAD_CACHE = File.separator
+			+ "http-download-cache";
+
+	private final static String META_EXTENSION = "meta";
+
+	private final static String CONTENT_EXTENSION = "content";
+
+	private File uriToFile(URI uri, String extension) {
+		String path = super.uriToPath(uri, rootPath + File.separator
+				+ PATH_HTTP_DOWNLOAD_CACHE, 10, File.separator, extension, 32);
+		return new File(path);
+	}
+
+	private File checkPath(File file) throws IOException {
+		if (!file.exists()) {
+			File parent = file.getParentFile();
+			if (!parent.exists())
+				parent.mkdirs();
+		}
+		return file;
 	}
 
 	@Override
 	public InputStream store(DownloadItem downloadItem) throws IOException,
 			JSONException {
-		// TODO Auto-generated method stub
-		return null;
+		rwl.r.lock();
+		try {
+			URI uri = downloadItem.getUri();
+			File file = checkPath(uriToFile(uri, META_EXTENSION));
+			FileUtils.writeStringToFile(file, downloadItem.getMetaAsJson());
+			file = checkPath(uriToFile(uri, CONTENT_EXTENSION));
+			InputStream is = downloadItem.getContentInputStream();
+			FileUtils.copyInputStreamToFile(is, file);
+			IOUtils.closeQuietly(is);
+			System.out.println("STORE CACHE " + uri.toString());
+			return new FileInputStream(file);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
-	public DownloadItem load(URI uri) throws IOException, JSONException,
-			URISyntaxException {
-		// TODO Auto-generated method stub
-		return null;
+	public DownloadItem load(URI uri, long expirationTime) throws IOException,
+			JSONException, URISyntaxException {
+		rwl.r.lock();
+		try {
+			File file = uriToFile(uri, META_EXTENSION);
+			if (!file.exists())
+				return null;
+			if (expirationTime != 0)
+				if (file.lastModified() < expirationTime)
+					return null;
+			String content = FileUtils.readFileToString(file);
+			JSONObject json = new JSONObject(content);
+			DownloadItem downloadItem = new DownloadItem(uri);
+			downloadItem.loadMetaFromJson(json);
+			file = uriToFile(uri, CONTENT_EXTENSION);
+			downloadItem.setContentInputStream(new FileInputStream(file));
+			System.out.println("LOAD CACHE " + uri.toString());
+			return downloadItem;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public void flush() throws IOException {
-		// TODO Auto-generated method stub
-
+		rwl.r.lock();
+		try {
+			File file = new File(rootPath + File.separator
+					+ PATH_HTTP_DOWNLOAD_CACHE);
+			FileUtils.cleanDirectory(file);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override

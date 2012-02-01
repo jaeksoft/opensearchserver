@@ -43,7 +43,8 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class HadoopCrawlCache extends CrawlCacheProvider {
 
-	private final static String PATH_HTTP_DOWNLOAD_CACHE = "/opensearchserver/http-download-cache";
+	private final static String PATH_HTTP_DOWNLOAD_CACHE = Path.SEPARATOR
+			+ "opensearchserver" + Path.SEPARATOR + "http-download-cache";
 
 	private final static String META_EXTENSION = "meta";
 
@@ -114,9 +115,9 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 		try {
 			URI uri = downloadItem.getUri();
 
-			Path path = checkPath(uriToPath(uri, META_EXTENSION), true);
+			Path path = checkPath(uriToPath(uri, META_EXTENSION));
 			write(path, downloadItem.getMetaAsJson());
-			path = checkPath(uriToPath(uri, CONTENT_EXTENSION), true);
+			path = checkPath(uriToPath(uri, CONTENT_EXTENSION));
 			InputStream is = downloadItem.getContentInputStream();
 			write(path, is);
 			IOUtils.closeQuietly(is);
@@ -128,13 +129,16 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 	}
 
 	@Override
-	public DownloadItem load(URI uri) throws IOException, JSONException,
-			URISyntaxException {
+	public DownloadItem load(URI uri, long expirationTime) throws IOException,
+			JSONException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			Path path = uriToPath(uri, META_EXTENSION);
 			if (!fileSystem.exists(path))
 				return null;
+			if (expirationTime != 0)
+				if (fileSystem.getFileStatus(path).getModificationTime() < expirationTime)
+					return null;
 			String content = read(path);
 			JSONObject json = new JSONObject(content);
 			DownloadItem downloadItem = new DownloadItem(uri);
@@ -167,9 +171,12 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 		}
 	}
 
-	private Path checkPath(Path path, boolean replace) throws IOException {
-		if (!fileSystem.exists(path))
-			fileSystem.mkdirs(path.getParent());
+	private Path checkPath(Path path) throws IOException {
+		if (!fileSystem.exists(path)) {
+			Path parent = path.getParent();
+			if (!fileSystem.exists(parent))
+				fileSystem.mkdirs(parent);
+		}
 		return path;
 	}
 

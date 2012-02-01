@@ -150,14 +150,27 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
+	public long getExpirationDate() {
+		if (expirationValue == 0)
+			return 0;
+		long l;
+		if ("hours".equalsIgnoreCase(expirationUnit))
+			l = expirationValue * 1000 * 3600;
+		else if ("minutes".equalsIgnoreCase(expirationUnit))
+			l = expirationValue * 1000 * 60;
+		else
+			// Default is days
+			l = expirationValue * 1000 * 86400;
+		return System.currentTimeMillis() - l;
+	}
+
 	public DownloadItem loadCache(URI uri) throws IOException, JSONException,
 			URISyntaxException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
 				return null;
-			else
-				return crawlCache.load(uri);
+			return crawlCache.load(uri, getExpirationDate());
 		} finally {
 			rwl.r.unlock();
 		}
@@ -234,8 +247,8 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
-	private final static String[] expirationUnitValues = { "year", "months",
-			"days", "hours", "minutes" };
+	private final static String[] expirationUnitValues = { "days", "hours",
+			"minutes" };
 
 	public String[] getExpirationUnitValues() {
 		return expirationUnitValues;

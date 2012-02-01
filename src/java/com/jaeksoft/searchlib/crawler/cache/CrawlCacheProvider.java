@@ -47,8 +47,8 @@ public abstract class CrawlCacheProvider {
 	public abstract InputStream store(DownloadItem downloadItem)
 			throws IOException, JSONException;
 
-	public abstract DownloadItem load(URI uri) throws IOException,
-			JSONException, URISyntaxException;
+	public abstract DownloadItem load(URI uri, long expirationTime)
+			throws IOException, JSONException, URISyntaxException;
 
 	public abstract void flush() throws IOException;
 

@@ -50,12 +50,17 @@
 							<label
 								visible="@{window$composer.crawlCacheManager.enabled}"
 								value="@{window$composer.crawlCacheManager.configuration}" />
-							<textbox cols="50"
+							<textbox cols="80"
 								visible="@{window$composer.crawlCacheManager.disabled}"
 								value="@{window$composer.crawlCacheManager.configuration}" />
 						</cell>
 						<label
 							value="@{window$composer.crawlCacheManager.configurationInformation}" />
+					</row>
+					<row>
+						<label value="Information" />
+						<label
+							value="@{window$composer.crawlCacheManager.infos}" />
 					</row>
 					<row>
 						<label value="Cache validity" />
