@@ -18,10 +18,10 @@
 	apply="com.jaeksoft.searchlib.web.controller.runtime.CrawlCacheComposer">
 	<panel title="Crawl cache" border="normal">
 		<panelchildren>
-			<grid sizedByContent="true">
+			<grid>
 				<columns>
-					<column align="right" />
-					<column align="left" />
+					<column align="right" hflex="min" />
+					<column align="left" hflex="min" />
 					<column align="left" />
 				</columns>
 				<rows>
@@ -32,10 +32,30 @@
 						<space />
 					</row>
 					<row>
-						<label value="Configuration" />
-						<label multiline="true"
-							value="@{window$composer.crawlCacheManager.configuration}" />
+						<label value="Cache provider" />
+						<cell>
+							<listbox id="cacheProvider"
+								visible="@{window$composer.crawlCacheManager.disabled}"
+								model="@{window$composer.crawlCacheProviderList}" mold="select"
+								selectedItem="@{window$composer.crawlCacheManager.crawlCacheProvider}" />
+							<label
+								visible="@{window$composer.crawlCacheManager.enabled}"
+								value="@{window$composer.crawlCacheManager.crawlCacheProvider}" />
+						</cell>
 						<space />
+					</row>
+					<row>
+						<label value="Configuration" />
+						<cell>
+							<label
+								visible="@{window$composer.crawlCacheManager.enabled}"
+								value="@{window$composer.crawlCacheManager.configuration}" />
+							<textbox cols="50"
+								visible="@{window$composer.crawlCacheManager.disabled}"
+								value="@{window$composer.crawlCacheManager.configuration}" />
+						</cell>
+						<label
+							value="@{window$composer.crawlCacheManager.configurationInformation}" />
 					</row>
 					<row>
 						<label value="Cache validity" />
@@ -49,16 +69,12 @@
 						</hbox>
 						<space />
 					</row>
+					<row>
+						<label value="Flush cache" />
+						<button label="Flush" forward="onFlush" />
+						<space />
+					</row>
 				</rows>
-				<foot>
-					<footer span="3">
-						<hbox align="center" width="100%">
-							<button label="Reload" forward="onReload" />
-							<space />
-							<button label="Flush" forward="onFlush" />
-						</hbox>
-					</footer>
-				</foot>
 			</grid>
 		</panelchildren>
 	</panel>

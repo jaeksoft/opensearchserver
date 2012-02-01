@@ -31,6 +31,7 @@ import org.zkoss.zk.ui.event.Event;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheProviderEnum;
 import com.jaeksoft.searchlib.web.controller.CommonComposer;
 
 public class CrawlCacheComposer extends CommonComposer {
@@ -49,12 +50,15 @@ public class CrawlCacheComposer extends CommonComposer {
 		return ClientCatalog.getCrawlCacheManager();
 	}
 
+	public CrawlCacheProviderEnum[] getCrawlCacheProviderList() {
+		return CrawlCacheProviderEnum.values();
+	}
+
 	public void onReload$window(Event event) throws SearchLibException,
 			IOException {
 		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
 		if (manager == null)
 			return;
-		manager.reloadConfiguration();
 		reloadPage();
 	}
 
@@ -64,6 +68,10 @@ public class CrawlCacheComposer extends CommonComposer {
 		if (manager == null)
 			return;
 		manager.flushCache();
+		reloadPage();
+	}
+
+	public void onSelect$cacheProvider(Event event) {
 		reloadPage();
 	}
 

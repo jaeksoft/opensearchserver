@@ -102,7 +102,7 @@ public class DownloadItem {
 			contentBaseType = json.getString(KEY_CONTENT_BASE_TYPE);
 
 		if (json.has(KEY_CONTENT_TYPE_CHARSET))
-			contentBaseType = json.getString(KEY_CONTENT_TYPE_CHARSET);
+			contentTypeCharset = json.getString(KEY_CONTENT_TYPE_CHARSET);
 
 		if (json.has(KEY_CONTENT_ENCODING))
 			contentEncoding = json.getString(KEY_CONTENT_ENCODING);
