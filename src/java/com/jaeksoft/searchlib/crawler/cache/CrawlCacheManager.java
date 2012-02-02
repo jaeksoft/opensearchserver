@@ -150,7 +150,7 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
-	public long getExpirationDate() {
+	private long getExpirationDate() {
 		if (expirationValue == 0)
 			return 0;
 		long l;
@@ -176,10 +176,12 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
-	public void flushCache() throws IOException {
+	public long flushCache(boolean expiration) throws IOException {
 		rwl.r.lock();
 		try {
-			crawlCache.flush();
+			long exp = expiration ? getExpirationDate() : System
+					.currentTimeMillis();
+			return crawlCache.flush(exp);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -227,6 +229,15 @@ public class CrawlCacheManager implements Closeable {
 		rwl.r.lock();
 		try {
 			return expirationValue;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public boolean isExpiration() {
+		rwl.r.lock();
+		try {
+			return getExpirationDate() != 0;
 		} finally {
 			rwl.r.unlock();
 		}

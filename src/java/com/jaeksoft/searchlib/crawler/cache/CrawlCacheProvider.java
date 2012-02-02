@@ -50,7 +50,7 @@ public abstract class CrawlCacheProvider {
 	public abstract DownloadItem load(URI uri, long expirationTime)
 			throws IOException, JSONException, URISyntaxException;
 
-	public abstract void flush() throws IOException;
+	public abstract long flush(long expirationTime) throws IOException;
 
 	final protected String uriToPath(URI uri, String rootPath, int hashDepth,
 			String separatorChar, String extension, int splitSize) {

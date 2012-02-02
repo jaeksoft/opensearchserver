@@ -116,7 +116,6 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 			InputStream is = downloadItem.getContentInputStream();
 			FileUtils.copyInputStreamToFile(is, file);
 			IOUtils.closeQuietly(is);
-			System.out.println("STORE CACHE " + uri.toString());
 			return new FileInputStream(file);
 		} finally {
 			rwl.r.unlock();
@@ -140,20 +139,37 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 			downloadItem.loadMetaFromJson(json);
 			file = uriToFile(uri, CONTENT_EXTENSION);
 			downloadItem.setContentInputStream(new FileInputStream(file));
-			System.out.println("LOAD CACHE " + uri.toString());
 			return downloadItem;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
+	private final long purge(File[] files, long expiration) throws IOException {
+		long count = 0;
+		for (File file : files) {
+			if (file.isDirectory()) {
+				count += purge(file.listFiles(), expiration);
+				File[] fs = file.listFiles();
+				if (fs.length == 0)
+					if (file.delete())
+						count++;
+			} else {
+				if (file.lastModified() < expiration)
+					if (file.delete())
+						count++;
+			}
+		}
+		return count;
+	}
+
 	@Override
-	public void flush() throws IOException {
+	public long flush(long expiration) throws IOException {
 		rwl.r.lock();
 		try {
 			File file = new File(rootPath + File.separator
 					+ PATH_HTTP_DOWNLOAD_CACHE);
-			FileUtils.cleanDirectory(file);
+			return purge(file.listFiles(), expiration);
 		} finally {
 			rwl.r.unlock();
 		}

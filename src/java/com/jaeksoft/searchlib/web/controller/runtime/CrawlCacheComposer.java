@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheProviderEnum;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonComposer;
 
 public class CrawlCacheComposer extends CommonComposer {
@@ -62,16 +63,31 @@ public class CrawlCacheComposer extends CommonComposer {
 		reloadPage();
 	}
 
-	public void onFlush$window(Event event) throws SearchLibException,
-			IOException {
+	private void flush(boolean expiration) throws SearchLibException,
+			IOException, InterruptedException {
 		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
 		if (manager == null)
 			return;
-		manager.flushCache();
+		long count = manager.flushCache(expiration);
 		reloadPage();
+		new AlertController(count + " content(s) deleted.");
+	}
+
+	public void onFlushAll$window(Event event) throws SearchLibException,
+			IOException, InterruptedException {
+		flush(false);
+	}
+
+	public void onFlushExpire$window(Event event) throws SearchLibException,
+			IOException, InterruptedException {
+		flush(true);
 	}
 
 	public void onSelect$cacheProvider(Event event) {
+		reloadPage();
+	}
+
+	public void onChange$cacheValidity(Event event) {
 		reloadPage();
 	}
 

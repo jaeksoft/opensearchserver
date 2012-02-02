@@ -65,7 +65,8 @@
 					<row>
 						<label value="Cache validity" />
 						<hbox align="center">
-							<intbox constraint="no empty, no negative"
+							<intbox id="cacheValidity"
+								constraint="no empty, no negative"
 								value="@{window$composer.crawlCacheManager.expirationValue}" />
 							<listbox
 								model="@{window$composer.crawlCacheManager.expirationUnitValues}"
@@ -76,7 +77,13 @@
 					</row>
 					<row>
 						<label value="Flush cache" />
-						<button label="Flush" forward="onFlush" />
+						<cell>
+							<button label="Flush all"
+								forward="onFlushAll" />
+							<button label="Flush expired content"
+								visible="@{window$composer.crawlCacheManager.expiration}"
+								forward="onFlushExpire" />
+						</cell>
 						<space />
 					</row>
 				</rows>

@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.poi.util.IOUtils;
@@ -121,7 +122,6 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 			InputStream is = downloadItem.getContentInputStream();
 			write(path, is);
 			IOUtils.closeQuietly(is);
-			System.out.println("STORE CACHE " + uri.toString());
 			return fileSystem.open(path);
 		} finally {
 			rwl.r.unlock();
@@ -145,18 +145,38 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 			downloadItem.loadMetaFromJson(json);
 			path = uriToPath(uri, CONTENT_EXTENSION);
 			downloadItem.setContentInputStream(fileSystem.open(path));
-			System.out.println("LOAD CACHE " + uri.toString());
 			return downloadItem;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
+	private final long purge(FileStatus[] files, long expiration)
+			throws IOException {
+		long count = 0;
+		for (FileStatus file : files) {
+			if (file.isDir()) {
+				Path p = file.getPath();
+				count += purge(fileSystem.listStatus(p), expiration);
+				FileStatus[] fs = fileSystem.listStatus(p);
+				if (fs.length == 0)
+					if (fileSystem.delete(p, false))
+						count++;
+			} else {
+				if (file.getModificationTime() < expiration)
+					if (fileSystem.delete(file.getPath(), false))
+						count++;
+			}
+		}
+		return count;
+	}
+
 	@Override
-	public void flush() throws IOException {
+	public long flush(long expiration) throws IOException {
 		rwl.r.lock();
 		try {
-			fileSystem.delete(new Path(PATH_HTTP_DOWNLOAD_CACHE), true);
+			Path path = new Path(PATH_HTTP_DOWNLOAD_CACHE);
+			return purge(fileSystem.listStatus(path), expiration);
 		} finally {
 			rwl.r.unlock();
 		}
