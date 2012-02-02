@@ -28,6 +28,7 @@ New features:
 - 3469777: Scored snippets
 
 Bug fixes:
+- 3483259: Underscore added when using synonyms on expression
 - 3482151: Monitor API response gives error
 - 3479649: SetField and DeleteField API don't update config.xml
 - 3479548: Report log files are truncated

@@ -30,7 +30,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymMap;
-import com.jaeksoft.searchlib.analysis.synonym.SynonymQueue;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymTokenFilter;
 
 public class SynonymFilter extends FilterFactory {
@@ -40,7 +39,7 @@ public class SynonymFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		String[] values = config.getSynonymsManager().getList(false);
+		String[] values = config.getSynonymsManager().getList();
 		String value = (values != null && values.length > 0) ? values[0] : null;
 		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
 	}
@@ -59,9 +58,7 @@ public class SynonymFilter extends FilterFactory {
 	public TokenStream create(TokenStream tokenStream) {
 		if (synonyms == null)
 			return tokenStream;
-		for (SynonymQueue queue : synonyms.getSynonymQueues())
-			tokenStream = new SynonymTokenFilter(tokenStream, queue);
-		return tokenStream;
+		return new SynonymTokenFilter(tokenStream, synonyms);
 	}
 
 }

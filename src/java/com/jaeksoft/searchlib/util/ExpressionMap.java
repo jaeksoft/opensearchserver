@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,21 +24,35 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class ExpressionMap {
 
-	TreeMap<Expression, String> map;
+	TreeMap<String, String[]> map;
 
 	public ExpressionMap() {
-		map = new TreeMap<Expression, String>();
+		map = new TreeMap<String, String[]>();
 	}
 
-	public void add(Expression words, Expression key) {
-		map.put(words, key.toString());
+	public void add(String key, String[] words) {
+		String[] oldWords = map.get(key);
+		Set<String> wordSet = new TreeSet<String>();
+		if (oldWords != null) {
+			for (String word : oldWords)
+				if (!word.equals(key))
+					wordSet.add(word);
+		}
+		for (String word : words)
+			if (!word.equals(key))
+				wordSet.add(word);
+		words = new String[wordSet.size()];
+		wordSet.toArray(words);
+		map.put(key, words);
 	}
 
-	public String find(Expression words) {
-		return map.get(words);
+	public String[] find(String key) {
+		return map.get(key);
 	}
 }
