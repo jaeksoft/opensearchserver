@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,25 +30,26 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
 
-import com.jaeksoft.searchlib.util.Expression;
 import com.jaeksoft.searchlib.util.ExpressionMap;
-import com.jaeksoft.searchlib.util.ExpressionToken;
 
 public class SynonymMap {
 
-	private TreeMap<Integer, ExpressionMap> expressionMaps;
-
+	private ExpressionMap expressionMap;
 	private int size;
 
 	public SynonymMap(File file) throws FileNotFoundException, IOException {
 		size = 0;
-		expressionMaps = new TreeMap<Integer, ExpressionMap>();
+		expressionMap = new ExpressionMap();
 		loadFromFile(file);
+	}
+
+	private static final String[] splitTerms(String line) {
+		String[] terms = line.split("[:=,]");
+		int i = 0;
+		for (String term : terms)
+			terms[i++] = term.trim();
+		return terms;
 	}
 
 	private void loadFromFile(File file) throws FileNotFoundException,
@@ -58,48 +59,21 @@ public class SynonymMap {
 		BufferedReader br = new BufferedReader(isr);
 		String line;
 		while ((line = br.readLine()) != null) {
-			String[] keyValue = line.split("[:=]", 2);
-			if (keyValue == null)
-				continue;
-			if (keyValue.length != 2)
-				continue;
-			String key = keyValue[0].trim();
-			String value = keyValue[1];
-			String[] terms = value.split(",");
-			addSourceMap(key, key);
-			for (String term : terms)
-				addSourceMap(key, term.trim());
+			String[] terms = splitTerms(line);
+			for (String key : terms)
+				expressionMap.add(key, terms);
+			size++;
 		}
 		br.close();
 		isr.close();
 		fis.close();
 	}
 
-	private void addSourceMap(String key, String words) {
-		if (words == null || words.length() == 0)
-			return;
-		size++;
-		Expression expKey = new Expression(ExpressionToken.createArray(key));
-		Expression expression = new Expression(ExpressionToken
-				.createArray(words));
-		int i = expression.getSize();
-		ExpressionMap expressionMap = expressionMaps.get(i);
-		if (expressionMap == null) {
-			expressionMap = new ExpressionMap();
-			expressionMaps.put(i, expressionMap);
-		}
-		expressionMap.add(expression, expKey);
-	}
-
 	public int getSize() {
 		return size;
 	}
 
-	public List<SynonymQueue> getSynonymQueues() {
-		Set<Integer> sizes = expressionMaps.keySet();
-		List<SynonymQueue> queues = new ArrayList<SynonymQueue>();
-		for (Integer n : sizes)
-			queues.add(new SynonymQueue(expressionMaps.get(n), n));
-		return queues;
+	public final String[] getSynonyms(String term) {
+		return expressionMap.find(term);
 	}
 }
