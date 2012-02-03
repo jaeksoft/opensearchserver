@@ -15,8 +15,9 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="logs"
-	use="com.jaeksoft.searchlib.web.controller.runtime.LogsController">
-	<panel title="Logs" border="normal">
+	use="com.jaeksoft.searchlib.web.controller.runtime.LogsController"
+	vflex="true" hflex="true">
+	<panel title="Logs" border="normal" hflex="true" vflex="true">
 		<toolbar>
 			<button label="Reload the file list"
 				forward="onReloadFileList" />
@@ -26,28 +27,20 @@
 				disabled="@{logs.fileNotSelected}" forward="onGoToBeginning" />
 			<button label="Go to the end"
 				disabled="@{logs.fileNotSelected}" forward="onGoToEnd" />
-			<button label="Download"
-				disabled="@{logs.fileNotSelected}" forward="onDownload" />
+			<button label="Download" disabled="@{logs.fileNotSelected}"
+				forward="onDownload" />
 		</toolbar>
 		<panelchildren>
 			<hbox spacing="0" width="100%">
-				<listbox width="300px" model="@{logs.logFiles}"
-					rows="40" selectedItem="@{logs.selectedFile}" vflex="true" />
+				<listbox model="@{logs.logFiles}" width="200px"
+					selectedItem="@{logs.selectedFile}" rows="40" />
 				<textbox id="logview" multiline="true" readonly="true"
-					hflex="true" vflex="true" value="@{logs.currentLog}" />
+					hflex="true" vflex="true" value="@{logs.currentLog}"
+					tooltiptext="Last 10000 lines. Use the download button if you want to see the full log" />
 			</hbox>
 		</panelchildren>
 	</panel>
 	<script type="text/javascript">
-
-
-
-
-
-
-
-
-
 
 
 
@@ -57,15 +50,6 @@
 		txtEle.scrollHeight; } function toTheBegining(txtBox) { var
 		txtEle = document.getElementById(txtBox); txtEle.scrollTop = 0;
 		} ]]>
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		
 		
