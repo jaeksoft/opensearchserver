@@ -70,9 +70,11 @@ public class LogsController extends CommonController {
 		for (File f : files)
 			map.put(f.lastModified(), f);
 		String[] names = new String[map.size()];
-		int i = files.length;
-		for (File f : map.values())
-			names[--i] = f.getName();
+		int i = names.length;
+		for (File f : map.values()) {
+			i--;
+			names[i] = f.getName();
+		}
 		return names;
 	}
 
