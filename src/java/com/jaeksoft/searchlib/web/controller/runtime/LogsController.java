@@ -30,6 +30,7 @@ import java.util.TreeMap;
 
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.util.Clients;
+import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Textbox;
 
 import com.jaeksoft.searchlib.Logging;
@@ -116,6 +117,12 @@ public class LogsController extends CommonController {
 		Textbox tb = (Textbox) getFellow("logview");
 		Clients.evalJavaScript("toTheBegining('" + tb.getUuid() + "')");
 		tb.setSelectionRange(0, 0);
+	}
+
+	public void onDownload() throws IOException, SearchLibException {
+		String filePath = Logging.getLogDirectory() + File.separator
+				+ getSelectedFile();
+		Filedownload.save(new File(filePath), "text/plain");
 	}
 
 	public void onGoToEnd() {

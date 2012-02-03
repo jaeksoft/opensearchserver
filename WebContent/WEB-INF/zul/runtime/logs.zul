@@ -26,6 +26,8 @@
 				disabled="@{logs.fileNotSelected}" forward="onGoToBeginning" />
 			<button label="Go to the end"
 				disabled="@{logs.fileNotSelected}" forward="onGoToEnd" />
+			<button label="Download"
+				disabled="@{logs.fileNotSelected}" forward="onDownload" />
 		</toolbar>
 		<panelchildren>
 			<hbox spacing="0" width="100%">
