@@ -26,7 +26,8 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.TreeMap;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.util.Clients;
@@ -66,13 +67,18 @@ public class LogsController extends CommonController {
 		File[] files = Logging.getLogFiles();
 		if (files == null)
 			return null;
-		TreeMap<Long, File> map = new TreeMap<Long, File>();
-		for (File f : files)
-			map.put(f.lastModified(), f);
-		String[] names = new String[map.size()];
-		int i = files.length;
-		for (File f : map.values())
-			names[--i] = f.getName();
+		Arrays.sort(files, new Comparator<File>() {
+			@Override
+			public int compare(File f1, File f2) {
+				Long l1 = f1.lastModified();
+				Long l2 = f2.lastModified();
+				return l2.compareTo(l1);
+			}
+		});
+		String[] names = new String[files.length];
+		int i = 0;
+		for (File file : files)
+			names[i++] = file.getName();
 		return names;
 	}
 

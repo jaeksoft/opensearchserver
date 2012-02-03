@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.4
 
 New features:
+- 3483681: Add a download button for log files
 - 3482284: LimitInputStream should be buffered
 - 3477836: A separated error log for the parser	
 - 3469777: Scored snippets
