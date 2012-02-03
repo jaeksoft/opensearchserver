@@ -405,7 +405,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				Logging.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), null);
 				doc = null;
 			}
 		}
@@ -420,7 +420,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				Logging.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), null);
 				doc = null;
 			}
 		}
@@ -435,7 +435,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				Logging.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), null);
 				doc = null;
 			}
 		}
@@ -465,7 +465,7 @@ public class HtmlParser extends Parser {
 			} catch (LimitException e) {
 				throw e;
 			} catch (Exception e) {
-				Logging.warn(e.getMessage(), e);
+				Logging.warn(e.getMessage(), null);
 				doc = null;
 			}
 		}
