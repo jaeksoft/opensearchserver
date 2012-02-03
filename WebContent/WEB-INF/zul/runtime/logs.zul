@@ -27,26 +27,26 @@
 				disabled="@{logs.fileNotSelected}" forward="onGoToBeginning" />
 			<button label="Go to the end"
 				disabled="@{logs.fileNotSelected}" forward="onGoToEnd" />
-					<button label="Download"
-				disabled="@{logs.fileNotSelected}" forward="onDownload" />
+			<button label="Download" disabled="@{logs.fileNotSelected}"
+				forward="onDownload" />
 		</toolbar>
 		<panelchildren>
 			<hbox spacing="0" width="100%">
 				<listbox model="@{logs.logFiles}" sizedByContent="true"
 					selectedItem="@{logs.selectedFile}" height="400px" />
 				<textbox id="logview" multiline="true" readonly="true"
-					hflex="true" vflex="true" value="@{logs.currentLog}" />
+					hflex="true" vflex="true" value="@{logs.currentLog}"
+					tooltiptext="Last 10000 lines. Use the download button if you want to see the full log" />
 			</hbox>
 		</panelchildren>
 	</panel>
 	<script type="text/javascript">
-
+		
 		<![CDATA[ function toTheEnd(txtBox) { var txtEle =
 		document.getElementById(txtBox); txtEle.scrollTop =
 		txtEle.scrollHeight; } function toTheBegining(txtBox) { var
 		txtEle = document.getElementById(txtBox); txtEle.scrollTop = 0;
-		} ]]>
-		
+		} ]]>	
 	
 		</script>
 </window>
