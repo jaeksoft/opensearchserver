@@ -24,10 +24,7 @@
 
 package com.jaeksoft.searchlib.request;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -67,21 +64,16 @@ import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
-import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SearchRequest implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 148522254171520640L;
+public class SearchRequest {
 
 	private transient QueryParser queryParser;
-	private transient Query complexQuery;
+	private transient Query boostedComplexQuery;
+	private transient Query snippetComplexQuery;
 	private transient Query primitiveQuery;
 	private transient Config config;
 	private transient Timer timer;
@@ -97,6 +89,7 @@ public class SearchRequest implements Externalizable {
 	private FieldList<Field> returnFieldList;
 	private FieldList<Field> documentFieldList;
 	private FieldList<FacetField> facetFieldList;
+	private List<BoostQuery> boostingQueries;
 	private FieldList<SpellCheckField> spellCheckFieldList;
 	private SortList sortList;
 	private String collapseField;
@@ -146,6 +139,7 @@ public class SearchRequest implements Externalizable {
 		this.documentFieldList = null;
 		this.facetFieldList = new FieldList<FacetField>();
 		this.spellCheckFieldList = new FieldList<SpellCheckField>();
+		this.boostingQueries = new ArrayList<BoostQuery>(0);
 
 		this.collapseField = null;
 		this.collapseMax = 2;
@@ -162,7 +156,8 @@ public class SearchRequest implements Externalizable {
 		this.start = 0;
 		this.rows = 10;
 		this.lang = null;
-		this.complexQuery = null;
+		this.snippetComplexQuery = null;
+		this.boostedComplexQuery = null;
 		this.primitiveQuery = null;
 		this.analyzer = null;
 		this.queryString = null;
@@ -200,6 +195,10 @@ public class SearchRequest implements Externalizable {
 					searchRequest.facetFieldList);
 			this.spellCheckFieldList = new FieldList<SpellCheckField>(
 					searchRequest.spellCheckFieldList);
+			this.boostingQueries = new ArrayList<BoostQuery>(
+					searchRequest.boostingQueries.size());
+			for (BoostQuery boostQuery : searchRequest.boostingQueries)
+				this.boostingQueries.add(new BoostQuery(boostQuery));
 
 			this.collapseField = searchRequest.collapseField;
 			this.collapseMax = searchRequest.collapseMax;
@@ -220,7 +219,8 @@ public class SearchRequest implements Externalizable {
 			this.start = searchRequest.start;
 			this.rows = searchRequest.rows;
 			this.lang = searchRequest.lang;
-			this.complexQuery = null;
+			this.snippetComplexQuery = null;
+			this.boostedComplexQuery = null;
 			this.primitiveQuery = null;
 			this.analyzer = null;
 			this.queryString = searchRequest.queryString;
@@ -237,7 +237,8 @@ public class SearchRequest implements Externalizable {
 		rwl.w.lock();
 		try {
 			this.queryParsed = null;
-			this.complexQuery = null;
+			this.snippetComplexQuery = null;
+			this.boostedComplexQuery = null;
 			this.primitiveQuery = null;
 			this.queryParser = null;
 			this.analyzer = null;
@@ -377,7 +378,8 @@ public class SearchRequest implements Externalizable {
 		try {
 			if (primitiveQuery != null)
 				return primitiveQuery;
-			primitiveQuery = config.getIndex().rewrite(getQuery());
+			getQuery();
+			primitiveQuery = config.getIndex().rewrite(snippetComplexQuery);
 			return primitiveQuery;
 		} finally {
 			rwl.w.unlock();
@@ -411,29 +413,33 @@ public class SearchRequest implements Externalizable {
 			SearchLibException, IOException {
 		rwl.r.lock();
 		try {
-			if (complexQuery != null)
-				return complexQuery;
+			if (boostedComplexQuery != null)
+				return boostedComplexQuery;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			if (complexQuery != null)
-				return complexQuery;
+			if (boostedComplexQuery != null)
+				return boostedComplexQuery;
 			if (isMoreLikeThis) {
-				complexQuery = getMoreLikeThisQuery();
+				boostedComplexQuery = getMoreLikeThisQuery();
 			} else {
 				queryParser = getQueryParser();
 				String fq = getFinalQuery();
 				if (fq == null)
 					return null;
-				complexQuery = queryParser.parse(fq);
+				boostedComplexQuery = queryParser.parse(fq);
 			}
-			queryParsed = complexQuery.toString();
+			snippetComplexQuery = boostedComplexQuery;
 			if (scoreFunction != null)
-				complexQuery = RootExpression.getQuery(complexQuery,
-						scoreFunction);
-			return complexQuery;
+				boostedComplexQuery = RootExpression.getQuery(
+						boostedComplexQuery, scoreFunction);
+			for (BoostQuery boostQuery : boostingQueries)
+				boostedComplexQuery = boostQuery.getNewQuery(
+						boostedComplexQuery, queryParser);
+			queryParsed = boostedComplexQuery.toString();
+			return boostedComplexQuery;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -479,7 +485,8 @@ public class SearchRequest implements Externalizable {
 		rwl.w.lock();
 		try {
 			patternQuery = value;
-			complexQuery = null;
+			boostedComplexQuery = null;
+			snippetComplexQuery = null;
 			primitiveQuery = null;
 		} finally {
 			rwl.w.unlock();
@@ -501,7 +508,8 @@ public class SearchRequest implements Externalizable {
 		rwl.w.lock();
 		try {
 			queryString = q;
-			complexQuery = null;
+			boostedComplexQuery = null;
+			snippetComplexQuery = null;
 			primitiveQuery = null;
 		} finally {
 			rwl.w.unlock();
@@ -788,7 +796,7 @@ public class SearchRequest implements Externalizable {
 			sb.append(" Rows: ");
 			sb.append(rows);
 			sb.append(" Query: ");
-			sb.append(complexQuery);
+			sb.append(boostedComplexQuery);
 			sb.append(" Facet: " + getFacetFieldList().toString());
 			if (getCollapseMode() != CollapseMode.COLLAPSE_OFF)
 				sb.append(" Collapsing: " + getCollapseMode() + " "
@@ -1133,6 +1141,33 @@ public class SearchRequest implements Externalizable {
 		}
 	}
 
+	public BoostQuery[] getBoostingQueries() {
+		rwl.r.lock();
+		try {
+			BoostQuery[] queries = new BoostQuery[boostingQueries.size()];
+			return boostingQueries.toArray(queries);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setBoostingQuery(BoostQuery oldOne, BoostQuery newOne) {
+		rwl.w.lock();
+		try {
+			if (oldOne != null) {
+				if (newOne == null)
+					boostingQueries.remove(oldOne);
+				else
+					oldOne.copyFrom(newOne);
+			} else {
+				if (newOne != null)
+					boostingQueries.add(newOne);
+			}
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	/**
 	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
 	 * config XML.
@@ -1173,6 +1208,10 @@ public class SearchRequest implements Externalizable {
 				"collapseField"));
 		searchRequest.setCollapseMax(XPathParser.getAttributeValue(node,
 				"collapseMax"));
+
+		Node bqNode = xpp.getNode(node, "boostingQueries");
+		if (bqNode != null)
+			BoostQuery.loadFromXml(xpp, bqNode, searchRequest.boostingQueries);
 
 		Node mltNode = xpp.getNode(node, "moreLikeThis");
 		if (mltNode != null) {
@@ -1273,6 +1312,7 @@ public class SearchRequest implements Externalizable {
 				Integer.toString(moreLikeThisMinDocFreq), "minTermFreq",
 				Integer.toString(moreLikeThisMinTermFreq), "stopWords",
 				moreLikeThisStopWords, "active", isMoreLikeThis ? "yes" : "no");
+
 		if (moreLikeThisFieldList.size() > 0) {
 			xmlWriter.startElement("fields");
 			moreLikeThisFieldList.writeXmlConfig(xmlWriter);
@@ -1284,6 +1324,13 @@ public class SearchRequest implements Externalizable {
 			xmlWriter.endElement();
 		}
 		xmlWriter.endElement();
+
+		if (boostingQueries.size() > 0) {
+			xmlWriter.startElement("boostingQueries");
+			for (BoostQuery boostQuery : boostingQueries)
+				boostQuery.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
 
 		if (patternQuery != null && patternQuery.trim().length() > 0) {
 			xmlWriter.startElement("query");
@@ -1334,77 +1381,6 @@ public class SearchRequest implements Externalizable {
 		}
 
 		xmlWriter.endElement();
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		requestName = External.readUTF(in);
-		filterList = External.readObject(in);
-		allowLeadingWildcard = in.readBoolean();
-		phraseSlop = in.readInt();
-
-		if (in.readBoolean())
-			defaultOperator = Operator.OR;
-		else
-			defaultOperator = Operator.AND;
-
-		snippetFieldList = External.readObject(in);
-		returnFieldList = External.readObject(in);
-		documentFieldList = External.readObject(in);
-		facetFieldList = External.readObject(in);
-		spellCheckFieldList = External.readObject(in);
-		sortList = External.readObject(in);
-		collapseField = External.readUTF(in);
-		collapseMax = in.readInt();
-		collapseMode = CollapseMode.valueOf(in.readInt());
-		start = in.readInt();
-		rows = in.readInt();
-		lang = LanguageEnum.findByCode(External.readUTF(in));
-		queryString = External.readUTF(in);
-		patternQuery = External.readUTF(in);
-		scoreFunction = External.readUTF(in);
-		queryParsed = External.readUTF(in);
-		withDocuments = in.readBoolean();
-		withSortValues = in.readBoolean();
-		withLogReport = in.readBoolean();
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-
-		External.writeUTF(requestName, out);
-		External.writeObject(filterList, out);
-		out.writeBoolean(allowLeadingWildcard);
-		out.writeInt(phraseSlop);
-		out.writeBoolean(defaultOperator == Operator.OR);
-
-		External.writeObject(snippetFieldList, out);
-		External.writeObject(returnFieldList, out);
-		External.writeObject(documentFieldList, out);
-		External.writeObject(facetFieldList, out);
-		External.writeObject(spellCheckFieldList, out);
-		External.writeObject(sortList, out);
-
-		External.writeUTF(collapseField, out);
-		out.writeInt(collapseMax);
-		out.writeInt(collapseMode.code);
-
-		out.writeInt(start);
-		out.writeInt(rows);
-
-		if (lang == null)
-			External.writeUTF(LanguageEnum.UNDEFINED.getCode(), out);
-		else
-			External.writeUTF(lang.getCode(), out);
-		External.writeUTF(queryString, out);
-		External.writeUTF(patternQuery, out);
-		External.writeUTF(scoreFunction, out);
-		External.writeUTF(queryParsed, out);
-
-		out.writeBoolean(withDocuments);
-		out.writeBoolean(withSortValues);
-		out.writeBoolean(withLogReport);
 	}
 
 }
