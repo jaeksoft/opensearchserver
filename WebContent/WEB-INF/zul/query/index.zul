@@ -77,6 +77,7 @@
 					<tab id="tabSort" label="Sorted fields" />
 					<tab id="tabFilter" label="Filters" />
 					<tab id="tabCollapsing" label="Collapsing" />
+					<tab id="tabBoostQueries" label="Boosting queries" />
 					<tab id="tabMoreLikeThis" label="More like this" />
 					<tab id="tabScoreFunction" label="Scoring" />
 					<tab id="tabSpellCheck" label="SpellCheck" />
@@ -102,6 +103,10 @@
 					</tabpanel>
 					<tabpanel fulfill="tabCollapsing.onSelect">
 						<include src="WEB-INF/zul/query/collapsing.zul" />
+					</tabpanel>
+					<tabpanel fulfill="tabBoostQueries.onSelect">
+						<include
+							src="WEB-INF/zul/query/boostQueries.zul" />
 					</tabpanel>
 					<tabpanel fulfill="tabMoreLikeThis.onSelect">
 						<include

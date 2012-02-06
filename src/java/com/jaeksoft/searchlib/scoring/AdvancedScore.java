@@ -147,4 +147,24 @@ public class AdvancedScore {
 		}
 	}
 
+	private final String getCacheKey() {
+		rwl.r.lock();
+		try {
+			StringBuffer sb = new StringBuffer();
+			for (AdvancedScoreItem scoreItem : itemList) {
+				sb.append(scoreItem.name());
+				sb.append('|');
+			}
+			return sb.toString();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public final static String getCacheKey(AdvancedScore advancedScore) {
+		if (advancedScore == null)
+			return "";
+		return advancedScore.getCacheKey();
+	}
+
 }

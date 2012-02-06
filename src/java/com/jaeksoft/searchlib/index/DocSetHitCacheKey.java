@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,8 +33,10 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.filter.FilterListCacheKey;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.request.BoostQuery;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.scoring.AdvancedScore;
 
 public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 
@@ -42,6 +44,8 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 	private Boolean facet;
 	private String sortListCacheKey;
 	private FilterListCacheKey filterListCacheKey;
+	private String boostQueryCacheKey;
+	private String advancedScoreCacheKey;
 
 	public DocSetHitCacheKey(SearchRequest searchRequest, Field defaultField,
 			Analyzer analyzer) throws ParseException, SyntaxError,
@@ -52,6 +56,10 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 				.getCacheKey();
 		filterListCacheKey = new FilterListCacheKey(
 				searchRequest.getFilterList(), defaultField, analyzer);
+		boostQueryCacheKey = BoostQuery.getCacheKey(searchRequest
+				.getBoostingQueries());
+		advancedScoreCacheKey = AdvancedScore.getCacheKey(searchRequest
+				.getAdvancedScore());
 	}
 
 	@Override
@@ -64,6 +72,10 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 		if ((c = filterListCacheKey.compareTo(r.filterListCacheKey)) != 0)
 			return c;
 		if ((c = sortListCacheKey.compareTo(r.sortListCacheKey)) != 0)
+			return c;
+		if ((c = boostQueryCacheKey.compareTo(r.boostQueryCacheKey)) != 0)
+			return c;
+		if ((c = advancedScoreCacheKey.compareTo(r.advancedScoreCacheKey)) != 0)
 			return c;
 		return 0;
 	}

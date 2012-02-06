@@ -72,7 +72,8 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 public class SearchRequest {
 
 	private transient QueryParser queryParser;
-	private transient Query complexQuery;
+	private transient Query boostedComplexQuery;
+	private transient Query snippetComplexQuery;
 	private transient Query primitiveQuery;
 	private transient Config config;
 	private transient Timer timer;
@@ -88,6 +89,7 @@ public class SearchRequest {
 	private FieldList<Field> returnFieldList;
 	private FieldList<Field> documentFieldList;
 	private FieldList<FacetField> facetFieldList;
+	private List<BoostQuery> boostingQueries;
 	private FieldList<SpellCheckField> spellCheckFieldList;
 	private SortList sortList;
 	private String collapseField;
@@ -137,6 +139,7 @@ public class SearchRequest {
 		this.documentFieldList = null;
 		this.facetFieldList = new FieldList<FacetField>();
 		this.spellCheckFieldList = new FieldList<SpellCheckField>();
+		this.boostingQueries = new ArrayList<BoostQuery>(0);
 
 		this.collapseField = null;
 		this.collapseMax = 2;
@@ -153,7 +156,8 @@ public class SearchRequest {
 		this.start = 0;
 		this.rows = 10;
 		this.lang = null;
-		this.complexQuery = null;
+		this.snippetComplexQuery = null;
+		this.boostedComplexQuery = null;
 		this.primitiveQuery = null;
 		this.analyzer = null;
 		this.queryString = null;
@@ -191,6 +195,10 @@ public class SearchRequest {
 					searchRequest.facetFieldList);
 			this.spellCheckFieldList = new FieldList<SpellCheckField>(
 					searchRequest.spellCheckFieldList);
+			this.boostingQueries = new ArrayList<BoostQuery>(
+					searchRequest.boostingQueries.size());
+			for (BoostQuery boostQuery : searchRequest.boostingQueries)
+				this.boostingQueries.add(new BoostQuery(boostQuery));
 
 			this.collapseField = searchRequest.collapseField;
 			this.collapseMax = searchRequest.collapseMax;
@@ -211,7 +219,8 @@ public class SearchRequest {
 			this.start = searchRequest.start;
 			this.rows = searchRequest.rows;
 			this.lang = searchRequest.lang;
-			this.complexQuery = null;
+			this.snippetComplexQuery = null;
+			this.boostedComplexQuery = null;
 			this.primitiveQuery = null;
 			this.analyzer = null;
 			this.queryString = searchRequest.queryString;
@@ -229,7 +238,8 @@ public class SearchRequest {
 		rwl.w.lock();
 		try {
 			this.queryParsed = null;
-			this.complexQuery = null;
+			this.snippetComplexQuery = null;
+			this.boostedComplexQuery = null;
 			this.primitiveQuery = null;
 			this.queryParser = null;
 			this.analyzer = null;
@@ -364,7 +374,8 @@ public class SearchRequest {
 		try {
 			if (primitiveQuery != null)
 				return primitiveQuery;
-			primitiveQuery = config.getIndex().rewrite(getQuery());
+			getQuery();
+			primitiveQuery = config.getIndex().rewrite(snippetComplexQuery);
 			return primitiveQuery;
 		} finally {
 			rwl.w.unlock();
@@ -399,28 +410,33 @@ public class SearchRequest {
 			SearchLibException, IOException {
 		rwl.r.lock();
 		try {
-			if (complexQuery != null)
-				return complexQuery;
+			if (boostedComplexQuery != null)
+				return boostedComplexQuery;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			if (complexQuery != null)
-				return complexQuery;
+			if (boostedComplexQuery != null)
+				return boostedComplexQuery;
 			if (isMoreLikeThis) {
-				complexQuery = getMoreLikeThisQuery();
+				boostedComplexQuery = getMoreLikeThisQuery();
 			} else {
 				queryParser = getQueryParser();
 				String fq = getFinalQuery();
 				if (fq == null)
 					return null;
-				complexQuery = queryParser.parse(fq);
+				boostedComplexQuery = queryParser.parse(fq);
 			}
-			queryParsed = complexQuery.toString();
+			snippetComplexQuery = boostedComplexQuery;
 			if (advancedScore != null && !advancedScore.isEmpty())
-				complexQuery = advancedScore.getNewQuery(complexQuery);
-			return complexQuery;
+				boostedComplexQuery = advancedScore
+						.getNewQuery(boostedComplexQuery);
+			for (BoostQuery boostQuery : boostingQueries)
+				boostedComplexQuery = boostQuery.getNewQuery(
+						boostedComplexQuery, queryParser);
+			queryParsed = boostedComplexQuery.toString();
+			return boostedComplexQuery;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -466,7 +482,8 @@ public class SearchRequest {
 		rwl.w.lock();
 		try {
 			patternQuery = value;
-			complexQuery = null;
+			boostedComplexQuery = null;
+			snippetComplexQuery = null;
 			primitiveQuery = null;
 		} finally {
 			rwl.w.unlock();
@@ -488,7 +505,8 @@ public class SearchRequest {
 		rwl.w.lock();
 		try {
 			queryString = q;
-			complexQuery = null;
+			boostedComplexQuery = null;
+			snippetComplexQuery = null;
 			primitiveQuery = null;
 		} finally {
 			rwl.w.unlock();
@@ -773,7 +791,7 @@ public class SearchRequest {
 			sb.append(" Rows: ");
 			sb.append(rows);
 			sb.append(" Query: ");
-			sb.append(complexQuery);
+			sb.append(boostedComplexQuery);
 			sb.append(" Facet: " + getFacetFieldList().toString());
 			if (getCollapseMode() != CollapseMode.COLLAPSE_OFF)
 				sb.append(" Collapsing: " + getCollapseMode() + " "
@@ -1118,6 +1136,33 @@ public class SearchRequest {
 		}
 	}
 
+	public BoostQuery[] getBoostingQueries() {
+		rwl.r.lock();
+		try {
+			BoostQuery[] queries = new BoostQuery[boostingQueries.size()];
+			return boostingQueries.toArray(queries);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setBoostingQuery(BoostQuery oldOne, BoostQuery newOne) {
+		rwl.w.lock();
+		try {
+			if (oldOne != null) {
+				if (newOne == null)
+					boostingQueries.remove(oldOne);
+				else
+					oldOne.copyFrom(newOne);
+			} else {
+				if (newOne != null)
+					boostingQueries.add(newOne);
+			}
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	/**
 	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
 	 * config XML.
@@ -1151,6 +1196,10 @@ public class SearchRequest {
 				XPathParser.getAttributeString(node, "lang"),
 				xpp.getNodeString(node, "query"), null, false, true, false);
 
+		AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp, node);
+		if (advancedScore != null)
+			searchRequest.setAdvancedScore(advancedScore);
+
 		searchRequest.setCollapseMode(CollapseMode.valueOfLabel(XPathParser
 				.getAttributeString(node, "collapseMode")));
 		searchRequest.setCollapseField(XPathParser.getAttributeString(node,
@@ -1158,7 +1207,9 @@ public class SearchRequest {
 		searchRequest.setCollapseMax(XPathParser.getAttributeValue(node,
 				"collapseMax"));
 
-		searchRequest.setAdvancedScore(AdvancedScore.fromXmlConfig(xpp, node));
+		Node bqNode = xpp.getNode(node, "boostingQueries");
+		if (bqNode != null)
+			BoostQuery.loadFromXml(xpp, bqNode, searchRequest.boostingQueries);
 
 		Node mltNode = xpp.getNode(node, "moreLikeThis");
 		if (mltNode != null) {
@@ -1259,6 +1310,7 @@ public class SearchRequest {
 				Integer.toString(moreLikeThisMinDocFreq), "minTermFreq",
 				Integer.toString(moreLikeThisMinTermFreq), "stopWords",
 				moreLikeThisStopWords, "active", isMoreLikeThis ? "yes" : "no");
+
 		if (moreLikeThisFieldList.size() > 0) {
 			xmlWriter.startElement("fields");
 			moreLikeThisFieldList.writeXmlConfig(xmlWriter);
@@ -1269,8 +1321,14 @@ public class SearchRequest {
 			xmlWriter.textNode(moreLikeThisDocQuery);
 			xmlWriter.endElement();
 		}
-
 		xmlWriter.endElement();
+
+		if (boostingQueries.size() > 0) {
+			xmlWriter.startElement("boostingQueries");
+			for (BoostQuery boostQuery : boostingQueries)
+				boostQuery.writeXmlConfig(xmlWriter);
+			xmlWriter.endElement();
+		}
 
 		if (patternQuery != null && patternQuery.trim().length() > 0) {
 			xmlWriter.startElement("query");

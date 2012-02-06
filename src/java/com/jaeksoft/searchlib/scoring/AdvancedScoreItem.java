@@ -130,7 +130,7 @@ public class AdvancedScoreItem {
 		xmlWriter.startElement(AdvancedScore.ADVANCED_SCORE_ITEM_NODE,
 				SCORE_ITEM_FIELD_ATTR, fieldName, SCORE_ITEM_ASCENDING_ATTR,
 				Boolean.toString(ascending), SCORE_ITEM_WEIGHT_ATTR,
-				Float.toString(weight));
+				Integer.toString(weight));
 		xmlWriter.endElement();
 	}
 
