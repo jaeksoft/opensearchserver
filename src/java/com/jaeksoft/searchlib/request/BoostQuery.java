@@ -120,4 +120,16 @@ public class BoostQuery {
 		this.query = query;
 	}
 
+	public final static String getCacheKey(BoostQuery[] boostingQueries) {
+		if (boostingQueries.length == 0)
+			return "";
+		StringBuffer sb = new StringBuffer();
+		for (BoostQuery boostQuery : boostingQueries) {
+			sb.append(boostQuery.query);
+			sb.append('/');
+			sb.append(boostQuery.boost);
+			sb.append('|');
+		}
+		return sb.toString();
+	}
 }

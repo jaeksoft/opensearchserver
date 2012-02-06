@@ -32,6 +32,7 @@ import org.zkoss.zul.RowRenderer;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
@@ -85,8 +86,11 @@ public class SpellCheckController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
+			SearchRequest searchRequest = getRequest();
+			if (searchRequest == null)
+				return null;
 			fieldLeft = new ArrayList<String>();
-			FieldList<SpellCheckField> spellCheckFields = getRequest()
+			FieldList<SpellCheckField> spellCheckFields = searchRequest
 					.getSpellCheckFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
