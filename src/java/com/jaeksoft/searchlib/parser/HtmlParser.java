@@ -573,10 +573,13 @@ public class HtmlParser extends Parser {
 		}
 
 		boolean metaRobotsFollow = true;
+		boolean metaRobotsNoIndex = false;
 		if (metaRobots != null) {
 			metaRobots = metaRobots.toLowerCase();
-			if (metaRobots.contains("noindex"))
+			if (metaRobots.contains("noindex")) {
+				metaRobotsNoIndex = true;
 				addField(ParserFieldEnum.meta_robots, "noindex");
+			}
 			if (metaRobots.contains("nofollow")) {
 				metaRobotsFollow = false;
 				addField(ParserFieldEnum.meta_robots, "nofollow");
@@ -633,13 +636,15 @@ public class HtmlParser extends Parser {
 			}
 		}
 
-		nodes = DomUtils.getNodes(doc, "html", "body");
-		if (nodes == null || nodes.size() == 0)
-			nodes = DomUtils.getNodes(doc, "html");
-		if (nodes != null && nodes.size() > 0) {
-			StringBuffer sb = new StringBuffer();
-			getBodyTextContent(sb, nodes.get(0), true, null);
-			addField(ParserFieldEnum.body, sb);
+		if (!metaRobotsNoIndex) {
+			nodes = DomUtils.getNodes(doc, "html", "body");
+			if (nodes == null || nodes.size() == 0)
+				nodes = DomUtils.getNodes(doc, "html");
+			if (nodes != null && nodes.size() > 0) {
+				StringBuffer sb = new StringBuffer();
+				getBodyTextContent(sb, nodes.get(0), true, null);
+				addField(ParserFieldEnum.body, sb);
+			}
 		}
 
 		// Identification de la langue:
@@ -665,7 +670,7 @@ public class HtmlParser extends Parser {
 		if (lang != null) {
 			addField(ParserFieldEnum.lang, lang.getLanguage());
 			addField(ParserFieldEnum.lang_method, langMethod);
-		} else
+		} else if (!metaRobotsNoIndex)
 			lang = langDetection(10000, ParserFieldEnum.body);
 
 	}

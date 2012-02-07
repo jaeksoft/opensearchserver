@@ -147,6 +147,7 @@ public class Crawl {
 		parser.setSourceDocument(sourceDocument);
 		Date parserStartDate = new Date();
 		parser.parseContent(inputStream);
+
 		urlItem.clearInLinks();
 		urlItem.addInLinks(parser
 				.getFieldContent(ParserFieldEnum.internal_link));
@@ -177,6 +178,14 @@ public class Crawl {
 		}
 		if (newLastModifiedTime != null)
 			urlItem.setLastModifiedDate(newLastModifiedTime);
+
+		for (FieldValueItem item : parser.getFieldContent(
+				ParserFieldEnum.meta_robots).getValues())
+			if ("noindex".equalsIgnoreCase(item.getValue())) {
+				urlItem.setIndexStatus(IndexStatus.META_NOINDEX);
+				break;
+			}
+
 		this.parser = parser;
 	}
 
