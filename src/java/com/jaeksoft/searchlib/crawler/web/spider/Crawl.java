@@ -179,12 +179,19 @@ public class Crawl {
 		if (newLastModifiedTime != null)
 			urlItem.setLastModifiedDate(newLastModifiedTime);
 
-		for (FieldValueItem item : parser.getFieldContent(
-				ParserFieldEnum.meta_robots).getValues())
-			if ("noindex".equalsIgnoreCase(item.getValue())) {
-				urlItem.setIndexStatus(IndexStatus.META_NOINDEX);
-				break;
+		FieldContent fieldContent = parser
+				.getFieldContent(ParserFieldEnum.meta_robots);
+		if (fieldContent != null) {
+			List<FieldValueItem> fieldValues = fieldContent.getValues();
+			if (fieldValues != null) {
+				for (FieldValueItem item : parser.getFieldContent(
+						ParserFieldEnum.meta_robots).getValues())
+					if ("noindex".equalsIgnoreCase(item.getValue())) {
+						urlItem.setIndexStatus(IndexStatus.META_NOINDEX);
+						break;
+					}
 			}
+		}
 
 		this.parser = parser;
 	}
