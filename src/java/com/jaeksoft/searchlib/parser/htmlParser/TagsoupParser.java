@@ -49,8 +49,9 @@ public class TagsoupParser extends HtmlDocumentProvider {
 	}
 
 	@Override
-	protected Document getDocument(String charset, LimitInputStream inputStream)
-			throws SAXException, IOException, ParserConfigurationException {
+	protected DomHtmlNode getDocument(String charset,
+			LimitInputStream inputStream) throws SAXException, IOException,
+			ParserConfigurationException {
 		org.ccil.cowan.tagsoup.Parser parser = new org.ccil.cowan.tagsoup.Parser();
 		parser.setFeature("http://xml.org/sax/features/namespace-prefixes",
 				true);
@@ -59,7 +60,7 @@ public class TagsoupParser extends HtmlDocumentProvider {
 		InputSource inputSource = new InputSource(inputStream);
 		inputSource.setEncoding(charset);
 		parser.parse(inputSource);
-		return (Document) sax2dom.getDOM();
+		return new DomHtmlNode((Document) sax2dom.getDOM());
 	}
 
 }

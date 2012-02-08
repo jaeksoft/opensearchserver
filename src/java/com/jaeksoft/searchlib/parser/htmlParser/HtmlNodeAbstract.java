@@ -35,25 +35,41 @@ public abstract class HtmlNodeAbstract<T> {
 		this.node = node;
 	}
 
-	public abstract int countElements(HtmlNodeAbstract<T> parent);
+	public abstract int countElements();
 
-	public abstract String getTextNode(HtmlNodeAbstract<T> parent,
+	public abstract String getTextNode(String... path);
+
+	public abstract String getNodeValue();
+
+	public abstract void getNodes(List<HtmlNodeAbstract<?>> nodes,
 			String... path);
 
-	public abstract void getNodes(List<HtmlNodeAbstract<T>> nodes,
-			HtmlNodeAbstract<T> parent, String... path);
+	public abstract String getAttributeText(String name);
 
-	public abstract String getAttributeText(HtmlNodeAbstract<T> node,
-			String name);
+	final public List<HtmlNodeAbstract<?>> getNewNodeList() {
+		return new ArrayList<HtmlNodeAbstract<?>>(0);
+	}
 
-	public List<HtmlNodeAbstract<T>> getNodes(HtmlNodeAbstract<T> parent,
-			String... path) {
+	final public List<HtmlNodeAbstract<?>> getNodes(String... path) {
 		if (path == null)
 			return null;
 		if (path.length == 0)
 			return null;
-		List<HtmlNodeAbstract<T>> nodes = new ArrayList<HtmlNodeAbstract<T>>(0);
-		getNodes(nodes, parent, path);
+		List<HtmlNodeAbstract<?>> nodes = getNewNodeList();
+		getNodes(nodes, path);
 		return nodes;
 	}
+
+	public abstract boolean isComment();
+
+	public abstract boolean isTextNode();
+
+	public abstract String getNodeName();
+
+	public abstract String getAttribute(String name);
+
+	public abstract List<HtmlNodeAbstract<?>> getChildNodes();
+
+	public abstract List<HtmlNodeAbstract<?>> getAllNodes(String... names);
+
 }

@@ -29,7 +29,6 @@ import java.io.IOException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -50,12 +49,13 @@ public class StrictXhtmlParser extends HtmlDocumentProvider {
 	}
 
 	@Override
-	protected Document getDocument(String charset, LimitInputStream inputStream)
-			throws SAXException, IOException, ParserConfigurationException {
+	protected DomHtmlNode getDocument(String charset,
+			LimitInputStream inputStream) throws SAXException, IOException,
+			ParserConfigurationException {
 		DocumentBuilder builder = DomUtils.getNewDocumentBuilder(false, true);
 		InputSource inputSource = new InputSource(inputStream);
 		inputSource.setEncoding(charset);
-		return builder.parse(inputSource);
+		return new DomHtmlNode(builder.parse(inputSource));
 	}
 
 }

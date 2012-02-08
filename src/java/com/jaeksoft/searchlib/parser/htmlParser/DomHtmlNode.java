@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.parser.htmlParser;
 import java.util.List;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.util.DomUtils;
 
@@ -37,26 +38,69 @@ public class DomHtmlNode extends HtmlNodeAbstract<Node> {
 	}
 
 	@Override
-	final public int countElements(HtmlNodeAbstract<Node> parent) {
-		return DomUtils.countElements(parent.node);
+	final public int countElements() {
+		return DomUtils.countElements(node);
 	}
 
 	@Override
-	public String getTextNode(HtmlNodeAbstract<Node> parent, String... path) {
-		return DomUtils.getTextNode(parent.node, path);
+	public String getTextNode(String... path) {
+		return DomUtils.getTextNode(node, path);
 	}
 
 	@Override
-	public String getAttributeText(HtmlNodeAbstract<Node> node, String name) {
-		return DomUtils.getAttributeText(node.node, name);
+	public String getAttributeText(String name) {
+		return DomUtils.getAttributeText(node, name);
 	}
 
 	@Override
-	public void getNodes(List<HtmlNodeAbstract<Node>> nodes,
-			HtmlNodeAbstract<Node> parent, String... path) {
-		List<Node> nodeList = DomUtils.getNodes(parent.node, path);
+	public void getNodes(List<HtmlNodeAbstract<?>> nodes, String... path) {
+		List<Node> nodeList = DomUtils.getNodes(node, path);
 		for (Node node : nodeList)
 			nodes.add(new DomHtmlNode(node));
+	}
+
+	@Override
+	public List<HtmlNodeAbstract<?>> getAllNodes(String... tags) {
+		List<HtmlNodeAbstract<?>> nodes = getNewNodeList();
+		List<Node> nodeList = DomUtils.getAllNodes(node, tags);
+		for (Node node : nodeList)
+			nodes.add(new DomHtmlNode(node));
+		return nodes;
+	}
+
+	@Override
+	public List<HtmlNodeAbstract<?>> getChildNodes() {
+		List<HtmlNodeAbstract<?>> nodes = getNewNodeList();
+		NodeList nodeList = node.getChildNodes();
+		int l = nodeList.getLength();
+		for (int i = 0; i < l; i++)
+			nodes.add(new DomHtmlNode(nodeList.item(i)));
+		return nodes;
+	}
+
+	@Override
+	public boolean isComment() {
+		return node.getNodeType() == Node.COMMENT_NODE;
+	}
+
+	@Override
+	public boolean isTextNode() {
+		return node.getNodeType() == Node.TEXT_NODE;
+	}
+
+	@Override
+	public String getNodeName() {
+		return node.getNodeName();
+	}
+
+	@Override
+	public String getAttribute(String name) {
+		return DomUtils.getAttributeText(node, name);
+	}
+
+	@Override
+	public String getNodeValue() {
+		return node.getNodeValue();
 	}
 
 }

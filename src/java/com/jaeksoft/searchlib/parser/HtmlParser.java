@@ -32,9 +32,6 @@ import java.util.Locale;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -43,15 +40,14 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
+import com.jaeksoft.searchlib.parser.htmlParser.HtmlNodeAbstract;
 import com.jaeksoft.searchlib.parser.htmlParser.NekoHtmlParser;
 import com.jaeksoft.searchlib.parser.htmlParser.StrictXhtmlParser;
 import com.jaeksoft.searchlib.parser.htmlParser.TagsoupParser;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.MimeUtils;
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class HtmlParser extends Parser {
 
@@ -114,9 +110,9 @@ public class HtmlParser extends Parser {
 	private final static int OPENSEARCHSERVER_FIELD_LENGTH = OPENSEARCHSERVER_FIELD
 			.length();
 
-	private void getBodyTextContent(StringBuffer sb, Node node,
+	private void getBodyTextContent(StringBuffer sb, HtmlNodeAbstract<?> node,
 			boolean bAddBlock, String[] directFields) {
-		if (node.getNodeType() == Node.COMMENT_NODE)
+		if (node.isComment())
 			return;
 		String nodeName = node.getNodeName();
 		if ("script".equalsIgnoreCase(nodeName))
@@ -126,14 +122,12 @@ public class HtmlParser extends Parser {
 		if ("title".equalsIgnoreCase(nodeName))
 			return;
 		if ("oss".equalsIgnoreCase(nodeName)) {
-			if ("yes".equalsIgnoreCase(XPathParser.getAttributeString(node,
-					"ignore")))
+			if ("yes".equalsIgnoreCase(node.getAttribute("ignore")))
 				return;
 		}
 		boolean bEnterDirectField = false;
 		if ("div".equalsIgnoreCase(nodeName)) {
-			String classAttribute = XPathParser.getAttributeString(node,
-					"class");
+			String classAttribute = node.getAttribute("class");
 			if (classAttribute != null) {
 				if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(classAttribute))
 					return;
@@ -147,7 +141,7 @@ public class HtmlParser extends Parser {
 				}
 			}
 		}
-		if (node.getNodeType() == Node.TEXT_NODE) {
+		if (node.isTextNode()) {
 			String text = node.getNodeValue();
 			text = text.replaceAll("\\r", "");
 			text = text.replaceAll("\\n", "");
@@ -160,12 +154,10 @@ public class HtmlParser extends Parser {
 				sb.append(text);
 			}
 		}
-		NodeList children = node.getChildNodes();
-		if (children == null)
-			return;
-		int len = children.getLength();
-		for (int i = 0; i < len; i++)
-			getBodyTextContent(sb, children.item(i), bAddBlock, directFields);
+		List<HtmlNodeAbstract<?>> children = node.getChildNodes();
+		if (children != null)
+			for (HtmlNodeAbstract<?> htmlNode : children)
+				getBodyTextContent(sb, htmlNode, bAddBlock, directFields);
 
 		if (bAddBlock && nodeName != null && sb.length() > 0) {
 			String currentTag = nodeName.toLowerCase();
@@ -186,7 +178,7 @@ public class HtmlParser extends Parser {
 
 		HtmlDocumentProvider provider = new StrictXhtmlParser(charset,
 				inputStream);
-		if (provider.getDocument() != null)
+		if (provider.getRootNode() != null)
 			return provider;
 
 		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(
@@ -261,19 +253,18 @@ public class HtmlParser extends Parser {
 			}
 		}
 
-		Document doc = htmlProvider.getDocument();
-		if (doc == null)
+		HtmlNodeAbstract<?> rootNode = htmlProvider.getRootNode();
+		if (rootNode == null)
 			return;
 
-		for (Node metaNode : htmlProvider.getMetas()) {
-			String metaName = DomUtils.getAttributeText(metaNode, "name");
+		for (HtmlNodeAbstract<?> metaNode : htmlProvider.getMetas()) {
+			String metaName = metaNode.getAttributeText("name");
 			if (metaName != null && metaName.startsWith(OPENSEARCHSERVER_FIELD)) {
 				String field = metaName
 						.substring(OPENSEARCHSERVER_FIELD_LENGTH);
 				String[] fields = field.split("\\.");
 				if (fields != null) {
-					String content = DomUtils.getAttributeText(metaNode,
-							"content");
+					String content = metaNode.getAttributeText("content");
 					addDirectFields(fields, content);
 				}
 			}
@@ -289,10 +280,9 @@ public class HtmlParser extends Parser {
 
 		String metaContentLanguage = null;
 
-		for (Node node : htmlProvider.getMetas()) {
-			String attr_name = DomUtils.getAttributeText(node, "name");
-			String attr_http_equiv = DomUtils.getAttributeText(node,
-					"http-equiv");
+		for (HtmlNodeAbstract<?> node : htmlProvider.getMetas()) {
+			String attr_name = node.getAttributeText("name");
+			String attr_http_equiv = node.getAttributeText("http-equiv");
 			if ("keywords".equalsIgnoreCase(attr_name))
 				addField(ParserFieldEnum.meta_keywords,
 						HtmlDocumentProvider.getMetaContent(node));
@@ -323,7 +313,7 @@ public class HtmlParser extends Parser {
 
 		UrlFilterItem[] urlFilterList = getUrlFilterList();
 
-		List<Node> nodes = DomUtils.getAllNodes(doc, "a", "frame");
+		List<HtmlNodeAbstract<?>> nodes = rootNode.getAllNodes("a", "frame");
 		IndexDocument srcDoc = getSourceDocument();
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {
 			URL currentURL = htmlProvider.getBaseHref();
@@ -333,15 +323,15 @@ public class HtmlParser extends Parser {
 				if (fvi != null)
 					currentURL = new URL(fvi.getValue());
 			}
-			for (Node node : nodes) {
+			for (HtmlNodeAbstract<?> node : nodes) {
 				String href = null;
 				String rel = null;
 				String nodeName = node.getNodeName();
 				if ("a".equals(nodeName)) {
-					href = DomUtils.getAttributeText(node, "href");
-					rel = DomUtils.getAttributeText(node, "rel");
+					href = node.getAttributeText("href");
+					rel = node.getAttributeText("rel");
 				} else if ("frame".equals(nodeName)) {
-					href = DomUtils.getAttributeText(node, "src");
+					href = node.getAttributeText("src");
 				}
 				boolean follow = true;
 				if (rel != null)
@@ -372,9 +362,9 @@ public class HtmlParser extends Parser {
 		}
 
 		if (!metaRobotsNoIndex) {
-			nodes = DomUtils.getNodes(doc, "html", "body");
+			nodes = rootNode.getNodes("html", "body");
 			if (nodes == null || nodes.size() == 0)
-				nodes = DomUtils.getNodes(doc, "html");
+				nodes = rootNode.getNodes("html");
 			if (nodes != null && nodes.size() > 0) {
 				StringBuffer sb = new StringBuffer();
 				getBodyTextContent(sb, nodes.get(0), true, null);
@@ -386,10 +376,10 @@ public class HtmlParser extends Parser {
 		Locale lang = null;
 		String langMethod = null;
 		String[] pathHtml = { "html" };
-		nodes = DomUtils.getNodes(doc, pathHtml);
+		nodes = rootNode.getNodes(pathHtml);
 		if (nodes != null && nodes.size() > 0) {
 			langMethod = "html lang attribute";
-			String l = DomUtils.getAttributeText(nodes.get(0), "lang");
+			String l = nodes.get(0).getAttributeText("lang");
 			if (l != null)
 				lang = Lang.findLocaleISO639(l);
 		}

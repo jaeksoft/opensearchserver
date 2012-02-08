@@ -29,7 +29,6 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.cyberneko.html.parsers.DOMParser;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -49,8 +48,9 @@ public class NekoHtmlParser extends HtmlDocumentProvider {
 	}
 
 	@Override
-	protected Document getDocument(String charset, LimitInputStream inputStream)
-			throws SAXException, IOException, ParserConfigurationException {
+	protected DomHtmlNode getDocument(String charset,
+			LimitInputStream inputStream) throws SAXException, IOException,
+			ParserConfigurationException {
 		DOMParser parser = new DOMParser();
 		parser.setFeature("http://xml.org/sax/features/namespaces", true);
 		parser.setFeature(
@@ -67,7 +67,7 @@ public class NekoHtmlParser extends HtmlDocumentProvider {
 		InputSource inputSource = new InputSource(inputStream);
 		inputSource.setEncoding(charset);
 		parser.parse(inputSource);
-		return parser.getDocument();
+		return new DomHtmlNode(parser.getDocument());
 	}
 
 }
