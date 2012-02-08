@@ -66,21 +66,57 @@ public class StringUtils {
 
 	private final static Pattern removeTagPattern = Pattern.compile("<[^>]*>");
 	private final static Pattern removeSpacePattern = Pattern
-			.compile("\\p{Space}");
-	private final static Pattern removeEndTagBlockPattern = Pattern
-			.compile("[^\\p{Punct}].<\\/(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>");
+			.compile("\\p{Space}+");
+	private final static Pattern removeBrPattern1 = Pattern
+			.compile("\\.\\p{Space}+<br\\p{Space}*/?>");
+	private final static Pattern removeEndTagBlockPattern1 = Pattern
+			.compile("\\.\\p{Space}+</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>");
+	private final static Pattern removeEndTagBlockPattern2 = Pattern
+			.compile("</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>");
+	private final static Pattern removeBrPattern2 = Pattern
+			.compile("<br\\p{Space}*/?>");
 
 	public static final String removeTag(String text) {
-		text = removeSpacePattern.matcher(text).replaceAll(" ");
-		text = removeEndTagBlockPattern.matcher(text).replaceAll(". ");
-		return removeTagPattern.matcher(text).replaceAll("");
+		synchronized (removeSpacePattern) {
+			text = removeSpacePattern.matcher(text).replaceAll(" ");
+		}
+		synchronized (removeBrPattern1) {
+			text = removeBrPattern1.matcher(text).replaceAll("</p>");
+		}
+		System.out.println(text);
+		synchronized (removeEndTagBlockPattern1) {
+			text = removeEndTagBlockPattern1.matcher(text).replaceAll("</p>");
+		}
+		synchronized (removeEndTagBlockPattern2) {
+			text = removeEndTagBlockPattern2.matcher(text).replaceAll(". ");
+		}
+		synchronized (removeBrPattern2) {
+			text = removeBrPattern2.matcher(text).replaceAll(". ");
+		}
+		synchronized (removeTagPattern) {
+			text = removeTagPattern.matcher(text).replaceAll("");
+		}
+		synchronized (removeSpacePattern) {
+			text = removeSpacePattern.matcher(text).replaceAll(" ");
+		}
+		return text;
+	}
+
+	public static void main(String[] args) {
+		String text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
+		System.out.println(removeTag(text));
 	}
 
 	public static final String removeTag(String text, String[] allowedTags) {
 		if (allowedTags == null)
-			return removeSpacePattern.matcher(text).replaceAll(" ");
+			synchronized (removeSpacePattern) {
+				return removeSpacePattern.matcher(text).replaceAll(" ");
+			}
 		StringBuffer sb = new StringBuffer();
-		Matcher matcher = removeTagPattern.matcher(text);
+		Matcher matcher;
+		synchronized (removeTagPattern) {
+			matcher = removeTagPattern.matcher(text);
+		}
 		while (matcher.find()) {
 			boolean allowed = false;
 			String group = matcher.group();
