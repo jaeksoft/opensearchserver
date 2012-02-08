@@ -57,17 +57,27 @@ public class RenderXml implements Render {
 	private Result result;
 	private SearchRequest searchRequest;
 	private Matcher controlMatcher;
+	private Matcher spaceMatcher;
 
 	public RenderXml(Result result) {
 		this.result = result;
 		this.searchRequest = result.getSearchRequest();
-		Pattern p = Pattern.compile("\\p{Cntrl}");
+		Pattern p = Pattern.compile("\\p{Cntrl}+");
 		controlMatcher = p.matcher("");
+		p = Pattern.compile("\\p{Space}+");
+		spaceMatcher = p.matcher("");
 	}
 
 	private String xmlTextRender(String text) {
-		controlMatcher.reset(text);
-		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
+		synchronized (controlMatcher) {
+			controlMatcher.reset(text);
+			text = controlMatcher.replaceAll(" ");
+		}
+		synchronized (spaceMatcher) {
+			spaceMatcher.reset(text);
+			text = spaceMatcher.replaceAll(" ");
+		}
+		return StringEscapeUtils.escapeXml(text);
 	}
 
 	private void renderPrefix() throws ParseException, SyntaxError,
