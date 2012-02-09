@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,11 +27,10 @@ package com.jaeksoft.searchlib.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jsoup.nodes.Document;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
-import org.jsoup.select.Elements;
 
 public class JSoupUtils {
 
@@ -109,10 +108,10 @@ public class JSoupUtils {
 	}
 
 	final public static String getAttributeText(Node node, String name) {
-		Elements elements = ((Document) node).getAllElements();
-		if (elements == null)
+		Element element = (Element) node;
+		if (element == null)
 			return null;
-		String attr = elements.attr(name);
+		String attr = element.attr(name);
 		return attr;
 	}
 
@@ -135,6 +134,10 @@ public class JSoupUtils {
 		List<Node> nodes = new ArrayList<Node>();
 		getAllNodes(parent, tags, nodes);
 		return nodes;
+	}
+
+	final public static String getCleanHtml(String html) {
+		return Jsoup.parse(html).text();
 	}
 
 }

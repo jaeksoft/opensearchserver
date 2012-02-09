@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3485668: Jsoup HTML parser
 - 3471808: Consecutive duplicate characters filter
 - 3467459: Phonetic filters
 - 3467437: A filter to extract the domain information

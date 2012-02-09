@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlNodeAbstract;
+import com.jaeksoft.searchlib.parser.htmlParser.JSoupParser;
 import com.jaeksoft.searchlib.parser.htmlParser.NekoHtmlParser;
 import com.jaeksoft.searchlib.parser.htmlParser.StrictXhtmlParser;
 import com.jaeksoft.searchlib.parser.htmlParser.TagsoupParser;
@@ -186,6 +187,7 @@ public class HtmlParser extends Parser {
 		providerList.add(new TagsoupParser(charset, inputStream));
 		providerList.add(new NekoHtmlParser(charset, inputStream));
 		providerList.add(new HtmlCleanerParser(charset, inputStream));
+		providerList.add(new JSoupParser(charset, inputStream));
 
 		return HtmlDocumentProvider.bestScore(providerList);
 	}

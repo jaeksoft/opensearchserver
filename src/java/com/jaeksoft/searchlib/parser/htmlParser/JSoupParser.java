@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Node;
 import org.xml.sax.SAXException;
@@ -43,14 +44,14 @@ public class JSoupParser extends HtmlDocumentProvider {
 
 	@Override
 	public String getName() {
-		return "JSoup";
+		return "Jsoup";
 	}
 
 	@Override
 	protected HtmlNodeAbstract<?> getDocument(String charset,
 			LimitInputStream inputStream) throws SAXException, IOException,
 			ParserConfigurationException {
-		Node node = Jsoup.parse(inputStream, charset, null);
+		Node node = Jsoup.parse(IOUtils.toString(inputStream, charset));
 		return new JSoupHtmlNode(node);
 	}
 }
