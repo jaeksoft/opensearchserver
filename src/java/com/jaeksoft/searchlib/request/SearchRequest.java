@@ -407,10 +407,9 @@ public class SearchRequest {
 		mlt.setMinTermFreq(moreLikeThisMinTermFreq);
 		mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
 		mlt.setAnalyzer(checkAnalyzer());
-		// TODO restore stop words
-		// if (moreLikeThisStopWords != null)
-		// mlt.setStopWords(getConfig().getStopWordsManager().getWords(
-		// moreLikeThisStopWords));
+		if (moreLikeThisStopWords != null)
+			mlt.setStopWords(getConfig().getStopWordsManager()
+					.getWordArray(moreLikeThisStopWords, false).getWordSet());
 		return mlt.like(docId);
 	}
 

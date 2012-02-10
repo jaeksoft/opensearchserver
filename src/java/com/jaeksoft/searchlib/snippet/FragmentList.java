@@ -160,7 +160,7 @@ public class FragmentList {
 		while (fragment != null) {
 			if (!rightAppend(fragment, maxLength, snippet, separator, tags))
 				return snippet;
-			fragment = originalFragment.previous();
+			fragment = fragment.previous();
 		}
 		return snippet;
 

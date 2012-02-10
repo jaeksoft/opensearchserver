@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.poi.util.IOUtils;
@@ -68,6 +69,10 @@ public class WordArray {
 			if (br != null)
 				IOUtils.closeQuietly(br);
 		}
+	}
+
+	public Set<String> getWordSet() {
+		return wordSet;
 	}
 
 	public boolean match(String term) {
