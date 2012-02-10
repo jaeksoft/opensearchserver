@@ -110,24 +110,13 @@ public class StringUtils {
 
 	public static final String removeCustomTag(String content,
 			String findRegexTag, String replaceRegexTag) {
-		StringBuilder builder = new StringBuilder();
 		if (replaceRegexTag == null)
 			replaceRegexTag = "";
 		if (findRegexTag != null && !findRegexTag.equalsIgnoreCase("")) {
 			Pattern pattern = Pattern.compile(findRegexTag);
-			Matcher matcher = pattern.matcher(content);
-			int i = 0;
-			while (matcher.find()) {
-				builder.append(content.substring(i, matcher.start()));
-				if (replaceRegexTag == null)
-					builder.append(matcher.group(0));
-				else
-					builder.append(replaceRegexTag);
-				i = matcher.end();
-			}
-			builder.append(content.substring(i, content.length()));
+			content = pattern.matcher(content).replaceAll(replaceRegexTag);
 		}
-		return builder.toString();
+		return content;
 	}
 
 	public static final String removeTag(String text, String[] allowedTags) {
