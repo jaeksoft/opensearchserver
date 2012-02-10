@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,15 +45,22 @@ public class DatabaseFieldTarget extends Target {
 
 	private String filePathPrefix;
 
+	private String findRegexTag;
+
+	private String replaceRegexTag;
+
 	public DatabaseFieldTarget(String targetName, boolean removeTag,
 			boolean convertHtmlEntities, boolean filePath,
-			String filePathPrefix, boolean crawlUrl) {
+			String filePathPrefix, boolean crawlUrl, String findRegexTag,
+			String replaceRegexTag) {
 		super(targetName);
 		this.removeTag = removeTag;
 		this.convertHtmlEntities = convertHtmlEntities;
 		this.filePathPrefix = filePathPrefix;
 		this.filePath = filePath;
 		this.crawlUrl = crawlUrl;
+		this.findRegexTag = findRegexTag;
+		this.replaceRegexTag = replaceRegexTag;
 	}
 
 	public DatabaseFieldTarget(String targetName, Node targetNode) {
@@ -75,6 +82,9 @@ public class DatabaseFieldTarget extends Target {
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
 					"crawlUrl")))
 				crawlUrl = true;
+			findRegexTag = DomUtils.getAttributeText(node, "findRegexTag");
+			replaceRegexTag = DomUtils
+					.getAttributeText(node, "replaceRegexTag");
 		}
 	}
 
@@ -82,7 +92,9 @@ public class DatabaseFieldTarget extends Target {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no",
 				"convertHtmlEntities", convertHtmlEntities ? "yes" : "no",
 				"filePath", filePath ? "yes" : "no", "filePathPrefix",
-				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no");
+				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no",
+				"findRegexTag", findRegexTag, "replaceRegexTag",
+				replaceRegexTag);
 		xmlWriter.endElement();
 	}
 
@@ -129,6 +141,36 @@ public class DatabaseFieldTarget extends Target {
 	 */
 	public void setFilePathPrefix(String filePathPrefix) {
 		this.filePathPrefix = filePathPrefix;
+	}
+
+	/**
+	 * @return the findRegexTag
+	 */
+	public String getFindRegexTag() {
+		return findRegexTag;
+	}
+
+	/**
+	 * @param findRegexTag
+	 *            the findRegexTag to set
+	 */
+	public void setFindRegexTag(String findRegexTag) {
+		this.findRegexTag = findRegexTag;
+	}
+
+	/**
+	 * @return the replaceRegexTag
+	 */
+	public String getReplaceRegexTag() {
+		return replaceRegexTag;
+	}
+
+	/**
+	 * @param replaceRegexTag
+	 *            the replaceRegexTag to set
+	 */
+	public void setReplaceRegexTag(String replaceRegexTag) {
+		this.replaceRegexTag = replaceRegexTag;
 	}
 
 	/**

@@ -157,8 +157,8 @@
 					</row>
 					<row>
 						<label value="Field mapping: " />
-						<listbox width="95%"
-							model="@{dbCrawlList.currentCrawl.fieldMap.list}">
+						<listbox width="99%"
+							model="@{dbCrawlList.currentCrawl.fieldMap.list}" >
 							<listhead>
 								<listheader label="SQL column"
 									align="center" width="180px" />
@@ -166,6 +166,10 @@
 									align="center" width="180px" />
 								<listheader width="50px" label="Tags"
 									tooltiptext="Remove tag" align="center" />
+								<listheader width="50px" label="Find Custom Tag"
+									tooltiptext="Find custom tag" align="center" />
+								<listheader width="50px" label="Replace Custom Tag"
+									tooltiptext="Replace custom tag" align="center" />
 								<listheader width="50px"
 									label="Entities" tooltiptext="Convert HTML entities"
 									align="center" />
@@ -194,6 +198,14 @@
 								<auxheader align="center">
 									<checkbox tooltiptext="remove tags"
 										checked="@{dbCrawlList.dbFieldTarget.removeTag}" />
+								</auxheader>
+								<auxheader align="center">
+									<textbox tooltiptext="Find custom tags" 
+										value="@{dbCrawlList.dbFieldTarget.findRegexTag}" />
+								</auxheader>
+								<auxheader align="center">
+									<textbox tooltiptext="Replace custom tags" 
+										value="@{dbCrawlList.dbFieldTarget.replaceRegexTag}" />
 								</auxheader>
 								<auxheader align="center">
 									<checkbox
@@ -226,6 +238,8 @@
 									<checkbox disabled="true"
 										checked="@{fieldlink.target.removeTag}" />
 								</listcell>
+								<listcell label="@{fieldlink.target.findRegexTag}"/>
+								<listcell label="@{fieldlink.target.replaceRegexTag}"/>
 								<listcell>
 									<checkbox disabled="true"
 										checked="@{fieldlink.target.convertHtmlEntities}" />

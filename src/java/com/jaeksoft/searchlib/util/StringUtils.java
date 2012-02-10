@@ -87,7 +87,6 @@ public class StringUtils {
 		synchronized (removeBrPattern1) {
 			text = removeBrPattern1.matcher(text).replaceAll("</p>");
 		}
-		System.out.println(text);
 		synchronized (removeEndTagBlockPattern1) {
 			text = removeEndTagBlockPattern1.matcher(text).replaceAll("</p>");
 		}
@@ -107,6 +106,28 @@ public class StringUtils {
 	public static void main(String[] args) {
 		String text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
 		System.out.println(removeTag(text));
+	}
+
+	public static final String removeCustomTag(String content,
+			String findRegexTag, String replaceRegexTag) {
+		StringBuilder builder = new StringBuilder();
+		if (replaceRegexTag == null)
+			replaceRegexTag = "";
+		if (findRegexTag != null && !findRegexTag.equalsIgnoreCase("")) {
+			Pattern pattern = Pattern.compile(findRegexTag);
+			Matcher matcher = pattern.matcher(content);
+			int i = 0;
+			while (matcher.find()) {
+				builder.append(content.substring(i, matcher.start()));
+				if (replaceRegexTag == null)
+					builder.append(matcher.group(0));
+				else
+					builder.append(replaceRegexTag);
+				i = matcher.end();
+			}
+			builder.append(content.substring(i, content.length()));
+		}
+		return builder.toString();
 	}
 
 	public static final String removeTag(String text, String[] allowedTags) {

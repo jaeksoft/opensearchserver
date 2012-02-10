@@ -102,7 +102,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		dbCrawlList = null;
 		sqlColumn = null;
 		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false,
-				null, false);
+				null, false, null, null);
 		selectedIndexField = null;
 	}
 
@@ -163,7 +163,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		sqlColumn = null;
 		selectedIndexField = null;
 		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false,
-				null, false);
+				null, false, null, null);
 		reloadPage();
 	}
 

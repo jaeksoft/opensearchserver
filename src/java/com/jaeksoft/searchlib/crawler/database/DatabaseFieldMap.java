@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -125,11 +125,14 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 						target.add(targetIndexDocument);
 				}
 			}
-
 			if (dfTarget.isConvertHtmlEntities())
 				content = StringEscapeUtils.unescapeHtml(content);
 			if (dfTarget.isRemoveTag())
 				content = StringUtils.removeTag(content);
+			if (dfTarget.getFindRegexTag() != null)
+				content = StringUtils.removeCustomTag(content,
+						dfTarget.getFindRegexTag(),
+						dfTarget.getReplaceRegexTag());
 			target.add(dfTarget.getName(), new FieldValueItem(content));
 		}
 	}
