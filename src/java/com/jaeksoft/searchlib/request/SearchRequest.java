@@ -65,6 +65,7 @@ import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -356,8 +357,15 @@ public class SearchRequest {
 		String finalQuery;
 		if (patternQuery != null && patternQuery.length() > 0
 				&& queryString != null) {
-			String escQuery = escapeQuery(queryString);
-			finalQuery = patternQuery.replace("$$$", escQuery);
+			finalQuery = patternQuery;
+			if (finalQuery.contains("$$$$")) {
+				String escQuery = replaceControlChars(queryString);
+				finalQuery = finalQuery.replace("$$$$", escQuery);
+			}
+			if (patternQuery.contains("$$$")) {
+				String escQuery = escapeQuery(queryString);
+				finalQuery = finalQuery.replace("$$$", escQuery);
+			}
 			finalQuery = finalQuery.replace("$$", queryString);
 		} else
 			finalQuery = queryString;
@@ -1075,22 +1083,39 @@ public class SearchRequest {
 
 	public final static String[] WILDCARD_CHARS = { "*", "?" };
 
-	public static String escapeQuery(String query, String[] escapeChars) {
+	final public static String escapeQuery(String query, String[] escapeChars) {
 		for (String s : escapeChars) {
-			String r = "";
-			for (int i = 0; i < s.length(); i++)
-				r += "\\" + s.charAt(i);
-			query = query.replace(s, r);
+			StringBuffer sb = new StringBuffer();
+			for (int i = 0; i < s.length(); i++) {
+				sb.append('\\');
+				sb.append(s.charAt(i));
+			}
+			query = query.replace(s, sb.toString());
 		}
 		return query;
 	}
 
-	public static String escapeQuery(String query) {
+	final public static String escapeQuery(String query) {
 		query = escapeQuery(query, CONTROL_CHARS);
 		query = escapeQuery(query, RANGE_CHARS);
 		query = escapeQuery(query, AND_OR_NOT_CHARS);
 		query = escapeQuery(query, WILDCARD_CHARS);
 		return query;
+	}
+
+	final public static String replaceControlChars(String query,
+			String[] controlChars, String replaceChars) {
+		for (String s : controlChars)
+			query = query.replace(s, replaceChars);
+		return query;
+	}
+
+	final public static String replaceControlChars(String query) {
+		query = replaceControlChars(query, CONTROL_CHARS, " ");
+		query = replaceControlChars(query, RANGE_CHARS, " ");
+		query = replaceControlChars(query, AND_OR_NOT_CHARS, " ");
+		query = replaceControlChars(query, WILDCARD_CHARS, " ");
+		return StringUtils.removeConsecutiveSpaces(query);
 	}
 
 	public boolean isFacet() {

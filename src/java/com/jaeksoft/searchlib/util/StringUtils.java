@@ -76,10 +76,14 @@ public class StringUtils {
 	private final static Pattern removeBrPattern2 = Pattern
 			.compile("<br\\p{Space}*/?>");
 
-	public static final String removeTag(String text) {
+	public static final String removeConsecutiveSpaces(String text) {
 		synchronized (removeSpacePattern) {
-			text = removeSpacePattern.matcher(text).replaceAll(" ");
+			return removeSpacePattern.matcher(text).replaceAll(" ");
 		}
+	}
+
+	public static final String removeTag(String text) {
+		text = removeConsecutiveSpaces(text);
 		synchronized (removeBrPattern1) {
 			text = removeBrPattern1.matcher(text).replaceAll("</p>");
 		}
@@ -96,9 +100,7 @@ public class StringUtils {
 		synchronized (removeTagPattern) {
 			text = removeTagPattern.matcher(text).replaceAll("");
 		}
-		synchronized (removeSpacePattern) {
-			text = removeSpacePattern.matcher(text).replaceAll(" ");
-		}
+		text = removeConsecutiveSpaces(text);
 		return text;
 	}
 
