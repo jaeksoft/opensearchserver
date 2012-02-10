@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,8 +36,14 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static ClassPropertyEnum CLASS = new ClassPropertyEnum(false,
 			"class", "Class", "The name of the class");
 
-	public final static ClassPropertyEnum FILE = new ClassPropertyEnum(true,
-			"file", "List", "The name of the list");
+	public final static ClassPropertyEnum FILE_LIST = new ClassPropertyEnum(
+			true, "file", "List", "The name of the list");
+
+	public final static ClassPropertyEnum PREFIX_FILE_LIST = new ClassPropertyEnum(
+			true, "prefixList", "Prefix list", "The name of the prefix list");
+
+	public final static ClassPropertyEnum SUFFIX_FILE_LIST = new ClassPropertyEnum(
+			true, "suffixList", "Suffix list", "The name of the suffix list");
 
 	public final static ClassPropertyEnum SIZE_LIMIT = new ClassPropertyEnum(
 			true, "sizeLimit", "Size Limit",
@@ -63,7 +69,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	public final static ClassPropertyEnum TOKEN_SEPARATOR = new ClassPropertyEnum(
 			true, "token_separator", "Token separator",
-			"The string to use when joining adjacent tokens to form a shingle");
+			"The string to use when joining adjacent tokens");
+
+	public final static ClassPropertyEnum IGNORE_CASE = new ClassPropertyEnum(
+			true, "ignore_case", "Ignore case", "");
 
 	public final static ClassPropertyEnum MAX_SHINGLE_SIZE = new ClassPropertyEnum(
 			true, "max_shingle_size", "Max shingle size",

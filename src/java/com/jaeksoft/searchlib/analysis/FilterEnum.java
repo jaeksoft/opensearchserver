@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,6 +44,9 @@ public enum FilterEnum {
 
 	NGramFilter(
 			"This filter tokenizes the input into n-grams of the given size(s)."),
+
+	PrefixSuffixStopFilter(
+			"This filter removes words which match with prefixes or suffixes of a given term list."),
 
 	RussianStemFilter("A filter that stems Russian words."),
 

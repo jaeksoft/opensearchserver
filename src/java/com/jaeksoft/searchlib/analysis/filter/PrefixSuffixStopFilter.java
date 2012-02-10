@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,41 +29,58 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-import com.jaeksoft.searchlib.analysis.filter.stop.StopWordFilter;
-import com.jaeksoft.searchlib.analysis.filter.stop.WordArray;
+import com.jaeksoft.searchlib.analysis.filter.stop.PrefixArray;
+import com.jaeksoft.searchlib.analysis.filter.stop.PrefixSuffixFilter;
+import com.jaeksoft.searchlib.analysis.filter.stop.SuffixArray;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 
-public class StopFilter extends FilterFactory {
+public class PrefixSuffixStopFilter extends FilterFactory {
 
-	private String wordList = null;
+	private String prefixList = null;
+	private String suffixList = null;
+	private String tokenSeparator = null;
 	private boolean ignoreCase = false;
 	private StopWordsManager stopWordsManager = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		String[] values = config.getStopWordsManager().getList(false);
+		String[] values = config.getStopWordsManager().getList(true);
 		String value = (values != null && values.length > 0) ? values[0] : null;
-		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
+		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null);
 		addProperty(ClassPropertyEnum.IGNORE_CASE, Boolean.FALSE.toString(),
 				ClassPropertyEnum.BOOLEAN_LIST);
+		addProperty(ClassPropertyEnum.PREFIX_FILE_LIST, value, values);
+		addProperty(ClassPropertyEnum.SUFFIX_FILE_LIST, value, values);
 		stopWordsManager = config.getStopWordsManager();
 	}
 
 	@Override
 	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		if (prop == ClassPropertyEnum.FILE_LIST)
-			wordList = value;
+		if (value == null || value.length() == 0)
+			return;
+		if (prop == ClassPropertyEnum.PREFIX_FILE_LIST)
+			prefixList = value;
+		else if (prop == ClassPropertyEnum.SUFFIX_FILE_LIST)
+			suffixList = value;
+		else if (prop == ClassPropertyEnum.TOKEN_SEPARATOR)
+			tokenSeparator = value;
 		else if (prop == ClassPropertyEnum.IGNORE_CASE)
 			ignoreCase = Boolean.parseBoolean(value);
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		WordArray wordArray = null;
-		if (wordList != null && wordList.length() > 0)
-			wordArray = stopWordsManager.getWordArray(wordList, ignoreCase);
-		return new StopWordFilter(tokenStream, wordArray, ignoreCase);
+		PrefixArray prefixArray = null;
+		SuffixArray suffixArray = null;
+		if (prefixList != null && prefixList.length() > 0)
+			prefixArray = stopWordsManager.getPrefixArray(prefixList,
+					tokenSeparator, ignoreCase);
+		if (suffixList != null && suffixList.length() > 0)
+			suffixArray = stopWordsManager.getSuffixArray(suffixList,
+					tokenSeparator, ignoreCase);
+		return new PrefixSuffixFilter(tokenStream, prefixArray, suffixArray,
+				ignoreCase);
 	}
 }

@@ -412,8 +412,8 @@ public class SearchRequest {
 		mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
 		mlt.setAnalyzer(checkAnalyzer());
 		if (moreLikeThisStopWords != null)
-			mlt.setStopWords(getConfig().getStopWordsManager().getWords(
-					moreLikeThisStopWords));
+			mlt.setStopWords(getConfig().getStopWordsManager()
+					.getWordArray(moreLikeThisStopWords, false).getWordSet());
 		return mlt.like(docId);
 	}
 

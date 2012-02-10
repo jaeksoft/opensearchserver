@@ -41,13 +41,13 @@ public class SynonymFilter extends FilterFactory {
 		super.initProperties();
 		String[] values = config.getSynonymsManager().getList();
 		String value = (values != null && values.length > 0) ? values[0] : null;
-		addProperty(ClassPropertyEnum.FILE, value, values);
+		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
 	}
 
 	@Override
 	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		if (prop != ClassPropertyEnum.FILE)
+		if (prop != ClassPropertyEnum.FILE_LIST)
 			return;
 		if (value == null || value.length() == 0)
 			return;
