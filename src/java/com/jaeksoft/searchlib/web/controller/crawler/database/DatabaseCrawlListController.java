@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -105,9 +105,17 @@ public class DatabaseCrawlListController extends CrawlerController {
 		sqlColumn = null;
 		selectedField = null;
 		indexFieldList = null;
-		currentFieldTarget = new DatabaseFieldTarget(
-				getIndexFieldList().get(0), false, false, false, null, false,
-				null, null);
+		currentFieldTarget = newDatabaseFieldTarget();
+	}
+
+	private DatabaseFieldTarget newDatabaseFieldTarget()
+			throws SearchLibException {
+		String fieldName = null;
+		List<String> list = getIndexFieldList();
+		if (list != null && list.size() > 0)
+			fieldName = list.get(0);
+		return new DatabaseFieldTarget(fieldName, false, false, false, null,
+				false, null, null);
 	}
 
 	public DatabaseCrawl getCurrentCrawl() {
@@ -158,9 +166,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 	public void onCancelField() throws SearchLibException {
 		sqlColumn = null;
 		selectedField = null;
-		currentFieldTarget = new DatabaseFieldTarget(
-				getIndexFieldList().get(0), false, false, false, null, false,
-				null, null);
+		currentFieldTarget = newDatabaseFieldTarget();
 		reloadPage();
 	}
 
