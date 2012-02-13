@@ -108,17 +108,6 @@ public class StringUtils {
 		System.out.println(removeTag(text));
 	}
 
-	public static final String removeCustomTag(String content,
-			String findRegexTag, String replaceRegexTag) {
-		if (replaceRegexTag == null)
-			replaceRegexTag = "";
-		if (findRegexTag != null && !findRegexTag.equalsIgnoreCase("")) {
-			Pattern pattern = Pattern.compile(findRegexTag);
-			content = pattern.matcher(content).replaceAll(replaceRegexTag);
-		}
-		return content;
-	}
-
 	public static final String removeTag(String text, String[] allowedTags) {
 		if (allowedTags == null)
 			synchronized (removeSpacePattern) {

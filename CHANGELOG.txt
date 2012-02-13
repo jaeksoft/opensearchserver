@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.4
 
 New features:
+- 3487219: RegExp filter for DatabaseCrawler
 - 3483920: BoostQuery support
 - 3483681: Add a download button for log files
 - 3482284: LimitInputStream should be buffered

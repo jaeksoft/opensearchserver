@@ -28,8 +28,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import com.jaeksoft.pojodbc.Query;
 import com.jaeksoft.pojodbc.Transaction;
@@ -114,7 +116,16 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				dbPrimaryKey = null;
 			boolean merge = false;
 			setStatus(CrawlStatus.CRAWL);
+
 			DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
+
+			// Store the list of columns in a treeset
+			ResultSetMetaData metaData = resultSet.getMetaData();
+			TreeSet<String> columns = new TreeSet<String>();
+			int columnCount = metaData.getColumnCount();
+			for (int i = 1; i <= columnCount; i++)
+				columns.add(metaData.getColumnLabel(i));
+
 			while (resultSet.next()) {
 				if (dbPrimaryKey != null) {
 					merge = false;
@@ -133,10 +144,9 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				}
 				IndexDocument newFieldContents = new IndexDocument(
 						databaseCrawl.getLang());
-				databaseFieldMap
-						.mapResultSet(client.getWebCrawlMaster(),
-								client.getParserSelector(), resultSet,
-								newFieldContents);
+				databaseFieldMap.mapResultSet(client.getWebCrawlMaster(),
+						client.getParserSelector(), resultSet, columns,
+						newFieldContents);
 				if (merge && lastFieldContent != null) {
 					indexDocument.addIfNotAlreadyHere(newFieldContents);
 				} else
