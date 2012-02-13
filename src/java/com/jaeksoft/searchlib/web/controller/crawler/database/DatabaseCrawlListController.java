@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller.crawler.database;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -43,7 +44,6 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
 import com.jaeksoft.searchlib.crawler.database.DatabaseFieldTarget;
-import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
@@ -75,17 +75,19 @@ public class DatabaseCrawlListController extends CrawlerController {
 		}
 	}
 
+	private transient List<String> indexFieldList;
+
 	private transient DatabaseCrawl currentCrawl;
 
 	private transient DatabaseCrawl selectedCrawl;
 
+	private transient GenericLink<String, DatabaseFieldTarget> selectedField;
+
+	private transient DatabaseFieldTarget currentFieldTarget;
+
 	private transient DatabaseCrawlList dbCrawlList;
 
 	private transient String sqlColumn;
-
-	private transient SchemaField selectedIndexField;
-
-	private transient DatabaseFieldTarget dbFieldTarget;
 
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
@@ -101,9 +103,19 @@ public class DatabaseCrawlListController extends CrawlerController {
 		selectedCrawl = null;
 		dbCrawlList = null;
 		sqlColumn = null;
-		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false,
-				null, false);
-		selectedIndexField = null;
+		selectedField = null;
+		indexFieldList = null;
+		currentFieldTarget = newDatabaseFieldTarget();
+	}
+
+	private DatabaseFieldTarget newDatabaseFieldTarget()
+			throws SearchLibException {
+		String fieldName = null;
+		List<String> list = getIndexFieldList();
+		if (list != null && list.size() > 0)
+			fieldName = list.get(0);
+		return new DatabaseFieldTarget(fieldName, false, false, false, null,
+				false, null, null);
 	}
 
 	public DatabaseCrawl getCurrentCrawl() {
@@ -151,20 +163,25 @@ public class DatabaseCrawlListController extends CrawlerController {
 		reloadPage();
 	}
 
-	public void onAddField() throws SearchLibException,
+	public void onCancelField() throws SearchLibException {
+		sqlColumn = null;
+		selectedField = null;
+		currentFieldTarget = newDatabaseFieldTarget();
+		reloadPage();
+	}
+
+	public void onSaveField() throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
-		if (!isFileCrawlerParametersRights())
+		if (!isDatabaseCrawlerEditPatternsRights())
 			throw new SearchLibException("Not allowed");
-		if (dbFieldTarget == null || dbFieldTarget.getName() == null
-				|| dbFieldTarget.getName().length() == 0)
-			return;
-		currentCrawl.getFieldMap().add(sqlColumn, dbFieldTarget);
-		sqlColumn = null;
-		selectedIndexField = null;
-		dbFieldTarget = new DatabaseFieldTarget(null, false, false, false,
-				null, false);
-		reloadPage();
+		if (currentFieldTarget == null || currentFieldTarget.getName() == null
+				|| currentFieldTarget.getName().length() == 0)
+			throw new SearchLibException("Error");
+		if (selectedField != null)
+			currentCrawl.getFieldMap().remove(selectedField);
+		currentCrawl.getFieldMap().add(sqlColumn, currentFieldTarget);
+		onCancelField();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -262,29 +279,28 @@ public class DatabaseCrawlListController extends CrawlerController {
 						+ selectedCrawl.getName();
 	}
 
-	public List<SchemaField> getIndexFieldList() throws SearchLibException {
+	public List<String> getIndexFieldList() throws SearchLibException {
 		synchronized (this) {
+			if (indexFieldList != null)
+				return indexFieldList;
 			Client client = getClient();
 			if (client == null)
 				return null;
-			List<SchemaField> list = client.getSchema().getFieldList()
-					.getList();
-			if (list.size() > 0 && selectedIndexField == null)
-				setSelectedIndexField(list.get(0));
-			return list;
+			indexFieldList = new ArrayList<String>();
+			client.getSchema().getFieldList().toNameList(indexFieldList);
+			return indexFieldList;
 		}
 	}
 
-	public void setSelectedIndexField(SchemaField field) {
+	public void setSelectedIndexField(String field) {
 		synchronized (this) {
-			selectedIndexField = field;
-			dbFieldTarget.setName(field.getName());
+			currentFieldTarget.setName(field);
 		}
 	}
 
-	public SchemaField getSelectedIndexField() {
+	public String getSelectedIndexField() {
 		synchronized (this) {
-			return selectedIndexField;
+			return currentFieldTarget.getName();
 		}
 	}
 
@@ -302,10 +318,10 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	/**
-	 * @return the dbFieldTarget
+	 * @return the currentFieldTarget
 	 */
-	public DatabaseFieldTarget getDbFieldTarget() {
-		return dbFieldTarget;
+	public DatabaseFieldTarget getCurrentFieldTarget() {
+		return currentFieldTarget;
 	}
 
 	/**
@@ -321,6 +337,33 @@ public class DatabaseCrawlListController extends CrawlerController {
 	 */
 	public void setSqlColumn(String sqlColumn) {
 		this.sqlColumn = sqlColumn;
+	}
+
+	/**
+	 * @return the selectedField
+	 */
+	public GenericLink<String, DatabaseFieldTarget> getSelectedField() {
+		return selectedField;
+	}
+
+	/**
+	 * @param selectedField
+	 *            the selectedField to set
+	 */
+	public void setSelectedField(
+			GenericLink<String, DatabaseFieldTarget> selectedField) {
+		this.selectedField = selectedField;
+		this.sqlColumn = selectedField.getSource();
+		currentFieldTarget = new DatabaseFieldTarget(selectedField.getTarget());
+		reloadPage();
+	}
+
+	public boolean isFieldSelected() {
+		return selectedField != null;
+	}
+
+	public boolean isNoFieldSelected() {
+		return !isFieldSelected();
 	}
 
 }

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -87,77 +87,90 @@
 	<panel title="@{dbCrawlList.currentEditMode}" border="normal"
 		visible="@{dbCrawlList.editing}">
 		<panelchildren>
-			<grid>
-				<columns sizable="false">
-					<column align="right" width="100px" />
-					<column align="left" />
-					<column align="left" width="300px" />
-				</columns>
-				<rows>
-					<row>
-						<label value="Name: " />
-						<textbox
-							value="@{dbCrawlList.currentCrawl.name}"
-							readonly="@{dbCrawlList.selected}" width="80%" />
-						<label value="Choose a name" />
-					</row>
-					<row>
-						<label value="Driver class: " />
-						<combobox width="300px" autodrop="true"
-							model="@{dbCrawlList.driverClassList}" buttonVisible="false"
-							value="@{dbCrawlList.currentCrawl.driverClass}" />
-						<label
-							value="Enter the class name of the JDBC driver" />
-					</row>
-					<row>
-						<label value="JDBC url: " />
-						<textbox value="@{dbCrawlList.currentCrawl.url}"
-							width="95%" />
-						<label
-							value="Enter the URL used to connect to the database" />
-					</row>
-					<row>
-						<label value="User: " />
-						<textbox
-							value="@{dbCrawlList.currentCrawl.user}" width="50%" />
-						<label
-							value="Enter the user name for the database connection" />
-					</row>
-					<row>
-						<label value="Password: " />
-						<textbox type="password"
-							value="@{dbCrawlList.currentCrawl.password}" width="50%" />
-						<label
-							value="Enter the password for the database connection" />
-					</row>
-					<row>
-						<label value="Language: " />
-						<listbox mold="select"
-							selectedItem="@{dbCrawlList.currentCrawl.lang}"
-							model="@{dbCrawlList.languageEnum}">
-							<listitem self="@{each=langEnum}"
-								label="@{langEnum.name}" value="@{langEnum}" />
-						</listbox>
-						<label
-							value="Enter the language of the indexed documents" />
-					</row>
-					<row>
-						<label value="Primary key: " />
-						<textbox
-							value="@{dbCrawlList.currentCrawl.primaryKey}" width="50%" />
-						<label
-							value="Enter the primary key to identify unique document" />
-					</row>
-					<row>
-						<label value="SQL: " />
-						<textbox rows="10"
-							value="@{dbCrawlList.currentCrawl.sql}" width="95%" />
-						<label
-							value="Enter the SQL query to retrieve data" />
-					</row>
-					<row>
-						<label value="Field mapping: " />
-						<listbox width="95%"
+			<tabbox>
+				<tabs>
+					<tab id="tabCrawlGeneral" label="General settings"
+						selected="true" />
+					<tab id="tabCrawlFieldMap" label="FieldMap" />
+				</tabs>
+				<tabpanels>
+					<tabpanel>
+						<grid>
+							<columns sizable="false">
+								<column align="right" width="100px" />
+								<column align="left" />
+								<column align="left" width="300px" />
+							</columns>
+							<rows>
+								<row>
+									<label value="Name: " />
+									<textbox
+										value="@{dbCrawlList.currentCrawl.name}"
+										readonly="@{dbCrawlList.selected}" width="80%" />
+									<label value="Choose a name" />
+								</row>
+								<row>
+									<label value="Driver class: " />
+									<combobox width="300px"
+										autodrop="true" model="@{dbCrawlList.driverClassList}"
+										buttonVisible="false"
+										value="@{dbCrawlList.currentCrawl.driverClass}" />
+									<label
+										value="Enter the class name of the JDBC driver" />
+								</row>
+								<row>
+									<label value="JDBC url: " />
+									<textbox
+										value="@{dbCrawlList.currentCrawl.url}" width="95%" />
+									<label
+										value="Enter the URL used to connect to the database" />
+								</row>
+								<row>
+									<label value="User: " />
+									<textbox
+										value="@{dbCrawlList.currentCrawl.user}" width="50%" />
+									<label
+										value="Enter the user name for the database connection" />
+								</row>
+								<row>
+									<label value="Password: " />
+									<textbox type="password"
+										value="@{dbCrawlList.currentCrawl.password}" width="50%" />
+									<label
+										value="Enter the password for the database connection" />
+								</row>
+								<row>
+									<label value="Language: " />
+									<listbox mold="select"
+										selectedItem="@{dbCrawlList.currentCrawl.lang}"
+										model="@{dbCrawlList.languageEnum}">
+										<listitem
+											self="@{each=langEnum}" label="@{langEnum.name}"
+											value="@{langEnum}" />
+									</listbox>
+									<label
+										value="Enter the language of the indexed documents" />
+								</row>
+								<row>
+									<label value="Primary key: " />
+									<textbox
+										value="@{dbCrawlList.currentCrawl.primaryKey}" width="50%" />
+									<label
+										value="Enter the primary key to identify unique document" />
+								</row>
+								<row>
+									<label value="SQL: " />
+									<textbox rows="10"
+										value="@{dbCrawlList.currentCrawl.sql}" width="95%" />
+									<label
+										value="Enter the SQL query to retrieve data" />
+								</row>
+							</rows>
+						</grid>
+					</tabpanel>
+					<tabpanel>
+						<listbox width="99%"
+							selectedItem="@{dbCrawlList.selectedField}"
 							model="@{dbCrawlList.currentCrawl.fieldMap.list}">
 							<listhead>
 								<listheader label="SQL column"
@@ -166,6 +179,12 @@
 									align="center" width="180px" />
 								<listheader width="50px" label="Tags"
 									tooltiptext="Remove tag" align="center" />
+								<listheader width="150px"
+									label="Find Reg.Exp." tooltiptext="Regular expression to find"
+									align="center" />
+								<listheader width="120px"
+									label="Replace Reg.Exp." tooltiptext="Replace pattern"
+									align="center" />
 								<listheader width="50px"
 									label="Entities" tooltiptext="Convert HTML entities"
 									align="center" />
@@ -175,7 +194,7 @@
 									align="center" />
 								<listheader width="50px" label="URL"
 									tooltiptext="Crawl the given URL" align="center" />
-								<listheader width="100px" label="Action"
+								<listheader width="130px" label="Action"
 									align="center" />
 							</listhead>
 							<auxhead>
@@ -193,30 +212,50 @@
 								</auxheader>
 								<auxheader align="center">
 									<checkbox tooltiptext="remove tags"
-										checked="@{dbCrawlList.dbFieldTarget.removeTag}" />
+										checked="@{dbCrawlList.currentFieldTarget.removeTag}" />
+								</auxheader>
+								<auxheader align="center">
+									<textbox width="95%"
+										tooltiptext="Regular expression find pattern"
+										value="@{dbCrawlList.currentFieldTarget.findRegexpTag}" />
+								</auxheader>
+								<auxheader align="center">
+									<textbox width="95%"
+										tooltiptext="Regular expression replace pattern"
+										value="@{dbCrawlList.currentFieldTarget.replaceRegexpTag}" />
 								</auxheader>
 								<auxheader align="center">
 									<checkbox
 										tooltiptext="convert HTML entities"
-										checked="@{dbCrawlList.dbFieldTarget.convertHtmlEntities}" />
+										checked="@{dbCrawlList.currentFieldTarget.convertHtmlEntities}" />
 								</auxheader>
 								<auxheader align="center">
 									<checkbox tooltiptext="File path"
-										checked="@{dbCrawlList.dbFieldTarget.filePath}" />
+										checked="@{dbCrawlList.currentFieldTarget.filePath}" />
 								</auxheader>
 								<auxheader align="center">
 									<textbox width="95%"
-										disabled="@{dbCrawlList.dbFieldTarget.notFilePath}"
-										value="@{dbCrawlList.dbFieldTarget.filePathPrefix}" />
+										disabled="@{dbCrawlList.currentFieldTarget.notFilePath}"
+										value="@{dbCrawlList.currentFieldTarget.filePathPrefix}" />
 								</auxheader>
 								<auxheader align="center">
 									<checkbox
 										tooltiptext="Crawl the given URL"
-										checked="@{dbCrawlList.dbFieldTarget.crawlUrl}" />
+										checked="@{dbCrawlList.currentFieldTarget.crawlUrl}" />
 								</auxheader>
 								<auxheader align="center">
-									<button label="add"
-										forward="onAddField" />
+									<hbox
+										visible="@{dbCrawlList.fieldSelected}">
+										<button label="Cancel"
+											forward="onCancelField" />
+										<button label="Save"
+											forward="onSaveField" />
+									</hbox>
+									<hbox
+										visible="@{dbCrawlList.noFieldSelected}">
+										<button label="add"
+											forward="onSaveField" />
+									</hbox>
 								</auxheader>
 							</auxhead>
 							<listitem self="@{each='fieldlink'}">
@@ -226,6 +265,10 @@
 									<checkbox disabled="true"
 										checked="@{fieldlink.target.removeTag}" />
 								</listcell>
+								<listcell
+									label="@{fieldlink.target.findRegexpTag}" />
+								<listcell
+									label="@{fieldlink.target.replaceRegexpTag}" />
 								<listcell>
 									<checkbox disabled="true"
 										checked="@{fieldlink.target.convertHtmlEntities}" />
@@ -250,31 +293,23 @@
 								</listcell>
 							</listitem>
 						</listbox>
-						<label
-							value="Relation between SQL columns and the index fields" />
-					</row>
-				</rows>
-				<foot>
-					<footer span="8">
-						<vbox width="100%" align="center">
-							<hbox visible="@{dbCrawlList.selected}">
-								<button label="Cancel"
-									forward="onCancel" />
-								<space width="10px" />
-								<button label="Save" forward="onSave" />
-								<space width="20px" />
-								<button label="New..." forward="onNew" />
-							</hbox>
-							<hbox
-								visible="@{dbCrawlList.notSelected}">
-								<button label="Cancel"
-									forward="onCancel" />
-								<button label="Create" forward="onSave" />
-							</hbox>
-						</vbox>
-					</footer>
-				</foot>
-			</grid>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+			<vbox width="100%" align="center">
+				<hbox visible="@{dbCrawlList.selected}">
+					<button label="Cancel" forward="onCancel" />
+					<space width="10px" />
+					<button label="Save" forward="onSave" />
+					<space width="20px" />
+					<button label="New..." forward="onNew" />
+				</hbox>
+				<hbox visible="@{dbCrawlList.notSelected}">
+					<button label="Cancel" forward="onCancel" />
+					<button label="Create" forward="onSave" />
+				</hbox>
+			</vbox>
+
 		</panelchildren>
 	</panel>
 

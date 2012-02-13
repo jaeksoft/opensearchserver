@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.crawler.database;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -45,15 +47,42 @@ public class DatabaseFieldTarget extends Target {
 
 	private String filePathPrefix;
 
+	private String findRegexpTag;
+
+	private String replaceRegexpTag;
+
+	private Matcher findRegexpMatcher;
+
 	public DatabaseFieldTarget(String targetName, boolean removeTag,
 			boolean convertHtmlEntities, boolean filePath,
-			String filePathPrefix, boolean crawlUrl) {
+			String filePathPrefix, boolean crawlUrl, String findRegexTag,
+			String replaceRegexTag) {
 		super(targetName);
 		this.removeTag = removeTag;
 		this.convertHtmlEntities = convertHtmlEntities;
 		this.filePathPrefix = filePathPrefix;
 		this.filePath = filePath;
 		this.crawlUrl = crawlUrl;
+		this.findRegexpTag = findRegexTag;
+		this.replaceRegexpTag = replaceRegexTag;
+		checkRegexpPattern();
+	}
+
+	public DatabaseFieldTarget(DatabaseFieldTarget from) {
+		super(from.getName());
+		this.copy(from);
+	}
+
+	public void copy(DatabaseFieldTarget from) {
+		this.setName(from.getName());
+		this.removeTag = from.removeTag;
+		this.convertHtmlEntities = from.convertHtmlEntities;
+		this.filePathPrefix = from.filePathPrefix;
+		this.filePath = from.filePath;
+		this.crawlUrl = from.crawlUrl;
+		this.findRegexpTag = from.findRegexpTag;
+		this.replaceRegexpTag = from.replaceRegexpTag;
+		checkRegexpPattern();
 	}
 
 	public DatabaseFieldTarget(String targetName, Node targetNode) {
@@ -75,6 +104,10 @@ public class DatabaseFieldTarget extends Target {
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
 					"crawlUrl")))
 				crawlUrl = true;
+			findRegexpTag = DomUtils.getAttributeText(node, "findRegexpTag");
+			replaceRegexpTag = DomUtils.getAttributeText(node,
+					"replaceRegexpTag");
+			checkRegexpPattern();
 		}
 	}
 
@@ -82,7 +115,9 @@ public class DatabaseFieldTarget extends Target {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no",
 				"convertHtmlEntities", convertHtmlEntities ? "yes" : "no",
 				"filePath", filePath ? "yes" : "no", "filePathPrefix",
-				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no");
+				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no",
+				"findRegexTag", findRegexpTag, "replaceRegexpTag",
+				replaceRegexpTag);
 		xmlWriter.endElement();
 	}
 
@@ -129,6 +164,53 @@ public class DatabaseFieldTarget extends Target {
 	 */
 	public void setFilePathPrefix(String filePathPrefix) {
 		this.filePathPrefix = filePathPrefix;
+	}
+
+	/**
+	 * @return the findRegexpTag
+	 */
+	public String getFindRegexpTag() {
+		return findRegexpTag;
+	}
+
+	/**
+	 * @param findRegexTag
+	 *            the findRegexTag to set
+	 */
+	public void setFindRegexpTag(String findRegexpTag) {
+		this.findRegexpTag = findRegexpTag;
+		checkRegexpPattern();
+	}
+
+	public final boolean hasRegexpPattern() {
+		return (findRegexpMatcher != null);
+	}
+
+	private void checkRegexpPattern() {
+		if (findRegexpTag != null)
+			if (findRegexpTag.length() == 0)
+				findRegexpTag = null;
+		findRegexpMatcher = findRegexpTag == null ? null : Pattern.compile(
+				findRegexpTag).matcher("");
+	}
+
+	public final String applyRegexPattern(String text) {
+		return findRegexpMatcher.reset(text).replaceAll(replaceRegexpTag);
+	}
+
+	/**
+	 * @return the replaceRegexTag
+	 */
+	public String getReplaceRegexpTag() {
+		return replaceRegexpTag;
+	}
+
+	/**
+	 * @param replaceRegexpTag
+	 *            the replaceRegexpTag to set
+	 */
+	public void setReplaceRegexpTag(String replaceRegexpTag) {
+		this.replaceRegexpTag = replaceRegexpTag;
 	}
 
 	/**

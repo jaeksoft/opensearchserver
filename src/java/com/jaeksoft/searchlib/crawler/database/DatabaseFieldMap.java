@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,9 +29,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.TreeSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.queryParser.ParseException;
@@ -76,17 +75,12 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 		return false;
 	}
 
-	public void mapResultSet(WebCrawlMaster webCrawlMaster,
+	final public void mapResultSet(WebCrawlMaster webCrawlMaster,
 			ParserSelector parserSelector, ResultSet resultSet,
-			IndexDocument target) throws SQLException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			InterruptedException {
-		ResultSetMetaData metaData = resultSet.getMetaData();
-		TreeSet<String> columns = new TreeSet<String>();
-		int columnCount = metaData.getColumnCount();
-		for (int i = 1; i <= columnCount; i++)
-			columns.add(metaData.getColumnLabel(i));
+			Set<String> columns, IndexDocument target) throws SQLException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException, ParseException,
+			IOException, SyntaxError, URISyntaxException, InterruptedException {
 		for (GenericLink<String, DatabaseFieldTarget> link : getList()) {
 			String columnName = link.getSource();
 			if (!columns.contains(columnName))
@@ -125,11 +119,12 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 						target.add(targetIndexDocument);
 				}
 			}
-
 			if (dfTarget.isConvertHtmlEntities())
 				content = StringEscapeUtils.unescapeHtml(content);
 			if (dfTarget.isRemoveTag())
 				content = StringUtils.removeTag(content);
+			if (dfTarget.hasRegexpPattern())
+				content = dfTarget.applyRegexPattern(content);
 			target.add(dfTarget.getName(), new FieldValueItem(content));
 		}
 	}
