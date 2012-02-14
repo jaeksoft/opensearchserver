@@ -32,7 +32,12 @@
 											<listbox
 												model="@{item.suggestions}">
 												<listitem
-													self="@{each=suggest}" label="@{suggest}" />
+													self="@{each=suggest}" label="@{suggest}">
+													<listcell
+														label="@{suggest.term}" />
+													<listcell
+														label="@{suggest.freq}" />
+												</listitem>
 											</listbox>
 										</panelchildren>
 									</panel>

@@ -16,24 +16,41 @@
 -->
 <window id="spellcheck"
 	use="com.jaeksoft.searchlib.web.controller.query.SpellCheckController">
-	<grid model="@{spellcheck.request.spellCheckFieldList.list}"
-		rowRenderer="@{spellcheck.spellCheckFieldRenderer}">
+	<grid model="@{spellcheck.request.spellCheckFieldList.list}">
 		<columns>
 			<column label="Field" />
 			<column label="Minimal score" />
 			<column label="Number of suggestions" />
+			<column label="Algorithm" />
 			<column />
 		</columns>
-		<foot visible="@{spellcheck.fieldLeft}">
-			<footer span="4">
+		<auxhead visible="@{spellcheck.fieldLeft}">
+			<auxheader>
 				<listbox mold="select"
 					selectedItem="@{spellcheck.selectedField}"
 					model="@{spellcheck.spellCheckFieldLeft}">
 					<listitem self="@{each=spellCheckField}"
 						label="@{spellCheckField}" />
 				</listbox>
+			</auxheader>
+			<auxheader></auxheader>
+			<auxheader></auxheader>
+			<auxheader>
+				<listbox mold="select"
+					selectedItem="@{spellcheck.stringDistance}"
+					model="@{spellcheck.stringDistanceList}" />
+			</auxheader>
+			<auxheader>
 				<button label="add field" forward="onFieldAdd" />
-			</footer>
-		</foot>
+			</auxheader>
+		</auxhead>
+		<rows>
+			<row self="@{each='item'}">
+				<label value="@{item.field.name}" />
+				<label value="@{item.minScore}" />
+				<label value="@{item.suggestionNumber}" />
+				<label value="@{item.stringDistance}" />
+			</row>
+		</rows>
 	</grid>
 </window>

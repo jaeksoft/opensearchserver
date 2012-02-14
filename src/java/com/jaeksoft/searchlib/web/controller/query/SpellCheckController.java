@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,13 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.RowRenderer;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckDistanceEnum;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 
 public class SpellCheckController extends AbstractQueryController {
@@ -48,7 +48,7 @@ public class SpellCheckController extends AbstractQueryController {
 
 	private transient List<String> fieldLeft;
 
-	private transient RowRenderer rowRenderer;
+	private transient SpellCheckDistanceEnum stringDistance;
 
 	public SpellCheckController() throws SearchLibException {
 		super();
@@ -58,16 +58,7 @@ public class SpellCheckController extends AbstractQueryController {
 	protected void reset() throws SearchLibException {
 		selectedField = null;
 		fieldLeft = null;
-		rowRenderer = null;
-	}
-
-	public RowRenderer getSpellCheckFieldRenderer() {
-		synchronized (this) {
-			if (rowRenderer != null)
-				return rowRenderer;
-			rowRenderer = new SpellCheckFieldRenderer();
-			return rowRenderer;
-		}
+		stringDistance = null;
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {
@@ -128,7 +119,8 @@ public class SpellCheckController extends AbstractQueryController {
 			if (selectedField == null)
 				return;
 			getRequest().getSpellCheckFieldList().add(
-					new SpellCheckField(selectedField, 0.5F, 5));
+					new SpellCheckField(selectedField, 0.5F, 5,
+							SpellCheckDistanceEnum.LevensteinDistance));
 			reloadPage();
 		}
 	}
@@ -145,6 +137,25 @@ public class SpellCheckController extends AbstractQueryController {
 	@Override
 	protected void eventSchemaChange() throws SearchLibException {
 		reloadPage();
+	}
+
+	/**
+	 * @return the stringDistance
+	 */
+	public SpellCheckDistanceEnum getStringDistance() {
+		return stringDistance;
+	}
+
+	/**
+	 * @param stringDistance
+	 *            the stringDistance to set
+	 */
+	public void setStringDistance(SpellCheckDistanceEnum stringDistance) {
+		this.stringDistance = stringDistance;
+	}
+
+	public SpellCheckDistanceEnum[] getStringDistanceList() {
+		return SpellCheckDistanceEnum.values();
 	}
 
 }

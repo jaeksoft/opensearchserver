@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,11 +24,6 @@
 
 package com.jaeksoft.searchlib.spellcheck;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -40,28 +35,33 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SpellCheckField extends Field implements Externalizable,
-		CacheKeyInterface<Field> {
+public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 
 	private float minScore;
 
 	private int suggestionNumber;
 
+	private SpellCheckDistanceEnum stringDistance;
+
 	public SpellCheckField() {
 		minScore = 0.5F;
 		suggestionNumber = 5;
+		stringDistance = SpellCheckDistanceEnum.LevensteinDistance;
 	}
 
 	protected SpellCheckField(SpellCheckField field) {
 		super(field);
 		this.minScore = field.minScore;
 		this.suggestionNumber = field.suggestionNumber;
+		this.stringDistance = field.stringDistance;
 	}
 
-	public SpellCheckField(String name, float minScore, int suggestionNumber) {
+	public SpellCheckField(String name, float minScore, int suggestionNumber,
+			SpellCheckDistanceEnum stringDistance) {
 		super(name);
 		this.minScore = minScore;
 		this.suggestionNumber = suggestionNumber;
+		this.stringDistance = stringDistance;
 	}
 
 	@Override
@@ -95,8 +95,10 @@ public class SpellCheckField extends Field implements Externalizable,
 				minScore = Float.parseFloat(p);
 		int suggestionNumber = XPathParser.getAttributeValue(node,
 				"suggestionNumber");
+		SpellCheckDistanceEnum distance = SpellCheckDistanceEnum
+				.find(XPathParser.getAttributeString(node, "stringDistance"));
 		SpellCheckField spellCheckField = new SpellCheckField(source.get(
-				fieldName).getName(), minScore, suggestionNumber);
+				fieldName).getName(), minScore, suggestionNumber, distance);
 		target.add(spellCheckField);
 	}
 
@@ -119,31 +121,17 @@ public class SpellCheckField extends Field implements Externalizable,
 			suggestionNumber = Integer.parseInt(value.substring(i2 + 1, i3));
 		} else
 			fieldName = value;
-
-		return new SpellCheckField(fieldName, minScore, suggestionNumber);
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		super.readExternal(in);
-		minScore = in.readFloat();
-		suggestionNumber = in.readInt();
-
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
-		out.writeFloat(minScore);
-		out.writeInt(suggestionNumber);
+		// TODO Support distance
+		return new SpellCheckField(fieldName, minScore, suggestionNumber,
+				SpellCheckDistanceEnum.LevensteinDistance);
 	}
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("spellCheckField", "name", name, "minScore",
-				Float.toString(minScore), "suggestionNumber", Integer
-						.toString(suggestionNumber));
+				Float.toString(minScore), "suggestionNumber",
+				Integer.toString(suggestionNumber), "stringDistance",
+				stringDistance.name());
 		xmlWriter.endElement();
 	}
 
@@ -157,5 +145,20 @@ public class SpellCheckField extends Field implements Externalizable,
 		if (i != 0)
 			return i;
 		return suggestionNumber - f.suggestionNumber;
+	}
+
+	/**
+	 * @return the stringDistance
+	 */
+	public SpellCheckDistanceEnum getStringDistance() {
+		return stringDistance;
+	}
+
+	/**
+	 * @param stringDistance
+	 *            the stringDistance to set
+	 */
+	public void setStringDistance(SpellCheckDistanceEnum stringDistance) {
+		this.stringDistance = stringDistance;
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,32 +26,43 @@ package com.jaeksoft.searchlib.spellcheck;
 
 import java.io.IOException;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
+
 import com.jaeksoft.searchlib.index.ReaderLocal;
 
-public class SpellCheckItem {
+public class SuggestionItem {
 
-	private String word;
-	private SuggestionItem[] suggestions;
+	private String term;
 
-	public SpellCheckItem(String word, SuggestionItem[] suggestions) {
-		this.word = word;
-		this.suggestions = suggestions;
+	private int freq;
+
+	public SuggestionItem(String term) {
+		this.term = term;
+		this.freq = 0;
 	}
 
-	public String getWord() {
-		return word;
+	/**
+	 * @return the term
+	 */
+	public String getTerm() {
+		return term;
 	}
 
-	public SuggestionItem[] getSuggestions() {
-		return suggestions;
+	/**
+	 * @return the freq
+	 */
+	public int getFreq() {
+		return freq;
 	}
 
-	public void computeFrequency(ReaderLocal reader, String fieldName)
+	public void computeFrequency(ReaderLocal reader, String field)
 			throws IOException {
-		if (suggestions == null)
+		TermDocs termDocs = reader.getTermDocs(new Term(field, term));
+		if (termDocs == null)
 			return;
-		for (SuggestionItem suggestionItem : suggestions)
-			suggestionItem.computeFrequency(reader, fieldName);
-
+		while (termDocs.next())
+			freq += termDocs.freq();
 	}
+
 }

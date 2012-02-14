@@ -66,15 +66,24 @@ public class SpellCheck implements Externalizable, Iterable<SpellCheckItem>,
 				wordSet.add(term.text());
 		int suggestionNumber = spellCheckField.getSuggestionNumber();
 		float minScore = spellCheckField.getMinScore();
-		spellchecker.setAccuracy(minScore);
-		spellCheckItems = new ArrayList<SpellCheckItem>();
-		for (String word : wordSet) {
-			String[] suggestions = spellchecker.suggestSimilar(word,
-					suggestionNumber);
-			if (suggestions != null)
-				if (suggestions.length > 0)
-					spellCheckItems.add(new SpellCheckItem(word, suggestions));
+		synchronized (spellchecker) {
+			spellchecker.setAccuracy(minScore);
+			spellCheckItems = new ArrayList<SpellCheckItem>();
+			for (String word : wordSet) {
+				String[] suggestions = spellchecker.suggestSimilar(word,
+						suggestionNumber);
+				if (suggestions != null && suggestions.length > 0) {
+					SuggestionItem[] suggestionItems = new SuggestionItem[suggestions.length];
+					int i = 0;
+					for (String suggestion : suggestions)
+						suggestionItems[i++] = new SuggestionItem(suggestion);
+					spellCheckItems.add(new SpellCheckItem(word,
+							suggestionItems));
+				}
+			}
 		}
+		for (SpellCheckItem spellcheckItem : spellCheckItems)
+			spellcheckItem.computeFrequency(reader, fieldName);
 	}
 
 	public String getFieldName() {
