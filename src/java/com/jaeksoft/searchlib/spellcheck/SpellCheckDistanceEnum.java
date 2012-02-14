@@ -28,6 +28,8 @@ import org.apache.lucene.search.spell.JaroWinklerDistance;
 import org.apache.lucene.search.spell.NGramDistance;
 import org.apache.lucene.search.spell.StringDistance;
 
+import com.jaeksoft.searchlib.SearchLibException;
+
 public enum SpellCheckDistanceEnum {
 
 	JaroWinklerDistance(JaroWinklerDistance.class),
@@ -42,9 +44,14 @@ public enum SpellCheckDistanceEnum {
 		this.distanceClass = distanceClass;
 	}
 
-	public StringDistance getNewInstance() throws InstantiationException,
-			IllegalAccessException {
-		return distanceClass.newInstance();
+	public StringDistance getNewInstance() throws SearchLibException {
+		try {
+			return distanceClass.newInstance();
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	public static SpellCheckDistanceEnum find(String name) {

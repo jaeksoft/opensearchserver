@@ -32,7 +32,6 @@ import org.zkoss.zk.ui.event.Event;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckDistanceEnum;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
@@ -44,11 +43,11 @@ public class SpellCheckController extends AbstractQueryController {
 	 */
 	private static final long serialVersionUID = -5132791474383971273L;
 
-	private transient String selectedField;
-
 	private transient List<String> fieldLeft;
 
-	private transient SpellCheckDistanceEnum stringDistance;
+	private transient SpellCheckField currentSpellCheckField;
+
+	private transient SpellCheckField selectedSpellCheckField;
 
 	public SpellCheckController() throws SearchLibException {
 		super();
@@ -56,9 +55,14 @@ public class SpellCheckController extends AbstractQueryController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		selectedField = null;
+		getSpellCheckFieldLeft();
+		String fieldName = "";
+		if (fieldLeft != null && fieldLeft.size() > 0)
+			fieldName = fieldLeft.get(0);
+		currentSpellCheckField = new SpellCheckField(fieldName, 0.5F, 5,
+				SpellCheckDistanceEnum.LevensteinDistance);
 		fieldLeft = null;
-		stringDistance = null;
+		selectedSpellCheckField = null;
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {
@@ -81,46 +85,37 @@ public class SpellCheckController extends AbstractQueryController {
 			if (searchRequest == null)
 				return null;
 			fieldLeft = new ArrayList<String>();
-			FieldList<SpellCheckField> spellCheckFields = searchRequest
-					.getSpellCheckFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
-					if (spellCheckFields.get(field.getName()) == null) {
-						if (selectedField == null)
-							selectedField = field.getName();
-						fieldLeft.add(field.getName());
-					}
+					fieldLeft.add(field.getName());
 			return fieldLeft;
 		}
 	}
 
 	public void onFieldRemove(Event event) throws SearchLibException {
 		synchronized (this) {
-			SpellCheckField spellCheckField = (SpellCheckField) event.getData();
+			event = getOriginalEvent(event);
+			SpellCheckField spellCheckField = (SpellCheckField) event
+					.getTarget().getAttribute("scFieldItem");
 			getRequest().getSpellCheckFieldList().remove(spellCheckField);
 			reloadPage();
 		}
 	}
 
-	public void setSelectedField(String value) {
-		synchronized (this) {
-			selectedField = value;
-		}
-	}
-
-	public String getSelectedField() {
-		synchronized (this) {
-			return selectedField;
-		}
-	}
-
 	public void onFieldAdd() throws SearchLibException {
 		synchronized (this) {
-			if (selectedField == null)
-				return;
-			getRequest().getSpellCheckFieldList().add(
-					new SpellCheckField(selectedField, 0.5F, 5,
-							SpellCheckDistanceEnum.LevensteinDistance));
+			if (selectedSpellCheckField != null)
+				selectedSpellCheckField.copy(currentSpellCheckField);
+			else
+				getRequest().getSpellCheckFieldList().add(
+						currentSpellCheckField);
+			onCancel();
+		}
+	}
+
+	public void onCancel() throws SearchLibException {
+		synchronized (this) {
+			reset();
 			reloadPage();
 		}
 	}
@@ -128,8 +123,6 @@ public class SpellCheckController extends AbstractQueryController {
 	@Override
 	public void reloadPage() {
 		synchronized (this) {
-			fieldLeft = null;
-			selectedField = null;
 			super.reloadPage();
 		}
 	}
@@ -139,23 +132,37 @@ public class SpellCheckController extends AbstractQueryController {
 		reloadPage();
 	}
 
-	/**
-	 * @return the stringDistance
-	 */
-	public SpellCheckDistanceEnum getStringDistance() {
-		return stringDistance;
-	}
-
-	/**
-	 * @param stringDistance
-	 *            the stringDistance to set
-	 */
-	public void setStringDistance(SpellCheckDistanceEnum stringDistance) {
-		this.stringDistance = stringDistance;
-	}
-
 	public SpellCheckDistanceEnum[] getStringDistanceList() {
 		return SpellCheckDistanceEnum.values();
 	}
 
+	public SpellCheckField getCurrent() {
+		return currentSpellCheckField;
+	}
+
+	/**
+	 * @return the selectedSpellCheckField
+	 */
+	public SpellCheckField getSelected() {
+		return selectedSpellCheckField;
+	}
+
+	/**
+	 * @param selectedSpellCheckField
+	 *            the selectedSpellCheckField to set
+	 */
+	public void setSelected(SpellCheckField selectedSpellCheckField) {
+		this.selectedSpellCheckField = selectedSpellCheckField;
+		this.currentSpellCheckField = new SpellCheckField(
+				selectedSpellCheckField);
+		reloadPage();
+	}
+
+	public boolean isSelection() {
+		return this.selectedSpellCheckField != null;
+	}
+
+	public boolean isNoSelection() {
+		return !isSelection();
+	}
 }

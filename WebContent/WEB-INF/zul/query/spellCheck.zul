@@ -16,41 +16,57 @@
 -->
 <window id="spellcheck"
 	use="com.jaeksoft.searchlib.web.controller.query.SpellCheckController">
-	<grid model="@{spellcheck.request.spellCheckFieldList.list}">
-		<columns>
-			<column label="Field" />
-			<column label="Minimal score" />
-			<column label="Number of suggestions" />
-			<column label="Algorithm" />
-			<column />
-		</columns>
+	<listbox model="@{spellcheck.request.spellCheckFieldList.list}"
+		selectedItem="@{spellcheck.selected}">
+		<listhead>
+			<listheader label="Field" />
+			<listheader label="Minimal score" />
+			<listheader label="Number of suggestions" />
+			<listheader label="Algorithm" />
+			<listheader />
+		</listhead>
 		<auxhead visible="@{spellcheck.fieldLeft}">
 			<auxheader>
 				<listbox mold="select"
-					selectedItem="@{spellcheck.selectedField}"
+					selectedItem="@{spellcheck.current.name}"
 					model="@{spellcheck.spellCheckFieldLeft}">
 					<listitem self="@{each=spellCheckField}"
 						label="@{spellCheckField}" />
 				</listbox>
 			</auxheader>
-			<auxheader></auxheader>
-			<auxheader></auxheader>
+			<auxheader>
+				<doublebox format="0.00"
+					value="@{spellcheck.current.minScore}" />
+			</auxheader>
+			<auxheader>
+				<doublebox
+					value="@{spellcheck.current.suggestionNumber}" />
+			</auxheader>
 			<auxheader>
 				<listbox mold="select"
-					selectedItem="@{spellcheck.stringDistance}"
+					selectedItem="@{spellcheck.current.stringDistance}"
 					model="@{spellcheck.stringDistanceList}" />
 			</auxheader>
 			<auxheader>
-				<button label="add field" forward="onFieldAdd" />
+				<button visible="@{spellcheck.noSelection}" label="add"
+					forward="onFieldAdd" />
+				<hbox visible="@{spellcheck.selection}">
+					<button label="Save" forward="onFieldAdd" />
+					<button label="Cancel" forward="onCancel" />
+				</hbox>
 			</auxheader>
 		</auxhead>
-		<rows>
-			<row self="@{each='item'}">
-				<label value="@{item.field.name}" />
-				<label value="@{item.minScore}" />
-				<label value="@{item.suggestionNumber}" />
-				<label value="@{item.stringDistance}" />
-			</row>
-		</rows>
-	</grid>
+		<listitem self="@{each='item'}">
+			<listcell label="@{item.name}" />
+			<listcell label="@{item.minScore}" />
+			<listcell label="@{item.suggestionNumber}" />
+			<listcell label="@{item.stringDistance}" />
+			<listcell>
+				<button image="images/action_delete.png"
+					forward="onFieldRemove">
+					<custom-attributes scFieldItem="@{item}" />
+				</button>
+			</listcell>
+		</listitem>
+	</listbox>
 </window>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,23 +24,20 @@
 
 package com.jaeksoft.searchlib.result;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
-import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 
-public abstract class Result implements Externalizable {
+public abstract class Result {
 
 	transient protected SearchRequest searchRequest;
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
-	protected SpellCheckList spellCheckList;
+	protected List<SpellCheck> spellCheckList;
 	private ResultScoreDoc[] docs;
 	protected int numFound;
 	protected float maxScore;
@@ -64,7 +61,7 @@ public abstract class Result implements Externalizable {
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		if (searchRequest.getSpellCheckFieldList().size() > 0)
-			this.spellCheckList = new SpellCheckList();
+			this.spellCheckList = new ArrayList<SpellCheck>(0);
 		collapse = CollapseAbstract.newInstance(searchRequest);
 	}
 
@@ -80,7 +77,7 @@ public abstract class Result implements Externalizable {
 		return this.facetList;
 	}
 
-	public SpellCheckList getSpellCheckList() {
+	public List<SpellCheck> getSpellCheckList() {
 		return this.spellCheckList;
 	}
 
@@ -151,64 +148,6 @@ public abstract class Result implements Externalizable {
 		if (docs == null)
 			return 0;
 		return docs[pos].collapseCount;
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-
-		// Reading FacetList if any
-		facetList = (FacetList) External.readObject(in);
-
-		// Reading docs (from request.start to last document)
-		int length = in.readInt();
-		if (length > 0) {
-			docs = new ResultScoreDoc[length];
-			int start = in.readInt();
-			for (int i = start; i < length; i++)
-				docs[i] = (ResultScoreDoc) in.readObject();
-		} else
-			docs = null;
-
-		// Reading numFound, maxScore and collapsedDocCount
-		numFound = in.readInt();
-		maxScore = in.readFloat();
-		collapsedDocCount = in.readInt();
-
-		// Reading ResultDocument if any
-		resultDocuments = External.readObject(in);
-
-		// Reading SpellCheckList if any
-		spellCheckList = (SpellCheckList) External.readObject(in);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-
-		// Writing FacetList if any
-		External.writeObject(facetList, out);
-
-		// Writing docs (from request.start to last document)
-		int length = searchRequest.getStart() + getDocumentCount();
-		out.writeInt(length);
-		if (length > 0) {
-			int start = searchRequest.getStart();
-			out.writeInt(start);
-			for (int i = start; i < length; i++)
-				out.writeObject(docs[+i]);
-		}
-
-		// Writing numFound, maxScore, collapsedDocCount
-		out.writeInt(numFound);
-		out.writeFloat(maxScore);
-		out.writeInt(collapsedDocCount);
-
-		// Writing ResultDocument if any
-		External.writeObject(resultDocuments, out);
-
-		// Writing FacetList if any
-		External.writeObject(spellCheckList, out);
-
 	}
 
 	@Override

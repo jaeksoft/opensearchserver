@@ -49,7 +49,7 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 		stringDistance = SpellCheckDistanceEnum.LevensteinDistance;
 	}
 
-	protected SpellCheckField(SpellCheckField field) {
+	public SpellCheckField(SpellCheckField field) {
 		super(field);
 		this.minScore = field.minScore;
 		this.suggestionNumber = field.suggestionNumber;
@@ -62,6 +62,15 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 		this.minScore = minScore;
 		this.suggestionNumber = suggestionNumber;
 		this.stringDistance = stringDistance;
+	}
+
+	@Override
+	public void copy(Field source) {
+		super.copy(source);
+		SpellCheckField scSource = (SpellCheckField) source;
+		this.minScore = scSource.minScore;
+		this.suggestionNumber = scSource.suggestionNumber;
+		this.stringDistance = scSource.stringDistance;
 	}
 
 	@Override

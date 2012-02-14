@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,7 +48,6 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
@@ -232,7 +231,7 @@ public class RenderXml implements Render {
 	}
 
 	private void renderSpellChecks() throws Exception {
-		SpellCheckList spellChecklist = result.getSpellCheckList();
+		List<SpellCheck> spellChecklist = result.getSpellCheckList();
 		if (spellChecklist == null)
 			return;
 		writer.println("<spellcheck>");
