@@ -31,6 +31,12 @@
 										<panelchildren>
 											<listbox
 												model="@{item.suggestions}">
+												<listhead>
+													<listheader
+														label="Term" />
+													<listheader
+														label="Frequency" />
+												</listhead>
 												<listitem
 													self="@{each=suggest}" label="@{suggest}">
 													<listcell
