@@ -192,6 +192,8 @@ public class DatabaseFieldTarget extends Target {
 				findRegexpTag = null;
 		findRegexpMatcher = findRegexpTag == null ? null : Pattern.compile(
 				findRegexpTag).matcher("");
+		if (replaceRegexpTag == null)
+			replaceRegexpTag = "";
 	}
 
 	public final String applyRegexPattern(String text) {
