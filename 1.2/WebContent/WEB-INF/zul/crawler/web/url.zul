@@ -1,0 +1,156 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="searchUrl"
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.UrlController">
+	<listbox fixedLayout="true" model="@{searchUrl.urlList}"
+		multiple="false" checkmark="false">
+		<listhead sizable="true">
+			<listheader width="20%" label="Url" />
+			<listheader width="140px" label="Ev. Date"
+				tooltiptext="Last event date" />
+			<listheader width="140px" label="Mod. date"
+				tooltiptext="Last modified date" />
+			<listheader label="Type" />
+			<listheader label="Charset" />
+			<listheader label="Encoding" />
+			<listheader label="Content length" />
+			<listheader label="Lang" />
+			<listheader label="Lang method" />
+			<listheader label="Robots" />
+			<listheader label="Fetch" />
+			<listheader label="Code" />
+			<listheader label="Parsing" />
+			<listheader label="Index" />
+			<listheader label="Host" />
+		</listhead>
+		<auxhead>
+			<auxheader>
+				<vbox width="100%">
+					<textbox width="90%" value="@{searchUrl.like}" />
+					<button label="Search" forward="onSearch" />
+				</vbox>
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<datebox compact="true"
+						value="@{searchUrl.eventDateStart}" />
+					<datebox compact="true"
+						value="@{searchUrl.eventDateEnd}" />
+				</vbox>
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<datebox compact="true"
+						value="@{searchUrl.modifiedDateStart}" />
+					<datebox compact="true"
+						value="@{searchUrl.modifiedDateEnd}" />
+				</vbox>
+			</auxheader>
+			<auxheader>
+				<textbox cols="5" value="@{searchUrl.contentBaseType}" />
+			</auxheader>
+			<auxheader>
+				<textbox cols="5"
+					value="@{searchUrl.contentTypeCharset}" />
+			</auxheader>
+			<auxheader>
+				<textbox cols="5" value="@{searchUrl.contentEncoding}" />
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<intbox cols="8"
+						value="@{searchUrl.minContentLength}" />
+					<intbox cols="8"
+						value="@{searchUrl.maxContentLength}" />
+				</vbox>
+			</auxheader>
+			<auxheader>
+				<textbox cols="4" value="@{searchUrl.lang}" />
+			</auxheader>
+			<auxheader>
+				<textbox cols="8" value="@{searchUrl.langMethod}" />
+			</auxheader>
+			<auxheader>
+				<listbox mold="select" width="50px" fixedLayout="true"
+					model="@{searchUrl.robotsTxtStatusList}"
+					selectedItem="@{searchUrl.robotsTxtStatus}" />
+			</auxheader>
+			<auxheader>
+				<listbox mold="select" width="50px" fixedLayout="true"
+					model="@{searchUrl.fetchStatusList}"
+					selectedItem="@{searchUrl.fetchStatus}" />
+			</auxheader>
+			<auxheader>
+				<textbox cols="5" value="@{searchUrl.responseCode}" />
+			</auxheader>
+			<auxheader>
+				<listbox mold="select" width="50px" fixedLayout="true"
+					model="@{searchUrl.parserStatusList}"
+					selectedItem="@{searchUrl.parserStatus}" />
+			</auxheader>
+			<auxheader>
+				<listbox mold="select" width="50px" fixedLayout="true"
+					model="@{searchUrl.indexStatusList}"
+					selectedItem="@{searchUrl.indexStatus}" />
+			</auxheader>
+			<auxheader>
+				<vbox width="100%">
+					<textbox width="90%" value="@{searchUrl.host}" />
+					<checkbox label="with sub"
+						checked="@{searchUrl.withSubDomain}" />
+				</vbox>
+			</auxheader>
+		</auxhead>
+		<listitem self="@{each='url'}">
+			<listcell label="@{url.url}" />
+			<listcell
+				label="@{url.when,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+			<listcell
+				label="@{url.lastModifiedDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+			<listcell label="@{url.contentBaseType}" />
+			<listcell label="@{url.contentTypeCharset}" />
+			<listcell label="@{url.contentEncoding}" />
+			<listcell label="@{url.contentLength}" />
+			<listcell label="@{url.lang}" />
+			<listcell label="@{url.langMethod}" />
+			<listcell label="@{url.robotsTxtStatus}" />
+			<listcell label="@{url.fetchStatus}" />
+			<listcell label="@{url.responseCode}" />
+			<listcell label="@{url.ParserStatus}" />
+			<listcell label="@{url.IndexStatus}" />
+			<listcell label="@{url.Host}" />
+		</listitem>
+		<listfoot>
+			<listfooter span="15">
+				<paging id="paging" detailed="true"
+					totalSize="@{searchUrl.totalSize}" pageSize="@{searchUrl.pageSize}"
+					activePage="@{searchUrl.activePage}" />
+				<label value="Line per page: " />
+				<intbox cols="3"
+					constraint="no negative, no zero, no negative"
+					value="@{searchUrl.pageSize}" forward="onChange=onSearch" />
+				<space width="50px" />
+				<label value="Total record number: " />
+				<longbox readonly="true"
+					value="@{searchUrl.recordNumber}" />
+				<space width="50px" />
+				<button label="Export URLs…" forward="onExportURLs" />
+				<button label="Export SiteMap" forward="onExportSiteMap" />
+			</listfooter>
+		</listfoot>
+	</listbox>
+</window>
