@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -58,7 +58,6 @@ import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
 
 public class ResultController extends AbstractQueryController implements
 		TreeitemRenderer {
@@ -289,10 +288,7 @@ public class ResultController extends AbstractQueryController implements
 			Result result = getResult();
 			if (result == null)
 				return null;
-			SpellCheckList spellChecklist = result.getSpellCheckList();
-			if (spellChecklist == null)
-				return null;
-			return spellChecklist.getList();
+			return result.getSpellCheckList();
 		}
 	}
 

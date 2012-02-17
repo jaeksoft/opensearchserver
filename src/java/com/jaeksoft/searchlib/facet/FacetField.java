@@ -43,6 +43,11 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class FacetField extends Field {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2765602823379594542L;
+
 	private int minCount;
 
 	private boolean multivalued;

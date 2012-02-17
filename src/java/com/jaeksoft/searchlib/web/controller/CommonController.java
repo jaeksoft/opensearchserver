@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.UiException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zkplus.databind.AnnotateDataBinder;
 import org.zkoss.zul.Window;
@@ -170,6 +171,12 @@ public abstract class CommonController extends Window implements AfterCompose,
 	@Override
 	public User getLoggedUser() {
 		return (User) getAttribute(ScopeAttribute.LOGGED_USER);
+	}
+
+	protected Event getOriginalEvent(Event event) {
+		if (event instanceof ForwardEvent)
+			return getOriginalEvent(((ForwardEvent) event).getOrigin());
+		return event;
 	}
 
 	public boolean isAdmin() throws SearchLibException {

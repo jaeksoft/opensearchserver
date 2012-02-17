@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,7 +48,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
+import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderXml implements Render {
@@ -216,9 +216,13 @@ public class RenderXml implements Render {
 			writer.print("\t\t\t<word name=\"");
 			writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
 			writer.println("\">");
-			for (String suggest : spellCheckItem.getSuggestions()) {
-				writer.print("\t\t\t\t<suggest>");
-				writer.print(StringEscapeUtils.escapeXml(suggest));
+			for (SuggestionItem suggestionItem : spellCheckItem
+					.getSuggestions()) {
+				writer.print("\t\t\t\t<suggest freq=\"");
+				writer.print(suggestionItem.getFreq());
+				writer.print("\">");
+				writer.print(StringEscapeUtils.escapeXml(suggestionItem
+						.getTerm()));
 				writer.println("</suggest>");
 			}
 			writer.println("\t\t\t</word>");
@@ -227,7 +231,7 @@ public class RenderXml implements Render {
 	}
 
 	private void renderSpellChecks() throws Exception {
-		SpellCheckList spellChecklist = result.getSpellCheckList();
+		List<SpellCheck> spellChecklist = result.getSpellCheckList();
 		if (spellChecklist == null)
 			return;
 		writer.println("<spellcheck>");

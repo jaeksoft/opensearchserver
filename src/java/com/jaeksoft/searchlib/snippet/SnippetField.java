@@ -54,6 +54,11 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SnippetField extends Field {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1989504404725110730L;
+
 	private FragmenterAbstract fragmenterTemplate;
 	private String tag;
 	private String[] tags;

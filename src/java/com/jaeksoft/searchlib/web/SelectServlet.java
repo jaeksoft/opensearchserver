@@ -32,11 +32,9 @@ import org.apache.lucene.queryParser.ParseException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJson;
 import com.jaeksoft.searchlib.render.RenderJsp;
-import com.jaeksoft.searchlib.render.RenderObject;
 import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
@@ -49,22 +47,6 @@ public class SelectServlet extends AbstractServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 2241064786260022955L;
-
-	private Render doObjectRequest(Client client, ServletTransaction transaction)
-			throws ServletException {
-		StreamReadObject sro = null;
-		try {
-			sro = new StreamReadObject(transaction.getInputStream());
-			SearchRequest searchRequest = (SearchRequest) sro.read();
-			Result result = client.search(searchRequest);
-			return new RenderObject(result);
-		} catch (Exception e) {
-			throw new ServletException(e);
-		} finally {
-			if (sro != null)
-				sro.close();
-		}
-	}
 
 	protected Render doQueryRequest(Client client,
 			ServletTransaction transaction, String render) throws IOException,
@@ -97,15 +79,8 @@ public class SelectServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
-			Render render = null;
-			String p = transaction.getParameterString("render");
-			if ("object".equalsIgnoreCase(p))
-				render = doObjectRequest(client, transaction);
-			else {
-				if (p == null || p.equalsIgnoreCase(""))
-					p = transaction.getParameterString("format");
-				render = doQueryRequest(client, transaction, p);
-			}
+			Render render = doQueryRequest(client, transaction,
+					transaction.getParameterString("format"));
 			render.render(transaction);
 
 		} catch (Exception e) {

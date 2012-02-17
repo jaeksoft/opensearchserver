@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,8 +41,6 @@ import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 
 public class ResultSingle extends Result {
 
-	private static final long serialVersionUID = -8289431499983379291L;
-
 	transient private ReaderLocal reader;
 	transient private StringIndex[] sortStringIndexArray;
 	transient private StringIndex[] facetStringIndexArray;
@@ -78,8 +76,7 @@ public class ResultSingle extends Result {
 
 		for (SpellCheckField spellCheckField : searchRequest
 				.getSpellCheckFieldList())
-			this.spellCheckList
-					.addObject(new SpellCheck(this, spellCheckField));
+			this.spellCheckList.add(new SpellCheck(this, spellCheckField));
 
 		ResultScoreDoc[] docs;
 		// Are we doing collapsing ?

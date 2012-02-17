@@ -47,7 +47,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
+import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderJson implements Render {
@@ -195,9 +195,10 @@ public class RenderJson implements Render {
 			JSONObject jsonSpellCheck = new JSONObject();
 			jsonSpellCheck.put("name", spellCheckItem.getWord());
 			ArrayList<JSONObject> jsonSpellcheckWords = new ArrayList<JSONObject>();
-			for (String suggest : spellCheckItem.getSuggestions()) {
+			for (SuggestionItem suggest : spellCheckItem.getSuggestions()) {
 				JSONObject jsonSpellSuggest = new JSONObject();
-				jsonSpellSuggest.put("suggest", suggest);
+				jsonSpellSuggest.put("suggest", suggest.getTerm());
+				jsonSpellSuggest.put("freq", suggest.getFreq());
 				jsonSpellcheckWords.add(jsonSpellSuggest);
 			}
 			jsonSpellCheck.put("suggestions", jsonSpellcheckWords);
@@ -208,7 +209,7 @@ public class RenderJson implements Render {
 
 	@SuppressWarnings("unchecked")
 	private void renderSpellChecks(JSONObject jsonResponse) throws Exception {
-		SpellCheckList spellChecklist = result.getSpellCheckList();
+		List<SpellCheck> spellChecklist = result.getSpellCheckList();
 		ArrayList<JSONObject> jsonSpellCheckArray = new ArrayList<JSONObject>();
 		if (spellChecklist == null)
 			return;

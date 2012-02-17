@@ -87,7 +87,6 @@ public class StringUtils {
 		synchronized (removeBrPattern1) {
 			text = removeBrPattern1.matcher(text).replaceAll("</p>");
 		}
-		System.out.println(text);
 		synchronized (removeEndTagBlockPattern1) {
 			text = removeEndTagBlockPattern1.matcher(text).replaceAll("</p>");
 		}

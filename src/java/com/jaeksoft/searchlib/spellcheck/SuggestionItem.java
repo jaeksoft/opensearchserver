@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,34 +22,47 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.snippet;
+package com.jaeksoft.searchlib.spellcheck;
 
-import java.util.List;
+import java.io.IOException;
 
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
 
-public class SnippetFieldValue extends FieldValue {
+import com.jaeksoft.searchlib.index.ReaderLocal;
+
+public class SuggestionItem {
+
+	private String term;
+
+	private int freq;
+
+	public SuggestionItem(String term) {
+		this.term = term;
+		this.freq = 0;
+	}
 
 	/**
-	 * 
+	 * @return the term
 	 */
-	private static final long serialVersionUID = 9069619321715897099L;
-
-	private boolean highlighted;
-
-	public SnippetFieldValue() {
+	public String getTerm() {
+		return term;
 	}
 
-	public SnippetFieldValue(Field field, List<FieldValueItem> values,
-			boolean highlighted) {
-		super(field, values);
-		this.highlighted = highlighted;
+	/**
+	 * @return the freq
+	 */
+	public int getFreq() {
+		return freq;
 	}
 
-	public boolean isHighlighted() {
-		return highlighted;
+	public void computeFrequency(ReaderLocal reader, String field)
+			throws IOException {
+		TermDocs termDocs = reader.getTermDocs(new Term(field, term));
+		if (termDocs == null)
+			return;
+		while (termDocs.next())
+			freq += termDocs.freq();
 	}
 
 }

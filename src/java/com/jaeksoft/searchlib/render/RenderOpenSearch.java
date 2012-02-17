@@ -56,7 +56,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckList;
+import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderOpenSearch implements Render {
@@ -291,9 +291,14 @@ public class RenderOpenSearch implements Render {
 			writer.print("\t\t\t<OpenSearchServer:");
 			writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
 			writer.println(">");
-			for (String suggest : spellCheckItem.getSuggestions()) {
+			for (SuggestionItem suggest : spellCheckItem.getSuggestions()) {
 				writer.print("\t\t\t\t<OpenSearchServer:suggest>");
-				writer.print(StringEscapeUtils.escapeXml(suggest));
+				writer.print("\t\t\t\t\t<OpenSearchServer:term>");
+				writer.print(StringEscapeUtils.escapeXml(suggest.getTerm()));
+				writer.println("</OpenSearchServer:term>");
+				writer.print("\t\t\t\t\t<OpenSearchServer:freq>");
+				writer.print(suggest.getFreq());
+				writer.println("</OpenSearchServer:freq>");
 				writer.println("</OpenSearchServer:suggest>");
 			}
 			writer.print("</OpenSearchServer:");
@@ -306,7 +311,7 @@ public class RenderOpenSearch implements Render {
 	}
 
 	private void renderSpellChecks() throws Exception {
-		SpellCheckList spellChecklist = result.getSpellCheckList();
+		List<SpellCheck> spellChecklist = result.getSpellCheckList();
 		if (spellChecklist == null)
 			return;
 		writer.println("\t\t\t<OpenSearchServer:spellcheck>");

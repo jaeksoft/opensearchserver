@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,25 +37,45 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1417527967951473421L;
+
 	private float minScore;
 
 	private int suggestionNumber;
 
+	private SpellCheckDistanceEnum stringDistance;
+
 	public SpellCheckField() {
 		minScore = 0.5F;
 		suggestionNumber = 5;
+		stringDistance = SpellCheckDistanceEnum.LevensteinDistance;
 	}
 
-	protected SpellCheckField(SpellCheckField field) {
+	public SpellCheckField(SpellCheckField field) {
 		super(field);
 		this.minScore = field.minScore;
 		this.suggestionNumber = field.suggestionNumber;
+		this.stringDistance = field.stringDistance;
 	}
 
-	public SpellCheckField(String name, float minScore, int suggestionNumber) {
+	public SpellCheckField(String name, float minScore, int suggestionNumber,
+			SpellCheckDistanceEnum stringDistance) {
 		super(name);
 		this.minScore = minScore;
 		this.suggestionNumber = suggestionNumber;
+		this.stringDistance = stringDistance;
+	}
+
+	@Override
+	public void copy(Field source) {
+		super.copy(source);
+		SpellCheckField scSource = (SpellCheckField) source;
+		this.minScore = scSource.minScore;
+		this.suggestionNumber = scSource.suggestionNumber;
+		this.stringDistance = scSource.stringDistance;
 	}
 
 	@Override
@@ -89,8 +109,10 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 				minScore = Float.parseFloat(p);
 		int suggestionNumber = XPathParser.getAttributeValue(node,
 				"suggestionNumber");
+		SpellCheckDistanceEnum distance = SpellCheckDistanceEnum
+				.find(XPathParser.getAttributeString(node, "stringDistance"));
 		SpellCheckField spellCheckField = new SpellCheckField(source.get(
-				fieldName).getName(), minScore, suggestionNumber);
+				fieldName).getName(), minScore, suggestionNumber, distance);
 		target.add(spellCheckField);
 	}
 
@@ -113,15 +135,17 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 			suggestionNumber = Integer.parseInt(value.substring(i2 + 1, i3));
 		} else
 			fieldName = value;
-
-		return new SpellCheckField(fieldName, minScore, suggestionNumber);
+		// TODO Support distance
+		return new SpellCheckField(fieldName, minScore, suggestionNumber,
+				SpellCheckDistanceEnum.LevensteinDistance);
 	}
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("spellCheckField", "name", name, "minScore",
-				Float.toString(minScore), "suggestionNumber", Integer
-						.toString(suggestionNumber));
+				Float.toString(minScore), "suggestionNumber",
+				Integer.toString(suggestionNumber), "stringDistance",
+				stringDistance.name());
 		xmlWriter.endElement();
 	}
 
@@ -135,5 +159,20 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 		if (i != 0)
 			return i;
 		return suggestionNumber - f.suggestionNumber;
+	}
+
+	/**
+	 * @return the stringDistance
+	 */
+	public SpellCheckDistanceEnum getStringDistance() {
+		return stringDistance;
+	}
+
+	/**
+	 * @param stringDistance
+	 *            the stringDistance to set
+	 */
+	public void setStringDistance(SpellCheckDistanceEnum stringDistance) {
+		this.stringDistance = stringDistance;
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,17 +24,16 @@
 
 package com.jaeksoft.searchlib.spellcheck;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
-public class SpellCheckItem implements Externalizable {
+import com.jaeksoft.searchlib.index.ReaderLocal;
+
+public class SpellCheckItem {
 
 	private String word;
-	private String[] suggestions;
+	private SuggestionItem[] suggestions;
 
-	public SpellCheckItem(String word, String[] suggestions) {
+	public SpellCheckItem(String word, SuggestionItem[] suggestions) {
 		this.word = word;
 		this.suggestions = suggestions;
 	}
@@ -43,21 +42,16 @@ public class SpellCheckItem implements Externalizable {
 		return word;
 	}
 
-	public String[] getSuggestions() {
+	public SuggestionItem[] getSuggestions() {
 		return suggestions;
 	}
 
-	@Override
-	public void readExternal(ObjectInput arg0) throws IOException,
-			ClassNotFoundException {
-		// TODO Auto-generated method stub
+	public void computeFrequency(ReaderLocal reader, String fieldName)
+			throws IOException {
+		if (suggestions == null)
+			return;
+		for (SuggestionItem suggestionItem : suggestions)
+			suggestionItem.computeFrequency(reader, fieldName);
 
 	}
-
-	@Override
-	public void writeExternal(ObjectOutput arg0) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
 }
