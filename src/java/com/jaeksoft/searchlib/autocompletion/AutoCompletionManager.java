@@ -197,7 +197,8 @@ public class AutoCompletionManager {
 				return null;
 			if (rows == null)
 				rows = propRows;
-			SearchRequest searchRequest = autoCompClient.getNewSearchRequest();
+			SearchRequest searchRequest = new SearchRequest(autoCompClient,
+					null);
 			searchRequest.setQueryString(query);
 			searchRequest.setDefaultOperator("AND");
 			searchRequest.setRows(rows);

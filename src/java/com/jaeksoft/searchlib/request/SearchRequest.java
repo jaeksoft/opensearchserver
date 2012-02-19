@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +36,6 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.util.Version;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -53,35 +51,29 @@ import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.IndexAbstract;
-import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortList;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
-public class SearchRequest {
+public class SearchRequest extends AbstractRequest {
 
 	private transient QueryParser queryParser;
 	private transient Query boostedComplexQuery;
 	private transient Query snippetComplexQuery;
 	private transient Query primitiveQuery;
-	private transient Config config;
-	private transient Timer timer;
-	private transient long finalTime;
+
 	private transient Analyzer analyzer;
 
-	private String requestName;
 	private FilterList filterList;
 	private boolean allowLeadingWildcard;
 	private int phraseSlop;
@@ -91,19 +83,10 @@ public class SearchRequest {
 	private FieldList<Field> documentFieldList;
 	private FieldList<FacetField> facetFieldList;
 	private List<BoostQuery> boostingQueries;
-	private FieldList<SpellCheckField> spellCheckFieldList;
 	private SortList sortList;
 	private String collapseField;
 	private int collapseMax;
 	private CollapseMode collapseMode;
-	private boolean isMoreLikeThis;
-	private String moreLikeThisDocQuery;
-	private FieldList<Field> moreLikeThisFieldList;
-	private int moreLikeThisMinWordLen;
-	private int moreLikeThisMaxWordLen;
-	private int moreLikeThisMinDocFreq;
-	private int moreLikeThisMinTermFreq;
-	private String moreLikeThisStopWords;
 	private int start;
 	private int rows;
 	private LanguageEnum lang;
@@ -116,19 +99,13 @@ public class SearchRequest {
 	private boolean withLogReport;
 	private List<String> customLogs;
 
-	private final ReadWriteLock rwl = new ReadWriteLock();
-
-	public SearchRequest() {
-		queryParser = null;
-		config = null;
-		timer = null;
-		finalTime = 0;
-		customLogs = null;
+	public SearchRequest(Config config, String requestName) {
+		super(config, requestName);
 	}
 
-	public SearchRequest(Config config) {
-		this.config = config;
-		this.requestName = null;
+	@Override
+	protected void setDefaultValues() {
+		super.setDefaultValues();
 		this.filterList = new FilterList(this.config);
 		this.queryParser = null;
 		this.allowLeadingWildcard = false;
@@ -139,20 +116,11 @@ public class SearchRequest {
 		this.sortList = new SortList();
 		this.documentFieldList = null;
 		this.facetFieldList = new FieldList<FacetField>();
-		this.spellCheckFieldList = new FieldList<SpellCheckField>();
 		this.boostingQueries = new ArrayList<BoostQuery>(0);
 
 		this.collapseField = null;
 		this.collapseMax = 2;
 		this.collapseMode = CollapseMode.COLLAPSE_OFF;
-
-		this.isMoreLikeThis = false;
-		this.moreLikeThisFieldList = new FieldList<Field>();
-		this.moreLikeThisMinWordLen = 0;
-		this.moreLikeThisMaxWordLen = 0;
-		this.moreLikeThisMinDocFreq = 0;
-		this.moreLikeThisMinTermFreq = 0;
-		this.moreLikeThisStopWords = null;
 
 		this.start = 0;
 		this.rows = 10;
@@ -167,72 +135,53 @@ public class SearchRequest {
 		this.withDocuments = true;
 		this.withSortValues = false;
 		this.queryParsed = null;
-		this.timer = new Timer("Search request");
-		this.finalTime = 0;
 		this.withLogReport = false;
 		this.customLogs = null;
 	}
 
-	public SearchRequest(SearchRequest searchRequest) {
-		this(searchRequest.config);
-		searchRequest.rwl.r.lock();
-		try {
-			this.requestName = searchRequest.requestName;
-			this.filterList = new FilterList(searchRequest.filterList);
-			this.queryParser = null;
-			this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
-			this.phraseSlop = searchRequest.phraseSlop;
-			this.defaultOperator = searchRequest.defaultOperator;
-			this.snippetFieldList = new FieldList<SnippetField>(
-					searchRequest.snippetFieldList);
-			this.returnFieldList = new FieldList<Field>(
-					searchRequest.returnFieldList);
-			this.sortList = new SortList(searchRequest.sortList);
-			this.documentFieldList = null;
-			if (searchRequest.documentFieldList != null)
-				this.documentFieldList = new FieldList<Field>(
-						searchRequest.documentFieldList);
-			this.facetFieldList = new FieldList<FacetField>(
-					searchRequest.facetFieldList);
-			this.spellCheckFieldList = new FieldList<SpellCheckField>(
-					searchRequest.spellCheckFieldList);
-			this.boostingQueries = new ArrayList<BoostQuery>(
-					searchRequest.boostingQueries.size());
-			for (BoostQuery boostQuery : searchRequest.boostingQueries)
-				this.boostingQueries.add(new BoostQuery(boostQuery));
+	@Override
+	protected void copyFrom(AbstractRequest request) {
+		super.copyFrom(request);
+		SearchRequest searchRequest = (SearchRequest) request;
+		this.filterList = new FilterList(searchRequest.filterList);
+		this.queryParser = null;
+		this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
+		this.phraseSlop = searchRequest.phraseSlop;
+		this.defaultOperator = searchRequest.defaultOperator;
+		this.snippetFieldList = new FieldList<SnippetField>(
+				searchRequest.snippetFieldList);
+		this.returnFieldList = new FieldList<Field>(
+				searchRequest.returnFieldList);
+		this.sortList = new SortList(searchRequest.sortList);
+		this.documentFieldList = null;
+		if (searchRequest.documentFieldList != null)
+			this.documentFieldList = new FieldList<Field>(
+					searchRequest.documentFieldList);
+		this.facetFieldList = new FieldList<FacetField>(
+				searchRequest.facetFieldList);
+		this.boostingQueries = new ArrayList<BoostQuery>(
+				searchRequest.boostingQueries.size());
+		for (BoostQuery boostQuery : searchRequest.boostingQueries)
+			this.boostingQueries.add(new BoostQuery(boostQuery));
 
-			this.collapseField = searchRequest.collapseField;
-			this.collapseMax = searchRequest.collapseMax;
-			this.collapseMode = searchRequest.collapseMode;
+		this.collapseField = searchRequest.collapseField;
+		this.collapseMax = searchRequest.collapseMax;
+		this.collapseMode = searchRequest.collapseMode;
 
-			this.isMoreLikeThis = searchRequest.isMoreLikeThis;
-			this.moreLikeThisFieldList = new FieldList<Field>(
-					searchRequest.moreLikeThisFieldList);
-			this.moreLikeThisMinWordLen = searchRequest.moreLikeThisMinWordLen;
-			this.moreLikeThisMaxWordLen = searchRequest.moreLikeThisMaxWordLen;
-			this.moreLikeThisMinDocFreq = searchRequest.moreLikeThisMinDocFreq;
-			this.moreLikeThisMinTermFreq = searchRequest.moreLikeThisMinTermFreq;
-			this.moreLikeThisStopWords = searchRequest.moreLikeThisStopWords;
-			this.moreLikeThisDocQuery = searchRequest.moreLikeThisDocQuery;
-
-			this.withDocuments = searchRequest.withDocuments;
-			this.withSortValues = searchRequest.withSortValues;
-			this.start = searchRequest.start;
-			this.rows = searchRequest.rows;
-			this.lang = searchRequest.lang;
-			this.snippetComplexQuery = null;
-			this.boostedComplexQuery = null;
-			this.primitiveQuery = null;
-			this.analyzer = null;
-			this.queryString = searchRequest.queryString;
-			this.patternQuery = searchRequest.patternQuery;
-			this.advancedScore = AdvancedScore
-					.copy(searchRequest.advancedScore);
-			this.queryParsed = null;
-			this.withLogReport = searchRequest.withLogReport;
-		} finally {
-			searchRequest.rwl.r.unlock();
-		}
+		this.withDocuments = searchRequest.withDocuments;
+		this.withSortValues = searchRequest.withSortValues;
+		this.start = searchRequest.start;
+		this.rows = searchRequest.rows;
+		this.lang = searchRequest.lang;
+		this.snippetComplexQuery = null;
+		this.boostedComplexQuery = null;
+		this.primitiveQuery = null;
+		this.analyzer = null;
+		this.queryString = searchRequest.queryString;
+		this.patternQuery = searchRequest.patternQuery;
+		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
+		this.queryParsed = null;
+		this.withLogReport = searchRequest.withLogReport;
 	}
 
 	public void reset() {
@@ -246,47 +195,6 @@ public class SearchRequest {
 			this.analyzer = null;
 		} finally {
 			rwl.w.unlock();
-		}
-	}
-
-	private SearchRequest(Config config, String requestName,
-			boolean allowLeadingWildcard, int phraseSlop,
-			QueryParser.Operator defaultOperator, int start, int rows,
-			String codeLang, String patternQuery, String queryString,
-			boolean delete, boolean withDocuments, boolean withSortValues) {
-		this(config);
-		this.requestName = requestName;
-		this.allowLeadingWildcard = allowLeadingWildcard;
-		this.phraseSlop = phraseSlop;
-		this.defaultOperator = defaultOperator;
-		this.start = start;
-		this.rows = rows;
-		this.lang = LanguageEnum.findByCode(codeLang);
-		this.queryString = queryString;
-		this.patternQuery = patternQuery;
-		this.withDocuments = withDocuments;
-		this.withSortValues = withSortValues;
-	}
-
-	public void init(Config config) {
-		rwl.w.lock();
-		try {
-			this.config = config;
-			finalTime = 0;
-			if (timer != null)
-				timer.reset();
-			timer = new Timer("Search request");
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public Config getConfig() {
-		rwl.r.lock();
-		try {
-			return this.config;
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 
@@ -308,24 +216,6 @@ public class SearchRequest {
 		try {
 			checkAnalyzer();
 			return analyzer;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public String getRequestName() {
-		rwl.r.lock();
-		try {
-			return this.requestName;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setRequestName(String name) {
-		rwl.w.lock();
-		try {
-			this.requestName = name;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -390,29 +280,6 @@ public class SearchRequest {
 		}
 	}
 
-	private Query getMoreLikeThisQuery() throws SearchLibException, IOException {
-		Config config = getConfig();
-		IndexAbstract index = config.getIndex();
-		MoreLikeThis mlt = index.getMoreLikeThis();
-		SearchRequest searchRequest = config.getNewSearchRequest();
-		searchRequest.setRows(1);
-		searchRequest.setQueryString(moreLikeThisDocQuery);
-		Result result = index.search(searchRequest);
-		if (result.getNumFound() == 0)
-			return mlt.like(new StringReader(""));
-		int docId = result.getDocs()[0].doc;
-		mlt.setMinWordLen(moreLikeThisMinWordLen);
-		mlt.setMaxWordLen(moreLikeThisMaxWordLen);
-		mlt.setMinDocFreq(moreLikeThisMinDocFreq);
-		mlt.setMinTermFreq(moreLikeThisMinTermFreq);
-		mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
-		mlt.setAnalyzer(checkAnalyzer());
-		if (moreLikeThisStopWords != null)
-			mlt.setStopWords(getConfig().getStopWordsManager()
-					.getWordArray(moreLikeThisStopWords, false).getWordSet());
-		return mlt.like(docId);
-	}
-
 	public Query getQuery() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
 		rwl.r.lock();
@@ -426,15 +293,12 @@ public class SearchRequest {
 		try {
 			if (boostedComplexQuery != null)
 				return boostedComplexQuery;
-			if (isMoreLikeThis) {
-				boostedComplexQuery = getMoreLikeThisQuery();
-			} else {
-				queryParser = getQueryParser();
-				String fq = getFinalQuery();
-				if (fq == null)
-					return null;
-				boostedComplexQuery = queryParser.parse(fq);
-			}
+
+			queryParser = getQueryParser();
+			String fq = getFinalQuery();
+			if (fq == null)
+				return null;
+			boostedComplexQuery = queryParser.parse(fq);
 			snippetComplexQuery = boostedComplexQuery;
 			if (advancedScore != null && !advancedScore.isEmpty())
 				boostedComplexQuery = advancedScore
@@ -611,15 +475,6 @@ public class SearchRequest {
 		}
 	}
 
-	public FieldList<SpellCheckField> getSpellCheckFieldList() {
-		rwl.r.lock();
-		try {
-			return this.spellCheckFieldList;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
 	public void setCollapseField(String collapseField) {
 		rwl.w.lock();
 		try {
@@ -790,7 +645,7 @@ public class SearchRequest {
 		try {
 			StringBuffer sb = new StringBuffer();
 			sb.append("RequestName: ");
-			sb.append(requestName);
+			sb.append(getRequestName());
 			sb.append(" DefaultOperator: ");
 			sb.append(defaultOperator);
 			sb.append(" Start: ");
@@ -882,193 +737,6 @@ public class SearchRequest {
 		}
 	}
 
-	/**
-	 * @return the moreLikeThisDocQuery
-	 */
-	public String getMoreLikeThisDocQuery() {
-		rwl.r.lock();
-		try {
-			return moreLikeThisDocQuery;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @return the isMoreLikeThis
-	 */
-	public boolean isMoreLikeThis() {
-		rwl.r.lock();
-		try {
-			return isMoreLikeThis;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param isMoreLikeThis
-	 *            the isMoreLikeThis to set
-	 */
-	public void setMoreLikeThis(boolean isMoreLikeThis) {
-		rwl.w.lock();
-		try {
-			this.isMoreLikeThis = isMoreLikeThis;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @param moreLikeThisDocQuery
-	 *            the moreLikeThisDocQuery to set
-	 */
-	public void setMoreLikeThisDocQuery(String moreLikeThisDocQuery) {
-		rwl.w.lock();
-		try {
-			this.moreLikeThisDocQuery = moreLikeThisDocQuery;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the moreLikeThisFieldList
-	 */
-	public FieldList<Field> getMoreLikeThisFieldList() {
-		rwl.r.lock();
-		try {
-			return moreLikeThisFieldList;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @return the moreLikeThisMinWordLen
-	 */
-	public int getMoreLikeThisMinWordLen() {
-		rwl.r.lock();
-		try {
-			return moreLikeThisMinWordLen;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param moreLikeThisMinWordLen
-	 *            the moreLikeThisMinWordLen to set
-	 */
-	public void setMoreLikeThisMinWordLen(int moreLikeThisMinWordLen) {
-		rwl.w.lock();
-		try {
-			this.moreLikeThisMinWordLen = moreLikeThisMinWordLen;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the moreLikeThisMaxWordLen
-	 */
-	public int getMoreLikeThisMaxWordLen() {
-		rwl.r.lock();
-		try {
-			return moreLikeThisMaxWordLen;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param moreLikeThisMaxWordLen
-	 *            the moreLikeThisMaxWordLen to set
-	 */
-	public void setMoreLikeThisMaxWordLen(int moreLikeThisMaxWordLen) {
-		rwl.w.lock();
-		try {
-			this.moreLikeThisMaxWordLen = moreLikeThisMaxWordLen;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the moreLikeThisMinDocFreq
-	 */
-	public int getMoreLikeThisMinDocFreq() {
-		rwl.r.lock();
-		try {
-			return moreLikeThisMinDocFreq;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param moreLikeThisMinDocFreq
-	 *            the moreLikeThisMinDocFreq to set
-	 */
-	public void setMoreLikeThisMinDocFreq(int moreLikeThisMinDocFreq) {
-		rwl.w.lock();
-		try {
-			this.moreLikeThisMinDocFreq = moreLikeThisMinDocFreq;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the moreLikeThisMinTermFreq
-	 */
-	public int getMoreLikeThisMinTermFreq() {
-		rwl.r.lock();
-		try {
-			return moreLikeThisMinTermFreq;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param moreLikeThisMinTermFreq
-	 *            the moreLikeThisMinTermFreq to set
-	 */
-	public void setMoreLikeThisMinTermFreq(int moreLikeThisMinTermFreq) {
-		rwl.w.lock();
-		try {
-			this.moreLikeThisMinTermFreq = moreLikeThisMinTermFreq;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the moreLikeThisStopWords
-	 */
-	public String getMoreLikeThisStopWords() {
-		rwl.r.lock();
-		try {
-			return moreLikeThisStopWords;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param moreLikeThisStopWords
-	 *            the moreLikeThisStopWords to set
-	 */
-	public void setMoreLikeThisStopWords(String moreLikeThisStopWords) {
-		rwl.w.lock();
-		try {
-			this.moreLikeThisStopWords = moreLikeThisStopWords;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
 	public final static String[] CONTROL_CHARS = { "\\", "^", "\"", "~", ":" };
 
 	public final static String[] RANGE_CHARS = { "(", ")", "{", "}", "[", "]" };
@@ -1123,43 +791,6 @@ public class SearchRequest {
 		}
 	}
 
-	public boolean isSpellCheck() {
-		rwl.r.lock();
-		try {
-			if (spellCheckFieldList == null)
-				return false;
-			return spellCheckFieldList.size() > 0;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public long getFinalTime() {
-		rwl.r.lock();
-		try {
-			if (finalTime != 0)
-				return finalTime;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			finalTime = timer.duration();
-			return finalTime;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public Timer getTimer() {
-		rwl.r.lock();
-		try {
-			return timer;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
 	public BoostQuery[] getBoostingQueries() {
 		rwl.r.lock();
 		try {
@@ -1201,204 +832,268 @@ public class SearchRequest {
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public static SearchRequest fromXmlConfig(Config config, XPathParser xpp,
-			Node node) throws XPathExpressionException, DOMException,
-			ParseException, InstantiationException, IllegalAccessException,
+	@Override
+	public void fromXmlConfig(Config config, XPathParser xpp, Node node)
+			throws XPathExpressionException, DOMException, ParseException,
+			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		if (node == null)
-			return null;
-		String name = XPathParser.getAttributeString(node, "name");
-		SearchRequest searchRequest = new SearchRequest(config, name,
-				("yes".equalsIgnoreCase(XPathParser.getAttributeString(node,
-						"allowLeadingWildcard"))),
-				XPathParser.getAttributeValue(node, "phraseSlop"),
-				("and".equalsIgnoreCase(XPathParser.getAttributeString(node,
-						"defaultOperator"))) ? QueryParser.AND_OPERATOR
-						: QueryParser.OR_OPERATOR,
-				XPathParser.getAttributeValue(node, "start"),
-				XPathParser.getAttributeValue(node, "rows"),
-				XPathParser.getAttributeString(node, "lang"),
-				xpp.getNodeString(node, "query"), null, false, true, false);
+		rwl.w.lock();
+		try {
+			super.fromXmlConfig(config, xpp, node);
+			allowLeadingWildcard = "yes".equalsIgnoreCase(XPathParser
+					.getAttributeString(node, "allowLeadingWildcard"));
+			setPhraseSlop(XPathParser.getAttributeValue(node, "phraseSlop"));
+			setDefaultOperator(XPathParser.getAttributeString(node,
+					"defaultOperator"));
+			setStart(XPathParser.getAttributeValue(node, "start"));
+			setRows(XPathParser.getAttributeValue(node, "rows"));
+			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
+					node, "lang")));
+			setQueryString(xpp.getNodeString(node, "query"));
 
-		AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp, node);
-		if (advancedScore != null)
-			searchRequest.setAdvancedScore(advancedScore);
+			AdvancedScore advancedScore = AdvancedScore
+					.fromXmlConfig(xpp, node);
+			if (advancedScore != null)
+				setAdvancedScore(advancedScore);
 
-		searchRequest.setCollapseMode(CollapseMode.valueOfLabel(XPathParser
-				.getAttributeString(node, "collapseMode")));
-		searchRequest.setCollapseField(XPathParser.getAttributeString(node,
-				"collapseField"));
-		searchRequest.setCollapseMax(XPathParser.getAttributeValue(node,
-				"collapseMax"));
+			setCollapseMode(CollapseMode.valueOfLabel(XPathParser
+					.getAttributeString(node, "collapseMode")));
+			setCollapseField(XPathParser.getAttributeString(node,
+					"collapseField"));
+			setCollapseMax(XPathParser.getAttributeValue(node, "collapseMax"));
 
-		Node bqNode = xpp.getNode(node, "boostingQueries");
-		if (bqNode != null)
-			BoostQuery.loadFromXml(xpp, bqNode, searchRequest.boostingQueries);
+			Node bqNode = xpp.getNode(node, "boostingQueries");
+			if (bqNode != null)
+				BoostQuery.loadFromXml(xpp, bqNode, boostingQueries);
 
-		Node mltNode = xpp.getNode(node, "moreLikeThis");
-		if (mltNode != null) {
-			searchRequest.setMoreLikeThis("yes".equalsIgnoreCase(XPathParser
-					.getAttributeString(mltNode, "active")));
-			searchRequest.setMoreLikeThisMinWordLen(XPathParser
-					.getAttributeValue(mltNode, "minWordLen"));
-			searchRequest.setMoreLikeThisMaxWordLen(XPathParser
-					.getAttributeValue(mltNode, "maxWordLen"));
-			searchRequest.setMoreLikeThisMinTermFreq(XPathParser
-					.getAttributeValue(mltNode, "minTermFreq"));
-			searchRequest.setMoreLikeThisMinDocFreq(XPathParser
-					.getAttributeValue(mltNode, "minDocFreq"));
-			searchRequest.setMoreLikeThisStopWords(XPathParser
-					.getAttributeString(mltNode, "stopWords"));
-
-			NodeList mltFieldsNodes = xpp.getNodeList(mltNode, "fields/field");
-			if (mltFieldsNodes != null) {
-				FieldList<Field> moreLikeThisFields = searchRequest
-						.getMoreLikeThisFieldList();
-				for (int i = 0; i < mltFieldsNodes.getLength(); i++) {
-					Field field = Field.fromXmlConfig(mltFieldsNodes.item(i));
-					if (field != null)
-						moreLikeThisFields.add(field);
-				}
+			FieldList<SchemaField> fieldList = config.getSchema()
+					.getFieldList();
+			Field.filterCopy(fieldList,
+					xpp.getNodeString(node, "returnFields"), returnFieldList);
+			NodeList nodes = xpp.getNodeList(node, "returnFields/field");
+			for (int i = 0; i < nodes.getLength(); i++) {
+				Field field = Field.fromXmlConfig(nodes.item(i));
+				if (field != null)
+					returnFieldList.add(field);
 			}
-			Node mltDocQueryNode = xpp.getNode(mltNode, "docQuery");
-			if (mltDocQueryNode != null)
-				searchRequest.setMoreLikeThisDocQuery(xpp
-						.getNodeString(mltDocQueryNode));
+
+			nodes = xpp.getNodeList(node, "snippet/field");
+			for (int i = 0; i < nodes.getLength(); i++)
+				SnippetField.copySnippetFields(nodes.item(i), fieldList,
+						snippetFieldList);
+
+			nodes = xpp.getNodeList(node, "facetFields/facetField");
+			for (int i = 0; i < nodes.getLength(); i++)
+				FacetField.copyFacetFields(nodes.item(i), fieldList,
+						facetFieldList);
+
+			nodes = xpp.getNodeList(node, "filters/filter");
+			for (int i = 0; i < nodes.getLength(); i++) {
+				Node n = nodes.item(i);
+				filterList.add(xpp.getNodeString(n), "yes".equals(XPathParser
+						.getAttributeString(n, "negative")), Source.CONFIGXML);
+			}
+
+			nodes = xpp.getNodeList(node, "sort/field");
+			for (int i = 0; i < nodes.getLength(); i++) {
+				node = nodes.item(i);
+				String textNode = xpp.getNodeString(node);
+				if (textNode != null && textNode.length() > 0)
+					sortList.add(textNode);
+				else
+					sortList.add(new SortField(node));
+			}
+		} finally {
+			rwl.w.unlock();
 		}
-
-		FieldList<Field> returnFields = searchRequest.getReturnFieldList();
-		FieldList<SchemaField> fieldList = config.getSchema().getFieldList();
-		Field.filterCopy(fieldList, xpp.getNodeString(node, "returnFields"),
-				returnFields);
-		NodeList nodes = xpp.getNodeList(node, "returnFields/field");
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Field field = Field.fromXmlConfig(nodes.item(i));
-			if (field != null)
-				returnFields.add(field);
-		}
-
-		FieldList<SnippetField> snippetFields = searchRequest
-				.getSnippetFieldList();
-		nodes = xpp.getNodeList(node, "snippet/field");
-		for (int i = 0; i < nodes.getLength(); i++)
-			SnippetField.copySnippetFields(nodes.item(i), fieldList,
-					snippetFields);
-
-		FieldList<FacetField> facetFields = searchRequest.getFacetFieldList();
-		nodes = xpp.getNodeList(node, "facetFields/facetField");
-		for (int i = 0; i < nodes.getLength(); i++)
-			FacetField.copyFacetFields(nodes.item(i), fieldList, facetFields);
-
-		FieldList<SpellCheckField> spellCheckFields = searchRequest
-				.getSpellCheckFieldList();
-		nodes = xpp.getNodeList(node, "spellCheckFields/spellCheckField");
-		for (int i = 0; i < nodes.getLength(); i++)
-			SpellCheckField.copySpellCheckFields(nodes.item(i), fieldList,
-					spellCheckFields);
-
-		FilterList filterList = searchRequest.getFilterList();
-		nodes = xpp.getNodeList(node, "filters/filter");
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node n = nodes.item(i);
-			filterList
-					.add(xpp.getNodeString(n), "yes".equals(XPathParser
-							.getAttributeString(n, "negative")),
-							Source.CONFIGXML);
-		}
-
-		SortList sortList = searchRequest.getSortList();
-		nodes = xpp.getNodeList(node, "sort/field");
-		for (int i = 0; i < nodes.getLength(); i++) {
-			node = nodes.item(i);
-			String textNode = xpp.getNodeString(node);
-			if (textNode != null && textNode.length() > 0)
-				sortList.add(textNode);
-			else
-				sortList.add(new SortField(node));
-		}
-		return searchRequest;
 	}
 
+	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("request", "name", requestName, "phraseSlop",
-				Integer.toString(phraseSlop), "defaultOperator",
-				getDefaultOperator(), "start", Integer.toString(start), "rows",
-				Integer.toString(rows), "lang", lang != null ? lang.getCode()
-						: null, "collapseMode", collapseMode.getLabel(),
-				"collapseField", collapseField, "collapseMax", Integer
-						.toString(collapseMax));
+		rwl.r.lock();
+		try {
+			xmlWriter
+					.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
+							getRequestName(), XML_ATTR_TYPE, getType().name(),
+							"phraseSlop", Integer.toString(phraseSlop),
+							"defaultOperator", getDefaultOperator(), "start",
+							Integer.toString(start), "rows",
+							Integer.toString(rows), "lang",
+							lang != null ? lang.getCode() : null,
+							"collapseMode", collapseMode.getLabel(),
+							"collapseField", collapseField, "collapseMax",
+							Integer.toString(collapseMax));
 
-		xmlWriter.startElement("moreLikeThis", "minWordLen",
-				Integer.toString(moreLikeThisMinWordLen), "maxWordLen",
-				Integer.toString(moreLikeThisMaxWordLen), "minDocFreq",
-				Integer.toString(moreLikeThisMinDocFreq), "minTermFreq",
-				Integer.toString(moreLikeThisMinTermFreq), "stopWords",
-				moreLikeThisStopWords, "active", isMoreLikeThis ? "yes" : "no");
+			if (boostingQueries.size() > 0) {
+				xmlWriter.startElement("boostingQueries");
+				for (BoostQuery boostQuery : boostingQueries)
+					boostQuery.writeXmlConfig(xmlWriter);
+				xmlWriter.endElement();
+			}
 
-		if (moreLikeThisFieldList.size() > 0) {
-			xmlWriter.startElement("fields");
-			moreLikeThisFieldList.writeXmlConfig(xmlWriter);
+			if (patternQuery != null && patternQuery.trim().length() > 0) {
+				xmlWriter.startElement("query");
+				xmlWriter.textNode(patternQuery);
+				xmlWriter.endElement();
+			}
+
+			if (returnFieldList.size() > 0) {
+				xmlWriter.startElement("returnFields");
+				returnFieldList.writeXmlConfig(xmlWriter);
+				xmlWriter.endElement();
+			}
+
+			if (snippetFieldList.size() > 0) {
+				xmlWriter.startElement("snippet");
+				snippetFieldList.writeXmlConfig(xmlWriter);
+				xmlWriter.endElement();
+			}
+
+			if (facetFieldList.size() > 0) {
+				xmlWriter.startElement("facetFields");
+				facetFieldList.writeXmlConfig(xmlWriter);
+				xmlWriter.endElement();
+			}
+
+			if (sortList.getFieldList().size() > 0) {
+				xmlWriter.startElement("sort");
+				sortList.getFieldList().writeXmlConfig(xmlWriter);
+				xmlWriter.endElement();
+			}
+
+			if (filterList.size() > 0) {
+				xmlWriter.startElement("filters");
+				filterList.writeXmlConfig(xmlWriter);
+				xmlWriter.endElement();
+			}
+
+			if (advancedScore != null)
+				advancedScore.writeXmlConfig(xmlWriter);
+
 			xmlWriter.endElement();
+		} finally {
+			rwl.r.unlock();
 		}
-		if (moreLikeThisDocQuery != null && moreLikeThisDocQuery.length() > 0) {
-			xmlWriter.startElement("docQuery");
-			xmlWriter.textNode(moreLikeThisDocQuery);
-			xmlWriter.endElement();
+	}
+
+	@Override
+	public RequestTypeEnum getType() {
+		return RequestTypeEnum.SearchRequest;
+	}
+
+	@Override
+	public void setFromServlet(ServletTransaction transaction)
+			throws SyntaxError {
+		rwl.w.lock();
+		try {
+			String p;
+			Integer i;
+
+			SchemaFieldList shemaFieldList = config.getSchema().getFieldList();
+
+			if ((p = transaction.getParameterString("query")) != null)
+				setQueryString(p);
+			else if ((p = transaction.getParameterString("q")) != null)
+				setQueryString(p);
+
+			if ((i = transaction.getParameterInteger("start")) != null)
+				setStart(i);
+
+			if ((i = transaction.getParameterInteger("rows")) != null)
+				setRows(i);
+
+			if ((p = transaction.getParameterString("lang")) != null)
+				setLang(LanguageEnum.findByCode(p));
+
+			if ((p = transaction.getParameterString("collapse.mode")) != null)
+				setCollapseMode(CollapseMode.valueOfLabel(p));
+
+			if ((p = transaction.getParameterString("collapse.field")) != null)
+				setCollapseField(shemaFieldList.get(p).getName());
+
+			if ((i = transaction.getParameterInteger("collapse.max")) != null)
+				setCollapseMax(i);
+
+			if ((p = transaction.getParameterString("withDocs")) != null)
+				setWithDocument(true);
+
+			if ((p = transaction.getParameterString("log")) != null)
+				setLogReport(true);
+
+			if (isLogReport()) {
+				for (int j = 1; j <= 10; j++) {
+					p = transaction.getParameterString("log" + j);
+					if (p == null)
+						break;
+					addCustomLog(p);
+				}
+			}
+
+			String[] values;
+
+			if ((values = transaction.getParameterValues("fq")) != null) {
+				for (String value : values)
+					if (value != null)
+						if (value.trim().length() > 0)
+							filterList.add(value, false, Filter.Source.REQUEST);
+			}
+
+			if ((values = transaction.getParameterValues("fqn")) != null) {
+				for (String value : values)
+					if (value != null)
+						if (value.trim().length() > 0)
+							filterList.add(value, true, Filter.Source.REQUEST);
+			}
+
+			if ((values = transaction.getParameterValues("rf")) != null) {
+				for (String value : values)
+					if (value != null)
+						if (value.trim().length() > 0)
+							returnFieldList.add(new Field(shemaFieldList
+									.get(value)));
+			}
+
+			if ((values = transaction.getParameterValues("hl")) != null) {
+				for (String value : values)
+					snippetFieldList.add(new SnippetField(shemaFieldList.get(
+							value).getName()));
+			}
+
+			if ((values = transaction.getParameterValues("fl")) != null) {
+				for (String value : values)
+					returnFieldList.add(shemaFieldList.get(value));
+			}
+
+			if ((values = transaction.getParameterValues("sort")) != null) {
+				for (String value : values)
+					sortList.add(value);
+			}
+
+			if ((values = transaction.getParameterValues("facet")) != null) {
+				for (String value : values)
+					facetFieldList.add(FacetField.buildFacetField(value, false,
+							false));
+			}
+			if ((values = transaction.getParameterValues("facet.collapse")) != null) {
+				for (String value : values)
+					facetFieldList.add(FacetField.buildFacetField(value, false,
+							true));
+			}
+			if ((values = transaction.getParameterValues("facet.multi")) != null) {
+				for (String value : values)
+					facetFieldList.add(FacetField.buildFacetField(value, true,
+							false));
+			}
+			if ((values = transaction
+					.getParameterValues("facet.multi.collapse")) != null) {
+				for (String value : values)
+					facetFieldList.add(FacetField.buildFacetField(value, true,
+							true));
+			}
+
+		} finally {
+			rwl.w.unlock();
 		}
-		xmlWriter.endElement();
 
-		if (boostingQueries.size() > 0) {
-			xmlWriter.startElement("boostingQueries");
-			for (BoostQuery boostQuery : boostingQueries)
-				boostQuery.writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
-		}
-
-		if (patternQuery != null && patternQuery.trim().length() > 0) {
-			xmlWriter.startElement("query");
-			xmlWriter.textNode(patternQuery);
-			xmlWriter.endElement();
-		}
-
-		if (returnFieldList.size() > 0) {
-			xmlWriter.startElement("returnFields");
-			returnFieldList.writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
-		}
-
-		if (snippetFieldList.size() > 0) {
-			xmlWriter.startElement("snippet");
-			snippetFieldList.writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
-		}
-
-		if (facetFieldList.size() > 0) {
-			xmlWriter.startElement("facetFields");
-			facetFieldList.writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
-		}
-
-		if (spellCheckFieldList.size() > 0) {
-			xmlWriter.startElement("spellCheckFields");
-			spellCheckFieldList.writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
-		}
-
-		if (sortList.getFieldList().size() > 0) {
-			xmlWriter.startElement("sort");
-			sortList.getFieldList().writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
-		}
-
-		if (filterList.size() > 0) {
-			xmlWriter.startElement("filters");
-			filterList.writeXmlConfig(xmlWriter);
-			xmlWriter.endElement();
-		}
-
-		if (advancedScore != null)
-			advancedScore.writeXmlConfig(xmlWriter);
-
-		xmlWriter.endElement();
 	}
 }

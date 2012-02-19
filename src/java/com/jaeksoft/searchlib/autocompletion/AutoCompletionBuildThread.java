@@ -86,7 +86,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 			SearchLibException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, ParseException,
 			SyntaxError, URISyntaxException, InterruptedException {
-		SearchRequest searchRequest = autoCompClient.getNewSearchRequest();
+		SearchRequest searchRequest = new SearchRequest(autoCompClient, null);
 		searchRequest.setQueryString("*:*");
 		autoCompClient.deleteDocuments(searchRequest);
 	}

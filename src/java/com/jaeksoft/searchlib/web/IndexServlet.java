@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,11 +37,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.remote.StreamReadObject;
-import com.jaeksoft.searchlib.request.IndexRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -52,48 +48,6 @@ public class IndexServlet extends AbstractServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 3855116559376800406L;
-
-	private int updateDoc(Client client, IndexDocument doc)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		return client.updateDocument(doc) ? 1 : 0;
-	}
-
-	private int updateDoc(Client client,
-			Collection<IndexDocument> indexDocuments)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		return client.updateDocuments(indexDocuments);
-	}
-
-	private int updateDoc(Client client, IndexRequest indexRequest)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		return updateDoc(client, indexRequest.getCollection());
-	}
-
-	private int doObjectRequest(Client client, ServletTransaction transaction)
-			throws ServletException {
-		StreamReadObject readObject = null;
-		try {
-			readObject = new StreamReadObject(transaction.getInputStream());
-			Object obj = readObject.read();
-			if (obj instanceof IndexRequest)
-				return updateDoc(client, (IndexRequest) obj);
-			else if (obj instanceof IndexDocument)
-				return updateDoc(client, (IndexDocument) obj);
-			throw new ServletException("Nothing to do");
-		} catch (Exception e) {
-			Logging.error(e.getMessage(), e);
-			throw new ServletException(e);
-		} finally {
-			if (readObject != null)
-				readObject.close();
-		}
-	}
 
 	@Override
 	protected void doRequest(ServletTransaction transaction)
@@ -109,16 +63,15 @@ public class IndexServlet extends AbstractServlet {
 			Client client = transaction.getClient();
 			String ct = transaction.getRequestContentType();
 			int bufferSize = transaction.getParameterInteger("bufferSize", 50);
-			Object result = null;
+			int result = 0;
 			if (ct != null && ct.toLowerCase().contains("xml")) {
 				InputSource inputSource = new InputSource(
 						transaction.getReader());
 				result = client.updateXmlDocuments(inputSource, bufferSize,
 						null, client.getWebPropertyManager().getProxyHandler());
-			} else
-				result = doObjectRequest(client, transaction);
+			}
 			transaction.addXmlResponse("Status", "OK");
-			transaction.addXmlResponse("Count", result.toString());
+			transaction.addXmlResponse("Count", Integer.toString(result));
 		} catch (IOException e) {
 			throw new ServletException(e);
 		} catch (XPathExpressionException e) {
@@ -154,13 +107,4 @@ public class IndexServlet extends AbstractServlet {
 		return Boolean.parseBoolean(msg.trim());
 	}
 
-	public static int update(URI uri, String indexName,
-			Collection<IndexDocument> indexDocuments)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException {
-		String msg = sendObject(buildUri(uri, "/index", indexName, null),
-				new IndexRequest(indexDocuments));
-		if (msg == null)
-			return 0;
-		return Integer.parseInt(msg.trim());
-	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,12 +41,13 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SearchRequestMap {
+public class RequestMap {
 
-	private Map<String, SearchRequest> map;
+	private Map<String, AbstractRequest> map;
 
 	/**
-	 * Construit une liste de requ�tes � partir du fichier de config XML.
+	 * Returns a map containing the request read from the XML configuration
+	 * file.
 	 * 
 	 * @param config
 	 * @param document
@@ -58,33 +59,34 @@ public class SearchRequestMap {
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public static SearchRequestMap fromXmlConfig(Config config,
-			XPathParser xpp, Node parentNode) throws XPathExpressionException,
-			DOMException, ParseException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-		SearchRequestMap searchRequestList = new SearchRequestMap();
+	public static RequestMap fromXmlConfig(Config config, XPathParser xpp,
+			Node parentNode) throws XPathExpressionException, DOMException,
+			ParseException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		RequestMap requestMap = new RequestMap();
 		if (parentNode == null)
-			return searchRequestList;
+			return requestMap;
 		NodeList nodes = xpp.getNodeList(parentNode, "request");
 		if (nodes == null)
-			return searchRequestList;
+			return requestMap;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			SearchRequest searchRequest = SearchRequest.fromXmlConfig(config,
+			AbstractRequest request = RequestTypeEnum.fromXmlConfig(config,
 					xpp, nodes.item(i));
-			searchRequestList.put(searchRequest);
+			if (request != null)
+				requestMap.put(request);
 		}
-		return searchRequestList;
+		return requestMap;
 	}
 
-	private SearchRequestMap() {
-		map = new TreeMap<String, SearchRequest>();
+	private RequestMap() {
+		map = new TreeMap<String, AbstractRequest>();
 	}
 
-	public void put(SearchRequest searchRequest) {
-		map.put(searchRequest.getRequestName(), searchRequest);
+	public void put(AbstractRequest request) {
+		map.put(request.getRequestName(), request);
 	}
 
-	public SearchRequest get(String requestName) {
+	public AbstractRequest get(String requestName) {
 		if (requestName == null)
 			return null;
 		return map.get(requestName);
@@ -92,12 +94,12 @@ public class SearchRequestMap {
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("requests");
-		for (SearchRequest request : map.values())
+		for (AbstractRequest request : map.values())
 			request.writeXmlConfig(xmlWriter);
 		xmlWriter.endElement();
 	}
 
-	public Set<Entry<String, SearchRequest>> getRequests() {
+	public Set<Entry<String, AbstractRequest>> getRequests() {
 		return map.entrySet();
 	}
 

@@ -53,12 +53,10 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
 import com.jaeksoft.searchlib.api.ApiManager;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
-import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
@@ -75,9 +73,6 @@ import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
-import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.filter.Filter;
-import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
@@ -93,16 +88,14 @@ import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.replication.ReplicationThread;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.RequestMap;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.request.SearchRequestMap;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.scheduler.JobList;
 import com.jaeksoft.searchlib.scheduler.TaskEnum;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.snippet.SnippetField;
-import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -115,7 +108,7 @@ public abstract class Config {
 
 	private Schema schema = null;
 
-	private SearchRequestMap searchRequests = null;
+	private RequestMap requests = null;
 
 	private ExecutorService threadPool = null;
 
@@ -378,7 +371,7 @@ public abstract class Config {
 			try {
 				PrintWriter pw = cfr.getTempPrintWriter("UTF-8");
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-				getSearchRequestMap().writeXmlConfig(xmlWriter);
+				getRequestMap().writeXmlConfig(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
@@ -978,39 +971,43 @@ public abstract class Config {
 		}
 	}
 
-	public SearchRequest getNewSearchRequest() {
-		return new SearchRequest(this);
-	}
-
-	public SearchRequest getNewSearchRequest(String requestName)
+	public AbstractRequest getNewRequest(String requestName)
 			throws SearchLibException {
 		if (requestName == null)
 			throw new SearchLibException("No request name");
-		return new SearchRequest(getSearchRequestMap().get(requestName));
+		AbstractRequest request = getRequestMap().get(requestName);
+		if (request == null)
+			throw new SearchLibException("No request found");
+		try {
+			return RequestTypeEnum.getNewCopy(request);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
-	public SearchRequestMap getSearchRequestMap() throws SearchLibException {
+	public RequestMap getRequestMap() throws SearchLibException {
 		rwl.r.lock();
 		try {
-			if (searchRequests != null)
-				return searchRequests;
+			if (requests != null)
+				return requests;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			if (searchRequests != null)
-				return searchRequests;
+			if (requests != null)
+				return requests;
 			File requestFile = new File(indexDir, "requests.xml");
 			if (requestFile.exists()) {
 				XPathParser xpp = new XPathParser(requestFile);
-				searchRequests = SearchRequestMap.fromXmlConfig(this, xpp,
+				requests = RequestMap.fromXmlConfig(this, xpp,
 						xpp.getNode("/requests"));
 			} else
-				searchRequests = SearchRequestMap
-						.fromXmlConfig(this, xppConfig,
-								xppConfig.getNode("/configuration/requests"));
-			return searchRequests;
+				requests = RequestMap.fromXmlConfig(this, xppConfig,
+						xppConfig.getNode("/configuration/requests"));
+			return requests;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (DOMException e) {
@@ -1368,146 +1365,15 @@ public abstract class Config {
 		}
 	}
 
-	public SearchRequest getNewSearchRequest(ServletTransaction transaction)
+	public AbstractRequest getNewRequest(ServletTransaction transaction)
 			throws ParseException, SyntaxError, SearchLibException {
 
 		String requestName = transaction.getParameterString("qt", "search");
-		SearchRequest searchRequest = getNewSearchRequest(requestName);
-		if (searchRequest == null)
-			searchRequest = getNewSearchRequest();
-
-		String p;
-		Integer i;
-		Boolean b;
-
-		if ((p = transaction.getParameterString("query")) != null)
-			searchRequest.setQueryString(p);
-		else if ((p = transaction.getParameterString("q")) != null)
-			searchRequest.setQueryString(p);
-
-		if ((i = transaction.getParameterInteger("start")) != null)
-			searchRequest.setStart(i);
-
-		if ((i = transaction.getParameterInteger("rows")) != null)
-			searchRequest.setRows(i);
-
-		if ((p = transaction.getParameterString("lang")) != null)
-			searchRequest.setLang(LanguageEnum.findByCode(p));
-
-		if ((p = transaction.getParameterString("collapse.mode")) != null)
-			searchRequest.setCollapseMode(CollapseMode.valueOfLabel(p));
-
-		if ((p = transaction.getParameterString("collapse.field")) != null)
-			searchRequest.setCollapseField(getSchema().getFieldList().get(p)
-					.getName());
-
-		if ((i = transaction.getParameterInteger("collapse.max")) != null)
-			searchRequest.setCollapseMax(i);
-
-		if ((p = transaction.getParameterString("withDocs")) != null)
-			searchRequest.setWithDocument(true);
-
-		if ((p = transaction.getParameterString("log")) != null)
-			searchRequest.setLogReport(true);
-
-		if (searchRequest.isLogReport()) {
-			for (int j = 1; j <= 10; j++) {
-				p = transaction.getParameterString("log" + j);
-				if (p == null)
-					break;
-				searchRequest.addCustomLog(p);
-			}
-		}
-
-		String[] values;
-
-		if ((values = transaction.getParameterValues("fq")) != null) {
-			FilterList fl = searchRequest.getFilterList();
-			for (String value : values)
-				if (value != null)
-					if (value.trim().length() > 0)
-						fl.add(value, false, Filter.Source.REQUEST);
-		}
-
-		if ((values = transaction.getParameterValues("fqn")) != null) {
-			FilterList fl = searchRequest.getFilterList();
-			for (String value : values)
-				if (value != null)
-					if (value.trim().length() > 0)
-						fl.add(value, true, Filter.Source.REQUEST);
-		}
-
-		if ((values = transaction.getParameterValues("rf")) != null) {
-			FieldList<Field> rf = searchRequest.getReturnFieldList();
-			for (String value : values)
-				if (value != null)
-					if (value.trim().length() > 0)
-						rf.add(new Field(getSchema().getFieldList().get(value)));
-		}
-
-		if ((values = transaction.getParameterValues("hl")) != null) {
-			FieldList<SnippetField> snippetFields = searchRequest
-					.getSnippetFieldList();
-			for (String value : values)
-				snippetFields.add(new SnippetField(getSchema().getFieldList()
-						.get(value).getName()));
-		}
-
-		if ((values = transaction.getParameterValues("fl")) != null) {
-			FieldList<Field> returnFields = searchRequest.getReturnFieldList();
-			for (String value : values)
-				returnFields.add(getSchema().getFieldList().get(value));
-		}
-
-		if ((values = transaction.getParameterValues("sort")) != null) {
-			SortList sortList = searchRequest.getSortList();
-			for (String value : values)
-				sortList.add(value);
-		}
-
-		if ((values = transaction.getParameterValues("facet")) != null) {
-			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
-			for (String value : values)
-				facetList.add(FacetField.buildFacetField(value, false, false));
-		}
-		if ((values = transaction.getParameterValues("facet.collapse")) != null) {
-			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
-			for (String value : values)
-				facetList.add(FacetField.buildFacetField(value, false, true));
-		}
-		if ((values = transaction.getParameterValues("facet.multi")) != null) {
-			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
-			for (String value : values)
-				facetList.add(FacetField.buildFacetField(value, true, false));
-		}
-		if ((values = transaction.getParameterValues("facet.multi.collapse")) != null) {
-			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
-			for (String value : values)
-				facetList.add(FacetField.buildFacetField(value, true, true));
-		}
-
-		if ((b = transaction.getParameterBoolean("mlt", "yes")) != null)
-			searchRequest.setMoreLikeThis(b);
-
-		if ((p = transaction.getParameterString("mlt.docquery")) != null)
-			searchRequest.setMoreLikeThisDocQuery(p);
-
-		if ((i = transaction.getParameterInteger("mlt.minwordlen")) != null)
-			searchRequest.setMoreLikeThisMinWordLen(i);
-
-		if ((i = transaction.getParameterInteger("mlt.maxwordlen")) != null)
-			searchRequest.setMoreLikeThisMaxWordLen(i);
-
-		if ((i = transaction.getParameterInteger("mlt.mindocfreq")) != null)
-			searchRequest.setMoreLikeThisMinDocFreq(i);
-
-		if ((i = transaction.getParameterInteger("mlt.mintermfreq")) != null)
-			searchRequest.setMoreLikeThisMinTermFreq(i);
-
-		if ((p = transaction.getParameterString("mlt.stopwords")) != null)
-			searchRequest.setMoreLikeThisStopWords(p);
-
-		return searchRequest;
+		AbstractRequest request = getNewRequest(requestName);
+		if (request == null)
+			request = new SearchRequest(this, null);
+		request.setFromServlet(transaction);
+		return request;
 	}
 
 	public Render getRender(HttpServletRequest request, Result result) {
