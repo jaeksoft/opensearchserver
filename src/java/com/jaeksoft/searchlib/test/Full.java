@@ -23,7 +23,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
 public class Full {
 
@@ -56,9 +56,10 @@ public class Full {
 
 	@Test
 	public void matchAllDocs() throws Exception {
-		SearchRequest searchRequest = client.getNewSearchRequest();
+		SearchRequest searchRequest = new SearchRequest(client);
 		searchRequest.setQueryString("*:*");
-		Result result = client.search(searchRequest);
+		AbstractResultSearch result = (AbstractResultSearch) client
+				.request(searchRequest);
 		assertTrue(result.getDocumentCount() > 0);
 	}
 }

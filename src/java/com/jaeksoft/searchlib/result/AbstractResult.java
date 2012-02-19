@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,26 +22,19 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller.query;
+package com.jaeksoft.searchlib.result;
 
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 
-public class GeneralController extends AbstractQueryController {
+public class AbstractResult<T extends AbstractRequest> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6529425290972686212L;
+	protected T request;
 
-	public GeneralController() throws SearchLibException {
-		super();
+	protected AbstractResult(T request) {
+		this.request = request;
 	}
 
-	@Override
-	protected void reset() throws SearchLibException {
-		ScopeAttribute.QUERY_REQUEST.remove(this);
-		ScopeAttribute.QUERY_SEARCH_RESULT.remove(this);
+	public T getRequest() {
+		return request;
 	}
-
 }

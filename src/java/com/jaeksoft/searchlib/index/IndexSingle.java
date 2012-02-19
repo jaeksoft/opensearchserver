@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,9 +41,10 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -161,10 +162,7 @@ public class IndexSingle extends IndexAbstract {
 			throw new SearchLibException("Index is read only");
 		rwl.r.lock();
 		try {
-			int i = reader.search(query).getNumFound();
-			query.reset();
-			writer.deleteDocuments(query);
-			return i;
+			return writer.deleteDocuments(query);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -253,13 +251,14 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public Result search(SearchRequest searchRequest) throws SearchLibException {
+	public AbstractResult<?> request(AbstractRequest request)
+			throws SearchLibException {
 		if (!online)
 			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
 			if (reader != null)
-				return reader.search(searchRequest);
+				return reader.request(request);
 			return null;
 		} finally {
 			rwl.r.unlock();

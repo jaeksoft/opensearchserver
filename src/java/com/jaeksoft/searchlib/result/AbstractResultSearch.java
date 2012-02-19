@@ -24,20 +24,15 @@
 
 package com.jaeksoft.searchlib.result;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 
-public abstract class Result {
+public abstract class AbstractResultSearch extends
+		AbstractResult<SearchRequest> {
 
-	transient protected SearchRequest searchRequest;
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
-	protected List<SpellCheck> spellCheckList;
 	private ResultScoreDoc[] docs;
 	protected int numFound;
 	protected float maxScore;
@@ -46,39 +41,20 @@ public abstract class Result {
 
 	private final static ResultDocument[] noDocuments = new ResultDocument[0];
 
-	protected Result() {
-		searchRequest = null;
-		resultDocuments = noDocuments;
-	}
-
-	protected Result(SearchRequest searchRequest) {
-		this();
+	protected AbstractResultSearch(SearchRequest searchRequest) {
+		super(searchRequest);
+		this.resultDocuments = noDocuments;
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
 		this.docs = new ResultScoreDoc[0];
-		this.searchRequest = searchRequest;
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
-		if (searchRequest.getSpellCheckFieldList().size() > 0)
-			this.spellCheckList = new ArrayList<SpellCheck>(0);
 		collapse = CollapseAbstract.newInstance(searchRequest);
-	}
-
-	public SearchRequest getSearchRequest() {
-		return this.searchRequest;
-	}
-
-	public void setSearchRequest(SearchRequest searchRequest) {
-		this.searchRequest = searchRequest;
 	}
 
 	public FacetList getFacetList() {
 		return this.facetList;
-	}
-
-	public List<SpellCheck> getSpellCheckList() {
-		return this.spellCheckList;
 	}
 
 	protected void setDocuments(ResultDocument[] resultDocuments) {
@@ -87,13 +63,13 @@ public abstract class Result {
 	}
 
 	public ResultDocument getDocument(int pos) {
-		if (pos < searchRequest.getStart())
+		if (pos < request.getStart())
 			return null;
-		if (pos >= searchRequest.getEnd())
+		if (pos >= request.getEnd())
 			return null;
 		if (pos >= getDocLength())
 			return null;
-		return resultDocuments[pos - searchRequest.getStart()];
+		return resultDocuments[pos - request.getStart()];
 	}
 
 	public float getMaxScore() {
@@ -115,11 +91,11 @@ public abstract class Result {
 	}
 
 	public int getDocumentCount() {
-		int end = searchRequest.getEnd();
+		int end = request.getEnd();
 		int len = getDocLength();
 		if (end > len)
 			end = len;
-		return end - searchRequest.getStart();
+		return end - request.getStart();
 	}
 
 	public ResultDocument[] getDocuments() {
@@ -167,9 +143,9 @@ public abstract class Result {
 		}
 		sb.append(" MaxScore: ");
 		sb.append(maxScore);
-		if (searchRequest != null) {
+		if (request != null) {
 			sb.append(" - ");
-			sb.append(searchRequest);
+			sb.append(request);
 		}
 		return sb.toString();
 	}

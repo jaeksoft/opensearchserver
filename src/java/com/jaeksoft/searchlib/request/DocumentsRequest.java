@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,29 +24,20 @@
 
 package com.jaeksoft.searchlib.request;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Iterator;
 
 import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.snippet.SnippetField;
-import com.jaeksoft.searchlib.util.External;
 
-public class DocumentsRequest implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2369658807248539632L;
+public class DocumentsRequest {
 
 	private DocumentRequest[] requestedDocuments;
 
@@ -79,10 +70,10 @@ public class DocumentsRequest implements Externalizable {
 	 * @throws IOException
 	 * @throws SearchLibException
 	 */
-	public DocumentsRequest(Result result) throws ParseException, SyntaxError,
-			IOException, SearchLibException {
-		this(result.getSearchRequest());
-		int start = result.getSearchRequest().getStart();
+	public DocumentsRequest(AbstractResultSearch result) throws ParseException,
+			SyntaxError, IOException, SearchLibException {
+		this(result.getRequest());
+		int start = result.getRequest().getStart();
 		int rows = result.getDocumentCount();
 		if (rows <= 0)
 			return;
@@ -143,26 +134,6 @@ public class DocumentsRequest implements Externalizable {
 		while (it.hasNext())
 			documentFieldList.add(new Field(it.next()));
 		return documentFieldList;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		int l = in.readInt();
-		if (l > 0) {
-			requestedDocuments = new DocumentRequest[l];
-			External.readObjectArray(in, requestedDocuments);
-		}
-		snippetFieldList = (FieldList<SnippetField>) in.readObject();
-		returnFieldList = (FieldList<Field>) in.readObject();
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeObjectArray(requestedDocuments, out);
-		out.writeObject(snippetFieldList);
-		out.writeObject(returnFieldList);
 	}
 
 	public boolean isEmpty() {

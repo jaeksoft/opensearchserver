@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,26 +22,15 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller.query;
+package com.jaeksoft.searchlib.result;
 
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
+import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.request.SpellCheckRequest;
 
-public class GeneralController extends AbstractQueryController {
+public class ResultSpellCheck extends AbstractResult<SpellCheckRequest> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6529425290972686212L;
-
-	public GeneralController() throws SearchLibException {
-		super();
-	}
-
-	@Override
-	protected void reset() throws SearchLibException {
-		ScopeAttribute.QUERY_REQUEST.remove(this);
-		ScopeAttribute.QUERY_SEARCH_RESULT.remove(this);
+	protected ResultSpellCheck(ReaderLocal reader, SpellCheckRequest request) {
+		super(request);
 	}
 
 }

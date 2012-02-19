@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,15 +24,15 @@
 
 package com.jaeksoft.searchlib.render;
 
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderJsp implements Render {
 
 	private String jspPath;
-	private Result result;
+	private AbstractResult<?> result;
 
-	public RenderJsp(String jspPath, Result result) {
+	public RenderJsp(String jspPath, AbstractResult<?> result) {
 		this.jspPath = jspPath;
 		this.result = result;
 	}

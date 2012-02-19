@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller.query;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -41,8 +42,8 @@ public abstract class AbstractQueryController extends CommonController {
 		super();
 	}
 
-	public SearchRequest getRequest() throws SearchLibException {
-		return (SearchRequest) ScopeAttribute.QUERY_SEARCH_REQUEST.get(this);
+	public AbstractRequest getRequest() throws SearchLibException {
+		return (SearchRequest) ScopeAttribute.QUERY_REQUEST.get(this);
 	}
 
 	public boolean getResultExists() {

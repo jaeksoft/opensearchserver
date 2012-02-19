@@ -33,11 +33,11 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.render.Render;
-import com.jaeksoft.searchlib.render.RenderJson;
 import com.jaeksoft.searchlib.render.RenderJsp;
-import com.jaeksoft.searchlib.render.RenderXml;
+import com.jaeksoft.searchlib.render.RenderSearchJson;
+import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -54,16 +54,18 @@ public class SelectServlet extends AbstractServlet {
 			ClassNotFoundException, InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
 
-		SearchRequest searchRequest = client.getNewSearchRequest(transaction);
-		Result result = client.search(searchRequest);
+		SearchRequest searchRequest = (SearchRequest) client
+				.getNewRequest(transaction);
+		AbstractResultSearch result = (AbstractResultSearch) client
+				.request(searchRequest);
 		if ("jsp".equalsIgnoreCase(render)) {
 			String jsp = transaction.getParameterString("jsp");
 			return new RenderJsp(jsp, result);
 		} else if ("json".equalsIgnoreCase(render)) {
 			String jsonIndent = transaction.getParameterString("indent");
-			return new RenderJson(result, jsonIndent);
+			return new RenderSearchJson(result, jsonIndent);
 		} else
-			return new RenderXml(result);
+			return new RenderSearchXml(result);
 	}
 
 	@Override

@@ -113,8 +113,8 @@ public class SearchTemplateServlet extends AbstractServlet {
 		String snippetField = transaction.getParameterString("snippetfield");
 		String fragmenter = transaction.getParameterString("qt.fragmenter");
 		Client client = transaction.getClient();
-		if (client.getSearchRequestMap().get(searchTemplate) != null) {
-			SearchRequest request = client.getSearchRequestMap().get(
+		if (client.getRequestMap().get(searchTemplate) != null) {
+			SearchRequest request = (SearchRequest) client.getRequestMap().get(
 					searchTemplate);
 			if (snippetField != null) {
 				request.getSnippetFieldList().add(
@@ -128,7 +128,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 					snippetFieldParameter.setTag(tag);
 				if (fragmenter != null && !fragmenter.equals(""))
 					snippetFieldParameter.setFragmenter(fragmenter);
-				client.getSearchRequestMap().put(request);
+				client.getRequestMap().put(request);
 				client.saveRequests();
 				transaction.addXmlResponse("Status", "OK");
 			}
@@ -145,11 +145,11 @@ public class SearchTemplateServlet extends AbstractServlet {
 		String searchTemplate = transaction.getParameterString("qt.name");
 		String returnField = transaction.getParameterString("returnfield");
 		Client client = transaction.getClient();
-		if (client.getSearchRequestMap().get(searchTemplate) != null) {
-			SearchRequest request = client.getSearchRequestMap().get(
+		if (client.getRequestMap().get(searchTemplate) != null) {
+			SearchRequest request = (SearchRequest) client.getRequestMap().get(
 					searchTemplate);
 			request.addReturnField(returnField);
-			client.getSearchRequestMap().put(request);
+			client.getRequestMap().put(request);
 			client.saveRequests();
 			transaction.addXmlResponse("Status", "OK");
 		} else {
@@ -164,8 +164,8 @@ public class SearchTemplateServlet extends AbstractServlet {
 			throws InterruptedException, SearchLibException, NamingException {
 		String searchTemplate = transaction.getParameterString("qt.name");
 		Client client = transaction.getClient();
-		if (client.getSearchRequestMap().get(searchTemplate) != null) {
-			client.getSearchRequestMap().remove(searchTemplate);
+		if (client.getRequestMap().get(searchTemplate) != null) {
+			client.getRequestMap().remove(searchTemplate);
 			client.saveRequests();
 			transaction.addXmlResponse("Status", "OK");
 		} else {
@@ -182,7 +182,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		Client client = transaction.getClient();
-		SearchRequest request = client.getNewSearchRequest();
+		SearchRequest request = new SearchRequest(client);
 		if (transaction.getParameterString("qt.name") != null) {
 			String searchTemplate = transaction.getParameterString("qt.name");
 			request.setRequestName(searchTemplate);
@@ -211,7 +211,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 					.getParameterString("qt.lang")));
 		}
 
-		client.getSearchRequestMap().put(request);
+		client.getRequestMap().put(request);
 		client.saveRequests();
 		return true;
 	}

@@ -51,6 +51,10 @@ import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderInterface;
+import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -96,11 +100,9 @@ public class SearchRequest extends AbstractRequest {
 	private String queryParsed;
 	private boolean withDocuments;
 	private boolean withSortValues;
-	private boolean withLogReport;
-	private List<String> customLogs;
 
-	public SearchRequest(Config config, String requestName) {
-		super(config, requestName);
+	public SearchRequest(Config config) {
+		super(config);
 	}
 
 	@Override
@@ -135,12 +137,10 @@ public class SearchRequest extends AbstractRequest {
 		this.withDocuments = true;
 		this.withSortValues = false;
 		this.queryParsed = null;
-		this.withLogReport = false;
-		this.customLogs = null;
 	}
 
 	@Override
-	protected void copyFrom(AbstractRequest request) {
+	public void copyFrom(AbstractRequest request) {
 		super.copyFrom(request);
 		SearchRequest searchRequest = (SearchRequest) request;
 		this.filterList = new FilterList(searchRequest.filterList);
@@ -181,9 +181,9 @@ public class SearchRequest extends AbstractRequest {
 		this.patternQuery = searchRequest.patternQuery;
 		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
 		this.queryParsed = null;
-		this.withLogReport = searchRequest.withLogReport;
 	}
 
+	@Override
 	public void reset() {
 		rwl.w.lock();
 		try {
@@ -562,44 +562,6 @@ public class SearchRequest extends AbstractRequest {
 			this.withSortValues = withSortValues;
 		} finally {
 			rwl.w.unlock();
-		}
-	}
-
-	public void setLogReport(boolean withLogReport) {
-		rwl.w.lock();
-		try {
-			this.withLogReport = withLogReport;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public boolean isLogReport() {
-		rwl.r.lock();
-		try {
-			return withLogReport;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void addCustomLog(String p) {
-		rwl.w.lock();
-		try {
-			if (customLogs == null)
-				customLogs = new ArrayList<String>(0);
-			customLogs.add(p);
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public List<String> getCustomLogs() {
-		rwl.r.lock();
-		try {
-			return customLogs;
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 
@@ -1095,5 +1057,27 @@ public class SearchRequest extends AbstractRequest {
 			rwl.w.unlock();
 		}
 
+	}
+
+	@Override
+	public AbstractResult<?> execute(ReaderInterface reader)
+			throws SearchLibException {
+		try {
+			return new ResultSearchSingle((ReaderLocal) reader, this);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (SearchLibException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
 	}
 }

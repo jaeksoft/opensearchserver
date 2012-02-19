@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.request;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.ParseException;
@@ -31,8 +34,11 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderInterface;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -51,10 +57,12 @@ public abstract class AbstractRequest {
 	protected Config config;
 	private Timer timer;
 	private long finalTime;
+	private boolean withLogReport;
+	private List<String> customLogs;
 
-	public AbstractRequest(Config config, String requestName) {
+	public AbstractRequest(Config config) {
 		this.config = config;
-		this.requestName = requestName;
+		this.requestName = null;
 		setDefaultValues();
 	}
 
@@ -66,14 +74,20 @@ public abstract class AbstractRequest {
 		this.requestName = XPathParser.getAttributeString(node, XML_ATTR_NAME);
 	}
 
-	protected void copyFrom(AbstractRequest request) {
+	public void copyFrom(AbstractRequest request) {
 		this.config = request.config;
 		this.requestName = request.requestName;
+		this.withLogReport = request.withLogReport;
+		this.customLogs = null;
+		if (request.customLogs != null)
+			this.customLogs = new ArrayList<String>(request.customLogs);
 	}
 
 	protected void setDefaultValues() {
 		timer = new Timer("Request");
 		finalTime = 0;
+		withLogReport = false;
+		customLogs = null;
 	}
 
 	public abstract RequestTypeEnum getType();
@@ -144,10 +158,53 @@ public abstract class AbstractRequest {
 		}
 	}
 
+	public void setLogReport(boolean withLogReport) {
+		rwl.w.lock();
+		try {
+			this.withLogReport = withLogReport;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public boolean isLogReport() {
+		rwl.r.lock();
+		try {
+			return withLogReport;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void addCustomLog(String p) {
+		rwl.w.lock();
+		try {
+			if (customLogs == null)
+				customLogs = new ArrayList<String>(0);
+			customLogs.add(p);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public List<String> getCustomLogs() {
+		rwl.r.lock();
+		try {
+			return customLogs;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public abstract void reset();
+
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)
 			throws SAXException;
 
 	public abstract void setFromServlet(ServletTransaction transaction)
 			throws SyntaxError;
+
+	public abstract AbstractResult<?> execute(ReaderInterface reader)
+			throws SearchLibException;
 
 }

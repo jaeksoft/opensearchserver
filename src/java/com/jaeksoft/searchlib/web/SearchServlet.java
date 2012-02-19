@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C)2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderOpenSearch;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -88,7 +88,8 @@ public class SearchServlet extends AbstractServlet {
 			InterruptedException, SearchLibException, InstantiationException,
 			IllegalAccessException {
 
-		Result result = client.search(searchRequest);
+		AbstractResultSearch result = (AbstractResultSearch) client
+				.request(searchRequest);
 		return new RenderOpenSearch(result, serverURL, outputEncoding);
 
 	}
@@ -100,8 +101,8 @@ public class SearchServlet extends AbstractServlet {
 			SAXException, IOException {
 		ApiManager apiManager = client.getApiManager();
 
-		SearchRequest searchRequest = client.getNewSearchRequest(apiManager
-				.getFieldValue("opensearch").trim());
+		SearchRequest searchRequest = (SearchRequest) client
+				.getNewRequest(apiManager.getFieldValue("opensearch").trim());
 		searchRequest.setQueryString(transaction.getParameterString("q"));
 		if (transaction.getParameterInteger("start") != null)
 			searchRequest.setStart(transaction.getParameterInteger("start"));

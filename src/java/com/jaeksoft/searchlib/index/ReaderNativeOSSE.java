@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,9 +37,10 @@ import org.apache.lucene.search.similar.MoreLikeThis;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.sun.jna.Pointer;
 
@@ -109,12 +110,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public Result search(SearchRequest searchRequest) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void swap(long version, boolean deleteOld) {
 		// TODO Auto-generated method stub
 
@@ -152,6 +147,12 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	@Override
 	public MoreLikeThis getMoreLikeThis() throws SearchLibException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractResult<?> request(AbstractRequest request) {
 		// TODO Auto-generated method stub
 		return null;
 	}

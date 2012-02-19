@@ -42,7 +42,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.IndexAbstract;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.index.ReaderInterface;
+import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -61,8 +63,8 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	private int moreLikeThisMinTermFreq;
 	private String moreLikeThisStopWords;
 
-	public MoreLikeThisRequest(Config config, String requestName) {
-		super(config, requestName);
+	public MoreLikeThisRequest(Config config) {
+		super(config);
 	}
 
 	@Override
@@ -78,7 +80,7 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	}
 
 	@Override
-	protected void copyFrom(AbstractRequest request) {
+	public void copyFrom(AbstractRequest request) {
 		super.copyFrom(request);
 		MoreLikeThisRequest mltRequest = (MoreLikeThisRequest) request;
 		this.lang = mltRequest.lang;
@@ -102,10 +104,11 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		Config config = getConfig();
 		IndexAbstract index = config.getIndex();
 		MoreLikeThis mlt = index.getMoreLikeThis();
-		SearchRequest searchRequest = new SearchRequest(config, null);
+		SearchRequest searchRequest = new SearchRequest(config);
 		searchRequest.setRows(1);
 		searchRequest.setQueryString(moreLikeThisDocQuery);
-		Result result = index.search(searchRequest);
+		AbstractResultSearch result = (AbstractResultSearch) index
+				.request(searchRequest);
 		if (result.getNumFound() == 0)
 			return mlt.like(new StringReader(""));
 		int docId = result.getDocs()[0].doc;
@@ -319,6 +322,7 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		}
 	}
 
+	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
@@ -378,5 +382,16 @@ public class MoreLikeThisRequest extends AbstractRequest {
 			rwl.w.unlock();
 		}
 
+	}
+
+	@Override
+	public void reset() {
+	}
+
+	@Override
+	public AbstractResult<MoreLikeThisRequest> execute(ReaderInterface reader)
+			throws SearchLibException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -50,9 +50,10 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -221,14 +222,15 @@ public class Client extends Config {
 		reload();
 	}
 
-	public Result search(SearchRequest searchRequest) throws SearchLibException {
+	public AbstractResult<?> request(AbstractRequest request)
+			throws SearchLibException {
 		Timer timer = null;
-		Result result = null;
+		AbstractResult<?> result = null;
 		SearchLibException exception = null;
 		try {
-			searchRequest.init(this);
-			timer = searchRequest.getTimer();
-			result = getIndex().search(searchRequest);
+			request.init(this);
+			timer = request.getTimer();
+			result = getIndex().request(request);
 			return result;
 		} catch (SearchLibException e) {
 			exception = e;
@@ -241,7 +243,7 @@ public class Client extends Config {
 				if (exception != null)
 					timer.setError(exception);
 				getStatisticsList().addSearch(timer);
-				getLogReportManager().log(searchRequest, timer, result);
+				getLogReportManager().log(request, timer, result);
 			}
 		}
 	}

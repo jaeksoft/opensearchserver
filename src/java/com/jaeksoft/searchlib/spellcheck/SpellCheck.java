@@ -38,8 +38,7 @@ import org.apache.lucene.search.spell.SpellChecker;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.ResultSingle;
+import com.jaeksoft.searchlib.request.SpellCheckRequest;
 
 public class SpellCheck implements Iterable<SpellCheckItem> {
 
@@ -47,15 +46,13 @@ public class SpellCheck implements Iterable<SpellCheckItem> {
 
 	private String fieldName;
 
-	public SpellCheck(ResultSingle result, SpellCheckField spellCheckField)
-			throws ParseException, SyntaxError, IOException, SearchLibException {
-		SearchRequest searchRequest = result.getSearchRequest();
-		ReaderLocal reader = result.getReader();
+	public SpellCheck(ReaderLocal reader, SpellCheckRequest request,
+			SpellCheckField spellCheckField) throws ParseException,
+			SyntaxError, IOException, SearchLibException {
 		fieldName = spellCheckField.getName();
 		SpellChecker spellchecker = reader.getSpellChecker(fieldName);
-		Set<Term> set = new LinkedHashSet<Term>();
 		Set<String> wordSet = new LinkedHashSet<String>();
-		searchRequest.getQuery().extractTerms(set);
+		Set<Term> set = request.getTermSet();
 		for (Term term : set)
 			if (term.field().equals(fieldName))
 				wordSet.add(term.text());

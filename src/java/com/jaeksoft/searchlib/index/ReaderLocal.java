@@ -70,11 +70,12 @@ import com.jaeksoft.searchlib.cache.SpellCheckerCache;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.result.ResultSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -347,26 +348,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			}
 		} finally {
 			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public ResultSingle search(SearchRequest searchRequest)
-			throws SearchLibException {
-		try {
-			return new ResultSingle(this, searchRequest);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
 		}
 	}
 
@@ -830,6 +811,17 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.r.lock();
 		try {
 			return fieldCache;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public AbstractResult<?> request(AbstractRequest request)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			return request.execute(this);
 		} finally {
 			rwl.r.unlock();
 		}

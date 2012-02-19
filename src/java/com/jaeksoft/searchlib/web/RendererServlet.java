@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -60,8 +60,8 @@ public class RendererServlet extends AbstractServlet {
 			if (renderer == null)
 				throw new SearchLibException("The renderer has not been found");
 			String query = transaction.getParameterString("query");
-			SearchRequest request = client.getNewSearchRequest(renderer
-					.getRequestName());
+			SearchRequest request = (SearchRequest) client
+					.getNewRequest(renderer.getRequestName());
 			if (request == null)
 				throw new SearchLibException("No request has been found");
 			if (query != null && query.length() > 0) {
@@ -72,7 +72,8 @@ public class RendererServlet extends AbstractServlet {
 						page = 1;
 					request.setStart(request.getRows() * (page - 1));
 				}
-				Result result = client.search(request);
+				AbstractResultSearch result = (AbstractResultSearch) client
+						.request(request);
 				transaction.setRequestAttribute("result", result);
 			}
 			transaction.setRequestAttribute("renderer", renderer);

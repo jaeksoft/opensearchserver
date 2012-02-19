@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C)2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,29 +49,26 @@ import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
-import com.jaeksoft.searchlib.spellcheck.SpellCheck;
-import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
-import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class RenderOpenSearch implements Render {
 
 	private PrintWriter writer;
-	private Result result;
+	private AbstractResultSearch result;
 	private SearchRequest searchRequest;
 	private Matcher controlMatcher;
 	private String serverURL;
 	private String outputEncoding;
 
-	public RenderOpenSearch(Result result, String serverURL,
+	public RenderOpenSearch(AbstractResultSearch result, String serverURL,
 			String outputEncoding) {
 		this.result = result;
-		this.searchRequest = result.getSearchRequest();
+		this.searchRequest = result.getRequest();
 		this.serverURL = serverURL;
 		Pattern p = Pattern.compile("\\p{Cntrl}");
 		controlMatcher = p.matcher("");
@@ -120,7 +117,7 @@ public class RenderOpenSearch implements Render {
 	private void renderDocuments() throws CorruptIndexException, IOException,
 			ParseException, SyntaxError, XPathExpressionException,
 			ParserConfigurationException, SAXException {
-		SearchRequest searchRequest = result.getSearchRequest();
+		SearchRequest searchRequest = result.getRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
 		writer.println("\t<opensearch:totalResults>");
@@ -282,50 +279,50 @@ public class RenderOpenSearch implements Render {
 
 	}
 
-	private void renderSpellCheck(SpellCheck spellCheck) throws Exception {
-		String fieldName = spellCheck.getFieldName();
-		writer.print("\t\t<OpenSearchServer:");
-		writer.print(fieldName);
-		writer.println(">");
-		for (SpellCheckItem spellCheckItem : spellCheck) {
-			writer.print("\t\t\t<OpenSearchServer:");
-			writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
-			writer.println(">");
-			for (SuggestionItem suggest : spellCheckItem.getSuggestions()) {
-				writer.print("\t\t\t\t<OpenSearchServer:suggest>");
-				writer.print("\t\t\t\t\t<OpenSearchServer:term>");
-				writer.print(StringEscapeUtils.escapeXml(suggest.getTerm()));
-				writer.println("</OpenSearchServer:term>");
-				writer.print("\t\t\t\t\t<OpenSearchServer:freq>");
-				writer.print(suggest.getFreq());
-				writer.println("</OpenSearchServer:freq>");
-				writer.println("</OpenSearchServer:suggest>");
-			}
-			writer.print("</OpenSearchServer:");
-			writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
-			writer.println(">");
-		}
-		writer.print("\t\t</OpenSearchServer:");
-		writer.print(fieldName);
-		writer.println(">");
-	}
+	// private void renderSpellCheck(SpellCheck spellCheck) throws Exception {
+	// String fieldName = spellCheck.getFieldName();
+	// writer.print("\t\t<OpenSearchServer:");
+	// writer.print(fieldName);
+	// writer.println(">");
+	// for (SpellCheckItem spellCheckItem : spellCheck) {
+	// writer.print("\t\t\t<OpenSearchServer:");
+	// writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
+	// writer.println(">");
+	// for (SuggestionItem suggest : spellCheckItem.getSuggestions()) {
+	// writer.print("\t\t\t\t<OpenSearchServer:suggest>");
+	// writer.print("\t\t\t\t\t<OpenSearchServer:term>");
+	// writer.print(StringEscapeUtils.escapeXml(suggest.getTerm()));
+	// writer.println("</OpenSearchServer:term>");
+	// writer.print("\t\t\t\t\t<OpenSearchServer:freq>");
+	// writer.print(suggest.getFreq());
+	// writer.println("</OpenSearchServer:freq>");
+	// writer.println("</OpenSearchServer:suggest>");
+	// }
+	// writer.print("</OpenSearchServer:");
+	// writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
+	// writer.println(">");
+	// }
+	// writer.print("\t\t</OpenSearchServer:");
+	// writer.print(fieldName);
+	// writer.println(">");
+	// }
 
-	private void renderSpellChecks() throws Exception {
-		List<SpellCheck> spellChecklist = result.getSpellCheckList();
-		if (spellChecklist == null)
-			return;
-		writer.println("\t\t\t<OpenSearchServer:spellcheck>");
-		for (SpellCheck spellCheck : spellChecklist)
-			renderSpellCheck(spellCheck);
-		writer.println("</OpenSearchServer:spellcheck>");
-	}
+	// private void renderSpellChecks() throws Exception {
+	// List<SpellCheck> spellChecklist = result.getSpellCheckList();
+	// if (spellChecklist == null)
+	// return;
+	// writer.println("\t\t\t<OpenSearchServer:spellcheck>");
+	// for (SpellCheck spellCheck : spellChecklist)
+	// renderSpellCheck(spellCheck);
+	// writer.println("</OpenSearchServer:spellcheck>");
+	// }
 
 	public void render(PrintWriter writer) throws Exception {
 		this.writer = writer;
 		renderPrefix();
 		renderDocuments();
 		renderFacets();
-		renderSpellChecks();
+		// renderSpellChecks();
 		renderSuffix();
 
 	}

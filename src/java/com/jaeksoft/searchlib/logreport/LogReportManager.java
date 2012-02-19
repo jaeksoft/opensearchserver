@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,8 +32,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
@@ -56,24 +58,29 @@ public class LogReportManager {
 		logger.close();
 	}
 
-	final public void log(SearchRequest searchRequest, Timer timer,
-			Result result) throws SearchLibException {
-		if (searchRequest == null)
+	final public void log(AbstractRequest request, Timer timer,
+			AbstractResult<?> result) throws SearchLibException {
+		if (request == null)
 			return;
-		if (!searchRequest.isLogReport())
+		if (!request.isLogReport())
 			return;
 		try {
+			SearchRequest searchRequest = request instanceof SearchRequest ? (SearchRequest) request
+					: null;
 			StringBuffer sb = new StringBuffer();
 			sb.append('\u0009');
-			sb.append(URLEncoder.encode(searchRequest.getQueryString(), "UTF-8"));
+			if (searchRequest != null)
+				sb.append(URLEncoder.encode(searchRequest.getQueryString(),
+						"UTF-8"));
 			sb.append('\u0009');
 			if (timer != null)
 				sb.append(timer.duration());
 			sb.append('\u0009');
-			if (result != null)
-				sb.append(result.getNumFound());
+			if (result != null && result instanceof AbstractResultSearch)
+				sb.append(((AbstractResultSearch) result).getNumFound());
 			sb.append('\u0009');
-			sb.append(searchRequest.getStart());
+			if (searchRequest != null)
+				sb.append(searchRequest.getStart());
 			List<String> customLogs = searchRequest.getCustomLogs();
 			if (customLogs != null) {
 				for (String customLog : customLogs) {

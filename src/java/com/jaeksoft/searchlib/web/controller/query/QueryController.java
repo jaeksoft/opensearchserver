@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,8 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.web.AbstractServlet;
@@ -57,6 +59,8 @@ public final class QueryController extends AbstractQueryController {
 
 	private transient String requestName;
 
+	private transient RequestTypeEnum requestType;
+
 	private transient Entry<String, SearchRequest> selectedRequest;
 
 	public QueryController() throws SearchLibException {
@@ -67,6 +71,7 @@ public final class QueryController extends AbstractQueryController {
 	@Override
 	protected void reset() throws SearchLibException {
 		selectedRequest = null;
+		requestType = RequestTypeEnum.SearchRequest;
 		setRequest(null);
 		setResult(null);
 	}
@@ -76,7 +81,7 @@ public final class QueryController extends AbstractQueryController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		SearchRequest request = getRequest();
+		AbstractRequest request = getRequest();
 		if (request == null)
 			return null;
 		StringBuffer sb = AbstractServlet.getApiUrl(getBaseUrl(), "/select",
@@ -86,11 +91,13 @@ public final class QueryController extends AbstractQueryController {
 			sb.append("&qt=");
 			sb.append(URLEncoder.encode(requestName, "UTF-8"));
 		}
-		String q = request.getQueryString();
-		if (q == null || q.length() == 0)
-			q = "*:*";
-		sb.append("&q=");
-		sb.append(URLEncoder.encode(q, "UTF-8"));
+		if (request instanceof SearchRequest) {
+			String q = ((SearchRequest) request).getQueryString();
+			if (q == null || q.length() == 0)
+				q = "*:*";
+			sb.append("&q=");
+			sb.append(URLEncoder.encode(q, "UTF-8"));
+		}
 		return sb.toString();
 	}
 
@@ -99,8 +106,8 @@ public final class QueryController extends AbstractQueryController {
 		reloadPage();
 	}
 
-	public void setRequest(SearchRequest request) {
-		ScopeAttribute.QUERY_SEARCH_REQUEST.set(this, request);
+	public void setRequest(AbstractRequest request) {
+		ScopeAttribute.QUERY_REQUEST.set(this, request);
 	}
 
 	public boolean isEditing() throws SearchLibException {
@@ -151,30 +158,35 @@ public final class QueryController extends AbstractQueryController {
 			return false;
 		}
 		Client client = getClient();
-		if (client.getSearchRequestMap().get(requestName) != null) {
+		if (client.getRequestMap().get(requestName) != null) {
 			new AlertController("This name is already used.");
 			return false;
 		}
 		return true;
 	}
 
-	private void newEdit(SearchRequest newRequest) {
+	private void newEdit(AbstractRequest newRequest) {
 		newRequest.setRequestName(requestName);
 		setRequest(newRequest);
 		reloadPage();
 		PushEvent.QUERY_EDIT_REQUEST.publish(newRequest);
 	}
 
-	public void onNew() throws SearchLibException, InterruptedException {
+	public void onNew() throws SearchLibException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		if (!checkRequestName())
 			return;
-		newEdit(getClient().getNewSearchRequest());
+		newEdit(requestType.newInstance(getClient()));
 	}
 
-	public void onNewCopy() throws InterruptedException, SearchLibException {
+	public void onNewCopy() throws InterruptedException, SearchLibException,
+			InstantiationException, IllegalAccessException {
 		if (!checkRequestName())
 			return;
-		newEdit(getClient().getNewSearchRequest(selectedRequest.getKey()));
+		Client client = getClient();
+		AbstractRequest request = requestType.newInstance(client);
+		request.copyFrom(client.getNewRequest(selectedRequest.getKey()));
+		newEdit(request);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -187,7 +199,7 @@ public final class QueryController extends AbstractQueryController {
 		Entry<String, SearchRequest> entry = getRequestEntry(comp);
 		if (entry == null)
 			return;
-		setRequest(getClient().getNewSearchRequest(entry.getKey()));
+		setRequest(getClient().getNewRequest(entry.getKey()));
 		PushEvent.QUERY_EDIT_REQUEST.publish(getRequest());
 	}
 
@@ -201,12 +213,12 @@ public final class QueryController extends AbstractQueryController {
 		new RemoveAlert(entry.getKey());
 	}
 
-	public Set<Entry<String, SearchRequest>> getRequests()
+	public Set<Entry<String, AbstractRequest>> getRequests()
 			throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getSearchRequestMap().getRequests();
+		return client.getRequestMap().getRequests();
 	}
 
 	public void setResult(Result result) {
@@ -223,8 +235,8 @@ public final class QueryController extends AbstractQueryController {
 		if (!isSchemaRights())
 			throw new SearchLibException("Not allowed");
 		Client client = getClient();
-		SearchRequest request = getRequest();
-		client.getSearchRequestMap().put(request);
+		AbstractRequest request = getRequest();
+		client.getRequestMap().put(request);
 		client.saveRequests();
 		onCancel();
 		PushEvent.REQUEST_LIST_CHANGED.publish(client);
@@ -244,7 +256,7 @@ public final class QueryController extends AbstractQueryController {
 		@Override
 		public void onYes() throws SearchLibException {
 			Client client = getClient();
-			client.getSearchRequestMap().remove(selectedRequest);
+			client.getRequestMap().remove(selectedRequest);
 			client.saveRequests();
 			PushEvent.REQUEST_LIST_CHANGED.publish(client);
 		}
@@ -255,13 +267,16 @@ public final class QueryController extends AbstractQueryController {
 			URISyntaxException, ClassNotFoundException, SearchLibException,
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
-		SearchRequest request = getRequest();
+		AbstractRequest request = getRequest();
 
-		if (request.getQueryString() == null)
-			request.setQueryString("*:*");
+		if (request instanceof SearchRequest) {
+			SearchRequest searchRequest = (SearchRequest) request;
+			if (searchRequest.getQueryString() == null)
+				searchRequest.setQueryString("*:*");
+		}
 
 		request.reset();
-		setResult(getClient().search(request));
+		setResult(getClient().request(request));
 		PushEvent.QUERY_EDIT_RESULT.publish(getResult());
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
 public class Pagination {
 
@@ -57,14 +57,14 @@ public class Pagination {
 			navPages.add(i);
 	}
 
-	private Pagination(Result result, SearchRequest searchRequest,
-			int pagesArround) {
+	private Pagination(AbstractResultSearch result,
+			SearchRequest searchRequest, int pagesArround) {
 		this(result.getNumFound(), searchRequest.getStart(), searchRequest
 				.getRows(), pagesArround);
 	}
 
-	public Pagination(Result result, int pagesArround) {
-		this(result, result.getSearchRequest(), pagesArround);
+	public Pagination(AbstractResultSearch result, int pagesArround) {
+		this(result, result.getRequest(), pagesArround);
 
 	}
 

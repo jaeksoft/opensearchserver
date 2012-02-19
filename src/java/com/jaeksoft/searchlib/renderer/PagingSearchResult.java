@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,18 +24,18 @@
 package com.jaeksoft.searchlib.renderer;
 
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
-public class Paging {
+public class PagingSearchResult {
 
 	private int currentPage;
 	private int totalPages;
 	private int leftPage;
 	private int rightPage;
 
-	public Paging(Result result, int maxPages) {
+	public PagingSearchResult(AbstractResultSearch result, int maxPages) {
 
-		SearchRequest request = result.getSearchRequest();
+		SearchRequest request = result.getRequest();
 		int numFound = result.getNumFound();
 		int start = request.getStart();
 		int rows = request.getRows();

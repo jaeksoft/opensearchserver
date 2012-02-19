@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,7 @@
 
 package com.jaeksoft.searchlib.facet;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,16 +36,11 @@ import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultSingle;
+import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.util.External;
 
-public class Facet implements Externalizable, Iterable<FacetItem>,
+public class Facet implements Iterable<FacetItem>,
 		External.Collecter<FacetItem> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2867011819195319222L;
 
 	protected FacetField facetField;
 	private Map<String, FacetItem> facetMap;
@@ -134,7 +126,8 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 	}
 
 	final static protected Facet facetMultivaluedNonCollapsed(
-			ResultSingle result, FacetField facetField) throws IOException {
+			ResultSearchSingle result, FacetField facetField)
+			throws IOException {
 		String fieldName = facetField.getName();
 		StringIndex stringIndex = result.getReader().getStringIndex(fieldName);
 		int[] countIndex = result.getDocSetHits().facetMultivalued(fieldName);
@@ -142,15 +135,17 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 	}
 
 	final static protected Facet facetSingleValueNonCollapsed(
-			ResultSingle result, FacetField facetField) throws IOException {
+			ResultSearchSingle result, FacetField facetField)
+			throws IOException {
 		String fieldName = facetField.getName();
 		StringIndex stringIndex = result.getReader().getStringIndex(fieldName);
 		int[] countIndex = result.getDocSetHits().facetSinglevalue(fieldName);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final static protected Facet facetMultivaluedCollapsed(ResultSingle result,
-			FacetField facetField) throws IOException {
+	final static protected Facet facetMultivaluedCollapsed(
+			ResultSearchSingle result, FacetField facetField)
+			throws IOException {
 		String fieldName = facetField.getName();
 		ReaderLocal reader = result.getReader();
 		StringIndex stringIndex = reader.getStringIndex(fieldName);
@@ -161,8 +156,9 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final static protected Facet facetSingleValueCollapsed(ResultSingle result,
-			FacetField facetField) throws IOException {
+	final static protected Facet facetSingleValueCollapsed(
+			ResultSearchSingle result, FacetField facetField)
+			throws IOException {
 		String fieldName = facetField.getName();
 		ReaderLocal reader = result.getReader();
 		StringIndex stringIndex = reader.getStringIndex(fieldName);
@@ -174,20 +170,6 @@ public class Facet implements Externalizable, Iterable<FacetItem>,
 	@Override
 	public void addObject(FacetItem facetItem) {
 		facetMap.put(facetItem.term, facetItem);
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		facetField = (FacetField) External.readObject(in);
-		External.readCollection(in, this);
-
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeObject(facetField, out);
-		External.writeCollection(facetMap.values(), out);
 	}
 
 	final public static int[] computeMultivalued(ReaderLocal reader,

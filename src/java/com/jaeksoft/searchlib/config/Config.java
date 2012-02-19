@@ -92,7 +92,7 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestMap;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobList;
 import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -1371,12 +1371,12 @@ public abstract class Config {
 		String requestName = transaction.getParameterString("qt", "search");
 		AbstractRequest request = getNewRequest(requestName);
 		if (request == null)
-			request = new SearchRequest(this, null);
+			request = new SearchRequest(this);
 		request.setFromServlet(transaction);
 		return request;
 	}
 
-	public Render getRender(HttpServletRequest request, Result result) {
+	public Render getRender(HttpServletRequest request, AbstractResult<?> result) {
 
 		Render render = null;
 

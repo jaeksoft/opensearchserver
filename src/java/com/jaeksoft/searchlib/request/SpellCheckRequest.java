@@ -24,16 +24,23 @@
 
 package com.jaeksoft.searchlib.request;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderInterface;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
@@ -45,8 +52,8 @@ public class SpellCheckRequest extends AbstractRequest {
 
 	private FieldList<SpellCheckField> spellCheckFieldList;
 
-	public SpellCheckRequest(Config config, String requestName) {
-		super(config, requestName);
+	public SpellCheckRequest(Config config) {
+		super(config);
 	}
 
 	@Override
@@ -118,5 +125,21 @@ public class SpellCheckRequest extends AbstractRequest {
 			throws SyntaxError {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void reset() {
+	}
+
+	@Override
+	public AbstractResult<SpellCheckRequest> execute(ReaderInterface reader)
+			throws SearchLibException {
+		return null;
+	}
+
+	public Set<Term> getTermSet() {
+		Set<Term> set = new LinkedHashSet<Term>();
+		// TODO searchRequest.getQuery().extractTerms(set);
+		return set;
 	}
 }

@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.result.ResultSingle;
+import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -113,7 +113,7 @@ public class FacetField extends Field {
 				|| "1".equalsIgnoreCase(value);
 	}
 
-	public Facet getFacet(ResultSingle result) throws IOException {
+	public Facet getFacet(ResultSearchSingle result) throws IOException {
 		if (multivalued) {
 			if (postCollapsing && result.getCollapseDocCount() > 0)
 				return Facet.facetMultivaluedCollapsed(result, this);

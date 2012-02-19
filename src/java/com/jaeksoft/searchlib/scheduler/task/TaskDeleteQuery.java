@@ -72,7 +72,7 @@ public class TaskDeleteQuery extends TaskAbstract {
 			throws SearchLibException {
 		String query = properties.getValue(propQuery);
 		try {
-			SearchRequest request = client.getNewSearchRequest();
+			SearchRequest request = new SearchRequest(client);
 			request.setQueryString(query);
 			client.deleteDocuments(request);
 		} catch (IOException e) {

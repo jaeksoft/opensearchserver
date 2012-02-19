@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
@@ -190,22 +190,22 @@ public class AutoCompletionManager {
 		}
 	}
 
-	public Result search(String query, Integer rows) throws SearchLibException {
+	public AbstractResultSearch search(String query, Integer rows)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (query == null || query.length() == 0)
 				return null;
 			if (rows == null)
 				rows = propRows;
-			SearchRequest searchRequest = new SearchRequest(autoCompClient,
-					null);
+			SearchRequest searchRequest = new SearchRequest(autoCompClient);
 			searchRequest.setQueryString(query);
 			searchRequest.setDefaultOperator("AND");
 			searchRequest.setRows(rows);
 			searchRequest.getSortList()
 					.add(autoCompletionSchemaFieldFreq, true);
 			searchRequest.getReturnFieldList().add(termField);
-			return autoCompClient.search(searchRequest);
+			return (AbstractResultSearch) autoCompClient.request(searchRequest);
 		} finally {
 			rwl.r.unlock();
 		}
