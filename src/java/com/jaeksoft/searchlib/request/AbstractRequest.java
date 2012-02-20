@@ -202,6 +202,14 @@ public abstract class AbstractRequest {
 		}
 	}
 
+	public String getNameType() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(getType().getLabel());
+		sb.append(": ");
+		sb.append(requestName);
+		return sb.toString();
+	}
+
 	public abstract String getInfo();
 
 	public abstract void reset();

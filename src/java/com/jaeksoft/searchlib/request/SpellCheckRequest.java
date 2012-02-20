@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.result.ResultSpellCheck;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
@@ -51,6 +52,8 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 public class SpellCheckRequest extends AbstractRequest {
 
 	private FieldList<SpellCheckField> spellCheckFieldList;
+
+	private String query;
 
 	public SpellCheckRequest() {
 	}
@@ -63,6 +66,7 @@ public class SpellCheckRequest extends AbstractRequest {
 	public void setDefaultValues() {
 		super.setDefaultValues();
 		this.spellCheckFieldList = new FieldList<SpellCheckField>();
+		this.query = null;
 	}
 
 	@Override
@@ -71,6 +75,7 @@ public class SpellCheckRequest extends AbstractRequest {
 		SpellCheckRequest spellCheckrequest = (SpellCheckRequest) request;
 		this.spellCheckFieldList = new FieldList<SpellCheckField>(
 				spellCheckrequest.spellCheckFieldList);
+		this.query = spellCheckrequest.query;
 	}
 
 	public FieldList<SpellCheckField> getSpellCheckFieldList() {
@@ -98,6 +103,7 @@ public class SpellCheckRequest extends AbstractRequest {
 			for (int i = 0; i < l; i++)
 				SpellCheckField.copySpellCheckFields(nodes.item(i), fieldList,
 						spellCheckFieldList);
+			setQuery(xpp.getNodeString(node, "query"));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -107,11 +113,19 @@ public class SpellCheckRequest extends AbstractRequest {
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
+			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
+					getRequestName(), XML_ATTR_TYPE, getType().name());
 			if (spellCheckFieldList.size() > 0) {
 				xmlWriter.startElement("spellCheckFields");
 				spellCheckFieldList.writeXmlConfig(xmlWriter);
 				xmlWriter.endElement();
 			}
+			if (query != null && query.trim().length() > 0) {
+				xmlWriter.startElement("query");
+				xmlWriter.textNode(query);
+				xmlWriter.endElement();
+			}
+			xmlWriter.endElement();
 
 		} finally {
 			rwl.r.unlock();
@@ -137,7 +151,7 @@ public class SpellCheckRequest extends AbstractRequest {
 	@Override
 	public AbstractResult<SpellCheckRequest> execute(ReaderInterface reader)
 			throws SearchLibException {
-		return null;
+		return new ResultSpellCheck(reader, this);
 	}
 
 	public Set<Term> getTermSet() {
@@ -148,7 +162,37 @@ public class SpellCheckRequest extends AbstractRequest {
 
 	@Override
 	public String getInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		rwl.r.lock();
+		try {
+			StringBuffer sb = new StringBuffer();
+			for (SpellCheckField field : spellCheckFieldList) {
+				if (sb.length() > 0)
+					sb.append(", ");
+				sb.append(field.getName());
+			}
+			return sb.toString();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the query
+	 */
+	public String getQuery() {
+		rwl.r.lock();
+		try {
+			return query;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param query
+	 *            the query to set
+	 */
+	public void setQuery(String query) {
+		this.query = query;
 	}
 }

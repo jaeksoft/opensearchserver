@@ -1086,6 +1086,11 @@ public class SearchRequest extends AbstractRequest {
 
 	@Override
 	public String getInfo() {
-		return patternQuery;
+		rwl.r.lock();
+		try {
+			return patternQuery;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 }

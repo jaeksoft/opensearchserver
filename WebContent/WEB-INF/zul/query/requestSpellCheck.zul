@@ -16,57 +16,76 @@
 -->
 <window id="spellcheck"
 	use="com.jaeksoft.searchlib.web.controller.query.SpellCheckController">
-	<listbox model="@{spellcheck.request.spellCheckFieldList.list}"
-		selectedItem="@{spellcheck.selected}">
-		<listhead>
-			<listheader label="Field" />
-			<listheader label="Minimal score" />
-			<listheader label="Number of suggestions" />
-			<listheader label="Algorithm" />
-			<listheader />
-		</listhead>
-		<auxhead visible="@{spellcheck.fieldLeft}">
-			<auxheader>
-				<listbox mold="select"
-					selectedItem="@{spellcheck.current.name}"
-					model="@{spellcheck.spellCheckFieldLeft}">
-					<listitem self="@{each=spellCheckField}"
-						label="@{spellCheckField}" />
+	<grid>
+		<columns>
+			<column hflex="min" />
+			<column />
+		</columns>
+		<rows>
+			<row>
+				<label value="Query" />
+				<textbox value="@{spellcheck.request.query}" cols="50" />
+			</row>
+			<row>
+				<label value="Fields" />
+				<listbox
+					model="@{spellcheck.request.spellCheckFieldList.list}"
+					selectedItem="@{spellcheck.selected}">
+					<listhead>
+						<listheader label="Field" />
+						<listheader label="Minimal score" />
+						<listheader label="Number of suggestions" />
+						<listheader label="Algorithm" />
+						<listheader />
+					</listhead>
+					<auxhead visible="@{spellcheck.fieldLeft}">
+						<auxheader>
+							<listbox mold="select"
+								selectedItem="@{spellcheck.current.name}"
+								model="@{spellcheck.spellCheckFieldLeft}">
+								<listitem self="@{each=spellCheckField}"
+									label="@{spellCheckField}" />
+							</listbox>
+						</auxheader>
+						<auxheader>
+							<doublebox format="0.00"
+								value="@{spellcheck.current.minScore}" />
+						</auxheader>
+						<auxheader>
+							<doublebox
+								value="@{spellcheck.current.suggestionNumber}" />
+						</auxheader>
+						<auxheader>
+							<listbox mold="select"
+								selectedItem="@{spellcheck.current.stringDistance}"
+								model="@{spellcheck.stringDistanceList}" />
+						</auxheader>
+						<auxheader>
+							<button visible="@{spellcheck.noSelection}"
+								label="add" forward="onFieldAdd" />
+							<hbox visible="@{spellcheck.selection}">
+								<button label="Save"
+									forward="onFieldAdd" />
+								<button label="Cancel"
+									forward="onCancel" />
+							</hbox>
+						</auxheader>
+					</auxhead>
+					<listitem self="@{each='item'}">
+						<listcell label="@{item.name}" />
+						<listcell label="@{item.minScore}" />
+						<listcell label="@{item.suggestionNumber}" />
+						<listcell label="@{item.stringDistance}" />
+						<listcell>
+							<button image="images/action_delete.png"
+								forward="onFieldRemove">
+								<custom-attributes
+									scFieldItem="@{item}" />
+							</button>
+						</listcell>
+					</listitem>
 				</listbox>
-			</auxheader>
-			<auxheader>
-				<doublebox format="0.00"
-					value="@{spellcheck.current.minScore}" />
-			</auxheader>
-			<auxheader>
-				<doublebox
-					value="@{spellcheck.current.suggestionNumber}" />
-			</auxheader>
-			<auxheader>
-				<listbox mold="select"
-					selectedItem="@{spellcheck.current.stringDistance}"
-					model="@{spellcheck.stringDistanceList}" />
-			</auxheader>
-			<auxheader>
-				<button visible="@{spellcheck.noSelection}" label="add"
-					forward="onFieldAdd" />
-				<hbox visible="@{spellcheck.selection}">
-					<button label="Save" forward="onFieldAdd" />
-					<button label="Cancel" forward="onCancel" />
-				</hbox>
-			</auxheader>
-		</auxhead>
-		<listitem self="@{each='item'}">
-			<listcell label="@{item.name}" />
-			<listcell label="@{item.minScore}" />
-			<listcell label="@{item.suggestionNumber}" />
-			<listcell label="@{item.stringDistance}" />
-			<listcell>
-				<button image="images/action_delete.png"
-					forward="onFieldRemove">
-					<custom-attributes scFieldItem="@{item}" />
-				</button>
-			</listcell>
-		</listitem>
-	</listbox>
+			</row>
+		</rows>
+	</grid>
 </window>

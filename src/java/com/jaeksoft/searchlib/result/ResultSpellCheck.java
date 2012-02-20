@@ -26,13 +26,13 @@ package com.jaeksoft.searchlib.result;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 
 public class ResultSpellCheck extends AbstractResult<SpellCheckRequest> {
 
-	protected ResultSpellCheck(ReaderLocal reader, SpellCheckRequest request) {
+	public ResultSpellCheck(ReaderInterface reader, SpellCheckRequest request) {
 		super(request);
 	}
 

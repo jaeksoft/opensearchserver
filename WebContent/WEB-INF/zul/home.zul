@@ -21,8 +21,8 @@
 		<panelchildren>
 			<grid width="100%">
 				<columns sizable="false">
-					<column align="right" width="100px" />
-					<column align="left" width="200px" />
+					<column align="right" hflex="min" />
+					<column align="left" hflex="min" />
 					<column align="left" />
 					<column width="200px" />
 				</columns>
@@ -30,7 +30,7 @@
 					<row>
 						<label value="Index name: " />
 						<textbox value="@{home.newIndexName}"
-							width="95%" />
+							cols="50" />
 						<label
 							value="Choose a name for the index that will be created" />
 						<cell rowspan="3">
@@ -69,7 +69,7 @@
 		</toolbar>
 		<panelchildren>
 			<listbox id="indexlist" selectedItem="@{home.clientName}"
-				sizedByContent="true" mold="paging" pageSize="20"
+				width="100%" mold="paging" pageSize="20"
 				model="@{home.clientCatalog}">
 				<auxhead>
 					<auxheader align="center" label="Index" />
@@ -84,30 +84,31 @@
 					<auxheader align="center" label="Information"
 						colspan="3" />
 					<auxheader align="center" label="Action" />
-					<auxheader />
 				</auxhead>
 				<listhead>
 					<listheader label="name" />
-					<listheader label="Web crawler" align="center" />
-					<listheader label="Database crawler" align="center" />
-					<listheader label="File crawler" align="center" />
-					<listheader label="R" width="30px"
+					<listheader label="Web" align="center" hflex="min" />
+					<listheader label="Database" align="center"
+						hflex="min" />
+					<listheader label="File" align="center" hflex="min" />
+					<listheader label="- R -" hflex="min"
 						tooltiptext="Number of running jobs" align="center" />
-					<listheader label="A" width="30px"
+					<listheader label="- A -" hflex="min"
 						tooltiptext="Number of active jobs" align="center" />
-					<listheader label="N" width="30px"
+					<listheader label="- N -" hflex="min"
 						tooltiptext="Number of jobs" align="center" />
-					<listheader label="R" width="40px"
+					<listheader label="- R -" hflex="min"
 						tooltiptext="Number of replication items" align="center" />
-					<listheader label="N" width="40px"
+					<listheader label="- N -" hflex="min"
 						tooltiptext="Number of running replication items" align="center" />
-					<listheader label="status"
+					<listheader label="status" hflex="min"
 						tooltiptext="Optimization status" align="center" />
-					<listheader label="Doc(s)" align="right" />
-					<listheader label="Last modified" align="right" />
-					<listheader label="Size" align="right" />
-					<listheader align="center" />
-					<listheader hflex="true" />
+					<listheader label="Doc(s)" align="right"
+						hflex="min" />
+					<listheader label="Last modified" align="right"
+						hflex="min" />
+					<listheader label="Size" align="right" hflex="min" />
+					<listheader align="center" hflex="min" />
 				</listhead>
 				<listitem self="@{each='catalogitem'}">
 					<listcell label="@{catalogitem.indexName}" />
@@ -153,9 +154,9 @@
 								<custom-attributes
 									catalogitem="@{catalogitem}" />
 							</button>
+							<space />
 						</hbox>
 					</listcell>
-					<listcell />
 				</listitem>
 			</listbox>
 		</panelchildren>

@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.web.controller;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.User;
@@ -58,6 +58,6 @@ public interface EventInterface {
 
 	void eventQueryEditResult(AbstractResult<?> data);
 
-	void eventQueryEditRequest(SearchRequest data);
+	void eventQueryEditRequest(AbstractRequest data);
 
 }

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -20,18 +20,40 @@
 	<panel title="List of existing query templates" border="normal"
 		visible="@{query.isNotEditing}">
 		<panelchildren>
+			<grid width="100%">
+				<columns sizable="false">
+					<column align="right" hflex="min" />
+					<column align="left" hflex="min" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Query name" />
+						<textbox value="@{query.requestName}" cols="50" />
+						<label value="Enter the name of the new query" />
+					</row>
+					<row>
+						<label value="Type" />
+						<listbox model="@{query.requestTypeList}"
+							selectedItem="@{query.requestType}" mold="select">
+							<listitem self="@{each=type}"
+								label="@{type.label}" />
+						</listbox>
+						<label value="Select the type of the new query" />
+					</row>
+					<row>
+						<cell colspan="3" align="center">
+							<button label="New query..." forward="onNew"
+								tooltiptext="Create a new query template" />
+							<button label="New copied query..."
+								disabled="@{query.isNotSelectedRequest}" forward="onNewCopy"
+								tooltiptext="Create a new query template copied from the selected query" />
+						</cell>
+					</row>
+				</rows>
+			</grid>
 			<listbox model="@{query.requests}" mold="paging"
 				selectedItem="@{query.selectedRequest}" pageSize="10">
-				<auxhead>
-					<auxheader colspan="4">
-						<textbox value="@{query.requestName}" cols="50" />
-						<button label="New query..." forward="onNew"
-							tooltiptext="Create a new query template" />
-						<button label="New copied query..."
-							disabled="@{query.isNotSelectedRequest}" forward="onNewCopy"
-							tooltiptext="Create a new query template copied from the selected query" />
-					</auxheader>
-				</auxhead>
 				<listhead>
 					<listheader label="Name" width="200px" />
 					<listheader label="Type" width="120px" />
@@ -61,7 +83,7 @@
 		</panelchildren>
 	</panel>
 
-	<panel title="@{query.request.requestName}" border="normal"
+	<panel title="@{query.abstractRequest.nameType}" border="normal"
 		visible="@{query.isEditing}">
 		<caption>
 			<button label="Cancel" forward="onCancel" />

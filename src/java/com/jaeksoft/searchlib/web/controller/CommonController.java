@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.Role;
@@ -313,7 +313,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 	}
 
 	@Override
-	public void eventQueryEditRequest(SearchRequest data) {
+	public void eventQueryEditRequest(AbstractRequest data) {
 	}
 
 	protected String getIndexName() throws SearchLibException {

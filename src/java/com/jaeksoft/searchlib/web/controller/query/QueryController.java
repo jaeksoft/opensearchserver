@@ -311,4 +311,23 @@ public final class QueryController extends AbstractQueryController {
 		PushEvent.QUERY_EDIT_RESULT.publish(getResult());
 	}
 
+	/**
+	 * @return the requestType
+	 */
+	public RequestTypeEnum getRequestType() {
+		return requestType;
+	}
+
+	/**
+	 * @param requestType
+	 *            the requestType to set
+	 */
+	public void setRequestType(RequestTypeEnum requestType) {
+		this.requestType = requestType;
+	}
+
+	public RequestTypeEnum[] getRequestTypeList() {
+		return RequestTypeEnum.values();
+	}
+
 }

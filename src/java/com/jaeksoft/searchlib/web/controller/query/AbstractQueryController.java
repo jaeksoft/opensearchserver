@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.web.controller.query;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
@@ -53,8 +52,7 @@ public abstract class AbstractQueryController extends CommonController {
 		return request;
 	}
 
-	final protected AbstractRequest getAbstractRequest()
-			throws SearchLibException {
+	final public AbstractRequest getAbstractRequest() throws SearchLibException {
 		return (AbstractRequest) ScopeAttribute.QUERY_REQUEST.get(this);
 	}
 
@@ -87,7 +85,7 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	@Override
-	public void eventQueryEditRequest(SearchRequest request) {
+	public void eventQueryEditRequest(AbstractRequest request) {
 		reloadPage();
 	}
 
