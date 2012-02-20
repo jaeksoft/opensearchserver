@@ -31,7 +31,7 @@ import org.zkoss.zk.ui.event.Event;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckDistanceEnum;
@@ -82,10 +82,10 @@ public class SpellCheckController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			SearchRequest searchRequest = getRequest();
-			if (searchRequest == null)
+			SpellCheckRequest request = (SpellCheckRequest) getRequest();
+			if (request == null)
 				return null;
-			FieldList<SpellCheckField> spellCheckFieldList = searchRequest
+			FieldList<SpellCheckField> spellCheckFieldList = request
 					.getSpellCheckFieldList();
 			fieldLeft = new ArrayList<String>();
 			for (SchemaField field : client.getSchema().getFieldList()) {
@@ -108,7 +108,8 @@ public class SpellCheckController extends AbstractQueryController {
 			event = getOriginalEvent(event);
 			SpellCheckField spellCheckField = (SpellCheckField) event
 					.getTarget().getAttribute("scFieldItem");
-			getRequest().getSpellCheckFieldList().remove(spellCheckField);
+			((SpellCheckRequest) getRequest()).getSpellCheckFieldList().remove(
+					spellCheckField);
 			onCancel();
 		}
 	}
@@ -118,8 +119,8 @@ public class SpellCheckController extends AbstractQueryController {
 			if (selectedSpellCheckField != null)
 				selectedSpellCheckField.copy(currentSpellCheckField);
 			else
-				getRequest().getSpellCheckFieldList().add(
-						currentSpellCheckField);
+				((SpellCheckRequest) getRequest()).getSpellCheckFieldList()
+						.add(currentSpellCheckField);
 			onCancel();
 		}
 	}

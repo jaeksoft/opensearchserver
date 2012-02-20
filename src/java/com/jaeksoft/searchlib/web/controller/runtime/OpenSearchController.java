@@ -132,7 +132,7 @@ public class OpenSearchController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getSearchRequestMap().getNameList();
+		return client.getRequestMap().getNameList();
 	}
 
 	public void onAdd() throws SearchLibException, UnsupportedEncodingException {
@@ -169,8 +169,8 @@ public class OpenSearchController extends CommonController {
 			return null;
 		if (searchTemplate == null)
 			new AlertController("Please Select an Query Template");
-		SearchRequest request = client.getSearchRequestMap()
-				.get(searchTemplate);
+		SearchRequest request = (SearchRequest) client.getRequestMap().get(
+				searchTemplate);
 		if (request == null)
 			return null;
 		List<String> nameList = new ArrayList<String>();

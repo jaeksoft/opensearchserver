@@ -52,7 +52,7 @@ import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.map.Target;
@@ -179,8 +179,8 @@ public class FileManager {
 			throws SearchLibException {
 		try {
 
-			SearchRequest searchRequest = fileDbClient
-					.getNewSearchRequest(FILE_SEARCH);
+			SearchRequest searchRequest = (SearchRequest) fileDbClient
+					.getNewRequest(FILE_SEARCH);
 
 			StringBuffer query = new StringBuffer();
 
@@ -275,14 +275,15 @@ public class FileManager {
 
 	public FileInfo getFileInfo(String uriString) throws SearchLibException,
 			UnsupportedEncodingException, URISyntaxException {
-		SearchRequest searchRequest = fileDbClient
-				.getNewSearchRequest(FILE_INFO);
+		SearchRequest searchRequest = (SearchRequest) fileDbClient
+				.getNewRequest(FILE_INFO);
 		StringBuffer sb = new StringBuffer();
 		Field.URI.addQuery(sb, uriString, true);
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(1);
-		Result result = fileDbClient.search(searchRequest);
+		AbstractResultSearch result = (AbstractResultSearch) fileDbClient
+				.request(searchRequest);
 		if (result.getNumFound() == 0)
 			return null;
 		return new FileInfo(result.getDocument(0));
@@ -291,15 +292,16 @@ public class FileManager {
 	public void getFileInfoList(URI parentDirectory,
 			Map<String, FileInfo> indexFileMap) throws SearchLibException,
 			UnsupportedEncodingException, URISyntaxException {
-		SearchRequest searchRequest = fileDbClient
-				.getNewSearchRequest(FILE_INFO);
+		SearchRequest searchRequest = (SearchRequest) fileDbClient
+				.getNewRequest(FILE_INFO);
 		StringBuffer sb = new StringBuffer();
 		String parentUriString = parentDirectory.toASCIIString();
 		Field.DIRECTORY.addQuery(sb, parentUriString, true);
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(Integer.MAX_VALUE);
-		Result result = fileDbClient.search(searchRequest);
+		AbstractResultSearch result = (AbstractResultSearch) fileDbClient
+				.request(searchRequest);
 		int l = result.getNumFound();
 		for (int i = 0; i < l; i++) {
 			FileInfo fileInfo = new FileInfo(result.getDocument(i));
@@ -325,7 +327,8 @@ public class FileManager {
 		try {
 			if (orderBy != null)
 				searchRequest.addSort(orderBy.name, !orderAsc);
-			Result result = fileDbClient.search(searchRequest);
+			AbstractResultSearch result = (AbstractResultSearch) fileDbClient
+					.request(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result.getDocuments())
 					list.add(getNewFileItem(doc));
@@ -411,14 +414,13 @@ public class FileManager {
 				URI uri = new URI(uriString);
 				String path = uri.getPath();
 
-				SearchRequest searchRequest = fileDbClient
-						.getNewSearchRequest();
+				SearchRequest searchRequest = new SearchRequest(fileDbClient);
 				Field.SUBDIRECTORY.setQueryString(searchRequest, path, true);
 				fileDbClient.deleteDocuments(searchRequest);
 
 				if (mappedPath != null && !mappedPath.isEmpty()) {
-					SearchRequest deleteRequestTarget = targetClient
-							.getNewSearchRequest();
+					SearchRequest deleteRequestTarget = new SearchRequest(
+							targetClient);
 					deleteRequestTarget.setQueryString(Field.buildQuery(
 							mappedPath.get(0).getName(), path, true));
 					targetClient.deleteDocuments(deleteRequestTarget);
@@ -467,7 +469,7 @@ public class FileManager {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 
-		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
+		SearchRequest deleteRequest = new SearchRequest(fileDbClient);
 
 		deleteRequest.setQueryString(buildQueryString(
 				FileItemFieldEnum.directory.getName(), rowToDelete, true));
@@ -501,7 +503,7 @@ public class FileManager {
 		if (mappedPath == null || mappedPath.isEmpty())
 			return false;
 
-		SearchRequest deleteRequestTarget = targetClient.getNewSearchRequest();
+		SearchRequest deleteRequestTarget = new SearchRequest(targetClient);
 		deleteRequestTarget.setQueryString(buildQueryString(mappedPath.get(0)
 				.getName(), rowToDelete, true));
 
@@ -529,7 +531,7 @@ public class FileManager {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 
-		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
+		SearchRequest deleteRequest = new SearchRequest(fileDbClient);
 		deleteRequest.setQueryString(Field.buildQuery(
 				Field.REPOSITORY.toString(), repository, true));
 		fileDbClient.deleteDocuments(deleteRequest);
@@ -547,7 +549,7 @@ public class FileManager {
 		if (mappedPath == null || mappedPath.isEmpty())
 			return false;
 
-		SearchRequest deleteRequest = targetClient.getNewSearchRequest();
+		SearchRequest deleteRequest = new SearchRequest(targetClient);
 		deleteRequest.setQueryString(mappedPath.get(0).getName() + ":\""
 				+ repository + "\"");
 

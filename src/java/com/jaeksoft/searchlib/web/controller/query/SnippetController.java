@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -85,7 +85,7 @@ public class SnippetController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			SearchRequest request = getRequest();
+			SearchRequest request = (SearchRequest) getRequest();
 			if (request == null)
 				return null;
 			if (snippetFieldLeft != null)
@@ -108,7 +108,7 @@ public class SnippetController extends AbstractQueryController {
 	public void onSnippetRemove(Event event) throws SearchLibException {
 		synchronized (this) {
 			SnippetField field = (SnippetField) event.getData();
-			getRequest().getSnippetFieldList().remove(field);
+			((SearchRequest) getRequest()).getSnippetFieldList().remove(field);
 			reloadPage();
 		}
 	}
@@ -129,7 +129,7 @@ public class SnippetController extends AbstractQueryController {
 		synchronized (this) {
 			if (selectedSnippet == null)
 				return;
-			getRequest().getSnippetFieldList().add(
+			((SearchRequest) getRequest()).getSnippetFieldList().add(
 					new SnippetField(selectedSnippet));
 			reloadPage();
 		}

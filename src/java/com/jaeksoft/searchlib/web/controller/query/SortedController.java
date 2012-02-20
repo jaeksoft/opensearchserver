@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
+import com.jaeksoft.searchlib.sort.SortList;
 
 public class SortedController extends AbstractQueryController implements
 		RowRenderer {
@@ -81,7 +82,8 @@ public class SortedController extends AbstractQueryController implements
 		synchronized (this) {
 			if (selectedSort == null)
 				return;
-			getRequest().getSortList().add(new SortField(selectedSort, true));
+			((SearchRequest) getRequest()).getSortList().add(
+					new SortField(selectedSort, true));
 			reloadPage();
 		}
 	}
@@ -89,7 +91,7 @@ public class SortedController extends AbstractQueryController implements
 	public void onSortRemove(Event event) throws SearchLibException {
 		synchronized (this) {
 			SortField sortField = (SortField) event.getData();
-			getRequest().getSortList().remove(sortField);
+			((SearchRequest) getRequest()).getSortList().remove(sortField);
 			reloadPage();
 		}
 	}
@@ -110,7 +112,7 @@ public class SortedController extends AbstractQueryController implements
 			Client client = getClient();
 			if (client == null)
 				return null;
-			SearchRequest request = getRequest();
+			SearchRequest request = (SearchRequest) getRequest();
 			if (request == null)
 				return null;
 			sortFieldLeft = new ArrayList<String>();
@@ -159,9 +161,11 @@ public class SortedController extends AbstractQueryController implements
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();
 			if (listitem != null) {
-				getRequest().getSortList().remove(sortField);
+				SortList sortList = ((SearchRequest) getRequest())
+						.getSortList();
+				sortList.remove(sortField);
 				sortField.setDesc(listitem.getValue().toString());
-				getRequest().getSortList().add(sortField);
+				sortList.add(sortField);
 			}
 		}
 	}

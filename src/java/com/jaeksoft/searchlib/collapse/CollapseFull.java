@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultSingle;
+import com.jaeksoft.searchlib.result.ResultSearchSingle;
 
 public class CollapseFull extends CollapseAdjacent {
 
@@ -44,7 +44,7 @@ public class CollapseFull extends CollapseAdjacent {
 	}
 
 	@Override
-	public ResultScoreDoc[] collapse(ResultSingle resultSingle)
+	public ResultScoreDoc[] collapse(ResultSearchSingle resultSingle)
 			throws IOException, ParseException, SyntaxError {
 		// TODO Auto-generated method stub
 		ReaderLocal reader = resultSingle.getReader();

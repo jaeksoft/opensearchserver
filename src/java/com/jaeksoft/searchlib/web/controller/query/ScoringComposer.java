@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,6 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.scoring.AdvancedScoreItem;
 import com.jaeksoft.searchlib.web.controller.CommonComposer;
-import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class ScoringComposer extends CommonComposer {
 
@@ -49,11 +48,6 @@ public class ScoringComposer extends CommonComposer {
 
 	private AdvancedScoreItem selectedScoreItem;
 
-	private SearchRequest getRequest() throws SearchLibException {
-		return (SearchRequest) super
-				.getAttribute(ScopeAttribute.QUERY_SEARCH_REQUEST);
-	}
-
 	@Override
 	protected void reset() throws SearchLibException {
 		currentScoreItem = null;
@@ -62,7 +56,7 @@ public class ScoringComposer extends CommonComposer {
 	}
 
 	public AdvancedScore getAdvancedScore() throws SearchLibException {
-		SearchRequest searchRequest = getRequest();
+		SearchRequest searchRequest = (SearchRequest) getRequest();
 		if (searchRequest == null)
 			return null;
 		AdvancedScore av = searchRequest.getAdvancedScore();

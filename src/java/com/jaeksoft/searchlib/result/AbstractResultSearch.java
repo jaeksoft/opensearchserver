@@ -24,8 +24,13 @@
 
 package com.jaeksoft.searchlib.result;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderJsp;
+import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public abstract class AbstractResultSearch extends
@@ -148,5 +153,21 @@ public abstract class AbstractResultSearch extends
 			sb.append(request);
 		}
 		return sb.toString();
+	}
+
+	public Render getRender(HttpServletRequest request) {
+
+		Render render = null;
+
+		String p;
+		if ((p = request.getParameter("render")) != null) {
+			if ("jsp".equals(p))
+				render = new RenderJsp(request.getParameter("jsp"), this);
+		}
+
+		if (render == null)
+			render = new RenderSearchXml(this);
+
+		return render;
 	}
 }

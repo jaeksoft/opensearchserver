@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -43,19 +43,19 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	public AbstractRequest getRequest() throws SearchLibException {
-		return (SearchRequest) ScopeAttribute.QUERY_REQUEST.get(this);
+		return (AbstractRequest) ScopeAttribute.QUERY_REQUEST.get(this);
 	}
 
 	public boolean getResultExists() {
 		return getResult() != null;
 	}
 
-	public Result getResult() {
-		return (Result) ScopeAttribute.QUERY_SEARCH_RESULT.get(this);
+	public AbstractResult<?> getResult() {
+		return (AbstractResult<?>) ScopeAttribute.QUERY_SEARCH_RESULT.get(this);
 	}
 
 	@Override
-	public void eventQueryEditResult(Result result) {
+	public void eventQueryEditResult(AbstractResult<?> result) {
 		reloadPage();
 	}
 

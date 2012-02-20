@@ -34,8 +34,9 @@ import org.zkoss.zul.Listitem;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.User;
 
@@ -55,6 +56,10 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 		binder = new AnnotateDataBinder(comp);
 		binder.loadAll();
 		PushEvent.suscribe(this);
+	}
+
+	protected AbstractRequest getRequest() throws SearchLibException {
+		return (AbstractRequest) getAttribute(ScopeAttribute.QUERY_REQUEST);
 	}
 
 	protected final Object getAttribute(ScopeAttribute scopeAttribute) {
@@ -161,7 +166,7 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 	}
 
 	@Override
-	public void eventQueryEditResult(Result data) {
+	public void eventQueryEditResult(AbstractResult<?> data) {
 	}
 
 	@Override

@@ -67,7 +67,7 @@ public class BoostQueriesController extends AbstractQueryController {
 	}
 
 	public void onSave() throws SearchLibException {
-		SearchRequest request = getRequest();
+		SearchRequest request = (SearchRequest) getRequest();
 		request.setBoostingQuery(selectedBoostQuery, currentBoostQuery);
 		onCancel();
 	}
@@ -77,7 +77,7 @@ public class BoostQueriesController extends AbstractQueryController {
 			event = ((ForwardEvent) event).getOrigin();
 		BoostQuery boostQuery = (BoostQuery) event.getTarget().getAttribute(
 				"boostQuery");
-		SearchRequest request = getRequest();
+		SearchRequest request = (SearchRequest) getRequest();
 		request.setBoostingQuery(boostQuery, null);
 		onCancel();
 	}

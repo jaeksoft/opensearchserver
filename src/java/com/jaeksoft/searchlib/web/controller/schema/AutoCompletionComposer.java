@@ -35,7 +35,7 @@ import org.zkoss.zul.ListModelArray;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.web.controller.CommonComposer;
@@ -131,7 +131,8 @@ public class AutoCompletionComposer extends CommonComposer {
 		if (manager == null)
 			return;
 		String[] resultArray = new String[0];
-		Result result = manager.search(inputEvent.getValue(), rows);
+		AbstractResultSearch result = manager.search(inputEvent.getValue(),
+				rows);
 		if (result != null) {
 			ResultDocument[] documents = result.getDocuments();
 			if (documents != null) {

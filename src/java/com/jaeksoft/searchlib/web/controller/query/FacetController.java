@@ -86,7 +86,7 @@ public class FacetController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			SearchRequest request = getRequest();
+			SearchRequest request = (SearchRequest) getRequest();
 			if (request == null)
 				return null;
 			fieldLeft = new ArrayList<String>();
@@ -105,7 +105,8 @@ public class FacetController extends AbstractQueryController {
 	public void onFacetRemove(Event event) throws SearchLibException {
 		synchronized (this) {
 			FacetField facetField = (FacetField) event.getData();
-			getRequest().getFacetFieldList().remove(facetField);
+			((SearchRequest) getRequest()).getFacetFieldList().remove(
+					facetField);
 			reloadPage();
 		}
 	}
@@ -126,7 +127,7 @@ public class FacetController extends AbstractQueryController {
 		synchronized (this) {
 			if (selectedFacet == null)
 				return;
-			getRequest().getFacetFieldList().add(
+			((SearchRequest) getRequest()).getFacetFieldList().add(
 					new FacetField(selectedFacet, 0, false, false));
 			reloadPage();
 		}

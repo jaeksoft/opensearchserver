@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import org.zkoss.zk.ui.Component;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.Filter;
 import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class FiltersController extends AbstractQueryController {
 
@@ -46,14 +47,15 @@ public class FiltersController extends AbstractQueryController {
 	}
 
 	public void onFilterAdd() throws SearchLibException {
-		getRequest().getFilterList().add("", false, Source.REQUEST);
+		((SearchRequest) getRequest()).getFilterList().add("", false,
+				Source.REQUEST);
 		reloadPage();
 	}
 
 	public void onFilterRemove(Component comp) throws SearchLibException {
 		Filter filter = (Filter) getRecursiveComponentAttribute(comp,
 				"filterItem");
-		getRequest().getFilterList().remove(filter);
+		((SearchRequest) getRequest()).getFilterList().remove(filter);
 		reloadPage();
 	}
 }

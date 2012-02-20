@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -102,7 +103,7 @@ public class DeleteController extends CommonController {
 		isChecked = false;
 		Client client = getClient();
 		if (client != null)
-			request = getClient().getNewSearchRequest();
+			request = new SearchRequest(getClient());
 	}
 
 	public SearchRequest getRequest() {
@@ -114,7 +115,8 @@ public class DeleteController extends CommonController {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		request.reset();
-		int numFound = getClient().search(request).getNumFound();
+		int numFound = ((AbstractResultSearch) getClient().request(request))
+				.getNumFound();
 		isChecked = true;
 		new AlertController(numFound + " document(s) found.",
 				Messagebox.INFORMATION);
@@ -128,7 +130,8 @@ public class DeleteController extends CommonController {
 		if (!isChecked)
 			return;
 		request.reset();
-		int numFound = getClient().search(request).getNumFound();
+		int numFound = ((AbstractResultSearch) getClient().request(request))
+				.getNumFound();
 		new DeleteAlert(numFound);
 	}
 

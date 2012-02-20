@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
@@ -221,7 +221,7 @@ public final class QueryController extends AbstractQueryController {
 		return client.getRequestMap().getRequests();
 	}
 
-	public void setResult(Result result) {
+	public void setResult(AbstractResult<?> result) {
 		ScopeAttribute.QUERY_SEARCH_RESULT.set(this, result);
 	}
 

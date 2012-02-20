@@ -51,13 +51,12 @@ import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.render.RenderCSV;
-import com.jaeksoft.searchlib.result.Result;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
-import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 
 public class ResultController extends AbstractQueryController implements
 		TreeitemRenderer {
@@ -112,29 +111,29 @@ public class ResultController extends AbstractQueryController implements
 		}
 
 		public float getScore() {
-			Result result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return 0;
 			return result.getScore(pos);
 		}
 
 		public int getCollapseCount() {
-			Result result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return 0;
 			return result.getCollapseCount(pos);
 		}
 
 		public int getDocId() {
-			Result result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return 0;
-			return getResult().getDocs()[pos].doc;
+			return result.getDocs()[pos].doc;
 		}
 
 		public ResultDocument getResultDocument() throws CorruptIndexException,
 				IOException, ParseException, SyntaxError {
-			Result result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return null;
 			return result.getDocument(pos);
@@ -238,14 +237,14 @@ public class ResultController extends AbstractQueryController implements
 		synchronized (this) {
 			if (documents != null)
 				return documents;
-			Result result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return null;
 			int i = result.getDocumentCount();
 			if (i <= 0)
 				return null;
 			documents = new ArrayList<Document>(i);
-			int pos = result.getSearchRequest().getStart();
+			int pos = result.getRequest().getStart();
 			int end = pos + result.getDocumentCount();
 			while (pos < end)
 				documents.add(new Document(pos++));
@@ -255,7 +254,7 @@ public class ResultController extends AbstractQueryController implements
 
 	public boolean getDocumentFound() {
 		synchronized (this) {
-			Result result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return false;
 			return result.getDocumentCount() > 0;
@@ -264,7 +263,7 @@ public class ResultController extends AbstractQueryController implements
 
 	public FacetList getFacetList() {
 		synchronized (this) {
-			Result result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return null;
 			FacetList facetList = result.getFacetList();
@@ -283,29 +282,19 @@ public class ResultController extends AbstractQueryController implements
 		}
 	}
 
-	public List<SpellCheck> getSpellCheckList() {
-		synchronized (this) {
-			Result result = getResult();
-			if (result == null)
-				return null;
-			return result.getSpellCheckList();
-		}
-	}
-
 	public void explainScore(Component comp) throws SearchLibException,
 			InterruptedException, IOException, ParseException, SyntaxError {
 		Client client = getClient();
 		if (client == null)
 			return;
-		Result result = getResult();
+		AbstractResultSearch result = (AbstractResultSearch) getResult();
 		if (result == null)
 			return;
 		Document document = (Document) comp.getAttribute("document");
 		if (document == null)
 			return;
 		int docId = document.getDocId();
-		String explanation = client.explain(result.getSearchRequest(), docId,
-				true);
+		String explanation = client.explain(result.getRequest(), docId, true);
 		Window win = (Window) Executions.createComponents(
 				"/WEB-INF/zul/query/result/explanation.zul", null, null);
 		Html html = (Html) win.getFellow("htmlExplain", true);
@@ -317,7 +306,7 @@ public class ResultController extends AbstractQueryController implements
 		Client client = getClient();
 		if (client == null)
 			return;
-		Result result = getResult();
+		AbstractResultSearch result = (AbstractResultSearch) getResult();
 		if (result == null)
 			return;
 
@@ -332,13 +321,6 @@ public class ResultController extends AbstractQueryController implements
 			if (pw != null)
 				pw.close();
 		}
-	}
-
-	public boolean isSpellCheckValid() {
-		synchronized (this) {
-			return getSpellCheckList() != null;
-		}
-
 	}
 
 	public void setSelectedFacet(Facet facet) {

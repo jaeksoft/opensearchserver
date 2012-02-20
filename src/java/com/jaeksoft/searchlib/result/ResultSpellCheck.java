@@ -24,13 +24,22 @@
 
 package com.jaeksoft.searchlib.result;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 
 public class ResultSpellCheck extends AbstractResult<SpellCheckRequest> {
 
 	protected ResultSpellCheck(ReaderLocal reader, SpellCheckRequest request) {
 		super(request);
+	}
+
+	@Override
+	public Render getRender(HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -78,7 +78,8 @@ public class ReturnedController extends AbstractQueryController implements
 		synchronized (this) {
 			if (selectedReturn == null)
 				return;
-			getRequest().getReturnFieldList().add(new Field(selectedReturn));
+			((SearchRequest) getRequest()).getReturnFieldList().add(
+					new Field(selectedReturn));
 			reloadPage();
 		}
 	}
@@ -86,7 +87,7 @@ public class ReturnedController extends AbstractQueryController implements
 	public void onReturnRemove(Event event) throws SearchLibException {
 		synchronized (this) {
 			Field field = (Field) event.getData();
-			getRequest().getReturnFieldList().remove(field);
+			((SearchRequest) getRequest()).getReturnFieldList().remove(field);
 			reloadPage();
 		}
 	}
@@ -108,7 +109,7 @@ public class ReturnedController extends AbstractQueryController implements
 			if (fieldLeft != null)
 				return fieldLeft;
 			fieldLeft = new ArrayList<String>();
-			SearchRequest request = getRequest();
+			SearchRequest request = (SearchRequest) getRequest();
 			if (request == null)
 				return null;
 			FieldList<Field> fields = request.getReturnFieldList();

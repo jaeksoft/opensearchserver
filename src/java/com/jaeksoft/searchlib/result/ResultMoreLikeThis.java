@@ -26,20 +26,20 @@ package com.jaeksoft.searchlib.result;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.render.Render;
-import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.SpellCheckRequest;
 
-public abstract class AbstractResult<T extends AbstractRequest> {
+public class ResultMoreLikeThis extends AbstractResult<SpellCheckRequest> {
 
-	protected T request;
-
-	protected AbstractResult(T request) {
-		this.request = request;
+	protected ResultMoreLikeThis(ReaderLocal reader, SpellCheckRequest request) {
+		super(request);
 	}
 
-	public T getRequest() {
-		return request;
+	@Override
+	public Render getRender(HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	public abstract Render getRender(HttpServletRequest request);
 }

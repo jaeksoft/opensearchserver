@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -99,7 +99,7 @@ public class RendererController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getSearchRequestMap().getNameList();
+		return client.getRequestMap().getNameList();
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
@@ -293,7 +293,7 @@ public class RendererController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		SearchRequest request = client.getSearchRequestMap().get(
+		SearchRequest request = (SearchRequest) client.getRequestMap().get(
 				currentRenderer.getRequestName());
 		if (request == null)
 			return null;
@@ -309,7 +309,7 @@ public class RendererController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		SearchRequest request = client.getSearchRequestMap().get(
+		SearchRequest request = (SearchRequest) client.getRequestMap().get(
 				currentRenderer.getRequestName());
 		if (request == null)
 			return null;

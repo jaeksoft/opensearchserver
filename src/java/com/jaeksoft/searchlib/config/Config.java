@@ -38,7 +38,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -80,9 +79,6 @@ import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.logreport.LogReportManager;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginTemplateList;
-import com.jaeksoft.searchlib.render.Render;
-import com.jaeksoft.searchlib.render.RenderJsp;
-import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.replication.ReplicationList;
@@ -92,7 +88,6 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestMap;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobList;
 import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -1374,22 +1369,6 @@ public abstract class Config {
 			request = new SearchRequest(this);
 		request.setFromServlet(transaction);
 		return request;
-	}
-
-	public Render getRender(HttpServletRequest request, AbstractResult<?> result) {
-
-		Render render = null;
-
-		String p;
-		if ((p = request.getParameter("render")) != null) {
-			if ("jsp".equals(p))
-				render = new RenderJsp(request.getParameter("jsp"), result);
-		}
-
-		if (render == null)
-			render = new RenderXml(result);
-
-		return render;
 	}
 
 	public RobotsTxtCache getRobotsTxtCache() throws SearchLibException {
