@@ -81,7 +81,7 @@ public final class QueryController extends AbstractQueryController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		AbstractRequest request = getRequest();
+		AbstractRequest request = getAbstractRequest();
 		if (request == null)
 			return null;
 		StringBuffer sb = AbstractServlet.getApiUrl(getBaseUrl(), "/select",
@@ -110,12 +110,43 @@ public final class QueryController extends AbstractQueryController {
 		ScopeAttribute.QUERY_REQUEST.set(this, request);
 	}
 
+	private boolean isEditing(RequestTypeEnum type) throws SearchLibException {
+		AbstractRequest request = getAbstractRequest();
+		if (request == null)
+			return false;
+		return type == request.getType();
+	}
+
 	public boolean isEditing() throws SearchLibException {
-		return getRequest() != null;
+		return getAbstractRequest() != null;
 	}
 
 	public boolean isNotEditing() throws SearchLibException {
 		return !isEditing();
+	}
+
+	public boolean isEditingSearch() throws SearchLibException {
+		return isEditing(RequestTypeEnum.SearchRequest);
+	}
+
+	public boolean isNotEditingSearch() throws SearchLibException {
+		return !isEditingSearch();
+	}
+
+	public boolean isEditingSpellCheck() throws SearchLibException {
+		return isEditing(RequestTypeEnum.SpellCheckRequest);
+	}
+
+	public boolean isNotEditingSpellCheck() throws SearchLibException {
+		return !isEditingSpellCheck();
+	}
+
+	public boolean isEditingMoreLikeThis() throws SearchLibException {
+		return isEditing(RequestTypeEnum.MoreLikeThisRequest);
+	}
+
+	public boolean isNotEditingMoreLikeThis() throws SearchLibException {
+		return !isEditingMoreLikeThis();
 	}
 
 	public boolean isNotSelectedRequest() {
@@ -200,7 +231,7 @@ public final class QueryController extends AbstractQueryController {
 		if (entry == null)
 			return;
 		setRequest(getClient().getNewRequest(entry.getKey()));
-		PushEvent.QUERY_EDIT_REQUEST.publish(getRequest());
+		PushEvent.QUERY_EDIT_REQUEST.publish(getAbstractRequest());
 	}
 
 	public void doDeleteQuery(Component comp) throws SearchLibException,
@@ -235,7 +266,7 @@ public final class QueryController extends AbstractQueryController {
 		if (!isSchemaRights())
 			throw new SearchLibException("Not allowed");
 		Client client = getClient();
-		AbstractRequest request = getRequest();
+		AbstractRequest request = getAbstractRequest();
 		client.getRequestMap().put(request);
 		client.saveRequests();
 		onCancel();
@@ -267,7 +298,7 @@ public final class QueryController extends AbstractQueryController {
 			URISyntaxException, ClassNotFoundException, SearchLibException,
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
-		AbstractRequest request = getRequest();
+		AbstractRequest request = getAbstractRequest();
 
 		if (request instanceof SearchRequest) {
 			SearchRequest searchRequest = (SearchRequest) request;

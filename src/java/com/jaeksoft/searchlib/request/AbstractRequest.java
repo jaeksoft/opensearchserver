@@ -60,6 +60,12 @@ public abstract class AbstractRequest {
 	private boolean withLogReport;
 	private List<String> customLogs;
 
+	public AbstractRequest() {
+		this.config = null;
+		this.requestName = null;
+		setDefaultValues();
+	}
+
 	public AbstractRequest(Config config) {
 		this.config = config;
 		this.requestName = null;
@@ -195,6 +201,8 @@ public abstract class AbstractRequest {
 			rwl.r.unlock();
 		}
 	}
+
+	public abstract String getInfo();
 
 	public abstract void reset();
 

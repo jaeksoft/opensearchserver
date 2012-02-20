@@ -101,6 +101,9 @@ public class SearchRequest extends AbstractRequest {
 	private boolean withDocuments;
 	private boolean withSortValues;
 
+	public SearchRequest() {
+	}
+
 	public SearchRequest(Config config) {
 		super(config);
 	}
@@ -811,7 +814,7 @@ public class SearchRequest extends AbstractRequest {
 			setRows(XPathParser.getAttributeValue(node, "rows"));
 			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
 					node, "lang")));
-			setQueryString(xpp.getNodeString(node, "query"));
+			setPatternQuery(xpp.getNodeString(node, "query"));
 
 			AdvancedScore advancedScore = AdvancedScore
 					.fromXmlConfig(xpp, node);
@@ -1079,5 +1082,10 @@ public class SearchRequest extends AbstractRequest {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	@Override
+	public String getInfo() {
+		return patternQuery;
 	}
 }

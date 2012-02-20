@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 
-public class SnippetController extends AbstractQueryController {
+public class SnippetController extends SearchRequestController {
 
 	/**
 	 * 

@@ -23,7 +23,7 @@
 			<listbox model="@{query.requests}" mold="paging"
 				selectedItem="@{query.selectedRequest}" pageSize="10">
 				<auxhead>
-					<auxheader colspan="3">
+					<auxheader colspan="4">
 						<textbox value="@{query.requestName}" cols="50" />
 						<button label="New query..." forward="onNew"
 							tooltiptext="Create a new query template" />
@@ -34,7 +34,8 @@
 				</auxhead>
 				<listhead>
 					<listheader label="Name" width="200px" />
-					<listheader label="Query" />
+					<listheader label="Type" width="120px" />
+					<listheader label="Info" />
 					<listheader label="Action" width="150px"
 						align="center" />
 				</listhead>
@@ -42,10 +43,10 @@
 					<custom-attributes requestentry="@{item}" />
 					<listcell label="@{item.key}"
 						onDoubleClick="query.doEditQuery(self)" />
-					<listcell onDoubleClick="query.doEditQuery(self)">
-						<label width="100%"
-							value="@{item.value.patternQuery}" />
-					</listcell>
+					<listcell onDoubleClick="query.doEditQuery(self)"
+						label="@{item.value.type.label}" />
+					<listcell onDoubleClick="query.doEditQuery(self)"
+						label="@{item.value.info}" />
 					<listcell>
 						<hbox align="center">
 							<button label="Edit"
@@ -68,64 +69,21 @@
 			<button label="Save" forward="onSave" />
 		</caption>
 		<panelchildren>
-			<tabbox>
-				<tabs>
-					<tab id="tabQuery" label="Query" selected="true" />
-					<tab id="tabReturn" label="Returned fields" />
-					<tab id="tabFacet" label="Faceted fields" />
-					<tab id="tabSnippet" label="Snippet fields" />
-					<tab id="tabSort" label="Sorted fields" />
-					<tab id="tabFilter" label="Filters" />
-					<tab id="tabCollapsing" label="Collapsing" />
-					<tab id="tabBoostQueries" label="Boosting queries" />
-					<tab id="tabMoreLikeThis" label="More like this" />
-					<tab id="tabScoreFunction" label="Scoring" />
-					<tab id="tabSpellCheck" label="SpellCheck" />
-				</tabs>
-				<tabpanels>
-					<tabpanel>
-						<include src="WEB-INF/zul/query/general.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabReturn.onSelect">
-						<include src="WEB-INF/zul/query/returned.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabFacet.onSelect">
-						<include src="WEB-INF/zul/query/faceted.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabSnippet.onSelect">
-						<include src="WEB-INF/zul/query/snippet.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabSort.onSelect">
-						<include src="WEB-INF/zul/query/sorted.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabFilter.onSelect">
-						<include src="WEB-INF/zul/query/filters.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabCollapsing.onSelect">
-						<include src="WEB-INF/zul/query/collapsing.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabBoostQueries.onSelect">
-						<include
-							src="WEB-INF/zul/query/boostQueries.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabMoreLikeThis.onSelect">
-						<include
-							src="WEB-INF/zul/query/moreLikeThis.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabScoreFunction.onSelect">
-						<include
-							src="WEB-INF/zul/query/scoreFunction.zul" />
-					</tabpanel>
-					<tabpanel fulfill="tabSpellCheck.onSelect">
-						<include src="WEB-INF/zul/query/spellCheck.zul" />
-					</tabpanel>
-				</tabpanels>
-			</tabbox>
+			<include src="WEB-INF/zul/query/requestSearch.zul"
+				visible="@{query.isEditingSearch}" />
+			<include src="WEB-INF/zul/query/requestSpellCheck.zul"
+				visible="@{query.isEditingSpellCheck}" />
+			<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
+				visible="@{query.isEditingMoreLikeThis}" />
 			<vbox width="100%" align="center">
 				<button label="Search" forward="onSearch" />
 			</vbox>
 		</panelchildren>
 	</panel>
-	<include src="WEB-INF/zul/query/result.zul"
-		visible="@{query.resultExists}" />
+	<include src="WEB-INF/zul/query/resultSearch.zul"
+		visible="@{query.resultSearch}" />
+	<include src="WEB-INF/zul/query/resultSpellCheck.zul"
+		visible="@{query.resultSpellCheck}" />
+	<include src="WEB-INF/zul/query/resultMoreLikeThis.zul"
+		visible="@{query.resultMoreLikeThis}" />
 </window>

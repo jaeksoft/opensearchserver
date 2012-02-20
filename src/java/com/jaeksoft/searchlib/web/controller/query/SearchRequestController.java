@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,38 +24,26 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
-import org.zkoss.zk.ui.Component;
-
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.filter.Filter;
-import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
-public class FiltersController extends SearchRequestController {
+public class SearchRequestController extends AbstractQueryController {
+
+	public SearchRequestController() throws SearchLibException {
+		super();
+	}
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 989287631079056922L;
+	private static final long serialVersionUID = -2891366720618162654L;
 
 	@Override
 	protected void reset() throws SearchLibException {
 	}
 
-	public FiltersController() throws SearchLibException {
-		super();
-	}
-
-	public void onFilterAdd() throws SearchLibException {
-		((SearchRequest) getRequest()).getFilterList().add("", false,
-				Source.REQUEST);
-		reloadPage();
-	}
-
-	public void onFilterRemove(Component comp) throws SearchLibException {
-		Filter filter = (Filter) getRecursiveComponentAttribute(comp,
-				"filterItem");
-		((SearchRequest) getRequest()).getFilterList().remove(filter);
-		reloadPage();
+	public SearchRequest getRequest() throws SearchLibException {
+		return (SearchRequest) getRequest(RequestTypeEnum.SearchRequest);
 	}
 }

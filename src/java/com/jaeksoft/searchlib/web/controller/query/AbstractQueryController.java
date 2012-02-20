@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -42,16 +43,42 @@ public abstract class AbstractQueryController extends CommonController {
 		super();
 	}
 
-	public AbstractRequest getRequest() throws SearchLibException {
-		return (AbstractRequest) ScopeAttribute.QUERY_REQUEST.get(this);
+	final protected AbstractRequest getRequest(RequestTypeEnum type)
+			throws SearchLibException {
+		AbstractRequest request = getAbstractRequest();
+		if (request == null)
+			return null;
+		if (request.getType() != type)
+			return null;
+		return request;
 	}
 
-	public boolean getResultExists() {
-		return getResult() != null;
+	final protected AbstractRequest getAbstractRequest()
+			throws SearchLibException {
+		return (AbstractRequest) ScopeAttribute.QUERY_REQUEST.get(this);
 	}
 
 	public AbstractResult<?> getResult() {
 		return (AbstractResult<?>) ScopeAttribute.QUERY_SEARCH_RESULT.get(this);
+	}
+
+	private boolean isResult(RequestTypeEnum type) {
+		AbstractResult<?> result = getResult();
+		if (result == null)
+			return false;
+		return result.getRequest().getType() == type;
+	}
+
+	public boolean isResultSearch() {
+		return isResult(RequestTypeEnum.SearchRequest);
+	}
+
+	public boolean isResultSpellCheck() {
+		return isResult(RequestTypeEnum.SpellCheckRequest);
+	}
+
+	public boolean isResultMoreLikeThis() {
+		return isResult(RequestTypeEnum.MoreLikeThisRequest);
 	}
 
 	@Override

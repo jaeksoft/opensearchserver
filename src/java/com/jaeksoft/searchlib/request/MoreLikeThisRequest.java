@@ -63,6 +63,9 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	private int moreLikeThisMinTermFreq;
 	private String moreLikeThisStopWords;
 
+	public MoreLikeThisRequest() {
+	}
+
 	public MoreLikeThisRequest(Config config) {
 		super(config);
 	}
@@ -391,6 +394,12 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	@Override
 	public AbstractResult<MoreLikeThisRequest> execute(ReaderInterface reader)
 			throws SearchLibException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getInfo() {
 		// TODO Auto-generated method stub
 		return null;
 	}

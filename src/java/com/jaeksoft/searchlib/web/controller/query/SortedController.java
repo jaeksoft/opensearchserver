@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortList;
 
-public class SortedController extends AbstractQueryController implements
+public class SortedController extends SearchRequestController implements
 		RowRenderer {
 
 	/**

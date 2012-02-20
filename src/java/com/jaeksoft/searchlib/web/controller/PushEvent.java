@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.WebApp;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -113,6 +114,8 @@ public enum PushEvent {
 	}
 
 	public void publish() {
+		if (Executions.getCurrent() == null)
+			return;
 		getQueue(scope).publish(newEvent());
 	}
 
@@ -121,6 +124,8 @@ public enum PushEvent {
 	}
 
 	public void publish(Object data) {
+		if (Executions.getCurrent() == null)
+			return;
 		getQueue(scope).publish(newEvent(data));
 	}
 
@@ -129,6 +134,8 @@ public enum PushEvent {
 	}
 
 	private void subscribe(EventListener eventListener) {
+		if (Executions.getCurrent() == null)
+			return;
 		getQueue(scope).subscribe(eventListener);
 	}
 

@@ -32,6 +32,7 @@ import org.zkoss.zk.ui.Component;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -60,12 +61,16 @@ public class MoreLikeThisController extends AbstractQueryController {
 		selectedField = null;
 	}
 
+	public MoreLikeThisRequest getRequest() throws SearchLibException {
+		return (MoreLikeThisRequest) getRequest(RequestTypeEnum.MoreLikeThisRequest);
+	}
+
 	public List<String> getFieldsLeft() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			MoreLikeThisRequest request = (MoreLikeThisRequest) getRequest();
+			MoreLikeThisRequest request = getRequest();
 			if (request == null)
 				return null;
 			if (fieldsLeft != null)
@@ -105,8 +110,7 @@ public class MoreLikeThisController extends AbstractQueryController {
 
 	public void onRemoveField(Component component) throws SearchLibException {
 		Field field = (Field) component.getParent().getAttribute("mltField");
-		((MoreLikeThisRequest) getRequest()).getMoreLikeThisFieldList().remove(
-				field);
+		getRequest().getMoreLikeThisFieldList().remove(field);
 		reloadPage();
 	}
 

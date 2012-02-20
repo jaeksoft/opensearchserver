@@ -1,0 +1,58 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<tabbox>
+	<tabs>
+		<tab id="tabQuery" label="Query" selected="true" />
+		<tab id="tabReturn" label="Returned fields" />
+		<tab id="tabFacet" label="Faceted fields" />
+		<tab id="tabSnippet" label="Snippet fields" />
+		<tab id="tabSort" label="Sorted fields" />
+		<tab id="tabFilter" label="Filters" />
+		<tab id="tabCollapsing" label="Collapsing" />
+		<tab id="tabBoostQueries" label="Boosting queries" />
+		<tab id="tabScoreFunction" label="Scoring" />
+	</tabs>
+	<tabpanels>
+		<tabpanel>
+			<include src="WEB-INF/zul/query/search/general.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabReturn.onSelect">
+			<include src="WEB-INF/zul/query/search/returned.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabFacet.onSelect">
+			<include src="WEB-INF/zul/query/search/faceted.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabSnippet.onSelect">
+			<include src="WEB-INF/zul/query/search/snippet.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabSort.onSelect">
+			<include src="WEB-INF/zul/query/search/sorted.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabFilter.onSelect">
+			<include src="WEB-INF/zul/query/search/filters.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabCollapsing.onSelect">
+			<include src="WEB-INF/zul/query/search/collapsing.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabBoostQueries.onSelect">
+			<include src="WEB-INF/zul/query/search/boostQueries.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabScoreFunction.onSelect">
+			<include src="WEB-INF/zul/query/search/scoreFunction.zul" />
+		</tabpanel>
+	</tabpanels>
+</tabbox>

@@ -31,6 +31,7 @@ import org.zkoss.zk.ui.event.Event;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -64,6 +65,10 @@ public class SpellCheckController extends AbstractQueryController {
 				SpellCheckDistanceEnum.LevensteinDistance);
 		fieldLeft = null;
 		selectedSpellCheckField = null;
+	}
+
+	public SpellCheckRequest getRequest() throws SearchLibException {
+		return (SpellCheckRequest) getRequest(RequestTypeEnum.SpellCheckRequest);
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {

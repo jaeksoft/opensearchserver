@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class ReturnedController extends AbstractQueryController implements
+public class ReturnedController extends SearchRequestController implements
 		RowRenderer {
 
 	/**

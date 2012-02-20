@@ -35,16 +35,20 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public enum RequestTypeEnum {
 
-	SearchRequest(SearchRequest.class),
+	SearchRequest(SearchRequest.class, "Search"),
 
-	SpellCheckRequest(SpellCheckRequest.class),
+	SpellCheckRequest(SpellCheckRequest.class, "Spell check"),
 
-	MoreLikeThisRequest(MoreLikeThisRequest.class);
+	MoreLikeThisRequest(MoreLikeThisRequest.class, "More like this");
 
 	private Class<? extends AbstractRequest> requestClass;
 
-	private RequestTypeEnum(Class<? extends AbstractRequest> requestClass) {
+	private String label;
+
+	private RequestTypeEnum(Class<? extends AbstractRequest> requestClass,
+			String label) {
 		this.requestClass = requestClass;
+		this.label = label;
 	}
 
 	public AbstractRequest newInstance(Config config)
@@ -82,6 +86,13 @@ public enum RequestTypeEnum {
 				.newInstance();
 		newRequest.copyFrom(request);
 		return newRequest;
+	}
+
+	/**
+	 * @return the label
+	 */
+	public String getLabel() {
+		return label;
 	}
 
 }

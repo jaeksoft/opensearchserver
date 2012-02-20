@@ -52,6 +52,9 @@ public class SpellCheckRequest extends AbstractRequest {
 
 	private FieldList<SpellCheckField> spellCheckFieldList;
 
+	public SpellCheckRequest() {
+	}
+
 	public SpellCheckRequest(Config config) {
 		super(config);
 	}
@@ -141,5 +144,11 @@ public class SpellCheckRequest extends AbstractRequest {
 		Set<Term> set = new LinkedHashSet<Term>();
 		// TODO searchRequest.getQuery().extractTerms(set);
 		return set;
+	}
+
+	@Override
+	public String getInfo() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

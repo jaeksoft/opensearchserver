@@ -21,7 +21,9 @@
 		<caption>
 			<button label="XML/HTTP API call" target="_blank"
 				href="@{query.requestApiCall}" />
-			<button label="Export search result" visible="@{result.documentFound}" onClick="result.exportSearchResultToCsv()" />
+			<button label="Export search result"
+				visible="@{result.documentFound}"
+				onClick="result.exportSearchResultToCsv()" />
 		</caption>
 		<panelchildren>
 			<grid>
@@ -69,8 +71,6 @@
 				visible="@{result.documentFound}" selected="true" />
 			<tab id="tabFacets" label="Facet(s)"
 				visible="@{result.facetValid}" />
-			<tab id="tabSpellChecks" label="SpellCheck(s)"
-				visible="@{result.spellCheckValid}" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -78,9 +78,6 @@
 			</tabpanel>
 			<tabpanel fulfill="tabFacets.onSelect">
 				<include src="WEB-INF/zul/query/result/facets.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tabSpellChecks.onSelect">
-				<include src="WEB-INF/zul/query/result/spellchecks.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>
