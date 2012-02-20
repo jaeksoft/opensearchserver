@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.4
 
 New features:
+- 3489642: Unable to scroll all the log in runtime/logs panel
 - 3487772: Advanced spell check
 - 3487219: RegExp filter for DatabaseCrawler
 - 3483920: BoostQuery support
