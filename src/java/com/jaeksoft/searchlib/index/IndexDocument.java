@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,7 +41,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -51,6 +50,7 @@ import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.External.Collecter;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -103,36 +103,30 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public IndexDocument(ParserSelector parserSelector, XPathParser xpp,
-			Node documentNode, CredentialItem urlDefaultCredential)
+	public IndexDocument(ParserSelector parserSelector, Node documentNode,
+			CredentialItem urlDefaultCredential)
 			throws XPathExpressionException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException, URISyntaxException {
 		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				documentNode, "lang")));
-		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
-		int fieldsCount = fieldNodes.getLength();
-		for (int i = 0; i < fieldsCount; i++) {
-			Node fieldNode = fieldNodes.item(i);
+		List<Node> fieldNodes = DomUtils.getNodes(documentNode, "field");
+		for (Node fieldNode : fieldNodes) {
 			String fieldName = XPathParser
 					.getAttributeString(fieldNode, "name");
-			NodeList valueNodes = xpp.getNodeList(fieldNode, "value");
-			int valuesCount = valueNodes.getLength();
-			for (int j = 0; j < valuesCount; j++) {
-				Node valueNode = valueNodes.item(j);
+			List<Node> valueNodes = DomUtils.getNodes(fieldNode, "value");
+			for (Node valueNode : valueNodes) {
 				boolean removeTag = "yes".equalsIgnoreCase(XPathParser
 						.getAttributeString(valueNode, "removeTag"));
-				String textContent = xpp.getNodeString(valueNode);
+				String textContent = valueNode.getTextContent();
 				if (removeTag)
 					textContent = StringUtils.removeTag(textContent);
 				Float boost = XPathParser.getAttributeFloat(valueNode, "boost");
 				add(fieldName, textContent, boost);
 			}
 		}
-		NodeList binaryNodes = xpp.getNodeList(documentNode, "binary");
-		int binaryCount = binaryNodes.getLength();
-		for (int i = 0; i < binaryCount; i++) {
-			Node node = binaryNodes.item(i);
+		List<Node> binaryNodes = DomUtils.getNodes(documentNode, "binary");
+		for (Node node : binaryNodes) {
 			boolean bFaultTolerant = "yes".equalsIgnoreCase(XPathParser
 					.getAttributeString(node, "faultTolerant"));
 			String filename = XPathParser.getAttributeString(node, "fileName");

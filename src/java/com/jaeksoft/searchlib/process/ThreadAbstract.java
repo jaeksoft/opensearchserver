@@ -148,11 +148,12 @@ public abstract class ThreadAbstract implements Runnable {
 
 	public boolean waitForEnd(int secTimeOut) {
 		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
-		while (isRunning())
+		while (isRunning()) {
 			if (secTimeOut != 0)
 				if (System.currentTimeMillis() > finalTime)
 					return false;
-		sleepMs(100);
+			sleepMs(100);
+		}
 		return true;
 	}
 

@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -38,7 +39,8 @@ import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -50,8 +52,8 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class Client extends Config {
 
@@ -93,29 +95,30 @@ public class Client extends Config {
 		}
 	}
 
-	private int updateXmlDocuments(XPathParser xpp, int bufferSize,
+	private int updateXmlDocuments(Node document, int bufferSize,
 			CredentialItem urlDefaultCredential)
 			throws XPathExpressionException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		NodeList nodeList = xpp.getNodeList("/index/document");
-		int l = nodeList.getLength();
+		List<Node> nodeList = DomUtils.getNodes(document, "index", "document");
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>(
 				bufferSize);
 		int docCount = 0;
-		for (int i = 0; i < l; i++) {
-			docList.add(new IndexDocument(getParserSelector(), xpp, nodeList
-					.item(i), urlDefaultCredential));
+		for (Node node : nodeList) {
+			docList.add(new IndexDocument(getParserSelector(), node,
+					urlDefaultCredential));
 			if (docList.size() == bufferSize) {
 				docCount += updateDocuments(docList);
-				Logging.info(docCount + " / " + l + " XML document(s) indexed.");
+				Logging.info(docCount + " / " + bufferSize
+						+ " XML document(s) indexed.");
 				docList.clear();
 			}
 		}
 		if (docList.size() > 0) {
 			docCount += updateDocuments(docList);
-			Logging.info(docCount + " / " + l + " XML document(s) indexed.");
+			Logging.info(docCount + " / " + docList.size()
+					+ " XML document(s) indexed.");
 		}
 		return docCount;
 	}
@@ -126,8 +129,9 @@ public class Client extends Config {
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		XPathParser xpp = new XPathParser(inputSource);
-		return updateXmlDocuments(xpp, bufferSize, urlDefaultCredential);
+		Document doc = DomUtils.getNewDocumentBuilder(false, true).parse(
+				inputSource);
+		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential);
 	}
 
 	public boolean deleteDocument(String uniqueField)
