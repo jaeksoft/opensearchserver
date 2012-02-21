@@ -71,12 +71,15 @@ public class TaskPullTerms extends TaskAbstract {
 	final private TaskPropertyDef propFreqField = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Frequency field name", 50);
 
+	final private TaskPropertyDef propFreqMin = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Minimum frequency", 20);
+
 	final private TaskPropertyDef propFreqPadSize = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Frequency pad", 20);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSourceField,
 			propSourceIndex, propLogin, propApiKey, propTermField,
-			propFreqField, propFreqPadSize };
+			propFreqField, propFreqMin, propFreqPadSize };
 
 	@Override
 	public String getName() {
@@ -116,6 +119,8 @@ public class TaskPullTerms extends TaskAbstract {
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		if (propertyDef == propFreqPadSize)
 			return "9";
+		if (propertyDef == propFreqMin)
+			return "2";
 		return null;
 	}
 
@@ -142,6 +147,7 @@ public class TaskPullTerms extends TaskAbstract {
 			targetTermFields[i] = targetTermFields[i].trim();
 		int freqPadSize = Integer
 				.parseInt(properties.getValue(propFreqPadSize));
+		int freqMin = Integer.parseInt(properties.getValue(propFreqMin));
 		String[] targetFreqFields = properties.getValue(propFreqField).split(
 				",");
 		for (int i = 0; i < targetFreqFields.length; i++)
@@ -176,14 +182,17 @@ public class TaskPullTerms extends TaskAbstract {
 					break;
 				IndexDocument indexDocument = new IndexDocument();
 				text = term.text();
-				for (String targetTermField : targetTermFields)
-					indexDocument.addString(targetTermField, text);
-				text = StringUtils.leftPad(termEnum.docFreq(), freqPadSize);
-				for (String targetFreqField : targetFreqFields)
-					indexDocument.addString(targetFreqField, text);
-				buffer.add(indexDocument);
-				if (buffer.size() == bufferSize)
-					indexBuffer(buffer, client);
+				int freq = termEnum.docFreq();
+				if (freq >= freqMin) {
+					for (String targetTermField : targetTermFields)
+						indexDocument.addString(targetTermField, text);
+					text = StringUtils.leftPad(freq, freqPadSize);
+					for (String targetFreqField : targetFreqFields)
+						indexDocument.addString(targetFreqField, text);
+					buffer.add(indexDocument);
+					if (buffer.size() == bufferSize)
+						indexBuffer(buffer, client);
+				}
 				if (!termEnum.next())
 					break;
 			}
