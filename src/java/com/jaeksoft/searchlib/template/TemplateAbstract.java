@@ -70,11 +70,10 @@ public abstract class TemplateAbstract {
 		FileWriter target = null;
 		for (String resource : resources) {
 
-			String res = rootPath + File.separator + resource;
+			String res = rootPath + '/' + resource;
 			is = getClass().getResourceAsStream(res);
 			if (is == null)
-				is = getClass().getResourceAsStream(
-						"common" + File.separator + resource);
+				is = getClass().getResourceAsStream("common" + '/' + resource);
 			if (is == null)
 				throw new SearchLibException("Unable to find resource " + res);
 			try {
