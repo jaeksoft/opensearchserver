@@ -26,9 +26,6 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryUsage;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -109,9 +106,6 @@ public class Client extends Config {
 		docCount += updateDocuments(docList);
 		docList.clear();
 		Logging.info(docCount + " / " + docTotal + " XML document(s) indexed.");
-		MemoryMXBean mxbean = ManagementFactory.getMemoryMXBean();
-		MemoryUsage mu = mxbean.getHeapMemoryUsage();
-		System.out.println(mu);
 		return docCount;
 	}
 

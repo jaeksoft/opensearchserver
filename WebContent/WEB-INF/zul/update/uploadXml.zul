@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -16,11 +16,39 @@
 -->
 <window id="upload"
 	use="com.jaeksoft.searchlib.web.controller.update.UploadXmlController">
-	<vbox width="100%" align="center">
-		<button label="Upload" upload="true,maxsize=-1" onUpload="upload.onUpload(event)"/>
-		<hbox visible="@{upload.updatedCount}">
-			<label value="@{upload.updatedCount}" />
-			<label>document(s) updated</label>
-		</hbox>
-	</vbox>
+	<hbox align="center">
+		<button label="Upload" upload="true,maxsize=-1"
+			onUpload="upload.onUpload(event)" />
+		<space />
+		<button label="Show XML example" target="_blank"
+			href="updateSample.xml" />
+	</hbox>
+	<listbox id="threadList" model="@{upload.updateList}" mold="paging"
+		visible="@{upload.updateListNotEmpty}">
+		<auxhead>
+			<auxheader colspan="4">
+				<space />
+				<button label="Refresh" forward="onReload" />
+				<space />
+				<button label="Remove non-running" forward="onPurge" />
+			</auxheader>
+		</auxhead>
+		<listhead>
+			<listheader label="Start time" hflex="min" />
+			<listheader label="Media name" hflex="min" />
+			<listheader label="Status" hflex="min" />
+			<listheader />
+		</listhead>
+		<listitem self="@{each='thread'}">
+			<listcell
+				label="@{thread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+			<listcell label="@{thread.mediaName}" />
+			<listcell label="@{thread.info}" />
+			<listcell />
+		</listitem>
+	</listbox>
+
+	<timer id="updateTimer" delay="5000" repeats="true" onTimer="upload.onRefresh()"
+		running="@{upload.refresh}" />
+
 </window>

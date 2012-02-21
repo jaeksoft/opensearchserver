@@ -28,6 +28,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -41,7 +46,9 @@ import org.zkoss.zk.ui.event.UploadEvent;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
+import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class UploadXmlController extends CommonController {
 
@@ -50,7 +57,42 @@ public class UploadXmlController extends CommonController {
 	 */
 	private static final long serialVersionUID = 1806972305859799181L;
 
-	private transient int updatedCount;
+	public class UpdateThread extends ThreadAbstract {
+
+		private InputSource inputSource;
+
+		private String mediaName;
+
+		private Client client;
+
+		private UpdateThread(Client client, InputSource inputSource,
+				String mediaName) {
+			super(client, null);
+			this.client = client;
+			this.inputSource = inputSource;
+			this.mediaName = mediaName;
+			setInfo("Starting...");
+		}
+
+		@Override
+		public void runner() throws Exception {
+			setInfo("Running...");
+			ProxyHandler proxyHandler = client.getWebPropertyManager()
+					.getProxyHandler();
+			int updatedCount = client.updateXmlDocuments(inputSource, 50, null,
+					proxyHandler);
+			setInfo("Done: " + updatedCount + " document(s)");
+		}
+
+		public String getMediaName() {
+			return mediaName;
+		}
+
+		@Override
+		public void release() {
+		}
+
+	}
 
 	public UploadXmlController() throws SearchLibException {
 		super();
@@ -58,12 +100,82 @@ public class UploadXmlController extends CommonController {
 
 	@Override
 	protected void reset() {
-		updatedCount = 0;
 	}
 
-	public int getUpdatedCount() {
+	/**
+	 * Return the map of current threads. The map is stored in users session
+	 * 
+	 * @return
+	 */
+	private Map<Client, List<UpdateThread>> getUpdateMap() {
 		synchronized (this) {
-			return updatedCount;
+			synchronized (ScopeAttribute.UPDATE_XML_MAP) {
+				@SuppressWarnings("unchecked")
+				Map<Client, List<UpdateThread>> map = (Map<Client, List<UpdateThread>>) getAttribute(ScopeAttribute.UPDATE_XML_MAP);
+				if (map == null) {
+					map = new HashMap<Client, List<UpdateThread>>();
+					setAttribute(ScopeAttribute.UPDATE_XML_MAP, map);
+				}
+				return map;
+			}
+		}
+	}
+
+	private List<UpdateThread> getUpdateList(Client client) {
+		Map<Client, List<UpdateThread>> map = getUpdateMap();
+		synchronized (map) {
+			List<UpdateThread> list = map.get(client);
+			if (list == null) {
+				list = new ArrayList<UpdateThread>(0);
+				map.put(client, list);
+			}
+			return list;
+		}
+	}
+
+	public List<UpdateThread> getUpdateList() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			return getUpdateList(client);
+		}
+	}
+
+	public boolean isUpdateListNotEmpty() throws SearchLibException {
+		synchronized (this) {
+			return getUpdateList().size() > 0;
+		}
+	}
+
+	public boolean isRefresh() throws SearchLibException {
+		synchronized (this) {
+			for (UpdateThread thread : getUpdateList())
+				if (thread.isRunning())
+					return true;
+		}
+		return false;
+	}
+
+	public void onRefresh() {
+		synchronized (this) {
+			reloadComponent("threadList");
+			reloadComponent("updateTimer");
+		}
+	}
+
+	public void onPurge() throws SearchLibException {
+		synchronized (this) {
+			List<UpdateThread> list = getUpdateList();
+			synchronized (list) {
+				Iterator<UpdateThread> it = list.iterator();
+				while (it.hasNext()) {
+					UpdateThread thread = it.next();
+					if (!thread.isRunning())
+						it.remove();
+				}
+			}
+			reloadPage();
 		}
 	}
 
@@ -74,30 +186,32 @@ public class UploadXmlController extends CommonController {
 			ClassNotFoundException {
 		synchronized (this) {
 			Client client = getClient();
-			ProxyHandler proxyHandler = client.getWebPropertyManager()
-					.getProxyHandler();
+			InputSource inputSource;
 			if (media.inMemory()) {
 				if (media.isBinary()) {
 					byte[] bytes = media.getByteData();
-					updatedCount += client.updateXmlDocuments(new InputSource(
-							new ByteArrayInputStream(bytes)), 50, null,
-							proxyHandler);
+					inputSource = new InputSource(new ByteArrayInputStream(
+							bytes));
 				} else {
 					byte[] bytes = media.getStringData().getBytes();
-					updatedCount += client.updateXmlDocuments(new InputSource(
-							new ByteArrayInputStream(bytes)), 50, null,
-							proxyHandler);
+					inputSource = new InputSource(new ByteArrayInputStream(
+							bytes));
 				}
 			} else {
 				if (media.isBinary())
-					updatedCount += client.updateXmlDocuments(new InputSource(
-							media.getStreamData()), 50, null, proxyHandler);
+					inputSource = new InputSource(media.getStreamData());
 				else
-					updatedCount += client.updateXmlDocuments(new InputSource(
-							media.getReaderData()), 50, null, proxyHandler);
+					inputSource = new InputSource(media.getReaderData());
 			}
+			UpdateThread thread = new UpdateThread(client, inputSource,
+					media.getName());
+			List<UpdateThread> list = getUpdateList(client);
+			synchronized (list) {
+				list.add(thread);
+			}
+			thread.execute();
+			thread.waitForStart(20);
 		}
-
 	}
 
 	public void onUpload(Event event) throws InterruptedException,
@@ -107,7 +221,6 @@ public class UploadXmlController extends CommonController {
 			IllegalAccessException, ClassNotFoundException {
 		if (!isUpdateRights())
 			throw new SearchLibException("Not allowed");
-		updatedCount = 0;
 		UploadEvent uploadEvent = (UploadEvent) event;
 		Media[] medias = uploadEvent.getMedias();
 		if (medias != null) {
@@ -120,6 +233,5 @@ public class UploadXmlController extends CommonController {
 			doMedia(media);
 		}
 		reloadPage();
-
 	}
 }

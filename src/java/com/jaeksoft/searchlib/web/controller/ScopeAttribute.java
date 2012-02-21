@@ -37,6 +37,8 @@ public enum ScopeAttribute {
 
 	UPDATE_FORM_INDEX_DOCUMENT(Component.SESSION_SCOPE),
 
+	UPDATE_XML_MAP(Component.SESSION_SCOPE),
+
 	CURRENT_CLIENT(Component.SESSION_SCOPE),
 
 	LOGGED_USER(Component.SESSION_SCOPE),
