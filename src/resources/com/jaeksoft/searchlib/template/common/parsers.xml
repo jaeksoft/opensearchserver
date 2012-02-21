@@ -34,6 +34,7 @@
 			<link source="subject" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="XLS parser" class="com.jaeksoft.searchlib.parser.XlsParser"
@@ -49,6 +50,7 @@
 			<link source="subject" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="DOCX parser" class="com.jaeksoft.searchlib.parser.DocxParser"
@@ -67,6 +69,7 @@
 			<link source="description" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="XLSX parser" class="com.jaeksoft.searchlib.parser.XlsxParser"
@@ -85,6 +88,7 @@
 			<link source="description" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser"
@@ -100,6 +104,7 @@
 			<link source="meta_keywords" target="metaKeywords" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="PDF parser" class="com.jaeksoft.searchlib.parser.PdfParser"
@@ -115,6 +120,7 @@
 			<link source="subject" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="PPT parser" class="com.jaeksoft.searchlib.parser.PptParser"
@@ -145,6 +151,7 @@
 			<link source="description" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="ODT parser" class="com.jaeksoft.searchlib.parser.OdtParser"
@@ -161,6 +168,7 @@
 			<link source="subject" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="ODS/ODF parser" class="com.jaeksoft.searchlib.parser.OdsParser"
@@ -180,6 +188,7 @@
 			<link source="subject" target="contentExact" />
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="RTF parser" class="com.jaeksoft.searchlib.parser.RtfParser"
@@ -214,6 +223,7 @@
 		<map>
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="Torrent parser" class="com.jaeksoft.searchlib.parser.TorrentParser"
@@ -223,6 +233,7 @@
 		<map>
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 

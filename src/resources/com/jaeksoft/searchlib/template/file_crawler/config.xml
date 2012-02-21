@@ -155,6 +155,17 @@
 				<filter class="ISOLatin1AccentFilter" />
 				<filter class="SnowballTurkishFilter" />
 			</analyzer>
+
+			<!-- Autocompletion -->
+			<analyzer name="AutoCompletionAnalyzer" lang="">
+				<tokenizer class="StandardTokenizer" />
+				<filter class="ShingleFilter" max_shingle_size="5"
+					min_shingle_size="1" scope="QUERY_INDEX" token_separator=" " />
+				<filter class="PrefixSuffixStopFilter" ignore_case="true"
+					prefixList="English stop words" scope="QUERY_INDEX" suffixList="English stop words"
+					token_separator=" " />
+			</analyzer>
+
 		</analyzers>
 		<fields default="content" unique="uri">
 			<!-- mandatory parameters -->
@@ -175,6 +186,8 @@
 				stored="compress" termVector="positions_offsets" />
 			<field name="metaDescription" indexed="no" stored="compress" />
 			<field name="metaKeywords" indexed="no" stored="compress" />
+			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
+				indexed="yes" stored="no" termVector="no" />
 		</fields>
 	</schema>
 

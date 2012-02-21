@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -70,14 +70,18 @@ public abstract class TemplateAbstract {
 		FileWriter target = null;
 		for (String resource : resources) {
 
-			String res = rootPath + "/" + resource;
+			String res = rootPath + File.separator + resource;
 			is = getClass().getResourceAsStream(res);
 			if (is == null)
-				is = getClass().getResourceAsStream("common/" + resource);
+				is = getClass().getResourceAsStream(
+						"common" + File.separator + resource);
 			if (is == null)
 				throw new SearchLibException("Unable to find resource " + res);
 			try {
-				target = new FileWriter(new File(indexDir, resource));
+				File f = new File(indexDir, resource);
+				if (f.getParentFile() != indexDir)
+					f.getParentFile().mkdirs();
+				target = new FileWriter(f);
 				IOUtils.copy(is, target);
 			} finally {
 				if (target != null)

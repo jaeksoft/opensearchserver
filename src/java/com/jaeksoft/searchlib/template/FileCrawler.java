@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.template;
 
+import java.io.File;
+
 public class FileCrawler extends TemplateAbstract {
 
 	public final static String publicName = "file crawler";
@@ -34,8 +36,21 @@ public class FileCrawler extends TemplateAbstract {
 
 	public final static String root = "file_crawler";
 
-	public final static String[] resources = { "config.xml", "parsers.xml",
-			"requests.xml", "filecrawler-mapping.xml" };
+	public final static String[] resources = {
+
+	"config.xml", "parsers.xml",
+
+	"requests.xml", "filecrawler-mapping.xml",
+
+	"renderers" + File.separator + "default.xml",
+
+	"stopwords" + File.separator + "English stop words",
+
+	"stopwords" + File.separator + "French stop words",
+
+	"stopwords" + File.separator + "German stop words"
+
+	};
 
 	protected FileCrawler() {
 		super(root, resources, publicName, description);

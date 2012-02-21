@@ -9,6 +9,8 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.4
 
 New features:
+- 3489935: Default stop words list
+- 3489934: A default autocomplete field and analyzer
 - 3489873: A scheduler task to copy terms to an index
 - 3489642: Unable to scroll all the log in runtime/logs panel
 - 3487772: Advanced spell check
