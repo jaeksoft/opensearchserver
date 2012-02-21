@@ -24,11 +24,8 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.io.Externalizable;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -42,7 +39,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -55,18 +51,11 @@ import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.util.External;
-import com.jaeksoft.searchlib.util.External.Collecter;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
-public class IndexDocument implements Externalizable, Collecter<FieldContent>,
-		Iterable<FieldContent> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3144413917081822065L;
+public class IndexDocument implements Iterable<FieldContent> {
 
 	private Map<String, FieldContent> fields;
 	private LanguageEnum lang;
@@ -89,16 +78,14 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			this.lang = LanguageEnum.findByCode(lang.getLanguage());
 	}
 
-	private final List<String> getCopyFieldList(XPathParser xpp, Node fieldNode)
+	private final List<String> getCopyFieldList(Node fieldNode)
 			throws XPathExpressionException {
-		NodeList copyNodes = xpp.getNodeList(fieldNode, "copy");
-		int copyCount = copyNodes.getLength();
-		if (copyCount == 0)
+		List<Node> copyNodes = DomUtils.getNodes(fieldNode, "copy");
+		if (copyNodes == null || copyNodes.size() == 0)
 			return null;
 		List<String> copyList = new ArrayList<String>();
-		for (int k = 0; k < copyCount; k++) {
-			String f = XPathParser.getAttributeString(copyNodes.item(k),
-					"field");
+		for (Node copyNode : copyNodes) {
+			String f = XPathParser.getAttributeString(copyNode, "field");
 			if (f != null)
 				copyList.add(f);
 		}
@@ -130,21 +117,16 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 			ClassNotFoundException, IOException, URISyntaxException {
 		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				documentNode, "lang")));
-		XPathParser xpp = new XPathParser(documentNode);
-		NodeList fieldNodes = xpp.getNodeList(documentNode, "field");
-		int fieldsCount = fieldNodes.getLength();
-		for (int i = 0; i < fieldsCount; i++) {
-			Node fieldNode = fieldNodes.item(i);
-			List<String> copyFieldList = getCopyFieldList(xpp, fieldNode);
+		List<Node> fieldNodes = DomUtils.getNodes(documentNode, "field");
+		for (Node fieldNode : fieldNodes) {
+			List<String> copyFieldList = getCopyFieldList(fieldNode);
 			String fieldName = XPathParser
 					.getAttributeString(fieldNode, "name");
-			NodeList valueNodes = xpp.getNodeList(fieldNode, "value");
-			int valuesCount = valueNodes.getLength();
-			for (int j = 0; j < valuesCount; j++) {
-				Node valueNode = valueNodes.item(j);
+			List<Node> valueNodes = DomUtils.getNodes(fieldNode, "value");
+			for (Node valueNode : valueNodes) {
 				boolean removeTag = "yes".equalsIgnoreCase(XPathParser
 						.getAttributeString(valueNode, "removeTag"));
-				String textContent = xpp.getNodeString(valueNode);
+				String textContent = valueNode.getTextContent();
 				if (removeTag)
 					textContent = StringUtils.removeTag(textContent);
 				Float boost = XPathParser.getAttributeFloat(valueNode, "boost");
@@ -154,10 +136,8 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 						add(f, textContent, boost);
 			}
 		}
-		NodeList binaryNodes = xpp.getNodeList(documentNode, "binary");
-		int binaryCount = binaryNodes.getLength();
-		for (int i = 0; i < binaryCount; i++) {
-			Node node = binaryNodes.item(i);
+		List<Node> binaryNodes = DomUtils.getNodes(documentNode, "binary");
+		for (Node node : binaryNodes) {
 			boolean bFaultTolerant = "yes".equalsIgnoreCase(XPathParser
 					.getAttributeString(node, "faultTolerant"));
 			String filename = XPathParser.getAttributeString(node, "fileName");
@@ -439,26 +419,6 @@ public class IndexDocument implements Externalizable, Collecter<FieldContent>,
 		fieldContentArray = new FieldContent[fields.size()];
 		fields.values().toArray(fieldContentArray);
 		return fieldContentArray;
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		External.readCollection(in, this);
-		lang = LanguageEnum.findByCode(External.readUTF(in));
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeCollection(fields.values(), out);
-		External.writeUTF(lang == null ? LanguageEnum.UNDEFINED.getCode()
-				: lang.getCode(), out);
-	}
-
-	@Override
-	public void addObject(FieldContent fieldContent) {
-		fields.put(fieldContent.getField(), fieldContent);
-		fieldContentArray = null;
 	}
 
 	@Override

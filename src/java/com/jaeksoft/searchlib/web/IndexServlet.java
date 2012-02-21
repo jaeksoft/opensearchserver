@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
@@ -38,7 +37,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -97,14 +95,6 @@ public class IndexServlet extends AbstractServlet {
 		} catch (InterruptedException e) {
 			throw new ServletException(e);
 		}
-	}
-
-	public static boolean update(URI uri, String indexName,
-			IndexDocument document) throws NoSuchAlgorithmException,
-			IOException, URISyntaxException {
-		String msg = sendObject(buildUri(uri, "/index", indexName, null),
-				document);
-		return Boolean.parseBoolean(msg.trim());
 	}
 
 }
