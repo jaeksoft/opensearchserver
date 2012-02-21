@@ -193,4 +193,10 @@ public class StringUtils {
 			return 1;
 		return 0;
 	}
+
+	public final static String leftPad(int value, int size) {
+		return org.apache.commons.lang.StringUtils.leftPad(
+				Integer.toString(value), size, '0');
+	}
+
 }

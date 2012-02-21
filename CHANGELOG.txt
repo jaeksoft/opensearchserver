@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.4
 
 New features:
+- 3489873: A scheduler task to copy terms to an index
 - 3489642: Unable to scroll all the log in runtime/logs panel
 - 3487772: Advanced spell check
 - 3487219: RegExp filter for DatabaseCrawler
@@ -19,6 +20,7 @@ New features:
 - 3469777: Scored snippets
 
 Bug fixes:
+- 3489854: A faster indexation when using XML upload
 - 3489550: Schema API gives IllegalStateException
 - 3485241: Pages with meta noindex are indexed
 - 3483798: HTML parser prints many logs
