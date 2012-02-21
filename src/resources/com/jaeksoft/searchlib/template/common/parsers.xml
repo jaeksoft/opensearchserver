@@ -38,6 +38,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="XLS parser" class="com.jaeksoft.searchlib.parser.XlsParser"
@@ -57,6 +58,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="DOCX parser" class="com.jaeksoft.searchlib.parser.DocxParser"
@@ -80,6 +82,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="XLSX parser" class="com.jaeksoft.searchlib.parser.XlsxParser"
@@ -103,6 +106,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser"
@@ -120,6 +124,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="PDF parser" class="com.jaeksoft.searchlib.parser.PdfParser"
@@ -139,6 +144,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="PPT parser" class="com.jaeksoft.searchlib.parser.PptParser"
@@ -153,6 +159,7 @@
 			<link source="content" target="title" />
 			<link source="content" target="titleExact" />
 			<link source="content" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="PPTX parser" class="com.jaeksoft.searchlib.parser.PptxParser"
@@ -176,6 +183,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="ODT parser" class="com.jaeksoft.searchlib.parser.OdtParser"
@@ -196,6 +204,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="ODS/ODF parser" class="com.jaeksoft.searchlib.parser.OdsParser"
@@ -219,6 +228,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="RTF parser" class="com.jaeksoft.searchlib.parser.RtfParser"
@@ -263,6 +273,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="Torrent parser" class="com.jaeksoft.searchlib.parser.TorrentParser"
@@ -273,6 +284,7 @@
 			<link source="title" target="title" />
 			<link source="title" target="titleExact" />
 			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 

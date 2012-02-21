@@ -20,7 +20,7 @@
 	<schema>
 		<analyzers>
 			<analyzer name="AutocompletionAnalyzer" lang="">
-				<tokenizer class="LetterOrDigitTokenizerFactory" />
+				<tokenizer class="StandardTokenizer" />
 				<filter class="LowerCaseFilter" />
 				<filter class="ISOLatin1AccentFilter" />
 				<filter class="EdgeNGramFilter" max_gram="100" min_gram="1"

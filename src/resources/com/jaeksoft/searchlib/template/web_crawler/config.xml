@@ -165,8 +165,8 @@
 			</analyzer>
 
 			<!-- Autocompletion -->
-			<analyzer name="Autocompletion" lang="">
-				<tokenizer class="LetterOrDigitTokenizerFactory" />
+			<analyzer name="AutoCompletionAnalyzer" lang="">
+				<tokenizer class="StandardTokenizer" />
 				<filter class="ShingleFilter" max_shingle_size="5"
 					min_shingle_size="1" scope="QUERY_INDEX" token_separator=" " />
 				<filter class="PrefixSuffixStopFilter" ignore_case="true"
@@ -209,6 +209,8 @@
 			<field name="metaKeywords" indexed="no" stored="compress" />
 			<field name="host" indexed="yes" stored="no" termVector="yes" />
 			<field name="subhost" indexed="yes" stored="no" />
+			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
+				indexed="yes" stored="no" termVector="no" />
 		</fields>
 	</schema>
 
