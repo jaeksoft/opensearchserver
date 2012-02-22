@@ -21,38 +21,48 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.parser.htmlParser;
 
+package com.jaeksoft.searchlib.streamlimiter;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.parsers.ParserConfigurationException;
-
+import org.apache.commons.codec.binary.Base64InputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Node;
-import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.streamlimiter.LimitException;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+public class StreamLimiterBase64 extends StreamLimiter {
 
-public class JSoupParser extends HtmlDocumentProvider {
+	private final String base64text;
+	private final String extension;
 
-	public JSoupParser(String charset, StreamLimiter streamLimiter)
-			throws LimitException {
-		super(charset, streamLimiter);
+	public StreamLimiterBase64(String base64text, int limit, String fileName)
+			throws IOException {
+		super(limit);
+		this.base64text = base64text;
+		this.extension = fileName != null ? FilenameUtils
+				.getExtension(fileName) : null;
 	}
 
 	@Override
-	public String getName() {
-		return "Jsoup";
+	protected void loadOutputCache() throws LimitException, IOException {
+		InputStream is = new LargeStringInputString(base64text, 131072);
+		Base64InputStream b64is = new Base64InputStream(is);
+		try {
+			loadOutputCache(b64is);
+		} finally {
+			if (b64is != null)
+				IOUtils.closeQuietly(b64is);
+			if (is != null)
+				IOUtils.closeQuietly(is);
+		}
+
 	}
 
 	@Override
-	protected HtmlNodeAbstract<?> getDocument(String charset,
-			InputStream inputStream) throws SAXException, IOException,
-			ParserConfigurationException {
-		Node node = Jsoup.parse(IOUtils.toString(inputStream, charset));
-		return new JSoupHtmlNode(node);
+	public File getFile() throws IOException {
+		return getTempFile(extension);
 	}
+
 }

@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 
@@ -32,6 +33,7 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class TextParser extends Parser {
 
@@ -48,24 +50,22 @@ public class TextParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
-		byte[] bytes = IOUtils.toByteArray(inputStream);
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		CharsetDetector detector = new CharsetDetector();
-		detector.setText(bytes);
+		InputStream is = streamLimiter.getNewInputStream();
+		detector.setText(is);
 		CharsetMatch match = detector.detect();
 		String content = null;
 		if (match != null)
 			content = match.getString();
-		else
-			content = new String(bytes);
+		else {
+			IOUtils.closeQuietly(is);
+			is = streamLimiter.getNewInputStream();
+			content = IOUtils.toString(is);
+		}
+		if (is != null)
+			IOUtils.closeQuietly(is);
 		addField(ParserFieldEnum.content, content);
 		langDetection(10000, ParserFieldEnum.content);
 	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
-	}
-
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -179,6 +179,13 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		if (ftpFile == null)
 			return null;
 		return ftpFile.getSize();
+	}
+
+	@Override
+	public String getFileName() throws SearchLibException {
+		if (ftpFile == null)
+			return null;
+		return ftpFile.getName();
 	}
 
 	@Override

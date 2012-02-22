@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,23 +22,39 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.parser;
+package com.jaeksoft.searchlib.streamlimiter;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
-public class LimitException extends IOException {
+public class CachedMemoryStream extends ByteArrayOutputStream implements
+		CachedStreamInterface {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1025969895922971791L;
-
-	public LimitException() {
-		super();
+	public CachedMemoryStream(InputStream inputStream, long limit)
+			throws LimitException, IOException {
+		boolean bNoLimit = (limit == 0);
+		byte[] buffer = new byte[65536];
+		int bufferSize = 0;
+		while ((bufferSize = inputStream.read(buffer)) != -1) {
+			write(buffer, 0, bufferSize);
+			if (!bNoLimit) {
+				limit -= bufferSize;
+				if (limit < 0)
+					throw new LimitException();
+			}
+		}
 	}
 
-	public LimitException(String message) {
-		super(message);
+	@Override
+	public InputStream getNewInputStream() {
+		return new ByteArrayInputStream(buf);
+	}
+
+	@Override
+	public long getSize() {
+		return count;
 	}
 
 }

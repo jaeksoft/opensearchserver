@@ -235,7 +235,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 			Parser parser = parserSelector.getParser(filename, contentType);
 			if (parser == null)
 				return null;
-			parser.parseContentBase64(content);
+			parser.parseContentBase64(content, filename);
 			return parser;
 		} catch (RuntimeException e) {
 			throw new SearchLibException("Parser error while getting binary : "

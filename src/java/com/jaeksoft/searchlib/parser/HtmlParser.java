@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.parser.htmlParser.NekoHtmlParser;
 import com.jaeksoft.searchlib.parser.htmlParser.StrictXhtmlParser;
 import com.jaeksoft.searchlib.parser.htmlParser.TagsoupParser;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.MimeUtils;
@@ -175,19 +176,19 @@ public class HtmlParser extends Parser {
 	}
 
 	private HtmlDocumentProvider findBestProvider(String charset,
-			LimitInputStream inputStream) throws IOException {
+			StreamLimiter streamLimiter) throws IOException {
 
 		HtmlDocumentProvider provider = new StrictXhtmlParser(charset,
-				inputStream);
+				streamLimiter);
 		if (provider.getRootNode() != null)
 			return provider;
 
 		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(
 				0);
-		providerList.add(new TagsoupParser(charset, inputStream));
-		providerList.add(new NekoHtmlParser(charset, inputStream));
-		providerList.add(new HtmlCleanerParser(charset, inputStream));
-		providerList.add(new JSoupParser(charset, inputStream));
+		providerList.add(new TagsoupParser(charset, streamLimiter));
+		providerList.add(new NekoHtmlParser(charset, streamLimiter));
+		providerList.add(new HtmlCleanerParser(charset, streamLimiter));
+		providerList.add(new JSoupParser(charset, streamLimiter));
 
 		return HtmlDocumentProvider.bestScore(providerList);
 	}
@@ -201,10 +202,7 @@ public class HtmlParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
-
-		inputStream.consume();
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
 		String charset = null;
 		IndexDocument sourceDocument = getSourceDocument();
@@ -225,7 +223,7 @@ public class HtmlParser extends Parser {
 			charset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET).getValue();
 
 		HtmlDocumentProvider htmlProvider = findBestProvider(charset,
-				inputStream);
+				streamLimiter);
 		if (htmlProvider == null)
 			return;
 
@@ -249,10 +247,8 @@ public class HtmlParser extends Parser {
 				charset = contentTypeCharset;
 			else
 				charset = htmlProvider.getMetaCharset();
-			if (charset != null) {
-				inputStream.restartFromCache();
-				htmlProvider = findBestProvider(charset, inputStream);
-			}
+			if (charset != null)
+				htmlProvider = findBestProvider(charset, streamLimiter);
 		}
 
 		HtmlNodeAbstract<?> rootNode = htmlProvider.getRootNode();
@@ -400,11 +396,6 @@ public class HtmlParser extends Parser {
 		} else if (!metaRobotsNoIndex)
 			lang = langDetection(10000, ParserFieldEnum.body);
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

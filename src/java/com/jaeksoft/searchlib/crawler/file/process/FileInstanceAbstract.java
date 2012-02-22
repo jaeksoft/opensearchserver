@@ -85,6 +85,8 @@ public abstract class FileInstanceAbstract {
 	public abstract FileInstanceAbstract[] listFilesOnly()
 			throws URISyntaxException, SearchLibException;
 
+	public abstract String getFileName() throws SearchLibException;
+
 	public abstract Long getLastModified() throws SearchLibException;
 
 	public abstract Long getFileSize() throws SearchLibException;

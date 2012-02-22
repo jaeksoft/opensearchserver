@@ -37,6 +37,7 @@ import org.apache.xmlbeans.XmlException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class PptxParser extends Parser {
 
@@ -56,14 +57,14 @@ public class PptxParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
+		// TODO Optimise if it is already a file
 		File tempFile = File.createTempFile("oss", "pptx");
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(tempFile);
-			IOUtils.copy(inputStream, fos);
+			IOUtils.copy(streamLimiter.getNewInputStream(), fos);
 			fos.close();
 		} catch (IOException e) {
 			if (fos != null)
@@ -97,11 +98,6 @@ public class PptxParser extends Parser {
 			throw new IOException(e);
 		}
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser.htmlParser;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -33,14 +34,14 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.parser.LimitException;
-import com.jaeksoft.searchlib.parser.LimitInputStream;
+import com.jaeksoft.searchlib.streamlimiter.LimitException;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class TagsoupParser extends HtmlDocumentProvider {
 
-	public TagsoupParser(String charset, LimitInputStream inputStream)
+	public TagsoupParser(String charset, StreamLimiter streamLimiter)
 			throws LimitException {
-		super(charset, inputStream);
+		super(charset, streamLimiter);
 	}
 
 	@Override
@@ -49,9 +50,8 @@ public class TagsoupParser extends HtmlDocumentProvider {
 	}
 
 	@Override
-	protected DomHtmlNode getDocument(String charset,
-			LimitInputStream inputStream) throws SAXException, IOException,
-			ParserConfigurationException {
+	protected DomHtmlNode getDocument(String charset, InputStream inputStream)
+			throws SAXException, IOException, ParserConfigurationException {
 		org.ccil.cowan.tagsoup.Parser parser = new org.ccil.cowan.tagsoup.Parser();
 		parser.setFeature("http://xml.org/sax/features/namespace-prefixes",
 				true);

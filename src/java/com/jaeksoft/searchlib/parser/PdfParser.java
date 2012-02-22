@@ -38,6 +38,7 @@ import org.apache.pdfbox.util.PDFTextStripper;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class PdfParser extends Parser {
 
@@ -116,27 +117,14 @@ public class PdfParser extends Parser {
 	}
 
 	@Override
-	public void doParseContent(File file) throws IOException {
-		PDDocument pdf = null;
-		try {
-			pdf = PDDocument.load(file);
-			extractContent(pdf);
-		} finally {
-			if (pdf != null)
-				pdf.close();
-		}
-	}
-
-	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		PDDocument pdf = null;
 		RandomAccessFile raf = null;
 		File tempFile = null;
 		try {
 			tempFile = File.createTempFile("oss", "pdfparser");
 			raf = new RandomAccessFile(tempFile, "rw");
-			pdf = PDDocument.load(inputStream, raf, true);
+			pdf = PDDocument.load(streamLimiter.getNewInputStream(), raf, true);
 			extractContent(pdf);
 		} finally {
 			if (pdf != null)
@@ -146,11 +134,6 @@ public class PdfParser extends Parser {
 			if (tempFile != null)
 				tempFile.delete();
 		}
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

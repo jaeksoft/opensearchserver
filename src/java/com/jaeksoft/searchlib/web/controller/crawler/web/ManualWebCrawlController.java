@@ -36,8 +36,6 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.parser.LimitInputStream;
-import com.jaeksoft.searchlib.parser.LimitReader;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ManualWebCrawlController extends CommonController {
@@ -101,15 +99,8 @@ public class ManualWebCrawlController extends CommonController {
 			if (!isCrawlCache())
 				return;
 			Crawl crawl = currentCrawlThread.getCurrentCrawl();
-			LimitInputStream is = crawl.getInputStream();
-			LimitReader rdr = crawl.getReader();
-			if (is != null) {
-				is.restartFromCache();
-				Filedownload.save(is, crawl.getContentType(), "crawl.cache");
-			} else if (rdr != null) {
-				rdr.restartFromCache();
-				Filedownload.save(rdr, crawl.getContentType(), "crawl.cache");
-			}
+			Filedownload.save(crawl.getStreamLimiter().getNewInputStream(),
+					crawl.getContentType(), "crawl.cache");
 		}
 	}
 
@@ -134,9 +125,7 @@ public class ManualWebCrawlController extends CommonController {
 			UrlItem ui = crawl.getUrlItem();
 			if (ui == null)
 				return false;
-			if (crawl.getInputStream() != null)
-				return true;
-			if (crawl.getReader() != null)
+			if (crawl.getStreamLimiter() != null)
 				return true;
 			return false;
 		}

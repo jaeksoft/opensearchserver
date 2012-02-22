@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser.htmlParser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -35,8 +36,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.parser.LimitException;
-import com.jaeksoft.searchlib.parser.LimitInputStream;
+import com.jaeksoft.searchlib.streamlimiter.LimitException;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public abstract class HtmlDocumentProvider {
 
@@ -48,15 +49,14 @@ public abstract class HtmlDocumentProvider {
 
 	private int score;
 
-	public HtmlDocumentProvider(String charset, LimitInputStream inputStream)
+	public HtmlDocumentProvider(String charset, StreamLimiter streamLimiter)
 			throws LimitException {
 		titleCache = null;
 		metasCache = null;
 		score = 0;
 		rootNode = null;
 		try {
-			inputStream.restartFromCache();
-			rootNode = getDocument(charset, inputStream);
+			rootNode = getDocument(charset, streamLimiter.getNewInputStream());
 		} catch (LimitException e) {
 			throw e;
 		} catch (Exception e) {
@@ -71,7 +71,7 @@ public abstract class HtmlDocumentProvider {
 	public abstract String getName();
 
 	protected abstract HtmlNodeAbstract<?> getDocument(String charset,
-			LimitInputStream inputStream) throws SAXException, IOException,
+			InputStream inputStream) throws SAXException, IOException,
 			ParserConfigurationException;
 
 	public void score() {

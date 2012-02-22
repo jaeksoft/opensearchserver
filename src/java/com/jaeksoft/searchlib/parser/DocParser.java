@@ -35,6 +35,7 @@ import org.apache.poi.hwpf.extractor.WordExtractor;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class DocParser extends Parser {
 
@@ -87,28 +88,19 @@ public class DocParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		try {
 			try {
-				currentWordExtraction(inputStream);
+				currentWordExtraction(streamLimiter.getNewInputStream());
 			} catch (OldWordFileFormatException e) {
-				inputStream.consume();
-				inputStream.restartFromCache();
-				oldWordExtraction(inputStream);
+				oldWordExtraction(streamLimiter.getNewInputStream());
 			}
 		} catch (java.lang.ArrayIndexOutOfBoundsException e) {
 			Logging.warn("POI 3.7 bug (exception catched)");
 			Logging.warn(e);
 		}
-
 		langDetection(10000, ParserFieldEnum.content);
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

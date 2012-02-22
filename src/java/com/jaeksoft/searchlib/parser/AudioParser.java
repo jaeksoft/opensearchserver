@@ -24,10 +24,7 @@
 
 package com.jaeksoft.searchlib.parser;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -43,6 +40,7 @@ import org.jaudiotagger.tag.TagField;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class AudioParser extends Parser {
 
@@ -63,38 +61,6 @@ public class AudioParser extends Parser {
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
-	private void closeQuiet(final OutputStream os) {
-		if (os == null)
-			return;
-		try {
-			os.close();
-		} catch (IOException e) {
-		}
-	}
-
-	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
-		File file = File.createTempFile("oss_temp", "audio_parser");
-		OutputStream os = new FileOutputStream(file);
-		try {
-			byte[] buffer = new byte[4096];
-			int bytesRead;
-			while ((bytesRead = inputStream.read(buffer)) != -1)
-				os.write(buffer, 0, bytesRead);
-			os.close();
-		} finally {
-			closeQuiet(os);
-		}
-		doParseContent(file);
-		file.delete();
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Not supported");
-	}
-
 	private void addFields(Tag tag, FieldKey fieldKey,
 			ParserFieldEnum parserField) {
 		List<TagField> list = tag.getFields(fieldKey);
@@ -113,10 +79,10 @@ public class AudioParser extends Parser {
 	}
 
 	@Override
-	public void doParseContent(File file) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		AudioFile f;
 		try {
-			f = AudioFileIO.read(file);
+			f = AudioFileIO.read(streamLimiter.getFile());
 		} catch (CannotReadException e) {
 			throw new IOException(e);
 		} catch (TagException e) {
@@ -124,6 +90,8 @@ public class AudioParser extends Parser {
 		} catch (ReadOnlyFileException e) {
 			throw new IOException(e);
 		} catch (InvalidAudioFrameException e) {
+			throw new IOException(e);
+		} catch (SearchLibException e) {
 			throw new IOException(e);
 		}
 		Tag tag = f.getTag();

@@ -33,6 +33,7 @@ import org.apache.poi.hslf.usermodel.SlideShow;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class PptParser extends Parser {
 
@@ -50,10 +51,9 @@ public class PptParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
-		SlideShow ppt = new SlideShow(inputStream);
+		SlideShow ppt = new SlideShow(streamLimiter.getNewInputStream());
 		Slide[] slides = ppt.getSlides();
 		for (Slide slide : slides) {
 			TextRun[] textRuns = slide.getTextRuns();
@@ -85,11 +85,6 @@ public class PptParser extends Parser {
 		}
 		langDetection(10000, ParserFieldEnum.body);
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

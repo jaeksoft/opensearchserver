@@ -32,6 +32,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class XlsxParser extends Parser {
 
@@ -51,10 +52,10 @@ public class XlsxParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
-		XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+		XSSFWorkbook workbook = new XSSFWorkbook(
+				streamLimiter.getNewInputStream());
 		XSSFExcelExtractor excelExtractor = new XSSFExcelExtractor(workbook);
 
 		CoreProperties info = excelExtractor.getCoreProperties();
@@ -74,11 +75,6 @@ public class XlsxParser extends Parser {
 
 		langDetection(10000, ParserFieldEnum.content);
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

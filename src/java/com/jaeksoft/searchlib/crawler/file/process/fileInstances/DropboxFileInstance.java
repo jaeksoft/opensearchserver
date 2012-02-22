@@ -171,6 +171,13 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
+	public String getFileName() throws SearchLibException {
+		if (dpEntry == null)
+			return null;
+		return dpEntry.fileName();
+	}
+
+	@Override
 	public InputStream getInputStream() throws IOException {
 		try {
 			DropboxAPI<WebAuthSession> dbAPI = connect();

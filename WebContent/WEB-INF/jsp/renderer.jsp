@@ -5,11 +5,11 @@
 	language="java"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
-<%@ page import="com.jaeksoft.searchlib.result.Result"%>
+<%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
 <%@ page import="com.jaeksoft.searchlib.request.SearchRequest"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
 <%@ page import="com.jaeksoft.searchlib.schema.FieldValueItem"%>
-<%@ page import="com.jaeksoft.searchlib.renderer.Paging"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.PagingSearchResult"%>
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="java.net.URLDecoder"%>
 <%
@@ -18,8 +18,8 @@
 	if (query == null)
 		query = "";
 	Renderer renderer = (Renderer) request.getAttribute("renderer");
-	Result result = (Result) request.getAttribute("result");
-	Paging paging = result == null ? null : new Paging(result, 10);
+	AbstractResultSearch result = (AbstractResultSearch) request.getAttribute("result");
+	PagingSearchResult paging = result == null ? null : new PagingSearchResult(result, 10);
 %>
 <html>
 <head>
@@ -107,7 +107,7 @@ a:active{
 	<br/>
 	<%
 		if (result != null && result.getDocumentCount() > 0) {
-			SearchRequest searchRequest = result.getSearchRequest();
+			SearchRequest searchRequest = result.getRequest();
 			int start = searchRequest.getStart();
 			int end = searchRequest.getStart() + result.getDocumentCount();
 			float time=(float)(searchRequest.getFinalTime());

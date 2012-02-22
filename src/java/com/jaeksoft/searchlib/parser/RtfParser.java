@@ -32,6 +32,7 @@ import javax.swing.text.rtf.RTFEditorKit;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class RtfParser extends Parser {
 
@@ -48,12 +49,11 @@ public class RtfParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		RTFEditorKit rtf = new RTFEditorKit();
 		Document doc = rtf.createDefaultDocument();
 		try {
-			rtf.read(inputStream, doc, 0);
+			rtf.read(streamLimiter.getNewInputStream(), doc, 0);
 			addField(ParserFieldEnum.content, doc.getText(0, doc.getLength())
 					.trim());
 		} catch (BadLocationException e) {
@@ -61,17 +61,4 @@ public class RtfParser extends Parser {
 		}
 	}
 
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		RTFEditorKit rtf = new RTFEditorKit();
-		Document doc = rtf.createDefaultDocument();
-		try {
-			rtf.read(reader, doc, 0);
-			addField(ParserFieldEnum.content, doc.getText(0, doc.getLength())
-					.trim());
-			langDetection(10000, ParserFieldEnum.content);
-		} catch (BadLocationException e) {
-			throw new IOException(e);
-		}
-	}
 }

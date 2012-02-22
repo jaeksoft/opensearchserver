@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,9 +31,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import com.jaeksoft.searchlib.parser.LimitInputStream;
-import com.jaeksoft.searchlib.parser.LimitReader;
 import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 /**
  * Contient la liste des clauses "Disallow" d'un fichier "robots.txt" regroup�
@@ -97,9 +96,9 @@ public class DisallowList extends Parser {
 	 * @throws IOException
 	 */
 	@Override
-	public void parseContent(LimitInputStream inputStream) throws IOException {
+	public void parseContent(StreamLimiter streamLimiter) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(
-				inputStream));
+				streamLimiter.getNewInputStream()));
 		String line;
 		DisallowSet currentDisallowSet = null;
 		while ((line = br.readLine()) != null) {
@@ -124,11 +123,6 @@ public class DisallowList extends Parser {
 			}
 		}
 		br.close();
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 	public long size() {

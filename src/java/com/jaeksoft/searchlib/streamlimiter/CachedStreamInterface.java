@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,23 +22,15 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.parser;
+package com.jaeksoft.searchlib.streamlimiter;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+public interface CachedStreamInterface {
 
-public class FileSystemParser extends Parser {
+	public InputStream getNewInputStream() throws IOException;
 
-	private static ParserFieldEnum[] fl = {};
-
-	public FileSystemParser() {
-		super(fl);
-	}
-
-	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
-
-	}
+	public long getSize();
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -95,6 +95,18 @@ public class SmbFileInstance extends FileInstanceAbstract {
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
 		} catch (SmbException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
+	public String getFileName() throws SearchLibException {
+		try {
+			SmbFile smbFile = getSmbFile();
+			if (smbFile == null)
+				return null;
+			return smbFile.getName();
+		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
 		}
 	}

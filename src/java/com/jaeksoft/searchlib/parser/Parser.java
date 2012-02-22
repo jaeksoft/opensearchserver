@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,27 +24,24 @@
 
 package com.jaeksoft.searchlib.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
-import org.apache.commons.codec.binary.Base64InputStream;
-import org.apache.commons.io.IOUtils;
 import org.knallgrau.utils.textcat.TextCategorizer;
 
-import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.streamlimiter.LimitException;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiterBase64;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFile;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFileInstance;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiterInputStream;
 import com.jaeksoft.searchlib.util.Lang;
 
 public abstract class Parser extends ParserFactory {
@@ -55,17 +52,14 @@ public abstract class Parser extends ParserFactory {
 
 	private IndexDocument directDocument;
 
-	private LimitReader limitReader;
-
-	private LimitInputStream limitInputStream;
+	private StreamLimiter streamLimiter;
 
 	protected Parser(ParserFieldEnum[] fieldList) {
 		super(fieldList);
 		sourceDocument = null;
 		directDocument = null;
 		parserDocument = new IndexDocument();
-		limitReader = null;
-		limitInputStream = null;
+		streamLimiter = null;
 	}
 
 	public void populate(IndexDocument indexDocument) {
@@ -160,126 +154,53 @@ public abstract class Parser extends ParserFactory {
 		return lang;
 	}
 
-	protected abstract void parseContent(LimitInputStream inputStream)
+	protected abstract void parseContent(StreamLimiter streamLimiter)
 			throws IOException;
 
-	protected abstract void parseContent(LimitReader reader) throws IOException;
-
-	final public void parseContent(InputStream inputStream) throws IOException {
-		limitInputStream = new LimitInputStream(inputStream, getSizeLimit());
-		parseContent(limitInputStream);
-	}
-
-	final public void parseContent(Reader reader) throws IOException {
-		limitReader = new LimitReader(reader, getSizeLimit());
-		parseContent(limitReader);
-	}
-
-	final public void parseContentBase64(String base64text) throws IOException {
-		InputStream is = new LargeStringInputString(base64text, 131072);
-		Base64InputStream b64is = new Base64InputStream(is);
-		try {
-			parseContent(b64is);
-		} finally {
-			if (b64is != null)
-				IOUtils.closeQuietly(b64is);
-			if (is != null)
-				IOUtils.closeQuietly(is);
-		}
-	}
-
-	final private void doParseContent(LocalFileInstance localFileInstance)
+	private void doParserContent(StreamLimiter streamLimiter)
 			throws IOException {
-		File file = new File(localFileInstance.getURI());
-		if (localFileInstance.getFileSize() > getSizeLimit())
-			throw new LimitException();
-		doParseContent(file);
+		try {
+			parseContent(streamLimiter);
+		} finally {
+			streamLimiter.close();
+		}
 	}
 
-	final public void parseContent(FileInstanceAbstract fileInstance)
+	public void parseContent(InputStream inputStream) throws IOException {
+		StreamLimiter streamLimiter = new StreamLimiterInputStream(
+				getSizeLimit(), inputStream);
+		doParserContent(streamLimiter);
+	}
+
+	public void parseContent(File file) throws IOException {
+		StreamLimiter streamLimiter = new StreamLimiterFile(getSizeLimit(),
+				file);
+		doParserContent(streamLimiter);
+	}
+
+	public void parseContentBase64(String base64text, String fileName)
 			throws IOException {
-		if (!requireContent())
-			return;
-		if (fileInstance instanceof LocalFileInstance) {
-			doParseContent((LocalFileInstance) fileInstance);
-			return;
-		}
-		InputStream is = null;
-		try {
-			is = fileInstance.getInputStream();
-			parseContent(is);
-		} finally {
-			if (is != null)
-				IOUtils.closeQuietly(is);
-		}
+		StreamLimiter streamLimiter = new StreamLimiterBase64(base64text,
+				getSizeLimit(), fileName);
+		doParserContent(streamLimiter);
 	}
 
-	/**
-	 * Returns TRUE if the content need to be downloaded for text extraction.
-	 * 
-	 * Return FALSE for listing only
-	 * 
-	 * @return
-	 */
-	protected boolean requireContent() {
-		return true;
+	public void parseContent(FileInstanceAbstract fileInstance)
+			throws IOException {
+		StreamLimiter streamLimiter = new StreamLimiterFileInstance(
+				fileInstance, getSizeLimit());
+		doParserContent(streamLimiter);
 	}
 
-	public LimitInputStream getLimitInputStream() {
-		return limitInputStream;
+	public StreamLimiter getStreamLimiter() {
+		return streamLimiter;
 	}
 
-	public LimitReader getLimitReader() {
-		return limitReader;
-	}
-
-	final public void parseContent(byte[] byteData) throws IOException {
-		ByteArrayInputStream inputStream = null;
-		try {
-			inputStream = new ByteArrayInputStream(byteData);
-			parseContent(inputStream);
-		} finally {
-			if (inputStream != null)
-				inputStream.close();
-		}
-	}
-
-	final public void parseContent(String stringData) throws IOException {
-		StringReader stringReader = null;
-		try {
-			stringReader = new StringReader(stringData);
-			parseContent(stringReader);
-		} finally {
-			if (stringReader != null)
-				stringReader.close();
-		}
-	}
-
-	protected void doParseContent(File file) throws IOException {
-		FileInputStream fileInputStream = null;
-		try {
-			fileInputStream = new FileInputStream(file);
-			parseContent(fileInputStream);
-		} finally {
-			if (fileInputStream != null)
-				fileInputStream.close();
-		}
-
-	}
-
-	final public void parseContent(File file) throws IOException,
-			SearchLibException {
-		ClientFactory.INSTANCE.properties.checkChroot(file);
-		doParseContent(file);
-	}
-
-	public String getMd5size() throws NoSuchAlgorithmException {
+	public String getMd5size() throws NoSuchAlgorithmException, LimitException,
+			IOException {
 		String hash = null;
-		if (limitInputStream != null)
-			hash = limitInputStream.getMD5Hash() + '_'
-					+ limitInputStream.getSize();
-		else if (limitReader != null)
-			hash = limitReader.getMD5Hash() + '_' + limitReader.getSize();
+		if (streamLimiter != null)
+			hash = streamLimiter.getMD5Hash() + '_' + streamLimiter.getSize();
 		return hash;
 	}
 

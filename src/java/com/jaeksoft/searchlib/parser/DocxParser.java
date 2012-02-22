@@ -32,6 +32,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class DocxParser extends Parser {
 
@@ -51,10 +52,10 @@ public class DocxParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
-		XWPFDocument document = new XWPFDocument(inputStream);
+		XWPFDocument document = new XWPFDocument(
+				streamLimiter.getNewInputStream());
 		XWPFWordExtractor word = new XWPFWordExtractor(document);
 
 		CoreProperties info = word.getCoreProperties();
@@ -71,11 +72,6 @@ public class DocxParser extends Parser {
 
 		langDetection(10000, ParserFieldEnum.content);
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

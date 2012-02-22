@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,11 +30,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.LimitInputStream;
-import com.jaeksoft.searchlib.parser.LimitReader;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class IndexPluginList {
 
@@ -59,8 +57,8 @@ public class IndexPluginList {
 	}
 
 	public boolean run(Client client, String contentType,
-			LimitInputStream inputStream, LimitReader reader,
-			IndexDocument indexDocument) {
+			StreamLimiter streamLimiter, IndexDocument indexDocument)
+			throws IOException {
 		if (pluginList == null)
 			return true;
 		Iterator<IndexPluginInterface> it = pluginList.iterator();
@@ -68,16 +66,8 @@ public class IndexPluginList {
 			IndexPluginInterface plugin = it.next();
 			if (plugin instanceof IndexPluginCacheInterface) {
 				IndexPluginCacheInterface cachePlugin = (IndexPluginCacheInterface) plugin;
-				try {
-					if (inputStream != null)
-						inputStream.restartFromCache();
-					if (reader != null)
-						reader.restartFromCache();
-				} catch (IOException e) {
-					Logging.warn(e.getMessage(), e);
-				}
-				if (!cachePlugin.run(client, contentType, inputStream, reader,
-						indexDocument))
+				if (!cachePlugin.run(client, contentType,
+						streamLimiter.getNewInputStream(), null, indexDocument))
 					return false;
 			} else if (!plugin.run(indexDocument))
 				return false;

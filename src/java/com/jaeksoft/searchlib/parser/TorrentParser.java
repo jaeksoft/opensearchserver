@@ -32,6 +32,7 @@ import org.apache.commons.codec.binary.Hex;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.parser.torrent.MetaInfo;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class TorrentParser extends Parser {
 
@@ -95,10 +96,9 @@ public class TorrentParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
-		MetaInfo meta = new MetaInfo(inputStream);
+		MetaInfo meta = new MetaInfo(streamLimiter.getNewInputStream());
 		addField(ParserFieldEnum.name, meta.getName());
 		addField(ParserFieldEnum.announce, meta.getAnnounce());
 		addField(ParserFieldEnum.total_length,
@@ -122,11 +122,6 @@ public class TorrentParser extends Parser {
 		addField(ParserFieldEnum.creation_date,
 				Long.toString(meta.getCreationDate()));
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Not supported");
 	}
 
 }

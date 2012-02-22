@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import org.odftoolkit.odfdom.dom.element.office.OfficeTextElement;
 import org.w3c.dom.Document;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 /**
  * 
@@ -46,13 +47,12 @@ public class OdtParser extends OOParser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream) {
+	protected void parseContent(StreamLimiter streamLimiter) {
 		try {
-			super.parseContent(inputStream);
 
 			// Load file
 			OdfTextDocument odt = (OdfTextDocument) OdfDocument
-					.loadDocument(inputStream);
+					.loadDocument(streamLimiter.getNewInputStream());
 
 			// get root of all content of a text document
 			OfficeTextElement officeText = odt.getContentRoot();
@@ -69,11 +69,6 @@ public class OdtParser extends OOParser {
 		} catch (Exception e) {
 			Logging.error(e.getMessage(), e);
 		}
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser.htmlParser;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -32,14 +33,14 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.parser.LimitException;
-import com.jaeksoft.searchlib.parser.LimitInputStream;
+import com.jaeksoft.searchlib.streamlimiter.LimitException;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class NekoHtmlParser extends HtmlDocumentProvider {
 
-	public NekoHtmlParser(String charset, LimitInputStream inputStream)
+	public NekoHtmlParser(String charset, StreamLimiter streamLimiter)
 			throws LimitException {
-		super(charset, inputStream);
+		super(charset, streamLimiter);
 	}
 
 	@Override
@@ -48,9 +49,8 @@ public class NekoHtmlParser extends HtmlDocumentProvider {
 	}
 
 	@Override
-	protected DomHtmlNode getDocument(String charset,
-			LimitInputStream inputStream) throws SAXException, IOException,
-			ParserConfigurationException {
+	protected DomHtmlNode getDocument(String charset, InputStream inputStream)
+			throws SAXException, IOException, ParserConfigurationException {
 		DOMParser parser = new DOMParser();
 		parser.setFeature("http://xml.org/sax/features/namespaces", true);
 		parser.setFeature(
