@@ -105,7 +105,6 @@ public class Client extends Config {
 		checkMaxDocumentLimit(docList.size());
 		docCount += updateDocuments(docList);
 		docList.clear();
-		Logging.info(docCount + " / " + docTotal + " XML document(s) indexed.");
 		return docCount;
 	}
 

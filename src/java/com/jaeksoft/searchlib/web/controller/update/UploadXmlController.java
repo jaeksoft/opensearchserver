@@ -123,6 +123,8 @@ public class UploadXmlController extends CommonController {
 
 	private List<UpdateThread> getUpdateList(Client client) {
 		Map<Client, List<UpdateThread>> map = getUpdateMap();
+		if (map == null)
+			return null;
 		synchronized (map) {
 			List<UpdateThread> list = map.get(client);
 			if (list == null) {
@@ -144,13 +146,19 @@ public class UploadXmlController extends CommonController {
 
 	public boolean isUpdateListNotEmpty() throws SearchLibException {
 		synchronized (this) {
+			List<UpdateThread> list = getUpdateList();
+			if (list == null)
+				return false;
 			return getUpdateList().size() > 0;
 		}
 	}
 
 	public boolean isRefresh() throws SearchLibException {
 		synchronized (this) {
-			for (UpdateThread thread : getUpdateList())
+			List<UpdateThread> list = getUpdateList();
+			if (list == null)
+				return false;
+			for (UpdateThread thread : list)
 				if (thread.isRunning())
 					return true;
 		}
