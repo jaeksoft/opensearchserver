@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.template;
 
-import java.io.File;
 
 public class EmptyIndex extends TemplateAbstract {
 
@@ -34,13 +33,13 @@ public class EmptyIndex extends TemplateAbstract {
 
 	"config.xml", "parsers.xml",
 
-	"renderers" + File.separator + "default.xml",
+	"renderers" + '/' + "default.xml",
 
-	"stopwords" + File.separator + "English stop words",
+	"stopwords" + '/' + "English stop words",
 
-	"stopwords" + File.separator + "French stop words",
+	"stopwords" + '/' + "French stop words",
 
-	"stopwords" + File.separator + "German stop words",
+	"stopwords" + '/' + "German stop words",
 
 	};
 
