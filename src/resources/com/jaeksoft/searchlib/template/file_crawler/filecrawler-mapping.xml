@@ -27,6 +27,7 @@
 	<link source="directory" target="directory" />
 	<link source="subDirectory" target="subDirectory" />
 	<link source="fileSystemDate" target="fileSystemDate" />
+	<link source="fileExtension" target="fileExtension" />
 	<link source="lang" target="lang" />
 	<link source="crawlDate" target="crawlDate" />
 </map>

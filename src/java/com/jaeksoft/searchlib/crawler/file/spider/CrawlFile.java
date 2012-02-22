@@ -75,6 +75,8 @@ public class CrawlFile {
 	public void download() {
 		synchronized (this) {
 			try {
+				fileItem.setFetchStatus(FetchStatus.FETCHED);
+
 				ParserSelector parserSelector = config.getParserSelector();
 				Parser parser = parserSelector.getParser(fileItem.getName(),
 						null);
@@ -89,8 +91,6 @@ public class CrawlFile {
 					return;
 				}
 
-				fileItem.setParserStatus(ParserStatus.PARSED);
-
 				IndexDocument sourceDocument = new IndexDocument();
 				fileItem.populate(sourceDocument);
 
@@ -99,17 +99,16 @@ public class CrawlFile {
 				parser.addField(ParserFieldEnum.filename, fileItem.getName());
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
-				fileItem.setFetchStatus(FetchStatus.FETCHED);
 
 				this.parser = parser;
+				fileItem.setParserStatus(ParserStatus.PARSED);
 
 			} catch (MalformedURLException e) {
 				fileItem.setFetchStatus(FetchStatus.ERROR);
 			} catch (FileNotFoundException e) {
 				fileItem.setFetchStatus(FetchStatus.GONE);
 			} catch (LimitException e) {
-				Logging.warn(e.toString() + " (" + fileItem.getUri()
-						+ ")", e);
+				Logging.warn(e.toString() + " (" + fileItem.getUri() + ")", e);
 				fileItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
 				setError(e.getMessage());
 			} catch (InstantiationException e) {
@@ -130,6 +129,7 @@ public class CrawlFile {
 			} catch (Exception e) {
 				Logging.warn(e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
+				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 			}
 		}
 	}

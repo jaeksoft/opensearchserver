@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -96,11 +96,11 @@ public class ParserFactory extends ClassFactory implements
 		getProperty(ClassPropertyEnum.PARSER_NAME).setValue(parserName);
 	}
 
-	protected long getSizeLimit() {
+	protected int getSizeLimit() {
 		ClassProperty prop = getProperty(ClassPropertyEnum.SIZE_LIMIT);
 		if (prop == null)
 			return 0;
-		return Long.parseLong(prop.getValue());
+		return Integer.parseInt(prop.getValue());
 	}
 
 	public FieldMap getFieldMap() {

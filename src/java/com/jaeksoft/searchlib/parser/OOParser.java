@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,8 +23,6 @@
  **/
 
 package com.jaeksoft.searchlib.parser;
-
-import java.io.IOException;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -50,22 +48,6 @@ public abstract class OOParser extends Parser {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
-	}
-
-	/**
-	 * 
-	 * Parser Meta informations of all OpenOffice documents
-	 * 
-	 */
-	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
-
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 	protected void scanNodes(NodeList nodeList, ParserFieldEnum selectedField) {

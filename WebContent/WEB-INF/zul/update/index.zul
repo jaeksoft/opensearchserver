@@ -18,7 +18,6 @@
 	<tabs>
 		<tab id="tabUpdateForm" label="Using form" selected="true" />
 		<tab id="tabUpdateUploadXml" label="upload XML file" />
-		<tab id="tabUpdateUploadDocument" label="Upload document" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
@@ -26,9 +25,6 @@
 		</tabpanel>
 		<tabpanel fulfill="tabUpdateUploadXml.onSelect">
 			<include src="WEB-INF/zul/update/uploadXml.zul" />
-		</tabpanel>
-		<tabpanel fulfill="tabUpdateUploadDocument.onSelect">
-			<include src="WEB-INF/zul/update/uploadDocument.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,11 +61,10 @@ import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.LimitException;
-import com.jaeksoft.searchlib.parser.LimitInputStream;
-import com.jaeksoft.searchlib.parser.LimitReader;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.parser.StreamLimiter;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
@@ -333,18 +332,6 @@ public class Crawl {
 		return urlItem.getContentBaseType();
 	}
 
-	public LimitInputStream getInputStream() {
-		if (parser == null)
-			return null;
-		return parser.getLimitInputStream();
-	}
-
-	public LimitReader getReader() {
-		if (parser == null)
-			return null;
-		return parser.getLimitReader();
-	}
-
 	public String getError() {
 		return error;
 	}
@@ -362,7 +349,7 @@ public class Crawl {
 	}
 
 	public IndexDocument getTargetIndexDocument() throws SearchLibException,
-			MalformedURLException {
+			IOException {
 		synchronized (this) {
 			if (targetIndexDocument != null)
 				return targetIndexDocument;
@@ -374,15 +361,19 @@ public class Crawl {
 			urlItem.populate(urlIndexDocument, urlItemFieldEnum);
 			urlFieldMap.mapIndexDocument(urlIndexDocument, targetIndexDocument);
 
-			if (parser != null)
+			StreamLimiter streamLimiter = null;
+
+			if (parser != null) {
 				parser.populate(targetIndexDocument);
+				streamLimiter = parser.getStreamLimiter();
+			}
 
 			IndexPluginList indexPluginList = config.getWebCrawlMaster()
 					.getIndexPluginList();
 
 			if (indexPluginList != null) {
 				if (!indexPluginList.run((Client) config, getContentType(),
-						getInputStream(), getReader(), targetIndexDocument)) {
+						streamLimiter, targetIndexDocument)) {
 					urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
 					urlItem.populate(urlIndexDocument, urlItemFieldEnum);
 				}

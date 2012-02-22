@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.util.IOUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -75,8 +76,7 @@ public class AudioParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		String filename = this.getFieldValue(ParserFieldEnum.filename, 0);
 		if (filename == null)
 			return;
@@ -84,21 +84,12 @@ public class AudioParser extends Parser {
 				"." + FilenameUtils.getExtension(filename));
 		OutputStream os = new FileOutputStream(file);
 		try {
-			byte[] buffer = new byte[4096];
-			int bytesRead;
-			while ((bytesRead = inputStream.read(buffer)) != -1)
-				os.write(buffer, 0, bytesRead);
-			os.close();
+			IOUtils.copy(streamLimiter.getNewInputStream(), os);
 		} finally {
 			closeQuiet(os);
 		}
 		parseContent(file);
 		file.delete();
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Not supported");
 	}
 
 	private void addFields(Tag tag, FieldKey fieldKey,

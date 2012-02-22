@@ -73,10 +73,6 @@ public class FileItem extends FileInfo implements Serializable {
 		return new DecimalFormat("00000000000000");
 	}
 
-	final static SimpleDateFormat getDateFormat() {
-		return new SimpleDateFormat("yyyyMMddHHmmss");
-	}
-
 	public final static SimpleDateFormat getNiceDateFormat() {
 		return new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
 	}
@@ -112,7 +108,7 @@ public class FileItem extends FileInfo implements Serializable {
 	}
 
 	public FileItem(ResultDocument doc) throws UnsupportedEncodingException,
-			URISyntaxException {
+			URISyntaxException, ParseException {
 		super(doc);
 
 		setRepository(doc.getValueContent(
@@ -222,12 +218,12 @@ public class FileItem extends FileInfo implements Serializable {
 
 		if (crawlDate != null)
 			indexDocument.setString(FileItemFieldEnum.crawlDate.getName(),
-					StringUtils.longToHexString(crawlDate));
+					FileItem.getDateFormat().format(crawlDate));
 
 		Long fsd = getFileSystemDate();
 		if (fsd != null)
 			indexDocument.setString(FileItemFieldEnum.fileSystemDate.getName(),
-					StringUtils.longToHexString(fsd));
+					FileItem.getDateFormat().format(fsd));
 
 		if (contentLength != null)
 			indexDocument.setString(FileItemFieldEnum.contentLength.getName(),
@@ -307,11 +303,11 @@ public class FileItem extends FileInfo implements Serializable {
 		crawlDate = d;
 	}
 
-	public void setCrawlDate(String d) {
+	public void setCrawlDate(String d) throws ParseException {
 		if (d == null)
 			return;
 		try {
-			crawlDate = StringUtils.hexStringToLong(d);
+			crawlDate = getDateFormat().parse(d).getTime();
 		} catch (NumberFormatException e) {
 			Logging.warn(e.getMessage());
 		}

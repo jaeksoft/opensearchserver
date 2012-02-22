@@ -29,8 +29,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
@@ -53,17 +51,14 @@ public abstract class Parser extends ParserFactory {
 
 	private IndexDocument directDocument;
 
-	private LimitReader limitReader;
-
-	private LimitInputStream limitInputStream;
+	private StreamLimiter streamLimiter;
 
 	protected Parser(ParserFieldEnum[] fieldList) {
 		super(fieldList);
 		sourceDocument = null;
 		directDocument = null;
 		parserDocument = new IndexDocument();
-		limitReader = null;
-		limitInputStream = null;
+		streamLimiter = null;
 	}
 
 	public void populate(IndexDocument indexDocument) {
@@ -158,19 +153,12 @@ public abstract class Parser extends ParserFactory {
 		return lang;
 	}
 
-	protected abstract void parseContent(LimitInputStream inputStream)
+	protected abstract void parseContent(StreamLimiter streamLimiter)
 			throws IOException;
 
-	protected abstract void parseContent(LimitReader reader) throws IOException;
-
 	final public void parseContent(InputStream inputStream) throws IOException {
-		limitInputStream = new LimitInputStream(inputStream, getSizeLimit());
-		parseContent(limitInputStream);
-	}
-
-	final public void parseContent(Reader reader) throws IOException {
-		limitReader = new LimitReader(reader, getSizeLimit());
-		parseContent(limitReader);
+		streamLimiter = new StreamLimiter(inputStream, getSizeLimit());
+		parseContent(streamLimiter);
 	}
 
 	final public void parseContentBase64(String base64text) throws IOException {
@@ -223,12 +211,8 @@ public abstract class Parser extends ParserFactory {
 		return true;
 	}
 
-	public LimitInputStream getLimitInputStream() {
-		return limitInputStream;
-	}
-
-	public LimitReader getLimitReader() {
-		return limitReader;
+	public StreamLimiter getStreamLimiter() {
+		return streamLimiter;
 	}
 
 	final public void parseContent(byte[] byteData) throws IOException {
@@ -239,17 +223,6 @@ public abstract class Parser extends ParserFactory {
 		} finally {
 			if (inputStream != null)
 				inputStream.close();
-		}
-	}
-
-	final public void parseContent(String stringData) throws IOException {
-		StringReader stringReader = null;
-		try {
-			stringReader = new StringReader(stringData);
-			parseContent(stringReader);
-		} finally {
-			if (stringReader != null)
-				stringReader.close();
 		}
 	}
 
@@ -266,11 +239,8 @@ public abstract class Parser extends ParserFactory {
 
 	public String getMd5size() throws NoSuchAlgorithmException {
 		String hash = null;
-		if (limitInputStream != null)
-			hash = limitInputStream.getMD5Hash() + '_'
-					+ limitInputStream.getSize();
-		else if (limitReader != null)
-			hash = limitReader.getMD5Hash() + '_' + limitReader.getSize();
+		if (streamLimiter != null)
+			hash = streamLimiter.getMD5Hash() + '_' + streamLimiter.size();
 		return hash;
 	}
 

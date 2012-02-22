@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -199,14 +200,12 @@ public class HtmlParser extends Parser {
 	 * @throws ParserConfigurationException
 	 */
 	private static Document htmlCleanerDomDocument(String charset,
-			LimitInputStream inputStream) throws IOException,
+			InputStream inputStream) throws IOException,
 			ParserConfigurationException {
 		HtmlCleaner cleaner = new HtmlCleaner();
 		CleanerProperties props = cleaner.getProperties();
 		props.setNamespacesAware(true);
 		TagNode node = cleaner.clean(inputStream, charset);
-		if (!inputStream.isComplete())
-			throw new LimitException();
 		return new DomSerializer(props, true).createDOM(node);
 	}
 
@@ -222,7 +221,7 @@ public class HtmlParser extends Parser {
 	 * @throws ParserConfigurationException
 	 */
 	private static Document nekoHtmlDomDocument(String charset,
-			LimitInputStream inputStream) throws XPathExpressionException,
+			InputStream inputStream) throws XPathExpressionException,
 			SAXException, IOException, ParserConfigurationException {
 		org.cyberneko.html.parsers.DOMParser parser = new org.cyberneko.html.parsers.DOMParser();
 		parser.setFeature("http://xml.org/sax/features/namespaces", true);
@@ -255,7 +254,7 @@ public class HtmlParser extends Parser {
 	 * @throws ParserConfigurationException
 	 */
 	private static Document tagSoupDomDocument(String charset,
-			LimitInputStream inputStream) throws XPathExpressionException,
+			InputStream inputStream) throws XPathExpressionException,
 			SAXException, IOException, ParserConfigurationException {
 		org.ccil.cowan.tagsoup.Parser parser = new org.ccil.cowan.tagsoup.Parser();
 		parser.setFeature("http://xml.org/sax/features/namespace-prefixes",
@@ -279,7 +278,7 @@ public class HtmlParser extends Parser {
 	 * @throws IOException
 	 */
 	private static Document xmlDomDocument(String charset,
-			LimitInputStream inputStream) throws SAXException, IOException,
+			InputStream inputStream) throws SAXException, IOException,
 			ParserConfigurationException {
 		DocumentBuilder builder = DomUtils.getNewDocumentBuilder(false, true);
 		InputSource inputSource = new InputSource(inputStream);
@@ -390,14 +389,12 @@ public class HtmlParser extends Parser {
 		return i > 0;
 	}
 
-	private Document htmlParserLine(String charset, LimitInputStream inputStream)
+	private Document htmlParserLine(String charset, StreamLimiter streamLimiter)
 			throws IOException {
-		inputStream.consume();
 		Document doc = null;
 		if (doc == null) {
 			try {
-				inputStream.restartFromCache();
-				doc = xmlDomDocument(charset, inputStream);
+				doc = xmlDomDocument(charset, streamLimiter.getNewInputStream());
 				if (checkDocument(doc))
 					return doc;
 				else
@@ -411,8 +408,8 @@ public class HtmlParser extends Parser {
 		}
 		if (doc == null) {
 			try {
-				inputStream.restartFromCache();
-				doc = tagSoupDomDocument(charset, inputStream);
+				doc = tagSoupDomDocument(charset,
+						streamLimiter.getNewInputStream());
 				if (checkDocument(doc))
 					return doc;
 				else
@@ -426,8 +423,8 @@ public class HtmlParser extends Parser {
 		}
 		if (doc == null) {
 			try {
-				inputStream.restartFromCache();
-				doc = nekoHtmlDomDocument(charset, inputStream);
+				doc = nekoHtmlDomDocument(charset,
+						streamLimiter.getNewInputStream());
 				if (checkDocument(doc))
 					return doc;
 				else
@@ -456,8 +453,8 @@ public class HtmlParser extends Parser {
 		// }
 		if (doc == null) {
 			try {
-				inputStream.restartFromCache();
-				doc = htmlCleanerDomDocument(charset, inputStream);
+				doc = htmlCleanerDomDocument(charset,
+						streamLimiter.getNewInputStream());
 				if (checkDocument(doc))
 					return doc;
 				else
@@ -481,8 +478,7 @@ public class HtmlParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
 		String charset = null;
 		IndexDocument sourceDocument = getSourceDocument();
@@ -502,7 +498,7 @@ public class HtmlParser extends Parser {
 		if (charsetWasNull)
 			charset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET).getValue();
 
-		Document doc = htmlParserLine(charset, inputStream);
+		Document doc = htmlParserLine(charset, streamLimiter);
 		if (doc == null)
 			return;
 
@@ -527,8 +523,7 @@ public class HtmlParser extends Parser {
 			else
 				charset = getMetaCharset(metas);
 			if (charset != null) {
-				inputStream.restartFromCache();
-				doc = htmlParserLine(charset, inputStream);
+				doc = htmlParserLine(charset, streamLimiter);
 			}
 		}
 
@@ -673,11 +668,6 @@ public class HtmlParser extends Parser {
 		} else if (!metaRobotsNoIndex)
 			lang = langDetection(10000, ParserFieldEnum.body);
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

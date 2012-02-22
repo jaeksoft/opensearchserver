@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
-
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -49,24 +47,17 @@ public class TextParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
-		byte[] bytes = IOUtils.toByteArray(inputStream);
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		CharsetDetector detector = new CharsetDetector();
-		detector.setText(bytes);
+		detector.setText(streamLimiter.getBytes());
 		CharsetMatch match = detector.detect();
 		String content = null;
 		if (match != null)
 			content = match.getString();
 		else
-			content = new String(bytes);
+			content = new String(streamLimiter.getBytes());
 		addField(ParserFieldEnum.content, content);
 		langDetection(10000, ParserFieldEnum.content);
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

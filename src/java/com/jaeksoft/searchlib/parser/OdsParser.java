@@ -45,13 +45,12 @@ public class OdsParser extends OOParser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream) {
+	protected void parseContent(StreamLimiter streamLimiter) {
 		try {
-			super.parseContent(inputStream);
 
 			// Load file
 			OdfSpreadsheetDocument odf = (OdfSpreadsheetDocument) OdfSpreadsheetDocument
-					.loadDocument(inputStream);
+					.loadDocument(streamLimiter.getNewInputStream());
 
 			// get root of all content of a text document
 			OfficeSpreadsheetElement officeText = odf.getContentRoot();
@@ -69,11 +68,6 @@ public class OdsParser extends OOParser {
 		} catch (Exception e) {
 			Logging.error(e.getMessage(), e);
 		}
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

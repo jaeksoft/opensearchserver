@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,12 +49,11 @@ public class RtfParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		RTFEditorKit rtf = new RTFEditorKit();
 		Document doc = rtf.createDefaultDocument();
 		try {
-			rtf.read(inputStream, doc, 0);
+			rtf.read(streamLimiter.getNewInputStream(), doc, 0);
 			addField(ParserFieldEnum.content, doc.getText(0, doc.getLength())
 					.trim());
 		} catch (BadLocationException e) {
@@ -62,17 +61,4 @@ public class RtfParser extends Parser {
 		}
 	}
 
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		RTFEditorKit rtf = new RTFEditorKit();
-		Document doc = rtf.createDefaultDocument();
-		try {
-			rtf.read(reader, doc, 0);
-			addField(ParserFieldEnum.content, doc.getText(0, doc.getLength())
-					.trim());
-			langDetection(10000, ParserFieldEnum.content);
-		} catch (BadLocationException e) {
-			throw new IOException(e);
-		}
-	}
 }

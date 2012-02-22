@@ -129,15 +129,14 @@ public class PdfParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 		PDDocument pdf = null;
 		RandomAccessFile raf = null;
 		File tempFile = null;
 		try {
 			tempFile = File.createTempFile("oss", "pdfparser");
 			raf = new RandomAccessFile(tempFile, "rw");
-			pdf = PDDocument.load(inputStream, raf, true);
+			pdf = PDDocument.load(streamLimiter.getNewInputStream(), raf, true);
 			extractContent(pdf);
 		} finally {
 			if (pdf != null)
@@ -147,11 +146,6 @@ public class PdfParser extends Parser {
 			if (tempFile != null)
 				tempFile.delete();
 		}
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

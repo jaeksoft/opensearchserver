@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.crawler.file.database;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -35,7 +37,6 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileInfo {
 
@@ -46,6 +47,10 @@ public class FileInfo {
 	private FetchStatus fetchStatus;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
+
+	final static SimpleDateFormat getDateFormat() {
+		return new SimpleDateFormat("yyyyMMddHHmmss");
+	}
 
 	public FileInfo() {
 		init();
@@ -91,8 +96,11 @@ public class FileInfo {
 			return;
 		}
 		try {
-			fileSystemDate = StringUtils.hexStringToLong(d);
+			fileSystemDate = getDateFormat().parse(d).getTime();
 		} catch (NumberFormatException e) {
+			Logging.warn(e.getMessage());
+			fileSystemDate = null;
+		} catch (ParseException e) {
 			Logging.warn(e.getMessage());
 			fileSystemDate = null;
 		}

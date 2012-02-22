@@ -40,9 +40,7 @@ public enum CrawlStatus {
 
 	INDEXATION("Indexation"),
 
-	OPTMIZING_INDEX("Optimizing index"),
-
-	PUBLISH_INDEX("Publishing index"),
+	OPTMIZING_INDEX("Optimizing database"),
 
 	EXTRACTING_URLS("Extracting urls"),
 

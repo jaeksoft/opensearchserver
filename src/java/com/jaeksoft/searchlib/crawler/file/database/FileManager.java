@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -310,7 +310,8 @@ public class FileManager {
 	}
 
 	public FileItem getNewFileItem(ResultDocument doc)
-			throws UnsupportedEncodingException, URISyntaxException {
+			throws UnsupportedEncodingException, URISyntaxException,
+			java.text.ParseException {
 		return new FileItem(doc);
 	}
 
@@ -338,6 +339,8 @@ public class FileManager {
 		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (java.text.ParseException e) {
 			throw new SearchLibException(e);
 		}
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -52,10 +52,10 @@ public class DocxParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(LimitInputStream inputStream)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
-		XWPFDocument document = new XWPFDocument(inputStream);
+		XWPFDocument document = new XWPFDocument(
+				streamLimiter.getNewInputStream());
 		XWPFWordExtractor word = new XWPFWordExtractor(document);
 
 		CoreProperties info = word.getCoreProperties();
@@ -72,11 +72,6 @@ public class DocxParser extends Parser {
 
 		langDetection(10000, ParserFieldEnum.content);
 
-	}
-
-	@Override
-	protected void parseContent(LimitReader reader) throws IOException {
-		throw new IOException("Unsupported");
 	}
 
 }

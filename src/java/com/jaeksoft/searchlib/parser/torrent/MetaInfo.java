@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,10 +25,9 @@
 package com.jaeksoft.searchlib.parser.torrent;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import com.jaeksoft.searchlib.parser.LimitInputStream;
 
 public class MetaInfo {
 
@@ -36,7 +35,7 @@ public class MetaInfo {
 	public BDictionary infoDictionary;
 	public BList filesList;
 
-	public MetaInfo(LimitInputStream inputStream) throws IOException {
+	public MetaInfo(InputStream inputStream) throws IOException {
 		metaDictionary = null;
 		infoDictionary = null;
 		BValue v = BValue.next(inputStream);

@@ -29,8 +29,6 @@ import org.zkoss.zk.ui.Sessions;
 
 public enum ScopeAttribute {
 
-	BASKET_CURRENT_DOCUMENT(Component.SESSION_SCOPE),
-
 	QUERY_SEARCH_REQUEST(Component.SESSION_SCOPE),
 
 	QUERY_SEARCH_RESULT(Component.SESSION_SCOPE),
