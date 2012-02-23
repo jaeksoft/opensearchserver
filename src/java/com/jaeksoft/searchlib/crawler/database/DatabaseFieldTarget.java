@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -104,9 +105,14 @@ public class DatabaseFieldTarget extends Target {
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
 					"crawlUrl")))
 				crawlUrl = true;
-			findRegexpTag = DomUtils.getAttributeText(node, "findRegexpTag");
-			replaceRegexpTag = DomUtils.getAttributeText(node,
-					"replaceRegexpTag");
+			List<Node> nl = DomUtils.getNodes(node, "findRegexpTag");
+			if (nl.size() > 0)
+				findRegexpTag = StringEscapeUtils.unescapeXml(nl.get(0)
+						.getTextContent());
+			nl = DomUtils.getNodes(node, "replaceRegexpTag");
+			if (nl.size() > 0)
+				replaceRegexpTag = StringEscapeUtils.unescapeXml(nl.get(0)
+						.getTextContent());
 			checkRegexpPattern();
 		}
 	}
@@ -115,9 +121,17 @@ public class DatabaseFieldTarget extends Target {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no",
 				"convertHtmlEntities", convertHtmlEntities ? "yes" : "no",
 				"filePath", filePath ? "yes" : "no", "filePathPrefix",
-				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no",
-				"findRegexTag", findRegexpTag, "replaceRegexpTag",
-				replaceRegexpTag);
+				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no");
+		if (findRegexpTag != null) {
+			xmlWriter.startElement("findRegexpTag");
+			xmlWriter.textNode(StringEscapeUtils.escapeXml(findRegexpTag));
+			xmlWriter.endElement();
+		}
+		if (replaceRegexpTag != null && replaceRegexpTag.length() > 0) {
+			xmlWriter.startElement("replaceRegexpTag");
+			xmlWriter.textNode(StringEscapeUtils.escapeXml(replaceRegexpTag));
+			xmlWriter.endElement();
+		}
 		xmlWriter.endElement();
 	}
 
@@ -188,7 +202,7 @@ public class DatabaseFieldTarget extends Target {
 
 	private void checkRegexpPattern() {
 		if (findRegexpTag != null)
-			if (findRegexpTag.length() == 0)
+			if (findRegexpTag.trim().length() == 0)
 				findRegexpTag = null;
 		findRegexpMatcher = findRegexpTag == null ? null : Pattern.compile(
 				findRegexpTag).matcher("");
