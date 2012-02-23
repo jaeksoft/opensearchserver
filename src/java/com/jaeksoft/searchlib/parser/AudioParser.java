@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.util.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;

@@ -332,6 +332,12 @@ public class Crawl {
 		return urlItem.getContentBaseType();
 	}
 
+	public StreamLimiter getStreamLimiter() {
+		if (parser == null)
+			return null;
+		return parser.getStreamLimiter();
+	}
+
 	public String getError() {
 		return error;
 	}

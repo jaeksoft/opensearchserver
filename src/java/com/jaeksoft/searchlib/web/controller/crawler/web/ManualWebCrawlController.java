@@ -99,10 +99,8 @@ public class ManualWebCrawlController extends CommonController {
 			if (!isCrawlCache())
 				return;
 			Crawl crawl = currentCrawlThread.getCurrentCrawl();
-			Filedownload
-					.save(crawl.getParser().getStreamLimiter()
-							.getNewInputStream(), crawl.getContentType(),
-							"crawl.cache");
+			Filedownload.save(crawl.getStreamLimiter().getNewInputStream(),
+					crawl.getContentType(), "crawl.cache");
 		}
 	}
 
@@ -127,9 +125,7 @@ public class ManualWebCrawlController extends CommonController {
 			UrlItem ui = crawl.getUrlItem();
 			if (ui == null)
 				return false;
-			if (crawl.getParser() != null)
-				return true;
-			if (crawl.getParser().getStreamLimiter() != null)
+			if (crawl.getStreamLimiter() != null)
 				return true;
 			return false;
 		}
