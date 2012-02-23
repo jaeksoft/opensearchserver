@@ -110,7 +110,7 @@ public class Client extends Config {
 					urlDefaultCredential));
 			if (docList.size() == bufferSize) {
 				docCount += updateDocuments(docList);
-				Logging.info(docCount + " / " + bufferSize
+				Logging.info(docCount + " / " + docList.size()
 						+ " XML document(s) indexed.");
 				docList.clear();
 			}
