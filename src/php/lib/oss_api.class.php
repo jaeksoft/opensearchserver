@@ -419,12 +419,17 @@ class OssApi {
    * FIXME Recode to use the new API Schema
    * @todo Recode this method once API is provided
    */
-  public function isIndexAvailable($index = NULL) {
+  public function isIndexAvailable($index = NULL,$queryTemplate = NULL) {
     $index = $index ? $index : $this->index;
     // Check if the select api is answering
     set_error_handler('OssApi_Dummy_Function', E_ALL);
     try {
-      $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT, $index) . '&q=!*:*&rows=0');
+      if($queryTemplate != NULL) {
+        $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT, $index) . '&q=!*:*&rows=0&qt=' . $queryTemplate);
+      }
+      else {
+        $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT, $index) . '&q=!*:*&rows=0');
+      }
     }
     catch (Exception $e) {
       $result = FALSE;
