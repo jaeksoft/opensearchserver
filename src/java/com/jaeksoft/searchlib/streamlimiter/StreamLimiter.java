@@ -109,7 +109,7 @@ public abstract class StreamLimiter implements Closeable {
 	}
 
 	public File getTempFile(String extension) throws IOException {
-		File tempFile = File.createTempFile("oss", extension);
+		File tempFile = File.createTempFile("oss", "." + extension);
 		tempFiles.add(tempFile);
 		return tempFile;
 	}

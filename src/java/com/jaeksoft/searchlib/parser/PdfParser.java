@@ -122,7 +122,7 @@ public class PdfParser extends Parser {
 		RandomAccessFile raf = null;
 		File tempFile = null;
 		try {
-			tempFile = File.createTempFile("oss", "pdfparser");
+			tempFile = File.createTempFile("oss", ".pdf");
 			raf = new RandomAccessFile(tempFile, "rw");
 			pdf = PDDocument.load(streamLimiter.getNewInputStream(), raf, true);
 			extractContent(pdf);

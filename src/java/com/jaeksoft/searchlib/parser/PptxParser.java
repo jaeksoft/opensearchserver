@@ -60,7 +60,7 @@ public class PptxParser extends Parser {
 	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
 		// TODO Optimise if it is already a file
-		File tempFile = File.createTempFile("oss", "pptx");
+		File tempFile = File.createTempFile("oss", ".pptx");
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(tempFile);

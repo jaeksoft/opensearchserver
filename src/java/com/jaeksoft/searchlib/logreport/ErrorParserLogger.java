@@ -58,7 +58,9 @@ public class ErrorParserLogger {
 		sb.append('\t');
 		sb.append(t.getMessage());
 		String codeLocation = null;
+		String causeMessage = null;
 		while (t != null) {
+			causeMessage = t.getMessage();
 			for (StackTraceElement element : t.getStackTrace()) {
 				if (element.getClassName().startsWith("com.jaeksoft")) {
 					codeLocation = element.toString();
@@ -66,6 +68,10 @@ public class ErrorParserLogger {
 				}
 			}
 			t = t.getCause();
+		}
+		if (causeMessage != null) {
+			sb.append('\t');
+			sb.append(causeMessage);
 		}
 		if (codeLocation != null) {
 			sb.append('\t');
