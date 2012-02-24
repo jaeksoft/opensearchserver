@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -23,16 +23,12 @@
 				forward="onReloadFileList" />
 			<button label="Reload the current log"
 				disabled="@{logs.fileNotSelected}" forward="onReloadCurrentLog" />
-			<button label="Go to the beginning"
-				disabled="@{logs.fileNotSelected}" forward="onGoToBeginning" />
-			<button label="Go to the end"
-				disabled="@{logs.fileNotSelected}" forward="onGoToEnd" />
 			<button label="Download" disabled="@{logs.fileNotSelected}"
 				forward="onDownload" />
 		</toolbar>
 		<panelchildren>
 			<hbox spacing="0" width="100%">
-				<listbox model="@{logs.logFiles}" width="200px"
+				<listbox id="filelist" model="@{logs.logFiles}" width="200px"
 					selectedItem="@{logs.selectedFile}" height="400px" />
 				<textbox id="logview" multiline="true" readonly="true"
 					hflex="true" vflex="true" value="@{logs.currentLog}"
@@ -40,23 +36,4 @@
 			</hbox>
 		</panelchildren>
 	</panel>
-	<script type="text/javascript">
-
-
-
-
-
-		
-		<![CDATA[ function toTheEnd(txtBox) { var txtEle =
-		document.getElementById(txtBox); txtEle.scrollTop =
-		txtEle.scrollHeight; } function toTheBegining(txtBox) { var
-		txtEle = document.getElementById(txtBox); txtEle.scrollTop = 0;
-		} ]]>
-		
-		
-		
-		
-		
-		
-	</script>
 </window>

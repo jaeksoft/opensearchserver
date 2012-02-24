@@ -30,9 +30,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.zkoss.zk.ui.WrongValueException;
-import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Filedownload;
-import org.zkoss.zul.Textbox;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -98,7 +96,7 @@ public class LogsController extends CommonController {
 			IOException {
 		this.selectedFile = file;
 		this.currentLog = null;
-		reloadPage();
+		reloadComponent("logview");
 	}
 
 	public String getSelectedFile() {
@@ -116,13 +114,7 @@ public class LogsController extends CommonController {
 
 	public void onReloadCurrentLog() {
 		currentLog = null;
-		reloadPage();
-	}
-
-	public void onGoToBeginning() {
-		Textbox tb = (Textbox) getFellow("logview");
-		Clients.evalJavaScript("toTheBegining('" + tb.getUuid() + "')");
-		tb.setSelectionRange(0, 0);
+		reloadComponent("logview");
 	}
 
 	public void onDownload() throws IOException, SearchLibException {
@@ -131,11 +123,4 @@ public class LogsController extends CommonController {
 		Filedownload.save(new File(filePath), "text/plain");
 	}
 
-	public void onGoToEnd() {
-		if (currentLog == null)
-			return;
-		Textbox tb = (Textbox) getFellow("logview");
-		Clients.evalJavaScript("toTheEnd('" + tb.getUuid() + "')");
-		tb.setSelectionRange(currentLog.length(), currentLog.length());
-	}
 }
