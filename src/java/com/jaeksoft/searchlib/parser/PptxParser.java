@@ -59,7 +59,7 @@ public class PptxParser extends Parser {
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
 
-		File tempFile = File.createTempFile("oss", "pptx");
+		File tempFile = File.createTempFile("oss", ".pptx");
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(tempFile);

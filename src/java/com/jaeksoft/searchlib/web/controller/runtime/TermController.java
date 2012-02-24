@@ -246,7 +246,7 @@ public class TermController extends CommonController {
 			PrintWriter pw = null;
 			TermEnum termEnum = null;
 			try {
-				File tempFile = File.createTempFile("OSS_term_freq", "csv");
+				File tempFile = File.createTempFile("OSS_term_freq", ".csv");
 				pw = new PrintWriter(tempFile);
 				termEnum = buildTermEnum();
 				while (termEnum.term() != null) {

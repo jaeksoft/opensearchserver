@@ -80,7 +80,7 @@ public class AudioParser extends Parser {
 		String filename = this.getFieldValue(ParserFieldEnum.filename, 0);
 		if (filename == null)
 			return;
-		File file = File.createTempFile(FilenameUtils.getBaseName(filename),
+		File file = File.createTempFile("oss",
 				"." + FilenameUtils.getExtension(filename));
 		OutputStream os = new FileOutputStream(file);
 		try {

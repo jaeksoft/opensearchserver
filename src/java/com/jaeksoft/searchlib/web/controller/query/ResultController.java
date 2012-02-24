@@ -316,7 +316,7 @@ public class ResultController extends AbstractQueryController implements
 
 		PrintWriter pw = null;
 		try {
-			File tempFile = File.createTempFile("OSS_Search_Result", "csv");
+			File tempFile = File.createTempFile("OSS_Search_Result", ".csv");
 			pw = new PrintWriter(tempFile);
 			new RenderCSV(result).renderCSV(pw);
 			Filedownload.save(new FileInputStream(tempFile),

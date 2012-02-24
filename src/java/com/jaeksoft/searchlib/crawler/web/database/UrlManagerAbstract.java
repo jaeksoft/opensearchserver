@@ -232,7 +232,7 @@ public abstract class UrlManagerAbstract {
 		PrintWriter pw = null;
 		File tempFile = null;
 		try {
-			tempFile = File.createTempFile("OSS_web_crawler_URLs", "txt");
+			tempFile = File.createTempFile("OSS_web_crawler_URLs", ".txt");
 			pw = new PrintWriter(tempFile);
 			int currentPos = 0;
 			List<UrlItem> uList = new ArrayList<UrlItem>();
@@ -268,7 +268,7 @@ public abstract class UrlManagerAbstract {
 		PrintWriter pw = null;
 		File tempFile = null;
 		try {
-			tempFile = File.createTempFile("OSS_web_crawler_URLs", "xml");
+			tempFile = File.createTempFile("OSS_web_crawler_URLs", ".xml");
 			pw = new PrintWriter(tempFile);
 			DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
