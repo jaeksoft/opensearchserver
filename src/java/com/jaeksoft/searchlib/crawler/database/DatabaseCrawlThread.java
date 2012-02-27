@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 
 public class DatabaseCrawlThread extends CrawlThreadAbstract {
 
@@ -52,13 +53,16 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 
 	private long updatedIndexDocumentCount;
 
+	private TaskLog taskLog;
+
 	public DatabaseCrawlThread(Client client, DatabaseCrawlMaster crawlMaster,
-			DatabaseCrawl databaseCrawl) {
+			DatabaseCrawl databaseCrawl, TaskLog taskLog) {
 		super(client, crawlMaster);
 		this.databaseCrawl = databaseCrawl;
 		this.client = client;
 		pendingIndexDocumentCount = 0;
 		updatedIndexDocumentCount = 0;
+		this.taskLog = taskLog;
 	}
 
 	public String getCountInfo() {
@@ -86,6 +90,8 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		pendingIndexDocumentCount -= i;
 		updatedIndexDocumentCount += i;
 		indexDocumentList.clear();
+		if (taskLog != null)
+			taskLog.setInfo(updatedIndexDocumentCount + " document(s) indexed");
 		return true;
 	}
 

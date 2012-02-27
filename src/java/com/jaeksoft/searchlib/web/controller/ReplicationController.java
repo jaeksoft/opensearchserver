@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -155,7 +155,7 @@ public class ReplicationController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		getReplicationMaster().execute(client, item, false);
+		getReplicationMaster().execute(client, item, false, null);
 		reloadPage();
 	}
 

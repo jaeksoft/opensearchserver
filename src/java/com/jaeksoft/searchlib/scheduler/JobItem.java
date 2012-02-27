@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -213,7 +213,7 @@ public class JobItem extends UniqueNameItem<JobItem> {
 			for (TaskItem task : tasks) {
 				taskLog = new TaskLog(task);
 				jobLog.addLog(taskLog);
-				task.run(client);
+				task.run(client, taskLog);
 				taskLog.end();
 			}
 		} catch (SearchLibException e) {

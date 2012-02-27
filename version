@@ -2,7 +2,7 @@
 VERSION=1.2.4
 
 # STAGE options are "developer", "beta" or "stable"
-STAGE=stable
+STAGE=rc2
 
 # PUBLISH_SOURCEFORGE options are 1 or 0
 PUBLISH_SOURCEFORGE=0

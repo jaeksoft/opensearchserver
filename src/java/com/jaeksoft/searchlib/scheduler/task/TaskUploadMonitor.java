@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,6 +53,7 @@ import com.jaeksoft.searchlib.Monitor;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
@@ -98,8 +99,8 @@ public class TaskUploadMonitor extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties)
-			throws SearchLibException {
+	public void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException {
 		String url = properties.getValue(propUrl);
 		URI uri;
 		try {
@@ -143,6 +144,7 @@ public class TaskUploadMonitor extends TaskAbstract {
 				throw new SearchLibException("Wrong code status:"
 						+ statusLine.getStatusCode() + " "
 						+ statusLine.getReasonPhrase());
+			taskLog.setInfo("Monitoring data uploaded");
 		} catch (ClientProtocolException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

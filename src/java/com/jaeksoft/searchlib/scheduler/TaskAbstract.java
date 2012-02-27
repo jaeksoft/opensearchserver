@@ -68,8 +68,8 @@ public abstract class TaskAbstract {
 	 * @param properties
 	 * @throws SearchLibException
 	 */
-	public abstract void execute(Client client, TaskProperties properties)
-			throws SearchLibException;
+	public abstract void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException;
 
 	/**
 	 * Returns the default value of the property

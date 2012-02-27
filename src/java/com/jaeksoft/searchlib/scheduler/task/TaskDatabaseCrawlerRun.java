@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
@@ -71,21 +72,24 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties)
-			throws SearchLibException {
+	public void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException {
 		DatabaseCrawlMaster crawlMaster = client.getDatabaseCrawlMaster();
 		DatabaseCrawlList crawlList = client.getDatabaseCrawlList();
 		String crawlName = properties.getValue(propCrawlName);
-		if (crawlName == null)
+		if (crawlName == null) {
+			taskLog.setInfo("The crawl name is missing");
 			return;
+		}
 		DatabaseCrawl crawl = crawlList.get(crawlName);
-		if (crawl == null)
+		if (crawl == null) {
+			taskLog.setInfo("Crawl not found: " + crawlName);
 			return;
+		}
 		try {
-			crawlMaster.execute(client, crawl, true);
+			crawlMaster.execute(client, crawl, true, taskLog);
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}
 	}
-
 }

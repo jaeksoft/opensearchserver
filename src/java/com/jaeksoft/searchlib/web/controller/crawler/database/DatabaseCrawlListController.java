@@ -262,7 +262,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		getCrawlMaster().execute(client, item, false);
+		getCrawlMaster().execute(client, item, false, null);
 		reloadPage();
 	}
 

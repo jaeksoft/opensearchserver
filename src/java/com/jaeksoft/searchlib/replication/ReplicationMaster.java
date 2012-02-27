@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.process.ThreadMasterAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 
 public class ReplicationMaster extends ThreadMasterAbstract {
 
@@ -48,8 +49,8 @@ public class ReplicationMaster extends ThreadMasterAbstract {
 	}
 
 	public ReplicationThread execute(Client client,
-			ReplicationItem replicationItem, boolean bWaitForCompletion)
-			throws InterruptedException, SearchLibException {
+			ReplicationItem replicationItem, boolean bWaitForCompletion,
+			TaskLog taskLog) throws InterruptedException, SearchLibException {
 		ReplicationThread replicationThread = null;
 		synchronized (threadMap) {
 			if (threadMap.containsKey(replicationItem)) {
@@ -57,7 +58,7 @@ public class ReplicationMaster extends ThreadMasterAbstract {
 						+ replicationItem.getName() + " is already running");
 			}
 			replicationThread = new ReplicationThread(client, this,
-					replicationItem);
+					replicationItem, taskLog);
 			threadMap.put(replicationItem, replicationThread);
 		}
 		replicationItem.setReplicationThread(replicationThread);

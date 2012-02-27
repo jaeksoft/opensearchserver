@@ -53,6 +53,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.Result;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class Client extends Config {
@@ -95,8 +96,27 @@ public class Client extends Config {
 		}
 	}
 
+	private final int updateDocList(int totalCount, int docCount,
+			Collection<IndexDocument> docList, InfoCallback infoCallBack)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		docCount += updateDocuments(docList);
+		StringBuffer sb = new StringBuffer();
+		sb.append(docCount);
+		sb.append(" / ");
+		sb.append(totalCount);
+		sb.append(" XML document(s) indexed.");
+		if (infoCallBack != null)
+			infoCallBack.setInfo(sb.toString());
+		else
+			Logging.info(sb.toString());
+		docList.clear();
+		return docCount;
+	}
+
 	private int updateXmlDocuments(Node document, int bufferSize,
-			CredentialItem urlDefaultCredential)
+			CredentialItem urlDefaultCredential, InfoCallback infoCallBack)
 			throws XPathExpressionException, NoSuchAlgorithmException,
 			IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
@@ -105,33 +125,30 @@ public class Client extends Config {
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>(
 				bufferSize);
 		int docCount = 0;
+		final int totalCount = nodeList.size();
 		for (Node node : nodeList) {
 			docList.add(new IndexDocument(getParserSelector(), node,
 					urlDefaultCredential));
-			if (docList.size() == bufferSize) {
-				docCount += updateDocuments(docList);
-				Logging.info(docCount + " / " + docList.size()
-						+ " XML document(s) indexed.");
-				docList.clear();
-			}
+			if (docList.size() == bufferSize)
+				docCount = updateDocList(totalCount, docCount, docList,
+						infoCallBack);
 		}
-		if (docList.size() > 0) {
-			docCount += updateDocuments(docList);
-			Logging.info(docCount + " / " + docList.size()
-					+ " XML document(s) indexed.");
-		}
+		if (docList.size() > 0)
+			docCount = updateDocList(totalCount, docCount, docList,
+					infoCallBack);
 		return docCount;
 	}
 
 	public int updateXmlDocuments(InputSource inputSource, int bufferSize,
-			CredentialItem urlDefaultCredential)
+			CredentialItem urlDefaultCredential, InfoCallback infoCallBack)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, NoSuchAlgorithmException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		Document doc = DomUtils.getNewDocumentBuilder(false, true).parse(
 				inputSource);
-		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential);
+		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential,
+				infoCallBack);
 	}
 
 	public boolean deleteDocument(String uniqueField)

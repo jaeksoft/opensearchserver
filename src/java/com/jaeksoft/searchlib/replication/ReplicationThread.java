@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
 import com.jaeksoft.searchlib.web.PushServlet;
@@ -47,13 +48,17 @@ public class ReplicationThread extends ThreadAbstract implements
 
 	private double sendSize;
 
+	private TaskLog taskLog;
+
 	protected ReplicationThread(Client client,
-			ReplicationMaster replicationMaster, ReplicationItem replicationItem) {
+			ReplicationMaster replicationMaster,
+			ReplicationItem replicationItem, TaskLog taskLog) {
 		super(client, replicationMaster);
 		this.replicationItem = replicationItem;
 		this.client = client;
 		totalSize = 0;
 		sendSize = 0;
+		this.taskLog = taskLog;
 	}
 
 	public int getProgress() {
@@ -138,6 +143,8 @@ public class ReplicationThread extends ThreadAbstract implements
 				PushServlet.call_directory(client, replicationItem, file);
 			}
 			addSendSize(file.length());
+			if (taskLog != null)
+				taskLog.setInfo(getProgress() + "% transfered");
 		} catch (IllegalStateException e) {
 			throw new SearchLibException(e);
 		}

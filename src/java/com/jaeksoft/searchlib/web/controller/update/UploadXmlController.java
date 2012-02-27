@@ -76,7 +76,8 @@ public class UploadXmlController extends CommonController {
 		@Override
 		public void runner() throws Exception {
 			setInfo("Running...");
-			int updatedCount = client.updateXmlDocuments(inputSource, 50, null);
+			int updatedCount = client.updateXmlDocuments(inputSource, 50, null,
+					this);
 			setInfo("Done: " + updatedCount + " document(s)");
 		}
 
