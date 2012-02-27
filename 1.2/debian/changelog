@@ -1,0 +1,5 @@
+opensearchserver (1.2.3-1) UNRELEASED; urgency=low
+
+  * Initial release. (Closes: #XXXXXX)
+
+ -- Emmanuel Keller <ekeller@open-search-server.com>  Wed, 28 Sep 2011 10:29:54 +0200
