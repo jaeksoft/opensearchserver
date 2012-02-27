@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -31,14 +31,15 @@
 		</toolbar>
 		<panelchildren>
 			<listbox model="@{schedulerlogs.selectedJob.jobLog.logs}"
-				mold="paging" pageSize="10">
+				mold="paging" pageSize="10" width="100%">
 				<listhead>
-					<listheader label="Start" width="150px" />
-					<listheader label="End" width="150px" />
-					<listheader label="Duration" width="80px" />
-					<listheader label="Task name" width="200px" />
+					<listheader label="Start" hflex="min" />
+					<listheader label="End" hflex="min" />
+					<listheader label="Duration" hflex="min" />
+					<listheader label="Task name" hflex="min" />
 					<listheader label="Properties" />
-					<listheader label="Error" />
+					<listheader label="Info" hflex="min" />
+					<listheader label="Error" hflex="min" />
 				</listhead>
 				<listitem self="@{each=tasklog}">
 					<listcell
@@ -59,6 +60,7 @@
 							</listitem>
 						</listbox>
 					</listcell>
+					<listcell label="@{tasklog.info}" />
 					<listcell label="@{tasklog.error.message}" />
 				</listitem>
 			</listbox>
