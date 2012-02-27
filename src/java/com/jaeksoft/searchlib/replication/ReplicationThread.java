@@ -98,7 +98,7 @@ public class ReplicationThread extends ThreadAbstract implements
 	public void push() throws SearchLibException {
 		setTotalSize(ClientCatalog
 				.getLastModifiedAndSize(client.getIndexName()).getSize());
-		addSendSize(client.getIndexName().length());
+		addSendSize(client.getDirectory());
 		PushServlet.call_init(replicationItem);
 		new RecursiveDirectoryBrowser(client.getDirectory(), this);
 		PushServlet.call_switch(replicationItem);
@@ -113,10 +113,10 @@ public class ReplicationThread extends ThreadAbstract implements
 		}
 	}
 
-	private void addSendSize(long size) {
+	private void addSendSize(File file) {
 		rwl.w.lock();
 		try {
-			sendSize += size;
+			sendSize += file.length();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -142,7 +142,7 @@ public class ReplicationThread extends ThreadAbstract implements
 			} else {
 				PushServlet.call_directory(client, replicationItem, file);
 			}
-			addSendSize(file.length());
+			addSendSize(file);
 			if (taskLog != null)
 				taskLog.setInfo(getProgress() + "% transfered");
 		} catch (IllegalStateException e) {
