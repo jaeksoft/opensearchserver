@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
@@ -124,19 +125,22 @@ public class TaskPullTerms extends TaskAbstract {
 		return null;
 	}
 
-	final private static void indexBuffer(List<IndexDocument> buffer,
-			Client target) throws SearchLibException, NoSuchAlgorithmException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	final private static int indexBuffer(int totalCount,
+			List<IndexDocument> buffer, Client target, TaskLog taskLog)
+			throws SearchLibException, NoSuchAlgorithmException, IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (buffer.size() == 0)
-			return;
-		target.updateDocuments(buffer);
+			return totalCount;
+		totalCount += target.updateDocuments(buffer);
 		buffer.clear();
+		taskLog.setInfo(totalCount + " term(s) indexed");
+		return totalCount;
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties)
-			throws SearchLibException {
+	public void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException {
 		String sourceIndex = properties.getValue(propSourceIndex);
 		String sourceField = properties.getValue(propSourceField);
 		String login = properties.getValue(propLogin);
@@ -177,6 +181,7 @@ public class TaskPullTerms extends TaskAbstract {
 			List<IndexDocument> buffer = new ArrayList<IndexDocument>(
 					bufferSize);
 
+			int totalCount = 0;
 			while ((term = termEnum.term()) != null) {
 				if (!sourceFieldName.equals(term.field()))
 					break;
@@ -191,12 +196,13 @@ public class TaskPullTerms extends TaskAbstract {
 						indexDocument.addString(targetFreqField, text);
 					buffer.add(indexDocument);
 					if (buffer.size() == bufferSize)
-						indexBuffer(buffer, client);
+						totalCount = indexBuffer(totalCount, buffer, client,
+								taskLog);
 				}
 				if (!termEnum.next())
 					break;
 			}
-			indexBuffer(buffer, client);
+			totalCount = indexBuffer(totalCount, buffer, client, taskLog);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

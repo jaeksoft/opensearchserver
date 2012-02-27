@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
@@ -86,8 +87,8 @@ public class TaskXmlLoad extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties)
-			throws SearchLibException {
+	public void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException {
 		String uri = properties.getValue(propUri);
 		String login = properties.getValue(propLogin);
 		String password = properties.getValue(propPassword);
@@ -107,7 +108,7 @@ public class TaskXmlLoad extends TaskAbstract {
 					credentialItem);
 			client.updateXmlDocuments(
 					new InputSource(downloadItem.getContentInputStream()),
-					bufferSize, credentialItem, proxyHandler);
+					bufferSize, credentialItem, proxyHandler, taskLog);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {

@@ -66,7 +66,8 @@ public class IndexServlet extends AbstractServlet {
 				InputSource inputSource = new InputSource(
 						transaction.getReader());
 				result = client.updateXmlDocuments(inputSource, bufferSize,
-						null, client.getWebPropertyManager().getProxyHandler());
+						null, client.getWebPropertyManager().getProxyHandler(),
+						null);
 			}
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Count", Integer.toString(result));

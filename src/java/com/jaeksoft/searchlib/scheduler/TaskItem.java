@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -63,8 +63,8 @@ public class TaskItem {
 		return userProperties.getArray();
 	}
 
-	public void run(Client client) throws SearchLibException {
-		task.execute(client, userProperties);
+	public void run(Client client, TaskLog taskLog) throws SearchLibException {
+		task.execute(client, userProperties, taskLog);
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {

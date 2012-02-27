@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
@@ -166,16 +167,18 @@ public class AutoCompletionManager {
 			throw new SearchLibException("The build is already running");
 	}
 
-	private void builder(Long endTimeOut) throws SearchLibException {
+	private void builder(Long endTimeOut, InfoCallback infoCallBack)
+			throws SearchLibException {
 		checkIfRunning();
-		buildThread.init(propField);
+		buildThread.init(propField, infoCallBack);
 		buildThread.execute();
 		buildThread.waitForStart(60);
 		if (endTimeOut != null)
 			buildThread.waitForEnd(600);
 	}
 
-	public void build(Long waitForEndTimeOut) throws SearchLibException {
+	public void build(Long waitForEndTimeOut, InfoCallback infoCallBack)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkIfRunning();
@@ -184,7 +187,7 @@ public class AutoCompletionManager {
 		}
 		rwl.w.lock();
 		try {
-			builder(waitForEndTimeOut);
+			builder(waitForEndTimeOut, infoCallBack);
 		} finally {
 			rwl.w.unlock();
 		}

@@ -49,7 +49,7 @@ public class Full {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
 		FileInputStream fis = new FileInputStream(contentFile);
-		client.updateXmlDocuments(new InputSource(fis), 10, null, null);
+		client.updateXmlDocuments(new InputSource(fis), 10, null, null, null);
 		fis.close();
 		client.reload();
 	}

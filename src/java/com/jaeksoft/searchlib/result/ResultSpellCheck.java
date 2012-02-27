@@ -24,16 +24,38 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
-import com.jaeksoft.searchlib.index.ReaderInterface;
+import org.apache.lucene.queryParser.ParseException;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
+import com.jaeksoft.searchlib.spellcheck.SpellCheck;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 
 public class ResultSpellCheck extends AbstractResult<SpellCheckRequest> {
 
-	public ResultSpellCheck(ReaderInterface reader, SpellCheckRequest request) {
+	private List<SpellCheck> spellCheckList;
+
+	public ResultSpellCheck(ReaderLocal reader, SpellCheckRequest request)
+			throws SearchLibException, ParseException, SyntaxError, IOException {
 		super(request);
+		spellCheckList = new ArrayList<SpellCheck>(0);
+		for (SpellCheckField spellCheckField : request.getSpellCheckFieldList())
+			spellCheckList
+					.add(new SpellCheck(reader, request, spellCheckField));
+
+	}
+
+	public List<SpellCheck> getSpellCheckList() {
+		return spellCheckList;
 	}
 
 	@Override

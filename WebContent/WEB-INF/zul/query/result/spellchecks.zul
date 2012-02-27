@@ -15,7 +15,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="result"
-	use="com.jaeksoft.searchlib.web.controller.query.ResultController"
+	use="com.jaeksoft.searchlib.web.controller.query.ResultSpellCheckController"
 	border="none">
 	<listbox model="@{result.spellCheckList}">
 		<listitem self="@{each='spellCheck'}">

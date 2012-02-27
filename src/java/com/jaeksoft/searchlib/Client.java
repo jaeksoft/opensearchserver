@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -38,7 +39,8 @@ import org.apache.http.HttpException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -52,8 +54,9 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.XPathParser;
 
 public class Client extends Config {
 
@@ -97,49 +100,61 @@ public class Client extends Config {
 		}
 	}
 
-	private final int updateBuffer(Collection<IndexDocument> docList,
-			int docCount, int docTotal) throws SearchLibException, IOException,
-			NoSuchAlgorithmException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
+	private final int updateDocList(int totalCount, int docCount,
+			Collection<IndexDocument> docList, InfoCallback infoCallBack)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		checkMaxDocumentLimit(docList.size());
 		docCount += updateDocuments(docList);
+		StringBuffer sb = new StringBuffer();
+		sb.append(docCount);
+		sb.append(" / ");
+		sb.append(totalCount);
+		sb.append(" XML document(s) indexed.");
+		if (infoCallBack != null)
+			infoCallBack.setInfo(sb.toString());
+		else
+			Logging.info(sb.toString());
 		docList.clear();
 		return docCount;
 	}
 
-	private int updateXmlDocuments(XPathParser xpp, int bufferSize,
-			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler)
-			throws XPathExpressionException, NoSuchAlgorithmException,
-			IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
+	private int updateXmlDocuments(Node document, int bufferSize,
+			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler,
+			InfoCallback infoCallBack) throws XPathExpressionException,
+			NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		NodeList nodeList = xpp.getNodeList("/index/document");
-		int l = nodeList.getLength();
+		List<Node> nodeList = DomUtils.getNodes(document, "index", "document");
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>(
 				bufferSize);
 		int docCount = 0;
-		for (int i = 0; i < l; i++) {
-			docList.add(new IndexDocument(this, getParserSelector(), nodeList
-					.item(i), urlDefaultCredential, proxyHandler));
+		final int totalCount = nodeList.size();
+		for (Node node : nodeList) {
+			docList.add(new IndexDocument(this, getParserSelector(), node,
+					urlDefaultCredential, proxyHandler));
 			if (docList.size() == bufferSize)
-				docCount = updateBuffer(docList, docCount, l);
-
+				docCount = updateDocList(totalCount, docCount, docList,
+						infoCallBack);
 		}
 		if (docList.size() > 0)
-			docCount = updateBuffer(docList, docCount, l);
+			docCount = updateDocList(totalCount, docCount, docList,
+					infoCallBack);
 		return docCount;
 	}
 
 	public int updateXmlDocuments(InputSource inputSource, int bufferSize,
-			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler)
-			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, NoSuchAlgorithmException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
-		XPathParser xpp = new XPathParser(inputSource);
-		return updateXmlDocuments(xpp, bufferSize, urlDefaultCredential,
-				proxyHandler);
+			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler,
+			InfoCallback infoCallBack) throws ParserConfigurationException,
+			SAXException, IOException, XPathExpressionException,
+			NoSuchAlgorithmException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		Document doc = DomUtils.getNewDocumentBuilder(false, true).parse(
+				inputSource);
+		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential,
+				proxyHandler, infoCallBack);
 	}
 
 	public boolean deleteDocument(String uniqueField)

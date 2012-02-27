@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,7 +61,7 @@ public class DatabaseServlet extends AbstractServlet {
 						+ name + ")");
 			DatabaseCrawlThread databaseCrawlThread = client
 					.getDatabaseCrawlMaster().execute(client, databaseCrawl,
-							true);
+							true, null);
 			if (databaseCrawlThread.getStatus() == CrawlStatus.ERROR)
 				transaction.addXmlResponse("status", "error");
 			else

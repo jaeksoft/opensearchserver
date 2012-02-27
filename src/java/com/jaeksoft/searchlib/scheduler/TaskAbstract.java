@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -68,8 +68,8 @@ public abstract class TaskAbstract {
 	 * @param properties
 	 * @throws SearchLibException
 	 */
-	public abstract void execute(Client client, TaskProperties properties)
-			throws SearchLibException;
+	public abstract void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException;
 
 	/**
 	 * Returns the default value of the property

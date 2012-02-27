@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,9 +28,10 @@ import java.lang.Thread.State;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public abstract class ThreadAbstract implements Runnable {
+public abstract class ThreadAbstract implements Runnable, InfoCallback {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -85,7 +86,8 @@ public abstract class ThreadAbstract implements Runnable {
 		}
 	}
 
-	protected void setInfo(String info) {
+	@Override
+	public void setInfo(String info) {
 		rwl.w.lock();
 		try {
 			this.info = info;

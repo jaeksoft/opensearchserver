@@ -56,12 +56,21 @@ public abstract class AbstractQueryController extends CommonController {
 		return (AbstractRequest) ScopeAttribute.QUERY_REQUEST.get(this);
 	}
 
-	public AbstractResult<?> getResult() {
+	protected AbstractResult<?> getAbstractResult() {
 		return (AbstractResult<?>) ScopeAttribute.QUERY_SEARCH_RESULT.get(this);
 	}
 
+	protected AbstractResult<?> getResult(RequestTypeEnum type) {
+		AbstractResult<?> result = getAbstractResult();
+		if (result == null)
+			return null;
+		if (result.getRequest().getType() != type)
+			return null;
+		return result;
+	}
+
 	private boolean isResult(RequestTypeEnum type) {
-		AbstractResult<?> result = getResult();
+		AbstractResult<?> result = getAbstractResult();
 		if (result == null)
 			return false;
 		return result.getRequest().getType() == type;

@@ -308,7 +308,7 @@ public final class QueryController extends AbstractQueryController {
 
 		request.reset();
 		setResult(getClient().request(request));
-		PushEvent.QUERY_EDIT_RESULT.publish(getResult());
+		PushEvent.QUERY_EDIT_RESULT.publish(getAbstractResult());
 	}
 
 	/**

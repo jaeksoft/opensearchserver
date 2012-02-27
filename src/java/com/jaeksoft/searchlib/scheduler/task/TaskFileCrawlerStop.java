@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 
@@ -55,12 +56,18 @@ public class TaskFileCrawlerStop extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties)
-			throws SearchLibException {
+	public void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException {
 		CrawlFileMaster crawlMaster = client.getFileCrawlMaster();
-		if (!crawlMaster.isRunning())
+		if (!crawlMaster.isRunning()) {
+			taskLog.setInfo("Was not running");
 			return;
+		}
+		taskLog.setInfo("Abort request");
 		crawlMaster.abort();
-		crawlMaster.waitForEnd(0);
+		if (!crawlMaster.waitForEnd(600))
+			taskLog.setInfo("Not stopped after 10 minutes");
+		else
+			taskLog.setInfo("Stopped");
 	}
 }

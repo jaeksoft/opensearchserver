@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
@@ -68,13 +69,15 @@ public class TaskDeleteQuery extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties)
-			throws SearchLibException {
+	public void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException {
 		String query = properties.getValue(propQuery);
 		try {
 			SearchRequest request = new SearchRequest(client);
 			request.setQueryString(query);
-			client.deleteDocuments(request);
+			taskLog.setInfo("Deletion request");
+			int i = client.deleteDocuments(request);
+			taskLog.setInfo(i + " document(s) deleted");
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {

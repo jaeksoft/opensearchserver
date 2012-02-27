@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 
 public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 
@@ -43,8 +44,8 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 	}
 
 	public DatabaseCrawlThread execute(Client client,
-			DatabaseCrawl databaseCrawl, boolean bWaitForCompletion)
-			throws InterruptedException, SearchLibException {
+			DatabaseCrawl databaseCrawl, boolean bWaitForCompletion,
+			TaskLog taskLog) throws InterruptedException, SearchLibException {
 		DatabaseCrawlThread databaseCrawlThread = null;
 		synchronized (threadMap) {
 			if (threadMap.containsKey(databaseCrawl)) {
@@ -52,7 +53,7 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract {
 						+ databaseCrawl.getName() + " is already running");
 			}
 			databaseCrawlThread = new DatabaseCrawlThread(client, this,
-					databaseCrawl);
+					databaseCrawl, taskLog);
 			threadMap.put(databaseCrawl, databaseCrawlThread);
 		}
 		databaseCrawl.setCrawlThread(databaseCrawlThread);

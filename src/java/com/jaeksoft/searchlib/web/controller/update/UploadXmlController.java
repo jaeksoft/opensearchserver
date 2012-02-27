@@ -80,7 +80,7 @@ public class UploadXmlController extends CommonController {
 			ProxyHandler proxyHandler = client.getWebPropertyManager()
 					.getProxyHandler();
 			int updatedCount = client.updateXmlDocuments(inputSource, 50, null,
-					proxyHandler);
+					proxyHandler, this);
 			setInfo("Done: " + updatedCount + " document(s)");
 		}
 

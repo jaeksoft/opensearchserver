@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -15,7 +15,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="result"
-	use="com.jaeksoft.searchlib.web.controller.query.ResultController">
+	use="com.jaeksoft.searchlib.web.controller.query.ResultSearchController">
 	<panel title="Summary" visible="@{result.resultExists}"
 		collapsible="true" border="normal">
 		<caption>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.replication.ReplicationItem;
 import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
@@ -73,18 +74,22 @@ public class TaskReplicationRun extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties)
-			throws SearchLibException {
+	public void execute(Client client, TaskProperties properties,
+			TaskLog taskLog) throws SearchLibException {
 		ReplicationMaster replicationMaster = client.getReplicationMaster();
 		ReplicationList replicationList = client.getReplicationList();
 		String replicationName = properties.getValue(propReplicationName);
-		if (replicationName == null)
+		if (replicationName == null) {
+			taskLog.setInfo("No replication name");
 			return;
+		}
 		ReplicationItem replicationItem = replicationList.get(replicationName);
-		if (replicationItem == null)
+		if (replicationItem == null) {
+			taskLog.setInfo("Replication name not found: " + replicationName);
 			return;
+		}
 		try {
-			replicationMaster.execute(client, replicationItem, true);
+			replicationMaster.execute(client, replicationItem, true, taskLog);
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}
