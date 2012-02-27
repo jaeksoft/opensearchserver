@@ -225,7 +225,6 @@ public class JobItem extends UniqueNameItem<JobItem> {
 			taskLog.setError(se);
 			setLastError(se);
 			Logging.warn(e);
-			e.printStackTrace();
 		} finally {
 			if (taskLog != null)
 				taskLog.end();
