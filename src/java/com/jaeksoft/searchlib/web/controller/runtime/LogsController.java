@@ -26,14 +26,13 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class LogsController extends CommonController {
@@ -65,14 +64,7 @@ public class LogsController extends CommonController {
 		File[] files = Logging.getLogFiles();
 		if (files == null)
 			return null;
-		Arrays.sort(files, new Comparator<File>() {
-			@Override
-			public int compare(File f1, File f2) {
-				Long l1 = f1.lastModified();
-				Long l2 = f2.lastModified();
-				return l2.compareTo(l1);
-			}
-		});
+		FilesUtils.sortByLastModified(files, true);
 		String[] names = new String[files.length];
 		int i = 0;
 		for (File file : files)
