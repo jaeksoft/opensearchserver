@@ -257,7 +257,20 @@ public class SnippetField extends Field {
 		}
 	}
 
-	private TermVectorOffsetInfo checkValue(TermVectorOffsetInfo currentVector,
+	private final void appendSubString(String text, int start, int end,
+			StringBuffer sb) {
+		if (text == null)
+			return;
+		int l = text.length();
+		if (end > l)
+			end = l;
+		if (end < start)
+			return;
+		sb.append(text.substring(start, end));
+	}
+
+	private final TermVectorOffsetInfo checkValue(
+			TermVectorOffsetInfo currentVector,
 			Iterator<TermVectorOffsetInfo> vectorIterator, int startOffset,
 			Fragment fragment) {
 		if (currentVector == null)
@@ -273,11 +286,11 @@ public class SnippetField extends Field {
 				break;
 			int start = currentVector.getStartOffset() - fragment.vectorOffset;
 			if (start >= startOffset) {
-				result.append(originalText.substring(pos, start - startOffset));
+				appendSubString(originalText, pos, start - startOffset, result);
 				if (tags != null)
 					result.append(tags[0]);
-				result.append(originalText.substring(start - startOffset, end
-						- startOffset));
+				appendSubString(originalText, start - startOffset, end
+						- startOffset, result);
 				if (tags != null)
 					result.append(tags[1]);
 				pos = end - startOffset;
@@ -288,7 +301,7 @@ public class SnippetField extends Field {
 		if (result.length() == 0)
 			return currentVector;
 		if (pos < originalTextLength)
-			result.append(originalText.substring(pos, originalTextLength));
+			appendSubString(originalText, pos, originalTextLength, result);
 		fragment.setHighlightedText(result.toString());
 		return currentVector;
 	}

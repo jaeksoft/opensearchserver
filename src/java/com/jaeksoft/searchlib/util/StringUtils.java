@@ -106,6 +106,8 @@ public class StringUtils {
 	public static void main(String[] args) {
 		String text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
 		System.out.println(removeTag(text));
+		text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
+		System.out.println(removeTag(text));
 	}
 
 	public static final String removeTag(String text, String[] allowedTags) {

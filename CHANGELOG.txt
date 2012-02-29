@@ -24,6 +24,7 @@ New features:
 - 3469777: Scored snippets
 
 Bug fixes:
+- 3495681: StringIndexOutOfBoundsException on snippet
 - 3489854: A faster indexation when using XML upload
 - 3489550: Schema API gives IllegalStateException
 - 3485241: Pages with meta noindex are indexed
