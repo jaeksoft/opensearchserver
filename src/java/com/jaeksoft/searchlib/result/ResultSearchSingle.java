@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -34,6 +33,7 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 

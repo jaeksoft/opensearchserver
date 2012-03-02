@@ -26,11 +26,11 @@ package com.jaeksoft.searchlib.request;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public enum RequestTypeEnum {

@@ -32,7 +32,6 @@ import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.Query;
@@ -53,6 +52,7 @@ import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.schema.Field;
@@ -301,7 +301,11 @@ public class SearchRequest extends AbstractRequest {
 			String fq = getFinalQuery();
 			if (fq == null)
 				return null;
-			boostedComplexQuery = queryParser.parse(fq);
+			try {
+				boostedComplexQuery = queryParser.parse(fq);
+			} catch (org.apache.lucene.queryParser.ParseException e) {
+				throw new ParseException(e);
+			}
 			snippetComplexQuery = boostedComplexQuery;
 			if (advancedScore != null && !advancedScore.isEmpty())
 				boostedComplexQuery = advancedScore

@@ -28,14 +28,13 @@ import java.io.IOException;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldContentCacheKey;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -52,8 +51,8 @@ public class FieldCache extends
 	}
 
 	public FieldList<FieldValue> get(ReaderLocal reader, int docId,
-			FieldList<Field> fieldList) throws CorruptIndexException,
-			IOException, ParseException, SyntaxError {
+			FieldList<Field> fieldList) throws IOException, ParseException,
+			SyntaxError {
 		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
 		FieldList<Field> storeField = new FieldList<Field>();
 		FieldList<Field> vectorField = new FieldList<Field>();

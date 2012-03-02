@@ -35,14 +35,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -50,6 +47,7 @@ import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -94,8 +92,6 @@ public class WriterLocal extends WriterAbstract {
 			if (indexWriter != null) {
 				try {
 					indexWriter.close();
-				} catch (CorruptIndexException e) {
-					Logging.error(e.getMessage(), e);
 				} catch (IOException e) {
 					Logging.error(e.getMessage(), e);
 				} finally {
@@ -108,8 +104,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private void open() throws CorruptIndexException,
-			LockObtainFailedException, IOException, InstantiationException,
+	private void open() throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		l.lock();
 		try {
@@ -128,8 +123,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private static IndexWriter openIndexWriter(Directory directory,
-			boolean create) throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			boolean create) throws IOException {
 		return new IndexWriter(directory, null, create,
 				IndexWriter.MaxFieldLength.UNLIMITED);
 	}
@@ -148,14 +142,10 @@ public class WriterLocal extends WriterAbstract {
 			directory = FSDirectory.open(dataDir);
 			indexWriter = openIndexWriter(directory, true);
 			return dataDir;
-		} catch (IOException e) {
-			throw e;
 		} finally {
 			if (indexWriter != null) {
 				try {
 					indexWriter.close();
-				} catch (CorruptIndexException e) {
-					Logging.error(e.getMessage(), e);
 				} catch (IOException e) {
 					Logging.error(e.getMessage(), e);
 				}
@@ -171,9 +161,9 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Deprecated
-	public void addDocument(Document document) throws CorruptIndexException,
-			LockObtainFailedException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	public void addDocument(Document document) throws IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		l.lock();
 		try {
 			open();
@@ -185,8 +175,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private boolean updateDoc(Schema schema, IndexDocument document)
-			throws CorruptIndexException, IOException,
-			NoSuchAlgorithmException, SearchLibException {
+			throws IOException, NoSuchAlgorithmException, SearchLibException {
 		if (!acceptDocument(document))
 			return false;
 
@@ -223,10 +212,6 @@ public class WriterLocal extends WriterAbstract {
 			if (updated)
 				readerLocal.reload();
 			return updated;
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
@@ -257,10 +242,6 @@ public class WriterLocal extends WriterAbstract {
 			if (count > 0)
 				readerLocal.reload();
 			return count;
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
@@ -314,10 +295,6 @@ public class WriterLocal extends WriterAbstract {
 			optimizing = true;
 			indexWriter.optimize(maxNumSegments, true);
 			close();
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
@@ -344,10 +321,6 @@ public class WriterLocal extends WriterAbstract {
 			close();
 			readerLocal.reload();
 			return true;
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
@@ -378,10 +351,6 @@ public class WriterLocal extends WriterAbstract {
 			if (terms.length > 0)
 				readerLocal.reload();
 			return terms.length;
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
@@ -405,10 +374,6 @@ public class WriterLocal extends WriterAbstract {
 			close();
 			readerLocal.reload();
 			return 0;
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {

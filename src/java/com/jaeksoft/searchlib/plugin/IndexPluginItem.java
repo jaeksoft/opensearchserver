@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.plugin;
 
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.xml.xpath.XPathExpressionException;
 

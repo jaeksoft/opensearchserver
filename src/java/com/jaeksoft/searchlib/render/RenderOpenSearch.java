@@ -37,8 +37,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -48,6 +46,7 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -114,8 +113,8 @@ public class RenderOpenSearch implements Render {
 		writer.println("</rss>");
 	}
 
-	private void renderDocuments() throws CorruptIndexException, IOException,
-			ParseException, SyntaxError, XPathExpressionException,
+	private void renderDocuments() throws IOException, ParseException,
+			SyntaxError, XPathExpressionException,
 			ParserConfigurationException, SAXException {
 		SearchRequest searchRequest = result.getRequest();
 		int start = searchRequest.getStart();
@@ -140,8 +139,8 @@ public class RenderOpenSearch implements Render {
 
 	}
 
-	private void renderDocument(int pos) throws CorruptIndexException,
-			IOException, ParseException, SyntaxError, XPathExpressionException,
+	private void renderDocument(int pos) throws IOException, ParseException,
+			SyntaxError, XPathExpressionException,
 			ParserConfigurationException, SAXException {
 
 		writer.println("<item>");
@@ -162,9 +161,8 @@ public class RenderOpenSearch implements Render {
 	}
 
 	private void renderField(ResultDocument doc, Field field)
-			throws CorruptIndexException, IOException,
-			XPathExpressionException, ParserConfigurationException,
-			SAXException {
+			throws IOException, XPathExpressionException,
+			ParserConfigurationException, SAXException {
 		String fieldName = field.getName();
 		List<FieldValueItem> values = doc.getValueList(field);
 		String openSearchtitleField = getFieldMap("opensearch", "title");

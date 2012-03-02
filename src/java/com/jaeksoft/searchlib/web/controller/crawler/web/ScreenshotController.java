@@ -31,7 +31,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.zkoss.zul.Image;
 
 import com.jaeksoft.searchlib.Client;
@@ -42,6 +41,7 @@ import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotMethod;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;

@@ -24,8 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
-import org.apache.lucene.queryParser.ParseException;
-
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.ExtensibleEnumItem;

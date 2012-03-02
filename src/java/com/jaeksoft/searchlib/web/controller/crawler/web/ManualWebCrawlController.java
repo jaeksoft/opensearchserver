@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -36,6 +35,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ManualWebCrawlController extends CommonController {

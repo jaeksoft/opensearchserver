@@ -33,12 +33,11 @@ import java.util.Collection;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.request.DeleteRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -69,10 +68,9 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	private int deleteByQuery(Client client, String q)
-			throws CorruptIndexException, SearchLibException, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, ParseException, SyntaxError,
-			URISyntaxException, InterruptedException {
+			throws SearchLibException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, ParseException,
+			SyntaxError, URISyntaxException, InterruptedException {
 		SearchRequest request = new SearchRequest(client);
 		request.setQueryString(q);
 		return client.deleteDocuments(request);

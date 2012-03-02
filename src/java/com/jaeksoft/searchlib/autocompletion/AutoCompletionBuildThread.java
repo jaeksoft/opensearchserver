@@ -31,10 +31,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
-import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -42,6 +40,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -87,10 +86,10 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 		return docCount;
 	}
 
-	final private void truncateIndex() throws CorruptIndexException,
-			SearchLibException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError, URISyntaxException, InterruptedException {
+	final private void truncateIndex() throws SearchLibException, IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, ParseException, SyntaxError,
+			URISyntaxException, InterruptedException {
 		SearchRequest searchRequest = new SearchRequest(autoCompClient);
 		searchRequest.setQueryString("*:*");
 		autoCompClient.deleteDocuments(searchRequest);

@@ -30,12 +30,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -77,7 +77,11 @@ public class Filter implements Externalizable {
 		QueryParser queryParser = new QueryParser(Version.LUCENE_29,
 				defaultField.getName(), analyzer);
 		queryParser.setLowercaseExpandedTerms(false);
-		query = queryParser.parse(queryString);
+		try {
+			query = queryParser.parse(queryString);
+		} catch (org.apache.lucene.queryParser.ParseException e) {
+			throw new ParseException(e);
+		}
 		return query;
 	}
 

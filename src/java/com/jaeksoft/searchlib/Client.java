@@ -36,9 +36,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.store.LockObtainFailedException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -49,6 +46,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -157,11 +155,9 @@ public class Client extends Config {
 				proxyHandler, infoCallBack);
 	}
 
-	public boolean deleteDocument(String uniqueField)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public boolean deleteDocument(String uniqueField) throws IOException,
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		Timer timer = new Timer("Delete document " + uniqueField);
 		try {
 			return getIndex().deleteDocument(getSchema(), uniqueField);
@@ -171,8 +167,7 @@ public class Client extends Config {
 	}
 
 	public int deleteDocuments(Collection<String> uniqueFields)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, URISyntaxException, SearchLibException,
+			throws IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		Timer timer = new Timer("Delete " + uniqueFields.size() + " documents");
@@ -184,10 +179,9 @@ public class Client extends Config {
 	}
 
 	public int deleteDocuments(SearchRequest searchRequest)
-			throws SearchLibException, CorruptIndexException, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, ParseException, SyntaxError,
-			URISyntaxException, InterruptedException {
+			throws SearchLibException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, ParseException,
+			SyntaxError, URISyntaxException, InterruptedException {
 		Timer timer = new Timer("Delete by query documents");
 		try {
 			return getIndex().deleteDocuments(searchRequest);

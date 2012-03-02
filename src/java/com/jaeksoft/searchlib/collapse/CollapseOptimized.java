@@ -26,13 +26,13 @@ package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.search.ScoreDoc;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;

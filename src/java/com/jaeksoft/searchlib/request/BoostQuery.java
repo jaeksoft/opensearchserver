@@ -29,7 +29,6 @@ import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BoostingQuery;
 import org.apache.lucene.search.Query;
@@ -37,6 +36,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -71,7 +71,12 @@ public class BoostQuery {
 
 	public Query getNewQuery(Query complexQuery, QueryParser queryParser)
 			throws ParseException {
-		return new BoostingQuery(complexQuery, queryParser.parse(query), boost);
+		try {
+			return new BoostingQuery(complexQuery, queryParser.parse(query),
+					boost);
+		} catch (org.apache.lucene.queryParser.ParseException e) {
+			throw new ParseException(e);
+		}
 	}
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {

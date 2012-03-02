@@ -29,8 +29,6 @@ import java.net.URISyntaxException;
 import java.util.Date;
 
 import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -68,8 +66,7 @@ public class CommandsController extends CommonController {
 		}
 	}
 
-	public void onOptimize() throws CorruptIndexException,
-			LockObtainFailedException, IOException, URISyntaxException,
+	public void onOptimize() throws IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
 		synchronized (this) {

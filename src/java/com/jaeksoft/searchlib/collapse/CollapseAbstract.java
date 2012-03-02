@@ -26,9 +26,8 @@ package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
 
-import org.apache.lucene.queryParser.ParseException;
-
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;

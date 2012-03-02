@@ -35,7 +35,6 @@ import java.util.Random;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -59,6 +58,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.DomUtils;
 
 public class WebCrawlMaster extends CrawlMasterAbstract {

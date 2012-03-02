@@ -31,11 +31,10 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.queryParser.ParseException;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -73,7 +72,6 @@ public class ResultDocument implements Externalizable {
 			if (fieldValue != null)
 				returnFields.add(fieldValue);
 		}
-		
 
 		for (SnippetField field : documentsRequest.getSnippetFieldList()) {
 			List<FieldValueItem> snippets = new ArrayList<FieldValueItem>();

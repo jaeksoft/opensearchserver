@@ -27,8 +27,8 @@ package com.jaeksoft.searchlib.util.map;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 public class GenericMap<T1, T2 extends Target> {
 

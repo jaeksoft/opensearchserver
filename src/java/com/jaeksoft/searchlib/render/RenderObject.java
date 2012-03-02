@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.render;
 import java.io.Externalizable;
 import java.io.IOException;
 
-import org.apache.lucene.index.CorruptIndexException;
-
 import com.jaeksoft.searchlib.remote.StreamWriteObject;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
@@ -36,8 +34,7 @@ public class RenderObject implements Render {
 
 	private Externalizable object;
 
-	public RenderObject(Externalizable object) throws CorruptIndexException,
-			IOException {
+	public RenderObject(Externalizable object) throws IOException {
 		this.object = object;
 	}
 

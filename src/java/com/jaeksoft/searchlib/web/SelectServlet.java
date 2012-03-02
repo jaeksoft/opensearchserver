@@ -27,11 +27,10 @@ package com.jaeksoft.searchlib.web;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.apache.lucene.queryParser.ParseException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderSearchJson;

@@ -33,7 +33,6 @@ import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
@@ -41,6 +40,7 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;

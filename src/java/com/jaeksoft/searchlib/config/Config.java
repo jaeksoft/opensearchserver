@@ -43,7 +43,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.lucene.queryParser.ParseException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -79,6 +78,7 @@ import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.logreport.LogReportManager;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginTemplateList;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.replication.ReplicationList;

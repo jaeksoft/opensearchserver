@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.filter;
 import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Query;
@@ -35,6 +34,7 @@ import org.apache.lucene.search.Scorer;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.query.ParseException;
 
 public class FilterHits extends org.apache.lucene.search.Filter {
 

@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 
-import org.apache.lucene.queryParser.ParseException;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -43,6 +41,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 
 public class CrawlFileMaster extends CrawlMasterAbstract {
 

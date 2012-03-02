@@ -29,8 +29,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
 import org.json.simple.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,6 +37,7 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -70,9 +69,8 @@ public class RenderSearchJson implements Render {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void renderDocuments(JSONObject jsonResponse)
-			throws CorruptIndexException, IOException, ParseException,
-			SyntaxError {
+	private void renderDocuments(JSONObject jsonResponse) throws IOException,
+			ParseException, SyntaxError {
 		SearchRequest searchRequest = result.getRequest();
 		ArrayList<JSONObject> resultArrayList = new ArrayList<JSONObject>();
 		int start = searchRequest.getStart();
@@ -92,9 +90,8 @@ public class RenderSearchJson implements Render {
 
 	@SuppressWarnings("unchecked")
 	private void renderDocument(int pos, JSONObject jsonResult,
-			ArrayList<JSONObject> resultArrayList)
-			throws CorruptIndexException, IOException, ParseException,
-			SyntaxError {
+			ArrayList<JSONObject> resultArrayList) throws IOException,
+			ParseException, SyntaxError {
 		JSONObject jsonDoc = new JSONObject();
 		ArrayList<JSONObject> jsonFieldList = new ArrayList<JSONObject>();
 		ArrayList<JSONObject> jsonSnippetList = new ArrayList<JSONObject>();
@@ -119,8 +116,7 @@ public class RenderSearchJson implements Render {
 
 	@SuppressWarnings("unchecked")
 	private void renderField(ResultDocument doc, Field field,
-			ArrayList<JSONObject> jsonFieldList) throws CorruptIndexException,
-			IOException {
+			ArrayList<JSONObject> jsonFieldList) throws IOException {
 		String fieldName = field.getName();
 		List<FieldValueItem> values = doc.getValueList(field);
 		JSONObject jsonField = new JSONObject();

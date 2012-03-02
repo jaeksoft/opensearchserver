@@ -39,9 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpException;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -55,6 +52,7 @@ import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -89,10 +87,6 @@ public class UrlManager extends UrlManagerAbstract {
 				return;
 			targetClient.deleteDocument(sUrl);
 			urlDbClient.deleteDocument(sUrl);
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
@@ -114,10 +108,6 @@ public class UrlManager extends UrlManagerAbstract {
 		try {
 			targetClient.deleteDocuments(workDeleteUrlList);
 			urlDbClient.deleteDocuments(workDeleteUrlList);
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {

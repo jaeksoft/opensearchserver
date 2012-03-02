@@ -36,16 +36,13 @@ import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
-import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.index.TermPositions;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.FieldCache.StringIndex;
@@ -59,7 +56,6 @@ import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -69,6 +65,7 @@ import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.cache.SpellCheckerCache;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentRequest;
@@ -397,19 +394,17 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	protected void fastDeleteDocument(int docNum) throws StaleReaderException,
-			CorruptIndexException, LockObtainFailedException, IOException {
+	protected void fastDeleteDocument(int docNum) throws IOException {
 		indexReader.deleteDocument(docNum);
 	}
 
 	protected void fastDeleteDocument(String fieldName, String value)
-			throws StaleReaderException, CorruptIndexException,
-			LockObtainFailedException, IOException {
+			throws IOException {
 		indexReader.deleteDocuments(new Term(fieldName, value));
 	}
 
 	public Document getDocFields(int docId, FieldSelector selector)
-			throws CorruptIndexException, IOException {
+			throws IOException {
 		rwl.r.lock();
 		try {
 			return indexReader.document(docId, selector);
@@ -622,8 +617,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public FieldList<FieldValue> getDocumentFields(int docId,
-			FieldList<Field> fieldList) throws CorruptIndexException,
-			IOException, ParseException, SyntaxError {
+			FieldList<Field> fieldList) throws IOException, ParseException,
+			SyntaxError {
 		rwl.r.lock();
 		try {
 			return fieldCache.get(this, docId, fieldList);
