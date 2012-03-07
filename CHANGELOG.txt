@@ -38,6 +38,7 @@ New features:
 - 3469777: Scored snippets
 
 Bug fixes:
+- 3498607: NPE when collapsing is enable with no documents found
 - 3489854: A faster indexation when using XML upload
 - 3485241: Pages with meta noindex are indexed
 - 3483798: HTML parser prints many logs

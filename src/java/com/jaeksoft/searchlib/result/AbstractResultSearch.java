@@ -45,6 +45,7 @@ public abstract class AbstractResultSearch extends
 	private ResultDocument[] resultDocuments;
 
 	private final static ResultDocument[] noDocuments = new ResultDocument[0];
+	private final static ResultScoreDoc[] noResultScoreDocs = new ResultScoreDoc[0];
 
 	protected AbstractResultSearch(SearchRequest searchRequest) {
 		super(searchRequest);
@@ -52,7 +53,7 @@ public abstract class AbstractResultSearch extends
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
-		this.docs = new ResultScoreDoc[0];
+		this.docs = noResultScoreDocs;
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		collapse = CollapseAbstract.newInstance(searchRequest);
@@ -86,7 +87,7 @@ public abstract class AbstractResultSearch extends
 	}
 
 	protected void setDocs(ResultScoreDoc[] docs) {
-		this.docs = docs;
+		this.docs = docs == null ? noResultScoreDocs : docs;
 	}
 
 	public int getDocLength() {

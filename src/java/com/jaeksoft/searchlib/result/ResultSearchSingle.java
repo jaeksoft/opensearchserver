@@ -79,7 +79,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 		facetStringIndexArray = FacetField.newStringIndexArrayForCollapsing(
 				searchRequest.getFacetFieldList(), reader);
-		if (facetStringIndexArray != null)
+		if (facetStringIndexArray != null && docs != null)
 			for (ResultScoreDoc doc : docs)
 				doc.loadFacetValues(facetStringIndexArray);
 
@@ -89,7 +89,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		if (searchRequest.isWithSortValues()) {
 			sortStringIndexArray = searchRequest.getSortList()
 					.newStringIndexArray(reader);
-			if (sortStringIndexArray != null)
+			if (sortStringIndexArray != null && docs != null)
 				for (ResultScoreDoc doc : docs)
 					doc.loadSortValues(sortStringIndexArray);
 		}
