@@ -24,12 +24,14 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
 public class FilesUtils {
 
-	public static class LastModifiedAscComparator implements Comparator<File> {
+	public final static class LastModifiedAscComparator implements
+			Comparator<File> {
 		@Override
 		final public int compare(File f1, File f2) {
 			Long l1 = f1.lastModified();
@@ -38,7 +40,8 @@ public class FilesUtils {
 		}
 	}
 
-	public static class LastModifiedDescComparator implements Comparator<File> {
+	public final static class LastModifiedDescComparator implements
+			Comparator<File> {
 		@Override
 		final public int compare(File f1, File f2) {
 			Long l1 = f1.lastModified();
@@ -47,12 +50,25 @@ public class FilesUtils {
 		}
 	}
 
-	public static File[] sortByLastModified(File[] files, boolean desc) {
+	public final static File[] sortByLastModified(File[] files, boolean desc) {
 		if (desc)
 			Arrays.sort(files, new LastModifiedDescComparator());
 		else
 			Arrays.sort(files, new LastModifiedAscComparator());
 		return files;
+	}
+
+	public final static boolean isSubDirectory(File base, File child)
+			throws IOException {
+		base = base.getCanonicalFile();
+		child = child.getCanonicalFile();
+		File parent = child;
+		while (parent != null) {
+			if (base.equals(parent))
+				return true;
+			parent = parent.getParentFile();
+		}
+		return false;
 	}
 
 }
