@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -121,28 +122,35 @@ public class HtmlParser extends Parser {
 			return;
 		if ("style".equalsIgnoreCase(nodeName))
 			return;
+		if ("object".equalsIgnoreCase(nodeName))
+			return;
 		if ("title".equalsIgnoreCase(nodeName))
 			return;
 		if ("oss".equalsIgnoreCase(nodeName)) {
 			if ("yes".equalsIgnoreCase(node.getAttribute("ignore")))
 				return;
 		}
+
 		boolean bEnterDirectField = false;
-		if ("div".equalsIgnoreCase(nodeName)) {
-			String classAttribute = node.getAttribute("class");
-			if (classAttribute != null) {
-				if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(classAttribute))
-					return;
-				if (classAttribute.startsWith(OPENSEARCHSERVER_FIELD)) {
-					String directField = classAttribute
-							.substring(OPENSEARCHSERVER_FIELD_LENGTH);
-					if (directField.length() > 0) {
-						directFields = directField.split("\\.");
-						bEnterDirectField = directFields.length > 0;
+		String classNameAttribute = node.getAttribute("class");
+		if (classNameAttribute != null) {
+			String[] classNames = StringUtils.split(classNameAttribute);
+			if (classNames != null) {
+				for (String className : classNames) {
+					if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(className))
+						return;
+					if (className.startsWith(OPENSEARCHSERVER_FIELD)) {
+						String directField = classNameAttribute
+								.substring(OPENSEARCHSERVER_FIELD_LENGTH);
+						if (directField.length() > 0) {
+							directFields = directField.split("\\.");
+							bEnterDirectField = directFields.length > 0;
+						}
 					}
 				}
 			}
 		}
+
 		if (node.isTextNode()) {
 			String text = node.getNodeValue();
 			text = text.replaceAll("\\r", "");

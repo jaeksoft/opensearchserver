@@ -79,9 +79,10 @@ public class StringUtils {
 					Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeBrPattern2 = Pattern.compile(
 			"<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
-	private final static Pattern removeScriptObjectPattern = Pattern.compile(
-			"<(script|object)[^>]*>[^<]*</(script|object)>",
-			Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeScriptObjectStylePattern = Pattern
+			.compile(
+					"<(script|object|style)[^>]*>[^<]*</(script|object|style)>",
+					Pattern.CASE_INSENSITIVE);
 
 	public static final String removeConsecutiveSpaces(String text) {
 		synchronized (removeSpacePattern) {
@@ -91,8 +92,8 @@ public class StringUtils {
 
 	public static final String removeTag(String text) {
 		text = removeConsecutiveSpaces(text);
-		synchronized (removeScriptObjectPattern) {
-			text = removeScriptObjectPattern.matcher(text).replaceAll("");
+		synchronized (removeScriptObjectStylePattern) {
+			text = removeScriptObjectStylePattern.matcher(text).replaceAll("");
 		}
 		synchronized (removeBrPattern1) {
 			text = removeBrPattern1.matcher(text).replaceAll("</p>");
@@ -119,8 +120,8 @@ public class StringUtils {
 		text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
 		System.out.println(removeTag(text));
 		text = "test<script>script content</SCRIPT>test<object>object content</object>test";
-		System.out.println(removeScriptObjectPattern.matcher(text).replaceAll(
-				""));
+		System.out.println(removeScriptObjectStylePattern.matcher(text)
+				.replaceAll(""));
 	}
 
 	public static final String removeTag(String text, String[] allowedTags) {
