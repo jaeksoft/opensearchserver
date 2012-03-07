@@ -38,6 +38,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.xalan.xsltc.trax.SAX2DOM;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.DomSerializer;
@@ -132,6 +133,8 @@ public class HtmlParser extends Parser {
 			return;
 		if ("style".equalsIgnoreCase(nodeName))
 			return;
+		if ("object".equalsIgnoreCase(nodeName))
+			return;
 		if ("title".equalsIgnoreCase(nodeName))
 			return;
 		if ("oss".equalsIgnoreCase(nodeName)) {
@@ -140,22 +143,26 @@ public class HtmlParser extends Parser {
 				return;
 		}
 		boolean bEnterDirectField = false;
-		if ("div".equalsIgnoreCase(nodeName)) {
-			String classAttribute = XPathParser.getAttributeString(node,
-					"class");
-			if (classAttribute != null) {
-				if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(classAttribute))
-					return;
-				if (classAttribute.startsWith(OPENSEARCHSERVER_FIELD)) {
-					String directField = classAttribute
-							.substring(OPENSEARCHSERVER_FIELD_LENGTH);
-					if (directField.length() > 0) {
-						directFields = directField.split("\\.");
-						bEnterDirectField = directFields.length > 0;
+		String classNameAttribute = XPathParser.getAttributeString(node,
+				"class");
+		if (classNameAttribute != null) {
+			String[] classNames = StringUtils.split(classNameAttribute);
+			if (classNames != null) {
+				for (String className : classNames) {
+					if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(className))
+						return;
+					if (className.startsWith(OPENSEARCHSERVER_FIELD)) {
+						String directField = classNameAttribute
+								.substring(OPENSEARCHSERVER_FIELD_LENGTH);
+						if (directField.length() > 0) {
+							directFields = directField.split("\\.");
+							bEnterDirectField = directFields.length > 0;
+						}
 					}
 				}
 			}
 		}
+
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			String text = node.getNodeValue();
 			text = text.replaceAll("\\r", "");
