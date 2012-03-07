@@ -33,7 +33,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.FileDirUtils;
+import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
@@ -94,7 +94,7 @@ public class InstanceProperties {
 	public final boolean checkChrootQuietly(File file) throws IOException {
 		if (!chroot)
 			return true;
-		return FileDirUtils.isSubDirectory(
+		return FilesUtils.isSubDirectory(
 				StartStopListener.OPENSEARCHSERVER_DATA_FILE, file);
 	}
 

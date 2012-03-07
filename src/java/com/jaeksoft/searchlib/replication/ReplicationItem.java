@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.PushServlet;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
@@ -90,7 +91,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		updateName();
 	}
 
-	private void updateName() {
+	private void updateName() throws MalformedURLException {
 		String u = getInstanceUrl().toExternalForm();
 		if (!u.endsWith("/"))
 			u += '/';
@@ -116,8 +117,9 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 	/**
 	 * @param instanceUrl
 	 *            the instanceUrl to set
+	 * @throws MalformedURLException
 	 */
-	public void setInstanceUrl(URL instanceUrl) {
+	public void setInstanceUrl(URL instanceUrl) throws MalformedURLException {
 		rwl.w.lock();
 		try {
 			this.instanceUrl = instanceUrl;
@@ -130,21 +132,33 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	/**
 	 * @return the instanceUrl
+	 * @throws MalformedURLException
 	 */
-	public URL getInstanceUrl() {
+	public URL getInstanceUrl() throws MalformedURLException {
 		rwl.r.lock();
 		try {
-			return instanceUrl;
+			if (instanceUrl != null)
+				return instanceUrl;
 		} finally {
 			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (instanceUrl != null)
+				return instanceUrl;
+			instanceUrl = new URL(CommonController.getBaseUrl().toString());
+			return instanceUrl;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	/**
 	 * @param indexName
 	 *            the indexName to set
+	 * @throws MalformedURLException
 	 */
-	public void setIndexName(String indexName) {
+	public void setIndexName(String indexName) throws MalformedURLException {
 		rwl.w.lock();
 		try {
 			this.indexName = indexName;
@@ -262,7 +276,8 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		}
 	}
 
-	public String getCachedUrl() throws UnsupportedEncodingException {
+	public String getCachedUrl() throws UnsupportedEncodingException,
+			MalformedURLException {
 		rwl.r.lock();
 		try {
 			if (cachedUrl != null)

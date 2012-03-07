@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -117,7 +118,8 @@ public class PushServlet extends AbstractServlet {
 
 	private static String getPushTargetUrl(Client client,
 			ReplicationItem replicationItem, File sourceFile)
-			throws UnsupportedEncodingException, SearchLibException {
+			throws UnsupportedEncodingException, SearchLibException,
+			MalformedURLException {
 		String dataPath = client.getDirectory().getAbsolutePath();
 		String filePath = sourceFile.getAbsolutePath();
 		if (!filePath.startsWith(dataPath))
@@ -129,7 +131,8 @@ public class PushServlet extends AbstractServlet {
 	}
 
 	private static String getPushTargetUrl(ReplicationItem replicationItem,
-			String cmd) throws UnsupportedEncodingException {
+			String cmd) throws UnsupportedEncodingException,
+			MalformedURLException {
 		return replicationItem.getCachedUrl() + "&" + CALL_XML_KEY_CMD + "="
 				+ URLEncoder.encode(cmd, "UTF-8");
 	}
@@ -148,6 +151,8 @@ public class PushServlet extends AbstractServlet {
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -202,11 +207,13 @@ public class PushServlet extends AbstractServlet {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} catch (MalformedURLException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
 	public static String getCachedUrl(ReplicationItem replicationItem)
-			throws UnsupportedEncodingException {
+			throws UnsupportedEncodingException, MalformedURLException {
 		String url = replicationItem.getInstanceUrl().toExternalForm();
 		String cachedUrl = url + (url.endsWith("/") ? "" : '/') + "push?use="
 				+ URLEncoder.encode(replicationItem.getIndexName(), "UTF-8");

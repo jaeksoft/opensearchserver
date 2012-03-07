@@ -25,12 +25,16 @@
 package com.jaeksoft.searchlib.replication;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
 import com.jaeksoft.searchlib.web.PushServlet;
@@ -50,6 +54,13 @@ public class ReplicationThread extends ThreadAbstract implements
 
 	private TaskLog taskLog;
 
+	private List<File> filesNotPushed;
+
+	private List<File> dirsNotPushed;
+
+	private final static String[] NOT_PUSHED_PATH = { "replication.xml",
+			"replication_old.xml", "jobs.xml", "jobs_old.xml", "report" };
+
 	protected ReplicationThread(Client client,
 			ReplicationMaster replicationMaster,
 			ReplicationItem replicationItem, TaskLog taskLog) {
@@ -58,6 +69,8 @@ public class ReplicationThread extends ThreadAbstract implements
 		this.client = client;
 		totalSize = 0;
 		sendSize = 0;
+		filesNotPushed = null;
+		dirsNotPushed = null;
 		this.taskLog = taskLog;
 	}
 
@@ -73,9 +86,23 @@ public class ReplicationThread extends ThreadAbstract implements
 		}
 	}
 
+	private void initNotPushedList() {
+		File clientDir = client.getDirectory();
+		filesNotPushed = new ArrayList<File>(0);
+		dirsNotPushed = new ArrayList<File>(0);
+		for (String path : NOT_PUSHED_PATH) {
+			File f = new File(clientDir, path);
+			if (f.isFile())
+				filesNotPushed.add(f);
+			else if (f.isDirectory())
+				dirsNotPushed.add(f);
+		}
+	}
+
 	@Override
 	public void runner() throws Exception {
 		setInfo("Running");
+		initNotPushedList();
 		client.push(this);
 	}
 
@@ -122,30 +149,41 @@ public class ReplicationThread extends ThreadAbstract implements
 		}
 	}
 
-	private final static String[] NOT_PUSHED = { "replication.xml",
-			"replication_old.xml", "jobs.xml", "jobs_old.xml" };
+	private boolean checkFilePush(File file) throws IOException {
+		if (!checkDirPush(file))
+			return false;
+		for (File fileNotPushed : filesNotPushed)
+			if (file.equals(fileNotPushed))
+				return false;
+		return true;
+	}
+
+	private boolean checkDirPush(File dir) throws IOException {
+		for (File dirNotPushed : dirsNotPushed) {
+			if (dir.equals(dirNotPushed))
+				return false;
+			if (FilesUtils.isSubDirectory(dirNotPushed, dir))
+				return false;
+		}
+		return true;
+	}
 
 	@Override
 	public void file(File file) throws SearchLibException {
 		try {
 			if (file.isFile()) {
-				String filename = file.getName();
-				boolean pushed = true;
-				for (String notPushed : NOT_PUSHED) {
-					if (filename.equals(notPushed)) {
-						pushed = false;
-						break;
-					}
-				}
-				if (pushed)
+				if (checkFilePush(file))
 					PushServlet.call_file(client, replicationItem, file);
 			} else {
-				PushServlet.call_directory(client, replicationItem, file);
+				if (checkDirPush(file))
+					PushServlet.call_directory(client, replicationItem, file);
 			}
 			addSendSize(file);
 			if (taskLog != null)
 				taskLog.setInfo(getProgress() + "% transfered");
 		} catch (IllegalStateException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
 	}

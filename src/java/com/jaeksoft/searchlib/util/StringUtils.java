@@ -67,14 +67,21 @@ public class StringUtils {
 	private final static Pattern removeTagPattern = Pattern.compile("<[^>]*>");
 	private final static Pattern removeSpacePattern = Pattern
 			.compile("\\p{Space}+");
-	private final static Pattern removeBrPattern1 = Pattern
-			.compile("\\.\\p{Space}+<br\\p{Space}*/?>");
+	private final static Pattern removeBrPattern1 = Pattern.compile(
+			"\\.\\p{Space}+<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeEndTagBlockPattern1 = Pattern
-			.compile("\\.\\p{Space}+</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>");
+			.compile(
+					"\\.\\p{Space}+</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
+					Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeEndTagBlockPattern2 = Pattern
-			.compile("</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>");
-	private final static Pattern removeBrPattern2 = Pattern
-			.compile("<br\\p{Space}*/?>");
+			.compile(
+					"</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
+					Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeBrPattern2 = Pattern.compile(
+			"<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeScriptObjectPattern = Pattern.compile(
+			"<(script|object)[^>]*>[^<]*</(script|object)>",
+			Pattern.CASE_INSENSITIVE);
 
 	public static final String removeConsecutiveSpaces(String text) {
 		synchronized (removeSpacePattern) {
@@ -84,6 +91,9 @@ public class StringUtils {
 
 	public static final String removeTag(String text) {
 		text = removeConsecutiveSpaces(text);
+		synchronized (removeScriptObjectPattern) {
+			text = removeScriptObjectPattern.matcher(text).replaceAll("");
+		}
 		synchronized (removeBrPattern1) {
 			text = removeBrPattern1.matcher(text).replaceAll("</p>");
 		}
@@ -106,6 +116,11 @@ public class StringUtils {
 	public static void main(String[] args) {
 		String text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
 		System.out.println(removeTag(text));
+		text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
+		System.out.println(removeTag(text));
+		text = "test<script>script content</SCRIPT>test<object>object content</object>test";
+		System.out.println(removeScriptObjectPattern.matcher(text).replaceAll(
+				""));
 	}
 
 	public static final String removeTag(String text, String[] allowedTags) {

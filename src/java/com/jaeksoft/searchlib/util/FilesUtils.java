@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,8 +26,38 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 
-public class FileDirUtils {
+public class FilesUtils {
+
+	public final static class LastModifiedAscComparator implements
+			Comparator<File> {
+		@Override
+		final public int compare(File f1, File f2) {
+			Long l1 = f1.lastModified();
+			Long l2 = f2.lastModified();
+			return l1.compareTo(l2);
+		}
+	}
+
+	public final static class LastModifiedDescComparator implements
+			Comparator<File> {
+		@Override
+		final public int compare(File f1, File f2) {
+			Long l1 = f1.lastModified();
+			Long l2 = f2.lastModified();
+			return l2.compareTo(l1);
+		}
+	}
+
+	public final static File[] sortByLastModified(File[] files, boolean desc) {
+		if (desc)
+			Arrays.sort(files, new LastModifiedDescComparator());
+		else
+			Arrays.sort(files, new LastModifiedAscComparator());
+		return files;
+	}
 
 	public final static boolean isSubDirectory(File base, File child)
 			throws IOException {

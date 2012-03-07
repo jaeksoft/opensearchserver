@@ -24,6 +24,8 @@ New features:
 OpenSearchServer 1.2.4
 
 New features:
+- 3498421: Set a default URL value for replication
+- 3498373: Remove script and object tag content in db crawler
 - 3489935: Default stop words list
 - 3489934: A default autocomplete field and analyzer
 - 3489873: A scheduler task to copy terms to an index

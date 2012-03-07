@@ -32,7 +32,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.FileDirUtils;
+import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class ClientFactory {
@@ -67,7 +67,7 @@ public class ClientFactory {
 			boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
 		try {
-			if (!FileDirUtils
+			if (!FilesUtils
 					.isSubDirectory(
 							StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 							initFileOrDir))
