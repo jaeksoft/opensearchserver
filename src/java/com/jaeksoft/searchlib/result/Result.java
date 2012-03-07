@@ -45,6 +45,7 @@ public abstract class Result {
 	private ResultDocument[] resultDocuments;
 
 	private final static ResultDocument[] noDocuments = new ResultDocument[0];
+	private final static ResultScoreDoc[] noResultScoreDocs = new ResultScoreDoc[0];
 
 	protected Result() {
 		searchRequest = null;
@@ -56,7 +57,7 @@ public abstract class Result {
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
-		this.docs = new ResultScoreDoc[0];
+		this.docs = noResultScoreDocs;
 		this.searchRequest = searchRequest;
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
@@ -105,7 +106,7 @@ public abstract class Result {
 	}
 
 	protected void setDocs(ResultScoreDoc[] docs) {
-		this.docs = docs;
+		this.docs = docs == null ? noResultScoreDocs : docs;
 	}
 
 	public int getDocLength() {
