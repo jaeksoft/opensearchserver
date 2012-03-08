@@ -2,7 +2,7 @@
 /*
  *  This file is part of OpenSearchServer.
 *
-*  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+*  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 *
 *  http://www.open-search-server.com
 *
@@ -38,7 +38,7 @@ class OssResults {
   protected $resultTime;
   protected $resultRows;
   protected $resultStart;
-
+  protected $resultCollapsedCount;
 
   /**
    * @param $result The data
@@ -51,11 +51,14 @@ class OssResults {
     $this->resultTime = (float)$this->result->result['time'] / 1000;
     $this->resultRows = (int)$this->result->result['rows'];
     $this->resultStart = (int)$this->result->result['start'];
-
+    $this->resultCollapsedCount = (int)$this->result->result['collapsedDocCount'];
     if (!function_exists('OssApi_Dummy_Function')) {
       function OssApi_Dummy_Function() {
       }
     }
+  }
+  public function getResultCollapsedCount() {
+    return $this->resultCollapsedCount;
   }
 
   public function getResult() {
