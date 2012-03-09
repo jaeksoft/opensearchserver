@@ -475,7 +475,7 @@ public class FileManager {
 		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
 
 		deleteRequest.setQueryString(buildQueryString(
-				FileItemFieldEnum.directory.getName(), rowToDelete, true));
+				FileItemFieldEnum.uri.getName(), rowToDelete, true));
 		fileDbClient.deleteDocuments(deleteRequest);
 	}
 
@@ -501,7 +501,7 @@ public class FileManager {
 			IllegalAccessException {
 
 		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(FileItemFieldEnum.directory.getName());
+				.getLinks(FileItemFieldEnum.uri.getName());
 
 		if (mappedPath == null || mappedPath.isEmpty())
 			return false;
