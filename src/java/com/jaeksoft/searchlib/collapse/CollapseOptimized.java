@@ -78,6 +78,8 @@ public class CollapseOptimized extends CollapseAdjacent {
 			rows += searchRows;
 		}
 		resultScoreDocs = getCollapsedDoc();
+		if (resultScoreDocs == null)
+			return null;
 		resultScoreDocs = ResultScoreDoc.appendLeftScoreDocArray(resultSingle,
 				resultScoreDocs,
 				docSetHits.getScoreDocs(docSetHits.getDocNumFound()),
