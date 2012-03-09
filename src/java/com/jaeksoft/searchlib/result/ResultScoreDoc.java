@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -108,7 +108,7 @@ public class ResultScoreDoc implements Externalizable {
 		return facetValues;
 	}
 
-	public static ResultScoreDoc[] appendResultScoreDocArray(
+	final public static ResultScoreDoc[] appendResultScoreDocArray(
 			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
 			ScoreDoc[] scoreDocs, int rows) {
 		if (rows > scoreDocs.length)
@@ -124,7 +124,7 @@ public class ResultScoreDoc implements Externalizable {
 		return resultScoreDocs;
 	}
 
-	public static ResultScoreDoc[] appendResultScoreDocArray(
+	final public static ResultScoreDoc[] appendResultScoreDocArray(
 			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
 			ScoreDoc[] scoreDocs, int rows, StringIndex collapseFieldStringIndex) {
 		if (collapseFieldStringIndex == null)
@@ -135,6 +135,22 @@ public class ResultScoreDoc implements Externalizable {
 				resultSingle, oldResultScoreDocs, scoreDocs, rows);
 		for (int i = l; i < resultScoreDocs.length; i++)
 			resultScoreDocs[i].loadCollapseTerm(collapseFieldStringIndex);
+		return resultScoreDocs;
+	}
+
+	final public static ResultScoreDoc[] appendLeftScoreDocArray(
+			ResultSingle resultSingle, ResultScoreDoc[] oldResultScoreDocs,
+			ScoreDoc[] scoreDocs, int start) {
+		if (start >= scoreDocs.length)
+			return oldResultScoreDocs;
+		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[oldResultScoreDocs.length
+				+ scoreDocs.length - start];
+		int i = 0;
+		for (ResultScoreDoc resultScoreDoc : oldResultScoreDocs)
+			resultScoreDocs[i++] = resultScoreDoc;
+		for (int j = start; j < scoreDocs.length; j++)
+			resultScoreDocs[i++] = new ResultScoreDoc(resultSingle,
+					scoreDocs[j]);
 		return resultScoreDocs;
 	}
 
@@ -168,4 +184,5 @@ public class ResultScoreDoc implements Externalizable {
 		sb.append(score);
 		return sb.toString();
 	}
+
 }
