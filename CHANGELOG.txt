@@ -38,6 +38,7 @@ New features:
 - 3469777: Scored snippets
 
 Bug fixes:
+- 3500288: Wrong facet count when using optimized collapsing
 - 3498607: NPE when collapsing is enable with no documents found
 - 3489854: A faster indexation when using XML upload
 - 3485241: Pages with meta noindex are indexed

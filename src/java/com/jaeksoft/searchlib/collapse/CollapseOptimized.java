@@ -57,6 +57,7 @@ public class CollapseOptimized extends CollapseAdjacent {
 		ReaderLocal reader = resultSingle.getReader();
 		DocSetHits docSetHits = resultSingle.getDocSetHits();
 
+		int searchRows = searchRequest.getRows();
 		int end = searchRequest.getEnd();
 		int lastRows = 0;
 		int rows = end;
@@ -74,8 +75,16 @@ public class CollapseOptimized extends CollapseAdjacent {
 					collapseFieldStringIndex);
 			run(resultScoreDocs, rows);
 			lastRows = rows;
-			rows += searchRequest.getRows();
+			rows += searchRows;
 		}
-		return getCollapsedDoc();
+		resultScoreDocs = getCollapsedDoc();
+		if (resultScoreDocs == null)
+			return null;
+		resultScoreDocs = ResultScoreDoc.appendLeftScoreDocArray(resultSingle,
+				resultScoreDocs,
+				docSetHits.getScoreDocs(docSetHits.getDocNumFound()),
+				resultScoreDocs.length + getDocCount());
+		setCollapsedDoc(resultScoreDocs);
+		return resultScoreDocs;
 	}
 }

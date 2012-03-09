@@ -96,7 +96,7 @@ public class ResultScoreDoc {
 		return facetValues;
 	}
 
-	public static ResultScoreDoc[] appendResultScoreDocArray(
+	final public static ResultScoreDoc[] appendResultScoreDocArray(
 			ResultSearchSingle resultSingle,
 			ResultScoreDoc[] oldResultScoreDocs, ScoreDoc[] scoreDocs, int rows) {
 		if (rows > scoreDocs.length)
@@ -112,7 +112,7 @@ public class ResultScoreDoc {
 		return resultScoreDocs;
 	}
 
-	public static ResultScoreDoc[] appendResultScoreDocArray(
+	final public static ResultScoreDoc[] appendResultScoreDocArray(
 			ResultSearchSingle resultSingle,
 			ResultScoreDoc[] oldResultScoreDocs, ScoreDoc[] scoreDocs,
 			int rows, StringIndex collapseFieldStringIndex) {
@@ -124,6 +124,22 @@ public class ResultScoreDoc {
 				resultSingle, oldResultScoreDocs, scoreDocs, rows);
 		for (int i = l; i < resultScoreDocs.length; i++)
 			resultScoreDocs[i].loadCollapseTerm(collapseFieldStringIndex);
+		return resultScoreDocs;
+	}
+
+	final public static ResultScoreDoc[] appendLeftScoreDocArray(
+			ResultSearchSingle resultSingle,
+			ResultScoreDoc[] oldResultScoreDocs, ScoreDoc[] scoreDocs, int start) {
+		if (start >= scoreDocs.length)
+			return oldResultScoreDocs;
+		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[oldResultScoreDocs.length
+				+ scoreDocs.length - start];
+		int i = 0;
+		for (ResultScoreDoc resultScoreDoc : oldResultScoreDocs)
+			resultScoreDocs[i++] = resultScoreDoc;
+		for (int j = start; j < scoreDocs.length; j++)
+			resultScoreDocs[i++] = new ResultScoreDoc(resultSingle,
+					scoreDocs[j]);
 		return resultScoreDocs;
 	}
 
