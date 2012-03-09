@@ -154,5 +154,28 @@ class OssResults {
     return $facets;
   }
 
+  /**
+  *
+  * @return Return the spellsuggest array.
+  */
+  public function getSpellSuggestions($fieldName) {
+    $currentSpellCheck = isset($fieldName)? $this->result->xpath('spellcheck/field[@name="' . $fieldName . '"]/word/suggest'):NULL;
+    if (!isset($currentSpellCheck) || ( isset($currentSpellCheck) && $currentSpellCheck === FALSE)) {
+      $currentSpellCheck = array();
+    }
+    return $currentSpellCheck;
+  }
+  /**
+   *
+   * @return Return the spellsuggest terms.
+   */
+  public function getSpellSuggest($fieldName) {
+    $spellCheckWord = isset($fieldName)? $this->result->xpath('spellcheck/field[@name="' . $fieldName . '"]/word'):NULL;
+    foreach ($spellCheckWord as $each) {
+      $queryExact .= $each[0]->suggest.' ';
+    }
+    return $queryExact;
+  }
+
 }
 ?>
