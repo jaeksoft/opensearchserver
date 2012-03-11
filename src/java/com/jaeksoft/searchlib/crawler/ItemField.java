@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler;
 
 import org.apache.lucene.queryParser.ParseException;
 
@@ -30,9 +30,9 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
-public class UrlItemField extends ExtensibleEnumItem<UrlItemField> {
+public class ItemField extends ExtensibleEnumItem<ItemField> {
 
-	public UrlItemField(ExtensibleEnum<UrlItemField> en, String name) {
+	public ItemField(ExtensibleEnum<ItemField> en, String name) {
 		super(en, name);
 	}
 
@@ -50,15 +50,30 @@ public class UrlItemField extends ExtensibleEnumItem<UrlItemField> {
 		request.addFilter(sb.toString(), false);
 	}
 
-	public void addQuery(StringBuffer sb, Object value, boolean quote) {
+	public void addSort(SearchRequest request, boolean desc) {
+		request.addSort(name, desc);
+	}
+
+	public final static void addQuery(StringBuffer sb, String field,
+			Object value, boolean quote) {
 		sb.append(" ");
-		sb.append(name);
+		sb.append(field);
 		sb.append(":");
 		if (quote)
 			sb.append('"');
 		sb.append(value);
 		if (quote)
 			sb.append('"');
+	}
+
+	public void addQuery(StringBuffer sb, Object value, boolean quote) {
+		addQuery(sb, name, value, quote);
+	}
+
+	public void setQuery(SearchRequest request, Object value, boolean quote) {
+		StringBuffer sb = new StringBuffer();
+		addQuery(sb, value, quote);
+		request.setQueryString(sb.toString());
 	}
 
 	public void addQueryRange(StringBuffer sb, Object from, Object to,

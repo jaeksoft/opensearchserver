@@ -20,6 +20,8 @@
 	<!--   See the GNU General Public License for more details. -->
 <map>
 	<link source="uri" target="uri" />
+	<link source="fileName" target="fileName" />
+	<link source="fileName" target="fileNameExact" />
 	<link source="content" target="content" />
 	<link source="content" target="contentExact" />
 	<link source="title" target="title" />

@@ -65,8 +65,6 @@ public class StringUtils {
 	}
 
 	private final static Pattern removeTagPattern = Pattern.compile("<[^>]*>");
-	private final static Pattern removeSpacePattern = Pattern
-			.compile("\\p{Space}+");
 	private final static Pattern removeBrPattern1 = Pattern.compile(
 			"\\.\\p{Space}+<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeEndTagBlockPattern1 = Pattern
@@ -84,10 +82,24 @@ public class StringUtils {
 					"<(script|object|style)[^>]*>[^<]*</(script|object|style)>",
 					Pattern.CASE_INSENSITIVE);
 
-	public static final String removeConsecutiveSpaces(String text) {
-		synchronized (removeSpacePattern) {
-			return removeSpacePattern.matcher(text).replaceAll(" ");
+	public static final String removeConsecutiveSpaces(String source) {
+		StringBuffer target = new StringBuffer();
+		int l = source.length();
+		boolean consecutiveSpace = false;
+		for (int i = 0; i < l; i++) {
+			char c = source.charAt(i);
+			if (Character.isWhitespace(c)) {
+				if (!consecutiveSpace) {
+					target.append(' ');
+					consecutiveSpace = true;
+				}
+			} else {
+				target.append(c);
+				if (consecutiveSpace)
+					consecutiveSpace = false;
+			}
 		}
+		return target.toString();
 	}
 
 	public static final String removeTag(String text) {
@@ -115,20 +127,18 @@ public class StringUtils {
 	}
 
 	public static void main(String[] args) {
-		String text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
+		String text = "<p style=\"text-align: right;\"><em>Travailler   dans la tolérance et en cohérence    apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
 		System.out.println(removeTag(text));
-		text = "<p style=\"text-align: right;\"><em>Travailler dans la tolérance et en cohérence apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
+		text = "<p style=\"text-align: right;\"><em>Travailler     dans la tolérance    et en cohérence apportera   respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
 		System.out.println(removeTag(text));
-		text = "test<script>script content</SCRIPT>test<object>object content</object>test";
+		text = "test<script>script content</SCRIPT>test<object>object    content</object>test";
 		System.out.println(removeScriptObjectStylePattern.matcher(text)
 				.replaceAll(""));
 	}
 
 	public static final String removeTag(String text, String[] allowedTags) {
 		if (allowedTags == null)
-			synchronized (removeSpacePattern) {
-				return removeSpacePattern.matcher(text).replaceAll(" ");
-			}
+			text = removeConsecutiveSpaces(text);
 		StringBuffer sb = new StringBuffer();
 		Matcher matcher;
 		synchronized (removeTagPattern) {

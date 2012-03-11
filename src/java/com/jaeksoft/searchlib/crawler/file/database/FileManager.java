@@ -44,6 +44,7 @@ import org.apache.lucene.queryParser.ParseException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -62,83 +63,6 @@ public class FileManager {
 	private static final String FILE_SEARCH = "fileSearch";
 
 	private static final String FILE_INFO = "fileInfo";
-
-	public enum Field {
-
-		URI("uri"), CONTENTBASETYPE("contentBaseType"), CONTENTTYPECHARSET(
-				"contentTypeCharset"), CONTENTENCODING("contentEncoding"), CONTENTLENGTH(
-				"contentLength"), CRAWLDATE("crawlDate"), LANG("lang"), LANGMETHOD(
-				"langMethod"), FETCHSTATUS("fetchStatus"), RESPONSECODE(
-				"responseCode"), PARSERSTATUS("parserStatus"), INDEXSTATUS(
-				"indexStatus"), FILETYPE("fileType"), FILESYSTEMDATE(
-				"fileSystemDate"), SUBDIRECTORY("subDirectory"), REPOSITORY(
-				"repository"), DIRECTORY("directory");
-
-		private final String name;
-
-		private Field(String name) {
-			this.name = name;
-		}
-
-		private void addFilterQuery(SearchRequest request, Object value)
-				throws ParseException {
-			StringBuffer sb = new StringBuffer();
-			addQuery(sb, value, true);
-			request.addFilter(sb.toString(), false);
-		}
-
-		private void addFilterRange(SearchRequest request, Object from,
-				Object to) throws ParseException {
-			StringBuffer sb = new StringBuffer();
-			addQueryRange(sb, from, to);
-			request.addFilter(sb.toString(), false);
-		}
-
-		private final void addQuery(StringBuffer sb, Object value, boolean quote) {
-			buildQuery(sb, name, value, quote);
-		}
-
-		private final static void buildQuery(StringBuffer sb, String field,
-				Object value, boolean quote) {
-			sb.append(' ');
-			sb.append(field);
-			sb.append(':');
-			if (quote)
-				sb.append('"');
-			sb.append(value);
-			if (quote)
-				sb.append('"');
-		}
-
-		private final static String buildQuery(String field, Object value,
-				boolean quote) {
-			StringBuffer sb = new StringBuffer();
-			buildQuery(sb, field, value, quote);
-			return sb.toString();
-		}
-
-		private void setQueryString(SearchRequest request, Object value,
-				boolean quote) throws ParseException {
-			StringBuffer sb = new StringBuffer();
-			addQuery(sb, value, quote);
-			request.setQueryString(sb.toString());
-		}
-
-		private void addQueryRange(StringBuffer sb, Object from, Object to) {
-			sb.append(" ");
-			sb.append(name);
-			sb.append(":[");
-			sb.append(from);
-			sb.append(" TO ");
-			sb.append(to);
-			sb.append("]");
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
 
 	private final Client fileDbClient;
 	private final Client targetClient;
@@ -184,42 +108,44 @@ public class FileManager {
 					.getNewSearchRequest(FILE_SEARCH);
 
 			if (repository != null)
-				Field.REPOSITORY.addFilterQuery(searchRequest, repository);
+				FileItemFieldEnum.repository.addFilterQuery(searchRequest,
+						repository, true);
 
 			StringBuffer query = new StringBuffer();
 			if (like != null) {
 				like = like.trim();
 				if (like.length() > 0) {
-					Field.URI.addQuery(query, SearchRequest.escapeQuery(like),
-							false);
+					FileItemFieldEnum.uri.addQuery(query,
+							SearchRequest.escapeQuery(like), false);
 					query.append("*");
 				}
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
-					Field.LANG.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(lang));
+					FileItemFieldEnum.lang.addFilterQuery(searchRequest,
+							SearchRequest.escapeQuery(lang), false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					Field.LANGMETHOD.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(langMethod));
+					FileItemFieldEnum.langMethod.addFilterQuery(searchRequest,
+							SearchRequest.escapeQuery(langMethod), false);
 			}
 
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
-				Field.FETCHSTATUS.addFilterQuery(searchRequest,
-						fetchStatus.value);
+				FileItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
+						fetchStatus.value, true);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
-				Field.PARSERSTATUS.addFilterQuery(searchRequest,
-						parserStatus.value);
+				FileItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
+						parserStatus.value, false);
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
-				Field.INDEXSTATUS.addFilterQuery(searchRequest,
-						indexStatus.value);
+				FileItemFieldEnum.indexStatus.addFilterQuery(searchRequest,
+						indexStatus.value, false);
 
 			if (fileType != null && fileType != FileTypeEnum.ALL)
-				Field.FILETYPE.addFilterQuery(searchRequest, fileType.name());
+				FileItemFieldEnum.fileType.addFilterQuery(searchRequest,
+						fileType.name(), false);
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
@@ -232,7 +158,8 @@ public class FileManager {
 					to = df.format(Integer.MAX_VALUE);
 				else
 					to = df.format(maxContentLength);
-				Field.CONTENTLENGTH.addQueryRange(query, from, to);
+				FileItemFieldEnum.contentLength.addQueryRange(query, from, to,
+						false);
 			}
 
 			if (startDate != null || endDate != null) {
@@ -246,7 +173,8 @@ public class FileManager {
 					to = "99999999999999";
 				else
 					to = df.format(endDate);
-				Field.CRAWLDATE.addFilterRange(searchRequest, from, to);
+				FileItemFieldEnum.crawlDate.addFilterRange(searchRequest, from,
+						to, false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -260,11 +188,13 @@ public class FileManager {
 					to = "99999999999999";
 				else
 					to = df.format(endModifiedDate);
-				Field.FILESYSTEMDATE.addFilterRange(searchRequest, from, to);
+				FileItemFieldEnum.fileSystemDate.addFilterRange(searchRequest,
+						from, to, false);
 			}
 
 			if (subDirectory != null)
-				Field.SUBDIRECTORY.addFilterQuery(searchRequest, subDirectory);
+				FileItemFieldEnum.subDirectory.addFilterQuery(searchRequest,
+						subDirectory, true);
 
 			if (query.length() == 0)
 				query.append("*:*");
@@ -280,7 +210,7 @@ public class FileManager {
 		SearchRequest searchRequest = fileDbClient
 				.getNewSearchRequest(FILE_INFO);
 		StringBuffer sb = new StringBuffer();
-		Field.URI.addQuery(sb, uriString, true);
+		FileItemFieldEnum.uri.addQuery(sb, uriString, true);
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(1);
@@ -297,7 +227,7 @@ public class FileManager {
 				.getNewSearchRequest(FILE_INFO);
 		StringBuffer sb = new StringBuffer();
 		String parentUriString = parentDirectory.toASCIIString();
-		Field.DIRECTORY.addQuery(sb, parentUriString, true);
+		FileItemFieldEnum.directory.addQuery(sb, parentUriString, true);
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(Integer.MAX_VALUE);
@@ -320,14 +250,14 @@ public class FileManager {
 		return new FileItem(fileInstance);
 	}
 
-	public long getFiles(SearchRequest searchRequest, Field orderBy,
+	public long getFiles(SearchRequest searchRequest, ItemField orderBy,
 			boolean orderAsc, long start, long rows, List<FileItem> list)
 			throws SearchLibException {
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
 			if (orderBy != null)
-				searchRequest.addSort(orderBy.name, !orderAsc);
+				orderBy.addSort(searchRequest, !orderAsc);
 			Result result = fileDbClient.search(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result.getDocuments())
@@ -418,14 +348,17 @@ public class FileManager {
 
 				SearchRequest searchRequest = fileDbClient
 						.getNewSearchRequest();
-				Field.SUBDIRECTORY.setQueryString(searchRequest, path, true);
+				FileItemFieldEnum.subDirectory.setQuery(searchRequest, path,
+						true);
 				fileDbClient.deleteDocuments(searchRequest);
 
 				if (mappedPath != null && !mappedPath.isEmpty()) {
 					SearchRequest deleteRequestTarget = targetClient
 							.getNewSearchRequest();
-					deleteRequestTarget.setQueryString(Field.buildQuery(
-							mappedPath.get(0).getName(), path, true));
+					StringBuffer query = new StringBuffer();
+					ItemField.addQuery(query, mappedPath.get(0).getName(),
+							path, true);
+					deleteRequestTarget.setQueryString(query.toString());
 					targetClient.deleteDocuments(deleteRequestTarget);
 
 				}
@@ -535,8 +468,7 @@ public class FileManager {
 			IllegalAccessException {
 
 		SearchRequest deleteRequest = fileDbClient.getNewSearchRequest();
-		deleteRequest.setQueryString(Field.buildQuery(
-				Field.REPOSITORY.toString(), repository, true));
+		FileItemFieldEnum.repository.setQuery(deleteRequest, repository, true);
 		fileDbClient.deleteDocuments(deleteRequest);
 	}
 
@@ -575,8 +507,8 @@ public class FileManager {
 			// Update FilePath DB
 			documents.clear();
 			for (CrawlFile crawl : crawls) {
-				IndexDocument indexDocument = new IndexDocument();
-				crawl.getFileItem().populate(indexDocument);
+				IndexDocument indexDocument = crawl.getFileItem()
+						.getIndexDocument();
 				documents.add(indexDocument);
 			}
 			fileDbClient.updateDocuments(documents);

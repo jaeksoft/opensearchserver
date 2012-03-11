@@ -240,6 +240,10 @@ public class FileItem extends FileInfo implements Serializable {
 				getParserStatus().value);
 		indexDocument.setObject(FileItemFieldEnum.indexStatus.getName(),
 				getIndexStatus().value);
+		String fileName = getFileName();
+		if (fileName != null)
+			indexDocument.setString(FileItemFieldEnum.fileName.getName(),
+					fileName);
 		if (size != null)
 			indexDocument.setObject(FileItemFieldEnum.fileSize.getName(), size);
 		if (extension != null)

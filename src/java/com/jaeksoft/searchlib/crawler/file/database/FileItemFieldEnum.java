@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,60 +24,50 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
+import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
-import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
-public class FileItemFieldEnum extends ExtensibleEnumItem<FileItemFieldEnum> {
+public class FileItemFieldEnum extends ExtensibleEnum<ItemField> {
 
-	public final static ExtensibleEnum<FileItemFieldEnum> ENUM = new ExtensibleEnum<FileItemFieldEnum>();
+	public final static ExtensibleEnum<ItemField> ENUM = new ExtensibleEnum<ItemField>();
 
-	public final static FileItemFieldEnum repository = new FileItemFieldEnum(
-			"repository");
+	public final static ItemField repository = new ItemField(ENUM, "repository");
 
-	public final static FileItemFieldEnum name = new FileItemFieldEnum("name");
+	public final static ItemField uri = new ItemField(ENUM, "uri");
 
-	public final static FileItemFieldEnum uri = new FileItemFieldEnum("uri");
+	public final static ItemField directory = new ItemField(ENUM, "directory");
 
-	public final static FileItemFieldEnum directory = new FileItemFieldEnum(
-			"directory");
-
-	public final static FileItemFieldEnum subDirectory = new FileItemFieldEnum(
+	public final static ItemField subDirectory = new ItemField(ENUM,
 			"subDirectory");
 
-	public final static FileItemFieldEnum lang = new FileItemFieldEnum("lang");
+	public final static ItemField lang = new ItemField(ENUM, "lang");
 
-	public final static FileItemFieldEnum langMethod = new FileItemFieldEnum(
-			"langMethod");
+	public final static ItemField langMethod = new ItemField(ENUM, "langMethod");
 
-	public final static FileItemFieldEnum contentLength = new FileItemFieldEnum(
+	public final static ItemField contentLength = new ItemField(ENUM,
 			"contentLength");
 
-	public final static FileItemFieldEnum parserStatus = new FileItemFieldEnum(
+	public final static ItemField parserStatus = new ItemField(ENUM,
 			"parserStatus");
 
-	public final static FileItemFieldEnum fetchStatus = new FileItemFieldEnum(
+	public final static ItemField fetchStatus = new ItemField(ENUM,
 			"fetchStatus");
 
-	public final static FileItemFieldEnum indexStatus = new FileItemFieldEnum(
+	public final static ItemField indexStatus = new ItemField(ENUM,
 			"indexStatus");
 
-	public final static FileItemFieldEnum crawlDate = new FileItemFieldEnum(
-			"repository");
+	public final static ItemField crawlDate = new ItemField(ENUM, "crawlDate");
 
-	public final static FileItemFieldEnum fileSystemDate = new FileItemFieldEnum(
+	public final static ItemField fileSystemDate = new ItemField(ENUM,
 			"fileSystemDate");
 
-	public final static FileItemFieldEnum fileSize = new FileItemFieldEnum(
-			"fileSize");
+	public final static ItemField fileName = new ItemField(ENUM, "fileName");
 
-	public final static FileItemFieldEnum fileExtension = new FileItemFieldEnum(
+	public final static ItemField fileSize = new ItemField(ENUM, "fileSize");
+
+	public final static ItemField fileExtension = new ItemField(ENUM,
 			"fileExtension");
 
-	public final static FileItemFieldEnum fileType = new FileItemFieldEnum(
-			"fileType");
-
-	protected FileItemFieldEnum(String name) {
-		super(ENUM, name);
-	}
+	public final static ItemField fileType = new ItemField(ENUM, "fileType");
 
 }

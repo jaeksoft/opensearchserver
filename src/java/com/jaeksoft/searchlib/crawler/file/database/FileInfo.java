@@ -43,7 +43,7 @@ public class FileInfo {
 	private Long fileSystemDate;
 	private FileTypeEnum type;
 	private String uriString;
-	private String name;
+	private String fileName;
 	private FetchStatus fetchStatus;
 	private ParserStatus parserStatus;
 	private IndexStatus indexStatus;
@@ -58,7 +58,7 @@ public class FileInfo {
 
 	public FileInfo(ResultDocument doc) throws UnsupportedEncodingException,
 			URISyntaxException {
-		this();
+		init();
 		setFileSystemDate(doc.getValueContent(
 				FileItemFieldEnum.fileSystemDate.getName(), 0));
 		String s = doc.getValueContent(FileItemFieldEnum.fileType.getName(), 0);
@@ -118,22 +118,22 @@ public class FileInfo {
 		return uriString;
 	}
 
-	private void setName(String fullPath) {
-		this.name = FilenameUtils.getName(fullPath);
+	private void setFileName(String fullPath) {
+		this.fileName = FilenameUtils.getName(fullPath);
 	}
 
-	public String getName() {
-		return name;
+	public String getFileName() {
+		return fileName;
 	}
 
 	public void setUri(String uriString) throws URISyntaxException {
 		this.uriString = uriString;
-		setName(new URI(uriString).getPath());
+		setFileName(new URI(uriString).getPath());
 	}
 
 	public void setUri(URI uri) {
 		this.uriString = uri.toASCIIString();
-		setName(uri.getPath());
+		setFileName(uri.getPath());
 	}
 
 	public FetchStatus getFetchStatus() {

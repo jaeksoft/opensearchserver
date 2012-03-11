@@ -78,8 +78,8 @@ public class CrawlFile {
 				fileItem.setFetchStatus(FetchStatus.FETCHED);
 
 				ParserSelector parserSelector = config.getParserSelector();
-				Parser parser = parserSelector.getParser(fileItem.getName(),
-						null);
+				Parser parser = parserSelector.getParser(
+						fileItem.getFileName(), null);
 
 				// Get default parser
 				if (parser == null)
@@ -91,12 +91,12 @@ public class CrawlFile {
 					return;
 				}
 
-				IndexDocument sourceDocument = new IndexDocument();
-				fileItem.populate(sourceDocument);
+				IndexDocument sourceDocument = fileItem.getIndexDocument();
 
 				parser.setSourceDocument(sourceDocument);
 				parser.parseContent(fileInstance);
-				parser.addField(ParserFieldEnum.filename, fileItem.getName());
+				parser.addField(ParserFieldEnum.filename,
+						fileItem.getFileName());
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
 
@@ -153,8 +153,7 @@ public class CrawlFile {
 				return targetIndexDocument;
 
 			targetIndexDocument = new IndexDocument();
-			IndexDocument fileIndexDocument = new IndexDocument();
-			fileItem.populate(fileIndexDocument);
+			IndexDocument fileIndexDocument = fileItem.getIndexDocument();
 			fileFieldMap.mapIndexDocument(fileIndexDocument,
 					targetIndexDocument);
 

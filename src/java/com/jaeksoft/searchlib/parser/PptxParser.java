@@ -37,6 +37,7 @@ import org.apache.xmlbeans.XmlException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PptxParser extends Parser {
 
@@ -87,7 +88,8 @@ public class PptxParser extends Parser {
 			}
 
 			String content = poiExtractor.getText(true, true);
-			addField(ParserFieldEnum.content, content.replaceAll("\\s+", " "));
+			addField(ParserFieldEnum.content,
+					StringUtils.removeConsecutiveSpaces(content));
 
 			langDetection(10000, ParserFieldEnum.content);
 

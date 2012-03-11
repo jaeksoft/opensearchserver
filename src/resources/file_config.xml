@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
-<!-- Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
 <!-- http://www.open-search-server.com -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- OpenSearchServer is free software: you can redistribute it 
@@ -18,13 +18,12 @@
 			fieldCache="500" />
 	</indices>
 	<schema>
-		<fields default="content" unique="uri">
-			<field name="repository" indexed="yes" stored="no" termVector="yes" />
+		<fields default="uri" unique="uri">
 			<field name="uri" indexed="yes" stored="yes" termVector="yes" />
+			<field name="repository" indexed="yes" stored="no" termVector="yes" />
 			<field name="directory" indexed="yes" stored="no" termVector="yes" />
 			<field name="subDirectory" indexed="yes" stored="no"
 				termVector="yes" />
-			<field name="content" indexed="yes" stored="no" termVector="yes" />
 			<field name="lang" indexed="yes" stored="no" termVector="yes" />
 			<field name="langMethod" indexed="yes" stored="no" termVector="yes" />
 			<field name="contentLength" indexed="yes" stored="no"
@@ -36,6 +35,7 @@
 			<field name="fileSystemDate" indexed="yes" stored="no"
 				termVector="yes" />
 			<field name="crawlDate" indexed="yes" stored="no" termVector="yes" />
+			<field name="fileName" indexed="yes" stored="no" termVector="yes" />
 			<field name="fileSize" indexed="yes" stored="no" termVector="yes" />
 			<field name="fileExtension" indexed="yes" stored="no"
 				termVector="yes" />
@@ -48,14 +48,14 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				repository,uri,directory,subDirectory,content,contentLength,
+				repository,uri,directory,subDirectory,contentLength,
 				lang,langMethod,parserStatus,fetchStatus,indexStatus,fileSystemDate
-				crawlDate,fileSize,fileExtension,fileType
+				crawlDate,fileName,fileSize,fileExtension,fileType
 			</returnFields>
 		</request>
 		<request name="fileInfo" defaultOperator="and" start="0" rows="0">
 			<query>$$</query>
-			<returnFields>uri,fileSystemDate,fileType,parserStatus,fetchStatus,indexStatus
+			<returnFields>uri,fileName,fileSystemDate,fileType,parserStatus,fetchStatus,indexStatus
 			</returnFields>
 		</request>
 	</requests>
