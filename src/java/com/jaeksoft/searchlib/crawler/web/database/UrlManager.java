@@ -137,13 +137,11 @@ public class UrlManager extends UrlManagerAbstract {
 		return new UrlItem();
 	}
 
-	private static UrlItemFieldEnum urlItemFieldEnum = null;
+	private static UrlItemFieldEnum urlItemFieldEnum = new UrlItemFieldEnum();
 
 	@Override
-	public synchronized UrlItemFieldEnum getNewUrlItemFieldEnum() {
-		if (urlItemFieldEnum == null)
-			urlItemFieldEnum = new UrlItemFieldEnum();
-		return new UrlItemFieldEnum();
+	public UrlItemFieldEnum getNewUrlItemFieldEnum() {
+		return urlItemFieldEnum;
 	}
 
 	@Override
