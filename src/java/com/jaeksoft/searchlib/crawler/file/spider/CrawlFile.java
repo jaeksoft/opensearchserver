@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.LimitException;
@@ -53,10 +54,11 @@ public class CrawlFile {
 	private String error;
 	private final FieldMap fileFieldMap;
 	private final Config config;
+	private final FileItemFieldEnum fileItemFieldEnum;
 
 	public CrawlFile(FileInstanceAbstract fileInstance, FileItem fileItem,
-			Config config, CrawlStatistics currentStats)
-			throws SearchLibException {
+			Config config, CrawlStatistics currentStats,
+			FileItemFieldEnum fileItemFieldEnum) throws SearchLibException {
 		this.targetIndexDocument = null;
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileInstance = fileInstance;
@@ -65,6 +67,7 @@ public class CrawlFile {
 		this.parser = null;
 		this.error = null;
 		this.config = config;
+		this.fileItemFieldEnum = fileItemFieldEnum;
 	}
 
 	/**
@@ -91,7 +94,8 @@ public class CrawlFile {
 					return;
 				}
 
-				IndexDocument sourceDocument = fileItem.getIndexDocument();
+				IndexDocument sourceDocument = fileItem
+						.getIndexDocument(fileItemFieldEnum);
 
 				parser.setSourceDocument(sourceDocument);
 				parser.parseContent(fileInstance);
@@ -153,7 +157,8 @@ public class CrawlFile {
 				return targetIndexDocument;
 
 			targetIndexDocument = new IndexDocument();
-			IndexDocument fileIndexDocument = fileItem.getIndexDocument();
+			IndexDocument fileIndexDocument = fileItem
+					.getIndexDocument(fileItemFieldEnum);
 			fileFieldMap.mapIndexDocument(fileIndexDocument,
 					targetIndexDocument);
 

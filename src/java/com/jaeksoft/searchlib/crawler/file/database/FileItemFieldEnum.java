@@ -29,45 +29,37 @@ import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class FileItemFieldEnum extends ExtensibleEnum<ItemField> {
 
-	public final static ExtensibleEnum<ItemField> ENUM = new ExtensibleEnum<ItemField>();
+	public final ItemField repository = new ItemField(this, "repository");
 
-	public final static ItemField repository = new ItemField(ENUM, "repository");
+	public final ItemField uri = new ItemField(this, "uri");
 
-	public final static ItemField uri = new ItemField(ENUM, "uri");
+	public final ItemField directory = new ItemField(this, "directory");
 
-	public final static ItemField directory = new ItemField(ENUM, "directory");
+	public final ItemField subDirectory = new ItemField(this, "subDirectory");
 
-	public final static ItemField subDirectory = new ItemField(ENUM,
-			"subDirectory");
+	public final ItemField lang = new ItemField(this, "lang");
 
-	public final static ItemField lang = new ItemField(ENUM, "lang");
+	public final ItemField langMethod = new ItemField(this, "langMethod");
 
-	public final static ItemField langMethod = new ItemField(ENUM, "langMethod");
+	public final ItemField contentLength = new ItemField(this, "contentLength");
 
-	public final static ItemField contentLength = new ItemField(ENUM,
-			"contentLength");
+	public final ItemField parserStatus = new ItemField(this, "parserStatus");
 
-	public final static ItemField parserStatus = new ItemField(ENUM,
-			"parserStatus");
+	public final ItemField fetchStatus = new ItemField(this, "fetchStatus");
 
-	public final static ItemField fetchStatus = new ItemField(ENUM,
-			"fetchStatus");
+	public final ItemField indexStatus = new ItemField(this, "indexStatus");
 
-	public final static ItemField indexStatus = new ItemField(ENUM,
-			"indexStatus");
+	public final ItemField crawlDate = new ItemField(this, "crawlDate");
 
-	public final static ItemField crawlDate = new ItemField(ENUM, "crawlDate");
-
-	public final static ItemField fileSystemDate = new ItemField(ENUM,
+	public final ItemField fileSystemDate = new ItemField(this,
 			"fileSystemDate");
 
-	public final static ItemField fileName = new ItemField(ENUM, "fileName");
+	public final ItemField fileName = new ItemField(this, "fileName");
 
-	public final static ItemField fileSize = new ItemField(ENUM, "fileSize");
+	public final ItemField fileSize = new ItemField(this, "fileSize");
 
-	public final static ItemField fileExtension = new ItemField(ENUM,
-			"fileExtension");
+	public final ItemField fileExtension = new ItemField(this, "fileExtension");
 
-	public final static ItemField fileType = new ItemField(ENUM, "fileType");
+	public final ItemField fileType = new ItemField(this, "fileType");
 
 }

@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExtensibleEnum<T extends ExtensibleEnumItem<T>> {
+public class ExtensibleEnum<T extends ExtensibleEnumItem<? extends T>> {
 
 	private List<T> list;
 

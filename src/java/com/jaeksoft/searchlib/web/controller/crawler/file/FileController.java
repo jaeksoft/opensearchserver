@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,7 +38,6 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
@@ -330,7 +329,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 			SearchRequest searchRequest = getSearchRequest(fileManager);
 
 			totalSize = (int) fileManager.getFiles(searchRequest,
-					FileItemFieldEnum.uri, true, getPageSize()
+					fileManager.getFileItemFieldEnum().uri, true, getPageSize()
 							* getActivePage(), getPageSize(), fileList);
 			return fileList;
 		}
