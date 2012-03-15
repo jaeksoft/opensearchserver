@@ -64,6 +64,8 @@ public class UrlManager extends UrlManagerAbstract {
 
 	protected Client urlDbClient;
 
+	private static UrlItemFieldEnum staticUrlItemFieldEnum = new UrlItemFieldEnum();
+
 	@Override
 	public void init(Client client, File dataDir) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
@@ -137,11 +139,9 @@ public class UrlManager extends UrlManagerAbstract {
 		return new UrlItem();
 	}
 
-	private static UrlItemFieldEnum urlItemFieldEnum = new UrlItemFieldEnum();
-
 	@Override
 	public UrlItemFieldEnum getNewUrlItemFieldEnum() {
-		return urlItemFieldEnum;
+		return staticUrlItemFieldEnum;
 	}
 
 	@Override
