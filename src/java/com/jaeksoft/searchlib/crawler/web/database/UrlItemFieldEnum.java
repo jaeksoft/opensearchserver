@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,66 +24,61 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
-public class UrlItemFieldEnum extends ExtensibleEnum<UrlItemField> {
+public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
-	final public UrlItemField url = new UrlItemField(this, "url");
+	final public ItemField url = new ItemField(this, "url");
 
-	final public UrlItemField parentUrl = new UrlItemField(this, "parentUrl");
+	final public ItemField parentUrl = new ItemField(this, "parentUrl");
 
-	final public UrlItemField origin = new UrlItemField(this, "origin");
+	final public ItemField origin = new ItemField(this, "origin");
 
-	final public UrlItemField lang = new UrlItemField(this, "lang");
+	final public ItemField lang = new ItemField(this, "lang");
 
-	final public UrlItemField langMethod = new UrlItemField(this, "langMethod");
+	final public ItemField langMethod = new ItemField(this, "langMethod");
 
-	final public UrlItemField contentDispositionFilename = new UrlItemField(
-			this, "contentDispositionFilename");
+	final public ItemField contentDispositionFilename = new ItemField(this,
+			"contentDispositionFilename");
 
-	final public UrlItemField contentBaseType = new UrlItemField(this,
+	final public ItemField contentBaseType = new ItemField(this,
 			"contentBaseType");
 
-	final public UrlItemField contentTypeCharset = new UrlItemField(this,
+	final public ItemField contentTypeCharset = new ItemField(this,
 			"contentTypeCharset");
 
-	final public UrlItemField contentEncoding = new UrlItemField(this,
+	final public ItemField contentEncoding = new ItemField(this,
 			"contentEncoding");
 
-	final public UrlItemField contentLength = new UrlItemField(this,
-			"contentLength");
+	final public ItemField contentLength = new ItemField(this, "contentLength");
 
-	final public UrlItemField outlink = new UrlItemField(this, "outlink");
+	final public ItemField outlink = new ItemField(this, "outlink");
 
-	final public UrlItemField inlink = new UrlItemField(this, "inlink");
+	final public ItemField inlink = new ItemField(this, "inlink");
 
-	final public UrlItemField host = new UrlItemField(this, "host");
+	final public ItemField host = new ItemField(this, "host");
 
-	final public UrlItemField subhost = new UrlItemField(this, "subhost");
+	final public ItemField subhost = new ItemField(this, "subhost");
 
-	final public UrlItemField when = new UrlItemField(this, "when");
+	final public ItemField when = new ItemField(this, "when");
 
-	final public UrlItemField responseCode = new UrlItemField(this,
-			"responseCode");
+	final public ItemField responseCode = new ItemField(this, "responseCode");
 
-	final public UrlItemField robotsTxtStatus = new UrlItemField(this,
+	final public ItemField robotsTxtStatus = new ItemField(this,
 			"robotsTxtStatus");
 
-	final public UrlItemField parserStatus = new UrlItemField(this,
-			"parserStatus");
+	final public ItemField parserStatus = new ItemField(this, "parserStatus");
 
-	final public UrlItemField fetchStatus = new UrlItemField(this,
-			"fetchStatus");
+	final public ItemField fetchStatus = new ItemField(this, "fetchStatus");
 
-	final public UrlItemField indexStatus = new UrlItemField(this,
-			"indexStatus");
+	final public ItemField indexStatus = new ItemField(this, "indexStatus");
 
-	final public UrlItemField md5size = new UrlItemField(this, "md5size");
+	final public ItemField md5size = new ItemField(this, "md5size");
 
-	final public UrlItemField lastModifiedDate = new UrlItemField(this,
+	final public ItemField lastModifiedDate = new ItemField(this,
 			"lastModifiedDate");
 
-	final public UrlItemField reponseCode = new UrlItemField(this,
-			"responseCode");
+	final public ItemField reponseCode = new ItemField(this, "responseCode");
 
 }

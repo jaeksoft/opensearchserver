@@ -49,7 +49,7 @@ public class CachedMemoryStream extends ByteArrayOutputStream implements
 
 	@Override
 	public InputStream getNewInputStream() {
-		return new ByteArrayInputStream(buf);
+		return new ByteArrayInputStream(buf, 0, count);
 	}
 
 	@Override

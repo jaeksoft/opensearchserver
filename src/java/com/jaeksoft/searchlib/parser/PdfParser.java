@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PdfParser extends Parser {
 
@@ -111,8 +112,8 @@ public class PdfParser extends Parser {
 		String text = stripper.getText(pdf);
 		String[] frags = text.split("\\n");
 		for (String frag : frags)
-			addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " ")
-					.trim());
+			addField(ParserFieldEnum.content, StringUtils
+					.replaceConsecutiveSpaces(frag, " ").trim());
 		langDetection(10000, ParserFieldEnum.content);
 	}
 

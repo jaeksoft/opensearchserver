@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,11 +48,17 @@ public class Md5Spliter {
 		return sb.toString();
 	}
 
-	final public static String getMD5Hash(byte[] data)
+	final public static String getMD5Hash(byte[] data, int offset, int length)
 			throws NoSuchAlgorithmException {
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
 		md5.update(data);
 		return generateHash(md5.digest());
+	}
+
+	final public static String getMD5Hash(String str)
+			throws NoSuchAlgorithmException {
+		byte[] bytes = str.getBytes();
+		return getMD5Hash(bytes, 0, bytes.length);
 	}
 
 	final public static String getMD5Hash(String data, String key)

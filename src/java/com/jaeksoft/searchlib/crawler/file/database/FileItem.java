@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -100,29 +100,27 @@ public class FileItem extends FileInfo implements Serializable {
 		crawlDate = null;
 	}
 
-	public FileItem(ResultDocument doc) throws UnsupportedEncodingException,
-			URISyntaxException {
-		super(doc);
+	public FileItem(ResultDocument doc, FileItemFieldEnum fileItemFieldEnum)
+			throws UnsupportedEncodingException, URISyntaxException {
+		super(doc, fileItemFieldEnum);
 
 		setRepository(doc.getValueContent(
-				FileItemFieldEnum.repository.getName(), 0));
-		setDirectory(doc.getValueContent(FileItemFieldEnum.directory.getName(),
+				fileItemFieldEnum.repository.getName(), 0));
+		setDirectory(doc.getValueContent(fileItemFieldEnum.directory.getName(),
 				0));
 		setSubDirectory(FieldValueItem.buildArrayList(doc
-				.getValueList(FileItemFieldEnum.subDirectory.getName())));
+				.getValueList(fileItemFieldEnum.subDirectory.getName())));
 
-		setLang(doc.getValueContent(FileItemFieldEnum.lang.getName(), 0));
+		setLang(doc.getValueContent(fileItemFieldEnum.lang.getName(), 0));
 
 		setLangMethod(doc.getValueContent(
-				FileItemFieldEnum.langMethod.getName(), 0));
+				fileItemFieldEnum.langMethod.getName(), 0));
 
-		setCrawlDate(doc.getValueContent(FileItemFieldEnum.crawlDate.getName(),
+		setCrawlDate(doc.getValueContent(fileItemFieldEnum.crawlDate.getName(),
 				0));
 
 		setFileExtension(doc.getValueContent(
-				FileItemFieldEnum.fileExtension.getName(), 0));
-
-		System.out.println("REPOSITORY ResultDocument = " + repository);
+				fileItemFieldEnum.fileExtension.getName(), 0));
 
 	}
 
@@ -139,8 +137,6 @@ public class FileItem extends FileInfo implements Serializable {
 			subDirectory.add(dir.getURI().getPath());
 		setCrawlDate(System.currentTimeMillis());
 		setFileExtension(FilenameUtils.getExtension(getUri()));
-
-		System.out.println("REPOSITORY FileInstanceAbstract = " + repository);
 	}
 
 	public Long getCrawlDate() {
@@ -159,9 +155,10 @@ public class FileItem extends FileInfo implements Serializable {
 		return sb.toString();
 	}
 
-	public IndexDocument getIndexDocument() throws UnsupportedEncodingException {
+	public IndexDocument getIndexDocument(FileItemFieldEnum fileItemFieldEnum)
+			throws UnsupportedEncodingException {
 		IndexDocument indexDocument = new IndexDocument();
-		populate(indexDocument);
+		populate(indexDocument, fileItemFieldEnum);
 		return indexDocument;
 	}
 
@@ -186,32 +183,31 @@ public class FileItem extends FileInfo implements Serializable {
 	}
 
 	@Override
-	public void populate(IndexDocument indexDocument) {
-		super.populate(indexDocument);
+	public void populate(IndexDocument indexDocument,
+			FileItemFieldEnum fileItemFieldEnum) {
+		super.populate(indexDocument, fileItemFieldEnum);
 
-		if (repository != null) {
-			System.out.println("populate setString repository " + repository);
-			indexDocument.setString(FileItemFieldEnum.repository.getName(),
+		if (repository != null)
+			indexDocument.setString(fileItemFieldEnum.repository.getName(),
 					repository);
-		}
 
-		indexDocument.setString(FileItemFieldEnum.uri.getName(), getUri());
+		indexDocument.setString(fileItemFieldEnum.uri.getName(), getUri());
 
 		if (directory != null)
-			indexDocument.setString(FileItemFieldEnum.directory.getName(),
+			indexDocument.setString(fileItemFieldEnum.directory.getName(),
 					directory);
 
-		indexDocument.setStringList(FileItemFieldEnum.subDirectory.getName(),
+		indexDocument.setStringList(fileItemFieldEnum.subDirectory.getName(),
 				getSubDirectory());
 
 		if (crawlDate != null)
-			indexDocument.setString(FileItemFieldEnum.crawlDate.getName(),
+			indexDocument.setString(fileItemFieldEnum.crawlDate.getName(),
 					FileItem.getDateFormat().format(crawlDate));
 
 		if (lang != null)
-			indexDocument.setString(FileItemFieldEnum.lang.getName(), lang);
+			indexDocument.setString(fileItemFieldEnum.lang.getName(), lang);
 		if (langMethod != null)
-			indexDocument.setString(FileItemFieldEnum.langMethod.getName(),
+			indexDocument.setString(fileItemFieldEnum.langMethod.getName(),
 					langMethod);
 
 	}

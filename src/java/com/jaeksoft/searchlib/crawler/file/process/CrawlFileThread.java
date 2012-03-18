@@ -120,7 +120,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		currentStats.incUrlCount();
 
 		CrawlFile crawl = new CrawlFile(fileInstance, currentFileItem,
-				getConfig(), currentStats);
+				getConfig(), currentStats, fileManager.getFileItemFieldEnum());
 
 		// Fetch started
 		currentStats.incFetchedCount();

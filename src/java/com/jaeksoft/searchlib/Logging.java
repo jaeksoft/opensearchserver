@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -86,7 +86,7 @@ public class Logging {
 		return new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "logs");
 	}
 
-	public final static File[] getLogFiles() throws SearchLibException {
+	public final static File[] getLogFiles() {
 		File dirLog = getLogDirectory();
 		if (!dirLog.exists())
 			return null;
@@ -183,7 +183,7 @@ public class Logging {
 	}
 
 	public final static String readLogs(int lines, String fileName)
-			throws IOException, SearchLibException {
+			throws IOException {
 		if (fileName == null)
 			return null;
 		File logFile = new File(getLogDirectory(), fileName);

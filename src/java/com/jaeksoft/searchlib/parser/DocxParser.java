@@ -33,6 +33,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class DocxParser extends Parser {
 
@@ -68,10 +69,10 @@ public class DocxParser extends Parser {
 		}
 
 		String content = word.getText();
-		addField(ParserFieldEnum.content, content.replaceAll("\\s+", " "));
+		addField(ParserFieldEnum.content,
+				StringUtils.replaceConsecutiveSpaces(content, " "));
 
 		langDetection(10000, ParserFieldEnum.content);
 
 	}
-
 }

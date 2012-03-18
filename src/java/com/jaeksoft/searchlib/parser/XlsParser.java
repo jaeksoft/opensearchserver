@@ -33,6 +33,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class XlsParser extends Parser {
 
@@ -65,7 +66,8 @@ public class XlsParser extends Parser {
 		}
 
 		String content = excel.getText();
-		addField(ParserFieldEnum.content, content.replaceAll("\\s+", " "));
+		addField(ParserFieldEnum.content,
+				StringUtils.replaceConsecutiveSpaces(content, " "));
 
 		langDetection(10000, ParserFieldEnum.content);
 

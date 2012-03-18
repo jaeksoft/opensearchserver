@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
@@ -53,10 +54,11 @@ public class CrawlFile {
 	private String error;
 	private final FieldMap fileFieldMap;
 	private final Config config;
+	private final FileItemFieldEnum fileItemFieldEnum;
 
 	public CrawlFile(FileInstanceAbstract fileInstance, FileItem fileItem,
-			Config config, CrawlStatistics currentStats)
-			throws SearchLibException {
+			Config config, CrawlStatistics currentStats,
+			FileItemFieldEnum fileItemFieldEnum) throws SearchLibException {
 		this.targetIndexDocument = null;
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileInstance = fileInstance;
@@ -65,6 +67,7 @@ public class CrawlFile {
 		this.parser = null;
 		this.error = null;
 		this.config = config;
+		this.fileItemFieldEnum = fileItemFieldEnum;
 	}
 
 	/**
@@ -75,6 +78,8 @@ public class CrawlFile {
 	public void download() {
 		synchronized (this) {
 			try {
+				fileItem.setFetchStatus(FetchStatus.FETCHED);
+
 				ParserSelector parserSelector = config.getParserSelector();
 				Parser parser = parserSelector.getParser(
 						fileItem.getFileName(), null);
@@ -91,14 +96,13 @@ public class CrawlFile {
 
 				fileItem.setParserStatus(ParserStatus.PARSED);
 
-				IndexDocument sourceDocument = new IndexDocument();
-				fileItem.populate(sourceDocument);
+				IndexDocument sourceDocument = fileItem
+						.getIndexDocument(fileItemFieldEnum);
 
 				parser.setSourceDocument(sourceDocument);
 				parser.parseContent(fileInstance);
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
-				fileItem.setFetchStatus(FetchStatus.FETCHED);
 
 				this.parser = parser;
 
@@ -128,6 +132,7 @@ public class CrawlFile {
 			} catch (Exception e) {
 				Logging.warn(e.getMessage(), e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
+				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 			}
 		}
 	}
@@ -151,8 +156,8 @@ public class CrawlFile {
 				return targetIndexDocument;
 
 			targetIndexDocument = new IndexDocument();
-			IndexDocument fileIndexDocument = new IndexDocument();
-			fileItem.populate(fileIndexDocument);
+			IndexDocument fileIndexDocument = fileItem
+					.getIndexDocument(fileItemFieldEnum);
 			fileFieldMap.mapIndexDocument(fileIndexDocument,
 					targetIndexDocument);
 

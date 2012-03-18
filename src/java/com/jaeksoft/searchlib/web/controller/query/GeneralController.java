@@ -41,7 +41,7 @@ public class GeneralController extends SearchRequestController {
 	@Override
 	protected void reset() throws SearchLibException {
 		ScopeAttribute.QUERY_REQUEST.remove(this);
-		ScopeAttribute.QUERY_SEARCH_RESULT.remove(this);
+		ScopeAttribute.QUERY_RESULT.remove(this);
 	}
 
 }

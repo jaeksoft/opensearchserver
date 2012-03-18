@@ -34,6 +34,7 @@ import org.apache.poi.hslf.usermodel.SlideShow;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PptParser extends Parser {
 
@@ -80,7 +81,8 @@ public class PptParser extends Parser {
 				}
 				String[] frags = textRun.getText().split("\\n");
 				for (String frag : frags)
-					addField(field, frag.replaceAll("\\s+", " "));
+					addField(field,
+							StringUtils.replaceConsecutiveSpaces(frag, " "));
 			}
 		}
 		langDetection(10000, ParserFieldEnum.body);

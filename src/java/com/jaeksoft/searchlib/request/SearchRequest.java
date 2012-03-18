@@ -746,7 +746,7 @@ public class SearchRequest extends AbstractRequest {
 		query = replaceControlChars(query, RANGE_CHARS, " ");
 		query = replaceControlChars(query, AND_OR_NOT_CHARS, " ");
 		query = replaceControlChars(query, WILDCARD_CHARS, " ");
-		return StringUtils.removeConsecutiveSpaces(query);
+		return StringUtils.replaceConsecutiveSpaces(query, " ");
 	}
 
 	public boolean isFacet() {

@@ -57,7 +57,7 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	protected AbstractResult<?> getAbstractResult() {
-		return (AbstractResult<?>) ScopeAttribute.QUERY_SEARCH_RESULT.get(this);
+		return (AbstractResult<?>) ScopeAttribute.QUERY_RESULT.get(this);
 	}
 
 	protected AbstractResult<?> getResult(RequestTypeEnum type) {

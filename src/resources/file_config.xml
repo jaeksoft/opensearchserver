@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
-<!-- Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
 <!-- http://www.open-search-server.com -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- OpenSearchServer is free software: you can redistribute it 
@@ -19,7 +19,7 @@
 	</indices>
 	<schema>
 		<fields default="uri" unique="uri">
-			<field name="uri" indexed="yes" stored="no" termVector="yes" />
+			<field name="uri" indexed="yes" stored="yes" termVector="yes" />
 			<field name="repository" indexed="yes" stored="no" termVector="yes" />
 			<field name="directory" indexed="yes" stored="no" termVector="yes" />
 			<field name="subDirectory" indexed="yes" stored="no"
@@ -53,7 +53,7 @@
 		</request>
 		<request name="fileInfo" defaultOperator="and" start="0" rows="0">
 			<query>$$</query>
-			<returnFields>uri,fileSystemDate,fileType,fileSize,parserStatus,fetchStatus,indexStatus
+			<returnFields>uri,fileName,fileSystemDate,fileType,fileSize,parserStatus,fetchStatus,indexStatus
 			</returnFields>
 		</request>
 	</requests>

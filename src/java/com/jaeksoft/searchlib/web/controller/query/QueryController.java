@@ -253,7 +253,7 @@ public final class QueryController extends AbstractQueryController {
 	}
 
 	public void setResult(AbstractResult<?> result) {
-		ScopeAttribute.QUERY_SEARCH_RESULT.set(this, result);
+		ScopeAttribute.QUERY_RESULT.set(this, result);
 	}
 
 	public void onCancel() throws SearchLibException {

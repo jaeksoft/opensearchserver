@@ -39,7 +39,6 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
-import com.jaeksoft.searchlib.crawler.file.database.FileManager.Field;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -343,9 +342,9 @@ public class FileController extends CrawlerController implements AfterCompose {
 			FileManager fileManager = client.getFileManager();
 			SearchRequest searchRequest = getSearchRequest(fileManager);
 
-			totalSize = (int) fileManager.getFiles(searchRequest, Field.URI,
-					true, getPageSize() * getActivePage(), getPageSize(),
-					fileList);
+			totalSize = (int) fileManager.getFiles(searchRequest,
+					fileManager.getFileItemFieldEnum().uri, true, getPageSize()
+							* getActivePage(), getPageSize(), fileList);
 			return fileList;
 		}
 	}

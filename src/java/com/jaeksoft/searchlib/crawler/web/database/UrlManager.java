@@ -42,6 +42,7 @@ import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -60,6 +61,8 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 public class UrlManager extends UrlManagerAbstract {
 
 	protected Client urlDbClient;
+
+	private static UrlItemFieldEnum staticUrlItemFieldEnum = new UrlItemFieldEnum();
 
 	@Override
 	public void init(Client client, File dataDir) throws SearchLibException,
@@ -128,7 +131,7 @@ public class UrlManager extends UrlManagerAbstract {
 
 	@Override
 	public UrlItemFieldEnum getNewUrlItemFieldEnum() {
-		return new UrlItemFieldEnum();
+		return staticUrlItemFieldEnum;
 	}
 
 	@Override
@@ -208,7 +211,7 @@ public class UrlManager extends UrlManagerAbstract {
 		request.addFilter(query.toString(), false);
 	}
 
-	private void getFacetLimit(UrlItemField field, SearchRequest searchRequest,
+	private void getFacetLimit(ItemField field, SearchRequest searchRequest,
 			int limit, List<NamedItem> list) throws SearchLibException {
 		AbstractResultSearch result = (AbstractResultSearch) urlDbClient
 				.request(searchRequest);
@@ -286,7 +289,7 @@ public class UrlManager extends UrlManagerAbstract {
 		getFacetLimit(urlItemFieldEnum.host, searchRequest, limit, hostList);
 	}
 
-	public void getStartingWith(String queryString, UrlItemField field,
+	public void getStartingWith(String queryString, ItemField field,
 			String start, int limit, List<NamedItem> list)
 			throws ParseException, IOException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
@@ -511,7 +514,7 @@ public class UrlManager extends UrlManagerAbstract {
 		}
 	}
 
-	private long getUrls(SearchRequest searchRequest, UrlItemField orderBy,
+	private long getUrls(SearchRequest searchRequest, ItemField orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException {
 		searchRequest.setStart((int) start);
@@ -539,7 +542,7 @@ public class UrlManager extends UrlManagerAbstract {
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus,
 			Integer responseCode, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate,
-			Date startModifiedDate, Date endModifiedDate, UrlItemField orderBy,
+			Date startModifiedDate, Date endModifiedDate, ItemField orderBy,
 			boolean orderAsc, long start, long rows, List<UrlItem> list)
 			throws SearchLibException {
 		SearchRequest searchRequest = urlQuery(urlSearchTemplate, like, host,

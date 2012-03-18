@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -57,27 +57,27 @@ public class FileInfo {
 		init();
 	}
 
-	public FileInfo(ResultDocument doc) throws UnsupportedEncodingException,
-			URISyntaxException {
+	public FileInfo(ResultDocument doc, FileItemFieldEnum fileItemFieldEnum)
+			throws UnsupportedEncodingException, URISyntaxException {
 		init();
 		setFileSystemDate(doc.getValueContent(
-				FileItemFieldEnum.fileSystemDate.getName(), 0));
-		String s = doc.getValueContent(FileItemFieldEnum.fileType.getName(), 0);
+				fileItemFieldEnum.fileSystemDate.getName(), 0));
+		String s = doc.getValueContent(fileItemFieldEnum.fileType.getName(), 0);
 		if (s != null)
 			setFileType(FileTypeEnum.valueOf(s));
-		setUri(doc.getValueContent(FileItemFieldEnum.uri.getName(), 0));
+		setUri(doc.getValueContent(fileItemFieldEnum.uri.getName(), 0));
 		setFileName(doc
-				.getValueContent(FileItemFieldEnum.fileName.getName(), 0));
+				.getValueContent(fileItemFieldEnum.fileName.getName(), 0));
 		setFileExtension(doc.getValueContent(
-				FileItemFieldEnum.fileExtension.getName(), 0));
+				fileItemFieldEnum.fileExtension.getName(), 0));
 		setFileSize(doc
-				.getValueContent(FileItemFieldEnum.fileSize.getName(), 0));
+				.getValueContent(fileItemFieldEnum.fileSize.getName(), 0));
 		setFetchStatusInt(doc.getValueContent(
-				FileItemFieldEnum.fetchStatus.getName(), 0));
+				fileItemFieldEnum.fetchStatus.getName(), 0));
 		setParserStatusInt(doc.getValueContent(
-				FileItemFieldEnum.parserStatus.getName(), 0));
+				fileItemFieldEnum.parserStatus.getName(), 0));
 		setIndexStatusInt(doc.getValueContent(
-				FileItemFieldEnum.indexStatus.getName(), 0));
+				fileItemFieldEnum.indexStatus.getName(), 0));
 	}
 
 	public FileInfo(FileInstanceAbstract fileInstance)
@@ -275,27 +275,28 @@ public class FileInfo {
 		return false;
 	}
 
-	public void populate(IndexDocument indexDocument) {
+	public void populate(IndexDocument indexDocument,
+			FileItemFieldEnum fileItemFieldEnum) {
 		if (fileSystemDate != null)
-			indexDocument.setString(FileItemFieldEnum.fileSystemDate.getName(),
+			indexDocument.setString(fileItemFieldEnum.fileSystemDate.getName(),
 					FileItem.getDateFormat().format(fileSystemDate));
 		if (fileSize != null)
-			indexDocument.setString(FileItemFieldEnum.fileSize.getName(),
+			indexDocument.setString(fileItemFieldEnum.fileSize.getName(),
 					fileSize.toString());
 		if (fileName != null)
-			indexDocument.setString(FileItemFieldEnum.fileName.getName(),
+			indexDocument.setString(fileItemFieldEnum.fileName.getName(),
 					fileName.toString());
-		indexDocument.setObject(FileItemFieldEnum.fetchStatus.getName(),
+		indexDocument.setObject(fileItemFieldEnum.fetchStatus.getName(),
 				fetchStatus.value);
-		indexDocument.setObject(FileItemFieldEnum.parserStatus.getName(),
+		indexDocument.setObject(fileItemFieldEnum.parserStatus.getName(),
 				parserStatus.value);
-		indexDocument.setObject(FileItemFieldEnum.indexStatus.getName(),
+		indexDocument.setObject(fileItemFieldEnum.indexStatus.getName(),
 				indexStatus.value);
 		if (fileType != null)
-			indexDocument.setString(FileItemFieldEnum.fileType.getName(),
+			indexDocument.setString(fileItemFieldEnum.fileType.getName(),
 					fileType.name());
 		if (fileExtension != null)
-			indexDocument.setString(FileItemFieldEnum.fileExtension.getName(),
+			indexDocument.setString(fileItemFieldEnum.fileExtension.getName(),
 					fileExtension);
 	}
 

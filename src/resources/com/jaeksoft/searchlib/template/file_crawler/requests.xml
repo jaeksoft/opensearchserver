@@ -25,6 +25,9 @@
 		start="0" rows="10" lang="en">
 
 		<query>uri:($$)^5 OR uri:("$$")^5 OR
+fileName:($$)^10 OR fileName:("$$")^10 OR
+fileNameExact:($$)^10 OR fileNameExact:("$$")^10 OR
+fileNamePhonetic:($$)^10 OR fileNamePhonetic:("$$")^10 OR
 content:($$) OR content:("$$") OR
 contentExact:($$) OR contentExact:("$$") OR
 contentPhonetic:($$) OR contentPhonetic:("$$") OR
@@ -39,7 +42,7 @@ titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10
 		</returnFields>
 
 		<snippet>
-			<field name="title" tag="b" maxDocChar="2147483647" separator="..."
+			<field name="fileName" tag="b" maxDocChar="2147483647" separator="..."
 				maxSnippetSize="200" fragmenterClass="NoFragmenter" />
 			<field name="content" tag="b" maxDocChar="2147483647"
 				separator="..." maxSnippetSize="200" fragmenterClass="SentenceFragmenter" />

@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -51,6 +50,7 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.MimeUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class HtmlParser extends Parser {
 
@@ -134,7 +134,8 @@ public class HtmlParser extends Parser {
 		boolean bEnterDirectField = false;
 		String classNameAttribute = node.getAttribute("class");
 		if (classNameAttribute != null) {
-			String[] classNames = StringUtils.split(classNameAttribute);
+			String[] classNames = org.apache.commons.lang.StringUtils
+					.split(classNameAttribute);
 			if (classNames != null) {
 				for (String className : classNames) {
 					if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(className))
@@ -153,9 +154,9 @@ public class HtmlParser extends Parser {
 
 		if (node.isTextNode()) {
 			String text = node.getNodeValue();
-			text = text.replaceAll("\\r", "");
-			text = text.replaceAll("\\n", "");
-			text = text.replaceAll("\\s+", " ");
+			text = text.replaceAll("\\r", " ");
+			text = text.replaceAll("\\n", " ");
+			text = StringUtils.replaceConsecutiveSpaces(text, " ");
 			text = text.trim();
 			if (text.length() > 0) {
 				text = StringEscapeUtils.unescapeHtml(text);

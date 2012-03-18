@@ -33,6 +33,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class XlsxParser extends Parser {
 
@@ -71,7 +72,8 @@ public class XlsxParser extends Parser {
 		excelExtractor.setIncludeHeadersFooters(true);
 		excelExtractor.setIncludeSheetNames(true);
 		String content = excelExtractor.getText();
-		addField(ParserFieldEnum.content, content.replaceAll("\\s+", " "));
+		addField(ParserFieldEnum.content,
+				StringUtils.replaceConsecutiveSpaces(content, " "));
 
 		langDetection(10000, ParserFieldEnum.content);
 
