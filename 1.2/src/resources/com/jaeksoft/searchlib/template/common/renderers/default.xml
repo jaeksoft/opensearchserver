@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<renderer name="default" request="search" searchButtonLabel="Search">
+	<style>font-family: arial,sans-serif; font-size: small;
+	</style>
+	<autocompleteStyle>margin: 0;float: left;cursor: pointer;padding-left:3px;padding-right:3px;</autocompleteStyle>
+	<autocompleteListStyle>background-color: #FFFFFF;text-align: left;border-left: 1px solid #D3D3D3;border-bottom: 1px solid #D3D3D3;border-right: 1px solid #D3D3D3;</autocompleteListStyle>
+	<autocompleteLinkStyle>color:#222222;font-size: 14px;background-color: #FFFFFF;padding: 2px 6px 2px 6px;</autocompleteLinkStyle>
+	<autocompleteLinkHoverStyle>color:#222222;font-size: 14px;background-color: #F5F5F5;padding: 2px 6px 2px 6px;</autocompleteLinkHoverStyle>
+	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url">
+		<cssStyle>font-size:medium;</cssStyle>
+	</field>
+	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" />
+	<field fieldName="url" fieldType="FIELD" urlFieldName="">
+		<cssStyle>color: #0E774A;</cssStyle>
+	</field>
+</renderer>

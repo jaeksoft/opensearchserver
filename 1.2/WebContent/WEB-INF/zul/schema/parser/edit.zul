@@ -1,0 +1,171 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<zk>
+	<vbox width="100%">
+		<panel title="Parser Attributes" border="normal">
+			<panelchildren>
+				<grid>
+					<columns>
+						<column width="150px" align="right" />
+						<column width="250px" align="left" />
+						<column align="left" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Name" />
+							<textbox
+								value="@{parser.currentParser.parserName}" />
+							<label
+								value="Choose a name for this parser" />
+						</row>
+						<row>
+							<label value="Type" />
+							<label
+								value="@{parser.currentParser.parserType.name}" />
+							<label value="The type of this parser" />
+						</row>
+					</rows>
+				</grid>
+				<grid model="@{parser.currentParser.userProperties}">
+					<columns>
+						<column width="150px" align="right" />
+						<column width="250px" align="left" />
+						<column align="left" />
+					</columns>
+					<rows>
+						<row self="@{each='property'}">
+							<label
+								tooltiptext="@{property.classPropertyEnum.info}"
+								value="@{property.classPropertyEnum.label}" />
+							<vbox>
+								<textbox visible="@{property.textbox}"
+									value="@{property.value}" />
+								<listbox mold="select"
+									visible="@{property.valueList}" model="@{property.valueList}"
+									selectedItem="@{property.value}" />
+							</vbox>
+							<label
+								value="@{property.classPropertyEnum.info}" />
+						</row>
+					</rows>
+				</grid>
+			</panelchildren>
+		</panel>
+	</vbox>
+	<separator height="5px" />
+	<vbox width="100%">
+		<panel title="Supported extension" border="normal">
+			<panelchildren>
+				<hbox align="center">
+					<label value="Enter an extension to add: " />
+					<textbox cols="10"
+						value="@{parser.currentExtension}" />
+					<button label="Add"
+						onClick="parser.onAddExtension()" />
+				</hbox>
+				<grid width="100%" visible="@{parser.parserExtension}"
+					model="@{parser.currentParser.extensionSet}">
+					<columns>
+						<column label="Extension" />
+						<column label="Action" />
+					</columns>
+					<rows>
+						<row self="@{each=extensionItem}">
+							<label value="@{extensionItem}" />
+							<image src="/images/action_delete.png"
+								onClick="parser.onDeleteExtension(self)">
+								<custom-attributes
+									extensionItem="@{extensionItem}" />
+							</image>
+						</row>
+					</rows>
+				</grid>
+			</panelchildren>
+		</panel>
+		<separator height="5px" />
+		<panel title="Supported MIME type" border="normal">
+			<panelchildren>
+				<hbox align="center">
+					<label value="Enter a MIME type to add: " />
+					<textbox cols="50"
+						value="@{parser.currentMimeType}" />
+					<button label="Add"
+						onClick="parser.onAddMimeType()" />
+				</hbox>
+				<grid width="100%" visible="@{parser.parserMimeType}"
+					model="@{parser.currentParser.mimeTypeSet}" fixedLayout="true">
+					<columns>
+						<column label="MIME type" />
+						<column label="Action" />
+					</columns>
+					<rows>
+						<row self="@{each=mimeTypeItem}">
+							<label value="@{mimeTypeItem}" />
+							<image src="/images/action_delete.png"
+								onClick="parser.onDeleteMimeType(self)">
+								<custom-attributes
+									mimeTypeItem="@{mimeTypeItem}" />
+							</image>
+						</row>
+					</rows>
+				</grid>
+			</panelchildren>
+		</panel>
+		<separator height="5px" />
+		<panel title="Field mapping" border="normal">
+			<panelchildren>
+				<hbox align="center">
+					<listbox mold="select"
+						model="@{parser.parserFieldList}"
+						selectedItem="@{parser.selectedParserField}">
+						<listitem self="@{each='parserField'}"
+							label="@{parserField.name}" />
+					</listbox>
+					<label>linked in</label>
+					<listbox mold="select"
+						model="@{parser.indexFieldList}"
+						selectedItem="@{parser.selectedIndexField}">
+						<listitem self="@{each='indexField'}"
+							label="@{indexField.name}" />
+					</listbox>
+					<button label="add" onClick="parser.onAdd()" />
+				</hbox>
+				<listbox model="@{parser.currentParser.fieldMap.list}"
+					itemRenderer="@{parser}">
+					<listhead>
+						<listheader label="Parser field" />
+						<listheader label="Index field" />
+						<listheader label="Action" />
+					</listhead>
+				</listbox>
+			</panelchildren>
+		</panel>
+	</vbox>
+	<separator height="5px" />
+	<vbox width="100%" align="center">
+		<hbox visible="@{parser.parserSelected}">
+			<button label="Cancel" onClick="parser.onCancel()" />
+			<space width="10px" />
+			<button label="Save" onClick="parser.onSave()" />
+		</hbox>
+		<hbox visible="@{parser.noParserSelected}">
+			<button label="Cancel" onClick="parser.onCancel()" />
+			<space width="10px" />
+			<button label="Create" onClick="parser.onSave()" />
+		</hbox>
+	</vbox>
+</zk>
