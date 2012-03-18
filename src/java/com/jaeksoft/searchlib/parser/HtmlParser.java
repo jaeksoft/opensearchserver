@@ -38,7 +38,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.xalan.xsltc.trax.SAX2DOM;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.DomSerializer;
@@ -61,6 +60,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.MimeUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class HtmlParser extends Parser {
@@ -146,7 +146,8 @@ public class HtmlParser extends Parser {
 		String classNameAttribute = XPathParser.getAttributeString(node,
 				"class");
 		if (classNameAttribute != null) {
-			String[] classNames = StringUtils.split(classNameAttribute);
+			String[] classNames = org.apache.commons.lang.StringUtils
+					.split(classNameAttribute);
 			if (classNames != null) {
 				for (String className : classNames) {
 					if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(className))
@@ -165,9 +166,9 @@ public class HtmlParser extends Parser {
 
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			String text = node.getNodeValue();
-			text = text.replaceAll("\\r", "");
-			text = text.replaceAll("\\n", "");
-			text = text.replaceAll("\\s+", " ");
+			text = text.replaceAll("\\r", " ");
+			text = text.replaceAll("\\n", " ");
+			text = StringUtils.replaceConsecutiveSpaces(text, " ");
 			text = text.trim();
 			if (text.length() > 0) {
 				text = StringEscapeUtils.unescapeHtml(text);

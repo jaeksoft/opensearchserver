@@ -82,7 +82,8 @@ public class StringUtils {
 					"<(script|object|style)[^>]*>[^<]*</(script|object|style)>",
 					Pattern.CASE_INSENSITIVE);
 
-	public static final String removeConsecutiveSpaces(String source) {
+	public static final String replaceConsecutiveSpaces(String source,
+			String replace) {
 		StringBuffer target = new StringBuffer();
 		int l = source.length();
 		boolean consecutiveSpace = false;
@@ -90,7 +91,7 @@ public class StringUtils {
 			char c = source.charAt(i);
 			if (Character.isWhitespace(c)) {
 				if (!consecutiveSpace) {
-					target.append(' ');
+					target.append(replace);
 					consecutiveSpace = true;
 				}
 			} else {
@@ -103,7 +104,7 @@ public class StringUtils {
 	}
 
 	public static final String removeTag(String text) {
-		text = removeConsecutiveSpaces(text);
+		text = replaceConsecutiveSpaces(text, " ");
 		synchronized (removeScriptObjectStylePattern) {
 			text = removeScriptObjectStylePattern.matcher(text).replaceAll("");
 		}
@@ -122,7 +123,7 @@ public class StringUtils {
 		synchronized (removeTagPattern) {
 			text = removeTagPattern.matcher(text).replaceAll("");
 		}
-		text = removeConsecutiveSpaces(text);
+		text = replaceConsecutiveSpaces(text, " ");
 		return text;
 	}
 
@@ -138,7 +139,7 @@ public class StringUtils {
 
 	public static final String removeTag(String text, String[] allowedTags) {
 		if (allowedTags == null)
-			text = removeConsecutiveSpaces(text);
+			text = replaceConsecutiveSpaces(text, " ");
 		StringBuffer sb = new StringBuffer();
 		Matcher matcher;
 		synchronized (removeTagPattern) {

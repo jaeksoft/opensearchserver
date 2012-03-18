@@ -89,7 +89,7 @@ public class PptxParser extends Parser {
 
 			String content = poiExtractor.getText(true, true);
 			addField(ParserFieldEnum.content,
-					StringUtils.removeConsecutiveSpaces(content));
+					StringUtils.replaceConsecutiveSpaces(content, " "));
 
 			langDetection(10000, ParserFieldEnum.content);
 
@@ -97,8 +97,10 @@ public class PptxParser extends Parser {
 			throw new IOException(e);
 		} catch (XmlException e) {
 			throw new IOException(e);
+		} finally {
+			if (tempFile != null)
+				tempFile.delete();
 		}
 
 	}
-
 }

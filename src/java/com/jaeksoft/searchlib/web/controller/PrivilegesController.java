@@ -189,7 +189,8 @@ public class PrivilegesController extends CommonController {
 	}
 
 	public void onAddPrivilege() {
-		user.addRole(selectedIndex.getIndexName(), selectedRole);
+		if (selectedIndex != null)
+			user.addRole(selectedIndex.getIndexName(), selectedRole);
 		reloadPage();
 	}
 

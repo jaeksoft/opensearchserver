@@ -94,6 +94,8 @@ public class CrawlFile {
 					return;
 				}
 
+				fileItem.setParserStatus(ParserStatus.PARSED);
+				
 				IndexDocument sourceDocument = fileItem
 						.getIndexDocument(fileItemFieldEnum);
 

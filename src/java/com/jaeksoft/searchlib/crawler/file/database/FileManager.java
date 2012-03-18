@@ -137,7 +137,7 @@ public class FileManager {
 
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
 				fileItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
-						fetchStatus.value, true);
+						fetchStatus.value, false);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
 				fileItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
 						parserStatus.value, false);
@@ -147,7 +147,7 @@ public class FileManager {
 
 			if (fileType != null && fileType != FileTypeEnum.ALL)
 				fileItemFieldEnum.fileType.addFilterQuery(searchRequest,
-						fileType.name(), false);
+						fileType.name(), true);
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;

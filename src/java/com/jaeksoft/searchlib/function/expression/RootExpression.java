@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSourceQuery;
+
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class RootExpression extends GroupExpression {
 
@@ -81,7 +83,7 @@ public class RootExpression extends GroupExpression {
 
 	static public ScoreFunctionQuery getQuery(Query subQuery, String exp)
 			throws SyntaxError {
-		exp = exp.trim().replaceAll("\\s+", "");
+		exp = StringUtils.replaceConsecutiveSpaces(exp.trim(), "");
 		return new RootExpression(exp.toCharArray(), 0).getQuery(subQuery);
 	}
 

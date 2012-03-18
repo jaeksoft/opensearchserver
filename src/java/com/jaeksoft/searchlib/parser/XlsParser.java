@@ -67,7 +67,7 @@ public class XlsParser extends Parser {
 
 		String content = excel.getText();
 		addField(ParserFieldEnum.content,
-				StringUtils.removeConsecutiveSpaces(content));
+				StringUtils.replaceConsecutiveSpaces(content, " "));
 
 		langDetection(10000, ParserFieldEnum.content);
 

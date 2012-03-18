@@ -52,13 +52,13 @@ public class CachedOutputStream extends ByteArrayOutputStream {
 	}
 
 	public InputStream getNewInputStream() {
-		return new ByteArrayInputStream(buf);
+		return new ByteArrayInputStream(buf, 0, count);
 	}
 
 	public String getMD5Hash() throws NoSuchAlgorithmException {
 		if (hashMD5 != null)
 			return hashMD5;
-		hashMD5 = Md5Spliter.getMD5Hash(buf);
+		hashMD5 = Md5Spliter.getMD5Hash(buf, 0, count);
 		return hashMD5;
 	}
 

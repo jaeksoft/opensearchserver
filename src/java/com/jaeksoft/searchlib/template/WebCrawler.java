@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.template;
 
-
 public class WebCrawler extends TemplateAbstract {
 
 	public final static String publicName = "web crawler";

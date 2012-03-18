@@ -104,7 +104,6 @@ public class TermController extends CommonController {
 
 	private TermEnum getTermEnum() throws IOException, SearchLibException {
 		synchronized (this) {
-
 			if (currentTermEnum == null)
 				setTermEnum();
 			return currentTermEnum;

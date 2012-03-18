@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -81,11 +81,11 @@ public class ScreenshotManager implements PropertyItemListener {
 
 	private final File buildFile(URL url) throws SearchLibException {
 		try {
-			String md5host = Md5Spliter.getMD5Hash(url.getHost().getBytes());
+			String md5host = Md5Spliter.getMD5Hash(url.getHost());
 			File dirPath = new File(screenshotDir, md5host.substring(0, 1)
 					+ File.separator + md5host.substring(1, 2));
-			return new File(dirPath, Md5Spliter.getMD5Hash(url.toExternalForm()
-					.getBytes()) + ".png");
+			return new File(dirPath,
+					Md5Spliter.getMD5Hash(url.toExternalForm()) + ".png");
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		}

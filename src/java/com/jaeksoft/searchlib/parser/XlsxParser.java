@@ -73,7 +73,7 @@ public class XlsxParser extends Parser {
 		excelExtractor.setIncludeSheetNames(true);
 		String content = excelExtractor.getText();
 		addField(ParserFieldEnum.content,
-				StringUtils.removeConsecutiveSpaces(content));
+				StringUtils.replaceConsecutiveSpaces(content, " "));
 
 		langDetection(10000, ParserFieldEnum.content);
 

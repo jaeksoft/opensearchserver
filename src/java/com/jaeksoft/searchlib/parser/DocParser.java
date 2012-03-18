@@ -35,6 +35,7 @@ import org.apache.poi.hwpf.extractor.WordExtractor;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class DocParser extends Parser {
 
@@ -68,7 +69,8 @@ public class DocParser extends Parser {
 		for (String paragraph : paragraphes) {
 			String[] frags = paragraph.split("\\n");
 			for (String frag : frags)
-				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " "));
+				addField(ParserFieldEnum.content,
+						StringUtils.replaceConsecutiveSpaces(frag, " "));
 		}
 	}
 
@@ -85,7 +87,8 @@ public class DocParser extends Parser {
 		for (String paragraph : paragraphes) {
 			String[] frags = paragraph.split("\\n");
 			for (String frag : frags)
-				addField(ParserFieldEnum.content, frag.replaceAll("\\s+", " "));
+				addField(ParserFieldEnum.content,
+						StringUtils.replaceConsecutiveSpaces(frag, " "));
 		}
 	}
 
