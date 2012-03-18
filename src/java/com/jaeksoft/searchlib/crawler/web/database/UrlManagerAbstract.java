@@ -64,7 +64,7 @@ public abstract class UrlManagerAbstract {
 
 	protected Client targetClient = null;
 
-	protected UrlItemFieldEnum urlItemFieldEnum;
+	protected final UrlItemFieldEnum urlItemFieldEnum;
 
 	public UrlManagerAbstract() {
 		urlItemFieldEnum = getNewUrlItemFieldEnum();

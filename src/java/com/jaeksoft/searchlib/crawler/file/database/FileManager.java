@@ -67,7 +67,7 @@ public class FileManager {
 	private final Client fileDbClient;
 	private final Client targetClient;
 
-	private final FileItemFieldEnum fileItemFieldEnum = new FileItemFieldEnum();
+	protected final FileItemFieldEnum fileItemFieldEnum;
 
 	private ExtensibleEnum<FileInstanceType> fileInstanceTypeEnum = null;
 
@@ -79,6 +79,7 @@ public class FileManager {
 
 		this.fileDbClient = new Client(dataDir, "/file_config.xml", true);
 		targetClient = client;
+		fileItemFieldEnum = getNewFileItemFieldEnum();
 	}
 
 	public Client getFileDbClient() {
@@ -565,6 +566,10 @@ public class FileManager {
 
 	public FileItemFieldEnum getFileItemFieldEnum() {
 		return fileItemFieldEnum;
+	}
+
+	public FileItemFieldEnum getNewFileItemFieldEnum() {
+		return new FileItemFieldEnum();
 	}
 
 }
