@@ -108,7 +108,8 @@ public class RobotsTxtCache {
 		synchronized (robotsTxtList) {
 			RobotsTxt robotsTxt = new RobotsTxt(crawl);
 			robotsTxtList.remove(robotsKey);
-			robotsTxtList.put(robotsKey, robotsTxt);
+			if (robotsTxt.isCacheable())
+				robotsTxtList.put(robotsKey, robotsTxt);
 			return robotsTxt;
 		}
 	}
