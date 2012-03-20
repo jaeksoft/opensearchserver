@@ -102,8 +102,7 @@ public class Crawl {
 		this.discoverLinks = null;
 		this.urlItem = urlItem;
 		this.urlItem.setWhenNow();
-		this.userAgent = propertyManager.getUserAgent().getValue()
-				.toLowerCase();
+		this.userAgent = propertyManager.getUserAgent().getValue();
 		this.parser = null;
 		this.parserSelector = parserSelector;
 		this.config = config;

@@ -44,13 +44,13 @@ import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
+import com.jaeksoft.searchlib.parser.ParserFieldMap;
+import com.jaeksoft.searchlib.parser.ParserFieldTarget;
 import com.jaeksoft.searchlib.parser.ParserType;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.map.GenericLink;
-import com.jaeksoft.searchlib.util.map.Target;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -75,6 +75,10 @@ public class ParserController extends CommonController implements
 	private transient String currentExtension;
 
 	private transient String currentMimeType;
+
+	private transient String captureRegexp;
+
+	private transient boolean removeTag;
 
 	private class DeleteAlert extends AlertController {
 
@@ -107,6 +111,7 @@ public class ParserController extends CommonController implements
 		selectedParser = null;
 		selectedIndexField = null;
 		selectedParserField = null;
+		captureRegexp = null;
 	}
 
 	public Set<ParserFactory> getParserSet() {
@@ -233,7 +238,7 @@ public class ParserController extends CommonController implements
 		}
 	}
 
-	public FieldMap getFieldMap() {
+	public ParserFieldMap getFieldMap() {
 		if (currentParser == null)
 			return null;
 		return currentParser.getFieldMap();
@@ -278,9 +283,9 @@ public class ParserController extends CommonController implements
 			XPathExpressionException, ParserConfigurationException {
 		if (selectedParserField == null || selectedIndexField == null)
 			return;
-		FieldMap fieldMap = getFieldMap();
-		fieldMap.add(selectedParserField.name(),
-				new Target(selectedIndexField.getName()));
+		ParserFieldMap fieldMap = getFieldMap();
+		fieldMap.add(selectedParserField.name(), new ParserFieldTarget(
+				selectedIndexField.getName(), captureRegexp, removeTag));
 		reloadPage();
 	}
 
@@ -301,9 +306,9 @@ public class ParserController extends CommonController implements
 	public void onLinkRemove(Event event) throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
-		GenericLink<String, Target> link = (GenericLink<String, Target>) event
+		GenericLink<String, ParserFieldTarget> link = (GenericLink<String, ParserFieldTarget>) event
 				.getData();
-		FieldMap fieldMap = getFieldMap();
+		ParserFieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
 		reloadPage();
 	}
@@ -311,9 +316,17 @@ public class ParserController extends CommonController implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render(Listitem item, Object data) throws Exception {
-		GenericLink<String, Target> link = (GenericLink<String, Target>) data;
+		GenericLink<String, ParserFieldTarget> link = (GenericLink<String, ParserFieldTarget>) data;
+		ParserFieldTarget fieldTarget = link.getTarget();
 		new Listcell(link.getSource()).setParent(item);
-		new Listcell(link.getTarget().getName()).setParent(item);
+		new Listcell(fieldTarget.getName()).setParent(item);
+		String s = fieldTarget.getCaptureRegexp();
+		if (s != null)
+			new Listcell(s).setParent(item);
+		else
+			new Listcell().setParent(item);
+		new Listcell(Boolean.toString(fieldTarget.isRemoveTag()))
+				.setParent(item);
 		Listcell listcell = new Listcell();
 		Image image = new Image("/images/action_delete.png");
 		image.addForward(null, this, "onLinkRemove", data);
@@ -387,6 +400,37 @@ public class ParserController extends CommonController implements
 		currentParser.removeMimeType((String) getRecursiveComponentAttribute(
 				comp, "mimeTypeItem"));
 		reloadPage();
+	}
+
+	/**
+	 * @return the captureRegexp
+	 */
+	public String getCaptureRegexp() {
+		return captureRegexp;
+	}
+
+	/**
+	 * @param captureRegexp
+	 *            the captureRegexp to set
+	 */
+	public void setCaptureRegexp(String captureRegexp) {
+		this.captureRegexp = captureRegexp;
+	}
+
+	/**
+	 * @return the removeTag
+	 */
+	public boolean isRemoveTag() {
+		return removeTag;
+	}
+
+	/**
+	 * @param removeTag
+	 *            the removeTag to set
+	 */
+	public void setRemoveTag(boolean removeTag) {
+		this.removeTag = removeTag;
+		System.out.println(removeTag);
 	}
 
 }

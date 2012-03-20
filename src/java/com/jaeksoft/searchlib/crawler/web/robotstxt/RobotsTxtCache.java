@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -108,7 +108,8 @@ public class RobotsTxtCache {
 		synchronized (robotsTxtList) {
 			RobotsTxt robotsTxt = new RobotsTxt(crawl);
 			robotsTxtList.remove(robotsKey);
-			robotsTxtList.put(robotsKey, robotsTxt);
+			if (robotsTxt.isCacheable())
+				robotsTxtList.put(robotsKey, robotsTxt);
 			return robotsTxt;
 		}
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -57,10 +57,16 @@ public class RobotsTxt {
 	 * @throws MalformedURLException
 	 */
 	protected static URL getRobotsUrl(URL url) throws MalformedURLException {
-		String sUrl = url.getProtocol() + "://" + url.getHost() + ":"
-				+ (url.getPort() == -1 ? url.getDefaultPort() : url.getPort())
-				+ "/robots.txt";
-		return new URL(sUrl);
+		StringBuffer sb = new StringBuffer();
+		sb.append(url.getProtocol());
+		sb.append("://");
+		sb.append(url.getHost());
+		if (url.getPort() != -1) {
+			sb.append(':');
+			sb.append(url.getPort());
+		}
+		sb.append("/robots.txt");
+		return new URL(sb.toString());
 	}
 
 	/**
@@ -129,4 +135,17 @@ public class RobotsTxt {
 		return crawl.getUrlItem().getHost();
 	}
 
+	public boolean isCacheable() {
+		if (crawl == null)
+			return false;
+		switch (crawl.getUrlItem().getResponseCode()) {
+		case 200:
+			return true;
+		case 400:
+		case 404:
+			return true;
+		default:
+			return false;
+		}
+	}
 }

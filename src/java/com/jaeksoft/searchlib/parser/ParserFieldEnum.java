@@ -47,6 +47,8 @@ public enum ParserFieldEnum {
 
 	htmlProvider,
 
+	htmlSource,
+
 	creator,
 
 	author,

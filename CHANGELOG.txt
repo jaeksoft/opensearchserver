@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3509336: Adding regular expression capture in parser	
 - 3485668: Jsoup HTML parser
 - 3471808: Consecutive duplicate characters filter
 - 3467459: Phonetic filters
@@ -24,6 +25,7 @@ New features:
 OpenSearchServer 1.2.4
 
 New features:
+- 3509333: Error 500 when loading robots.txt
 - 3498421: Set a default URL value for replication
 - 3498373: Remove script and object tag content in db crawler
 - 3489935: Default stop words list

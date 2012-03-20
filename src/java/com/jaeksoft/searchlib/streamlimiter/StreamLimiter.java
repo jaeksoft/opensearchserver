@@ -71,7 +71,7 @@ public abstract class StreamLimiter implements Closeable {
 			IOException;
 
 	public InputStream getNewInputStream() throws IOException {
-		if (outputCache != null)
+		if (outputCache == null)
 			loadOutputCache();
 		InputStream inputStream = outputCache.getNewInputStream();
 		inputStreamList.add(inputStream);
@@ -80,7 +80,7 @@ public abstract class StreamLimiter implements Closeable {
 
 	public String getMD5Hash() throws NoSuchAlgorithmException, LimitException,
 			IOException {
-		if (outputCache != null)
+		if (outputCache == null)
 			loadOutputCache();
 		InputStream is = null;
 		try {
@@ -93,7 +93,7 @@ public abstract class StreamLimiter implements Closeable {
 	}
 
 	public long getSize() throws LimitException, IOException {
-		if (outputCache != null)
+		if (outputCache == null)
 			loadOutputCache();
 		return outputCache.getSize();
 	}

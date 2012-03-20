@@ -142,13 +142,21 @@
 						<listitem self="@{each='indexField'}"
 							label="@{indexField.name}" />
 					</listbox>
+					<label>captured by (reg.exp.):</label>
+					<textbox cols="80" value="@{parser.captureRegexp}" />
+					<space />
+					<checkbox label="remove tags"
+						checked="@{parser.removeTag}" />
+					<space />
 					<button label="add" onClick="parser.onAdd()" />
 				</hbox>
 				<listbox model="@{parser.currentParser.fieldMap.list}"
-					itemRenderer="@{parser}">
+					itemRenderer="@{parser}" sizedByContent="true" span="true">
 					<listhead>
 						<listheader label="Parser field" />
 						<listheader label="Index field" />
+						<listheader label="Capture Reg.Exp." />
+						<listheader label="Remove tags" />
 						<listheader label="Action" />
 					</listhead>
 				</listbox>

@@ -25,12 +25,14 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -63,7 +65,7 @@ public class HtmlParser extends Parser {
 			ParserFieldEnum.internal_link_nofollow,
 			ParserFieldEnum.external_link,
 			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
-			ParserFieldEnum.htmlProvider };
+			ParserFieldEnum.htmlProvider, ParserFieldEnum.htmlSource };
 
 	private UrlItemFieldEnum urlItemFieldEnum = null;
 
@@ -230,6 +232,11 @@ public class HtmlParser extends Parser {
 		boolean charsetWasNull = charset == null;
 		if (charsetWasNull)
 			charset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET).getValue();
+
+		StringWriter writer = new StringWriter();
+		IOUtils.copy(streamLimiter.getNewInputStream(), writer, charset);
+		addField(ParserFieldEnum.htmlSource, writer.toString());
+		writer.close();
 
 		HtmlDocumentProvider htmlProvider = findBestProvider(charset,
 				streamLimiter);

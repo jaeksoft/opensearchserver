@@ -31,7 +31,6 @@ import java.net.URI;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
@@ -70,8 +69,8 @@ public class HttpDownloader {
 		redirectStrategy = new DefaultRedirectStrategy();
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
-		paramsBean.setVersion(HttpVersion.HTTP_1_1);
-		paramsBean.setContentCharset("UTF-8");
+		// paramsBean.setVersion(HttpVersion.HTTP_1_1);
+		// paramsBean.setContentCharset("UTF-8");
 		paramsBean.setUserAgent(userAgent);
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		httpClient = new DefaultHttpClient(params);

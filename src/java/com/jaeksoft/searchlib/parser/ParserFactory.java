@@ -38,7 +38,6 @@ import com.jaeksoft.searchlib.analysis.ClassFactory;
 import com.jaeksoft.searchlib.analysis.ClassProperty;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -52,7 +51,7 @@ public class ParserFactory extends ClassFactory implements
 
 	private Set<String> extensionList;
 
-	private FieldMap fieldMap;
+	private ParserFieldMap fieldMap;
 
 	private UrlFilterItem[] urlFilterList;
 
@@ -103,9 +102,9 @@ public class ParserFactory extends ClassFactory implements
 		return Integer.parseInt(prop.getValue());
 	}
 
-	public FieldMap getFieldMap() {
+	public ParserFieldMap getFieldMap() {
 		if (fieldMap == null)
-			fieldMap = new FieldMap();
+			fieldMap = new ParserFieldMap();
 		return fieldMap;
 	}
 
@@ -154,8 +153,8 @@ public class ParserFactory extends ClassFactory implements
 		ParserFactory parserFactory = (ParserFactory) ClassFactory.create(
 				config, PARSER_PACKAGE, parserNode);
 
-		parserFactory.fieldMap = new FieldMap(xpp, xpp.getNode(parserNode,
-				"map"));
+		parserFactory.fieldMap = new ParserFieldMap(xpp, xpp.getNode(
+				parserNode, "map"));
 
 		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
 		for (int j = 0; j < mimeNodes.getLength(); j++) {
@@ -192,7 +191,7 @@ public class ParserFactory extends ClassFactory implements
 	public static ParserFactory create(ParserFactory parser)
 			throws SearchLibException {
 		ParserFactory newParser = (ParserFactory) ClassFactory.create(parser);
-		newParser.fieldMap = new FieldMap();
+		newParser.fieldMap = new ParserFieldMap();
 		if (parser.fieldMap != null)
 			parser.fieldMap.copyTo(newParser.fieldMap);
 		if (parser.config != null)
