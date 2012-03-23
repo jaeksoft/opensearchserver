@@ -318,7 +318,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		try {
 			File tempFile = File.createTempFile("OSS_Search_Result", ".csv");
 			pw = new PrintWriter(tempFile);
-			new RenderCSV(result).renderCSV(pw);
+			new RenderCSV(result).render(pw);
 			Filedownload.save(new FileInputStream(tempFile),
 					"text/csv; charset-UTF-8", "OSS_Search_Result.csv");
 		} finally {

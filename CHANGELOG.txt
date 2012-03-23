@@ -25,6 +25,7 @@ New features:
 OpenSearchServer 1.2.4
 
 New features:
+- 3510598: Add CSV format in the select XML/HTTP API
 - 3509333: Error 500 when loading robots.txt
 - 3498421: Set a default URL value for replication
 - 3498373: Remove script and object tag content in db crawler

@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -35,12 +37,14 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 /**
  * @author Naveen
  * 
  */
-public class RenderCSV {
+public class RenderCSV implements Render {
+
 	private PrintWriter writer;
 	private AbstractResultSearch result;
 	private SearchRequest searchRequest;
@@ -59,7 +63,6 @@ public class RenderCSV {
 
 		for (int i = start; i < end; i++)
 			this.renderDocument(i);
-
 	}
 
 	private void renderDocument(int i) {
@@ -71,7 +74,8 @@ public class RenderCSV {
 		}
 		for (SnippetField field : searchRequest.getSnippetFieldList()) {
 			renderSnippetValue(doc, field);
-			if (field.getName() != null && !field.getName().equals(""))
+			String fName = field.getName();
+			if (fName != null && fName.length() > 0)
 				writer.print(',');
 		}
 
@@ -82,30 +86,26 @@ public class RenderCSV {
 		FieldValueItem[] snippets = doc.getSnippetArray(field);
 		if (snippets == null)
 			return;
-
-		for (FieldValueItem snippet : snippets) {
-			writer.print('"');
-			writer.print(snippet.getValue());
-			writer.print('"');
-
-		}
+		for (FieldValueItem snippet : snippets)
+			writer.print(StringEscapeUtils.escapeCsv(snippet.getValue()));
 	}
 
 	private void renderField(ResultDocument doc, Field field) {
 		List<FieldValueItem> values = doc.getValueList(field);
 		if (values == null)
 			return;
-		for (FieldValueItem v : values) {
-			writer.print('"');
-			writer.print(v.getValue());
-			writer.print('"');
-
-		}
+		for (FieldValueItem v : values)
+			writer.print(StringEscapeUtils.escapeCsv(v.getValue()));
 	}
 
-	public void renderCSV(PrintWriter writer) throws Exception {
+	public void render(PrintWriter writer) throws Exception {
 		this.writer = writer;
 		renderDocuments();
+	}
 
+	@Override
+	public void render(ServletTransaction servletTransaction) throws Exception {
+		servletTransaction.setResponseContentType("text/csv; charset-UTF-8");
+		render(servletTransaction.getWriter("UTF-8"));
 	}
 }

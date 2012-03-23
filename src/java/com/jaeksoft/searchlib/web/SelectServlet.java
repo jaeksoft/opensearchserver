@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
 import com.jaeksoft.searchlib.render.RenderSearchXml;
@@ -63,7 +64,9 @@ public class SelectServlet extends AbstractServlet {
 		} else if ("json".equalsIgnoreCase(render)) {
 			String jsonIndent = transaction.getParameterString("indent");
 			return new RenderSearchJson(result, jsonIndent);
-		} else
+		} else if ("csv".equalsIgnoreCase(render))
+			return new RenderCSV(result);
+		else
 			return new RenderSearchXml(result);
 	}
 
@@ -80,8 +83,10 @@ public class SelectServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
-			Render render = doQueryRequest(client, transaction,
-					transaction.getParameterString("format"));
+			String r = transaction.getParameterString("render");
+			if (r == null || r.length() == 0)
+				r = transaction.getParameterString("format");
+			Render render = doQueryRequest(client, transaction, r);
 			render.render(transaction);
 
 		} catch (Exception e) {
