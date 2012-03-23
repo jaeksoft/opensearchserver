@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.render.RenderXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -57,7 +58,8 @@ public class SearchServlet extends AbstractServlet {
 		if ("jsp".equals(render)) {
 			String jsp = transaction.getParameterString("jsp");
 			return new RenderJsp(jsp, result);
-		}
+		} else if ("csv".equals(render))
+			return new RenderCSV(result);
 		return new RenderXml(result);
 	}
 

@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.2.4
 
 New features:
+- 3510598: Add CSV format in the select XML/HTTP API
 - 3498421: Set a default URL value for replication
 - 3498373: Remove script and object tag content in db crawler
 - 3495004: Add progress info in scheduler task	
