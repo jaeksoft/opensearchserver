@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -149,5 +149,69 @@ public class UrlFilterList {
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	private static final String doReplaceQuery(String uriString,
+			UrlFilterItem[] urlFilterArray) {
+		int i = uriString.indexOf('?');
+		if (i == -1)
+			return uriString;
+		if (urlFilterArray == null)
+			return uriString;
+		StringBuffer newUrl = new StringBuffer(uriString.substring(0, i++));
+		String queryString = uriString.substring(i);
+
+		String[] queryParts = queryString.split("\\" + '&');
+
+		if (queryParts == null || queryParts.length == 0)
+			return uriString;
+
+		for (UrlFilterItem urlFilter : urlFilterArray)
+			urlFilter.doReplaceQuery(queryParts);
+		boolean first = true;
+		for (String queryPart : queryParts) {
+			if (queryPart != null) {
+				if (first) {
+					newUrl.append('?');
+					first = false;
+				} else
+					newUrl.append('&');
+				newUrl.append(queryPart);
+			}
+		}
+		return newUrl.toString();
+	}
+
+	private static final String doReplaceProspero(String uriString,
+			UrlFilterItem[] urlFilterArray) {
+		int i1 = uriString.indexOf(';');
+		if (i1 == -1)
+			return uriString;
+		i1++;
+		if (i1 == uriString.length())
+			return uriString;
+		int i2 = uriString.indexOf('/', i1);
+		String part = i2 == -1 ? uriString.substring(i1) : uriString.substring(
+				i1, i2);
+		boolean bReplace = false;
+		for (UrlFilterItem urlFilter : urlFilterArray) {
+			if (urlFilter.isReplaceProspero(part)) {
+				bReplace = true;
+				break;
+			}
+		}
+		if (!bReplace)
+			return uriString;
+		StringBuffer newUrl = new StringBuffer(uriString.substring(0, i1 - 1));
+		if (i2 != -1)
+			newUrl.append(uriString.substring(i2));
+		return newUrl.toString();
+	}
+
+	public static final String doReplace(String uriString,
+			UrlFilterItem[] urlFilterArray) {
+		uriString = doReplaceQuery(uriString, urlFilterArray);
+		uriString = doReplaceProspero(uriString, urlFilterArray);
+		return uriString;
 	}
 }

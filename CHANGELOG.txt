@@ -53,6 +53,7 @@ Bug fixes:
 - 3476578: UTF-8 character as separator in snippet field
 - 3475446: head indexed instead of body (using <script /> in head)
 - 3476551: Query with Quotation Marks has unusual results	
+- 3474877: URL Filter doesn't work for jsessionid
 - 3472905: Error while crawling local HTML file
 - 3471749: Out Of Memory Error while indexing PDF document
 
