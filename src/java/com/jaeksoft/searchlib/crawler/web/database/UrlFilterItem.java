@@ -116,7 +116,15 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 		return this.name.compareTo(o.name);
 	}
 
-	public final void doReplace(String[] queryParts) {
+	public final boolean isReplaceProspero(String part) {
+		if (compiledPattern == null)
+			return false;
+		if (part == null)
+			return false;
+		return compiledPattern.matcher(part).matches();
+	}
+
+	public final void doReplaceQuery(String[] queryParts) {
 		if (compiledPattern == null)
 			return;
 		if (queryParts == null)
@@ -128,4 +136,5 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 					queryParts[i] = null;
 		}
 	}
+
 }

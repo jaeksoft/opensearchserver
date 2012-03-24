@@ -29,6 +29,7 @@ import java.net.URL;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 
 public class LinkUtils {
 
@@ -103,29 +104,7 @@ public class LinkUtils {
 				uri = uri.substring(0, p);
 		}
 
-		int i = uri.indexOf('?');
-		if (i != -1 && urlFilterList != null) {
-			StringBuffer newUrl = new StringBuffer(uri.substring(0, i++));
-			String queryString = uri.substring(i);
-			String[] queryParts = queryString.split("\\&");
-
-			if (queryParts != null && queryParts.length > 0) {
-				for (UrlFilterItem urlFilter : urlFilterList)
-					urlFilter.doReplace(queryParts);
-				boolean first = true;
-				for (String queryPart : queryParts) {
-					if (queryPart != null) {
-						if (first) {
-							newUrl.append('?');
-							first = false;
-						} else
-							newUrl.append('&');
-						newUrl.append(queryPart);
-					}
-				}
-				uri = newUrl.toString();
-			}
-		}
+		uri = UrlFilterList.doReplace(uri, urlFilterList);
 
 		try {
 			return new URL(uri);
