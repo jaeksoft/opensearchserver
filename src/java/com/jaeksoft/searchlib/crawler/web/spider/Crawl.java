@@ -57,7 +57,7 @@ import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
@@ -388,7 +388,7 @@ public class Crawl {
 		}
 	}
 
-	final private static void discoverLinks(UrlManagerAbstract urlManager,
+	final private static void discoverLinks(UrlManager urlManager,
 			PatternManager inclusionManager, PatternManager exclusionManager,
 			FieldContent urlFieldContent, Origin origin, String parentUrl,
 			List<LinkItem> newUrlList) throws NoSuchAlgorithmException,
@@ -430,7 +430,7 @@ public class Crawl {
 			}
 			if (parser == null || !urlItem.isStatusFull())
 				return discoverLinks;
-			UrlManagerAbstract urlManager = config.getUrlManager();
+			UrlManager urlManager = config.getUrlManager();
 			PatternManager inclusionManager = inclusionEnabled ? config
 					.getInclusionPatternManager() : null;
 			PatternManager exclusionManager = exclusionEnabled ? config

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,10 @@ import javax.naming.NamingException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -52,12 +56,13 @@ public class URLBrowserServlet extends AbstractServlet {
 			if (user != null && !user.hasRole(indexName, Role.INDEX_UPDATE))
 				throw new SearchLibException("Not permitted");
 			Client client = transaction.getClient();
+			UrlManager urlManager = client.getUrlManager();
 			String cmd = transaction.getParameterString("cmd");
 			String host = transaction.getParameterString("host");
 			if ("urls".equalsIgnoreCase(cmd)) {
-				exportURLs(client, transaction, host);
+				exportURLs(urlManager, transaction, host);
 			} else if ("sitemap".equalsIgnoreCase(cmd)) {
-				exportSiteMap(client, transaction, host);
+				exportSiteMap(urlManager, transaction, host);
 			}
 		} catch (SearchLibException e) {
 			throw new ServletException(e);
@@ -65,33 +70,39 @@ public class URLBrowserServlet extends AbstractServlet {
 			throw new ServletException(e);
 		} catch (NamingException e) {
 			throw new ServletException(e);
+		} catch (ParseException e) {
+			throw new ServletException(e);
 		}
 
 	}
 
-	private void exportSiteMap(Client client, ServletTransaction transaction,
-			String host) {
-		File file;
-		try {
-			file = client.getUrlManager().exportSiteMap(client, host);
-			transaction.sendFile(file, "OSS_SiteMap.xml",
-					"text/xml; charset-UTF-8");
-		} catch (SearchLibException e) {
-			e.printStackTrace();
-		}
-
+	private SearchRequest getRequest(UrlManager urlManager, String host)
+			throws SearchLibException, ParseException {
+		SearchRequest searchRequest = urlManager
+				.getSearchRequest(SearchTemplate.urlExport);
+		searchRequest.setQueryString("*:*");
+		if (host != null && host.length() > 0)
+			searchRequest.addFilter("host:\"" + host + '"', false);
+		return searchRequest;
 	}
 
-	private void exportURLs(Client client, ServletTransaction transaction,
-			String host) {
+	private void exportSiteMap(UrlManager urlManager,
+			ServletTransaction transaction, String host)
+			throws SearchLibException, ParseException {
 		File file;
-		try {
-			file = client.getUrlManager().exportURLs(client, host);
-			transaction.sendFile(file, "OSS_SiteMap.txt",
-					"text/xml; charset-UTF-8");
-		} catch (SearchLibException e) {
-			e.printStackTrace();
-		}
+		SearchRequest searchRequest = getRequest(urlManager, host);
+		file = urlManager.exportSiteMap(searchRequest);
+		transaction
+				.sendFile(file, "OSS_SiteMap.xml", "text/xml; charset-UTF-8");
+	}
 
+	private void exportURLs(UrlManager urlManager,
+			ServletTransaction transaction, String host)
+			throws SearchLibException, ParseException {
+		File file;
+		SearchRequest searchRequest = getRequest(urlManager, host);
+		file = urlManager.exportURLs(searchRequest);
+		transaction.sendFile(file, "OSS_URL_Export.txt",
+				"text/plain; charset-UTF-8");
 	}
 }

@@ -66,7 +66,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
@@ -111,7 +111,7 @@ public abstract class Config {
 
 	private ParserSelector parserSelector = null;
 
-	private UrlManagerAbstract urlManager = null;
+	private UrlManager urlManager = null;
 
 	private PatternManager inclusionPatternManager = null;
 
@@ -1026,15 +1026,13 @@ public abstract class Config {
 		}
 	}
 
-	protected UrlManagerAbstract getNewUrlManagerInstance()
+	protected UrlManager getNewUrlManagerInstance()
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		return (UrlManagerAbstract) Class.forName(
-				"com.jaeksoft.searchlib.crawler.web.database."
-						+ urlManagerClass).newInstance();
+		return new UrlManager();
 	}
 
-	final public UrlManagerAbstract getUrlManager() throws SearchLibException {
+	final public UrlManager getUrlManager() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (urlManager != null)
@@ -1046,7 +1044,7 @@ public abstract class Config {
 		try {
 			if (urlManager != null)
 				return urlManager;
-			UrlManagerAbstract ua = getNewUrlManagerInstance();
+			UrlManager ua = getNewUrlManagerInstance();
 			ua.init((Client) this, indexDir);
 			return urlManager = ua;
 		} catch (FileNotFoundException e) {

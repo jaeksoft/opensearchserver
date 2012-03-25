@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
@@ -82,8 +82,8 @@ public class PatternServlet extends AbstractServlet {
 	}
 
 	private void doPatternList(List<PatternItem> patternList,
-			UrlManagerAbstract urlManager, PrintWriter writer,
-			boolean bExclusion) throws SearchLibException {
+			UrlManager urlManager, PrintWriter writer, boolean bExclusion)
+			throws SearchLibException {
 		if (patternList == null)
 			return;
 		for (PatternItem item : patternList) {
@@ -118,7 +118,7 @@ public class PatternServlet extends AbstractServlet {
 			PatternManager patternManager = bExclusion ? client
 					.getExclusionPatternManager() : client
 					.getInclusionPatternManager();
-			UrlManagerAbstract urlManager = client.getUrlManager();
+			UrlManager urlManager = client.getUrlManager();
 
 			PrintWriter writer = transaction.getWriter("utf-8");
 			String contentType = transaction.getResponseContentType();

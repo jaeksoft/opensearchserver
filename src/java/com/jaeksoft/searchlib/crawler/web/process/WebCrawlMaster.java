@@ -54,7 +54,7 @@ import com.jaeksoft.searchlib.crawler.web.database.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.database.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -151,7 +151,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			IllegalAccessException {
 		Config config = getConfig();
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
-		UrlManagerAbstract urlManager = config.getUrlManager();
+		UrlManager urlManager = config.getUrlManager();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		fetchIntervalDate = urlManager.getPastDate(propertyManager
 				.getFetchInterval().getValue(), propertyManager
@@ -168,7 +168,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		SiteMapList siteMapList = getConfig().getSiteMapList();
 
 		if (siteMapList != null && siteMapList.getArray() != null) {
-			UrlManagerAbstract urlManager = getConfig().getUrlManager();
+			UrlManager urlManager = getConfig().getUrlManager();
 			List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
 			for (SiteMapItem siteMap : siteMapList.getArray()) {
 				List<String> urls = getListOfUrls(siteMap.getUri());
@@ -258,7 +258,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 		setStatus(CrawlStatus.EXTRACTING_URLLIST);
 		setInfo(host.getName());
-		UrlManagerAbstract urlManager = getConfig().getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 
 		List<UrlItem> urlList = new ArrayList<UrlItem>();
 		HostUrlList hostUrlList = new HostUrlList(urlList, host);
@@ -292,7 +292,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		Config config = getConfig();
-		UrlManagerAbstract urlManager = config.getUrlManager();
+		UrlManager urlManager = config.getUrlManager();
 		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 		UrlItem urlItem = urlManager.getUrlToFetch(url);
 		if (urlItem == null)

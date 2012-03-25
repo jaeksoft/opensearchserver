@@ -64,7 +64,7 @@
 		<request name="urlExport" defaultOperator="and" start="0"
 			rows="0">
 			<query>$$</query>
-			<returnFields>url</returnFields>
+			<returnFields>url,lastModifiedDate</returnFields>
 		</request>
 		<request name="hostFacet" defaultOperator="or" start="0" rows="0">
 			<query>$$</query>
