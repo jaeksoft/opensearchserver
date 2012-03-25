@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -69,7 +69,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			updateCrawlList.add(crawl);
 			currentStats.incPendingUpdateCount();
 			List<LinkItem> discoverLinks = crawl.getDiscoverLinks();
-			UrlManagerAbstract urlManager = getConfig().getUrlManager();
+			UrlManager urlManager = getConfig().getUrlManager();
 			if (discoverLinks != null) {
 				for (LinkItem link : discoverLinks)
 					insertUrlList.add(urlManager.getNewUrlItem(link));
@@ -159,7 +159,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	protected void indexWork() throws SearchLibException, IOException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		UrlManagerAbstract urlManager = getConfig().getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 		boolean needReload = false;
 		CrawlStatistics sessionStats = getSessionStats();
 		if (deleteCollection(workingDeleteUrlList, sessionStats))
@@ -176,7 +176,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			CrawlStatistics sessionStats) throws SearchLibException {
 		if (workDeleteUrlList.size() == 0)
 			return false;
-		UrlManagerAbstract urlManager = getConfig().getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 		urlManager.deleteUrls(workDeleteUrlList);
 		if (sessionStats != null)
 			sessionStats.addDeletedCount(workDeleteUrlList.size());
@@ -187,7 +187,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			CrawlStatistics sessionStats) throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
-		UrlManagerAbstract urlManager = getConfig().getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 		urlManager.updateCrawlTarget(workUpdateCrawlList);
 		urlManager.updateCrawlUrlDb(workUpdateCrawlList);
 		if (sessionStats != null)
@@ -199,7 +199,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			CrawlStatistics sessionStats) throws SearchLibException {
 		if (workInsertUrlList.size() == 0)
 			return false;
-		UrlManagerAbstract urlManager = getConfig().getUrlManager();
+		UrlManager urlManager = getConfig().getUrlManager();
 		urlManager.updateUrlItems(workInsertUrlList);
 		if (sessionStats != null)
 			sessionStats.addNewUrlCount(workInsertUrlList.size());

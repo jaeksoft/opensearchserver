@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -16,105 +16,112 @@
 -->
 <window id="searchUrl"
 	use="com.jaeksoft.searchlib.web.controller.crawler.web.UrlController">
-	<listbox fixedLayout="true" model="@{searchUrl.urlList}"
-		multiple="false" checkmark="false">
+	<listbox model="@{searchUrl.urlList}" multiple="false"
+		checkmark="false"
+		emptyMessage="Click on the search button to see the URLs">
 		<listhead sizable="true">
-			<listheader width="20%" label="Url" />
-			<listheader width="140px" label="Ev. Date"
-				tooltiptext="Last event date" />
-			<listheader width="140px" label="Mod. date"
-				tooltiptext="Last modified date" />
-			<listheader label="Type" />
-			<listheader label="Charset" />
-			<listheader label="Encoding" />
-			<listheader label="Content length" />
-			<listheader label="Lang" />
-			<listheader label="Lang method" />
-			<listheader label="Robots" />
-			<listheader label="Fetch" />
-			<listheader label="Code" />
-			<listheader label="Parsing" />
-			<listheader label="Index" />
-			<listheader label="Host" />
-		</listhead>
-		<auxhead>
-			<auxheader>
+			<listheader label="Url" valign="top">
 				<vbox width="100%">
 					<textbox width="90%" value="@{searchUrl.like}" />
 					<button label="Search" forward="onSearch" />
 				</vbox>
-			</auxheader>
-			<auxheader>
+			</listheader>
+			<listheader label="Ev. Date" tooltiptext="Last event date"
+				hflex="min" valign="top">
 				<vbox>
 					<datebox compact="true"
 						value="@{searchUrl.eventDateStart}" />
 					<datebox compact="true"
 						value="@{searchUrl.eventDateEnd}" />
 				</vbox>
-			</auxheader>
-			<auxheader>
+			</listheader>
+			<listheader label="Mod. date" hflex="min"
+				tooltiptext="Last modified date" valign="top">
 				<vbox>
 					<datebox compact="true"
 						value="@{searchUrl.modifiedDateStart}" />
 					<datebox compact="true"
 						value="@{searchUrl.modifiedDateEnd}" />
 				</vbox>
-			</auxheader>
-			<auxheader>
-				<textbox cols="5" value="@{searchUrl.contentBaseType}" />
-			</auxheader>
-			<auxheader>
-				<textbox cols="5"
-					value="@{searchUrl.contentTypeCharset}" />
-			</auxheader>
-			<auxheader>
-				<textbox cols="5" value="@{searchUrl.contentEncoding}" />
-			</auxheader>
-			<auxheader>
+			</listheader>
+			<listheader label="Type" hflex="min" valign="top">
+				<vbox>
+					<textbox cols="5"
+						value="@{searchUrl.contentBaseType}" />
+				</vbox>
+			</listheader>
+			<listheader label="Charset" hflex="min" valign="top">
+				<vbox>
+					<textbox cols="5"
+						value="@{searchUrl.contentTypeCharset}" />
+				</vbox>
+			</listheader>
+			<listheader label="Encoding" hflex="min" valign="top">
+				<vbox>
+					<textbox cols="5"
+						value="@{searchUrl.contentEncoding}" />
+				</vbox>
+			</listheader>
+			<listheader label="Content length" hflex="min"
+				valign="top">
 				<vbox>
 					<intbox cols="8"
 						value="@{searchUrl.minContentLength}" />
 					<intbox cols="8"
 						value="@{searchUrl.maxContentLength}" />
 				</vbox>
-			</auxheader>
-			<auxheader>
-				<textbox cols="4" value="@{searchUrl.lang}" />
-			</auxheader>
-			<auxheader>
-				<textbox cols="8" value="@{searchUrl.langMethod}" />
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
-					model="@{searchUrl.robotsTxtStatusList}"
-					selectedItem="@{searchUrl.robotsTxtStatus}" />
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
-					model="@{searchUrl.fetchStatusList}"
-					selectedItem="@{searchUrl.fetchStatus}" />
-			</auxheader>
-			<auxheader>
-				<textbox cols="5" value="@{searchUrl.responseCode}" />
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
-					model="@{searchUrl.parserStatusList}"
-					selectedItem="@{searchUrl.parserStatus}" />
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="50px" fixedLayout="true"
-					model="@{searchUrl.indexStatusList}"
-					selectedItem="@{searchUrl.indexStatus}" />
-			</auxheader>
-			<auxheader>
-				<vbox width="100%">
+			</listheader>
+			<listheader label="Lang" hflex="min" valign="top">
+				<vbox>
+					<textbox cols="4" value="@{searchUrl.lang}" />
+				</vbox>
+			</listheader>
+			<listheader label="Lang method" hflex="min" valign="top">
+				<vbox>
+					<textbox cols="8" value="@{searchUrl.langMethod}" />
+				</vbox>
+			</listheader>
+			<listheader label="Robots" hflex="min" valign="top">
+				<vbox>
+					<listbox mold="select" width="50px"
+						fixedLayout="true" model="@{searchUrl.robotsTxtStatusList}"
+						selectedItem="@{searchUrl.robotsTxtStatus}" />
+				</vbox>
+			</listheader>
+			<listheader label="Fetch" hflex="min" valign="top">
+				<vbox>
+					<listbox mold="select" width="50px"
+						fixedLayout="true" model="@{searchUrl.fetchStatusList}"
+						selectedItem="@{searchUrl.fetchStatus}" />
+				</vbox>
+			</listheader>
+			<listheader label="Code" hflex="min" valign="top">
+				<vbox>
+					<intbox cols="5" value="@{searchUrl.responseCode}" />
+				</vbox>
+			</listheader>
+			<listheader label="Parsing" hflex="min" valign="top">
+				<vbox>
+					<listbox mold="select" width="50px"
+						fixedLayout="true" model="@{searchUrl.parserStatusList}"
+						selectedItem="@{searchUrl.parserStatus}" />
+				</vbox>
+			</listheader>
+			<listheader label="Index" hflex="min" valign="top">
+				<vbox>
+					<listbox mold="select" width="50px"
+						fixedLayout="true" model="@{searchUrl.indexStatusList}"
+						selectedItem="@{searchUrl.indexStatus}" />
+				</vbox>
+			</listheader>
+			<listheader label="Host" valign="top">
+				<vbox>
 					<textbox width="90%" value="@{searchUrl.host}" />
 					<checkbox label="with sub"
 						checked="@{searchUrl.withSubDomain}" />
 				</vbox>
-			</auxheader>
-		</auxhead>
+			</listheader>
+		</listhead>
 		<listitem self="@{each='url'}">
 			<listcell label="@{url.url}" />
 			<listcell
@@ -148,8 +155,17 @@
 				<longbox readonly="true"
 					value="@{searchUrl.recordNumber}" />
 				<space width="50px" />
-				<button label="Export URLs…" forward="onExportURLs" />
-				<button label="Export SiteMap" forward="onExportSiteMap" />
+				<listbox mold="select" id="actionListbox">
+					<listitem label="Select an action" value="nothing"
+						selected="true" />
+					<listitem label="Export URLs" value="exportTxt" />
+					<listitem label="Export XML SiteMap"
+						value="xmlSitemap" />
+					<listitem label="Update to Unfetched (re-crawl)"
+						value="setToUnfetched" />
+					<listitem label="Delete URLs" value="deleteUrls" />
+				</listbox>
+				<button label="Go" forward="onGo" />
 			</listfooter>
 		</listfoot>
 	</listbox>

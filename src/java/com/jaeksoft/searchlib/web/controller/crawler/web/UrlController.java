@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zul.Filedownload;
+import org.zkoss.zul.Listbox;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
@@ -46,8 +47,9 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManagerAbstract.SearchTemplate;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -394,17 +396,19 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
-	private long getUrlList(SearchTemplate urlSearchTemplate,
-			UrlManagerAbstract urlManager, int start, int rows,
-			List<UrlItem> urlList) throws SearchLibException {
-		return urlManager.getUrls(urlSearchTemplate, getLike(), getHost(),
-				isWithSubDomain(), getLang(), getLangMethod(),
-				getContentBaseType(), getContentTypeCharset(),
+	private SearchRequest getSearchRequest(SearchTemplate urlSearchTemplate)
+			throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getUrlManager().getSearchRequest(urlSearchTemplate,
+				getLike(), getHost(), isWithSubDomain(), getLang(),
+				getLangMethod(), getContentBaseType(), getContentTypeCharset(),
 				getContentEncoding(), getMinContentLength(),
 				getMaxContentLength(), getRobotsTxtStatus(), getFetchStatus(),
 				getResponseCode(), getParserStatus(), getIndexStatus(),
 				getEventDateStart(), getEventDateEnd(), getModifiedDateStart(),
-				getModifiedDateEnd(), null, false, start, rows, urlList);
+				getModifiedDateEnd());
 	}
 
 	private void computeUrlList() throws SearchLibException {
@@ -413,9 +417,9 @@ public class UrlController extends CommonController implements AfterCompose {
 			if (client == null)
 				return;
 			urlList = new ArrayList<UrlItem>();
-			totalSize = (int) getUrlList(SearchTemplate.urlSearch,
-					client.getUrlManager(), getPageSize() * getActivePage(),
-					getPageSize(), urlList);
+			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
+			totalSize = (int) client.getUrlManager().getUrlList(searchRequest,
+					getPageSize() * getActivePage(), getPageSize(), urlList);
 		}
 	}
 
@@ -455,14 +459,10 @@ public class UrlController extends CommonController implements AfterCompose {
 			Client client = getClient();
 			if (client == null)
 				return;
-			File file;
-			try {
-				file = client.getUrlManager().exportSiteMap(client, null);
-				Filedownload.save(new FileInputStream(file),
-						"text/xml; charset-UTF-8", "OSS_SiteMap.xml");
-			} catch (SearchLibException e) {
-				e.printStackTrace();
-			}
+			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			File file = client.getUrlManager().exportSiteMap(searchRequest);
+			Filedownload.save(new FileInputStream(file),
+					"text/xml; charset-UTF-8", "OSS_SiteMap.xml");
 		}
 	}
 
@@ -471,14 +471,56 @@ public class UrlController extends CommonController implements AfterCompose {
 			Client client = getClient();
 			if (client == null)
 				return;
-			File file;
-			try {
-				file = client.getUrlManager().exportURLs(client, null);
-				Filedownload.save(new FileInputStream(file),
-						"text/plain; charset-UTF-8", "OSS_SiteMap.txt");
-			} catch (SearchLibException e) {
-				e.printStackTrace();
-			}
+			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			File file = client.getUrlManager().exportURLs(searchRequest);
+			Filedownload.save(new FileInputStream(file),
+					"text/plain; charset-UTF-8", "OSS_URLs_Export.txt");
+		}
+	}
+
+	public void onSetToUnfetched() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			UrlManager urlManager = client.getUrlManager();
+			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			urlManager.updateFetchStatus(searchRequest, FetchStatus.UN_FETCHED);
+			urlManager.reload(true);
+			onSearch();
+		}
+	}
+
+	public void onDeleteURLs() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			UrlManager urlManager = client.getUrlManager();
+			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			urlManager.deleteUrls(searchRequest);
+			urlManager.reload(true);
+			onSearch();
+		}
+	}
+
+	public void onGo() throws SearchLibException, IOException,
+			TransformerConfigurationException, SAXException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			Listbox actionListbox = (Listbox) getFellow("actionListbox");
+			String action = actionListbox.getSelectedItem().getValue()
+					.toString();
+			if ("exportTxt".equalsIgnoreCase(action))
+				onExportURLs();
+			else if ("xmlSitemap".equalsIgnoreCase(action))
+				onExportSiteMap();
+			else if ("setToUnfetched".equalsIgnoreCase(action))
+				onSetToUnfetched();
+			else if ("deleteUrls".equalsIgnoreCase(action))
+				onDeleteURLs();
 		}
 	}
 }

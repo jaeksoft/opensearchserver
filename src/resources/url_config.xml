@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
-<!-- Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
 <!-- http://www.open-search-server.com -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- OpenSearchServer is free software: you can redistribute it and/or modify 
@@ -64,7 +64,7 @@
 		<request name="urlExport" defaultOperator="and" start="0"
 			rows="0">
 			<query>$$</query>
-			<returnFields>url</returnFields>
+			<returnFields>url,lastModifiedDate</returnFields>
 		</request>
 		<request name="hostFacet" defaultOperator="or" start="0" rows="0">
 			<query>$$</query>
