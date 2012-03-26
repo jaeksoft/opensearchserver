@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -504,12 +505,26 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
-	public void onGo() throws SearchLibException, IOException,
-			TransformerConfigurationException, SAXException {
+	public void onOptimize() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return;
+			client.getUrlManager().reload(true);
+		}
+	}
+
+	public void onGo() throws SearchLibException, IOException,
+			TransformerConfigurationException, SAXException,
+			InterruptedException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			if (client.getWebCrawlMaster().isRunning()) {
+				new AlertController("Please stop the Web crawler first.");
+				return;
+			}
 			Listbox actionListbox = (Listbox) getFellow("actionListbox");
 			String action = actionListbox.getSelectedItem().getValue()
 					.toString();
@@ -521,6 +536,8 @@ public class UrlController extends CommonController implements AfterCompose {
 				onSetToUnfetched();
 			else if ("deleteUrls".equalsIgnoreCase(action))
 				onDeleteURLs();
+			else if ("optimize".equalsIgnoreCase(action))
+				onOptimize();
 		}
 	}
 }

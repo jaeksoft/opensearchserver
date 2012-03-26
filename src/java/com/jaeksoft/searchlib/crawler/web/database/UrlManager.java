@@ -49,6 +49,7 @@ import org.apache.lucene.store.LockObtainFailedException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
@@ -427,29 +428,30 @@ public class UrlManager {
 				if (host.length() > 0)
 					if (includingSubDomain)
 						urlItemFieldEnum.subhost.addFilterQuery(searchRequest,
-								SearchRequest.escapeQuery(host), false);
+								SearchRequest.escapeQuery(host), false, false);
 					else
 						urlItemFieldEnum.host.addFilterQuery(searchRequest,
-								SearchRequest.escapeQuery(host), false);
+								SearchRequest.escapeQuery(host), false, false);
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
 					urlItemFieldEnum.lang.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(lang), false);
+							SearchRequest.escapeQuery(lang), false, false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
 					urlItemFieldEnum.langMethod.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(langMethod), true);
+							SearchRequest.escapeQuery(langMethod), true, false);
 			}
 			if (contentBaseType != null) {
 				contentBaseType = contentBaseType.trim();
 				if (contentBaseType.length() > 0)
 					urlItemFieldEnum.contentBaseType.addFilterQuery(
 							searchRequest,
-							SearchRequest.escapeQuery(contentBaseType), true);
+							SearchRequest.escapeQuery(contentBaseType), true,
+							false);
 			}
 			if (contentTypeCharset != null) {
 				contentTypeCharset = contentTypeCharset.trim();
@@ -457,32 +459,33 @@ public class UrlManager {
 					urlItemFieldEnum.contentTypeCharset.addFilterQuery(
 							searchRequest,
 							SearchRequest.escapeQuery(contentTypeCharset),
-							false);
+							false, false);
 			}
 			if (contentEncoding != null) {
 				contentEncoding = contentEncoding.trim();
 				if (contentEncoding.length() > 0)
 					urlItemFieldEnum.contentEncoding.addFilterQuery(
 							searchRequest,
-							SearchRequest.escapeQuery(contentEncoding), true);
+							SearchRequest.escapeQuery(contentEncoding), true,
+							false);
 			}
 
 			if (robotsTxtStatus != null
 					&& robotsTxtStatus != RobotsTxtStatus.ALL)
 				urlItemFieldEnum.robotsTxtStatus.addFilterQuery(searchRequest,
-						robotsTxtStatus.value, false);
+						robotsTxtStatus.value, false, false);
 			if (responseCode != null)
 				urlItemFieldEnum.responseCode.addFilterQuery(searchRequest,
-						responseCode, false);
+						responseCode, false, false);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
 				urlItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
-						fetchStatus.value, false);
+						fetchStatus.value, false, false);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
 				urlItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
-						parserStatus.value, false);
+						parserStatus.value, false, false);
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
 				urlItemFieldEnum.indexStatus.addFilterQuery(searchRequest,
-						indexStatus.value, false);
+						indexStatus.value, false, false);
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
@@ -511,7 +514,7 @@ public class UrlManager {
 				else
 					to = df.format(endDate);
 				urlItemFieldEnum.when.addFilterRange(searchRequest, from, to,
-						false);
+						false, false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -526,7 +529,7 @@ public class UrlManager {
 				else
 					to = df.format(endModifiedDate);
 				urlItemFieldEnum.lastModifiedDate.addFilterRange(searchRequest,
-						from, to, false);
+						from, to, false, false);
 			}
 
 			if (query.length() == 0)
@@ -760,23 +763,26 @@ public class UrlManager {
 	public int deleteUrls(SearchRequest searchRequest)
 			throws SearchLibException {
 		try {
-			int count = 0;
-			int currentPos = 0;
+			int totalCount = 0;
+			long previousNumFound = 0;
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 			for (;;) {
-				int totalSize = (int) getUrlList(searchRequest, currentPos,
-						1000, urlItemList);
+				long numFound = getUrlList(searchRequest, 0, 1000, urlItemList);
 				if (urlItemList.size() == 0)
 					break;
 				List<String> urlList = new ArrayList<String>(urlItemList.size());
 				for (UrlItem urlItem : urlItemList)
 					urlList.add(urlItem.getUrl());
-				count = urlDbClient.deleteDocuments(urlList);
-				currentPos += 1000;
-				if (currentPos >= totalSize)
+				int count = urlDbClient.deleteDocuments(urlList);
+				if (count == 0 || previousNumFound == numFound) {
+					Logging.error("Bad count at URL deletion " + count + "/"
+							+ previousNumFound + "/" + numFound);
 					break;
+				}
+				previousNumFound = numFound;
+				totalCount += count;
 			}
-			return count;
+			return totalCount;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
@@ -792,22 +798,32 @@ public class UrlManager {
 
 	public int updateFetchStatus(SearchRequest searchRequest,
 			FetchStatus fetchStatus) throws SearchLibException {
-		int count = 0;
-		int currentPos = 0;
-		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
-		for (;;) {
-			int totalSize = (int) getUrlList(searchRequest, currentPos, 1000,
-					urlItemList);
-			if (urlItemList.size() == 0)
-				break;
-			for (UrlItem urlItem : urlItemList)
-				urlItem.setFetchStatus(fetchStatus);
-			updateUrlItems(urlItemList);
-			count += urlItemList.size();
-			if (currentPos >= totalSize)
-				break;
+		try {
+			int totalCount = 0;
+			long previousNumFound = 0;
+			urlItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
+					fetchStatus.name, false, true);
+			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
+			for (;;) {
+				long numFound = (int) getUrlList(searchRequest, 0, 1000,
+						urlItemList);
+				if (urlItemList.size() == 0)
+					break;
+				for (UrlItem urlItem : urlItemList)
+					urlItem.setFetchStatus(fetchStatus);
+				updateUrlItems(urlItemList);
+				if (previousNumFound == numFound) {
+					Logging.error("Bad count at URL fetch status update "
+							+ previousNumFound + "/" + numFound);
+					break;
+				}
+				previousNumFound = numFound;
+				totalCount += urlItemList.size();
+			}
+			return totalCount;
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
 		}
-		return count;
 	}
 
 	/**

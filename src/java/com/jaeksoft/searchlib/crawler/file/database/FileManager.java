@@ -112,7 +112,7 @@ public class FileManager {
 
 			if (repository != null)
 				fileItemFieldEnum.repository.addFilterQuery(searchRequest,
-						repository, true);
+						repository, true, false);
 
 			StringBuffer query = new StringBuffer();
 			if (like != null) {
@@ -127,28 +127,30 @@ public class FileManager {
 				lang = lang.trim();
 				if (lang.length() > 0)
 					fileItemFieldEnum.lang.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(lang), false);
+							SearchRequest.escapeQuery(lang), false, false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					fileItemFieldEnum.langMethod.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(langMethod), false);
+					fileItemFieldEnum.langMethod
+							.addFilterQuery(searchRequest,
+									SearchRequest.escapeQuery(langMethod),
+									false, false);
 			}
 
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
 				fileItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
-						fetchStatus.value, false);
+						fetchStatus.value, false, false);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
 				fileItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
-						parserStatus.value, false);
+						parserStatus.value, false, false);
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
 				fileItemFieldEnum.indexStatus.addFilterQuery(searchRequest,
-						indexStatus.value, false);
+						indexStatus.value, false, false);
 
 			if (fileType != null && fileType != FileTypeEnum.ALL)
 				fileItemFieldEnum.fileType.addFilterQuery(searchRequest,
-						fileType.name(), true);
+						fileType.name(), true, false);
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
@@ -177,7 +179,7 @@ public class FileManager {
 				else
 					to = df.format(endDate);
 				fileItemFieldEnum.crawlDate.addFilterRange(searchRequest, from,
-						to, false);
+						to, false, false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -192,12 +194,12 @@ public class FileManager {
 				else
 					to = df.format(endModifiedDate);
 				fileItemFieldEnum.fileSystemDate.addFilterRange(searchRequest,
-						from, to, false);
+						from, to, false, false);
 			}
 
 			if (subDirectory != null)
 				fileItemFieldEnum.subDirectory.addFilterQuery(searchRequest,
-						subDirectory, true);
+						subDirectory, true, false);
 
 			if (query.length() == 0)
 				query.append("*:*");

@@ -164,6 +164,8 @@
 					<listitem label="Update to Unfetched (re-crawl)"
 						value="setToUnfetched" />
 					<listitem label="Delete URLs" value="deleteUrls" />
+					<listitem label="Optimize URL database"
+						value="optimize" />
 				</listbox>
 				<button label="Go" forward="onGo" />
 			</listfooter>
