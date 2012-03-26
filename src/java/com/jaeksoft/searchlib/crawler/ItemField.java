@@ -36,17 +36,17 @@ public class ItemField extends ExtensibleEnumItem<ItemField> {
 	}
 
 	public void addFilterQuery(SearchRequest request, Object value,
-			boolean quote) throws ParseException {
+			boolean quote, boolean negative) throws ParseException {
 		StringBuffer sb = new StringBuffer();
 		addQuery(sb, value, quote);
-		request.addFilter(sb.toString(), false);
+		request.addFilter(sb.toString(), negative);
 	}
 
 	public void addFilterRange(SearchRequest request, Object from, Object to,
-			boolean quote) throws ParseException {
+			boolean quote, boolean negative) throws ParseException {
 		StringBuffer sb = new StringBuffer();
 		addQueryRange(sb, from, to, quote);
-		request.addFilter(sb.toString(), false);
+		request.addFilter(sb.toString(), negative);
 	}
 
 	public void addSort(SearchRequest request, boolean desc) {
