@@ -26,12 +26,14 @@ OpenSearchServer 1.2.4
 
 New features:
 - 3510598: Add CSV format in the select XML/HTTP API
-- 3509333: Error 500 when loading robots.txt
 - 3498421: Set a default URL value for replication
 - 3498373: Remove script and object tag content in db crawler
+- 3495004: Add progress info in scheduler task	
+- 3490031: Asynchronous XML upload
 - 3489935: Default stop words list
 - 3489934: A default autocomplete field and analyzer
 - 3489873: A scheduler task to copy terms to an index
+- 3489642: Unable to scroll all the log in runtime/logs panel
 - 3487772: Advanced spell check
 - 3487219: RegExp filter for DatabaseCrawler
 - 3483920: BoostQuery support
@@ -41,9 +43,12 @@ New features:
 - 3469777: Scored snippets
 
 Bug fixes:
+- 3509333: Error 500 when loading robots.txt
 - 3500288: Wrong facet count when using optimized collapsing
 - 3498607: NPE when collapsing is enable with no documents found
+- 3495681: StringIndexOutOfBoundsException on snippet
 - 3489854: A faster indexation when using XML upload
+- 3489550: Schema API gives IllegalStateException
 - 3485241: Pages with meta noindex are indexed
 - 3483798: HTML parser prints many logs
 - 3483259: Underscore added when using synonyms on expression

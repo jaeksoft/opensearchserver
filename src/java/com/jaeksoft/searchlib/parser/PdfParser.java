@@ -28,11 +28,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.apache.pdfbox.util.PDFTextStripper;
 
 import com.jaeksoft.searchlib.Logging;
@@ -126,6 +132,8 @@ public class PdfParser extends Parser {
 			tempFile = File.createTempFile("oss", ".pdf");
 			raf = new RandomAccessFile(tempFile, "rw");
 			pdf = PDDocument.load(streamLimiter.getNewInputStream(), raf, true);
+			if (pdf.isEncrypted())
+				throw new IOException("Encrypted PDF.");
 			extractContent(pdf);
 		} finally {
 			if (pdf != null)
@@ -134,6 +142,28 @@ public class PdfParser extends Parser {
 				raf.close();
 			if (tempFile != null)
 				tempFile.delete();
+		}
+	}
+
+	private void extractImages(PDDocument pdf) throws IOException {
+		List<?> pages = pdf.getDocumentCatalog().getAllPages();
+		Iterator<?> iter = pages.iterator();
+		while (iter.hasNext()) {
+			PDPage page = (PDPage) iter.next();
+			PDResources resources = page.getResources();
+			Map<?, ?> images = resources.getImages();
+			if (images != null) {
+				Iterator<?> imageIter = images.keySet().iterator();
+				while (imageIter.hasNext()) {
+					String key = (String) imageIter.next();
+					PDXObjectImage image = (PDXObjectImage) images.get(key);
+					File file = File.createTempFile("osspdfimg",
+							image.getSuffix());
+					image.write2file(file);
+					System.out.println("Writing image:"
+							+ file.getAbsolutePath());
+				}
+			}
 		}
 	}
 

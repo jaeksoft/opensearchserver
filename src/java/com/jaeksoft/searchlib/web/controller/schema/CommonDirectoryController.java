@@ -64,7 +64,7 @@ public abstract class CommonDirectoryController extends CommonController {
 			getManager().delete(deleteListName);
 			getClient().getSchema().recompileAnalyzers();
 			getClient().reload();
-			reloadPage();
+			onCancel();
 		}
 	}
 
