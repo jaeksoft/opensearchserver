@@ -336,11 +336,14 @@ public class WriterLocal extends WriterAbstract {
 	@Override
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws SearchLibException {
+		Field uniqueSchemaField = schema.getFieldList().getUniqueField();
+		if (uniqueSchemaField == null)
+			return false;
 		l.lock();
 		try {
 			open();
-			indexWriter.deleteDocuments(new Term(schema.getFieldList()
-					.getUniqueField().getName(), uniqueField));
+			indexWriter.deleteDocuments(new Term(uniqueSchemaField.getName(),
+					uniqueField));
 			close();
 			readerLocal.reload();
 			return true;
@@ -365,7 +368,10 @@ public class WriterLocal extends WriterAbstract {
 	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws SearchLibException {
-		String uniqueField = schema.getFieldList().getUniqueField().getName();
+		Field uniqueSchemaField = schema.getFieldList().getUniqueField();
+		if (uniqueSchemaField == null)
+			return 0;
+		String uniqueField = uniqueSchemaField.getName();
 		Term[] terms = new Term[uniqueFields.size()];
 		int i = 0;
 		for (String value : uniqueFields)
