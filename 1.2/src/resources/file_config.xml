@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- License Agreement for OpenSearchServer -->
+<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
+<!-- http://www.open-search-server.com -->
+<!-- This file is part of OpenSearchServer. -->
+<!-- OpenSearchServer is free software: you can redistribute it 
+	and/or modify it under the terms of the GNU General Public License as published 
+	by the Free Software Foundation, either version 3 of the License, or (at 
+	your option) any later version. OpenSearchServer is distributed 
+	in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
+	the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	See the GNU General Public License for more details. You should have received 
+	a copy of the GNU General Public License along with Jaeksoft Open Search 
+	Server. If not, see <http://www.gnu.org/licenses/>. -->
+<configuration>
+	<indices>
+		<index name="file" searchCache="100" filterCache="100"
+			fieldCache="500" />
+	</indices>
+	<schema>
+		<fields default="uri" unique="uri">
+			<field name="uri" indexed="yes" stored="yes" termVector="yes" />
+			<field name="repository" indexed="yes" stored="no" termVector="yes" />
+			<field name="directory" indexed="yes" stored="no" termVector="yes" />
+			<field name="subDirectory" indexed="yes" stored="no"
+				termVector="yes" />
+			<field name="lang" indexed="yes" stored="no" termVector="yes" />
+			<field name="langMethod" indexed="yes" stored="no" termVector="yes" />
+			<field name="contentLength" indexed="yes" stored="no"
+				termVector="yes" />
+			<field name="parserStatus" indexed="yes" stored="no"
+				termVector="yes" />
+			<field name="fetchStatus" indexed="yes" stored="no" termVector="yes" />
+			<field name="indexStatus" indexed="yes" stored="no" termVector="yes" />
+			<field name="fileSystemDate" indexed="yes" stored="no"
+				termVector="yes" />
+			<field name="crawlDate" indexed="yes" stored="no" termVector="yes" />
+			<field name="fileName" indexed="yes" stored="no" termVector="yes" />
+			<field name="fileSize" indexed="yes" stored="no" termVector="yes" />
+			<field name="fileExtension" indexed="yes" stored="no"
+				termVector="yes" />
+			<field name="fileType" indexed="yes" stored="no" termVector="yes" />
+			<field name="md5size" indexed="yes" stored="no" termVector="yes" />
+		</fields>
+	</schema>
+	<requests>
+		<request name="fileSearch" defaultOperator="and" start="0"
+			rows="0">
+			<query>$$</query>
+			<returnFields>
+				repository,uri,directory,subDirectory,contentLength,
+				lang,langMethod,parserStatus,fetchStatus,indexStatus,fileSystemDate
+				crawlDate,fileName,fileSize,fileExtension,fileType
+			</returnFields>
+		</request>
+		<request name="fileInfo" defaultOperator="and" start="0" rows="0">
+			<query>$$</query>
+			<returnFields>uri,fileName,fileSystemDate,fileType,parserStatus,fetchStatus,indexStatus
+			</returnFields>
+		</request>
+	</requests>
+</configuration>

@@ -1,0 +1,13 @@
+Source: opensearchserver
+Maintainer: Emmanuel Keller <ekeller@open-search-server.com>
+Priority: optional
+Build-Depends: java5-runtime-headless | java6-runtime-headless, ant, debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://www.open-search-server.com
+
+Package: opensearchserver
+Architecture: any
+Depends: java5-runtime-headless | java6-runtime-headless, tomcat6
+Recommends: tomcat-native
+Description: An open source search engine and crawler based on best open source technologies
+ An open source search engine and crawler based on best open source technologies. A stable, high-performance piece of software. It is a modern search engine and a suite of high-powered full text search algorithms.
