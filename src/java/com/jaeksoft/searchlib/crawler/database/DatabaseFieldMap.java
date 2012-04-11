@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
@@ -76,11 +77,12 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 	}
 
 	final public void mapResultSet(WebCrawlMaster webCrawlMaster,
-			ParserSelector parserSelector, ResultSet resultSet,
-			Set<String> columns, IndexDocument target) throws SQLException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException, ParseException,
-			IOException, SyntaxError, URISyntaxException, InterruptedException {
+			ParserSelector parserSelector, LanguageEnum lang,
+			ResultSet resultSet, Set<String> columns, IndexDocument target)
+			throws SQLException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException,
+			ParseException, IOException, SyntaxError, URISyntaxException,
+			InterruptedException {
 		for (GenericLink<String, DatabaseFieldTarget> link : getList()) {
 			String columnName = link.getSource();
 			if (!columns.contains(columnName))
@@ -98,7 +100,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 							null);
 					if (parser != null) {
 						try {
-							parser.parseContent(file);
+							parser.parseContent(file, lang);
 						} catch (IOException e) {
 							Logging.warn(e.getMessage(), e);
 						}

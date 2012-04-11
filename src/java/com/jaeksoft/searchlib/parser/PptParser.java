@@ -33,6 +33,7 @@ import org.apache.poi.hslf.usermodel.SlideShow;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.StringUtils;
 
@@ -52,7 +53,8 @@ public class PptParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
 
 		SlideShow ppt = new SlideShow(streamLimiter.getNewInputStream());
 		Slide[] slides = ppt.getSlides();

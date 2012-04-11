@@ -33,6 +33,7 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class TextParser extends Parser {
@@ -50,7 +51,8 @@ public class TextParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
 		CharsetDetector detector = new CharsetDetector();
 		InputStream is = streamLimiter.getNewInputStream();
 		detector.setText(is);

@@ -32,6 +32,7 @@ import java.util.Locale;
 
 import org.knallgrau.utils.textcat.TextCategorizer;
 
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -154,42 +155,44 @@ public abstract class Parser extends ParserFactory {
 		return lang;
 	}
 
-	protected abstract void parseContent(StreamLimiter streamLimiter)
-			throws IOException;
+	protected abstract void parseContent(StreamLimiter streamLimiter,
+			LanguageEnum lang) throws IOException;
 
-	private void doParserContent(StreamLimiter streamLimiter)
-			throws IOException {
+	final private void doParserContent(StreamLimiter streamLimiter,
+			LanguageEnum lang) throws IOException {
 		try {
-			parseContent(streamLimiter);
+			parseContent(streamLimiter, lang);
 		} finally {
 			streamLimiter.close();
 		}
 	}
 
-	public void parseContent(InputStream inputStream) throws IOException {
+	final public void parseContent(InputStream inputStream, LanguageEnum lang)
+			throws IOException {
 		StreamLimiter streamLimiter = new StreamLimiterInputStream(
 				getSizeLimit(), inputStream);
-		doParserContent(streamLimiter);
+		doParserContent(streamLimiter, lang);
 	}
 
-	public void parseContent(File file) throws IOException {
+	final public void parseContent(File file, LanguageEnum lang)
+			throws IOException {
 		StreamLimiter streamLimiter = new StreamLimiterFile(getSizeLimit(),
 				file);
-		doParserContent(streamLimiter);
+		doParserContent(streamLimiter, lang);
 	}
 
-	public void parseContentBase64(String base64text, String fileName)
-			throws IOException {
+	final public void parseContentBase64(String base64text, String fileName,
+			LanguageEnum lang) throws IOException {
 		StreamLimiter streamLimiter = new StreamLimiterBase64(base64text,
 				getSizeLimit(), fileName);
-		doParserContent(streamLimiter);
+		doParserContent(streamLimiter, lang);
 	}
 
-	public void parseContent(FileInstanceAbstract fileInstance)
-			throws IOException {
+	final public void parseContent(FileInstanceAbstract fileInstance,
+			LanguageEnum lang) throws IOException {
 		StreamLimiter streamLimiter = new StreamLimiterFileInstance(
 				fileInstance, getSizeLimit());
-		doParserContent(streamLimiter);
+		doParserContent(streamLimiter, lang);
 	}
 
 	public StreamLimiter getStreamLimiter() {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import org.odftoolkit.odfdom.dom.element.office.OfficeSpreadsheetElement;
 import org.w3c.dom.Document;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 /**
@@ -46,7 +47,7 @@ public class OdsParser extends OOParser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang) {
 		try {
 
 			// Load file

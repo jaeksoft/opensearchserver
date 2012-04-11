@@ -32,6 +32,7 @@ import javax.swing.text.rtf.RTFEditorKit;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class RtfParser extends Parser {
@@ -49,7 +50,8 @@ public class RtfParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
 		RTFEditorKit rtf = new RTFEditorKit();
 		Document doc = rtf.createDefaultDocument();
 		try {

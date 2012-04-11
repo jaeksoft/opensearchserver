@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,25 +22,35 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.parser;
+package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.ocr.OcrManager;
+import com.jaeksoft.searchlib.web.controller.AlertController;
+import com.jaeksoft.searchlib.web.controller.CommonComposer;
 
-public class FileSystemParser extends Parser {
+public class OcrComposer extends CommonComposer {
 
-	private static ParserFieldEnum[] fl = {};
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2000726412587800459L;
 
-	public FileSystemParser() {
-		super(fl);
+	public OcrManager getOcrManager() throws SearchLibException, IOException {
+		return ClientCatalog.getOcrManager();
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
-			throws IOException {
+	protected void reset() throws SearchLibException {
+		// TODO Auto-generated method stub
+	}
 
+	public void onClick$check() throws SearchLibException, InterruptedException {
+		ClientCatalog.getOcrManager().check();
+		new AlertController("OK");
 	}
 
 }

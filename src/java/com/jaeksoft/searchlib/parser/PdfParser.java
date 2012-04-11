@@ -41,9 +41,12 @@ import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.apache.pdfbox.util.PDFTextStripper;
 
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.StringUtils;
 
@@ -124,7 +127,8 @@ public class PdfParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
 		PDDocument pdf = null;
 		RandomAccessFile raf = null;
 		File tempFile = null;
@@ -135,6 +139,9 @@ public class PdfParser extends Parser {
 			if (pdf.isEncrypted())
 				throw new IOException("Encrypted PDF.");
 			extractContent(pdf);
+			extractImages(pdf, lang);
+		} catch (SearchLibException e) {
+			throw new IOException(e);
 		} finally {
 			if (pdf != null)
 				pdf.close();
@@ -145,7 +152,11 @@ public class PdfParser extends Parser {
 		}
 	}
 
-	private void extractImages(PDDocument pdf) throws IOException {
+	private void extractImages(PDDocument pdf, LanguageEnum lang)
+			throws IOException, SearchLibException {
+		OcrManager ocr = ClientCatalog.getOcrManager();
+		if (ocr == null || ocr.isDisabled())
+			return;
 		List<?> pages = pdf.getDocumentCatalog().getAllPages();
 		Iterator<?> iter = pages.iterator();
 		while (iter.hasNext()) {
@@ -157,14 +168,15 @@ public class PdfParser extends Parser {
 				while (imageIter.hasNext()) {
 					String key = (String) imageIter.next();
 					PDXObjectImage image = (PDXObjectImage) images.get(key);
-					File file = File.createTempFile("osspdfimg",
+					File imageFile = File.createTempFile("osspdfimg",
 							image.getSuffix());
-					image.write2file(file);
+					File textFile = File.createTempFile("ossocr", ".txt");
+					image.write2file(imageFile);
 					System.out.println("Writing image:"
-							+ file.getAbsolutePath());
+							+ imageFile.getAbsolutePath());
+					ocr.ocerize(imageFile, textFile, lang);
 				}
 			}
 		}
 	}
-
 }

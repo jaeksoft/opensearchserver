@@ -50,6 +50,7 @@ import org.zkoss.zk.ui.WebApp;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
+import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -200,6 +201,26 @@ public class ClientCatalog {
 			return crawlCacheManager;
 		try {
 			return crawlCacheManager = new CrawlCacheManager(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
+		} catch (InvalidPropertiesFormatException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	private static OcrManager ocrManager = null;
+
+	public static synchronized final OcrManager getOcrManager()
+			throws SearchLibException {
+		if (ocrManager != null)
+			return ocrManager;
+		try {
+			return ocrManager = new OcrManager(
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
 		} catch (InvalidPropertiesFormatException e) {
 			throw new SearchLibException(e);

@@ -215,7 +215,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 					downloadItem.getContentBaseType());
 			if (parser == null)
 				return null;
-			parser.parseContent(downloadItem.getContentInputStream());
+			parser.parseContent(downloadItem.getContentInputStream(), lang);
 			return parser;
 		} catch (RuntimeException e) {
 			throw new SearchLibException(
@@ -235,7 +235,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 			Parser parser = parserSelector.getParser(filename, contentType);
 			if (parser == null)
 				return null;
-			parser.parseContentBase64(content, filename);
+			parser.parseContentBase64(content, filename, lang);
 			return parser;
 		} catch (RuntimeException e) {
 			throw new SearchLibException("Parser error while getting binary : "
@@ -256,7 +256,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 			File f = new File(filePath);
 			if (f.isDirectory())
 				f = new File(f, filename);
-			parser.parseContent(f);
+			parser.parseContent(f, lang);
 			return parser;
 		} catch (RuntimeException e) {
 			throw new SearchLibException(

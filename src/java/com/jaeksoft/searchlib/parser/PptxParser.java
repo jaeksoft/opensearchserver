@@ -37,6 +37,7 @@ import org.apache.xmlbeans.XmlException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.StringUtils;
 
@@ -58,7 +59,8 @@ public class PptxParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
 
 		// TODO Optimise if it is already a file
 		File tempFile = File.createTempFile("oss", ".pptx");

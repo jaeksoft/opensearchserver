@@ -100,7 +100,7 @@ public class CrawlFile {
 						.getIndexDocument(fileItemFieldEnum);
 
 				parser.setSourceDocument(sourceDocument);
-				parser.parseContent(fileInstance);
+				parser.parseContent(fileInstance, null);
 
 				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
 

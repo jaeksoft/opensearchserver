@@ -38,6 +38,7 @@ import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -148,10 +149,10 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 					indexDocumentList.add(indexDocument);
 					pendingIndexDocumentCount++;
 				}
-				IndexDocument newFieldContents = new IndexDocument(
-						databaseCrawl.getLang());
+				LanguageEnum lang = databaseCrawl.getLang();
+				IndexDocument newFieldContents = new IndexDocument(lang);
 				databaseFieldMap.mapResultSet(client.getWebCrawlMaster(),
-						client.getParserSelector(), resultSet, columns,
+						client.getParserSelector(), lang, resultSet, columns,
 						newFieldContents);
 				if (merge && lastFieldContent != null) {
 					indexDocument.addIfNotAlreadyHere(newFieldContents);

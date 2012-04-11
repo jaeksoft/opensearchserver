@@ -37,6 +37,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -213,7 +214,8 @@ public class HtmlParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter,
+			LanguageEnum forcedLang) throws IOException {
 
 		String charset = null;
 		IndexDocument sourceDocument = getSourceDocument();

@@ -40,6 +40,7 @@ import org.jaudiotagger.tag.TagField;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class AudioParser extends Parser {
@@ -79,7 +80,8 @@ public class AudioParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
 		AudioFile f;
 		try {
 			f = AudioFileIO.read(streamLimiter.getFile());

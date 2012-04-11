@@ -32,6 +32,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.StringUtils;
 
@@ -53,7 +54,8 @@ public class XlsxParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
 
 		XSSFWorkbook workbook = new XSSFWorkbook(
 				streamLimiter.getNewInputStream());

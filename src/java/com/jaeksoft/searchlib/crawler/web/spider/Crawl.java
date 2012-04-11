@@ -147,7 +147,8 @@ public class Crawl {
 		urlItem.populate(sourceDocument, urlItemFieldEnum);
 		parser.setSourceDocument(sourceDocument);
 		Date parserStartDate = new Date();
-		parser.parseContent(inputStream);
+		// TODO Which language for OCR ?
+		parser.parseContent(inputStream, null);
 
 		urlItem.clearInLinks();
 		urlItem.addInLinks(parser

@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
@@ -96,7 +97,8 @@ public class DisallowList extends Parser {
 	 * @throws IOException
 	 */
 	@Override
-	public void parseContent(StreamLimiter streamLimiter) throws IOException {
+	public void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(
 				streamLimiter.getNewInputStream()));
 		String line;

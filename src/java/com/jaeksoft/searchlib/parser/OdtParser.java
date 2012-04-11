@@ -32,6 +32,7 @@ import org.odftoolkit.odfdom.dom.element.office.OfficeTextElement;
 import org.w3c.dom.Document;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 /**
@@ -47,7 +48,7 @@ public class OdtParser extends OOParser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter) {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang) {
 		try {
 
 			// Load file
