@@ -333,7 +333,7 @@ public class ServletTransaction {
 			return null;
 		if (valueExpected != null)
 			return valueExpected.equalsIgnoreCase(p);
-		return true;
+		return Boolean.parseBoolean(p);
 	}
 
 	public final String[] getParameterValues(String name) {
