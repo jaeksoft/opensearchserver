@@ -59,24 +59,28 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 				} else if ("smb".equalsIgnoreCase(fileType)) {
 					filePathItem.setType(fileTypeEnum
 							.getValue("SmbFileInstance"));
-					createFileCrawlInstance(client, filePathItem, transaction);
+					createFileCrawlInstance(client, filePathItem, transaction,
+							true);
 					transaction.addXmlResponse("info",
 							"A SMB/CIFS file crawler instance is created.");
 				} else if ("ftp".equalsIgnoreCase(fileType)) {
 					filePathItem.setType(fileTypeEnum
 							.getValue("FtpFileInstance"));
-					createFileCrawlInstance(client, filePathItem, transaction);
+					createFileCrawlInstance(client, filePathItem, transaction,
+							false);
 					transaction.addXmlResponse("info",
 							"A FTP file crawler instance is created.");
 				} else if ("ftpssl".equalsIgnoreCase(fileType)) {
 					filePathItem.setType(fileTypeEnum
 							.getValue("FtpsFileInstance"));
-					createFileCrawlInstance(client, filePathItem, transaction);
+					createFileCrawlInstance(client, filePathItem, transaction,
+							false);
 					transaction.addXmlResponse("info",
 							"A FTP with ssl file crawler instance is created.");
 				} else if ("dropbox".equalsIgnoreCase(fileType)) {
 					filePathItem.setType(fileTypeEnum.getValue("Dropbox"));
-					createFileCrawlInstance(client, filePathItem, transaction);
+					createFileCrawlInstance(client, filePathItem, transaction,
+							false);
 					transaction.addXmlResponse("info",
 							"A DropBox file crawler instance is created.");
 				}
@@ -97,12 +101,15 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 	}
 
 	private void createFileCrawlInstance(Client client,
-			FilePathItem filePathItem, ServletTransaction transaction) {
+			FilePathItem filePathItem, ServletTransaction transaction,
+			Boolean isSMBShare) {
+		if (isSMBShare) {
+			String domain = transaction.getParameterString("domain");
+			filePathItem.setDomain(domain);
+		}
 		String username = transaction.getParameterString("username");
 		String password = transaction.getParameterString("password");
-		String domain = transaction.getParameterString("domain");
 		String host = transaction.getParameterString("host");
-		filePathItem.setDomain(domain);
 		filePathItem.setPassword(password);
 		filePathItem.setHost(host);
 		filePathItem.setUsername(username);
