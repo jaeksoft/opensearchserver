@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,8 +26,12 @@ package com.jaeksoft.searchlib.web;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class FileCrawlerServlet extends WebCrawlerServlet {
 
@@ -36,11 +40,99 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 	 */
 	private static final long serialVersionUID = 3367169960498597933L;
 
+	private void doCreateLocation(Client client, ServletTransaction transaction)
+			throws SearchLibException {
+		String fileType = transaction.getParameterString("type");
+		ExtensibleEnum<FileInstanceType> fileTypeEnum = client.getFileManager()
+				.getFileTypeEnum();
+		if (fileType != null) {
+			FilePathManager filePathManager = client.getFilePathManager();
+			FilePathItem filePathItem = new FilePathItem(client);
+
+			Boolean setDefault = setDefaultValues(transaction, filePathItem);
+			if (setDefault) {
+				if ("local".equalsIgnoreCase(fileType)) {
+					filePathItem.setType(fileTypeEnum
+							.getValue("LocalFileInstance"));
+					transaction.addXmlResponse("info",
+							"A local file crawler instance is created.");
+				} else if ("smb".equalsIgnoreCase(fileType)) {
+					filePathItem.setType(fileTypeEnum
+							.getValue("SmbFileInstance"));
+					createFileCrawlInstance(client, filePathItem, transaction);
+					transaction.addXmlResponse("info",
+							"A SMB/CIFS file crawler instance is created.");
+				} else if ("ftp".equalsIgnoreCase(fileType)) {
+					filePathItem.setType(fileTypeEnum
+							.getValue("FtpFileInstance"));
+					createFileCrawlInstance(client, filePathItem, transaction);
+					transaction.addXmlResponse("info",
+							"A FTP file crawler instance is created.");
+				} else if ("ftpssl".equalsIgnoreCase(fileType)) {
+					filePathItem.setType(fileTypeEnum
+							.getValue("FtpsFileInstance"));
+					createFileCrawlInstance(client, filePathItem, transaction);
+					transaction.addXmlResponse("info",
+							"A FTP with ssl file crawler instance is created.");
+				} else if ("dropbox".equalsIgnoreCase(fileType)) {
+					filePathItem.setType(fileTypeEnum.getValue("Dropbox"));
+					createFileCrawlInstance(client, filePathItem, transaction);
+					transaction.addXmlResponse("info",
+							"A DropBox file crawler instance is created.");
+				}
+				FilePathItem checkFilePath = filePathManager.get(filePathItem);
+				if (checkFilePath != null)
+					transaction.addXmlResponse("info",
+							"The location already exists.");
+				else {
+					filePathManager.add(filePathItem);
+				}
+			} else {
+				transaction.addXmlResponse("info", "Missing default values.");
+			}
+
+		} else
+			transaction.addXmlResponse("info",
+					"FileCrawler type is needed to create an instance.");
+	}
+
+	private void createFileCrawlInstance(Client client,
+			FilePathItem filePathItem, ServletTransaction transaction) {
+		String username = transaction.getParameterString("username");
+		String password = transaction.getParameterString("password");
+		String domain = transaction.getParameterString("domain");
+		String host = transaction.getParameterString("host");
+		filePathItem.setDomain(domain);
+		filePathItem.setPassword(password);
+		filePathItem.setHost(host);
+		filePathItem.setUsername(username);
+	}
+
+	private Boolean setDefaultValues(ServletTransaction transaction,
+			FilePathItem filePathItem) {
+		Boolean enabled = transaction.getParameterBoolean("enabled", false);
+		Boolean ignoreHidden = transaction.getParameterBoolean("ignorehidden");
+		Boolean withSubDirectory = transaction
+				.getParameterBoolean("withsubdirectory");
+		String path = transaction.getParameterString("path");
+		Integer delayBetweenAccess = transaction.getParameterInteger("delay");
+		if (enabled != null && ignoreHidden != null && withSubDirectory != null
+				&& delayBetweenAccess != null && path != null) {
+			filePathItem.setIgnoreHidden(ignoreHidden);
+			filePathItem.setWithSubDir(withSubDirectory);
+			filePathItem.setDelay(delayBetweenAccess);
+			filePathItem.setEnabled(enabled);
+			filePathItem.setPath(path);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
 		try {
-
 			User user = transaction.getLoggedUser();
 			if (user != null
 					&& !user.hasRole(transaction.getIndexName(),
@@ -48,10 +140,15 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
-			doCrawlMaster(client.getFileCrawlMaster(), transaction);
-
+			String cmd = transaction.getParameterString("cmd");
+			if (cmd.equalsIgnoreCase("create")) {
+				doCreateLocation(client, transaction);
+			} else {
+				doCrawlMaster(client.getFileCrawlMaster(), transaction);
+			}
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
+
 }

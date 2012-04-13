@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -341,7 +341,7 @@ public class ServletTransaction {
 			return null;
 		if (valueExpected != null)
 			return valueExpected.equalsIgnoreCase(p);
-		return true;
+		return Boolean.parseBoolean(p);
 	}
 
 	public final String[] getParameterValues(String name) {
