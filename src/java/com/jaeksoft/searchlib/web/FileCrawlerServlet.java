@@ -73,7 +73,7 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 			FilePathItem filePathItem, ServletTransaction transaction,
 			String fileType) throws SearchLibException {
 		FileInstanceType fileInstanceType = client.getFileManager()
-				.findTypeByScheme(fileTypeEnum, fileType);
+				.findTypeByScheme(fileType);
 		if (fileInstanceType != null) {
 			filePathItem.setType(fileInstanceType);
 			createFileCrawlInstance(fileInstanceType, client, filePathItem,
