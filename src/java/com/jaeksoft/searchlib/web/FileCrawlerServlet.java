@@ -71,50 +71,24 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 	private Boolean getFileCrawlInstance(Client client,
 			ExtensibleEnum<FileInstanceType> fileTypeEnum,
 			FilePathItem filePathItem, ServletTransaction transaction,
-			String fileType) {
-
-		if (fileTypeEnum.getValue("LocalFileInstance").getName()
-				.equalsIgnoreCase(fileType)) {
-			filePathItem.setType(fileTypeEnum.getValue("LocalFileInstance"));
+			String fileType) throws SearchLibException {
+		FileInstanceType fileInstanceType = client.getFileManager()
+				.findTypeByScheme(fileTypeEnum, fileType);
+		if (fileInstanceType != null) {
+			filePathItem.setType(fileInstanceType);
+			createFileCrawlInstance(fileInstanceType, client, filePathItem,
+					transaction);
 			transaction.addXmlResponse("info",
-					"A local file crawler instance is created.");
-			return true;
-		} else if (fileTypeEnum.getValue("SmbFileInstance").getName()
-				.equalsIgnoreCase(fileType)) {
-			filePathItem.setType(fileTypeEnum.getValue("SmbFileInstance"));
-			createFileCrawlInstance(client, filePathItem, transaction, true);
-			transaction.addXmlResponse("info",
-					"A SMB/CIFS file crawler instance is created.");
-			return true;
-		} else if (fileTypeEnum.getValue("FtpFileInstance").getName()
-				.equalsIgnoreCase(fileType)) {
-			filePathItem.setType(fileTypeEnum.getValue("FtpFileInstance"));
-			createFileCrawlInstance(client, filePathItem, transaction, false);
-			transaction.addXmlResponse("info",
-					"A FTP file crawler instance is created.");
-			return true;
-		} else if (fileTypeEnum.getValue("FtpsFileInstance").getName()
-				.equalsIgnoreCase(fileType)) {
-			filePathItem.setType(fileTypeEnum.getValue("FtpsFileInstance"));
-			createFileCrawlInstance(client, filePathItem, transaction, false);
-			transaction.addXmlResponse("info",
-					"A FTP with ssl file crawler instance is created.");
-			return true;
-		} else if (fileTypeEnum.getValue("Dropbox").getName()
-				.equalsIgnoreCase(fileType)) {
-			filePathItem.setType(fileTypeEnum.getValue("Dropbox"));
-			createFileCrawlInstance(client, filePathItem, transaction, false);
-			transaction.addXmlResponse("info",
-					"A DropBox file crawler instance is created.");
+					"A new file crawler instance is created.");
 			return true;
 		} else
 			return false;
 	}
 
-	private void createFileCrawlInstance(Client client,
-			FilePathItem filePathItem, ServletTransaction transaction,
-			Boolean isSMBShare) {
-		if (isSMBShare) {
+	private void createFileCrawlInstance(FileInstanceType fileInstanceType,
+			Client client, FilePathItem filePathItem,
+			ServletTransaction transaction) {
+		if (fileInstanceType.getScheme().equalsIgnoreCase("smb")) {
 			String domain = transaction.getParameterString("domain");
 			filePathItem.setDomain(domain);
 		}

@@ -560,6 +560,16 @@ public class FileManager {
 		}
 	}
 
+	public FileInstanceType findTypeByScheme(
+			ExtensibleEnum<FileInstanceType> fileTypeEnum, String scheme) {
+		List<FileInstanceType> fileInstanceType = fileTypeEnum.getList();
+		FileInstanceType instanceName = null;
+		for (FileInstanceType fileInstance : fileInstanceType)
+			if (fileInstance.getScheme().equalsIgnoreCase(scheme))
+				instanceName = fileInstance;
+		return instanceName;
+	}
+
 	public FileItemFieldEnum getFileItemFieldEnum() {
 		return fileItemFieldEnum;
 	}
