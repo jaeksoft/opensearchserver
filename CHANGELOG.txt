@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3512267: OCR Integration
 - 3509336: Adding regular expression capture in parser	
 - 3485668: Jsoup HTML parser
 - 3471808: Consecutive duplicate characters filter

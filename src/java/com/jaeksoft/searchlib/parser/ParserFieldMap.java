@@ -61,6 +61,13 @@ public class ParserFieldMap extends FieldMapGeneric<ParserFieldTarget> {
 		target.writeXml(xmlWriter);
 	}
 
+	protected boolean isMapped(ParserFieldEnum field) {
+		List<ParserFieldTarget> list = getLinks(field.name());
+		if (list == null)
+			return false;
+		return list.size() > 0;
+	}
+
 	public void mapIndexDocument(IndexDocument source, IndexDocument target) {
 		for (GenericLink<String, ParserFieldTarget> link : getList()) {
 			FieldContent fc = source.getField(link.getSource());
@@ -74,4 +81,5 @@ public class ParserFieldMap extends FieldMapGeneric<ParserFieldTarget> {
 			}
 		}
 	}
+
 }

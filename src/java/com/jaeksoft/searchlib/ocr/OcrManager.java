@@ -170,22 +170,26 @@ public class OcrManager implements Closeable {
 		}
 	}
 
-	public String ocerize(File input, File output, LanguageEnum lang)
-			throws SearchLibException {
+	public void ocerize(File input, File output, LanguageEnum lang)
+			throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
-				return null;
+				return;
 			if (tesseractPath == null || tesseractPath.length() == 0)
 				throw new SearchLibException("No path for the OCR");
 			CommandLine cmdLine = CommandLine.parse(tesseractPath);
 			cmdLine.addArgument(input.getAbsolutePath());
-			cmdLine.addArgument(output.getAbsolutePath());
+			String txtPath = output.getAbsolutePath();
+			if (!txtPath.endsWith(".txt"))
+				throw new SearchLibException(
+						"Output file must ends with .txt (" + txtPath + ")");
+			txtPath = txtPath.substring(0, txtPath.length() - 4);
+			cmdLine.addArgument(txtPath);
 			TesseractLanguageEnum tle = TesseractLanguageEnum.find(lang);
 			if (tle != null)
 				cmdLine.addArgument("-l " + tle.option);
-			System.out.println(cmdLine);
-			return null;
+			run(cmdLine, 3600, 0);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -198,7 +202,7 @@ public class OcrManager implements Closeable {
 		try {
 			PumpStreamHandler streamHandler = new PumpStreamHandler(baos);
 			executor.setStreamHandler(streamHandler);
-			executor.setExitValue(1);
+			executor.setExitValue(exitValue);
 			ExecuteWatchdog watchdog = new ExecuteWatchdog(secTimeOut * 1000);
 			executor.setWatchdog(watchdog);
 			int ev = executor.execute(cmdLine);

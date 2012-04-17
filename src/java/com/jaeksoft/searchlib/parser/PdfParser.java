@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
@@ -57,7 +58,7 @@ public class PdfParser extends Parser {
 			ParserFieldEnum.content, ParserFieldEnum.producer,
 			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
 			ParserFieldEnum.modification_date, ParserFieldEnum.language,
-			ParserFieldEnum.number_of_pages };
+			ParserFieldEnum.number_of_pages, ParserFieldEnum.ocr_content };
 
 	public PdfParser() {
 		super(fl);
@@ -139,7 +140,7 @@ public class PdfParser extends Parser {
 			if (pdf.isEncrypted())
 				throw new IOException("Encrypted PDF.");
 			extractContent(pdf);
-			extractImages(pdf, lang);
+			extractImagesForOCR(pdf, lang);
 		} catch (SearchLibException e) {
 			throw new IOException(e);
 		} finally {
@@ -152,10 +153,12 @@ public class PdfParser extends Parser {
 		}
 	}
 
-	private void extractImages(PDDocument pdf, LanguageEnum lang)
+	private void extractImagesForOCR(PDDocument pdf, LanguageEnum lang)
 			throws IOException, SearchLibException {
 		OcrManager ocr = ClientCatalog.getOcrManager();
 		if (ocr == null || ocr.isDisabled())
+			return;
+		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content))
 			return;
 		List<?> pages = pdf.getDocumentCatalog().getAllPages();
 		Iterator<?> iter = pages.iterator();
@@ -169,12 +172,14 @@ public class PdfParser extends Parser {
 					String key = (String) imageIter.next();
 					PDXObjectImage image = (PDXObjectImage) images.get(key);
 					File imageFile = File.createTempFile("osspdfimg",
-							image.getSuffix());
+							'.' + image.getSuffix());
 					File textFile = File.createTempFile("ossocr", ".txt");
 					image.write2file(imageFile);
-					System.out.println("Writing image:"
-							+ imageFile.getAbsolutePath());
 					ocr.ocerize(imageFile, textFile, lang);
+					addField(ParserFieldEnum.ocr_content,
+							FileUtils.readFileToString(textFile, "UTF-8"));
+					imageFile.delete();
+					textFile.delete();
 				}
 			}
 		}
