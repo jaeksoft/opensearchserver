@@ -28,6 +28,10 @@ public enum FilterEnum {
 
 	StandardFilter("Normalizes tokens extracted with StandardTokenizer."),
 
+	ArabicStemFilter("A filter that filter Arabic words."),
+
+	ArabicNormalizerFilter("A filter to normalize the Arabic orthography"),
+
 	ChineseFilter("A filter that filter Chinese words."),
 
 	DutchStemFilter("A filter that stems Dutch words."),

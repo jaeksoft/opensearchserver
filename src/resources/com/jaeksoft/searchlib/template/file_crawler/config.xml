@@ -44,6 +44,13 @@
 				<filter class="PhoneticFilter" codec="Beider Morse" scope="QUERY_INDEX" />
 			</analyzer>
 
+			<!-- Arabic -->
+			<analyzer name="TextAnalyzer" lang="ar"
+				tokenizer="ArabicLetterTokenizer">
+				<filter class="ArabicNormalizerFilter" />
+				<filter class="ArabicStemFilter" />
+			</analyzer>
+
 			<!-- Chinese -->
 			<analyzer name="TextAnalyzer" lang="zh" tokenizer="ChineseTokenizer">
 				<filter class="ChineseFilter" />

@@ -28,6 +28,8 @@ public enum LanguageEnum {
 
 	UNDEFINED("Undefined", ""),
 
+	ARABIC("Arabic", "ar"),
+
 	CHINESE("Chinese", "zh"),
 
 	DANISH("Danish", "da"),

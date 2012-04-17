@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,9 @@ public enum TokenizerEnum {
 
 	WhitespaceTokenizer(
 			"Splits text into word each time a white space is encountered"),
+
+	ArabicLetterTokenizer(
+			"Tokenizer that breaks text into runs of letters and diacritics for Arabic"),
 
 	ChineseTokenizer("Chinese tokenizer"),
 
