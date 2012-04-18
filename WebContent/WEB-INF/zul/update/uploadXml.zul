@@ -16,13 +16,31 @@
 -->
 <window id="upload"
 	use="com.jaeksoft.searchlib.web.controller.update.UploadXmlController">
-	<hbox align="center">
-		<button label="Upload" upload="true,maxsize=-1"
-			onUpload="upload.onUpload(event)" />
-		<space />
-		<button label="Show XML example" target="_blank"
-			href="updateSample.xml" />
-	</hbox>
+	<grid>
+		<columns>
+			<column align="right" hflex="min" />
+			<column />
+		</columns>
+		<rows>
+			<row>
+				<checkbox label="XSL Transformation"
+					checked="@{upload.xslEnabled}" />
+				<textbox visible="@{upload.xslEnabled}"
+					value="@{upload.xslContent}" width="95%" multiline="true"
+					height="300px" />
+			</row>
+			<row>
+				<label value="Upload XML file" />
+				<cell>
+					<button label="Upload" upload="true,maxsize=-1"
+						onUpload="upload.onUpload(event)" />
+					<space />
+					<button label="Show XML example " target="_blank"
+						href="updateSample.xml" />
+				</cell>
+			</row>
+		</rows>
+	</grid>
 	<listbox id="threadList" model="@{upload.updateList}" mold="paging"
 		visible="@{upload.updateListNotEmpty}">
 		<auxhead>
@@ -48,7 +66,7 @@
 		</listitem>
 	</listbox>
 
-	<timer id="updateTimer" delay="5000" repeats="true" onTimer="upload.onRefresh()"
-		running="@{upload.refresh}" />
+	<timer id="updateTimer" delay="5000" repeats="true"
+		onTimer="upload.onRefresh()" running="@{upload.refresh}" />
 
 </window>

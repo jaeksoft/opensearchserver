@@ -30,6 +30,11 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -156,17 +161,29 @@ public class DomUtils {
 
 	public final static DocumentBuilder getNewDocumentBuilder(boolean loadDtd,
 			boolean errorSilent) throws ParserConfigurationException {
+		DocumentBuilder builder;
 		synchronized (DOCUMENTBUILDERFACTORY) {
-			if (!loadDtd)
-				DOCUMENTBUILDERFACTORY
-						.setFeature(
-								"http://apache.org/xml/features/nonvalidating/load-external-dtd",
-								false);
-			DocumentBuilder builder = DOCUMENTBUILDERFACTORY
-					.newDocumentBuilder();
-			builder.setErrorHandler(errorSilent ? ParserErrorHandler.SILENT_ERROR_HANDLER
-					: ParserErrorHandler.STANDARD_ERROR_HANDLER);
-			return builder;
+			DOCUMENTBUILDERFACTORY
+					.setFeature(
+							"http://apache.org/xml/features/nonvalidating/load-external-dtd",
+							loadDtd);
+			builder = DOCUMENTBUILDERFACTORY.newDocumentBuilder();
 		}
+		builder.setErrorHandler(errorSilent ? ParserErrorHandler.SILENT_ERROR_HANDLER
+				: ParserErrorHandler.STANDARD_ERROR_HANDLER);
+		return builder;
+	}
+
+	private final static TransformerFactory TRANSFORMERFACTORY = javax.xml.transform.TransformerFactory
+			.newInstance();
+
+	public final static void xslt(Source xmlSource, Source xslSource,
+			Result xmlResult) throws TransformerException {
+
+		Transformer trans;
+		synchronized (TRANSFORMERFACTORY) {
+			trans = TRANSFORMERFACTORY.newTransformer(xslSource);
+		}
+		trans.transform(xmlSource, xmlResult);
 	}
 }

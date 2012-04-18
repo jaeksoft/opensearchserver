@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller.update;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -35,9 +36,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
 import org.zkoss.zk.ui.event.Event;
@@ -47,6 +51,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -59,18 +64,24 @@ public class UploadXmlController extends CommonController {
 
 	public class UpdateThread extends ThreadAbstract {
 
-		private InputSource inputSource;
+		private Source xmlSource;
 
 		private String mediaName;
 
 		private Client client;
 
-		private UpdateThread(Client client, InputSource inputSource,
+		private String xsl;
+
+		private File xmlTempResult;
+
+		private UpdateThread(Client client, Source xmlSource, String xsl,
 				String mediaName) {
 			super(client, null);
 			this.client = client;
-			this.inputSource = inputSource;
+			this.xmlSource = xmlSource;
+			this.xsl = xsl;
 			this.mediaName = mediaName;
+			xmlTempResult = null;
 			setInfo("Starting...");
 		}
 
@@ -79,7 +90,14 @@ public class UploadXmlController extends CommonController {
 			setInfo("Running...");
 			ProxyHandler proxyHandler = client.getWebPropertyManager()
 					.getProxyHandler();
-			int updatedCount = client.updateXmlDocuments(inputSource, 50, null,
+			if (xsl != null && xsl.length() > 0) {
+				xmlTempResult = File.createTempFile("ossupload", ".xml");
+				DomUtils.xslt(xmlSource, new StreamSource(xsl),
+						new StreamResult(xmlTempResult));
+				xmlSource = new StreamSource(xmlTempResult);
+			}
+			int updatedCount = client.updateXmlDocuments(
+					SAXSource.sourceToInputSource(xmlSource), 50, null,
 					proxyHandler, this);
 			setInfo("Done: " + updatedCount + " document(s)");
 		}
@@ -90,9 +108,15 @@ public class UploadXmlController extends CommonController {
 
 		@Override
 		public void release() {
+			if (xmlTempResult != null)
+				xmlTempResult.delete();
 		}
 
 	}
+
+	private boolean xslEnabled;
+
+	private String xslContent;
 
 	public UploadXmlController() throws SearchLibException {
 		super();
@@ -100,6 +124,8 @@ public class UploadXmlController extends CommonController {
 
 	@Override
 	protected void reset() {
+		xslEnabled = false;
+		xslContent = null;
 	}
 
 	/**
@@ -194,25 +220,25 @@ public class UploadXmlController extends CommonController {
 			ClassNotFoundException {
 		synchronized (this) {
 			Client client = getClient();
-			InputSource inputSource;
+			StreamSource xmlSource;
 			if (media.inMemory()) {
 				if (media.isBinary()) {
 					byte[] bytes = media.getByteData();
-					inputSource = new InputSource(new ByteArrayInputStream(
-							bytes));
+					xmlSource = new StreamSource(
+							new ByteArrayInputStream(bytes));
 				} else {
 					byte[] bytes = media.getStringData().getBytes();
-					inputSource = new InputSource(new ByteArrayInputStream(
-							bytes));
+					xmlSource = new StreamSource(
+							new ByteArrayInputStream(bytes));
 				}
 			} else {
 				if (media.isBinary())
-					inputSource = new InputSource(media.getStreamData());
+					xmlSource = new StreamSource(media.getStreamData());
 				else
-					inputSource = new InputSource(media.getReaderData());
+					xmlSource = new StreamSource(media.getReaderData());
 			}
-			UpdateThread thread = new UpdateThread(client, inputSource,
-					media.getName());
+			UpdateThread thread = new UpdateThread(client, xmlSource,
+					xslContent, media.getName());
 			List<UpdateThread> list = getUpdateList(client);
 			synchronized (list) {
 				list.add(thread);
@@ -241,5 +267,37 @@ public class UploadXmlController extends CommonController {
 			doMedia(media);
 		}
 		reloadPage();
+	}
+
+	/**
+	 * @return the xslEnabled
+	 */
+	public boolean isXslEnabled() {
+		return xslEnabled;
+	}
+
+	/**
+	 * @param xslEnabled
+	 *            the xslEnabled to set
+	 */
+	public void setXslEnabled(boolean xslEnabled) {
+		this.xslEnabled = xslEnabled;
+		this.xslContent = null;
+		reloadPage();
+	}
+
+	/**
+	 * @return the xslContent
+	 */
+	public String getXslContent() {
+		return xslContent;
+	}
+
+	/**
+	 * @param xslContent
+	 *            the xslContent to set
+	 */
+	public void setXslContent(String xslContent) {
+		this.xslContent = xslContent;
 	}
 }
