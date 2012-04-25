@@ -172,6 +172,14 @@ public class DatabaseFieldTarget extends Target {
 		return filePathPrefix;
 	}
 
+	public String getFilePath(String content) {
+		StringBuffer path = new StringBuffer();
+		if (filePathPrefix != null)
+			path.append(filePathPrefix);
+		path.append(content);
+		return path.toString();
+	}
+
 	/**
 	 * @param filePathPrefix
 	 *            the filePathPrefix to set

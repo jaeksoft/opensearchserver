@@ -94,7 +94,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 			if (dfTarget == null)
 				continue;
 			if (dfTarget.isFilePath()) {
-				File file = new File(dfTarget.getFilePathPrefix() + content);
+				File file = new File(dfTarget.getFilePath(content));
 				if (file.exists()) {
 					Parser parser = parserSelector.getParser(file.getName(),
 							null);

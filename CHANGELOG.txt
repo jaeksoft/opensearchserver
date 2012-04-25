@@ -46,6 +46,7 @@ New features:
 - 3469777: Scored snippets
 
 Bug fixes:
+- 3521414: File not parsed in database crawler
 - 3516114: NPE with Web Crawler when no unique field is set
 - 3509333: Error 500 when loading robots.txt
 - 3500288: Wrong facet count when using optimized collapsing
