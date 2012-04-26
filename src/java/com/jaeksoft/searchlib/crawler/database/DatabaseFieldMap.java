@@ -102,10 +102,13 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 						try {
 							parser.parseContent(file, lang);
 						} catch (IOException e) {
-							Logging.warn(e.getMessage(), e);
+							Logging.warn(e);
 						}
 						parser.populate(target);
 					}
+				} else {
+					Logging.error("Database crawler: File don't exist:"
+							+ file.getAbsolutePath());
 				}
 			}
 			if (dfTarget.isCrawlUrl()) {
