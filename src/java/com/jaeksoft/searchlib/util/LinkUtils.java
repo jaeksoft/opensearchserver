@@ -33,81 +33,19 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 
 public class LinkUtils {
 
-	private static String changePathUrl(URL url, String newPath,
-			String additionnal) {
-		StringBuffer newUri = new StringBuffer();
-		newUri.append(url.getProtocol());
-		newUri.append("://");
-		newUri.append(url.getHost());
-		if (url.getPort() != -1) {
-			newUri.append(":");
-			newUri.append(url.getPort());
-		}
-		if (newPath != null && newPath.length() > 0) {
-			if (newPath.charAt(0) != '/')
-				newUri.append('/');
-			newUri.append(newPath);
-		}
-		if (additionnal != null && additionnal.length() > 0)
-			newUri.append(additionnal);
-		return newUri.toString();
-	}
-
-	private static String resolveDotSlash(String path) {
-		// "/./" means nothing
-		path = path.replaceAll("/\\./", "/");
-		// "///" multiple slashes
-		path = path.replaceAll("/{2,}", "/");
-		// "/../" means one directory up
-		String newPath = path;
-		do {
-			path = newPath;
-			newPath = path.replaceFirst("/[^\\./]*/\\.\\./", "/");
-		} while (!newPath.equals(path));
-		return path;
-	}
-
-	public final static URL getLink(URL currentURL, String uri, boolean follow,
-			boolean allowRefAnchor, boolean resolveDotSlash,
+	public final static URL getLink(URL currentURL, String href,
 			UrlFilterItem[] urlFilterList) {
 
-		if (uri == null)
+		if (href == null)
 			return null;
-		uri = uri.trim();
-		if (uri.length() == 0)
+		href = href.trim();
+		if (href.length() == 0)
 			return null;
-
-		char startChar = uri.charAt(0);
-		// Relative URI starting with slash
-		if (startChar == '/') {
-			if (resolveDotSlash)
-				uri = resolveDotSlash(uri);
-			uri = changePathUrl(currentURL, null, uri);
-		} else if (startChar == '#' || startChar == '?')
-			uri = changePathUrl(currentURL, currentURL.getPath(), uri);
-		// Relative URI not starting with slash
-		else if (!uri.contains(":")) {
-			String path = currentURL.getPath();
-			// Search the last slash
-			int i = path.lastIndexOf('/');
-			if (i != -1)
-				path = path.substring(0, i + 1);
-			if (resolveDotSlash)
-				path = resolveDotSlash(path + uri);
-			uri = changePathUrl(currentURL, path, null);
-		}
-
-		// Do we have to remove anchor ?
-		if (!allowRefAnchor) {
-			int p = uri.indexOf('#');
-			if (p != -1)
-				uri = uri.substring(0, p);
-		}
-
-		uri = UrlFilterList.doReplace(uri, urlFilterList);
 
 		try {
-			return new URL(uri);
+			href = new URL(currentURL, href).toExternalForm();
+			href = UrlFilterList.doReplace(href, urlFilterList);
+			return new URL(href);
 		} catch (MalformedURLException e) {
 			Logging.warn(e.getMessage(), e);
 			return null;

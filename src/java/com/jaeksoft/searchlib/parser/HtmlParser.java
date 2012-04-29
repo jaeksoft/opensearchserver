@@ -358,7 +358,7 @@ public class HtmlParser extends Parser {
 					if (!href.startsWith("javascript:"))
 						if (currentURL != null)
 							newUrl = LinkUtils.getLink(currentURL, href,
-									follow, false, true, urlFilterList);
+									urlFilterList);
 				if (newUrl != null) {
 					ParserFieldEnum field = null;
 					if (newUrl.getHost().equalsIgnoreCase(currentURL.getHost())) {

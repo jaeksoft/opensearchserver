@@ -28,6 +28,7 @@ New features:
 OpenSearchServer 1.2.4
 
 New features:
+- 3518687: URL normalization required in the Web crawler
 - 3510598: Add CSV format in the select XML/HTTP API
 - 3498421: Set a default URL value for replication
 - 3498373: Remove script and object tag content in db crawler
