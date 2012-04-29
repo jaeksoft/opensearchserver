@@ -34,6 +34,8 @@
 				selected="@{runtime.instanceNotValid}" />
 			<tab id="tabRuntimeLogs" label="Logs"
 				visible="@{runtime.adminOrMonitoringOrNoUser}" />
+			<tab id="tabRuntimeAdvanced" label="Advanced"
+				visible="@{runtime.adminOrNoUser}" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -56,6 +58,9 @@
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/runtime/logs.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntimeAdvanced.onSelect">
+				<include src="WEB-INF/zul/runtime/advanced.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

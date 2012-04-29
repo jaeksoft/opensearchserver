@@ -34,7 +34,7 @@ import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.common.database.AbstractPropertyManager;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
@@ -52,7 +52,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 	private List<String> workingDeleteUriList;
 	private List<String> workingDeleteParentUriList;
 
-	public FileCrawlQueue(Config config, PropertyManager propertyManager)
+	public FileCrawlQueue(Config config, AbstractPropertyManager propertyManager)
 			throws SearchLibException {
 		super(config, propertyManager.getIndexDocumentBufferSize().getValue());
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);

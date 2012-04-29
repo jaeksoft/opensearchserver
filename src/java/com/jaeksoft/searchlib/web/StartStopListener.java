@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -51,7 +51,7 @@ public class StartStopListener implements ServletContextListener {
 		ClientCatalog.closeAll();
 	}
 
-	protected ClientFactory getClientFactory() {
+	protected ClientFactory getClientFactory() throws SearchLibException {
 		return new ClientFactory();
 	}
 
@@ -76,8 +76,8 @@ public class StartStopListener implements ServletContextListener {
 		} catch (IOException e) {
 			Logging.error(e);
 		}
-		ClientFactory.setInstance(getClientFactory());
 		try {
+			ClientFactory.setInstance(getClientFactory());
 			TaskManager.start();
 		} catch (SearchLibException e) {
 			Logging.error(e);

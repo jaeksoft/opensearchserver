@@ -39,12 +39,12 @@ import javax.imageio.ImageIO;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyItemListener;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.Md5Spliter;
+import com.jaeksoft.searchlib.util.properties.PropertyItem;
+import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
 
 public class ScreenshotManager implements PropertyItemListener {
 

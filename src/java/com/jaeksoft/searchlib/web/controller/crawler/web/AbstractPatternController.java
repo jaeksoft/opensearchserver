@@ -37,10 +37,10 @@ import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
 import com.jaeksoft.searchlib.crawler.common.database.Selector;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
+import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public abstract class AbstractPatternController extends CrawlerController

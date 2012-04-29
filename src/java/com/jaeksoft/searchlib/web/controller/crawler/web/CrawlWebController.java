@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,7 +28,6 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
@@ -70,7 +69,7 @@ public class CrawlWebController extends CrawlerController {
 		reloadPage();
 	}
 
-	public PropertyManager getProperties() throws SearchLibException {
+	public WebPropertyManager getProperties() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;

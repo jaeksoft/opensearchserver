@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,20 +22,31 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.file.database;
+package com.jaeksoft.searchlib.web.controller.runtime;
 
-import java.io.File;
-import java.io.IOException;
-
-import com.jaeksoft.searchlib.crawler.common.database.AbstractPropertyManager;
+import com.jaeksoft.searchlib.ClientFactory;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class FilePropertyManager extends AbstractPropertyManager {
+public class AdvancedController extends CommonController {
 
-	public FilePropertyManager(File file) throws IOException {
-		super(file);
-		indexDocumentBufferSize = new PropertyItem<Integer>(this,
-				"indexDocumentBufferSize", 50);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2000726412587800459L;
+
+	public AdvancedController() throws SearchLibException {
+		super();
+	}
+
+	public PropertyItem<Integer> getMaxClauseCount() {
+		return ClientFactory.INSTANCE.getBooleanQueryMaxClauseCount();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
+		// TODO Auto-generated method stub
 	}
 
 }

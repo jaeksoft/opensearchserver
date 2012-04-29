@@ -25,10 +25,36 @@
 package com.jaeksoft.searchlib;
 
 import java.io.File;
+import java.io.IOException;
 
-public class ClientFactory {
+import org.apache.lucene.search.BooleanQuery;
+
+import com.jaeksoft.searchlib.util.properties.PropertyItem;
+import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
+import com.jaeksoft.searchlib.util.properties.PropertyManager;
+
+public class ClientFactory implements PropertyItemListener {
 
 	public static ClientFactory INSTANCE = null;
+
+	private PropertyItem<Integer> booleanQueryMaxClauseCount;
+
+	private PropertyManager advancedProperties;
+
+	public ClientFactory() throws SearchLibException {
+		try {
+			File advPropFile = new File(ClientCatalog.getDataDir(),
+					"advanced.xml");
+			advancedProperties = new PropertyManager(advPropFile);
+			booleanQueryMaxClauseCount = advancedProperties.newIntegerProperty(
+					"booleanQueryMaxClauseCount", 1024);
+			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
+					.getValue());
+			booleanQueryMaxClauseCount.addListener(this);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
 
 	public Client newClient(File initFileOrDir, boolean createIndexIfNotExists,
 			boolean disableCrawler) throws SearchLibException {
@@ -39,4 +65,20 @@ public class ClientFactory {
 		INSTANCE = cf;
 	}
 
+	public PropertyItem<Integer> getBooleanQueryMaxClauseCount() {
+		return booleanQueryMaxClauseCount;
+	}
+
+	@Override
+	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
+		if (prop == booleanQueryMaxClauseCount) {
+			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
+					.getValue());
+			try {
+				advancedProperties.save();
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			}
+		}
+	}
 }

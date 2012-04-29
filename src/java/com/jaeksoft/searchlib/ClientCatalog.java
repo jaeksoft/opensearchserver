@@ -43,6 +43,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WebApp;
 
@@ -404,4 +405,11 @@ public class ClientCatalog {
 		}
 	}
 
+	public static int getMaxClauseCount() {
+		return BooleanQuery.getMaxClauseCount();
+	}
+
+	public static void setMaxClauseCount(int value) {
+		BooleanQuery.setMaxClauseCount(value);
+	}
 }

@@ -65,6 +65,8 @@ public class Aggregate implements Externalizable {
 		max = 0;
 		min = Long.MAX_VALUE;
 		avg = 0;
+		maxInfo = null;
+		lastError = null;
 	}
 
 	protected void add(Timer timer) {

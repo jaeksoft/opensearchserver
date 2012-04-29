@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.common.database;
+package com.jaeksoft.searchlib.util.properties;
 
 import com.jaeksoft.searchlib.SearchLibException;
 

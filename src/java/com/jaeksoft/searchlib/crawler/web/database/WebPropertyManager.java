@@ -27,10 +27,10 @@ package com.jaeksoft.searchlib.crawler.web.database;
 import java.io.File;
 import java.io.IOException;
 
-import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.common.database.AbstractPropertyManager;
+import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
-public class WebPropertyManager extends PropertyManager {
+public class WebPropertyManager extends AbstractPropertyManager {
 
 	private PropertyItem<Integer> delayBetweenAccesses;
 	private PropertyItem<Integer> fetchInterval;
