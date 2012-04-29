@@ -29,6 +29,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.analysis.TokenStream;
 
@@ -92,7 +93,7 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 	}
 
 	public List<DebugTokenFilter> test(String text) throws IOException {
-		List<DebugTokenFilter> list = new ArrayList<DebugTokenFilter>();
+		List<DebugTokenFilter> list = new ArrayList<DebugTokenFilter>(0);
 		StringReader reader = new StringReader(text);
 		DebugTokenFilter lastDebugTokenFilter = new DebugTokenFilter(tokenizer,
 				tokenizer.create(reader));
@@ -107,5 +108,13 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 			lastDebugTokenFilter = newDebugTokenFilter;
 		}
 		return list;
+	}
+
+	public void extractTerms(String text, Set<String> termSet)
+			throws IOException {
+		StringReader reader = new StringReader(text);
+		TokenStream ts = tokenStream(null, reader);
+		ts = new TermSetTokenFilter(termSet, ts);
+		ts.incrementToken();
 	}
 }

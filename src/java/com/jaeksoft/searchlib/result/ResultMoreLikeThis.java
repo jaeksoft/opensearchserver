@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.result;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
@@ -37,7 +35,19 @@ public class ResultMoreLikeThis extends AbstractResult<SpellCheckRequest> {
 	}
 
 	@Override
-	public Render getRender(HttpServletRequest request) {
+	protected Render getRenderXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected Render getRenderCsv() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected Render getRenderJson(boolean indent) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -14,5 +14,13 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="resultSpellCheck">
+<window id="resultSpellCheck"
+	use="com.jaeksoft.searchlib.web.controller.query.SpellCheckController">
+	<panel title="Summary" visible="@{resultSpellCheck.resultSpellCheck}"
+		collapsible="true" border="normal">
+		<caption>
+			<button label="XML/HTTP API call" target="_blank"
+				href="@{query.requestApiCall}" />
+		</caption>
+	</panel>
 </window>

@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
@@ -95,6 +96,10 @@ public final class QueryController extends AbstractQueryController {
 			String q = ((SearchRequest) request).getQueryString();
 			if (q == null || q.length() == 0)
 				q = "*:*";
+			sb.append("&q=");
+			sb.append(URLEncoder.encode(q, "UTF-8"));
+		} else if (request instanceof SpellCheckRequest) {
+			String q = ((SpellCheckRequest) request).getQueryString();
 			sb.append("&q=");
 			sb.append(URLEncoder.encode(q, "UTF-8"));
 		}

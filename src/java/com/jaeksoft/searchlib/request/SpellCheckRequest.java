@@ -31,12 +31,15 @@ import java.util.Set;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.util.Version;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
@@ -45,7 +48,9 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultSpellCheck;
 import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -55,7 +60,9 @@ public class SpellCheckRequest extends AbstractRequest {
 
 	private FieldList<SpellCheckField> spellCheckFieldList;
 
-	private String query;
+	private String queryString;
+
+	private LanguageEnum lang;
 
 	public SpellCheckRequest() {
 	}
@@ -68,7 +75,8 @@ public class SpellCheckRequest extends AbstractRequest {
 	public void setDefaultValues() {
 		super.setDefaultValues();
 		this.spellCheckFieldList = new FieldList<SpellCheckField>();
-		this.query = null;
+		this.queryString = null;
+		this.lang = null;
 	}
 
 	@Override
@@ -77,7 +85,8 @@ public class SpellCheckRequest extends AbstractRequest {
 		SpellCheckRequest spellCheckrequest = (SpellCheckRequest) request;
 		this.spellCheckFieldList = new FieldList<SpellCheckField>(
 				spellCheckrequest.spellCheckFieldList);
-		this.query = spellCheckrequest.query;
+		this.queryString = spellCheckrequest.queryString;
+		this.lang = spellCheckrequest.lang;
 	}
 
 	public FieldList<SpellCheckField> getSpellCheckFieldList() {
@@ -105,7 +114,9 @@ public class SpellCheckRequest extends AbstractRequest {
 			for (int i = 0; i < l; i++)
 				SpellCheckField.copySpellCheckFields(nodes.item(i), fieldList,
 						spellCheckFieldList);
-			setQuery(xpp.getNodeString(node, "query"));
+			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
+					node, "lang")));
+			setQueryString(xpp.getNodeString(node, "query"));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -116,15 +127,16 @@ public class SpellCheckRequest extends AbstractRequest {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
-					getRequestName(), XML_ATTR_TYPE, getType().name());
+					getRequestName(), XML_ATTR_TYPE, getType().name(), "lang",
+					lang != null ? lang.getCode() : null);
 			if (spellCheckFieldList.size() > 0) {
 				xmlWriter.startElement("spellCheckFields");
 				spellCheckFieldList.writeXmlConfig(xmlWriter);
 				xmlWriter.endElement();
 			}
-			if (query != null && query.trim().length() > 0) {
+			if (queryString != null && queryString.trim().length() > 0) {
 				xmlWriter.startElement("query");
-				xmlWriter.textNode(query);
+				xmlWriter.textNode(queryString);
 				xmlWriter.endElement();
 			}
 			xmlWriter.endElement();
@@ -142,8 +154,16 @@ public class SpellCheckRequest extends AbstractRequest {
 	@Override
 	public void setFromServlet(ServletTransaction transaction)
 			throws SyntaxError {
-		// TODO Auto-generated method stub
-
+		rwl.w.lock();
+		try {
+			String p;
+			if ((p = transaction.getParameterString("query")) != null)
+				setQueryString(p);
+			else if ((p = transaction.getParameterString("q")) != null)
+				setQueryString(p);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
@@ -164,9 +184,19 @@ public class SpellCheckRequest extends AbstractRequest {
 		}
 	}
 
-	public Set<Term> getTermSet() {
+	public Set<Term> getTermSet(String fieldName) throws SearchLibException,
+			ParseException {
 		Set<Term> set = new LinkedHashSet<Term>();
-		// TODO searchRequest.getQuery().extractTerms(set);
+		Schema schema = config.getSchema();
+		SchemaFieldList schemaFieldList = schema.getFieldList();
+		SchemaField schemaField = schemaFieldList.get(fieldName);
+		QueryParser queryParser = new QueryParser(Version.LUCENE_29, fieldName,
+				schema.getAnalyzer(schemaField, lang).getQueryAnalyzer());
+		try {
+			queryParser.parse(queryString).extractTerms(set);
+		} catch (org.apache.lucene.queryParser.ParseException e) {
+			throw new ParseException(e);
+		}
 		return set;
 	}
 
@@ -187,22 +217,43 @@ public class SpellCheckRequest extends AbstractRequest {
 	}
 
 	/**
-	 * @return the query
+	 * @return the queryString
 	 */
-	public String getQuery() {
+	public String getQueryString() {
 		rwl.r.lock();
 		try {
-			return query;
+			return queryString;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	/**
-	 * @param query
-	 *            the query to set
+	 * @param queryString
+	 *            the queryString to set
 	 */
-	public void setQuery(String query) {
-		this.query = query;
+	public void setQueryString(String queryString) {
+		this.queryString = queryString;
 	}
+
+	public LanguageEnum getLang() {
+		rwl.r.lock();
+		try {
+			return this.lang;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setLang(LanguageEnum lang) {
+		rwl.w.lock();
+		try {
+			if (this.lang == lang)
+				return;
+			this.lang = lang;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 }

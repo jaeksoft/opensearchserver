@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,12 +22,30 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.render;
+package com.jaeksoft.searchlib.analysis;
 
-import com.jaeksoft.searchlib.web.ServletTransaction;
+import java.io.IOException;
+import java.util.Set;
 
-public interface Render {
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 
-	public void render(ServletTransaction servletTransaction) throws Exception;
+public class TermSetTokenFilter extends org.apache.lucene.analysis.TokenFilter {
+
+	private TermAttribute termAtt;
+	private Set<String> termSet;
+
+	protected TermSetTokenFilter(Set<String> termSet, TokenStream input) {
+		super(input);
+		this.termSet = termSet;
+		this.termAtt = (TermAttribute) addAttribute(TermAttribute.class);
+	}
+
+	@Override
+	public final boolean incrementToken() throws IOException {
+		while (input.incrementToken())
+			termSet.add(termAtt.term());
+		return false;
+	}
 
 }

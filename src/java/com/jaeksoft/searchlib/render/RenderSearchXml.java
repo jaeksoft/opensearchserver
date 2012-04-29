@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.render;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -45,35 +43,16 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
-import com.jaeksoft.searchlib.web.ServletTransaction;
 
-public class RenderSearchXml implements Render {
+public class RenderSearchXml extends
+		AbstractRenderXml<SearchRequest, AbstractResultSearch> {
 
 	private PrintWriter writer;
 	private AbstractResultSearch result;
 	private SearchRequest searchRequest;
-	private Matcher controlMatcher;
-	private Matcher spaceMatcher;
 
 	public RenderSearchXml(AbstractResultSearch result) {
-		this.result = result;
-		this.searchRequest = result.getRequest();
-		Pattern p = Pattern.compile("\\p{Cntrl}+");
-		controlMatcher = p.matcher("");
-		p = Pattern.compile("\\p{Space}+");
-		spaceMatcher = p.matcher("");
-	}
-
-	private String xmlTextRender(String text) {
-		synchronized (controlMatcher) {
-			controlMatcher.reset(text);
-			text = controlMatcher.replaceAll(" ");
-		}
-		synchronized (spaceMatcher) {
-			spaceMatcher.reset(text);
-			text = spaceMatcher.replaceAll(" ");
-		}
-		return StringEscapeUtils.escapeXml(text);
+		super(result);
 	}
 
 	private void renderPrefix() throws ParseException, SyntaxError,
@@ -203,39 +182,7 @@ public class RenderSearchXml implements Render {
 		writer.println("</faceting>");
 	}
 
-	// private void renderSpellCheck(SpellCheck spellCheck) throws Exception {
-	// String fieldName = spellCheck.getFieldName();
-	// writer.print("\t\t<field name=\"");
-	// writer.print(fieldName);
-	// writer.println("\">");
-	// for (SpellCheckItem spellCheckItem : spellCheck) {
-	// writer.print("\t\t\t<word name=\"");
-	// writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
-	// writer.println("\">");
-	// for (SuggestionItem suggestionItem : spellCheckItem
-	// .getSuggestions()) {
-	// writer.print("\t\t\t\t<suggest freq=\"");
-	// writer.print(suggestionItem.getFreq());
-	// writer.print("\">");
-	// writer.print(StringEscapeUtils.escapeXml(suggestionItem
-	// .getTerm()));
-	// writer.println("</suggest>");
-	// }
-	// writer.println("\t\t\t</word>");
-	// }
-	// writer.println("\t\t</field>");
-	// }
-	//
-	// private void renderSpellChecks() throws Exception {
-	// List<SpellCheck> spellChecklist = result.getSpellCheckList();
-	// if (spellChecklist == null)
-	// return;
-	// writer.println("<spellcheck>");
-	// for (SpellCheck spellCheck : spellChecklist)
-	// renderSpellCheck(spellCheck);
-	// writer.println("</spellcheck>");
-	// }
-
+	@Override
 	public void render(PrintWriter writer) throws Exception {
 		this.writer = writer;
 		renderPrefix();
@@ -244,9 +191,4 @@ public class RenderSearchXml implements Render {
 		renderSuffix();
 	}
 
-	@Override
-	public void render(ServletTransaction servletTransaction) throws Exception {
-		servletTransaction.setResponseContentType("text/xml");
-		render(servletTransaction.getWriter("UTF-8"));
-	}
 }

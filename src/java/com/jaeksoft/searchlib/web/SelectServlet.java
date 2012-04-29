@@ -24,20 +24,11 @@
 
 package com.jaeksoft.searchlib.web;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
-import com.jaeksoft.searchlib.render.RenderCSV;
-import com.jaeksoft.searchlib.render.RenderJsp;
-import com.jaeksoft.searchlib.render.RenderSearchJson;
-import com.jaeksoft.searchlib.render.RenderSearchXml;
-import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -47,28 +38,6 @@ public class SelectServlet extends AbstractServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 2241064786260022955L;
-
-	protected Render doQueryRequest(Client client,
-			ServletTransaction transaction, String render) throws IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException, SearchLibException,
-			InstantiationException, IllegalAccessException {
-
-		SearchRequest searchRequest = (SearchRequest) client
-				.getNewRequest(transaction);
-		AbstractResultSearch result = (AbstractResultSearch) client
-				.request(searchRequest);
-		if ("jsp".equalsIgnoreCase(render)) {
-			String jsp = transaction.getParameterString("jsp");
-			return new RenderJsp(jsp, result);
-		} else if ("json".equalsIgnoreCase(render)) {
-			String jsonIndent = transaction.getParameterString("indent");
-			return new RenderSearchJson(result, jsonIndent);
-		} else if ("csv".equalsIgnoreCase(render))
-			return new RenderCSV(result);
-		else
-			return new RenderSearchXml(result);
-	}
 
 	@Override
 	protected void doRequest(ServletTransaction transaction)
@@ -86,7 +55,9 @@ public class SelectServlet extends AbstractServlet {
 			String r = transaction.getParameterString("render");
 			if (r == null || r.length() == 0)
 				r = transaction.getParameterString("format");
-			Render render = doQueryRequest(client, transaction, r);
+			AbstractRequest request = client.getNewRequest(transaction);
+			AbstractResult<?> result = client.request(request);
+			Render render = result.getRender(transaction);
 			render.render(transaction);
 
 		} catch (Exception e) {

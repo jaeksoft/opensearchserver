@@ -24,10 +24,10 @@
 
 package com.jaeksoft.searchlib.result;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public abstract class AbstractResult<T extends AbstractRequest> {
 
@@ -41,5 +41,29 @@ public abstract class AbstractResult<T extends AbstractRequest> {
 		return request;
 	}
 
-	public abstract Render getRender(HttpServletRequest request);
+	protected abstract Render getRenderXml();
+
+	protected abstract Render getRenderCsv();
+
+	protected abstract Render getRenderJson(boolean indent);
+
+	protected Render getRenderJsp(String jspFile) {
+		return new RenderJsp(jspFile, this);
+	}
+
+	public Render getRender(ServletTransaction transaction) {
+		String render = transaction.getParameterString("render");
+		if (render != null) {
+			if ("jsp".equalsIgnoreCase(render)) {
+				String jspFile = transaction.getParameterString("jsp");
+				return getRenderJsp(jspFile);
+			} else if ("json".equalsIgnoreCase(render)) {
+				boolean jsonIndent = transaction.getParameterBoolean("indent",
+						false);
+				return getRenderJson(jsonIndent);
+			} else if ("csv".equalsIgnoreCase(render))
+				return getRenderCsv();
+		}
+		return getRenderXml();
+	}
 }

@@ -50,9 +50,9 @@ public class RenderSearchJson implements Render {
 
 	private AbstractResultSearch result;
 	private SearchRequest searchRequest;
-	private String indent;
+	private boolean indent;
 
-	public RenderSearchJson(AbstractResultSearch result, String jsonIndent) {
+	public RenderSearchJson(AbstractResultSearch result, boolean jsonIndent) {
 		this.result = result;
 		this.searchRequest = result.getRequest();
 		this.indent = jsonIndent;
@@ -223,18 +223,18 @@ public class RenderSearchJson implements Render {
 	@Override
 	public void render(ServletTransaction servletTransaction) throws Exception {
 		servletTransaction.setResponseContentType("application/json");
-		render(servletTransaction.getWriter("UTF-8"), indent);
+		render(servletTransaction.getWriter("UTF-8"));
 	}
 
 	@SuppressWarnings("unchecked")
-	private void render(PrintWriter writer, String indent) throws Exception {
+	private void render(PrintWriter writer) throws Exception {
 		JSONObject jsonResponse = new JSONObject();
 		renderPrefix(jsonResponse);
 		renderDocuments(jsonResponse);
 		renderFacets(jsonResponse);
 		JSONObject json = new JSONObject();
 		json.put("response", jsonResponse);
-		if ("yes".equalsIgnoreCase(indent))
+		if (indent)
 			writer.println(new org.json.JSONObject(json.toJSONString())
 					.toString(4));
 		else

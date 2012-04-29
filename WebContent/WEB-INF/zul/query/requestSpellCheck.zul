@@ -24,7 +24,16 @@
 		<rows>
 			<row>
 				<label value="Query" />
-				<textbox value="@{spellcheck.request.query}" cols="50" />
+				<textbox value="@{spellcheck.request.queryString}" cols="50" />
+			</row>
+			<row>
+				<label>Language:</label>
+				<listbox mold="select"
+					selectedItem="@{spellcheck.request.lang}"
+					model="@{spellcheck.languageEnum}">
+					<listitem self="@{each=langEnum}"
+						label="@{langEnum.name}" value="@{langEnum}" />
+				</listbox>
 			</row>
 			<row>
 				<label value="Fields" />
