@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.statistics;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -179,6 +180,8 @@ public abstract class StatisticsAbstract {
 					addAggregate(aggr);
 				}
 			}
+		} catch (EOFException e) {
+			Logging.error(e);
 		} finally {
 			if (ois != null)
 				ois.close();

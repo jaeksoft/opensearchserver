@@ -30,22 +30,39 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.properties.PropertyItem;
+import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
+import com.jaeksoft.searchlib.util.properties.PropertyManager;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
-public class ClientFactory {
+public class ClientFactory implements PropertyItemListener {
 
 	public static ClientFactory INSTANCE = null;
 
 	public final InstanceProperties properties;
+
+	private PropertyItem<Integer> booleanQueryMaxClauseCount;
+
+	private PropertyManager advancedProperties;
 
 	public ClientFactory() throws SearchLibException {
 		try {
 			properties = new InstanceProperties(new File(
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 					"properties.xml"));
+			File advPropFile = new File(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+					"advanced.xml");
+			advancedProperties = new PropertyManager(advPropFile);
+			booleanQueryMaxClauseCount = advancedProperties.newIntegerProperty(
+					"booleanQueryMaxClauseCount", 1024, null, null);
+			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
+					.getValue());
+			booleanQueryMaxClauseCount.addListener(this);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -82,6 +99,23 @@ public class ClientFactory {
 
 	public static void setInstance(ClientFactory cf) {
 		INSTANCE = cf;
+	}
+
+	public PropertyItem<Integer> getBooleanQueryMaxClauseCount() {
+		return booleanQueryMaxClauseCount;
+	}
+
+	@Override
+	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
+		if (prop == booleanQueryMaxClauseCount) {
+			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
+					.getValue());
+			try {
+				advancedProperties.save();
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			}
+		}
 	}
 
 }

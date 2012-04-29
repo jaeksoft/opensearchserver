@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,38 +22,51 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.common.database;
+package com.jaeksoft.searchlib.util.properties;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.jaeksoft.searchlib.util.PropertiesUtils;
-
-public abstract class PropertyManager {
+public class PropertyManager {
 
 	private File propFile;
 
 	private Properties properties;
 
-	protected PropertyItem<Integer> indexDocumentBufferSize;
-	protected PropertyItem<Boolean> crawlEnabled;
-	protected PropertyItem<Integer> maxThreadNumber;
-
-	protected PropertyManager(File file) throws IOException {
+	public PropertyManager(File file) throws IOException {
 		propFile = file;
-		properties = PropertiesUtils.loadFromXml(propFile);
-		indexDocumentBufferSize = new PropertyItem<Integer>(this,
-				"indexDocumentBufferSize", 1000, null, null);
-		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10, null, null);
-		crawlEnabled = newBooleanProperty("crawlEnabled", false);
+		properties = new Properties();
+		if (propFile.exists()) {
+			FileInputStream inputStream = null;
+			try {
+				inputStream = new FileInputStream(propFile);
+				properties.loadFromXML(inputStream);
+			} catch (IOException e) {
+				throw e;
+			} finally {
+				if (inputStream != null)
+					inputStream.close();
+			}
+		}
 	}
 
-	protected void save() throws IOException {
-		PropertiesUtils.storeToXml(properties, propFile);
+	public void save() throws IOException {
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(propFile);
+			properties.storeToXML(fos, "");
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (fos != null)
+				fos.close();
+		}
 	}
 
-	protected PropertyItem<Integer> newIntegerProperty(String name,
+	public PropertyItem<Integer> newIntegerProperty(String name,
 			Integer defaultValue, Integer min, Integer max)
 			throws NumberFormatException, IOException {
 		PropertyItem<Integer> propertyItem = new PropertyItem<Integer>(this,
@@ -64,7 +77,7 @@ public abstract class PropertyManager {
 		return propertyItem;
 	}
 
-	protected PropertyItem<Boolean> newBooleanProperty(String name,
+	public PropertyItem<Boolean> newBooleanProperty(String name,
 			Boolean defaultValue) {
 		PropertyItem<Boolean> propertyItem = new PropertyItem<Boolean>(this,
 				name, defaultValue, null, null);
@@ -76,7 +89,7 @@ public abstract class PropertyManager {
 		return propertyItem;
 	}
 
-	protected PropertyItem<String> newStringProperty(String name,
+	public PropertyItem<String> newStringProperty(String name,
 			String defaultValue) {
 		PropertyItem<String> propertyItem = new PropertyItem<String>(this,
 				name, defaultValue, null, null);
@@ -89,18 +102,6 @@ public abstract class PropertyManager {
 	public void put(PropertyItem<?> propertyItem) throws IOException {
 		propertyItem.put(properties);
 		save();
-	}
-
-	public PropertyItem<Boolean> getCrawlEnabled() {
-		return crawlEnabled;
-	}
-
-	public PropertyItem<Integer> getIndexDocumentBufferSize() {
-		return indexDocumentBufferSize;
-	}
-
-	public PropertyItem<Integer> getMaxThreadNumber() {
-		return maxThreadNumber;
 	}
 
 }

@@ -25,8 +25,8 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
+import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
 public class ExclusionController extends AbstractPatternController {
 

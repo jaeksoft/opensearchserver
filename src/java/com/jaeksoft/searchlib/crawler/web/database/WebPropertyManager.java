@@ -29,12 +29,12 @@ import java.io.IOException;
 
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyItem;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyItemListener;
-import com.jaeksoft.searchlib.crawler.common.database.PropertyManager;
+import com.jaeksoft.searchlib.crawler.common.database.AbstractPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
+import com.jaeksoft.searchlib.util.properties.PropertyItem;
+import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
 
-public class WebPropertyManager extends PropertyManager implements
+public class WebPropertyManager extends AbstractPropertyManager implements
 		PropertyItemListener {
 
 	private PropertyItem<Integer> delayBetweenAccesses;
