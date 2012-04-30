@@ -48,8 +48,6 @@ public class RenderSearchXml extends
 		AbstractRenderXml<SearchRequest, AbstractResultSearch> {
 
 	private PrintWriter writer;
-	private AbstractResultSearch result;
-	private SearchRequest searchRequest;
 
 	public RenderSearchXml(AbstractResultSearch result) {
 		super(result);
@@ -62,7 +60,7 @@ public class RenderSearchXml extends
 		writer.println("<header>");
 		writer.println("\t<status>0</status>");
 		writer.print("\t<query>");
-		writer.print(StringEscapeUtils.escapeXml(searchRequest.getQueryParsed()));
+		writer.print(StringEscapeUtils.escapeXml(request.getQueryParsed()));
 		writer.println("</query>");
 		writer.println("</header>");
 	}
@@ -102,9 +100,9 @@ public class RenderSearchXml extends
 		writer.print(pos);
 		writer.println("\">");
 		ResultDocument doc = result.getDocument(pos);
-		for (Field field : searchRequest.getReturnFieldList())
+		for (Field field : request.getReturnFieldList())
 			renderField(doc, field);
-		for (SnippetField field : searchRequest.getSnippetFieldList())
+		for (SnippetField field : request.getSnippetFieldList())
 			renderSnippetValue(doc, field);
 
 		int cc = result.getCollapseCount(pos);
