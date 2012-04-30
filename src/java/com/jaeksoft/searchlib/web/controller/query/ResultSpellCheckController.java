@@ -44,7 +44,7 @@ public class ResultSpellCheckController extends AbstractQueryController {
 	}
 
 	public ResultSpellCheck getResult() {
-		return (ResultSpellCheck) getResult(RequestTypeEnum.SearchRequest);
+		return (ResultSpellCheck) getResult(RequestTypeEnum.SpellCheckRequest);
 	}
 
 }
