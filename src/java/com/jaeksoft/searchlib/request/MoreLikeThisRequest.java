@@ -40,6 +40,8 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -47,6 +49,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -62,6 +65,8 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	private int moreLikeThisMinDocFreq;
 	private int moreLikeThisMinTermFreq;
 	private String moreLikeThisStopWords;
+	private FieldList<Field> returnFieldList;
+	private FilterList filterList;
 
 	public MoreLikeThisRequest() {
 	}
@@ -73,6 +78,8 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	@Override
 	protected void setDefaultValues() {
 		super.setDefaultValues();
+		this.filterList = new FilterList(this.config);
+		this.returnFieldList = new FieldList<Field>();
 		this.lang = null;
 		this.moreLikeThisFieldList = new FieldList<Field>();
 		this.moreLikeThisMinWordLen = 0;
@@ -95,6 +102,8 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		this.moreLikeThisMinTermFreq = mltRequest.moreLikeThisMinTermFreq;
 		this.moreLikeThisStopWords = mltRequest.moreLikeThisStopWords;
 		this.moreLikeThisDocQuery = mltRequest.moreLikeThisDocQuery;
+		this.filterList = new FilterList(mltRequest.filterList);
+		this.returnFieldList = new FieldList<Field>(mltRequest.returnFieldList);
 	}
 
 	private Analyzer checkAnalyzer() throws SearchLibException {
@@ -103,28 +112,34 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		return analyzer;
 	}
 
-	private Query getMoreLikeThisQuery() throws SearchLibException, IOException {
-		Config config = getConfig();
-		IndexAbstract index = config.getIndex();
-		MoreLikeThis mlt = index.getMoreLikeThis();
-		SearchRequest searchRequest = new SearchRequest(config);
-		searchRequest.setRows(1);
-		searchRequest.setQueryString(moreLikeThisDocQuery);
-		AbstractResultSearch result = (AbstractResultSearch) index
-				.request(searchRequest);
-		if (result.getNumFound() == 0)
-			return mlt.like(new StringReader(""));
-		int docId = result.getDocs()[0].doc;
-		mlt.setMinWordLen(moreLikeThisMinWordLen);
-		mlt.setMaxWordLen(moreLikeThisMaxWordLen);
-		mlt.setMinDocFreq(moreLikeThisMinDocFreq);
-		mlt.setMinTermFreq(moreLikeThisMinTermFreq);
-		mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
-		mlt.setAnalyzer(checkAnalyzer());
-		if (moreLikeThisStopWords != null)
-			mlt.setStopWords(getConfig().getStopWordsManager()
-					.getWordArray(moreLikeThisStopWords, false).getWordSet());
-		return mlt.like(docId);
+	public Query getMoreLikeThisQuery() throws SearchLibException, IOException {
+		rwl.r.lock();
+		try {
+			Config config = getConfig();
+			IndexAbstract index = config.getIndex();
+			MoreLikeThis mlt = index.getMoreLikeThis();
+			SearchRequest searchRequest = new SearchRequest(config);
+			searchRequest.setRows(1);
+			searchRequest.setQueryString(moreLikeThisDocQuery);
+			AbstractResultSearch result = (AbstractResultSearch) index
+					.request(searchRequest);
+			if (result.getNumFound() == 0)
+				return mlt.like(new StringReader(""));
+			int docId = result.getDocs()[0].doc;
+			mlt.setMinWordLen(moreLikeThisMinWordLen);
+			mlt.setMaxWordLen(moreLikeThisMaxWordLen);
+			mlt.setMinDocFreq(moreLikeThisMinDocFreq);
+			mlt.setMinTermFreq(moreLikeThisMinTermFreq);
+			mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
+			mlt.setAnalyzer(checkAnalyzer());
+			if (moreLikeThisStopWords != null)
+				mlt.setStopWords(getConfig().getStopWordsManager()
+						.getWordArray(moreLikeThisStopWords, false)
+						.getWordSet());
+			return mlt.like(docId);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
@@ -289,6 +304,24 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		}
 	}
 
+	public FilterList getFilterList() {
+		rwl.r.lock();
+		try {
+			return this.filterList;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public FieldList<Field> getReturnFieldList() {
+		rwl.r.lock();
+		try {
+			return this.returnFieldList;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	public void fromXmlConfig(Config config, XPathParser xpp, Node node)
 			throws XPathExpressionException, DOMException, ParseException,
@@ -317,9 +350,29 @@ public class MoreLikeThisRequest extends AbstractRequest {
 						moreLikeThisFields.add(field);
 				}
 			}
+
 			Node mltDocQueryNode = xpp.getNode(node, "docQuery");
 			if (mltDocQueryNode != null)
 				setMoreLikeThisDocQuery(xpp.getNodeString(mltDocQueryNode));
+
+			NodeList nodes = xpp.getNodeList(node, "filters/filter");
+			for (int i = 0; i < nodes.getLength(); i++) {
+				Node n = nodes.item(i);
+				filterList.add(xpp.getNodeString(n), "yes".equals(XPathParser
+						.getAttributeString(n, "negative")), Source.CONFIGXML);
+			}
+
+			FieldList<SchemaField> fieldList = config.getSchema()
+					.getFieldList();
+			Field.filterCopy(fieldList,
+					xpp.getNodeString(node, "returnFields"), returnFieldList);
+			nodes = xpp.getNodeList(node, "returnFields/field");
+			for (int i = 0; i < nodes.getLength(); i++) {
+				Field field = Field.fromXmlConfig(nodes.item(i));
+				if (field != null)
+					returnFieldList.add(field);
+			}
+
 		} finally {
 			rwl.w.unlock();
 		}
@@ -333,7 +386,8 @@ public class MoreLikeThisRequest extends AbstractRequest {
 					Integer.toString(moreLikeThisMinWordLen), "maxWordLen",
 					Integer.toString(moreLikeThisMaxWordLen), "minDocFreq",
 					Integer.toString(moreLikeThisMinDocFreq), "minTermFreq",
-					Integer.toString(moreLikeThisMinTermFreq), "stopWords");
+					Integer.toString(moreLikeThisMinTermFreq), "stopWords",
+					moreLikeThisStopWords);
 
 			if (moreLikeThisFieldList.size() > 0) {
 				xmlWriter.startElement("fields");
@@ -344,6 +398,16 @@ public class MoreLikeThisRequest extends AbstractRequest {
 					&& moreLikeThisDocQuery.length() > 0) {
 				xmlWriter.startElement("docQuery");
 				xmlWriter.textNode(moreLikeThisDocQuery);
+				xmlWriter.endElement();
+			}
+			if (returnFieldList.size() > 0) {
+				xmlWriter.startElement("returnFields");
+				returnFieldList.writeXmlConfig(xmlWriter);
+				xmlWriter.endElement();
+			}
+			if (filterList.size() > 0) {
+				xmlWriter.startElement("filters");
+				filterList.writeXmlConfig(xmlWriter);
 				xmlWriter.endElement();
 			}
 			xmlWriter.endElement();

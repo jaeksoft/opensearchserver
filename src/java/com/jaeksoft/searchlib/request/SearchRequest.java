@@ -320,6 +320,15 @@ public class SearchRequest extends AbstractRequest {
 		}
 	}
 
+	public void setBoostedComplexQuery(Query query) {
+		rwl.w.lock();
+		try {
+			boostedComplexQuery = query;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	private QueryParser getQueryParser() throws ParseException,
 			SearchLibException {
 		if (queryParser != null)

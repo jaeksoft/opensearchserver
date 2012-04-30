@@ -31,6 +31,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -59,6 +60,11 @@ public class DocumentsRequest {
 		this.returnFieldList = searchRequest.getReturnFieldList();
 	}
 
+	private DocumentsRequest(MoreLikeThisRequest request) {
+		requestedDocuments = null;
+		this.returnFieldList = request.getReturnFieldList();
+	}
+
 	/**
 	 * Build a new DocumentsRequest by extracting requested documents (from
 	 * request.start to request.end)
@@ -82,6 +88,10 @@ public class DocumentsRequest {
 			ResultScoreDoc doc = docs[i + start];
 			requestedDocuments[i] = new DocumentRequest(doc, i);
 		}
+	}
+
+	public DocumentsRequest(ResultMoreLikeThis result) {
+		this(result.getRequest());
 	}
 
 	/**

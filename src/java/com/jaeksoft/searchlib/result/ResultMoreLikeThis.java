@@ -24,19 +24,37 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.IOException;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
-import com.jaeksoft.searchlib.request.SpellCheckRequest;
+import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 
-public class ResultMoreLikeThis extends AbstractResult<SpellCheckRequest> {
+public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest> {
 
-	protected ResultMoreLikeThis(ReaderLocal reader, SpellCheckRequest request) {
+	private ResultDocument[] resultDocuments;
+
+	protected ResultMoreLikeThis(ReaderLocal reader, MoreLikeThisRequest request)
+			throws SearchLibException, IOException, ParseException,
+			SyntaxError, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		super(request);
+		SearchRequest searchRequest = new SearchRequest(request.getConfig());
+		searchRequest.setBoostedComplexQuery(request.getMoreLikeThisQuery());
+		DocSetHits dsh = reader.searchDocSet(searchRequest);
+		if (dsh == null)
+			return;
+		// resultDocuments = reader.documents(new DocumentsRequest(request,
+		// dsh));
 	}
 
 	@Override
 	protected Render getRenderXml() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
