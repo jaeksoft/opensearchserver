@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -54,7 +55,8 @@ public class TextParser extends Parser {
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
 		CharsetDetector detector = new CharsetDetector();
-		InputStream is = streamLimiter.getNewInputStream();
+		InputStream is = new BufferedInputStream(
+				streamLimiter.getNewInputStream());
 		detector.setText(is);
 		CharsetMatch match = detector.detect();
 		String content = null;
