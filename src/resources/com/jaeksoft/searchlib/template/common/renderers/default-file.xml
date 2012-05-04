@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2012 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -24,11 +24,11 @@
 	<autocompleteListStyle>background-color: #FFFFFF;text-align: left;border-left: 1px solid #D3D3D3;border-bottom: 1px solid #D3D3D3;border-right: 1px solid #D3D3D3;</autocompleteListStyle>
 	<autocompleteLinkStyle>color:#222222;font-size: 14px;background-color: #FFFFFF;padding: 2px 6px 2px 6px;</autocompleteLinkStyle>
 	<autocompleteLinkHoverStyle>color:#222222;font-size: 14px;background-color: #F5F5F5;padding: 2px 6px 2px 6px;</autocompleteLinkHoverStyle>
-	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url">
+	<field fieldName="fileName" fieldType="SNIPPET" urlFieldName="uri">
 		<cssStyle>font-size:medium;</cssStyle>
 	</field>
 	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" />
-	<field fieldName="url" fieldType="FIELD" urlFieldName="">
+	<field fieldName="uri" fieldType="FIELD" urlFieldName="">
 		<cssStyle>color: #0E774A;</cssStyle>
 	</field>
 </renderer>

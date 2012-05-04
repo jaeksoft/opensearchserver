@@ -40,7 +40,7 @@ public class FileCrawler extends TemplateAbstract {
 
 	"requests.xml", "filecrawler-mapping.xml",
 
-	"renderers" + '/' + "default.xml",
+	"renderers" + '/' + "default-file.xml",
 
 	"stopwords" + '/' + "English stop words",
 
