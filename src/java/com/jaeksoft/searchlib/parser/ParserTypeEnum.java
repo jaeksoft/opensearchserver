@@ -34,6 +34,7 @@ public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 		new ParserType(this, "DOCX", DocxParser.class);
 		new ParserType(this, "File system", FileSystemParser.class);
 		new ParserType(this, "HTML", HtmlParser.class);
+		new ParserType(this, "Image", ImageParser.class);
 		new ParserType(this, "ODS (OpenOffice spreadsheet)", OdsParser.class);
 		new ParserType(this, "ODT (OpenOffice text file)", OdtParser.class);
 		new ParserType(this, "PDF", PdfParser.class);
