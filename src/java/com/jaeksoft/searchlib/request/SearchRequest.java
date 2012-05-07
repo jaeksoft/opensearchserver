@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
@@ -79,6 +80,7 @@ public class SearchRequest extends AbstractRequest {
 	private transient Analyzer analyzer;
 
 	private FilterList filterList;
+	private JoinList joinList;
 	private boolean allowLeadingWildcard;
 	private int phraseSlop;
 	private QueryParser.Operator defaultOperator;
@@ -112,6 +114,7 @@ public class SearchRequest extends AbstractRequest {
 	protected void setDefaultValues() {
 		super.setDefaultValues();
 		this.filterList = new FilterList(this.config);
+		this.joinList = new JoinList(this.config);
 		this.queryParser = null;
 		this.allowLeadingWildcard = false;
 		this.phraseSlop = 10;
@@ -147,6 +150,7 @@ public class SearchRequest extends AbstractRequest {
 		super.copyFrom(request);
 		SearchRequest searchRequest = (SearchRequest) request;
 		this.filterList = new FilterList(searchRequest.filterList);
+		this.joinList = new JoinList(searchRequest.joinList);
 		this.queryParser = null;
 		this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
 		this.phraseSlop = searchRequest.phraseSlop;
@@ -415,6 +419,15 @@ public class SearchRequest extends AbstractRequest {
 			this.advancedScore = advancedScore;
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	public JoinList getJoinList() {
+		rwl.r.lock();
+		try {
+			return this.joinList;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -872,6 +885,10 @@ public class SearchRequest extends AbstractRequest {
 						.getAttributeString(n, "negative")), Source.CONFIGXML);
 			}
 
+			nodes = xpp.getNodeList(node, "joins/join");
+			for (int i = 0; i < nodes.getLength(); i++)
+				joinList.add(xpp, nodes.item(i));
+
 			nodes = xpp.getNodeList(node, "sort/field");
 			for (int i = 0; i < nodes.getLength(); i++) {
 				node = nodes.item(i);
@@ -942,6 +959,12 @@ public class SearchRequest extends AbstractRequest {
 			if (filterList.size() > 0) {
 				xmlWriter.startElement("filters");
 				filterList.writeXmlConfig(xmlWriter);
+				xmlWriter.endElement();
+			}
+
+			if (joinList.size() > 0) {
+				xmlWriter.startElement("joins");
+				joinList.writeXmlConfig(xmlWriter);
 				xmlWriter.endElement();
 			}
 

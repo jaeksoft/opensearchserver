@@ -25,6 +25,7 @@
 		<tab id="tabCollapsing" label="Collapsing" />
 		<tab id="tabBoostQueries" label="Boosting queries" />
 		<tab id="tabScoreFunction" label="Scoring" />
+		<tab id="tabJoin" label="Join" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
@@ -53,6 +54,9 @@
 		</tabpanel>
 		<tabpanel fulfill="tabScoreFunction.onSelect">
 			<include src="WEB-INF/zul/query/search/scoreFunction.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabJoin.onSelect">
+			<include src="WEB-INF/zul/query/search/join.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>
