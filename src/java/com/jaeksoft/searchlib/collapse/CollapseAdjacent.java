@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.collapse;
 
+import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -36,7 +37,8 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 	}
 
 	@Override
-	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength) {
+	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
+			StringIndex collapseStringIndex) {
 
 		OpenBitSet collapsedSet = new OpenBitSet(fetchLength);
 
@@ -44,7 +46,7 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 		int adjacent = 0;
 		setCollapsedDocCount(0);
 		for (int i = 0; i < fetchLength; i++) {
-			String term = fetchedDocs[i].collapseTerm;
+			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDocs[i].doc]];
 			if (term != null && term.equals(lastTerm)) {
 				if (++adjacent >= getCollapseMax())
 					collapsedSet.set(i);
@@ -75,5 +77,4 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 		setCollapsedDoc(collapsedDoc);
 
 	}
-
 }

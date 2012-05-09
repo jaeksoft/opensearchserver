@@ -29,10 +29,12 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.cache.CacheKeyInterface;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class JoinItem {
+public class JoinItem implements CacheKeyInterface<JoinItem> {
 
 	private String indexName;
 
@@ -163,4 +165,24 @@ public class JoinItem {
 		this.foreignField = foreignField;
 	}
 
+	@Override
+	public int compareTo(JoinItem o) {
+		int c = 0;
+		if ((c = indexName.compareTo(o.indexName)) != 0)
+			return c;
+		if ((c = queryTemplate.compareTo(o.queryTemplate)) != 0)
+			return c;
+		if ((c = queryString.compareTo(o.queryString)) != 0)
+			return c;
+		if ((c = localField.compareTo(o.localField)) != 0)
+			return c;
+		if ((c = foreignField.compareTo(o.foreignField)) != 0)
+			return c;
+		return 0;
+	}
+
+	public ResultScoreDoc[] apply(ResultScoreDoc[] docs) {
+		// TODO Auto-generated method stub
+		return docs;
+	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.sort;
 
 import java.io.IOException;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -95,24 +94,17 @@ public class SortField extends Field implements CacheKeyInterface<Field> {
 					org.apache.lucene.search.SortField.STRING, desc);
 	}
 
-	public SorterAbstract getSorter() {
+	public SorterAbstract getSorter(ReaderLocal reader) throws IOException {
 		if (name.equals("score")) {
 			if (desc)
-				return new DescComparableSorter<Float>();
+				return new DescScoreSorter();
 			else
-				return new AscComparableSorter<Float>();
+				return new AscScoreSorter();
 		}
 		if (desc)
-			return new DescComparableSorter<String>();
+			return new DescStringIndexSorter(reader.getStringIndex(name));
 		else
-			return new AscComparableSorter<String>();
-	}
-
-	public StringIndex getStringIndex(ReaderLocal reader) throws IOException {
-		if (name.equals("score"))
-			return null;
-		else
-			return reader.getStringIndex(name);
+			return new AscStringIndexSorter(reader.getStringIndex(name));
 	}
 
 	@Override

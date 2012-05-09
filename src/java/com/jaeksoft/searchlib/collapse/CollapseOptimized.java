@@ -71,9 +71,8 @@ public class CollapseOptimized extends CollapseAdjacent {
 			if (rows > scoreDocs.length)
 				rows = scoreDocs.length;
 			resultScoreDocs = ResultScoreDoc.appendResultScoreDocArray(
-					resultSingle, resultScoreDocs, scoreDocs, rows,
-					collapseFieldStringIndex);
-			run(resultScoreDocs, rows);
+					resultSingle, resultScoreDocs, scoreDocs, rows);
+			run(resultScoreDocs, rows, collapseFieldStringIndex);
 			lastRows = rows;
 			rows += searchRows;
 		}

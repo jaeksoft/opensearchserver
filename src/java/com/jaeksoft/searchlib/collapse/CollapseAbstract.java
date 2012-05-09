@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
+
+import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -51,10 +53,10 @@ public abstract class CollapseAbstract {
 	}
 
 	protected abstract void collapse(ResultScoreDoc[] fetchedDocs,
-			int fetchLength);
+			int fetchLength, StringIndex collapseStringIndex);
 
-	public void run(ResultScoreDoc[] fetchedDocs, int fetchLength)
-			throws IOException {
+	public void run(ResultScoreDoc[] fetchedDocs, int fetchLength,
+			StringIndex collapseStringIndex) throws IOException {
 
 		collapsedDoc = null;
 
@@ -64,7 +66,7 @@ public abstract class CollapseAbstract {
 		if (fetchLength > fetchedDocs.length)
 			fetchLength = fetchedDocs.length;
 
-		collapse(fetchedDocs, fetchLength);
+		collapse(fetchedDocs, fetchLength, collapseStringIndex);
 	}
 
 	public abstract ResultScoreDoc[] collapse(ResultSearchSingle resultSingle)

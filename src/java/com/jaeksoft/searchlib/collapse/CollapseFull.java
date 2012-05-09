@@ -46,7 +46,7 @@ public class CollapseFull extends CollapseAdjacent {
 	@Override
 	public ResultScoreDoc[] collapse(ResultSearchSingle resultSingle)
 			throws IOException, ParseException, SyntaxError {
-		// TODO Auto-generated method stub
+
 		ReaderLocal reader = resultSingle.getReader();
 		DocSetHits docSetHits = resultSingle.getDocSetHits();
 		int allRows = docSetHits.getDocNumFound();
@@ -55,8 +55,8 @@ public class CollapseFull extends CollapseAdjacent {
 				.getStringIndex(searchRequest.getCollapseField());
 		ResultScoreDoc[] resultScoreDocs = ResultScoreDoc
 				.appendResultScoreDocArray(resultSingle, null, scoreDocs,
-						allRows, collapseFieldStringIndex);
-		run(resultScoreDocs, allRows);
+						allRows);
+		run(resultScoreDocs, allRows, collapseFieldStringIndex);
 		return getCollapsedDoc();
 	}
 

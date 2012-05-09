@@ -46,14 +46,14 @@ public class CollapseCluster extends CollapseAbstract {
 	}
 
 	@Override
-	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength) {
-		// TODO Auto-generated method stub
+	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
+			StringIndex collapseStringIndex) {
 
 		Map<String, ResultScoreDoc> collapsedDocMap = new LinkedHashMap<String, ResultScoreDoc>();
 		ResultScoreDoc collapseDoc;
 		for (int i = 0; i < fetchLength; i++) {
 			ResultScoreDoc fetchedDoc = fetchedDocs[i];
-			String term = fetchedDoc.collapseTerm;
+			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDoc.doc]];
 			if (term != null
 					&& ((collapseDoc = collapsedDocMap.get(term)) != null)) {
 				collapseDoc.collapseCount++;
@@ -82,8 +82,8 @@ public class CollapseCluster extends CollapseAbstract {
 				.getStringIndex(searchRequest.getCollapseField());
 		ResultScoreDoc[] resultScoreDocs = ResultScoreDoc
 				.appendResultScoreDocArray(resultSingle, null, scoreDocs,
-						allRows, collapseFieldStringIndex);
-		run(resultScoreDocs, allRows);
+						allRows);
+		run(resultScoreDocs, allRows, collapseFieldStringIndex);
 		return getCollapsedDoc();
 	}
 

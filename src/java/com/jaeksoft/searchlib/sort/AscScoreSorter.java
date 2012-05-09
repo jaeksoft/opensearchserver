@@ -29,8 +29,7 @@ import com.jaeksoft.searchlib.result.ResultScoreDoc;
 public class AscScoreSorter extends SorterAbstract {
 
 	@Override
-	protected int compare(ResultScoreDoc doc1, Object value1,
-			ResultScoreDoc doc2, Object value2) {
+	protected int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
 		if (doc1.score > doc2.score)
 			return 1;
 		else if (doc1.score < doc2.score)

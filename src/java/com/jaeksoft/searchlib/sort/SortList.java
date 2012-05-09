@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,24 +24,15 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.search.Sort;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.FieldList;
 
-public class SortList implements Externalizable, CacheKeyInterface<SortList> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8133333810675605075L;
+public class SortList implements CacheKeyInterface<SortList> {
 
 	private FieldList<SortField> sortFieldList;
 
@@ -80,33 +71,10 @@ public class SortList implements Externalizable, CacheKeyInterface<SortList> {
 		return new Sort(sortFields);
 	}
 
-	public SorterAbstract getSorter() {
+	public SorterAbstract getSorter(ReaderLocal reader) throws IOException {
 		if (sortFieldList.size() == 0)
 			return new DescScoreSorter();
-		return new SortListSorter(sortFieldList);
-	}
-
-	public StringIndex[] newStringIndexArray(ReaderLocal reader)
-			throws IOException {
-		if (sortFieldList.size() == 0)
-			return null;
-		StringIndex[] stringIndexArray = new StringIndex[sortFieldList.size()];
-		int i = 0;
-		for (SortField field : sortFieldList)
-			stringIndexArray[i++] = field.getStringIndex(reader);
-		return stringIndexArray;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		sortFieldList = (FieldList<SortField>) in.readObject();
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(sortFieldList);
+		return new SortListSorter(sortFieldList, reader);
 	}
 
 	@Override

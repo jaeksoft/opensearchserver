@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,15 +24,22 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import org.apache.lucene.search.FieldCache.StringIndex;
+
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
-public class DescComparableSorter<T extends Comparable<T>> extends
-		SorterAbstract {
+public class DescStringIndexSorter extends SorterAbstract {
 
-	@SuppressWarnings("unchecked")
+	private StringIndex stringIndex;
+
+	public DescStringIndexSorter(StringIndex stringIndex) {
+		this.stringIndex = stringIndex;
+	}
+
 	@Override
-	protected int compare(ResultScoreDoc doc1, Object value1,
-			ResultScoreDoc doc2, Object value2) {
+	protected int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+		String value1 = stringIndex.lookup[stringIndex.order[doc1.doc]];
+		String value2 = stringIndex.lookup[stringIndex.order[doc2.doc]];
 		if (value1 == null) {
 			if (value2 == null)
 				return 0;
@@ -40,8 +47,6 @@ public class DescComparableSorter<T extends Comparable<T>> extends
 				return 1;
 		} else if (value2 == null)
 			return -1;
-		T v1 = (T) value1;
-		T v2 = (T) value2;
-		return v2.compareTo(v1);
+		return value2.compareTo(value1);
 	}
 }

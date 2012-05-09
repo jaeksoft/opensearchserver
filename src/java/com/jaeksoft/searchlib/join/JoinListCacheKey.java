@@ -24,7 +24,37 @@
 
 package com.jaeksoft.searchlib.join;
 
-public enum JoinType {
+import java.util.Iterator;
+import java.util.TreeSet;
 
-	OUTER, INNER;
+import com.jaeksoft.searchlib.cache.CacheKeyInterface;
+import com.jaeksoft.searchlib.query.ParseException;
+
+public class JoinListCacheKey implements CacheKeyInterface<JoinListCacheKey> {
+
+	private TreeSet<JoinItem> joinCacheKeySet;
+
+	public JoinListCacheKey(JoinList joinList) throws ParseException {
+		joinCacheKeySet = new TreeSet<JoinItem>();
+		for (JoinItem joinItem : joinList)
+			joinCacheKeySet.add(joinItem);
+	}
+
+	@Override
+	public int compareTo(JoinListCacheKey o) {
+		int i1 = joinCacheKeySet.size();
+		int i2 = o.joinCacheKeySet.size();
+		if (i1 < i2)
+			return -1;
+		else if (i1 > i2)
+			return 1;
+		Iterator<JoinItem> it = o.joinCacheKeySet.iterator();
+		for (JoinItem joinItem : joinCacheKeySet) {
+			int c = joinItem.compareTo(it.next());
+			if (c != 0)
+				return c;
+		}
+		return 0;
+	}
+
 }

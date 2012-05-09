@@ -34,6 +34,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -84,6 +85,12 @@ public class JoinList implements Iterable<JoinItem> {
 	public void add(XPathParser xpp, Node node) throws XPathExpressionException {
 		joinList.add(new JoinItem(xpp, node));
 
+	}
+
+	public ResultScoreDoc[] apply(ResultScoreDoc[] docs) {
+		for (JoinItem joinItem : joinList)
+			docs = joinItem.apply(docs);
+		return docs;
 	}
 
 }

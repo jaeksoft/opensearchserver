@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -40,8 +38,6 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 public class ResultSearchSingle extends AbstractResultSearch {
 
 	transient private ReaderLocal reader;
-	transient private StringIndex[] sortStringIndexArray;
-	transient private StringIndex[] facetStringIndexArray;
 	transient private DocSetHits docSetHits;
 
 	/**
@@ -77,22 +73,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		} else
 			docs = fetch();
 
-		facetStringIndexArray = FacetField.newStringIndexArrayForCollapsing(
-				searchRequest.getFacetFieldList(), reader);
-		if (facetStringIndexArray != null && docs != null)
-			for (ResultScoreDoc doc : docs)
-				doc.loadFacetValues(facetStringIndexArray);
+		docs = searchRequest.getJoinList().apply(docs);
 
 		for (FacetField facetField : searchRequest.getFacetFieldList())
-			this.facetList.addObject(facetField.getFacet(this));
-
-		if (searchRequest.isWithSortValues()) {
-			sortStringIndexArray = searchRequest.getSortList()
-					.newStringIndexArray(reader);
-			if (sortStringIndexArray != null && docs != null)
-				for (ResultScoreDoc doc : docs)
-					doc.loadSortValues(sortStringIndexArray);
-		}
+			this.facetList.add(facetField.getFacet(this));
 
 		setDocs(docs);
 
@@ -106,11 +90,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	private ResultScoreDoc[] fetch() throws IOException, ParseException,
 			SyntaxError {
 		int end = request.getEnd();
-		String collapseField = request.getCollapseField();
-		StringIndex collapseFieldStringIndex = (collapseField != null) ? reader
-				.getStringIndex(collapseField) : null;
 		return ResultScoreDoc.appendResultScoreDocArray(this, getDocs(),
-				docSetHits.getScoreDocs(end), end, collapseFieldStringIndex);
+				docSetHits.getScoreDocs(end), end);
 	}
 
 	/**

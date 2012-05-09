@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,11 +28,6 @@ import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
 public abstract class SorterAbstract {
 
-	protected abstract int compare(ResultScoreDoc doc1, Object value1,
-			ResultScoreDoc doc2, Object value2);
-
-	public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		return compare(doc1, null, doc2, null);
-	}
+	protected abstract int compare(ResultScoreDoc doc1, ResultScoreDoc doc2);
 
 }

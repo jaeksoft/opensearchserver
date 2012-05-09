@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import java.io.IOException;
+
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.schema.FieldList;
 
@@ -31,21 +34,18 @@ public class SortListSorter extends SorterAbstract {
 
 	private SorterAbstract[] sorterList;
 
-	protected SortListSorter(FieldList<SortField> sortFieldList) {
+	protected SortListSorter(FieldList<SortField> sortFieldList,
+			ReaderLocal reader) throws IOException {
 		sorterList = new SorterAbstract[sortFieldList.size()];
 		int i = 0;
 		for (SortField sortField : sortFieldList)
-			sorterList[i++] = sortField.getSorter();
+			sorterList[i++] = sortField.getSorter(reader);
 	}
 
 	@Override
-	protected int compare(ResultScoreDoc doc1, Object value1,
-			ResultScoreDoc doc2, Object value2) {
-		Object[] values1 = doc1.getSortValues();
-		Object[] values2 = doc2.getSortValues();
-		int i = 0;
+	final protected int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
 		for (SorterAbstract sorter : sorterList) {
-			int c = sorter.compare(doc1, values1[i], doc2, values2[i]);
+			int c = sorter.compare(doc1, doc2);
 			if (c != 0)
 				return c;
 		}

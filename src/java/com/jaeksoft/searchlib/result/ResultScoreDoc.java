@@ -24,77 +24,51 @@
 
 package com.jaeksoft.searchlib.result;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.search.ScoreDoc;
 
-public class ResultScoreDoc {
-
-	public transient ResultSearchSingle resultSingle;
+final public class ResultScoreDoc {
 
 	public int doc;
 
 	public float score;
 
-	public String collapseTerm;
+	public int collapseCount;
 
-	public transient int collapseCount;
-
-	public String[] sortValues;
-
-	public String[] facetValues;
-
-	public ResultScoreDoc() {
-	}
-
-	public ResultScoreDoc(ResultSearchSingle resultSingle, ScoreDoc scoreDoc) {
+	public ResultScoreDoc(ScoreDoc scoreDoc) {
 		this.score = scoreDoc.score;
 		this.doc = scoreDoc.doc;
-		this.resultSingle = resultSingle;
-		this.collapseTerm = null;
 		this.collapseCount = 0;
 	}
 
-	public void loadCollapseTerm(StringIndex stringIndex) {
-		if (collapseTerm != null)
-			return;
-		collapseTerm = stringIndex.lookup[stringIndex.order[doc]];
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" DocId: ");
+		sb.append(doc);
+		sb.append(" Score: ");
+		sb.append(score);
+		return sb.toString();
 	}
 
-	public void loadSortValues(StringIndex[] sortStringIndexArray) {
-		if (sortValues != null)
-			return;
-		int i = 0;
-		sortValues = new String[sortStringIndexArray.length];
-		for (StringIndex stringIndex : sortStringIndexArray) {
-			if (stringIndex == null)
-				sortValues[i] = null;
-			else
-				sortValues[i] = stringIndex.lookup[stringIndex.order[doc]];
-			i++;
-		}
-	}
+	// public void loadStringIndex(StringIndex[] stringIndexArray) {
+	// if (stringIndexValues != null)
+	// return;
+	// int i = 0;
+	// stringIndexValues = new String[stringIndexArray.length];
+	// for (StringIndex stringIndex : stringIndexArray) {
+	// if (stringIndex == null)
+	// stringIndexValues[i] = null;
+	// else
+	// stringIndexValues[i] = stringIndex.lookup[stringIndex.order[doc]];
+	// i++;
+	// }
+	// }
 
-	public void loadFacetValues(StringIndex[] facetStringIndexArray) {
-		if (facetValues != null)
-			return;
-		int i = 0;
-		facetValues = new String[facetStringIndexArray.length];
-		for (StringIndex stringIndex : facetStringIndexArray) {
-			if (stringIndex == null)
-				facetValues[i] = null;
-			else
-				facetValues[i] = stringIndex.lookup[stringIndex.order[doc]];
-			i++;
-		}
-	}
-
-	public String[] getSortValues() {
-		return sortValues;
-	}
-
-	public String[] getFacetValues() {
-		return facetValues;
-	}
+	// final public void loadCollapseTerm(StringIndex stringIndex) {
+	// if (collapseTerm != null)
+	// return;
+	// collapseTerm = stringIndex.lookup[stringIndex.order[doc]];
+	// }
 
 	final public static ResultScoreDoc[] appendResultScoreDocArray(
 			ResultSearchSingle resultSingle,
@@ -107,23 +81,7 @@ public class ResultScoreDoc {
 			for (ResultScoreDoc rsc : oldResultScoreDocs)
 				resultScoreDocs[i++] = rsc;
 		while (i < rows)
-			resultScoreDocs[i] = new ResultScoreDoc(resultSingle,
-					scoreDocs[i++]);
-		return resultScoreDocs;
-	}
-
-	final public static ResultScoreDoc[] appendResultScoreDocArray(
-			ResultSearchSingle resultSingle,
-			ResultScoreDoc[] oldResultScoreDocs, ScoreDoc[] scoreDocs,
-			int rows, StringIndex collapseFieldStringIndex) {
-		if (collapseFieldStringIndex == null)
-			return appendResultScoreDocArray(resultSingle, oldResultScoreDocs,
-					scoreDocs, rows);
-		int l = oldResultScoreDocs != null ? oldResultScoreDocs.length : 0;
-		ResultScoreDoc[] resultScoreDocs = appendResultScoreDocArray(
-				resultSingle, oldResultScoreDocs, scoreDocs, rows);
-		for (int i = l; i < resultScoreDocs.length; i++)
-			resultScoreDocs[i].loadCollapseTerm(collapseFieldStringIndex);
+			resultScoreDocs[i] = new ResultScoreDoc(scoreDocs[i++]);
 		return resultScoreDocs;
 	}
 
@@ -138,18 +96,22 @@ public class ResultScoreDoc {
 		for (ResultScoreDoc resultScoreDoc : oldResultScoreDocs)
 			resultScoreDocs[i++] = resultScoreDoc;
 		for (int j = start; j < scoreDocs.length; j++)
-			resultScoreDocs[i++] = new ResultScoreDoc(resultSingle,
-					scoreDocs[j]);
+			resultScoreDocs[i++] = new ResultScoreDoc(scoreDocs[j]);
 		return resultScoreDocs;
 	}
 
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(" DocId: ");
-		sb.append(doc);
-		sb.append(" Score: ");
-		sb.append(score);
-		return sb.toString();
-	}
+	// final public static ResultScoreDoc[] appendResultScoreDocArray(
+	// ResultSearchSingle resultSingle,
+	// ResultScoreDoc[] oldResultScoreDocs, ScoreDoc[] scoreDocs,
+	// int rows, StringIndex collapseStringIndex) {
+	// if (collapseStringIndex == null)
+	// return appendResultScoreDocArray(resultSingle, oldResultScoreDocs,
+	// scoreDocs, rows);
+	// int l = oldResultScoreDocs != null ? oldResultScoreDocs.length : 0;
+	// ResultScoreDoc[] resultScoreDocs = appendResultScoreDocArray(
+	// resultSingle, oldResultScoreDocs, scoreDocs, rows);
+	// for (int i = l; i < resultScoreDocs.length; i++)
+	// resultScoreDocs[i].loadCollapseTerm(collapseStringIndex);
+	// return resultScoreDocs;
+	// }
 }
