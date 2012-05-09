@@ -55,14 +55,15 @@ public class DocSetHits {
 
 	private class ScoreHitCollector extends Collector {
 
-		private int lastDocId = -1;
-		final private long bitSetSize = bitset.size();
+		private Scorer scorer;
 
 		@Override
-		public void collect(int docId) {
-			lastDocId = docId;
+		public void collect(int docId) throws IOException {
 			collectedDocs[docNumFound++] = docId;
 			bitset.fastSet(docId);
+			float sc = scorer.score();
+			if (sc > maxScore)
+				maxScore = sc;
 		}
 
 		@Override
@@ -77,14 +78,7 @@ public class DocSetHits {
 
 		@Override
 		public void setScorer(Scorer scorer) throws IOException {
-			if (lastDocId < 0)
-				return;
-			if (lastDocId >= bitSetSize)
-				return;
-			float sc = scorer.score();
-			if (sc > maxScore)
-				maxScore = sc;
-
+			this.scorer = scorer;
 		}
 	}
 
