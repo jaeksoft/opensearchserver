@@ -13,7 +13,7 @@ New features:
 - 3510598: Add CSV format in the select XML/HTTP API
 - 3498421: Set a default URL value for replication
 - 3498373: Remove script and object tag content in db crawler
-- 3495004: Add progress info in scheduler task	
+- 3495004: Add progress info in scheduler task
 - 3490031: Asynchronous XML upload
 - 3489935: Default stop words list
 - 3489934: A default autocomplete field and analyzer
@@ -26,6 +26,7 @@ New features:
 - 3482284: LimitInputStream should be buffered
 - 3477836: A separated error log for the parser	
 - 3469777: Scored snippets
+- 3466445: Upgrade Apache POI to 3.8
 
 Bug fixes:
 - 3518687: URL normalization required in the Web crawler
