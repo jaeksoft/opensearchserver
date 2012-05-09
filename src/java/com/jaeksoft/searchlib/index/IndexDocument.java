@@ -37,6 +37,7 @@ import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
@@ -126,7 +127,13 @@ public class IndexDocument implements Iterable<FieldContent> {
 			for (Node valueNode : valueNodes) {
 				boolean removeTag = "yes".equalsIgnoreCase(XPathParser
 						.getAttributeString(valueNode, "removeTag"));
+				boolean convertHtmlEntities = "yes"
+						.equalsIgnoreCase(XPathParser.getAttributeString(
+								valueNode, "convertHtmlEntities"));
+
 				String textContent = valueNode.getTextContent();
+				if (convertHtmlEntities)
+					textContent = StringEscapeUtils.unescapeHtml(textContent);
 				if (removeTag)
 					textContent = StringUtils.removeTag(textContent);
 				Float boost = XPathParser.getAttributeFloat(valueNode, "boost");
