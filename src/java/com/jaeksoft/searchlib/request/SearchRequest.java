@@ -486,6 +486,17 @@ public class SearchRequest extends AbstractRequest {
 		}
 	}
 
+	public boolean isJoin() {
+		rwl.r.lock();
+		try {
+			if (joinList == null)
+				return false;
+			return joinList.size() > 0;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void addSort(String fieldName, boolean desc) {
 		rwl.w.lock();
 		try {
@@ -1129,4 +1140,5 @@ public class SearchRequest extends AbstractRequest {
 			rwl.r.unlock();
 		}
 	}
+
 }

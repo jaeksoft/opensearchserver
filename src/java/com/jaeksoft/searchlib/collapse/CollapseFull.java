@@ -34,7 +34,6 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultSearchSingle;
 
 public class CollapseFull extends CollapseAdjacent {
 
@@ -43,16 +42,16 @@ public class CollapseFull extends CollapseAdjacent {
 	}
 
 	@Override
-	public ResultScoreDoc[] collapse(ResultSearchSingle resultSingle)
+	public ResultScoreDoc[] collapse(ReaderLocal reader,
+			ResultScoreDoc[] allDocs, DocSetHits docSetHits)
 			throws IOException, ParseException, SyntaxError {
 
-		ReaderLocal reader = resultSingle.getReader();
-		DocSetHits docSetHits = resultSingle.getDocSetHits();
-		int allRows = docSetHits.getDocNumFound();
-		ResultScoreDoc[] docs = docSetHits.getAllDocs();
+		if (allDocs == null)
+			allDocs = docSetHits.getAllDocs();
+
 		StringIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
-		run(docs, allRows, collapseFieldStringIndex);
+		run(allDocs, allDocs.length, collapseFieldStringIndex);
 		return getCollapsedDoc();
 	}
 

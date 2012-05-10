@@ -34,7 +34,6 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultSearchSingle;
 
 public class CollapseOptimized extends CollapseAdjacent {
 
@@ -42,26 +41,11 @@ public class CollapseOptimized extends CollapseAdjacent {
 		super(searchRequest);
 	}
 
-	/**
-	 * Fetch new documents until collapsed results is complete.
-	 * 
-	 * @throws IOException
-	 * @throws SyntaxError
-	 * @throws ParseException
-	 */
-	@Override
-	public ResultScoreDoc[] collapse(ResultSearchSingle resultSingle)
-			throws IOException, ParseException, SyntaxError {
-
-		ReaderLocal reader = resultSingle.getReader();
-		DocSetHits docSetHits = resultSingle.getDocSetHits();
-
-		int searchRows = searchRequest.getRows();
-		int end = searchRequest.getEnd();
+	private ResultScoreDoc[] collapseFromDocSetHit(DocSetHits docSetHits,
+			int searchRows, int end, StringIndex collapseFieldStringIndex)
+			throws IOException {
 		int lastRows = 0;
 		int rows = end;
-		StringIndex collapseFieldStringIndex = reader
-				.getStringIndex(searchRequest.getCollapseField());
 		while (getCollapsedDocsLength() < end) {
 			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows);
 			if (docs.length == lastRows)
@@ -73,5 +57,48 @@ public class CollapseOptimized extends CollapseAdjacent {
 			rows += searchRows;
 		}
 		return getCollapsedDoc();
+	}
+
+	private ResultScoreDoc[] collapseFromAllDocs(ResultScoreDoc[] docs,
+			int searchRows, int end, StringIndex collapseFieldStringIndex)
+			throws IOException {
+		int lastRows = 0;
+		int rows = end;
+		while (getCollapsedDocsLength() < end) {
+			if (rows > docs.length)
+				rows = docs.length;
+			if (lastRows == rows)
+				break;
+			run(docs, rows, collapseFieldStringIndex);
+			lastRows = rows;
+			rows += searchRows;
+		}
+		return getCollapsedDoc();
+	}
+
+	/**
+	 * Fetch new documents until collapsed results is complete.
+	 * 
+	 * @throws IOException
+	 * @throws SyntaxError
+	 * @throws ParseException
+	 */
+	@Override
+	public ResultScoreDoc[] collapse(ReaderLocal reader,
+			ResultScoreDoc[] allDocs, DocSetHits docSetHits)
+			throws IOException, ParseException, SyntaxError {
+
+		int searchRows = searchRequest.getRows();
+		int end = searchRequest.getEnd();
+		StringIndex collapseFieldStringIndex = reader
+				.getStringIndex(searchRequest.getCollapseField());
+
+		if (allDocs != null)
+			return collapseFromAllDocs(allDocs, searchRows, end,
+					collapseFieldStringIndex);
+		else
+			return collapseFromDocSetHit(docSetHits, searchRows, end,
+					collapseFieldStringIndex);
+
 	}
 }

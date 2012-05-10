@@ -44,7 +44,7 @@ public abstract class AbstractResultSearch extends
 	private ResultDocument[] resultDocuments;
 
 	private final static ResultDocument[] noDocuments = new ResultDocument[0];
-	private final static ResultScoreDoc[] noResultScoreDocs = new ResultScoreDoc[0];
+	private final static ResultScoreDoc[] noResultScoreDocs = ResultScoreDoc.EMPTY_ARRAY;
 
 	protected AbstractResultSearch(SearchRequest searchRequest) {
 		super(searchRequest);

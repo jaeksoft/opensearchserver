@@ -32,6 +32,8 @@ import com.jaeksoft.searchlib.sort.QuickSort;
 
 final public class ResultScoreDoc {
 
+	public static final ResultScoreDoc[] EMPTY_ARRAY = new ResultScoreDoc[0];
+
 	public int doc;
 
 	final public float score;
@@ -95,7 +97,6 @@ final public class ResultScoreDoc {
 			ResultScoreDoc doc1 = docs1[i1];
 			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[doc1.doc]];
 			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[docs2[i2].doc]];
-			System.out.println(i1 + " / " + i2);
 			int c = t1.compareTo(t2);
 			if (c < 0) {
 				doc1.doc = -1;

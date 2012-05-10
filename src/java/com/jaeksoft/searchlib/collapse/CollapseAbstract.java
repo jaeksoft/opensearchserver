@@ -29,10 +29,11 @@ import java.io.IOException;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.DocSetHits;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultSearchSingle;
 
 public abstract class CollapseAbstract {
 
@@ -69,9 +70,6 @@ public abstract class CollapseAbstract {
 		collapse(fetchedDocs, fetchLength, collapseStringIndex);
 	}
 
-	public abstract ResultScoreDoc[] collapse(ResultSearchSingle resultSingle)
-			throws IOException, ParseException, SyntaxError;
-
 	public int getDocCount() {
 		return this.collapsedDocCount;
 	}
@@ -80,7 +78,7 @@ public abstract class CollapseAbstract {
 	 * @param collapsedDocCount
 	 *            the collapsedDocCount to set
 	 */
-	public void setCollapsedDocCount(int collapsedDocCount) {
+	protected void setCollapsedDocCount(int collapsedDocCount) {
 		this.collapsedDocCount = collapsedDocCount;
 	}
 
@@ -88,7 +86,7 @@ public abstract class CollapseAbstract {
 	 * @param collapsedDoc
 	 *            the collapsedDoc to set
 	 */
-	public void setCollapsedDoc(ResultScoreDoc[] collapsedDoc) {
+	protected void setCollapsedDoc(ResultScoreDoc[] collapsedDoc) {
 		this.collapsedDoc = collapsedDoc;
 	}
 
@@ -127,5 +125,9 @@ public abstract class CollapseAbstract {
 			return new CollapseCluster(searchRequest);
 		return null;
 	}
+
+	public abstract ResultScoreDoc[] collapse(ReaderLocal reader,
+			ResultScoreDoc[] docs, DocSetHits docSetHits) throws IOException,
+			ParseException, SyntaxError;
 
 }

@@ -78,6 +78,8 @@ public class DocSetHits {
 	public ResultScoreDoc[] getPriorityDocs(int rows) throws IOException {
 		rwl.r.lock();
 		try {
+			if (rows == 0)
+				return ResultScoreDoc.EMPTY_ARRAY;
 			int numFound = numFoundCollector.getNumFound();
 			if (rows > numFound)
 				rows = numFound;
@@ -154,7 +156,8 @@ public class DocSetHits {
 
 	private DocIdCollector getDocIdCollector() throws IOException {
 		if (docIdCollector == null) {
-			docIdCollector = new DocIdCollector(numFoundCollector.getNumFound());
+			docIdCollector = new DocIdCollector(reader.maxDoc(),
+					numFoundCollector.getNumFound());
 			reader.search(query, filter, docIdCollector);
 		}
 		return docIdCollector;

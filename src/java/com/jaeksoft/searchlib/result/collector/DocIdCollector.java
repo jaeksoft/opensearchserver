@@ -34,9 +34,9 @@ public class DocIdCollector extends AbstractCollector {
 	final private OpenBitSet bitset;
 	private int pos = 0;
 
-	public DocIdCollector(int numFound) {
+	public DocIdCollector(int maxDoc, int numFound) {
 		docs = new int[numFound];
-		bitset = new OpenBitSet(numFound);
+		bitset = new OpenBitSet(maxDoc);
 	}
 
 	@Override

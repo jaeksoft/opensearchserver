@@ -65,15 +65,23 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		numFound = docSetHits.getDocNumFound();
 		maxScore = docSetHits.getMaxScore();
 
-		ResultScoreDoc[] docs;
+		ResultScoreDoc[] docs = null;
+
+		// Are we doing join
+		if (searchRequest.isJoin()) {
+			docs = searchRequest.getJoinList().apply(reader,
+					docSetHits.getAllDocs());
+			numFound = docs.length;
+		}
+
 		// Are we doing collapsing ?
 		if (collapse != null) {
-			docs = collapse.collapse(this);
+			docs = collapse.collapse(reader, docs, docSetHits);
 			collapsedDocCount = collapse.getDocCount();
-		} else
-			docs = fetch();
+		} else {
+			docs = docSetHits.getPriorityDocs(request.getEnd());
+		}
 
-		docs = searchRequest.getJoinList().apply(reader, docs);
 		setDocs(docs);
 
 		for (FacetField facetField : searchRequest.getFacetFieldList())
@@ -84,12 +92,6 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 		searchRequest.getTimer().setInfo(searchRequest.toString());
 
-	}
-
-	private ResultScoreDoc[] fetch() throws IOException, ParseException,
-			SyntaxError {
-		int end = request.getEnd();
-		return docSetHits.getPriorityDocs(end);
 	}
 
 	/**
