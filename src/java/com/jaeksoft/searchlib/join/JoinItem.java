@@ -225,11 +225,11 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 			docs = ResultScoreDoc.join(docs, localStringIndex,
 					resultSearch.getDocs(), foreignFieldIndex);
 			System.out.println("AFTER: " + docs.length);
+			return docs;
 		} catch (NamingException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
-		return docs;
 	}
 }

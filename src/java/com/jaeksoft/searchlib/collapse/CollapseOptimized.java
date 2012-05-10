@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.collapse;
 import java.io.IOException;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
-import org.apache.lucene.search.ScoreDoc;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
@@ -63,27 +62,16 @@ public class CollapseOptimized extends CollapseAdjacent {
 		int rows = end;
 		StringIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
-		ResultScoreDoc[] resultScoreDocs = null;
 		while (getCollapsedDocsLength() < end) {
-			ScoreDoc[] scoreDocs = docSetHits.getScoreDocs(rows);
-			if (scoreDocs.length == lastRows)
+			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows);
+			if (docs.length == lastRows)
 				break;
-			if (rows > scoreDocs.length)
-				rows = scoreDocs.length;
-			resultScoreDocs = ResultScoreDoc.appendResultScoreDocArray(
-					resultSingle, resultScoreDocs, scoreDocs, rows);
-			run(resultScoreDocs, rows, collapseFieldStringIndex);
+			if (rows > docs.length)
+				rows = docs.length;
+			run(docs, rows, collapseFieldStringIndex);
 			lastRows = rows;
 			rows += searchRows;
 		}
-		resultScoreDocs = getCollapsedDoc();
-		if (resultScoreDocs == null)
-			return null;
-		resultScoreDocs = ResultScoreDoc.appendLeftScoreDocArray(resultSingle,
-				resultScoreDocs,
-				docSetHits.getScoreDocs(docSetHits.getDocNumFound()),
-				resultScoreDocs.length + getDocCount());
-		setCollapsedDoc(resultScoreDocs);
-		return resultScoreDocs;
+		return getCollapsedDoc();
 	}
 }

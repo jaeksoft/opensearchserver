@@ -24,10 +24,13 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import java.util.Comparator;
+
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
-public abstract class SorterAbstract {
+public abstract class SorterAbstract implements Comparator<ResultScoreDoc> {
 
-	protected abstract int compare(ResultScoreDoc doc1, ResultScoreDoc doc2);
+	@Override
+	public abstract int compare(ResultScoreDoc doc1, ResultScoreDoc doc2);
 
 }

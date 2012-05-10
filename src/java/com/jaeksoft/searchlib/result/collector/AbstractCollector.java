@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,19 +22,31 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.result.collector;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import java.io.IOException;
 
-public class DescScoreSorter extends SorterAbstract {
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.Scorer;
+
+public abstract class AbstractCollector extends Collector {
+
+	protected Scorer scorer = null;
 
 	@Override
-	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		if (doc1.score > doc2.score)
-			return -1;
-		else if (doc1.score < doc2.score)
-			return 1;
-		else
-			return 0;
+	final public boolean acceptsDocsOutOfOrder() {
+		return true;
 	}
+
+	@Override
+	final public void setNextReader(IndexReader reader, int docId)
+			throws IOException {
+	}
+
+	@Override
+	final public void setScorer(Scorer scorer) throws IOException {
+		this.scorer = scorer;
+	}
+
 }

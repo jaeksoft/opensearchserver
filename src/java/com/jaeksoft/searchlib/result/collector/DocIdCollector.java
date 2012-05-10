@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,19 +22,34 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.result.collector;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import java.io.IOException;
 
-public class DescScoreSorter extends SorterAbstract {
+import org.apache.lucene.util.OpenBitSet;
+
+public class DocIdCollector extends AbstractCollector {
+
+	final private int[] docs;
+	final private OpenBitSet bitset;
+	private int pos = 0;
+
+	public DocIdCollector(int numFound) {
+		docs = new int[numFound];
+		bitset = new OpenBitSet(numFound);
+	}
 
 	@Override
-	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		if (doc1.score > doc2.score)
-			return -1;
-		else if (doc1.score < doc2.score)
-			return 1;
-		else
-			return 0;
+	final public void collect(int docId) throws IOException {
+		docs[pos++] = docId;
+		bitset.fastSet(docId);
+	}
+
+	final public int[] getDocs() {
+		return docs;
+	}
+
+	final public OpenBitSet getBitSet() {
+		return bitset;
 	}
 }

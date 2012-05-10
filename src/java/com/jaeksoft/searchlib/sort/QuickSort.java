@@ -24,18 +24,13 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import java.util.Random;
-
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
 public class QuickSort {
 
-	private final Random random;
-
 	private final SorterAbstract sorter;
 
 	public QuickSort(SorterAbstract sorter) {
-		random = new Random();
 		this.sorter = sorter;
 	}
 
@@ -45,27 +40,44 @@ public class QuickSort {
 		array[j] = tmp;
 	}
 
-	private final int partition(ResultScoreDoc[] array, int begin, int end) {
-		int index = begin + random.nextInt(end - begin + 1);
-		ResultScoreDoc pivot = array[index];
-		swap(array, index, end);
-		for (int i = index = begin; i < end; ++i)
-			if (sorter.compare(array[i], pivot) <= 0)
-				swap(array, index++, i);
-		swap(array, index, end);
-		return index;
-	}
+	private final void quicksort(ResultScoreDoc[] array, int low, int high) {
+		int i = low, j = high;
+		// Get the pivot element from the middle of the list
+		ResultScoreDoc pivot = array[low + (high - low) / 2];
 
-	private final void qsort(ResultScoreDoc[] array, int begin, int end) {
-		if (end > begin) {
-			int index = partition(array, begin, end);
-			qsort(array, begin, index - 1);
-			qsort(array, index + 1, end);
+		// Divide into two lists
+		while (i <= j) {
+			// If the current value from the left list is smaller then the pivot
+			// element then get the next element from the left list
+			while (sorter.compare(array[i], pivot) < 0) {
+				i++;
+			}
+			// If the current value from the right list is larger then the pivot
+			// element then get the next element from the right list
+			while (sorter.compare(array[j], pivot) > 0) {
+				j--;
+			}
+
+			// If we have found a values in the left list which is larger then
+			// the pivot element and if we have found a value in the right list
+			// which is smaller then the pivot element then we exchange the
+			// values.
+			// As we are done we can increase i and j
+			if (i <= j) {
+				swap(array, i, j);
+				i++;
+				j--;
+			}
 		}
+		// Recursion
+		if (low < j)
+			quicksort(array, low, j);
+		if (i < high)
+			quicksort(array, i, high);
 	}
 
 	public final void sort(ResultScoreDoc[] array) {
-		qsort(array, 0, array.length - 1);
+		quicksort(array, 0, array.length - 1);
 	}
 
 }

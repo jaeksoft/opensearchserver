@@ -78,6 +78,7 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
@@ -605,14 +606,12 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			ParseException, SyntaxError, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SearchLibException {
 
-		boolean isFacet = searchRequest.isFacet();
-
 		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
 				this, defaultField, analyzer);
-		Sort sort = searchRequest.getSortList().getLuceneSort();
+		SorterAbstract sort = searchRequest.getSortList().getSorter(this);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
-				filterHits, sort, isFacet);
+				filterHits, sort);
 		return dsh;
 	}
 

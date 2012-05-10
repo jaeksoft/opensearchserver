@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.collapse;
 import java.io.IOException;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
-import org.apache.lucene.search.ScoreDoc;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
@@ -50,13 +49,10 @@ public class CollapseFull extends CollapseAdjacent {
 		ReaderLocal reader = resultSingle.getReader();
 		DocSetHits docSetHits = resultSingle.getDocSetHits();
 		int allRows = docSetHits.getDocNumFound();
-		ScoreDoc[] scoreDocs = docSetHits.getScoreDocs(allRows);
+		ResultScoreDoc[] docs = docSetHits.getAllDocs();
 		StringIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
-		ResultScoreDoc[] resultScoreDocs = ResultScoreDoc
-				.appendResultScoreDocArray(resultSingle, null, scoreDocs,
-						allRows);
-		run(resultScoreDocs, allRows, collapseFieldStringIndex);
+		run(docs, allRows, collapseFieldStringIndex);
 		return getCollapsedDoc();
 	}
 

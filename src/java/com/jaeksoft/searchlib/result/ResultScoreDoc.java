@@ -34,13 +34,19 @@ final public class ResultScoreDoc {
 
 	public int doc;
 
-	public float score;
+	final public float score;
 
 	public int collapseCount;
 
-	public ResultScoreDoc(ScoreDoc scoreDoc) {
-		this.score = scoreDoc.score;
-		this.doc = scoreDoc.doc;
+	public ResultScoreDoc(int doc, float score) {
+		this.score = score;
+		this.doc = doc;
+		this.collapseCount = 0;
+	}
+
+	public ResultScoreDoc(ScoreDoc sc) {
+		this.score = sc.score;
+		this.doc = sc.doc;
 		this.collapseCount = 0;
 	}
 
@@ -52,36 +58,6 @@ final public class ResultScoreDoc {
 		sb.append(" Score: ");
 		sb.append(score);
 		return sb.toString();
-	}
-
-	final public static ResultScoreDoc[] appendResultScoreDocArray(
-			ResultSearchSingle resultSingle,
-			ResultScoreDoc[] oldResultScoreDocs, ScoreDoc[] scoreDocs, int rows) {
-		if (rows > scoreDocs.length)
-			rows = scoreDocs.length;
-		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[rows];
-		int i = 0;
-		if (oldResultScoreDocs != null)
-			for (ResultScoreDoc rsc : oldResultScoreDocs)
-				resultScoreDocs[i++] = rsc;
-		while (i < rows)
-			resultScoreDocs[i] = new ResultScoreDoc(scoreDocs[i++]);
-		return resultScoreDocs;
-	}
-
-	final public static ResultScoreDoc[] appendLeftScoreDocArray(
-			ResultSearchSingle resultSingle,
-			ResultScoreDoc[] oldResultScoreDocs, ScoreDoc[] scoreDocs, int start) {
-		if (start >= scoreDocs.length)
-			return oldResultScoreDocs;
-		ResultScoreDoc[] resultScoreDocs = new ResultScoreDoc[oldResultScoreDocs.length
-				+ scoreDocs.length - start];
-		int i = 0;
-		for (ResultScoreDoc resultScoreDoc : oldResultScoreDocs)
-			resultScoreDocs[i++] = resultScoreDoc;
-		for (int j = start; j < scoreDocs.length; j++)
-			resultScoreDocs[i++] = new ResultScoreDoc(scoreDocs[j]);
-		return resultScoreDocs;
 	}
 
 	final private static ResultScoreDoc[] copy(ResultScoreDoc[] docs) {

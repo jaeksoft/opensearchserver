@@ -129,8 +129,10 @@ public class Facet implements Iterable<FacetItem>,
 			ResultSearchSingle result, FacetField facetField)
 			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = result.getReader().getStringIndex(fieldName);
-		int[] countIndex = result.getDocSetHits().facetMultivalued(fieldName);
+		ReaderLocal reader = result.getReader();
+		StringIndex stringIndex = reader.getStringIndex(fieldName);
+		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
+				result.getDocSetHits().getBitSet());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
@@ -139,7 +141,8 @@ public class Facet implements Iterable<FacetItem>,
 			throws IOException {
 		String fieldName = facetField.getName();
 		StringIndex stringIndex = result.getReader().getStringIndex(fieldName);
-		int[] countIndex = result.getDocSetHits().facetSinglevalue(fieldName);
+		int[] countIndex = computeSinglevalued(stringIndex, result
+				.getDocSetHits().getDocs());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
@@ -152,7 +155,8 @@ public class Facet implements Iterable<FacetItem>,
 		OpenBitSet bitset = new OpenBitSet(reader.maxDoc());
 		for (ResultScoreDoc doc : result.getCollapse().getCollapsedDoc())
 			bitset.fastSet(doc.doc);
-		int[] countIndex = Facet.computeMultivalued(reader, fieldName, bitset);
+		int[] countIndex = Facet.computeMultivalued(reader, fieldName,
+				stringIndex, bitset);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
@@ -162,7 +166,7 @@ public class Facet implements Iterable<FacetItem>,
 		String fieldName = facetField.getName();
 		ReaderLocal reader = result.getReader();
 		StringIndex stringIndex = reader.getStringIndex(fieldName);
-		int[] countIndex = Facet.computeSinglevalued(reader, fieldName, result
+		int[] countIndex = Facet.computeSinglevalued(stringIndex, result
 				.getCollapse().getCollapsedDoc());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
@@ -172,9 +176,9 @@ public class Facet implements Iterable<FacetItem>,
 		facetMap.put(facetItem.term, facetItem);
 	}
 
-	final public static int[] computeMultivalued(ReaderLocal reader,
-			String fieldName, OpenBitSet bitset) throws IOException {
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+	final private static int[] computeMultivalued(ReaderLocal reader,
+			String fieldName, StringIndex stringIndex, OpenBitSet bitset)
+			throws IOException {
 		int[] countIndex = new int[stringIndex.lookup.length];
 		int i = 0;
 		for (String term : stringIndex.lookup) {
@@ -191,9 +195,8 @@ public class Facet implements Iterable<FacetItem>,
 		return countIndex;
 	}
 
-	final public static int[] computeSinglevalued(ReaderLocal reader,
-			String fieldName, int[] docsId) throws IOException {
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+	final private static int[] computeSinglevalued(StringIndex stringIndex,
+			int[] docsId) throws IOException {
 		int[] countArray = new int[stringIndex.lookup.length];
 		int[] order = stringIndex.order;
 		for (int id : docsId)
@@ -201,9 +204,8 @@ public class Facet implements Iterable<FacetItem>,
 		return countArray;
 	}
 
-	final public static int[] computeSinglevalued(ReaderLocal reader,
-			String fieldName, ResultScoreDoc[] docs) throws IOException {
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+	final private static int[] computeSinglevalued(StringIndex stringIndex,
+			ResultScoreDoc[] docs) throws IOException {
 		int[] countArray = new int[stringIndex.lookup.length];
 		int[] order = stringIndex.order;
 		for (ResultScoreDoc doc : docs)

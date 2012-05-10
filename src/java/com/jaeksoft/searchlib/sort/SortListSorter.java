@@ -43,7 +43,7 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	final protected int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
 		for (SorterAbstract sorter : sorterList) {
 			int c = sorter.compare(doc1, doc2);
 			if (c != 0)

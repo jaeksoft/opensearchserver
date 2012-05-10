@@ -74,11 +74,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			docs = fetch();
 
 		docs = searchRequest.getJoinList().apply(reader, docs);
+		setDocs(docs);
 
 		for (FacetField facetField : searchRequest.getFacetFieldList())
 			this.facetList.add(facetField.getFacet(this));
-
-		setDocs(docs);
 
 		if (searchRequest.isWithDocument())
 			setDocuments(reader.documents(new DocumentsRequest(this)));
@@ -90,8 +89,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	private ResultScoreDoc[] fetch() throws IOException, ParseException,
 			SyntaxError {
 		int end = request.getEnd();
-		return ResultScoreDoc.appendResultScoreDocArray(this, getDocs(),
-				docSetHits.getScoreDocs(end), end);
+		return docSetHits.getPriorityDocs(end);
 	}
 
 	/**

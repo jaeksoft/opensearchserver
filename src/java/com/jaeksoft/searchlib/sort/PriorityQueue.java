@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,15 +26,25 @@ package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
-public class DescScoreSorter extends SorterAbstract {
+public class PriorityQueue {
 
-	@Override
-	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		if (doc1.score > doc2.score)
-			return -1;
-		else if (doc1.score < doc2.score)
-			return 1;
-		else
-			return 0;
+	private SorterAbstract sorter;
+
+	private java.util.PriorityQueue<ResultScoreDoc> queue;
+
+	public PriorityQueue(SorterAbstract sorter, int capacity) {
+		this.sorter = sorter;
+		queue = new java.util.PriorityQueue<ResultScoreDoc>(capacity, sorter);
+	}
+
+	public void add(ResultScoreDoc doc) {
+		queue.offer(doc);
+	}
+
+	public ResultScoreDoc[] getSortedElements() {
+		ResultScoreDoc[] docs = new ResultScoreDoc[queue.size()];
+		queue.toArray(docs);
+		new QuickSort(sorter).sort(docs);
+		return docs;
 	}
 }

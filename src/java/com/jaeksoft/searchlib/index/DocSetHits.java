@@ -26,160 +26,169 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Scorer;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.util.OpenBitSet;
 
-import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.collector.DocIdCollector;
+import com.jaeksoft.searchlib.result.collector.MaxScoreCollector;
+import com.jaeksoft.searchlib.result.collector.NumFoundCollector;
+import com.jaeksoft.searchlib.result.collector.ResultScoreDocCollector;
+import com.jaeksoft.searchlib.result.collector.ResultScoreDocPriorityCollector;
+import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class DocSetHits {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private int[] collectedDocs;
-	private OpenBitSet bitset;
 	private ReaderLocal reader;
 	private Query query;
 	private Filter filter;
-	private Sort sort;
-	private ScoreDoc[] scoreDocs;
-	private int docNumFound;
-	private float maxScore;
-
-	private class ScoreHitCollector extends Collector {
-
-		private Scorer scorer;
-
-		@Override
-		final public void collect(int docId) throws IOException {
-			collectedDocs[docNumFound++] = docId;
-			bitset.fastSet(docId);
-			float sc = scorer.score();
-			if (sc > maxScore)
-				maxScore = sc;
-		}
-
-		@Override
-		public boolean acceptsDocsOutOfOrder() {
-			return true;
-		}
-
-		@Override
-		public void setNextReader(IndexReader reader, int docId)
-				throws IOException {
-		}
-
-		@Override
-		public void setScorer(Scorer scorer) throws IOException {
-			this.scorer = scorer;
-		}
-	}
+	private SorterAbstract sort;
+	private NumFoundCollector numFoundCollector;
+	private MaxScoreCollector maxScoreCollector;
+	private DocIdCollector docIdCollector;
+	private ResultScoreDocCollector resultScoreDocCollector;
+	private ResultScoreDocPriorityCollector resultScoreDocPriorityCollector;
 
 	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
-			Sort sort, boolean collect) throws IOException {
+			SorterAbstract sort) throws IOException {
 		rwl.w.lock();
 		try {
 			this.query = query;
 			this.filter = filter;
-			this.sort = sort;
-			this.docNumFound = 0;
-			this.maxScore = 0;
-			this.scoreDocs = new ScoreDoc[0];
 			this.reader = reader;
-			this.collectedDocs = new int[0];
-			this.bitset = new OpenBitSet(reader.maxDoc());
-			Collector collector = null;
+			this.sort = sort;
+			docIdCollector = null;
+			maxScoreCollector = null;
+			resultScoreDocCollector = null;
+			resultScoreDocPriorityCollector = null;
+			numFoundCollector = new NumFoundCollector();
 			if (reader.numDocs() == 0)
 				return;
-			else if (collect)
-				collector = new ScoreHitCollector();
+			reader.search(query, filter, numFoundCollector);
 
-			TopDocs topDocs = reader.search(query, filter, sort, 1);
-			if (collector != null) {
-				this.collectedDocs = new int[topDocs.totalHits];
-				reader.search(query, filter, collector);
-			} else {
-				docNumFound = topDocs.totalHits;
-				maxScore = topDocs.getMaxScore();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public ResultScoreDoc[] getPriorityDocs(int rows) throws IOException {
+		rwl.r.lock();
+		try {
+			int numFound = numFoundCollector.getNumFound();
+			if (rows > numFound)
+				rows = numFound;
+			if (resultScoreDocPriorityCollector != null) {
+				if (resultScoreDocPriorityCollector.match(rows, sort))
+					return resultScoreDocPriorityCollector.getDocs();
 			}
 		} finally {
-			rwl.w.unlock();
+			rwl.r.unlock();
 		}
-	}
-
-	public ScoreDoc[] getScoreDocs(int rows) throws IOException {
 		rwl.w.lock();
 		try {
-			if (rows > docNumFound)
-				rows = docNumFound;
-			if (rows <= scoreDocs.length)
-				return scoreDocs;
-			TopDocs topDocs = reader.search(query, filter, sort, rows);
-			this.scoreDocs = topDocs.scoreDocs;
-			return scoreDocs;
+			resultScoreDocPriorityCollector = new ResultScoreDocPriorityCollector(
+					rows, sort);
+			reader.search(query, filter, resultScoreDocPriorityCollector);
+			return resultScoreDocPriorityCollector.getDocs();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public int getDocByPos(int pos) {
+	public ResultScoreDoc[] getAllDocs() throws IOException {
 		rwl.r.lock();
 		try {
-			return scoreDocs[pos].doc;
+			if (resultScoreDocCollector != null)
+				return resultScoreDocCollector.getDocs();
 		} finally {
 			rwl.r.unlock();
 		}
+		rwl.w.lock();
+		try {
+			if (resultScoreDocCollector == null) {
+				resultScoreDocCollector = new ResultScoreDocCollector(
+						numFoundCollector.getNumFound());
+				reader.search(query, filter, resultScoreDocCollector);
+			}
+			return resultScoreDocCollector.getDocs();
+		} finally {
+			rwl.w.unlock();
+		}
+
 	}
 
-	public float getScoreByPos(int pos) {
+	public float getMaxScore() throws IOException {
 		rwl.r.lock();
 		try {
-			return scoreDocs[pos].score;
+			if (resultScoreDocCollector != null)
+				return resultScoreDocCollector.getMaxScore();
+			if (maxScoreCollector != null)
+				return maxScoreCollector.getMaxScore();
 		} finally {
 			rwl.r.unlock();
 		}
-	}
-
-	public int[] facetMultivalued(String fieldName) throws IOException {
-		rwl.r.lock();
+		rwl.w.lock();
 		try {
-			return Facet.computeMultivalued(reader, fieldName, bitset);
+			if (maxScoreCollector != null)
+				return maxScoreCollector.getMaxScore();
+			maxScoreCollector = new MaxScoreCollector();
+			reader.search(query, filter, maxScoreCollector);
+			return maxScoreCollector.getMaxScore();
 		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public int[] facetSinglevalue(String fieldName) throws IOException {
-		rwl.r.lock();
-		try {
-			return Facet.computeSinglevalued(reader, fieldName, collectedDocs);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public float getMaxScore() {
-		rwl.r.lock();
-		try {
-			return maxScore;
-		} finally {
-			rwl.r.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public int getDocNumFound() {
 		rwl.r.lock();
 		try {
-			return docNumFound;
+			return numFoundCollector.getNumFound();
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	private DocIdCollector getDocIdCollector() throws IOException {
+		if (docIdCollector == null) {
+			docIdCollector = new DocIdCollector(numFoundCollector.getNumFound());
+			reader.search(query, filter, docIdCollector);
+		}
+		return docIdCollector;
+	}
+
+	public OpenBitSet getBitSet() throws IOException {
+		rwl.r.lock();
+		try {
+			if (docIdCollector != null)
+				return docIdCollector.getBitSet();
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			return getDocIdCollector().getBitSet();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public int[] getDocs() throws IOException {
+		rwl.r.lock();
+		try {
+			if (docIdCollector != null)
+				return docIdCollector.getDocs();
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			return getDocIdCollector().getDocs();
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
