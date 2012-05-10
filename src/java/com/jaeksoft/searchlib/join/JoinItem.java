@@ -24,13 +24,24 @@
 
 package com.jaeksoft.searchlib.join;
 
+import java.io.IOException;
+
+import javax.naming.NamingException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.search.FieldCache.StringIndex;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
+import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -181,8 +192,44 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		return 0;
 	}
 
-	public ResultScoreDoc[] apply(ResultScoreDoc[] docs) {
-		// TODO Auto-generated method stub
+	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs)
+			throws SearchLibException {
+		try {
+			Client client = ClientCatalog.getClient(indexName);
+			if (client == null)
+				throw new SearchLibException("No client found: " + indexName);
+			AbstractRequest request = client.getNewRequest(queryTemplate);
+			if (request == null)
+				throw new SearchLibException(
+						"The request template was not found: " + queryTemplate);
+			if (!(request instanceof SearchRequest))
+				throw new SearchLibException(
+						"The request template is not a Search request: "
+								+ queryTemplate);
+			StringIndex localStringIndex = reader.getStringIndex(localField);
+			if (localStringIndex == null)
+				throw new SearchLibException(
+						"No string index found for the local field: "
+								+ localField);
+			SearchRequest searchRequest = (SearchRequest) request;
+			searchRequest.setQueryString(queryString);
+			ResultSearchSingle resultSearch = (ResultSearchSingle) client
+					.request(searchRequest);
+			StringIndex foreignFieldIndex = resultSearch.getReader()
+					.getStringIndex(foreignField);
+			if (foreignFieldIndex == null)
+				throw new SearchLibException(
+						"No string index found for the foreign field: "
+								+ foreignField);
+			System.out.println("BEFORE: " + docs.length);
+			docs = ResultScoreDoc.join(docs, localStringIndex,
+					resultSearch.getDocs(), foreignFieldIndex);
+			System.out.println("AFTER: " + docs.length);
+		} catch (NamingException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 		return docs;
 	}
 }

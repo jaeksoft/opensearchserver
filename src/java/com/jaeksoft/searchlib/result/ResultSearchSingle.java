@@ -73,7 +73,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		} else
 			docs = fetch();
 
-		docs = searchRequest.getJoinList().apply(docs);
+		docs = searchRequest.getJoinList().apply(reader, docs);
 
 		for (FacetField facetField : searchRequest.getFacetFieldList())
 			this.facetList.add(facetField.getFacet(this));

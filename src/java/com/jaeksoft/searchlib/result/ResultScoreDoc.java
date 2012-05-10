@@ -24,7 +24,11 @@
 
 package com.jaeksoft.searchlib.result;
 
+import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.search.ScoreDoc;
+
+import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
+import com.jaeksoft.searchlib.sort.QuickSort;
 
 final public class ResultScoreDoc {
 
@@ -49,26 +53,6 @@ final public class ResultScoreDoc {
 		sb.append(score);
 		return sb.toString();
 	}
-
-	// public void loadStringIndex(StringIndex[] stringIndexArray) {
-	// if (stringIndexValues != null)
-	// return;
-	// int i = 0;
-	// stringIndexValues = new String[stringIndexArray.length];
-	// for (StringIndex stringIndex : stringIndexArray) {
-	// if (stringIndex == null)
-	// stringIndexValues[i] = null;
-	// else
-	// stringIndexValues[i] = stringIndex.lookup[stringIndex.order[doc]];
-	// i++;
-	// }
-	// }
-
-	// final public void loadCollapseTerm(StringIndex stringIndex) {
-	// if (collapseTerm != null)
-	// return;
-	// collapseTerm = stringIndex.lookup[stringIndex.order[doc]];
-	// }
 
 	final public static ResultScoreDoc[] appendResultScoreDocArray(
 			ResultSearchSingle resultSingle,
@@ -100,18 +84,56 @@ final public class ResultScoreDoc {
 		return resultScoreDocs;
 	}
 
-	// final public static ResultScoreDoc[] appendResultScoreDocArray(
-	// ResultSearchSingle resultSingle,
-	// ResultScoreDoc[] oldResultScoreDocs, ScoreDoc[] scoreDocs,
-	// int rows, StringIndex collapseStringIndex) {
-	// if (collapseStringIndex == null)
-	// return appendResultScoreDocArray(resultSingle, oldResultScoreDocs,
-	// scoreDocs, rows);
-	// int l = oldResultScoreDocs != null ? oldResultScoreDocs.length : 0;
-	// ResultScoreDoc[] resultScoreDocs = appendResultScoreDocArray(
-	// resultSingle, oldResultScoreDocs, scoreDocs, rows);
-	// for (int i = l; i < resultScoreDocs.length; i++)
-	// resultScoreDocs[i].loadCollapseTerm(collapseStringIndex);
-	// return resultScoreDocs;
-	// }
+	final private static ResultScoreDoc[] copy(ResultScoreDoc[] docs) {
+		ResultScoreDoc[] newDocs = new ResultScoreDoc[docs.length];
+		int i = 0;
+		for (ResultScoreDoc doc : docs)
+			newDocs[i++] = doc;
+		return newDocs;
+	}
+
+	final private static ResultScoreDoc[] copyValid(ResultScoreDoc[] docs) {
+		int i = 0;
+		for (ResultScoreDoc doc : docs)
+			if (doc.doc != -1)
+				i++;
+		ResultScoreDoc[] newDocs = new ResultScoreDoc[i];
+		i = 0;
+		for (ResultScoreDoc doc : docs)
+			if (doc.doc != -1)
+				newDocs[i++] = doc;
+		return newDocs;
+	}
+
+	final public static ResultScoreDoc[] join(ResultScoreDoc[] docs,
+			StringIndex doc1StringIndex, ResultScoreDoc[] docs2,
+			StringIndex doc2StringIndex) {
+		ResultScoreDoc[] docs1 = copy(docs);
+		new QuickSort(new AscStringIndexSorter(doc1StringIndex)).sort(docs1);
+		docs2 = copy(docs2);
+		new QuickSort(new AscStringIndexSorter(doc2StringIndex)).sort(docs2);
+
+		int i1 = 0;
+		int i2 = 0;
+		while (i1 != docs1.length) {
+			ResultScoreDoc doc1 = docs1[i1];
+			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[doc1.doc]];
+			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[docs2[i2].doc]];
+			System.out.println(i1 + " / " + i2);
+			int c = t1.compareTo(t2);
+			if (c < 0) {
+				doc1.doc = -1;
+				i1++;
+			} else if (c > 0) {
+				i2++;
+				if (i2 == docs2.length) {
+					while (i1 != docs1.length)
+						docs1[i1++].doc = -1;
+				}
+			} else {
+				i1++;
+			}
+		}
+		return copyValid(docs1);
+	}
 }

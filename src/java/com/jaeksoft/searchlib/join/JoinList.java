@@ -33,7 +33,9 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -87,9 +89,10 @@ public class JoinList implements Iterable<JoinItem> {
 
 	}
 
-	public ResultScoreDoc[] apply(ResultScoreDoc[] docs) {
+	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs)
+			throws SearchLibException {
 		for (JoinItem joinItem : joinList)
-			docs = joinItem.apply(docs);
+			docs = joinItem.apply(reader, docs);
 		return docs;
 	}
 
