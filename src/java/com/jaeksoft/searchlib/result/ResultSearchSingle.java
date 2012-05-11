@@ -65,27 +65,33 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		numFound = docSetHits.getDocNumFound();
 		maxScore = docSetHits.getMaxScore();
 
-		ResultScoreDoc[] docs = null;
+		ResultScoreDoc[] notCollapsedDocs = null;
+		ResultScoreDoc[] collapsedDocs = null;
 
 		// Are we doing join
 		if (searchRequest.isJoin()) {
-			docs = searchRequest.getJoinList().apply(reader,
+			notCollapsedDocs = searchRequest.getJoinList().apply(reader,
 					docSetHits.getAllDocs());
-			numFound = docs.length;
+			numFound = notCollapsedDocs.length;
 		}
 
 		// Are we doing collapsing ?
 		if (collapse != null) {
-			docs = collapse.collapse(reader, docs, docSetHits);
+			collapsedDocs = collapse.collapse(reader, notCollapsedDocs,
+					docSetHits);
 			collapsedDocCount = collapse.getDocCount();
-		} else {
-			docs = docSetHits.getPriorityDocs(request.getEnd());
 		}
 
-		setDocs(docs);
-
+		// We compute facet
 		for (FacetField facetField : searchRequest.getFacetFieldList())
-			this.facetList.add(facetField.getFacet(this));
+			this.facetList.add(facetField.getFacet(reader, docSetHits,
+					notCollapsedDocs, collapsedDocs));
+
+		// No collapsing
+		if (collapsedDocs == null)
+			setDocs(docSetHits.getPriorityDocs(request.getEnd()));
+		else
+			setDocs(collapsedDocs);
 
 		if (searchRequest.isWithDocument())
 			setDocuments(reader.documents(new DocumentsRequest(this)));

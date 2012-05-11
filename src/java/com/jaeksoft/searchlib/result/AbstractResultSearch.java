@@ -115,7 +115,7 @@ public abstract class AbstractResultSearch extends
 		return collapse;
 	}
 
-	public int getCollapseDocCount() {
+	public int getCollapsedDocCount() {
 		return collapsedDocCount;
 	}
 

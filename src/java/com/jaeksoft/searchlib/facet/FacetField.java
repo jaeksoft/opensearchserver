@@ -33,8 +33,9 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.result.ResultSearchSingle;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -113,17 +114,32 @@ public class FacetField extends Field {
 				|| "1".equalsIgnoreCase(value);
 	}
 
-	public Facet getFacet(ResultSearchSingle result) throws IOException {
+	final public Facet getFacet(ReaderLocal reader, DocSetHits docSetHits,
+			ResultScoreDoc[] notCollapsedDocs, ResultScoreDoc[] collapsedDocs)
+			throws IOException {
+		// Two conditions for use postCollapsing
+		boolean useCollapsing = postCollapsing && collapsedDocs != null;
 		if (multivalued) {
-			if (postCollapsing && result.getCollapseDocCount() > 0)
-				return Facet.facetMultivaluedCollapsed(result, this);
-			else
-				return Facet.facetMultivaluedNonCollapsed(result, this);
+			if (useCollapsing)
+				return Facet.facetMultivalued(reader, collapsedDocs, this);
+			else {
+				if (notCollapsedDocs != null)
+					return Facet.facetMultivalued(reader, notCollapsedDocs,
+							this);
+				else
+					return Facet.facetMultivalued(reader, docSetHits, this);
+			}
 		} else {
-			if (postCollapsing && result.getCollapseDocCount() > 0)
-				return Facet.facetSingleValueCollapsed(result, this);
-			else
-				return Facet.facetSingleValueNonCollapsed(result, this);
+			if (useCollapsing)
+				return Facet.facetSingleValue(reader, collapsedDocs, this);
+			else {
+				if (notCollapsedDocs != null)
+					return Facet.facetSingleValue(reader, notCollapsedDocs,
+							this);
+				else
+					return Facet.facetSingleValue(reader, docSetHits, this);
+
+			}
 		}
 	}
 

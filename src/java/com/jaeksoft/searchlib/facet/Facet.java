@@ -34,9 +34,9 @@ import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.util.External;
 
 public class Facet implements Iterable<FacetItem>,
@@ -125,49 +125,41 @@ public class Facet implements Iterable<FacetItem>,
 		return get(i).count;
 	}
 
-	final static protected Facet facetMultivaluedNonCollapsed(
-			ResultSearchSingle result, FacetField facetField)
-			throws IOException {
+	final static protected Facet facetMultivalued(ReaderLocal reader,
+			DocSetHits docSetHits, FacetField facetField) throws IOException {
 		String fieldName = facetField.getName();
-		ReaderLocal reader = result.getReader();
 		StringIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
-				result.getDocSetHits().getBitSet());
+				docSetHits.getBitSet());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final static protected Facet facetSingleValueNonCollapsed(
-			ResultSearchSingle result, FacetField facetField)
-			throws IOException {
+	final static protected Facet facetSingleValue(ReaderLocal reader,
+			DocSetHits docSetHits, FacetField facetField) throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = result.getReader().getStringIndex(fieldName);
-		int[] countIndex = computeSinglevalued(stringIndex, result
-				.getDocSetHits().getDocs());
+		StringIndex stringIndex = reader.getStringIndex(fieldName);
+		int[] countIndex = computeSinglevalued(stringIndex,
+				docSetHits.getDocs());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final static protected Facet facetMultivaluedCollapsed(
-			ResultSearchSingle result, FacetField facetField)
-			throws IOException {
+	final static protected Facet facetMultivalued(ReaderLocal reader,
+			ResultScoreDoc[] allDocs, FacetField facetField) throws IOException {
 		String fieldName = facetField.getName();
-		ReaderLocal reader = result.getReader();
 		StringIndex stringIndex = reader.getStringIndex(fieldName);
 		OpenBitSet bitset = new OpenBitSet(reader.maxDoc());
-		for (ResultScoreDoc doc : result.getCollapse().getCollapsedDoc())
+		for (ResultScoreDoc doc : allDocs)
 			bitset.fastSet(doc.doc);
 		int[] countIndex = Facet.computeMultivalued(reader, fieldName,
 				stringIndex, bitset);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final static protected Facet facetSingleValueCollapsed(
-			ResultSearchSingle result, FacetField facetField)
-			throws IOException {
+	final static protected Facet facetSingleValue(ReaderLocal reader,
+			ResultScoreDoc[] allDocs, FacetField facetField) throws IOException {
 		String fieldName = facetField.getName();
-		ReaderLocal reader = result.getReader();
 		StringIndex stringIndex = reader.getStringIndex(fieldName);
-		int[] countIndex = Facet.computeSinglevalued(stringIndex, result
-				.getCollapse().getCollapsedDoc());
+		int[] countIndex = Facet.computeSinglevalued(stringIndex, allDocs);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 

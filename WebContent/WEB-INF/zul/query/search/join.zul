@@ -19,6 +19,7 @@
 	<listbox id="joinListbox" model="@{joins.request.joinList.toArray}"
 		selectedItem="@{joins.selected}">
 		<listhead>
+			<listheader label="#" hflex="min"/>
 			<listheader label="Index" hflex="min">
 				<vbox>
 					<listbox selectedItem="@{joins.currentIndexName}"
@@ -64,6 +65,7 @@
 		</listhead>
 		<listitem self="@{each=join}">
 			<custom-attributes joinItem="@{join}" />
+			<listcell label="@{join.paramPosition}" />
 			<listcell label="@{join.indexName}" />
 			<listcell label="@{join.queryTemplate}" />
 			<listcell label="@{join.queryString}" />

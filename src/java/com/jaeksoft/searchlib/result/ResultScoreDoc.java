@@ -86,6 +86,8 @@ final public class ResultScoreDoc {
 	final public static ResultScoreDoc[] join(ResultScoreDoc[] docs,
 			StringIndex doc1StringIndex, ResultScoreDoc[] docs2,
 			StringIndex doc2StringIndex) {
+		if (docs.length == 0 || docs2.length == 0)
+			return ResultScoreDoc.EMPTY_ARRAY;
 		ResultScoreDoc[] docs1 = copy(docs);
 		new QuickSort(new AscStringIndexSorter(doc1StringIndex)).sort(docs1);
 		docs2 = copy(docs2);

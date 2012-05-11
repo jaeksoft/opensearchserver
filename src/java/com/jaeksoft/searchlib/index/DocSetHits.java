@@ -78,11 +78,11 @@ public class DocSetHits {
 	public ResultScoreDoc[] getPriorityDocs(int rows) throws IOException {
 		rwl.r.lock();
 		try {
-			if (rows == 0)
-				return ResultScoreDoc.EMPTY_ARRAY;
 			int numFound = numFoundCollector.getNumFound();
 			if (rows > numFound)
 				rows = numFound;
+			if (rows == 0)
+				return ResultScoreDoc.EMPTY_ARRAY;
 			if (resultScoreDocPriorityCollector != null) {
 				if (resultScoreDocPriorityCollector.match(rows, sort))
 					return resultScoreDocPriorityCollector.getDocs();

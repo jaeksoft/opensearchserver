@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class JoinList implements Iterable<JoinItem> {
 
@@ -50,7 +51,7 @@ public class JoinList implements Iterable<JoinItem> {
 		this.config = list.config;
 		this.joinList = new ArrayList<JoinItem>(list.size());
 		for (JoinItem item : list)
-			add(item);
+			add(new JoinItem(item));
 	}
 
 	public JoinList(Config config) {
@@ -58,12 +59,20 @@ public class JoinList implements Iterable<JoinItem> {
 		this.config = config;
 	}
 
+	private void renumbered() {
+		int i = 1;
+		for (JoinItem item : joinList)
+			item.setParamPosition(i++);
+	}
+
 	public void add(JoinItem joinItem) {
 		joinList.add(joinItem);
+		renumbered();
 	}
 
 	public void remove(JoinItem joinItem) {
 		joinList.remove(joinItem);
+		renumbered();
 	}
 
 	public int size() {
@@ -86,7 +95,6 @@ public class JoinList implements Iterable<JoinItem> {
 
 	public void add(XPathParser xpp, Node node) throws XPathExpressionException {
 		joinList.add(new JoinItem(xpp, node));
-
 	}
 
 	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs)
@@ -94,6 +102,14 @@ public class JoinList implements Iterable<JoinItem> {
 		for (JoinItem joinItem : joinList)
 			docs = joinItem.apply(reader, docs);
 		return docs;
+	}
+
+	public void setFromServlet(ServletTransaction transaction) {
+		for (JoinItem item : joinList) {
+			String q = transaction.getParameterString(item.getParamPosition());
+			if (q != null)
+				item.setQueryString(q);
+		}
 	}
 
 }

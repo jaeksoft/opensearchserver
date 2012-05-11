@@ -57,12 +57,15 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 
 	private String foreignField;
 
+	private String paramPosition;
+
 	public JoinItem() {
 		indexName = null;
 		queryTemplate = null;
 		queryString = null;
 		localField = null;
 		foreignField = null;
+		paramPosition = null;
 	}
 
 	public JoinItem(JoinItem source) {
@@ -75,6 +78,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		target.queryString = queryString;
 		target.localField = localField;
 		target.foreignField = foreignField;
+		target.paramPosition = paramPosition;
 	}
 
 	public JoinItem(XPathParser xpp, Node node) throws XPathExpressionException {
@@ -221,15 +225,23 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				throw new SearchLibException(
 						"No string index found for the foreign field: "
 								+ foreignField);
-			System.out.println("BEFORE: " + docs.length);
 			docs = ResultScoreDoc.join(docs, localStringIndex,
 					resultSearch.getDocs(), foreignFieldIndex);
-			System.out.println("AFTER: " + docs.length);
 			return docs;
 		} catch (NamingException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public void setParamPosition(int position) {
+		StringBuffer sb = new StringBuffer("jq");
+		sb.append(position);
+		paramPosition = sb.toString();
+	}
+
+	public String getParamPosition() {
+		return paramPosition;
 	}
 }

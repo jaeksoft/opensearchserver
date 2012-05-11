@@ -50,7 +50,7 @@ public abstract class CollapseAbstract {
 		this.collapseMax = searchRequest.getCollapseMax();
 		this.collapseMode = searchRequest.getCollapseMode();
 		this.collapsedDocCount = 0;
-		this.collapsedDoc = null;
+		this.collapsedDoc = ResultScoreDoc.EMPTY_ARRAY;
 	}
 
 	protected abstract void collapse(ResultScoreDoc[] fetchedDocs,

@@ -44,7 +44,7 @@
 						<label value="@{result.result.numFound}" />
 						<label value="Collapsed document(s):" />
 						<label
-							value="@{result.result.collapseDocCount}" />
+							value="@{result.result.collapsedDocCount}" />
 					</row>
 					<row>
 						<label value="Start offset:" />

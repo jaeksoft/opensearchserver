@@ -77,7 +77,7 @@ public class RenderSearchXml extends
 		writer.print("<result name=\"response\" numFound=\"");
 		writer.print(result.getNumFound());
 		writer.print("\" collapsedDocCount=\"");
-		writer.print(result.getCollapseDocCount());
+		writer.print(result.getCollapsedDocCount());
 		writer.print("\" start=\"");
 		writer.print(searchRequest.getStart());
 		writer.print("\" rows=\"");

@@ -77,6 +77,8 @@ public class QuickSort {
 	}
 
 	public final void sort(ResultScoreDoc[] array) {
+		if (array.length == 0)
+			return;
 		quicksort(array, 0, array.length - 1);
 	}
 
