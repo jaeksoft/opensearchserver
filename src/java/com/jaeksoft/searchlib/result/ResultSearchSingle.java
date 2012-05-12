@@ -88,9 +88,12 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					notCollapsedDocs, collapsedDocs));
 
 		// No collapsing
-		if (collapsedDocs == null)
-			setDocs(docSetHits.getPriorityDocs(request.getEnd()));
-		else
+		if (collapsedDocs == null) {
+			if (notCollapsedDocs != null)
+				setDocs(notCollapsedDocs);
+			else
+				setDocs(docSetHits.getPriorityDocs(request.getEnd()));
+		} else
 			setDocs(collapsedDocs);
 
 		if (searchRequest.isWithDocument())

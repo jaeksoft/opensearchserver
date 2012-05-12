@@ -73,12 +73,12 @@ final public class ResultScoreDoc {
 	final private static ResultScoreDoc[] copyValid(ResultScoreDoc[] docs) {
 		int i = 0;
 		for (ResultScoreDoc doc : docs)
-			if (doc.doc != -1)
+			if (doc != null)
 				i++;
 		ResultScoreDoc[] newDocs = new ResultScoreDoc[i];
 		i = 0;
 		for (ResultScoreDoc doc : docs)
-			if (doc.doc != -1)
+			if (doc != null)
 				newDocs[i++] = doc;
 		return newDocs;
 	}
@@ -101,13 +101,13 @@ final public class ResultScoreDoc {
 			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[docs2[i2].doc]];
 			int c = t1.compareTo(t2);
 			if (c < 0) {
-				doc1.doc = -1;
+				docs1[i1] = null;
 				i1++;
 			} else if (c > 0) {
 				i2++;
 				if (i2 == docs2.length) {
 					while (i1 != docs1.length)
-						docs1[i1++].doc = -1;
+						docs1[i1++] = null;
 				}
 			} else {
 				i1++;
