@@ -287,5 +287,15 @@
 			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
+	   <parser name="XML parser" class="com.jaeksoft.searchlib.parser.XmlParser"
+        sizeLimit="33554432">
+        <extension>xml</extension>
+        <contentType>text/xml</contentType>
+        <contentType>application/xml</contentType>
+        <contentType>application/xhtml+xml</contentType>
+        <map>
+            <link source="content" target="content" />
+        </map>
+    </parser>
 
 </parsers>
