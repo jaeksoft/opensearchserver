@@ -115,6 +115,8 @@ public class HtmlParser extends Parser {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null);
+		addProperty(ClassPropertyEnum.URL_FRAGMENT, "enable", new Object[] {
+				"enable", "disable" });
 		if (config != null)
 			urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
 	}
@@ -591,6 +593,8 @@ public class HtmlParser extends Parser {
 
 		UrlFilterItem[] urlFilterList = getUrlFilterList();
 
+		String enableFragment = getProperty(ClassPropertyEnum.URL_FRAGMENT)
+				.getValue();
 		List<Node> nodes = DomUtils.getAllNodes(doc, "a", "frame");
 		IndexDocument srcDoc = getSourceDocument();
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {
@@ -620,7 +624,7 @@ public class HtmlParser extends Parser {
 					if (!href.startsWith("javascript:"))
 						if (currentURL != null)
 							newUrl = LinkUtils.getLink(currentURL, href,
-									urlFilterList);
+									urlFilterList, enableFragment);
 				if (newUrl != null) {
 					ParserFieldEnum field = null;
 					if (newUrl.getHost().equalsIgnoreCase(currentURL.getHost())) {

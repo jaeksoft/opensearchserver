@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 public class LinkUtils {
 
 	public final static URL getLink(URL currentURL, String href,
-			UrlFilterItem[] urlFilterList) {
+			UrlFilterItem[] urlFilterList, String enableFragment) {
 
 		if (href == null)
 			return null;
@@ -44,10 +44,17 @@ public class LinkUtils {
 		if (href.length() == 0)
 			return null;
 
+		String fragment = null;
 		try {
 			href = new URL(currentURL, href).toExternalForm();
 			href = UrlFilterList.doReplace(href, urlFilterList);
-			return new URI(href).normalize().toURL();
+			URI normalizedURL = URI.create(href);
+			if (enableFragment.equalsIgnoreCase("disable"))
+				fragment = normalizedURL.getRawFragment();
+			return new URI(normalizedURL.getScheme(),
+					normalizedURL.getUserInfo(), normalizedURL.getHost(),
+					normalizedURL.getPort(), normalizedURL.getPath(),
+					normalizedURL.getQuery(), fragment).normalize().toURL();
 		} catch (MalformedURLException e) {
 			Logging.warn(e.getMessage(), e);
 			return null;

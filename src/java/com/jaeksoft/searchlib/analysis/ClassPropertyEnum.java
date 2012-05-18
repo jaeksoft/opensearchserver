@@ -82,6 +82,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "min_shingle_size", "Min shingle size",
 			"Set the min shingle size (default: 1)");
 
+	public final static ClassPropertyEnum URL_FRAGMENT = new ClassPropertyEnum(
+			true, "url_fragment", "URL Fragment",
+			"Removes the Fragment part from the URL if enabled");
+
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };
 
