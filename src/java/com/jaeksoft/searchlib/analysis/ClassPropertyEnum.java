@@ -84,12 +84,12 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	public final static ClassPropertyEnum URL_FRAGMENT = new ClassPropertyEnum(
 			true, "url_fragment", "URL Fragment",
-			"Removes the Fragment part from the URL if enabled");
+			"The Option to remove or keep the URL Fragment");
 
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };
 
-	public final static String[] ENABLE_DISABLE_LIST = { "enable", "disable" };
+	public final static String[] KEEP_REMOVE_LIST = { "keep", "remove" };
 
 	private boolean isUser;
 
