@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.util;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import com.jaeksoft.searchlib.Logging;
@@ -34,7 +36,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 public class LinkUtils {
 
 	public final static URL getLink(URL currentURL, String href,
-			UrlFilterItem[] urlFilterList) {
+			UrlFilterItem[] urlFilterList, boolean removeFragment) {
 
 		if (href == null)
 			return null;
@@ -42,11 +44,22 @@ public class LinkUtils {
 		if (href.length() == 0)
 			return null;
 
+		String fragment = null;
 		try {
 			href = new URL(currentURL, href).toExternalForm();
 			href = UrlFilterList.doReplace(href, urlFilterList);
-			return new URL(href);
+			URI normalizedURL = URI.create(href);
+			if (!removeFragment)
+				fragment = normalizedURL.getRawFragment();
+
+			return new URI(normalizedURL.getScheme(),
+					normalizedURL.getUserInfo(), normalizedURL.getHost(),
+					normalizedURL.getPort(), normalizedURL.getPath(),
+					normalizedURL.getQuery(), fragment).normalize().toURL();
 		} catch (MalformedURLException e) {
+			Logging.warn(e.getMessage(), e);
+			return null;
+		} catch (URISyntaxException e) {
 			Logging.warn(e.getMessage(), e);
 			return null;
 		}

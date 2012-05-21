@@ -105,9 +105,14 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "removeDuplicateWhiteSpaces", "Duplicate spaces",
 			"Detect and remove consecutive duplicate white spaces");
 
+	public final static ClassPropertyEnum URL_FRAGMENT = new ClassPropertyEnum(
+			true, "url_fragment", "URL Fragment",
+			"The Option to remove or keep the URL Fragment");
+
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };
 
+	public final static String[] KEEP_REMOVE_LIST = { "keep", "remove" };
 	private boolean isUser;
 
 	private String label;
