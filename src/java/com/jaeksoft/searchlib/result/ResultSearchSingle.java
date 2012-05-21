@@ -72,6 +72,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		if (searchRequest.isJoin()) {
 			notCollapsedDocs = searchRequest.getJoinList().apply(reader,
 					docSetHits.getAllDocs());
+			searchRequest.getSortList().getSorter(reader)
+					.sort(notCollapsedDocs);
 			numFound = notCollapsedDocs.length;
 		}
 

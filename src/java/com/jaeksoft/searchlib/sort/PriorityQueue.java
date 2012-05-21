@@ -44,7 +44,7 @@ public class PriorityQueue {
 	public ResultScoreDoc[] getSortedElements() {
 		ResultScoreDoc[] docs = new ResultScoreDoc[queue.size()];
 		queue.toArray(docs);
-		new QuickSort(sorter).sort(docs);
+		sorter.sort(docs);
 		return docs;
 	}
 }

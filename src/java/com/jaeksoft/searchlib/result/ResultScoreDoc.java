@@ -28,7 +28,7 @@ import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.search.ScoreDoc;
 
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
-import com.jaeksoft.searchlib.sort.QuickSort;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 final public class ResultScoreDoc {
 
@@ -89,9 +89,9 @@ final public class ResultScoreDoc {
 		if (docs.length == 0 || docs2.length == 0)
 			return ResultScoreDoc.EMPTY_ARRAY;
 		ResultScoreDoc[] docs1 = copy(docs);
-		new QuickSort(new AscStringIndexSorter(doc1StringIndex)).sort(docs1);
+		new AscStringIndexSorter(doc1StringIndex).sort(docs1);
 		docs2 = copy(docs2);
-		new QuickSort(new AscStringIndexSorter(doc2StringIndex)).sort(docs2);
+		new AscStringIndexSorter(doc2StringIndex).sort(docs2);
 
 		int i1 = 0;
 		int i2 = 0;
@@ -99,7 +99,7 @@ final public class ResultScoreDoc {
 			ResultScoreDoc doc1 = docs1[i1];
 			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[doc1.doc]];
 			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[docs2[i2].doc]];
-			int c = t1.compareTo(t2);
+			int c = StringUtils.compareNullString(t1, t2);
 			if (c < 0) {
 				docs1[i1] = null;
 				i1++;

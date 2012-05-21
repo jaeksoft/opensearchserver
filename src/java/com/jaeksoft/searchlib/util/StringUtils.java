@@ -209,6 +209,17 @@ public class StringUtils {
 		return 0;
 	}
 
+	public final static int compareNullString(String v1, String v2) {
+		if (v1 == null) {
+			if (v2 == null)
+				return 0;
+			return -1;
+		}
+		if (v2 == null)
+			return 1;
+		return v1.compareTo(v2);
+	}
+
 	public final static String leftPad(int value, int size) {
 		return org.apache.commons.lang.StringUtils.leftPad(
 				Integer.toString(value), size, '0');
