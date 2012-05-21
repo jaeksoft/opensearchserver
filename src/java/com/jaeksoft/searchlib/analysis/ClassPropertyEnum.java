@@ -89,6 +89,8 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };
 
+	public final static String[] ENABLE_DISABLE_LIST = { "enable", "disable" };
+
 	private boolean isUser;
 
 	private String label;
