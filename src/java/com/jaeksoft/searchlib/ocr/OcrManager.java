@@ -38,6 +38,7 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.poi.util.IOUtils;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
@@ -200,7 +201,7 @@ public class OcrManager implements Closeable {
 		DefaultExecutor executor = new DefaultExecutor();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
-			// Logging.info("LOG OCR: " + cmdLine);
+			Logging.info("LOG OCR: " + cmdLine);
 			PumpStreamHandler streamHandler = new PumpStreamHandler(baos);
 			executor.setStreamHandler(streamHandler);
 			executor.setExitValue(exitValue);
@@ -208,7 +209,7 @@ public class OcrManager implements Closeable {
 			executor.setWatchdog(watchdog);
 			int ev = executor.execute(cmdLine);
 			if (ev != exitValue)
-				throw new SearchLibException("Bad exit value (" + ev + ")");
+				throw new SearchLibException("Bad exit value (" + ev + ") ");
 			return baos.toString("UTF-8");
 		} finally {
 			if (baos != null)
