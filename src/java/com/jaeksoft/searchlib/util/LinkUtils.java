@@ -56,10 +56,13 @@ public class LinkUtils {
 					normalizedURL.getPort(), normalizedURL.getPath(),
 					normalizedURL.getQuery(), fragment).normalize().toURL();
 		} catch (MalformedURLException e) {
-			Logging.warn(e.getMessage(), e);
+			Logging.info(e.getMessage());
 			return null;
 		} catch (URISyntaxException e) {
-			Logging.warn(e.getMessage(), e);
+			Logging.info(e.getMessage());
+			return null;
+		} catch (IllegalArgumentException e) {
+			Logging.info(e.getMessage());
 			return null;
 		}
 	}
