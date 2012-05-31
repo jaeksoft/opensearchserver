@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
@@ -108,10 +109,10 @@ public class JSoupUtils {
 	}
 
 	final public static String getAttributeText(Node node, String name) {
-		Element element = (Element) node;
-		if (element == null)
+		Attributes attributes = node.attributes();
+		if (attributes == null)
 			return null;
-		String attr = element.attr(name);
+		String attr = attributes.get(name);
 		return attr;
 	}
 
