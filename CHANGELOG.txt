@@ -29,6 +29,7 @@ New features:
 - 3466445: Upgrade Apache POI to 3.8
 
 Bug fixes:
+- 3531279: Epected='obj' actual='o' error while parsing the PDF	
 - 3527244: URL filter does not work for jsessionid
 - 3527810: Removing fragment in URL
 - 3518687: URL normalization required in the Web crawler

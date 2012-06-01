@@ -79,6 +79,17 @@ public abstract class Parser extends ParserFactory {
 		return parserDocument;
 	}
 
+	public void resetParserFieldList() {
+		ParserFieldEnum[] parserFieldList = getFieldList();
+		if (parserFieldList == null)
+			return;
+		for (ParserFieldEnum parserField : parserFieldList) {
+			FieldContent fc = parserDocument.getField(parserField.name());
+			if (fc != null)
+				fc.clear();
+		}
+	}
+
 	public void addField(ParserFieldEnum field, String value) {
 		if (value == null)
 			return;
