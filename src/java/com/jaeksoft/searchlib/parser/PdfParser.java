@@ -118,7 +118,7 @@ public class PdfParser extends Parser {
 		}
 		int pages = pdf.getNumberOfPages();
 		addField(ParserFieldEnum.number_of_pages, pages);
-		PDFTextStripper stripper = new PDFTextStripper("UTF-8");
+		TolerantPDFTextStripper stripper = new TolerantPDFTextStripper();
 		String text = stripper.getText(pdf);
 		String[] frags = text.split("\\n");
 		for (String frag : frags)
