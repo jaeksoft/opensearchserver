@@ -35,7 +35,7 @@
 			</row>
 			<row>
 				<label value="Proxy Port :" />
-				<textbox id="proxyPort" width="35%" value="@{proxy.properties.proxyPort.value}"/>
+				<intbox id="proxyPort" width="35%" value="@{proxy.properties.proxyPort.value}"></intbox>
 				<space />
 			</row>
 			
