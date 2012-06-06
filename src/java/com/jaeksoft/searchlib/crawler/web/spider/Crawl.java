@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
@@ -424,8 +425,11 @@ public class Crawl {
 			String parentUrl = urlItem.getUrl();
 			discoverLinks = new ArrayList<LinkItem>();
 			if (redirectUrlLocation != null) {
-				discoverLinks.add(new LinkItem(redirectUrlLocation.toString(),
-						Origin.redirect, parentUrl));
+				String redirectedUrl = UrlFilterList.doReplace(
+						redirectUrlLocation.toString(), config
+								.getUrlFilterList().getArray());
+				discoverLinks.add(new LinkItem(redirectedUrl, Origin.redirect,
+						parentUrl));
 				return discoverLinks;
 			}
 			if (parser == null || !urlItem.isStatusFull())

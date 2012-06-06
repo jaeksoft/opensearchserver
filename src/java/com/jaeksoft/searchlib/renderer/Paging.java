@@ -36,7 +36,7 @@ public class Paging {
 	public Paging(Result result, int maxPages) {
 
 		SearchRequest request = result.getSearchRequest();
-		int numFound = result.getNumFound();
+		int numFound = result.getNumFound() - result.getCollapseDocCount();
 		int start = request.getStart();
 		int rows = request.getRows();
 

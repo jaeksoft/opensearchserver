@@ -21,7 +21,7 @@
 <urlFilters>
 	<urlFilter name="aspsessionid">ASPSESSIONID[a-zA-Z]{8}=[a-zA-Z]{24}
 	</urlFilter>
-	<urlFilter name="jsessionid">jsessionid=[0-9a-zA-Z\.]*</urlFilter>
+	<urlFilter name="jsessionid">jsessionid=[0-9a-fA-F]{32}(\&amp;|\?|\.)(.*)</urlFilter>
 	<urlFilter name="phpsessid">PHPSESSID=[0-9a-zA-Z]{32}</urlFilter>
 	<urlFilter name="sid">sid=[0-9a-zA-Z]{32}</urlFilter>
 </urlFilters>
