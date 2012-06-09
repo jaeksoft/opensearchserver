@@ -45,15 +45,13 @@ public class StartStopListener implements ServletContextListener {
 	private static void initDataDir(ServletContext servletContext) {
 		String single_data = System.getenv("OPENSEARCHSERVER_DATA");
 		String multi_data = System.getenv("OPENSEARCHSERVER_MULTIDATA");
-		String open_shift_data_dir = System.getenv("OPENSHIFT_DATA_DIR");
+		if (multi_data == null)
+			multi_data = System.getenv("OPENSHIFT_DATA_DIR");
 		if (multi_data != null)
 			OPENSEARCHSERVER_DATA_FILE = new File(new File(multi_data),
 					servletContext.getContextPath());
 		else if (single_data != null)
 			OPENSEARCHSERVER_DATA_FILE = new File(single_data);
-		else if (open_shift_data_dir != null)
-			OPENSEARCHSERVER_DATA_FILE = new File(open_shift_data_dir,
-					"opensearchserver");
 		if (!OPENSEARCHSERVER_DATA_FILE.exists())
 			OPENSEARCHSERVER_DATA_FILE.mkdir();
 		System.out.println("OPENSEARCHSERVER_DATA_FILE IS: "
