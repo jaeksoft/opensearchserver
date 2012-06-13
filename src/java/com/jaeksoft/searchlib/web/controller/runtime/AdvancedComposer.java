@@ -30,6 +30,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.ocr.OcrManager;
+import com.jaeksoft.searchlib.ocr.TesseractLanguageEnum;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonComposer;
@@ -57,6 +58,10 @@ public class AdvancedComposer extends CommonComposer {
 
 	public PropertyItem<Integer> getMaxClauseCount() {
 		return ClientFactory.INSTANCE.getBooleanQueryMaxClauseCount();
+	}
+
+	public TesseractLanguageEnum[] getLanguageEnum() {
+		return TesseractLanguageEnum.values();
 	}
 
 }

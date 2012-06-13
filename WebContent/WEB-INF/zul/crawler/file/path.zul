@@ -119,6 +119,17 @@
 				<intbox cols="3"
 					constraint="no negative, no zero, no negative"
 					value="@{searchPath.pageSize}" forward="onChange=onSearch" />
+				<space width="50px" />
+				<listbox mold="select" id="actionListbox">
+					<listitem label="Select an action" value="nothing"
+						selected="true" />
+					<listitem label="Update to Unfetched (re-crawl)"
+						value="setToUnfetched" />
+					<listitem label="Delete" value="delete" />
+					<listitem label="Optimize database"
+						value="optimize" />
+				</listbox>
+				<button label="Go" forward="onGo" />
 			</listfooter>
 		</listfoot>
 	</listbox>

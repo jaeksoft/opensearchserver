@@ -38,9 +38,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpException;
-
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
@@ -59,9 +58,9 @@ import com.jaeksoft.searchlib.util.map.Target;
 
 public class FileManager {
 
-	private static final String FILE_SEARCH = "fileSearch";
-
-	private static final String FILE_INFO = "fileInfo";
+	public enum SearchTemplate {
+		fileSearch, fileInfo, fileExport;
+	}
 
 	private final Client fileDbClient;
 	private final Client targetClient;
@@ -84,9 +83,7 @@ public class FileManager {
 		return fileDbClient;
 	}
 
-	public void reload(boolean optimize) throws IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
+	public void reload(boolean optimize) throws SearchLibException {
 
 		if (optimize) {
 			fileDbClient.reload();
@@ -96,17 +93,18 @@ public class FileManager {
 		targetClient.reload();
 	}
 
-	public SearchRequest fileQuery(String repository, String fileName,
-			String lang, String langMethod, Integer minSize, Integer maxSize,
-			String fileExtension, FetchStatus fetchStatus,
-			ParserStatus parserStatus, IndexStatus indexStatus,
-			Date startcrawlDate, Date endCrawlDate, Date startModifiedDate,
-			Date endModifiedDate, FileTypeEnum fileType, String subDirectory)
+	public SearchRequest fileQuery(SearchTemplate searchTemplate,
+			String repository, String fileName, String lang, String langMethod,
+			Integer minSize, Integer maxSize, String fileExtension,
+			FetchStatus fetchStatus, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startcrawlDate, Date endCrawlDate,
+			Date startModifiedDate, Date endModifiedDate,
+			FileTypeEnum fileType, String subDirectory)
 			throws SearchLibException {
 		try {
 
 			SearchRequest searchRequest = (SearchRequest) fileDbClient
-					.getNewRequest(FILE_SEARCH);
+					.getNewRequest(searchTemplate.name());
 
 			StringBuffer query = new StringBuffer();
 
@@ -210,7 +208,7 @@ public class FileManager {
 	public FileInfo getFileInfo(String uriString) throws SearchLibException,
 			UnsupportedEncodingException, URISyntaxException {
 		SearchRequest searchRequest = (SearchRequest) fileDbClient
-				.getNewRequest(FILE_INFO);
+				.getNewRequest(SearchTemplate.fileInfo.name());
 		StringBuffer sb = new StringBuffer();
 		fileItemFieldEnum.uri.addQuery(sb, uriString, true);
 		searchRequest.setQueryString(sb.toString());
@@ -227,7 +225,7 @@ public class FileManager {
 			Map<String, FileInfo> indexFileMap) throws SearchLibException,
 			UnsupportedEncodingException, URISyntaxException {
 		SearchRequest searchRequest = (SearchRequest) fileDbClient
-				.getNewRequest(FILE_INFO);
+				.getNewRequest(SearchTemplate.fileInfo.name());
 		StringBuffer sb = new StringBuffer();
 		String parentUriString = parentDirectory.toASCIIString();
 		fileItemFieldEnum.directory.addQuery(sb, parentUriString, true);
@@ -241,6 +239,26 @@ public class FileManager {
 			FileInfo fileInfo = new FileInfo(result.getDocument(i),
 					fileItemFieldEnum);
 			indexFileMap.put(fileInfo.getUri(), fileInfo);
+		}
+	}
+
+	public long getFileList(SearchRequest searchRequest, long start, long rows,
+			List<FileItem> list) throws SearchLibException {
+		searchRequest.setStart((int) start);
+		searchRequest.setRows((int) rows);
+		try {
+			AbstractResultSearch result = (AbstractResultSearch) fileDbClient
+					.request(searchRequest);
+			if (list != null)
+				for (ResultDocument doc : result.getDocuments())
+					list.add(getNewFileItem(doc));
+			return result.getNumFound();
+		} catch (RuntimeException e) {
+			throw new SearchLibException(e);
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -527,6 +545,37 @@ public class FileManager {
 		}
 	}
 
+	public void updateFileItems(List<FileItem> fileItems)
+			throws SearchLibException {
+		try {
+			if (fileItems == null)
+				return;
+			List<IndexDocument> documents = new ArrayList<IndexDocument>(
+					fileItems.size());
+			for (FileItem fileItem : fileItems) {
+				if (fileItem == null)
+					continue;
+				IndexDocument indexDocument = new IndexDocument();
+				fileItem.populate(indexDocument, fileItemFieldEnum);
+				documents.add(indexDocument);
+			}
+			if (documents.size() > 0)
+				fileDbClient.updateDocuments(documents);
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
 	/**
 	 * Build query from a String list
 	 * 
@@ -574,4 +623,68 @@ public class FileManager {
 		return fileItemFieldEnum;
 	}
 
+	public int delete(SearchRequest searchRequest) throws SearchLibException {
+		try {
+			int totalCount = 0;
+			long previousNumFound = 0;
+			List<FileItem> itemList = new ArrayList<FileItem>();
+			for (;;) {
+				long numFound = getFileList(searchRequest, 0, 1000, itemList);
+				if (itemList.size() == 0)
+					break;
+				List<String> uriList = new ArrayList<String>(itemList.size());
+				for (FileItem fileItem : itemList)
+					uriList.add(fileItem.getUri());
+				int count = fileDbClient.deleteDocuments(uriList);
+				if (count == 0 || previousNumFound == numFound) {
+					Logging.error("Bad count at URI deletion " + count + "/"
+							+ previousNumFound + "/" + numFound);
+					break;
+				}
+				previousNumFound = numFound;
+				totalCount += count;
+			}
+			return totalCount;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	public int updateFetchStatus(SearchRequest searchRequest,
+			FetchStatus fetchStatus) throws SearchLibException {
+		try {
+			int totalCount = 0;
+			long previousNumFound = 0;
+			fileItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
+					fetchStatus.name, false, true);
+			List<FileItem> fileItemList = new ArrayList<FileItem>();
+			for (;;) {
+				long numFound = (int) getFileList(searchRequest, 0, 1000,
+						fileItemList);
+				if (fileItemList.size() == 0)
+					break;
+				for (FileItem fileItem : fileItemList)
+					fileItem.setFetchStatus(fetchStatus);
+				updateFileItems(fileItemList);
+				if (previousNumFound == numFound) {
+					Logging.error("Bad count at URL fetch status update "
+							+ previousNumFound + "/" + numFound);
+					break;
+				}
+				previousNumFound = numFound;
+				totalCount += fileItemList.size();
+			}
+			return totalCount;
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		}
+	}
 }

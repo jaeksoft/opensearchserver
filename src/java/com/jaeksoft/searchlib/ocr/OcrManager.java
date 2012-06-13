@@ -51,6 +51,8 @@ public class OcrManager implements Closeable {
 
 	private final static String OCR_PROPERTY_ENABLED = "enabled";
 
+	private final static String OCR_PROPERTY_DEFAULT_LANGUAGE = "defaultLanguage";
+
 	private final static String OCR_PROPERTY_TESSERACT_PATH = "tesseractPath";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
@@ -58,6 +60,8 @@ public class OcrManager implements Closeable {
 	private boolean enabled = false;
 
 	private String tesseractPath = null;
+
+	private TesseractLanguageEnum defaultLanguage;
 
 	private File propFile;
 
@@ -68,6 +72,9 @@ public class OcrManager implements Closeable {
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
 		enabled = "true".equalsIgnoreCase(properties.getProperty(
 				OCR_PROPERTY_ENABLED, "false"));
+		defaultLanguage = TesseractLanguageEnum.find(properties.getProperty(
+				OCR_PROPERTY_DEFAULT_LANGUAGE,
+				TesseractLanguageEnum.None.name()));
 		tesseractPath = properties.getProperty(OCR_PROPERTY_TESSERACT_PATH);
 		setEnabled(enabled);
 	}
@@ -77,6 +84,9 @@ public class OcrManager implements Closeable {
 		properties.setProperty(OCR_PROPERTY_ENABLED, Boolean.toString(enabled));
 		if (tesseractPath != null)
 			properties.setProperty(OCR_PROPERTY_TESSERACT_PATH, tesseractPath);
+		if (defaultLanguage != null)
+			properties.setProperty(OCR_PROPERTY_DEFAULT_LANGUAGE,
+					defaultLanguage.name());
 		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
@@ -148,7 +158,7 @@ public class OcrManager implements Closeable {
 	}
 
 	Pattern tesseractCheckPattern = Pattern
-			.compile("Usage:.*tesseract imagename outputbase");
+			.compile("Usage:.*tesseract.* imagename outputbase");
 
 	public void check() throws SearchLibException {
 		rwl.r.lock();
@@ -160,7 +170,6 @@ public class OcrManager implements Closeable {
 				throw new SearchLibException("The file don't exist");
 			CommandLine cmdLine = CommandLine.parse(tesseractPath);
 			String result = run(cmdLine, 60, 1);
-			System.out.println(result);
 			if (!tesseractCheckPattern.matcher(result).find())
 				throw new SearchLibException("Wrong returned message: "
 						+ result);
@@ -188,7 +197,9 @@ public class OcrManager implements Closeable {
 			txtPath = txtPath.substring(0, txtPath.length() - 4);
 			cmdLine.addArgument(txtPath);
 			TesseractLanguageEnum tle = TesseractLanguageEnum.find(lang);
-			if (tle != null)
+			if (tle == null)
+				tle = defaultLanguage;
+			if (tle != null && tle != TesseractLanguageEnum.None)
 				cmdLine.addArgument("-l " + tle.option);
 			run(cmdLine, 3600, 0);
 		} finally {
@@ -214,6 +225,34 @@ public class OcrManager implements Closeable {
 		} finally {
 			if (baos != null)
 				IOUtils.closeQuietly(baos);
+		}
+	}
+
+	/**
+	 * @return the defaultLanguage
+	 */
+	public TesseractLanguageEnum getDefaultLanguage() {
+		rwl.r.lock();
+		try {
+			return defaultLanguage;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param defaultLanguage
+	 *            the defaultLanguage to set
+	 * @throws IOException
+	 */
+	public void setDefaultLanguage(TesseractLanguageEnum defaultLanguage)
+			throws IOException {
+		rwl.w.lock();
+		try {
+			this.defaultLanguage = defaultLanguage;
+			save();
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 

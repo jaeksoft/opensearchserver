@@ -28,6 +28,8 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
 public enum TesseractLanguageEnum {
 
+	None(null, null),
+
 	Arabic("ara", null),
 
 	Bulgarian("bul", null),
@@ -122,8 +124,17 @@ public enum TesseractLanguageEnum {
 	}
 
 	final public static TesseractLanguageEnum find(LanguageEnum lang) {
+		if (lang == null)
+			return null;
 		for (TesseractLanguageEnum tle : values())
 			if (tle.langEnum == lang)
+				return tle;
+		return null;
+	}
+
+	final public static TesseractLanguageEnum find(String property) {
+		for (TesseractLanguageEnum tle : values())
+			if (tle.name().equals(property))
 				return tle;
 		return null;
 	}

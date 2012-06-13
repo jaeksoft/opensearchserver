@@ -23,13 +23,18 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.transform.TransformerConfigurationException;
+
+import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.ext.AfterCompose;
+import org.zkoss.zul.Listbox;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
@@ -39,9 +44,11 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
+import com.jaeksoft.searchlib.crawler.file.database.FileManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -320,14 +327,14 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
-	private SearchRequest getSearchRequest(FileManager fileManager)
-			throws SearchLibException {
-		return fileManager.fileQuery(getRepository(), getFileName(), getLang(),
-				null, getMinContentLength(), getMaxContentLength(),
-				getExtension(), getFetchStatus(), getParserStatus(),
-				getIndexStatus(), getCrawlDateStart(), getCrawlDateEnd(),
-				getDateModifiedStart(), getDateModifiedEnd(), getFileType(),
-				null);
+	private SearchRequest getSearchRequest(FileManager fileManager,
+			SearchTemplate fileSearchTemplate) throws SearchLibException {
+		return fileManager.fileQuery(fileSearchTemplate, getRepository(),
+				getFileName(), getLang(), null, getMinContentLength(),
+				getMaxContentLength(), getExtension(), getFetchStatus(),
+				getParserStatus(), getIndexStatus(), getCrawlDateStart(),
+				getCrawlDateEnd(), getDateModifiedStart(),
+				getDateModifiedEnd(), getFileType(), null);
 	}
 
 	public List<FileItem> getFileList() throws SearchLibException {
@@ -340,7 +347,8 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 			fileList = new ArrayList<FileItem>();
 			FileManager fileManager = client.getFileManager();
-			SearchRequest searchRequest = getSearchRequest(fileManager);
+			SearchRequest searchRequest = getSearchRequest(fileManager,
+					SearchTemplate.fileSearch);
 
 			totalSize = (int) fileManager.getFiles(searchRequest,
 					fileManager.getFileItemFieldEnum().uri, true, getPageSize()
@@ -391,4 +399,64 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
+	public void onSetToUnfetched() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			FileManager fileManager = client.getFileManager();
+			SearchRequest searchRequest = getSearchRequest(fileManager,
+					SearchTemplate.fileExport);
+			fileManager
+					.updateFetchStatus(searchRequest, FetchStatus.UN_FETCHED);
+			fileManager.reload(true);
+			onSearch();
+		}
+	}
+
+	public void onDelete() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			FileManager fileManager = client.getFileManager();
+			SearchRequest searchRequest = getSearchRequest(fileManager,
+					SearchTemplate.fileExport);
+			fileManager.delete(searchRequest);
+			fileManager.reload(true);
+			onSearch();
+		}
+	}
+
+	public void onOptimize() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			client.getFileManager().reload(true);
+		}
+	}
+
+	public void onGo() throws SearchLibException, IOException,
+			TransformerConfigurationException, SAXException,
+			InterruptedException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			if (client.getFileCrawlMaster().isRunning()) {
+				new AlertController("Please stop the File crawler first.");
+				return;
+			}
+			Listbox actionListbox = (Listbox) getFellow("actionListbox");
+			String action = actionListbox.getSelectedItem().getValue()
+					.toString();
+			if ("setToUnfetched".equalsIgnoreCase(action))
+				onSetToUnfetched();
+			else if ("delete".equalsIgnoreCase(action))
+				onDelete();
+			else if ("optimize".equalsIgnoreCase(action))
+				onOptimize();
+		}
+	}
 }
