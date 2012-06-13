@@ -170,15 +170,19 @@ public class PdfParser extends Parser {
 				while (imageIter.hasNext()) {
 					String key = (String) imageIter.next();
 					PDXObjectImage image = (PDXObjectImage) images.get(key);
+					if (image == null)
+						continue;
 					File imageFile = File.createTempFile("osspdfimg",
 							'.' + image.getSuffix());
 					File textFile = File.createTempFile("ossocr", ".txt");
 					image.write2file(imageFile);
-					ocr.ocerize(imageFile, textFile, lang);
-					addField(ParserFieldEnum.ocr_content,
-							FileUtils.readFileToString(textFile, "UTF-8"));
-					imageFile.delete();
-					textFile.delete();
+					if (imageFile.length() > 0) {
+						ocr.ocerize(imageFile, textFile, lang);
+						addField(ParserFieldEnum.ocr_content,
+								FileUtils.readFileToString(textFile, "UTF-8"));
+					}
+					FileUtils.deleteQuietly(imageFile);
+					FileUtils.deleteQuietly(textFile);
 				}
 			}
 		}
