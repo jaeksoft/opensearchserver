@@ -220,7 +220,6 @@ public class UrlFilterList {
 			UrlFilterItem[] urlFilterArray) {
 		uriString = doReplaceQuery(uriString, urlFilterArray);
 		uriString = doReplaceProspero(uriString, urlFilterArray);
-		System.out.println(uriString);
 		return uriString;
 	}
 }
