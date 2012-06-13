@@ -169,7 +169,9 @@ public class OcrManager implements Closeable {
 			if (!file.exists())
 				throw new SearchLibException("The file don't exist");
 			CommandLine cmdLine = CommandLine.parse(tesseractPath);
-			String result = run(cmdLine, 60, 1);
+			StringBuffer sbResult = new StringBuffer();
+			run(cmdLine, 60, 1, sbResult);
+			String result = sbResult.toString();
 			if (!tesseractCheckPattern.matcher(result).find())
 				throw new SearchLibException("Wrong returned message: "
 						+ result);
@@ -201,13 +203,17 @@ public class OcrManager implements Closeable {
 				tle = defaultLanguage;
 			if (tle != null && tle != TesseractLanguageEnum.None)
 				cmdLine.addArgument("-l " + tle.option);
-			run(cmdLine, 3600, 0);
+			int ev = run(cmdLine, 3600, null, null);
+			if (ev == 3)
+				Logging.warn("Image format not supported by Tesseract ("
+						+ input.getName() + ")");
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	private final String run(CommandLine cmdLine, int secTimeOut, int exitValue)
+	private final int run(CommandLine cmdLine, int secTimeOut,
+			Integer expectedExitValue, StringBuffer returnedText)
 			throws IOException, SearchLibException {
 		DefaultExecutor executor = new DefaultExecutor();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -215,13 +221,17 @@ public class OcrManager implements Closeable {
 			Logging.info("LOG OCR: " + cmdLine);
 			PumpStreamHandler streamHandler = new PumpStreamHandler(baos);
 			executor.setStreamHandler(streamHandler);
-			executor.setExitValue(exitValue);
+			if (expectedExitValue != null)
+				executor.setExitValue(expectedExitValue);
 			ExecuteWatchdog watchdog = new ExecuteWatchdog(secTimeOut * 1000);
 			executor.setWatchdog(watchdog);
 			int ev = executor.execute(cmdLine);
-			if (ev != exitValue)
-				throw new SearchLibException("Bad exit value (" + ev + ") ");
-			return baos.toString("UTF-8");
+			if (expectedExitValue != null)
+				if (ev != expectedExitValue)
+					throw new SearchLibException("Bad exit value (" + ev + ") ");
+			if (returnedText != null)
+				returnedText.append(baos.toString("UTF-8"));
+			return ev;
 		} finally {
 			if (baos != null)
 				IOUtils.closeQuietly(baos);
