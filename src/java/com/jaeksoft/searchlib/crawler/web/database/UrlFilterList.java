@@ -193,6 +193,12 @@ public class UrlFilterList {
 		int i2 = uriString.indexOf('/', i1);
 		if (i2 == -1)
 			i2 = uriString.indexOf('?', i1);
+		if (i2 == -1)
+			i2 = uriString.indexOf('#', i1);
+		if (i2 == -1)
+			i2 = uriString.indexOf('&', i1);
+		if (i2 == -1)
+			i2 = uriString.indexOf('$', i1);
 		String part = i2 == -1 ? uriString.substring(i1) : uriString.substring(
 				i1, i2);
 		boolean bReplace = false;
@@ -214,6 +220,7 @@ public class UrlFilterList {
 			UrlFilterItem[] urlFilterArray) {
 		uriString = doReplaceQuery(uriString, urlFilterArray);
 		uriString = doReplaceProspero(uriString, urlFilterArray);
+		System.out.println(uriString);
 		return uriString;
 	}
 }
