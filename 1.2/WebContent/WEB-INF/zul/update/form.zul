@@ -1,0 +1,69 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="updateForm"
+	use="com.jaeksoft.searchlib.web.controller.update.UpdateFormController">
+	<panel title="1. Select the language of the document"
+		border="normal">
+		<panelchildren>
+			<listbox mold="select" selectedItem="@{updateForm.lang}"
+				model="@{updateForm.languageEnum}">
+				<listitem self="@{each=langEnum}"
+					label="@{langEnum.name}" value="@{langEnum}" />
+			</listbox>
+		</panelchildren>
+	</panel>
+	<separator height="10px" />
+	<panel title="2. Add field(s) to the document" border="normal">
+		<panelchildren>
+			<hbox align="center">
+				<label value="Select a field: " />
+				<listbox mold="select" model="@{updateForm.fieldList}"
+					selectedItem="@{updateForm.selectedField}">
+					<listitem self="@{each='field'}"
+						label="@{field.name}" />
+				</listbox>
+				<button label="add" forward="onAdd" />
+			</hbox>
+			<listbox model="@{updateForm.fieldDocumentList}">
+				<listitem self="@{each='fieldDocument'}">
+					<listcell>
+						<panel title="@{fieldDocument.field}"
+							collapsible="true">
+							<panelchildren>
+								<listbox
+									model="@{fieldDocument.fieldValueList}"
+									itemRenderer="@{updateForm}">
+									<listhead>
+										<listheader label="Boost" width="60px" />
+										<listheader label="Value" />
+										<listheader width="25px" />
+									</listhead>
+								</listbox>
+							</panelchildren>
+						</panel>
+					</listcell>
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<separator height="10px" />
+	<panel title="3. Insert / update the document" border="normal">
+		<panelchildren>
+			<button label="Insert / Update" forward="onUpdate" />
+		</panelchildren>
+	</panel>
+</window>
