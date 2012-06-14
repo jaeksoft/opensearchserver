@@ -1,4 +1,4 @@
-Open Search Server
+OpenSearchServer
 
 Copyright Emmanuel Keller / Jaeksoft
 This programm is licensed under the GPL v3.
@@ -10,8 +10,8 @@ based on best JAVA technologies:
     * Stable and powerful server Apache Tomcat
     * An ergonomic user interface powered ZK direct RIA
  
-Open Search Server Web site:
+OpenSearchServer Web site:
 http://www.open-search-server.com
 
-The documentation wiki:
-http://www.open-search-server.com/wiki/en/
+The documentation:
+http://www.open-search-server.com/documentation
