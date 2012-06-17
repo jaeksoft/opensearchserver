@@ -14,13 +14,10 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<tabbox>
-	<tabs>
-		<tab id="tab1" label="Indices" selected="true" />
-	</tabs>
-	<tabpanels>
-		<tabpanel>
-			<include src="WEB-INF/zul/configuration/indices.zul" />
-		</tabpanel>
-	</tabpanels>
-</tabbox>
+<window id="classifier"
+	use="com.jaeksoft.searchlib.web.controller.ClassifierController">
+	<include visible="@{classifier.isNotEditing}"
+		src="WEB-INF/zul/classifier/list.zul" />
+	<include visible="@{classifier.isEditing}"
+		src="WEB-INF/zul/classifier/edit.zul" />
+</window>

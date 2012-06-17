@@ -55,6 +55,8 @@ import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
 import com.jaeksoft.searchlib.api.ApiManager;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
+import com.jaeksoft.searchlib.classifier.Classifier;
+import com.jaeksoft.searchlib.classifier.ClassifierManager;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
@@ -183,6 +185,8 @@ public abstract class Config {
 
 	private TaskEnum taskEnum = null;
 
+	private ClassifierManager classifierManager = null;
+
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
@@ -219,6 +223,7 @@ public abstract class Config {
 			getFileCrawlMaster();
 			getWebCrawlMaster();
 			getJobList();
+			getIndex().addBeforeUpdate(getClassifierManager());
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -443,6 +448,92 @@ public abstract class Config {
 
 	public Schema getSchema() {
 		return schema;
+	}
+
+	private File getClassifierDirectory() {
+		File directory = new File(this.getDirectory(), "classifiers");
+		if (!directory.exists())
+			directory.mkdir();
+		return directory;
+	}
+
+	public ClassifierManager getClassifierManager() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (classifierManager != null)
+				return classifierManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (classifierManager != null)
+				return classifierManager;
+			classifierManager = new ClassifierManager((Client) this,
+					getClassifierDirectory());
+			return classifierManager;
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (SearchLibException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void saveClassifier(Classifier classifier)
+			throws SearchLibException, UnsupportedEncodingException {
+		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
+				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				classifier.writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} catch (TransformerConfigurationException e) {
+				throw new SearchLibException(e);
+			} catch (SAXException e) {
+				throw new SearchLibException(e);
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			} finally {
+				rwl.w.unlock();
+			}
+		} finally {
+			longTermLock.unlock();
+			cfr.abort();
+		}
+
+	}
+
+	public void deleteClassifier(Classifier classifier)
+			throws SearchLibException, IOException {
+		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
+				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
+		if (!longTermLock.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				cfr.delete();
+			} finally {
+				rwl.w.unlock();
+			}
+		} finally {
+			longTermLock.unlock();
+			cfr.abort();
+		}
 	}
 
 	public DatabaseCrawlList getDatabaseCrawlList() throws SearchLibException {

@@ -22,6 +22,7 @@
 		<tab id="tabStopWords" label="Stop words" />
 		<tab id="tabSynonyms" label="Synonyms" />
 		<tab id="tabAutoCompletion" label="Auto-completion" />
+        <tab id="tabClassifier" label="Classifier" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
@@ -42,5 +43,8 @@
 		<tabpanel fulfill="tabAutoCompletion.onSelect">
 			<include src="WEB-INF/zul/schema/autocompletion.zul" />
 		</tabpanel>
+        <tabpanel fulfill="tabClassifier.onSelect">
+            <include src="WEB-INF/zul/classifier/index.zul" />
+        </tabpanel>
 	</tabpanels>
 </tabbox>
