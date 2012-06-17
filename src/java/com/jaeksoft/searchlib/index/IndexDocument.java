@@ -283,7 +283,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 		}
 	}
 
-	private FieldContent getFieldContent(String field) {
+	public FieldContent getFieldContent(String field) {
 		FieldContent fc = fields.get(field);
 		if (fc == null) {
 			fc = new FieldContent(field);

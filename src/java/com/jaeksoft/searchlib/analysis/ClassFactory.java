@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -115,7 +116,8 @@ public abstract class ClassFactory {
 			if (propEnum != null) {
 				ClassProperty prop = getProperty(propEnum);
 				if (prop != null)
-					prop.setValue(attr.getNodeValue());
+					prop.setValue(StringEscapeUtils.unescapeXml(attr
+							.getNodeValue()));
 			} else {
 				Logging.warn("Property not found: " + attr.getNodeName());
 			}

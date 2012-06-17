@@ -129,7 +129,7 @@ public abstract class Parser extends ParserFactory {
 	}
 
 	public FieldContent getFieldContent(ParserFieldEnum field) {
-		return parserDocument.getField(field.name());
+		return parserDocument.getFieldContent(field.name());
 	}
 
 	public String getFieldValue(ParserFieldEnum field, int pos) {

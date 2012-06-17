@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -91,7 +91,10 @@ public class ResultDocument {
 	}
 
 	public FieldValueItem[] getValueArray(String fieldName) {
-		return returnFields.get(fieldName).getValueArray();
+		FieldValue fieldValue = returnFields.get(fieldName);
+		if (fieldValue == null)
+			return null;
+		return fieldValue.getValueArray();
 	}
 
 	public List<FieldValueItem> getValueList(String fieldName) {

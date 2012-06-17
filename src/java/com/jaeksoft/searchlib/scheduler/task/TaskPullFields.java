@@ -50,6 +50,8 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.map.GenericLink;
+import com.jaeksoft.searchlib.util.map.Target;
 
 public class TaskPullFields extends TaskPullAbstract {
 
@@ -62,12 +64,15 @@ public class TaskPullFields extends TaskPullAbstract {
 	final private TaskPropertyDef propTargetField = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Target field name", 50);
 
-	final private TaskPropertyDef propMappedFields = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "Mapped fields", 50, 5);
+	final private TaskPropertyDef propSourceMappedFields = new TaskPropertyDef(
+			TaskPropertyType.multilineTextBox, "Mapped fields on source", 80, 5);
+
+	final private TaskPropertyDef propTargetMappedFields = new TaskPropertyDef(
+			TaskPropertyType.multilineTextBox, "Mapped fields on target", 80, 5);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
 			propLogin, propApiKey, propSourceQuery, propSourceField,
-			propTargetField, propMappedFields };
+			propTargetField, propSourceMappedFields, propTargetMappedFields };
 
 	@Override
 	public String getName() {
@@ -105,6 +110,8 @@ public class TaskPullFields extends TaskPullAbstract {
 		String sourceQuery = properties.getValue(propSourceQuery);
 		String sourceField = properties.getValue(propSourceField);
 		String targetField = properties.getValue(propTargetField);
+		String sourceMappedFields = properties.getValue(propSourceMappedFields);
+		String targetMappedFields = properties.getValue(propTargetMappedFields);
 		String login = properties.getValue(propLogin);
 		String apiKey = properties.getValue(propApiKey);
 
@@ -129,8 +136,12 @@ public class TaskPullFields extends TaskPullAbstract {
 				throw new SearchLibException("Source field not found: "
 						+ sourceField);
 
-			FieldMap fieldMap = new FieldMap(targetField, ",");
-			fieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
+			FieldMap sourceFieldMap = new FieldMap(sourceMappedFields, ",");
+			sourceFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
+					LanguageEnum.UNDEFINED);
+
+			FieldMap targetFieldMap = new FieldMap(targetMappedFields, ",");
+			targetFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
 					LanguageEnum.UNDEFINED);
 
 			List<IndexDocument> buffer = new ArrayList<IndexDocument>(
@@ -139,6 +150,8 @@ public class TaskPullFields extends TaskPullAbstract {
 			SearchRequest searchRequest = new SearchRequest(sourceClient);
 			searchRequest.setQueryString(sourceQuery);
 			searchRequest.addReturnField(sourceField);
+			for (GenericLink<String, Target> link : sourceFieldMap.getList())
+				searchRequest.addReturnField(link.getSource());
 			searchRequest.setRows(bufferSize);
 			int start = 0;
 
@@ -160,8 +173,9 @@ public class TaskPullFields extends TaskPullAbstract {
 							.getValueArray(sourceField);
 					if (fieldValueItems == null)
 						continue;
+
 					IndexDocument mappedDocument = new IndexDocument();
-					fieldMap.mapIndexDocument(document, mappedDocument);
+					sourceFieldMap.mapIndexDocument(document, mappedDocument);
 
 					for (FieldValueItem fieldValueItem : fieldValueItems) {
 
@@ -173,8 +187,13 @@ public class TaskPullFields extends TaskPullAbstract {
 
 						IndexDocument targetDocument = new IndexDocument(
 								mappedDocument);
-						targetDocument.add(targetField, value, 1.0F);
-						buffer.add(targetDocument);
+						targetDocument.add(targetField, value, null);
+						IndexDocument finalDocument = new IndexDocument(
+								targetDocument);
+						targetFieldMap.mapIndexDocument(targetDocument,
+								finalDocument);
+
+						buffer.add(finalDocument);
 						if (buffer.size() == bufferSize)
 							totalCount = indexBuffer(totalCount, buffer,
 									client, taskLog);

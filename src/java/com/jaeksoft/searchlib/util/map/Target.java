@@ -101,7 +101,8 @@ public class Target implements Comparable<Target> {
 
 	final public void setCachedAnalyzer(AnalyzerList analyzerList,
 			LanguageEnum lang) throws SearchLibException {
-		cachedAnalyzer = analyzerList.get(analyzer, lang).getIndexAnalyzer();
+		cachedAnalyzer = analyzer == null ? null : analyzerList.get(analyzer,
+				lang).getIndexAnalyzer();
 	}
 
 	final public void add(FieldValueItem fvi, IndexDocument document)
@@ -109,6 +110,7 @@ public class Target implements Comparable<Target> {
 		if (cachedAnalyzer == null)
 			document.add(name, fvi);
 		else
-			cachedAnalyzer.populate(fvi.getValue(), document.getField(name));
+			cachedAnalyzer.populate(fvi.getValue(),
+					document.getFieldContent(name));
 	}
 }

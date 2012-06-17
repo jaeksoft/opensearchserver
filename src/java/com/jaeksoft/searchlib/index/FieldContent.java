@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,29 +24,19 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.External.Collecter;
 
-public class FieldContent implements Externalizable, Collecter<FieldValueItem> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4734981884898319100L;
+public class FieldContent implements Collecter<FieldValueItem> {
 
 	private String field;
 	private List<FieldValueItem> values;
 
 	public FieldContent() {
-		values = new ArrayList<FieldValueItem>();
+		values = new ArrayList<FieldValueItem>(0);
 	}
 
 	public FieldContent(String field) {
@@ -134,19 +124,6 @@ public class FieldContent implements Externalizable, Collecter<FieldValueItem> {
 		values.remove(index);
 	}
 
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		field = External.readObject(in);
-		External.readCollection(in, this);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeObject(field, out);
-		External.writeCollection(values, out);
-	}
-
 	public boolean isEquals(FieldContent fc) {
 		if (!field.equals(fc.getField()))
 			return false;
@@ -167,4 +144,12 @@ public class FieldContent implements Externalizable, Collecter<FieldValueItem> {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(field);
+		sb.append(':');
+		sb.append(values.size());
+		return sb.toString();
+	}
 }
