@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3535777: SOAP WebService
 - 3523453: Image Parser with OCR
 - 3519206: XSL support on XML upload
 - 3510432: Support of Arabic language
