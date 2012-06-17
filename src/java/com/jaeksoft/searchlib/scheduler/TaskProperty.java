@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,13 +33,13 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class TaskProperty {
 
-	private Config config;
+	final private Config config;
 
-	private TaskAbstract task;
+	final private TaskAbstract task;
+
+	final private TaskPropertyDef propertyDef;
 
 	private String value;
-
-	private TaskPropertyDef propertyDef;
 
 	protected TaskProperty(Config config, TaskAbstract task,
 			TaskPropertyDef propertyDef) {
@@ -76,14 +76,14 @@ public class TaskProperty {
 	 */
 	public TaskPropertyType getType() {
 		return propertyDef.type;
-
 	}
 
 	/**
-	 * @return the cols
+	 * 
+	 * @return the property definition
 	 */
-	public int getCols() {
-		return propertyDef.cols;
+	public TaskPropertyDef getDef() {
+		return propertyDef;
 	}
 
 	/**

@@ -77,7 +77,8 @@
 					<row>
 						<label value="Tasks " />
 						<listbox
-							model="@{scheduleredit.currentJob.tasks}">
+							model="@{scheduleredit.currentJob.tasks}"
+							selectedItem="@{scheduleredit.selectedJobTask}">
 							<listhead>
 								<listheader width="200px" label="Task" />
 								<listheader label="Properties" />
@@ -87,6 +88,7 @@
 							<auxhead>
 								<auxheader>
 									<listbox
+										visible="@{scheduleredit.notSelectedJobTask}"
 										model="@{scheduleredit.taskEnum}" mold="select"
 										selectedItem="@{scheduleredit.selectedTask}" />
 								</auxheader>
@@ -107,15 +109,20 @@
 												<hbox>
 													<combobox
 														visible="@{property.type.ctrlComboBox}"
-														cols="@{property.cols}" model="@{property.valueList}"
+														cols="@{property.def.cols}" model="@{property.valueList}"
 														value="@{property.value}"
 														selectedItem="@{property.value}" />
 													<textbox
-														cols="@{property.cols}"
+														cols="@{property.def.cols}"
 														visible="@{property.type.ctrlTextBox}"
 														value="@{property.value}" />
 													<textbox
-														type="password" cols="@{property.cols}"
+														cols="@{property.def.cols}" rows="@{property.def.rows}"
+														multiline="true"
+														visible="@{property.type.ctrlMultilineTextBox}"
+														value="@{property.value}" />
+													<textbox
+														type="password" cols="@{property.def.cols}"
 														visible="@{property.type.ctrlPassword}"
 														value="@{property.value}" />
 												</hbox>
@@ -124,8 +131,18 @@
 									</grid>
 								</auxheader>
 								<auxheader align="center">
-									<button tooltiptext="Add a task"
-										image="/images/action_add.png" forward="onTaskAdd" />
+									<hbox
+										visible="@{scheduleredit.notSelectedJobTask}">
+										<button tooltiptext="Add a task"
+											image="/images/action_add.png" forward="onTaskAdd" />
+									</hbox>
+									<hbox
+										visible="@{scheduleredit.selectedJobTask}">
+										<button label="Save"
+											forward="onTaskSave" />
+										<button label="Cancel"
+											forward="onTaskCancel" />
+									</hbox>
 								</auxheader>
 							</auxhead>
 							<listitem self="@{each='taskItem'}">
@@ -151,6 +168,7 @@
 											</listcell>
 											<listcell>
 												<label
+													multiline="@{property2.type.ctrlMultilineTextBox}"
 													visible="@{property2.type.ctrlNotPassword}"
 													value="@{property2.value}" />
 											</listcell>

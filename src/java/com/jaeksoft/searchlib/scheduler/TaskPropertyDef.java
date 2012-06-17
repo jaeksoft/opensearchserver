@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,12 +30,20 @@ public class TaskPropertyDef implements Comparable<TaskPropertyDef> {
 
 	public final String name;
 
-	public int cols;
+	public final int cols;
 
-	public TaskPropertyDef(TaskPropertyType type, String name, int cols) {
+	public final int rows;
+
+	public TaskPropertyDef(TaskPropertyType type, String name, int cols,
+			int rows) {
 		this.type = type;
 		this.name = name;
 		this.cols = cols;
+		this.rows = rows;
+	}
+
+	public TaskPropertyDef(TaskPropertyType type, String name, int cols) {
+		this(type, name, cols, 1);
 	}
 
 	@Override

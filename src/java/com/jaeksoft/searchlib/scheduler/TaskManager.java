@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -77,12 +78,16 @@ public class TaskManager implements Job {
 		}
 	}
 
-	public static void checkJob(String indexName, String jobName,
+	private static void checkSchedulerAvailable() throws SearchLibException {
+		if (scheduler == null)
+			throw new SearchLibException("The scheduler is not availalbe.");
+	}
+
+	public static void cronJob(String indexName, String jobName,
 			TaskCronExpression cron) throws SearchLibException {
 		lock.lock();
 		try {
-			if (scheduler == null)
-				throw new SearchLibException("The scheduler is not availalbe.");
+			checkSchedulerAvailable();
 			Trigger trigger = new CronTrigger(jobName, indexName,
 					cron.getStringExpression());
 
@@ -108,6 +113,21 @@ public class TaskManager implements Job {
 			scheduler.scheduleJob(job, trigger);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
+		} catch (SchedulerException e) {
+			throw new SearchLibException(e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public static void executeJob(String indexName, String jobName)
+			throws SearchLibException {
+		lock.lock();
+		try {
+			checkSchedulerAvailable();
+			Trigger trigger = new SimpleTrigger(jobName, indexName);
+			JobDetail job = new JobDetail(jobName, indexName, TaskManager.class);
+			scheduler.scheduleJob(job, trigger);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {

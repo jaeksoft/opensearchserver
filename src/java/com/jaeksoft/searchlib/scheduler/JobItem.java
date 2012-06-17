@@ -307,7 +307,7 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		rwl.r.lock();
 		try {
 			if (active)
-				TaskManager.checkJob(config.getIndexName(), getName(), cron);
+				TaskManager.cronJob(config.getIndexName(), getName(), cron);
 			else
 				TaskManager.removeJob(config.getIndexName(), getName());
 		} catch (SearchLibException e) {

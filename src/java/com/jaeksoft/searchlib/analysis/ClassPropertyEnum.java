@@ -109,6 +109,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "url_fragment", "URL Fragment",
 			"The Option to remove or keep the URL Fragment");
 
+	public final static ClassPropertyEnum REGULAR_EXPRESSION = new ClassPropertyEnum(
+			true, "regular_expression", "Regular Expression",
+			"The regular expression pattern");
+
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };
 

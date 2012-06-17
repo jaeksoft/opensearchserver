@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -74,6 +74,10 @@ public class TaskProperties {
 			if (Base64.isBase64(value))
 				value = StringUtils.base64decode(value);
 		prop.setValue(value);
+	}
+
+	public void set(TaskProperty taskProperty) {
+		setValue(taskProperty.getDef(), taskProperty.getValue());
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {

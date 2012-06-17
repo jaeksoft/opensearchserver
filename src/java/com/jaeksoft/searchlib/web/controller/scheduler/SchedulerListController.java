@@ -26,11 +26,13 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import javax.naming.NamingException;
 
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
+import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 
@@ -41,12 +43,15 @@ public class SchedulerListController extends CommonController {
 	 */
 	private static final long serialVersionUID = -8069350016336622392L;
 
+	private JobItem selectedJob;
+
 	public SchedulerListController() throws SearchLibException, NamingException {
 		super();
 	}
 
 	@Override
 	protected void reset() throws SearchLibException {
+		selectedJob = null;
 	}
 
 	@Override
@@ -62,16 +67,11 @@ public class SchedulerListController extends CommonController {
 	}
 
 	public JobItem getSelectedJob() {
-		return null;
+		return selectedJob;
 	}
 
 	public void setSelectedJob(JobItem job) {
-		if (job == null)
-			return;
-		reloadPage();
-		PushEvent.JOB_EDIT.publish(job);
-		Tab tab = (Tab) getFellow("tabSchedulerEdit", true);
-		tab.setSelected(true);
+		selectedJob = job;
 	}
 
 	public boolean isRefresh() throws SearchLibException {
@@ -79,6 +79,30 @@ public class SchedulerListController extends CommonController {
 		if (client == null)
 			return false;
 		return client.getJobList().getActiveCount() > 0;
+	}
+
+	private JobItem getCompJobItem(Component comp) {
+		return (JobItem) getRecursiveComponentAttribute(comp, "jobentry");
+	}
+
+	public void doEdit(Component comp) {
+		JobItem job = getCompJobItem(comp);
+		if (job == null)
+			return;
+		PushEvent.JOB_EDIT.publish(job);
+		Tab tab = (Tab) getFellow("tabSchedulerEdit", true);
+		tab.setSelected(true);
+	}
+
+	public void doExecute(Component comp) throws SearchLibException {
+		JobItem job = getCompJobItem(comp);
+		if (job == null)
+			return;
+		Client client = getClient();
+		if (client == null)
+			return;
+		TaskManager.executeJob(client.getIndexName(), job.getName());
+		reloadPage();
 	}
 
 	public void onTimer() {

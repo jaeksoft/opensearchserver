@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,48 +32,46 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermEnum;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
-import com.jaeksoft.searchlib.util.StringUtils;
 
-public class TaskPullTerms extends TaskPullAbstract {
+public class TaskPullFields extends TaskPullAbstract {
+
+	final private TaskPropertyDef propSourceQuery = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Source query", 50);
 
 	final private TaskPropertyDef propSourceField = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Source field name", 50);
 
-	final private TaskPropertyDef propTermField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Term field name", 50);
+	final private TaskPropertyDef propTargetField = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Target field name", 50);
 
-	final private TaskPropertyDef propFreqField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Frequency field name", 50);
+	final private TaskPropertyDef propMappedFields = new TaskPropertyDef(
+			TaskPropertyType.multilineTextBox, "Mapped fields", 50, 5);
 
-	final private TaskPropertyDef propFreqMin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Minimum frequency", 20);
-
-	final private TaskPropertyDef propFreqPadSize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Frequency pad", 20);
-
-	final private TaskPropertyDef[] taskPropertyDefs = { propSourceField,
-			propSourceIndex, propLogin, propApiKey, propTermField,
-			propFreqField, propFreqMin, propFreqPadSize };
+	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
+			propLogin, propApiKey, propSourceQuery, propSourceField,
+			propTargetField, propMappedFields };
 
 	@Override
 	public String getName() {
-		return "Pull terms";
+		return "Pull fields";
 	}
 
 	@Override
@@ -87,7 +85,7 @@ public class TaskPullTerms extends TaskPullAbstract {
 		List<String> values = new ArrayList<String>(0);
 		if (propertyDef == propSourceIndex) {
 			populateSourceIndexValues(config, values);
-		} else if (propertyDef == propSourceField) {
+		} else if (propertyDef == propTargetField) {
 			populateFieldValues(config, values);
 		}
 		return toValueArray(values);
@@ -95,10 +93,8 @@ public class TaskPullTerms extends TaskPullAbstract {
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
-		if (propertyDef == propFreqPadSize)
-			return "9";
-		if (propertyDef == propFreqMin)
-			return "2";
+		if (propertyDef == propSourceQuery)
+			return "*:*";
 		return null;
 	}
 
@@ -106,23 +102,16 @@ public class TaskPullTerms extends TaskPullAbstract {
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException {
 		String sourceIndex = properties.getValue(propSourceIndex);
+		String sourceQuery = properties.getValue(propSourceQuery);
 		String sourceField = properties.getValue(propSourceField);
+		String targetField = properties.getValue(propTargetField);
 		String login = properties.getValue(propLogin);
 		String apiKey = properties.getValue(propApiKey);
-		String[] targetTermFields = properties.getValue(propTermField).split(
-				",");
-		for (int i = 0; i < targetTermFields.length; i++)
-			targetTermFields[i] = targetTermFields[i].trim();
-		int freqPadSize = Integer
-				.parseInt(properties.getValue(propFreqPadSize));
-		int freqMin = Integer.parseInt(properties.getValue(propFreqMin));
-		String[] targetFreqFields = properties.getValue(propFreqField).split(
-				",");
-		for (int i = 0; i < targetFreqFields.length; i++)
-			targetFreqFields[i] = targetFreqFields[i].trim();
+
 		int bufferSize = 50;
-		TermEnum termEnum = null;
+
 		try {
+
 			if (!ClientCatalog.getUserList().isEmpty()) {
 				User user = ClientCatalog.authenticateKey(login, apiKey);
 				if (user == null)
@@ -133,38 +122,67 @@ public class TaskPullTerms extends TaskPullAbstract {
 			Client sourceClient = ClientCatalog.getClient(sourceIndex);
 			if (sourceClient == null)
 				throw new SearchLibException("Client not found: " + sourceIndex);
+
 			SchemaField sourceTermField = sourceClient.getSchema()
 					.getFieldList().get(sourceField);
 			if (sourceTermField == null)
 				throw new SearchLibException("Source field not found: "
 						+ sourceField);
-			String sourceFieldName = sourceTermField.getName();
-			termEnum = sourceClient.getIndex().getTermEnum(sourceFieldName, "");
-			Term term = null;
-			String text;
+
+			FieldMap fieldMap = new FieldMap(targetField, ",");
+			fieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
+					LanguageEnum.UNDEFINED);
+
 			List<IndexDocument> buffer = new ArrayList<IndexDocument>(
 					bufferSize);
 
+			SearchRequest searchRequest = new SearchRequest(sourceClient);
+			searchRequest.setQueryString(sourceQuery);
+			searchRequest.addReturnField(sourceField);
+			searchRequest.setRows(bufferSize);
+			int start = 0;
+
 			int totalCount = 0;
-			while ((term = termEnum.term()) != null) {
-				if (!sourceFieldName.equals(term.field()))
+			for (;;) {
+				searchRequest.setStart(start);
+				AbstractResultSearch result = (AbstractResultSearch) sourceClient
+						.request(searchRequest);
+
+				if (result.getDocumentCount() <= 0)
 					break;
-				IndexDocument indexDocument = new IndexDocument();
-				text = term.text();
-				int freq = termEnum.docFreq();
-				if (freq >= freqMin) {
-					for (String targetTermField : targetTermFields)
-						indexDocument.addString(targetTermField, text);
-					text = StringUtils.leftPad(freq, freqPadSize);
-					for (String targetFreqField : targetFreqFields)
-						indexDocument.addString(targetFreqField, text);
-					buffer.add(indexDocument);
-					if (buffer.size() == bufferSize)
-						totalCount = indexBuffer(totalCount, buffer, client,
-								taskLog);
+
+				ResultDocument[] documents = result.getDocuments();
+				if (documents == null)
+					break;
+
+				for (ResultDocument document : documents) {
+					FieldValueItem[] fieldValueItems = document
+							.getValueArray(sourceField);
+					if (fieldValueItems == null)
+						continue;
+					IndexDocument mappedDocument = new IndexDocument();
+					fieldMap.mapIndexDocument(document, mappedDocument);
+
+					for (FieldValueItem fieldValueItem : fieldValueItems) {
+
+						String value = fieldValueItem.getValue();
+						if (value == null)
+							continue;
+						if (value.length() == 0)
+							continue;
+
+						IndexDocument targetDocument = new IndexDocument(
+								mappedDocument);
+						targetDocument.add(targetField, value, 1.0F);
+						buffer.add(targetDocument);
+						if (buffer.size() == bufferSize)
+							totalCount = indexBuffer(totalCount, buffer,
+									client, taskLog);
+					}
 				}
-				if (!termEnum.next())
-					break;
+
+				searchRequest.reset();
+				start += bufferSize;
 			}
 			totalCount = indexBuffer(totalCount, buffer, client, taskLog);
 		} catch (NoSuchAlgorithmException e) {
@@ -181,15 +199,6 @@ public class TaskPullTerms extends TaskPullAbstract {
 			throw new SearchLibException(e);
 		} catch (NamingException e) {
 			throw new SearchLibException(e);
-		} finally {
-			if (termEnum != null) {
-				try {
-					termEnum.close();
-				} catch (IOException e) {
-					Logging.warn(e);
-				}
-				termEnum = null;
-			}
 		}
 	}
 }

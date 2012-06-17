@@ -23,28 +23,31 @@
 			<listbox id="joblist" model="@{schedulerlist.jobs}"
 				selectedItem="@{schedulerlist.selectedJob}">
 				<listhead>
-					<listheader label="Name" />
+					<listheader label="Name" hflex="min" />
 					<listheader tooltiptext="Active" label="A"
-						width="50px" />
+						width="50px" hflex="min" />
 					<listheader tooltiptext="Seconds" label="S"
-						width="50px" />
+						width="50px" hflex="min" />
 					<listheader tooltiptext="Minutes" label="M"
-						width="50px" />
+						width="50px" hflex="min" />
 					<listheader tooltiptext="Hours" label="H"
-						width="50px" />
+						width="50px" hflex="min" />
 					<listheader tooltiptext="Day of month" label="DM"
-						width="50px" />
+						width="50px" hflex="min" />
 					<listheader tooltiptext="Month" label="M"
-						width="50px" />
+						width="50px" hflex="min" />
 					<listheader tooltiptext="Day of week" label="DW"
-						width="50px" />
+						width="50px" hflex="min" />
 					<listheader tooltiptext="Year" label="W"
-						width="50px" />
-					<listheader label="Last start" width="150px" />
+						width="50px" hflex="min" />
+					<listheader label="Last start" hflex="min" />
 					<listheader label="Last error" />
+					<listheader label="Action" hflex="min" />
 				</listhead>
 				<listitem self="@{each=job}">
-					<listcell label="@{job.name}" />
+					<custom-attributes jobentry="@{job}" />
+					<listcell label="@{job.name}"
+						onDoubleClick="schedulerlist.doEdit(self)" />
 					<listcell>
 						<image src="images/action_check.png"
 							visible="@{job.active}" />
@@ -59,6 +62,12 @@
 					<listcell
 						label="@{job.lastExecution,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
 					<listcell label="@{job.lastError.message}" />
+					<listcell>
+						<button label="Edit"
+							onClick="schedulerlist.doEdit(self)" />
+						<button label="Execute"
+							onClick="schedulerlist.doExecute(self)" />
+					</listcell>
 				</listitem>
 			</listbox>
 		</panelchildren>

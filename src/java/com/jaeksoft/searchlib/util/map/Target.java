@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,18 +24,37 @@
 
 package com.jaeksoft.searchlib.util.map;
 
+import java.io.IOException;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.AnalyzerList;
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
+
 public class Target implements Comparable<Target> {
 
 	private String name;
 
-	public Target(String name) {
+	private String analyzer;
+
+	private CompiledAnalyzer cachedAnalyzer;
+
+	public Target(String name, String analyzer) {
 		this.name = name;
+		this.analyzer = analyzer;
+		this.cachedAnalyzer = null;
+	}
+
+	public Target(String name) {
+		this(name, null);
 	}
 
 	/**
 	 * @return the name
 	 */
-	public String getName() {
+	final public String getName() {
 		return name;
 	}
 
@@ -43,24 +62,53 @@ public class Target implements Comparable<Target> {
 	 * @param name
 	 *            the name to set
 	 */
-	public void setName(String name) {
+	final public void setName(String name) {
 		this.name = name;
 	}
 
 	@Override
-	public String toString() {
+	final public String toString() {
 		return name;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	final public boolean equals(Object o) {
 		if (!(o instanceof Target))
 			return false;
 		return this.name.equals(((Target) o).name);
 	}
 
 	@Override
-	public int compareTo(Target o) {
+	final public int compareTo(Target o) {
 		return name.compareTo(o.name);
+	}
+
+	/**
+	 * @return the analyzer
+	 */
+	final public String getAnalyzer() {
+		return analyzer;
+	}
+
+	/**
+	 * @param analyzer
+	 *            the analyzer to set
+	 */
+	final public void setAnalyzer(String analyzer) {
+		this.analyzer = analyzer;
+		this.cachedAnalyzer = null;
+	}
+
+	final public void setCachedAnalyzer(AnalyzerList analyzerList,
+			LanguageEnum lang) throws SearchLibException {
+		cachedAnalyzer = analyzerList.get(analyzer, lang).getIndexAnalyzer();
+	}
+
+	final public void add(FieldValueItem fvi, IndexDocument document)
+			throws IOException {
+		if (cachedAnalyzer == null)
+			document.add(name, fvi);
+		else
+			cachedAnalyzer.populate(fvi.getValue(), document.getField(name));
 	}
 }

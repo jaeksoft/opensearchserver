@@ -56,6 +56,9 @@ public enum FilterEnum {
 	PrefixSuffixStopFilter(
 			"This filter removes words which match with prefixes or suffixes of a given term list."),
 
+	RegularExpressionFilter(
+			"This filter generates tokens by applying a regular expression"),
+
 	RemoveDuplicateCharactersFilter("Remove consecutive duplicate characters."),
 
 	RussianStemFilter("A filter that stems Russian words."),

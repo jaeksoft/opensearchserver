@@ -353,7 +353,7 @@ public class UrlManager {
 		searchRequest.setQueryString("*:*");
 		AbstractResultSearch result = (AbstractResultSearch) urlDbClient
 				.request(searchRequest);
-		if (result.getDocumentCount() == 0)
+		if (result.getDocumentCount() <= 0)
 			return null;
 		return getNewUrlItem(result.getDocument(0));
 

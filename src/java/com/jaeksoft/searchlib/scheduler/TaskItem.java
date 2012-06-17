@@ -48,6 +48,18 @@ public class TaskItem {
 				task.getPropertyList());
 	}
 
+	public TaskItem(Config config, TaskItem selectedJobTask) {
+		this(config, selectedJobTask.task);
+		setProperties(selectedJobTask.getProperties());
+	}
+
+	public void setProperties(TaskProperty[] taskProps) {
+		if (taskProps == null)
+			return;
+		for (TaskProperty taskProperty : taskProps)
+			userProperties.set(taskProperty);
+	}
+
 	/**
 	 * @return the task
 	 */

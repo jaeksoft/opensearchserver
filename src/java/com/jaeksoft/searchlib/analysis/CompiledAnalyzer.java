@@ -35,6 +35,7 @@ import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
+import com.jaeksoft.searchlib.index.FieldContent;
 
 public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 
@@ -117,4 +118,13 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		ts = new TermSetTokenFilter(termSet, ts);
 		ts.incrementToken();
 	}
+
+	public void populate(String text, FieldContent fieldContent)
+			throws IOException {
+		StringReader reader = new StringReader(text);
+		TokenStream ts = tokenStream(null, reader);
+		ts = new FieldContentPopulateFilter(fieldContent, ts);
+		ts.incrementToken();
+	}
+
 }

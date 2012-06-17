@@ -24,10 +24,7 @@
 
 package com.jaeksoft.searchlib.result;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,14 +39,8 @@ import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
-import com.jaeksoft.searchlib.util.External;
 
-public class ResultDocument implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6099412341625264882L;
+public class ResultDocument {
 
 	private FieldList<FieldValue> returnFields;
 	private FieldList<SnippetFieldValue> snippetFields;
@@ -160,19 +151,6 @@ public class ResultDocument implements Externalizable {
 
 	public boolean isHighlighted(String fieldName) {
 		return snippetFields.get(fieldName).isHighlighted();
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		returnFields = External.readObject(in);
-		snippetFields = External.readObject(in);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeObject(returnFields, out);
-		External.writeObject(snippetFields, out);
 	}
 
 }

@@ -68,6 +68,13 @@ public class IndexDocument implements Iterable<FieldContent> {
 		fieldContentArray = null;
 	}
 
+	public IndexDocument(IndexDocument sourceDocument) {
+		this(sourceDocument.lang);
+		for (Map.Entry<String, FieldContent> entry : sourceDocument.fields
+				.entrySet())
+			add(entry.getKey(), entry.getValue());
+	}
+
 	public IndexDocument(LanguageEnum lang) {
 		this();
 		this.lang = lang;
@@ -274,13 +281,6 @@ public class IndexDocument implements Iterable<FieldContent> {
 					"Parser error while getting binary from file : " + filePath
 							+ " /" + filename, e);
 		}
-	}
-
-	public IndexDocument(IndexDocument sourceDocument) {
-		this.lang = sourceDocument.lang;
-		for (Map.Entry<String, FieldContent> entry : sourceDocument.fields
-				.entrySet())
-			add(entry.getKey(), entry.getValue());
 	}
 
 	private FieldContent getFieldContent(String field) {

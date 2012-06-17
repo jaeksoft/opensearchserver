@@ -57,6 +57,8 @@ public class SchedulerEditController extends CommonController {
 
 	private transient TaskItem currentTask;
 
+	private transient TaskItem selectedJobTask;
+
 	private class DeleteAlert extends AlertController {
 
 		private transient JobItem deleteJob;
@@ -84,6 +86,7 @@ public class SchedulerEditController extends CommonController {
 	@Override
 	protected void reset() throws SearchLibException {
 		selectedJob = null;
+		selectedJobTask = null;
 		currentJob = new JobItem("New job");
 		Client client = getClient();
 		if (client != null)
@@ -163,10 +166,20 @@ public class SchedulerEditController extends CommonController {
 	 * @throws SearchLibException
 	 */
 	public void onTaskAdd() throws SearchLibException {
+		currentJob.taskAdd(currentTask);
+		onTaskCancel();
+	}
+
+	public void onTaskSave() throws SearchLibException {
+		selectedJobTask.setProperties(currentTask.getProperties());
+		onTaskCancel();
+	}
+
+	public void onTaskCancel() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return;
-		currentJob.taskAdd(currentTask);
+		selectedJobTask = null;
 		this.currentTask = new TaskItem(client, selectedTask.getTask());
 		reloadPage();
 	}
@@ -244,6 +257,38 @@ public class SchedulerEditController extends CommonController {
 			selectedJob.copy(currentJob);
 		client.saveJobs();
 		onCancel();
+	}
+
+	public boolean isNotSelectedJobTask() {
+		return getSelectedJobTask() == null;
+	}
+
+	public boolean isSelectedJobTask() {
+		return !isNotSelectedJobTask();
+	}
+
+	/**
+	 * @return the selectedJobTask
+	 */
+	public TaskItem getSelectedJobTask() {
+		return selectedJobTask;
+	}
+
+	/**
+	 * @param selectedJobTask
+	 *            the selectedJobTask to set
+	 * @throws SearchLibException
+	 */
+	public void setSelectedJobTask(TaskItem selectedJobTask)
+			throws SearchLibException {
+		this.selectedJobTask = selectedJobTask;
+		if (selectedJobTask != null) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			this.currentTask = new TaskItem(client, selectedJobTask);
+		}
+		reloadPage();
 	}
 
 }
