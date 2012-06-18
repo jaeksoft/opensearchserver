@@ -31,6 +31,7 @@
 	<property name="resources" location="src/resources" />
 	<property name="web" location="WebContent" />
 	<property name="lib" location="lib" />
+	<property name="lib-apache-cxf" location="${lib}/apache-cxf" />
 	<property name="wlib" location="${web}/WEB-INF/lib" />
 	<property name="build" location="ant-build" />
 	<property name="build-release" location="${build}/release" />
@@ -57,6 +58,9 @@
 		<fileset dir="${lib}">
 			<include name="**.jar" />
 		</fileset>
+		<fileset dir="${lib-apache-cxf}">
+			<include name="**.jar" />
+	    </fileset>
 		<fileset dir="${tomcat-lib}">
 			<include name="**.jar" />
 		</fileset>
@@ -96,6 +100,7 @@
 		<mkdir dir="${dist}" />
 		<war destfile="${dist}/${name-release}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
 			<lib file="${dist}/${name-release}.jar" />
+			<lib dir="${lib-apache-cxf}" />
 			<fileset file="${temp-version}" />
 		</war>
 	</target>
@@ -112,6 +117,7 @@
 		<mkdir dir="${dist}" />
 		<war destfile="${dist}/${name-debug}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
 			<lib file="${dist}/${name-debug}.jar" />
+			<lib dir="${lib-apache-cxf}" />
 			<fileset file="${temp-version}" />
 		</war>
 	</target>
