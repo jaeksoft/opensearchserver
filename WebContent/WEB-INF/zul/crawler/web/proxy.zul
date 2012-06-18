@@ -39,7 +39,7 @@
 			</row>
 			<row>
 				<label value="Proxy exclusion :" />
-				<intbox id="proxyExclusion" cols="80" rows="10" multiline="true"
+				<textbox id="proxyExclusion" cols="80" rows="10" multiline="true"
 					value="@{proxy.properties.proxyExclusion.value}" />
 			</row>
 		</rows>
