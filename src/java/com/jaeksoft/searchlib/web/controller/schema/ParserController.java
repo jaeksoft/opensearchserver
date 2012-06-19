@@ -318,9 +318,9 @@ public class ParserController extends CommonController implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render(Listitem item, Object data) throws Exception {
-		GenericLink<String, ParserFieldTarget> link = (GenericLink<String, ParserFieldTarget>) data;
+		GenericLink<SourceField, ParserFieldTarget> link = (GenericLink<SourceField, ParserFieldTarget>) data;
 		ParserFieldTarget fieldTarget = link.getTarget();
-		new Listcell(link.getSource()).setParent(item);
+		new Listcell(link.getSource().getUniqueName()).setParent(item);
 		new Listcell(fieldTarget.getName()).setParent(item);
 		String s = fieldTarget.getCaptureRegexp();
 		if (s != null)

@@ -41,6 +41,7 @@ public class SourceField implements Comparable<SourceField> {
 
 	public SourceField(String name) {
 		names = new String[1];
+		names[0] = name;
 		separator = '|';
 	}
 
