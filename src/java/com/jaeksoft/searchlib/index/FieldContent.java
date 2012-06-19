@@ -79,6 +79,8 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	public FieldValueItem getValue(int pos) {
 		if (values == null)
 			return null;
+		if (pos >= values.size())
+			return null;
 		return values.get(pos);
 	}
 
