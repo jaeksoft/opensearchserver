@@ -227,7 +227,7 @@ public class UploadXmlController extends CommonController {
 					xmlSource = new StreamSource(
 							new ByteArrayInputStream(bytes));
 				} else {
-					byte[] bytes = media.getStringData().getBytes();
+					byte[] bytes = media.getStringData().getBytes("UTF-8");
 					xmlSource = new StreamSource(
 							new ByteArrayInputStream(bytes));
 				}

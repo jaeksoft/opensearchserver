@@ -38,8 +38,10 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
+import com.jaeksoft.searchlib.util.map.SourceField;
 
-public class ParserFieldMap extends FieldMapGeneric<ParserFieldTarget> {
+public class ParserFieldMap extends
+		FieldMapGeneric<SourceField, ParserFieldTarget> {
 
 	public ParserFieldMap(XPathParser xpp, Node node)
 			throws XPathExpressionException {
@@ -56,21 +58,26 @@ public class ParserFieldMap extends FieldMapGeneric<ParserFieldTarget> {
 	}
 
 	@Override
+	protected SourceField loadSource(String source) {
+		return new SourceField(source);
+	}
+
+	@Override
 	protected void writeTarget(XmlWriter xmlWriter, ParserFieldTarget target)
 			throws SAXException {
 		target.writeXml(xmlWriter);
 	}
 
 	protected boolean isMapped(ParserFieldEnum field) {
-		List<ParserFieldTarget> list = getLinks(field.name());
+		List<ParserFieldTarget> list = getLinks(new SourceField(field.name()));
 		if (list == null)
 			return false;
 		return list.size() > 0;
 	}
 
 	public void mapIndexDocument(IndexDocument source, IndexDocument target) {
-		for (GenericLink<String, ParserFieldTarget> link : getList()) {
-			FieldContent fc = source.getField(link.getSource());
+		for (GenericLink<SourceField, ParserFieldTarget> link : getList()) {
+			FieldContent fc = link.getSource().getUniqueString(source);
 			ParserFieldTarget fieldTarget = link.getTarget();
 			String targetField = fieldTarget.getName();
 			if (fc != null) {

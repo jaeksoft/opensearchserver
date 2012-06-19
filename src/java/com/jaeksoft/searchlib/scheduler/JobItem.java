@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -234,7 +235,8 @@ public class JobItem extends UniqueNameItem<JobItem> {
 	}
 
 	@Override
-	public void writeXml(XmlWriter xmlWriter) throws SAXException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException,
+			UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement("job", "name", this.getName(), "active",

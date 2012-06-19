@@ -53,12 +53,19 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
+import com.jaeksoft.searchlib.util.map.SourceField;
 
-public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
+public class DatabaseFieldMap extends
+		FieldMapGeneric<SourceField, DatabaseFieldTarget> {
 
 	@Override
 	protected DatabaseFieldTarget loadTarget(String targetName, Node node) {
 		return new DatabaseFieldTarget(targetName, node);
+	}
+
+	@Override
+	protected SourceField loadSource(String source) {
+		return new SourceField(source);
 	}
 
 	@Override
@@ -68,7 +75,7 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 	}
 
 	public boolean isUrl() {
-		for (GenericLink<String, DatabaseFieldTarget> link : getList()) {
+		for (GenericLink<SourceField, DatabaseFieldTarget> link : getList()) {
 			DatabaseFieldTarget dfTarget = link.getTarget();
 			if (dfTarget.isCrawlUrl())
 				return true;
@@ -83,8 +90,8 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 			IllegalAccessException, ClassNotFoundException, SearchLibException,
 			ParseException, IOException, SyntaxError, URISyntaxException,
 			InterruptedException {
-		for (GenericLink<String, DatabaseFieldTarget> link : getList()) {
-			String columnName = link.getSource();
+		for (GenericLink<SourceField, DatabaseFieldTarget> link : getList()) {
+			String columnName = link.getSource().getUniqueName();
 			if (!columns.contains(columnName))
 				continue;
 			String content = resultSet.getString(columnName);
@@ -133,4 +140,5 @@ public class DatabaseFieldMap extends FieldMapGeneric<DatabaseFieldTarget> {
 			target.add(dfTarget.getName(), new FieldValueItem(content));
 		}
 	}
+
 }

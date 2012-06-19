@@ -34,9 +34,9 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.util.map.Target;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
-public class DatabaseFieldTarget extends Target {
+public class DatabaseFieldTarget extends TargetField {
 
 	private boolean removeTag;
 

@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -80,7 +81,8 @@ public class TaskProperties {
 		setValue(taskProperty.getDef(), taskProperty.getValue());
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException,
+			UnsupportedEncodingException {
 		if (cache != null)
 			for (TaskProperty taskProperty : cache)
 				taskProperty.writeXml(xmlWriter);

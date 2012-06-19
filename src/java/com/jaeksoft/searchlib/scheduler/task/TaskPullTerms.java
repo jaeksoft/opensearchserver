@@ -109,8 +109,8 @@ public class TaskPullTerms extends TaskPullAbstract {
 		String sourceField = properties.getValue(propSourceField);
 		String login = properties.getValue(propLogin);
 		String apiKey = properties.getValue(propApiKey);
-		String[] targetTermFields = properties.getValue(propTermField).split(
-				",");
+		String[] targetTermFields = StringUtils.split(
+				properties.getValue(propTermField), ',');
 		for (int i = 0; i < targetTermFields.length; i++)
 			targetTermFields[i] = targetTermFields[i].trim();
 		int freqPadSize = Integer

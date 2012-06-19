@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -56,16 +57,16 @@ public class Md5Spliter {
 	}
 
 	final public static String getMD5Hash(String str)
-			throws NoSuchAlgorithmException {
-		byte[] bytes = str.getBytes();
+			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+		byte[] bytes = str.getBytes("UTF-8");
 		return getMD5Hash(bytes, 0, bytes.length);
 	}
 
 	final public static String getMD5Hash(String data, String key)
-			throws NoSuchAlgorithmException {
+			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
-		md5.update(data.getBytes());
-		return generateHash(md5.digest(key.getBytes()));
+		md5.update(data.getBytes("UTF-8"));
+		return generateHash(md5.digest(key.getBytes("UTF-8")));
 	}
 
 	private Pattern keyPattern;
@@ -76,7 +77,7 @@ public class Md5Spliter {
 	}
 
 	public boolean acceptAnyKey(Collection<FieldValueItem> keys)
-			throws NoSuchAlgorithmException {
+			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		if (keyPattern == null)
 			return true;
 		for (FieldValueItem key : keys)

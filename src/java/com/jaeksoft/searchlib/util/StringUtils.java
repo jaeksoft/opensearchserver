@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -36,7 +37,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 
-public class StringUtils {
+public class StringUtils extends org.apache.commons.lang.StringUtils {
 
 	private enum SizeUnit {
 		BYTE("B", 1), KILOBYTE("KB", 1024), MEGABYTE("MB", 1024 * 1024), GIGABYTE(
@@ -183,9 +184,11 @@ public class StringUtils {
 	 * @param text
 	 *            the text to encode
 	 * @return a base64 encoded string
+	 * @throws UnsupportedEncodingException
 	 */
-	public final static String base64encode(String text) {
-		return Base64.encodeBase64URLSafeString(text.getBytes());
+	public final static String base64encode(String text)
+			throws UnsupportedEncodingException {
+		return Base64.encodeBase64URLSafeString(text.getBytes("UTF-8"));
 	}
 
 	/**

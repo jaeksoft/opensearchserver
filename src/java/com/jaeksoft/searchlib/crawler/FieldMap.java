@@ -34,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -47,26 +48,33 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
-import com.jaeksoft.searchlib.util.map.Target;
+import com.jaeksoft.searchlib.util.map.SourceField;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
-public class FieldMap extends FieldMapGeneric<Target> {
+public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
+
+	final private char concatSeparator;
 
 	public FieldMap() {
+		concatSeparator = '|';
 	}
 
-	public FieldMap(String multilineText, String separator) throws IOException {
+	public FieldMap(String multilineText, char fieldSeparator,
+			char concatSeparator) throws IOException {
 		StringReader sr = new StringReader(multilineText);
 		BufferedReader br = new BufferedReader(sr);
+		this.concatSeparator = concatSeparator;
 		try {
 			String line;
 			while ((line = br.readLine()) != null) {
-				String[] cols = line.split(separator);
+				String[] cols = StringUtils.split(line, fieldSeparator);
 				if (cols == null || cols.length < 2)
 					continue;
 				String source = cols[0];
 				String target = cols[1];
 				String analyzer = cols.length > 2 ? cols[2] : null;
-				add(source, new Target(target, analyzer));
+				add(new SourceField(source, concatSeparator), new TargetField(
+						target, analyzer));
 			}
 		} finally {
 			IOUtils.closeQuietly(br);
@@ -77,50 +85,76 @@ public class FieldMap extends FieldMapGeneric<Target> {
 	public FieldMap(File file) throws XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException {
 		super(file, "/map");
+		concatSeparator = '|';
 	}
 
 	public FieldMap(XPathParser xpp, Node node) throws XPathExpressionException {
 		super(xpp, node);
+		concatSeparator = '|';
 	}
 
 	@Override
-	protected Target loadTarget(String targetName, Node node) {
-		return new Target(targetName);
+	protected TargetField loadTarget(String targetName, Node node) {
+		return new TargetField(targetName);
 	}
 
 	@Override
-	protected void writeTarget(XmlWriter xmlWriter, Target target)
+	protected SourceField loadSource(String sourceName) {
+		return new SourceField(sourceName, concatSeparator);
+	}
+
+	@Override
+	protected void writeTarget(XmlWriter xmlWriter, TargetField target)
 			throws SAXException {
+	}
+
+	private void addFieldContent(FieldContent fc, TargetField targetField,
+			IndexDocument target) throws IOException {
+		if (fc == null)
+			return;
+		List<FieldValueItem> values = fc.getValues();
+		if (values != null)
+			for (FieldValueItem valueItem : values)
+				targetField.add(valueItem, target);
 	}
 
 	public void mapIndexDocument(IndexDocument source, IndexDocument target)
 			throws IOException {
-		for (GenericLink<String, Target> link : getList()) {
-			FieldContent fc = source.getField(link.getSource());
-			if (fc != null) {
-				List<FieldValueItem> values = fc.getValues();
-				if (values != null)
-					for (FieldValueItem valueItem : values)
-						link.getTarget().add(valueItem, target);
+		for (GenericLink<SourceField, TargetField> link : getList()) {
+			SourceField sourceField = link.getSource();
+			if (sourceField.isUnique()) {
+				FieldContent fc = sourceField.getUniqueString(source);
+				if (fc == null)
+					fc = sourceField.getUniqueString(target);
+				addFieldContent(fc, link.getTarget(), target);
+			} else {
+				String value = sourceField.getConcatString(source, target);
+				if (value != null)
+					link.getTarget().add(new FieldValueItem(value), target);
 			}
 		}
 	}
 
 	public void mapIndexDocument(ResultDocument source, IndexDocument target)
 			throws IOException {
-		for (GenericLink<String, Target> link : getList()) {
-			FieldValueItem[] fvi = source.getValueArray(link.getSource());
-			if (fvi != null) {
-				for (FieldValueItem valueItem : fvi) {
-					link.getTarget().add(valueItem, target);
-				}
+		for (GenericLink<SourceField, TargetField> link : getList()) {
+			SourceField sourceField = link.getSource();
+			if (sourceField.isUnique()) {
+				FieldValueItem[] fvi = sourceField.getUniqueString(source);
+				if (fvi != null)
+					for (FieldValueItem valueItem : fvi)
+						link.getTarget().add(valueItem, target);
+			} else {
+				String value = sourceField.getConcatString(source, target);
+				if (value != null)
+					link.getTarget().add(new FieldValueItem(value), target);
 			}
 		}
 	}
 
 	public void cacheAnalyzers(AnalyzerList analyzerList, LanguageEnum lang)
 			throws SearchLibException {
-		for (GenericLink<String, Target> link : getList())
+		for (GenericLink<SourceField, TargetField> link : getList())
 			link.getTarget().setCachedAnalyzer(analyzerList, lang);
 	}
 

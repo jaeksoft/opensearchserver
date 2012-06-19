@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler;
 
+import java.io.UnsupportedEncodingException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -99,7 +100,7 @@ public abstract class UniqueNameSetGeneric<T extends UniqueNameItem<T>> {
 	}
 
 	public void writeXml(String elementName, XmlWriter xmlWriter)
-			throws SAXException {
+			throws SAXException, UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement(elementName);

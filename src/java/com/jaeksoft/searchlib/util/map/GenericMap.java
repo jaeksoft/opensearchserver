@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-public class GenericMap<T1, T2 extends Target> {
+public class GenericMap<T1, T2> {
 
 	private TreeMap<T1, List<T2>> map;
 	private List<GenericLink<T1, T2>> list;

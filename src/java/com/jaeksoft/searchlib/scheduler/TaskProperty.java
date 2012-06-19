@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.io.UnsupportedEncodingException;
+
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -106,8 +108,10 @@ public class TaskProperty {
 	 * 
 	 * @param xmlWriter
 	 * @throws SAXException
+	 * @throws UnsupportedEncodingException
 	 */
-	public void writeXml(XmlWriter xmlWriter) throws SAXException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException,
+			UnsupportedEncodingException {
 		xmlWriter.startElement("property", "name", propertyDef.name);
 		if (propertyDef.type == TaskPropertyType.password) {
 			if (value != null && value.length() > 0)

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import org.w3c.dom.Node;
@@ -245,9 +246,10 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * @param xmlWriter
 	 * @param nodeName
 	 * @throws SAXException
+	 * @throws UnsupportedEncodingException
 	 */
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
-			throws SAXException {
+			throws SAXException, UnsupportedEncodingException {
 		xmlWriter.startElement(nodeName, "type", type.getName(), "domain",
 				domain, "username", username, "password",
 				password == null ? null : StringUtils.base64encode(password),

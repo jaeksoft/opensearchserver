@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -89,7 +90,8 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 
 	private final static String CONTENT_EXTENSION = "content";
 
-	private File uriToFile(URI uri, String extension) {
+	private File uriToFile(URI uri, String extension)
+			throws UnsupportedEncodingException {
 		String path = super.uriToPath(uri, rootPath + File.separator
 				+ PATH_HTTP_DOWNLOAD_CACHE, 10, File.separator, extension, 32);
 		return new File(path);

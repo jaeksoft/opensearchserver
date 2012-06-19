@@ -51,7 +51,8 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.map.GenericLink;
-import com.jaeksoft.searchlib.util.map.Target;
+import com.jaeksoft.searchlib.util.map.SourceField;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
 public class TaskPullFields extends TaskPullAbstract {
 
@@ -136,11 +137,11 @@ public class TaskPullFields extends TaskPullAbstract {
 				throw new SearchLibException("Source field not found: "
 						+ sourceField);
 
-			FieldMap sourceFieldMap = new FieldMap(sourceMappedFields, ",");
+			FieldMap sourceFieldMap = new FieldMap(sourceMappedFields, ',', '|');
 			sourceFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
 					LanguageEnum.UNDEFINED);
 
-			FieldMap targetFieldMap = new FieldMap(targetMappedFields, ",");
+			FieldMap targetFieldMap = new FieldMap(targetMappedFields, ',', '|');
 			targetFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
 					LanguageEnum.UNDEFINED);
 
@@ -150,8 +151,9 @@ public class TaskPullFields extends TaskPullAbstract {
 			SearchRequest searchRequest = new SearchRequest(sourceClient);
 			searchRequest.setQueryString(sourceQuery);
 			searchRequest.addReturnField(sourceField);
-			for (GenericLink<String, Target> link : sourceFieldMap.getList())
-				searchRequest.addReturnField(link.getSource());
+			for (GenericLink<SourceField, TargetField> link : sourceFieldMap
+					.getList())
+				link.getSource().addReturnField(searchRequest);
 			searchRequest.setRows(bufferSize);
 			int start = 0;
 

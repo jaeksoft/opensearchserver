@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,44 +22,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler;
+package com.jaeksoft.searchlib.analysis.filter;
 
-import java.io.UnsupportedEncodingException;
+import org.apache.lucene.analysis.TokenStream;
 
-import org.xml.sax.SAXException;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
 
-import com.jaeksoft.searchlib.util.XmlWriter;
-
-public abstract class UniqueNameItem<T extends UniqueNameItem<?>> implements
-		Comparable<T> {
-
-	private String name;
-
-	protected UniqueNameItem(String name) {
-		setName(name);
-	}
+public class URLNormalizerFilter extends FilterFactory {
 
 	@Override
-	public int compareTo(T o) {
-		return name.compareTo(o.name);
+	public TokenStream create(TokenStream tokenStream) {
+		return new URLNormalizerTokenFilter(tokenStream);
 	}
-
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	public abstract void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException;
-
 }

@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.cache;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -103,7 +104,8 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 		}
 	}
 
-	private Path uriToPath(URI uri, String extension) {
+	private Path uriToPath(URI uri, String extension)
+			throws UnsupportedEncodingException {
 		String path = super.uriToPath(uri, PATH_HTTP_DOWNLOAD_CACHE, 10,
 				Path.SEPARATOR, extension, 32);
 		return new Path(path);

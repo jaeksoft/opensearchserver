@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
@@ -79,7 +81,8 @@ public class TaskItem {
 		task.execute(client, userProperties, taskLog);
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException,
+			UnsupportedEncodingException {
 		xmlWriter
 				.startElement("task", "class", task.getClass().getSimpleName());
 		userProperties.writeXml(xmlWriter);

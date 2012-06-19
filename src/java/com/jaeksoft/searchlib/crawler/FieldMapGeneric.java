@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,10 +41,11 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.GenericMap;
-import com.jaeksoft.searchlib.util.map.Target;
+import com.jaeksoft.searchlib.util.map.SourceField;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
-public abstract class FieldMapGeneric<T extends Target> extends
-		GenericMap<String, T> {
+public abstract class FieldMapGeneric<S extends SourceField, T extends TargetField>
+		extends GenericMap<S, T> {
 
 	private File mapFile;
 
@@ -70,6 +71,8 @@ public abstract class FieldMapGeneric<T extends Target> extends
 
 	protected abstract T loadTarget(String targetName, Node node);
 
+	protected abstract S loadSource(String source);
+
 	public void load(XPathParser xpp, Node parentNode)
 			throws XPathExpressionException {
 		synchronized (this) {
@@ -79,7 +82,8 @@ public abstract class FieldMapGeneric<T extends Target> extends
 			int l = nodeList.getLength();
 			for (int i = 0; i < l; i++) {
 				Node node = nodeList.item(i);
-				String source = DomUtils.getAttributeText(node, "source");
+				String sourceName = DomUtils.getAttributeText(node, "source");
+				S source = loadSource(sourceName);
 				if (source == null)
 					continue;
 				String targetName = DomUtils.getAttributeText(node, "target");
@@ -95,9 +99,10 @@ public abstract class FieldMapGeneric<T extends Target> extends
 			throws SAXException;
 
 	public void store(XmlWriter xmlWriter) throws SAXException {
-		for (GenericLink<String, T> link : getList()) {
-			xmlWriter.startElement("link", "source", link.getSource(),
-					"target", link.getTarget().getName());
+		for (GenericLink<S, T> link : getList()) {
+			xmlWriter.startElement("link", "source", link.getSource()
+					.toXmlAttribute(), "target", link.getTarget()
+					.toXmlAttribute());
 			writeTarget(xmlWriter, link.getTarget());
 			xmlWriter.endElement();
 		}

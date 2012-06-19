@@ -100,7 +100,8 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 	}
 
 	@Override
-	public void writeXml(XmlWriter xmlWriter) throws SAXException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException,
+			UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
 			String encodedApiKey = (apiKey != null && apiKey.length() > 0) ? new String(

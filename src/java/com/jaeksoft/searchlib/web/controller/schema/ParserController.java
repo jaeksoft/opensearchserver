@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.parser.ParserFieldTarget;
 import com.jaeksoft.searchlib.parser.ParserType;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.map.GenericLink;
+import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -284,8 +285,9 @@ public class ParserController extends CommonController implements
 		if (selectedParserField == null || selectedIndexField == null)
 			return;
 		ParserFieldMap fieldMap = getFieldMap();
-		fieldMap.add(selectedParserField.name(), new ParserFieldTarget(
-				selectedIndexField.getName(), captureRegexp, removeTag));
+		fieldMap.add(new SourceField(selectedParserField.name()),
+				new ParserFieldTarget(selectedIndexField.getName(),
+						captureRegexp, removeTag));
 		reloadPage();
 	}
 
@@ -306,7 +308,7 @@ public class ParserController extends CommonController implements
 	public void onLinkRemove(Event event) throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
-		GenericLink<String, ParserFieldTarget> link = (GenericLink<String, ParserFieldTarget>) event
+		GenericLink<SourceField, ParserFieldTarget> link = (GenericLink<SourceField, ParserFieldTarget>) event
 				.getData();
 		ParserFieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);

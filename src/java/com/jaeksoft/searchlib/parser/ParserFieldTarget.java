@@ -38,9 +38,9 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.util.map.Target;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
-public class ParserFieldTarget extends Target {
+public class ParserFieldTarget extends TargetField {
 
 	private String captureRegexp;
 

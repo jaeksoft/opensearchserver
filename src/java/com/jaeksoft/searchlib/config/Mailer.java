@@ -3,7 +3,7 @@ package com.jaeksoft.searchlib.config;
 /**
  * License Agreement for OpenSearchServer
  * 
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,6 +23,7 @@ package com.jaeksoft.searchlib.config;
  * OpenSearchServer. If not, see <http://www.gnu.org/licenses/>.
  **/
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.w3c.dom.Node;
@@ -63,7 +64,7 @@ public class Mailer {
 		htmlEmail.setSmtpPort(smtp_port);
 		htmlEmail.setFrom(from_email, from_name);
 		if (dest_emails != null) {
-			String[] emailList = dest_emails.split(",");
+			String[] emailList = StringUtils.split(dest_emails, ',');
 			for (String email : emailList)
 				htmlEmail.addTo(email);
 		}
@@ -76,10 +77,10 @@ public class Mailer {
 		writer.startElement("mailer", "smtp_host", smtp_host, "username",
 				username == null ? "" : username, "password",
 				password == null ? "" : password, "use_ssl", use_ssl ? "yes"
-						: "no", "smtp_port", smtp_port == 0 ? "25" : Integer
-						.toString(smtp_port), "from_email",
-				from_email == null ? "" : from_email, "from_name",
-				from_name == null ? "" : from_name);
+						: "no", "smtp_port",
+				smtp_port == 0 ? "25" : Integer.toString(smtp_port),
+				"from_email", from_email == null ? "" : from_email,
+				"from_name", from_name == null ? "" : from_name);
 		writer.endElement();
 	}
 

@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
-public class Target implements Comparable<Target> {
+public class TargetField implements Comparable<TargetField> {
 
 	private String name;
 
@@ -41,13 +41,13 @@ public class Target implements Comparable<Target> {
 
 	private CompiledAnalyzer cachedAnalyzer;
 
-	public Target(String name, String analyzer) {
+	public TargetField(String name, String analyzer) {
 		this.name = name;
 		this.analyzer = analyzer;
 		this.cachedAnalyzer = null;
 	}
 
-	public Target(String name) {
+	public TargetField(String name) {
 		this(name, null);
 	}
 
@@ -71,15 +71,19 @@ public class Target implements Comparable<Target> {
 		return name;
 	}
 
-	@Override
-	final public boolean equals(Object o) {
-		if (!(o instanceof Target))
-			return false;
-		return this.name.equals(((Target) o).name);
+	final public String toXmlAttribute() {
+		return name;
 	}
 
 	@Override
-	final public int compareTo(Target o) {
+	final public boolean equals(Object o) {
+		if (!(o instanceof TargetField))
+			return false;
+		return this.name.equals(((TargetField) o).name);
+	}
+
+	@Override
+	final public int compareTo(TargetField o) {
 		return name.compareTo(o.name);
 	}
 

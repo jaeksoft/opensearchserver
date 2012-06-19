@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.cache;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -53,7 +54,8 @@ public abstract class CrawlCacheProvider {
 	public abstract long flush(long expirationTime) throws IOException;
 
 	final protected String uriToPath(URI uri, String rootPath, int hashDepth,
-			String separatorChar, String extension, int splitSize) {
+			String separatorChar, String extension, int splitSize)
+			throws UnsupportedEncodingException {
 		String key = StringUtils.base64encode(uri.toASCIIString());
 		StringBuffer sb = new StringBuffer(rootPath);
 		int l = key.length();

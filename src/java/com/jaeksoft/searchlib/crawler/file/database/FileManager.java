@@ -54,7 +54,8 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
-import com.jaeksoft.searchlib.util.map.Target;
+import com.jaeksoft.searchlib.util.map.SourceField;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
 public class FileManager {
 
@@ -360,8 +361,10 @@ public class FileManager {
 				|| (rowToDelete != null && rowToDelete.isEmpty()))
 			return false;
 		try {
-			List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
-					.getLinks(fileItemFieldEnum.subDirectory.getName());
+			List<TargetField> mappedPath = targetClient
+					.getFileCrawlerFieldMap().getLinks(
+							new SourceField(fileItemFieldEnum.subDirectory
+									.getName()));
 
 			for (String uriString : rowToDelete) {
 				URI uri = new URI(uriString);
@@ -451,8 +454,8 @@ public class FileManager {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 
-		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(fileItemFieldEnum.uri.getName());
+		List<TargetField> mappedPath = targetClient.getFileCrawlerFieldMap()
+				.getLinks(new SourceField(fileItemFieldEnum.uri.getName()));
 
 		if (mappedPath == null || mappedPath.isEmpty())
 			return false;
@@ -496,8 +499,10 @@ public class FileManager {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 
-		List<Target> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(fileItemFieldEnum.repository.toString());
+		List<TargetField> mappedPath = targetClient
+				.getFileCrawlerFieldMap()
+				.getLinks(
+						new SourceField(fileItemFieldEnum.repository.toString()));
 
 		if (mappedPath == null || mappedPath.isEmpty())
 			return false;

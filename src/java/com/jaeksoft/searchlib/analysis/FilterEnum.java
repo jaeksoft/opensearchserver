@@ -106,7 +106,9 @@ public enum FilterEnum {
 
 	StopFilter("Removes stop words."),
 
-	SynonymFilter("Add synonyms support.");
+	SynonymFilter("Add synonyms support."),
+
+	URLNormalizerFilter("URL normalizer");
 
 	private String description;
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public abstract class WriterAbstract implements WriterInterface {
 	}
 
 	protected boolean acceptDocument(IndexDocument document)
-			throws NoSuchAlgorithmException {
+			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		if (keyField == null)
 			return true;
 		if (md5spliter == null)
