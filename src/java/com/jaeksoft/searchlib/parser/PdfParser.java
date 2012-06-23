@@ -152,6 +152,30 @@ public class PdfParser extends Parser {
 		}
 	}
 
+	private void doOcr(OcrManager ocr, LanguageEnum lang, PDXObjectImage image)
+			throws IOException, SearchLibException {
+		File imageFile = null;
+		File textFile = null;
+		try {
+			String suffix = image.getSuffix();
+			imageFile = File.createTempFile("osspdfimg", '.' + suffix);
+
+			textFile = File.createTempFile("ossocr", ".txt");
+			image.write2file(imageFile);
+			if (imageFile.length() == 0)
+				throw new IOException("PDF/OCR: Image file is empty");
+			ocr.ocerize(imageFile, textFile, lang);
+			addField(ParserFieldEnum.ocr_content,
+					FileUtils.readFileToString(textFile, "UTF-8"));
+
+		} finally {
+			if (imageFile != null)
+				FileUtils.deleteQuietly(imageFile);
+			if (textFile != null)
+				FileUtils.deleteQuietly(textFile);
+		}
+	}
+
 	private void extractImagesForOCR(PDDocument pdf, LanguageEnum lang)
 			throws IOException, SearchLibException {
 		OcrManager ocr = ClientCatalog.getOcrManager();
@@ -172,17 +196,7 @@ public class PdfParser extends Parser {
 					PDXObjectImage image = (PDXObjectImage) images.get(key);
 					if (image == null)
 						continue;
-					File imageFile = File.createTempFile("osspdfimg",
-							'.' + image.getSuffix());
-					File textFile = File.createTempFile("ossocr", ".txt");
-					image.write2file(imageFile);
-					if (imageFile.length() > 0) {
-						ocr.ocerize(imageFile, textFile, lang);
-						addField(ParserFieldEnum.ocr_content,
-								FileUtils.readFileToString(textFile, "UTF-8"));
-					}
-					FileUtils.deleteQuietly(imageFile);
-					FileUtils.deleteQuietly(textFile);
+					doOcr(ocr, lang, image);
 				}
 			}
 		}

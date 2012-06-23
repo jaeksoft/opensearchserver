@@ -73,7 +73,7 @@ public abstract class Parser extends ParserFactory {
 		return sourceDocument;
 	}
 
-	public void setSourceDocument(IndexDocument sourceDocument) {
+	private void setSourceDocument(IndexDocument sourceDocument) {
 		this.sourceDocument = sourceDocument;
 	}
 
@@ -178,29 +178,38 @@ public abstract class Parser extends ParserFactory {
 		}
 	}
 
-	final public void parseContent(InputStream inputStream, LanguageEnum lang)
-			throws IOException {
+	final void parseStream(IndexDocument sourceDocument,
+			InputStream inputStream, LanguageEnum lang) throws IOException {
+		if (sourceDocument != null)
+			setSourceDocument(sourceDocument);
 		StreamLimiter streamLimiter = new StreamLimiterInputStream(
 				getSizeLimit(), inputStream);
 		doParserContent(streamLimiter, lang);
 	}
 
-	final public void parseContent(File file, LanguageEnum lang)
-			throws IOException {
+	final void parseFile(IndexDocument sourceDocument, File file,
+			LanguageEnum lang) throws IOException {
+		if (sourceDocument != null)
+			setSourceDocument(sourceDocument);
 		StreamLimiter streamLimiter = new StreamLimiterFile(getSizeLimit(),
 				file);
 		doParserContent(streamLimiter, lang);
 	}
 
-	final public void parseContentBase64(String base64text, String fileName,
-			LanguageEnum lang) throws IOException {
+	final void parseBase64(IndexDocument sourceDocument, String base64text,
+			String fileName, LanguageEnum lang) throws IOException {
+		if (sourceDocument != null)
+			setSourceDocument(sourceDocument);
 		StreamLimiter streamLimiter = new StreamLimiterBase64(base64text,
 				getSizeLimit(), fileName);
 		doParserContent(streamLimiter, lang);
 	}
 
-	final public void parseContent(FileInstanceAbstract fileInstance,
-			LanguageEnum lang) throws IOException {
+	final void parseFileInstance(IndexDocument sourceDocument,
+			FileInstanceAbstract fileInstance, LanguageEnum lang)
+			throws IOException {
+		if (sourceDocument != null)
+			setSourceDocument(sourceDocument);
 		StreamLimiter streamLimiter = new StreamLimiterFileInstance(
 				fileInstance, getSizeLimit());
 		doParserContent(streamLimiter, lang);

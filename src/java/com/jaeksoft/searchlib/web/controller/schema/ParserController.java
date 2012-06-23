@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -48,6 +49,7 @@ import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserFieldMap;
 import com.jaeksoft.searchlib.parser.ParserFieldTarget;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.parser.ParserType;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -115,15 +117,39 @@ public class ParserController extends CommonController implements
 		captureRegexp = null;
 	}
 
-	public Set<ParserFactory> getParserSet() {
+	public ParserFactory[] getParsers() {
 		try {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			return client.getParserSelector().getParserFactorySet();
+			return client.getParserSelector().getParserFactoryArray();
 		} catch (SearchLibException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private Set<String> getParserSet(ParserFactory omit)
+			throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		Set<String> list = new TreeSet<String>();
+		for (ParserFactory parserFactory : client.getParserSelector()
+				.getParserFactoryArray()) {
+			if (omit != null && omit.equals(parserFactory))
+				continue;
+			list.add(parserFactory.getParserName());
+		}
+		return list;
+
+	}
+
+	public Set<String> getParserSet() throws SearchLibException {
+		return getParserSet(null);
+	}
+
+	public Set<String> getFailOverList() throws SearchLibException {
+		return getParserSet(selectedParser);
 	}
 
 	public ParserFactory getCurrentParser() {
@@ -243,6 +269,13 @@ public class ParserController extends CommonController implements
 		if (currentParser == null)
 			return null;
 		return currentParser.getFieldMap();
+	}
+
+	private ParserSelector getParserSelector() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getParserSelector();
 	}
 
 	private ParserFactory getParser(Component comp) {
@@ -432,7 +465,36 @@ public class ParserController extends CommonController implements
 	 */
 	public void setRemoveTag(boolean removeTag) {
 		this.removeTag = removeTag;
-		System.out.println(removeTag);
+	}
+
+	public String getWebDefaultParser() throws SearchLibException {
+		ParserSelector parserSelector = getParserSelector();
+		if (parserSelector == null)
+			return null;
+		return parserSelector.getWebCrawlerDefaultParserName();
+	}
+
+	public void setWebDefaultParser(String value) throws SearchLibException {
+		ParserSelector parserSelector = getParserSelector();
+		if (parserSelector == null)
+			return;
+		parserSelector.setWebCrawlerDefaultParserName(value);
+		getClient().saveParsers();
+	}
+
+	public String getFileDefaultParser() throws SearchLibException {
+		ParserSelector parserSelector = getParserSelector();
+		if (parserSelector == null)
+			return null;
+		return parserSelector.getFileCrawlerDefaultParserName();
+	}
+
+	public void setFileDefaultParser(String value) throws SearchLibException {
+		ParserSelector parserSelector = getParserSelector();
+		if (parserSelector == null)
+			return;
+		parserSelector.setFileCrawlerDefaultParserName(value);
+		getClient().saveParsers();
 	}
 
 }

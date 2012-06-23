@@ -48,11 +48,8 @@ public class RobotsTxtCache {
 
 	public RobotsTxtCache() throws SearchLibException {
 		robotsTxtList = new TreeMap<String, RobotsTxt>();
-		parserSelector = new ParserSelector();
-		parserSelector
-				.setWebCrawlerDefaultParserFactory(ParserFactory.create(null,
-						"RobotsTxt parser",
-						DisallowList.class.getCanonicalName()));
+		parserSelector = new ParserSelector(ParserFactory.create(null,
+				"RobotsTxt parser", DisallowList.class.getCanonicalName()));
 	}
 
 	/**

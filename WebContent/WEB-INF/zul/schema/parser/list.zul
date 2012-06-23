@@ -14,43 +14,66 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<panel title="List of existing parser" border="normal">
-	<panelchildren>
-		<listbox model="@{parser.parserSet}" mold="paging"
-			selectedItem="@{parser.selectedParser}" pageSize="15">
-			<auxhead>
-				<auxheader colspan="3">
-				<listbox mold="select"
-						selectedItem="@{parser.selectedParserType}"
-						model="@{parser.parserTypeList}">
-						<listitem self="@{each=parserType}"
-							label="@{parserType.name}" />
-					</listbox>
+<zk>
+	<vbox width="100%">
+		<hbox width="100%">
+			<panel title="Select default web crawler parser"
+				border="normal">
+				<panelchildren>
+					<combobox value="@{parser.webDefaultParser}"
+						model="@{parser.parserSet}" />
+				</panelchildren>
+			</panel>
+			<panel title="Select default file crawler parser"
+				border="normal">
+				<panelchildren>
+					<combobox value="@{parser.fileDefaultParser}"
+						model="@{parser.parserSet}" />
+				</panelchildren>
+			</panel>
+		</hbox>
+	</vbox>
+
+	<separator height="5" />
+
+	<panel title="List of existing parser" border="normal">
+		<panelchildren>
+			<listbox model="@{parser.parsers}" mold="paging"
+				selectedItem="@{parser.selectedParser}" pageSize="15">
+				<auxhead>
+					<auxheader colspan="3">
+						<listbox mold="select"
+							selectedItem="@{parser.selectedParserType}"
+							model="@{parser.parserTypeList}">
+							<listitem self="@{each=parserType}"
+								label="@{parserType.name}" />
+						</listbox>
 						<button label="New parser"
-						onClick="parser.onNew()" />
-				</auxheader>
-			</auxhead>
-			<listhead>
-				<listheader label="Name" />
-				<listheader label="Type" />
-				<listheader label="Action" width="200px" />
-			</listhead>
-			<listitem self="@{each=item}">
-				<custom-attributes parserItem="@{item}" />
-				<listcell label="@{item.parserName}"
-					onDoubleClick="parser.doEdit(self)" />
-				<listcell label="@{item.parserType.name}"
-					onDoubleClick="parser.doEdit(self)" />
-				<listcell>
-					<hbox align="center">
-						<button label="Edit"
-							onClick="parser.doEdit(self)" />
-						<space width="10px" />
-						<button label="Delete"
-							onClick="parser.doDelete(self)" />
-					</hbox>
-				</listcell>
-			</listitem>
-		</listbox>
-	</panelchildren>
-</panel>
+							onClick="parser.onNew()" />
+					</auxheader>
+				</auxhead>
+				<listhead>
+					<listheader label="Name" />
+					<listheader label="Type" />
+					<listheader label="Action" width="200px" />
+				</listhead>
+				<listitem self="@{each=item}">
+					<custom-attributes parserItem="@{item}" />
+					<listcell label="@{item.parserName}"
+						onDoubleClick="parser.doEdit(self)" />
+					<listcell label="@{item.parserType.name}"
+						onDoubleClick="parser.doEdit(self)" />
+					<listcell>
+						<hbox align="center">
+							<button label="Edit"
+								onClick="parser.doEdit(self)" />
+							<space width="10px" />
+							<button label="Delete"
+								onClick="parser.doDelete(self)" />
+						</hbox>
+					</listcell>
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+</zk>

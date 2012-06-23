@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -55,6 +55,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	public final static ClassPropertyEnum PARSER_NAME = new ClassPropertyEnum(
 			false, "name", "name", "The name of the parser ");
+
+	public final static ClassPropertyEnum PARSER_FAIL_OVER_NAME = new ClassPropertyEnum(
+			false, "fileOver", "Fail over parser",
+			"The name of the parser used as fail over");
 
 	public final static ClassPropertyEnum MIN_GRAM = new ClassPropertyEnum(
 			true, "min_gram", "Min gram size",

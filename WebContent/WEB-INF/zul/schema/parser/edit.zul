@@ -38,6 +38,13 @@
 								value="@{parser.currentParser.parserType.name}" />
 							<label value="The type of this parser" />
 						</row>
+						<row>
+							<label value="Fail over" />
+							<combobox model="@{parser.failOverList}"
+								value="@{parser.currentParser.failOverParserName}" />
+							<label
+								value="Choose a parser used in case of failure" />
+						</row>
 					</rows>
 				</grid>
 				<grid model="@{parser.currentParser.userProperties}">

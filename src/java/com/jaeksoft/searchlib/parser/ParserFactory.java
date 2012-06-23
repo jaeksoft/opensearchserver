@@ -71,6 +71,7 @@ public class ParserFactory extends ClassFactory implements
 	@Override
 	protected void initProperties() throws SearchLibException {
 		addProperty(ClassPropertyEnum.PARSER_NAME, "", null);
+		addProperty(ClassPropertyEnum.PARSER_FAIL_OVER_NAME, "", null);
 	}
 
 	public ParserFieldEnum[] getFieldList() {
@@ -79,6 +80,10 @@ public class ParserFactory extends ClassFactory implements
 
 	public String getParserName() {
 		return getProperty(ClassPropertyEnum.PARSER_NAME).getValue();
+	}
+
+	public String getFailOverParserName() {
+		return getProperty(ClassPropertyEnum.PARSER_FAIL_OVER_NAME).getValue();
 	}
 
 	public ParserType getParserType() throws SearchLibException {
@@ -93,6 +98,12 @@ public class ParserFactory extends ClassFactory implements
 
 	public void setParserName(String parserName) throws SearchLibException {
 		getProperty(ClassPropertyEnum.PARSER_NAME).setValue(parserName);
+	}
+
+	public void setFailOverParserName(String parserName)
+			throws SearchLibException {
+		getProperty(ClassPropertyEnum.PARSER_FAIL_OVER_NAME).setValue(
+				parserName);
 	}
 
 	protected int getSizeLimit() {

@@ -136,20 +136,13 @@ public class Crawl {
 		String fileName = urlItem.getContentDispositionFilename();
 		if (fileName == null)
 			fileName = urlItem.getURL().getFile();
-		Parser parser = parserSelector.getParser(fileName,
-				urlItem.getContentBaseType());
-		if (parser == null)
-			parser = parserSelector.getWebCrawlerDefaultParser();
-		if (parser == null) {
-			urlItem.setParserStatus(ParserStatus.NOPARSER);
-			return;
-		}
 		IndexDocument sourceDocument = new IndexDocument();
 		urlItem.populate(sourceDocument, urlItemFieldEnum);
-		parser.setSourceDocument(sourceDocument);
 		Date parserStartDate = new Date();
 		// TODO Which language for OCR ?
-		parser.parseContent(inputStream, null);
+		parser = parserSelector.parseStream(sourceDocument, fileName,
+				urlItem.getContentBaseType(), inputStream, null,
+				parserSelector.getWebCrawlerDefaultParser());
 
 		urlItem.clearInLinks();
 		urlItem.addInLinks(parser
@@ -195,8 +188,6 @@ public class Crawl {
 					}
 			}
 		}
-
-		this.parser = parser;
 	}
 
 	public boolean checkRobotTxtAllow(HttpDownloader httpDownloader)

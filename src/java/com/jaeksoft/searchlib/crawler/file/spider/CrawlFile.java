@@ -80,30 +80,22 @@ public class CrawlFile {
 				fileItem.setFetchStatus(FetchStatus.FETCHED);
 
 				ParserSelector parserSelector = config.getParserSelector();
-				Parser parser = parserSelector.getParser(
-						fileItem.getFileName(), null);
-
-				// Get default parser
-				if (parser == null)
-					parser = parserSelector.getFileCrawlerDefaultParser();
-
-				// Parser Choice
-				if (parser == null) {
-					fileItem.setParserStatus(ParserStatus.NOPARSER);
-					return;
-				}
 
 				fileItem.setParserStatus(ParserStatus.PARSED);
 
 				IndexDocument sourceDocument = fileItem
 						.getIndexDocument(fileItemFieldEnum);
 
-				parser.setSourceDocument(sourceDocument);
-				parser.parseContent(fileInstance, null);
+				parser = config.getParserSelector().parseFileInstance(
+						sourceDocument, fileItem.getFileName(), null,
+						fileInstance, null,
+						parserSelector.getFileCrawlerDefaultParser());
 
-				fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
-
-				this.parser = parser;
+				if (parser == null)
+					fileItem.setParserStatus(ParserStatus.NOPARSER);
+				else
+					fileItem.setLang(parser.getFieldValue(ParserFieldEnum.lang,
+							0));
 
 			} catch (MalformedURLException e) {
 				fileItem.setFetchStatus(FetchStatus.ERROR);
@@ -112,18 +104,6 @@ public class CrawlFile {
 			} catch (LimitException e) {
 				Logging.warn(e.toString() + " (" + fileItem.getUri() + ")", e);
 				fileItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
-				setError(e.getMessage());
-			} catch (InstantiationException e) {
-				Logging.warn(e.getMessage(), e);
-				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
-				setError(e.getMessage());
-			} catch (IllegalAccessException e) {
-				Logging.warn(e.getMessage(), e);
-				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
-				setError(e.getMessage());
-			} catch (ClassNotFoundException e) {
-				Logging.warn(e.getMessage(), e);
-				fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
 			} catch (IOException e) {
 				Logging.warn(e.getMessage(), e);

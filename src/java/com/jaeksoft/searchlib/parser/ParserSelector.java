@@ -24,12 +24,12 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -40,7 +40,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -49,20 +52,42 @@ public class ParserSelector {
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
+	private String fileCrawlerDefaultParserName;
+	private String webCrawlerDefaultParserName;
 	private ParserFactory fileCrawlerDefaultParserFactory;
 	private ParserFactory webCrawlerDefaultParserFactory;
-	private Set<ParserFactory> parserFactorySet;
+	private Map<String, ParserFactory> parserFactoryMap;
+	private ParserFactory[] parserFactoryArray;
 	private Map<String, ParserFactory> mimeTypeParserMap;
 	private Map<String, ParserFactory> extensionParserMap;
 	private ParserTypeEnum parserTypeEnum;
 
 	public ParserSelector() {
+		fileCrawlerDefaultParserName = null;
+		webCrawlerDefaultParserName = null;
 		fileCrawlerDefaultParserFactory = null;
 		webCrawlerDefaultParserFactory = null;
 		parserTypeEnum = null;
 		mimeTypeParserMap = new TreeMap<String, ParserFactory>();
 		extensionParserMap = new TreeMap<String, ParserFactory>();
-		parserFactorySet = new TreeSet<ParserFactory>();
+		parserFactoryMap = new TreeMap<String, ParserFactory>();
+		parserFactoryArray = null;
+	}
+
+	/**
+	 * This constructor build a parser selector and add the parser factory
+	 * passed as parameter. The parser factory become also the default web and
+	 * file parser.
+	 * 
+	 * @param parserFactory
+	 */
+	public ParserSelector(ParserFactory parserFactory) {
+		this();
+		String parserName = parserFactory.getParserName();
+		parserFactoryMap.put(parserName, parserFactory);
+		setFileCrawlerDefaultParserName(parserName);
+		setWebCrawlerDefaultParserName(parserName);
+		rebuildParserMap();
 	}
 
 	public ParserSelector(Config config, XPathParser xpp, Node parentNode)
@@ -72,18 +97,26 @@ public class ParserSelector {
 		fromXmlConfig(config, xpp, parentNode);
 	}
 
-	public void setFileCrawlerDefaultParserFactory(
-			ParserFactory fileCrawlerDefaultParserFactory) {
+	public void setFileCrawlerDefaultParserName(String parserName) {
 		rwl.w.lock();
 		try {
-			this.fileCrawlerDefaultParserFactory = fileCrawlerDefaultParserFactory;
+			fileCrawlerDefaultParserName = parserName;
+			rebuildParserMap();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public Parser getFileCrawlerDefaultParser() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException {
+	public String getFileCrawlerDefaultParserName() {
+		rwl.r.lock();
+		try {
+			return fileCrawlerDefaultParserName;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public Parser getFileCrawlerDefaultParser() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (fileCrawlerDefaultParserFactory == null)
@@ -95,13 +128,22 @@ public class ParserSelector {
 		}
 	}
 
-	public void setWebCrawlerDefaultParserFactory(
-			ParserFactory webCrawlerDefaultParserFactory) {
+	public void setWebCrawlerDefaultParserName(String parserName) {
 		rwl.w.lock();
 		try {
-			this.webCrawlerDefaultParserFactory = webCrawlerDefaultParserFactory;
+			webCrawlerDefaultParserName = parserName;
+			rebuildParserMap();
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	public String getWebCrawlerDefaultParserName() {
+		rwl.r.lock();
+		try {
+			return webCrawlerDefaultParserName;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -121,7 +163,7 @@ public class ParserSelector {
 	private void rebuildParserMap() {
 		extensionParserMap.clear();
 		mimeTypeParserMap.clear();
-		for (ParserFactory parserFactory : parserFactorySet) {
+		for (ParserFactory parserFactory : parserFactoryMap.values()) {
 			Set<String> extensionSet = parserFactory.getExtensionSet();
 			if (extensionSet != null)
 				for (String extension : extensionSet)
@@ -131,6 +173,14 @@ public class ParserSelector {
 				for (String mimeType : mimeTypeSet)
 					mimeTypeParserMap.put(mimeType, parserFactory);
 		}
+		parserFactoryArray = new ParserFactory[parserFactoryMap.size()];
+		int i = 0;
+		for (ParserFactory parserFactory : parserFactoryMap.values())
+			parserFactoryArray[i++] = parserFactory;
+		webCrawlerDefaultParserFactory = webCrawlerDefaultParserName == null ? null
+				: parserFactoryMap.get(webCrawlerDefaultParserName);
+		fileCrawlerDefaultParserFactory = fileCrawlerDefaultParserName == null ? null
+				: parserFactoryMap.get(fileCrawlerDefaultParserName);
 	}
 
 	public void replaceParserFactory(ParserFactory oldParser,
@@ -138,28 +188,26 @@ public class ParserSelector {
 		rwl.w.lock();
 		try {
 			if (oldParser != null)
-				parserFactorySet.remove(oldParser);
+				parserFactoryMap.remove(oldParser.getParserName());
 			if (newParser != null)
-				if (!parserFactorySet.add(newParser))
-					throw new SearchLibException("Error, parser not added");
+				parserFactoryMap.put(newParser.getParserName(), newParser);
 			rebuildParserMap();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public Set<ParserFactory> getParserFactorySet() {
+	public ParserFactory[] getParserFactoryArray() {
 		rwl.r.lock();
 		try {
-			return parserFactorySet;
+			return parserFactoryArray;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	private Parser getParser(ParserFactory parserFactory)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+	final private Parser getParser(ParserFactory parserFactory)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (parserFactory == null)
@@ -171,8 +219,7 @@ public class ParserSelector {
 	}
 
 	private Parser getParserFromExtension(String extension)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, MalformedURLException, SearchLibException {
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			ParserFactory parserFactory = null;
@@ -197,8 +244,7 @@ public class ParserSelector {
 	}
 
 	private Parser getParserFromMimeType(String contentBaseType)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, MalformedURLException, SearchLibException {
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			ParserFactory parserFactory = null;
@@ -221,9 +267,8 @@ public class ParserSelector {
 		}
 	}
 
-	public Parser getParser(String filename, String contentBaseType)
-			throws MalformedURLException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException {
+	final private Parser getParser(String filename, String contentBaseType)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			Parser parser = null;
@@ -240,15 +285,19 @@ public class ParserSelector {
 		}
 	}
 
+	private final static String FILE_CRAWLER_DEFAULT_ATTRIBUTE = "fileCrawlerDefault";
+
+	private final static String WEB_CRAWLER_DEFAULT_ATTRIBUTE = "webCrawlerDefault";
+
 	private void fromXmlConfig(Config config, XPathParser xpp, Node parentNode)
 			throws XPathExpressionException, DOMException, IOException,
 			SearchLibException {
 
-		String fileCrawlerDefaultParserName = XPathParser.getAttributeString(
-				parentNode, "fileCrawlerDefault");
+		fileCrawlerDefaultParserName = XPathParser.getAttributeString(
+				parentNode, FILE_CRAWLER_DEFAULT_ATTRIBUTE);
 
-		String webCrawlerDefaultParserName = XPathParser.getAttributeString(
-				parentNode, "webCrawlerDefault");
+		webCrawlerDefaultParserName = XPathParser.getAttributeString(
+				parentNode, WEB_CRAWLER_DEFAULT_ATTRIBUTE);
 
 		NodeList parserNodes = xpp.getNodeList(parentNode, "parser");
 		for (int i = 0; i < parserNodes.getLength(); i++) {
@@ -256,26 +305,21 @@ public class ParserSelector {
 			ParserFactory parserFactory = ParserFactory.create(config, xpp,
 					parserNode);
 
-			if (parserFactory != null) {
-				parserFactorySet.add(parserFactory);
-				if (fileCrawlerDefaultParserName != null
-						&& parserFactory.getParserName().equals(
-								fileCrawlerDefaultParserName))
-					setFileCrawlerDefaultParserFactory(parserFactory);
-				if (webCrawlerDefaultParserName != null
-						&& parserFactory.getParserName().equals(
-								webCrawlerDefaultParserName))
-					setWebCrawlerDefaultParserFactory(parserFactory);
-				rebuildParserMap();
-			}
+			if (parserFactory != null)
+				parserFactoryMap.put(parserFactory.getParserName(),
+						parserFactory);
 		}
+		rebuildParserMap();
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement("parsers");
-			for (ParserFactory parser : parserFactorySet)
+			xmlWriter.startElement("parsers", WEB_CRAWLER_DEFAULT_ATTRIBUTE,
+					webCrawlerDefaultParserName,
+					FILE_CRAWLER_DEFAULT_ATTRIBUTE,
+					fileCrawlerDefaultParserName);
+			for (ParserFactory parser : parserFactoryMap.values())
 				parser.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
@@ -296,4 +340,95 @@ public class ParserSelector {
 		}
 	}
 
+	final public ParserFactory getParserByName(String parserName) {
+		if (parserName == null || parserName.length() == 0)
+			return null;
+		rwl.r.lock();
+		try {
+			return parserFactoryMap.get(parserName);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	private final Parser getFailOverParser(Parser parser,
+			IOException ioException) throws SearchLibException, IOException {
+		ParserFactory parserFactory = getParserByName(parser
+				.getFailOverParserName());
+		if (parserFactory == null)
+			throw ioException;
+		return getParser(parserFactory);
+	}
+
+	public final Parser parseStream(IndexDocument sourceDocument,
+			String filename, String contentBaseType, InputStream inputStream,
+			LanguageEnum lang, Parser defaultParser) throws SearchLibException,
+			IOException {
+		Parser parser = getParser(filename, contentBaseType);
+		for (;;) {
+			if (parser == null) {
+				parser = defaultParser;
+				defaultParser = null;
+			}
+			if (parser == null)
+				return null;
+			try {
+				parser.parseStream(sourceDocument, inputStream, lang);
+				return parser;
+			} catch (IOException ioException) {
+				parser = getFailOverParser(parser, ioException);
+			}
+		}
+	}
+
+	public final Parser parseFile(IndexDocument sourceDocument,
+			String filename, String contentBaseType, File file,
+			LanguageEnum lang) throws SearchLibException, IOException {
+		Parser parser = getParser(filename, contentBaseType);
+		while (parser != null) {
+			try {
+				parser.parseFile(sourceDocument, file, lang);
+				return parser;
+			} catch (IOException ioException) {
+				parser = getFailOverParser(parser, ioException);
+			}
+		}
+		return null;
+	}
+
+	public final Parser parseBase64(IndexDocument sourceDocument,
+			String filename, String contentBaseType, String base64text,
+			LanguageEnum lang) throws SearchLibException, IOException {
+		Parser parser = getParser(filename, contentBaseType);
+		while (parser != null) {
+			try {
+				parser.parseBase64(sourceDocument, base64text, filename, lang);
+				return parser;
+			} catch (IOException ioException) {
+				parser = getFailOverParser(parser, ioException);
+			}
+		}
+		return null;
+	}
+
+	public final Parser parseFileInstance(IndexDocument sourceDocument,
+			String filename, String contentBaseType,
+			FileInstanceAbstract fileInstance, LanguageEnum lang,
+			Parser defaultParser) throws SearchLibException, IOException {
+		Parser parser = getParser(filename, contentBaseType);
+		for (;;) {
+			if (parser == null) {
+				parser = defaultParser;
+				defaultParser = null;
+			}
+			if (parser == null)
+				return null;
+			try {
+				parser.parseFileInstance(sourceDocument, fileInstance, lang);
+				return parser;
+			} catch (IOException ioException) {
+				parser = getFailOverParser(parser, ioException);
+			}
+		}
+	}
 }

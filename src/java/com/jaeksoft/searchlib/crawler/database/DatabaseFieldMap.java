@@ -103,16 +103,10 @@ public class DatabaseFieldMap extends
 			if (dfTarget.isFilePath()) {
 				File file = new File(dfTarget.getFilePath(content));
 				if (file.exists()) {
-					Parser parser = parserSelector.getParser(file.getName(),
-							null);
-					if (parser != null) {
-						try {
-							parser.parseContent(file, lang);
-						} catch (IOException e) {
-							Logging.warn(e);
-						}
+					Parser parser = parserSelector.parseFile(null,
+							file.getName(), null, file, lang);
+					if (parser != null)
 						parser.populate(target);
-					}
 				} else {
 					Logging.error("Database crawler: File don't exist:"
 							+ file.getAbsolutePath());
