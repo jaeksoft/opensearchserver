@@ -34,8 +34,6 @@ import java.net.URLEncoder;
 import java.util.InvalidPropertiesFormatException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -95,6 +93,7 @@ import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -167,7 +166,7 @@ public abstract class Config {
 
 	protected final ReadWriteLock rwl = new ReadWriteLock();
 
-	protected final Lock longTermLock = new ReentrantLock();
+	protected final SimpleLock longTermLock = new SimpleLock();
 
 	private Mailer mailer = null;
 
@@ -286,7 +285,7 @@ public abstract class Config {
 
 	public void saveParsers() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "parsers.xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -306,14 +305,14 @@ public abstract class Config {
 				rwl.w.unlock();
 			}
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
 	public void saveJobs() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "jobs.xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			JobList jobList = getJobList();
@@ -335,7 +334,7 @@ public abstract class Config {
 			}
 			jobList.checkExecution();
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 	}
@@ -343,7 +342,7 @@ public abstract class Config {
 	public void saveReplicationList() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "replication.xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -357,14 +356,14 @@ public abstract class Config {
 				rwl.w.unlock();
 			}
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
 	public void saveRequests() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "requests.xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -384,13 +383,13 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
 	public void saveConfig() throws SearchLibException {
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -408,7 +407,7 @@ public abstract class Config {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 		}
 	}
 
@@ -491,7 +490,7 @@ public abstract class Config {
 			throws SearchLibException, UnsupportedEncodingException {
 		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -511,7 +510,7 @@ public abstract class Config {
 				rwl.w.unlock();
 			}
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 
@@ -521,7 +520,7 @@ public abstract class Config {
 			throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -531,7 +530,7 @@ public abstract class Config {
 				rwl.w.unlock();
 			}
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 	}
@@ -568,7 +567,7 @@ public abstract class Config {
 	public void saveDatabaseCrawlList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"databaseCrawlList.xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -588,7 +587,7 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 	}
@@ -891,7 +890,7 @@ public abstract class Config {
 			UnsupportedEncodingException {
 		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
 				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -911,14 +910,14 @@ public abstract class Config {
 				rwl.w.unlock();
 			}
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 
 	}
 
 	public void delete(Renderer renderer) throws SearchLibException {
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		ConfigFileRotation cfr = null;
 		try {
@@ -935,7 +934,7 @@ public abstract class Config {
 				rwl.w.unlock();
 			}
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			if (cfr != null)
 				cfr.abort();
 		}
@@ -1273,7 +1272,7 @@ public abstract class Config {
 	public void saveSiteMapList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"webcrawler-sitemap.xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -1293,7 +1292,7 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 	}
@@ -1320,7 +1319,7 @@ public abstract class Config {
 	public void saveUrlFilterList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"webcrawler-urlfilter.xml");
-		if (!longTermLock.tryLock())
+		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			rwl.w.lock();
@@ -1340,14 +1339,14 @@ public abstract class Config {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
 	public void push(ReplicationThread replicationThread)
 			throws SearchLibException {
-		longTermLock.lock();
+		longTermLock.rl.lock();
 		try {
 			rwl.r.lock();
 			try {
@@ -1356,7 +1355,7 @@ public abstract class Config {
 				rwl.r.unlock();
 			}
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 		}
 	}
 
@@ -1596,7 +1595,7 @@ public abstract class Config {
 		} catch (SearchLibException e) {
 			Logging.warn(e.getMessage(), e);
 		}
-		longTermLock.lock();
+		longTermLock.rl.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -1607,7 +1606,7 @@ public abstract class Config {
 				rwl.w.unlock();
 			}
 		} finally {
-			longTermLock.unlock();
+			longTermLock.rl.unlock();
 		}
 	}
 

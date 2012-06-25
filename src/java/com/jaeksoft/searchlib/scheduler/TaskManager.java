@@ -25,8 +25,6 @@
 package com.jaeksoft.searchlib.scheduler;
 
 import java.text.ParseException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.naming.NamingException;
 
@@ -45,27 +43,28 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class TaskManager implements Job {
 
-	private final static Lock lock = new ReentrantLock();
+	private final static SimpleLock lock = new SimpleLock();
 
 	private static Scheduler scheduler = null;
 
 	public static void start() throws SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			scheduler = StdSchedulerFactory.getDefaultScheduler();
 			scheduler.start();
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	public static void stop() throws SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			if (scheduler != null) {
 				scheduler.shutdown();
@@ -74,7 +73,7 @@ public class TaskManager implements Job {
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
@@ -85,7 +84,7 @@ public class TaskManager implements Job {
 
 	public static void cronJob(String indexName, String jobName,
 			TaskCronExpression cron) throws SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			checkSchedulerAvailable();
 			Trigger trigger = new CronTrigger(jobName, indexName,
@@ -116,13 +115,13 @@ public class TaskManager implements Job {
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	public static void executeJob(String indexName, String jobName)
 			throws SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			checkSchedulerAvailable();
 			Trigger trigger = new SimpleTrigger(jobName, indexName);
@@ -131,36 +130,36 @@ public class TaskManager implements Job {
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	public static String[] getActiveJobs(String indexName)
 			throws SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			return scheduler.getJobNames(indexName);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	public static void removeJob(String indexName, String jobName)
 			throws SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			scheduler.deleteJob(jobName, indexName);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	public static void removeJobs(String indexName) throws SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			String[] jobNames = scheduler.getJobNames(indexName);
 			for (String jobName : jobNames)
@@ -168,7 +167,7 @@ public class TaskManager implements Job {
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 
 	}

@@ -30,15 +30,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class DailyLogger {
 
-	final private ReentrantLock lock = new ReentrantLock();
+	final private SimpleLock lock = new SimpleLock();
 
 	final private SimpleDateFormat dailyFormat = new SimpleDateFormat(
 			"yyyy-MM-dd");
@@ -66,7 +66,7 @@ public class DailyLogger {
 	}
 
 	private void setTimeLimit(long millis) {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			close();
 			Calendar cal = Calendar.getInstance();
@@ -82,7 +82,7 @@ public class DailyLogger {
 			cal.add(Calendar.DAY_OF_MONTH, 1);
 			timeLimit = cal.getTimeInMillis();
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
@@ -93,7 +93,7 @@ public class DailyLogger {
 	}
 
 	final public void close() {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			if (printWriter != null) {
 				IOUtils.closeQuietly(printWriter);
@@ -104,12 +104,12 @@ public class DailyLogger {
 				fileWriter = null;
 			}
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	final protected void log(String message) throws SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			long time = System.currentTimeMillis();
 			if (time >= timeLimit)
@@ -124,7 +124,7 @@ public class DailyLogger {
 			close();
 			throw new SearchLibException(e);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 }

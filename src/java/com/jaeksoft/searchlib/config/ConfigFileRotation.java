@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,11 +27,11 @@ package com.jaeksoft.searchlib.config;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+
+import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class ConfigFileRotation {
 
@@ -40,7 +40,7 @@ public class ConfigFileRotation {
 	private PrintWriter tempPrintWriter;
 	private File oldFile;
 
-	private final Lock lock = new ReentrantLock(true);
+	private final SimpleLock lock = new SimpleLock();
 
 	protected ConfigFileRotation(File directory, String masterName) {
 		String ext = FilenameUtils.getExtension(masterName);
@@ -51,14 +51,14 @@ public class ConfigFileRotation {
 
 	private void init(File directory, String masterName, String tempName,
 			String oldName) {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			this.masterFile = new File(directory, masterName);
 			this.tempFile = new File(directory, tempName);
 			this.oldFile = new File(directory, oldName);
 			this.tempPrintWriter = null;
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
@@ -70,16 +70,16 @@ public class ConfigFileRotation {
 	}
 
 	public void abort() {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	public void rotate() throws IOException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
 			if (oldFile.exists())
@@ -90,12 +90,12 @@ public class ConfigFileRotation {
 				FileUtils.moveFile(masterFile, oldFile);
 			FileUtils.moveFile(tempFile, masterFile);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	public void delete() throws IOException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
 			if (oldFile.exists())
@@ -103,12 +103,12 @@ public class ConfigFileRotation {
 			if (masterFile.exists())
 				FileUtils.moveFile(masterFile, oldFile);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	public PrintWriter getTempPrintWriter(String encoding) throws IOException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			if (tempPrintWriter != null)
 				return tempPrintWriter;
@@ -117,7 +117,7 @@ public class ConfigFileRotation {
 			tempPrintWriter = new PrintWriter(tempFile, encoding);
 			return tempPrintWriter;
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 

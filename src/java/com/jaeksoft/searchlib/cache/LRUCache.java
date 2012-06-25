@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,9 +29,9 @@ import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.SimpleLock;
 
 public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
@@ -41,7 +41,7 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 
 		private static final long serialVersionUID = -2384951296369306995L;
 
-		protected final ReentrantLock queueLock = new ReentrantLock(true);
+		protected final SimpleLock lock = new SimpleLock();
 
 		protected EvictionQueue(int maxSize) {
 			super(maxSize);
@@ -57,13 +57,13 @@ public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
 		}
 
 		final private V promote(K key) {
-			queueLock.lock();
+			lock.rl.lock();
 			try {
 				V value = queue.remove(key);
 				queue.put(key, value);
 				return value;
 			} finally {
-				queueLock.unlock();
+				lock.rl.unlock();
 			}
 
 		}

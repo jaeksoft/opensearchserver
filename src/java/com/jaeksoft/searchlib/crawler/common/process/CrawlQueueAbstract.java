@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,12 +26,12 @@ package com.jaeksoft.searchlib.crawler.common.process;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.SimpleLock;
 
 public abstract class CrawlQueueAbstract {
 
@@ -40,7 +40,7 @@ public abstract class CrawlQueueAbstract {
 	private int maxBufferSize;
 	private boolean containedData;
 
-	private final ReentrantLock rl = new ReentrantLock(true);
+	private final SimpleLock lock = new SimpleLock();
 
 	protected CrawlQueueAbstract(Config config, int maxBufferSize)
 			throws SearchLibException {
@@ -107,13 +107,13 @@ public abstract class CrawlQueueAbstract {
 		if (!bForce)
 			if (!weMustIndexNow())
 				return;
-		rl.lock();
+		lock.rl.lock();
 		try {
 			initWorking();
 			indexWork();
 			resetWork();
 		} finally {
-			rl.unlock();
+			lock.rl.unlock();
 		}
 	}
 }

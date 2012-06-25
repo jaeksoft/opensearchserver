@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,12 +26,10 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
@@ -53,10 +51,11 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class WriterLocal extends WriterAbstract {
 
-	private final ReentrantLock l = new ReentrantLock(true);
+	private final SimpleLock lock = new SimpleLock();
 
 	private IndexWriter indexWriter;
 
@@ -87,7 +86,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private void close() {
-		l.lock();
+		lock.rl.lock();
 		try {
 			if (indexWriter != null) {
 				try {
@@ -100,13 +99,13 @@ public class WriterLocal extends WriterAbstract {
 				indexWriter = null;
 			}
 		} finally {
-			l.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	private void open() throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		l.lock();
+		lock.rl.lock();
 		try {
 			if (indexWriter != null)
 				return;
@@ -118,7 +117,7 @@ public class WriterLocal extends WriterAbstract {
 				indexWriter.setSimilarity(similarity);
 			}
 		} finally {
-			l.unlock();
+			lock.rl.unlock();
 		}
 	}
 
@@ -164,13 +163,13 @@ public class WriterLocal extends WriterAbstract {
 	public void addDocument(Document document) throws IOException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		l.lock();
+		lock.rl.lock();
 		try {
 			open();
 			indexWriter.addDocument(document);
 			close();
 		} finally {
-			l.unlock();
+			lock.rl.unlock();
 		}
 	}
 
@@ -201,10 +200,8 @@ public class WriterLocal extends WriterAbstract {
 		return true;
 	}
 
-	@Override
-	public boolean updateDocument(Schema schema, IndexDocument document)
+	private boolean updateDocumentNoLock(Schema schema, IndexDocument document)
 			throws SearchLibException {
-		l.lock();
 		try {
 			open();
 			boolean updated = updateDoc(schema, document);
@@ -224,14 +221,22 @@ public class WriterLocal extends WriterAbstract {
 			throw new SearchLibException(e);
 		} finally {
 			close();
-			l.unlock();
 		}
 	}
 
 	@Override
-	public int updateDocuments(Schema schema,
+	public boolean updateDocument(Schema schema, IndexDocument document)
+			throws SearchLibException {
+		lock.rl.lock();
+		try {
+			return updateDocumentNoLock(schema, document);
+		} finally {
+			lock.rl.unlock();
+		}
+	}
+
+	private int updateDocumentsNoLock(Schema schema,
 			Collection<IndexDocument> documents) throws SearchLibException {
-		l.lock();
 		try {
 			int count = 0;
 			open();
@@ -254,9 +259,18 @@ public class WriterLocal extends WriterAbstract {
 			throw new SearchLibException(e);
 		} finally {
 			close();
-			l.unlock();
 		}
+	}
 
+	@Override
+	public int updateDocuments(Schema schema,
+			Collection<IndexDocument> documents) throws SearchLibException {
+		lock.rl.lock();
+		try {
+			return updateDocumentsNoLock(schema, documents);
+		} finally {
+			lock.rl.unlock();
+		}
 	}
 
 	private static Document getLuceneDocument(Schema schema,
@@ -287,9 +301,7 @@ public class WriterLocal extends WriterAbstract {
 		return doc;
 	}
 
-	@Override
-	public void optimize() throws SearchLibException {
-		l.lock();
+	private void optimizeNoLock() throws SearchLibException {
 		try {
 			open();
 			optimizing = true;
@@ -306,21 +318,24 @@ public class WriterLocal extends WriterAbstract {
 		} finally {
 			optimizing = false;
 			close();
-			l.unlock();
 		}
 	}
 
 	@Override
-	public boolean deleteDocument(Schema schema, String uniqueField)
+	public void optimize() throws SearchLibException {
+		lock.rl.lock();
+		try {
+			optimizeNoLock();
+		} finally {
+			lock.rl.unlock();
+		}
+	}
+
+	private boolean deleteDocumentNoLock(String field, String value)
 			throws SearchLibException {
-		Field uniqueSchemaField = schema.getFieldList().getUniqueField();
-		if (uniqueSchemaField == null)
-			return false;
-		l.lock();
 		try {
 			open();
-			indexWriter.deleteDocuments(new Term(uniqueSchemaField.getName(),
-					uniqueField));
+			indexWriter.deleteDocuments(new Term(field, value));
 			close();
 			readerLocal.reload();
 			return true;
@@ -334,22 +349,26 @@ public class WriterLocal extends WriterAbstract {
 			throw new SearchLibException(e);
 		} finally {
 			close();
-			l.unlock();
 		}
 	}
 
 	@Override
-	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
+	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws SearchLibException {
 		Field uniqueSchemaField = schema.getFieldList().getUniqueField();
 		if (uniqueSchemaField == null)
-			return 0;
-		String uniqueField = uniqueSchemaField.getName();
-		Term[] terms = new Term[uniqueFields.size()];
-		int i = 0;
-		for (String value : uniqueFields)
-			terms[i++] = new Term(uniqueField, value);
-		l.lock();
+			return false;
+		lock.rl.lock();
+		try {
+			return deleteDocumentNoLock(uniqueSchemaField.getName(),
+					uniqueField);
+		} finally {
+			lock.rl.unlock();
+		}
+	}
+
+	private int deleteDocumentsNoLock(Schema schema, Term[] terms)
+			throws SearchLibException {
 		try {
 			open();
 			indexWriter.deleteDocuments(terms);
@@ -367,13 +386,30 @@ public class WriterLocal extends WriterAbstract {
 			throw new SearchLibException(e);
 		} finally {
 			close();
-			l.unlock();
 		}
 	}
 
 	@Override
-	public int deleteDocuments(SearchRequest query) throws SearchLibException {
-		l.lock();
+	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
+			throws SearchLibException {
+		Field uniqueSchemaField = schema.getFieldList().getUniqueField();
+		if (uniqueSchemaField == null)
+			return 0;
+		String uniqueField = uniqueSchemaField.getName();
+		Term[] terms = new Term[uniqueFields.size()];
+		int i = 0;
+		for (String value : uniqueFields)
+			terms[i++] = new Term(uniqueField, value);
+		lock.rl.lock();
+		try {
+			return deleteDocumentsNoLock(schema, terms);
+		} finally {
+			lock.rl.unlock();
+		}
+	}
+
+	private int deleteDocumentsNoLock(SearchRequest query)
+			throws SearchLibException {
 		try {
 			open();
 			indexWriter.deleteDocuments(query.getQuery());
@@ -394,13 +430,17 @@ public class WriterLocal extends WriterAbstract {
 			throw new SearchLibException(e);
 		} finally {
 			close();
-			l.unlock();
 		}
 	}
 
-	public void xmlInfo(PrintWriter writer) {
-		// TODO Auto-generated method stub
-
+	@Override
+	public int deleteDocuments(SearchRequest query) throws SearchLibException {
+		lock.rl.lock();
+		try {
+			return deleteDocumentsNoLock(query);
+		} finally {
+			lock.rl.unlock();
+		}
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,40 +25,39 @@
 package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.net.URISyntaxException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
+import com.jaeksoft.searchlib.util.SimpleLock;
 
 public abstract class ItemIterator {
 
-	private final Lock lock = new ReentrantLock(true);
+	private final SimpleLock lock = new SimpleLock();
 
 	private ItemIterator parent;
 
 	protected ItemIterator(ItemIterator parent) {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			this.parent = parent;
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	protected FileInstanceAbstract getFileInstance() {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			return getFileInstanceImpl();
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
 	protected abstract FileInstanceAbstract getFileInstanceImpl();
 
 	protected ItemIterator next() throws URISyntaxException, SearchLibException {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			ItemIterator next = nextImpl();
 			if (next != null)
@@ -67,7 +66,7 @@ public abstract class ItemIterator {
 				return null;
 			return parent.next();
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 

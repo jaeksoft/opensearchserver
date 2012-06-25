@@ -32,7 +32,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
 
@@ -43,6 +42,7 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class ScreenshotThread extends ThreadAbstract {
 
@@ -55,7 +55,7 @@ public class ScreenshotThread extends ThreadAbstract {
 	private BufferedImage finalImage;
 	private CredentialItem credentialItem;
 
-	private final ReentrantLock lock = new ReentrantLock();
+	private final SimpleLock lock = new SimpleLock();
 
 	public ScreenshotThread(Config config, ScreenshotManager screenshotManager,
 			URL url, CredentialItem credentialItem) {
@@ -71,13 +71,13 @@ public class ScreenshotThread extends ThreadAbstract {
 	}
 
 	private final void initDriver() {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			FirefoxProfile profile = new FirefoxProfile();
 			profile.setPreference("network.http.phishy-userpass-length", 255);
 			driver = new FirefoxDriver(profile);
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 
 	}
@@ -178,14 +178,14 @@ public class ScreenshotThread extends ThreadAbstract {
 
 	@Override
 	public void release() {
-		lock.lock();
+		lock.rl.lock();
 		try {
 			if (driver == null)
 				return;
 			driver.quit();
 			driver = null;
 		} finally {
-			lock.unlock();
+			lock.rl.unlock();
 		}
 	}
 
