@@ -59,10 +59,10 @@ public class HtmlParser extends Parser {
 
 	private final static TreeSet<String> sentenceTagSet = new TreeSet<String>();
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.body, ParserFieldEnum.meta_keywords,
-			ParserFieldEnum.meta_description, ParserFieldEnum.meta_robots,
-			ParserFieldEnum.internal_link,
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.title, ParserFieldEnum.body,
+			ParserFieldEnum.meta_keywords, ParserFieldEnum.meta_description,
+			ParserFieldEnum.meta_robots, ParserFieldEnum.internal_link,
 			ParserFieldEnum.internal_link_nofollow,
 			ParserFieldEnum.external_link,
 			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,

@@ -45,11 +45,12 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class AudioParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.artist,
-			ParserFieldEnum.album, ParserFieldEnum.title,
-			ParserFieldEnum.track, ParserFieldEnum.year, ParserFieldEnum.genre,
-			ParserFieldEnum.comment, ParserFieldEnum.album_artist,
-			ParserFieldEnum.composer, ParserFieldEnum.grouping };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.artist, ParserFieldEnum.album,
+			ParserFieldEnum.title, ParserFieldEnum.track, ParserFieldEnum.year,
+			ParserFieldEnum.genre, ParserFieldEnum.comment,
+			ParserFieldEnum.album_artist, ParserFieldEnum.composer,
+			ParserFieldEnum.grouping };
 
 	public AudioParser() {
 		super(fl);

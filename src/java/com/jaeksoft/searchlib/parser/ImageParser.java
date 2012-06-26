@@ -38,7 +38,8 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class ImageParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.ocr_content };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.ocr_content };
 
 	public ImageParser() {
 		super(fl);

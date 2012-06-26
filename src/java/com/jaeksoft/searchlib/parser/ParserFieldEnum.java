@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.parser;
 
 public enum ParserFieldEnum {
+
+	parser_name,
+
 	url,
 
 	title,

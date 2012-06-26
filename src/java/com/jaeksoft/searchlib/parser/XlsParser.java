@@ -38,9 +38,10 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public class XlsParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.author, ParserFieldEnum.subject,
-			ParserFieldEnum.content, ParserFieldEnum.lang };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.title, ParserFieldEnum.author,
+			ParserFieldEnum.subject, ParserFieldEnum.content,
+			ParserFieldEnum.lang };
 
 	public XlsParser() {
 		super(fl);

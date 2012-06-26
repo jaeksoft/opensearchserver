@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class FileSystemParser extends Parser {
 
-	private static ParserFieldEnum[] fl = {};
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name };
 
 	public FileSystemParser() {
 		super(fl);

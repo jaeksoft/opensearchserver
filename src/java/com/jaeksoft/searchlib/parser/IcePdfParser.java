@@ -53,13 +53,13 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public class IcePdfParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.author, ParserFieldEnum.subject,
-			ParserFieldEnum.creator, ParserFieldEnum.content,
-			ParserFieldEnum.producer, ParserFieldEnum.keywords,
-			ParserFieldEnum.creation_date, ParserFieldEnum.modification_date,
-			ParserFieldEnum.language, ParserFieldEnum.number_of_pages,
-			ParserFieldEnum.ocr_content };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.title, ParserFieldEnum.author,
+			ParserFieldEnum.subject, ParserFieldEnum.creator,
+			ParserFieldEnum.content, ParserFieldEnum.producer,
+			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
+			ParserFieldEnum.modification_date, ParserFieldEnum.language,
+			ParserFieldEnum.number_of_pages, ParserFieldEnum.ocr_content };
 
 	public IcePdfParser() {
 		super(fl);

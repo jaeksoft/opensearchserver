@@ -32,12 +32,12 @@ import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 
 public abstract class OOParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.author, ParserFieldEnum.subject,
-			ParserFieldEnum.content, ParserFieldEnum.producer,
-			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
-			ParserFieldEnum.modification_date, ParserFieldEnum.language,
-			ParserFieldEnum.number_of_pages };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.title, ParserFieldEnum.author,
+			ParserFieldEnum.subject, ParserFieldEnum.content,
+			ParserFieldEnum.producer, ParserFieldEnum.keywords,
+			ParserFieldEnum.creation_date, ParserFieldEnum.modification_date,
+			ParserFieldEnum.language, ParserFieldEnum.number_of_pages };
 
 	public OOParser() {
 		super(fl);

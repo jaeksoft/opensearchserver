@@ -39,8 +39,9 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PptParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.note, ParserFieldEnum.body, ParserFieldEnum.other };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.title, ParserFieldEnum.note, ParserFieldEnum.body,
+			ParserFieldEnum.other };
 
 	public PptParser() {
 		super(fl);

@@ -37,11 +37,12 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class TorrentParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.name,
-			ParserFieldEnum.announce, ParserFieldEnum.total_length,
-			ParserFieldEnum.file_length, ParserFieldEnum.file_path,
-			ParserFieldEnum.info_hash, ParserFieldEnum.info_hash_urlencoded,
-			ParserFieldEnum.comment, ParserFieldEnum.creation_date };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.name, ParserFieldEnum.announce,
+			ParserFieldEnum.total_length, ParserFieldEnum.file_length,
+			ParserFieldEnum.file_path, ParserFieldEnum.info_hash,
+			ParserFieldEnum.info_hash_urlencoded, ParserFieldEnum.comment,
+			ParserFieldEnum.creation_date };
 
 	public TorrentParser() {
 		super(fl);

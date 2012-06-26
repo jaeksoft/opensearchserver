@@ -39,7 +39,8 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class TextParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.content };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.content };
 
 	public TextParser() {
 		super(fl);

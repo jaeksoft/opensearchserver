@@ -40,7 +40,8 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class XmlParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.content };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.content };
 	private SAXParserFactory saxParserFactory;
 	private SAXParser saxParser;
 	private StringBuilder content;
@@ -64,17 +65,20 @@ public class XmlParser extends Parser {
 			saxParser = saxParserFactory.newSAXParser();
 			content = new StringBuilder();
 			DefaultHandler handler = new DefaultHandler() {
+				@Override
 				public void startElement(String uri, String localName,
 						String qName, Attributes attributes)
 						throws SAXException {
 					addContent = true;
 				}
 
+				@Override
 				public void endElement(String uri, String localName,
 						String qName) throws SAXException {
 					addContent = true;
 				}
 
+				@Override
 				public void characters(char ch[], int start, int length)
 						throws SAXException {
 					if (addContent) {

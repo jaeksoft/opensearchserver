@@ -38,10 +38,11 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public class DocxParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.title,
-			ParserFieldEnum.creator, ParserFieldEnum.subject,
-			ParserFieldEnum.description, ParserFieldEnum.content,
-			ParserFieldEnum.lang, ParserFieldEnum.lang_method };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.title, ParserFieldEnum.creator,
+			ParserFieldEnum.subject, ParserFieldEnum.description,
+			ParserFieldEnum.content, ParserFieldEnum.lang,
+			ParserFieldEnum.lang_method };
 
 	public DocxParser() {
 		super(fl);

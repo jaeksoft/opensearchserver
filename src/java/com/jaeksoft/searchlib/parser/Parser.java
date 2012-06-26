@@ -172,6 +172,7 @@ public abstract class Parser extends ParserFactory {
 	final private void doParserContent(StreamLimiter streamLimiter,
 			LanguageEnum lang) throws IOException {
 		try {
+			addField(ParserFieldEnum.parser_name, getParserName());
 			parseContent(streamLimiter, lang);
 		} finally {
 			streamLimiter.close();
