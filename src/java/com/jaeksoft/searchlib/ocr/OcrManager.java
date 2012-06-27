@@ -235,7 +235,7 @@ public class OcrManager implements Closeable {
 		} finally {
 			System.out.println(imageFile);
 			if (imageFile != null)
-				;// FileUtils.deleteQuietly(imageFile);
+				FileUtils.deleteQuietly(imageFile);
 			if (textFile != null)
 				FileUtils.deleteQuietly(textFile);
 		}
