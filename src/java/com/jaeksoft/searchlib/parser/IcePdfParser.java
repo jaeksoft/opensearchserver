@@ -25,16 +25,11 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.awt.Image;
-import java.awt.image.RenderedImage;
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
-import javax.imageio.ImageIO;
-
-import org.apache.commons.io.FileUtils;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -132,28 +127,23 @@ public class IcePdfParser extends Parser {
 		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content))
 			return;
 
-		@SuppressWarnings("unchecked")
-		Vector<Image> images = pdf.getPageImages(0);
-		Enumeration<Image> pageImages = images.elements();
-		while (pageImages.hasMoreElements()) {
-			Image image = (Image) pageImages.nextElement();
-			if (image != null) {
-				RenderedImage renderedImage = null;
-				if (image instanceof RenderedImage)
-					renderedImage = (RenderedImage) image;
-				else
-					renderedImage = ImageUtils.toBufferedImage(image);
-				File textFile = File.createTempFile("ossocr", ".txt");
-				File imageFile = File.createTempFile("osspdfimg", ".png");
-				ImageIO.write(renderedImage, "png", imageFile);
-				image.flush();
-				if (imageFile.length() > 0) {
-					ocr.ocerize(imageFile, textFile, lang);
-					addField(ParserFieldEnum.ocr_content,
-							FileUtils.readFileToString(textFile, "UTF-8"));
+		for (int i = 0; i < pdf.getNumberOfPages(); i++) {
+			@SuppressWarnings("unchecked")
+			Vector<Image> images = pdf.getPageImages(i);
+			if (images == null || images.size() == 0)
+				continue;
+			float rotation = pdf.getPageTree().getPage(i, null)
+					.getTotalRotation(0);
+			for (Image image : images) {
+				BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
+				if (rotation != 0) {
+					// to clock wise
+					rotation = 360 - rotation;
+					bufferedImage = ImageUtils.rotate(bufferedImage, rotation);
 				}
-				FileUtils.deleteQuietly(imageFile);
-				FileUtils.deleteQuietly(textFile);
+				String ocr_content = ocr.ocerizeImage(bufferedImage, lang);
+				if (ocr_content != null)
+					addField(ParserFieldEnum.ocr_content, ocr_content);
 			}
 		}
 

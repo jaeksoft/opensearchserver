@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.ocr;
 
+import java.awt.Image;
+import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -32,15 +34,19 @@ import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
+
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.util.IOUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
@@ -209,6 +215,29 @@ public class OcrManager implements Closeable {
 						+ input.getName() + ")");
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public String ocerizeImage(Image image, LanguageEnum lang)
+			throws InterruptedException, IOException, SearchLibException {
+		File textFile = null;
+		File imageFile = null;
+		try {
+			RenderedImage renderedImage = ImageUtils.toBufferedImage(image);
+			textFile = File.createTempFile("ossocrtxt", ".txt");
+			imageFile = File.createTempFile("ossocrimg", ".png");
+			ImageIO.write(renderedImage, "png", imageFile);
+			image.flush();
+			if (imageFile.length() == 0)
+				return null;
+			ocerize(imageFile, textFile, lang);
+			return FileUtils.readFileToString(textFile, "UTF-8");
+		} finally {
+			System.out.println(imageFile);
+			if (imageFile != null)
+				;// FileUtils.deleteQuietly(imageFile);
+			if (textFile != null)
+				FileUtils.deleteQuietly(textFile);
 		}
 	}
 

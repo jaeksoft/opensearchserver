@@ -131,4 +131,14 @@ http://www.postgresql.org
 MySQL Connector/J
 Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
 http://www.mysql.com
-Reply on GPL v2 license with MySQL FOSS exception (LICENSE-MYSQL)	
+Rely on GPL v2 license with MySQL FOSS exception (LICENSE-MYSQL)
+
+----------------------------------------
+ImgScalr library
+http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library
+This software is licensed under the Apache 2 License.
+
+----------------------------------------
+IcePDF library
+http://www.icepdf.org
+This software is licensed under the Apache 2 License.

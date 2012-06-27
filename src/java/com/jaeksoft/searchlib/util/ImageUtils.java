@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.util;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 import java.util.Iterator;
@@ -34,12 +36,17 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.swing.ImageIcon;
 
+import org.imgscalr.Scalr;
+import org.imgscalr.Scalr.Rotation;
+
 public class ImageUtils {
 
 	public static BufferedImage toBufferedImage(Image image)
 			throws InterruptedException {
-		System.out.println(image.getHeight(null) + " x " + image.getWidth(null)
-				+ " - " + image);
+
+		if (image instanceof BufferedImage)
+			return (BufferedImage) image;
+
 		image = new ImageIcon(image).getImage();
 		int type = hasAlpha(image) ? BufferedImage.TYPE_INT_ARGB
 				: BufferedImage.TYPE_INT_RGB;
@@ -49,6 +56,32 @@ public class ImageUtils {
 		g.drawImage(image, 0, 0, null);
 		g.dispose();
 		return bimage;
+	}
+
+	public static BufferedImage rotate(BufferedImage image, float degree)
+			throws InterruptedException {
+
+		Rotation rot = null;
+		AffineTransformOp[] xform = null;
+
+		switch ((int) degree) {
+		case 90:
+			rot = Rotation.CW_90;
+			break;
+		case 180:
+			rot = Rotation.CW_180;
+			break;
+		case 270:
+			rot = Rotation.CW_270;
+			break;
+		default:
+			xform = new AffineTransformOp[1];
+			xform[0] = new AffineTransformOp(
+					AffineTransform.getRotateInstance(Math.toRadians(degree)),
+					AffineTransformOp.TYPE_BICUBIC);
+			break;
+		}
+		return Scalr.rotate(image, rot, xform);
 	}
 
 	public static boolean hasAlpha(Image image) throws InterruptedException {
@@ -76,4 +109,5 @@ public class ImageUtils {
 		}
 		return null;
 	}
+
 }
