@@ -43,6 +43,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
@@ -438,13 +439,8 @@ public class ClientCatalog {
 		} catch (IOException e) {
 			throw e;
 		} finally {
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			if (fos != null)
+				IOUtils.closeQuietly(fos);
 		}
 	}
 

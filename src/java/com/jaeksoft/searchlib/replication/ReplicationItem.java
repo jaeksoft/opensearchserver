@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.replication;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,6 +32,8 @@ import java.net.URL;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -57,9 +60,12 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	private ReplicationMaster replicationMaster;
 
+	private ReplicationType replicationType;
+
 	public ReplicationItem(ReplicationMaster replicationMaster, String name) {
 		super(name);
 		this.replicationMaster = replicationMaster;
+		replicationType = ReplicationType.MAIN_INDEX;
 		lastReplicationThread = null;
 	}
 
@@ -88,6 +94,8 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		String encodedApiKey = XPathParser.getAttributeString(node, "apiKey");
 		if (encodedApiKey != null && encodedApiKey.length() > 0)
 			setApiKey(StringUtils.base64decode(encodedApiKey));
+		setReplicationType(ReplicationType.find(XPathParser.getAttributeString(
+				node, "replicationType")));
 		updateName();
 	}
 
@@ -108,7 +116,8 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 					StringUtils.base64encode(apiKey)) : "";
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
-					"login", login, "apiKey", encodedApiKey);
+					"login", login, "apiKey", encodedApiKey, "replicationType",
+					replicationType.name());
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -243,6 +252,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 			this.apiKey = item.apiKey;
 			this.lastReplicationThread = item.lastReplicationThread;
 			this.replicationMaster = item.replicationMaster;
+			this.replicationType = item.replicationType;
 			setName(item.getName());
 			this.cachedUrl = null;
 		} finally {
@@ -292,6 +302,48 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 				return cachedUrl;
 			cachedUrl = PushServlet.getCachedUrl(this);
 			return cachedUrl;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public File getDirectory(Config config) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			switch (replicationType) {
+			case MAIN_INDEX:
+				return config.getDirectory();
+			case WEB_CRAWLER_URL_DATABASE:
+				return config.getUrlManager().getUrlDbClient().getDirectory();
+			case FILE_CRAWLER_URI_DATABASE:
+				return config.getFileManager().getFileDbClient().getDirectory();
+			}
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the replicationType
+	 */
+	public ReplicationType getReplicationType() {
+		rwl.r.lock();
+		try {
+			return replicationType;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param replicationType
+	 *            the replicationType to set
+	 */
+	public void setReplicationType(ReplicationType replicationType) {
+		rwl.w.lock();
+		try {
+			this.replicationType = replicationType;
 		} finally {
 			rwl.w.unlock();
 		}

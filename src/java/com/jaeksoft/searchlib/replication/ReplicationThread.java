@@ -30,11 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
 import com.jaeksoft.searchlib.web.PushServlet;
@@ -58,14 +58,18 @@ public class ReplicationThread extends ThreadAbstract implements
 
 	private List<File> dirsNotPushed;
 
+	private File sourceDirectory;
+
 	private final static String[] NOT_PUSHED_PATH = { "replication.xml",
 			"replication_old.xml", "jobs.xml", "jobs_old.xml", "report" };
 
 	protected ReplicationThread(Client client,
 			ReplicationMaster replicationMaster,
-			ReplicationItem replicationItem, TaskLog taskLog) {
+			ReplicationItem replicationItem, TaskLog taskLog)
+			throws SearchLibException {
 		super(client, replicationMaster);
 		this.replicationItem = replicationItem;
+		sourceDirectory = replicationItem.getDirectory(client);
 		this.client = client;
 		totalSize = 0;
 		sendSize = 0;
@@ -87,11 +91,10 @@ public class ReplicationThread extends ThreadAbstract implements
 	}
 
 	private void initNotPushedList() {
-		File clientDir = client.getDirectory();
 		filesNotPushed = new ArrayList<File>(0);
 		dirsNotPushed = new ArrayList<File>(0);
 		for (String path : NOT_PUSHED_PATH) {
-			File f = new File(clientDir, path);
+			File f = new File(sourceDirectory, path);
 			if (f.isFile())
 				filesNotPushed.add(f);
 			else if (f.isDirectory())
@@ -123,11 +126,10 @@ public class ReplicationThread extends ThreadAbstract implements
 	}
 
 	public void push() throws SearchLibException {
-		setTotalSize(ClientCatalog
-				.getLastModifiedAndSize(client.getIndexName()).getSize());
-		addSendSize(client.getDirectory());
+		setTotalSize(new LastModifiedAndSize(sourceDirectory, false).getSize());
+		addSendSize(sourceDirectory);
 		PushServlet.call_init(replicationItem);
-		new RecursiveDirectoryBrowser(client.getDirectory(), this);
+		new RecursiveDirectoryBrowser(sourceDirectory, this);
 		PushServlet.call_switch(replicationItem);
 	}
 

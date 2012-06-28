@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -25,6 +25,14 @@
 					<column align="left" />
 				</columns>
 				<rows>
+					<row>
+						<label value="Replication type" />
+						<listbox mold="select"
+							selectedItem="@{replication.item.replicationType}"
+							model="@{replication.typeValues}" />
+						<label
+							value="Select which index will be replicated" />
+					</row>
 					<row>
 						<label value="Instance URL: " />
 						<textbox value="@{replication.item.instanceUrl}"

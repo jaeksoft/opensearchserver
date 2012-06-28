@@ -120,7 +120,8 @@ public class PushServlet extends AbstractServlet {
 			ReplicationItem replicationItem, File sourceFile)
 			throws UnsupportedEncodingException, SearchLibException,
 			MalformedURLException {
-		String dataPath = client.getDirectory().getAbsolutePath();
+		String dataPath = replicationItem.getDirectory(client)
+				.getAbsolutePath();
 		String filePath = sourceFile.getAbsolutePath();
 		if (!filePath.startsWith(dataPath))
 			throw new SearchLibException("Bad file path " + filePath);

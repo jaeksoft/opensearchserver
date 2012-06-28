@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
+import com.jaeksoft.searchlib.replication.ReplicationType;
 
 public class ReplicationController extends CommonController {
 
@@ -159,4 +160,7 @@ public class ReplicationController extends CommonController {
 		reloadPage();
 	}
 
+	public ReplicationType[] getTypeValues() {
+		return ReplicationType.values();
+	}
 }
