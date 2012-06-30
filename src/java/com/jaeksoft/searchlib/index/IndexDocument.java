@@ -225,7 +225,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 		try {
 			DownloadItem downloadItem = httpDownloader.get(new URI(url),
 					credentialItem);
-			return parserSelector.parseStream(null, null,
+			return parserSelector.parseStream(null, downloadItem.getFileName(),
 					downloadItem.getContentBaseType(),
 					downloadItem.getContentInputStream(), lang, null);
 		} catch (RuntimeException e) {

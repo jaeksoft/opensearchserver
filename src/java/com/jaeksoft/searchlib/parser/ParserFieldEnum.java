@@ -114,10 +114,22 @@ public enum ParserFieldEnum {
 
 	file_path,
 
+	file_name,
+
 	info_hash,
 
 	info_hash_urlencoded,
 
-	ocr_content;
+	ocr_content,
+
+	image_height,
+
+	image_width,
+
+	image_number,
+
+	image_format,
+
+	image_area_size;
 
 }

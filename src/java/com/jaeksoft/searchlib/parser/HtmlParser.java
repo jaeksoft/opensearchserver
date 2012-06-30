@@ -30,6 +30,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -69,6 +71,9 @@ public class HtmlParser extends Parser {
 			ParserFieldEnum.htmlProvider, ParserFieldEnum.htmlSource };
 
 	private UrlItemFieldEnum urlItemFieldEnum = null;
+
+	private Map<String, Float> boostTagMap;
+	private Float titleBoost;
 
 	public HtmlParser() {
 		super(fl);
@@ -112,6 +117,20 @@ public class HtmlParser extends Parser {
 				ClassPropertyEnum.KEEP_REMOVE_LIST);
 		if (config != null)
 			urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
+		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null);
+		addProperty(ClassPropertyEnum.H1_BOOST, "1.8", null);
+		addProperty(ClassPropertyEnum.H2_BOOST, "1.6", null);
+		addProperty(ClassPropertyEnum.H3_BOOST, "1.4", null);
+		addProperty(ClassPropertyEnum.H4_BOOST, "1.2", null);
+		addProperty(ClassPropertyEnum.H5_BOOST, "1.1", null);
+		addProperty(ClassPropertyEnum.H6_BOOST, "1.1", null);
+	}
+
+	private float getFloatProperty(ClassPropertyEnum prop) {
+		String value = getProperty(prop).getValue();
+		if (value == null)
+			return 1.0F;
+		return Float.parseFloat(value);
 	}
 
 	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
@@ -209,16 +228,28 @@ public class HtmlParser extends Parser {
 	}
 
 	protected void addFieldTitle(String value) {
-		addField(ParserFieldEnum.title, value);
+		addField(ParserFieldEnum.title, value, titleBoost);
 	}
 
 	protected void addFieldBody(String tag, String value) {
-		addField(ParserFieldEnum.body, value);
+		Float boost = boostTagMap.get(tag);
+		if (boost == null)
+			boost = 1.0F;
+		addField(ParserFieldEnum.body, value, boost);
 	}
 
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter,
 			LanguageEnum forcedLang) throws IOException {
+
+		titleBoost = getFloatProperty(ClassPropertyEnum.TITLE_BOOST);
+		boostTagMap = new TreeMap<String, Float>();
+		boostTagMap.put("h1", getFloatProperty(ClassPropertyEnum.H1_BOOST));
+		boostTagMap.put("h2", getFloatProperty(ClassPropertyEnum.H2_BOOST));
+		boostTagMap.put("h3", getFloatProperty(ClassPropertyEnum.H3_BOOST));
+		boostTagMap.put("h4", getFloatProperty(ClassPropertyEnum.H4_BOOST));
+		boostTagMap.put("h5", getFloatProperty(ClassPropertyEnum.H5_BOOST));
+		boostTagMap.put("h6", getFloatProperty(ClassPropertyEnum.H6_BOOST));
 
 		String charset = null;
 		IndexDocument sourceDocument = getSourceDocument();
@@ -336,7 +367,8 @@ public class HtmlParser extends Parser {
 				.equalsIgnoreCase(getProperty(ClassPropertyEnum.URL_FRAGMENT)
 						.getValue());
 
-		List<HtmlNodeAbstract<?>> nodes = rootNode.getAllNodes("a", "frame");
+		List<HtmlNodeAbstract<?>> nodes = rootNode.getAllNodes("a", "frame",
+				"img");
 		IndexDocument srcDoc = getSourceDocument();
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {
 			URL currentURL = htmlProvider.getBaseHref();
@@ -353,7 +385,7 @@ public class HtmlParser extends Parser {
 				if ("a".equals(nodeName)) {
 					href = node.getAttributeText("href");
 					rel = node.getAttributeText("rel");
-				} else if ("frame".equals(nodeName)) {
+				} else if ("frame".equals(nodeName) || "img".equals(nodeName)) {
 					href = node.getAttributeText("src");
 				}
 				boolean follow = true;

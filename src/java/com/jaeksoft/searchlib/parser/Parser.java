@@ -32,6 +32,7 @@ import java.util.Locale;
 
 import org.knallgrau.utils.textcat.TextCategorizer;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.FieldContent;
@@ -180,11 +181,12 @@ public abstract class Parser extends ParserFactory {
 	}
 
 	final void parseStream(IndexDocument sourceDocument,
-			InputStream inputStream, LanguageEnum lang) throws IOException {
+			String originalFileName, InputStream inputStream, LanguageEnum lang)
+			throws IOException {
 		if (sourceDocument != null)
 			setSourceDocument(sourceDocument);
 		StreamLimiter streamLimiter = new StreamLimiterInputStream(
-				getSizeLimit(), inputStream);
+				getSizeLimit(), inputStream, originalFileName);
 		doParserContent(streamLimiter, lang);
 	}
 
@@ -208,7 +210,7 @@ public abstract class Parser extends ParserFactory {
 
 	final void parseFileInstance(IndexDocument sourceDocument,
 			FileInstanceAbstract fileInstance, LanguageEnum lang)
-			throws IOException {
+			throws IOException, SearchLibException {
 		if (sourceDocument != null)
 			setSourceDocument(sourceDocument);
 		StreamLimiter streamLimiter = new StreamLimiterFileInstance(

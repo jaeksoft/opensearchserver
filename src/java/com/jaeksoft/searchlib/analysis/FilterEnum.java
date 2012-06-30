@@ -53,6 +53,9 @@ public enum FilterEnum {
 	NGramFilter(
 			"This filter tokenizes the input into n-grams of the given size(s)."),
 
+	NumberFormatFilter(
+			"This filter formats number following the provided pattern"),
+
 	PhoneticFilter("A filter that encode words using phonetic algorithms."),
 
 	PrefixSuffixStopFilter(

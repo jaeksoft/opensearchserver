@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.config;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -41,6 +42,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -195,14 +197,17 @@ public abstract class Config {
 			if (!indexDir.isDirectory())
 				throw new SearchLibException("Expected to get a directory path");
 
-			if (configXmlResourceName == null)
-				xppConfig = new XPathParser(new File(indexDirectory,
-						"config.xml"));
-			else {
-				xppConfig = new XPathParser(getClass().getResourceAsStream(
-						configXmlResourceName));
+			File configFile = new File(indexDirectory, "config.xml");
 
+			if (configXmlResourceName != null) {
+				InputStream is = getClass().getResourceAsStream(
+						configXmlResourceName);
+				FileUtils.copyInputStreamToFile(is, configFile);
+				if (is != null)
+					IOUtils.closeQuietly(is);
 			}
+
+			xppConfig = new XPathParser(configFile);
 
 			index = newIndex(indexDir, xppConfig, createIndexIfNotExists);
 			schema = Schema.fromXmlConfig(this,

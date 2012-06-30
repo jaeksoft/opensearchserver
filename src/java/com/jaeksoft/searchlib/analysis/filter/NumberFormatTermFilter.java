@@ -21,41 +21,30 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.analysis.filter;
 
-package com.jaeksoft.searchlib.streamlimiter;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.text.DecimalFormat;
 
-import org.apache.commons.io.FilenameUtils;
+import org.apache.lucene.analysis.TokenStream;
 
-import com.jaeksoft.searchlib.SearchLibException;
+public class NumberFormatTermFilter extends AbstractTermFilter {
 
-public class StreamLimiterInputStream extends StreamLimiter {
+	private final DecimalFormat numberFormat;
 
-	private final InputStream inputStream;
-
-	public StreamLimiterInputStream(long limit, InputStream inputStream,
-			String originalFileName) throws IOException {
-		super(limit, originalFileName);
-		this.inputStream = inputStream;
+	public NumberFormatTermFilter(TokenStream input, String format) {
+		super(input);
+		numberFormat = new DecimalFormat(format);
 	}
 
 	@Override
-	protected void loadOutputCache() throws LimitException, IOException {
-		loadOutputCache(inputStream);
+	public final boolean incrementToken() throws IOException {
+		current = captureState();
+		if (!input.incrementToken())
+			return false;
+		String term = numberFormat.format(new Double(getTerm()));
+		if (term != null)
+			createToken(term);
+		return true;
 	}
-
-	@Override
-	public File getFile() throws SearchLibException {
-		try {
-			String ext = originalFileName == null ? null : FilenameUtils
-					.getExtension(originalFileName);
-			return getTempFile(ext);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
-	}
-
 }

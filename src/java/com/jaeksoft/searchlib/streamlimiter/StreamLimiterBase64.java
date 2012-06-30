@@ -39,7 +39,7 @@ public class StreamLimiterBase64 extends StreamLimiter {
 
 	public StreamLimiterBase64(String base64text, int limit, String fileName)
 			throws IOException {
-		super(limit);
+		super(limit, fileName);
 		this.base64text = base64text;
 		this.extension = fileName != null ? FilenameUtils
 				.getExtension(fileName) : null;

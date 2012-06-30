@@ -32,7 +32,7 @@ public class StreamLimiterFile extends StreamLimiter {
 	private final File file;
 
 	public StreamLimiterFile(long limit, File file) throws IOException {
-		super(limit);
+		super(limit, file.getName());
 		this.file = file;
 	}
 

@@ -38,8 +38,8 @@ public class StreamLimiterFileInstance extends StreamLimiter {
 	private final FileInstanceAbstract fileInstance;
 
 	public StreamLimiterFileInstance(FileInstanceAbstract fileInstance,
-			int limit) throws IOException {
-		super(limit);
+			int limit) throws IOException, SearchLibException {
+		super(limit, fileInstance.getFileName());
 		this.fileInstance = fileInstance;
 	}
 

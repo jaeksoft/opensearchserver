@@ -21,41 +21,42 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.analysis.filter;
 
-package com.jaeksoft.searchlib.streamlimiter;
+import java.text.DecimalFormat;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.commons.io.FilenameUtils;
+import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
 
-public class StreamLimiterInputStream extends StreamLimiter {
+public class NumberFormatFilter extends FilterFactory {
 
-	private final InputStream inputStream;
+	private final String DEFAULT_FORMAT = "0000000000";
 
-	public StreamLimiterInputStream(long limit, InputStream inputStream,
-			String originalFileName) throws IOException {
-		super(limit, originalFileName);
-		this.inputStream = inputStream;
+	private String format = DEFAULT_FORMAT;
+
+	@Override
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.NUMBER_FORMAT, DEFAULT_FORMAT, null);
 	}
 
 	@Override
-	protected void loadOutputCache() throws LimitException, IOException {
-		loadOutputCache(inputStream);
-	}
-
-	@Override
-	public File getFile() throws SearchLibException {
-		try {
-			String ext = originalFileName == null ? null : FilenameUtils
-					.getExtension(originalFileName);
-			return getTempFile(ext);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+	public void checkValue(ClassPropertyEnum prop, String value)
+			throws SearchLibException {
+		if (value == null || value.length() == 0)
+			return;
+		if (prop == ClassPropertyEnum.NUMBER_FORMAT) {
+			new DecimalFormat(value);
+			format = value;
 		}
+	}
+
+	@Override
+	public TokenStream create(TokenStream tokenStream) {
+		return new NumberFormatTermFilter(tokenStream, format);
 	}
 
 }

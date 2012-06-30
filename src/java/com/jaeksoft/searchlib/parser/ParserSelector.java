@@ -373,7 +373,7 @@ public class ParserSelector {
 			if (parser == null)
 				return null;
 			try {
-				parser.parseStream(sourceDocument, inputStream, lang);
+				parser.parseStream(sourceDocument, filename, inputStream, lang);
 				return parser;
 			} catch (IOException ioException) {
 				parser = getFailOverParser(parser, ioException);

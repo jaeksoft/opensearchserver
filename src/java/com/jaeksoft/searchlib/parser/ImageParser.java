@@ -28,6 +28,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.sanselan.ImageInfo;
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.Sanselan;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,7 +42,10 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 public class ImageParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
-			ParserFieldEnum.ocr_content };
+			ParserFieldEnum.image_width, ParserFieldEnum.image_height,
+			ParserFieldEnum.image_area_size, ParserFieldEnum.image_number,
+			ParserFieldEnum.image_format, ParserFieldEnum.file_name,
+			ParserFieldEnum.ocr_content, };
 
 	public ImageParser() {
 		super(fl);
@@ -51,10 +57,8 @@ public class ImageParser extends Parser {
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
-	@Override
-	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+	private void doOCR(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
-
 		File textFile = null;
 		try {
 			OcrManager ocr = ClientCatalog.getOcrManager();
@@ -62,9 +66,9 @@ public class ImageParser extends Parser {
 				return;
 			if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content))
 				return;
-			File imageFile = streamLimiter.getFile();
+
 			textFile = File.createTempFile("ossocr", ".txt");
-			ocr.ocerize(imageFile, textFile, lang);
+			ocr.ocerize(streamLimiter.getFile(), textFile, lang);
 			addField(ParserFieldEnum.ocr_content,
 					FileUtils.readFileToString(textFile, "UTF-8"));
 		} catch (SearchLibException e) {
@@ -73,7 +77,33 @@ public class ImageParser extends Parser {
 			if (textFile != null)
 				FileUtils.deleteQuietly(textFile);
 		}
-
 	}
 
+	private void doMetaData(StreamLimiter streamLimiter) throws IOException {
+		ImageInfo info;
+		try {
+			info = Sanselan.getImageInfo(streamLimiter.getNewInputStream(),
+					streamLimiter.getOriginalFileName());
+			if (info == null)
+				return;
+			int width = info.getWidth();
+			int height = info.getHeight();
+			long area_size = (long) width * height;
+			addField(ParserFieldEnum.image_width, width);
+			addField(ParserFieldEnum.image_height, height);
+			addField(ParserFieldEnum.image_area_size, area_size);
+			addField(ParserFieldEnum.image_number, info.getNumberOfImages());
+			addField(ParserFieldEnum.image_format, info.getFormatName());
+		} catch (ImageReadException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException {
+		addField(ParserFieldEnum.file_name, streamLimiter.getOriginalFileName());
+		doMetaData(streamLimiter);
+		doOCR(streamLimiter, lang);
+	}
 }

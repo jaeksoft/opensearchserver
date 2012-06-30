@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -43,12 +44,15 @@ public abstract class StreamLimiter implements Closeable {
 	private final long limit;
 	private CachedStreamInterface outputCache;
 	private final List<File> tempFiles;
+	protected final String originalFileName;
 
-	protected StreamLimiter(long limit) throws IOException {
+	protected StreamLimiter(long limit, String originalFileName)
+			throws IOException {
 		this.limit = limit;
 		this.outputCache = null;
 		this.inputStreamList = new ArrayList<InputStream>(0);
 		this.tempFiles = new ArrayList<File>(0);
+		this.originalFileName = originalFileName;
 	}
 
 	public abstract File getFile() throws SearchLibException, IOException;
@@ -108,10 +112,15 @@ public abstract class StreamLimiter implements Closeable {
 		tempFiles.clear();
 	}
 
-	public File getTempFile(String extension) throws IOException {
+	protected File getTempFile(String extension) throws IOException {
 		File tempFile = File.createTempFile("oss", "." + extension);
+		FileUtils.copyInputStreamToFile(getNewInputStream(), tempFile);
 		tempFiles.add(tempFile);
 		return tempFile;
+	}
+
+	public String getOriginalFileName() {
+		return originalFileName;
 	}
 
 }

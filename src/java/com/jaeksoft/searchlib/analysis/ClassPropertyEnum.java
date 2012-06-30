@@ -101,6 +101,12 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "removeDuplicateLetters", "Duplicate letters",
 			"Detect and remove consecutive duplicate letters");
 
+	public static ClassPropertyEnum NUMBER_FORMAT = new ClassPropertyEnum(
+			true,
+			"numberFormat",
+			"Number format",
+			"Format number using java decimal format, for example, \"#,##0.00;(#,##0.00)\".");
+
 	public static ClassPropertyEnum REMOVE_DUPLICATE_DIGITS = new ClassPropertyEnum(
 			true, "removeDuplicateDigits", "Duplicate digits",
 			"Detect and remove consecutive duplicate digits");
@@ -116,6 +122,28 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static ClassPropertyEnum REGULAR_EXPRESSION = new ClassPropertyEnum(
 			true, "regular_expression", "Regular Expression",
 			"The regular expression pattern");
+
+	public final static ClassPropertyEnum H1_BOOST = new ClassPropertyEnum(
+			true, "h1_boost", "H1 Boost", "Boost for H1 Tag in Html Content");
+
+	public final static ClassPropertyEnum H2_BOOST = new ClassPropertyEnum(
+			true, "h2_boost", "H2 Boost", "Boost for H2 Tag in Html Content");
+
+	public final static ClassPropertyEnum H3_BOOST = new ClassPropertyEnum(
+			true, "h3_boost", "H3 Boost", "Boost for H3 Tag in Html Content");
+
+	public final static ClassPropertyEnum H4_BOOST = new ClassPropertyEnum(
+			true, "h4_boost", "H4 Boost", "Boost for H4 Tag in Html Content");
+
+	public final static ClassPropertyEnum H5_BOOST = new ClassPropertyEnum(
+			true, "h5_boost", "H5 Boost", "Boost for H5 Tag in Html Content");
+
+	public final static ClassPropertyEnum H6_BOOST = new ClassPropertyEnum(
+			true, "h6_boost", "H6 Boost", "Boost for H6 Tag in Html Content");
+
+	public final static ClassPropertyEnum TITLE_BOOST = new ClassPropertyEnum(
+			true, "title_boost", "Title Boost",
+			"Boost for Title Tag in Html Content");
 
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };

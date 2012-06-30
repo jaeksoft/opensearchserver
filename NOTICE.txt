@@ -49,6 +49,9 @@ http://xerces.apache.org
 Apache XML-RPC
 http://ws.apache.org/xmlrpc/
 
+Apache Sanselan (Imaging)
+http://commons.apache.org/imaging/
+
 ----------------------------------------
 ZK DirectRIA by Potix Corporation
 http://www.zkoss.org/

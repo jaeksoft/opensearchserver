@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Client;
@@ -135,7 +136,7 @@ public class Crawl {
 		}
 		String fileName = urlItem.getContentDispositionFilename();
 		if (fileName == null)
-			fileName = urlItem.getURL().getFile();
+			fileName = FilenameUtils.getName(urlItem.getURL().getFile());
 		IndexDocument sourceDocument = new IndexDocument();
 		urlItem.populate(sourceDocument, urlItemFieldEnum);
 		Date parserStartDate = new Date();
