@@ -71,12 +71,13 @@ public class TaskPullFields extends TaskPullAbstract {
 	final private TaskPropertyDef propTargetMappedFields = new TaskPropertyDef(
 			TaskPropertyType.multilineTextBox, "Mapped fields on target", 80, 5);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
-			propLogin, propApiKey, propSourceQuery, propSourceField,
-			propTargetField, propSourceMappedFields, propTargetMappedFields };
-
 	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Buffer size", 10);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
+			propLogin, propApiKey, propSourceQuery, propSourceField,
+			propTargetField, propSourceMappedFields, propTargetMappedFields,
+			propBufferSize };
 
 	@Override
 	public String getName() {
