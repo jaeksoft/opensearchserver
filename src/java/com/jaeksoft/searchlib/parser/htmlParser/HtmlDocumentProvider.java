@@ -60,7 +60,7 @@ public abstract class HtmlDocumentProvider {
 		} catch (LimitException e) {
 			throw e;
 		} catch (Exception e) {
-			Logging.warn(e.getMessage(), e);
+			Logging.warn(e.getMessage());
 		}
 	}
 
