@@ -84,6 +84,9 @@ public class ResultScoreDoc {
 			StringIndex doc2StringIndex) {
 		if (docs.length == 0 || docs2.length == 0)
 			return ResultScoreDoc.EMPTY_ARRAY;
+
+		long t = System.currentTimeMillis();
+
 		ResultScoreDoc[] docs1 = copy(docs);
 		new AscStringIndexSorter(doc1StringIndex).sort(docs1);
 		docs2 = copy(docs2);
@@ -109,6 +112,9 @@ public class ResultScoreDoc {
 				i1++;
 			}
 		}
+
+		System.out.println("Time: " + (System.currentTimeMillis() - t)
+				+ " Join: " + docs.length + " / " + docs2.length);
 		return copyValid(docs1);
 	}
 }
