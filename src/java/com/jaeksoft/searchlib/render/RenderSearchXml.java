@@ -103,31 +103,25 @@ public class RenderSearchXml extends
 			renderSnippetValue(doc, field);
 	}
 
-	private void renderDocuments(SearchRequest searchRequest,
-			ResultDocument[] documents) throws IOException {
-		if (documents == null)
-			return;
-		for (ResultDocument document : documents)
-			renderDocument(searchRequest, document);
-	}
-
-	private void renderJoinResult(JoinResult joinResult) throws IOException {
+	private void renderJoinResult(JoinResult joinResult, int pos)
+			throws IOException {
 		if (joinResult == null)
 			return;
 		writer.print("\t\t<join paramPosition=\"");
 		writer.print(joinResult.getParamPosition());
 		writer.println("\">");
-		renderDocuments(joinResult.getForeignResult().getRequest(),
-				joinResult.getDocuments());
+		renderDocument(joinResult.getForeignResult().getRequest(),
+				joinResult.getDocument(pos));
 		writer.println("\t\t</join>");
 
 	}
 
-	private void renderJoinResults(JoinResult[] joinResults) throws IOException {
+	private void renderJoinResults(JoinResult[] joinResults, int pos)
+			throws IOException {
 		if (joinResults == null)
 			return;
 		for (JoinResult joinResult : joinResults)
-			renderJoinResult(joinResult);
+			renderJoinResult(joinResult, pos);
 	}
 
 	private void renderDocument(int pos) throws IOException, ParseException,
@@ -145,7 +139,7 @@ public class RenderSearchXml extends
 			writer.print(cc);
 			writer.println("</collapseCount>");
 		}
-		renderJoinResults(result.getJoinResult());
+		renderJoinResults(result.getJoinResult(), pos);
 		writer.println("\t</doc>");
 	}
 

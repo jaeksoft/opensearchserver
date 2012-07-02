@@ -67,7 +67,7 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 		for (int i = 0; i < fetchLength; i++) {
 			if (!collapsedSet.get(i)) {
 				ResultScoreDoc fetchDoc = fetchedDocs[i];
-				collapseDoc = fetchDoc.newResultScoreDocCollapse();
+				collapseDoc = fetchDoc.newCollapseInstance();
 				collapseDoc.collapseCount = 0;
 				collapsedDoc[currentPos++] = collapseDoc;
 			} else {

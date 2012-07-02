@@ -47,6 +47,8 @@ public class JoinResult {
 
 	private ResultDocument[] resultDocument;
 
+	private int start;
+
 	private transient ResultSearchSingle foreignResult;
 
 	public JoinResult(int pos, String paramPosition, boolean returnFields) {
@@ -74,13 +76,18 @@ public class JoinResult {
 			return;
 		if (rows <= 0)
 			return;
+		this.start = start;
 		DocumentsRequest dr = new DocumentsRequest(this, start, rows, docs);
-		System.out.println(dr);
 		resultDocument = foreignResult.getReader().documents(dr);
 	}
 
-	public ResultDocument[] getDocuments() {
-		return resultDocument;
+	final public ResultDocument getDocument(int pos) {
+		int row = pos - start;
+		if (row < 0)
+			return null;
+		if (row >= resultDocument.length)
+			return null;
+		return resultDocument[row];
 	}
 
 	public final static void getDocuments(AbstractResultSearch result,

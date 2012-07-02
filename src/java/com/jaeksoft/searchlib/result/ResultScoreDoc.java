@@ -32,7 +32,7 @@ public class ResultScoreDoc {
 
 	final public float score;
 
-	protected ResultScoreDoc(ResultScoreDoc rsd) {
+	public ResultScoreDoc(ResultScoreDoc rsd) {
 		this.score = rsd.score;
 		this.doc = rsd.doc;
 	}
@@ -52,10 +52,6 @@ public class ResultScoreDoc {
 		return sb.toString();
 	}
 
-	public ResultScoreDocCollapse newResultScoreDocCollapse() {
-		return ResultScoreDocCollapse.newInstance(this);
-	}
-
 	final protected static ResultScoreDoc[] copy(ResultScoreDoc[] docs) {
 		ResultScoreDoc[] newDocs = new ResultScoreDoc[docs.length];
 		if (docs.length == 0)
@@ -73,7 +69,11 @@ public class ResultScoreDoc {
 	 * @return
 	 */
 	public ResultScoreDoc getForeignDoc(int pos) {
-		return this;
+		throw new RuntimeException("ResultScoreDoc:getForeignDoc error");
+	}
+
+	public ResultScoreDocCollapse newCollapseInstance() {
+		return new ResultScoreDocCollapse(this);
 	}
 
 }

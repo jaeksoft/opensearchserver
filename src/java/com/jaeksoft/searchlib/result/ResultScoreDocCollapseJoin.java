@@ -29,7 +29,7 @@ final public class ResultScoreDocCollapseJoin extends ResultScoreDocCollapse
 
 	final private int[] foreignDocIds;
 
-	protected ResultScoreDocCollapseJoin(ResultScoreDocJoin rsdj) {
+	public ResultScoreDocCollapseJoin(ResultScoreDocJoin rsdj) {
 		super(rsdj);
 		this.foreignDocIds = rsdj.getForeignDocIds();
 	}
@@ -37,11 +37,6 @@ final public class ResultScoreDocCollapseJoin extends ResultScoreDocCollapse
 	public ResultScoreDocCollapseJoin(ResultScoreDocCollapseJoin doc) {
 		super(doc);
 		this.foreignDocIds = doc.foreignDocIds;
-	}
-
-	@Override
-	public ResultScoreDocCollapse newResultScoreDocCollapse() {
-		return ResultScoreDocCollapseJoin.newInstance(this);
 	}
 
 	@Override
@@ -57,6 +52,11 @@ final public class ResultScoreDocCollapseJoin extends ResultScoreDocCollapse
 	@Override
 	final public ResultScoreDoc getForeignDoc(int pos) {
 		return new ResultScoreDoc(foreignDocIds[pos], score);
+	}
+
+	@Override
+	public ResultScoreDocCollapse newCollapseInstance() {
+		return new ResultScoreDocCollapseJoin(this);
 	}
 
 }

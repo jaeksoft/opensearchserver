@@ -57,8 +57,7 @@ public class CollapseCluster extends CollapseAbstract {
 					&& ((collapseDoc = collapsedDocMap.get(term)) != null)) {
 				collapseDoc.collapseCount++;
 			} else {
-				collapsedDocMap.put(term,
-						fetchedDoc.newResultScoreDocCollapse());
+				collapsedDocMap.put(term, fetchedDoc.newCollapseInstance());
 			}
 		}
 

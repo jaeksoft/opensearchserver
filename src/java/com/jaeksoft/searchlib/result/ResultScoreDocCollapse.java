@@ -30,13 +30,19 @@ public class ResultScoreDocCollapse extends ResultScoreDoc {
 
 	public int collapseCount;
 
-	protected ResultScoreDocCollapse(ResultScoreDoc rsd) {
+	public ResultScoreDocCollapse(ResultScoreDoc rsd) {
 		super(rsd);
 		this.collapseCount = 0;
 	}
 
-	final public static ResultScoreDocCollapse newInstance(ResultScoreDoc rsd) {
-		return new ResultScoreDocCollapse(rsd);
+	public ResultScoreDocCollapse(ResultScoreDocCollapse rsdc) {
+		super(rsdc);
+		this.collapseCount = rsdc.collapseCount;
+	}
+
+	@Override
+	public ResultScoreDocCollapse newCollapseInstance() {
+		return new ResultScoreDocCollapse(this);
 	}
 
 }

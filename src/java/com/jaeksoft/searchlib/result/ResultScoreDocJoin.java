@@ -42,7 +42,7 @@ final public class ResultScoreDocJoin extends ResultScoreDoc implements
 		this.foreignDocIds = new int[joinResultSize];
 	}
 
-	public ResultScoreDocJoin(ResultScoreDocJoin doc) {
+	private ResultScoreDocJoin(ResultScoreDocJoin doc) {
 		super(doc);
 		this.foreignDocIds = doc.foreignDocIds;
 	}
@@ -135,12 +135,12 @@ final public class ResultScoreDocJoin extends ResultScoreDoc implements
 	}
 
 	@Override
-	public ResultScoreDocCollapse newResultScoreDocCollapse() {
-		return ResultScoreDocCollapseJoin.newInstance(this);
+	public ResultScoreDoc getForeignDoc(int pos) {
+		return new ResultScoreDoc(foreignDocIds[pos], score);
 	}
 
 	@Override
-	public ResultScoreDoc getForeignDoc(int pos) {
-		return new ResultScoreDoc(foreignDocIds[pos], score);
+	public ResultScoreDocCollapse newCollapseInstance() {
+		return new ResultScoreDocCollapseJoin(this);
 	}
 }
