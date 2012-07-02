@@ -75,6 +75,9 @@ public class TaskPullFields extends TaskPullAbstract {
 			propLogin, propApiKey, propSourceQuery, propSourceField,
 			propTargetField, propSourceMappedFields, propTargetMappedFields };
 
+	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Buffer size", 10);
+
 	@Override
 	public String getName() {
 		return "Pull fields";
@@ -101,6 +104,8 @@ public class TaskPullFields extends TaskPullAbstract {
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		if (propertyDef == propSourceQuery)
 			return "*:*";
+		else if (propertyDef == propBufferSize)
+			return "50";
 		return null;
 	}
 
@@ -115,8 +120,7 @@ public class TaskPullFields extends TaskPullAbstract {
 		String targetMappedFields = properties.getValue(propTargetMappedFields);
 		String login = properties.getValue(propLogin);
 		String apiKey = properties.getValue(propApiKey);
-
-		int bufferSize = 50;
+		int bufferSize = Integer.parseInt(properties.getValue(propBufferSize));
 
 		try {
 
