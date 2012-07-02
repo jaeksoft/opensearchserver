@@ -37,4 +37,14 @@ public class DocumentRequest {
 		this.pos = pos;
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer(super.toString());
+		sb.append(" doc:");
+		sb.append(doc);
+		sb.append(" pos: ");
+		sb.append(pos);
+		return sb.toString();
+	}
+
 }

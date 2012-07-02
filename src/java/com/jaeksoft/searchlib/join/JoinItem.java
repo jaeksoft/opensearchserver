@@ -60,6 +60,8 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 
 	private String paramPosition;
 
+	private boolean returnFields;
+
 	public JoinItem() {
 		indexName = null;
 		queryTemplate = null;
@@ -67,6 +69,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		localField = null;
 		foreignField = null;
 		paramPosition = null;
+		returnFields = false;
 	}
 
 	public JoinItem(JoinItem source) {
@@ -80,6 +83,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		target.localField = localField;
 		target.foreignField = foreignField;
 		target.paramPosition = paramPosition;
+		target.returnFields = returnFields;
 	}
 
 	public JoinItem(XPathParser xpp, Node node) throws XPathExpressionException {
@@ -90,6 +94,8 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		localField = XPathParser.getAttributeString(node, ATTR_NAME_LOCALFIELD);
 		foreignField = XPathParser.getAttributeString(node,
 				ATTR_NAME_FOREIGNFIELD);
+		returnFields = "true".equals(XPathParser.getAttributeString(node,
+				ATTR_NAME_RETURNFIELDS));
 	}
 
 	public final String NODE_NAME_JOIN = "join";
@@ -97,11 +103,13 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 	public final String ATTR_NAME_QUERYTEMPLATE = "queryTemplate";
 	public final String ATTR_NAME_LOCALFIELD = "localField";
 	public final String ATTR_NAME_FOREIGNFIELD = "foreignField";
+	public final String ATTR_NAME_RETURNFIELDS = "returnFields";
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(NODE_NAME_JOIN, ATTR_NAME_INDEXNAME, indexName,
 				ATTR_NAME_QUERYTEMPLATE, queryTemplate, ATTR_NAME_LOCALFIELD,
-				localField, ATTR_NAME_FOREIGNFIELD, foreignField);
+				localField, ATTR_NAME_FOREIGNFIELD, foreignField,
+				ATTR_NAME_RETURNFIELDS, Boolean.toString(returnFields));
 		xmlWriter.textNode(queryString);
 		xmlWriter.endElement();
 	}
@@ -205,6 +213,21 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 
 	public String getParamPosition() {
 		return paramPosition;
+	}
+
+	/**
+	 * @return the returnFields
+	 */
+	public boolean isReturnFields() {
+		return returnFields;
+	}
+
+	/**
+	 * @param returnFields
+	 *            the returnFields to set
+	 */
+	public void setReturnFields(boolean returnFields) {
+		this.returnFields = returnFields;
 	}
 
 	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs,

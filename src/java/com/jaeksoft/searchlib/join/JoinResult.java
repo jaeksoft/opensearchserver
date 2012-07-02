@@ -43,13 +43,16 @@ public class JoinResult {
 
 	private final String paramPosition;
 
+	private boolean returnFields;
+
 	private ResultDocument[] resultDocument;
 
 	private transient ResultSearchSingle foreignResult;
 
-	public JoinResult(int pos, String paramPosition) {
+	public JoinResult(int pos, String paramPosition, boolean returnFields) {
 		this.pos = pos;
 		this.paramPosition = paramPosition;
+		this.returnFields = returnFields;
 		resultDocument = ResultDocument.EMPTY_ARRAY;
 	}
 
@@ -67,10 +70,13 @@ public class JoinResult {
 
 	private void getDocuments(int start, int rows, ResultScoreDoc[] docs)
 			throws SearchLibException, ParseException, SyntaxError, IOException {
+		if (!returnFields)
+			return;
 		if (rows <= 0)
 			return;
-		resultDocument = foreignResult.getReader().documents(
-				new DocumentsRequest(this, start, rows, docs));
+		DocumentsRequest dr = new DocumentsRequest(this, start, rows, docs);
+		System.out.println(dr);
+		resultDocument = foreignResult.getReader().documents(dr);
 	}
 
 	public ResultDocument[] getDocuments() {

@@ -19,7 +19,7 @@
 	<listbox id="joinListbox" model="@{joins.request.joinList.toArray}"
 		selectedItem="@{joins.selected}">
 		<listhead>
-			<listheader label="#" hflex="min"/>
+			<listheader label="#" hflex="min" />
 			<listheader label="Index" hflex="min">
 				<vbox>
 					<listbox selectedItem="@{joins.currentIndexName}"
@@ -52,6 +52,11 @@
 						model="@{joins.foreignFieldList}" />
 				</vbox>
 			</listheader>
+			<listheader label="Return fields" hflex="min">
+				<vbox>
+					<checkbox checked="@{joins.current.returnFields}" />
+				</vbox>
+			</listheader>
 			<listheader label="Action">
 				<hbox>
 					<button label="Add" forward="onSave"
@@ -71,6 +76,7 @@
 			<listcell label="@{join.queryString}" />
 			<listcell label="@{join.localField}" />
 			<listcell label="@{join.foreignField}" />
+			<listcell label="@{join.returnFields}" />
 			<listcell>
 				<button label="Remove" onClick="joins.onRemove(self)" />
 			</listcell>

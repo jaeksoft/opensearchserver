@@ -103,7 +103,7 @@ public class JoinList implements Iterable<JoinItem> {
 		int joinItemPos = 0;
 		for (JoinItem joinItem : joinList) {
 			JoinResult joinResult = new JoinResult(joinItemPos++,
-					joinItem.getParamPosition());
+					joinItem.getParamPosition(), joinItem.isReturnFields());
 			joinResults[joinResult.pos] = joinResult;
 			docs = joinItem.apply(reader, docs, joinItemSize, joinResult);
 		}

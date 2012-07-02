@@ -163,4 +163,15 @@ public class DocumentsRequest {
 		return requestedDocuments.length == 0;
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer(super.toString());
+		sb.append(": ");
+		for (DocumentRequest request : requestedDocuments) {
+			sb.append(request);
+			sb.append(' ');
+		}
+		return sb.toString();
+	}
+
 }
