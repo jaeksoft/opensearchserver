@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.ResultScoreDocJoin;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -196,7 +197,18 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		return 0;
 	}
 
-	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs)
+	public void setParamPosition(int position) {
+		StringBuffer sb = new StringBuffer("jq");
+		sb.append(position);
+		paramPosition = sb.toString();
+	}
+
+	public String getParamPosition() {
+		return paramPosition;
+	}
+
+	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs,
+			int joinResultSize, JoinResult joinResult)
 			throws SearchLibException {
 		try {
 			Client client = ClientCatalog.getClient(indexName);
@@ -219,15 +231,17 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 			searchRequest.setQueryString(queryString);
 			ResultSearchSingle resultSearch = (ResultSearchSingle) client
 					.request(searchRequest);
+			joinResult.setForeignResult(resultSearch);
 			StringIndex foreignFieldIndex = resultSearch.getReader()
 					.getStringIndex(foreignField);
 			if (foreignFieldIndex == null)
 				throw new SearchLibException(
 						"No string index found for the foreign field: "
 								+ foreignField);
-			docs = ResultScoreDoc.join(docs, localStringIndex,
-					resultSearch.getDocs(), foreignFieldIndex);
-			return docs;
+			ResultScoreDoc[] joinDocs = ResultScoreDocJoin.join(docs,
+					localStringIndex, resultSearch.getDocs(),
+					foreignFieldIndex, joinResultSize, joinResult.pos);
+			return joinDocs;
 		} catch (NamingException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -235,13 +249,4 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		}
 	}
 
-	public void setParamPosition(int position) {
-		StringBuffer sb = new StringBuffer("jq");
-		sb.append(position);
-		paramPosition = sb.toString();
-	}
-
-	public String getParamPosition() {
-		return paramPosition;
-	}
 }

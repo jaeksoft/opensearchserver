@@ -35,6 +35,7 @@ import org.zkoss.zul.Listbox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.join.JoinItem;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
@@ -167,6 +168,7 @@ public class JoinController extends SearchRequestController {
 	}
 
 	public void onSelectIndex() {
-		System.out.println("ON SELECT");
+		if (Logging.isDebug)
+			Logging.debug("ON SELECT");
 	}
 }

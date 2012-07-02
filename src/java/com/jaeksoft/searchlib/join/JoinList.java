@@ -97,10 +97,16 @@ public class JoinList implements Iterable<JoinItem> {
 		joinList.add(new JoinItem(xpp, node));
 	}
 
-	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs)
-			throws SearchLibException {
-		for (JoinItem joinItem : joinList)
-			docs = joinItem.apply(reader, docs);
+	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs,
+			JoinResult[] joinResults) throws SearchLibException {
+		int joinItemSize = joinList.size();
+		int joinItemPos = 0;
+		for (JoinItem joinItem : joinList) {
+			JoinResult joinResult = new JoinResult(joinItemPos++,
+					joinItem.getParamPosition());
+			joinResults[joinResult.pos] = joinResult;
+			docs = joinItem.apply(reader, docs, joinItemSize, joinResult);
+		}
 		return docs;
 	}
 

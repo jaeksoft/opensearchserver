@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,42 +24,17 @@
 
 package com.jaeksoft.searchlib.request;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
-public class DocumentRequest implements Externalizable {
+public class DocumentRequest {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8390479489794895730L;
+	final public int doc;
 
-	public int doc;
-
-	public int pos;
-
-	public DocumentRequest() {
-	}
+	final public int pos;
 
 	protected DocumentRequest(ResultScoreDoc resultScoreDoc, int pos) {
 		this.doc = resultScoreDoc.doc;
 		this.pos = pos;
 	}
 
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		doc = in.readInt();
-		pos = in.readInt();
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeInt(doc);
-		out.writeInt(pos);
-	}
 }

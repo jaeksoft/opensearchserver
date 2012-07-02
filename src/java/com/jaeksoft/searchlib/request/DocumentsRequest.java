@@ -29,6 +29,7 @@ import java.util.Iterator;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
@@ -86,6 +87,17 @@ public class DocumentsRequest {
 		ResultScoreDoc[] docs = result.getDocs();
 		for (int i = 0; i < rows; i++) {
 			ResultScoreDoc doc = docs[i + start];
+			requestedDocuments[i] = new DocumentRequest(doc, i);
+		}
+	}
+
+	public DocumentsRequest(JoinResult joinResult, int start, int rows,
+			ResultScoreDoc[] docs) throws ParseException, SyntaxError,
+			IOException, SearchLibException {
+		this(joinResult.getForeignResult().getRequest());
+		requestedDocuments = new DocumentRequest[rows];
+		for (int i = 0; i < rows; i++) {
+			ResultScoreDoc doc = docs[i + start].getForeignDoc(joinResult.pos);
 			requestedDocuments[i] = new DocumentRequest(doc, i);
 		}
 	}

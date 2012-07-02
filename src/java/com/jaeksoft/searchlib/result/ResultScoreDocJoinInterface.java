@@ -24,19 +24,9 @@
 
 package com.jaeksoft.searchlib.result;
 
-public class ResultScoreDocCollapse extends ResultScoreDoc {
+public interface ResultScoreDocJoinInterface {
 
-	public static final ResultScoreDocCollapse[] EMPTY_ARRAY = new ResultScoreDocCollapse[0];
+	public int[] getForeignDocIds();
 
-	public int collapseCount;
-
-	protected ResultScoreDocCollapse(ResultScoreDoc rsd) {
-		super(rsd);
-		this.collapseCount = 0;
-	}
-
-	final public static ResultScoreDocCollapse newInstance(ResultScoreDoc rsd) {
-		return new ResultScoreDocCollapse(rsd);
-	}
-
+	public void setForeignDocId(int pos, int doc);
 }

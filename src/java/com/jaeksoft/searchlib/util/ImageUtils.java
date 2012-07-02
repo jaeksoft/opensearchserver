@@ -39,6 +39,8 @@ import javax.swing.ImageIcon;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Rotation;
 
+import com.jaeksoft.searchlib.Logging;
+
 public class ImageUtils {
 
 	public static BufferedImage toBufferedImage(Image image)
@@ -94,8 +96,9 @@ public class ImageUtils {
 
 	public static void checkPlugins() {
 		ImageIO.scanForPlugins();
-		for (String suffix : ImageIO.getReaderFileSuffixes())
-			System.out.println("ImageIO suffix: " + suffix);
+		if (Logging.isDebug)
+			for (String suffix : ImageIO.getReaderFileSuffixes())
+				Logging.debug("ImageIO suffix: " + suffix);
 	}
 
 	public static ImageReader findImageReader(String formatName) {

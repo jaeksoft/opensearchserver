@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.result;
 
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
@@ -42,19 +43,16 @@ public abstract class AbstractResultSearch extends
 	protected float maxScore;
 	protected int collapsedDocCount;
 	private ResultDocument[] resultDocuments;
-	private ResultDocument[] joinResultDocuments;
-
-	private final static ResultDocument[] noDocuments = new ResultDocument[0];
-	private final static ResultScoreDoc[] noResultScoreDocs = ResultScoreDoc.EMPTY_ARRAY;
+	private JoinResult[] joinResults;
 
 	protected AbstractResultSearch(SearchRequest searchRequest) {
 		super(searchRequest);
-		this.resultDocuments = noDocuments;
-		this.joinResultDocuments = noDocuments;
+		this.resultDocuments = ResultDocument.EMPTY_ARRAY;
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
-		this.docs = noResultScoreDocs;
+		this.docs = ResultScoreDoc.EMPTY_ARRAY;
+		this.joinResults = JoinResult.EMPTY_ARRAY;
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		collapse = CollapseAbstract.newInstance(searchRequest);
@@ -65,13 +63,13 @@ public abstract class AbstractResultSearch extends
 	}
 
 	protected void setDocuments(ResultDocument[] resultDocuments) {
-		this.resultDocuments = resultDocuments == null ? noDocuments
+		this.resultDocuments = resultDocuments == null ? ResultDocument.EMPTY_ARRAY
 				: resultDocuments;
 	}
 
-	protected void setJoinDocuments(ResultDocument[] resultDocuments) {
-		this.joinResultDocuments = resultDocuments == null ? noDocuments
-				: resultDocuments;
+	protected void setJoinResults(JoinResult[] joinResults) {
+		this.joinResults = joinResults == null ? JoinResult.EMPTY_ARRAY
+				: joinResults;
 	}
 
 	private Integer getDocumentPos(int pos) {
@@ -89,11 +87,6 @@ public abstract class AbstractResultSearch extends
 		return docPos == null ? null : resultDocuments[docPos];
 	}
 
-	public ResultDocument getJoinDocument(int pos) {
-		Integer docPos = getDocumentPos(pos);
-		return docPos == null ? null : joinResultDocuments[docPos];
-	}
-
 	public float getMaxScore() {
 		return maxScore;
 	}
@@ -103,7 +96,7 @@ public abstract class AbstractResultSearch extends
 	}
 
 	protected void setDocs(ResultScoreDoc[] docs) {
-		this.docs = docs == null ? noResultScoreDocs : docs;
+		this.docs = docs == null ? ResultScoreDoc.EMPTY_ARRAY : docs;
 	}
 
 	public int getDocLength() {
@@ -124,8 +117,8 @@ public abstract class AbstractResultSearch extends
 		return resultDocuments;
 	}
 
-	public ResultDocument[] getJoinDocuments() {
-		return joinResultDocuments;
+	public JoinResult[] getJoinResult() {
+		return joinResults;
 	}
 
 	public ResultScoreDoc[] getDocs() {

@@ -47,6 +47,8 @@ public class Logging {
 
 	private static Logger logger = null;
 
+	public static boolean isDebug = System.getenv("OPENSEARCHSERVER_DEBUG") != null;;
+
 	private static void configure() {
 
 		Properties props = new Properties();
@@ -99,7 +101,10 @@ public class Logging {
 		if (!dirLog.exists())
 			dirLog.mkdir();
 		Properties props = new Properties();
-		props.put("log4j.rootLogger", "INFO, R");
+		if (isDebug)
+			props.put("log4j.rootLogger", "DEBUG, R");
+		else
+			props.put("log4j.rootLogger", "INFO, R");
 		props.put("log4j.appender.R",
 				"org.apache.log4j.DailyRollingFileAppender");
 		props.put("log4j.appender.R.File", new File(
@@ -182,6 +187,24 @@ public class Logging {
 		logger.info(e.getMessage(), e);
 	}
 
+	public final static void debug(Object msg, Exception e) {
+		if (noLogger(System.out, msg, e))
+			return;
+		logger.debug(msg, e);
+	}
+
+	public final static void debug(Object msg) {
+		if (noLogger(System.out, msg, null))
+			return;
+		logger.debug(msg);
+	}
+
+	public final static void debug(Exception e) {
+		if (noLogger(System.out, e.getMessage(), e))
+			return;
+		logger.debug(e.getMessage(), e);
+	}
+
 	public final static String readLogs(int lines, String fileName)
 			throws IOException {
 		if (fileName == null)
@@ -220,4 +243,5 @@ public class Logging {
 				IOUtils.closeQuietly(sw);
 		}
 	}
+
 }

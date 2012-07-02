@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -92,6 +93,43 @@ public class RenderSearchXml extends
 		writer.println("</result>");
 	}
 
+	private void renderDocument(SearchRequest searchRequest, ResultDocument doc)
+			throws IOException {
+		if (doc == null)
+			return;
+		for (Field field : searchRequest.getReturnFieldList())
+			renderField(doc, field);
+		for (SnippetField field : searchRequest.getSnippetFieldList())
+			renderSnippetValue(doc, field);
+	}
+
+	private void renderDocuments(SearchRequest searchRequest,
+			ResultDocument[] documents) throws IOException {
+		if (documents == null)
+			return;
+		for (ResultDocument document : documents)
+			renderDocument(searchRequest, document);
+	}
+
+	private void renderJoinResult(JoinResult joinResult) throws IOException {
+		if (joinResult == null)
+			return;
+		writer.print("\t\t<join paramPosition=\"");
+		writer.print(joinResult.getParamPosition());
+		writer.println("\">");
+		renderDocuments(joinResult.getForeignResult().getRequest(),
+				joinResult.getDocuments());
+		writer.println("\t\t</join>");
+
+	}
+
+	private void renderJoinResults(JoinResult[] joinResults) throws IOException {
+		if (joinResults == null)
+			return;
+		for (JoinResult joinResult : joinResults)
+			renderJoinResult(joinResult);
+	}
+
 	private void renderDocument(int pos) throws IOException, ParseException,
 			SyntaxError {
 		writer.print("\t<doc score=\"");
@@ -100,17 +138,14 @@ public class RenderSearchXml extends
 		writer.print(pos);
 		writer.println("\">");
 		ResultDocument doc = result.getDocument(pos);
-		for (Field field : request.getReturnFieldList())
-			renderField(doc, field);
-		for (SnippetField field : request.getSnippetFieldList())
-			renderSnippetValue(doc, field);
-
+		renderDocument(request, doc);
 		int cc = result.getCollapseCount(pos);
 		if (cc > 0) {
 			writer.print("\t\t<collapseCount>");
 			writer.print(cc);
 			writer.println("</collapseCount>");
 		}
+		renderJoinResults(result.getJoinResult());
 		writer.println("\t</doc>");
 	}
 

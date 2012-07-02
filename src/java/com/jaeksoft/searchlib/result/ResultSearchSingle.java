@@ -31,6 +31,8 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.join.JoinList;
+import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -68,10 +70,14 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		ResultScoreDoc[] notCollapsedDocs = null;
 		ResultScoreDoc[] collapsedDocs = null;
 
+		JoinResult[] joinResults = null;
+
 		// Are we doing join
 		if (searchRequest.isJoin()) {
-			notCollapsedDocs = searchRequest.getJoinList().apply(reader,
-					docSetHits.getAllDocs());
+			JoinList joinList = searchRequest.getJoinList();
+			joinResults = new JoinResult[joinList.size()];
+			notCollapsedDocs = joinList.apply(reader, docSetHits.getAllDocs(),
+					joinResults);
 			searchRequest.getSortList().getSorter(reader)
 					.sort(notCollapsedDocs);
 			numFound = notCollapsedDocs.length;
@@ -98,8 +104,13 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		} else
 			setDocs(collapsedDocs);
 
-		if (searchRequest.isWithDocument())
+		if (searchRequest.isWithDocument()) {
 			setDocuments(reader.documents(new DocumentsRequest(this)));
+			if (joinResults != null) {
+				JoinResult.getDocuments(this, joinResults);
+				setJoinResults(joinResults);
+			}
+		}
 
 		searchRequest.getTimer().setInfo(searchRequest.toString());
 

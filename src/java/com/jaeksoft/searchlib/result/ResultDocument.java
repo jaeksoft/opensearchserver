@@ -42,11 +42,10 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 public class ResultDocument {
 
+	public static final ResultDocument[] EMPTY_ARRAY = new ResultDocument[0];
+
 	private FieldList<FieldValue> returnFields;
 	private FieldList<SnippetFieldValue> snippetFields;
-
-	public ResultDocument() {
-	}
 
 	public ResultDocument(DocumentsRequest documentsRequest, int doc,
 			ReaderLocal reader) throws IOException, ParseException,

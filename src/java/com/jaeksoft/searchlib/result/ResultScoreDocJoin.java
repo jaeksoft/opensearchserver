@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,22 +24,123 @@
 
 package com.jaeksoft.searchlib.result;
 
-import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.FieldCache.StringIndex;
 
-final public class ResultScoreDocJoin extends ResultScoreDoc {
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
+import com.jaeksoft.searchlib.util.StringUtils;
 
-	public static final ResultScoreDocJoin[] EMPTY_ARRAY = new ResultScoreDocJoin[0];
+final public class ResultScoreDocJoin extends ResultScoreDoc implements
+		ResultScoreDocJoinInterface {
 
-	public int collapseCount;
+	protected static final ResultScoreDocJoin[] EMPTY_ARRAY = new ResultScoreDocJoin[0];
 
-	public ResultScoreDocJoin(int doc, float score) {
-		super(doc, score);
-		this.collapseCount = 0;
+	protected int[] foreignDocIds;
+
+	private ResultScoreDocJoin(ResultScoreDoc rsd, int joinResultSize) {
+		super(rsd);
+		this.foreignDocIds = new int[joinResultSize];
 	}
 
-	public ResultScoreDocJoin(ScoreDoc sc) {
-		super(sc);
-		this.collapseCount = 0;
+	public ResultScoreDocJoin(ResultScoreDocJoin doc) {
+		super(doc);
+		this.foreignDocIds = doc.foreignDocIds;
 	}
 
+	@Override
+	final public int[] getForeignDocIds() {
+		return foreignDocIds;
+	}
+
+	@Override
+	final public void setForeignDocId(int pos, int doc) {
+		foreignDocIds[pos] = doc;
+	}
+
+	final public static ResultScoreDoc[] copyJoin(ResultScoreDoc[] docs,
+			int joinResultSize) {
+		ResultScoreDoc[] newDocs = new ResultScoreDocJoin[docs.length];
+		if (docs.length == 0)
+			return newDocs;
+		int i = 0;
+		ResultScoreDoc refDoc = docs[0];
+		if (refDoc instanceof ResultScoreDocJoin) {
+			for (ResultScoreDoc doc : docs)
+				newDocs[i++] = new ResultScoreDocJoin((ResultScoreDocJoin) doc);
+		} else if (refDoc instanceof ResultScoreDocCollapseJoin) {
+			for (ResultScoreDoc doc : docs)
+				newDocs[i++] = new ResultScoreDocCollapseJoin(
+						(ResultScoreDocCollapseJoin) doc);
+		} else {
+			for (ResultScoreDoc doc : docs)
+				newDocs[i++] = new ResultScoreDocJoin(doc, joinResultSize);
+		}
+		return newDocs;
+	}
+
+	final public static ResultScoreDoc[] join(ResultScoreDoc[] docs,
+			StringIndex doc1StringIndex, ResultScoreDoc[] docs2,
+			StringIndex doc2StringIndex, int joinResultSize, int joinResultPos) {
+		if (docs.length == 0 || docs2.length == 0)
+			return ResultScoreDocJoin.EMPTY_ARRAY;
+
+		long t = System.currentTimeMillis();
+
+		ResultScoreDoc[] docs1 = copyJoin(docs, joinResultSize);
+		new AscStringIndexSorter(doc1StringIndex).sort(docs1);
+		docs2 = copy(docs2);
+		new AscStringIndexSorter(doc2StringIndex).sort(docs2);
+
+		int i1 = 0;
+		int i2 = 0;
+		while (i1 != docs1.length) {
+			ResultScoreDoc doc1 = docs1[i1];
+			ResultScoreDoc doc2 = docs2[i2];
+			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[doc1.doc]];
+			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[doc2.doc]];
+			int c = StringUtils.compareNullString(t1, t2);
+			if (c < 0) {
+				docs1[i1] = null;
+				i1++;
+			} else if (c > 0) {
+				i2++;
+				if (i2 == docs2.length) {
+					while (i1 != docs1.length)
+						docs1[i1++] = null;
+				}
+			} else {
+				((ResultScoreDocJoinInterface) doc1).setForeignDocId(
+						joinResultPos, doc2.doc);
+				i1++;
+			}
+		}
+
+		if (Logging.isDebug)
+			Logging.debug("Time: " + (System.currentTimeMillis() - t)
+					+ " Join: " + docs.length + " / " + docs2.length);
+		return copyValid(docs1);
+	}
+
+	final private static ResultScoreDoc[] copyValid(ResultScoreDoc[] docs) {
+		int i = 0;
+		for (ResultScoreDoc doc : docs)
+			if (doc != null)
+				i++;
+		ResultScoreDoc[] newDocs = new ResultScoreDocJoin[i];
+		i = 0;
+		for (ResultScoreDoc doc : docs)
+			if (doc != null)
+				newDocs[i++] = doc;
+		return newDocs;
+	}
+
+	@Override
+	public ResultScoreDocCollapse newResultScoreDocCollapse() {
+		return ResultScoreDocCollapseJoin.newInstance(this);
+	}
+
+	@Override
+	public ResultScoreDoc getForeignDoc(int pos) {
+		return new ResultScoreDoc(foreignDocIds[pos], score);
+	}
 }

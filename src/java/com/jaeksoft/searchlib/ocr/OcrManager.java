@@ -233,7 +233,7 @@ public class OcrManager implements Closeable {
 			ocerize(imageFile, textFile, lang);
 			return FileUtils.readFileToString(textFile, "UTF-8");
 		} finally {
-			System.out.println(imageFile);
+			Logging.debug(imageFile);
 			if (imageFile != null)
 				FileUtils.deleteQuietly(imageFile);
 			if (textFile != null)

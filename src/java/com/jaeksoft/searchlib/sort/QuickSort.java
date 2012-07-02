@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 
 public class QuickSort {
@@ -84,8 +85,9 @@ public class QuickSort {
 		swapCount = 0;
 		long t = System.currentTimeMillis();
 		quicksort(array, 0, array.length - 1);
-		System.out.println("Time: " + (System.currentTimeMillis() - t)
-				+ " - swap: " + swapCount);
+		if (Logging.isDebug)
+			Logging.debug("Time: " + (System.currentTimeMillis() - t)
+					+ " - swap: " + swapCount);
 
 	}
 
