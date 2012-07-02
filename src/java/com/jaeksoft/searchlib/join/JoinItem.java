@@ -217,6 +217,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 								+ localField);
 			SearchRequest searchRequest = (SearchRequest) request;
 			searchRequest.setQueryString(queryString);
+			searchRequest.setRows(0);
 			ResultSearchSingle resultSearch = (ResultSearchSingle) client
 					.request(searchRequest);
 			StringIndex foreignFieldIndex = resultSearch.getReader()

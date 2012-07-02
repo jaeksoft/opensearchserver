@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
 
 public class CollapseCluster extends CollapseAbstract {
 
@@ -47,8 +48,8 @@ public class CollapseCluster extends CollapseAbstract {
 	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
 			StringIndex collapseStringIndex) {
 
-		Map<String, ResultScoreDoc> collapsedDocMap = new LinkedHashMap<String, ResultScoreDoc>();
-		ResultScoreDoc collapseDoc;
+		Map<String, ResultScoreDocCollapse> collapsedDocMap = new LinkedHashMap<String, ResultScoreDocCollapse>();
+		ResultScoreDocCollapse collapseDoc;
 		for (int i = 0; i < fetchLength; i++) {
 			ResultScoreDoc fetchedDoc = fetchedDocs[i];
 			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDoc.doc]];
@@ -56,12 +57,12 @@ public class CollapseCluster extends CollapseAbstract {
 					&& ((collapseDoc = collapsedDocMap.get(term)) != null)) {
 				collapseDoc.collapseCount++;
 			} else {
-				collapsedDocMap.put(term, new ResultScoreDoc(fetchedDoc.doc,
-						fetchedDoc.score));
+				collapsedDocMap.put(term, new ResultScoreDocCollapse(
+						fetchedDoc.doc, fetchedDoc.score));
 			}
 		}
 
-		ResultScoreDoc[] collapsedDocs = new ResultScoreDoc[collapsedDocMap
+		ResultScoreDocCollapse[] collapsedDocs = new ResultScoreDocCollapse[collapsedDocMap
 				.size()];
 		collapsedDocMap.values().toArray(collapsedDocs);
 

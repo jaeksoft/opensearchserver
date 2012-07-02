@@ -42,6 +42,7 @@ public abstract class AbstractResultSearch extends
 	protected float maxScore;
 	protected int collapsedDocCount;
 	private ResultDocument[] resultDocuments;
+	private ResultDocument[] joinResultDocuments;
 
 	private final static ResultDocument[] noDocuments = new ResultDocument[0];
 	private final static ResultScoreDoc[] noResultScoreDocs = ResultScoreDoc.EMPTY_ARRAY;
@@ -49,6 +50,7 @@ public abstract class AbstractResultSearch extends
 	protected AbstractResultSearch(SearchRequest searchRequest) {
 		super(searchRequest);
 		this.resultDocuments = noDocuments;
+		this.joinResultDocuments = noDocuments;
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
@@ -67,14 +69,29 @@ public abstract class AbstractResultSearch extends
 				: resultDocuments;
 	}
 
-	public ResultDocument getDocument(int pos) {
+	protected void setJoinDocuments(ResultDocument[] resultDocuments) {
+		this.joinResultDocuments = resultDocuments == null ? noDocuments
+				: resultDocuments;
+	}
+
+	private Integer getDocumentPos(int pos) {
 		if (pos < request.getStart())
 			return null;
 		if (pos >= request.getEnd())
 			return null;
 		if (pos >= getDocLength())
 			return null;
-		return resultDocuments[pos - request.getStart()];
+		return pos - request.getStart();
+	}
+
+	public ResultDocument getDocument(int pos) {
+		Integer docPos = getDocumentPos(pos);
+		return docPos == null ? null : resultDocuments[docPos];
+	}
+
+	public ResultDocument getJoinDocument(int pos) {
+		Integer docPos = getDocumentPos(pos);
+		return docPos == null ? null : joinResultDocuments[docPos];
 	}
 
 	public float getMaxScore() {
@@ -107,6 +124,10 @@ public abstract class AbstractResultSearch extends
 		return resultDocuments;
 	}
 
+	public ResultDocument[] getJoinDocuments() {
+		return joinResultDocuments;
+	}
+
 	public ResultScoreDoc[] getDocs() {
 		return docs;
 	}
@@ -128,7 +149,10 @@ public abstract class AbstractResultSearch extends
 	public int getCollapseCount(int pos) {
 		if (docs == null)
 			return 0;
-		return docs[pos].collapseCount;
+		ResultScoreDoc rsc = docs[pos];
+		if (!(rsc instanceof ResultScoreDocCollapse))
+			return 0;
+		return ((ResultScoreDocCollapse) rsc).collapseCount;
 	}
 
 	@Override

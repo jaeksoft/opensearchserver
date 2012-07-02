@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
 
 public abstract class CollapseAbstract {
 
@@ -42,7 +43,7 @@ public abstract class CollapseAbstract {
 	private transient String collapseField;
 	private transient CollapseMode collapseMode;
 	protected transient SearchRequest searchRequest;
-	private transient ResultScoreDoc[] collapsedDoc;
+	private transient ResultScoreDocCollapse[] collapsedDoc;
 
 	protected CollapseAbstract(SearchRequest searchRequest) {
 		this.searchRequest = searchRequest;
@@ -50,7 +51,7 @@ public abstract class CollapseAbstract {
 		this.collapseMax = searchRequest.getCollapseMax();
 		this.collapseMode = searchRequest.getCollapseMode();
 		this.collapsedDocCount = 0;
-		this.collapsedDoc = ResultScoreDoc.EMPTY_ARRAY;
+		this.collapsedDoc = ResultScoreDocCollapse.EMPTY_ARRAY;
 	}
 
 	protected abstract void collapse(ResultScoreDoc[] fetchedDocs,
@@ -86,7 +87,7 @@ public abstract class CollapseAbstract {
 	 * @param collapsedDoc
 	 *            the collapsedDoc to set
 	 */
-	protected void setCollapsedDoc(ResultScoreDoc[] collapsedDoc) {
+	protected void setCollapsedDoc(ResultScoreDocCollapse[] collapsedDoc) {
 		this.collapsedDoc = collapsedDoc;
 	}
 

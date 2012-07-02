@@ -52,4 +52,11 @@ public class SortListSorter extends SorterAbstract {
 		return 0;
 	}
 
+	@Override
+	final public void sort(ResultScoreDoc[] docs) {
+		if (sorterList.length == 1)
+			sorterList[0].sort(docs);
+		else
+			super.sort(docs);
+	}
 }

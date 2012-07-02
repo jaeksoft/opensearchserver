@@ -29,6 +29,7 @@ import com.jaeksoft.searchlib.result.ResultScoreDoc;
 public class QuickSort {
 
 	private final SorterAbstract sorter;
+	private long swapCount;
 
 	public QuickSort(SorterAbstract sorter) {
 		this.sorter = sorter;
@@ -38,6 +39,7 @@ public class QuickSort {
 		ResultScoreDoc tmp = array[i];
 		array[i] = array[j];
 		array[j] = tmp;
+		swapCount++;
 	}
 
 	private final void quicksort(ResultScoreDoc[] array, int low, int high) {
@@ -79,7 +81,12 @@ public class QuickSort {
 	public final void sort(ResultScoreDoc[] array) {
 		if (array.length == 0)
 			return;
+		swapCount = 0;
+		long t = System.currentTimeMillis();
 		quicksort(array, 0, array.length - 1);
+		System.out.println("Time: " + (System.currentTimeMillis() - t)
+				+ " - swap: " + swapCount);
+
 	}
 
 }

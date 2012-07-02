@@ -30,7 +30,7 @@ import org.apache.lucene.search.ScoreDoc;
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
 import com.jaeksoft.searchlib.util.StringUtils;
 
-final public class ResultScoreDoc {
+public class ResultScoreDoc {
 
 	public static final ResultScoreDoc[] EMPTY_ARRAY = new ResultScoreDoc[0];
 
@@ -38,18 +38,14 @@ final public class ResultScoreDoc {
 
 	final public float score;
 
-	public int collapseCount;
-
 	public ResultScoreDoc(int doc, float score) {
 		this.score = score;
 		this.doc = doc;
-		this.collapseCount = 0;
 	}
 
 	public ResultScoreDoc(ScoreDoc sc) {
 		this.score = sc.score;
 		this.doc = sc.doc;
-		this.collapseCount = 0;
 	}
 
 	@Override

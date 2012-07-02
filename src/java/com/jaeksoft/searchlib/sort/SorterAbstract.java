@@ -35,7 +35,6 @@ public abstract class SorterAbstract implements Comparator<ResultScoreDoc> {
 
 	public void sort(ResultScoreDoc[] docs) {
 		new QuickSort(this).sort(docs);
-
 	}
 
 }

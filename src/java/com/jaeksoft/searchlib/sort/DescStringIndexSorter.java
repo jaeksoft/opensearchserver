@@ -38,15 +38,6 @@ public class DescStringIndexSorter extends SorterAbstract {
 
 	@Override
 	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		String value1 = stringIndex.lookup[stringIndex.order[doc1.doc]];
-		String value2 = stringIndex.lookup[stringIndex.order[doc2.doc]];
-		if (value1 == null) {
-			if (value2 == null)
-				return 0;
-			else
-				return 1;
-		} else if (value2 == null)
-			return -1;
-		return value2.compareTo(value1);
+		return stringIndex.order[doc2.doc] - stringIndex.order[doc1.doc];
 	}
 }
