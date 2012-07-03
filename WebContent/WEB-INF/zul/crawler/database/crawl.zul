@@ -259,7 +259,8 @@
 								</auxheader>
 							</auxhead>
 							<listitem self="@{each='fieldlink'}">
-								<listcell label="@{fieldlink.source}" />
+								<listcell
+									label="@{fieldlink.source.uniqueName}" />
 								<listcell label="@{fieldlink.target}" />
 								<listcell>
 									<checkbox disabled="true"
