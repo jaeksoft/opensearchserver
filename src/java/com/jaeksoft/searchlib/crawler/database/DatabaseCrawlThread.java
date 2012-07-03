@@ -133,6 +133,8 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			for (int i = 1; i <= columnCount; i++)
 				columns.add(metaData.getColumnLabel(i));
 
+			int bf = databaseCrawl.getBufferSize();
+
 			while (resultSet.next()) {
 				if (dbPrimaryKey != null) {
 					merge = false;
@@ -143,7 +145,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 					lastPrimaryKey = pKey;
 				}
 				if (!merge) {
-					if (index(indexDocumentList, 100))
+					if (index(indexDocumentList, bf))
 						setStatus(CrawlStatus.CRAWL);
 					indexDocument = new IndexDocument(databaseCrawl.getLang());
 					indexDocumentList.add(indexDocument);

@@ -152,6 +152,13 @@
 										value="Enter the language of the indexed documents" />
 								</row>
 								<row>
+									<label value="Buffer size: " />
+									<intbox cols="5"
+										value="@{dbCrawlList.currentCrawl.bufferSize}" />
+									<label
+										value="Enter the size of the buffer" />
+								</row>
+								<row>
 									<label value="Primary key: " />
 									<textbox
 										value="@{dbCrawlList.currentCrawl.primaryKey}" width="50%" />

@@ -56,6 +56,8 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 
 	private String primaryKey;
 
+	private int bufferSize;
+
 	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster, String name) {
 		super(name);
 		this.databaseCrawlMaster = databaseCrawlMaster;
@@ -68,6 +70,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		fieldMap = new DatabaseFieldMap();
 		lastCrawlThread = null;
 		primaryKey = null;
+		bufferSize = 100;
 	}
 
 	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster) {
@@ -90,6 +93,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		crawl.lang = this.lang;
 		crawl.lastCrawlThread = this.lastCrawlThread;
 		crawl.primaryKey = this.primaryKey;
+		crawl.bufferSize = this.bufferSize;
 		this.fieldMap.copyTo(crawl.fieldMap);
 	}
 
@@ -217,6 +221,21 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		return primaryKey;
 	}
 
+	/**
+	 * @return the bufferSize
+	 */
+	public int getBufferSize() {
+		return bufferSize;
+	}
+
+	/**
+	 * @param bufferSize
+	 *            the bufferSize to set
+	 */
+	public void setBufferSize(int bufferSize) {
+		this.bufferSize = bufferSize;
+	}
+
 	protected final static String DBCRAWL_NODE_NAME = "databaseCrawl";
 	protected final static String DBCRAWL_ATTR_NAME = "name";
 	protected final static String DBCRAWL_ATTR_DRIVER_CLASS = "driverClass";
@@ -224,6 +243,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 	protected final static String DBCRAWL_ATTR_PASSWORD = "password";
 	protected final static String DBCRAWL_ATTR_URL = "url";
 	protected final static String DBCRAWL_ATTR_LANG = "lang";
+	protected final static String DBCRAWL_ATTR_BUFFER_SIZE = "bufferSize";
 	protected final static String DBCRAWL_ATTR_PRIMARY_KEY = "primaryKey";
 	protected final static String DBCRAWL_NODE_NAME_SQL = "sql";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
@@ -242,6 +262,8 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 				item, DBCRAWL_ATTR_LANG)));
 		crawl.setPrimaryKey(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_PRIMARY_KEY));
+		crawl.setBufferSize(XPathParser.getAttributeValue(item,
+				DBCRAWL_ATTR_BUFFER_SIZE));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL);
 		if (sqlNode != null)
 			crawl.setSql(xpp.getNodeString(sqlNode));
@@ -257,7 +279,8 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(), DBCRAWL_ATTR_USER,
 				getUser(), DBCRAWL_ATTR_PASSWORD, getPassword(),
 				DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG, getLang()
-						.getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey);
+						.getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey,
+				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(bufferSize));
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		fieldMap.store(xmlWriter);
 		xmlWriter.endElement();
