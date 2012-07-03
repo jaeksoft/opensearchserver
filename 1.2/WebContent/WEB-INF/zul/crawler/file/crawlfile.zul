@@ -1,0 +1,116 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="crawlFileProcess"
+	use="com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController">
+	<panel title="Current status" collapsible="false" border="normal">
+		<toolbar>
+			<textbox readonly="true"
+				value="@{crawlFileProcess.fileCrawlMaster.statusInfo}" />
+			<space />
+			<button id="runButton"
+				disabled="@{crawlFileProcess.fileCrawlMaster.aborting}"
+				label="@{crawlFileProcess.runButtonLabel}" forward="onRun" />
+		</toolbar>
+	</panel>
+	<separator />
+	<panel title="Statistics for prior sessions" collapsible="true"
+		border="normal">
+		<panelchildren>
+			<listbox
+				model="@{crawlFileProcess.fileCrawlMaster.statistics}">
+				<auxhead>
+					<auxheader label="Start time" />
+					<auxheader label="Fetched" align="center"
+						colspan="2" width="140px" />
+					<auxheader label="Parsed" width="70px" />
+					<auxheader align="center" colspan="2"
+						label="Added or Updated" width="140px" />
+					<auxheader label="Ignored" width="70px" />
+					<auxheader align="center" label="Deleted"
+						width="70px" />
+					<auxheader align="center" colspan="2"
+						label="File(s)" width="140px" />
+				</auxhead>
+				<listhead sizable="true">
+					<listheader />
+					<listheader label="Count" width="70px" />
+					<listheader label="Rate" width="70px" />
+					<listheader width="70px" />
+					<listheader label="Pending" width="70px" />
+					<listheader label="Committed" width="70px" />
+					<listheader width="70px" />
+					<listheader width="70px" />
+					<listheader label="Processed" width="70px" />
+					<listheader label="Total" width="70px" />
+				</listhead>
+				<listitem self="@{each=stat}">
+					<listcell label="@{stat.startDate}" />
+					<listcell label="@{stat.fetchedCount}" />
+					<listcell
+						label="@{stat.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+					<listcell label="@{stat.parsedCount}" />
+					<listcell label="@{stat.pendingUpdatedCount}" />
+					<listcell label="@{stat.updatedCount}" />
+					<listcell label="@{stat.ignoredCount}" />
+					<listcell label="@{stat.deletedCount}" />
+					<listcell label="@{stat.urlCount}" />
+					<listcell label="@{stat.urlListSize}" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+
+	<separator />
+	<panel title="Thread list" collapsible="true" border="normal">
+		<panelchildren>
+			<listbox model="@{crawlFileProcess.fileCrawlMaster.threads}"
+				mold="paging" pageSize="20">
+				<listhead sizable="true">
+					<listheader label="Current folder" />
+					<listheader width="60px" label="Fetched" />
+					<listheader width="60px" label="Rate" />
+					<listheader width="60px" label="Updated" />
+					<listheader width="60px" label="Ignored" />
+					<listheader width="60px" label="Deleted" />
+					<listheader width="60px" label="Total" />
+					<listheader width="180px" label="Status" />
+				</listhead>
+				<listitem self="@{each=thread}">
+					<listcell label="@{thread.currentInfo}" />
+					<listcell
+						label="@{thread.currentStatistics.fetchedCount}" />
+					<listcell
+						label="@{thread.currentStatistics.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
+					<listcell
+						label="@{thread.currentStatistics.pendingUpdatedCount}" />
+					<listcell
+						label="@{thread.currentStatistics.ignoredCount}" />
+					<listcell
+						label="@{thread.currentStatistics.pendingDeletedCount}" />
+					<listcell
+						label="@{thread.currentStatistics.urlListSize}" />
+					<listcell label="@{thread.statusInfo}" />
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+
+
+	<timer delay="5000" repeats="true"
+		onTimer="crawlFileProcess.onTimer()"
+		running="@{crawlFileProcess.refresh}" />
+</window>
