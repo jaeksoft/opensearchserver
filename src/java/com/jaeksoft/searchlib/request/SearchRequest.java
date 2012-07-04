@@ -1032,6 +1032,9 @@ public class SearchRequest extends AbstractRequest {
 			if ((p = transaction.getParameterString("log")) != null)
 				setLogReport(true);
 
+			if ((p = transaction.getParameterString("operator")) != null)
+				setDefaultOperator(p);
+
 			if (joinList != null)
 				joinList.setFromServlet(transaction);
 
