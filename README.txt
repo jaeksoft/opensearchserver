@@ -1,4 +1,5 @@
 OpenSearchServer
+http://www.open-search-server.com
 
 Copyright Emmanuel Keller / Jaeksoft (2008-2012)
 This software is licensed under the GPL v3.
@@ -11,7 +12,7 @@ algorithms.
 OpenSearchServer will allow you to create any kind of Search
 applications:
 - Web search (internet, intranet, extranet),
-- desktop and networked search,
+- File search (local and network file systems),
 - portable search for distributing CD/DVD.
 
 OpenSearchServer was developed in such a way that you can do all of
@@ -22,8 +23,5 @@ to accept fixed parameters and options set by us, you will have total
 freedom to customize any parameters to perfectly match the needs of
 your application. You will never face a black box.
  
-OpenSearchServer Web site:
-http://www.open-search-server.com
-
 The documentation:
 http://www.open-search-server.com/documentation
