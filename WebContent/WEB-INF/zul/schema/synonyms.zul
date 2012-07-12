@@ -19,11 +19,11 @@
 	<panel visible="@{synonyms.isNotEdit}" title="Synonyms list"
 		border="normal">
 		<panelchildren>
-			<listbox model="@{synonyms.manager.list}"
-				sizedByContent="true">
+			<listbox model="@{synonyms.manager.list}" width="100%">
 				<listhead>
-					<listheader label="List name" hflex="true" />
-					<listheader label="Action" align="center" />
+					<listheader label="List name" />
+					<listheader label="Action" align="center"
+						hflex="min" />
 				</listhead>
 				<auxhead>
 					<auxheader>

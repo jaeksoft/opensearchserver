@@ -19,11 +19,11 @@
 	<panel visible="@{stopwords.isNotEdit}" title="Stop words list"
 		border="normal">
 		<panelchildren>
-			<listbox model="@{stopwords.manager.list}"
-				sizedByContent="true" width="100%">
+			<listbox model="@{stopwords.manager.list}" width="100%">
 				<listhead>
-					<listheader label="List name" hflex="true" />
-					<listheader label="Action" align="center" />
+					<listheader label="List name" />
+					<listheader label="Action" align="center"
+						hflex="min" />
 				</listhead>
 				<auxhead>
 					<auxheader>
