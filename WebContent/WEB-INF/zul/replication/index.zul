@@ -20,8 +20,8 @@
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
-					<column align="right" width="100px" />
-					<column align="left" width="300px" />
+					<column align="right" hflex="min" />
+					<column align="left" hflex="min" />
 					<column align="left" />
 				</columns>
 				<rows>
@@ -95,19 +95,20 @@
 				model="@{replication.replicationSet}">
 				<listhead>
 					<listheader label="Instance URL" />
-					<listheader label="Index Name" />
-					<listheader label="Last execution time"
-						width="150px" />
+					<listheader label="Replication type" hflex="min" />
+					<listheader label="Index Name" hflex="min" />
+					<listheader label="Last execution time" hflex="min" />
 					<listheader label="Duration"
-						tooltiptext="last duration time" width="100px" />
-					<listheader label="Progression" width="200px"
+						tooltiptext="last duration time" hflex="min" />
+					<listheader label="Progression" width="150px"
 						align="center" />
-					<listheader label="Info" width="150px" />
-					<listheader label="Action" width="100px"
+					<listheader label="Info" hflex="min" />
+					<listheader label="Action" hflex="min"
 						align="center" />
 				</listhead>
 				<listitem self="@{each='item'}">
 					<listcell label="@{item.instanceUrl}" />
+					<listcell label="@{item.replicationType}" />
 					<listcell label="@{item.indexName}" />
 					<listcell
 						label="@{item.lastReplicationThread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
@@ -115,7 +116,7 @@
 						label="@{item.lastReplicationThread.duration,converter='com.jaeksoft.searchlib.web.converter.DurationConverter'}" />
 					<listcell>
 						<progressmeter width="95%"
-							visibe="@{item.lastReplicationThread.running}"
+							visible="@{item.lastReplicationThread.running}"
 							value="@{item.lastReplicationThread.progress}" />
 					</listcell>
 					<listcell
