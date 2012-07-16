@@ -29,10 +29,9 @@ import java.util.List;
 
 public enum ReplicationType {
 
-	MAIN_INDEX("Main index", ReplicationItem.NOT_PUSHED_PATH),
+	BACKUB_INDEX("Backup", ReplicationItem.NOT_PUSHED_PATH),
 
-	MAIN_INDEX_NODB("Main index, without URL or URI database (from Crawler)",
-			ReplicationItem.NOT_PUSHED_PATH,
+	MAIN_INDEX("Main index", ReplicationItem.NOT_PUSHED_PATH,
 			ReplicationItem.NOT_PUSHED_PATH_NODB),
 
 	WEB_CRAWLER_URL_DATABASE("Web crawler URL database",
