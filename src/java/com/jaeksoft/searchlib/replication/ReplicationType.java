@@ -29,7 +29,7 @@ import java.util.List;
 
 public enum ReplicationType {
 
-	BACKUB_INDEX("Backup", ReplicationItem.NOT_PUSHED_PATH),
+	BACKUP_INDEX("Backup", ReplicationItem.NOT_PUSHED_PATH),
 
 	MAIN_INDEX("Main index", ReplicationItem.NOT_PUSHED_PATH,
 			ReplicationItem.NOT_PUSHED_PATH_NODB),

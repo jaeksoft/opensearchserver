@@ -319,7 +319,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		try {
 			switch (replicationType) {
 			case MAIN_INDEX:
-			case MAIN_INDEX_NODB:
+			case BACKUP_INDEX:
 				return config.getDirectory();
 			case WEB_CRAWLER_URL_DATABASE:
 				return config.getUrlManager().getUrlDbClient().getDirectory();
