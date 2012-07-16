@@ -115,6 +115,7 @@
 						label="@{item.lastReplicationThread.duration,converter='com.jaeksoft.searchlib.web.converter.DurationConverter'}" />
 					<listcell>
 						<progressmeter width="95%"
+							visibe="@{item.lastReplicationThread.running}"
 							value="@{item.lastReplicationThread.progress}" />
 					</listcell>
 					<listcell

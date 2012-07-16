@@ -66,7 +66,7 @@ public class ReplicationThread extends ThreadAbstract implements
 			throws SearchLibException {
 		super(client, replicationMaster);
 		this.replicationItem = replicationItem;
-		sourceDirectory = replicationItem.getDirectory(client);
+		this.sourceDirectory = replicationItem.getDirectory(client);
 		this.client = client;
 		totalSize = 0;
 		sendSize = 0;

@@ -318,13 +318,15 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		try {
 			switch (replicationType) {
 			case MAIN_INDEX:
+			case MAIN_INDEX_NODB:
 				return config.getDirectory();
 			case WEB_CRAWLER_URL_DATABASE:
 				return config.getUrlManager().getUrlDbClient().getDirectory();
 			case FILE_CRAWLER_URI_DATABASE:
 				return config.getFileManager().getFileDbClient().getDirectory();
+			default:
+				throw new SearchLibException("Unsupported replication");
 			}
-			return null;
 		} finally {
 			rwl.r.unlock();
 		}
