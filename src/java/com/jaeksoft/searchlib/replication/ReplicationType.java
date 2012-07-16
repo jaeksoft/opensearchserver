@@ -24,18 +24,30 @@
 
 package com.jaeksoft.searchlib.replication;
 
+import java.io.File;
+import java.util.List;
+
 public enum ReplicationType {
 
-	MAIN_INDEX("Main index"),
+	MAIN_INDEX("Main index", ReplicationItem.NOT_PUSHED_PATH),
 
-	WEB_CRAWLER_URL_DATABASE("Web crawler URL database"),
+	MAIN_INDEX_NODB("Main index, without URL or URI database (from Crawler)",
+			ReplicationItem.NOT_PUSHED_PATH,
+			ReplicationItem.NOT_PUSHED_PATH_NODB),
 
-	FILE_CRAWLER_URI_DATABASE("File crawler URI database");
+	WEB_CRAWLER_URL_DATABASE("Web crawler URL database",
+			ReplicationItem.NOT_PUSHED_PATH),
+
+	FILE_CRAWLER_URI_DATABASE("File crawler URI database",
+			ReplicationItem.NOT_PUSHED_PATH);
 
 	private final String label;
 
-	private ReplicationType(String label) {
+	private final String[][] notPushedPaths;
+
+	private ReplicationType(String label, String[]... notPushedPaths) {
 		this.label = label;
+		this.notPushedPaths = notPushedPaths;
 	}
 
 	@Override
@@ -49,5 +61,18 @@ public enum ReplicationType {
 				if (type.name().equals(attributeString))
 					return type;
 		return MAIN_INDEX;
+	}
+
+	public void addNotPushedPath(File sourceDirectory,
+			List<File> filesNotPushed, List<File> dirsNotPushed) {
+		for (String[] notPushedPath : notPushedPaths) {
+			for (String path : notPushedPath) {
+				File f = new File(sourceDirectory, path);
+				if (f.isFile())
+					filesNotPushed.add(f);
+				else if (f.isDirectory())
+					dirsNotPushed.add(f);
+			}
+		}
 	}
 }

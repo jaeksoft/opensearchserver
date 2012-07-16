@@ -62,6 +62,12 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	private ReplicationType replicationType;
 
+	public final static String[] NOT_PUSHED_PATH = { "replication.xml",
+			"replication_old.xml", "jobs.xml", "jobs_old.xml", "report" };
+
+	public final static String[] NOT_PUSHED_PATH_NODB = { "web_crawler_url",
+			"file_crawler_url" };
+
 	public ReplicationItem(ReplicationMaster replicationMaster, String name) {
 		super(name);
 		this.replicationMaster = replicationMaster;

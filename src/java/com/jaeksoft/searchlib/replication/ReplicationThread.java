@@ -60,9 +60,6 @@ public class ReplicationThread extends ThreadAbstract implements
 
 	private File sourceDirectory;
 
-	private final static String[] NOT_PUSHED_PATH = { "replication.xml",
-			"replication_old.xml", "jobs.xml", "jobs_old.xml", "report" };
-
 	protected ReplicationThread(Client client,
 			ReplicationMaster replicationMaster,
 			ReplicationItem replicationItem, TaskLog taskLog)
@@ -93,13 +90,8 @@ public class ReplicationThread extends ThreadAbstract implements
 	private void initNotPushedList() {
 		filesNotPushed = new ArrayList<File>(0);
 		dirsNotPushed = new ArrayList<File>(0);
-		for (String path : NOT_PUSHED_PATH) {
-			File f = new File(sourceDirectory, path);
-			if (f.isFile())
-				filesNotPushed.add(f);
-			else if (f.isDirectory())
-				dirsNotPushed.add(f);
-		}
+		replicationItem.getReplicationType().addNotPushedPath(sourceDirectory,
+				filesNotPushed, dirsNotPushed);
 	}
 
 	@Override
