@@ -148,7 +148,15 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static String[] BOOLEAN_LIST = { Boolean.TRUE.toString(),
 			Boolean.FALSE.toString() };
 
+	public final static ClassPropertyEnum OCR_PDF_METHOD = new ClassPropertyEnum(
+			true, "ocr_pdf_method", "OCR method for PDF",
+			"Select an OCR stragegy for images in PDF");
+
+	public final static String[] OCR_PDF_METHODS = { "Embedded images",
+			"Full page" };
+
 	public final static String[] KEEP_REMOVE_LIST = { "keep", "remove" };
+
 	private boolean isUser;
 
 	private String label;

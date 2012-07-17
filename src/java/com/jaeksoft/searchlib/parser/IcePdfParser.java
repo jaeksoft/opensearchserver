@@ -64,6 +64,9 @@ public class IcePdfParser extends Parser {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
+		// addProperty(ClassPropertyEnum.OCR_PDF_METHOD,
+		// ClassPropertyEnum.OCR_PDF_METHODS[0],
+		// ClassPropertyEnum.OCR_PDF_METHODS);
 	}
 
 	private void extractContent(Document pdf) throws IOException {
@@ -101,6 +104,9 @@ public class IcePdfParser extends Parser {
 			throws IOException {
 		Document pdf = null;
 		try {
+			// boolean ocrFullPage = ClassPropertyEnum.OCR_PDF_METHODS[1]
+			// .equals(getProperty(ClassPropertyEnum.OCR_PDF_METHOD)
+			// .getValue());
 			pdf = new Document();
 			pdf.setInputStream(streamLimiter.getNewInputStream(), null);
 			extractContent(pdf);
@@ -119,6 +125,17 @@ public class IcePdfParser extends Parser {
 		}
 	}
 
+	private void imageOcr(Image image, float rotation, LanguageEnum lang,
+			OcrManager ocr) throws InterruptedException, IOException,
+			SearchLibException {
+		BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
+		if (rotation != 0)
+			bufferedImage = ImageUtils.rotate(bufferedImage, rotation);
+		String ocr_content = ocr.ocerizeImage(bufferedImage, lang);
+		if (ocr_content != null)
+			addField(ParserFieldEnum.ocr_content, ocr_content);
+	}
+
 	private void extractImagesForOCR(Document pdf, LanguageEnum lang)
 			throws IOException, SearchLibException, InterruptedException {
 		OcrManager ocr = ClientCatalog.getOcrManager();
@@ -134,17 +151,8 @@ public class IcePdfParser extends Parser {
 				continue;
 			float rotation = pdf.getPageTree().getPage(i, null)
 					.getTotalRotation(0);
-			for (Image image : images) {
-				BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-				if (rotation != 0) {
-					// to clock wise
-					rotation = 360 - rotation;
-					bufferedImage = ImageUtils.rotate(bufferedImage, rotation);
-				}
-				String ocr_content = ocr.ocerizeImage(bufferedImage, lang);
-				if (ocr_content != null)
-					addField(ParserFieldEnum.ocr_content, ocr_content);
-			}
+			for (Image image : images)
+				imageOcr(image, 360 - rotation, lang, ocr);
 		}
 
 	}
