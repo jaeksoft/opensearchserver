@@ -17,95 +17,97 @@
 <window id="query"
 	use="com.jaeksoft.searchlib.web.controller.query.QueryController">
 
-	<panel title="List of existing query templates" border="normal"
-		visible="@{query.isNotEditing}">
-		<panelchildren>
-			<grid width="100%">
-				<columns sizable="false">
-					<column align="right" hflex="min" />
-					<column align="left" hflex="min" />
-					<column align="left" />
-				</columns>
-				<rows>
-					<row>
-						<label value="Query name" />
-						<textbox value="@{query.requestName}" cols="50" />
-						<label value="Enter the name of the new query" />
-					</row>
-					<row>
-						<label value="Type" />
-						<listbox model="@{query.requestTypeList}"
-							selectedItem="@{query.requestType}" mold="select">
-							<listitem self="@{each=type}"
-								label="@{type.label}" />
-						</listbox>
-						<label value="Select the type of the new query" />
-					</row>
-					<row>
-						<cell colspan="3" align="center">
-							<button label="New query..." forward="onNew"
-								tooltiptext="Create a new query template" />
-							<button label="New copied query..."
-								disabled="@{query.isNotSelectedRequest}" forward="onNewCopy"
-								tooltiptext="Create a new query template copied from the selected query" />
-						</cell>
-					</row>
-				</rows>
-			</grid>
-			<listbox model="@{query.requests}" mold="paging"
-				selectedItem="@{query.selectedRequest}" pageSize="10">
-				<listhead>
-					<listheader label="Name" width="200px" />
-					<listheader label="Type" width="120px" />
-					<listheader label="Info" />
-					<listheader label="Action" width="150px"
-						align="center" />
-				</listhead>
-				<listitem self="@{each=item}">
-					<custom-attributes requestentry="@{item}" />
-					<listcell label="@{item.key}"
-						onDoubleClick="query.doEditQuery(self)" />
-					<listcell onDoubleClick="query.doEditQuery(self)"
-						label="@{item.value.type.label}" />
-					<listcell onDoubleClick="query.doEditQuery(self)"
-						label="@{item.value.info}" />
-					<listcell>
-						<hbox align="center">
-							<button label="Edit"
-								onClick="query.doEditQuery(self)" />
-							<space width="10px" />
-							<button label="Delete"
-								onClick="query.doDeleteQuery(self)" />
-						</hbox>
-					</listcell>
-				</listitem>
-			</listbox>
-		</panelchildren>
-	</panel>
+	<vlayout visible="@{query.isNotEditing}">
+		<grid>
+			<auxhead>
+				<auxheader colspan="3" label="Create a new query" />
+			</auxhead>
+			<columns sizable="false" visible="false">
+				<column align="right" hflex="min" />
+				<column align="left" hflex="min" />
+				<column align="left" label="Help" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Query name" />
+					<textbox value="@{query.requestName}" cols="50" />
+					<label value="Enter the name of the new query" />
+				</row>
+				<row>
+					<label value="Type" />
+					<listbox model="@{query.requestTypeList}"
+						selectedItem="@{query.requestType}" mold="select">
+						<listitem self="@{each=type}"
+							label="@{type.label}" />
+					</listbox>
+					<label value="Select the type of the new query" />
+				</row>
+				<row>
+					<cell colspan="3" align="center">
+						<button label="New query..." forward="onNew"
+							tooltiptext="Create a new query template" />
+						<button label="New copied query..."
+							disabled="@{query.isNotSelectedRequest}" forward="onNewCopy"
+							tooltiptext="Create a new query template copied from the selected query" />
+					</cell>
+				</row>
+			</rows>
+		</grid>
+		<separator />
+		<listbox model="@{query.requests}" mold="paging"
+			selectedItem="@{query.selectedRequest}" pageSize="10">
+			<auxhead>
+				<auxheader colspan="4" label="List of existing queries" />
+			</auxhead>
+			<listhead>
+				<listheader label="Name" hflex="min" />
+				<listheader label="Type" hflex="min" />
+				<listheader label="Info" />
+				<listheader label="Action" hflex="min" align="center" />
+			</listhead>
+			<listitem self="@{each=item}">
+				<custom-attributes requestentry="@{item}" />
+				<listcell label="@{item.key}"
+					onDoubleClick="query.doEditQuery(self)" />
+				<listcell onDoubleClick="query.doEditQuery(self)"
+					label="@{item.value.type.label}" />
+				<listcell onDoubleClick="query.doEditQuery(self)"
+					label="@{item.value.info}" />
+				<listcell>
+					<hbox align="center">
+						<button label="Edit"
+							onClick="query.doEditQuery(self)" />
+						<space width="10px" />
+						<button label="Delete"
+							onClick="query.doDeleteQuery(self)" />
+					</hbox>
+				</listcell>
+			</listitem>
+		</listbox>
+	</vlayout>
 
-	<panel title="@{query.abstractRequest.nameType}" border="normal"
-		visible="@{query.isEditing}">
+	<window title="@{query.abstractRequest.nameType}"
+		visible="@{query.isEditing}" border="normal">
 		<caption>
-			<button label="Cancel" forward="onCancel" />
+			<button label="Cancel" onClick="query.onCancel()" />
 			<space width="10px" />
-			<button label="Save" forward="onSave" />
+			<button label="Save" onClick="query.onSave()" />
 		</caption>
-		<panelchildren>
-			<include src="WEB-INF/zul/query/requestSearch.zul"
-				visible="@{query.isEditingSearch}" />
-			<include src="WEB-INF/zul/query/requestSpellCheck.zul"
-				visible="@{query.isEditingSpellCheck}" />
-			<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
-				visible="@{query.isEditingMoreLikeThis}" />
-			<vbox width="100%" align="center">
-				<button label="Search" forward="onSearch" />
-			</vbox>
-		</panelchildren>
-	</panel>
-	<include src="WEB-INF/zul/query/resultSearch.zul"
-		visible="@{query.resultSearch}" />
-	<include src="WEB-INF/zul/query/resultSpellCheck.zul"
-		visible="@{query.resultSpellCheck}" />
-	<include src="WEB-INF/zul/query/resultMoreLikeThis.zul"
-		visible="@{query.resultMoreLikeThis}" />
+		<include src="WEB-INF/zul/query/requestSearch.zul"
+			visible="@{query.isEditingSearch}" />
+		<include src="WEB-INF/zul/query/requestSpellCheck.zul"
+			visible="@{query.isEditingSpellCheck}" />
+		<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
+			visible="@{query.isEditingMoreLikeThis}" />
+		<vbox width="100%" align="center">
+			<button label="Search" onClick="query.onSearch()" />
+		</vbox>
+		<separator />
+		<include src="WEB-INF/zul/query/resultSearch.zul"
+			visible="@{query.resultSearch}" />
+		<include src="WEB-INF/zul/query/resultSpellCheck.zul"
+			visible="@{query.resultSpellCheck}" />
+		<include src="WEB-INF/zul/query/resultMoreLikeThis.zul"
+			visible="@{query.resultMoreLikeThis}" />
+	</window>
 </window>

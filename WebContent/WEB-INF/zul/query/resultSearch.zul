@@ -16,54 +16,48 @@
 -->
 <window id="result"
 	use="com.jaeksoft.searchlib.web.controller.query.ResultSearchController">
-	<panel title="Summary" visible="@{result.resultExists}"
-		collapsible="true" border="normal">
-		<caption>
-			<button label="XML/HTTP API call" target="_blank"
-				href="@{query.requestApiCall}" />
-			<button label="Export search result"
-				visible="@{result.documentFound}"
-				onClick="result.exportSearchResultToCsv()" />
-		</caption>
-		<panelchildren>
-			<grid>
-				<columns>
-					<column width="20%" align="right" />
-					<column width="30%" align="left" />
-					<column width="20%" align="right" />
-					<column width="30%" align="left" />
-				</columns>
-				<rows>
-					<row spans="1,3">
-						<label value="Query:" />
-						<label
-							value="@{result.result.request.query}" />
-					</row>
-					<row>
-						<label value="Document(s) found:" />
-						<label value="@{result.result.numFound}" />
-						<label value="Collapsed document(s):" />
-						<label
-							value="@{result.result.collapsedDocCount}" />
-					</row>
-					<row>
-						<label value="Start offset:" />
-						<label
-							value="@{result.result.request.start}" />
-						<label value="Row(s) returned:" />
-						<label value="@{result.result.documentCount}" />
-					</row>
-					<row>
-						<label value="Highest score:" />
-						<label value="@{result.result.maxScore}" />
-						<label value="Time elapsed (ms):" />
-						<label
-							value="@{result.result.request.finalTime}" />
-					</row>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
+	<grid visible="@{result.resultExists}">
+		<auxhead>
+			<auxheader colspan="4" label="Summary" align="right">
+				<button label="XML/HTTP API call" target="_blank"
+					href="@{query.requestApiCall}" />
+				<button label="Export search result"
+					visible="@{result.documentFound}"
+					onClick="result.exportSearchResultToCsv()" />
+			</auxheader>
+		</auxhead>
+		<columns visible="false">
+			<column width=" 20%" align="right" />
+			<column width="30%" align="left" />
+			<column width="20%" align="right" />
+			<column width="30%" align="left" />
+		</columns>
+		<rows>
+			<row spans="1,3">
+				<label value="Query:" />
+				<label value="@{result.result.request.query}" />
+			</row>
+			<row>
+				<label value="Document(s) found:" />
+				<label value="@{result.result.numFound}" />
+				<label value="Collapsed document(s):" />
+				<label value="@{result.result.collapsedDocCount}" />
+			</row>
+			<row>
+				<label value="Start offset:" />
+				<label value="@{result.result.request.start}" />
+				<label value="Row(s) returned:" />
+				<label value="@{result.result.documentCount}" />
+			</row>
+			<row>
+				<label value="Highest score:" />
+				<label value="@{result.result.maxScore}" />
+				<label value="Time elapsed (ms):" />
+				<label value="@{result.result.request.finalTime}" />
+			</row>
+		</rows>
+	</grid>
+
 	<separator />
 	<tabbox>
 		<tabs>
