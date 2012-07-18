@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3545447: Youtube API support
 - 3539147: URL and FILE database scheduler task
 - 3539146: Tag boost in HTML parser	
 - 3539144: A number format filter	
