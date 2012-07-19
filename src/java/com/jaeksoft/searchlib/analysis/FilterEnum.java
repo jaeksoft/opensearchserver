@@ -111,7 +111,9 @@ public enum FilterEnum {
 
 	SynonymFilter("Add synonyms support."),
 
-	URLNormalizerFilter("URL normalizer");
+	URLNormalizerFilter("URL normalizer"),
+
+	YoutubeFilter("Extract details from youtube using youtube API");
 
 	private String description;
 

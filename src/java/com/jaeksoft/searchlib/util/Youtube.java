@@ -60,7 +60,7 @@ public class Youtube {
 
 	/*
 	 * This method is to extract the Video id from youtube urls like
-	 * http://www.youtube.com/watch?v=asdoss-1 http://www.youtube.com/v/asdoss-1
+	 * http://www.youtube.com/watch?v=asdoss-1
 	 */
 	private static String getVideoId(URL url) {
 		synchronized (urlPattern) {
