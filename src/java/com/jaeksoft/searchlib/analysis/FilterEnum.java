@@ -113,7 +113,7 @@ public enum FilterEnum {
 
 	URLNormalizerFilter("URL normalizer"),
 
-	YoutubeFilter("Extract details from youtube using youtube API");
+	YouTubeFilter("Extract details from youtube using youtube API");
 
 	private String description;
 
