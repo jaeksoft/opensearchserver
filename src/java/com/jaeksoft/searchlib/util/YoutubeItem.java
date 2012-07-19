@@ -44,4 +44,14 @@ public class YoutubeItem {
 		return description;
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Title: ");
+		sb.append(title);
+		sb.append(" - Description: ");
+		sb.append(description);
+		return sb.toString();
+	}
+
 }

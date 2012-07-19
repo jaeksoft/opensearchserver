@@ -71,4 +71,10 @@ public class Youtube {
 		return null;
 	}
 
+	public final static void main(String[] args) throws MalformedURLException,
+			IOException, ServiceException {
+		System.out.println(getInfo(new URL(
+				"http://www.youtube.com/watch?v=O04CHuJaPWc")));
+	}
+
 }
