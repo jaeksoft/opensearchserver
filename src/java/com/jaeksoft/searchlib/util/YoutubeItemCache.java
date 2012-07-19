@@ -23,25 +23,47 @@
  **/
 package com.jaeksoft.searchlib.util;
 
-import com.google.gdata.data.youtube.YouTubeMediaGroup;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class YoutubeItem {
+public class YoutubeItemCache extends LinkedHashMap<String, YoutubeItem> {
 
-	private final String title;
-	private final String description;
+	/**
+		 * 
+		 */
+	private static final long serialVersionUID = 2452704318102895191L;
 
-	public YoutubeItem(YouTubeMediaGroup youTubeMediaGroup) {
-		this.title = youTubeMediaGroup.getTitle().getPlainTextContent();
-		this.description = youTubeMediaGroup.getDescription()
-				.getPlainTextContent();
+	private final int maxEntries;
+
+	private final static YoutubeItemCache cache = new YoutubeItemCache(1000);
+
+	private final static ReadWriteLock rwl = new ReadWriteLock();
+
+	private YoutubeItemCache(int maxEntries) {
+		this.maxEntries = maxEntries;
 	}
 
-	public String getTitle() {
-		return title;
+	@Override
+	protected boolean removeEldestEntry(Map.Entry<String, YoutubeItem> eldest) {
+		return size() > maxEntries;
 	}
 
-	public String getDescription() {
-		return description;
+	public static void addItem(String key, YoutubeItem item) {
+		rwl.w.lock();
+		try {
+			cache.put(key, item);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
+	public static YoutubeItem getItem(String key) {
+		rwl.r.lock();
+		try {
+			return cache.get(key);
+		} finally {
+			rwl.r.unlock();
+		}
+
+	}
 }

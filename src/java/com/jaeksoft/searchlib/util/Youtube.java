@@ -32,46 +32,43 @@ import java.util.regex.Pattern;
 import com.google.gdata.client.youtube.YouTubeService;
 import com.google.gdata.data.youtube.VideoEntry;
 import com.google.gdata.util.ServiceException;
-import com.jaeksoft.searchlib.Logging;
 
 public class Youtube {
-	private YouTubeService youTubeService = null;
-	private static String API_URL = "http://gdata.youtube.com/feeds/api/videos/";
-	private static int TIMEOUT = 2000;
-	private YoutubeItem youtubeItem = null;
 
-	public YoutubeItem getInfo(URL url) {
-		try {
-			youTubeService = new YouTubeService(null);
-			youTubeService.setConnectTimeout(TIMEOUT);
-			String videoApiURL = API_URL + getVideoId(url);
-			VideoEntry videoEntry = youTubeService.getEntry(
-					new URL(videoApiURL), VideoEntry.class);
-			youtubeItem = new YoutubeItem(videoEntry.getMediaGroup());
-		} catch (MalformedURLException e) {
-			Logging.error(e);
-		} catch (IOException e) {
-			Logging.error(e);
-		} catch (ServiceException e) {
-			Logging.error(e);
-		}
+	private final static String API_URL = "http://gdata.youtube.com/feeds/api/videos/";
+
+	private final static int TIMEOUT = 2000;
+
+	private final static Pattern urlPattern = Pattern
+			.compile("http.*\\?v=([a-zA-Z0-9_\\-]+)(?:&.)*");
+
+	public static YoutubeItem getInfo(URL url) throws MalformedURLException,
+			IOException, ServiceException {
+		String videoId = getVideoId(url);
+		YoutubeItem youtubeItem = YoutubeItemCache.getItem(videoId);
+		if (youtubeItem != null)
+			return youtubeItem;
+		YouTubeService youTubeService = new YouTubeService(null);
+		youTubeService.setConnectTimeout(TIMEOUT);
+		String videoApiURL = API_URL + getVideoId(url);
+		VideoEntry videoEntry = youTubeService.getEntry(new URL(videoApiURL),
+				VideoEntry.class);
+		youtubeItem = new YoutubeItem(videoEntry.getMediaGroup());
+		YoutubeItemCache.addItem(videoId, youtubeItem);
 		return youtubeItem;
-
 	}
 
 	/*
 	 * This method is to extract the Video id from youtube urls like
 	 * http://www.youtube.com/watch?v=asdoss-1 http://www.youtube.com/v/asdoss-1
 	 */
-	private String getVideoId(URL url) {
-		String videoID = null;
-		Pattern urlPattern = Pattern
-				.compile("http.*\\?v=([a-zA-Z0-9_\\-]+)(?:&.)*");
-		Matcher urlMatcher = urlPattern.matcher(url.toExternalForm());
-		if (urlMatcher.matches()) {
-			videoID = urlMatcher.group(1);
+	private static String getVideoId(URL url) {
+		synchronized (urlPattern) {
+			Matcher urlMatcher = urlPattern.matcher(url.toExternalForm());
+			if (urlMatcher.matches())
+				return urlMatcher.group(1);
 		}
-		return videoID;
+		return null;
 	}
 
 }

@@ -16,14 +16,14 @@
 -->
 <window id="home"
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
-	<grid visible="@{home.adminOrNoUser}">
+	<grid visible="@{home.adminOrNoUser}" hflex="min">
 		<auxhead>
 			<auxheader colspan="4" label="Create a new index" />
 		</auxhead>
-		<columns sizable="false">
-			<column align="right" hflex="min" label="Field" />
-			<column align="left" hflex="min" label="Value" />
-			<column align="left" label="Help" />
+		<columns visible="false">
+			<column align="right" />
+			<column align="left" />
+			<column align="left" />
 			<column width="82px" />
 		</columns>
 		<rows>
