@@ -21,31 +21,35 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.util.video;
+
+import java.net.URL;
+
+import org.json.simple.JSONObject;
 
 import com.google.gdata.data.youtube.YouTubeMediaGroup;
 
-public class YoutubeItem {
+public class YouTubeItem {
 
 	private final String title;
 	private final String description;
 
-	public YoutubeItem(YouTubeMediaGroup youTubeMediaGroup) {
+	public YouTubeItem(YouTubeMediaGroup youTubeMediaGroup) {
 		this.title = youTubeMediaGroup.getTitle().getPlainTextContent();
 		this.description = youTubeMediaGroup.getDescription()
 				.getPlainTextContent();
 	}
 
-	public String getTitle() {
+	final public String getTitle() {
 		return title;
 	}
 
-	public String getDescription() {
+	final public String getDescription() {
 		return description;
 	}
 
 	@Override
-	public String toString() {
+	final public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Title: ");
 		sb.append(title);
@@ -54,4 +58,12 @@ public class YoutubeItem {
 		return sb.toString();
 	}
 
+	@SuppressWarnings("unchecked")
+	final public String toJson(URL url) {
+		JSONObject json = new JSONObject();
+		json.put("url", url.toExternalForm());
+		json.put("title", title);
+		json.put("description", description);
+		return json.toJSONString();
+	}
 }

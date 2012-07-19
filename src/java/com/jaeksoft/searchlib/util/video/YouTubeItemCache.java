@@ -21,12 +21,16 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.util.video;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class YoutubeItemCache extends LinkedHashMap<String, YoutubeItem> {
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+
+;
+
+public class YouTubeItemCache extends LinkedHashMap<String, YouTubeItem> {
 
 	/**
 		 * 
@@ -35,20 +39,20 @@ public class YoutubeItemCache extends LinkedHashMap<String, YoutubeItem> {
 
 	private final int maxEntries;
 
-	private final static YoutubeItemCache cache = new YoutubeItemCache(1000);
+	private final static YouTubeItemCache cache = new YouTubeItemCache(1000);
 
 	private final static ReadWriteLock rwl = new ReadWriteLock();
 
-	private YoutubeItemCache(int maxEntries) {
+	private YouTubeItemCache(int maxEntries) {
 		this.maxEntries = maxEntries;
 	}
 
 	@Override
-	protected boolean removeEldestEntry(Map.Entry<String, YoutubeItem> eldest) {
+	protected boolean removeEldestEntry(Map.Entry<String, YouTubeItem> eldest) {
 		return size() > maxEntries;
 	}
 
-	public static void addItem(String key, YoutubeItem item) {
+	public static void addItem(String key, YouTubeItem item) {
 		rwl.w.lock();
 		try {
 			cache.put(key, item);
@@ -57,7 +61,7 @@ public class YoutubeItemCache extends LinkedHashMap<String, YoutubeItem> {
 		}
 	}
 
-	public static YoutubeItem getItem(String key) {
+	public static YouTubeItem getItem(String key) {
 		rwl.r.lock();
 		try {
 			return cache.get(key);

@@ -157,7 +157,8 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	public final static String[] KEEP_REMOVE_LIST = { "keep", "remove" };
 
-	public final static String[] YOUTUBE_DATA_LIST = { "title", "description" };
+	public final static String[] YOUTUBE_DATA_LIST = { "title", "description",
+			"full (json)" };
 
 	public static final ClassPropertyEnum YOUTUBE_DATA = new ClassPropertyEnum(
 			true, "youtube_data", "Youtube Field", "The youtube API data");

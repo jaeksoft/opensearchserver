@@ -23,12 +23,58 @@
  **/
 package com.jaeksoft.searchlib.analysis.filter;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import org.apache.lucene.analysis.TokenStream;
+
+import com.google.gdata.util.ServiceException;
+import com.jaeksoft.searchlib.util.video.YouTube;
+import com.jaeksoft.searchlib.util.video.YouTubeItem;
 
 public class YoutubeTokenFilter extends AbstractTermFilter {
 
-	protected YoutubeTokenFilter(TokenStream input, String youtubeData) {
+	private int youtubeData;
+
+	protected YoutubeTokenFilter(TokenStream input, int youtubeData) {
 		super(input);
+		this.youtubeData = youtubeData;
 	}
 
+	@Override
+	public final boolean incrementToken() throws IOException {
+		current = captureState();
+		for (;;) {
+			if (!input.incrementToken())
+				return false;
+			String term = getTerm();
+			try {
+				URL url = new URL(term);
+				YouTubeItem youtubeItem = YouTube.getInfo(url);
+				switch (youtubeData) {
+				case 0:
+					term = youtubeItem.getTitle();
+					break;
+				case 1:
+					term = youtubeItem.getDescription();
+					break;
+				case 2:
+					term = youtubeItem.toJson(url);
+					break;
+				default:
+					term = null;
+					break;
+				}
+				if (term == null || term.length() == 0)
+					return false;
+				createToken(term);
+				return true;
+			} catch (ServiceException e) {
+				throw new IOException(e);
+			} catch (URISyntaxException e) {
+				throw new IOException(e);
+			}
+		}
+	}
 }

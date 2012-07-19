@@ -24,7 +24,6 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -32,21 +31,27 @@ import com.jaeksoft.searchlib.analysis.FilterFactory;
 
 public class YoutubeFilter extends FilterFactory {
 
-	private String youtubeData = null;
+	private int youtubeData;
 
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.YOUTUBE_DATA,
-				EdgeNGramTokenFilter.DEFAULT_SIDE.getLabel(),
+				ClassPropertyEnum.YOUTUBE_DATA_LIST[0],
 				ClassPropertyEnum.YOUTUBE_DATA_LIST);
 	}
 
 	@Override
 	protected void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		youtubeData = value;
-
+		int i = 0;
+		for (String v : ClassPropertyEnum.YOUTUBE_DATA_LIST) {
+			if (value.equals(v)) {
+				youtubeData = i;
+				break;
+			}
+			i++;
+		}
 	}
 
 	@Override
