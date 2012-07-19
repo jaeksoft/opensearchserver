@@ -1,0 +1,92 @@
+/**   
+ * License Agreement for OpenSearchServer
+ *
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.open-search-server.com
+ * 
+ * This file is part of OpenSearchServer.
+ *
+ * OpenSearchServer is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * OpenSearchServer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with OpenSearchServer. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+package com.jaeksoft.searchlib.util.video;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+
+import com.google.gdata.client.youtube.YouTubeService;
+import com.google.gdata.data.youtube.VideoEntry;
+import com.google.gdata.util.ServiceException;
+import com.jaeksoft.searchlib.Logging;
+
+public class YouTube {
+
+	private final static String API_URL = "http://gdata.youtube.com/feeds/api/videos/";
+
+	private final static int TIMEOUT = 2000;
+
+	public static YouTubeItem getInfo(URL url) throws MalformedURLException,
+			IOException, ServiceException, URISyntaxException {
+		String videoId = getVideoId(url);
+		if (videoId == null)
+			throw new IOException("No video ID found: " + url);
+		YouTubeItem youtubeItem = YouTubeItemCache.getItem(videoId);
+		if (youtubeItem != null) {
+			if (Logging.isDebug)
+				Logging.debug("YouTube cache");
+			return youtubeItem;
+		}
+		YouTubeService youTubeService = new YouTubeService(null);
+		youTubeService.setConnectTimeout(TIMEOUT);
+		String videoApiURL = API_URL + getVideoId(url);
+		VideoEntry videoEntry = youTubeService.getEntry(new URL(videoApiURL),
+				VideoEntry.class);
+		youtubeItem = new YouTubeItem(videoEntry.getMediaGroup());
+		YouTubeItemCache.addItem(videoId, youtubeItem);
+		return youtubeItem;
+	}
+
+	/*
+	 * This method is to extract the Video id from youtube urls like
+	 * http://www.youtube.com/watch?v=asdoss-1
+	 */
+	private static String getVideoId(URL url) throws URISyntaxException {
+		List<NameValuePair> pairs = URLEncodedUtils.parse(url.toURI(), "UTF-8");
+		for (NameValuePair pair : pairs)
+			if ("v".equals(pair.getName()))
+				return pair.getValue();
+		return null;
+	}
+
+	public final static void main(String[] args) throws MalformedURLException,
+			IOException, ServiceException, URISyntaxException {
+
+		String[] urls = { "http://www.youtube.com/watch?h=test&v=O04CHuJaPWc",
+				"http://www.youtube.com/watch?v=HmQk3ovfiF0&feature=g-all-f" };
+		for (String u : urls) {
+			URL url = new URL(u);
+			YouTubeItem yti = getInfo(url);
+			System.out.println(yti);
+			System.out.println(yti.toJson(url));
+		}
+	}
+
+}
