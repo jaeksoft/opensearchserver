@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
 public class WebCrawlThread extends CrawlThreadAbstract {
@@ -167,10 +168,16 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 
 			sleepInterval();
 			setStatus(CrawlStatus.CRAWL);
-			if (crawl.checkRobotTxtAllow(httpDownloaderRobotsTxt))
-				crawl.download(httpDownloader);
-			nextTimeTarget = System.currentTimeMillis() + delayBetweenAccesses
-					* 1000;
+			// NextTimeTarget is immediate by default
+			nextTimeTarget = System.currentTimeMillis();
+			if (crawl.checkRobotTxtAllow(httpDownloaderRobotsTxt)) {
+				DownloadItem downloadItem = crawl.download(httpDownloader);
+				// If we really crawled the content we honor the pause
+				if (!downloadItem.isFromCache())
+					nextTimeTarget += +delayBetweenAccesses * 1000;
+				else
+					currentStats.incFromCacheCount();
+			}
 
 			if (currentUrlItem.getFetchStatus() == FetchStatus.FETCHED
 					&& currentUrlItem.getParserStatus() == ParserStatus.PARSED

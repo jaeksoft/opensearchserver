@@ -44,6 +44,7 @@ public class DownloadItem {
 	private String contentEncoding = null;
 	private Integer statusCode = null;
 	private InputStream contentInputStream = null;
+	private boolean fromCache = false;
 
 	public DownloadItem(URI uri) {
 		this.uri = uri;
@@ -87,6 +88,8 @@ public class DownloadItem {
 
 	public void loadMetaFromJson(org.json.JSONObject json)
 			throws URISyntaxException, JSONException {
+
+		fromCache = true;
 
 		if (json.has(KEY_REDIRECT_LOCATION)) {
 			String s = json.getString(KEY_REDIRECT_LOCATION);
@@ -250,6 +253,13 @@ public class DownloadItem {
 	 */
 	public URI getUri() {
 		return uri;
+	}
+
+	/**
+	 * @return the fromCache
+	 */
+	public boolean isFromCache() {
+		return fromCache;
 	}
 
 }

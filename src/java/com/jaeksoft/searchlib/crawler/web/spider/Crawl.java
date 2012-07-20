@@ -215,22 +215,25 @@ public class Crawl {
 	 * 
 	 * @param httpDownloader
 	 */
-	public void download(HttpDownloader httpDownloader) {
+	public DownloadItem download(HttpDownloader httpDownloader) {
 		synchronized (this) {
 			InputStream is = null;
+			DownloadItem downloadItem = null;
 			try {
 				URI uri = urlItem.getCheckedURI();
 
 				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(uri.toURL());
 
-				DownloadItem downloadItem = ClientCatalog
-						.getCrawlCacheManager().loadCache(uri);
+				downloadItem = ClientCatalog.getCrawlCacheManager().loadCache(
+						uri);
 
 				boolean fromCache = (downloadItem != null);
 
 				if (!fromCache)
 					downloadItem = httpDownloader.get(uri, credentialItem);
+				else if (Logging.isDebug)
+					Logging.debug("Crawl cache deliver: " + uri);
 
 				urlItem.setContentDispositionFilename(downloadItem
 						.getContentDispositionFilename());
@@ -308,6 +311,7 @@ public class Crawl {
 			}
 			if (is != null)
 				IOUtils.closeQuietly(is);
+			return downloadItem;
 		}
 	}
 

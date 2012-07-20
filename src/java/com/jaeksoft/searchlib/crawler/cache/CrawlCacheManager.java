@@ -35,6 +35,7 @@ import java.util.Properties;
 
 import org.json.JSONException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
@@ -63,7 +64,7 @@ public class CrawlCacheManager implements Closeable {
 
 	private boolean enabled;
 
-	private int expirationValue;
+	private long expirationValue;
 
 	private String expirationUnit;
 
@@ -97,7 +98,7 @@ public class CrawlCacheManager implements Closeable {
 		properties.setProperty(CRAWLCACHE_PROPERTY_ENABLED,
 				Boolean.toString(enabled));
 		properties.setProperty(CRAWLCACHE_PROPERTY_EXPIRATION_VALUE,
-				Integer.toString(expirationValue));
+				Long.toString(expirationValue));
 		properties.setProperty(CRAWCACHE_PROPERTY_EXPIRATION_UNIT,
 				expirationUnit);
 		properties.setProperty(CRAWCACHE_PROPERTY_PROVIDER_TYPE,
@@ -161,6 +162,8 @@ public class CrawlCacheManager implements Closeable {
 		else
 			// Default is days
 			l = expirationValue * 1000 * 86400;
+		if (Logging.isDebug)
+			Logging.debug("ExpirationDate l = " + l);
 		return System.currentTimeMillis() - l;
 	}
 
@@ -225,7 +228,7 @@ public class CrawlCacheManager implements Closeable {
 	/**
 	 * @return the expirationValue
 	 */
-	public int getExpirationValue() {
+	public long getExpirationValue() {
 		rwl.r.lock();
 		try {
 			return expirationValue;

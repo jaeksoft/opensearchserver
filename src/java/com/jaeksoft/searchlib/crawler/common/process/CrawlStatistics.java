@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,7 @@ public class CrawlStatistics {
 	private volatile long startTime;
 	private volatile float fetchRate;
 	private volatile long fetchedCount;
+	private volatile long fromCacheCount;
 	private volatile long pendingDeleteCount;
 	private volatile long deletedCount;
 	private volatile long parsedCount;
@@ -64,6 +65,7 @@ public class CrawlStatistics {
 			oldHostListSize = 0;
 			newHostListSize = 0;
 			fetchedCount = 0;
+			fromCacheCount = 0;
 			pendingDeleteCount = 0;
 			deletedCount = 0;
 			parsedCount = 0;
@@ -138,6 +140,12 @@ public class CrawlStatistics {
 		}
 		if (parent != null)
 			parent.incFetchedCount();
+	}
+
+	public void incFromCacheCount() {
+		synchronized (this) {
+			fromCacheCount++;
+		}
 	}
 
 	public void incParsedCount() {
@@ -226,6 +234,10 @@ public class CrawlStatistics {
 
 	public long getFetchedCount() {
 		return fetchedCount;
+	}
+
+	public long getFromCacheCount() {
+		return fromCacheCount;
 	}
 
 	public double getFetchRate() {
