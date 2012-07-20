@@ -62,7 +62,7 @@
 			</returnFields>
 		</request>
 		<request name="urlExport" defaultOperator="and" start="0"
-			rows="0">
+			rows="0" allowLeadingWildcard="yes">
 			<query>$$</query>
 			<returnFields>url,lastModifiedDate</returnFields>
 		</request>
