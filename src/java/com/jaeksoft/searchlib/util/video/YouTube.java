@@ -56,7 +56,7 @@ public class YouTube {
 		}
 		YouTubeService youTubeService = new YouTubeService(null);
 		youTubeService.setConnectTimeout(TIMEOUT);
-		String videoApiURL = API_URL + getVideoId(url);
+		String videoApiURL = API_URL + videoId;
 		VideoEntry videoEntry = youTubeService.getEntry(new URL(videoApiURL),
 				VideoEntry.class);
 		youtubeItem = new YouTubeItem(videoEntry.getMediaGroup());

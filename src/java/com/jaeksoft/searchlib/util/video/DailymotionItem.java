@@ -23,49 +23,44 @@
  **/
 package com.jaeksoft.searchlib.util.video;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
-import com.jaeksoft.searchlib.util.ReadWriteLock;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
+import org.json.simple.JSONObject;
 
-public class YouTubeItemCache extends LinkedHashMap<String, YouTubeItem> {
+public class DailymotionItem {
 
-	/**
-		 * 
-		 */
-	private static final long serialVersionUID = 2452704318102895191L;
+	private final String title;
 
-	private final int maxEntries;
+	public DailymotionItem(InputStream dailymotionResponse)
+			throws JSONException, IOException {
+		org.json.JSONObject jsonObject = new org.json.JSONObject(
+				IOUtils.toString(dailymotionResponse));
+		title = jsonObject.getString("title");
+	}
 
-	private final static YouTubeItemCache cache = new YouTubeItemCache(1000);
-
-	private final static ReadWriteLock rwl = new ReadWriteLock();
-
-	private YouTubeItemCache(int maxEntries) {
-		this.maxEntries = maxEntries;
+	final public String getTitle() {
+		return title;
 	}
 
 	@Override
-	protected boolean removeEldestEntry(Map.Entry<String, YouTubeItem> eldest) {
-		return size() > maxEntries;
+	final public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Title: ");
+		sb.append(title);
+
+		return sb.toString();
 	}
 
-	public static void addItem(String key, YouTubeItem item) {
-		rwl.w.lock();
-		try {
-			cache.put(key, item);
-		} finally {
-			rwl.w.unlock();
-		}
+	@SuppressWarnings("unchecked")
+	final public String toJson(URL url) {
+		JSONObject json = new JSONObject();
+		json.put("url", url.toExternalForm());
+		json.put("title", title);
+		return json.toJSONString();
 	}
 
-	public static YouTubeItem getItem(String key) {
-		rwl.r.lock();
-		try {
-			return cache.get(key);
-		} finally {
-			rwl.r.unlock();
-		}
-
-	}
 }

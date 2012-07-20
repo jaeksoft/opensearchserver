@@ -28,7 +28,8 @@ import java.util.Map;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public class YouTubeItemCache extends LinkedHashMap<String, YouTubeItem> {
+public class DailymotionItemCache extends
+		LinkedHashMap<String, DailymotionItem> {
 
 	/**
 		 * 
@@ -37,20 +38,22 @@ public class YouTubeItemCache extends LinkedHashMap<String, YouTubeItem> {
 
 	private final int maxEntries;
 
-	private final static YouTubeItemCache cache = new YouTubeItemCache(1000);
+	private final static DailymotionItemCache cache = new DailymotionItemCache(
+			1000);
 
 	private final static ReadWriteLock rwl = new ReadWriteLock();
 
-	private YouTubeItemCache(int maxEntries) {
+	private DailymotionItemCache(int maxEntries) {
 		this.maxEntries = maxEntries;
 	}
 
 	@Override
-	protected boolean removeEldestEntry(Map.Entry<String, YouTubeItem> eldest) {
+	protected boolean removeEldestEntry(
+			Map.Entry<String, DailymotionItem> eldest) {
 		return size() > maxEntries;
 	}
 
-	public static void addItem(String key, YouTubeItem item) {
+	public static void addItem(String key, DailymotionItem item) {
 		rwl.w.lock();
 		try {
 			cache.put(key, item);
@@ -59,7 +62,7 @@ public class YouTubeItemCache extends LinkedHashMap<String, YouTubeItem> {
 		}
 	}
 
-	public static YouTubeItem getItem(String key) {
+	public static DailymotionItem getItem(String key) {
 		rwl.r.lock();
 		try {
 			return cache.get(key);
