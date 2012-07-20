@@ -160,7 +160,13 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static String[] YOUTUBE_DATA_LIST = { "title", "description",
 			"full (json)" };
 
+	public final static String[] VIMEO_DATA_LIST = { "title", "description",
+			"full (json)" };
+
 	public static String[] DAILYMOTION_DATA_LIST = { "title", "full (json)" };
+
+	public static ClassPropertyEnum VIMEO_DATA = new ClassPropertyEnum(true,
+			"vimeo_data", "Vimeo Field", "The vimeo API data");
 
 	public static final ClassPropertyEnum YOUTUBE_DATA = new ClassPropertyEnum(
 			true, "youtube_data", "Youtube Field", "The youtube API data");

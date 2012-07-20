@@ -115,7 +115,9 @@ public enum FilterEnum {
 
 	YouTubeFilter("Extract details from youtube using youtube API"),
 
-	DailymotionFilter("Extract details from Dailymotion using Dailymotion API");
+	DailymotionFilter("Extract details from Dailymotion using Dailymotion API"),
+
+	VimeoFilter("Extract details from Vimeo using Dailymotion API");
 
 	private String description;
 
