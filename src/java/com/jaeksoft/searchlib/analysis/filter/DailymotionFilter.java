@@ -25,7 +25,6 @@ package com.jaeksoft.searchlib.analysis.filter;
 
 import org.apache.lucene.analysis.TokenStream;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
@@ -35,6 +34,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 public class DailymotionFilter extends FilterFactory {
 
 	private int dailymotionData;
+	private boolean faultTolerant = true;
 
 	@Override
 	protected void initProperties() throws SearchLibException {
@@ -42,34 +42,40 @@ public class DailymotionFilter extends FilterFactory {
 		addProperty(ClassPropertyEnum.DAILYMOTION_DATA,
 				ClassPropertyEnum.DAILYMOTION_DATA_LIST[0],
 				ClassPropertyEnum.DAILYMOTION_DATA_LIST);
+		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
+				ClassPropertyEnum.BOOLEAN_LIST[0],
+				ClassPropertyEnum.BOOLEAN_LIST);
 	}
 
 	@Override
 	protected void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		int i = 0;
-		for (String v : ClassPropertyEnum.DAILYMOTION_DATA_LIST) {
-			if (value.equals(v)) {
-				dailymotionData = i;
-				break;
+		if (prop == ClassPropertyEnum.DAILYMOTION_DATA) {
+			dailymotionData = 0;
+			int i = 0;
+			for (String v : ClassPropertyEnum.DAILYMOTION_DATA_LIST) {
+				if (value.equals(v)) {
+					dailymotionData = i;
+					break;
+				}
+				i++;
 			}
-			i++;
-		}
+		} else if (prop == ClassPropertyEnum.FAULT_TOLERANT)
+			faultTolerant = Boolean.parseBoolean(value);
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		WebPropertyManager propertyManager = null;
-		HttpDownloader httpDownloader = null;
 		try {
+			WebPropertyManager propertyManager;
 			propertyManager = config.getWebPropertyManager();
-			httpDownloader = new HttpDownloader(propertyManager.getUserAgent()
-					.getValue(), false, propertyManager.getProxyHandler());
-		} catch (Exception e) {
-			Logging.error(e);
+			HttpDownloader httpDownloader = new HttpDownloader(propertyManager
+					.getUserAgent().getValue(), false,
+					propertyManager.getProxyHandler());
+			return new DailymotionTokenFilter(tokenStream, dailymotionData,
+					httpDownloader, faultTolerant);
+		} catch (SearchLibException e) {
+			throw new RuntimeException(e);
 		}
-
-		return new DailymotionTokenFilter(tokenStream, dailymotionData,
-				httpDownloader);
 	}
 }

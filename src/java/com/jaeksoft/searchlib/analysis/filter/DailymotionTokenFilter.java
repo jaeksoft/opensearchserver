@@ -24,14 +24,11 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.json.JSONException;
-import org.openqa.selenium.remote.JsonException;
 
-import com.google.gdata.util.ServiceException;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.video.Dailymotion;
 import com.jaeksoft.searchlib.util.video.DailymotionItem;
@@ -40,12 +37,14 @@ public class DailymotionTokenFilter extends AbstractTermFilter {
 
 	private int dailymotionData;
 	private HttpDownloader httpDownloader = null;
+	private boolean faultTolerant;
 
 	protected DailymotionTokenFilter(TokenStream input, int dailymotionData,
-			HttpDownloader httpDownloader) {
+			HttpDownloader httpDownloader, boolean faultTolerant) {
 		super(input);
 		this.dailymotionData = dailymotionData;
 		this.httpDownloader = httpDownloader;
+		this.faultTolerant = faultTolerant;
 	}
 
 	@Override
@@ -59,11 +58,12 @@ public class DailymotionTokenFilter extends AbstractTermFilter {
 				URL url = new URL(term);
 				DailymotionItem dailymotionItem = Dailymotion.getInfo(url,
 						httpDownloader);
+				httpDownloader.release();
 				switch (dailymotionData) {
 				case 0:
 					term = dailymotionItem.getTitle();
 					break;
-				case 2:
+				case 1:
 					term = dailymotionItem.toJson(url);
 					break;
 				default:
@@ -74,12 +74,15 @@ public class DailymotionTokenFilter extends AbstractTermFilter {
 					return false;
 				createToken(term);
 				return true;
-			} catch (ServiceException e) {
-				throw new IOException(e);
-			} catch (URISyntaxException e) {
-				throw new IOException(e);
-			} catch (JSONException e) {
-				throw new JsonException(e);
+			} catch (Exception e) {
+				if (faultTolerant) {
+					Logging.warn(e);
+					return false;
+				}
+				if (e instanceof IOException)
+					throw (IOException) e;
+				else
+					throw new IOException(e);
 			}
 		}
 	}

@@ -31,7 +31,8 @@ import com.jaeksoft.searchlib.analysis.FilterFactory;
 
 public class YouTubeFilter extends FilterFactory {
 
-	private int youtubeData;
+	private int youtubeData = 0;
+	private boolean faultTolerant = true;
 
 	@Override
 	protected void initProperties() throws SearchLibException {
@@ -39,23 +40,29 @@ public class YouTubeFilter extends FilterFactory {
 		addProperty(ClassPropertyEnum.YOUTUBE_DATA,
 				ClassPropertyEnum.YOUTUBE_DATA_LIST[0],
 				ClassPropertyEnum.YOUTUBE_DATA_LIST);
+		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
+				ClassPropertyEnum.BOOLEAN_LIST[0],
+				ClassPropertyEnum.BOOLEAN_LIST);
 	}
 
 	@Override
 	protected void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		int i = 0;
-		for (String v : ClassPropertyEnum.YOUTUBE_DATA_LIST) {
-			if (value.equals(v)) {
-				youtubeData = i;
-				break;
+		if (prop == ClassPropertyEnum.YOUTUBE_DATA) {
+			int i = 0;
+			for (String v : ClassPropertyEnum.YOUTUBE_DATA_LIST) {
+				if (value.equals(v)) {
+					youtubeData = i;
+					break;
+				}
+				i++;
 			}
-			i++;
-		}
+		} else if (prop == ClassPropertyEnum.FAULT_TOLERANT)
+			faultTolerant = Boolean.parseBoolean(value);
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new YouTubeTokenFilter(tokenStream, youtubeData);
+		return new YouTubeTokenFilter(tokenStream, youtubeData, faultTolerant);
 	}
 }
