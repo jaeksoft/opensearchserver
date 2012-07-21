@@ -269,11 +269,6 @@ public class HtmlParser extends Parser {
 		if (charsetWasNull)
 			charset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET).getValue();
 
-		StringWriter writer = new StringWriter();
-		IOUtils.copy(streamLimiter.getNewInputStream(), writer, charset);
-		addField(ParserFieldEnum.htmlSource, writer.toString());
-		writer.close();
-
 		HtmlDocumentProvider htmlProvider = findBestProvider(charset,
 				streamLimiter);
 		if (htmlProvider == null)
@@ -302,6 +297,11 @@ public class HtmlParser extends Parser {
 			if (charset != null)
 				htmlProvider = findBestProvider(charset, streamLimiter);
 		}
+
+		StringWriter writer = new StringWriter();
+		IOUtils.copy(streamLimiter.getNewInputStream(), writer, charset);
+		addField(ParserFieldEnum.htmlSource, writer.toString());
+		writer.close();
 
 		HtmlNodeAbstract<?> rootNode = htmlProvider.getRootNode();
 		if (rootNode == null)
