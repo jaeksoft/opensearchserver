@@ -129,7 +129,7 @@
 			<listheader label="Committed" tooltiptext="Committed" />
 			<listheader label="Pending" tooltiptext="Pending" />
 			<listheader label="Committed" tooltiptext="Committed" />
-			<listheader />
+			<listheader label="Count" />
 			<listheader label="Pending" tooltiptext="Pending" />
 			<listheader label="Committed" tooltiptext="Committed" />
 			<listheader label="Processed" tooltiptext="Processed" />

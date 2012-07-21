@@ -146,6 +146,8 @@ public class CrawlStatistics {
 		synchronized (this) {
 			fromCacheCount++;
 		}
+		if (parent != null)
+			parent.incFromCacheCount();
 	}
 
 	public void incParsedCount() {
