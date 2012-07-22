@@ -30,7 +30,7 @@
 		<fields default="term">
 			<field name="term" indexed="yes" stored="yes" termVector="no"
 				analyzer="AutocompletionAnalyzer" />
-			<field name="freq" indexed="yes" stored="no" termvector="yes" />
+			<field name="freq" indexed="yes" stored="no" termvector="no" />
 		</fields>
 	</schema>
 	<requests>

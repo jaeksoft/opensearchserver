@@ -19,35 +19,35 @@
 	</indices>
 	<schema>
 		<fields default="url" unique="url">
-			<field name="lang" indexed="yes" stored="no" termVector="yes" />
-			<field name="langMethod" indexed="yes" stored="no" termVector="yes" />
+			<field name="lang" indexed="yes" stored="no" termVector="no" />
+			<field name="langMethod" indexed="yes" stored="no" termVector="no" />
 			<field name="contentBaseType" indexed="yes" stored="no"
-				termVector="yes" />
+				termVector="no" />
 			<field name="contentTypeCharset" indexed="yes" stored="no"
-				termVector="yes" />
+				termVector="no" />
 			<field name="contentEncoding" indexed="yes" stored="no"
-				termVector="yes" />
+				termVector="no" />
 			<field name="contentLength" indexed="yes" stored="no"
-				termVector="yes" />
-			<field name="url" indexed="yes" stored="no" termVector="yes" />
-			<field name="outlink" indexed="yes" stored="no" termVector="yes" />
-			<field name="inlink" indexed="yes" stored="no" termVector="yes" />
-			<field name="host" indexed="yes" stored="no" termVector="yes" />
-			<field name="subhost" indexed="yes" stored="no" termVector="yes" />
-			<field name="when" indexed="yes" stored="no" termVector="yes" />
+				termVector="no" />
+			<field name="url" indexed="yes" stored="no" termVector="no" />
+			<field name="outlink" indexed="yes" stored="no" termVector="no" />
+			<field name="inlink" indexed="yes" stored="no" termVector="no" />
+			<field name="host" indexed="yes" stored="no" termVector="no" />
+			<field name="subhost" indexed="yes" stored="no" termVector="no" />
+			<field name="when" indexed="yes" stored="no" termVector="no" />
 			<field name="responseCode" indexed="yes" stored="no"
-				termVector="yes" />
+				termVector="no" />
 			<field name="robotsTxtStatus" indexed="yes" stored="no"
-				termVector="yes" />
+				termVector="no" />
 			<field name="parserStatus" indexed="yes" stored="no"
-				termVector="yes" />
-			<field name="fetchStatus" indexed="yes" stored="no" termVector="yes" />
-			<field name="indexStatus" indexed="yes" stored="no" termVector="yes" />
-			<field name="md5size" indexed="yes" stored="no" termVector="yes" />
+				termVector="no" />
+			<field name="fetchStatus" indexed="yes" stored="no" termVector="no" />
+			<field name="indexStatus" indexed="yes" stored="no" termVector="no" />
+			<field name="md5size" indexed="yes" stored="no" termVector="no" />
 			<field name="lastModifiedDate" indexed="yes" stored="no"
-				termVector="yes" />
-			<field name="parentUrl" indexed="yes" stored="no" termVector="yes" />
-			<field name="origin" indexed="yes" stored="no" termVector="yes" />
+				termVector="no" />
+			<field name="parentUrl" indexed="yes" stored="no" termVector="no" />
+			<field name="origin" indexed="yes" stored="no" termVector="no" />
 		</fields>
 	</schema>
 	<requests>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,22 +35,27 @@ public class FieldValueItem {
 
 	final private Float boost;
 
-	public FieldValueItem(String value) {
+	final private FieldValueOriginEnum origin;
+
+	public FieldValueItem(FieldValueOriginEnum origin, String value) {
 		this.value = value;
 		this.boost = null;
+		this.origin = origin;
 	}
 
-	public FieldValueItem(String value, Float boost) {
+	public FieldValueItem(FieldValueOriginEnum origin, String value, Float boost) {
 		this.value = value;
 		if (boost != null && boost == 1.0f)
 			boost = null;
 		this.boost = boost;
+		this.origin = origin;
 	}
 
 	private FieldValueItem(Fieldable fieldable) {
 		this.value = fieldable.stringValue();
 		float b = fieldable.getBoost();
 		this.boost = b == 1.0f ? null : b;
+		this.origin = FieldValueOriginEnum.STORAGE;
 	}
 
 	/**
@@ -65,6 +70,13 @@ public class FieldValueItem {
 	 */
 	final public Float getBoost() {
 		return boost;
+	}
+
+	/**
+	 * @return the origin
+	 */
+	final public FieldValueOriginEnum getOrigin() {
+		return origin;
 	}
 
 	@Override
@@ -83,11 +95,19 @@ public class FieldValueItem {
 		return array;
 	}
 
-	final public static FieldValueItem[] buildArray(String[] values) {
+	final public static FieldValueItem[] buildArray(
+			FieldValueOriginEnum origin, String[] values) {
 		FieldValueItem[] array = new FieldValueItem[values.length];
 		int i = 0;
 		for (String value : values)
-			array[i++] = new FieldValueItem(value);
+			array[i++] = new FieldValueItem(origin, value);
+		return array;
+	}
+
+	final public static FieldValueItem[] buildArray(
+			FieldValueOriginEnum origin, String value) {
+		FieldValueItem[] array = new FieldValueItem[1];
+		array[0] = new FieldValueItem(origin, value);
 		return array;
 	}
 

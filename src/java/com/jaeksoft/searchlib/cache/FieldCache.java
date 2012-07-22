@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldContentCacheKey;
@@ -39,6 +40,7 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 
 public class FieldCache extends
 		LRUCache<FieldContentCacheKey, FieldValueItem[]> {
@@ -55,6 +57,7 @@ public class FieldCache extends
 			SyntaxError {
 		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
 		FieldList<Field> storeField = new FieldList<Field>();
+		FieldList<Field> indexedField = new FieldList<Field>();
 		FieldList<Field> vectorField = new FieldList<Field>();
 		FieldList<Field> missingField = new FieldList<Field>();
 
@@ -73,17 +76,33 @@ public class FieldCache extends
 		if (storeField.size() > 0) {
 			Document document = reader.getDocFields(docId, storeField);
 			for (Field field : storeField) {
-				FieldContentCacheKey key = new FieldContentCacheKey(
-						field.getName(), docId);
-				Fieldable[] fieldables = document
-						.getFieldables(field.getName());
+				String fieldName = field.getName();
+				Fieldable[] fieldables = document.getFieldables(fieldName);
 				if (fieldables != null && fieldables.length > 0) {
 					FieldValueItem[] valueItems = FieldValueItem
 							.buildArray(fieldables);
-					documentFields.add(new FieldValue(field, valueItems));
-					put(key, valueItems);
+					put(documentFields, field, fieldName, docId, valueItems);
 				} else
-					vectorField.add(field);
+					indexedField.add(field);
+			}
+		}
+
+		// Check missing fields from StringIndex
+		if (indexedField.size() > 0) {
+			for (Field field : indexedField) {
+				String fieldName = field.getName();
+				StringIndex stringIndex = reader.getStringIndex(fieldName);
+				if (stringIndex != null) {
+					String term = stringIndex.lookup[stringIndex.order[docId]];
+					if (term != null) {
+						FieldValueItem[] valueItems = FieldValueItem
+								.buildArray(FieldValueOriginEnum.STRING_INDEX,
+										term);
+						put(documentFields, field, fieldName, docId, valueItems);
+						continue;
+					}
+				}
+				vectorField.add(field);
 			}
 		}
 
@@ -91,14 +110,11 @@ public class FieldCache extends
 		if (vectorField.size() > 0) {
 			for (Field field : vectorField) {
 				String fieldName = field.getName();
-				FieldContentCacheKey key = new FieldContentCacheKey(fieldName,
-						docId);
 				TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
 				if (tfv != null) {
-					FieldValueItem[] valueItems = FieldValueItem.buildArray(tfv
-							.getTerms());
-					documentFields.add(new FieldValue(field, valueItems));
-					put(key, valueItems);
+					FieldValueItem[] valueItems = FieldValueItem.buildArray(
+							FieldValueOriginEnum.TERM_VECTOR, tfv.getTerms());
+					put(documentFields, field, fieldName, docId, valueItems);
 				} else
 					missingField.add(field);
 			}
@@ -109,6 +125,13 @@ public class FieldCache extends
 				documentFields.add(new FieldValue(field));
 
 		return documentFields;
+	}
+
+	private void put(FieldList<FieldValue> documentFields, Field field,
+			String fieldName, int docId, FieldValueItem[] valueItems) {
+		documentFields.add(new FieldValue(field, valueItems));
+		FieldContentCacheKey key = new FieldContentCacheKey(fieldName, docId);
+		put(key, valueItems);
 	}
 
 	@Override

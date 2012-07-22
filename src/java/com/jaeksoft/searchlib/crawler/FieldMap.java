@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -130,7 +131,9 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 			} else {
 				String value = sourceField.getConcatString(source, target);
 				if (value != null)
-					link.getTarget().add(new FieldValueItem(value), target);
+					link.getTarget().add(
+							new FieldValueItem(FieldValueOriginEnum.EXTERNAL,
+									value), target);
 			}
 		}
 	}
@@ -147,7 +150,9 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 			} else {
 				String value = sourceField.getConcatString(source, target);
 				if (value != null)
-					link.getTarget().add(new FieldValueItem(value), target);
+					link.getTarget().add(
+							new FieldValueItem(FieldValueOriginEnum.EXTERNAL,
+									value), target);
 			}
 		}
 	}

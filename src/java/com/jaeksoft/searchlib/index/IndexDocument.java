@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -292,7 +293,8 @@ public class IndexDocument implements Iterable<FieldContent> {
 	public void add(String field, String value, Float boost) {
 		if (value == null || value.length() == 0)
 			return;
-		add(field, new FieldValueItem(value, boost));
+		add(field, new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value,
+				boost));
 	}
 
 	public void addObject(String field, Object object) {
@@ -304,7 +306,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 	public void addString(String field, String value) {
 		if (value == null)
 			return;
-		add(field, new FieldValueItem(value));
+		add(field, new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value));
 	}
 
 	public void addFieldValueList(String field, List<FieldValueItem> values) {

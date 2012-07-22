@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 
 public class LinkList implements Iterable<Link> {
 
@@ -66,8 +67,9 @@ public class LinkList implements Iterable<Link> {
 
 	public void populate(String fieldName, IndexDocument document) {
 		for (Link link : links.values())
-			document.add(fieldName, new FieldValueItem(link.getUrl()
-					.toExternalForm()));
+			document.add(fieldName, new FieldValueItem(
+					FieldValueOriginEnum.EXTERNAL, link.getUrl()
+							.toExternalForm()));
 	}
 
 	@Override

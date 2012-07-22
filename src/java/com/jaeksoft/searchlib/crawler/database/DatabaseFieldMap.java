@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -131,7 +132,8 @@ public class DatabaseFieldMap extends
 				content = StringUtils.removeTag(content);
 			if (dfTarget.hasRegexpPattern())
 				content = dfTarget.applyRegexPattern(content);
-			target.add(dfTarget.getName(), new FieldValueItem(content));
+			target.add(dfTarget.getName(), new FieldValueItem(
+					FieldValueOriginEnum.EXTERNAL, content));
 		}
 	}
 

@@ -77,6 +77,7 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -642,7 +643,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				FieldValueItem[] fieldValueItem = new FieldValueItem[terms.length];
 				int i = 0;
 				for (String term : terms)
-					fieldValueItem[i++] = new FieldValueItem(term);
+					fieldValueItem[i++] = new FieldValueItem(
+							FieldValueOriginEnum.TERM_VECTOR, term);
 				fieldValueList.add(new FieldValue(field, fieldValueItem));
 			}
 			return fieldValueList;
@@ -672,7 +674,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 					if (!termPosition.skipTo(docId)
 							|| termPosition.doc() != docId)
 						continue;
-					fieldValueItemList.add(new FieldValueItem(term.text()));
+					fieldValueItemList.add(new FieldValueItem(
+							FieldValueOriginEnum.TERM_ENUM, term.text()));
 				} while (termEnum.next());
 				termEnum.close();
 				if (fieldValueItemList.size() > 0)

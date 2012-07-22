@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiterBase64;
@@ -98,7 +99,8 @@ public abstract class Parser extends ParserFactory {
 			return;
 		if (value.length() == 0)
 			return;
-		parserDocument.add(field.name(), new FieldValueItem(value));
+		parserDocument.add(field.name(), new FieldValueItem(
+				FieldValueOriginEnum.EXTERNAL, value));
 	}
 
 	public void addField(ParserFieldEnum field, String value, Float boost) {
@@ -106,21 +108,24 @@ public abstract class Parser extends ParserFactory {
 			return;
 		if (value.length() == 0)
 			return;
-		parserDocument.add(field.name(), new FieldValueItem(value, boost));
+		parserDocument.add(field.name(), new FieldValueItem(
+				FieldValueOriginEnum.EXTERNAL, value, boost));
 	}
 
 	public void addDirectFields(String[] fields, String value) {
 		if (directDocument == null)
 			directDocument = new IndexDocument();
 		for (String field : fields)
-			directDocument.add(field, new FieldValueItem(value));
+			directDocument.add(field, new FieldValueItem(
+					FieldValueOriginEnum.EXTERNAL, value));
 	}
 
 	public void addDirectFields(String[] fields, String value, Float boost) {
 		if (directDocument == null)
 			directDocument = new IndexDocument();
 		for (String field : fields)
-			directDocument.add(field, new FieldValueItem(value, boost));
+			directDocument.add(field, new FieldValueItem(
+					FieldValueOriginEnum.EXTERNAL, value, boost));
 	}
 
 	protected void addField(ParserFieldEnum field, Object object) {

@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -379,7 +380,8 @@ public class SnippetField extends Field {
 					unescapedSeparator, tags, bestScoreFragment);
 			if (snippet != null)
 				if (snippet.length() > 0)
-					snippets.add(new FieldValueItem(snippet.toString()));
+					snippets.add(new FieldValueItem(
+							FieldValueOriginEnum.SNIPPET, snippet.toString()));
 			if (snippets.size() > 0)
 				return true;
 		}
@@ -388,7 +390,8 @@ public class SnippetField extends Field {
 				unescapedSeparator, tags, fragments.first());
 		if (snippet != null)
 			if (snippet.length() > 0)
-				snippets.add(new FieldValueItem(snippet.toString()));
+				snippets.add(new FieldValueItem(FieldValueOriginEnum.SNIPPET,
+						snippet.toString()));
 		return false;
 	}
 

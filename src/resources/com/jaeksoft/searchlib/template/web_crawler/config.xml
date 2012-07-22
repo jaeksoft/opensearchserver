@@ -46,8 +46,7 @@
 			</analyzer>
 
 			<!-- Arabic -->
-			<analyzer name="TextAnalyzer" lang="ar"
-				tokenizer="ArabicLetterTokenizer">
+			<analyzer name="TextAnalyzer" lang="ar" tokenizer="ArabicLetterTokenizer">
 				<filter class="ArabicNormalizerFilter" />
 				<filter class="ArabicStemFilter" />
 			</analyzer>
@@ -190,7 +189,7 @@
 		</analyzers>
 
 		<fields default="content" unique="url">
-			<field name="lang" indexed="yes" stored="no" termVector="yes" />
+			<field name="lang" indexed="yes" stored="no" termVector="no" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="yes" termVector="positions_offsets" />
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
@@ -204,8 +203,8 @@
 			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
 				indexed="yes" stored="no" termVector="no" />
 			<field name="contentBaseType" indexed="yes" stored="no"
-				termVector="yes" />
-			<field name="url" indexed="yes" stored="no" termVector="yes" />
+				termVector="no" />
+			<field name="url" indexed="yes" stored="no" termVector="no" />
 			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
 				termVector="no" />
 			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
@@ -214,7 +213,7 @@
 				analyzer="PhoneticAnalyzer" termVector="no" />
 			<field name="metaDescription" indexed="no" stored="compress" />
 			<field name="metaKeywords" indexed="no" stored="compress" />
-			<field name="host" indexed="yes" stored="no" termVector="yes" />
+			<field name="host" indexed="yes" stored="no" termVector="no" />
 			<field name="subhost" indexed="yes" stored="no" />
 			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
 				indexed="yes" stored="no" termVector="no" />

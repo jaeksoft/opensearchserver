@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 
 public class UpdateImpl extends CommonServicesImpl implements Update {
 
@@ -82,7 +83,8 @@ public class UpdateImpl extends CommonServicesImpl implements Update {
 		for (Document document : updateDocuments) {
 			IndexDocument indexDoc = getIndexDocument(document.lang);
 			for (UpdateFieldList fields : document.fields) {
-				indexDoc.add(fields.name, new FieldValueItem(fields.value));
+				indexDoc.add(fields.name, new FieldValueItem(
+						FieldValueOriginEnum.EXTERNAL, fields.value));
 			}
 			indexDocuments.add(indexDoc);
 			count++;
