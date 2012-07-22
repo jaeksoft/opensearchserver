@@ -429,7 +429,7 @@ public class Crawl {
 						parentUrl));
 				return discoverLinks;
 			}
-			if (parser == null || !urlItem.isStatusFull())
+			if (parser == null || !urlItem.isLinkDiscoverable())
 				return discoverLinks;
 			UrlManager urlManager = config.getUrlManager();
 			PatternManager inclusionManager = inclusionEnabled ? config

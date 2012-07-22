@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,11 +40,11 @@ public enum IndexStatus {
 
 	ALL(99, "All", null);
 
-	public int value;
+	final public int value;
 
-	public String name;
+	final public String name;
 
-	public TargetStatus targetStatus;
+	final public TargetStatus targetStatus;
 
 	private IndexStatus(int value, String name, TargetStatus targetStatus) {
 		this.value = value;

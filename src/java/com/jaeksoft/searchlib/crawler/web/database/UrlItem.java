@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -489,12 +489,6 @@ public class UrlItem implements Serializable {
 		return Integer.toString(count);
 	}
 
-	public boolean isStatusFull() {
-		return fetchStatus == FetchStatus.FETCHED
-				&& parserStatus == ParserStatus.PARSED
-				&& indexStatus == IndexStatus.INDEXED;
-	}
-
 	public static List<String> buildSubHost(String host) {
 		if (host == null)
 			return null;
@@ -623,4 +617,13 @@ public class UrlItem implements Serializable {
 		this.md5size = md5size;
 	}
 
+	public boolean isLinkDiscoverable() {
+		if (fetchStatus != FetchStatus.FETCHED)
+			return false;
+		if (indexStatus == IndexStatus.INDEXED)
+			return true;
+		if (indexStatus == IndexStatus.META_NOINDEX)
+			return true;
+		return false;
+	}
 }
