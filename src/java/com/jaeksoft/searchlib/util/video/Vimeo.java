@@ -29,11 +29,14 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONException;
 
 import com.google.gdata.util.ServiceException;
@@ -45,8 +48,8 @@ public class Vimeo {
 
 	private final static String API_URL = "http://vimeo.com/api/v2/video/";
 
-	private final static Pattern urlPattern = Pattern
-			.compile("http://vimeo.com/([0-9]+)");
+	private final static Pattern[] idPatterns = { Pattern.compile("/([0-9]+)"),
+			Pattern.compile("/video/([0-9]+)") };
 
 	public static VimeoItem getInfo(URL url, HttpDownloader httpDownloader)
 			throws MalformedURLException, IOException, ServiceException,
@@ -84,11 +87,21 @@ public class Vimeo {
 	 * This method is to extract the Video id from Vimeo url
 	 * http://vimeo.com/18609766
 	 */
-	private static String getVideoId(URL url) {
-		synchronized (urlPattern) {
-			Matcher urlMatcher = urlPattern.matcher(url.toExternalForm());
-			if (urlMatcher.matches())
-				return urlMatcher.group(1);
+	private static String getVideoId(URL url) throws URISyntaxException {
+		URI uri = url.toURI();
+		// check clip_id in http://vimeo.com/moogaloop.swf?clip_id=VIDEO_ID
+		List<NameValuePair> pairs = URLEncodedUtils.parse(uri, "UTF-8");
+		for (NameValuePair pair : pairs)
+			if ("clip_id".equals(pair.getName()))
+				return pair.getValue();
+
+		String path = uri.getPath();
+		for (Pattern pattern : idPatterns) {
+			synchronized (pattern) {
+				Matcher urlMatcher = pattern.matcher(path);
+				if (urlMatcher.matches())
+					return urlMatcher.group(1);
+			}
 		}
 		return null;
 	}
@@ -102,8 +115,14 @@ public class Vimeo {
 
 	public final static void main(String[] args) throws MalformedURLException,
 			IOException, ServiceException, URISyntaxException, JSONException {
-		String url = "http://vimeo.com/18609766";
-		String videoID = getVideoId(new URL(url));
-		System.out.println(videoID);
+		String[] urls = {
+				"http://vimeo.com/18609766",
+				"http://player.vimeo.com/video/18609766",
+				"http://vimeo.com/moogaloop.swf?clip_id=18609766&amp;server=vimeo.com&amp;color=00adef&amp;fullscreen=1" };
+		for (String u : urls) {
+			URL url = new URL(u);
+			System.out.println(getVideoId(url));
+		}
+
 	}
 }
