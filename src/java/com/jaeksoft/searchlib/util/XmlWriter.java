@@ -73,10 +73,8 @@ public class XmlWriter {
 		if (data == null)
 			return;
 		String value = data.toString();
-		int length = value.length();
-		char[] chars = new char[length];
-		value.getChars(0, length, chars, 0);
-		transformerHandler.characters(chars, 0, length);
+		char[] chars = value.toCharArray();
+		transformerHandler.characters(chars, 0, chars.length);
 	}
 
 	public void endDocument() throws SAXException {

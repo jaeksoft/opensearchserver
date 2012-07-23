@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -105,8 +106,11 @@ public class TaskItem {
 			String name = XPathParser.getAttributeString(propNode, "name");
 			String value = xpp.getNodeString(propNode);
 			TaskPropertyDef propDef = taskAbstract.findProperty(name);
-			if (propDef != null)
+			if (propDef != null) {
+				if (propDef.type == TaskPropertyType.password)
+					value = StringUtils.base64decode(value);
 				taskItem.userProperties.setValue(propDef, value);
+			}
 		}
 		return taskItem;
 	}
