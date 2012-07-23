@@ -38,8 +38,8 @@ public class VimeoItem {
 
 	public VimeoItem(InputStream vimeoResponse) throws JSONException,
 			IOException {
-		org.json.JSONArray jsonArray = new org.json.JSONArray(
-				IOUtils.toString(vimeoResponse));
+		String jsonText = IOUtils.toString(vimeoResponse);
+		org.json.JSONArray jsonArray = new org.json.JSONArray(jsonText);
 		org.json.JSONObject jsonObject = jsonArray.getJSONObject(0);
 		title = jsonObject.getString("title");
 		description = jsonObject.getString("description");

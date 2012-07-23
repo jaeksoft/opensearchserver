@@ -37,8 +37,8 @@ public class DailymotionItem {
 
 	public DailymotionItem(InputStream dailymotionResponse)
 			throws JSONException, IOException {
-		org.json.JSONObject jsonObject = new org.json.JSONObject(
-				IOUtils.toString(dailymotionResponse));
+		String jsonText = IOUtils.toString(dailymotionResponse);
+		org.json.JSONObject jsonObject = new org.json.JSONObject(jsonText);
 		title = jsonObject.getString("title");
 	}
 

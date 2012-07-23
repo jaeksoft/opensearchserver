@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
@@ -66,9 +67,14 @@ public class Dailymotion {
 		if (dailymotionResponse == null)
 			throw new IOException("No respond returned from Dailymotion API: "
 					+ videoApiURL);
-		dailymotionItem = new DailymotionItem(dailymotionResponse);
-		DailymotionItemCache.addItem(videoId, dailymotionItem);
-		return dailymotionItem;
+		try {
+			dailymotionItem = new DailymotionItem(dailymotionResponse);
+			DailymotionItemCache.addItem(videoId, dailymotionItem);
+			return dailymotionItem;
+		} finally {
+			if (dailymotionResponse != null)
+				IOUtils.closeQuietly(dailymotionResponse);
+		}
 	}
 
 	/*

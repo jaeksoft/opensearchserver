@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
@@ -56,24 +57,32 @@ public class Vimeo {
 		VimeoItem vimeoItem = VimeoItemCache.getItem(videoId);
 		if (vimeoItem != null) {
 			if (Logging.isDebug)
-				Logging.debug("Dailymotion cache");
+				Logging.debug("Vimeo cache");
 			return vimeoItem;
 		}
-		String videoApiURL = API_URL + videoId;
+		StringBuffer videoApiURL = new StringBuffer();
+		videoApiURL.append(API_URL);
+		videoApiURL.append(videoId);
+		videoApiURL.append(".json");
 
 		InputStream vimeoResponse = getVimeonResponse(httpDownloader,
-				videoApiURL);
+				videoApiURL.toString());
 		if (vimeoResponse == null)
 			throw new IOException("No respond returned from Dailymotion API: "
 					+ videoApiURL);
-		vimeoItem = new VimeoItem(vimeoResponse);
-		VimeoItemCache.addItem(videoId, vimeoItem);
-		return vimeoItem;
+		try {
+			vimeoItem = new VimeoItem(vimeoResponse);
+			VimeoItemCache.addItem(videoId, vimeoItem);
+			return vimeoItem;
+		} finally {
+			if (vimeoResponse != null)
+				IOUtils.closeQuietly(vimeoResponse);
+		}
 	}
 
 	/*
-	 * This method is to extract the Video id from Dailymotion url
-	 * http://www.dailymotion.com/video/xjlmik
+	 * This method is to extract the Video id from Vimeo url
+	 * http://vimeo.com/18609766
 	 */
 	private static String getVideoId(URL url) {
 		synchronized (urlPattern) {
@@ -93,7 +102,7 @@ public class Vimeo {
 
 	public final static void main(String[] args) throws MalformedURLException,
 			IOException, ServiceException, URISyntaxException, JSONException {
-		String url = "http://vimeo.com/45339397";
+		String url = "http://vimeo.com/18609766";
 		String videoID = getVideoId(new URL(url));
 		System.out.println(videoID);
 	}
