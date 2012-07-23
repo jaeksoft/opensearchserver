@@ -45,8 +45,9 @@ public class Dailymotion {
 
 	private final static String API_URL = "https://api.dailymotion.com/video/";
 
-	private final static Pattern urlPattern = Pattern
-			.compile("http://www.dailymotion.com/video/([^_]+).*");
+	private final static Pattern[] idPatterns = {
+			Pattern.compile("/video/([^_]+).*"),
+			Pattern.compile("/swf/([^&]+).*") };
 
 	public static DailymotionItem getInfo(URL url, HttpDownloader httpDownloader)
 			throws MalformedURLException, IOException, ServiceException,
@@ -81,11 +82,15 @@ public class Dailymotion {
 	 * This method is to extract the Video id from Dailymotion url
 	 * http://www.dailymotion.com/video/xjlmik
 	 */
-	private static String getVideoId(URL url) {
-		synchronized (urlPattern) {
-			Matcher urlMatcher = urlPattern.matcher(url.toExternalForm());
-			if (urlMatcher.matches())
-				return urlMatcher.group(1);
+	private static String getVideoId(URL url) throws URISyntaxException {
+		URI uri = url.toURI();
+		String path = uri.getPath();
+		for (Pattern pattern : idPatterns) {
+			synchronized (pattern) {
+				Matcher urlMatcher = pattern.matcher(path);
+				if (urlMatcher.matches())
+					return urlMatcher.group(1);
+			}
 		}
 		return null;
 	}
@@ -99,7 +104,13 @@ public class Dailymotion {
 
 	public final static void main(String[] args) throws MalformedURLException,
 			IOException, ServiceException, URISyntaxException, JSONException {
-		String urls = "http://www.dailymotion.com/video/xjlmik_raphael-perez-emmanuel-keller-open-search-server_tech?no_track=1";
-		System.out.println(getVideoId(new URL(urls)));
+		String[] urls = {
+				"http://www.dailymotion.com/video/xjlmik_raphael-perez-emmanuel-keller-open-search-server_tech?no_track=1",
+				"http://www.dailymotion.com/swf/x4f4ty&v3=1&related=0" };
+		for (String u : urls) {
+			URL url = new URL(u);
+			System.out.println(getVideoId(url));
+		}
+
 	}
 }
