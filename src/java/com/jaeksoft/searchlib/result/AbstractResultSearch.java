@@ -80,7 +80,7 @@ public abstract class AbstractResultSearch extends
 			pos = request.getStart();
 			if (pos < 0)
 				pos = 0;
-			end = getDocumentCount();
+			end = getDocumentCount() + pos;
 		}
 
 		@Override
