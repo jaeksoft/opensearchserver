@@ -78,7 +78,9 @@ public abstract class AbstractResultSearch extends
 
 		private ResultDocumentIterator() {
 			pos = request.getStart();
-			end = request.getEnd();
+			if (pos < 0)
+				pos = 0;
+			end = getDocumentCount();
 		}
 
 		@Override
