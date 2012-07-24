@@ -109,7 +109,7 @@ public class FileItem extends FileInfo implements Serializable {
 		setDirectory(doc.getValueContent(fileItemFieldEnum.directory.getName(),
 				0));
 		setSubDirectory(FieldValueItem.buildArrayList(doc
-				.getValueList(fileItemFieldEnum.subDirectory.getName())));
+				.getValueArray(fileItemFieldEnum.subDirectory.getName())));
 
 		setLang(doc.getValueContent(fileItemFieldEnum.lang.getName(), 0));
 

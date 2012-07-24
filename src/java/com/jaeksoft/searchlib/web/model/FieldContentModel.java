@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -58,12 +58,12 @@ public class FieldContentModel implements BindingListModel {
 
 	@Override
 	public Object getElementAt(int index) {
-		return fieldContent.getValues().get(index);
+		return fieldContent.getValues()[index];
 	}
 
 	@Override
 	public int getSize() {
-		return fieldContent.getValues().size();
+		return fieldContent.getValues().length;
 	}
 
 	@Override

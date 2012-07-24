@@ -29,7 +29,6 @@ package com.jaeksoft.searchlib.render;
  */
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -164,7 +163,7 @@ public class RenderOpenSearch implements Render {
 			throws IOException, XPathExpressionException,
 			ParserConfigurationException, SAXException {
 		String fieldName = field.getName();
-		List<FieldValueItem> values = doc.getValueList(field);
+		FieldValueItem[] values = doc.getValueArray(field);
 		String openSearchtitleField = getFieldMap("opensearch", "title");
 		String openSearchDescriptionField = getFieldMap("opensearch",
 				"description");

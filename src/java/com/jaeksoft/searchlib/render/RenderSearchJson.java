@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.render;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.simple.JSONObject;
 
@@ -118,7 +117,7 @@ public class RenderSearchJson implements Render {
 	private void renderField(ResultDocument doc, Field field,
 			ArrayList<JSONObject> jsonFieldList) throws IOException {
 		String fieldName = field.getName();
-		List<FieldValueItem> values = doc.getValueList(field);
+		FieldValueItem[] values = doc.getValueArray(field);
 		JSONObject jsonField = new JSONObject();
 		if (values == null)
 			return;

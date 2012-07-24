@@ -24,8 +24,7 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.External.Collecter;
@@ -33,10 +32,10 @@ import com.jaeksoft.searchlib.util.External.Collecter;
 public class FieldContent implements Collecter<FieldValueItem> {
 
 	private String field;
-	private List<FieldValueItem> values;
+	private FieldValueItem[] values;
 
 	public FieldContent() {
-		values = new ArrayList<FieldValueItem>(0);
+		values = FieldValueItem.emptyArray;
 	}
 
 	public FieldContent(String field) {
@@ -49,46 +48,46 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	public void add(FieldValueItem value) {
-		values.add(value);
+		values = ArrayUtils.add(values, value);
 	}
 
 	public boolean checkIfAlreadyHere(FieldContent fc2) {
-		int fc2size = fc2.values.size();
-		if (values.size() < fc2size)
+		int fc2size = fc2.values.length;
+		if (values.length < fc2size)
 			return false;
-		int i = values.size() - fc2size;
+		int i = values.length - fc2size;
 		for (FieldValueItem v : fc2.values)
-			if (!v.equals(values.get(i++)))
+			if (!v.equals(values[i++]))
 				return false;
 		return true;
 	}
 
 	public void add(FieldContent fc2) {
-		values.addAll(fc2.values);
+		values = ArrayUtils.addAll(values, fc2.values);
 	}
 
 	@Override
 	public void addObject(FieldValueItem valueItem) {
-		values.add(valueItem);
+		add(valueItem);
 	}
 
 	public void clear() {
-		values.clear();
+		values = FieldValueItem.emptyArray;
 	}
 
 	public FieldValueItem getValue(int pos) {
 		if (values == null)
 			return null;
-		if (pos >= values.size())
+		if (pos >= values.length)
 			return null;
-		return values.get(pos);
+		return values[pos];
 	}
 
 	public void setValue(int pos, FieldValueItem value) {
-		values.set(pos, value);
+		values[pos] = value;
 	}
 
-	public List<FieldValueItem> getValues() {
+	public FieldValueItem[] getValues() {
 		return values;
 	}
 
@@ -123,17 +122,17 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	public void remove(int index) {
-		values.remove(index);
+		values = ArrayUtils.remove(values, index);
 	}
 
 	public boolean isEquals(FieldContent fc) {
 		if (!field.equals(fc.getField()))
 			return false;
-		if (values.size() != fc.values.size())
+		if (values.length != fc.values.length)
 			return false;
 		int i = 0;
 		for (FieldValueItem v1 : values) {
-			FieldValueItem v2 = fc.values.get(i++);
+			FieldValueItem v2 = fc.values[i++];
 			if (v1 == null) {
 				if (v2 != null)
 					return false;
@@ -151,7 +150,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		StringBuffer sb = new StringBuffer();
 		sb.append(field);
 		sb.append(':');
-		sb.append(values.size());
+		sb.append(values.length);
 		return sb.toString();
 	}
 }

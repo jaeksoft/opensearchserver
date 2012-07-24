@@ -155,8 +155,8 @@ public class UpdateFormController extends CommonController implements
 		private FieldDocument(FieldContent fieldContent) {
 			fieldName = fieldContent.getField();
 
-			fieldValueList = new ArrayList<FieldValue>(fieldContent.getValues()
-					.size());
+			fieldValueList = new ArrayList<FieldValue>(
+					fieldContent.getValues().length);
 			int i = 0;
 			for (@SuppressWarnings("unused")
 			FieldValueItem valueItem : fieldContent.getValues())

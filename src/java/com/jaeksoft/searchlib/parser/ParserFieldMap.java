@@ -81,7 +81,7 @@ public class ParserFieldMap extends
 			ParserFieldTarget fieldTarget = link.getTarget();
 			String targetField = fieldTarget.getName();
 			if (fc != null) {
-				List<FieldValueItem> values = fc.getValues();
+				FieldValueItem[] values = fc.getValues();
 				if (values != null)
 					for (FieldValueItem valueItem : values)
 						fieldTarget.addValue(target, targetField, valueItem);

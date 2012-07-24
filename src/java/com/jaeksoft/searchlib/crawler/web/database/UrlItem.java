@@ -110,9 +110,9 @@ public class UrlItem implements Serializable {
 	protected void init(ResultDocument doc, UrlItemFieldEnum urlItemFieldEnum) {
 		setUrl(doc.getValueContent(urlItemFieldEnum.url.getName(), 0));
 		setHost(doc.getValueContent(urlItemFieldEnum.host.getName(), 0));
-		setSubHost(doc.getValueList(urlItemFieldEnum.subhost.getName()));
-		addOutLinks(doc.getValueList(urlItemFieldEnum.outlink.getName()));
-		addInLinks(doc.getValueList(urlItemFieldEnum.inlink.getName()));
+		setSubHost(doc.getValueArray(urlItemFieldEnum.subhost.getName()));
+		addOutLinks(doc.getValueArray(urlItemFieldEnum.outlink.getName()));
+		addInLinks(doc.getValueArray(urlItemFieldEnum.inlink.getName()));
 		setContentDispositionFilename(doc.getValueContent(
 				urlItemFieldEnum.contentDispositionFilename.getName(), 0));
 		setContentBaseType(doc.getValueContent(
@@ -159,7 +159,7 @@ public class UrlItem implements Serializable {
 		return inLinks;
 	}
 
-	public void setSubHost(List<FieldValueItem> subhostlist) {
+	public void setSubHost(FieldValueItem[] subhostlist) {
 		this.subhost = null;
 		if (subhostlist == null)
 			return;
@@ -174,7 +174,7 @@ public class UrlItem implements Serializable {
 		outLinks.clear();
 	}
 
-	public void addOutLinks(List<FieldValueItem> linkList) {
+	public void addOutLinks(FieldValueItem[] linkList) {
 		if (linkList == null)
 			return;
 		if (outLinks == null)
@@ -195,7 +195,7 @@ public class UrlItem implements Serializable {
 		inLinks.clear();
 	}
 
-	public void addInLinks(List<FieldValueItem> linkList) {
+	public void addInLinks(FieldValueItem[] linkList) {
 		if (linkList == null)
 			return;
 		if (inLinks == null)

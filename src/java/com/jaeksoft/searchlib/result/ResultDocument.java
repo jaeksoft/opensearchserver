@@ -84,22 +84,11 @@ public class ResultDocument {
 		return returnFields.get(field).getValueArray();
 	}
 
-	public List<FieldValueItem> getValueList(Field field) {
-		return getValueList(field.getName());
-	}
-
 	public FieldValueItem[] getValueArray(String fieldName) {
 		FieldValue fieldValue = returnFields.get(fieldName);
 		if (fieldValue == null)
 			return null;
 		return fieldValue.getValueArray();
-	}
-
-	public List<FieldValueItem> getValueList(String fieldName) {
-		FieldValue fieldValue = returnFields.get(fieldName);
-		if (fieldValue == null)
-			return null;
-		return fieldValue.getValueList();
 	}
 
 	public String getValueContent(Field field, int pos) {
@@ -122,22 +111,22 @@ public class ResultDocument {
 		return snippetFields.get(field).getValueArray();
 	}
 
-	public List<FieldValueItem> getSnippetValue(SnippetField field) {
-		return snippetFields.get(field).getValueList();
+	public FieldValueItem[] getSnippetValue(SnippetField field) {
+		return snippetFields.get(field).getValueArray();
 	}
 
 	public FieldValueItem[] getSnippetArray(String fieldName) {
 		return snippetFields.get(fieldName).getValueArray();
 	}
 
-	public List<FieldValueItem> getSnippetList(String fieldName) {
+	public FieldValueItem[] getSnippetList(String fieldName) {
 		SnippetFieldValue snippetFieldValue = snippetFields.get(fieldName);
 		if (snippetFieldValue == null)
 			return null;
-		return snippetFieldValue.getValueList();
+		return snippetFieldValue.getValueArray();
 	}
 
-	public List<FieldValueItem> getSnippetList(Field field) {
+	public FieldValueItem[] getSnippetList(Field field) {
 		return getSnippetList(field.getName());
 	}
 
@@ -154,4 +143,23 @@ public class ResultDocument {
 		return snippetFields.get(fieldName).isHighlighted();
 	}
 
+	public void appendIfStringDoesNotExist(ResultDocument rd) {
+		for (FieldValue newFieldValue : rd.returnFields) {
+			FieldValue fieldValue = returnFields.get(newFieldValue.getName());
+			if (fieldValue == null)
+				returnFields.add(fieldValue);
+			else
+				fieldValue.addIfStringDoesNotExist(newFieldValue
+						.getValueArray());
+		}
+		for (SnippetFieldValue newFieldValue : rd.snippetFields) {
+			SnippetFieldValue fieldValue = snippetFields.get(newFieldValue
+					.getName());
+			if (fieldValue == null)
+				snippetFields.add(fieldValue);
+			else
+				fieldValue.addIfStringDoesNotExist(newFieldValue
+						.getValueArray());
+		}
+	}
 }

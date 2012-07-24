@@ -28,7 +28,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -113,7 +112,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 			IndexDocument target) throws IOException {
 		if (fc == null)
 			return;
-		List<FieldValueItem> values = fc.getValues();
+		FieldValueItem[] values = fc.getValues();
 		if (values != null)
 			for (FieldValueItem valueItem : values)
 				targetField.add(valueItem, target);

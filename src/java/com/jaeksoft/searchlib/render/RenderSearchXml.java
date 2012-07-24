@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -148,7 +147,7 @@ public class RenderSearchXml extends
 	private void renderField(ResultDocument doc, Field field)
 			throws IOException {
 		String fieldName = field.getName();
-		List<FieldValueItem> values = doc.getValueList(field);
+		FieldValueItem[] values = doc.getValueArray(field);
 		if (values == null)
 			return;
 		for (FieldValueItem v : values) {

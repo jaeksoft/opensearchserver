@@ -179,7 +179,7 @@ public class Crawl {
 		FieldContent fieldContent = parser
 				.getFieldContent(ParserFieldEnum.meta_robots);
 		if (fieldContent != null) {
-			List<FieldValueItem> fieldValues = fieldContent.getValues();
+			FieldValueItem[] fieldValues = fieldContent.getValues();
 			if (fieldValues != null) {
 				for (FieldValueItem item : parser.getFieldContent(
 						ParserFieldEnum.meta_robots).getValues())
@@ -393,7 +393,7 @@ public class Crawl {
 			IOException, SearchLibException {
 		if (urlFieldContent == null)
 			return;
-		List<FieldValueItem> links = urlFieldContent.getValues();
+		FieldValueItem[] links = urlFieldContent.getValues();
 		if (links == null)
 			return;
 		for (FieldValueItem linkItem : links) {

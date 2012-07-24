@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.util;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
 import java.util.regex.Pattern;
 
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -76,7 +75,7 @@ public class Md5Spliter {
 			this.keyPattern = Pattern.compile(keyPattern);
 	}
 
-	public boolean acceptAnyKey(Collection<FieldValueItem> keys)
+	public boolean acceptAnyKey(FieldValueItem[] keys)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		if (keyPattern == null)
 			return true;

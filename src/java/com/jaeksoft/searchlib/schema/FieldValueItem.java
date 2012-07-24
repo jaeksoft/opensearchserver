@@ -37,6 +37,8 @@ public class FieldValueItem {
 
 	final private FieldValueOriginEnum origin;
 
+	final public static FieldValueItem[] emptyArray = new FieldValueItem[0];
+
 	public FieldValueItem(FieldValueOriginEnum origin, String value) {
 		this.value = value;
 		this.boost = null;
@@ -112,11 +114,11 @@ public class FieldValueItem {
 	}
 
 	final public static List<String> buildArrayList(
-			List<FieldValueItem> fieldValueItemList) {
-		if (fieldValueItemList == null)
+			FieldValueItem[] fieldValueItemArray) {
+		if (fieldValueItemArray == null)
 			return null;
-		List<String> list = new ArrayList<String>(fieldValueItemList.size());
-		for (FieldValueItem item : fieldValueItemList)
+		List<String> list = new ArrayList<String>(fieldValueItemArray.length);
+		for (FieldValueItem item : fieldValueItemArray)
 			list.add(item.value);
 		return list;
 	}

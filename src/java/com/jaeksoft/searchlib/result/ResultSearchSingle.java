@@ -132,7 +132,19 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		if (docs == null || pos < 0 || pos > docs.length)
 			return null;
 		try {
-			return new ResultDocument(request, docs[pos].doc, reader);
+			ResultScoreDoc rsc = docs[pos];
+			ResultDocument resultDocument = new ResultDocument(request,
+					rsc.doc, reader);
+			if (!(rsc instanceof ResultScoreDocCollapse))
+				return resultDocument;
+			if (request.getCollapseMax() > 0)
+				return resultDocument;
+			int[] docIds = ((ResultScoreDocCollapse) rsc).collapsedIds;
+			for (int docId : docIds) {
+				ResultDocument rd = new ResultDocument(request, docId, reader);
+				resultDocument.appendIfStringDoesNotExist(rd);
+			}
+			return resultDocument;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

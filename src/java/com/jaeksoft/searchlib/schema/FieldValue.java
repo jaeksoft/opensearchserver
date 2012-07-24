@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,25 +24,22 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class FieldValue extends Field {
 
 	private static final long serialVersionUID = -6131981428734961071L;
 
 	private FieldValueItem[] valueArray;
-	private transient List<FieldValueItem> valueList;
-
-	private final static FieldValueItem[] emptyValueArray = new FieldValueItem[0];
 
 	public FieldValue() {
 	}
 
 	protected FieldValue(String name) {
 		super(name);
-		valueArray = emptyValueArray;
-		valueList = null;
+		valueArray = FieldValueItem.emptyArray;
 	}
 
 	public FieldValue(Field field) {
@@ -75,31 +72,43 @@ public class FieldValue extends Field {
 		return valueArray;
 	}
 
-	public List<FieldValueItem> getValueList() {
-		if (valueList != null)
-			return valueList;
-		if (valueArray == null)
-			return null;
-		valueList = new ArrayList<FieldValueItem>();
-		for (FieldValueItem value : valueArray)
-			valueList.add(value);
-		return valueList;
-	}
-
-	public void setValues(FieldValueItem[] values) {
-		valueArray = values;
-		valueList = null;
-	}
-
 	public void setValues(List<FieldValueItem> values) {
-		if (values == null) {
-			valueArray = emptyValueArray;
-			valueList = null;
+		if (values == null || values.size() == 0) {
+			valueArray = FieldValueItem.emptyArray;
 			return;
 		}
 		valueArray = new FieldValueItem[values.size()];
 		values.toArray(valueArray);
-		valueList = null;
+	}
+
+	public void setValues(FieldValueItem[] values) {
+		valueArray = values;
+	}
+
+	public void addValues(FieldValueItem[] values) {
+		if (valueArray == null) {
+			setValues(values);
+			return;
+		}
+		valueArray = ArrayUtils.addAll(valueArray, values);
+	}
+
+	public void addIfStringDoesNotExist(FieldValueItem value) {
+		if (value == null)
+			return;
+		for (FieldValueItem valueItem : valueArray)
+			if (value.equals(valueItem))
+				return;
+		valueArray = ArrayUtils.add(valueArray, value);
+	}
+
+	public void addIfStringDoesNotExist(FieldValueItem[] values) {
+		if (valueArray == null) {
+			setValues(values);
+			return;
+		}
+		for (FieldValueItem value : values)
+			addIfStringDoesNotExist(value);
 	}
 
 	@Override

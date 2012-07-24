@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -65,7 +65,7 @@ public class FieldList<T extends Field> implements
 	private transient String cacheKey;
 
 	/**
-	 * Constructeur de base.
+	 * Basic contructor.
 	 */
 	public FieldList() {
 		this.fieldsName = new TreeMap<String, T>();
@@ -75,8 +75,8 @@ public class FieldList<T extends Field> implements
 	}
 
 	/**
-	 * Ce constructeur cr�� une liste contenant les m�mes champs que la liste
-	 * pass�e en param�tres (fl).
+	 * This constructor build a new list and copy the content of the list passed
+	 * as parameter (fl).
 	 * 
 	 * @param fl
 	 */
@@ -95,8 +95,7 @@ public class FieldList<T extends Field> implements
 	}
 
 	/**
-	 * Retourne le champ par d�fault du fichier de config XML. <gisearch><schema
-	 * defaultField="nomchamp">...
+	 * Return the default field (based on the XML configuration)
 	 * 
 	 * @param document
 	 * @param xPath
@@ -112,7 +111,7 @@ public class FieldList<T extends Field> implements
 	}
 
 	/**
-	 * Ajoute un champ � la liste
+	 * Add a field to the list
 	 */
 	public boolean add(T field) {
 		synchronized (this) {
@@ -137,14 +136,14 @@ public class FieldList<T extends Field> implements
 	}
 
 	/**
-	 * Renvoie le champ � la position "index"
+	 * Return the field in the passed order
 	 */
 	public T get(int index) {
 		return fieldList.get(index);
 	}
 
 	/**
-	 * Renvoie le champ nomm� "name"
+	 * Return the field with the same name
 	 * 
 	 * @param name
 	 * @return Field
@@ -158,7 +157,7 @@ public class FieldList<T extends Field> implements
 	}
 
 	/**
-	 * Renvoie la taille de la liste de champs.
+	 * Return the number of fields.
 	 */
 	public int size() {
 		return fieldList.size();
@@ -184,14 +183,13 @@ public class FieldList<T extends Field> implements
 
 	@Override
 	public String toString() {
-		String s = null;
+		StringBuffer sb = new StringBuffer();
 		for (Field f : fieldList) {
-			if (s == null)
-				s = f.name;
-			else
-				s += ", " + f.name;
+			sb.append("[");
+			sb.append(f);
+			sb.append("] ");
 		}
-		return s;
+		return sb.toString();
 	}
 
 	@Override

@@ -309,7 +309,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 		add(field, new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value));
 	}
 
-	public void addFieldValueList(String field, List<FieldValueItem> values) {
+	public void addFieldValueArray(String field, FieldValueItem[] values) {
 		if (values == null)
 			return;
 		for (FieldValueItem value : values)
@@ -333,7 +333,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 	public void add(String field, FieldContent fieldContent) {
 		if (fieldContent == null)
 			return;
-		addFieldValueList(field, fieldContent.getValues());
+		addFieldValueArray(field, fieldContent.getValues());
 	}
 
 	private void addIfNotAlreadyHere(FieldContent fieldContent) {
@@ -374,11 +374,11 @@ public class IndexDocument implements Iterable<FieldContent> {
 		addStringList(field, values);
 	}
 
-	public void setFieldValueItems(String field, List<FieldValueItem> values) {
+	public void setFieldValueItems(String field, FieldValueItem[] values) {
 		FieldContent fc = fields.get(field);
 		if (fc != null)
 			fc.clear();
-		addFieldValueList(field, values);
+		addFieldValueArray(field, values);
 	}
 
 	public void setObjectList(String field, List<Object> values) {
