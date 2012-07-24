@@ -262,6 +262,8 @@ public class SnippetField extends Field {
 	public void initSearchTerms(SearchRequest searchRequest)
 			throws ParseException, SyntaxError, IOException, SearchLibException {
 		synchronized (this) {
+			if (searchTerms != null)
+				return;
 			this.query = searchRequest.getSnippetQuery();
 			this.analyzer = searchRequest.getAnalyzer();
 			Set<Term> terms = new HashSet<Term>();

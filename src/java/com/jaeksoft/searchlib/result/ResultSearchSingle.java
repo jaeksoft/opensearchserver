@@ -34,7 +34,6 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class ResultSearchSingle extends AbstractResultSearch {
@@ -104,13 +103,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		} else
 			setDocs(collapsedDocs);
 
-		if (searchRequest.isWithDocument()) {
-			setDocuments(reader.documents(new DocumentsRequest(this)));
-			if (joinResults != null) {
-				JoinResult.getDocuments(this, joinResults);
-				setJoinResults(joinResults);
-			}
-		}
+		if (joinResults != null)
+			setJoinResults(joinResults);
 
 		searchRequest.getTimer().setInfo(searchRequest.toString());
 
@@ -133,4 +127,18 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		return this.docSetHits;
 	}
 
+	@Override
+	public ResultDocument getDocument(int pos) throws SearchLibException {
+		if (docs == null || pos < 0 || pos > docs.length)
+			return null;
+		try {
+			return new ResultDocument(request, docs[pos].doc, reader);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		}
+	}
 }

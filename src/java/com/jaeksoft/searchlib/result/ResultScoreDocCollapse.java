@@ -24,20 +24,21 @@
 
 package com.jaeksoft.searchlib.result;
 
+
 public class ResultScoreDocCollapse extends ResultScoreDoc {
 
 	public static final ResultScoreDocCollapse[] EMPTY_ARRAY = new ResultScoreDocCollapse[0];
 
-	public int collapseCount;
+	public int[] collapsedIds;
 
 	public ResultScoreDocCollapse(ResultScoreDoc rsd) {
 		super(rsd);
-		this.collapseCount = 0;
+		this.collapsedIds = new int[0];
 	}
 
 	public ResultScoreDocCollapse(ResultScoreDocCollapse rsdc) {
 		super(rsdc);
-		this.collapseCount = rsdc.collapseCount;
+		this.collapsedIds = rsdc.collapsedIds;
 	}
 
 	@Override

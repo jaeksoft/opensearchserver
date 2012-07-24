@@ -68,11 +68,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.DocumentRequest;
-import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -683,32 +680,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 							.add(new FieldValue(field, fieldValueItemList));
 			}
 			return fieldValueList;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public ResultDocument[] documents(DocumentsRequest documentsRequest)
-			throws SearchLibException {
-		rwl.r.lock();
-		try {
-			DocumentRequest[] requestedDocuments = documentsRequest
-					.getRequestedDocuments();
-			if (requestedDocuments == null)
-				return null;
-			ResultDocument[] documents = new ResultDocument[requestedDocuments.length];
-			int i = 0;
-			for (DocumentRequest documentRequest : requestedDocuments)
-				documents[i++] = new ResultDocument(documentsRequest,
-						documentRequest.doc, this);
-			return documents;
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}

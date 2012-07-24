@@ -251,6 +251,9 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 						"No string index found for the local field: "
 								+ localField);
 			SearchRequest searchRequest = (SearchRequest) request;
+			// TODO Why ??
+			if (searchRequest.getRows() == 0)
+				searchRequest.setRows(1);
 			searchRequest.setQueryString(queryString);
 			ResultSearchSingle resultSearch = (ResultSearchSingle) client
 					.request(searchRequest);

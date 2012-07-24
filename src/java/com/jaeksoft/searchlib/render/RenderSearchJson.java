@@ -70,7 +70,7 @@ public class RenderSearchJson implements Render {
 
 	@SuppressWarnings("unchecked")
 	private void renderDocuments(JSONObject jsonResponse) throws IOException,
-			ParseException, SyntaxError {
+			ParseException, SyntaxError, SearchLibException {
 		SearchRequest searchRequest = result.getRequest();
 		ArrayList<JSONObject> resultArrayList = new ArrayList<JSONObject>();
 		int start = searchRequest.getStart();
@@ -91,7 +91,7 @@ public class RenderSearchJson implements Render {
 	@SuppressWarnings("unchecked")
 	private void renderDocument(int pos, JSONObject jsonResult,
 			ArrayList<JSONObject> resultArrayList) throws IOException,
-			ParseException, SyntaxError {
+			ParseException, SyntaxError, SearchLibException {
 		JSONObject jsonDoc = new JSONObject();
 		ArrayList<JSONObject> jsonFieldList = new ArrayList<JSONObject>();
 		ArrayList<JSONObject> jsonSnippetList = new ArrayList<JSONObject>();

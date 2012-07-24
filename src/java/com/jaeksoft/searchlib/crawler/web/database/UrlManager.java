@@ -337,7 +337,7 @@ public class UrlManager {
 		searchRequest.setRows((int) limit);
 		AbstractResultSearch result = (AbstractResultSearch) urlDbClient
 				.request(searchRequest);
-		for (ResultDocument item : result.getDocuments())
+		for (ResultDocument item : result)
 			urlList.add(getNewUrlItem(item));
 	}
 
@@ -383,7 +383,7 @@ public class UrlManager {
 		searchRequest.setRows((int) limit);
 		AbstractResultSearch result = (AbstractResultSearch) urlDbClient
 				.request(searchRequest);
-		for (ResultDocument item : result.getDocuments())
+		for (ResultDocument item : result)
 			urlList.add(getNewUrlItem(item));
 	}
 
@@ -545,7 +545,7 @@ public class UrlManager {
 			AbstractResultSearch result = (AbstractResultSearch) urlDbClient
 					.request(searchRequest);
 			if (list != null)
-				for (ResultDocument doc : result.getDocuments())
+				for (ResultDocument doc : result)
 					list.add(getNewUrlItem(doc));
 			return result.getNumFound();
 		} catch (RuntimeException e) {

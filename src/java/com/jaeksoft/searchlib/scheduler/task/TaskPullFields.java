@@ -171,11 +171,7 @@ public class TaskPullFields extends TaskPullAbstract {
 				if (result.getDocumentCount() <= 0)
 					break;
 
-				ResultDocument[] documents = result.getDocuments();
-				if (documents == null)
-					break;
-
-				for (ResultDocument document : documents) {
+				for (ResultDocument document : result) {
 					FieldValueItem[] fieldValueItems = document
 							.getValueArray(sourceField);
 					if (fieldValueItems == null)

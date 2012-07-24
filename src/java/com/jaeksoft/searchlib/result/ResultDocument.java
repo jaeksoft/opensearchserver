@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -42,28 +42,27 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 public class ResultDocument {
 
-	public static final ResultDocument[] EMPTY_ARRAY = new ResultDocument[0];
-
 	private FieldList<FieldValue> returnFields;
 	private FieldList<SnippetFieldValue> snippetFields;
 
-	public ResultDocument(DocumentsRequest documentsRequest, int doc,
+	public ResultDocument(SearchRequest searchRequest, int doc,
 			ReaderLocal reader) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
 
 		FieldList<FieldValue> documentFields = reader.getDocumentFields(doc,
-				documentsRequest.getDocumentFieldList());
+				searchRequest.getDocumentFieldList());
 
 		returnFields = new FieldList<FieldValue>();
 		snippetFields = new FieldList<SnippetFieldValue>();
 
-		for (Field field : documentsRequest.getReturnFieldList()) {
+		for (Field field : searchRequest.getReturnFieldList()) {
 			FieldValue fieldValue = documentFields.get(field);
 			if (fieldValue != null)
 				returnFields.add(fieldValue);
 		}
 
-		for (SnippetField field : documentsRequest.getSnippetFieldList()) {
+		for (SnippetField field : searchRequest.getSnippetFieldList()) {
+			field.initSearchTerms(searchRequest);
 			List<FieldValueItem> snippets = new ArrayList<FieldValueItem>();
 			boolean isSnippet = field.getSnippets(doc, reader, documentFields
 					.get(field).getValueArray(), snippets);

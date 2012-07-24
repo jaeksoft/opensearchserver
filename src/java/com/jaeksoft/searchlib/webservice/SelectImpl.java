@@ -198,8 +198,6 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 					facetList
 							.add(FacetField.buildFacetField(value, true, true));
 		}
-		if ((b = withDocs) != null)
-			searchRequest.setWithDocument(true);
 
 		// TODO MoreLikeThis request
 

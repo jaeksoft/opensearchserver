@@ -132,7 +132,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 
 		public ResultDocument getResultDocument() throws IOException,
-				ParseException, SyntaxError {
+				ParseException, SyntaxError, SearchLibException {
 			AbstractResultSearch result = getResult();
 			if (result == null)
 				return null;
@@ -140,7 +140,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 
 		public boolean isReturnValid() throws IOException, ParseException,
-				SyntaxError {
+				SyntaxError, SearchLibException {
 			ResultDocument resultDocument = getResultDocument();
 			if (resultDocument == null)
 				return false;
@@ -148,7 +148,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 
 		public boolean isSnippetValid() throws IOException, ParseException,
-				SyntaxError {
+				SyntaxError, SearchLibException {
 			ResultDocument resultDocument = getResultDocument();
 			if (resultDocument == null)
 				return false;
@@ -156,7 +156,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 
 		public String getReturnPercent() throws IOException, ParseException,
-				SyntaxError {
+				SyntaxError, SearchLibException {
 			if (!isReturnValid())
 				return "0%";
 			if (!isSnippetValid())
@@ -165,7 +165,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 
 		public String getSnippetPercent() throws IOException, ParseException,
-				SyntaxError {
+				SyntaxError, SearchLibException {
 			if (!isSnippetValid())
 				return "0%";
 			if (!isReturnValid())
@@ -174,7 +174,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 
 		public TreeModel getReturnTree() throws IOException, ParseException,
-				SyntaxError {
+				SyntaxError, SearchLibException {
 			ResultDocument resultDocument = getResultDocument();
 			if (resultDocument == null)
 				return null;
@@ -183,7 +183,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 
 		public TreeModel getSnippetTree() throws IOException, ParseException,
-				SyntaxError {
+				SyntaxError, SearchLibException {
 			ResultDocument resultDocument = getResultDocument();
 			if (resultDocument == null)
 				return null;

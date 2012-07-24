@@ -71,7 +71,7 @@ public class RenderSearchXml extends
 	}
 
 	private void renderDocuments() throws IOException, ParseException,
-			SyntaxError {
+			SyntaxError, SearchLibException {
 		SearchRequest searchRequest = result.getRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
@@ -104,8 +104,10 @@ public class RenderSearchXml extends
 	}
 
 	private void renderJoinResult(JoinResult joinResult, int pos)
-			throws IOException {
+			throws IOException, SearchLibException {
 		if (joinResult == null)
+			return;
+		if (!joinResult.isReturnFields())
 			return;
 		writer.print("\t\t<join paramPosition=\"");
 		writer.print(joinResult.getParamPosition());
@@ -117,7 +119,7 @@ public class RenderSearchXml extends
 	}
 
 	private void renderJoinResults(JoinResult[] joinResults, int pos)
-			throws IOException {
+			throws IOException, SearchLibException {
 		if (joinResults == null)
 			return;
 		for (JoinResult joinResult : joinResults)
@@ -125,7 +127,7 @@ public class RenderSearchXml extends
 	}
 
 	private void renderDocument(int pos) throws IOException, ParseException,
-			SyntaxError {
+			SyntaxError, SearchLibException {
 		writer.print("\t<doc score=\"");
 		writer.print(result.getScore(pos));
 		writer.print("\" pos=\"");

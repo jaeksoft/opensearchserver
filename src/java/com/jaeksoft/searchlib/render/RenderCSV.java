@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -56,7 +57,7 @@ public class RenderCSV implements Render {
 	}
 
 	private void renderDocuments() throws IOException, ParseException,
-			SyntaxError {
+			SyntaxError, SearchLibException {
 		SearchRequest searchRequest = result.getRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
@@ -65,7 +66,8 @@ public class RenderCSV implements Render {
 			this.renderDocument(i);
 	}
 
-	private void renderDocument(int i) {
+	private void renderDocument(int i) throws IOException, ParseException,
+			SyntaxError, SearchLibException {
 		ResultDocument doc = result.getDocument(i);
 		for (Field field : searchRequest.getReturnFieldList()) {
 			renderField(doc, field);

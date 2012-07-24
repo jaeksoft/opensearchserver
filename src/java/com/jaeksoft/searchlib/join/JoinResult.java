@@ -24,15 +24,9 @@
 
 package com.jaeksoft.searchlib.join;
 
-import java.io.IOException;
-
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 
 public class JoinResult {
@@ -43,11 +37,7 @@ public class JoinResult {
 
 	private final String paramPosition;
 
-	private boolean returnFields;
-
-	private ResultDocument[] resultDocument;
-
-	private int start;
+	private final boolean returnFields;
 
 	private transient ResultSearchSingle foreignResult;
 
@@ -55,7 +45,6 @@ public class JoinResult {
 		this.pos = pos;
 		this.paramPosition = paramPosition;
 		this.returnFields = returnFields;
-		resultDocument = ResultDocument.EMPTY_ARRAY;
 	}
 
 	public String getParamPosition() {
@@ -70,36 +59,12 @@ public class JoinResult {
 		return foreignResult;
 	}
 
-	private void getDocuments(int start, int rows, ResultScoreDoc[] docs)
-			throws SearchLibException, ParseException, SyntaxError, IOException {
-		if (!returnFields)
-			return;
-		if (rows <= 0)
-			return;
-		this.start = start;
-		DocumentsRequest dr = new DocumentsRequest(this, start, rows, docs);
-		resultDocument = foreignResult.getReader().documents(dr);
+	public boolean isReturnFields() {
+		return returnFields;
 	}
 
-	final public ResultDocument getDocument(int pos) {
-		int row = pos - start;
-		if (row < 0)
-			return null;
-		if (row >= resultDocument.length)
-			return null;
-		return resultDocument[row];
-	}
-
-	public final static void getDocuments(AbstractResultSearch result,
-			JoinResult[] joinResults) throws SearchLibException,
-			ParseException, SyntaxError, IOException {
-		int start = result.getRequest().getStart();
-		int rows = result.getDocumentCount();
-		if (rows <= 0)
-			return;
-		ResultScoreDoc[] docs = result.getDocs();
-		for (JoinResult joinResult : joinResults)
-			joinResult.getDocuments(start, rows, docs);
+	final public ResultDocument getDocument(int pos) throws SearchLibException {
+		return foreignResult.getDocument(pos);
 	}
 
 }

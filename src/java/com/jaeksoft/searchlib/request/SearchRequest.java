@@ -100,7 +100,6 @@ public class SearchRequest extends AbstractRequest {
 	private String patternQuery;
 	private AdvancedScore advancedScore;
 	private String queryParsed;
-	private boolean withDocuments;
 	private boolean withSortValues;
 
 	public SearchRequest() {
@@ -140,7 +139,6 @@ public class SearchRequest extends AbstractRequest {
 		this.queryString = null;
 		this.patternQuery = null;
 		this.advancedScore = null;
-		this.withDocuments = true;
 		this.withSortValues = false;
 		this.queryParsed = null;
 	}
@@ -175,7 +173,6 @@ public class SearchRequest extends AbstractRequest {
 		this.collapseMax = searchRequest.collapseMax;
 		this.collapseMode = searchRequest.collapseMode;
 
-		this.withDocuments = searchRequest.withDocuments;
 		this.withSortValues = searchRequest.withSortValues;
 		this.start = searchRequest.start;
 		this.rows = searchRequest.rows;
@@ -564,24 +561,6 @@ public class SearchRequest extends AbstractRequest {
 		rwl.w.lock();
 		try {
 			this.start = start;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public boolean isWithDocument() {
-		rwl.r.lock();
-		try {
-			return this.withDocuments;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setWithDocument(boolean withDocuments) {
-		rwl.w.lock();
-		try {
-			this.withDocuments = withDocuments;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -1025,9 +1004,6 @@ public class SearchRequest extends AbstractRequest {
 
 			if ((i = transaction.getParameterInteger("collapse.max")) != null)
 				setCollapseMax(i);
-
-			if ((p = transaction.getParameterString("withDocs")) != null)
-				setWithDocument(true);
 
 			if ((p = transaction.getParameterString("log")) != null)
 				setLogReport(true);

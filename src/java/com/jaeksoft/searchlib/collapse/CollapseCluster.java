@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -55,7 +56,8 @@ public class CollapseCluster extends CollapseAbstract {
 			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDoc.doc]];
 			if (term != null
 					&& ((collapseDoc = collapsedDocMap.get(term)) != null)) {
-				collapseDoc.collapseCount++;
+				collapseDoc.collapsedIds = ArrayUtils.add(
+						collapseDoc.collapsedIds, fetchedDoc.doc);
 			} else {
 				collapsedDocMap.put(term, fetchedDoc.newCollapseInstance());
 			}

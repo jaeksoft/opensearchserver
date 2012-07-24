@@ -42,10 +42,8 @@ import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -278,21 +276,6 @@ public class IndexSingle extends IndexAbstract {
 		} finally {
 			rwl.r.unlock();
 		}
-	}
-
-	@Override
-	public ResultDocument[] documents(DocumentsRequest documentsRequest)
-			throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		rwl.r.lock();
-		try {
-			if (reader != null)
-				return reader.documents(documentsRequest);
-		} finally {
-			rwl.r.unlock();
-		}
-		return null;
 	}
 
 	@Override

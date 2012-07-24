@@ -61,10 +61,9 @@ public class AutoCompletionServlet extends AbstractServlet {
 			AbstractResultSearch result = manager.search(query, rows);
 			if (result == null)
 				return;
-			ResultDocument[] documents = result.getDocuments();
-			if (documents == null)
+			if (result.getDocumentCount() <= 0)
 				return;
-			for (ResultDocument document : documents)
+			for (ResultDocument document : result)
 				pw.println(document.getValueContent(
 						AutoCompletionManager.autoCompletionSchemaFieldTerm, 0));
 		} catch (Exception e) {

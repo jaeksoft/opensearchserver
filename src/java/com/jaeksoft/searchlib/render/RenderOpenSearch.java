@@ -115,7 +115,7 @@ public class RenderOpenSearch implements Render {
 
 	private void renderDocuments() throws IOException, ParseException,
 			SyntaxError, XPathExpressionException,
-			ParserConfigurationException, SAXException {
+			ParserConfigurationException, SAXException, SearchLibException {
 		SearchRequest searchRequest = result.getRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
@@ -141,7 +141,7 @@ public class RenderOpenSearch implements Render {
 
 	private void renderDocument(int pos) throws IOException, ParseException,
 			SyntaxError, XPathExpressionException,
-			ParserConfigurationException, SAXException {
+			ParserConfigurationException, SAXException, SearchLibException {
 
 		writer.println("<item>");
 		ResultDocument doc = result.getDocument(pos);

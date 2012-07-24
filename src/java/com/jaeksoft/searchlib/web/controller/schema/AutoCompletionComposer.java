@@ -134,11 +134,10 @@ public class AutoCompletionComposer extends CommonComposer {
 		AbstractResultSearch result = manager.search(inputEvent.getValue(),
 				rows);
 		if (result != null) {
-			ResultDocument[] documents = result.getDocuments();
-			if (documents != null) {
-				resultArray = new String[documents.length];
+			if (result.getDocumentCount() > 0) {
+				resultArray = new String[result.getDocumentCount()];
 				int i = 0;
-				for (ResultDocument resDoc : documents) {
+				for (ResultDocument resDoc : result) {
 					resultArray[i++] = resDoc
 							.getValueContent(
 									AutoCompletionManager.autoCompletionSchemaFieldTerm,

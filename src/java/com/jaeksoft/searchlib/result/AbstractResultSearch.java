@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.util.Iterator;
+
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.join.JoinResult;
@@ -34,20 +37,18 @@ import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public abstract class AbstractResultSearch extends
-		AbstractResult<SearchRequest> {
+		AbstractResult<SearchRequest> implements Iterable<ResultDocument> {
 
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
-	private ResultScoreDoc[] docs;
+	protected ResultScoreDoc[] docs;
 	protected int numFound;
 	protected float maxScore;
 	protected int collapsedDocCount;
-	private ResultDocument[] resultDocuments;
 	private JoinResult[] joinResults;
 
 	protected AbstractResultSearch(SearchRequest searchRequest) {
 		super(searchRequest);
-		this.resultDocuments = ResultDocument.EMPTY_ARRAY;
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
@@ -62,29 +63,47 @@ public abstract class AbstractResultSearch extends
 		return this.facetList;
 	}
 
-	protected void setDocuments(ResultDocument[] resultDocuments) {
-		this.resultDocuments = resultDocuments == null ? ResultDocument.EMPTY_ARRAY
-				: resultDocuments;
-	}
-
 	protected void setJoinResults(JoinResult[] joinResults) {
 		this.joinResults = joinResults == null ? JoinResult.EMPTY_ARRAY
 				: joinResults;
 	}
 
-	private Integer getDocumentPos(int pos) {
-		if (pos < request.getStart())
-			return null;
-		if (pos >= request.getEnd())
-			return null;
-		if (pos >= getDocLength())
-			return null;
-		return pos - request.getStart();
+	public abstract ResultDocument getDocument(int pos)
+			throws SearchLibException;
+
+	public class ResultDocumentIterator implements Iterator<ResultDocument> {
+
+		private int pos;
+		private int end;
+
+		private ResultDocumentIterator() {
+			pos = request.getStart();
+			end = request.getEnd();
+		}
+
+		@Override
+		public boolean hasNext() {
+			return pos < end;
+		}
+
+		@Override
+		public ResultDocument next() {
+			try {
+				return getDocument(pos++);
+			} catch (SearchLibException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public void remove() {
+			// TODO Auto-generated method stub
+		}
 	}
 
-	public ResultDocument getDocument(int pos) {
-		Integer docPos = getDocumentPos(pos);
-		return docPos == null ? null : resultDocuments[docPos];
+	@Override
+	public Iterator<ResultDocument> iterator() {
+		return new ResultDocumentIterator();
 	}
 
 	public float getMaxScore() {
@@ -111,10 +130,6 @@ public abstract class AbstractResultSearch extends
 		if (end > len)
 			end = len;
 		return end - request.getStart();
-	}
-
-	public ResultDocument[] getDocuments() {
-		return resultDocuments;
 	}
 
 	public JoinResult[] getJoinResult() {
@@ -145,7 +160,7 @@ public abstract class AbstractResultSearch extends
 		ResultScoreDoc rsc = docs[pos];
 		if (!(rsc instanceof ResultScoreDocCollapse))
 			return 0;
-		return ((ResultScoreDocCollapse) rsc).collapseCount;
+		return ((ResultScoreDocCollapse) rsc).collapsedIds.length;
 	}
 
 	@Override
@@ -157,11 +172,6 @@ public abstract class AbstractResultSearch extends
 			sb.append(' ');
 			sb.append(docs.length);
 			sb.append(" docs.");
-		}
-		if (resultDocuments != null) {
-			sb.append(' ');
-			sb.append(resultDocuments.length);
-			sb.append("resultDocuments.");
 		}
 		sb.append(" MaxScore: ");
 		sb.append(maxScore);

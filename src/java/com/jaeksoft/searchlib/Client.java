@@ -48,10 +48,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
@@ -270,13 +268,6 @@ public class Client extends Config {
 				throw exception;
 		}
 		return null;
-	}
-
-	public ResultDocument[] documents(DocumentsRequest documentsRequest)
-			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException, IllegalAccessException, InstantiationException {
-		return getIndex().documents(documentsRequest);
 	}
 
 	protected final void checkMaxDocumentLimit(int additionalCount)

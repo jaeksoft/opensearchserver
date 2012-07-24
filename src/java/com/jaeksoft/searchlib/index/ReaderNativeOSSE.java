@@ -38,10 +38,8 @@ import org.apache.lucene.search.similar.MoreLikeThis;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.result.ResultDocument;
 import com.sun.jna.Pointer;
 
 public class ReaderNativeOSSE extends ReaderAbstract {
@@ -59,12 +57,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	protected Pointer getIndex() {
 		return index;
-	}
-
-	@Override
-	public ResultDocument[] documents(DocumentsRequest documentsRequest) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

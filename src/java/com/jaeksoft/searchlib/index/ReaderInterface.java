@@ -36,10 +36,8 @@ import org.apache.lucene.search.similar.MoreLikeThis;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.result.ResultDocument;
 
 public interface ReaderInterface {
 
@@ -67,9 +65,6 @@ public interface ReaderInterface {
 			throws SearchLibException;
 
 	public String explain(SearchRequest searchRequest, int docId, boolean bHtml)
-			throws SearchLibException;
-
-	public ResultDocument[] documents(DocumentsRequest documentsRequest)
 			throws SearchLibException;
 
 	public IndexStatistics getStatistics() throws IOException;

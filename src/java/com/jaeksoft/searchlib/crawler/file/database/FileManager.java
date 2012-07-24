@@ -251,7 +251,7 @@ public class FileManager {
 			AbstractResultSearch result = (AbstractResultSearch) fileDbClient
 					.request(searchRequest);
 			if (list != null)
-				for (ResultDocument doc : result.getDocuments())
+				for (ResultDocument doc : result)
 					list.add(getNewFileItem(doc));
 			return result.getNumFound();
 		} catch (RuntimeException e) {
@@ -284,7 +284,7 @@ public class FileManager {
 			AbstractResultSearch result = (AbstractResultSearch) fileDbClient
 					.request(searchRequest);
 			if (list != null)
-				for (ResultDocument doc : result.getDocuments())
+				for (ResultDocument doc : result)
 					list.add(getNewFileItem(doc));
 			return result.getNumFound();
 
