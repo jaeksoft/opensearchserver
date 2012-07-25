@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.util;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
@@ -36,6 +37,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 public class StringUtils extends org.apache.commons.lang.StringUtils {
 
@@ -231,5 +235,15 @@ public class StringUtils extends org.apache.commons.lang.StringUtils {
 	public final static String leftPad(long value, int size) {
 		return org.apache.commons.lang.StringUtils.leftPad(
 				Long.toString(value), size, '0');
+	}
+
+	public final static String charsetDetector(InputStream inputStream)
+			throws IOException {
+		CharsetDetector detector = new CharsetDetector();
+		detector.setText(inputStream);
+		CharsetMatch match = detector.detect();
+		if (match == null)
+			return null;
+		return match.getName();
 	}
 }

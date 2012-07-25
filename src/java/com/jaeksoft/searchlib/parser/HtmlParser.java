@@ -234,6 +234,24 @@ public class HtmlParser extends Parser {
 		addField(ParserFieldEnum.body, value, boost);
 	}
 
+	private final static String selectCharset(String... charsets) {
+		if (charsets.length == 0)
+			return null;
+		String first = null;
+		for (String charset : charsets) {
+			if (charset == null)
+				continue;
+			if (first == null) {
+				first = charset;
+				continue;
+			}
+			if (!first.equals(charsets))
+				break;
+		}
+		System.out.println("SelectedCharset : " + first);
+		return first;
+	}
+
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter,
 			LanguageEnum forcedLang) throws IOException {
@@ -248,25 +266,36 @@ public class HtmlParser extends Parser {
 		boostTagMap.put("h6", getFloatProperty(ClassPropertyEnum.H6_BOOST));
 		ignoreMetaNoIndex = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOINDEX);
 
-		String charset = null;
+		String currentCharset = null;
+		String headerCharset = null;
+		String detectedCharset = null;
+
 		IndexDocument sourceDocument = getSourceDocument();
 		if (sourceDocument != null && urlItemFieldEnum != null) {
 			FieldValueItem fieldValueItem = sourceDocument.getFieldValue(
 					urlItemFieldEnum.contentTypeCharset.getName(), 0);
 			if (fieldValueItem != null)
-				charset = fieldValueItem.getValue();
-			if (charset == null) {
+				headerCharset = fieldValueItem.getValue();
+			if (headerCharset == null) {
 				fieldValueItem = sourceDocument.getFieldValue(
 						urlItemFieldEnum.contentEncoding.getName(), 0);
 				if (fieldValueItem != null)
-					charset = fieldValueItem.getValue();
+					headerCharset = fieldValueItem.getValue();
 			}
+			currentCharset = headerCharset;
 		}
-		boolean charsetWasNull = charset == null;
-		if (charsetWasNull)
-			charset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET).getValue();
 
-		HtmlDocumentProvider htmlProvider = findBestProvider(charset,
+		if (currentCharset == null) {
+			detectedCharset = streamLimiter.getDetectedCharset();
+			currentCharset = detectedCharset;
+		}
+
+		if (currentCharset == null) {
+			currentCharset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET)
+					.getValue();
+		}
+
+		HtmlDocumentProvider htmlProvider = findBestProvider(currentCharset,
 				streamLimiter);
 		if (htmlProvider == null)
 			return;
@@ -275,28 +304,22 @@ public class HtmlParser extends Parser {
 
 		// Check ContentType charset in meta http-equiv
 		String contentType = htmlProvider.getMetaHttpEquiv("content-type");
-		String contentTypeCharset = null;
-		if (contentType != null) {
-			contentTypeCharset = MimeUtils
-					.extractContentTypeCharset(contentType);
-			// the meta in charset has priority if it is different from previous
-			// charset
-			if (contentTypeCharset != null
-					&& !contentTypeCharset.equals(charset))
-				charsetWasNull = true;
-		}
+		String metaCharset = null;
+		if (contentType != null)
+			metaCharset = MimeUtils.extractContentTypeCharset(contentType);
 
-		if (charsetWasNull) {
-			if (contentTypeCharset != null)
-				charset = contentTypeCharset;
-			else
-				charset = htmlProvider.getMetaCharset();
-			if (charset != null)
-				htmlProvider = findBestProvider(charset, streamLimiter);
+		String selectedCharset = selectCharset(headerCharset, detectedCharset,
+				metaCharset);
+
+		if (selectedCharset != null) {
+			if (!selectedCharset.equals(currentCharset)) {
+				currentCharset = selectedCharset;
+				htmlProvider = findBestProvider(currentCharset, streamLimiter);
+			}
 		}
 
 		StringWriter writer = new StringWriter();
-		IOUtils.copy(streamLimiter.getNewInputStream(), writer, charset);
+		IOUtils.copy(streamLimiter.getNewInputStream(), writer, currentCharset);
 		addField(ParserFieldEnum.htmlSource, writer.toString());
 		writer.close();
 
@@ -317,7 +340,7 @@ public class HtmlParser extends Parser {
 			}
 		}
 
-		addField(ParserFieldEnum.charset, charset);
+		addField(ParserFieldEnum.charset, currentCharset);
 
 		addFieldTitle(htmlProvider.getTitle());
 

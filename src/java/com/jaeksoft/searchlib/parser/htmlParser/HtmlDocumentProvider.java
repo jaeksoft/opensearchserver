@@ -110,18 +110,6 @@ public abstract class HtmlDocumentProvider {
 		return StringEscapeUtils.unescapeHtml(content);
 	}
 
-	final public String getMetaCharset() {
-		List<HtmlNodeAbstract<?>> metas = getMetas();
-		if (metas == null)
-			return null;
-		for (HtmlNodeAbstract<?> node : metas) {
-			String charset = node.getAttributeText("charset");
-			if (charset != null && charset.length() > 0)
-				return charset;
-		}
-		return null;
-	}
-
 	final public String getMetaHttpEquiv(String name) {
 		List<HtmlNodeAbstract<?>> metas = getMetas();
 		if (metas == null)

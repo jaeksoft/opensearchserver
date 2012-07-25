@@ -37,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class StreamLimiter implements Closeable {
 
@@ -45,6 +46,7 @@ public abstract class StreamLimiter implements Closeable {
 	private CachedStreamInterface outputCache;
 	private final List<File> tempFiles;
 	protected final String originalFileName;
+	private String detectedCharset;
 
 	protected StreamLimiter(long limit, String originalFileName)
 			throws IOException {
@@ -53,6 +55,7 @@ public abstract class StreamLimiter implements Closeable {
 		this.inputStreamList = new ArrayList<InputStream>(0);
 		this.tempFiles = new ArrayList<File>(0);
 		this.originalFileName = originalFileName;
+		this.detectedCharset = null;
 	}
 
 	public abstract File getFile() throws SearchLibException, IOException;
@@ -121,6 +124,19 @@ public abstract class StreamLimiter implements Closeable {
 
 	public String getOriginalFileName() {
 		return originalFileName;
+	}
+
+	public String getDetectedCharset() throws IOException {
+		if (detectedCharset != null)
+			return detectedCharset;
+		InputStream is = getNewInputStream();
+		try {
+			detectedCharset = StringUtils.charsetDetector(is);
+			return detectedCharset;
+		} finally {
+			if (is != null)
+				IOUtils.closeQuietly(is);
+		}
 	}
 
 }
