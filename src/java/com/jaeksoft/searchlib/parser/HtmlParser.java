@@ -37,6 +37,7 @@ import java.util.TreeSet;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -238,17 +239,23 @@ public class HtmlParser extends Parser {
 		if (charsets.length == 0)
 			return null;
 		String first = null;
+		int position = 0;
+		int selected = 0;
 		for (String charset : charsets) {
+			position++;
 			if (charset == null)
 				continue;
 			if (first == null) {
 				first = charset;
+				selected = position;
 				continue;
 			}
-			if (!first.equals(charsets))
+			if (!first.equals(charset))
 				break;
 		}
-		System.out.println("SelectedCharset : " + first);
+		if (Logging.isDebug)
+			Logging.debug("SelectedCharset : " + first + " (" + selected + '/'
+					+ position + ')');
 		return first;
 	}
 
