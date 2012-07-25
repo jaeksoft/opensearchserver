@@ -175,6 +175,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "dailymotion_data", "Dailymotion Field",
 			"The Dailymotion API data");
 
+	public static ClassPropertyEnum IGNORE_META_NOINDEX = new ClassPropertyEnum(
+			true, "ignoreMetaNoIndex", "Ignore meta noindex",
+			"Ignore the meta noindex tag in HTML header");
+
 	private boolean isUser;
 
 	private String label;

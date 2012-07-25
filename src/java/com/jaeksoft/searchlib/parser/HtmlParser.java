@@ -74,6 +74,7 @@ public class HtmlParser extends Parser {
 
 	private Map<String, Float> boostTagMap;
 	private Float titleBoost;
+	private boolean ignoreMetaNoIndex;
 
 	public HtmlParser() {
 		super(fl);
@@ -115,6 +116,8 @@ public class HtmlParser extends Parser {
 		addProperty(ClassPropertyEnum.URL_FRAGMENT,
 				ClassPropertyEnum.KEEP_REMOVE_LIST[0],
 				ClassPropertyEnum.KEEP_REMOVE_LIST);
+		addProperty(ClassPropertyEnum.IGNORE_META_NOINDEX,
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
 		if (config != null)
 			urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
 		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null);
@@ -124,13 +127,6 @@ public class HtmlParser extends Parser {
 		addProperty(ClassPropertyEnum.H4_BOOST, "1.2", null);
 		addProperty(ClassPropertyEnum.H5_BOOST, "1.1", null);
 		addProperty(ClassPropertyEnum.H6_BOOST, "1.1", null);
-	}
-
-	private float getFloatProperty(ClassPropertyEnum prop) {
-		String value = getProperty(prop).getValue();
-		if (value == null)
-			return 1.0F;
-		return Float.parseFloat(value);
 	}
 
 	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
@@ -250,6 +246,7 @@ public class HtmlParser extends Parser {
 		boostTagMap.put("h4", getFloatProperty(ClassPropertyEnum.H4_BOOST));
 		boostTagMap.put("h5", getFloatProperty(ClassPropertyEnum.H5_BOOST));
 		boostTagMap.put("h6", getFloatProperty(ClassPropertyEnum.H6_BOOST));
+		ignoreMetaNoIndex = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOINDEX);
 
 		String charset = null;
 		IndexDocument sourceDocument = getSourceDocument();
@@ -351,7 +348,7 @@ public class HtmlParser extends Parser {
 		boolean metaRobotsNoIndex = false;
 		if (metaRobots != null) {
 			metaRobots = metaRobots.toLowerCase();
-			if (metaRobots.contains("noindex")) {
+			if (metaRobots.contains("noindex") && !ignoreMetaNoIndex) {
 				metaRobotsNoIndex = true;
 				addField(ParserFieldEnum.meta_robots, "noindex");
 			}
@@ -454,5 +451,4 @@ public class HtmlParser extends Parser {
 			lang = langDetection(10000, ParserFieldEnum.body);
 
 	}
-
 }

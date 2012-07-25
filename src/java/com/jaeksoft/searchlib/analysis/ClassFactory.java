@@ -104,6 +104,20 @@ public abstract class ClassFactory {
 		return properties.get(prop);
 	}
 
+	protected float getFloatProperty(ClassPropertyEnum prop) {
+		String value = getProperty(prop).getValue();
+		if (value == null)
+			return 1.0F;
+		return Float.parseFloat(value);
+	}
+
+	protected boolean getBooleanProperty(ClassPropertyEnum prop) {
+		String value = getProperty(prop).getValue();
+		if (value == null)
+			return false;
+		return Boolean.parseBoolean(value);
+	}
+
 	final protected void addProperties(NamedNodeMap nnm)
 			throws SearchLibException {
 		if (nnm == null)

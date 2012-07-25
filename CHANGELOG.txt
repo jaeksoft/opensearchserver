@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3548287: Disable Meta NoIndex on HTML parser
 - 3546276: Dailymotion and Vimeo API support
 - 3545447: Youtube API support
 - 3539147: URL and FILE database scheduler task
