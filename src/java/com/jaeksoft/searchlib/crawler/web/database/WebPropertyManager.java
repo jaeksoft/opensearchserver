@@ -57,6 +57,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	private PropertyItem<Integer> proxyPort;
 	private PropertyItem<String> proxyExclusion;
 	private PropertyItem<Boolean> proxyEnabled;
+	private PropertyItem<Boolean> ignoreMetaNoIndex;
 
 	private ProxyHandler proxyHandler = null;
 
@@ -89,6 +90,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		proxyPort = newIntegerProperty("proxyPort", 8080, null, null);
 		proxyExclusion = newStringProperty("proxyExclusion", "");
 		proxyEnabled = newBooleanProperty("proxyEnabled", false);
+		ignoreMetaNoIndex = newBooleanProperty("ignoreMetaNoIndex", false);
 		proxyHost.addListener(this);
 		proxyPort.addListener(this);
 		proxyExclusion.addListener(this);
@@ -104,6 +106,10 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 
 	public PropertyItem<Boolean> getProxyEnabled() {
 		return proxyEnabled;
+	}
+
+	public PropertyItem<Boolean> getIgnoreMetaNoIndex() {
+		return ignoreMetaNoIndex;
 	}
 
 	public PropertyItem<Integer> getProxyPort() {

@@ -81,7 +81,12 @@ public class ResultDocument {
 	}
 
 	public FieldValueItem[] getValueArray(Field field) {
-		return returnFields.get(field).getValueArray();
+		if (field == null)
+			return null;
+		FieldValue fieldValue = returnFields.get(field);
+		if (fieldValue == null)
+			return null;
+		return fieldValue.getValueArray();
 	}
 
 	public FieldValueItem[] getValueArray(String fieldName) {
