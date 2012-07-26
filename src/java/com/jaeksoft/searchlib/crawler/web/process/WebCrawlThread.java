@@ -173,7 +173,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 			if (crawl.checkRobotTxtAllow(httpDownloaderRobotsTxt)) {
 				DownloadItem downloadItem = crawl.download(httpDownloader);
 				// If we really crawled the content we honor the pause
-				if (!downloadItem.isFromCache())
+				if (downloadItem == null || !downloadItem.isFromCache())
 					nextTimeTarget += +delayBetweenAccesses * 1000;
 				else
 					currentStats.incFromCacheCount();
