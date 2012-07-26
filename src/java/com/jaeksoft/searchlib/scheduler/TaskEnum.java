@@ -29,6 +29,7 @@ import com.jaeksoft.searchlib.scheduler.task.TaskDatabaseCrawlerRun;
 import com.jaeksoft.searchlib.scheduler.task.TaskDeleteQuery;
 import com.jaeksoft.searchlib.scheduler.task.TaskFileCrawlerStart;
 import com.jaeksoft.searchlib.scheduler.task.TaskFileCrawlerStop;
+import com.jaeksoft.searchlib.scheduler.task.TaskFlushCrawlCache;
 import com.jaeksoft.searchlib.scheduler.task.TaskOptimizeIndex;
 import com.jaeksoft.searchlib.scheduler.task.TaskPullFields;
 import com.jaeksoft.searchlib.scheduler.task.TaskPullTerms;
@@ -67,6 +68,8 @@ public class TaskEnum extends ExtensibleEnum<TaskEnumItem> {
 		new TaskEnumItem(this, TaskPullTerms.class);
 
 		new TaskEnumItem(this, TaskPullFields.class);
+
+		new TaskEnumItem(this, TaskFlushCrawlCache.class);
 
 	}
 
