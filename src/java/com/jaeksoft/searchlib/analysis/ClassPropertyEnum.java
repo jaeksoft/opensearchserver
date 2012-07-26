@@ -175,6 +175,14 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "dailymotion_data", "Dailymotion Field",
 			"The Dailymotion API data");
 
+	public static final ClassPropertyEnum DEGREES_RADIANS_CONVERSION = new ClassPropertyEnum(
+			true, "degrees_radians_conversion", "Conversion direction",
+			"The direction of the conversion");
+
+	public static String[] DEGREES_RADIANS_CONVERSION_LIST = {
+			"Degrees to Radians", "Radians to Degrees", "Check degrees",
+			"Check radians" };
+
 	public static ClassPropertyEnum IGNORE_META_NOINDEX = new ClassPropertyEnum(
 			true, "ignoreMetaNoIndex", "Ignore meta noindex",
 			"Ignore the meta noindex tag in HTML header");
