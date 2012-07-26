@@ -32,6 +32,8 @@ import com.jaeksoft.searchlib.schema.Schema;
 
 public interface WriterInterface {
 
+	public void deleteAll() throws SearchLibException;
+
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws SearchLibException;
 

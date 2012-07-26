@@ -33,11 +33,13 @@ import java.util.Date;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -438,6 +440,39 @@ public class WriterLocal extends WriterAbstract {
 		lock.rl.lock();
 		try {
 			return deleteDocumentsNoLock(query);
+		} finally {
+			lock.rl.unlock();
+		}
+	}
+
+	private void deleteAllNoLock() throws SearchLibException {
+		try {
+			open();
+			indexWriter.deleteAll();
+			close();
+			readerLocal.reload();
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (LockObtainFailedException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} finally {
+			close();
+		}
+	}
+
+	@Override
+	public void deleteAll() throws SearchLibException {
+		lock.rl.lock();
+		try {
+			deleteAllNoLock();
 		} finally {
 			lock.rl.unlock();
 		}

@@ -511,6 +511,19 @@ public class UrlController extends CommonController implements AfterCompose {
 			if (client == null)
 				return;
 			client.getUrlManager().reload(true);
+			onSearch();
+		}
+	}
+
+	public void onDeleteAll() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			UrlManager urlManager = client.getUrlManager();
+			urlManager.deleteAll();
+			urlManager.reload(true);
+			onSearch();
 		}
 	}
 
@@ -538,6 +551,9 @@ public class UrlController extends CommonController implements AfterCompose {
 				onDeleteURLs();
 			else if ("optimize".equalsIgnoreCase(action))
 				onOptimize();
+			else if ("deleteAll".equalsIgnoreCase(action))
+				onDeleteAll();
+			actionListbox.setSelectedIndex(0);
 		}
 	}
 }

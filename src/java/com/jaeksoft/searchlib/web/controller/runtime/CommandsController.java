@@ -44,6 +44,8 @@ public class CommandsController extends CommonController {
 
 	private transient Date lastOptimize;
 
+	private transient Date lastDeleteAll;
+
 	public CommandsController() throws SearchLibException {
 		super();
 	}
@@ -52,6 +54,7 @@ public class CommandsController extends CommonController {
 	public void reset() {
 		lastReload = null;
 		lastOptimize = null;
+		lastDeleteAll = null;
 	}
 
 	@Override
@@ -77,6 +80,17 @@ public class CommandsController extends CommonController {
 		}
 	}
 
+	public void onDeleteAll() throws IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
+		synchronized (this) {
+			Date t = new Date();
+			getClient().deleteAll();
+			lastDeleteAll = t;
+			reloadPage();
+		}
+	}
+
 	public Date getLastReload() {
 		synchronized (this) {
 			return lastReload;
@@ -86,6 +100,12 @@ public class CommandsController extends CommonController {
 	public Date getLastOptimize() {
 		synchronized (this) {
 			return lastOptimize;
+		}
+	}
+
+	public Date getLastDeleteAll() {
+		synchronized (this) {
+			return lastDeleteAll;
 		}
 	}
 

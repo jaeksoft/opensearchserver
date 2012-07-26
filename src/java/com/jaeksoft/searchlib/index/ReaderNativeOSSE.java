@@ -102,12 +102,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public void swap(long version, boolean deleteOld) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public TermEnum getTermEnum() {
 		// TODO Auto-generated method stub
 		return null;

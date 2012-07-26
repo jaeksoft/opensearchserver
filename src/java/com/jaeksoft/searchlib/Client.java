@@ -203,6 +203,15 @@ public class Client extends Config {
 		return getIndex().isOptimizing();
 	}
 
+	public void deleteAll() throws SearchLibException {
+		Timer timer = new Timer("DeleteAll");
+		try {
+			getIndex().deleteAll();
+		} finally {
+			getStatisticsList().addDelete(timer);
+		}
+	}
+
 	public void reload() throws SearchLibException {
 		Timer timer = new Timer("Reload");
 		try {

@@ -95,48 +95,29 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private File rootDir;
 	private File dataDir;
 
-	private boolean readOnly;
 	private String similarityClass;
 
 	private ReaderLocal(File rootDir, File dataDir, String similarityClass,
 			boolean readOnly) throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		this.similarityClass = similarityClass;
-		this.readOnly = readOnly;
-		init(rootDir, dataDir);
+		this.rootDir = rootDir;
+		this.dataDir = dataDir;
+		this.indexDirectory = new IndexDirectory("index", dataDir);
+		this.indexReader = IndexReader.open(indexDirectory.getDirectory(),
+				readOnly);
+		initIndexSearcher();
 	}
 
-	private void init(File rootDir, File dataDir) throws IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		rwl.w.lock();
-		try {
-			this.rootDir = rootDir;
-			this.dataDir = dataDir;
-			this.indexDirectory = new IndexDirectory("index", dataDir);
-			this.indexReader = IndexReader.open(indexDirectory.getDirectory(),
-					readOnly);
-			this.indexSearcher = new IndexSearcher(indexReader);
-			if (similarityClass != null) {
-				Similarity similarity = (Similarity) Class.forName(
-						similarityClass).newInstance();
-				this.indexSearcher.setSimilarity(similarity);
-			}
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	private void init(ReaderLocal r) {
-		rwl.w.lock();
-		try {
-			this.rootDir = r.rootDir;
-			this.dataDir = r.dataDir;
-			this.indexDirectory = r.indexDirectory;
-			this.indexSearcher = r.indexSearcher;
-			this.indexReader = r.indexReader;
-		} finally {
-			rwl.w.unlock();
+	private void initIndexSearcher() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException, IOException {
+		if (indexSearcher != null)
+			indexSearcher.close();
+		indexSearcher = new IndexSearcher(indexReader);
+		if (similarityClass != null) {
+			Similarity similarity = (Similarity) Class.forName(similarityClass)
+					.newInstance();
+			indexSearcher.setSimilarity(similarity);
 		}
 	}
 
@@ -393,15 +374,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	protected void fastDeleteDocument(int docNum) throws IOException {
-		indexReader.deleteDocument(docNum);
-	}
-
-	protected void fastDeleteDocument(String fieldName, String value)
-			throws IOException {
-		indexReader.deleteDocuments(new Term(fieldName, value));
-	}
-
 	public Document getDocFields(int docId, FieldSelector selector)
 			throws IOException {
 		rwl.r.lock();
@@ -469,39 +441,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		return reader;
 	}
 
-	private static ReaderLocal findVersion(File rootDir, long version,
-			String similarityClass, boolean readOnly) {
-		for (File f : rootDir.listFiles()) {
-			if (f.getName().startsWith("."))
-				continue;
-			try {
-				ReaderLocal reader = new ReaderLocal(rootDir, f,
-						similarityClass, readOnly);
-				if (reader.getVersion() == version)
-					return reader;
-			} catch (IOException e) {
-				Logging.error(e.getMessage(), e);
-			} catch (InstantiationException e) {
-				Logging.error(e.getMessage(), e);
-			} catch (IllegalAccessException e) {
-				Logging.error(e.getMessage(), e);
-			} catch (ClassNotFoundException e) {
-				Logging.error(e.getMessage(), e);
-			}
-		}
-		return null;
-	}
-
-	private void deleteAllOthers() {
-		for (File f : rootDir.listFiles()) {
-			if (f.getName().startsWith("."))
-				continue;
-			if (f.equals(dataDir))
-				continue;
-			IndexDirectory.deleteDir(f);
-		}
-	}
-
 	public static ReaderLocal fromConfig(File configDir,
 			IndexConfig indexConfig, boolean createIfNotExists)
 			throws IOException, InstantiationException, IllegalAccessException,
@@ -542,44 +481,20 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public void reload() throws SearchLibException {
 		rwl.w.lock();
 		try {
-			close(false);
-			init(rootDir, dataDir);
+			indexReader = indexReader.reopen();
+			initIndexSearcher();
 			resetCache();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
-	}
-
-	@Override
-	public void swap(long version, boolean deleteOld) {
-		ReaderLocal newReader = null;
-		if (version > 0)
-			newReader = ReaderLocal.findVersion(rootDir, version,
-					similarityClass, readOnly);
-		else
-			newReader = ReaderLocal.findMostRecent(rootDir, similarityClass,
-					readOnly);
-		if (newReader == null)
-			return;
-		rwl.w.lock();
-		try {
-			close(false);
-			init(newReader);
-			resetCache();
-			if (deleteOld)
-				deleteAllOthers();
-		} finally {
-			rwl.w.unlock();
-		}
-
 	}
 
 	public DocSetHits searchDocSet(SearchRequest searchRequest)

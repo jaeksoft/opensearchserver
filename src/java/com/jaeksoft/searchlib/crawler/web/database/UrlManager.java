@@ -42,7 +42,6 @@ import java.util.List;
 
 import javax.xml.transform.TransformerConfigurationException;
 
-import org.apache.http.HttpException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -99,27 +98,6 @@ public class UrlManager {
 
 	public Client getUrlDbClient() {
 		return urlDbClient;
-	}
-
-	public void deleteUrl(String sUrl) throws SearchLibException {
-		try {
-			if (sUrl == null)
-				return;
-			targetClient.deleteDocument(sUrl);
-			urlDbClient.deleteDocument(sUrl);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (HttpException e) {
-			throw new SearchLibException(e);
-		}
 	}
 
 	public void deleteUrls(Collection<String> workDeleteUrlList)
@@ -791,6 +769,10 @@ public class UrlManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public void deleteAll() throws SearchLibException {
+		urlDbClient.deleteAll();
 	}
 
 	public int updateFetchStatus(SearchRequest searchRequest,

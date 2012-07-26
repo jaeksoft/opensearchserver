@@ -153,6 +153,23 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
+	public void deleteAll() throws SearchLibException {
+		if (!online) {
+			throw new SearchLibException("Index is offline");
+		}
+		if (readonly) {
+			throw new SearchLibException("Index is read only");
+		}
+		rwl.r.lock();
+		try {
+			if (writer != null)
+				writer.deleteAll();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
 	public int deleteDocuments(SearchRequest query) throws SearchLibException {
 		if (!online)
 			throw new SearchLibException("Index is offline");
@@ -228,21 +245,6 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (reader != null)
 				reader.reload();
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	@Override
-	public void swap(long version, boolean deleteOld) throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
-		rwl.w.lock();
-		try {
-			if (reader != null)
-				reader.swap(version, deleteOld);
 		} finally {
 			rwl.w.unlock();
 		}

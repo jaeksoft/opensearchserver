@@ -161,9 +161,11 @@
 					<listitem label="Export URLs" value="exportTxt" />
 					<listitem label="Export XML SiteMap"
 						value="xmlSitemap" />
-					<listitem label="Update to Unfetched (re-crawl)"
+					<listitem label="Set selected URLs to Unfetched (re-crawl)"
 						value="setToUnfetched" />
-					<listitem label="Delete URLs" value="deleteUrls" />
+					<listitem label="Delete selected URLs"
+						value="deleteUrls" />
+					<listitem label="Delete all URLs" value="deleteAll" />
 					<listitem label="Optimize URL database"
 						value="optimize" />
 				</listbox>

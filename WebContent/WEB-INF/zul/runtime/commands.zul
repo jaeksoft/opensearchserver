@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -29,6 +29,10 @@
 			<row>
 				<button label="Optimize" forward="onOptimize" />
 				<label value="@{commands.lastOptimize}" />
+			</row>
+			<row>
+				<button label="Delete all" forward="onDeleteAll" />
+				<label value="@{commands.lastDeleteAll}" />
 			</row>
 		</rows>
 	</grid>

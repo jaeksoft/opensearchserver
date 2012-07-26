@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.util.Collection;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -97,6 +98,12 @@ public class WriterNativeOSSE extends WriterAbstract {
 	@Override
 	public int deleteDocuments(SearchRequest query) {
 		throw new RuntimeException("Not yet implemented");
+
+	}
+
+	@Override
+	public void deleteAll() throws SearchLibException {
+		// TODO Auto-generated method stub
 
 	}
 

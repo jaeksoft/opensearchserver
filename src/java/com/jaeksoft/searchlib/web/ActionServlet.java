@@ -50,12 +50,9 @@ public class ActionServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 			if ("optimize".equalsIgnoreCase(action))
 				client.optimize();
-			else if ("swap".equalsIgnoreCase(action)) {
-				long version = transaction.getParameterLong("version", 0);
-				boolean deleteOld = transaction.getParameterBoolean(
-						"deleteOld", false);
-				client.getIndex().swap(version, deleteOld);
-			} else if ("reload".equalsIgnoreCase(action)) {
+			else if ("deleteAll".equalsIgnoreCase(action))
+				client.deleteAll();
+			else if ("reload".equalsIgnoreCase(action)) {
 				client.reload();
 			} else if ("online".equalsIgnoreCase(action))
 				client.getIndex().setOnline(true);

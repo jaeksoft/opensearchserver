@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3549257: A delete all feature
 - 3548884: A flush crawl cache scheduler task
 - 3548287: Disable Meta NoIndex on HTML parser
 - 3546276: Dailymotion and Vimeo API support
