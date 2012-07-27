@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -98,14 +99,15 @@ public class JoinList implements Iterable<JoinItem> {
 	}
 
 	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs,
-			JoinResult[] joinResults) throws SearchLibException {
+			JoinResult[] joinResults, Timer timer) throws SearchLibException {
 		int joinItemSize = joinList.size();
 		int joinItemPos = 0;
 		for (JoinItem joinItem : joinList) {
 			JoinResult joinResult = new JoinResult(joinItemPos++,
 					joinItem.getParamPosition(), joinItem.isReturnFields());
 			joinResults[joinResult.pos] = joinResult;
-			docs = joinItem.apply(reader, docs, joinItemSize, joinResult);
+			docs = joinItem
+					.apply(reader, docs, joinItemSize, joinResult, timer);
 		}
 		return docs;
 	}

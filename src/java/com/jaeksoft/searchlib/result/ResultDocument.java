@@ -42,14 +42,14 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 public class ResultDocument {
 
-	private FieldList<FieldValue> returnFields;
-	private FieldList<SnippetFieldValue> snippetFields;
+	final private FieldList<FieldValue> returnFields;
+	final private FieldList<SnippetFieldValue> snippetFields;
 
-	public ResultDocument(SearchRequest searchRequest, int doc,
+	public ResultDocument(SearchRequest searchRequest, int docId,
 			ReaderLocal reader) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
 
-		FieldList<FieldValue> documentFields = reader.getDocumentFields(doc,
+		FieldList<FieldValue> documentFields = reader.getDocumentFields(docId,
 				searchRequest.getDocumentFieldList());
 
 		returnFields = new FieldList<FieldValue>();
@@ -64,7 +64,7 @@ public class ResultDocument {
 		for (SnippetField field : searchRequest.getSnippetFieldList()) {
 			field.initSearchTerms(searchRequest);
 			List<FieldValueItem> snippets = new ArrayList<FieldValueItem>();
-			boolean isSnippet = field.getSnippets(doc, reader, documentFields
+			boolean isSnippet = field.getSnippets(docId, reader, documentFields
 					.get(field).getValueArray(), snippets);
 			SnippetFieldValue fieldValue = new SnippetFieldValue(field,
 					snippets, isSnippet);

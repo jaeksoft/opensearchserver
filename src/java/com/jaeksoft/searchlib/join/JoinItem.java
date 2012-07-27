@@ -232,7 +232,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 	}
 
 	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs,
-			int joinResultSize, JoinResult joinResult)
+			int joinResultSize, JoinResult joinResult, Timer timer)
 			throws SearchLibException {
 		try {
 			Client client = ClientCatalog.getClient(indexName);
@@ -257,10 +257,10 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				searchRequest.setRows(1);
 			searchRequest.setQueryString(queryString);
 			String joinResultName = "join " + joinResult.getParamPosition();
-			Timer t = new Timer(joinResultName + " foreign search");
+			Timer t = new Timer(timer, joinResultName + " foreign search");
 			ResultSearchSingle resultSearch = (ResultSearchSingle) client
 					.request(searchRequest);
-			joinResult.addTimer(t);
+			t.duration();
 			joinResult.setForeignResult(resultSearch);
 			StringIndex foreignFieldIndex = resultSearch.getReader()
 					.getStringIndex(foreignField);
@@ -268,11 +268,11 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				throw new SearchLibException(
 						"No string index found for the foreign field: "
 								+ foreignField);
-			t = new Timer(joinResultName + " join");
+			t = new Timer(timer, joinResultName + " join");
 			ResultScoreDoc[] joinDocs = ResultScoreDocJoin.join(docs,
 					localStringIndex, resultSearch.getDocs(),
-					foreignFieldIndex, joinResultSize, joinResult.pos);
-			joinResult.addTimer(t);
+					foreignFieldIndex, joinResultSize, joinResult.pos, t);
+			t.duration();
 			return joinDocs;
 		} catch (NamingException e) {
 			throw new SearchLibException(e);

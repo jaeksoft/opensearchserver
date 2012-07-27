@@ -72,43 +72,44 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 		JoinResult[] joinResults = null;
 
-		Timer t = null;
 		// Are we doing join
 		if (searchRequest.isJoin()) {
+			Timer joinTimer = new Timer(timer, "join");
 			JoinList joinList = searchRequest.getJoinList();
 			joinResults = new JoinResult[joinList.size()];
-			t = new Timer("join - apply");
+			Timer t = new Timer(joinTimer, "join - apply");
 			notCollapsedDocs = joinList.apply(reader, docSetHits.getAllDocs(),
-					joinResults);
-			addTimer(t);
-			for (JoinResult jr : joinResults)
-				for (Timer t2 : jr.getTimers())
-					addTimer(t2);
-			t = new Timer("join - sort");
+					joinResults, t);
+			t.duration();
+			t = new Timer(joinTimer, "join - sort");
 			searchRequest.getSortList().getSorter(reader)
 					.sort(notCollapsedDocs);
-			addTimer(t);
+			t.duration();
 			numFound = notCollapsedDocs.length;
+			joinTimer.duration();
 		}
 
 		// Are we doing collapsing ?
 		if (collapse != null) {
-			t = new Timer("collapse");
+			Timer t = new Timer(timer, "collapse");
 			collapsedDocs = collapse.collapse(reader, notCollapsedDocs,
 					docSetHits);
-			addTimer(t);
+			t.duration();
 			collapsedDocCount = collapse.getDocCount();
 		}
 
 		// We compute facet
 		if (searchRequest.isFacet()) {
+			Timer facetTimer = new Timer(timer, "facet");
 			for (FacetField facetField : searchRequest.getFacetFieldList()) {
-				t = new Timer("facet - " + facetField.getName() + '('
-						+ facetField.getMinCount() + ')');
+				Timer t = new Timer(facetTimer, "facet - "
+						+ facetField.getName() + '(' + facetField.getMinCount()
+						+ ')');
 				this.facetList.add(facetField.getFacet(reader, docSetHits,
 						notCollapsedDocs, collapsedDocs));
-				addTimer(t);
+				t.duration();
 			}
+			facetTimer.duration();
 		}
 
 		// No collapsing
@@ -123,7 +124,6 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		if (joinResults != null)
 			setJoinResults(joinResults);
 
-		searchRequest.getTimer().setInfo(searchRequest.toString());
 	}
 
 	/**

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.util;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -38,10 +40,17 @@ public class Timer {
 	private long endTime;
 	private String info;
 	private String error;
+	final private List<Timer> childs;
 
 	public Timer(String info) {
 		reset();
 		setInfo(info);
+		childs = new ArrayList<Timer>(0);
+	}
+
+	public Timer(Timer parent, String info) {
+		this(info);
+		parent.childs.add(this);
 	}
 
 	final public void reset() {
@@ -68,8 +77,11 @@ public class Timer {
 	}
 
 	final public long duration() {
-		if (this.endTime == 0)
+		if (this.endTime == 0) {
 			this.endTime = System.currentTimeMillis();
+			for (Timer timer : childs)
+				timer.duration();
+		}
 		return this.endTime - this.startTime;
 	}
 
@@ -91,10 +103,13 @@ public class Timer {
 	}
 
 	final public void writeXml(PrintWriter writer) {
-		writer.print("<timer duration=\"");
-		writer.print(duration());
-		writer.print("\">");
+		writer.print("<timer info=\"");
 		writer.print(StringEscapeUtils.escapeXml(info));
+		writer.print("\" duration=\"");
+		writer.print(duration());
+		writer.println("\">");
+		for (Timer timer : childs)
+			timer.writeXml(writer);
 		writer.println("</timer>");
 	}
 

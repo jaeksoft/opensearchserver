@@ -40,7 +40,6 @@ import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -55,8 +54,6 @@ public abstract class AbstractRequest {
 
 	private String requestName;
 	protected Config config;
-	private Timer timer;
-	private long finalTime;
 	private boolean withLogReport;
 	private List<String> customLogs;
 
@@ -90,8 +87,6 @@ public abstract class AbstractRequest {
 	}
 
 	protected void setDefaultValues() {
-		timer = new Timer("Request");
-		finalTime = 0;
 		withLogReport = false;
 		customLogs = null;
 	}
@@ -102,10 +97,6 @@ public abstract class AbstractRequest {
 		rwl.w.lock();
 		try {
 			this.config = config;
-			finalTime = 0;
-			if (timer != null)
-				timer.reset();
-			timer = new Timer(getType().name());
 		} finally {
 			rwl.w.unlock();
 		}
@@ -135,32 +126,6 @@ public abstract class AbstractRequest {
 			this.requestName = name;
 		} finally {
 			rwl.w.unlock();
-		}
-	}
-
-	public long getFinalTime() {
-		rwl.r.lock();
-		try {
-			if (finalTime != 0)
-				return finalTime;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			finalTime = timer.duration();
-			return finalTime;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public Timer getTimer() {
-		rwl.r.lock();
-		try {
-			return timer;
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 

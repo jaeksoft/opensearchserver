@@ -238,7 +238,7 @@ public class Client extends Config {
 		SearchLibException exception = null;
 		try {
 			request.init(this);
-			timer = request.getTimer();
+			timer = new Timer(request.getNameType());
 			result = getIndex().request(request);
 			return result;
 		} catch (SearchLibException e) {
@@ -249,6 +249,7 @@ public class Client extends Config {
 			throw exception;
 		} finally {
 			if (timer != null) {
+				timer.duration();
 				if (exception != null)
 					timer.setError(exception);
 				getStatisticsList().addSearch(timer);
@@ -259,24 +260,7 @@ public class Client extends Config {
 
 	public String explain(SearchRequest searchRequest, int docId, boolean bHtml)
 			throws SearchLibException {
-		Timer timer = null;
-		SearchLibException exception = null;
-		try {
-			searchRequest.init(this);
-			timer = searchRequest.getTimer();
-			return getIndex().explain(searchRequest, docId, bHtml);
-		} catch (SearchLibException e) {
-			exception = e;
-		} finally {
-			if (timer != null) {
-				if (exception != null)
-					timer.setError(exception);
-				getStatisticsList().addSearch(timer);
-			}
-			if (exception != null)
-				throw exception;
-		}
-		return null;
+		return getIndex().explain(searchRequest, docId, bHtml);
 	}
 
 	protected final void checkMaxDocumentLimit(int additionalCount)

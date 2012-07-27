@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -41,10 +40,11 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.ResultScoreDocJoinInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
-import com.jaeksoft.searchlib.util.Timer;
 
 public class RenderSearchXml extends
 		AbstractRenderXml<SearchRequest, AbstractResultSearch> {
@@ -87,7 +87,7 @@ public class RenderSearchXml extends
 		writer.print("\" maxScore=\"");
 		writer.print(result.getMaxScore());
 		writer.print("\" time=\"");
-		writer.print(searchRequest.getFinalTime());
+		writer.print(result.getTimer().duration());
 		writer.println("\">");
 		for (int i = start; i < end; i++)
 			this.renderDocument(i);
@@ -104,7 +104,7 @@ public class RenderSearchXml extends
 			renderSnippetValue(doc, field);
 	}
 
-	private void renderJoinResult(JoinResult joinResult, int pos)
+	private void renderJoinResult(JoinResult joinResult, ResultScoreDoc rsd)
 			throws IOException, SearchLibException {
 		if (joinResult == null)
 			return;
@@ -114,17 +114,17 @@ public class RenderSearchXml extends
 		writer.print(joinResult.getParamPosition());
 		writer.println("\">");
 		renderDocument(joinResult.getForeignResult().getRequest(),
-				joinResult.getDocument(pos));
+				joinResult.getDocument((ResultScoreDocJoinInterface) rsd));
 		writer.println("\t\t</join>");
 
 	}
 
-	private void renderJoinResults(JoinResult[] joinResults, int pos)
+	private void renderJoinResults(JoinResult[] joinResults, ResultScoreDoc rsd)
 			throws IOException, SearchLibException {
 		if (joinResults == null)
 			return;
 		for (JoinResult joinResult : joinResults)
-			renderJoinResult(joinResult, pos);
+			renderJoinResult(joinResult, rsd);
 	}
 
 	private void renderDocument(int pos) throws IOException, ParseException,
@@ -142,7 +142,7 @@ public class RenderSearchXml extends
 			writer.print(cc);
 			writer.println("</collapseCount>");
 		}
-		renderJoinResults(result.getJoinResult(), pos);
+		renderJoinResults(result.getJoinResult(), result.getDocs()[pos]);
 		writer.println("\t</doc>");
 	}
 
@@ -213,13 +213,8 @@ public class RenderSearchXml extends
 	}
 
 	private void renderTimers() {
-		List<Timer> timers = result.getTimers();
-		if (timers != null && timers.size() > 0) {
-			writer.println("<timers>");
-			for (Timer timer : timers)
-				timer.writeXml(writer);
-			writer.println("</timers>");
-		}
+		if (result != null)
+			result.getTimer().writeXml(writer);
 	}
 
 	@Override

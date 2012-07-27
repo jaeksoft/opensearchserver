@@ -79,7 +79,7 @@ public class RenderSearchJson implements Render {
 		jsonResult.put("start", searchRequest.getStart());
 		jsonResult.put("rows", searchRequest.getRows());
 		jsonResult.put("maxScore", result.getMaxScore());
-		jsonResult.put("time", searchRequest.getFinalTime());
+		jsonResult.put("time", result.getTimer().duration());
 		jsonResult.put("collapsedDocCount", result.getCollapsedDocCount());
 		for (int i = start; i < end; i++)
 			this.renderDocument(i, jsonResult, resultArrayList);

@@ -24,14 +24,15 @@
 
 package com.jaeksoft.searchlib.join;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultScoreDocJoinInterface;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
-import com.jaeksoft.searchlib.util.Timer;
 
 public class JoinResult {
 
@@ -43,15 +44,12 @@ public class JoinResult {
 
 	private final boolean returnFields;
 
-	private final List<Timer> timers;
-
 	private transient ResultSearchSingle foreignResult;
 
 	public JoinResult(int pos, String paramPosition, boolean returnFields) {
 		this.pos = pos;
 		this.paramPosition = paramPosition;
 		this.returnFields = returnFields;
-		this.timers = new ArrayList<Timer>(0);
 	}
 
 	public String getParamPosition() {
@@ -70,17 +68,18 @@ public class JoinResult {
 		return returnFields;
 	}
 
-	final public ResultDocument getDocument(int pos) throws SearchLibException {
-		return foreignResult.getDocument(pos);
-	}
-
-	final public void addTimer(Timer timer) {
-		timer.duration();
-		timers.add(timer);
-	}
-
-	final public List<Timer> getTimers() {
-		return timers;
+	final public ResultDocument getDocument(ResultScoreDocJoinInterface rsdj)
+			throws SearchLibException {
+		try {
+			return new ResultDocument(foreignResult.getRequest(),
+					rsdj.getForeignDocIds()[pos], foreignResult.getReader());
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 }

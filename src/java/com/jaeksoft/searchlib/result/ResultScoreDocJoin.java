@@ -26,9 +26,9 @@ package com.jaeksoft.searchlib.result;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.Timer;
 
 final public class ResultScoreDocJoin extends ResultScoreDoc implements
 		ResultScoreDocJoinInterface {
@@ -80,17 +80,22 @@ final public class ResultScoreDocJoin extends ResultScoreDoc implements
 
 	final public static ResultScoreDoc[] join(ResultScoreDoc[] docs,
 			StringIndex doc1StringIndex, ResultScoreDoc[] docs2,
-			StringIndex doc2StringIndex, int joinResultSize, int joinResultPos) {
+			StringIndex doc2StringIndex, int joinResultSize, int joinResultPos,
+			Timer timer) {
 		if (docs.length == 0 || docs2.length == 0)
 			return ResultScoreDocJoin.EMPTY_ARRAY;
 
-		long t = System.currentTimeMillis();
-
+		Timer t = new Timer(timer, "copy & sort local documents");
 		ResultScoreDoc[] docs1 = copyJoin(docs, joinResultSize);
 		new AscStringIndexSorter(doc1StringIndex).sort(docs1);
+		t.duration();
+
+		t = new Timer(timer, "copy & sort foreign documents");
 		docs2 = copy(docs2);
 		new AscStringIndexSorter(doc2StringIndex).sort(docs2);
+		t.duration();
 
+		t = new Timer(timer, "join operation");
 		int i1 = 0;
 		int i2 = 0;
 		while (i1 != docs1.length) {
@@ -114,10 +119,8 @@ final public class ResultScoreDocJoin extends ResultScoreDoc implements
 				i1++;
 			}
 		}
+		t.duration();
 
-		if (Logging.isDebug)
-			Logging.debug("Time: " + (System.currentTimeMillis() - t)
-					+ " Join: " + docs.length + " / " + docs2.length);
 		return copyValid(docs1);
 	}
 

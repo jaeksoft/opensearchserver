@@ -24,9 +24,7 @@
 
 package com.jaeksoft.searchlib.result;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
@@ -49,7 +47,7 @@ public abstract class AbstractResultSearch extends
 	protected float maxScore;
 	protected int collapsedDocCount;
 	private JoinResult[] joinResults;
-	private List<Timer> timers;
+	protected final Timer timer;
 
 	protected AbstractResultSearch(SearchRequest searchRequest) {
 		super(searchRequest);
@@ -61,16 +59,11 @@ public abstract class AbstractResultSearch extends
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		collapse = CollapseAbstract.newInstance(searchRequest);
-		timers = new ArrayList<Timer>(0);
+		timer = new Timer("Search");
 	}
 
-	final protected void addTimer(Timer timer) {
-		timer.duration();
-		timers.add(timer);
-	}
-
-	public List<Timer> getTimers() {
-		return timers;
+	public Timer getTimer() {
+		return timer;
 	}
 
 	public FacetList getFacetList() {
