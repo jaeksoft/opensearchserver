@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class CollapseCluster extends CollapseAbstract {
 
@@ -47,8 +48,9 @@ public class CollapseCluster extends CollapseAbstract {
 
 	@Override
 	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
-			StringIndex collapseStringIndex) {
+			StringIndex collapseStringIndex, Timer timer) {
 
+		Timer t = new Timer(timer, "Build collapse map");
 		Map<String, ResultScoreDocCollapse> collapsedDocMap = new LinkedHashMap<String, ResultScoreDocCollapse>();
 		ResultScoreDocCollapse collapseDoc;
 		for (int i = 0; i < fetchLength; i++) {
@@ -62,10 +64,13 @@ public class CollapseCluster extends CollapseAbstract {
 				collapsedDocMap.put(term, fetchedDoc.newCollapseInstance());
 			}
 		}
+		t.duration();
 
+		t = new Timer(timer, "Build collapse array");
 		ResultScoreDocCollapse[] collapsedDocs = new ResultScoreDocCollapse[collapsedDocMap
 				.size()];
 		collapsedDocMap.values().toArray(collapsedDocs);
+		t.duration();
 
 		setCollapsedDocCount(fetchLength - collapsedDocs.length);
 		setCollapsedDoc(collapsedDocs);
@@ -74,13 +79,13 @@ public class CollapseCluster extends CollapseAbstract {
 
 	@Override
 	public ResultScoreDoc[] collapse(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, DocSetHits docSetHits)
+			ResultScoreDoc[] allDocs, DocSetHits docSetHits, Timer timer)
 			throws IOException, ParseException, SyntaxError {
 		if (allDocs == null)
 			allDocs = docSetHits.getAllDocs();
 		StringIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
-		run(allDocs, allDocs.length, collapseFieldStringIndex);
+		run(allDocs, allDocs.length, collapseFieldStringIndex, timer);
 		return getCollapsedDoc();
 	}
 

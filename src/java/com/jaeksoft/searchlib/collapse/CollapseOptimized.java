@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class CollapseOptimized extends CollapseAdjacent {
 
@@ -42,8 +43,8 @@ public class CollapseOptimized extends CollapseAdjacent {
 	}
 
 	private ResultScoreDoc[] collapseFromDocSetHit(DocSetHits docSetHits,
-			int searchRows, int end, StringIndex collapseFieldStringIndex)
-			throws IOException {
+			int searchRows, int end, StringIndex collapseFieldStringIndex,
+			Timer timer) throws IOException {
 		int lastRows = 0;
 		int rows = end;
 		while (getCollapsedDocsLength() < end) {
@@ -52,7 +53,7 @@ public class CollapseOptimized extends CollapseAdjacent {
 				break;
 			if (rows > docs.length)
 				rows = docs.length;
-			run(docs, rows, collapseFieldStringIndex);
+			run(docs, rows, collapseFieldStringIndex, timer);
 			lastRows = rows;
 			rows += searchRows;
 		}
@@ -60,8 +61,8 @@ public class CollapseOptimized extends CollapseAdjacent {
 	}
 
 	private ResultScoreDoc[] collapseFromAllDocs(ResultScoreDoc[] docs,
-			int searchRows, int end, StringIndex collapseFieldStringIndex)
-			throws IOException {
+			int searchRows, int end, StringIndex collapseFieldStringIndex,
+			Timer timer) throws IOException {
 		int lastRows = 0;
 		int rows = end;
 		while (getCollapsedDocsLength() < end) {
@@ -69,7 +70,7 @@ public class CollapseOptimized extends CollapseAdjacent {
 				rows = docs.length;
 			if (lastRows == rows)
 				break;
-			run(docs, rows, collapseFieldStringIndex);
+			run(docs, rows, collapseFieldStringIndex, timer);
 			lastRows = rows;
 			rows += searchRows;
 		}
@@ -85,7 +86,7 @@ public class CollapseOptimized extends CollapseAdjacent {
 	 */
 	@Override
 	public ResultScoreDoc[] collapse(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, DocSetHits docSetHits)
+			ResultScoreDoc[] allDocs, DocSetHits docSetHits, Timer timer)
 			throws IOException, ParseException, SyntaxError {
 
 		int searchRows = searchRequest.getRows();
@@ -95,10 +96,10 @@ public class CollapseOptimized extends CollapseAdjacent {
 
 		if (allDocs != null)
 			return collapseFromAllDocs(allDocs, searchRows, end,
-					collapseFieldStringIndex);
+					collapseFieldStringIndex, timer);
 		else
 			return collapseFromDocSetHit(docSetHits, searchRows, end,
-					collapseFieldStringIndex);
+					collapseFieldStringIndex, timer);
 
 	}
 }

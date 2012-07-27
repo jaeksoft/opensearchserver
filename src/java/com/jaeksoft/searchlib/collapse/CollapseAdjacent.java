@@ -31,6 +31,7 @@ import org.apache.lucene.util.OpenBitSet;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
+import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class CollapseAdjacent extends CollapseAbstract {
 
@@ -40,7 +41,9 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 
 	@Override
 	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
-			StringIndex collapseStringIndex) {
+			StringIndex collapseStringIndex, Timer timer) {
+
+		Timer t = new Timer(timer, "Build collapse set");
 
 		OpenBitSet collapsedSet = new OpenBitSet(fetchLength);
 
@@ -58,6 +61,9 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 			}
 		}
 
+		t.duration();
+
+		t = new Timer(timer, "Build collapse array");
 		int collapsedDocCount = (int) collapsedSet.cardinality();
 
 		ResultScoreDocCollapse[] collapsedDoc = new ResultScoreDocCollapse[fetchLength
@@ -75,6 +81,7 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 						collapseDoc.collapsedIds, fetchDoc.doc);
 			}
 		}
+		t.duration();
 
 		setCollapsedDocCount(collapsedDocCount);
 		setCollapsedDoc(collapsedDoc);

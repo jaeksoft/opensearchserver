@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
+import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class CollapseAbstract {
 
@@ -55,10 +56,10 @@ public abstract class CollapseAbstract {
 	}
 
 	protected abstract void collapse(ResultScoreDoc[] fetchedDocs,
-			int fetchLength, StringIndex collapseStringIndex);
+			int fetchLength, StringIndex collapseStringIndex, Timer timer);
 
 	public void run(ResultScoreDoc[] fetchedDocs, int fetchLength,
-			StringIndex collapseStringIndex) throws IOException {
+			StringIndex collapseStringIndex, Timer timer) throws IOException {
 
 		collapsedDoc = null;
 
@@ -68,7 +69,7 @@ public abstract class CollapseAbstract {
 		if (fetchLength > fetchedDocs.length)
 			fetchLength = fetchedDocs.length;
 
-		collapse(fetchedDocs, fetchLength, collapseStringIndex);
+		collapse(fetchedDocs, fetchLength, collapseStringIndex, timer);
 	}
 
 	public int getDocCount() {
@@ -128,7 +129,7 @@ public abstract class CollapseAbstract {
 	}
 
 	public abstract ResultScoreDoc[] collapse(ReaderLocal reader,
-			ResultScoreDoc[] docs, DocSetHits docSetHits) throws IOException,
-			ParseException, SyntaxError;
+			ResultScoreDoc[] docs, DocSetHits docSetHits, Timer timer)
+			throws IOException, ParseException, SyntaxError;
 
 }

@@ -91,10 +91,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 		// Are we doing collapsing ?
 		if (collapse != null) {
-			Timer t = new Timer(timer, "collapse");
+			Timer collapseTimer = new Timer(timer, "collapse");
 			collapsedDocs = collapse.collapse(reader, notCollapsedDocs,
-					docSetHits);
-			t.duration();
+					docSetHits, collapseTimer);
+			collapseTimer.duration();
 			collapsedDocCount = collapse.getDocCount();
 		}
 
