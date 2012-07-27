@@ -68,7 +68,8 @@ public class YouTube {
 	}
 
 	private final static Pattern[] idPatterns = {
-			Pattern.compile("/embed/([^/]*)"), Pattern.compile("/v/([^/]*)") };
+			Pattern.compile("/embed/([^/]*)"),
+			Pattern.compile("/v/([a-zA-Z0-9]*)[&|?]?.*") };
 
 	/*
 	 * This method is to extract the Video id from youtube urls like
@@ -82,6 +83,7 @@ public class YouTube {
 		for (NameValuePair pair : pairs)
 			if ("v".equals(pair.getName()))
 				return pair.getValue();
+
 		// Checking on path
 		String path = uri.getPath();
 		for (Pattern pattern : idPatterns) {
@@ -97,14 +99,17 @@ public class YouTube {
 	public final static void main(String[] args) throws MalformedURLException,
 			IOException, ServiceException, URISyntaxException {
 
-		String[] urls = { "http://www.youtube.com/watch?h=test&v=O04CHuJaPWc",
-				"http://www.youtube.com/watch?v=HmQk3ovfiF0&feature=g-all-f" };
+		String[] urls = {
+				"http://www.youtube.com/watch?h=test&v=O04CHuJaPWc",
+				"http://www.youtube.com/watch?v=HmQk3ovfiF0&feature=g-all-f",
+				"http://www.youtube.com/v/HmQk3ovfiF0&feature=g-all-f",
+				"http://www.youtube.com/v/Ig1WxMI9bxQ&hl=fr&fs=1&color1=0x2b405b&color2=0x6b8ab6",
+				"http://www.youtube.com/v/Ig1WxMI9bxQ?hl=fr" };
 		for (String u : urls) {
 			URL url = new URL(u);
-			YouTubeItem yti = getInfo(url);
+			String yti = getVideoId(url);
 			System.out.println(yti);
-			System.out.println(yti.toJson(url));
 		}
-	}
 
+	}
 }
