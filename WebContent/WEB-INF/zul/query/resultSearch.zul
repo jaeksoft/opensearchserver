@@ -53,7 +53,7 @@
 				<label value="Highest score:" />
 				<label value="@{result.result.maxScore}" />
 				<label value="Time elapsed (ms):" />
-				<label value="@{result.result.request.finalTime}" />
+				<label value="@{result.result.timer.duration}" />
 			</row>
 		</rows>
 	</grid>

@@ -48,7 +48,7 @@ public class CollapseFull extends CollapseAdjacent {
 			throws IOException, ParseException, SyntaxError {
 
 		if (allDocs == null)
-			allDocs = docSetHits.getAllDocs();
+			allDocs = docSetHits.getAllDocs(timer);
 
 		StringIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());

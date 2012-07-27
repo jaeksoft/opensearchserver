@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.result.collector.ResultScoreDocCollector;
 import com.jaeksoft.searchlib.result.collector.ResultScoreDocPriorityCollector;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class DocSetHits {
 
@@ -75,7 +76,8 @@ public class DocSetHits {
 		}
 	}
 
-	public ResultScoreDoc[] getPriorityDocs(int rows) throws IOException {
+	public ResultScoreDoc[] getPriorityDocs(int rows, Timer timer)
+			throws IOException {
 		rwl.r.lock();
 		try {
 			int numFound = numFoundCollector.getNumFound();
@@ -92,16 +94,18 @@ public class DocSetHits {
 		}
 		rwl.w.lock();
 		try {
+			Timer t = new Timer(timer, "Get priority docs");
 			resultScoreDocPriorityCollector = new ResultScoreDocPriorityCollector(
 					rows, sort);
 			reader.search(query, filter, resultScoreDocPriorityCollector);
+			t.end("Get priority docs: " + rows);
 			return resultScoreDocPriorityCollector.getDocs();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public ResultScoreDoc[] getAllDocs() throws IOException {
+	public ResultScoreDoc[] getAllDocs(Timer timer) throws IOException {
 		rwl.r.lock();
 		try {
 			if (resultScoreDocCollector != null)
@@ -112,9 +116,12 @@ public class DocSetHits {
 		rwl.w.lock();
 		try {
 			if (resultScoreDocCollector == null) {
+				Timer t = new Timer(timer, "Get all docs");
 				resultScoreDocCollector = new ResultScoreDocCollector(
 						numFoundCollector.getNumFound());
 				reader.search(query, filter, resultScoreDocCollector);
+				t.end("Get all docs:"
+						+ resultScoreDocCollector.getDocs().length);
 			}
 			return resultScoreDocCollector.getDocs();
 		} finally {

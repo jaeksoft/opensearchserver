@@ -48,7 +48,7 @@ public class CollapseOptimized extends CollapseAdjacent {
 		int lastRows = 0;
 		int rows = end;
 		while (getCollapsedDocsLength() < end) {
-			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows);
+			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows, timer);
 			if (docs.length == lastRows)
 				break;
 			if (rows > docs.length)

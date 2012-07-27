@@ -82,7 +82,7 @@ public class CollapseCluster extends CollapseAbstract {
 			ResultScoreDoc[] allDocs, DocSetHits docSetHits, Timer timer)
 			throws IOException, ParseException, SyntaxError {
 		if (allDocs == null)
-			allDocs = docSetHits.getAllDocs();
+			allDocs = docSetHits.getAllDocs(timer);
 		StringIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
 		run(allDocs, allDocs.length, collapseFieldStringIndex, timer);
