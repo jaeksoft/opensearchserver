@@ -24,7 +24,9 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
@@ -35,6 +37,7 @@ import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
 import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class AbstractResultSearch extends
 		AbstractResult<SearchRequest> implements Iterable<ResultDocument> {
@@ -46,6 +49,7 @@ public abstract class AbstractResultSearch extends
 	protected float maxScore;
 	protected int collapsedDocCount;
 	private JoinResult[] joinResults;
+	private List<Timer> timers;
 
 	protected AbstractResultSearch(SearchRequest searchRequest) {
 		super(searchRequest);
@@ -57,6 +61,16 @@ public abstract class AbstractResultSearch extends
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		collapse = CollapseAbstract.newInstance(searchRequest);
+		timers = new ArrayList<Timer>(0);
+	}
+
+	final protected void addTimer(Timer timer) {
+		timer.duration();
+		timers.add(timer);
+	}
+
+	public List<Timer> getTimers() {
+		return timers;
 	}
 
 	public FacetList getFacetList() {

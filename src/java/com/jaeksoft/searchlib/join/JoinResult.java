@@ -24,10 +24,14 @@
 
 package com.jaeksoft.searchlib.join;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class JoinResult {
 
@@ -39,12 +43,15 @@ public class JoinResult {
 
 	private final boolean returnFields;
 
+	private final List<Timer> timers;
+
 	private transient ResultSearchSingle foreignResult;
 
 	public JoinResult(int pos, String paramPosition, boolean returnFields) {
 		this.pos = pos;
 		this.paramPosition = paramPosition;
 		this.returnFields = returnFields;
+		this.timers = new ArrayList<Timer>(0);
 	}
 
 	public String getParamPosition() {
@@ -65,6 +72,15 @@ public class JoinResult {
 
 	final public ResultDocument getDocument(int pos) throws SearchLibException {
 		return foreignResult.getDocument(pos);
+	}
+
+	final public void addTimer(Timer timer) {
+		timer.duration();
+		timers.add(timer);
+	}
+
+	final public List<Timer> getTimers() {
+		return timers;
 	}
 
 }

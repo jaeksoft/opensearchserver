@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.jaeksoft.searchlib.Logging;
 
 public class Timer {
@@ -42,40 +44,36 @@ public class Timer {
 		setInfo(info);
 	}
 
-	public void reset() {
+	final public void reset() {
 		startTime = System.currentTimeMillis();
 		endTime = 0;
 		info = null;
 		error = null;
 	}
 
-	public long getStartTime() {
+	final public long getStartTime() {
 		return startTime;
 	}
 
-	public long getEndTime() {
+	final public long getEndTime() {
 		return endTime;
 	}
 
-	public void setEnd() {
-		this.endTime = System.currentTimeMillis();
-	}
-
-	public String getInfo() {
+	final public String getInfo() {
 		return info;
 	}
 
-	public void setInfo(String info) {
+	final public void setInfo(String info) {
 		this.info = info;
 	}
 
-	public long duration() {
+	final public long duration() {
 		if (this.endTime == 0)
-			this.setEnd();
+			this.endTime = System.currentTimeMillis();
 		return this.endTime - this.startTime;
 	}
 
-	public void setError(Exception exception) {
+	final public void setError(Exception exception) {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		exception.printStackTrace(pw);
@@ -88,8 +86,16 @@ public class Timer {
 		this.error = sw.toString();
 	}
 
-	public String getError() {
+	final public String getError() {
 		return this.error;
+	}
+
+	final public void writeXml(PrintWriter writer) {
+		writer.print("<timer duration=\"");
+		writer.print(duration());
+		writer.print("\">");
+		writer.print(StringEscapeUtils.escapeXml(info));
+		writer.println("</timer>");
 	}
 
 }

@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultSearchSingle extends AbstractResultSearch {
 
@@ -71,28 +72,44 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 		JoinResult[] joinResults = null;
 
+		Timer t = null;
 		// Are we doing join
 		if (searchRequest.isJoin()) {
 			JoinList joinList = searchRequest.getJoinList();
 			joinResults = new JoinResult[joinList.size()];
+			t = new Timer("join - apply");
 			notCollapsedDocs = joinList.apply(reader, docSetHits.getAllDocs(),
 					joinResults);
+			addTimer(t);
+			for (JoinResult jr : joinResults)
+				for (Timer t2 : jr.getTimers())
+					addTimer(t2);
+			t = new Timer("join - sort");
 			searchRequest.getSortList().getSorter(reader)
 					.sort(notCollapsedDocs);
+			addTimer(t);
 			numFound = notCollapsedDocs.length;
 		}
 
 		// Are we doing collapsing ?
 		if (collapse != null) {
+			t = new Timer("collapse");
 			collapsedDocs = collapse.collapse(reader, notCollapsedDocs,
 					docSetHits);
+			addTimer(t);
 			collapsedDocCount = collapse.getDocCount();
 		}
 
 		// We compute facet
-		for (FacetField facetField : searchRequest.getFacetFieldList())
-			this.facetList.add(facetField.getFacet(reader, docSetHits,
-					notCollapsedDocs, collapsedDocs));
+		if (searchRequest.isFacet()) {
+			for (FacetField facetField : searchRequest.getFacetFieldList()) {
+				t = new Timer("facet - " + facetField.getName() + '('
+						+ facetField.getMinCount() + ')');
+				this.facetList.add(facetField.getFacet(reader, docSetHits,
+						notCollapsedDocs, collapsedDocs));
+				addTimer(t);
+			}
+		}
 
 		// No collapsing
 		if (collapsedDocs == null) {
@@ -107,7 +124,6 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			setJoinResults(joinResults);
 
 		searchRequest.getTimer().setInfo(searchRequest.toString());
-
 	}
 
 	/**

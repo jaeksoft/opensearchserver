@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class RenderSearchXml extends
 		AbstractRenderXml<SearchRequest, AbstractResultSearch> {
@@ -210,12 +212,23 @@ public class RenderSearchXml extends
 		writer.println("</faceting>");
 	}
 
+	private void renderTimers() {
+		List<Timer> timers = result.getTimers();
+		if (timers != null && timers.size() > 0) {
+			writer.println("<timers>");
+			for (Timer timer : timers)
+				timer.writeXml(writer);
+			writer.println("</timers>");
+		}
+	}
+
 	@Override
 	public void render(PrintWriter writer) throws Exception {
 		this.writer = writer;
 		renderPrefix();
 		renderDocuments();
 		renderFacets();
+		renderTimers();
 		renderSuffix();
 	}
 
