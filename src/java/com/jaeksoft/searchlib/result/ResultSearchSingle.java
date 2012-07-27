@@ -62,8 +62,9 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			ClassNotFoundException {
 		super(searchRequest);
 
+		Timer timer = request.getTimer();
 		this.reader = reader;
-		docSetHits = reader.searchDocSet(searchRequest);
+		docSetHits = reader.searchDocSet(searchRequest, timer);
 		numFound = docSetHits.getDocNumFound();
 		maxScore = docSetHits.getMaxScore();
 
@@ -82,8 +83,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					docSetHits.getAllDocs(joinTimer), joinResults, t);
 			t.duration();
 			t = new Timer(joinTimer, "join - sort");
-			searchRequest.getSortList().getSorter(reader)
-					.sort(notCollapsedDocs);
+			searchRequest.getSortList().getSorter(reader, timer)
+					.sort(notCollapsedDocs, timer);
 			t.duration();
 			numFound = notCollapsedDocs.length;
 			joinTimer.duration();
@@ -106,7 +107,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 						+ facetField.getName() + '(' + facetField.getMinCount()
 						+ ')');
 				this.facetList.add(facetField.getFacet(reader, docSetHits,
-						notCollapsedDocs, collapsedDocs));
+						notCollapsedDocs, collapsedDocs, timer));
 				t.duration();
 			}
 			facetTimer.duration();
@@ -144,20 +145,22 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	}
 
 	@Override
-	public ResultDocument getDocument(int pos) throws SearchLibException {
+	public ResultDocument getDocument(int pos, Timer timer)
+			throws SearchLibException {
 		if (docs == null || pos < 0 || pos > docs.length)
 			return null;
 		try {
 			ResultScoreDoc rsc = docs[pos];
 			ResultDocument resultDocument = new ResultDocument(request,
-					rsc.doc, reader);
+					rsc.doc, reader, timer);
 			if (!(rsc instanceof ResultScoreDocCollapse))
 				return resultDocument;
 			if (request.getCollapseMax() > 0)
 				return resultDocument;
 			int[] docIds = ((ResultScoreDocCollapse) rsc).collapsedIds;
 			for (int docId : docIds) {
-				ResultDocument rd = new ResultDocument(request, docId, reader);
+				ResultDocument rd = new ResultDocument(request, docId, reader,
+						timer);
 				resultDocument.appendIfStringDoesNotExist(rd);
 			}
 			return resultDocument;

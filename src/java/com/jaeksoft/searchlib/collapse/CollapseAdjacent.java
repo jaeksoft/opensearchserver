@@ -43,7 +43,7 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
 			StringIndex collapseStringIndex, Timer timer) {
 
-		Timer t = new Timer(timer, "Build collapse set");
+		Timer t = new Timer(timer, "adjacent collapse");
 
 		OpenBitSet collapsedSet = new OpenBitSet(fetchLength);
 
@@ -61,9 +61,6 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 			}
 		}
 
-		t.duration();
-
-		t = new Timer(timer, "Build collapse array");
 		int collapsedDocCount = (int) collapsedSet.cardinality();
 
 		ResultScoreDocCollapse[] collapsedDoc = new ResultScoreDocCollapse[fetchLength
@@ -81,6 +78,7 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 						collapseDoc.collapsedIds, fetchDoc.doc);
 			}
 		}
+
 		t.duration();
 
 		setCollapsedDocCount(collapsedDocCount);

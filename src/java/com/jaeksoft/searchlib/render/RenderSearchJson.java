@@ -79,7 +79,7 @@ public class RenderSearchJson implements Render {
 		jsonResult.put("start", searchRequest.getStart());
 		jsonResult.put("rows", searchRequest.getRows());
 		jsonResult.put("maxScore", result.getMaxScore());
-		jsonResult.put("time", result.getTimer().duration());
+		jsonResult.put("time", searchRequest.getTimer().duration());
 		jsonResult.put("collapsedDocCount", result.getCollapsedDocCount());
 		for (int i = start; i < end; i++)
 			this.renderDocument(i, jsonResult, resultArrayList);
@@ -96,7 +96,7 @@ public class RenderSearchJson implements Render {
 		ArrayList<JSONObject> jsonSnippetList = new ArrayList<JSONObject>();
 		jsonDoc.put("score", result.getScore(pos));
 		jsonDoc.put("pos", searchRequest.getStart());
-		ResultDocument doc = result.getDocument(pos);
+		ResultDocument doc = result.getDocument(pos, null);
 		for (Field field : searchRequest.getReturnFieldList()) {
 			renderField(doc, field, jsonFieldList);
 			jsonDoc.put("field", jsonFieldList);

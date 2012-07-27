@@ -47,7 +47,6 @@ public abstract class AbstractResultSearch extends
 	protected float maxScore;
 	protected int collapsedDocCount;
 	private JoinResult[] joinResults;
-	protected final Timer timer;
 
 	protected AbstractResultSearch(SearchRequest searchRequest) {
 		super(searchRequest);
@@ -59,11 +58,6 @@ public abstract class AbstractResultSearch extends
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		collapse = CollapseAbstract.newInstance(searchRequest);
-		timer = new Timer("Search");
-	}
-
-	public Timer getTimer() {
-		return timer;
 	}
 
 	public FacetList getFacetList() {
@@ -75,15 +69,20 @@ public abstract class AbstractResultSearch extends
 				: joinResults;
 	}
 
-	public abstract ResultDocument getDocument(int pos)
+	public ResultDocument getDocument(int pos) throws SearchLibException {
+		return getDocument(pos, null);
+	}
+
+	public abstract ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException;
 
 	public class ResultDocumentIterator implements Iterator<ResultDocument> {
 
 		private int pos;
 		private int end;
+		private Timer timer;
 
-		private ResultDocumentIterator() {
+		private ResultDocumentIterator(Timer timer) {
 			pos = request.getStart();
 			if (pos < 0)
 				pos = 0;
@@ -98,7 +97,7 @@ public abstract class AbstractResultSearch extends
 		@Override
 		public ResultDocument next() {
 			try {
-				return getDocument(pos++);
+				return getDocument(pos++, timer);
 			} catch (SearchLibException e) {
 				throw new RuntimeException(e);
 			}
@@ -110,9 +109,13 @@ public abstract class AbstractResultSearch extends
 		}
 	}
 
+	public Iterator<ResultDocument> iterator(Timer timer) {
+		return new ResultDocumentIterator(timer);
+	}
+
 	@Override
 	public Iterator<ResultDocument> iterator() {
-		return new ResultDocumentIterator();
+		return new ResultDocumentIterator(null);
 	}
 
 	public float getMaxScore() {

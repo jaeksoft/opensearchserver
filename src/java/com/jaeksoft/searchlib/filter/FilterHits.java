@@ -35,6 +35,7 @@ import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class FilterHits extends org.apache.lucene.search.Filter {
 
@@ -56,13 +57,15 @@ public class FilterHits extends org.apache.lucene.search.Filter {
 			docSet.and(filterHits.docSet);
 	}
 
-	public FilterHits(Query query, boolean negative, ReaderLocal reader)
-			throws IOException, ParseException {
+	public FilterHits(Query query, boolean negative, ReaderLocal reader,
+			Timer timer) throws IOException, ParseException {
+		Timer t = new Timer(timer, "Filter hit: " + query.toString());
 		FilterCollector collector = new FilterCollector(reader.maxDoc());
 		reader.search(query, null, collector);
 		docSet = collector.bitSet;
 		if (negative)
 			docSet.flip(0, docSet.size());
+		t.duration();
 
 	}
 

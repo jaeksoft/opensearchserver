@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class FieldCache extends
 		LRUCache<FieldContentCacheKey, FieldValueItem[]> {
@@ -53,8 +54,8 @@ public class FieldCache extends
 	}
 
 	public FieldList<FieldValue> get(ReaderLocal reader, int docId,
-			FieldList<Field> fieldList) throws IOException, ParseException,
-			SyntaxError {
+			FieldList<Field> fieldList, Timer timer) throws IOException,
+			ParseException, SyntaxError {
 		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
 		FieldList<Field> storeField = new FieldList<Field>();
 		FieldList<Field> indexedField = new FieldList<Field>();
@@ -91,7 +92,8 @@ public class FieldCache extends
 		if (indexedField.size() > 0) {
 			for (Field field : indexedField) {
 				String fieldName = field.getName();
-				StringIndex stringIndex = reader.getStringIndex(fieldName);
+				StringIndex stringIndex = reader.getStringIndex(fieldName,
+						timer);
 				if (stringIndex != null) {
 					String term = stringIndex.lookup[stringIndex.order[docId]];
 					if (term != null) {

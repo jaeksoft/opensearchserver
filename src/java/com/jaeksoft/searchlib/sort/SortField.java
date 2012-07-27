@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SortField extends Field implements CacheKeyInterface<Field> {
@@ -94,7 +95,8 @@ public class SortField extends Field implements CacheKeyInterface<Field> {
 					org.apache.lucene.search.SortField.STRING, desc);
 	}
 
-	public SorterAbstract getSorter(ReaderLocal reader) throws IOException {
+	public SorterAbstract getSorter(ReaderLocal reader, Timer timer)
+			throws IOException {
 		if (name.equals("score")) {
 			if (desc)
 				return new DescScoreSorter();
@@ -102,9 +104,9 @@ public class SortField extends Field implements CacheKeyInterface<Field> {
 				return new AscScoreSorter();
 		}
 		if (desc)
-			return new DescStringIndexSorter(reader.getStringIndex(name));
+			return new DescStringIndexSorter(reader.getStringIndex(name, timer));
 		else
-			return new AscStringIndexSorter(reader.getStringIndex(name));
+			return new AscStringIndexSorter(reader.getStringIndex(name, timer));
 	}
 
 	@Override

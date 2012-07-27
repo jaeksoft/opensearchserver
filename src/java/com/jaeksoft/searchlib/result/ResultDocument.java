@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultDocument {
 
@@ -46,11 +47,11 @@ public class ResultDocument {
 	final private FieldList<SnippetFieldValue> snippetFields;
 
 	public ResultDocument(SearchRequest searchRequest, int docId,
-			ReaderLocal reader) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
+			ReaderLocal reader, Timer timer) throws IOException,
+			ParseException, SyntaxError, SearchLibException {
 
 		FieldList<FieldValue> documentFields = reader.getDocumentFields(docId,
-				searchRequest.getDocumentFieldList());
+				searchRequest.getDocumentFieldList(), timer);
 
 		returnFields = new FieldList<FieldValue>();
 		snippetFields = new FieldList<SnippetFieldValue>();

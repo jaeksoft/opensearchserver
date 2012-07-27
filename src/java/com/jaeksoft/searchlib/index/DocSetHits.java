@@ -55,7 +55,7 @@ public class DocSetHits {
 	private ResultScoreDocPriorityCollector resultScoreDocPriorityCollector;
 
 	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
-			SorterAbstract sort) throws IOException {
+			SorterAbstract sort, Timer timer) throws IOException {
 		rwl.w.lock();
 		try {
 			this.query = query;
@@ -69,7 +69,9 @@ public class DocSetHits {
 			numFoundCollector = new NumFoundCollector();
 			if (reader.numDocs() == 0)
 				return;
+			Timer t = new Timer(timer, "DocSetHits: " + query.toString());
 			reader.search(query, filter, numFoundCollector);
+			t.duration();
 
 		} finally {
 			rwl.w.unlock();
@@ -87,19 +89,20 @@ public class DocSetHits {
 				return ResultScoreDoc.EMPTY_ARRAY;
 			if (resultScoreDocPriorityCollector != null) {
 				if (resultScoreDocPriorityCollector.match(rows, sort))
-					return resultScoreDocPriorityCollector.getDocs();
+					return resultScoreDocPriorityCollector.getDocs(timer);
 			}
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			Timer t = new Timer(timer, "Get priority docs");
+			Timer t = new Timer(timer, "Get priority docs: " + rows);
 			resultScoreDocPriorityCollector = new ResultScoreDocPriorityCollector(
 					rows, sort);
 			reader.search(query, filter, resultScoreDocPriorityCollector);
-			t.end("Get priority docs: " + rows);
-			return resultScoreDocPriorityCollector.getDocs();
+			ResultScoreDoc[] r = resultScoreDocPriorityCollector.getDocs(t);
+			t.duration();
+			return r;
 		} finally {
 			rwl.w.unlock();
 		}

@@ -96,7 +96,7 @@ public class SelectResult {
 			rows = searchRequest.getRows();
 			numFound = result.getNumFound();
 			collapsedDocCount = result.getCollapsedDocCount();
-			time = result.getTimer().duration();
+			time = searchRequest.getTimer().duration();
 			maxScore = result.getMaxScore();
 			int end = result.getDocumentCount() + searchRequest.getStart();
 			for (int i = start; i < end; i++) {

@@ -50,8 +50,8 @@ public class CollapseFull extends CollapseAdjacent {
 		if (allDocs == null)
 			allDocs = docSetHits.getAllDocs(timer);
 
-		StringIndex collapseFieldStringIndex = reader
-				.getStringIndex(searchRequest.getCollapseField());
+		StringIndex collapseFieldStringIndex = reader.getStringIndex(
+				searchRequest.getCollapseField(), timer);
 		run(allDocs, allDocs.length, collapseFieldStringIndex, timer);
 		return getCollapsedDoc();
 	}

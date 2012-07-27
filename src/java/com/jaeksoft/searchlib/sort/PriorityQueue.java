@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class PriorityQueue {
 
@@ -41,10 +42,10 @@ public class PriorityQueue {
 		queue.offer(doc);
 	}
 
-	public ResultScoreDoc[] getSortedElements() {
+	public ResultScoreDoc[] getSortedElements(Timer timer) {
 		ResultScoreDoc[] docs = new ResultScoreDoc[queue.size()];
 		queue.toArray(docs);
-		sorter.sort(docs);
+		sorter.sort(docs, timer);
 		return docs;
 	}
 }

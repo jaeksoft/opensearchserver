@@ -29,17 +29,18 @@ import java.io.IOException;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class SortListSorter extends SorterAbstract {
 
 	private SorterAbstract[] sorterList;
 
 	protected SortListSorter(FieldList<SortField> sortFieldList,
-			ReaderLocal reader) throws IOException {
+			ReaderLocal reader, Timer timer) throws IOException {
 		sorterList = new SorterAbstract[sortFieldList.size()];
 		int i = 0;
 		for (SortField sortField : sortFieldList)
-			sorterList[i++] = sortField.getSorter(reader);
+			sorterList[i++] = sortField.getSorter(reader, timer);
 	}
 
 	@Override
@@ -53,10 +54,12 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public void sort(ResultScoreDoc[] docs) {
+	final public void sort(ResultScoreDoc[] docs, Timer timer) {
+		Timer t = new Timer(timer, "sort " + docs.length);
 		if (sorterList.length == 1)
-			sorterList[0].sort(docs);
+			sorterList[0].sort(docs, timer);
 		else
-			super.sort(docs);
+			super.sort(docs, timer);
+		t.duration();
 	}
 }

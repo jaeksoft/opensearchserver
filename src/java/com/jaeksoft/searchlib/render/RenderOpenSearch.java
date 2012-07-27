@@ -143,7 +143,7 @@ public class RenderOpenSearch implements Render {
 			ParserConfigurationException, SAXException, SearchLibException {
 
 		writer.println("<item>");
-		ResultDocument doc = result.getDocument(pos);
+		ResultDocument doc = result.getDocument(pos, null);
 		for (SnippetField field : searchRequest.getSnippetFieldList())
 			renderSnippetValue(doc, field);
 

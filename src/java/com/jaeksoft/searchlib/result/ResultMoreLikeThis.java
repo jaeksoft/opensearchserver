@@ -37,8 +37,6 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest> {
 
-	private ResultDocument[] resultDocuments;
-
 	protected ResultMoreLikeThis(ReaderLocal reader, MoreLikeThisRequest request)
 			throws SearchLibException, IOException, ParseException,
 			SyntaxError, InstantiationException, IllegalAccessException,
@@ -46,7 +44,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest> {
 		super(request);
 		SearchRequest searchRequest = new SearchRequest(request.getConfig());
 		searchRequest.setBoostedComplexQuery(request.getMoreLikeThisQuery());
-		DocSetHits dsh = reader.searchDocSet(searchRequest);
+		DocSetHits dsh = reader.searchDocSet(searchRequest, request.getTimer());
 		if (dsh == null)
 			return;
 		// resultDocuments = reader.documents(new DocumentsRequest(request,

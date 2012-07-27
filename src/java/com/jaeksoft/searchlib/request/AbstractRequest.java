@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -56,6 +57,7 @@ public abstract class AbstractRequest {
 	protected Config config;
 	private boolean withLogReport;
 	private List<String> customLogs;
+	private Timer timer;
 
 	public AbstractRequest() {
 		this.config = null;
@@ -89,6 +91,7 @@ public abstract class AbstractRequest {
 	protected void setDefaultValues() {
 		withLogReport = false;
 		customLogs = null;
+		timer = new Timer(getNameType());
 	}
 
 	public abstract RequestTypeEnum getType();
@@ -173,6 +176,10 @@ public abstract class AbstractRequest {
 		sb.append(": ");
 		sb.append(requestName);
 		return sb.toString();
+	}
+
+	public Timer getTimer() {
+		return timer;
 	}
 
 	public abstract String getInfo();

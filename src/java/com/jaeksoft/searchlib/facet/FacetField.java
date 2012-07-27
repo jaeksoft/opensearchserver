@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -115,29 +116,33 @@ public class FacetField extends Field {
 	}
 
 	final public Facet getFacet(ReaderLocal reader, DocSetHits docSetHits,
-			ResultScoreDoc[] notCollapsedDocs, ResultScoreDoc[] collapsedDocs)
-			throws IOException {
+			ResultScoreDoc[] notCollapsedDocs, ResultScoreDoc[] collapsedDocs,
+			Timer timer) throws IOException {
 		// Two conditions for use postCollapsing
 		boolean useCollapsing = postCollapsing && collapsedDocs != null;
 		if (multivalued) {
 			if (useCollapsing)
-				return Facet.facetMultivalued(reader, collapsedDocs, this);
+				return Facet.facetMultivalued(reader, collapsedDocs, this,
+						timer);
 			else {
 				if (notCollapsedDocs != null)
 					return Facet.facetMultivalued(reader, notCollapsedDocs,
-							this);
+							this, timer);
 				else
-					return Facet.facetMultivalued(reader, docSetHits, this);
+					return Facet.facetMultivalued(reader, docSetHits, this,
+							timer);
 			}
 		} else {
 			if (useCollapsing)
-				return Facet.facetSingleValue(reader, collapsedDocs, this);
+				return Facet.facetSingleValue(reader, collapsedDocs, this,
+						timer);
 			else {
 				if (notCollapsedDocs != null)
 					return Facet.facetSingleValue(reader, notCollapsedDocs,
-							this);
+							this, timer);
 				else
-					return Facet.facetSingleValue(reader, docSetHits, this);
+					return Facet.facetSingleValue(reader, docSetHits, this,
+							timer);
 
 			}
 		}
@@ -203,22 +208,23 @@ public class FacetField extends Field {
 		return postCollapsing == f.postCollapsing ? 0 : -1;
 	}
 
-	public StringIndex getStringIndex(ReaderLocal reader) throws IOException {
+	public StringIndex getStringIndex(ReaderLocal reader, Timer timer)
+			throws IOException {
 		if (name.equals("score"))
 			return null;
 		else
-			return reader.getStringIndex(name);
+			return reader.getStringIndex(name, timer);
 	}
 
 	public static StringIndex[] newStringIndexArrayForCollapsing(
-			FieldList<FacetField> facetFieldList, ReaderLocal reader)
-			throws IOException {
+			FieldList<FacetField> facetFieldList, ReaderLocal reader,
+			Timer timer) throws IOException {
 		if (facetFieldList.size() == 0)
 			return null;
 		List<StringIndex> facetFieldArray = new ArrayList<StringIndex>(0);
 		for (FacetField facetField : facetFieldList)
 			if (facetField.isPostCollapsing())
-				facetFieldArray.add(facetField.getStringIndex(reader));
+				facetFieldArray.add(facetField.getStringIndex(reader, timer));
 
 		StringIndex[] stringIndexArray = new StringIndex[facetFieldArray.size()];
 		return facetFieldArray.toArray(stringIndexArray);

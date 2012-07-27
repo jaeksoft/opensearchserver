@@ -67,7 +67,7 @@ public class RenderCSV implements Render {
 
 	private void renderDocument(int i) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
-		ResultDocument doc = result.getDocument(i);
+		ResultDocument doc = result.getDocument(i, null);
 		for (Field field : searchRequest.getReturnFieldList()) {
 			renderField(doc, field);
 			if (field.getName() != null && !field.getName().equals(""))

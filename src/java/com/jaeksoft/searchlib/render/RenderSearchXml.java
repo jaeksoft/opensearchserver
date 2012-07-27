@@ -45,11 +45,14 @@ import com.jaeksoft.searchlib.result.ResultScoreDocJoinInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class RenderSearchXml extends
 		AbstractRenderXml<SearchRequest, AbstractResultSearch> {
 
 	private PrintWriter writer;
+
+	private Timer timer;
 
 	public RenderSearchXml(AbstractResultSearch result) {
 		super(result);
@@ -87,7 +90,7 @@ public class RenderSearchXml extends
 		writer.print("\" maxScore=\"");
 		writer.print(result.getMaxScore());
 		writer.print("\" time=\"");
-		writer.print(result.getTimer().duration());
+		writer.print(searchRequest.getTimer().tempDuration());
 		writer.println("\">");
 		for (int i = start; i < end; i++)
 			this.renderDocument(i);
@@ -104,8 +107,8 @@ public class RenderSearchXml extends
 			renderSnippetValue(doc, field);
 	}
 
-	private void renderJoinResult(JoinResult joinResult, ResultScoreDoc rsd)
-			throws IOException, SearchLibException {
+	private void renderJoinResult(JoinResult joinResult, ResultScoreDoc rsd,
+			Timer timer) throws IOException, SearchLibException {
 		if (joinResult == null)
 			return;
 		if (!joinResult.isReturnFields())
@@ -114,7 +117,8 @@ public class RenderSearchXml extends
 		writer.print(joinResult.getParamPosition());
 		writer.println("\">");
 		renderDocument(joinResult.getForeignResult().getRequest(),
-				joinResult.getDocument((ResultScoreDocJoinInterface) rsd));
+				joinResult
+						.getDocument((ResultScoreDocJoinInterface) rsd, timer));
 		writer.println("\t\t</join>");
 
 	}
@@ -124,7 +128,7 @@ public class RenderSearchXml extends
 		if (joinResults == null)
 			return;
 		for (JoinResult joinResult : joinResults)
-			renderJoinResult(joinResult, rsd);
+			renderJoinResult(joinResult, rsd, timer);
 	}
 
 	private void renderDocument(int pos) throws IOException, ParseException,
@@ -134,7 +138,7 @@ public class RenderSearchXml extends
 		writer.print("\" pos=\"");
 		writer.print(pos);
 		writer.println("\">");
-		ResultDocument doc = result.getDocument(pos);
+		ResultDocument doc = result.getDocument(pos, timer);
 		renderDocument(request, doc);
 		int cc = result.getCollapseCount(pos);
 		if (cc > 0) {
@@ -213,12 +217,12 @@ public class RenderSearchXml extends
 	}
 
 	private void renderTimers() {
-		if (result != null)
-			result.getTimer().writeXml(writer);
+		request.getTimer().writeXml(writer);
 	}
 
 	@Override
 	public void render(PrintWriter writer) throws Exception {
+		timer = new Timer(request.getTimer(), "Rendering");
 		this.writer = writer;
 		renderPrefix();
 		renderDocuments();

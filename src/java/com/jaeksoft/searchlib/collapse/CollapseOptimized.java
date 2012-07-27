@@ -47,16 +47,21 @@ public class CollapseOptimized extends CollapseAdjacent {
 			Timer timer) throws IOException {
 		int lastRows = 0;
 		int rows = end;
+		int i = 0;
+		Timer iterationTimer = new Timer(timer, "Optimized collapse iteration");
 		while (getCollapsedDocsLength() < end) {
-			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows, timer);
+			i++;
+			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows,
+					iterationTimer);
 			if (docs.length == lastRows)
 				break;
 			if (rows > docs.length)
 				rows = docs.length;
-			run(docs, rows, collapseFieldStringIndex, timer);
+			run(docs, rows, collapseFieldStringIndex, iterationTimer);
 			lastRows = rows;
 			rows += searchRows;
 		}
+		iterationTimer.end("Optimized collapse iteration:" + i);
 		return getCollapsedDoc();
 	}
 
@@ -91,8 +96,8 @@ public class CollapseOptimized extends CollapseAdjacent {
 
 		int searchRows = searchRequest.getRows();
 		int end = searchRequest.getEnd();
-		StringIndex collapseFieldStringIndex = reader
-				.getStringIndex(searchRequest.getCollapseField());
+		StringIndex collapseFieldStringIndex = reader.getStringIndex(
+				searchRequest.getCollapseField(), timer);
 
 		if (allDocs != null)
 			return collapseFromAllDocs(allDocs, searchRows, end,

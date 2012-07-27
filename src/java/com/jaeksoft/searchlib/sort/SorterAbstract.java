@@ -27,13 +27,14 @@ package com.jaeksoft.searchlib.sort;
 import java.util.Comparator;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class SorterAbstract implements Comparator<ResultScoreDoc> {
 
 	@Override
 	public abstract int compare(ResultScoreDoc doc1, ResultScoreDoc doc2);
 
-	public void sort(ResultScoreDoc[] docs) {
+	public void sort(ResultScoreDoc[] docs, Timer timer) {
 		new QuickSort(this).sort(docs);
 	}
 

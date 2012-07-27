@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class Facet implements Iterable<FacetItem>,
 		External.Collecter<FacetItem> {
@@ -126,27 +127,30 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	final static protected Facet facetMultivalued(ReaderLocal reader,
-			DocSetHits docSetHits, FacetField facetField) throws IOException {
+			DocSetHits docSetHits, FacetField facetField, Timer timer)
+			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
 		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
 				docSetHits.getBitSet());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
 	final static protected Facet facetSingleValue(ReaderLocal reader,
-			DocSetHits docSetHits, FacetField facetField) throws IOException {
+			DocSetHits docSetHits, FacetField facetField, Timer timer)
+			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
 		int[] countIndex = computeSinglevalued(stringIndex,
 				docSetHits.getDocs());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
 	final static protected Facet facetMultivalued(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, FacetField facetField) throws IOException {
+			ResultScoreDoc[] allDocs, FacetField facetField, Timer timer)
+			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
 		OpenBitSet bitset = new OpenBitSet(reader.maxDoc());
 		for (ResultScoreDoc doc : allDocs)
 			bitset.fastSet(doc.doc);
@@ -156,9 +160,10 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	final static protected Facet facetSingleValue(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, FacetField facetField) throws IOException {
+			ResultScoreDoc[] allDocs, FacetField facetField, Timer timer)
+			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
 		int[] countIndex = Facet.computeSinglevalued(stringIndex, allDocs);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}

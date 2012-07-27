@@ -31,6 +31,7 @@ import org.apache.lucene.search.Sort;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class SortList implements CacheKeyInterface<SortList> {
 
@@ -71,10 +72,11 @@ public class SortList implements CacheKeyInterface<SortList> {
 		return new Sort(sortFields);
 	}
 
-	public SorterAbstract getSorter(ReaderLocal reader) throws IOException {
+	public SorterAbstract getSorter(ReaderLocal reader, Timer timer)
+			throws IOException {
 		if (sortFieldList.size() == 0)
 			return new DescScoreSorter();
-		return new SortListSorter(sortFieldList, reader);
+		return new SortListSorter(sortFieldList, reader, timer);
 	}
 
 	@Override

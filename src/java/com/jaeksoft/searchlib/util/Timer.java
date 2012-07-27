@@ -82,6 +82,10 @@ public class Timer {
 			setInfo(info);
 	}
 
+	final public long tempDuration() {
+		return System.currentTimeMillis() - this.startTime;
+	}
+
 	final public long duration() {
 		if (this.endTime == 0) {
 			this.endTime = System.currentTimeMillis();

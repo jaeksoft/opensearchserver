@@ -29,6 +29,7 @@ import java.io.IOException;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.sort.PriorityQueue;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultScoreDocPriorityCollector extends AbstractCollector {
 
@@ -53,9 +54,9 @@ public class ResultScoreDocPriorityCollector extends AbstractCollector {
 		priorityQueue.add(new ResultScoreDoc(docId, sc));
 	}
 
-	final public ResultScoreDoc[] getDocs() {
+	final public ResultScoreDoc[] getDocs(Timer timer) {
 		if (sortedDocs == null)
-			sortedDocs = priorityQueue.getSortedElements();
+			sortedDocs = priorityQueue.getSortedElements(timer);
 		return sortedDocs;
 	}
 

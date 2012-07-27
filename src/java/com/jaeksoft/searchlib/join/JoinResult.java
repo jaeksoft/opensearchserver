@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultScoreDocJoinInterface;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class JoinResult {
 
@@ -68,11 +69,12 @@ public class JoinResult {
 		return returnFields;
 	}
 
-	final public ResultDocument getDocument(ResultScoreDocJoinInterface rsdj)
-			throws SearchLibException {
+	final public ResultDocument getDocument(ResultScoreDocJoinInterface rsdj,
+			Timer timer) throws SearchLibException {
 		try {
 			return new ResultDocument(foreignResult.getRequest(),
-					rsdj.getForeignDocIds()[pos], foreignResult.getReader());
+					rsdj.getForeignDocIds()[pos], foreignResult.getReader(),
+					timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

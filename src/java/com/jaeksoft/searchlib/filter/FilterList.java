@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.External.Collecter;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class FilterList implements Externalizable, Collecter<Filter>,
@@ -107,15 +108,15 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 	}
 
 	public FilterHits getFilterHits(ReaderLocal reader, Field defaultField,
-			Analyzer analyzer) throws IOException, ParseException {
+			Analyzer analyzer, Timer timer) throws IOException, ParseException {
 
 		if (size() == 0)
 			return null;
 
 		FilterHits filterHits = new FilterHits();
 		for (Filter filter : filterList)
-			filterHits
-					.and(reader.getFilterHits(defaultField, analyzer, filter));
+			filterHits.and(reader.getFilterHits(defaultField, analyzer, filter,
+					timer));
 
 		return filterHits;
 	}

@@ -78,6 +78,7 @@ import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
@@ -364,11 +365,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public FilterHits getFilterHits(Field defaultField, Analyzer analyzer,
-			com.jaeksoft.searchlib.filter.Filter filter) throws ParseException,
-			IOException {
+			com.jaeksoft.searchlib.filter.Filter filter, Timer timer)
+			throws ParseException, IOException {
 		rwl.r.lock();
 		try {
-			return filterCache.get(this, defaultField, analyzer, filter);
+			return filterCache.get(this, defaultField, analyzer, filter, timer);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -386,11 +387,17 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public StringIndex getStringIndex(String fieldName) throws IOException {
+	public StringIndex getStringIndex(String fieldName, Timer timer)
+			throws IOException {
 		rwl.r.lock();
 		try {
-			return org.apache.lucene.search.FieldCache.DEFAULT.getStringIndex(
-					indexReader, fieldName);
+			if (timer != null)
+				timer = new Timer(timer, "getStringIndex " + fieldName);
+			StringIndex si = org.apache.lucene.search.FieldCache.DEFAULT
+					.getStringIndex(indexReader, fieldName);
+			if (timer != null)
+				timer.duration();
+			return si;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -497,7 +504,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public DocSetHits searchDocSet(SearchRequest searchRequest)
+	public DocSetHits searchDocSet(SearchRequest searchRequest, Timer timer)
 			throws IOException, ParseException, SyntaxError,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
@@ -507,7 +514,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			Schema schema = searchRequest.getConfig().getSchema();
 			Field defaultField = schema.getFieldList().getDefaultField();
 
-			return searchCache.get(this, searchRequest, schema, defaultField);
+			return searchCache.get(this, searchRequest, schema, defaultField,
+					timer);
 
 		} finally {
 			rwl.r.unlock();
@@ -515,25 +523,27 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public DocSetHits newDocSetHits(SearchRequest searchRequest, Schema schema,
-			Field defaultField, Analyzer analyzer) throws IOException,
-			ParseException, SyntaxError, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException {
+			Field defaultField, Analyzer analyzer, Timer timer)
+			throws IOException, ParseException, SyntaxError,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException {
 
 		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
-				this, defaultField, analyzer);
-		SorterAbstract sort = searchRequest.getSortList().getSorter(this);
+				this, defaultField, analyzer, timer);
+		SorterAbstract sort = searchRequest.getSortList()
+				.getSorter(this, timer);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
-				filterHits, sort);
+				filterHits, sort, timer);
 		return dsh;
 	}
 
 	public FieldList<FieldValue> getDocumentFields(int docId,
-			FieldList<Field> fieldList) throws IOException, ParseException,
-			SyntaxError {
+			FieldList<Field> fieldList, Timer timer) throws IOException,
+			ParseException, SyntaxError {
 		rwl.r.lock();
 		try {
-			return fieldCache.get(this, docId, fieldList);
+			return fieldCache.get(this, docId, fieldList, timer);
 		} finally {
 			rwl.r.unlock();
 		}

@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 
@@ -47,8 +48,8 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 	}
 
 	public FilterHits get(ReaderLocal reader, Field defaultField,
-			Analyzer analyzer, Filter filter) throws ParseException,
-			IOException {
+			Analyzer analyzer, Filter filter, Timer timer)
+			throws ParseException, IOException {
 		rwl.w.lock();
 		try {
 			FilterCacheKey filterCacheKey = null;
@@ -57,7 +58,8 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 			if (filterHits != null)
 				return filterHits;
 			Query query = filter.getQuery(defaultField, analyzer);
-			filterHits = new FilterHits(query, filter.isNegative(), reader);
+			filterHits = new FilterHits(query, filter.isNegative(), reader,
+					timer);
 			put(filterCacheKey, filterHits);
 			return filterHits;
 		} finally {
