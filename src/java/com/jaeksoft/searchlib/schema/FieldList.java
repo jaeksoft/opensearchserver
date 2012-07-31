@@ -24,10 +24,6 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -45,14 +41,11 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
-import com.jaeksoft.searchlib.util.External;
-import com.jaeksoft.searchlib.util.External.Collecter;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class FieldList<T extends Field> implements
-		CacheKeyInterface<FieldList<T>>, FieldSelector, Externalizable,
-		Iterable<T>, Collecter<T> {
+		CacheKeyInterface<FieldList<T>>, FieldSelector, Iterable<T> {
 
 	/**
 	 * 
@@ -208,24 +201,6 @@ public class FieldList<T extends Field> implements
 			while (it.hasNext())
 				list.add(it.next());
 			return list;
-		}
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		External.readCollection(in, this);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeCollection(fieldList, out);
-	}
-
-	@Override
-	public void addObject(T field) {
-		synchronized (this) {
-			add(field);
 		}
 	}
 

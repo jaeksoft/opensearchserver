@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,16 +24,16 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SchemaFieldList extends FieldList<SchemaField> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6998668218635352037L;
 
 	private Field defaultField;
 	private Field uniqueField;
@@ -63,21 +63,6 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 
 	public Field getUniqueField() {
 		return this.uniqueField;
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		super.readExternal(in);
-		defaultField = External.<Field> readObject(in);
-		uniqueField = External.<Field> readObject(in);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
-		External.writeObject(defaultField, out);
-		External.writeObject(uniqueField, out);
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -58,6 +58,8 @@ public enum Indexed {
 	}
 
 	final public Index getLuceneIndex(String indexAnalyzer) {
+		if (this == NO)
+			return Index.NO;
 		return indexAnalyzer == null ? Index.NOT_ANALYZED : Index.ANALYZED;
 	}
 
