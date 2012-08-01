@@ -40,6 +40,11 @@ public class Geospatial {
 			this.latitude = lat;
 			this.longitude = lon;
 		}
+
+		public Location positive() {
+			return new Location(latitude + MAX_LAT, longitude + MAX_LON);
+		}
+
 	}
 
 	public final static double EARTH_RADIUS_KM = 6371;
@@ -113,4 +118,17 @@ public class Geospatial {
 				new Location(maxLat, maxLon) };
 	}
 
+	public final static double toPositiveLatitude(double latitude) {
+		return latitude + MAX_LAT;
+	}
+
+	public final static double toPositiveLongitude(double longitude) {
+		return longitude + MAX_LON;
+	}
+
+	public final static Location[] boundingCoordinatesPositive(Location loc,
+			double distance, double radius) {
+		Location[] bound = boundingCoordinates(loc, distance, radius);
+		return new Location[] { bound[0].positive(), bound[1].positive() };
+	}
 }

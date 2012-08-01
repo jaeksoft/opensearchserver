@@ -94,6 +94,9 @@ public class DegreesRadiansFilter extends FilterFactory {
 		}
 	}
 
+	private double DEGREES_MAX = 360;
+	private double DEGREES_MIN = -360;
+
 	public class CheckDegreesTokenFilter extends CheckTokenFilter {
 
 		private CheckDegreesTokenFilter(TokenStream input, NumberFormat nf) {
@@ -106,10 +109,13 @@ public class DegreesRadiansFilter extends FilterFactory {
 
 		@Override
 		protected final Double checkNumber() {
-			return checkValue(0, 360);
+			return checkValue(DEGREES_MIN, DEGREES_MIN);
 		}
 
 	}
+
+	private double RADIANS_MAX = Math.PI * 2;
+	private double RADIANS_MIN = -Math.PI * 2;
 
 	public class DegreesToRadiansTokenFilter extends CheckDegreesTokenFilter {
 
@@ -127,6 +133,8 @@ public class DegreesRadiansFilter extends FilterFactory {
 				if (degrees == null)
 					return false;
 				double radians = Math.toRadians(degrees);
+				if (anglePositive)
+					radians += RADIANS_MAX;
 				createToken(radians);
 				return true;
 			}
@@ -134,8 +142,6 @@ public class DegreesRadiansFilter extends FilterFactory {
 	}
 
 	public class CheckRadiansTokenFilter extends CheckTokenFilter {
-
-		private double RADIANS_MAX = Math.PI * 2;
 
 		private CheckRadiansTokenFilter(TokenStream input, NumberFormat nf) {
 			super(input, nf);
@@ -147,7 +153,7 @@ public class DegreesRadiansFilter extends FilterFactory {
 
 		@Override
 		protected final Double checkNumber() {
-			return checkValue(0, RADIANS_MAX);
+			return checkValue(RADIANS_MIN, RADIANS_MAX);
 		}
 	}
 
@@ -167,6 +173,8 @@ public class DegreesRadiansFilter extends FilterFactory {
 				if (radians == null)
 					return false;
 				double degrees = Math.toDegrees(radians);
+				if (anglePositive)
+					degrees += DEGREES_MAX;
 				createToken(degrees);
 				return true;
 			}
@@ -175,6 +183,7 @@ public class DegreesRadiansFilter extends FilterFactory {
 
 	private boolean faultTolerant = true;
 	private int conversion = 0;
+	private boolean anglePositive = true;
 
 	@Override
 	protected void initProperties() throws SearchLibException {
@@ -182,6 +191,9 @@ public class DegreesRadiansFilter extends FilterFactory {
 		addProperty(ClassPropertyEnum.DEGREES_RADIANS_CONVERSION,
 				ClassPropertyEnum.DEGREES_RADIANS_CONVERSION_LIST[0],
 				ClassPropertyEnum.DEGREES_RADIANS_CONVERSION_LIST);
+		addProperty(ClassPropertyEnum.ANGLE_POSITIVE,
+				ClassPropertyEnum.BOOLEAN_LIST[0],
+				ClassPropertyEnum.BOOLEAN_LIST);
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
 				ClassPropertyEnum.BOOLEAN_LIST);
@@ -202,6 +214,8 @@ public class DegreesRadiansFilter extends FilterFactory {
 			}
 		} else if (prop == ClassPropertyEnum.FAULT_TOLERANT)
 			faultTolerant = Boolean.parseBoolean(value);
+		else if (prop == ClassPropertyEnum.ANGLE_POSITIVE)
+			anglePositive = Boolean.parseBoolean(value);
 	}
 
 	@Override

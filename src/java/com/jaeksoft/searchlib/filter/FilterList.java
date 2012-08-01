@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class FilterList implements Iterable<FilterAbstract<?>> {
 
@@ -108,6 +109,11 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		for (FilterAbstract<?> filter : filterList)
 			filter.writeXmlConfig(xmlWriter);
+	}
+
+	public void setFromServlet(ServletTransaction transaction) {
+		for (FilterAbstract<?> filter : filterList)
+			filter.setFromServlet(transaction);
 	}
 
 }

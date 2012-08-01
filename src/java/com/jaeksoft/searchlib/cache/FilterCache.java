@@ -51,8 +51,8 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 			throws ParseException, IOException {
 		rwl.w.lock();
 		try {
-			FilterCacheKey filterCacheKey = null;
-			filterCacheKey = new FilterCacheKey(filter, defaultField, analyzer);
+			FilterCacheKey filterCacheKey = new FilterCacheKey(filter,
+					defaultField, analyzer);
 			FilterHits filterHits = getAndPromote(filterCacheKey);
 			if (filterHits != null)
 				return filterHits;

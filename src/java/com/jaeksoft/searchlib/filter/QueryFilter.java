@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class QueryFilter extends FilterAbstract<QueryFilter> {
 
@@ -133,5 +134,12 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 		super.copyTo(selectedItem);
 		QueryFilter copyTo = (QueryFilter) selectedItem;
 		copyTo.queryString = queryString;
+	}
+
+	@Override
+	public void setFromServlet(ServletTransaction transaction) {
+		String q = transaction.getParameterString(getParamPosition());
+		if (q != null)
+			setQueryString(q);
 	}
 }

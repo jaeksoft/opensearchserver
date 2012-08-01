@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class GeoFilter extends FilterAbstract<GeoFilter> {
 
@@ -259,7 +260,9 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	@Override
 	public String getCacheKey(Field defaultField, Analyzer analyzer)
 			throws ParseException {
-		return "GeoFilter - " + getQuery(defaultField, analyzer).toString();
+		String key = "GeoFilter - "
+				+ getQuery(defaultField, analyzer).toString();
+		return key;
 	}
 
 	private String getQueryString() {
@@ -269,8 +272,8 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 				.toRadians(longitude);
 		Geospatial.Location loc = new Geospatial.Location(lat, lon);
 		double dist = distance / unit.div;
-		Geospatial.Location[] bound = Geospatial.boundingCoordinates(loc, dist,
-				unit.radius);
+		Geospatial.Location[] bound = Geospatial.boundingCoordinatesPositive(
+				loc, dist, unit.radius);
 		StringBuffer sb = new StringBuffer(latitudeField);
 		sb.append(":[");
 		sb.append(bound[0].latitude);
@@ -283,7 +286,6 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		sb.append(" TO ");
 		sb.append(bound[1].longitude);
 		sb.append("]");
-		System.out.println(sb.toString());
 		return sb.toString();
 	}
 
@@ -296,7 +298,6 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		queryParser.setLowercaseExpandedTerms(false);
 		try {
 			query = queryParser.parse(getQueryString());
-			System.out.println(query.toString());
 		} catch (org.apache.lucene.queryParser.ParseException e) {
 			throw new ParseException(e);
 		}
@@ -414,5 +415,19 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	public void setCoordUnit(CoordUnit coordUnit) {
 		this.coordUnit = coordUnit;
 		this.query = null;
+	}
+
+	@Override
+	public void setFromServlet(ServletTransaction transaction) {
+		String pp = getParamPosition();
+		String q = transaction.getParameterString(pp + ".lon");
+		if (q != null)
+			setLongitude(Double.parseDouble(q));
+		q = transaction.getParameterString(pp + ".lat");
+		if (q != null)
+			setLatitude(Double.parseDouble(q));
+		q = transaction.getParameterString(pp + ".dist");
+		if (q != null)
+			setDistance(Double.parseDouble(q));
 	}
 }

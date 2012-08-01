@@ -187,6 +187,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			"Degrees to Radians", "Radians to Degrees", "Check degrees",
 			"Check radians" };
 
+	public static final ClassPropertyEnum ANGLE_POSITIVE = new ClassPropertyEnum(
+			true, "angle_positive", "Force positive angle",
+			"Offset the value to be positive");
+
 	public static ClassPropertyEnum IGNORE_META_NOINDEX = new ClassPropertyEnum(
 			true, "ignoreMetaNoIndex", "Ignore meta noindex",
 			"Ignore the meta noindex tag in HTML header");

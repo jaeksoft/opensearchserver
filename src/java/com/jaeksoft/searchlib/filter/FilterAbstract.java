@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
@@ -107,5 +108,7 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 		selectedItem.negative = negative;
 		selectedItem.source = source;
 	}
+
+	public abstract void setFromServlet(ServletTransaction transaction);
 
 }
