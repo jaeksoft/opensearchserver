@@ -24,11 +24,46 @@
 
 package com.jaeksoft.searchlib.analysis.filter;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 
 public class URLNormalizerFilter extends FilterFactory {
+
+	public class URLNormalizerTokenFilter extends AbstractTermFilter {
+
+		protected URLNormalizerTokenFilter(TokenStream input) {
+			super(input);
+		}
+
+		@Override
+		public final boolean incrementToken() throws IOException {
+			current = captureState();
+			for (;;) {
+				if (!input.incrementToken())
+					return false;
+				String term = getTerm();
+				String[] part = StringUtils.split(term, '|');
+				if (part != null) {
+					try {
+						URL url = new URL(part[0]);
+						if (part.length > 1)
+							url = new URL(url, part[1]);
+						createToken(url.toExternalForm());
+					} catch (MalformedURLException e) {
+						Logging.info(e.getMessage());
+					}
+				}
+				return true;
+			}
+		}
+	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {

@@ -107,6 +107,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			"Number format",
 			"Format number using java decimal format, for example, \"#,##0.00;(#,##0.00)\".");
 
+	public static ClassPropertyEnum JSON_PATH = new ClassPropertyEnum(true,
+			"jsonPath", "Json Path",
+			"Extract data from a JSON structure using Json Path syntax");
+
 	public static ClassPropertyEnum REMOVE_DUPLICATE_DIGITS = new ClassPropertyEnum(
 			true, "removeDuplicateDigits", "Duplicate digits",
 			"Detect and remove consecutive duplicate digits");

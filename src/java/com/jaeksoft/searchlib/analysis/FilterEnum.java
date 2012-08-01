@@ -51,6 +51,9 @@ public enum FilterEnum {
 	ISOLatin1AccentFilter(
 			"This filter replaces accented characters (characters with diacritics) in the ISO latin 1 character set (ISO-8859-1) with the unaccented (no diacritics) equivalent."),
 
+	JsonPathFilter(
+			"This filter extract terms from a JSON structure using Json Path syntax."),
+
 	LowerCaseFilter("This filter normalises text into lower case characters"),
 
 	NGramFilter(

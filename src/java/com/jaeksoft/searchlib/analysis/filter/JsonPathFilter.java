@@ -21,27 +21,69 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+
 package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
+import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jayway.jsonpath.JsonPath;
 
-public class NumberFormatFilter extends FilterFactory {
+public class JsonPathFilter extends FilterFactory {
 
-	private final String DEFAULT_FORMAT = "0000000000";
+	public class JsonPathTokenFilter extends AbstractTermFilter {
 
-	private String format = DEFAULT_FORMAT;
+		private JsonPath jsonPath = null;
+
+		private List<?> tokenList = null;
+
+		private int currentPos = 0;
+
+		protected JsonPathTokenFilter(TokenStream input, JsonPath jPath) {
+			super(input);
+			this.jsonPath = jPath;
+		}
+
+		private final boolean popToken() {
+			if (tokenList == null)
+				return false;
+			if (currentPos == tokenList.size())
+				return false;
+			createToken(tokenList.get(currentPos++).toString());
+			return true;
+		}
+
+		@Override
+		public final boolean incrementToken() throws IOException {
+			current = captureState();
+			for (;;) {
+				if (popToken())
+					return true;
+				if (!input.incrementToken())
+					return false;
+				Object object = jsonPath.read(getTerm());
+				if (object instanceof String) {
+					createToken(object.toString());
+					return true;
+				} else if (object instanceof List) {
+					tokenList = (List<?>) object;
+					currentPos = 0;
+				}
+			}
+		}
+	}
+
+	private JsonPath jsonPath = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.NUMBER_FORMAT, DEFAULT_FORMAT, null);
+		addProperty(ClassPropertyEnum.JSON_PATH, "", null);
 	}
 
 	@Override
@@ -49,35 +91,16 @@ public class NumberFormatFilter extends FilterFactory {
 			throws SearchLibException {
 		if (value == null || value.length() == 0)
 			return;
-		if (prop == ClassPropertyEnum.NUMBER_FORMAT) {
-			new DecimalFormat(value);
-			format = value;
+		if (prop == ClassPropertyEnum.JSON_PATH) {
+			if (value != null && value.length() > 0)
+				jsonPath = JsonPath.compile(value);
+			else
+				jsonPath = null;
 		}
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new NumberFormatTermFilter(tokenStream, format);
-	}
-
-	public class NumberFormatTermFilter extends AbstractTermFilter {
-
-		private final DecimalFormat numberFormat;
-
-		public NumberFormatTermFilter(TokenStream input, String format) {
-			super(input);
-			numberFormat = new DecimalFormat(format);
-		}
-
-		@Override
-		public final boolean incrementToken() throws IOException {
-			current = captureState();
-			if (!input.incrementToken())
-				return false;
-			String term = numberFormat.format(new Double(getTerm()));
-			if (term != null)
-				createToken(term);
-			return true;
-		}
+		return new JsonPathTokenFilter(tokenStream, jsonPath);
 	}
 }

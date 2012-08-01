@@ -24,11 +24,33 @@
 
 package com.jaeksoft.searchlib.analysis.filter;
 
+import java.io.IOException;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 
 public class DecodeHtmlEntitiesFilter extends FilterFactory {
+
+	public class DecodeHtmlEntitiesTokenFilter extends AbstractTermFilter {
+
+		protected DecodeHtmlEntitiesTokenFilter(TokenStream input) {
+			super(input);
+
+		}
+
+		@Override
+		public final boolean incrementToken() throws IOException {
+			current = captureState();
+			for (;;) {
+				if (!input.incrementToken())
+					return false;
+				createToken(StringEscapeUtils.unescapeHtml(getTerm()));
+				return true;
+			}
+		}
+	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {

@@ -207,14 +207,17 @@
 		</auxhead>
 		<auxhead>
 			<auxheader colspan="2">
-				<label value="Enter a text to analyze: " />
-				<textbox cols="100" value="@{anlzr.testText}" />
-				<listbox selectedItem="@{anlzr.testType}"
-					mold="select">
-					<listitem label="Query" value="query" />
-					<listitem label="Indexation" value="index" />
-				</listbox>
-				<button label="Test" forward="onTest" />
+				<hbox>
+					<label value="Enter a text to analyze: " />
+					<textbox cols="100" value="@{anlzr.testText}"
+						multiline="true" rows="5" />
+					<listbox selectedItem="@{anlzr.testType}"
+						mold="select">
+						<listitem label="Query" value="query" />
+						<listitem label="Indexation" value="index" />
+					</listbox>
+					<button label="Test" forward="onTest" />
+				</hbox>
 			</auxheader>
 		</auxhead>
 		<listhead>

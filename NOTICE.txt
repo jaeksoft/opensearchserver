@@ -142,6 +142,16 @@ http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library
 This software is licensed under the Apache 2 License.
 
 ----------------------------------------
+Json-smart
+http://code.google.com/p/json-smart/
+This software is licensed under the Apache 2 License.
+
+----------------------------------------
+Json-path
+http://code.google.com/p/json-path/
+This software is licensed under the Apache 2 License.
+
+----------------------------------------
 IcePDF library
 http://www.icepdf.org
 This software is licensed under the Apache 2 License.
