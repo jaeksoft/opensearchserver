@@ -46,7 +46,7 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 		this.indexConfig = indexConfig;
 	}
 
-	public FilterHits get(ReaderLocal reader, FilterAbstract filter,
+	public FilterHits get(ReaderLocal reader, FilterAbstract<?> filter,
 			Field defaultField, Analyzer analyzer, Timer timer)
 			throws ParseException, IOException {
 		rwl.w.lock();

@@ -36,7 +36,7 @@ public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
 
 	private boolean isNegative;
 
-	public FilterCacheKey(FilterAbstract filter, Field defaultField,
+	public FilterCacheKey(FilterAbstract<?> filter, Field defaultField,
 			Analyzer analyzer) throws ParseException {
 		key = filter.getCacheKey(defaultField, analyzer);
 		isNegative = filter.isNegative();

@@ -361,7 +361,7 @@ public class MoreLikeThisRequest extends AbstractRequest {
 				Node n = nodes.item(i);
 				filterList.add(new QueryFilter(xpp.getNodeString(n), "yes"
 						.equals(XPathParser.getAttributeString(n, "negative")),
-						FilterAbstract.Source.CONFIGXML));
+						FilterAbstract.Source.CONFIGXML, null));
 			}
 
 			FieldList<SchemaField> fieldList = config.getSchema()

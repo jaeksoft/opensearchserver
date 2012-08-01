@@ -39,35 +39,43 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class FilterList implements Iterable<FilterAbstract> {
+public class FilterList implements Iterable<FilterAbstract<?>> {
 
-	private List<FilterAbstract> filterList;
+	private List<FilterAbstract<?>> filterList;
 
 	private transient Config config;
 
 	public FilterList() {
 		config = null;
-		this.filterList = new ArrayList<FilterAbstract>();
+		this.filterList = new ArrayList<FilterAbstract<?>>();
 	}
 
 	public FilterList(FilterList fl) {
 		this.config = fl.config;
-		this.filterList = new ArrayList<FilterAbstract>(fl.size());
-		for (FilterAbstract f : fl)
+		this.filterList = new ArrayList<FilterAbstract<?>>(fl.size());
+		for (FilterAbstract<?> f : fl)
 			add(f);
 	}
 
 	public FilterList(Config config) {
-		this.filterList = new ArrayList<FilterAbstract>();
+		this.filterList = new ArrayList<FilterAbstract<?>>();
 		this.config = config;
 	}
 
-	public void add(FilterAbstract filter) {
+	public void add(FilterAbstract<?> filter) {
 		filterList.add(filter);
+		renumbered();
 	}
 
-	public void remove(FilterAbstract filter) {
+	public void remove(FilterAbstract<?> filter) {
 		filterList.remove(filter);
+		renumbered();
+	}
+
+	private void renumbered() {
+		int i = 1;
+		for (FilterAbstract<?> item : filterList)
+			item.setParamPosition(i++);
 	}
 
 	public int size() {
@@ -75,7 +83,7 @@ public class FilterList implements Iterable<FilterAbstract> {
 	}
 
 	@Override
-	public Iterator<FilterAbstract> iterator() {
+	public Iterator<FilterAbstract<?>> iterator() {
 		return filterList.iterator();
 	}
 
@@ -86,7 +94,7 @@ public class FilterList implements Iterable<FilterAbstract> {
 			return null;
 
 		FilterHits filterHits = new FilterHits();
-		for (FilterAbstract filter : filterList)
+		for (FilterAbstract<?> filter : filterList)
 			filterHits.and(reader.getFilterHits(defaultField, analyzer, filter,
 					timer));
 
@@ -98,7 +106,7 @@ public class FilterList implements Iterable<FilterAbstract> {
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		for (FilterAbstract filter : filterList)
+		for (FilterAbstract<?> filter : filterList)
 			filter.writeXmlConfig(xmlWriter);
 	}
 

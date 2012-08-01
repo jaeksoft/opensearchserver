@@ -366,7 +366,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public FilterHits getFilterHits(Field defaultField, Analyzer analyzer,
-			FilterAbstract filter, Timer timer) throws ParseException,
+			FilterAbstract<?> filter, Timer timer) throws ParseException,
 			IOException {
 		rwl.r.lock();
 		try {

@@ -441,7 +441,7 @@ public class SearchRequest extends AbstractRequest {
 		rwl.w.lock();
 		try {
 			this.filterList.add(new QueryFilter(req, negative,
-					FilterAbstract.Source.REQUEST));
+					FilterAbstract.Source.REQUEST, null));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -874,7 +874,7 @@ public class SearchRequest extends AbstractRequest {
 				Node n = nodes.item(i);
 				filterList.add(new QueryFilter(xpp.getNodeString(n), "yes"
 						.equals(XPathParser.getAttributeString(n, "negative")),
-						FilterAbstract.Source.CONFIGXML));
+						FilterAbstract.Source.CONFIGXML, null));
 			}
 
 			nodes = xpp.getNodeList(node, "joins/join");
@@ -1032,7 +1032,7 @@ public class SearchRequest extends AbstractRequest {
 					if (value != null)
 						if (value.trim().length() > 0)
 							filterList.add(new QueryFilter(value, false,
-									FilterAbstract.Source.REQUEST));
+									FilterAbstract.Source.REQUEST, null));
 			}
 
 			if ((values = transaction.getParameterValues("fqn")) != null) {
@@ -1040,7 +1040,7 @@ public class SearchRequest extends AbstractRequest {
 					if (value != null)
 						if (value.trim().length() > 0)
 							filterList.add(new QueryFilter(value, true,
-									FilterAbstract.Source.REQUEST));
+									FilterAbstract.Source.REQUEST, null));
 			}
 
 			if ((values = transaction.getParameterValues("rf")) != null) {

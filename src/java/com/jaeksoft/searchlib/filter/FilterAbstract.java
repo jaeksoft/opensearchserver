@@ -41,6 +41,8 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	private boolean negative;
 
+	private String paramPosition;
+
 	public static enum Source {
 		CONFIGXML, REQUEST
 	}
@@ -49,9 +51,11 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	public static final String GEO_FILTER = "Geo filter";
 	public static final String[] FILTER_TYPES = { QUERY_FILTER, GEO_FILTER };
 
-	protected FilterAbstract(Source source, boolean negative) {
+	protected FilterAbstract(Source source, boolean negative,
+			String paramPosition) {
 		this.source = source;
 		this.negative = negative;
+		this.paramPosition = paramPosition;
 	}
 
 	public Source getSource() {
@@ -64,6 +68,16 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	public void setNegative(boolean negative) {
 		this.negative = negative;
+	}
+
+	public void setParamPosition(int position) {
+		StringBuffer sb = new StringBuffer("fq");
+		sb.append(position);
+		paramPosition = sb.toString();
+	}
+
+	public String getParamPosition() {
+		return paramPosition;
 	}
 
 	public abstract String getCacheKey(Field defaultField, Analyzer analyzer)
@@ -87,6 +101,7 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	}
 
 	public void copyTo(FilterAbstract<?> selectedItem) {
+		selectedItem.paramPosition = paramPosition;
 		selectedItem.negative = negative;
 		selectedItem.source = source;
 	}

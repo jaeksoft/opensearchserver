@@ -33,7 +33,6 @@ import org.zkoss.zul.Listbox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
-import com.jaeksoft.searchlib.filter.FilterAbstract.Source;
 import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
@@ -57,7 +56,7 @@ public class FiltersController extends SearchRequestController {
 	protected void reset() throws SearchLibException {
 		selectedItem = null;
 		filterType = FilterAbstract.QUERY_FILTER;
-		currentItem = new QueryFilter("", false, Source.REQUEST);
+		currentItem = new QueryFilter();
 	}
 
 	public FiltersController() throws SearchLibException {
@@ -132,11 +131,9 @@ public class FiltersController extends SearchRequestController {
 	public void setFilterType(String filterType) {
 		this.filterType = filterType;
 		if (FilterAbstract.QUERY_FILTER.equals(filterType))
-			currentItem = new QueryFilter("", false,
-					FilterAbstract.Source.REQUEST);
+			currentItem = new QueryFilter();
 		else if (FilterAbstract.GEO_FILTER.equals(filterType))
-			currentItem = new GeoFilter(FilterAbstract.Source.REQUEST, false,
-					Unit.KILOMETERS, Type.SQUARED, 1, null, null, 0, 0);
+			currentItem = new GeoFilter();
 		reloadListbox();
 	}
 

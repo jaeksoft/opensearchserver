@@ -140,7 +140,7 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 				if (value != null && !value.equals(""))
 					if (value.trim().length() > 0)
 						fl.add(new QueryFilter(value, false,
-								FilterAbstract.Source.REQUEST));
+								FilterAbstract.Source.REQUEST, null));
 		}
 
 		if (filterQueryNegetive != null && filterQueryNegetive.size() > 0) {
@@ -149,7 +149,7 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 				if (value != null)
 					if (value.trim().length() > 0)
 						fl.add(new QueryFilter(value, true,
-								FilterAbstract.Source.REQUEST));
+								FilterAbstract.Source.REQUEST, null));
 		}
 		if (sort != null && sort.size() > 0) {
 			SortList sortList = searchRequest.getSortList();

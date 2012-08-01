@@ -62,18 +62,18 @@
 								<listbox mold="select"
 									model="@{filters.geoUnits}"
 									selectedItem="@{filters.current.unit}" />
-								<doublebox
-									value="@{filter.current.value}" />
+								<textbox
+									value="@{filters.current.value}" />
 								<listbox mold="select"
 									model="@{filters.indexedFieldList}"
 									selectedItem="@{filters.current.latitudeField}" />
 								<listbox mold="select"
 									model="@{filters.indexedFieldList}"
 									selectedItem="@{filters.current.longitudeField}" />
-								<doublebox
-									value="@{filter.current.latitude}" />
-								<doublebox
-									value="@{filter.current.longitude}" />
+								<textbox
+									value="@{filters.current.latitude}" />
+								<textbox
+									value="@{filters.current.longitude}" />
 							</row>
 						</rows>
 					</grid>

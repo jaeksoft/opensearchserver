@@ -41,7 +41,7 @@ public class FilterListCacheKey implements
 	public FilterListCacheKey(FilterList filterList, Field defaultField,
 			Analyzer analyzer) throws ParseException {
 		filterCacheKeySet = new TreeSet<FilterCacheKey>();
-		for (FilterAbstract filter : filterList)
+		for (FilterAbstract<?> filter : filterList)
 			filterCacheKeySet.add(new FilterCacheKey(filter, defaultField,
 					analyzer));
 	}

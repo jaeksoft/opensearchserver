@@ -92,10 +92,15 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	private double longitude;
 
-	public GeoFilter(FilterAbstract.Source source, boolean negative, Unit unit,
-			Type type, double value, String latitudeField,
+	public GeoFilter() {
+		this(Source.REQUEST, false, null, Unit.KILOMETERS, Type.SQUARED, 0,
+				null, null, 0, 0);
+	}
+
+	public GeoFilter(Source source, boolean negative, String paramPosition,
+			Unit unit, Type type, double value, String latitudeField,
 			String longitudeField, double latitude, double longitude) {
-		super(source, negative);
+		super(source, negative, paramPosition);
 		this.unit = unit;
 		this.type = type;
 		this.value = value;
@@ -178,8 +183,9 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	@Override
 	public GeoFilter duplicate() {
-		return new GeoFilter(getSource(), isNegative(), unit, type, value,
-				latitudeField, longitudeField, latitude, longitude);
+		return new GeoFilter(getSource(), isNegative(), getParamPosition(),
+				unit, type, value, latitudeField, longitudeField, latitude,
+				longitude);
 	}
 
 	/**

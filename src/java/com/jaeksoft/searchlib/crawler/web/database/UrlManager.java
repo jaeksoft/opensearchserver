@@ -279,7 +279,7 @@ public class UrlManager {
 		searchRequest.setQueryString(queryString);
 		searchRequest.getFilterList().add(
 				new QueryFilter(field + ":" + start + "*", false,
-						FilterAbstract.Source.REQUEST));
+						FilterAbstract.Source.REQUEST, null));
 		getFacetLimit(field, searchRequest, limit, list);
 	}
 

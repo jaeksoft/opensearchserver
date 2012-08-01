@@ -44,8 +44,13 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 
 	private String queryString;
 
-	public QueryFilter(String req, boolean negative, Source src) {
-		super(src, negative);
+	public QueryFilter() {
+		this("", false, Source.REQUEST, null);
+	}
+
+	public QueryFilter(String req, boolean negative, Source src,
+			String paramPosition) {
+		super(src, negative, paramPosition);
 		this.queryString = req;
 		this.query = null;
 	}
@@ -99,7 +104,8 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 
 	@Override
 	public QueryFilter duplicate() {
-		return new QueryFilter(queryString, isNegative(), getSource());
+		return new QueryFilter(queryString, isNegative(), getSource(),
+				getParamPosition());
 	}
 
 	@Override
