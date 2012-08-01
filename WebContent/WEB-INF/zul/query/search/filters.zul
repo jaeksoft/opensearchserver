@@ -47,12 +47,13 @@
 					<grid visible="@{filters.current.geoFilter}">
 						<columns>
 							<column label="Type" hflex="min" />
-							<column label="Unit" hflex="min" />
-							<column label="Value" hflex="min" />
+							<column label="Distance unit" hflex="min" />
+							<column label="Distance" hflex="min" />
 							<column label="Latitude field" hflex="min" />
 							<column label="Longtude field" hflex="min" />
 							<column label="Latitude (lat)" hflex="min" />
-							<column label="Longtude (lon)" hflex="min" />
+							<column label="Longitude (lon)" hflex="min" />
+							<column label="Location unit" hflex="min" />
 						</columns>
 						<rows>
 							<row>
@@ -62,18 +63,21 @@
 								<listbox mold="select"
 									model="@{filters.geoUnits}"
 									selectedItem="@{filters.current.unit}" />
-								<textbox
-									value="@{filters.current.value}" />
+								<textbox constraint="/[0-9,.]*/"
+									value="@{filters.current.distance}" />
 								<listbox mold="select"
 									model="@{filters.indexedFieldList}"
 									selectedItem="@{filters.current.latitudeField}" />
 								<listbox mold="select"
 									model="@{filters.indexedFieldList}"
 									selectedItem="@{filters.current.longitudeField}" />
-								<textbox
+								<textbox constraint="/[0-9,.]*/"
 									value="@{filters.current.latitude}" />
-								<textbox
+								<textbox constraint="/[0-9,.]*/"
 									value="@{filters.current.longitude}" />
+								<listbox mold="select"
+									model="@{filters.geoCoordUnits}"
+									selectedItem="@{filters.current.coordUnit}" />
 							</row>
 						</rows>
 					</grid>

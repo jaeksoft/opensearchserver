@@ -80,6 +80,8 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 		return paramPosition;
 	}
 
+	public abstract String getDescription();
+
 	public abstract String getCacheKey(Field defaultField, Analyzer analyzer)
 			throws ParseException;
 

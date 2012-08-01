@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
@@ -869,12 +870,14 @@ public class SearchRequest extends AbstractRequest {
 				FacetField.copyFacetFields(nodes.item(i), fieldList,
 						facetFieldList);
 
-			nodes = xpp.getNodeList(node, "filters/filter");
+			nodes = xpp.getNodeList(node, "filters/*");
 			for (int i = 0; i < nodes.getLength(); i++) {
-				Node n = nodes.item(i);
-				filterList.add(new QueryFilter(xpp.getNodeString(n), "yes"
-						.equals(XPathParser.getAttributeString(n, "negative")),
-						FilterAbstract.Source.CONFIGXML, null));
+				node = nodes.item(i);
+				String nodeName = node.getNodeName();
+				if ("filter".equals(nodeName))
+					filterList.add(new QueryFilter(xpp, node));
+				else if ("geofilter".equals(nodeName))
+					filterList.add(new GeoFilter(xpp, node));
 			}
 
 			nodes = xpp.getNodeList(node, "joins/join");

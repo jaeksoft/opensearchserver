@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.GeoFilter;
+import com.jaeksoft.searchlib.filter.GeoFilter.CoordUnit;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
 import com.jaeksoft.searchlib.filter.QueryFilter;
@@ -143,6 +144,10 @@ public class FiltersController extends SearchRequestController {
 
 	public Unit[] getGeoUnits() {
 		return GeoFilter.Unit.values();
+	}
+
+	public CoordUnit[] getGeoCoordUnits() {
+		return GeoFilter.CoordUnit.values();
 	}
 
 	public List<String> getIndexedFieldList() throws SearchLibException {

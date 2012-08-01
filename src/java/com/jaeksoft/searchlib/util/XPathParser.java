@@ -187,6 +187,14 @@ public class XPathParser {
 		return Float.parseFloat(value);
 	}
 
+	public final static double getAttributeDouble(Node node,
+			String attributeName) {
+		String value = getAttributeString(node, attributeName, false);
+		if (value == null || value.length() == 0)
+			return 0;
+		return Double.parseDouble(value);
+	}
+
 	final public String getSubNodeTextIfAny(Node parentNode, String nodeName)
 			throws XPathExpressionException {
 		Node node = getNode(parentNode, nodeName);

@@ -26,16 +26,20 @@ package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class QueryFilter extends FilterAbstract<QueryFilter> {
@@ -53,6 +57,12 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 		super(src, negative, paramPosition);
 		this.queryString = req;
 		this.query = null;
+	}
+
+	public QueryFilter(XPathParser xpp, Node node)
+			throws XPathExpressionException {
+		this(xpp.getNodeString(node), "yes".equals(XPathParser
+				.getAttributeString(node, "negative")), Source.CONFIGXML, null);
 	}
 
 	public Query getQuery(Field defaultField, Analyzer analyzer)
@@ -77,6 +87,13 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 	public void setQueryString(String queryString) {
 		this.queryString = queryString;
 		this.query = null;
+	}
+
+	@Override
+	public String getDescription() {
+		StringBuffer sb = new StringBuffer("Query filter: ");
+		sb.append(queryString);
+		return sb.toString();
 	}
 
 	@Override
