@@ -35,15 +35,19 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public abstract class FilterAbstract {
+public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	private Source source;
 
 	private boolean negative;
 
-	public enum Source {
+	public static enum Source {
 		CONFIGXML, REQUEST
 	}
+
+	public static final String QUERY_FILTER = "Query filter";
+	public static final String GEO_FILTER = "Geo filter";
+	public static final String[] FILTER_TYPES = { QUERY_FILTER, GEO_FILTER };
 
 	protected FilterAbstract(Source source, boolean negative) {
 		this.source = source;
@@ -71,5 +75,20 @@ public abstract class FilterAbstract {
 	public abstract FilterHits getFilterHits(ReaderLocal reader,
 			Field defaultField, Analyzer analyzer, Timer timer)
 			throws ParseException, IOException;
+
+	public abstract T duplicate();
+
+	public boolean isQueryFilter() {
+		return this instanceof QueryFilter;
+	}
+
+	public boolean isGeoFilter() {
+		return this instanceof GeoFilter;
+	}
+
+	public void copyTo(FilterAbstract<?> selectedItem) {
+		selectedItem.negative = negative;
+		selectedItem.source = source;
+	}
 
 }

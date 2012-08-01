@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class QueryFilter extends FilterAbstract {
+public class QueryFilter extends FilterAbstract<QueryFilter> {
 
 	private transient Query query;
 
@@ -97,4 +97,18 @@ public class QueryFilter extends FilterAbstract {
 		return filterHits;
 	}
 
+	@Override
+	public QueryFilter duplicate() {
+		return new QueryFilter(queryString, isNegative(), getSource());
+	}
+
+	@Override
+	public void copyTo(FilterAbstract<?> selectedItem) {
+		if (!(selectedItem instanceof QueryFilter))
+			throw new RuntimeException("Wrong filter type "
+					+ selectedItem.getClass().getName());
+		super.copyTo(selectedItem);
+		QueryFilter copyTo = (QueryFilter) selectedItem;
+		copyTo.queryString = queryString;
+	}
 }

@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.join.JoinItem;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -60,6 +61,10 @@ public class JoinController extends SearchRequestController {
 	protected void reset() throws SearchLibException {
 		selectedItem = null;
 		currentItem = new JoinItem();
+	}
+
+	public String[] getFilterTypeList() {
+		return FilterAbstract.FILTER_TYPES;
 	}
 
 	private void reloadListbox() {
@@ -92,9 +97,8 @@ public class JoinController extends SearchRequestController {
 		reloadListbox();
 	}
 
-	public void onCancel() {
-		selectedItem = null;
-		currentItem = new JoinItem();
+	public void onCancel() throws SearchLibException {
+		reset();
 		reloadListbox();
 	}
 

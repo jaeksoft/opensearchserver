@@ -24,12 +24,21 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
-import org.zkoss.zk.ui.Component;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zul.Listbox;
+
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
+import com.jaeksoft.searchlib.filter.FilterAbstract.Source;
+import com.jaeksoft.searchlib.filter.GeoFilter;
+import com.jaeksoft.searchlib.filter.GeoFilter.Type;
+import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
 import com.jaeksoft.searchlib.filter.QueryFilter;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class FiltersController extends SearchRequestController {
 
@@ -38,24 +47,118 @@ public class FiltersController extends SearchRequestController {
 	 */
 	private static final long serialVersionUID = 989287631079056922L;
 
+	private FilterAbstract<?> currentItem;
+
+	private FilterAbstract<?> selectedItem;
+
+	private String filterType;
+
 	@Override
 	protected void reset() throws SearchLibException {
+		selectedItem = null;
+		filterType = FilterAbstract.QUERY_FILTER;
+		currentItem = new QueryFilter("", false, Source.REQUEST);
 	}
 
 	public FiltersController() throws SearchLibException {
 		super();
+		reset();
 	}
 
-	public void onFilterAdd() throws SearchLibException {
-		((SearchRequest) getRequest()).getFilterList().add(
-				new QueryFilter("", false, FilterAbstract.Source.REQUEST));
-		reloadPage();
+	public String[] getFilterTypeList() {
+		return FilterAbstract.FILTER_TYPES;
 	}
 
-	public void onFilterRemove(Component comp) throws SearchLibException {
-		FilterAbstract filter = (FilterAbstract) getRecursiveComponentAttribute(
+	public FilterAbstract<?> getCurrent() {
+		return currentItem;
+	}
+
+	public boolean isSelected() {
+		return selectedItem != null;
+	}
+
+	public boolean isNotSelected() {
+		return !isSelected();
+	}
+
+	public FilterAbstract<?> getSelected() {
+		return selectedItem;
+	}
+
+	private void reloadListbox() {
+		Listbox listbox = (Listbox) getFellow("filterListbox");
+		listbox.invalidate();
+		reloadComponent(listbox);
+
+	}
+
+	public void setSelected(FilterAbstract<?> item) {
+		this.selectedItem = item;
+		this.currentItem = item.duplicate();
+		reloadListbox();
+	}
+
+	public void onCancel() throws SearchLibException {
+		reset();
+		reloadListbox();
+	}
+
+	public void onSave() throws SearchLibException {
+		if (selectedItem != null)
+			currentItem.copyTo(selectedItem);
+		else
+			getRequest().getFilterList().add(currentItem);
+		onCancel();
+	}
+
+	public void onRemove(Component comp) throws SearchLibException {
+		FilterAbstract<?> filter = (FilterAbstract<?>) getRecursiveComponentAttribute(
 				comp, "filterItem");
-		((SearchRequest) getRequest()).getFilterList().remove(filter);
-		reloadPage();
+		getRequest().getFilterList().remove(filter);
+		onCancel();
 	}
+
+	/**
+	 * @return the filterType
+	 */
+	public String getFilterType() {
+		return filterType;
+	}
+
+	/**
+	 * @param filterType
+	 *            the filterType to set
+	 */
+	public void setFilterType(String filterType) {
+		this.filterType = filterType;
+		if (FilterAbstract.QUERY_FILTER.equals(filterType))
+			currentItem = new QueryFilter("", false,
+					FilterAbstract.Source.REQUEST);
+		else if (FilterAbstract.GEO_FILTER.equals(filterType))
+			currentItem = new GeoFilter(FilterAbstract.Source.REQUEST, false,
+					Unit.KILOMETERS, Type.SQUARED, 1, null, null, 0, 0);
+		reloadListbox();
+	}
+
+	public Type[] getGeoTypes() {
+		return GeoFilter.Type.values();
+	}
+
+	public Unit[] getGeoUnits() {
+		return GeoFilter.Unit.values();
+	}
+
+	public List<String> getIndexedFieldList() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		List<String> fieldList = new ArrayList<String>();
+		List<SchemaField> schemaFieldList = client.getSchema().getFieldList()
+				.getList();
+		for (SchemaField field : schemaFieldList)
+			if (field.isIndexed())
+				fieldList.add(field.getName());
+		return fieldList;
+	}
+
 }

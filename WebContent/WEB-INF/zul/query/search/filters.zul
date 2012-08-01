@@ -16,24 +16,91 @@
 -->
 <window id="filters"
 	use="com.jaeksoft.searchlib.web.controller.query.FiltersController">
-	<grid model="@{filters.request.filterList.toArray}">
-		<columns>
-			<column label="Query string" />
-			<column label="Negative" />
-			<column label="Action" />
-		</columns>
-		<rows>
-			<row self="@{each=filter}">
-				<custom-attributes filterItem="@{filter}" />
-				<textbox value="@{filter.queryString}" width="90%" />
-				<checkbox label="Negative" checked="@{filter.negative}" />
-				<button label="Remove" onClick="filters.onFilterRemove(self)" />
-			</row>
-		</rows>
-		<foot>
-			<footer span="2">
-				<button label="add filter" forward="onFilterAdd" />
-			</footer>
-		</foot>
-	</grid>
+	<listbox id="filterListbox"
+		model="@{filters.request.filterList.toArray}"
+		selectedItem="@{filters.selected}">
+		<listhead>
+			<listheader label="#" hflex="min" />
+			<listheader label="Description" />
+			<listheader label="Negative" hflex="min" />
+			<listheader label="Action" hflex="min" />
+		</listhead>
+		<auxhead>
+			<auxheader />
+			<auxheader>
+				<hbox align="center">
+					<listbox mold="select"
+						model="@{filters.filterTypeList}"
+						selectedItem="@{filters.filterType}" />
+					<grid visible="@{filters.current.queryFilter}">
+						<columns>
+							<column label="Query" hflex="min" />
+						</columns>
+						<rows>
+							<row>
+								<textbox
+									value="@{filters.current.queryString}" cols="50"
+									multiline="true" rows="2" />
+							</row>
+						</rows>
+					</grid>
+					<grid visible="@{filters.current.geoFilter}">
+						<columns>
+							<column label="Type" hflex="min" />
+							<column label="Unit" hflex="min" />
+							<column label="Value" hflex="min" />
+							<column label="Latitude field" hflex="min" />
+							<column label="Longtude field" hflex="min" />
+							<column label="Latitude (lat)" hflex="min" />
+							<column label="Longtude (lon)" hflex="min" />
+						</columns>
+						<rows>
+							<row>
+								<listbox mold="select"
+									model="@{filters.geoTypes}"
+									selectedItem="@{filters.current.type}" />
+								<listbox mold="select"
+									model="@{filters.geoUnits}"
+									selectedItem="@{filters.current.unit}" />
+								<doublebox
+									value="@{filter.current.value}" />
+								<listbox mold="select"
+									model="@{filters.indexedFieldList}"
+									selectedItem="@{filters.current.latitudeField}" />
+								<listbox mold="select"
+									model="@{filters.indexedFieldList}"
+									selectedItem="@{filters.current.longitudeField}" />
+								<doublebox
+									value="@{filter.current.latitude}" />
+								<doublebox
+									value="@{filter.current.longitude}" />
+							</row>
+						</rows>
+					</grid>
+				</hbox>
+			</auxheader>
+			<auxheader>
+				<checkbox checked="@{filters.current.negative}" />
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<button label="Add" forward="onSave"
+						visible="@{filters.notSelected}" />
+					<button label="Save" forward="onSave"
+						visible="@{filters.selected}" />
+					<button label="Cancel" forward="onCancel"
+						visible="@{filters.selected}" />
+				</vbox>
+			</auxheader>
+		</auxhead>
+		<listitem self="@{each=filter}">
+			<custom-attributes filterItem="@{filter}" />
+			<listcell label="@{filter.paramPosition}" />
+			<listcell label="@{filter.description}" />
+			<listcell label="@{filter.negative}" />
+			<listcell>
+				<button label="Remove" onClick="filters.onRemove(self)" />
+			</listcell>
+		</listitem>
+	</listbox>
 </window>

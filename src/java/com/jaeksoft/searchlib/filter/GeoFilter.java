@@ -24,11 +24,18 @@
 
 package com.jaeksoft.searchlib.filter;
 
+import java.io.IOException;
+
+import org.apache.lucene.analysis.Analyzer;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class GeoFilter {
+public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	public static enum Unit {
 
@@ -77,6 +84,27 @@ public class GeoFilter {
 
 	private double value;
 
+	private String latitudeField;
+
+	private String longitudeField;
+
+	private double latitude;
+
+	private double longitude;
+
+	public GeoFilter(FilterAbstract.Source source, boolean negative, Unit unit,
+			Type type, double value, String latitudeField,
+			String longitudeField, double latitude, double longitude) {
+		super(source, negative);
+		this.unit = unit;
+		this.type = type;
+		this.value = value;
+		this.latitudeField = latitudeField;
+		this.longitudeField = longitudeField;
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
+
 	/**
 	 * @return the unit
 	 */
@@ -122,9 +150,111 @@ public class GeoFilter {
 		this.value = value;
 	}
 
+	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("geofilter", "type", type.name(), "unit",
-				unit.name(), "value", Double.toString(value));
+				unit.name(), "value", Double.toString(value), "latitudeField",
+				latitudeField, "longitudeField", longitudeField, "latitude",
+				Double.toString(latitude), "longitude",
+				Double.toString(longitude));
 		xmlWriter.endElement();
+	}
+
+	@Override
+	public String getCacheKey(Field defaultField, Analyzer analyzer)
+			throws ParseException {
+		return "GeoFilter - " + unit.name() + " " + type.name() + " "
+				+ Double.toString(value) + "|" + latitudeField + "|"
+				+ longitudeField + " " + Double.toString(latitude) + " "
+				+ Double.toString(longitude);
+	}
+
+	@Override
+	public FilterHits getFilterHits(ReaderLocal reader, Field defaultField,
+			Analyzer analyzer, Timer timer) throws ParseException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public GeoFilter duplicate() {
+		return new GeoFilter(getSource(), isNegative(), unit, type, value,
+				latitudeField, longitudeField, latitude, longitude);
+	}
+
+	/**
+	 * @return the latitudeField
+	 */
+	public String getLatitudeField() {
+		return latitudeField;
+	}
+
+	/**
+	 * @param latitudeField
+	 *            the latitudeField to set
+	 */
+	public void setLatitudeField(String latitudeField) {
+		this.latitudeField = latitudeField;
+	}
+
+	/**
+	 * @return the longitudeField
+	 */
+	public String getLongitudeField() {
+		return longitudeField;
+	}
+
+	/**
+	 * @param longitudeField
+	 *            the longitudeField to set
+	 */
+	public void setLongitudeField(String longitudeField) {
+		this.longitudeField = longitudeField;
+	}
+
+	@Override
+	public void copyTo(FilterAbstract<?> selectedItem) {
+		if (!(selectedItem instanceof GeoFilter))
+			throw new RuntimeException("Wrong filter type "
+					+ selectedItem.getClass().getName());
+		super.copyTo(selectedItem);
+		GeoFilter copyTo = (GeoFilter) selectedItem;
+		copyTo.unit = unit;
+		copyTo.type = type;
+		copyTo.value = value;
+		copyTo.latitudeField = latitudeField;
+		copyTo.longitudeField = longitudeField;
+		copyTo.latitude = latitude;
+		copyTo.longitude = longitude;
+	}
+
+	/**
+	 * @return the latitude
+	 */
+	public double getLatitude() {
+		return latitude;
+	}
+
+	/**
+	 * @param latitude
+	 *            the latitude to set
+	 */
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+
+	/**
+	 * @return the longitude
+	 */
+	public double getLongitude() {
+		return longitude;
+	}
+
+	/**
+	 * @param longitude
+	 *            the longitude to set
+	 */
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
 	}
 }
