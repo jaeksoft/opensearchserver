@@ -27,8 +27,8 @@ package com.jaeksoft.searchlib.web.controller.query;
 import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.filter.Filter;
-import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
+import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class FiltersController extends SearchRequestController {
@@ -47,14 +47,14 @@ public class FiltersController extends SearchRequestController {
 	}
 
 	public void onFilterAdd() throws SearchLibException {
-		((SearchRequest) getRequest()).getFilterList().add("", false,
-				Source.REQUEST);
+		((SearchRequest) getRequest()).getFilterList().add(
+				new QueryFilter("", false, FilterAbstract.Source.REQUEST));
 		reloadPage();
 	}
 
 	public void onFilterRemove(Component comp) throws SearchLibException {
-		Filter filter = (Filter) getRecursiveComponentAttribute(comp,
-				"filterItem");
+		FilterAbstract filter = (FilterAbstract) getRecursiveComponentAttribute(
+				comp, "filterItem");
 		((SearchRequest) getRequest()).getFilterList().remove(filter);
 		reloadPage();
 	}

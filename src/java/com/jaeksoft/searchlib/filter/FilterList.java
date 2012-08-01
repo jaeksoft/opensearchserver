@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,7 @@
 
 package com.jaeksoft.searchlib.filter;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,54 +33,40 @@ import org.apache.lucene.analysis.Analyzer;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.filter.Filter.Source;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.util.External;
-import com.jaeksoft.searchlib.util.External.Collecter;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class FilterList implements Externalizable, Collecter<Filter>,
-		Iterable<Filter> {
+public class FilterList implements Iterable<FilterAbstract> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5575695644602182902L;
-
-	private List<Filter> filterList;
+	private List<FilterAbstract> filterList;
 
 	private transient Config config;
 
 	public FilterList() {
 		config = null;
-		this.filterList = new ArrayList<Filter>();
+		this.filterList = new ArrayList<FilterAbstract>();
 	}
 
 	public FilterList(FilterList fl) {
 		this.config = fl.config;
-		this.filterList = new ArrayList<Filter>(fl.size());
-		for (Filter f : fl)
-			addObject(f);
+		this.filterList = new ArrayList<FilterAbstract>(fl.size());
+		for (FilterAbstract f : fl)
+			add(f);
 	}
 
 	public FilterList(Config config) {
-		this.filterList = new ArrayList<Filter>();
+		this.filterList = new ArrayList<FilterAbstract>();
 		this.config = config;
 	}
 
-	@Override
-	public void addObject(Filter filter) {
+	public void add(FilterAbstract filter) {
 		filterList.add(filter);
 	}
 
-	public void add(String req, boolean negative, Source src) {
-		addObject(new Filter(req, negative, src));
-	}
-
-	public void remove(Filter filter) {
+	public void remove(FilterAbstract filter) {
 		filterList.remove(filter);
 	}
 
@@ -92,18 +75,7 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		External.readCollection(in, this);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeCollection(filterList, out);
-	}
-
-	@Override
-	public Iterator<Filter> iterator() {
+	public Iterator<FilterAbstract> iterator() {
 		return filterList.iterator();
 	}
 
@@ -114,7 +86,7 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 			return null;
 
 		FilterHits filterHits = new FilterHits();
-		for (Filter filter : filterList)
+		for (FilterAbstract filter : filterList)
 			filterHits.and(reader.getFilterHits(defaultField, analyzer, filter,
 					timer));
 
@@ -126,7 +98,7 @@ public class FilterList implements Externalizable, Collecter<Filter>,
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		for (Filter filter : filterList)
+		for (FilterAbstract filter : filterList)
 			filter.writeXmlConfig(xmlWriter);
 	}
 

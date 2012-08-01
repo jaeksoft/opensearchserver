@@ -50,7 +50,8 @@ public class Timer {
 
 	public Timer(Timer parent, String info) {
 		this(info);
-		parent.childs.add(this);
+		if (parent != null)
+			parent.childs.add(this);
 	}
 
 	final public void reset() {

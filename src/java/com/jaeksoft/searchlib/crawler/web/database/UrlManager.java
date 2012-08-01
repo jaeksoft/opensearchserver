@@ -58,7 +58,8 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
-import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
+import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -276,8 +277,9 @@ public class UrlManager {
 		SearchRequest searchRequest = (SearchRequest) urlDbClient
 				.getNewRequest(field + "Facet");
 		searchRequest.setQueryString(queryString);
-		searchRequest.getFilterList().add(field + ":" + start + "*", false,
-				Source.REQUEST);
+		searchRequest.getFilterList().add(
+				new QueryFilter(field + ":" + start + "*", false,
+						FilterAbstract.Source.REQUEST));
 		getFacetLimit(field, searchRequest, limit, list);
 	}
 

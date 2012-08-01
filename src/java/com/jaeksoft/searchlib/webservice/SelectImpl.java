@@ -37,8 +37,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.filter.Filter;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -138,7 +139,8 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 			for (String value : filterQuery)
 				if (value != null && !value.equals(""))
 					if (value.trim().length() > 0)
-						fl.add(value, false, Filter.Source.REQUEST);
+						fl.add(new QueryFilter(value, false,
+								FilterAbstract.Source.REQUEST));
 		}
 
 		if (filterQueryNegetive != null && filterQueryNegetive.size() > 0) {
@@ -146,7 +148,8 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 			for (String value : filterQueryNegetive)
 				if (value != null)
 					if (value.trim().length() > 0)
-						fl.add(value, true, Filter.Source.REQUEST);
+						fl.add(new QueryFilter(value, true,
+								FilterAbstract.Source.REQUEST));
 		}
 		if (sort != null && sort.size() > 0) {
 			SortList sortList = searchRequest.getSortList();

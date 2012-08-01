@@ -66,7 +66,6 @@ public class FilterHits extends org.apache.lucene.search.Filter {
 		if (negative)
 			docSet.flip(0, docSet.size());
 		t.duration();
-
 	}
 
 	private class FilterCollector extends Collector {

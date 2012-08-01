@@ -63,6 +63,7 @@ import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.cache.SpellCheckerCache;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -365,11 +366,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public FilterHits getFilterHits(Field defaultField, Analyzer analyzer,
-			com.jaeksoft.searchlib.filter.Filter filter, Timer timer)
-			throws ParseException, IOException {
+			FilterAbstract filter, Timer timer) throws ParseException,
+			IOException {
 		rwl.r.lock();
 		try {
-			return filterCache.get(this, defaultField, analyzer, filter, timer);
+			return filterCache.get(this, filter, defaultField, analyzer, timer);
 		} finally {
 			rwl.r.unlock();
 		}

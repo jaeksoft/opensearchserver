@@ -46,9 +46,9 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.filter.Filter;
-import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
@@ -440,7 +440,8 @@ public class SearchRequest extends AbstractRequest {
 	public void addFilter(String req, boolean negative) throws ParseException {
 		rwl.w.lock();
 		try {
-			this.filterList.add(req, negative, Filter.Source.REQUEST);
+			this.filterList.add(new QueryFilter(req, negative,
+					FilterAbstract.Source.REQUEST));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -871,8 +872,9 @@ public class SearchRequest extends AbstractRequest {
 			nodes = xpp.getNodeList(node, "filters/filter");
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Node n = nodes.item(i);
-				filterList.add(xpp.getNodeString(n), "yes".equals(XPathParser
-						.getAttributeString(n, "negative")), Source.CONFIGXML);
+				filterList.add(new QueryFilter(xpp.getNodeString(n), "yes"
+						.equals(XPathParser.getAttributeString(n, "negative")),
+						FilterAbstract.Source.CONFIGXML));
 			}
 
 			nodes = xpp.getNodeList(node, "joins/join");
@@ -1029,14 +1031,16 @@ public class SearchRequest extends AbstractRequest {
 				for (String value : values)
 					if (value != null)
 						if (value.trim().length() > 0)
-							filterList.add(value, false, Filter.Source.REQUEST);
+							filterList.add(new QueryFilter(value, false,
+									FilterAbstract.Source.REQUEST));
 			}
 
 			if ((values = transaction.getParameterValues("fqn")) != null) {
 				for (String value : values)
 					if (value != null)
 						if (value.trim().length() > 0)
-							filterList.add(value, true, Filter.Source.REQUEST);
+							filterList.add(new QueryFilter(value, true,
+									FilterAbstract.Source.REQUEST));
 			}
 
 			if ((values = transaction.getParameterValues("rf")) != null) {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,7 +41,7 @@ public class FilterListCacheKey implements
 	public FilterListCacheKey(FilterList filterList, Field defaultField,
 			Analyzer analyzer) throws ParseException {
 		filterCacheKeySet = new TreeSet<FilterCacheKey>();
-		for (Filter filter : filterList)
+		for (FilterAbstract filter : filterList)
 			filterCacheKeySet.add(new FilterCacheKey(filter, defaultField,
 					analyzer));
 	}

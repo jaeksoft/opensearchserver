@@ -40,8 +40,9 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.filter.Filter.Source;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -358,8 +359,9 @@ public class MoreLikeThisRequest extends AbstractRequest {
 			NodeList nodes = xpp.getNodeList(node, "filters/filter");
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Node n = nodes.item(i);
-				filterList.add(xpp.getNodeString(n), "yes".equals(XPathParser
-						.getAttributeString(n, "negative")), Source.CONFIGXML);
+				filterList.add(new QueryFilter(xpp.getNodeString(n), "yes"
+						.equals(XPathParser.getAttributeString(n, "negative")),
+						FilterAbstract.Source.CONFIGXML));
 			}
 
 			FieldList<SchemaField> fieldList = config.getSchema()

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,7 @@
 
 package com.jaeksoft.searchlib.filter;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.QueryParser;
@@ -35,37 +32,20 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.util.External;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class Filter implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3935917370775417249L;
+public class QueryFilter extends FilterAbstract {
 
 	private transient Query query;
 
 	private String queryString;
 
-	private Source source;
-
-	private boolean negative;
-
-	public enum Source {
-		CONFIGXML, REQUEST
-	}
-
-	public Filter() {
-		query = null;
-	}
-
-	public Filter(String req, boolean negative, Source src) {
-		this.source = src;
-		this.negative = negative;
+	public QueryFilter(String req, boolean negative, Source src) {
+		super(src, negative);
 		this.queryString = req;
 		this.query = null;
 	}
@@ -94,37 +74,27 @@ public class Filter implements Externalizable {
 		this.query = null;
 	}
 
-	public Source getSource() {
-		return this.source;
-	}
-
-	public boolean isNegative() {
-		return negative;
-	}
-
-	public void setNegative(boolean negative) {
-		this.negative = negative;
+	@Override
+	public String getCacheKey(Field defaultField, Analyzer analyzer)
+			throws ParseException {
+		return "QueryFilter - " + getQuery(defaultField, analyzer).toString();
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		queryString = External.readUTF(in);
-		source = Source.valueOf(External.readUTF(in));
-		negative = in.readBoolean();
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeUTF(queryString, out);
-		External.writeUTF(source.name(), out);
-		out.writeBoolean(negative);
-	}
-
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("filter", "negative", negative ? "yes" : "no");
+		xmlWriter.startElement("filter", "negative", isNegative() ? "yes"
+				: "no");
 		xmlWriter.textNode(queryString);
 		xmlWriter.endElement();
+	}
+
+	@Override
+	public FilterHits getFilterHits(ReaderLocal reader, Field defaultField,
+			Analyzer analyzer, Timer timer) throws ParseException, IOException {
+		Query query = getQuery(defaultField, analyzer);
+		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
+				timer);
+		return filterHits;
 	}
 
 }
