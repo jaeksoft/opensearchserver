@@ -55,7 +55,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		this.config = fl.config;
 		this.filterList = new ArrayList<FilterAbstract<?>>(fl.size());
 		for (FilterAbstract<?> f : fl)
-			add(f);
+			add(f.duplicate());
 	}
 
 	public FilterList(Config config) {

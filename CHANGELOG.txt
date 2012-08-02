@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 3553517: Squared Geographical Filter
 - 3553052: Json Path filter
 - 3549350: Degrees to radians converter
 - 3549257: A delete all feature
