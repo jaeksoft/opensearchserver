@@ -38,6 +38,10 @@ public class GroupAllTokensFilter extends FilterFactory {
 
 		private StringBuffer buffer;
 
+		private Integer startOffset = null;
+
+		private Integer endOffset = null;
+
 		protected GroupAllTokenFilter(TokenStream input) {
 			super(input);
 			buffer = new StringBuffer();
@@ -49,14 +53,17 @@ public class GroupAllTokensFilter extends FilterFactory {
 				return false;
 			current = captureState();
 			while (input.incrementToken()) {
+				if (startOffset == null)
+					startOffset = offsetAtt.startOffset();
 				buffer.append(getTerm());
 				if (tokenSeparator != null)
 					buffer.append(tokenSeparator);
+				endOffset = offsetAtt.endOffset();
 			}
 			String term = buffer.toString().trim();
 			if (term.length() == 0)
 				return false;
-			createToken(term);
+			createToken(term, 1, startOffset, endOffset);
 			buffer = null;
 			return true;
 		}
