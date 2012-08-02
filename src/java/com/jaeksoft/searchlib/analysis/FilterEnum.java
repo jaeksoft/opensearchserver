@@ -48,6 +48,8 @@ public enum FilterEnum {
 
 	FrenchStemFilter("A filter that stems French words"),
 
+	GroupAllTokensFilter("This filter group all tokens to one"),
+
 	ISOLatin1AccentFilter(
 			"This filter replaces accented characters (characters with diacritics) in the ISO latin 1 character set (ISO-8859-1) with the unaccented (no diacritics) equivalent."),
 
