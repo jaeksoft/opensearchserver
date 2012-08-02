@@ -41,8 +41,9 @@ public class DegreesRadiansFilter extends FilterFactory {
 		df.setMinimumIntegerDigits(integer);
 		df.setMinimumFractionDigits(fraction);
 		df.setMaximumFractionDigits(fraction);
-		df.setNegativePrefix("-");
-		df.setPositivePrefix("+");
+		df.setNegativePrefix("N");
+		df.setPositivePrefix("P");
+		df.setDecimalSeparatorAlwaysShown(true);
 		return df;
 	}
 
