@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.QueryParser;
@@ -33,6 +34,7 @@ import org.apache.lucene.util.Version;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Field;
@@ -272,19 +274,20 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 				.toRadians(longitude);
 		Geospatial.Location loc = new Geospatial.Location(lat, lon);
 		double dist = distance / unit.div;
-		Geospatial.Location[] bound = Geospatial.boundingCoordinatesPositive(
-				loc, dist, unit.radius);
+		Geospatial.Location[] bound = Geospatial.boundingCoordinates(loc, dist,
+				unit.radius);
 		StringBuffer sb = new StringBuffer(latitudeField);
+		NumberFormat nf = DegreesRadiansFilter.getRadiansFormat();
 		sb.append(":[");
-		sb.append(bound[0].latitude);
+		sb.append(nf.format(bound[0].latitude));
 		sb.append(" TO ");
-		sb.append(bound[1].latitude);
+		sb.append(nf.format(bound[1].latitude));
 		sb.append("] AND ");
 		sb.append(longitudeField);
 		sb.append(":[");
-		sb.append(bound[0].longitude);
+		sb.append(nf.format(bound[0].longitude));
 		sb.append(" TO ");
-		sb.append(bound[1].longitude);
+		sb.append(nf.format(bound[1].longitude));
 		sb.append("]");
 		return sb.toString();
 	}
