@@ -61,12 +61,8 @@ public abstract class AbstractTermFilter extends TokenFilter {
 	}
 
 	protected final String getTerm() {
-		final char[] buffer = termAtt.termBuffer();
-		final int length = termAtt.termLength();
-		char[] text = new char[length];
-		for (int i = 0; i < length; i++)
-			text[i] = buffer[i];
-		return new String(text);
+		return new String(termAtt.termBuffer(), 0, offsetAtt.endOffset()
+				- offsetAtt.startOffset());
 	}
 
 }

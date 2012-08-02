@@ -119,6 +119,10 @@ public class FieldValue extends Field {
 			sb.append('(');
 			sb.append(c);
 			sb.append(')');
+			if (c == 1) {
+				sb.append(' ');
+				sb.append(valueArray[0].getValue());
+			}
 		}
 		return sb.toString();
 	}
