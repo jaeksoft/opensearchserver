@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
@@ -66,24 +67,39 @@ public class JsonPathFilter extends FilterFactory {
 					return true;
 				if (!input.incrementToken())
 					return false;
-				Object object = jsonPath.read(getTerm());
-				if (object instanceof String) {
-					createToken(object.toString());
-					return true;
-				} else if (object instanceof List) {
-					tokenList = (List<?>) object;
-					currentPos = 0;
+				try {
+					Object object = jsonPath.read(getTerm());
+					if (object instanceof String) {
+						createToken(object.toString());
+						return true;
+					} else if (object instanceof List) {
+						tokenList = (List<?>) object;
+						currentPos = 0;
+					}
+				} catch (Exception e) {
+					if (faultTolerant) {
+						Logging.warn(e);
+						return false;
+					}
+					if (e instanceof IOException)
+						throw (IOException) e;
+					else
+						throw new IOException(e);
 				}
 			}
 		}
 	}
 
 	private JsonPath jsonPath = null;
+	public boolean faultTolerant = true;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.JSON_PATH, "", null);
+		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
+				ClassPropertyEnum.BOOLEAN_LIST[0],
+				ClassPropertyEnum.BOOLEAN_LIST);
 	}
 
 	@Override
@@ -96,7 +112,8 @@ public class JsonPathFilter extends FilterFactory {
 				jsonPath = JsonPath.compile(value);
 			else
 				jsonPath = null;
-		}
+		} else if (prop == ClassPropertyEnum.FAULT_TOLERANT)
+			faultTolerant = Boolean.parseBoolean(value);
 	}
 
 	@Override
