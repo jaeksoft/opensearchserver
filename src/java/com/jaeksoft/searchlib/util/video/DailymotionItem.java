@@ -34,16 +34,28 @@ import org.json.simple.JSONObject;
 public class DailymotionItem {
 
 	private final String title;
+	private final String videoId;
+	private final String thumbnail;
 
-	public DailymotionItem(InputStream dailymotionResponse)
-			throws JSONException, IOException {
+	public DailymotionItem(InputStream dailymotionResponse, String videoId,
+			String thumbnail) throws JSONException, IOException {
 		String jsonText = IOUtils.toString(dailymotionResponse);
 		org.json.JSONObject jsonObject = new org.json.JSONObject(jsonText);
 		title = jsonObject.getString("title");
+		this.videoId = videoId;
+		this.thumbnail = thumbnail;
 	}
 
 	final public String getTitle() {
 		return title;
+	}
+
+	public String getVideoId() {
+		return videoId;
+	}
+
+	public String getThumbnail() {
+		return thumbnail;
 	}
 
 	@Override
@@ -51,7 +63,10 @@ public class DailymotionItem {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Title: ");
 		sb.append(title);
-
+		sb.append(" - VideoId: ");
+		sb.append(videoId);
+		sb.append(" - thumbnail: ");
+		sb.append(thumbnail);
 		return sb.toString();
 	}
 
@@ -60,6 +75,8 @@ public class DailymotionItem {
 		JSONObject json = new JSONObject();
 		json.put("url", url.toExternalForm());
 		json.put("title", title);
+		json.put("videoId", videoId);
+		json.put("thumbnail", thumbnail);
 		return json.toJSONString();
 	}
 

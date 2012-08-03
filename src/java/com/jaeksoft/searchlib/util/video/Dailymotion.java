@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 public class Dailymotion {
 
 	private final static String API_URL = "https://api.dailymotion.com/video/";
-
+	private final static String THUMBNAIL = "http://www.dailymotion.com/thumbnail/video/";
 	private final static Pattern[] idPatterns = {
 			Pattern.compile("/video/([^_]+).*"),
 			Pattern.compile("/swf/([^&]+).*") };
@@ -62,14 +62,15 @@ public class Dailymotion {
 			return dailymotionItem;
 		}
 		String videoApiURL = API_URL + videoId;
-
+		String thumbnail = THUMBNAIL + videoId;
 		InputStream dailymotionResponse = getDailyMotionResponse(
 				httpDownloader, videoApiURL);
 		if (dailymotionResponse == null)
 			throw new IOException("No respond returned from Dailymotion API: "
 					+ videoApiURL);
 		try {
-			dailymotionItem = new DailymotionItem(dailymotionResponse);
+			dailymotionItem = new DailymotionItem(dailymotionResponse, videoId,
+					thumbnail);
 			DailymotionItemCache.addItem(videoId, dailymotionItem);
 			return dailymotionItem;
 		} finally {

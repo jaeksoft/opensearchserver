@@ -74,7 +74,7 @@ public class Vimeo {
 			throw new IOException("No respond returned from Dailymotion API: "
 					+ videoApiURL);
 		try {
-			vimeoItem = new VimeoItem(vimeoResponse);
+			vimeoItem = new VimeoItem(vimeoResponse, videoId);
 			VimeoItemCache.addItem(videoId, vimeoItem);
 			return vimeoItem;
 		} finally {

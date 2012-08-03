@@ -33,11 +33,16 @@ public class YouTubeItem {
 
 	private final String title;
 	private final String description;
+	private final String videoId;
+	private final String thumbnail;
 
-	public YouTubeItem(YouTubeMediaGroup youTubeMediaGroup) {
+	public YouTubeItem(YouTubeMediaGroup youTubeMediaGroup, String videoId,
+			String thumbnail) {
 		this.title = youTubeMediaGroup.getTitle().getPlainTextContent();
 		this.description = youTubeMediaGroup.getDescription()
 				.getPlainTextContent();
+		this.videoId = videoId;
+		this.thumbnail = thumbnail;
 	}
 
 	final public String getTitle() {
@@ -48,6 +53,14 @@ public class YouTubeItem {
 		return description;
 	}
 
+	public String getVideoId() {
+		return videoId;
+	}
+
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
 	@Override
 	final public String toString() {
 		StringBuffer sb = new StringBuffer();
@@ -55,6 +68,10 @@ public class YouTubeItem {
 		sb.append(title);
 		sb.append(" - Description: ");
 		sb.append(description);
+		sb.append(" - VideoId: ");
+		sb.append(videoId);
+		sb.append(" - thumbnail: ");
+		sb.append(thumbnail);
 		return sb.toString();
 	}
 
@@ -64,6 +81,8 @@ public class YouTubeItem {
 		json.put("url", url.toExternalForm());
 		json.put("title", title);
 		json.put("description", description);
+		json.put("videoId", videoId);
+		json.put("thumbnail", thumbnail);
 		return json.toJSONString();
 	}
 }

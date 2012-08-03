@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.Logging;
 public class YouTube {
 
 	private final static String API_URL = "http://gdata.youtube.com/feeds/api/videos/";
+	private final static String THUMBNAIL = "http://img.youtube.com/vi/";
 
 	private final static int TIMEOUT = 2000;
 
@@ -60,9 +61,11 @@ public class YouTube {
 		YouTubeService youTubeService = new YouTubeService(null);
 		youTubeService.setConnectTimeout(TIMEOUT);
 		String videoApiURL = API_URL + videoId;
+		String thumbnail = THUMBNAIL + videoId + "/default.jpg";
 		VideoEntry videoEntry = youTubeService.getEntry(new URL(videoApiURL),
 				VideoEntry.class);
-		youtubeItem = new YouTubeItem(videoEntry.getMediaGroup());
+		youtubeItem = new YouTubeItem(videoEntry.getMediaGroup(), videoId,
+				thumbnail);
 		YouTubeItemCache.addItem(videoId, youtubeItem);
 		return youtubeItem;
 	}

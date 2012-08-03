@@ -35,18 +35,31 @@ public class VimeoItem {
 
 	private final String title;
 	private final String description;
+	private final String videoId;
+	private final String thumbnail;
 
-	public VimeoItem(InputStream vimeoResponse) throws JSONException,
-			IOException {
+	public VimeoItem(InputStream vimeoResponse, String videoId)
+			throws JSONException, IOException {
 		String jsonText = IOUtils.toString(vimeoResponse);
 		org.json.JSONArray jsonArray = new org.json.JSONArray(jsonText);
 		org.json.JSONObject jsonObject = jsonArray.getJSONObject(0);
-		title = jsonObject.getString("title");
-		description = jsonObject.getString("description");
+		this.title = jsonObject.getString("title");
+		this.description = jsonObject.getString("description");
+		this.videoId = videoId;
+		this.thumbnail = jsonObject.getString("thumbnail_small");
+
 	}
 
 	final public String getTitle() {
 		return title;
+	}
+
+	public String getVideoId() {
+		return videoId;
+	}
+
+	public String getThumbnail() {
+		return thumbnail;
 	}
 
 	@Override
@@ -56,6 +69,9 @@ public class VimeoItem {
 		sb.append(title);
 		sb.append(" - Description: ");
 		sb.append(description);
+		sb.append(" - VideoId: ");
+		sb.append(videoId);
+		sb.append(" - thumbnail: ");
 		return sb.toString();
 	}
 
@@ -65,6 +81,8 @@ public class VimeoItem {
 		json.put("url", url.toExternalForm());
 		json.put("title", title);
 		json.put("description", description);
+		json.put("videoId", videoId);
+		json.put("thumbnail", thumbnail);
 		return json.toJSONString();
 	}
 
