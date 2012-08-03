@@ -359,7 +359,7 @@ public class ResultSearchController extends AbstractQueryController implements
 	}
 
 	private void renderField(Treerow treerow, FieldValue fieldValue) {
-		new Treecell(fieldValue.toString()).setParent(treerow);
+		new Treecell(fieldValue.getLabel()).setParent(treerow);
 		Treecell treecell;
 		if (fieldValue.getValuesCount() > 0)
 			treecell = new Treecell(fieldValue.getValueArray()[0].getValue());

@@ -126,4 +126,12 @@ public class FieldValue extends Field {
 		}
 		return sb.toString();
 	}
+
+	public String getLabel() {
+		StringBuffer sb = new StringBuffer(name);
+		sb.append('(');
+		sb.append(getValuesCount());
+		sb.append(')');
+		return sb.toString();
+	}
 }

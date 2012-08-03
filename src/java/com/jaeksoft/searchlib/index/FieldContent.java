@@ -158,4 +158,13 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		}
 		return sb.toString();
 	}
+
+	public String toLabel() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(field);
+		sb.append('(');
+		sb.append(values.length);
+		sb.append(')');
+		return sb.toString();
+	}
 }
