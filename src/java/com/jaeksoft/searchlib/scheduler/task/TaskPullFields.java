@@ -74,10 +74,13 @@ public class TaskPullFields extends TaskPullAbstract {
 	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Buffer size", 10);
 
+	final private TaskPropertyDef propLanguage = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Language", 30);
+
 	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
-			propLogin, propApiKey, propSourceQuery, propSourceField,
-			propTargetField, propSourceMappedFields, propTargetMappedFields,
-			propBufferSize };
+			propLogin, propApiKey, propSourceQuery, propLanguage,
+			propSourceField, propTargetField, propSourceMappedFields,
+			propTargetMappedFields, propBufferSize };
 
 	@Override
 	public String getName() {
@@ -97,6 +100,8 @@ public class TaskPullFields extends TaskPullAbstract {
 			populateSourceIndexValues(config, values);
 		} else if (propertyDef == propTargetField) {
 			populateFieldValues(config, values);
+		} else if (propertyDef == propLanguage) {
+			return LanguageEnum.stringArray();
 		}
 		return toValueArray(values);
 	}
@@ -107,6 +112,8 @@ public class TaskPullFields extends TaskPullAbstract {
 			return "*:*";
 		else if (propertyDef == propBufferSize)
 			return "50";
+		else if (propertyDef == propLanguage)
+			return LanguageEnum.UNDEFINED.getName();
 		return null;
 	}
 
@@ -115,6 +122,8 @@ public class TaskPullFields extends TaskPullAbstract {
 			TaskLog taskLog) throws SearchLibException {
 		String sourceIndex = properties.getValue(propSourceIndex);
 		String sourceQuery = properties.getValue(propSourceQuery);
+		LanguageEnum lang = LanguageEnum.findByName(properties
+				.getValue(propLanguage));
 		String sourceField = properties.getValue(propSourceField);
 		String targetField = properties.getValue(propTargetField);
 		String sourceMappedFields = properties.getValue(propSourceMappedFields);
@@ -177,7 +186,7 @@ public class TaskPullFields extends TaskPullAbstract {
 					if (fieldValueItems == null)
 						continue;
 
-					IndexDocument mappedDocument = new IndexDocument();
+					IndexDocument mappedDocument = new IndexDocument(lang);
 					sourceFieldMap.mapIndexDocument(document, mappedDocument);
 
 					for (FieldValueItem fieldValueItem : fieldValueItems) {

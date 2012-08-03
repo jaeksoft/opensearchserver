@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -87,9 +87,26 @@ public enum LanguageEnum {
 		if (code == null)
 			return UNDEFINED;
 		for (LanguageEnum lang : LanguageEnum.values())
-			if (code.equalsIgnoreCase(lang.getCode()))
+			if (code.equalsIgnoreCase(lang.code))
 				return lang;
 		return UNDEFINED;
+	}
+
+	public static LanguageEnum findByName(String name) {
+		if (name == null)
+			return UNDEFINED;
+		for (LanguageEnum lang : LanguageEnum.values())
+			if (name.equalsIgnoreCase(lang.name))
+				return lang;
+		return UNDEFINED;
+	}
+
+	public static String[] stringArray() {
+		String[] array = new String[values().length];
+		int i = 0;
+		for (LanguageEnum lang : LanguageEnum.values())
+			array[i++] = lang.name;
+		return array;
 	}
 
 }
