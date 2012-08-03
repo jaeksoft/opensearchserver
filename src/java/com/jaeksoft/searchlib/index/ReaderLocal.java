@@ -97,24 +97,26 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private File rootDir;
 	private File dataDir;
 
+	private boolean isReadOnly;
 	private String similarityClass;
 
 	private ReaderLocal(File rootDir, File dataDir, String similarityClass,
 			boolean readOnly) throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+		indexSearcher = null;
+		indexSearcher = null;
+		this.isReadOnly = readOnly;
 		this.similarityClass = similarityClass;
 		this.rootDir = rootDir;
 		this.dataDir = dataDir;
-		this.indexDirectory = new IndexDirectory("index", dataDir);
-		this.indexReader = IndexReader.open(indexDirectory.getDirectory(),
-				readOnly);
-		initIndexSearcher();
+		init();
 	}
 
-	private void initIndexSearcher() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, IOException {
-		if (indexSearcher != null)
-			indexSearcher.close();
+	private void init() throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, IOException {
+		this.indexDirectory = new IndexDirectory("index", dataDir);
+		this.indexReader = IndexReader.open(indexDirectory.getDirectory(),
+				isReadOnly);
 		indexSearcher = new IndexSearcher(indexReader);
 		if (similarityClass != null) {
 			Similarity similarity = (Similarity) Class.forName(similarityClass)
@@ -265,34 +267,32 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public void close(boolean bDeleteDirectory) {
-		rwl.w.lock();
-		try {
-			if (indexSearcher != null) {
-				indexSearcher.close();
-				indexSearcher = null;
-			}
-			if (indexReader != null) {
-				org.apache.lucene.search.FieldCache.DEFAULT.purge(indexReader);
-				indexReader.close();
-				indexReader = null;
-			}
-			if (indexDirectory != null) {
-				if (bDeleteDirectory)
-					indexDirectory.delete();
-				indexDirectory.close();
-				indexDirectory = null;
-			}
-		} catch (IOException e) {
-			Logging.warn(e.getMessage(), e);
-		} finally {
-			rwl.w.unlock();
+	private void closeNoLock() throws IOException {
+		if (indexSearcher != null) {
+			indexSearcher.close();
+			indexSearcher = null;
+		}
+		if (indexReader != null) {
+			org.apache.lucene.search.FieldCache.DEFAULT.purge(indexReader);
+			indexReader.close();
+			indexReader = null;
+		}
+		if (indexDirectory != null) {
+			indexDirectory.close();
+			indexDirectory = null;
 		}
 	}
 
 	@Override
 	public void close() {
-		close(false);
+		rwl.w.lock();
+		try {
+			closeNoLock();
+		} catch (IOException e) {
+			Logging.warn(e.getMessage(), e);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public int maxDoc() throws IOException {
@@ -489,8 +489,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public void reload() throws SearchLibException {
 		rwl.w.lock();
 		try {
-			indexReader = indexReader.reopen();
-			initIndexSearcher();
+			closeNoLock();
+			init();
 			resetCache();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
