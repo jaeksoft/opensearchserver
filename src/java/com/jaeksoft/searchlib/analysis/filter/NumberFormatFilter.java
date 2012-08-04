@@ -74,7 +74,7 @@ public class NumberFormatFilter extends FilterFactory {
 			current = captureState();
 			if (!input.incrementToken())
 				return false;
-			String term = numberFormat.format(new Double(getTerm()));
+			String term = numberFormat.format(new Double(termAtt.term()));
 			if (term != null)
 				createToken(term);
 			return true;

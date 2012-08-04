@@ -50,7 +50,7 @@ public class YouTubeTokenFilter extends AbstractTermFilter {
 		for (;;) {
 			if (!input.incrementToken())
 				return false;
-			String term = getTerm();
+			String term = termAtt.term();
 			try {
 				URL url = new URL(term);
 				YouTubeItem youtubeItem = YouTube.getInfo(url);

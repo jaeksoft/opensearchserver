@@ -60,9 +60,4 @@ public abstract class AbstractTermFilter extends TokenFilter {
 				offsetAtt.startOffset(), offsetAtt.endOffset());
 	}
 
-	protected final String getTerm() {
-		return new String(termAtt.termBuffer(), 0, offsetAtt.endOffset()
-				- offsetAtt.startOffset());
-	}
-
 }

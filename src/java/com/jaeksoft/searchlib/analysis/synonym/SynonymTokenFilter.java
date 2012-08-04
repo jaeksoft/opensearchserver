@@ -60,7 +60,7 @@ public class SynonymTokenFilter extends AbstractTermFilter {
 	}
 
 	private final void createTokens() {
-		currentTerm = getTerm();
+		currentTerm = termAtt.term();
 		wordQueue = synonymMap.getSynonyms(currentTerm);
 		currentPos = 0;
 	}

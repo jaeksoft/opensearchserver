@@ -37,10 +37,11 @@ public class HostnameTokenFilter extends CommonDomainTokenFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
+		current = captureState();
 		if (!input.incrementToken())
 			return false;
 		try {
-			URL url = new URL(new String(getTerm()));
+			URL url = new URL(new String(termAtt.term()));
 			termAtt.setTermBuffer(url.getHost());
 		} catch (MalformedURLException e) {
 			if (silent)

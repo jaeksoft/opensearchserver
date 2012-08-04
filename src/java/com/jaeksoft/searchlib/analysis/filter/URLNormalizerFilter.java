@@ -48,7 +48,7 @@ public class URLNormalizerFilter extends FilterFactory {
 			for (;;) {
 				if (!input.incrementToken())
 					return false;
-				String term = getTerm();
+				String term = termAtt.term();
 				String[] part = StringUtils.split(term, '|');
 				if (part != null) {
 					try {

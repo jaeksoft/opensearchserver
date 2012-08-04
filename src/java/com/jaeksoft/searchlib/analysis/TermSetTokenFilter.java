@@ -29,9 +29,11 @@ import java.util.Set;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
+import org.apache.lucene.util.AttributeSource;
 
 public class TermSetTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 
+	protected AttributeSource.State current = null;
 	private TermAttribute termAtt;
 	private Set<String> termSet;
 
@@ -43,6 +45,7 @@ public class TermSetTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
+		current = captureState();
 		while (input.incrementToken())
 			termSet.add(termAtt.term());
 		return false;

@@ -50,11 +50,12 @@ public class StopWordFilter extends AbstractTermFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
+		current = captureState();
 		int skippedPositions = 0;
 		for (;;) {
 			if (!input.incrementToken())
 				return false;
-			if (keepTerm(this.getTerm())) {
+			if (keepTerm(termAtt.term())) {
 				posIncrAtt.setPositionIncrement(posIncrAtt
 						.getPositionIncrement() + skippedPositions);
 				return true;

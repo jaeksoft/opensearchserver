@@ -53,7 +53,7 @@ public class DailymotionTokenFilter extends AbstractTermFilter {
 		for (;;) {
 			if (!input.incrementToken())
 				return false;
-			String term = getTerm();
+			String term = termAtt.term();
 			try {
 				URL url = new URL(term);
 				DailymotionItem dailymotionItem = Dailymotion.getInfo(url,

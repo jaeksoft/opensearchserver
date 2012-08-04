@@ -46,7 +46,10 @@ public class DuplicateCharactersFilter extends AbstractTermFilter {
 	private final String removeConsecutiveCharacters(char[] buffer, int length) {
 		StringBuffer sb = new StringBuffer();
 		char lastChar = 0;
-		for (char currentChar : buffer) {
+		int i = 0;
+		int l = length;
+		while (l-- != 0) {
+			char currentChar = buffer[i++];
 			if (removeLetters)
 				if (Character.isLetter(currentChar))
 					if (currentChar == lastChar)
@@ -62,6 +65,7 @@ public class DuplicateCharactersFilter extends AbstractTermFilter {
 			sb.append(currentChar);
 			lastChar = currentChar;
 		}
+		// If the size is the same, we don't need to override the term
 		if (sb.length() == length)
 			return null;
 		return sb.toString();
@@ -73,7 +77,7 @@ public class DuplicateCharactersFilter extends AbstractTermFilter {
 		if (!input.incrementToken())
 			return false;
 		String term = removeConsecutiveCharacters(termAtt.termBuffer(),
-				offsetAtt.endOffset() - offsetAtt.startOffset());
+				termAtt.termLength());
 		if (term != null)
 			createToken(term);
 		return true;

@@ -46,7 +46,7 @@ public class DecodeHtmlEntitiesFilter extends FilterFactory {
 			for (;;) {
 				if (!input.incrementToken())
 					return false;
-				createToken(StringEscapeUtils.unescapeHtml(getTerm()));
+				createToken(StringEscapeUtils.unescapeHtml(termAtt.term()));
 				return true;
 			}
 		}

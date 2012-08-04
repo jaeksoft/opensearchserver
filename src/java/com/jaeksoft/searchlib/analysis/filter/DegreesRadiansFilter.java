@@ -71,7 +71,7 @@ public class DegreesRadiansFilter extends FilterFactory {
 
 		final protected Double checkValue(double min, double max) {
 			try {
-				Double number = new Double(getTerm());
+				Double number = new Double(termAtt.term());
 				if (number < min || number > max)
 					return null;
 				return number;

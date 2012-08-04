@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
+import org.apache.lucene.util.AttributeSource;
 
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -36,6 +37,7 @@ import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 public class FieldContentPopulateFilter extends
 		org.apache.lucene.analysis.TokenFilter {
 
+	protected AttributeSource.State current = null;
 	private TermAttribute termAtt;
 	private FieldContent fieldContent;
 
@@ -48,6 +50,7 @@ public class FieldContentPopulateFilter extends
 
 	@Override
 	public final boolean incrementToken() throws IOException {
+		current = captureState();
 		while (input.incrementToken())
 			fieldContent.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL,
 					termAtt.term()));

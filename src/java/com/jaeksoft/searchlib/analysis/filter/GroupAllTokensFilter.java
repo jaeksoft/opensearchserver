@@ -55,7 +55,7 @@ public class GroupAllTokensFilter extends FilterFactory {
 			while (input.incrementToken()) {
 				if (startOffset == null)
 					startOffset = offsetAtt.startOffset();
-				String t = getTerm();
+				String t = termAtt.term();
 				buffer.append(t);
 				if (tokenSeparator != null)
 					buffer.append(tokenSeparator);

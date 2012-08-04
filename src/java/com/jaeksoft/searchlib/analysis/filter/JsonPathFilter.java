@@ -68,7 +68,7 @@ public class JsonPathFilter extends FilterFactory {
 				if (!input.incrementToken())
 					return false;
 				try {
-					Object object = jsonPath.read(getTerm());
+					Object object = jsonPath.read(termAtt.term());
 					if (object instanceof String) {
 						createToken(object.toString());
 						return true;

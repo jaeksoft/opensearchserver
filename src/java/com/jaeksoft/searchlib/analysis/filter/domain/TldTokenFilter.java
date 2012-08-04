@@ -39,10 +39,11 @@ public class TldTokenFilter extends CommonDomainTokenFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
+		current = captureState();
 		if (!input.incrementToken())
 			return false;
 		try {
-			URL url = new URL(new String(getTerm()));
+			URL url = new URL(termAtt.term());
 			InternetDomainName domainName = InternetDomainName.fromLenient(url
 					.getHost());
 			termAtt.setTermBuffer(domainName.publicSuffix().name());
