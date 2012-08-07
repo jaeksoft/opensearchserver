@@ -60,7 +60,7 @@
 		</fileset>
 		<fileset dir="${lib-apache-cxf}">
 			<include name="**.jar" />
-	    </fileset>
+		</fileset>
 		<fileset dir="${tomcat-lib}">
 			<include name="**.jar" />
 		</fileset>
@@ -85,7 +85,7 @@
 	</target>
 
 	<target name="compile-debug" depends="init" description="compile the source ">
-		<javac debug="true" compiler="modern" optimize="false" target="1.5" srcdir="${src}" destdir="${build-debug}" classpathref="project.class.path" includeantruntime="false" />
+		<javac debug="true" debuglevel="lines,vars" compiler="modern" optimize="false" target="1.5" srcdir="${src}" destdir="${build-debug}" classpathref="project.class.path" includeantruntime="false" />
 	</target>
 
 	<target name="dist-jar-release" depends="compile-release">

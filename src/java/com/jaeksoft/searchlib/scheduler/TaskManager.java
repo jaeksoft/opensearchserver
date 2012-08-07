@@ -124,8 +124,10 @@ public class TaskManager implements Job {
 		lock.rl.lock();
 		try {
 			checkSchedulerAvailable();
-			Trigger trigger = new SimpleTrigger(jobName, indexName);
-			JobDetail job = new JobDetail(jobName, indexName, TaskManager.class);
+			String group = "now_" + indexName;
+			String name = jobName + System.currentTimeMillis();
+			Trigger trigger = new SimpleTrigger(name, group);
+			JobDetail job = new JobDetail(name, group, TaskManager.class);
 			scheduler.scheduleJob(job, trigger);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
