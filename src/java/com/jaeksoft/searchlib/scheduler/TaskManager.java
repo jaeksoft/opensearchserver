@@ -124,10 +124,9 @@ public class TaskManager implements Job {
 		lock.rl.lock();
 		try {
 			checkSchedulerAvailable();
-			String group = "now_" + indexName;
-			String name = jobName + System.currentTimeMillis();
-			Trigger trigger = new SimpleTrigger(name, group);
-			JobDetail job = new JobDetail(name, group, TaskManager.class);
+			JobDetail job = new ImmediateTaskDetail(indexName, jobName,
+					TaskManager.class);
+			Trigger trigger = new SimpleTrigger(job.getName(), job.getGroup());
 			scheduler.scheduleJob(job, trigger);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
@@ -179,7 +178,8 @@ public class TaskManager implements Job {
 			throws JobExecutionException {
 		JobDetail detail = context.getJobDetail();
 		String indexName = detail.getGroup();
-		String jobName = detail.getName();
+		String jobName = (detail instanceof ImmediateTaskDetail) ? ((ImmediateTaskDetail) detail)
+				.getJobName() : detail.getName();
 		try {
 			Client client = ClientCatalog.getClient(indexName);
 			if (client == null) {
@@ -188,8 +188,9 @@ public class TaskManager implements Job {
 			}
 			JobList jobList = client.getJobList();
 			JobItem jobItem = jobList.get(jobName);
-			if (jobItem != null)
-				jobItem.run(client);
+			if (jobItem == null)
+				throw new SearchLibException("Job not found: " + jobName);
+			jobItem.run(client);
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		} catch (NamingException e) {
