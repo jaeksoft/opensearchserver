@@ -76,6 +76,7 @@ public class Client extends Config {
 			ClassNotFoundException {
 		Timer timer = new Timer("Update document " + document.toString());
 		try {
+			checkMaxStorageLimit();
 			checkMaxDocumentLimit(1);
 			return getIndex().updateDocument(getSchema(), document);
 		} finally {
@@ -89,6 +90,7 @@ public class Client extends Config {
 			ClassNotFoundException {
 		Timer timer = new Timer("Update " + documents.size() + " documents");
 		try {
+			checkMaxStorageLimit();
 			checkMaxDocumentLimit(documents.size());
 			return getIndex().updateDocuments(getSchema(), documents);
 		} finally {
@@ -101,6 +103,7 @@ public class Client extends Config {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
+		checkMaxStorageLimit();
 		checkMaxDocumentLimit(docList.size());
 		docCount += updateDocuments(docList);
 		StringBuffer sb = new StringBuffer();
@@ -265,10 +268,11 @@ public class Client extends Config {
 
 	protected final void checkMaxDocumentLimit(int additionalCount)
 			throws SearchLibException, IOException {
-		if (ClientFactory.INSTANCE.properties.getMaxDocumentLimit() == 0)
-			return;
-		ClientFactory.INSTANCE.properties.checkMaxDocumentLimit(ClientCatalog
-				.countAllDocuments() + additionalCount);
+		ClientFactory.INSTANCE.properties
+				.checkMaxDocumentLimit(additionalCount);
 	}
 
+	protected void checkMaxStorageLimit() throws SearchLibException {
+		ClientFactory.INSTANCE.properties.checkMaxStorageLimit();
+	}
 }

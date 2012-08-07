@@ -58,7 +58,7 @@ public class AutoCompletionComposer extends CommonComposer {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			return client.getSchema().getFieldList().getSortedList();
+			return client.getSchema().getFieldList().getList();
 		}
 	}
 

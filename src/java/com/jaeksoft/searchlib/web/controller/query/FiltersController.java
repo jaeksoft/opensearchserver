@@ -38,7 +38,6 @@ import com.jaeksoft.searchlib.filter.GeoFilter.CoordUnit;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
 import com.jaeksoft.searchlib.filter.QueryFilter;
-import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class FiltersController extends SearchRequestController {
 
@@ -155,11 +154,7 @@ public class FiltersController extends SearchRequestController {
 		if (client == null)
 			return null;
 		List<String> fieldList = new ArrayList<String>();
-		List<SchemaField> schemaFieldList = client.getSchema().getFieldList()
-				.getList();
-		for (SchemaField field : schemaFieldList)
-			if (field.isIndexed())
-				fieldList.add(field.getName());
+		client.getSchema().getFieldList().getIndexedFields(fieldList);
 		return fieldList;
 	}
 

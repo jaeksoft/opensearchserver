@@ -132,13 +132,19 @@ public class RobotsTxt {
 	public String getHostname() {
 		if (crawl == null)
 			return null;
-		return crawl.getUrlItem().getHost();
+		UrlItem urlItem = crawl.getUrlItem();
+		if (urlItem == null)
+			return null;
+		return urlItem.getHost();
 	}
 
 	public boolean isCacheable() {
 		if (crawl == null)
 			return false;
-		switch (crawl.getUrlItem().getResponseCode()) {
+		UrlItem urlItem = crawl.getUrlItem();
+		if (urlItem == null)
+			return false;
+		switch (urlItem.getResponseCode()) {
 		case 200:
 			return true;
 		case 400:

@@ -30,6 +30,8 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -245,5 +247,18 @@ public class StringUtils extends org.apache.commons.lang.StringUtils {
 		if (match == null)
 			return null;
 		return match.getName();
+	}
+
+	public final static String[] toStringArray(Collection<?> collection,
+			boolean sort) {
+		if (collection == null)
+			return null;
+		String[] array = new String[collection.size()];
+		int i = 0;
+		for (Object o : collection)
+			array[i++] = o.toString();
+		if (sort)
+			Arrays.sort(array);
+		return array;
 	}
 }

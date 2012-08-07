@@ -93,7 +93,7 @@ public class SchemaServlet extends AbstractServlet {
 		SchemaField schemaField = SchemaField.fromHttpRequest(transaction);
 		transaction.addXmlResponse("Info", "field '" + schemaField.getName()
 				+ "' added/updated");
-		schema.getFieldList().addOrSet(schemaField);
+		schema.getFieldList().add(schemaField);
 		if (defaultField != null) {
 			if (defaultField.equalsIgnoreCase("yes")) {
 				schema.getFieldList().setDefaultField(

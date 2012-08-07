@@ -26,11 +26,17 @@
 				<filter class="EdgeNGramFilter" max_gram="200" min_gram="1"
 					scope="QUERY_INDEX" side="front" />
 			</analyzer>
+			<analyzer name="FreqFilterAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<filter class="NumberFormatFilter" numberFormat="0000000000"
+					scope="QUERY_INDEX" />
+			</analyzer>
 		</analyzers>
 		<fields default="term">
 			<field name="term" indexed="yes" stored="yes" termVector="no"
 				analyzer="AutocompletionAnalyzer" />
-			<field name="freq" indexed="yes" stored="no" termvector="no" />
+			<field name="freq" indexed="yes" stored="no" termvector="no"
+				analyzer="FreqFilterAnalyzer" />
 		</fields>
 	</schema>
 	<requests>
@@ -40,6 +46,9 @@
 			<returnFields>
 				term
 			</returnFields>
+			<sort>
+				<field name="freq" direction="desc" />
+			</sort>
 		</request>
 	</requests>
 </configuration>

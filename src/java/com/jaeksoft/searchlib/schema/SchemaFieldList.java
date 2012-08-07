@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import java.util.List;
+
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -63,6 +65,12 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 
 	public Field getUniqueField() {
 		return this.uniqueField;
+	}
+
+	public void getIndexedFields(List<String> fieldList) {
+		for (SchemaField field : getList())
+			if (field.isIndexed())
+				fieldList.add(field.getName());
 	}
 
 	@Override

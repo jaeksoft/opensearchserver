@@ -146,6 +146,19 @@ public class ClientCatalog {
 		}
 	}
 
+	public static final long calculateInstanceSize() throws SearchLibException {
+		r.lock();
+		try {
+			if (StartStopListener.OPENSEARCHSERVER_DATA_FILE == null)
+				return 0;
+			return new LastModifiedAndSize(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE, false)
+					.getSize();
+		} finally {
+			r.unlock();
+		}
+	}
+
 	public static final LastModifiedAndSize getLastModifiedAndSize(
 			String indexName) throws SearchLibException {
 		if (!isValidIndexName(indexName))

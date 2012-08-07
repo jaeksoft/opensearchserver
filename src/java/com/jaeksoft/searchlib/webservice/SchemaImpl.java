@@ -149,7 +149,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 		schemaField.setName(schemaFieldRecord.name);
 		schemaField.setStored(schemaFieldRecord.stored);
 		schemaField.setTermVector(schemaFieldRecord.termVector);
-		schema.getFieldList().addOrSet(schemaField);
+		schema.getFieldList().add(schemaField);
 		SchemaServlet.saveSchema(client, schema);
 	}
 

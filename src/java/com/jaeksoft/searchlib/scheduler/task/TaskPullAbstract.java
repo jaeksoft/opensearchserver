@@ -39,7 +39,6 @@ import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
-import com.jaeksoft.searchlib.schema.SchemaField;
 
 public abstract class TaskPullAbstract extends TaskAbstract {
 
@@ -62,10 +61,7 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 	}
 
 	protected void populateFieldValues(Config config, List<String> values) {
-		for (SchemaField field : config.getSchema().getFieldList().getList()) {
-			if (field.isIndexed())
-				values.add(field.getName());
-		}
+		config.getSchema().getFieldList().getIndexedFields(values);
 	}
 
 	protected String[] toValueArray(List<String> values) {

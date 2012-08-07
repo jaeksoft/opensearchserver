@@ -38,6 +38,7 @@ import org.zkoss.zul.Filedownload;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class TermController extends CommonController {
@@ -77,7 +78,7 @@ public class TermController extends CommonController {
 
 	private transient TermEnum currentTermEnum;
 
-	private transient List<String> fieldList;
+	private transient String[] fieldList;
 
 	private transient String currentField;
 
@@ -157,12 +158,8 @@ public class TermController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return;
-			if (fieldList == null)
-				fieldList = new ArrayList<String>();
-			else
-				fieldList.clear();
-			for (Object f : client.getIndex().getFieldNames())
-				fieldList.add(f.toString());
+			fieldList = StringUtils.toStringArray(client.getIndex()
+					.getFieldNames(), true);
 		}
 	}
 
@@ -174,7 +171,7 @@ public class TermController extends CommonController {
 		}
 	}
 
-	public List<String> getFieldList() throws IOException, SearchLibException {
+	public String[] getFieldList() throws IOException, SearchLibException {
 		synchronized (this) {
 			if (fieldList == null)
 				setFieldList();
@@ -203,11 +200,11 @@ public class TermController extends CommonController {
 
 	public String getCurrentField() throws IOException, SearchLibException {
 		synchronized (this) {
-			List<String> fieldList = getFieldList();
+			String[] fieldList = getFieldList();
 			if (fieldList == null)
 				return null;
-			if (currentField == null && fieldList.size() > 0)
-				currentField = fieldList.get(0);
+			if (currentField == null && fieldList.length > 0)
+				currentField = fieldList[0];
 			return currentField;
 		}
 	}

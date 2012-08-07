@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class AutoCompletionBuildThread extends ThreadAbstract {
 
@@ -100,6 +99,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 		truncateIndex();
 		if (fieldName == null)
 			return;
+
 		termEnum = sourceClient.getIndex().getTermEnum(fieldName, "");
 		Term term = null;
 		List<IndexDocument> buffer = new ArrayList<IndexDocument>();
@@ -108,9 +108,9 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 			if (!fieldName.equals(term.field()))
 				break;
 			IndexDocument indexDocument = new IndexDocument();
-			indexDocument.addString("term", StringUtils.removeTag(term.text()));
+			indexDocument.addString("term", term.text());
 			indexDocument.addString("freq",
-					StringUtils.leftPad(termEnum.docFreq(), 9));
+					Integer.toString(termEnum.docFreq()));
 			buffer.add(indexDocument);
 			if (buffer.size() == 50)
 				docCount = indexBuffer(docCount, buffer);
@@ -136,7 +136,6 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 	public void init(String fieldName, InfoCallback infoCallBack) {
 		this.fieldName = fieldName;
 		this.infoCallBack = infoCallBack;
-
 	}
 
 }

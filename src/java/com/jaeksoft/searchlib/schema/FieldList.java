@@ -24,24 +24,19 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
-import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class FieldList<T extends Field> implements
@@ -52,19 +47,23 @@ public class FieldList<T extends Field> implements
 	 */
 	private static final long serialVersionUID = -3706856755116432969L;
 
-	private List<T> fieldList;
-	private transient Set<T> fieldSet;
-	private transient Map<String, T> fieldsName;
-	private transient String cacheKey;
+	private T[] fieldArray;
+	private Map<String, T> fieldMap;
+	private String cacheKey;
+
+	private ReadWriteLock rwl = new ReadWriteLock();
 
 	/**
 	 * Basic contructor.
 	 */
 	public FieldList() {
-		this.fieldsName = new TreeMap<String, T>();
-		this.fieldSet = new TreeSet<T>();
-		this.fieldList = new ArrayList<T>(0);
-		cacheKey = null;
+		this.fieldMap = new TreeMap<String, T>();
+		buildCacheAndArray();
+	}
+
+	@SuppressWarnings("unchecked")
+	public T[] newFieldArray(int size) {
+		return (T[]) new Field[size];
 	}
 
 	/**
@@ -78,61 +77,41 @@ public class FieldList<T extends Field> implements
 		add(fl);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void add(FieldList<T> fl) {
-		synchronized (this) {
-			for (T field : fl)
-				add((T) field.duplicate());
-			cacheKey = null;
+		rwl.w.lock();
+		try {
+			for (T field : fl.getList())
+				addDuplicate(field);
+			buildCacheAndArray();
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
-	/**
-	 * Return the default field (based on the XML configuration)
-	 * 
-	 * @param document
-	 * @param xPath
-	 * @return Field
-	 * @throws XPathExpressionException
-	 */
-	public T getDefaultField(Document document, XPathParser xpp)
-			throws XPathExpressionException {
-		Node node = xpp.getNode("/gisearch/schema");
-		if (node == null)
-			return null;
-		return get(XPathParser.getAttributeString(node, "defaultField"));
-	}
-
-	/**
-	 * Add a field to the list
-	 */
-	public boolean add(T field) {
-		synchronized (this) {
-			if (!fieldSet.add(field))
-				return true;
-			fieldList.add(field);
-			fieldsName.put(field.name, field);
-			cacheKey = null;
-			return true;
+	private final void buildCacheAndArray() {
+		fieldArray = newFieldArray(fieldMap.size());
+		fieldMap.values().toArray(fieldArray);
+		StringBuffer sb = new StringBuffer();
+		for (Field f : fieldArray) {
+			sb.append(f.name);
+			sb.append('|');
 		}
+		cacheKey = sb.toString();
 	}
 
-	public boolean addOrSet(T field) {
-		synchronized (this) {
-			T f = fieldsName.get(field.name);
-			if (f == null)
-				return add(field);
-			f.copy(field);
-			cacheKey = null;
-			return true;
+	@SuppressWarnings("unchecked")
+	private final void addDuplicate(T field) {
+		fieldMap.put(field.name, (T) field.duplicate());
+	}
+
+	public void add(T field) {
+		rwl.w.lock();
+		try {
+			addDuplicate(field);
+			buildCacheAndArray();
+		} finally {
+			rwl.w.unlock();
 		}
-	}
-
-	/**
-	 * Return the field in the passed order
-	 */
-	public T get(int index) {
-		return fieldList.get(index);
 	}
 
 	/**
@@ -142,98 +121,143 @@ public class FieldList<T extends Field> implements
 	 * @return Field
 	 */
 	public T get(String name) {
-		return fieldsName.get(name);
+		rwl.r.lock();
+		try {
+			return fieldMap.get(name);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public T get(Field field) {
-		return fieldsName.get(field.name);
+		return get(field.name);
 	}
 
 	/**
 	 * Return the number of fields.
 	 */
 	public int size() {
-		return fieldList.size();
+		rwl.r.lock();
+		try {
+			return fieldArray.length;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public FieldSelectorResult accept(String fieldName) {
-		if (this.fieldsName.containsKey(fieldName))
-			return FieldSelectorResult.LOAD;
-		return FieldSelectorResult.NO_LOAD;
+		rwl.r.lock();
+		try {
+			if (this.fieldMap.containsKey(fieldName))
+				return FieldSelectorResult.LOAD;
+			return FieldSelectorResult.NO_LOAD;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public String[] toArrayName() {
-		Set<String> set = fieldsName.keySet();
-		String[] names = new String[set.size()];
-		return set.toArray(names);
+		rwl.r.lock();
+		try {
+			Set<String> set = fieldMap.keySet();
+			String[] names = new String[set.size()];
+			return set.toArray(names);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
-	public void toNameList(List<String> nameList) {
-		for (String name : fieldsName.keySet())
-			nameList.add(name);
+	public List<T> getList() {
+		rwl.r.lock();
+		try {
+			return Arrays.asList(fieldArray);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		for (Field f : fieldList) {
-			sb.append("[");
-			sb.append(f);
-			sb.append("] ");
-		}
-		return sb.toString();
-	}
-
-	@Override
-	public Iterator<T> iterator() {
-		return this.fieldList.iterator();
-	}
-
-	public List<T> getList() {
-		return fieldList;
-	}
-
-	public List<T> getSortedList() {
-		synchronized (this) {
-			List<T> list = new ArrayList<T>(fieldsName.size());
-			Iterator<T> it = fieldSet.iterator();
-			while (it.hasNext())
-				list.add(it.next());
-			return list;
-		}
-	}
-
-	public String getCacheKey() {
-		synchronized (this) {
-			if (cacheKey != null)
-				return cacheKey;
+		rwl.r.lock();
+		try {
 			StringBuffer sb = new StringBuffer();
-			for (Field field : fieldList)
-				field.toString(sb);
-			cacheKey = sb.toString();
-			return cacheKey;
+			for (Field f : fieldArray) {
+				sb.append('[');
+				sb.append(f);
+				sb.append("] ");
+			}
+			return sb.toString();
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public int compareTo(FieldList<T> o) {
-		return getCacheKey().compareTo(o.getCacheKey());
+		rwl.r.lock();
+		try {
+			return cacheKey.compareTo(o.cacheKey);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void remove(Field field) {
-		synchronized (this) {
-			fieldSet.remove(field);
-			fieldList.remove(field);
-			fieldsName.remove(field.name);
-			cacheKey = null;
+		rwl.w.lock();
+		try {
+			fieldMap.remove(field.name);
+			buildCacheAndArray();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void toNameList(List<String> nameList) {
+		rwl.r.lock();
+		try {
+			for (Field field : fieldArray)
+				nameList.add(field.name);
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		synchronized (this) {
-			for (Field field : fieldList)
+		rwl.r.lock();
+		try {
+			for (Field field : fieldArray)
 				field.writeXmlConfig(xmlWriter);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		rwl.r.lock();
+		try {
+			return Arrays.asList(fieldArray).iterator();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public T get(int index) {
+		rwl.r.lock();
+		try {
+			return fieldArray[index];
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public String getCacheKey() {
+		rwl.r.lock();
+		try {
+			return cacheKey;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

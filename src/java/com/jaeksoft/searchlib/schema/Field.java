@@ -88,6 +88,13 @@ public class Field implements FieldSelector, Comparable<Field> {
 		sb.append(name);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Field))
+			return false;
+		return equals((Field) o);
+	}
+
 	public boolean equals(Field field) {
 		return field.name == this.name;
 	}

@@ -34,12 +34,17 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class InstanceProperties {
 
 	private long maxDocumentLimit = 0;
+
+	private long maxStorage = 0;
+
+	private int maxIndexNumber = 0;
 
 	private int minCrawlerDelay = 0;
 
@@ -50,6 +55,10 @@ public class InstanceProperties {
 	private final static String LIMIT_CHROOT_ATTR = "chroot";
 
 	private final static String LIMIT_MAXDOCUMENTLIMIT_ATTR = "maxDocumentLimit";
+
+	private final static String LIMIT_MAX_STORAGE_ATTR = "maxStorage";
+
+	private final static String LIMIT_MAX_INDEX_NUMBER_ATTR = "maxIndexNumber";
 
 	private final static String LIMIT_MINCRAWLERDELAY_ATTR = "minCrawlerDelay";
 
@@ -68,6 +77,10 @@ public class InstanceProperties {
 				LIMIT_CHROOT_ATTR));
 		minCrawlerDelay = XPathParser.getAttributeValue(node,
 				LIMIT_MINCRAWLERDELAY_ATTR);
+		maxIndexNumber = XPathParser.getAttributeValue(node,
+				LIMIT_MAX_INDEX_NUMBER_ATTR);
+		maxStorage = XPathParser
+				.getAttributeValue(node, LIMIT_MAX_STORAGE_ATTR);
 	}
 
 	/**
@@ -82,6 +95,20 @@ public class InstanceProperties {
 	 */
 	public int getMinCrawlerDelay() {
 		return minCrawlerDelay;
+	}
+
+	/**
+	 * @return the maxStorage
+	 */
+	public long getMaxStorage() {
+		return maxStorage;
+	}
+
+	/**
+	 * @return the maxIndexNumber
+	 */
+	public int getMaxIndexNumber() {
+		return maxIndexNumber;
 	}
 
 	/**
@@ -106,14 +133,27 @@ public class InstanceProperties {
 							+ file.getAbsolutePath());
 	}
 
-	public final void checkMaxDocumentLimit(long count)
-			throws SearchLibException {
+	public final void checkMaxDocumentLimit(long additionnalCount)
+			throws SearchLibException, IOException {
 		if (maxDocumentLimit == 0)
 			return;
-		if (count >= maxDocumentLimit)
-			throw new SearchLibException(
-					"The maximum number of allowable documents has been reached ("
-							+ maxDocumentLimit + ")");
+		long count = ClientCatalog.countAllDocuments() + additionnalCount;
+		if (count <= maxDocumentLimit)
+			return;
+		throw new SearchLibException(
+				"The maximum number of allowable documents has been reached ("
+						+ maxDocumentLimit + ")");
+	}
+
+	public final void checkMaxStorageLimit() throws SearchLibException {
+		if (maxStorage == 0)
+			return;
+		long size = ClientCatalog.calculateInstanceSize();
+		if (size <= maxStorage)
+			return;
+		throw new SearchLibException(
+				"The maximum storage size has been reached ("
+						+ StringUtils.humanBytes(maxStorage) + ")");
 	}
 
 }

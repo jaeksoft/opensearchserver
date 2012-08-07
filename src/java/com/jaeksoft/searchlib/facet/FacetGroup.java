@@ -29,8 +29,6 @@ import java.util.Iterator;
 
 public class FacetGroup extends Facet {
 
-	private static final long serialVersionUID = -2026182316339285266L;
-
 	public FacetGroup(FacetField facetField) {
 		super(facetField);
 	}

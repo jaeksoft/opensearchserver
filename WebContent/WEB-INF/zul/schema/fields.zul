@@ -131,7 +131,7 @@
 		<panel title="List of existing fields and their settings"
 			border="normal">
 			<panelchildren>
-				<listbox model="@{fields.sortedList}"
+				<listbox model="@{fields.list}"
 					selectedItem="@{fields.selectedField}">
 					<listhead>
 						<listheader label="Name" />

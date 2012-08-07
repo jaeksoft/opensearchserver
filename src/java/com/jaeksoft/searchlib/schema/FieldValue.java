@@ -47,6 +47,11 @@ public class FieldValue extends Field {
 
 	}
 
+	@Override
+	public Field duplicate() {
+		return new FieldValue(this);
+	}
+
 	public FieldValue(FieldValue field) {
 		this(field.name);
 		this.valueArray = field.valueArray;

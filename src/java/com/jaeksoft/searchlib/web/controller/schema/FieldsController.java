@@ -159,14 +159,13 @@ public class FieldsController extends CommonController {
 		return analyzerNameList;
 	}
 
-	public List<SchemaField> getSortedList() throws SearchLibException {
+	public List<SchemaField> getList() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
 			if (schemaFieldList == null)
-				schemaFieldList = client.getSchema().getFieldList()
-						.getSortedList();
+				schemaFieldList = client.getSchema().getFieldList().getList();
 			return schemaFieldList;
 		}
 	}

@@ -40,7 +40,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.join.JoinItem;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class JoinController extends SearchRequestController {
 
@@ -147,11 +146,7 @@ public class JoinController extends SearchRequestController {
 		if (client == null)
 			return null;
 		List<String> fieldList = new ArrayList<String>();
-		List<SchemaField> schemaFieldList = client.getSchema().getFieldList()
-				.getList();
-		for (SchemaField field : schemaFieldList)
-			if (field.isIndexed())
-				fieldList.add(field.getName());
+		client.getSchema().getFieldList().getIndexedFields(fieldList);
 		return fieldList;
 	}
 
