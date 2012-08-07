@@ -217,7 +217,8 @@ public class RenderSearchXml extends
 	}
 
 	private void renderTimers() {
-		request.getTimer().writeXml(writer);
+		request.getTimer().writeXml(writer, request.getTimerMinTime(),
+				request.getTimerMaxDepth());
 	}
 
 	@Override

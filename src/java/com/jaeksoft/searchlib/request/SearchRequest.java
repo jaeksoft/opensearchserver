@@ -1031,6 +1031,12 @@ public class SearchRequest extends AbstractRequest {
 				}
 			}
 
+			if ((p = transaction.getParameterString("timer.minTime")) != null)
+				setTimerMinTime(Integer.parseInt(p));
+
+			if ((p = transaction.getParameterString("timer.maxDepth")) != null)
+				setTimerMaxDepth(Integer.parseInt(p));
+
 			String[] values;
 
 			if ((values = transaction.getParameterValues("fq")) != null) {

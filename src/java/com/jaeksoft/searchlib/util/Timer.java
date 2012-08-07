@@ -113,14 +113,21 @@ public class Timer {
 		return this.error;
 	}
 
-	final public void writeXml(PrintWriter writer) {
+	final public void writeXml(PrintWriter writer, int minTime, int maxLevel) {
+		if (maxLevel == 0)
+			return;
+		if (maxLevel > 0)
+			maxLevel--;
+		long d = duration();
+		if (d < minTime)
+			return;
 		writer.print("<timer info=\"");
 		writer.print(StringEscapeUtils.escapeXml(info));
 		writer.print("\" duration=\"");
-		writer.print(duration());
+		writer.print(d);
 		writer.println("\">");
 		for (Timer timer : childs)
-			timer.writeXml(writer);
+			timer.writeXml(writer, minTime, maxLevel);
 		writer.println("</timer>");
 	}
 

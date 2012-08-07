@@ -58,6 +58,8 @@ public abstract class AbstractRequest {
 	private boolean withLogReport;
 	private List<String> customLogs;
 	private Timer timer;
+	private int timerMinTime;
+	private int timerMaxDepth;
 
 	public AbstractRequest() {
 		this.config = null;
@@ -86,12 +88,16 @@ public abstract class AbstractRequest {
 		this.customLogs = null;
 		if (request.customLogs != null)
 			this.customLogs = new ArrayList<String>(request.customLogs);
+		this.timerMinTime = request.timerMinTime;
+		this.timerMaxDepth = request.timerMaxDepth;
 	}
 
 	protected void setDefaultValues() {
 		withLogReport = false;
 		customLogs = null;
 		timer = new Timer(getNameType());
+		timerMinTime = 10;
+		timerMaxDepth = 3;
 	}
 
 	public abstract RequestTypeEnum getType();
@@ -194,5 +200,35 @@ public abstract class AbstractRequest {
 
 	public abstract AbstractResult<?> execute(ReaderInterface reader)
 			throws SearchLibException;
+
+	/**
+	 * @param timerMinTime
+	 *            the timerMinTime to set
+	 */
+	public void setTimerMinTime(int timerMinTime) {
+		this.timerMinTime = timerMinTime;
+	}
+
+	/**
+	 * @return the timerMi,Time
+	 */
+	public int getTimerMinTime() {
+		return timerMinTime;
+	}
+
+	/**
+	 * @return the timerMaxDepth
+	 */
+	public int getTimerMaxDepth() {
+		return timerMaxDepth;
+	}
+
+	/**
+	 * @param timerMaxDepth
+	 *            the timerMaxDepth to set
+	 */
+	public void setTimerMaxDepth(int timerMaxDepth) {
+		this.timerMaxDepth = timerMaxDepth;
+	}
 
 }
