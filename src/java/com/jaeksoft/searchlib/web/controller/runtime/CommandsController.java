@@ -28,12 +28,36 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-import org.apache.http.HttpException;
+import org.zkoss.zul.Messagebox;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class CommandsController extends CommonController {
+
+	private class DeleteAlert extends AlertController {
+
+		protected DeleteAlert() throws InterruptedException {
+			super(
+					"Please, confirm that you want to delete all the documents in the main index",
+					Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
+		}
+
+		@Override
+		protected void onYes() throws SearchLibException {
+			Client client = getClient();
+			if (client == null)
+				return;
+			Date t = new Date();
+			getClient().deleteAll();
+			lastDeleteAll = t;
+			reloadPage();
+			PushEvent.DOCUMENT_UPDATED.publish(client);
+		}
+	}
 
 	/**
 	 * 
@@ -58,9 +82,7 @@ public class CommandsController extends CommonController {
 	}
 
 	@Override
-	public void onReload() throws IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void onReload() throws SearchLibException {
 		synchronized (this) {
 			Date t = new Date();
 			getClient().reload();
@@ -69,9 +91,8 @@ public class CommandsController extends CommonController {
 		}
 	}
 
-	public void onOptimize() throws IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void onOptimize() throws SearchLibException, IOException,
+			URISyntaxException {
 		synchronized (this) {
 			Date t = new Date();
 			getClient().optimize();
@@ -80,14 +101,9 @@ public class CommandsController extends CommonController {
 		}
 	}
 
-	public void onDeleteAll() throws IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void onDeleteAll() throws InterruptedException {
 		synchronized (this) {
-			Date t = new Date();
-			getClient().deleteAll();
-			lastDeleteAll = t;
-			reloadPage();
+			new DeleteAlert();
 		}
 	}
 

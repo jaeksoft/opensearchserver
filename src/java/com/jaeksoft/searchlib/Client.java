@@ -44,9 +44,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
@@ -156,9 +154,7 @@ public class Client extends Config {
 				proxyHandler, infoCallBack);
 	}
 
-	public boolean deleteDocument(String uniqueField) throws IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
+	public boolean deleteDocument(String uniqueField) throws SearchLibException {
 		Timer timer = new Timer("Delete document " + uniqueField);
 		try {
 			return getIndex().deleteDocument(getSchema(), uniqueField);
@@ -168,9 +164,7 @@ public class Client extends Config {
 	}
 
 	public int deleteDocuments(Collection<String> uniqueFields)
-			throws IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws SearchLibException {
 		Timer timer = new Timer("Delete " + uniqueFields.size() + " documents");
 		try {
 			return getIndex().deleteDocuments(getSchema(), uniqueFields);
@@ -180,9 +174,7 @@ public class Client extends Config {
 	}
 
 	public int deleteDocuments(SearchRequest searchRequest)
-			throws SearchLibException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError, URISyntaxException, InterruptedException {
+			throws SearchLibException {
 		Timer timer = new Timer("Delete by query documents");
 		try {
 			return getIndex().deleteDocuments(searchRequest);
@@ -192,8 +184,7 @@ public class Client extends Config {
 	}
 
 	public void optimize() throws IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+			SearchLibException {
 		Timer timer = new Timer("Optimize");
 		try {
 			getIndex().optimize();

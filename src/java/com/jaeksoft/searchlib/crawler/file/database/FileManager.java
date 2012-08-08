@@ -388,20 +388,6 @@ public class FileManager {
 			}
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
 		}
 		return true;
 	}
@@ -629,38 +615,26 @@ public class FileManager {
 	}
 
 	public int delete(SearchRequest searchRequest) throws SearchLibException {
-		try {
-			int totalCount = 0;
-			long previousNumFound = 0;
-			List<FileItem> itemList = new ArrayList<FileItem>();
-			for (;;) {
-				long numFound = getFileList(searchRequest, 0, 1000, itemList);
-				if (itemList.size() == 0)
-					break;
-				List<String> uriList = new ArrayList<String>(itemList.size());
-				for (FileItem fileItem : itemList)
-					uriList.add(fileItem.getUri());
-				int count = fileDbClient.deleteDocuments(uriList);
-				if (count == 0 || previousNumFound == numFound) {
-					Logging.error("Bad count at URI deletion " + count + "/"
-							+ previousNumFound + "/" + numFound);
-					break;
-				}
-				previousNumFound = numFound;
-				totalCount += count;
+		int totalCount = 0;
+		long previousNumFound = 0;
+		List<FileItem> itemList = new ArrayList<FileItem>();
+		for (;;) {
+			long numFound = getFileList(searchRequest, 0, 1000, itemList);
+			if (itemList.size() == 0)
+				break;
+			List<String> uriList = new ArrayList<String>(itemList.size());
+			for (FileItem fileItem : itemList)
+				uriList.add(fileItem.getUri());
+			int count = fileDbClient.deleteDocuments(uriList);
+			if (count == 0 || previousNumFound == numFound) {
+				Logging.error("Bad count at URI deletion " + count + "/"
+						+ previousNumFound + "/" + numFound);
+				break;
 			}
-			return totalCount;
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
+			previousNumFound = numFound;
+			totalCount += count;
 		}
+		return totalCount;
 	}
 
 	public int updateFetchStatus(SearchRequest searchRequest,

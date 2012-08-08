@@ -42,6 +42,11 @@ public class SnippetFieldValue extends FieldValue {
 	public SnippetFieldValue() {
 	}
 
+	private SnippetFieldValue(SnippetFieldValue field) {
+		super(field);
+		this.highlighted = field.highlighted;
+	}
+
 	public SnippetFieldValue(Field field, List<FieldValueItem> values,
 			boolean highlighted) {
 		super(field, values);
@@ -50,6 +55,11 @@ public class SnippetFieldValue extends FieldValue {
 
 	public boolean isHighlighted() {
 		return highlighted;
+	}
+
+	@Override
+	public Field duplicate() {
+		return new SnippetFieldValue(this);
 	}
 
 }

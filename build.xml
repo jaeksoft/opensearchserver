@@ -85,7 +85,7 @@
 	</target>
 
 	<target name="compile-debug" depends="init" description="compile the source ">
-		<javac debug="on" debuglevel="lines,vars,source" compiler="modern" optimize="false" target="1.5" srcdir="${src}" destdir="${build-debug}" classpathref="project.class.path" includeantruntime="false" />
+		<javac debug="true" debuglevel="lines, vars, and source" compiler="modern" optimize="false" target="1.5" srcdir="${src}" destdir="${build-debug}" classpathref="project.class.path" includeantruntime="false" />
 	</target>
 
 	<target name="dist-jar-release" depends="compile-release">

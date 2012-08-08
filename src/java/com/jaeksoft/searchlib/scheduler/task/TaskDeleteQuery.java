@@ -24,14 +24,9 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
@@ -71,28 +66,10 @@ public class TaskDeleteQuery extends TaskAbstract {
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException {
 		String query = properties.getValue(propQuery);
-		try {
-			SearchRequest request = new SearchRequest(client);
-			request.setQueryString(query);
-			taskLog.setInfo("Deletion request");
-			int i = client.deleteDocuments(request);
-			taskLog.setInfo(i + " document(s) deleted");
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
-		}
+		SearchRequest request = new SearchRequest(client);
+		request.setQueryString(query);
+		taskLog.setInfo("Deletion request");
+		int i = client.deleteDocuments(request);
+		taskLog.setInfo(i + " document(s) deleted");
 	}
 }

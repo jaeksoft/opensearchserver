@@ -61,32 +61,13 @@ public class DeleteController extends CommonController {
 
 		@Override
 		protected void onYes() throws SearchLibException {
-			try {
-				request.reset();
-				Client client = getClient();
-				if (client == null)
-					return;
-				client.deleteDocuments(request);
-				PushEvent.DOCUMENT_UPDATED.publish(client);
-			} catch (IOException e) {
-				throw new SearchLibException(e);
-			} catch (InstantiationException e) {
-				throw new SearchLibException(e);
-			} catch (IllegalAccessException e) {
-				throw new SearchLibException(e);
-			} catch (ClassNotFoundException e) {
-				throw new SearchLibException(e);
-			} catch (ParseException e) {
-				throw new SearchLibException(e);
-			} catch (SyntaxError e) {
-				throw new SearchLibException(e);
-			} catch (URISyntaxException e) {
-				throw new SearchLibException(e);
-			} catch (InterruptedException e) {
-				throw new SearchLibException(e);
-			}
+			request.reset();
+			Client client = getClient();
+			if (client == null)
+				return;
+			client.deleteDocuments(request);
+			PushEvent.DOCUMENT_UPDATED.publish(client);
 		}
-
 	}
 
 	private transient SearchRequest request;

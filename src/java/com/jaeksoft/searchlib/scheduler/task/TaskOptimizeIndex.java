@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.apache.http.HttpException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -69,14 +67,6 @@ public class TaskOptimizeIndex extends TaskAbstract {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (HttpException e) {
 			throw new SearchLibException(e);
 		}
 	}

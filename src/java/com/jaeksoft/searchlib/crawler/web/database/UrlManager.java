@@ -103,20 +103,8 @@ public class UrlManager {
 
 	public void deleteUrls(Collection<String> workDeleteUrlList)
 			throws SearchLibException {
-		try {
-			targetClient.deleteDocuments(workDeleteUrlList);
-			urlDbClient.deleteDocuments(workDeleteUrlList);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		}
+		targetClient.deleteDocuments(workDeleteUrlList);
+		urlDbClient.deleteDocuments(workDeleteUrlList);
 	}
 
 	public UrlItem getNewUrlItem() {
@@ -739,38 +727,26 @@ public class UrlManager {
 
 	public int deleteUrls(SearchRequest searchRequest)
 			throws SearchLibException {
-		try {
-			int totalCount = 0;
-			long previousNumFound = 0;
-			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
-			for (;;) {
-				long numFound = getUrlList(searchRequest, 0, 1000, urlItemList);
-				if (urlItemList.size() == 0)
-					break;
-				List<String> urlList = new ArrayList<String>(urlItemList.size());
-				for (UrlItem urlItem : urlItemList)
-					urlList.add(urlItem.getUrl());
-				int count = urlDbClient.deleteDocuments(urlList);
-				if (count == 0 || previousNumFound == numFound) {
-					Logging.error("Bad count at URL deletion " + count + "/"
-							+ previousNumFound + "/" + numFound);
-					break;
-				}
-				previousNumFound = numFound;
-				totalCount += count;
+		int totalCount = 0;
+		long previousNumFound = 0;
+		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
+		for (;;) {
+			long numFound = getUrlList(searchRequest, 0, 1000, urlItemList);
+			if (urlItemList.size() == 0)
+				break;
+			List<String> urlList = new ArrayList<String>(urlItemList.size());
+			for (UrlItem urlItem : urlItemList)
+				urlList.add(urlItem.getUrl());
+			int count = urlDbClient.deleteDocuments(urlList);
+			if (count == 0 || previousNumFound == numFound) {
+				Logging.error("Bad count at URL deletion " + count + "/"
+						+ previousNumFound + "/" + numFound);
+				break;
 			}
-			return totalCount;
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
+			previousNumFound = numFound;
+			totalCount += count;
 		}
+		return totalCount;
 	}
 
 	public void deleteAll() throws SearchLibException {

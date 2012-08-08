@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class FieldList<T extends Field> implements
 	 */
 	private static final long serialVersionUID = -3706856755116432969L;
 
-	private T[] fieldArray;
+	private List<T> fieldList;
 	private Map<String, T> fieldMap;
 	private String cacheKey;
 
@@ -58,12 +58,7 @@ public class FieldList<T extends Field> implements
 	 */
 	public FieldList() {
 		this.fieldMap = new TreeMap<String, T>();
-		buildCacheAndArray();
-	}
-
-	@SuppressWarnings("unchecked")
-	public T[] newFieldArray(int size) {
-		return (T[]) new Field[size];
+		buildCacheAndList();
 	}
 
 	/**
@@ -82,19 +77,19 @@ public class FieldList<T extends Field> implements
 		try {
 			for (T field : fl.getList())
 				addDuplicate(field);
-			buildCacheAndArray();
+			buildCacheAndList();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	private final void buildCacheAndArray() {
-		fieldArray = newFieldArray(fieldMap.size());
-		fieldMap.values().toArray(fieldArray);
+	private final void buildCacheAndList() {
+		fieldList = new ArrayList<T>(fieldMap.size());
 		StringBuffer sb = new StringBuffer();
-		for (Field f : fieldArray) {
+		for (T f : fieldMap.values()) {
 			sb.append(f.name);
 			sb.append('|');
+			fieldList.add(f);
 		}
 		cacheKey = sb.toString();
 	}
@@ -108,7 +103,7 @@ public class FieldList<T extends Field> implements
 		rwl.w.lock();
 		try {
 			addDuplicate(field);
-			buildCacheAndArray();
+			buildCacheAndList();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -139,7 +134,7 @@ public class FieldList<T extends Field> implements
 	public int size() {
 		rwl.r.lock();
 		try {
-			return fieldArray.length;
+			return fieldList.size();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -171,7 +166,7 @@ public class FieldList<T extends Field> implements
 	public List<T> getList() {
 		rwl.r.lock();
 		try {
-			return Arrays.asList(fieldArray);
+			return fieldList;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -182,7 +177,7 @@ public class FieldList<T extends Field> implements
 		rwl.r.lock();
 		try {
 			StringBuffer sb = new StringBuffer();
-			for (Field f : fieldArray) {
+			for (Field f : fieldList) {
 				sb.append('[');
 				sb.append(f);
 				sb.append("] ");
@@ -207,7 +202,7 @@ public class FieldList<T extends Field> implements
 		rwl.w.lock();
 		try {
 			fieldMap.remove(field.name);
-			buildCacheAndArray();
+			buildCacheAndList();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -216,7 +211,7 @@ public class FieldList<T extends Field> implements
 	public void toNameList(List<String> nameList) {
 		rwl.r.lock();
 		try {
-			for (Field field : fieldArray)
+			for (Field field : fieldList)
 				nameList.add(field.name);
 		} finally {
 			rwl.r.unlock();
@@ -226,7 +221,7 @@ public class FieldList<T extends Field> implements
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			for (Field field : fieldArray)
+			for (Field field : fieldList)
 				field.writeXmlConfig(xmlWriter);
 		} finally {
 			rwl.r.unlock();
@@ -237,7 +232,7 @@ public class FieldList<T extends Field> implements
 	public Iterator<T> iterator() {
 		rwl.r.lock();
 		try {
-			return Arrays.asList(fieldArray).iterator();
+			return fieldList.iterator();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -246,7 +241,7 @@ public class FieldList<T extends Field> implements
 	public T get(int index) {
 		rwl.r.lock();
 		try {
-			return fieldArray[index];
+			return fieldList.get(index);
 		} finally {
 			rwl.r.unlock();
 		}
