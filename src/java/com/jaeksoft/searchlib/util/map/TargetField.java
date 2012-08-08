@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.util.map;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -105,8 +106,15 @@ public class TargetField implements Comparable<TargetField> {
 
 	final public void setCachedAnalyzer(AnalyzerList analyzerList,
 			LanguageEnum lang) throws SearchLibException {
-		cachedAnalyzer = analyzer == null ? null : analyzerList.get(analyzer,
-				lang).getIndexAnalyzer();
+		cachedAnalyzer = null;
+		if (analyzer == null)
+			return;
+		Analyzer a = analyzerList.get(analyzer, lang);
+		if (a == null)
+			a = analyzerList.get(analyzer, null);
+		if (a == null)
+			return;
+		cachedAnalyzer = a.getIndexAnalyzer();
 	}
 
 	final public void add(FieldValueItem fvi, IndexDocument document)
