@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.naming.NamingException;
 
@@ -36,7 +34,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -45,18 +42,8 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
-import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.user.Role;
-import com.jaeksoft.searchlib.user.User;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class TaskPullTerms extends TaskPullAbstract {
-
-	final private TaskPropertyDef propSourceField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Source field name", 50);
-
-	final private TaskPropertyDef propTermField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Term field name", 50);
 
 	final private TaskPropertyDef propFreqField = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Frequency field name", 50);
@@ -64,12 +51,10 @@ public class TaskPullTerms extends TaskPullAbstract {
 	final private TaskPropertyDef propFreqMin = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Minimum frequency", 20);
 
-	final private TaskPropertyDef propFreqPadSize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Frequency pad", 20);
-
-	final private TaskPropertyDef[] taskPropertyDefs = { propSourceField,
-			propSourceIndex, propLogin, propApiKey, propTermField,
-			propFreqField, propFreqMin, propFreqPadSize };
+	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
+			propLogin, propApiKey, propSourceField, propTargetField,
+			propFreqField, propFreqMin, propLanguage, propTargetMappedFields,
+			propBufferSize };
 
 	@Override
 	public String getName() {
@@ -82,91 +67,50 @@ public class TaskPullTerms extends TaskPullAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
-			throws SearchLibException {
-		List<String> values = new ArrayList<String>(0);
-		if (propertyDef == propSourceIndex) {
-			populateSourceIndexValues(config, values);
-		} else if (propertyDef == propSourceField) {
-			populateFieldValues(config, values);
-		}
-		return toValueArray(values);
-	}
-
-	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
-		if (propertyDef == propFreqPadSize)
-			return "9";
 		if (propertyDef == propFreqMin)
 			return "2";
-		return null;
+		return super.getDefaultValue(config, propertyDef);
 	}
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException {
-		String sourceIndex = properties.getValue(propSourceIndex);
-		String sourceField = properties.getValue(propSourceField);
-		String login = properties.getValue(propLogin);
-		String apiKey = properties.getValue(propApiKey);
-		String[] targetTermFields = StringUtils.split(
-				properties.getValue(propTermField), ',');
-		for (int i = 0; i < targetTermFields.length; i++)
-			targetTermFields[i] = targetTermFields[i].trim();
-		int freqPadSize = Integer
-				.parseInt(properties.getValue(propFreqPadSize));
 		int freqMin = Integer.parseInt(properties.getValue(propFreqMin));
-		String[] targetFreqFields = properties.getValue(propFreqField).split(
-				",");
-		for (int i = 0; i < targetFreqFields.length; i++)
-			targetFreqFields[i] = targetFreqFields[i].trim();
-		int bufferSize = 50;
+		String[] targetFreqFields = null;
+		String freqField = properties.getValue(propFreqField);
+		if (freqField != null && freqField.length() > 0)
+			targetFreqFields = freqField.split(",");
+		if (targetFreqFields != null)
+			for (int i = 0; i < targetFreqFields.length; i++)
+				targetFreqFields[i] = targetFreqFields[i].trim();
 		TermEnum termEnum = null;
 		try {
-			if (!ClientCatalog.getUserList().isEmpty()) {
-				User user = ClientCatalog.authenticateKey(login, apiKey);
-				if (user == null)
-					throw new SearchLibException("Authentication failed");
-				if (!user.hasAnyRole(sourceIndex, Role.GROUP_INDEX))
-					throw new SearchLibException("Not enough right");
-			}
-			Client sourceClient = ClientCatalog.getClient(sourceIndex);
-			if (sourceClient == null)
-				throw new SearchLibException("Client not found: " + sourceIndex);
-			SchemaField sourceTermField = sourceClient.getSchema()
-					.getFieldList().get(sourceField);
-			if (sourceTermField == null)
-				throw new SearchLibException("Source field not found: "
-						+ sourceField);
-			String sourceFieldName = sourceTermField.getName();
-			termEnum = sourceClient.getIndex().getTermEnum(sourceFieldName, "");
-			Term term = null;
-			String text;
-			List<IndexDocument> buffer = new ArrayList<IndexDocument>(
-					bufferSize);
+			ExecutionData executionData = new ExecutionData(properties, client);
 
-			int totalCount = 0;
+			termEnum = executionData.sourceClient.getIndex().getTermEnum(
+					executionData.sourceField, "");
+			Term term = null;
+
 			while ((term = termEnum.term()) != null) {
-				if (!sourceFieldName.equals(term.field()))
+				if (!executionData.sourceField.equals(term.field()))
 					break;
-				IndexDocument indexDocument = new IndexDocument();
-				text = term.text();
 				int freq = termEnum.docFreq();
 				if (freq >= freqMin) {
-					for (String targetTermField : targetTermFields)
-						indexDocument.addString(targetTermField, text);
-					text = StringUtils.leftPad(freq, freqPadSize);
-					for (String targetFreqField : targetFreqFields)
-						indexDocument.addString(targetFreqField, text);
-					buffer.add(indexDocument);
-					if (buffer.size() == bufferSize)
-						totalCount = indexBuffer(totalCount, buffer, client,
-								taskLog);
+					String termText = term.text();
+					String freqText = Integer.toString(freq);
+					IndexDocument indexDocument = new IndexDocument(
+							executionData.lang);
+					if (targetFreqFields != null)
+						for (String targetFreqField : targetFreqFields)
+							indexDocument.addString(targetFreqField, freqText);
+					executionData.indexDocument(client, indexDocument,
+							termText, taskLog);
 				}
 				if (!termEnum.next())
 					break;
 			}
-			totalCount = indexBuffer(totalCount, buffer, client, taskLog);
+			executionData.indexBuffer(client, taskLog);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

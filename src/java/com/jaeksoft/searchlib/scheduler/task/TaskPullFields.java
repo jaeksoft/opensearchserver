@@ -27,13 +27,10 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.naming.NamingException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
@@ -47,9 +44,6 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.user.Role;
-import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
@@ -59,23 +53,8 @@ public class TaskPullFields extends TaskPullAbstract {
 	final private TaskPropertyDef propSourceQuery = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Source query", 50);
 
-	final private TaskPropertyDef propSourceField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Source field name", 50);
-
-	final private TaskPropertyDef propTargetField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Target field name", 50);
-
 	final private TaskPropertyDef propSourceMappedFields = new TaskPropertyDef(
 			TaskPropertyType.multilineTextBox, "Mapped fields on source", 80, 5);
-
-	final private TaskPropertyDef propTargetMappedFields = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "Mapped fields on target", 80, 5);
-
-	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", 10);
-
-	final private TaskPropertyDef propLanguage = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Language", 30);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
 			propLogin, propApiKey, propSourceQuery, propLanguage,
@@ -93,88 +72,39 @@ public class TaskPullFields extends TaskPullAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
-			throws SearchLibException {
-		List<String> values = new ArrayList<String>(0);
-		if (propertyDef == propSourceIndex) {
-			populateSourceIndexValues(config, values);
-		} else if (propertyDef == propTargetField) {
-			populateFieldValues(config, values);
-		} else if (propertyDef == propLanguage) {
-			return LanguageEnum.stringArray();
-		}
-		return toValueArray(values);
-	}
-
-	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		if (propertyDef == propSourceQuery)
 			return "*:*";
-		else if (propertyDef == propBufferSize)
-			return "50";
-		else if (propertyDef == propLanguage)
-			return LanguageEnum.UNDEFINED.getName();
-		return null;
+		return super.getDefaultValue(config, propertyDef);
 	}
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException {
-		String sourceIndex = properties.getValue(propSourceIndex);
 		String sourceQuery = properties.getValue(propSourceQuery);
-		LanguageEnum lang = LanguageEnum.findByName(properties
-				.getValue(propLanguage));
-		String sourceField = properties.getValue(propSourceField);
-		String targetField = properties.getValue(propTargetField);
 		String sourceMappedFields = properties.getValue(propSourceMappedFields);
-		String targetMappedFields = properties.getValue(propTargetMappedFields);
-		String login = properties.getValue(propLogin);
-		String apiKey = properties.getValue(propApiKey);
-		int bufferSize = Integer.parseInt(properties.getValue(propBufferSize));
 
 		try {
 
-			if (!ClientCatalog.getUserList().isEmpty()) {
-				User user = ClientCatalog.authenticateKey(login, apiKey);
-				if (user == null)
-					throw new SearchLibException("Authentication failed");
-				if (!user.hasAnyRole(sourceIndex, Role.GROUP_INDEX))
-					throw new SearchLibException("Not enough right");
-			}
-			Client sourceClient = ClientCatalog.getClient(sourceIndex);
-			if (sourceClient == null)
-				throw new SearchLibException("Client not found: " + sourceIndex);
-
-			SchemaField sourceTermField = sourceClient.getSchema()
-					.getFieldList().get(sourceField);
-			if (sourceTermField == null)
-				throw new SearchLibException("Source field not found: "
-						+ sourceField);
+			ExecutionData executionData = new ExecutionData(properties, client);
 
 			FieldMap sourceFieldMap = new FieldMap(sourceMappedFields, ',', '|');
 			sourceFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
 					LanguageEnum.UNDEFINED);
 
-			FieldMap targetFieldMap = new FieldMap(targetMappedFields, ',', '|');
-			targetFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
-					LanguageEnum.UNDEFINED);
-
-			List<IndexDocument> buffer = new ArrayList<IndexDocument>(
-					bufferSize);
-
-			SearchRequest searchRequest = new SearchRequest(sourceClient);
+			SearchRequest searchRequest = new SearchRequest(
+					executionData.sourceClient);
 			searchRequest.setQueryString(sourceQuery);
-			searchRequest.addReturnField(sourceField);
+			searchRequest.addReturnField(executionData.sourceField);
 			for (GenericLink<SourceField, TargetField> link : sourceFieldMap
 					.getList())
 				link.getSource().addReturnField(searchRequest);
-			searchRequest.setRows(bufferSize);
+			searchRequest.setRows(executionData.bufferSize);
 			int start = 0;
 
-			int totalCount = 0;
 			for (;;) {
 				searchRequest.setStart(start);
-				AbstractResultSearch result = (AbstractResultSearch) sourceClient
+				AbstractResultSearch result = (AbstractResultSearch) executionData.sourceClient
 						.request(searchRequest);
 
 				if (result.getDocumentCount() <= 0)
@@ -182,11 +112,12 @@ public class TaskPullFields extends TaskPullAbstract {
 
 				for (ResultDocument document : result) {
 					FieldValueItem[] fieldValueItems = document
-							.getValueArray(sourceField);
+							.getValueArray(executionData.sourceField);
 					if (fieldValueItems == null)
 						continue;
 
-					IndexDocument mappedDocument = new IndexDocument(lang);
+					IndexDocument mappedDocument = new IndexDocument(
+							executionData.lang);
 					sourceFieldMap.mapIndexDocument(document, mappedDocument);
 
 					for (FieldValueItem fieldValueItem : fieldValueItems) {
@@ -197,25 +128,16 @@ public class TaskPullFields extends TaskPullAbstract {
 						if (value.length() == 0)
 							continue;
 
-						IndexDocument targetDocument = new IndexDocument(
-								mappedDocument);
-						targetDocument.add(targetField, value, null);
-						IndexDocument finalDocument = new IndexDocument(
-								targetDocument);
-						targetFieldMap.mapIndexDocument(targetDocument,
-								finalDocument);
+						executionData.indexDocument(client, mappedDocument,
+								value, taskLog);
 
-						buffer.add(finalDocument);
-						if (buffer.size() == bufferSize)
-							totalCount = indexBuffer(totalCount, buffer,
-									client, taskLog);
 					}
 				}
 
 				searchRequest.reset();
-				start += bufferSize;
+				start += executionData.bufferSize;
 			}
-			totalCount = indexBuffer(totalCount, buffer, client, taskLog);
+			executionData.indexBuffer(client, taskLog);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
