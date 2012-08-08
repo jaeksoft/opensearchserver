@@ -158,8 +158,13 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 
 	public void cacheAnalyzers(AnalyzerList analyzerList, LanguageEnum lang)
 			throws SearchLibException {
-		for (GenericLink<SourceField, TargetField> link : getList())
-			link.getTarget().setCachedAnalyzer(analyzerList, lang);
+		for (GenericLink<SourceField, TargetField> link : getList()) {
+			TargetField target = link.getTarget();
+			if (target == null)
+				throw new SearchLibException("No target field for "
+						+ link.getSource());
+			target.setCachedAnalyzer(analyzerList, lang);
+		}
 	}
 
 }
