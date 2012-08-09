@@ -22,28 +22,27 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller.query;
+package com.jaeksoft.searchlib.request;
 
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.FieldList;
 
-public class SearchRequestController extends AbstractQueryController {
+public class RequestInterfaces {
 
-	public SearchRequestController() throws SearchLibException {
-		super();
+	public interface ReturnedFieldInterface {
+
+		public FieldList<Field> getReturnFieldList();
+
+		public void addReturnField(String fieldName);
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2891366720618162654L;
+	public interface FilterListInterface {
 
-	@Override
-	protected void reset() throws SearchLibException {
-	}
+		public FilterList getFilterList();
 
-	public SearchRequest getRequest() throws SearchLibException {
-		return (SearchRequest) getRequest(RequestTypeEnum.SearchRequest);
+		public void addFilter(String req, boolean negative)
+				throws ParseException;
 	}
 }

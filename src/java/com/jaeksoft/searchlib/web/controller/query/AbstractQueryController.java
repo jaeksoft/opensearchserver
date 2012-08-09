@@ -38,18 +38,27 @@ public abstract class AbstractQueryController extends CommonController {
 	 */
 	private static final long serialVersionUID = 1943618096637337561L;
 
-	public AbstractQueryController() throws SearchLibException {
+	private final static RequestTypeEnum[] DEFAULT_TYPE_LIST = { RequestTypeEnum.SearchRequest };
+
+	private final RequestTypeEnum[] requestTypes;
+
+	public AbstractQueryController(RequestTypeEnum... requestTypes)
+			throws SearchLibException {
 		super();
+		if (requestTypes != null && requestTypes.length > 0)
+			this.requestTypes = requestTypes;
+		else
+			this.requestTypes = DEFAULT_TYPE_LIST;
 	}
 
-	final protected AbstractRequest getRequest(RequestTypeEnum type)
-			throws SearchLibException {
+	final public AbstractRequest getRequest() throws SearchLibException {
 		AbstractRequest request = getAbstractRequest();
 		if (request == null)
 			return null;
-		if (request.getType() != type)
-			return null;
-		return request;
+		for (RequestTypeEnum requestType : requestTypes)
+			if (request.getType() == requestType)
+				return request;
+		return null;
 	}
 
 	final public AbstractRequest getAbstractRequest() throws SearchLibException {
@@ -67,6 +76,19 @@ public abstract class AbstractQueryController extends CommonController {
 		if (result.getRequest().getType() != type)
 			return null;
 		return result;
+	}
+
+	final public AbstractResult<?> getResult() throws SearchLibException {
+		AbstractResult<?> result = getAbstractResult();
+		if (result == null)
+			return null;
+		AbstractRequest request = result.getRequest();
+		if (request == null)
+			return null;
+		for (RequestTypeEnum requestType : requestTypes)
+			if (request.getType() == requestType)
+				return result;
+		return null;
 	}
 
 	private boolean isResult(RequestTypeEnum type) {

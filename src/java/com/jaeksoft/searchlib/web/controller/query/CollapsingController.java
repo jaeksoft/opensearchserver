@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseMode;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class CollapsingController extends SearchRequestController {
+public class CollapsingController extends AbstractQueryController {
 
 	/**
 	 * 

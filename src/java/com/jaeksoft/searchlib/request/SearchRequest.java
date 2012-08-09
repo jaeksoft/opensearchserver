@@ -71,7 +71,9 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
-public class SearchRequest extends AbstractRequest {
+public class SearchRequest extends AbstractRequest implements
+		RequestInterfaces.ReturnedFieldInterface,
+		RequestInterfaces.FilterListInterface {
 
 	private transient QueryParser queryParser;
 	private transient Query boostedComplexQuery;
@@ -429,6 +431,7 @@ public class SearchRequest extends AbstractRequest {
 		}
 	}
 
+	@Override
 	public FilterList getFilterList() {
 		rwl.r.lock();
 		try {
@@ -438,6 +441,7 @@ public class SearchRequest extends AbstractRequest {
 		}
 	}
 
+	@Override
 	public void addFilter(String req, boolean negative) throws ParseException {
 		rwl.w.lock();
 		try {
@@ -457,6 +461,7 @@ public class SearchRequest extends AbstractRequest {
 		}
 	}
 
+	@Override
 	public FieldList<Field> getReturnFieldList() {
 		rwl.r.lock();
 		try {
@@ -466,7 +471,8 @@ public class SearchRequest extends AbstractRequest {
 		}
 	}
 
-	public void addReturnField(String fieldName) throws SearchLibException {
+	@Override
+	public void addReturnField(String fieldName) {
 		rwl.w.lock();
 		try {
 			returnFieldList.add(new Field(config.getSchema().getFieldList()

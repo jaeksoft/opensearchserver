@@ -52,7 +52,7 @@ public class SpellCheckController extends AbstractQueryController {
 	private transient SpellCheckField selectedSpellCheckField;
 
 	public SpellCheckController() throws SearchLibException {
-		super();
+		super(RequestTypeEnum.SpellCheckRequest);
 	}
 
 	@Override
@@ -65,10 +65,6 @@ public class SpellCheckController extends AbstractQueryController {
 				SpellCheckDistanceEnum.LevensteinDistance);
 		fieldLeft = null;
 		selectedSpellCheckField = null;
-	}
-
-	public SpellCheckRequest getRequest() throws SearchLibException {
-		return (SpellCheckRequest) getRequest(RequestTypeEnum.SpellCheckRequest);
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {

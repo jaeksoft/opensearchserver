@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -39,15 +40,19 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.analysis.filter.stop.WordArray;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.QueryFilter;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -55,19 +60,25 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
-public class MoreLikeThisRequest extends AbstractRequest {
+public class MoreLikeThisRequest extends AbstractRequest implements
+		RequestInterfaces.FilterListInterface,
+		RequestInterfaces.ReturnedFieldInterface {
 
 	private LanguageEnum lang;
 	private Analyzer analyzer;
-	private String moreLikeThisDocQuery;
-	private FieldList<Field> moreLikeThisFieldList;
-	private int moreLikeThisMinWordLen;
-	private int moreLikeThisMaxWordLen;
-	private int moreLikeThisMinDocFreq;
-	private int moreLikeThisMinTermFreq;
-	private String moreLikeThisStopWords;
+	private String docQuery;
+	private FieldList<Field> fieldList;
+	private int minWordLen;
+	private int maxWordLen;
+	private int minDocFreq;
+	private int minTermFreq;
+	private int maxNumTokensParsed;
+	private int maxQueryTerms;
+	private String stopWords;
 	private FieldList<Field> returnFieldList;
 	private FilterList filterList;
+	private int start;
+	private int rows;
 
 	public MoreLikeThisRequest() {
 	}
@@ -82,12 +93,16 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		this.filterList = new FilterList(this.config);
 		this.returnFieldList = new FieldList<Field>();
 		this.lang = null;
-		this.moreLikeThisFieldList = new FieldList<Field>();
-		this.moreLikeThisMinWordLen = 0;
-		this.moreLikeThisMaxWordLen = 0;
-		this.moreLikeThisMinDocFreq = 0;
-		this.moreLikeThisMinTermFreq = 0;
-		this.moreLikeThisStopWords = null;
+		this.fieldList = new FieldList<Field>();
+		this.minWordLen = MoreLikeThis.DEFAULT_MIN_WORD_LENGTH;
+		this.maxWordLen = MoreLikeThis.DEFAULT_MAX_WORD_LENGTH;
+		this.minDocFreq = MoreLikeThis.DEFAULT_MIN_DOC_FREQ;
+		this.minTermFreq = MoreLikeThis.DEFAULT_MIN_TERM_FREQ;
+		this.maxNumTokensParsed = MoreLikeThis.DEFAULT_MAX_NUM_TOKENS_PARSED;
+		this.maxQueryTerms = MoreLikeThis.DEFAULT_MAX_QUERY_TERMS;
+		this.stopWords = null;
+		this.start = 0;
+		this.rows = 10;
 	}
 
 	@Override
@@ -95,14 +110,15 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		super.copyFrom(request);
 		MoreLikeThisRequest mltRequest = (MoreLikeThisRequest) request;
 		this.lang = mltRequest.lang;
-		this.moreLikeThisFieldList = new FieldList<Field>(
-				mltRequest.moreLikeThisFieldList);
-		this.moreLikeThisMinWordLen = mltRequest.moreLikeThisMinWordLen;
-		this.moreLikeThisMaxWordLen = mltRequest.moreLikeThisMaxWordLen;
-		this.moreLikeThisMinDocFreq = mltRequest.moreLikeThisMinDocFreq;
-		this.moreLikeThisMinTermFreq = mltRequest.moreLikeThisMinTermFreq;
-		this.moreLikeThisStopWords = mltRequest.moreLikeThisStopWords;
-		this.moreLikeThisDocQuery = mltRequest.moreLikeThisDocQuery;
+		this.fieldList = new FieldList<Field>(mltRequest.fieldList);
+		this.minWordLen = mltRequest.minWordLen;
+		this.maxWordLen = mltRequest.maxWordLen;
+		this.minDocFreq = mltRequest.minDocFreq;
+		this.minTermFreq = mltRequest.minTermFreq;
+		this.stopWords = mltRequest.stopWords;
+		this.docQuery = mltRequest.docQuery;
+		this.maxNumTokensParsed = mltRequest.maxNumTokensParsed;
+		this.maxQueryTerms = mltRequest.maxQueryTerms;
 		this.filterList = new FilterList(mltRequest.filterList);
 		this.returnFieldList = new FieldList<Field>(mltRequest.returnFieldList);
 	}
@@ -113,7 +129,7 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		return analyzer;
 	}
 
-	public Query getMoreLikeThisQuery() throws SearchLibException, IOException {
+	public Query getQuery() throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			Config config = getConfig();
@@ -121,22 +137,29 @@ public class MoreLikeThisRequest extends AbstractRequest {
 			MoreLikeThis mlt = index.getMoreLikeThis();
 			SearchRequest searchRequest = new SearchRequest(config);
 			searchRequest.setRows(1);
-			searchRequest.setQueryString(moreLikeThisDocQuery);
+			searchRequest.setQueryString(docQuery);
 			AbstractResultSearch result = (AbstractResultSearch) index
 					.request(searchRequest);
 			if (result.getNumFound() == 0)
 				return mlt.like(new StringReader(""));
 			int docId = result.getDocs()[0].doc;
-			mlt.setMinWordLen(moreLikeThisMinWordLen);
-			mlt.setMaxWordLen(moreLikeThisMaxWordLen);
-			mlt.setMinDocFreq(moreLikeThisMinDocFreq);
-			mlt.setMinTermFreq(moreLikeThisMinTermFreq);
-			mlt.setFieldNames(moreLikeThisFieldList.toArrayName());
+			mlt.setMinWordLen(minWordLen);
+			mlt.setMaxWordLen(maxWordLen);
+			mlt.setMinDocFreq(minDocFreq);
+			mlt.setMinTermFreq(minTermFreq);
+			mlt.setMaxNumTokensParsed(maxNumTokensParsed);
+			mlt.setMaxQueryTerms(maxQueryTerms);
+			mlt.setFieldNames(fieldList.toArrayName());
 			mlt.setAnalyzer(checkAnalyzer());
-			if (moreLikeThisStopWords != null)
-				mlt.setStopWords(getConfig().getStopWordsManager()
-						.getWordArray(moreLikeThisStopWords, false)
-						.getWordSet());
+			if (stopWords != null && stopWords.length() > 0) {
+				WordArray wordArray = getConfig().getStopWordsManager()
+						.getWordArray(stopWords, false);
+				if (wordArray != null) {
+					Set<String> stopWords = wordArray.getWordSet();
+					if (stopWords != null)
+						mlt.setStopWords(stopWords);
+				}
+			}
 			return mlt.like(docId);
 		} finally {
 			rwl.r.unlock();
@@ -144,167 +167,168 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	}
 
 	/**
-	 * @return the moreLikeThisDocQuery
+	 * @return the docQuery
 	 */
-	public String getMoreLikeThisDocQuery() {
+	public String getDocQuery() {
 		rwl.r.lock();
 		try {
-			return moreLikeThisDocQuery;
+			return docQuery;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	/**
-	 * @param moreLikeThisDocQuery
-	 *            the moreLikeThisDocQuery to set
+	 * @param docQuery
+	 *            the docQuery to set
 	 */
-	public void setMoreLikeThisDocQuery(String moreLikeThisDocQuery) {
+	public void setDocQuery(String docQuery) {
 		rwl.w.lock();
 		try {
-			this.moreLikeThisDocQuery = moreLikeThisDocQuery;
+			this.docQuery = docQuery;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	/**
-	 * @return the moreLikeThisFieldList
+	 * @return the fieldList
 	 */
-	public FieldList<Field> getMoreLikeThisFieldList() {
+	public FieldList<Field> getFieldList() {
 		rwl.r.lock();
 		try {
-			return moreLikeThisFieldList;
+			return fieldList;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	/**
-	 * @return the moreLikeThisMinWordLen
+	 * @return the minWordLen
 	 */
-	public int getMoreLikeThisMinWordLen() {
+	public int getMinWordLen() {
 		rwl.r.lock();
 		try {
-			return moreLikeThisMinWordLen;
+			return minWordLen;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	/**
-	 * @param moreLikeThisMinWordLen
-	 *            the moreLikeThisMinWordLen to set
+	 * @param minWordLen
+	 *            the minWordLen to set
 	 */
-	public void setMoreLikeThisMinWordLen(int moreLikeThisMinWordLen) {
+	public void setMinWordLen(int minWordLen) {
 		rwl.w.lock();
 		try {
-			this.moreLikeThisMinWordLen = moreLikeThisMinWordLen;
+			this.minWordLen = minWordLen;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	/**
-	 * @return the moreLikeThisMaxWordLen
+	 * @return the maxWordLen
 	 */
-	public int getMoreLikeThisMaxWordLen() {
+	public int getMaxWordLen() {
 		rwl.r.lock();
 		try {
-			return moreLikeThisMaxWordLen;
+			return maxWordLen;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	/**
-	 * @param moreLikeThisMaxWordLen
-	 *            the moreLikeThisMaxWordLen to set
+	 * @param maxWordLen
+	 *            the maxWordLen to set
 	 */
-	public void setMoreLikeThisMaxWordLen(int moreLikeThisMaxWordLen) {
+	public void setMaxWordLen(int maxWordLen) {
 		rwl.w.lock();
 		try {
-			this.moreLikeThisMaxWordLen = moreLikeThisMaxWordLen;
+			this.maxWordLen = maxWordLen;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	/**
-	 * @return the moreLikeThisMinDocFreq
+	 * @return the minDocFreq
 	 */
-	public int getMoreLikeThisMinDocFreq() {
+	public int getMinDocFreq() {
 		rwl.r.lock();
 		try {
-			return moreLikeThisMinDocFreq;
+			return minDocFreq;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	/**
-	 * @param moreLikeThisMinDocFreq
-	 *            the moreLikeThisMinDocFreq to set
+	 * @param minDocFreq
+	 *            the minDocFreq to set
 	 */
-	public void setMoreLikeThisMinDocFreq(int moreLikeThisMinDocFreq) {
+	public void setMinDocFreq(int minDocFreq) {
 		rwl.w.lock();
 		try {
-			this.moreLikeThisMinDocFreq = moreLikeThisMinDocFreq;
+			this.minDocFreq = minDocFreq;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	/**
-	 * @return the moreLikeThisMinTermFreq
+	 * @return the minTermFreq
 	 */
-	public int getMoreLikeThisMinTermFreq() {
+	public int getMinTermFreq() {
 		rwl.r.lock();
 		try {
-			return moreLikeThisMinTermFreq;
+			return minTermFreq;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	/**
-	 * @param moreLikeThisMinTermFreq
-	 *            the moreLikeThisMinTermFreq to set
+	 * @param minTermFreq
+	 *            the minTermFreq to set
 	 */
-	public void setMoreLikeThisMinTermFreq(int moreLikeThisMinTermFreq) {
+	public void setMinTermFreq(int minTermFreq) {
 		rwl.w.lock();
 		try {
-			this.moreLikeThisMinTermFreq = moreLikeThisMinTermFreq;
+			this.minTermFreq = minTermFreq;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	/**
-	 * @return the moreLikeThisStopWords
+	 * @return the stopWords
 	 */
-	public String getMoreLikeThisStopWords() {
+	public String getStopWords() {
 		rwl.r.lock();
 		try {
-			return moreLikeThisStopWords;
+			return stopWords;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	/**
-	 * @param moreLikeThisStopWords
-	 *            the moreLikeThisStopWords to set
+	 * @param stopWords
+	 *            the stopWords to set
 	 */
-	public void setMoreLikeThisStopWords(String moreLikeThisStopWords) {
+	public void setStopWords(String stopWords) {
 		rwl.w.lock();
 		try {
-			this.moreLikeThisStopWords = moreLikeThisStopWords;
+			this.stopWords = stopWords;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
+	@Override
 	public FilterList getFilterList() {
 		rwl.r.lock();
 		try {
@@ -314,12 +338,35 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		}
 	}
 
+	@Override
+	public void addFilter(String req, boolean negative) throws ParseException {
+		rwl.w.lock();
+		try {
+			this.filterList.add(new QueryFilter(req, negative,
+					FilterAbstract.Source.REQUEST, null));
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	@Override
 	public FieldList<Field> getReturnFieldList() {
 		rwl.r.lock();
 		try {
 			return this.returnFieldList;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public void addReturnField(String fieldName) {
+		rwl.w.lock();
+		try {
+			returnFieldList.add(new Field(config.getSchema().getFieldList()
+					.get(fieldName)));
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -331,20 +378,21 @@ public class MoreLikeThisRequest extends AbstractRequest {
 		rwl.w.lock();
 		try {
 			super.fromXmlConfig(config, xpp, node);
-			setMoreLikeThisMinWordLen(XPathParser.getAttributeValue(node,
-					"minWordLen"));
-			setMoreLikeThisMaxWordLen(XPathParser.getAttributeValue(node,
-					"maxWordLen"));
-			setMoreLikeThisMinTermFreq(XPathParser.getAttributeValue(node,
-					"minTermFreq"));
-			setMoreLikeThisMinDocFreq(XPathParser.getAttributeValue(node,
-					"minDocFreq"));
-			setMoreLikeThisStopWords(XPathParser.getAttributeString(node,
-					"stopWords"));
+			setMinWordLen(XPathParser.getAttributeValue(node, "minWordLen"));
+			setMaxWordLen(XPathParser.getAttributeValue(node, "maxWordLen"));
+			setMinTermFreq(XPathParser.getAttributeValue(node, "minTermFreq"));
+			setMinDocFreq(XPathParser.getAttributeValue(node, "minDocFreq"));
+			setMaxNumTokensParsed(XPathParser.getAttributeValue(node,
+					"maxNumTokensParsed"));
+			setMaxQueryTerms(XPathParser.getAttributeValue(node,
+					"maxQueryTerms"));
+			setStopWords(XPathParser.getAttributeString(node, "stopWords"));
+			setStart(XPathParser.getAttributeValue(node, "start"));
+			setRows(XPathParser.getAttributeValue(node, "rows"));
 
 			NodeList mltFieldsNodes = xpp.getNodeList(node, "fields/field");
 			if (mltFieldsNodes != null) {
-				FieldList<Field> moreLikeThisFields = getMoreLikeThisFieldList();
+				FieldList<Field> moreLikeThisFields = getFieldList();
 				for (int i = 0; i < mltFieldsNodes.getLength(); i++) {
 					Field field = Field.fromXmlConfig(mltFieldsNodes.item(i));
 					if (field != null)
@@ -354,7 +402,7 @@ public class MoreLikeThisRequest extends AbstractRequest {
 
 			Node mltDocQueryNode = xpp.getNode(node, "docQuery");
 			if (mltDocQueryNode != null)
-				setMoreLikeThisDocQuery(xpp.getNodeString(mltDocQueryNode));
+				setDocQuery(xpp.getNodeString(mltDocQueryNode));
 
 			NodeList nodes = xpp.getNodeList(node, "filters/filter");
 			for (int i = 0; i < nodes.getLength(); i++) {
@@ -384,22 +432,25 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement("moreLikeThis", "minWordLen",
-					Integer.toString(moreLikeThisMinWordLen), "maxWordLen",
-					Integer.toString(moreLikeThisMaxWordLen), "minDocFreq",
-					Integer.toString(moreLikeThisMinDocFreq), "minTermFreq",
-					Integer.toString(moreLikeThisMinTermFreq), "stopWords",
-					moreLikeThisStopWords);
+			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
+					getRequestName(), XML_ATTR_TYPE, getType().name(),
+					"minWordLen", Integer.toString(minWordLen), "maxWordLen",
+					Integer.toString(maxWordLen), "minDocFreq",
+					Integer.toString(minDocFreq), "minTermFreq",
+					Integer.toString(minTermFreq), "maxNumTokensParsed",
+					Integer.toString(maxNumTokensParsed), "maxQueryTerms",
+					Integer.toString(maxQueryTerms), "stopWords", stopWords,
+					"start", Integer.toString(start), "rows",
+					Integer.toString(rows));
 
-			if (moreLikeThisFieldList.size() > 0) {
+			if (fieldList.size() > 0) {
 				xmlWriter.startElement("fields");
-				moreLikeThisFieldList.writeXmlConfig(xmlWriter);
+				fieldList.writeXmlConfig(xmlWriter);
 				xmlWriter.endElement();
 			}
-			if (moreLikeThisDocQuery != null
-					&& moreLikeThisDocQuery.length() > 0) {
+			if (docQuery != null && docQuery.length() > 0) {
 				xmlWriter.startElement("docQuery");
-				xmlWriter.textNode(moreLikeThisDocQuery);
+				xmlWriter.textNode(docQuery);
 				xmlWriter.endElement();
 			}
 			if (returnFieldList.size() > 0) {
@@ -431,22 +482,28 @@ public class MoreLikeThisRequest extends AbstractRequest {
 			Integer i;
 
 			if ((p = transaction.getParameterString("mlt.docquery")) != null)
-				setMoreLikeThisDocQuery(p);
+				setDocQuery(p);
 
 			if ((i = transaction.getParameterInteger("mlt.minwordlen")) != null)
-				setMoreLikeThisMinWordLen(i);
+				setMinWordLen(i);
 
 			if ((i = transaction.getParameterInteger("mlt.maxwordlen")) != null)
-				setMoreLikeThisMaxWordLen(i);
+				setMaxWordLen(i);
 
 			if ((i = transaction.getParameterInteger("mlt.mindocfreq")) != null)
-				setMoreLikeThisMinDocFreq(i);
+				setMinDocFreq(i);
 
 			if ((i = transaction.getParameterInteger("mlt.mintermfreq")) != null)
-				setMoreLikeThisMinTermFreq(i);
+				setMinTermFreq(i);
 
 			if ((p = transaction.getParameterString("mlt.stopwords")) != null)
-				setMoreLikeThisStopWords(p);
+				setStopWords(p);
+
+			if ((i = transaction.getParameterInteger("start")) != null)
+				setStart(i);
+
+			if ((i = transaction.getParameterInteger("rows")) != null)
+				setRows(i);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -460,13 +517,132 @@ public class MoreLikeThisRequest extends AbstractRequest {
 	@Override
 	public AbstractResult<MoreLikeThisRequest> execute(ReaderInterface reader)
 			throws SearchLibException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return new ResultMoreLikeThis((ReaderLocal) reader, this);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override
 	public String getInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		rwl.r.lock();
+		try {
+			StringBuffer sb = new StringBuffer();
+			sb.append(docQuery);
+			return sb.toString();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the start
+	 */
+	public int getStart() {
+		rwl.r.lock();
+		try {
+			return start;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param start
+	 *            the start to set
+	 */
+	public void setStart(int start) {
+		rwl.w.lock();
+		try {
+			this.start = start;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the rows
+	 */
+	public int getRows() {
+		rwl.r.lock();
+		try {
+			return rows;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param rows
+	 *            the rows to set
+	 */
+	public void setRows(int rows) {
+		rwl.w.lock();
+		try {
+			this.rows = rows;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the maxNumTokensParsed
+	 */
+	public int getMaxNumTokensParsed() {
+		rwl.r.lock();
+		try {
+			return maxNumTokensParsed;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param maxNumTokensParsed
+	 *            the maxNumTokensParsed to set
+	 */
+	public void setMaxNumTokensParsed(int maxNumTokensParsed) {
+		rwl.w.lock();
+		try {
+			this.maxNumTokensParsed = maxNumTokensParsed;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the maxQueryTerms
+	 */
+	public int getMaxQueryTerms() {
+		rwl.r.lock();
+		try {
+			return maxQueryTerms;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param maxQueryTerms
+	 *            the maxQueryTerms to set
+	 */
+	public void setMaxQueryTerms(int maxQueryTerms) {
+		rwl.w.lock();
+		try {
+			this.maxQueryTerms = maxQueryTerms;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 }

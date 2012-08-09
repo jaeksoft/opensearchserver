@@ -27,15 +27,15 @@ package com.jaeksoft.searchlib.web.controller.query;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
-public class ResultSpellCheckController extends AbstractQueryController {
+public class ResultMoreLikeThisController extends AbstractQueryController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8879293595598057014L;
 
-	public ResultSpellCheckController() throws SearchLibException {
-		super(RequestTypeEnum.SpellCheckRequest);
+	public ResultMoreLikeThisController() throws SearchLibException {
+		super(RequestTypeEnum.MoreLikeThisRequest);
 	}
 
 	@Override

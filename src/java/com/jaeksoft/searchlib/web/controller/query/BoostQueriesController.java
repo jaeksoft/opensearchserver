@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.BoostQuery;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
-public class BoostQueriesController extends SearchRequestController {
+public class BoostQueriesController extends AbstractQueryController {
 
 	/**
 	 * 

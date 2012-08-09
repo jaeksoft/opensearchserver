@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class FacetController extends SearchRequestController {
+public class FacetController extends AbstractQueryController {
 
 	/**
 	 * 

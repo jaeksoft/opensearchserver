@@ -51,7 +51,7 @@ public class MoreLikeThisController extends AbstractQueryController {
 	private transient String selectedField;
 
 	public MoreLikeThisController() throws SearchLibException {
-		super();
+		super(RequestTypeEnum.MoreLikeThisRequest);
 	}
 
 	@Override
@@ -61,22 +61,18 @@ public class MoreLikeThisController extends AbstractQueryController {
 		selectedField = null;
 	}
 
-	public MoreLikeThisRequest getRequest() throws SearchLibException {
-		return (MoreLikeThisRequest) getRequest(RequestTypeEnum.MoreLikeThisRequest);
-	}
-
 	public List<String> getFieldsLeft() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			MoreLikeThisRequest request = getRequest();
+			MoreLikeThisRequest request = (MoreLikeThisRequest) getRequest();
 			if (request == null)
 				return null;
 			if (fieldsLeft != null)
 				return fieldsLeft;
 			fieldsLeft = new ArrayList<String>();
-			FieldList<Field> fields = request.getMoreLikeThisFieldList();
+			FieldList<Field> fields = request.getFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (fields.get(field.getName()) == null) {
 					if (selectedField == null)
@@ -103,14 +99,16 @@ public class MoreLikeThisController extends AbstractQueryController {
 	}
 
 	public void onAddField() throws SearchLibException {
-		((MoreLikeThisRequest) getRequest()).getMoreLikeThisFieldList().add(
+		((MoreLikeThisRequest) getRequest()).getFieldList().add(
 				new Field(selectedField));
+		fieldsLeft = null;
 		reloadPage();
 	}
 
 	public void onRemoveField(Component component) throws SearchLibException {
 		Field field = (Field) component.getParent().getAttribute("mltField");
-		getRequest().getMoreLikeThisFieldList().remove(field);
+		((MoreLikeThisRequest) getRequest()).getFieldList().remove(field);
+		fieldsLeft = null;
 		reloadPage();
 	}
 

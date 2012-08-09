@@ -50,7 +50,6 @@ import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.RenderCSV;
-import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldList;
@@ -89,7 +88,7 @@ public class ResultSearchController extends AbstractQueryController implements
 			title = null;
 		}
 
-		public String getTitle() {
+		public String getTitle() throws SearchLibException {
 			synchronized (this) {
 				if (title != null)
 					return title.toString();
@@ -110,22 +109,22 @@ public class ResultSearchController extends AbstractQueryController implements
 			return pos;
 		}
 
-		public float getScore() {
-			AbstractResultSearch result = getResult();
+		public float getScore() throws SearchLibException {
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return 0;
 			return result.getScore(pos);
 		}
 
-		public int getCollapseCount() {
-			AbstractResultSearch result = getResult();
+		public int getCollapseCount() throws SearchLibException {
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return 0;
 			return result.getCollapseCount(pos);
 		}
 
-		public int getDocId() {
-			AbstractResultSearch result = getResult();
+		public int getDocId() throws SearchLibException {
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return 0;
 			return result.getDocs()[pos].doc;
@@ -133,7 +132,7 @@ public class ResultSearchController extends AbstractQueryController implements
 
 		public ResultDocument getResultDocument() throws IOException,
 				ParseException, SyntaxError, SearchLibException {
-			AbstractResultSearch result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return null;
 			return result.getDocument(pos);
@@ -233,15 +232,11 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 	}
 
-	public AbstractResultSearch getResult() {
-		return (AbstractResultSearch) getResult(RequestTypeEnum.SearchRequest);
-	}
-
-	public List<Document> getDocuments() {
+	public List<Document> getDocuments() throws SearchLibException {
 		synchronized (this) {
 			if (documents != null)
 				return documents;
-			AbstractResultSearch result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return null;
 			int i = result.getDocumentCount();
@@ -256,18 +251,18 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 	}
 
-	public boolean getDocumentFound() {
+	public boolean getDocumentFound() throws SearchLibException {
 		synchronized (this) {
-			AbstractResultSearch result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return false;
 			return result.getDocumentCount() > 0;
 		}
 	}
 
-	public FacetList getFacetList() {
+	public FacetList getFacetList() throws SearchLibException {
 		synchronized (this) {
-			AbstractResultSearch result = getResult();
+			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return null;
 			FacetList facetList = result.getFacetList();
@@ -280,7 +275,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		}
 	}
 
-	public boolean isFacetValid() {
+	public boolean isFacetValid() throws SearchLibException {
 		synchronized (this) {
 			return getFacetList() != null;
 		}
@@ -291,7 +286,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		Client client = getClient();
 		if (client == null)
 			return;
-		AbstractResultSearch result = getResult();
+		AbstractResultSearch result = (AbstractResultSearch) getResult();
 		if (result == null)
 			return;
 		Document document = (Document) comp.getAttribute("document");
@@ -310,7 +305,7 @@ public class ResultSearchController extends AbstractQueryController implements
 		Client client = getClient();
 		if (client == null)
 			return;
-		AbstractResultSearch result = getResult();
+		AbstractResultSearch result = (AbstractResultSearch) getResult();
 		if (result == null)
 			return;
 

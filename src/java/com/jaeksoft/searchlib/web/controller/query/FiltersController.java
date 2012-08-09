@@ -38,8 +38,11 @@ import com.jaeksoft.searchlib.filter.GeoFilter.CoordUnit;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
 import com.jaeksoft.searchlib.filter.QueryFilter;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.RequestInterfaces;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
-public class FiltersController extends SearchRequestController {
+public class FiltersController extends AbstractQueryController {
 
 	/**
 	 * 
@@ -60,7 +63,8 @@ public class FiltersController extends SearchRequestController {
 	}
 
 	public FiltersController() throws SearchLibException {
-		super();
+		super(RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.MoreLikeThisRequest);
 		reset();
 	}
 
@@ -97,6 +101,14 @@ public class FiltersController extends SearchRequestController {
 		reloadListbox();
 	}
 
+	private RequestInterfaces.FilterListInterface getFilterListInterface()
+			throws SearchLibException {
+		AbstractRequest req = getAbstractRequest();
+		if (req instanceof RequestInterfaces.FilterListInterface)
+			return (RequestInterfaces.FilterListInterface) req;
+		return null;
+	}
+
 	public void onCancel() throws SearchLibException {
 		reset();
 		reloadListbox();
@@ -106,14 +118,14 @@ public class FiltersController extends SearchRequestController {
 		if (selectedItem != null)
 			currentItem.copyTo(selectedItem);
 		else
-			getRequest().getFilterList().add(currentItem);
+			getFilterListInterface().getFilterList().add(currentItem);
 		onCancel();
 	}
 
 	public void onRemove(Component comp) throws SearchLibException {
 		FilterAbstract<?> filter = (FilterAbstract<?>) getRecursiveComponentAttribute(
 				comp, "filterItem");
-		getRequest().getFilterList().remove(filter);
+		getFilterListInterface().getFilterList().remove(filter);
 		onCancel();
 	}
 
