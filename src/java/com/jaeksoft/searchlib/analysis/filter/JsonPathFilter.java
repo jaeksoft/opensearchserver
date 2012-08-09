@@ -69,17 +69,35 @@ public class JsonPathFilter extends FilterFactory {
 					return false;
 				try {
 					Object object = jsonPath.read(termAtt.term());
-					if (object instanceof String) {
+					if (object == null) {
+						if (defaultValue != null) {
+							createToken(defaultValue);
+							return true;
+						}
+					} else if (object instanceof String) {
 						createToken(object.toString());
 						return true;
 					} else if (object instanceof List) {
+						List<?> list = (List<?>) object;
+						if (list.size() == 0) {
+							if (defaultValue != null) {
+								createToken(defaultValue);
+								return true;
+							}
+						}
 						tokenList = (List<?>) object;
 						currentPos = 0;
 					}
 				} catch (Exception e) {
-					if (faultTolerant) {
+					if (defaultValue != null) {
+						createToken(defaultValue);
+					} else {
 						Logging.warn(e);
 						return false;
+					}
+					if (faultTolerant) {
+						Logging.warn(e);
+						return true;
 					}
 					if (e instanceof IOException)
 						throw (IOException) e;
@@ -88,15 +106,18 @@ public class JsonPathFilter extends FilterFactory {
 				}
 			}
 		}
+
 	}
 
 	private JsonPath jsonPath = null;
 	public boolean faultTolerant = true;
+	public String defaultValue = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.JSON_PATH, "", null);
+		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null);
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
 				ClassPropertyEnum.BOOLEAN_LIST);
@@ -114,6 +135,8 @@ public class JsonPathFilter extends FilterFactory {
 				jsonPath = null;
 		} else if (prop == ClassPropertyEnum.FAULT_TOLERANT)
 			faultTolerant = Boolean.parseBoolean(value);
+		else if (prop == ClassPropertyEnum.DEFAULT_VALUE)
+			defaultValue = value;
 	}
 
 	@Override

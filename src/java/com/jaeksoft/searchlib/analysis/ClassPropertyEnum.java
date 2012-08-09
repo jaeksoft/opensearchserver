@@ -183,6 +183,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "degrees_radians_conversion", "Conversion direction",
 			"The direction of the conversion");
 
+	public final static ClassPropertyEnum DEFAULT_VALUE = new ClassPropertyEnum(
+			true, "defaultValue", "Default Value",
+			"The default value to use if no value is found");
+
 	public static String[] DEGREES_RADIANS_CONVERSION_LIST = {
 			"Degrees to Radians", "Radians to Degrees", "Check degrees",
 			"Check radians" };
