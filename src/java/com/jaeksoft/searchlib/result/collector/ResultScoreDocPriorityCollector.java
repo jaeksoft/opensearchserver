@@ -36,22 +36,35 @@ public class ResultScoreDocPriorityCollector extends AbstractCollector {
 	private float maxScore = 0;
 	private SorterAbstract sort;
 	private int rows;
+	private int ignore;
 	private PriorityQueue priorityQueue;
 	private ResultScoreDoc[] sortedDocs;
 
-	public ResultScoreDocPriorityCollector(int rows, SorterAbstract sort) {
+	public ResultScoreDocPriorityCollector(int rows, SorterAbstract sort,
+			ResultScoreDocPriorityCollector previous) {
 		this.sort = sort;
 		this.rows = rows;
-		priorityQueue = new PriorityQueue(sort, rows);
+		priorityQueue = null;
+		if (previous != null && previous.sort.equals(sort)) {
+			priorityQueue = new PriorityQueue(previous.priorityQueue, rows);
+			ignore = previous.rows;
+			maxScore = previous.maxScore;
+		} else {
+			priorityQueue = new PriorityQueue(sort, rows);
+			ignore = 0;
+		}
 		sortedDocs = null;
 	}
 
 	@Override
 	final public void collect(int docId) throws IOException {
-		float sc = scorer.score();
-		if (sc > maxScore)
-			maxScore = sc;
-		priorityQueue.add(new ResultScoreDoc(docId, sc));
+		if (ignore == 0) {
+			float sc = scorer.score();
+			if (sc > maxScore)
+				maxScore = sc;
+			priorityQueue.add(new ResultScoreDoc(docId, sc));
+		} else
+			ignore--;
 	}
 
 	final public ResultScoreDoc[] getDocs(Timer timer) {

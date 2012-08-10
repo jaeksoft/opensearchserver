@@ -98,7 +98,7 @@ public class DocSetHits {
 		try {
 			Timer t = new Timer(timer, "Get priority docs: " + rows);
 			resultScoreDocPriorityCollector = new ResultScoreDocPriorityCollector(
-					rows, sort);
+					rows, sort, resultScoreDocPriorityCollector);
 			reader.search(query, filter, resultScoreDocPriorityCollector);
 			ResultScoreDoc[] r = resultScoreDocPriorityCollector.getDocs(t);
 			t.duration();

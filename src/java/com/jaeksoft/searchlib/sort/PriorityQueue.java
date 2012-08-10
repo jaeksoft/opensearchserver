@@ -41,14 +41,18 @@ public class PriorityQueue {
 			array[0] = doc;
 			min = doc;
 			max = doc;
-			return capacity == 1 ? new UniqueAdder() : new NonFullAdder();
+			return capacity == 1 ? new UniqueAdder() : new NonFullAdder(1);
 		}
 	}
 
 	private class NonFullAdder implements AdderInterface {
 
-		private int currentPos = 1;
+		private int currentPos;
 		final private int loopEnd = capacity - 1;
+
+		private NonFullAdder(int initialPos) {
+			currentPos = initialPos;
+		}
 
 		@Override
 		final public AdderInterface add(ResultScoreDoc doc) {
@@ -76,6 +80,7 @@ public class PriorityQueue {
 			c = sorter.compare(doc, min);
 			if (c <= 0) {
 				int i = loopEnd;
+
 				while (i != 0)
 					array[i] = array[--i];
 				array[0] = doc;
@@ -120,15 +125,39 @@ public class PriorityQueue {
 		currentAdder = new EmptyAdder();
 	}
 
+	public PriorityQueue(PriorityQueue previous, int newIncreasedCapacity) {
+		this.sorter = previous.sorter;
+		this.capacity = newIncreasedCapacity > previous.capacity ? newIncreasedCapacity
+				: previous.capacity;
+		if (this.capacity > previous.capacity) {
+			array = new ResultScoreDoc[capacity];
+			int i = 0;
+			for (ResultScoreDoc doc : previous.array)
+				array[i++] = doc;
+			currentAdder = new NonFullAdder(previous.getSize());
+		} else {
+			array = previous.array;
+			currentAdder = previous.currentAdder;
+		}
+		min = previous.min;
+		max = previous.max;
+
+	}
+
 	final public void add(ResultScoreDoc doc) {
 		currentAdder = currentAdder.add(doc);
 	}
 
-	public ResultScoreDoc[] getSortedElements(Timer timer) {
+	final public int getSize() {
 		int size = 0;
 		for (ResultScoreDoc doc : array)
 			if (doc != null)
 				size++;
+		return size;
+	}
+
+	public ResultScoreDoc[] getSortedElements(Timer timer) {
+		int size = getSize();
 		ResultScoreDoc[] docs = new ResultScoreDoc[size];
 		size = 0;
 		for (ResultScoreDoc doc : array)
@@ -137,4 +166,5 @@ public class PriorityQueue {
 		sorter.sort(docs, timer);
 		return docs;
 	}
+
 }
