@@ -44,7 +44,7 @@ public class CollapseCluster extends CollapseAbstract {
 	}
 
 	@Override
-	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
+	protected int collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
 			StringIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "Build collapse map");
@@ -63,23 +63,25 @@ public class CollapseCluster extends CollapseAbstract {
 		}
 		t.duration();
 
+		int collapsedDocCount = 0;
 		t = new Timer(timer, "Build collapse array");
 		int max = getCollapseMax();
 		if (max <= 1) {
 			ResultScoreDoc[] collapsedDocs = new ResultScoreDoc[collapsedDocMap
 					.size()];
 			collapsedDocMap.values().toArray(collapsedDocs);
-			setCollapsedDocCount(fetchLength - collapsedDocs.length);
+			collapsedDocCount = fetchLength - collapsedDocs.length;
 			setCollapsedDoc(collapsedDocs);
 		} else {
 			List<ResultScoreDoc> collapsedList = new ArrayList<ResultScoreDoc>(
 					0);
 			for (ResultScoreDocCollapse rsdc : collapsedDocMap.values())
 				rsdc.populateList(collapsedList, max);
-			setCollapsedDocCount(fetchLength - collapsedList.size());
+			collapsedDocCount = fetchLength - collapsedList.size();
 			setCollapsedDoc(collapsedList);
 		}
 		t.duration();
+		return collapsedDocCount;
 	}
 
 }

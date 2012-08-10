@@ -58,33 +58,25 @@ public abstract class CollapseAbstract {
 		this.collapsedDoc = ResultScoreDocCollapse.EMPTY_ARRAY;
 	}
 
-	protected abstract void collapse(ResultScoreDoc[] fetchedDocs,
+	protected abstract int collapse(ResultScoreDoc[] fetchedDocs,
 			int fetchLength, StringIndex collapseStringIndex, Timer timer);
 
-	public void run(ResultScoreDoc[] fetchedDocs, int fetchLength,
+	public int run(ResultScoreDoc[] fetchedDocs, int fetchLength,
 			StringIndex collapseStringIndex, Timer timer) throws IOException {
 
 		collapsedDoc = null;
 
 		if (fetchedDocs == null)
-			return;
+			return 0;
 
 		if (fetchLength > fetchedDocs.length)
 			fetchLength = fetchedDocs.length;
 
-		collapse(fetchedDocs, fetchLength, collapseStringIndex, timer);
+		return collapse(fetchedDocs, fetchLength, collapseStringIndex, timer);
 	}
 
 	public int getDocCount() {
 		return this.collapsedDocCount;
-	}
-
-	/**
-	 * @param collapsedDocCount
-	 *            the collapsedDocCount to set
-	 */
-	final protected void setCollapsedDocCount(int collapsedDocCount) {
-		this.collapsedDocCount = collapsedDocCount;
 	}
 
 	/**
@@ -142,6 +134,15 @@ public abstract class CollapseAbstract {
 		return null;
 	}
 
+	final private static int getNewFetchRows(int rows, int searchRows,
+			int newCollapsedDocCount, int oldCollapsedDocCount) {
+		int fact = rows / searchRows;
+		if (fact == 0)
+			fact = 1;
+		return rows + searchRows
+				+ (newCollapsedDocCount - oldCollapsedDocCount) * fact;
+	}
+
 	private ResultScoreDoc[] collapseFromDocSetHit(DocSetHits docSetHits,
 			int searchRows, int end, StringIndex collapseFieldStringIndex,
 			Timer timer) throws IOException {
@@ -150,6 +151,7 @@ public abstract class CollapseAbstract {
 		int i = 0;
 		Timer iterationTimer = new Timer(timer,
 				"Optimized collapse iteration from DocSetHit");
+		int oldCollapsedDocCount = 0;
 		while (getCollapsedDocsLength() < end) {
 			i++;
 			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows,
@@ -158,10 +160,14 @@ public abstract class CollapseAbstract {
 				break;
 			if (rows > docs.length)
 				rows = docs.length;
-			run(docs, rows, collapseFieldStringIndex, iterationTimer);
+			int newCollapsedDocCount = run(docs, rows,
+					collapseFieldStringIndex, iterationTimer);
 			lastRows = rows;
-			rows += searchRows;
+			rows = getNewFetchRows(rows, searchRows, newCollapsedDocCount,
+					oldCollapsedDocCount);
+			oldCollapsedDocCount = newCollapsedDocCount;
 		}
+		collapsedDocCount = oldCollapsedDocCount;
 		iterationTimer.end("Optimized collapse iteration from DocSetHit: " + i);
 		return getCollapsedDoc();
 	}
@@ -174,17 +180,22 @@ public abstract class CollapseAbstract {
 		int i = 0;
 		Timer iterationTimer = new Timer(timer,
 				"Optimized collapse iteration from all docs");
+		int oldCollapsedDocCount = 0;
 		while (getCollapsedDocsLength() < end) {
 			i++;
 			if (rows > docs.length)
 				rows = docs.length;
 			if (lastRows == rows)
 				break;
-			run(docs, rows, collapseFieldStringIndex, iterationTimer);
+			int newCollapsedDocCount = run(docs, rows,
+					collapseFieldStringIndex, iterationTimer);
 			lastRows = rows;
-			rows += searchRows;
+			rows = getNewFetchRows(rows, searchRows, newCollapsedDocCount,
+					oldCollapsedDocCount);
+			oldCollapsedDocCount = newCollapsedDocCount;
 		}
 		iterationTimer.end("Optimized collapse iteration from all docs: " + i);
+		collapsedDocCount = oldCollapsedDocCount;
 		return getCollapsedDoc();
 	}
 

@@ -40,7 +40,7 @@ public class CollapseAdjacent extends CollapseAbstract {
 	}
 
 	@Override
-	protected void collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
+	protected int collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
 			StringIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "adjacent collapse");
@@ -49,7 +49,6 @@ public class CollapseAdjacent extends CollapseAbstract {
 
 		String lastTerm = null;
 		int adjacent = 0;
-		setCollapsedDocCount(0);
 		for (int i = 0; i < fetchLength; i++) {
 			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDocs[i].doc]];
 			if (term != null && term.equals(lastTerm)) {
@@ -81,8 +80,8 @@ public class CollapseAdjacent extends CollapseAbstract {
 
 		t.duration();
 
-		setCollapsedDocCount(collapsedDocCount);
 		setCollapsedDoc(collapsedDoc);
+		return collapsedDocCount;
 
 	}
 
