@@ -47,16 +47,21 @@ public abstract class AbstractTermFilter extends TokenFilter {
 		offsetAtt = (OffsetAttribute) addAttribute(OffsetAttribute.class);
 	}
 
-	protected final void createToken(String term, int posInc, int startOff,
+	protected final boolean createToken(String term, int posInc, int startOff,
 			int endOff) {
+		if (term == null)
+			return false;
+		if (term.length() == 0)
+			return false;
 		restoreState(current);
 		termAtt.setTermBuffer(term);
 		posIncrAtt.setPositionIncrement(posInc);
 		offsetAtt.setOffset(startOff, endOff);
+		return true;
 	}
 
-	protected final void createToken(String term) {
-		createToken(term, posIncrAtt.getPositionIncrement(),
+	protected final boolean createToken(String term) {
+		return createToken(term, posIncrAtt.getPositionIncrement(),
 				offsetAtt.startOffset(), offsetAtt.endOffset());
 	}
 

@@ -59,54 +59,62 @@ public class JsonPathFilter extends FilterFactory {
 			return true;
 		}
 
+		private final boolean isDefaultValue() {
+			if (defaultValue == null)
+				return false;
+			return defaultValue.length() != 0;
+		}
+
+		private final boolean defaultValueToken() {
+			createToken(defaultValue);
+			return true;
+		}
+
 		@Override
 		public final boolean incrementToken() throws IOException {
 			current = captureState();
-			for (;;) {
-				if (popToken())
-					return true;
-				if (!input.incrementToken())
-					return false;
-				try {
+			try {
+				for (;;) {
+					if (popToken())
+						return true;
+					if (!input.incrementToken())
+						return false;
 					Object object = jsonPath.read(termAtt.term());
 					if (object == null) {
-						if (defaultValue != null) {
-							createToken(defaultValue);
-							return true;
-						}
-					} else if (object instanceof String) {
-						createToken(object.toString());
-						return true;
-					} else if (object instanceof List) {
+						if (isDefaultValue())
+							return defaultValueToken();
+						continue;
+					}
+					if (object instanceof String) {
+						String s = (String) object;
+						if (s.length() > 0)
+							return createToken(s);
+						if (isDefaultValue())
+							return defaultValueToken();
+						continue;
+					}
+					if (object instanceof List) {
 						List<?> list = (List<?>) object;
-						if (list.size() == 0) {
-							if (defaultValue != null) {
-								createToken(defaultValue);
-								return true;
-							}
-						}
+						if (list.size() == 0)
+							if (isDefaultValue())
+								return defaultValueToken();
 						tokenList = (List<?>) object;
 						currentPos = 0;
 					}
-				} catch (Exception e) {
-					if (defaultValue != null) {
-						createToken(defaultValue);
-					} else {
-						Logging.warn(e);
-						return false;
-					}
-					if (faultTolerant) {
-						Logging.warn(e);
-						return true;
-					}
-					if (e instanceof IOException)
-						throw (IOException) e;
-					else
-						throw new IOException(e);
 				}
+			} catch (Exception e) {
+				if (faultTolerant) {
+					Logging.warn(e);
+					if (isDefaultValue())
+						return defaultValueToken();
+					return false;
+				}
+				if (e instanceof IOException)
+					throw (IOException) e;
+				else
+					throw new IOException(e);
 			}
 		}
-
 	}
 
 	private JsonPath jsonPath = null;
