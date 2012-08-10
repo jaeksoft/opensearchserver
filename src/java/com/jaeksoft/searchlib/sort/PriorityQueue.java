@@ -29,22 +29,111 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public class PriorityQueue {
 
-	private SorterAbstract sorter;
+	private interface AdderInterface {
 
-	private java.util.PriorityQueue<ResultScoreDoc> queue;
+		public AdderInterface add(ResultScoreDoc doc);
+	}
+
+	private class EmptyAdder implements AdderInterface {
+
+		@Override
+		final public AdderInterface add(ResultScoreDoc doc) {
+			array[0] = doc;
+			min = doc;
+			max = doc;
+			return capacity == 1 ? new UniqueAdder() : new NonFullAdder();
+		}
+	}
+
+	private class NonFullAdder implements AdderInterface {
+
+		private int currentPos = 1;
+		final private int loopEnd = capacity - 1;
+
+		@Override
+		final public AdderInterface add(ResultScoreDoc doc) {
+			array[currentPos++] = doc;
+			if (currentPos == capacity) {
+				sorter.sort(array);
+				min = array[0];
+				max = array[loopEnd];
+				return new FullAdder();
+			}
+			return this;
+		}
+
+	}
+
+	private class FullAdder implements AdderInterface {
+
+		final private int loopEnd = capacity - 1;
+
+		@Override
+		final public AdderInterface add(ResultScoreDoc doc) {
+			int c = sorter.compare(doc, max);
+			if (c > 0)
+				return this;
+			c = sorter.compare(doc, min);
+			if (c <= 0) {
+				int i = loopEnd;
+				while (i != 0)
+					array[i] = array[--i];
+				array[0] = doc;
+				min = doc;
+				return this;
+			}
+			array[loopEnd] = doc;
+			sorter.sort(array);
+			max = array[loopEnd];
+			return this;
+		}
+
+	}
+
+	private class UniqueAdder implements AdderInterface {
+
+		@Override
+		final public AdderInterface add(ResultScoreDoc doc) {
+			if (sorter.compare(doc, array[0]) > 0)
+				return this;
+			array[0] = doc;
+			return this;
+		}
+	}
+
+	final private SorterAbstract sorter;
+
+	final private ResultScoreDoc[] array;
+
+	private ResultScoreDoc min;
+
+	private ResultScoreDoc max;
+
+	final private int capacity;
+
+	private AdderInterface currentAdder;
 
 	public PriorityQueue(SorterAbstract sorter, int capacity) {
 		this.sorter = sorter;
-		queue = new java.util.PriorityQueue<ResultScoreDoc>(capacity, sorter);
+		this.capacity = capacity;
+		array = new ResultScoreDoc[capacity];
+		currentAdder = new EmptyAdder();
 	}
 
-	public void add(ResultScoreDoc doc) {
-		queue.offer(doc);
+	final public void add(ResultScoreDoc doc) {
+		currentAdder = currentAdder.add(doc);
 	}
 
 	public ResultScoreDoc[] getSortedElements(Timer timer) {
-		ResultScoreDoc[] docs = new ResultScoreDoc[queue.size()];
-		queue.toArray(docs);
+		int size = 0;
+		for (ResultScoreDoc doc : array)
+			if (doc != null)
+				size++;
+		ResultScoreDoc[] docs = new ResultScoreDoc[size];
+		size = 0;
+		for (ResultScoreDoc doc : array)
+			if (doc != null)
+				docs[size++] = doc;
 		sorter.sort(docs, timer);
 		return docs;
 	}

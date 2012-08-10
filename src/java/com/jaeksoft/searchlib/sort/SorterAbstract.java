@@ -34,9 +34,13 @@ public abstract class SorterAbstract implements Comparator<ResultScoreDoc> {
 	@Override
 	public abstract int compare(ResultScoreDoc doc1, ResultScoreDoc doc2);
 
+	final public void sort(ResultScoreDoc[] docs) {
+		new QuickSort(this).sort(docs);
+	}
+
 	public void sort(ResultScoreDoc[] docs, Timer timer) {
 		Timer t = new Timer(timer, "Sort (quicksort): " + docs.length);
-		new QuickSort(this).sort(docs);
+		sort(docs);
 		t.duration();
 	}
 
