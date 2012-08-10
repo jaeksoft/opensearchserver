@@ -119,11 +119,15 @@ public class DocSetHits {
 		rwl.w.lock();
 		try {
 			if (resultScoreDocCollector == null) {
-				Timer t = new Timer(timer, "Get all docs");
+				Timer tAllDocs = new Timer(timer, "Get all docs");
+				Timer t = new Timer(tAllDocs, "Collection");
 				resultScoreDocCollector = new ResultScoreDocCollector(
 						numFoundCollector.getNumFound());
 				reader.search(query, filter, resultScoreDocCollector);
-				t.end("Get all docs:"
+				t.end("Collection: " + resultScoreDocCollector.getDocs().length);
+				if (sort != null)
+					resultScoreDocCollector.sort(sort, tAllDocs);
+				tAllDocs.end("Get all docs:"
 						+ resultScoreDocCollector.getDocs().length);
 			}
 			return resultScoreDocCollector.getDocs();

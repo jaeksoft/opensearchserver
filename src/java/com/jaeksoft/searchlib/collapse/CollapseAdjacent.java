@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.collapse;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
 
@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
 import com.jaeksoft.searchlib.util.Timer;
 
-public abstract class CollapseAdjacent extends CollapseAbstract {
+public class CollapseAdjacent extends CollapseAbstract {
 
 	protected CollapseAdjacent(SearchRequest searchRequest) {
 		super(searchRequest);
@@ -74,8 +74,8 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 				collapseDoc = fetchDoc.newCollapseInstance();
 				collapsedDoc[currentPos++] = collapseDoc;
 			} else {
-				collapseDoc.collapsedIds = ArrayUtils.add(
-						collapseDoc.collapsedIds, fetchDoc.doc);
+				collapseDoc.collapsedDocs = ArrayUtils.<ResultScoreDoc> add(
+						collapseDoc.collapsedDocs, fetchDoc);
 			}
 		}
 
@@ -85,4 +85,5 @@ public abstract class CollapseAdjacent extends CollapseAbstract {
 		setCollapsedDoc(collapsedDoc);
 
 	}
+
 }

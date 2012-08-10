@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.result.collector;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.sort.SorterAbstract;
+import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultScoreDocCollector extends AbstractCollector {
 
@@ -52,5 +54,11 @@ public class ResultScoreDocCollector extends AbstractCollector {
 
 	final public float getMaxScore() {
 		return maxScore;
+	}
+
+	final public void sort(SorterAbstract sort, Timer timer) {
+		if (sort == null)
+			return;
+		sort.sort(docs, timer);
 	}
 }

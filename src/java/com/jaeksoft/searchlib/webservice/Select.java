@@ -31,7 +31,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.collapse.CollapseMode;
+import com.jaeksoft.searchlib.collapse.CollapseParameters;
 
 @WebService
 public interface Select extends CommonServices {
@@ -48,7 +48,8 @@ public interface Select extends CommonServices {
 			@WebParam(name = "lang") LanguageEnum lang,
 			@WebParam(name = "collapseField") String collapseField,
 			@WebParam(name = "collapseMax") int collapseMax,
-			@WebParam(name = "collapseMode") CollapseMode collapseMode,
+			@WebParam(name = "collapseMode") CollapseParameters.Mode collapseMode,
+			@WebParam(name = "collapseType") CollapseParameters.Type collapseType,
 			@WebParam(name = "fq") List<String> filterQuery,
 			@WebParam(name = "fqn") List<String> filterQueryNegetive,
 			@WebParam(name = "sort") List<String> sort,

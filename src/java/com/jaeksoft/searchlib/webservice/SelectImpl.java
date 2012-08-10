@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.collapse.CollapseMode;
+import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
@@ -54,26 +54,28 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 	@Override
 	public SelectResult search(String q, String qt, String use, String login,
 			String key, int start, int rows, LanguageEnum lang,
-			String collapseField, int collapseMax, CollapseMode collapseMode,
-			List<String> filterQuery, List<String> filterQueryNegetive,
-			List<String> sort, List<String> returnField, boolean withDocs,
-			List<String> highlight, List<String> facet,
-			List<String> facetCollapse, List<String> facetMulti,
-			List<String> facetMultiCollapse, boolean moreLikeThis,
-			String mltDocQuery, int mltMinWordLen, int mltMaxWordLen,
-			int mltMinDocFeq, int mltMinTermFreq, String mltStopWords,
-			List<String> customLogs, boolean log, boolean delete) {
+			String collapseField, int collapseMax,
+			CollapseParameters.Mode collapseMode,
+			CollapseParameters.Type collapseType, List<String> filterQuery,
+			List<String> filterQueryNegetive, List<String> sort,
+			List<String> returnField, boolean withDocs, List<String> highlight,
+			List<String> facet, List<String> facetCollapse,
+			List<String> facetMulti, List<String> facetMultiCollapse,
+			boolean moreLikeThis, String mltDocQuery, int mltMinWordLen,
+			int mltMaxWordLen, int mltMinDocFeq, int mltMinTermFreq,
+			String mltStopWords, List<String> customLogs, boolean log,
+			boolean delete) {
 		try {
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				SearchRequest searchRequest = getSearchRequest(client, q, qt,
 						use, start, rows, lang, collapseField, collapseMax,
-						collapseMode, filterQuery, filterQueryNegetive, sort,
-						returnField, withDocs, highlight, facet, facetCollapse,
-						facetMulti, facetMultiCollapse, moreLikeThis,
-						mltDocQuery, mltMinWordLen, mltMaxWordLen,
-						mltMinDocFeq, mltMinTermFreq, mltStopWords, customLogs,
-						log, delete);
+						collapseMode, collapseType, filterQuery,
+						filterQueryNegetive, sort, returnField, withDocs,
+						highlight, facet, facetCollapse, facetMulti,
+						facetMultiCollapse, moreLikeThis, mltDocQuery,
+						mltMinWordLen, mltMaxWordLen, mltMinDocFeq,
+						mltMinTermFreq, mltStopWords, customLogs, log, delete);
 
 				return new SelectResult(
 						(AbstractResultSearch) client.request(searchRequest));
@@ -105,17 +107,18 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 
 	private SearchRequest getSearchRequest(Client client, String q, String qt,
 			String use, int start, int rows, LanguageEnum lang,
-			String collapseField, int collapseMax, CollapseMode collapseMode,
-			List<String> filterQuery, List<String> filterQueryNegetive,
-			List<String> sort, List<String> returnField, boolean withDocs,
-			List<String> highlight, List<String> facet,
-			List<String> facetCollapse, List<String> facetMulti,
-			List<String> facetMultiCollapse, boolean MoreLikeThis,
-			String mltDocQuery, int mltMinWordLen, int mltMaxWordLen,
-			int mltMinDocFeq, int mltMinTermFreq, String mltStopWords,
-			List<String> customLogs, boolean log, boolean delete)
-			throws SearchLibException, SyntaxError, IOException,
-			InstantiationException, IllegalAccessException,
+			String collapseField, int collapseMax,
+			CollapseParameters.Mode collapseMode,
+			CollapseParameters.Type collapseType, List<String> filterQuery,
+			List<String> filterQueryNegetive, List<String> sort,
+			List<String> returnField, boolean withDocs, List<String> highlight,
+			List<String> facet, List<String> facetCollapse,
+			List<String> facetMulti, List<String> facetMultiCollapse,
+			boolean MoreLikeThis, String mltDocQuery, int mltMinWordLen,
+			int mltMaxWordLen, int mltMinDocFeq, int mltMinTermFreq,
+			String mltStopWords, List<String> customLogs, boolean log,
+			boolean delete) throws SearchLibException, SyntaxError,
+			IOException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, ParseException, URISyntaxException,
 			InterruptedException {
 		SearchRequest searchRequest = (SearchRequest) client.getNewRequest(qt);
@@ -134,6 +137,8 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 			searchRequest.setCollapseMax(collapseMax);
 		if (collapseMode != null)
 			searchRequest.setCollapseMode(collapseMode);
+		if (collapseType != null)
+			searchRequest.setCollapseType(collapseType);
 		if (filterQuery != null && filterQuery.size() > 0) {
 			FilterList fl = searchRequest.getFilterList();
 			for (String value : filterQuery)

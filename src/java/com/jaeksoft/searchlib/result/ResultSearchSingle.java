@@ -92,10 +92,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 		// Are we doing collapsing ?
 		if (collapse != null) {
-			Timer collapseTimer = new Timer(timer, "collapse");
 			collapsedDocs = collapse.collapse(reader, notCollapsedDocs,
-					docSetHits, collapseTimer);
-			collapseTimer.duration();
+					docSetHits, timer);
 			collapsedDocCount = collapse.getDocCount();
 		}
 
@@ -157,10 +155,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 				return resultDocument;
 			if (request.getCollapseMax() > 0)
 				return resultDocument;
-			int[] docIds = ((ResultScoreDocCollapse) rsc).collapsedIds;
-			for (int docId : docIds) {
-				ResultDocument rd = new ResultDocument(request, docId, reader,
-						timer);
+			ResultScoreDoc[] rsds = ((ResultScoreDocCollapse) rsc).collapsedDocs;
+			for (ResultScoreDoc rsd : rsds) {
+				ResultDocument rd = new ResultDocument(request, rsd.doc,
+						reader, timer);
 				resultDocument.appendIfStringDoesNotExist(rd);
 			}
 			return resultDocument;

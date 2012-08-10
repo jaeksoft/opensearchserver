@@ -24,17 +24,14 @@
 
 package com.jaeksoft.searchlib.collapse;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.DocSetHits;
-import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
@@ -58,8 +55,8 @@ public class CollapseCluster extends CollapseAbstract {
 			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDoc.doc]];
 			if (term != null
 					&& ((collapseDoc = collapsedDocMap.get(term)) != null)) {
-				collapseDoc.collapsedIds = ArrayUtils.add(
-						collapseDoc.collapsedIds, fetchedDoc.doc);
+				collapseDoc.collapsedDocs = ArrayUtils.<ResultScoreDoc> add(
+						collapseDoc.collapsedDocs, fetchedDoc);
 			} else {
 				collapsedDocMap.put(term, fetchedDoc.newCollapseInstance());
 			}
@@ -67,26 +64,22 @@ public class CollapseCluster extends CollapseAbstract {
 		t.duration();
 
 		t = new Timer(timer, "Build collapse array");
-		ResultScoreDocCollapse[] collapsedDocs = new ResultScoreDocCollapse[collapsedDocMap
-				.size()];
-		collapsedDocMap.values().toArray(collapsedDocs);
+		int max = getCollapseMax();
+		if (max <= 1) {
+			ResultScoreDoc[] collapsedDocs = new ResultScoreDoc[collapsedDocMap
+					.size()];
+			collapsedDocMap.values().toArray(collapsedDocs);
+			setCollapsedDocCount(fetchLength - collapsedDocs.length);
+			setCollapsedDoc(collapsedDocs);
+		} else {
+			List<ResultScoreDoc> collapsedList = new ArrayList<ResultScoreDoc>(
+					0);
+			for (ResultScoreDocCollapse rsdc : collapsedDocMap.values())
+				rsdc.populateList(collapsedList, max);
+			setCollapsedDocCount(fetchLength - collapsedList.size());
+			setCollapsedDoc(collapsedList);
+		}
 		t.duration();
-
-		setCollapsedDocCount(fetchLength - collapsedDocs.length);
-		setCollapsedDoc(collapsedDocs);
-
-	}
-
-	@Override
-	public ResultScoreDoc[] collapse(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, DocSetHits docSetHits, Timer timer)
-			throws IOException, ParseException, SyntaxError {
-		if (allDocs == null)
-			allDocs = docSetHits.getAllDocs(timer);
-		StringIndex collapseFieldStringIndex = reader.getStringIndex(
-				searchRequest.getCollapseField(), timer);
-		run(allDocs, allDocs.length, collapseFieldStringIndex, timer);
-		return getCollapsedDoc();
 	}
 
 }

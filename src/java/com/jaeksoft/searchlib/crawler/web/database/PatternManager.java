@@ -119,13 +119,14 @@ public class PatternManager {
 		if (bDeleteAll)
 			patternMap.clear();
 
-		// First pass: Identify already present
-		for (PatternItem item : patternList) {
-			if (!bDeleteAll && findPattern(item) != null)
-				item.setStatus(PatternItem.Status.ALREADY);
-			else {
-				addPatternWithoutLock(item);
-				item.setStatus(PatternItem.Status.INJECTED);
+		if (patternList != null) {
+			for (PatternItem item : patternList) {
+				if (!bDeleteAll && findPattern(item) != null)
+					item.setStatus(PatternItem.Status.ALREADY);
+				else {
+					addPatternWithoutLock(item);
+					item.setStatus(PatternItem.Status.INJECTED);
+				}
 			}
 		}
 	}

@@ -47,7 +47,8 @@
 		<button label="Search" forward="onSearch" />
 	</hbox>
 	<separator />
-	<listbox checkmark="@{pattern.WebCrawlerEditPatternsRights}"
+	<listbox onSelect="@{pattern.onSelect}"
+		checkmark="@{pattern.WebCrawlerEditPatternsRights}"
 		multiple="@{pattern.WebCrawlerEditPatternsRights}"
 		model="@{pattern.patternList}" itemRenderer="@{pattern}">
 		<listfoot>
@@ -60,4 +61,6 @@
 	</listbox>
 	<button label="delete" visible="@{pattern.selectionRemovable}"
 		forward="onDelete" />
+	<button label="delete all" visible="@{pattern.selectionRemovable}"
+		forward="onDeleteAll" />
 </window>

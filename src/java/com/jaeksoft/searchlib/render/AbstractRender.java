@@ -24,6 +24,10 @@
 
 package com.jaeksoft.searchlib.render;
 
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 
@@ -32,9 +36,17 @@ public abstract class AbstractRender<T1 extends AbstractRequest, T2 extends Abst
 
 	final protected T2 result;
 	final protected T1 request;
+	final private NumberFormat scoreFormat;
 
 	protected AbstractRender(T2 result) {
 		this.result = result;
 		this.request = result.getRequest();
+		scoreFormat = new DecimalFormat();
+		scoreFormat.setGroupingUsed(false);
 	}
+
+	final protected void writeScore(PrintWriter writer, double score) {
+		writer.print(scoreFormat.format(score));
+	}
+
 }

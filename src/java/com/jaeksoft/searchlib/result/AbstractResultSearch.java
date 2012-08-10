@@ -172,7 +172,7 @@ public abstract class AbstractResultSearch extends
 		ResultScoreDoc rsc = docs[pos];
 		if (!(rsc instanceof ResultScoreDocCollapse))
 			return 0;
-		return ((ResultScoreDocCollapse) rsc).collapsedIds.length;
+		return ((ResultScoreDocCollapse) rsc).collapsedDocs.length;
 	}
 
 	@Override

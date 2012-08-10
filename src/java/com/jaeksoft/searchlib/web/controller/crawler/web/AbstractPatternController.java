@@ -187,6 +187,21 @@ public abstract class AbstractPatternController extends CrawlerController
 		}
 	}
 
+	public void onDeleteAll() throws SearchLibException {
+		synchronized (this) {
+			if (!isWebCrawlerEditPatternsRights())
+				throw new SearchLibException("Not allowed");
+			PatternManager patternManager = getPatternManager();
+			try {
+				patternManager.addList(null, true);
+			} catch (SearchLibException e) {
+				throw new RuntimeException(e);
+			}
+			onSearch();
+		}
+
+	}
+
 	public void onSelect(Event event) {
 		PatternItem patternItem = (PatternItem) event.getData();
 		patternItem.setSelected(!patternItem.isSelected());

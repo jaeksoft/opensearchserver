@@ -24,21 +24,30 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class ResultScoreDocCollapse extends ResultScoreDoc {
 
 	public static final ResultScoreDocCollapse[] EMPTY_ARRAY = new ResultScoreDocCollapse[0];
 
-	public int[] collapsedIds;
+	public ResultScoreDoc[] collapsedDocs;
 
 	public ResultScoreDocCollapse(ResultScoreDoc rsd) {
 		super(rsd);
-		this.collapsedIds = new int[0];
+		this.collapsedDocs = ResultScoreDoc.EMPTY_ARRAY;
 	}
 
 	public ResultScoreDocCollapse(ResultScoreDocCollapse rsdc) {
 		super(rsdc);
-		this.collapsedIds = rsdc.collapsedIds;
+		this.collapsedDocs = rsdc.collapsedDocs;
+	}
+
+	private ResultScoreDocCollapse(ResultScoreDocCollapse rsdc, int offset) {
+		super(rsdc);
+		this.collapsedDocs = ArrayUtils.<ResultScoreDoc> subarray(
+				rsdc.collapsedDocs, offset, rsdc.collapsedDocs.length);
 	}
 
 	@Override
@@ -46,4 +55,16 @@ public class ResultScoreDocCollapse extends ResultScoreDoc {
 		return new ResultScoreDocCollapse(this);
 	}
 
+	final public void populateList(List<ResultScoreDoc> collapsedList, int max) {
+		if (collapsedDocs.length < max) {
+			collapsedList.add(new ResultScoreDoc(this));
+			for (ResultScoreDoc rsd : collapsedDocs)
+				collapsedList.add(rsd);
+			return;
+		}
+		max--;
+		collapsedList.add(new ResultScoreDocCollapse(this, max));
+		for (int i = 0; i < max; i++)
+			collapsedList.add(collapsedDocs[i]);
+	}
 }

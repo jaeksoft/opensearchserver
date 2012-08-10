@@ -31,6 +31,14 @@
 				</listbox>
 			</row>
 			<row>
+				<label>Type</label>
+				<listbox mold="select" model="@{collapse.collapseTypes}"
+					selectedItem="@{collapse.request.collapseType}">
+					<listitem self="@{each=type}" label="@{type.label}"
+						value="@{type}" />
+				</listbox>
+			</row>
+			<row>
 				<label>Field</label>
 				<listbox mold="select" model="@{collapse.indexedFields}"
 					selectedItem="@{collapse.request.collapseField}">

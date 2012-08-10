@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.collapse.CollapseMode;
+import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
@@ -95,7 +95,8 @@ public class SearchRequest extends AbstractRequest implements
 	private SortList sortList;
 	private String collapseField;
 	private int collapseMax;
-	private CollapseMode collapseMode;
+	private CollapseParameters.Mode collapseMode;
+	private CollapseParameters.Type collapseType;
 	private int start;
 	private int rows;
 	private LanguageEnum lang;
@@ -130,7 +131,8 @@ public class SearchRequest extends AbstractRequest implements
 
 		this.collapseField = null;
 		this.collapseMax = 2;
-		this.collapseMode = CollapseMode.COLLAPSE_OFF;
+		this.collapseMode = CollapseParameters.Mode.OFF;
+		this.collapseType = CollapseParameters.Type.OPTIMIZED;
 
 		this.start = 0;
 		this.rows = 10;
@@ -175,6 +177,7 @@ public class SearchRequest extends AbstractRequest implements
 		this.collapseField = searchRequest.collapseField;
 		this.collapseMax = searchRequest.collapseMax;
 		this.collapseMode = searchRequest.collapseMode;
+		this.collapseType = searchRequest.collapseType;
 
 		this.withSortValues = searchRequest.withSortValues;
 		this.start = searchRequest.start;
@@ -644,9 +647,10 @@ public class SearchRequest extends AbstractRequest implements
 			sb.append(" Query: ");
 			sb.append(boostedComplexQuery);
 			sb.append(" Facet: " + getFacetFieldList().toString());
-			if (getCollapseMode() != CollapseMode.COLLAPSE_OFF)
-				sb.append(" Collapsing: " + getCollapseMode() + " "
-						+ getCollapseField() + "(" + getCollapseMax() + ")");
+			if (getCollapseMode() != CollapseParameters.Mode.OFF)
+				sb.append(" Collapsing Mode: " + getCollapseMode() + " Type: "
+						+ getCollapseType() + " Field: " + getCollapseField()
+						+ "(" + getCollapseMax() + ")");
 			return sb.toString();
 		} finally {
 			rwl.r.unlock();
@@ -708,7 +712,7 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setCollapseMode(CollapseMode mode) {
+	public void setCollapseMode(CollapseParameters.Mode mode) {
 		rwl.w.lock();
 		try {
 			this.collapseMode = mode;
@@ -717,10 +721,28 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public CollapseMode getCollapseMode() {
+	public CollapseParameters.Mode getCollapseMode() {
 		rwl.r.lock();
 		try {
 			return this.collapseMode;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setCollapseType(CollapseParameters.Type type) {
+		rwl.w.lock();
+		try {
+			this.collapseType = type;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public CollapseParameters.Type getCollapseType() {
+		rwl.r.lock();
+		try {
+			return this.collapseType;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -845,8 +867,10 @@ public class SearchRequest extends AbstractRequest implements
 			if (advancedScore != null)
 				setAdvancedScore(advancedScore);
 
-			setCollapseMode(CollapseMode.valueOfLabel(XPathParser
+			setCollapseMode(CollapseParameters.Mode.valueOfLabel(XPathParser
 					.getAttributeString(node, "collapseMode")));
+			setCollapseType(CollapseParameters.Type.valueOfLabel(XPathParser
+					.getAttributeString(node, "collapseType")));
 			setCollapseField(XPathParser.getAttributeString(node,
 					"collapseField"));
 			setCollapseMax(XPathParser.getAttributeValue(node, "collapseMax"));
@@ -908,17 +932,15 @@ public class SearchRequest extends AbstractRequest implements
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter
-					.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
-							getRequestName(), XML_ATTR_TYPE, getType().name(),
-							"phraseSlop", Integer.toString(phraseSlop),
-							"defaultOperator", getDefaultOperator(), "start",
-							Integer.toString(start), "rows",
-							Integer.toString(rows), "lang",
-							lang != null ? lang.getCode() : null,
-							"collapseMode", collapseMode.getLabel(),
-							"collapseField", collapseField, "collapseMax",
-							Integer.toString(collapseMax));
+			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
+					getRequestName(), XML_ATTR_TYPE, getType().name(),
+					"phraseSlop", Integer.toString(phraseSlop),
+					"defaultOperator", getDefaultOperator(), "start",
+					Integer.toString(start), "rows", Integer.toString(rows),
+					"lang", lang != null ? lang.getCode() : null,
+					"collapseMode", collapseMode.getLabel(), "collapseType",
+					collapseType.getLabel(), "collapseField", collapseField,
+					"collapseMax", Integer.toString(collapseMax));
 
 			if (boostingQueries.size() > 0) {
 				xmlWriter.startElement("boostingQueries");
@@ -1008,7 +1030,10 @@ public class SearchRequest extends AbstractRequest implements
 				setLang(LanguageEnum.findByCode(p));
 
 			if ((p = transaction.getParameterString("collapse.mode")) != null)
-				setCollapseMode(CollapseMode.valueOfLabel(p));
+				setCollapseMode(CollapseParameters.Mode.valueOfLabel(p));
+
+			if ((p = transaction.getParameterString("collapse.type")) != null)
+				setCollapseType(CollapseParameters.Type.valueOfLabel(p));
 
 			if ((p = transaction.getParameterString("collapse.field")) != null)
 				setCollapseField(shemaFieldList.get(p).getName());

@@ -88,7 +88,7 @@ public class RenderSearchXml extends
 		writer.print("\" rows=\"");
 		writer.print(searchRequest.getRows());
 		writer.print("\" maxScore=\"");
-		writer.print(result.getMaxScore());
+		writeScore(writer, result.getMaxScore());
 		writer.print("\" time=\"");
 		writer.print(searchRequest.getTimer().tempDuration());
 		writer.println("\">");
@@ -134,7 +134,7 @@ public class RenderSearchXml extends
 	private void renderDocument(int pos) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
 		writer.print("\t<doc score=\"");
-		writer.print(result.getScore(pos));
+		writeScore(writer, result.getScore(pos));
 		writer.print("\" pos=\"");
 		writer.print(pos);
 		writer.println("\">");
