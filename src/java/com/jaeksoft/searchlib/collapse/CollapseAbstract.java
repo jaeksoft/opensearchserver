@@ -134,12 +134,15 @@ public abstract class CollapseAbstract {
 		return null;
 	}
 
-	final private static int getNewFetchRows(int rows, int searchRows,
-			int collapsedDocCount) {
-		int fact = rows / searchRows;
+	final private static int getNewFetchRows(long rows, long searchRows,
+			long collapsedDocCount) {
+		long fact = rows / searchRows;
 		if (fact == 0)
 			fact = 1;
-		return rows + searchRows + collapsedDocCount * fact;
+		rows = rows + searchRows + collapsedDocCount * fact;
+		if (rows > Integer.MAX_VALUE)
+			rows = Integer.MAX_VALUE;
+		return (int) rows;
 	}
 
 	private ResultScoreDoc[] collapseFromDocSetHit(DocSetHits docSetHits,
