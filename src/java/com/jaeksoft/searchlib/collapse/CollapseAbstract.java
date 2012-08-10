@@ -135,12 +135,11 @@ public abstract class CollapseAbstract {
 	}
 
 	final private static int getNewFetchRows(int rows, int searchRows,
-			int newCollapsedDocCount, int oldCollapsedDocCount) {
+			int collapsedDocCount) {
 		int fact = rows / searchRows;
 		if (fact == 0)
 			fact = 1;
-		return rows + searchRows
-				+ (newCollapsedDocCount - oldCollapsedDocCount) * fact;
+		return rows + searchRows + collapsedDocCount * fact;
 	}
 
 	private ResultScoreDoc[] collapseFromDocSetHit(DocSetHits docSetHits,
@@ -151,7 +150,6 @@ public abstract class CollapseAbstract {
 		int i = 0;
 		Timer iterationTimer = new Timer(timer,
 				"Optimized collapse iteration from DocSetHit");
-		int oldCollapsedDocCount = 0;
 		while (getCollapsedDocsLength() < end) {
 			i++;
 			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows,
@@ -160,14 +158,12 @@ public abstract class CollapseAbstract {
 				break;
 			if (rows > docs.length)
 				rows = docs.length;
-			int newCollapsedDocCount = run(docs, rows,
-					collapseFieldStringIndex, iterationTimer);
+			collapsedDocCount = run(docs, rows, collapseFieldStringIndex,
+					iterationTimer);
 			lastRows = rows;
-			rows = getNewFetchRows(rows, searchRows, newCollapsedDocCount,
-					oldCollapsedDocCount);
-			oldCollapsedDocCount = newCollapsedDocCount;
+			rows = getNewFetchRows(rows, searchRows, collapsedDocCount);
+			System.out.println("Next rows: " + rows);
 		}
-		collapsedDocCount = oldCollapsedDocCount;
 		iterationTimer.end("Optimized collapse iteration from DocSetHit: " + i);
 		return getCollapsedDoc();
 	}
@@ -180,22 +176,18 @@ public abstract class CollapseAbstract {
 		int i = 0;
 		Timer iterationTimer = new Timer(timer,
 				"Optimized collapse iteration from all docs");
-		int oldCollapsedDocCount = 0;
 		while (getCollapsedDocsLength() < end) {
 			i++;
 			if (rows > docs.length)
 				rows = docs.length;
 			if (lastRows == rows)
 				break;
-			int newCollapsedDocCount = run(docs, rows,
-					collapseFieldStringIndex, iterationTimer);
+			collapsedDocCount = run(docs, rows, collapseFieldStringIndex,
+					iterationTimer);
 			lastRows = rows;
-			rows = getNewFetchRows(rows, searchRows, newCollapsedDocCount,
-					oldCollapsedDocCount);
-			oldCollapsedDocCount = newCollapsedDocCount;
+			rows = getNewFetchRows(rows, searchRows, collapsedDocCount);
 		}
 		iterationTimer.end("Optimized collapse iteration from all docs: " + i);
-		collapsedDocCount = oldCollapsedDocCount;
 		return getCollapsedDoc();
 	}
 
