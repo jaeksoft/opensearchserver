@@ -22,43 +22,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
-
-import java.io.IOException;
+package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.sort.SorterAbstract;
-import com.jaeksoft.searchlib.util.Timer;
 
-public class ResultScoreDocCollector extends AbstractCollector {
-
-	private float maxScore = 0;
-	private final ResultScoreDoc[] docs;
-	private int pos = 0;
-
-	public ResultScoreDocCollector(int numFound) {
-		docs = new ResultScoreDoc[numFound];
-	}
+public class AscDocIdSorter extends SorterAbstract {
 
 	@Override
-	final public void collect(int docId) throws IOException {
-		float sc = scorer.score();
-		if (sc > maxScore)
-			maxScore = sc;
-		docs[pos++] = new ResultScoreDoc(docId, sc);
-	}
-
-	final public ResultScoreDoc[] getDocs() {
-		return docs;
-	}
-
-	final public float getMaxScore() {
-		return maxScore;
-	}
-
-	final public void sort(SorterAbstract sort, Timer timer) {
-		if (sort == null)
-			return;
-		sort.quickSort(docs, timer);
+	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+		return doc1.doc - doc2.doc;
 	}
 }

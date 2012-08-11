@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,44 +21,27 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-
-package com.jaeksoft.searchlib.result.collector;
-
-import java.io.IOException;
+package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.sort.SorterAbstract;
-import com.jaeksoft.searchlib.util.Timer;
 
-public class ResultScoreDocCollector extends AbstractCollector {
+public class MultiSort extends SorterAbstract {
 
-	private float maxScore = 0;
-	private final ResultScoreDoc[] docs;
-	private int pos = 0;
+	private SorterAbstract[] sorters;
 
-	public ResultScoreDocCollector(int numFound) {
-		docs = new ResultScoreDoc[numFound];
+	public MultiSort(SorterAbstract... sorters) {
+		this.sorters = sorters;
 	}
 
 	@Override
-	final public void collect(int docId) throws IOException {
-		float sc = scorer.score();
-		if (sc > maxScore)
-			maxScore = sc;
-		docs[pos++] = new ResultScoreDoc(docId, sc);
+	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+		int c;
+		for (SorterAbstract sorter : sorters) {
+			c = sorter.compare(doc1, doc2);
+			if (c != 0)
+				return c;
+		}
+		return 0;
 	}
 
-	final public ResultScoreDoc[] getDocs() {
-		return docs;
-	}
-
-	final public float getMaxScore() {
-		return maxScore;
-	}
-
-	final public void sort(SorterAbstract sort, Timer timer) {
-		if (sort == null)
-			return;
-		sort.quickSort(docs, timer);
-	}
 }

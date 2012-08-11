@@ -97,15 +97,31 @@ public class DocSetHits {
 		rwl.w.lock();
 		try {
 			Timer t = new Timer(timer, "Get priority docs: " + rows);
+			ResultScoreDoc[] docs = getAllDocsNoLock(t);
 			resultScoreDocPriorityCollector = new ResultScoreDocPriorityCollector(
 					rows, sort, resultScoreDocPriorityCollector);
-			reader.search(query, filter, resultScoreDocPriorityCollector);
+			resultScoreDocPriorityCollector.collect(docs);
 			ResultScoreDoc[] r = resultScoreDocPriorityCollector.getDocs(t);
 			t.duration();
 			return r;
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	private ResultScoreDoc[] getAllDocsNoLock(Timer timer) throws IOException {
+		if (resultScoreDocCollector != null)
+			return resultScoreDocCollector.getDocs();
+		Timer tAllDocs = new Timer(timer, "Get all docs");
+		Timer t = new Timer(tAllDocs, "Collection");
+		resultScoreDocCollector = new ResultScoreDocCollector(
+				numFoundCollector.getNumFound());
+		reader.search(query, filter, resultScoreDocCollector);
+		t.end("Collection: " + resultScoreDocCollector.getDocs().length);
+		if (sort != null)
+			resultScoreDocCollector.sort(sort, tAllDocs);
+		tAllDocs.end("Get all docs:" + resultScoreDocCollector.getDocs().length);
+		return resultScoreDocCollector.getDocs();
 	}
 
 	public ResultScoreDoc[] getAllDocs(Timer timer) throws IOException {
@@ -118,19 +134,9 @@ public class DocSetHits {
 		}
 		rwl.w.lock();
 		try {
-			if (resultScoreDocCollector == null) {
-				Timer tAllDocs = new Timer(timer, "Get all docs");
-				Timer t = new Timer(tAllDocs, "Collection");
-				resultScoreDocCollector = new ResultScoreDocCollector(
-						numFoundCollector.getNumFound());
-				reader.search(query, filter, resultScoreDocCollector);
-				t.end("Collection: " + resultScoreDocCollector.getDocs().length);
-				if (sort != null)
-					resultScoreDocCollector.sort(sort, tAllDocs);
-				tAllDocs.end("Get all docs:"
-						+ resultScoreDocCollector.getDocs().length);
-			}
-			return resultScoreDocCollector.getDocs();
+			if (resultScoreDocCollector != null)
+				return resultScoreDocCollector.getDocs();
+			return getAllDocsNoLock(timer);
 		} finally {
 			rwl.w.unlock();
 		}

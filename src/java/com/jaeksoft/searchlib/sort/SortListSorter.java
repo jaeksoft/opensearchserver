@@ -54,12 +54,18 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public void sort(ResultScoreDoc[] docs, Timer timer) {
-		Timer t = new Timer(timer, "sort " + docs.length);
+	final public void quickSort(ResultScoreDoc[] docs, Timer timer) {
 		if (sorterList.length == 1)
-			sorterList[0].sort(docs, timer);
+			sorterList[0].quickSort(docs, timer);
 		else
-			super.sort(docs, timer);
-		t.duration();
+			super.quickSort(docs, timer);
+	}
+
+	@Override
+	final public void arraySort(ResultScoreDoc[] docs, Timer timer) {
+		if (sorterList.length == 1)
+			sorterList[0].arraySort(docs, timer);
+		else
+			super.arraySort(docs, timer);
 	}
 }

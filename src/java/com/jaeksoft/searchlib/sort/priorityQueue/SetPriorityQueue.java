@@ -22,33 +22,31 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.sort.priorityQueue;
+
+import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.sort.AscDocIdSorter;
+import com.jaeksoft.searchlib.sort.MultiSort;
+import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class PriorityQueue {
-
-	private interface AdderInterface {
-
-		public AdderInterface add(ResultScoreDoc doc);
-	}
+public class SetPriorityQueue extends AbstractPriorityQueue<SetPriorityQueue> {
 
 	private class EmptyAdder implements AdderInterface {
 
 		@Override
 		final public AdderInterface add(ResultScoreDoc doc) {
-			array[0] = doc;
-			min = doc;
+			set.add(doc);
 			max = doc;
-			return capacity == 1 ? new UniqueAdder() : new NonFullAdder(1);
+			return capacity == 1 ? new UniqueAdder(doc) : new NonFullAdder(1);
 		}
 	}
 
 	private class NonFullAdder implements AdderInterface {
 
 		private int currentPos;
-		final private int loopEnd = capacity - 1;
 
 		private NonFullAdder(int initialPos) {
 			currentPos = initialPos;
@@ -56,11 +54,11 @@ public class PriorityQueue {
 
 		@Override
 		final public AdderInterface add(ResultScoreDoc doc) {
-			array[currentPos++] = doc;
-			if (currentPos == capacity) {
-				sorter.sort(array);
-				min = array[0];
-				max = array[loopEnd];
+			set.add(doc);
+			if (++currentPos == capacity) {
+				max = set.last();
+				System.out.println("NonFull End " + set.size() + " / "
+						+ capacity);
 				return new FullAdder();
 			}
 			return this;
@@ -70,101 +68,60 @@ public class PriorityQueue {
 
 	private class FullAdder implements AdderInterface {
 
-		final private int loopEnd = capacity - 1;
-
 		@Override
 		final public AdderInterface add(ResultScoreDoc doc) {
 			int c = sorter.compare(doc, max);
 			if (c > 0)
 				return this;
-			c = sorter.compare(doc, min);
-			if (c <= 0) {
-				int i = loopEnd;
-
-				while (i != 0)
-					array[i] = array[--i];
-				array[0] = doc;
-				min = doc;
-				return this;
-			}
-			array[loopEnd] = doc;
-			sorter.sort(array);
-			max = array[loopEnd];
+			set.remove(max);
+			set.add(doc);
+			max = set.last();
+			if (set.size() != capacity)
+				System.out.println("Hey ! " + doc + " " + set.size() + " / "
+						+ capacity);
 			return this;
 		}
 
 	}
 
-	private class UniqueAdder implements AdderInterface {
-
-		@Override
-		final public AdderInterface add(ResultScoreDoc doc) {
-			if (sorter.compare(doc, array[0]) > 0)
-				return this;
-			array[0] = doc;
-			return this;
-		}
-	}
-
-	final private SorterAbstract sorter;
-
-	final private ResultScoreDoc[] array;
-
-	private ResultScoreDoc min;
+	final private TreeSet<ResultScoreDoc> set;
 
 	private ResultScoreDoc max;
 
-	final private int capacity;
-
-	private AdderInterface currentAdder;
-
-	public PriorityQueue(SorterAbstract sorter, int capacity) {
-		this.sorter = sorter;
-		this.capacity = capacity;
-		array = new ResultScoreDoc[capacity];
+	public SetPriorityQueue(SorterAbstract sorter, int capacity) {
+		super(new MultiSort(sorter, new AscDocIdSorter()), capacity);
+		set = new TreeSet<ResultScoreDoc>(this.sorter);
 		currentAdder = new EmptyAdder();
 	}
 
-	public PriorityQueue(PriorityQueue previous, int newIncreasedCapacity) {
-		this.sorter = previous.sorter;
-		this.capacity = newIncreasedCapacity > previous.capacity ? newIncreasedCapacity
-				: previous.capacity;
+	public SetPriorityQueue(SetPriorityQueue previous, int newIncreasedCapacity) {
+		super(previous, newIncreasedCapacity);
+		set = previous.set;
 		if (this.capacity > previous.capacity) {
-			array = new ResultScoreDoc[capacity];
-			int i = 0;
-			for (ResultScoreDoc doc : previous.array)
-				array[i++] = doc;
 			currentAdder = new NonFullAdder(previous.getSize());
 		} else {
-			array = previous.array;
 			currentAdder = previous.currentAdder;
 		}
-		min = previous.min;
 		max = previous.max;
 
 	}
 
-	final public void add(ResultScoreDoc doc) {
-		currentAdder = currentAdder.add(doc);
-	}
-
+	@Override
 	final public int getSize() {
-		int size = 0;
-		for (ResultScoreDoc doc : array)
-			if (doc != null)
-				size++;
-		return size;
+		if (currentAdder instanceof AbstractPriorityQueue<?>.UniqueAdder) {
+			set.clear();
+			set.add(((AbstractPriorityQueue<?>.UniqueAdder) currentAdder).uniqueDoc);
+		}
+		return set.size();
 	}
 
+	@Override
 	public ResultScoreDoc[] getSortedElements(Timer timer) {
 		int size = getSize();
+		System.out.println("End with : " + size + " / " + capacity);
+
 		ResultScoreDoc[] docs = new ResultScoreDoc[size];
-		size = 0;
-		for (ResultScoreDoc doc : array)
-			if (doc != null)
-				docs[size++] = doc;
-		sorter.sort(docs, timer);
+		set.toArray(docs);
 		return docs;
 	}
-
 }

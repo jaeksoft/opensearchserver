@@ -24,20 +24,18 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import java.io.IOException;
-
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.sort.PriorityQueue;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
+import com.jaeksoft.searchlib.sort.priorityQueue.SetPriorityQueue;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class ResultScoreDocPriorityCollector extends AbstractCollector {
+public class ResultScoreDocPriorityCollector {
 
 	private float maxScore = 0;
 	private SorterAbstract sort;
 	private int rows;
-	private int ignore;
-	private PriorityQueue priorityQueue;
+	private int startOffset;
+	private SetPriorityQueue priorityQueue;
 	private ResultScoreDoc[] sortedDocs;
 
 	public ResultScoreDocPriorityCollector(int rows, SorterAbstract sort,
@@ -46,25 +44,23 @@ public class ResultScoreDocPriorityCollector extends AbstractCollector {
 		this.rows = rows;
 		priorityQueue = null;
 		if (previous != null && previous.sort.equals(sort)) {
-			priorityQueue = new PriorityQueue(previous.priorityQueue, rows);
-			ignore = previous.rows;
+			priorityQueue = new SetPriorityQueue(previous.priorityQueue, rows);
+			startOffset = previous.rows;
 			maxScore = previous.maxScore;
 		} else {
-			priorityQueue = new PriorityQueue(sort, rows);
-			ignore = 0;
+			priorityQueue = new SetPriorityQueue(sort, rows);
+			startOffset = 0;
 		}
 		sortedDocs = null;
 	}
 
-	@Override
-	final public void collect(int docId) throws IOException {
-		if (ignore == 0) {
-			float sc = scorer.score();
-			if (sc > maxScore)
-				maxScore = sc;
-			priorityQueue.add(new ResultScoreDoc(docId, sc));
-		} else
-			ignore--;
+	public void collect(ResultScoreDoc[] docs) {
+		for (int i = startOffset; i < docs.length; i++) {
+			ResultScoreDoc doc = docs[i];
+			if (doc.score > maxScore)
+				maxScore = doc.score;
+			priorityQueue.add(doc);
+		}
 	}
 
 	final public ResultScoreDoc[] getDocs(Timer timer) {
@@ -82,4 +78,5 @@ public class ResultScoreDocPriorityCollector extends AbstractCollector {
 			return false;
 		return sort.equals(this.sort);
 	}
+
 }

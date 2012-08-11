@@ -84,7 +84,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			t.duration();
 			t = new Timer(joinTimer, "join - sort");
 			searchRequest.getSortList().getSorter(reader, timer)
-					.sort(notCollapsedDocs, timer);
+					.quickSort(notCollapsedDocs, timer);
 			t.duration();
 			numFound = notCollapsedDocs.length;
 			joinTimer.duration();

@@ -87,12 +87,12 @@ final public class ResultScoreDocJoin extends ResultScoreDoc implements
 
 		Timer t = new Timer(timer, "copy & sort local documents");
 		ResultScoreDoc[] docs1 = copyJoin(docs, joinResultSize);
-		new AscStringIndexSorter(doc1StringIndex).sort(docs1, t);
+		new AscStringIndexSorter(doc1StringIndex).quickSort(docs1, t);
 		t.duration();
 
 		t = new Timer(timer, "copy & sort foreign documents");
 		docs2 = copy(docs2);
-		new AscStringIndexSorter(doc2StringIndex).sort(docs2, t);
+		new AscStringIndexSorter(doc2StringIndex).quickSort(docs2, t);
 		t.duration();
 
 		t = new Timer(timer, "join operation");
