@@ -110,7 +110,9 @@ public class SetPriorityQueue extends AbstractPriorityQueue<SetPriorityQueue> {
 	final public int getSize() {
 		if (currentAdder instanceof AbstractPriorityQueue<?>.UniqueAdder) {
 			set.clear();
-			set.add(((AbstractPriorityQueue<?>.UniqueAdder) currentAdder).uniqueDoc);
+			@SuppressWarnings("rawtypes")
+			AbstractPriorityQueue<?>.UniqueAdder uniqueAdder = (AbstractPriorityQueue.UniqueAdder) currentAdder;
+			set.add(uniqueAdder.uniqueDoc);
 		}
 		return set.size();
 	}

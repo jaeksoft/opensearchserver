@@ -125,8 +125,11 @@ public class ArrayPriorityQueue extends
 
 	@Override
 	final public int getSize() {
-		if (currentAdder instanceof AbstractPriorityQueue<?>.UniqueAdder)
-			array[0] = ((AbstractPriorityQueue<?>.UniqueAdder) currentAdder).uniqueDoc;
+		if (currentAdder instanceof AbstractPriorityQueue<?>.UniqueAdder) {
+			@SuppressWarnings("rawtypes")
+			AbstractPriorityQueue<?>.UniqueAdder uniqueAdder = (AbstractPriorityQueue.UniqueAdder) currentAdder;
+			array[0] = uniqueAdder.uniqueDoc;
+		}
 		int size = 0;
 		for (ResultScoreDoc doc : array)
 			if (doc != null)
