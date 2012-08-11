@@ -32,16 +32,20 @@ public class ResultScoreDocCollapse extends ResultScoreDoc {
 
 	public static final ResultScoreDocCollapse[] EMPTY_ARRAY = new ResultScoreDocCollapse[0];
 
-	public ResultScoreDoc[] collapsedDocs;
+	private ResultScoreDoc[] collapsedDocs;
+
+	private int collapseCount;
 
 	public ResultScoreDocCollapse(ResultScoreDoc rsd) {
 		super(rsd);
 		this.collapsedDocs = ResultScoreDoc.EMPTY_ARRAY;
+		this.collapseCount = 0;
 	}
 
 	public ResultScoreDocCollapse(ResultScoreDocCollapse rsdc) {
 		super(rsdc);
 		this.collapsedDocs = rsdc.collapsedDocs;
+		this.collapseCount = rsdc.collapseCount;
 	}
 
 	private ResultScoreDocCollapse(ResultScoreDocCollapse rsdc, int offset) {
@@ -50,21 +54,32 @@ public class ResultScoreDocCollapse extends ResultScoreDoc {
 				rsdc.collapsedDocs, offset, rsdc.collapsedDocs.length);
 	}
 
+	final public void addCollapsed(ResultScoreDoc rsd, int max) {
+		collapseCount++;
+		if (max != 0 && collapseCount < max)
+			ArrayUtils.<ResultScoreDoc> add(collapsedDocs, rsd);
+	}
+
+	final public int getCollapseCount() {
+		return collapseCount;
+	}
+
+	final public ResultScoreDoc[] getCollapsedDocs() {
+		return collapsedDocs;
+	}
+
 	@Override
 	public ResultScoreDocCollapse newCollapseInstance() {
 		return new ResultScoreDocCollapse(this);
 	}
 
 	final public void populateList(List<ResultScoreDoc> collapsedList, int max) {
-		if (collapsedDocs.length < max) {
+		if (collapseCount < max) {
 			collapsedList.add(new ResultScoreDoc(this));
 			for (ResultScoreDoc rsd : collapsedDocs)
 				collapsedList.add(rsd);
 			return;
 		}
-		max--;
-		collapsedList.add(new ResultScoreDocCollapse(this, max));
-		for (int i = 0; i < max; i++)
-			collapsedList.add(collapsedDocs[i]);
+		collapsedList.add(this);
 	}
 }

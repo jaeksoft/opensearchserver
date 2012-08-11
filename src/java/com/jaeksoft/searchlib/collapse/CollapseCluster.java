@@ -29,7 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -50,13 +49,13 @@ public class CollapseCluster extends CollapseAbstract {
 		Timer t = new Timer(timer, "Build collapse map");
 		Map<String, ResultScoreDocCollapse> collapsedDocMap = new LinkedHashMap<String, ResultScoreDocCollapse>();
 		ResultScoreDocCollapse collapseDoc;
+		int collapseMax = getCollapseMax();
 		for (int i = 0; i < fetchLength; i++) {
 			ResultScoreDoc fetchedDoc = fetchedDocs[i];
 			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDoc.doc]];
 			if (term != null
 					&& ((collapseDoc = collapsedDocMap.get(term)) != null)) {
-				collapseDoc.collapsedDocs = ArrayUtils.<ResultScoreDoc> add(
-						collapseDoc.collapsedDocs, fetchedDoc);
+				collapseDoc.addCollapsed(fetchedDoc, collapseMax);
 			} else {
 				collapsedDocMap.put(term, fetchedDoc.newCollapseInstance());
 			}

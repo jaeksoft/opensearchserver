@@ -155,7 +155,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 				return resultDocument;
 			if (request.getCollapseMax() > 0)
 				return resultDocument;
-			ResultScoreDoc[] rsds = ((ResultScoreDocCollapse) rsc).collapsedDocs;
+			ResultScoreDoc[] rsds = ((ResultScoreDocCollapse) rsc)
+					.getCollapsedDocs();
 			for (ResultScoreDoc rsd : rsds) {
 				ResultDocument rd = new ResultDocument(request, rsd.doc,
 						reader, timer);
