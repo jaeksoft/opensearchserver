@@ -43,14 +43,14 @@ public class ResultScoreDocPriorityCollector {
 		this.sort = sort;
 		this.rows = rows;
 		priorityQueue = null;
-		if (previous != null && previous.sort.equals(sort)) {
-			priorityQueue = new SetPriorityQueue(previous.priorityQueue, rows);
-			startOffset = previous.rows;
-			maxScore = previous.maxScore;
-		} else {
-			priorityQueue = new SetPriorityQueue(sort, rows);
-			startOffset = 0;
-		}
+		/*
+		 * if (previous != null && previous.sort.equals(sort)) { priorityQueue =
+		 * new SetPriorityQueue(previous.priorityQueue, rows); startOffset =
+		 * previous.rows; maxScore = previous.maxScore; } else {
+		 */
+		priorityQueue = new SetPriorityQueue(sort, rows);
+		startOffset = 0;
+		// }
 		sortedDocs = null;
 	}
 
