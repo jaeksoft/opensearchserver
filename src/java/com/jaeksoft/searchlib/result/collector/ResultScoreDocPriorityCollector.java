@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.result.collector;
 
 import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
-import com.jaeksoft.searchlib.sort.priorityQueue.ArrayPriorityQueue;
+import com.jaeksoft.searchlib.sort.priorityQueue.SetPriorityQueue;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultScoreDocPriorityCollector {
@@ -35,7 +35,7 @@ public class ResultScoreDocPriorityCollector {
 	private SorterAbstract sort;
 	private int rows;
 	private int startOffset;
-	private ArrayPriorityQueue priorityQueue;
+	private SetPriorityQueue priorityQueue;
 	private ResultScoreDoc[] sortedDocs;
 
 	public ResultScoreDocPriorityCollector(int rows, SorterAbstract sort,
@@ -44,11 +44,11 @@ public class ResultScoreDocPriorityCollector {
 		this.rows = rows;
 		priorityQueue = null;
 		if (previous != null && previous.sort.equals(sort)) {
-			priorityQueue = new ArrayPriorityQueue(previous.priorityQueue, rows);
+			priorityQueue = new SetPriorityQueue(previous.priorityQueue, rows);
 			startOffset = previous.rows;
 			maxScore = previous.maxScore;
 		} else {
-			priorityQueue = new ArrayPriorityQueue(sort, rows);
+			priorityQueue = new SetPriorityQueue(sort, rows);
 			startOffset = 0;
 		}
 		sortedDocs = null;
