@@ -24,34 +24,25 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import java.util.Arrays;
-import java.util.Comparator;
-
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
-public abstract class SorterAbstract implements Comparator<ResultScoreDoc> {
+public abstract class SorterAbstract {
 
-	@Override
-	public abstract int compare(ResultScoreDoc doc1, ResultScoreDoc doc2);
+	public abstract void init(DocIdInterface docIdInterface);
 
-	final public void quickSort(ResultScoreDoc[] docs) {
-		new QuickSort(this).sort(docs);
+	public abstract int compare(int pos1, int pos2);
+
+	final public void quickSort(DocIdInterface docIdInterface) {
+		init(docIdInterface);
+		new QuickSort(this).sort(docIdInterface);
 	}
 
-	public void quickSort(ResultScoreDoc[] docs, Timer timer) {
-		Timer t = new Timer(timer, "Sort (quicksort): " + docs.length);
-		quickSort(docs);
+	public void quickSort(DocIdInterface docIdInterface, Timer timer) {
+		Timer t = new Timer(timer, "Sort (quicksort): "
+				+ docIdInterface.getNumFound());
+		quickSort(docIdInterface);
 		t.duration();
 	}
 
-	final public void arraySort(ResultScoreDoc[] docs) {
-		Arrays.<ResultScoreDoc> sort(docs, this);
-	}
-
-	public void arraySort(ResultScoreDoc[] docs, Timer timer) {
-		Timer t = new Timer(timer, "Sort (arraySort): " + docs.length);
-		arraySort(docs);
-		t.duration();
-	}
 }

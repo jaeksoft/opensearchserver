@@ -54,7 +54,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest> {
 		DocSetHits dsh = reader.searchDocSet(searchRequest, request.getTimer());
 		if (dsh == null)
 			return;
-		docs = dsh.getDocs();
+		docs = dsh.getIds(null);
 		System.out.println(searchRequest.getQuery().toString());
 	}
 

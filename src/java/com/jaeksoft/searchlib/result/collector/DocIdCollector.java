@@ -26,30 +26,79 @@ package com.jaeksoft.searchlib.result.collector;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
-public class DocIdCollector extends AbstractCollector {
+public class DocIdCollector extends AbstractCollector implements DocIdInterface {
 
-	final private int[] docs;
-	final private OpenBitSet bitset;
-	private int pos = 0;
+	final protected int numFound;
+	final protected int maxDoc;
+	final protected int[] ids;
+	private OpenBitSet bitSet;
+	protected int currentPos;
+
+	final public static DocIdCollector EMPTY = new DocIdCollector(0, 0);
 
 	public DocIdCollector(int maxDoc, int numFound) {
-		docs = new int[numFound];
-		bitset = new OpenBitSet(maxDoc);
+		this.numFound = numFound;
+		this.maxDoc = maxDoc;
+		currentPos = 0;
+		bitSet = null;
+		ids = new int[numFound];
+	}
+
+	protected DocIdCollector(DocIdCollector src) {
+		this.numFound = src.numFound;
+		this.maxDoc = src.maxDoc;
+		this.ids = ArrayUtils.clone(src.ids);
+		this.bitSet = src.bitSet;
+		this.currentPos = src.currentPos;
 	}
 
 	@Override
-	final public void collect(int docId) throws IOException {
-		docs[pos++] = docId;
-		bitset.fastSet(docId);
+	public DocIdInterface duplicate() {
+		return new DocIdCollector(this);
 	}
 
-	final public int[] getDocs() {
-		return docs;
+	@Override
+	final public int getNumFound() {
+		return numFound;
 	}
 
+	@Override
+	public void collect(int docId) throws IOException {
+		ids[currentPos++] = docId;
+	}
+
+	final public boolean isBitSet() {
+		return bitSet != null;
+	}
+
+	@Override
 	final public OpenBitSet getBitSet() {
-		return bitset;
+		if (bitSet != null)
+			return bitSet;
+		bitSet = new OpenBitSet(maxDoc);
+		for (int id : ids)
+			bitSet.fastSet(id);
+		return bitSet;
 	}
+
+	@Override
+	public void swap(int pos1, int pos2) {
+		int id = ids[pos1];
+		ids[pos1] = ids[pos2];
+		ids[pos2] = id;
+	}
+
+	@Override
+	public int[] getIds() {
+		return ids;
+	}
+
+	@Override
+	public int getMaxDoc() {
+		return maxDoc;
+	}
+
 }

@@ -24,40 +24,32 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public class QuickSort {
 
 	private final SorterAbstract sorter;
-	private long swapCount;
 
 	public QuickSort(SorterAbstract sorter) {
 		this.sorter = sorter;
 	}
 
-	private final void swap(ResultScoreDoc[] array, int i, int j) {
-		ResultScoreDoc tmp = array[i];
-		array[i] = array[j];
-		array[j] = tmp;
-		swapCount++;
-	}
-
-	private final void quicksort(ResultScoreDoc[] array, int low, int high) {
+	private final void quicksort(DocIdInterface docIdInterface, int low,
+			int high) {
 		int i = low, j = high;
 		// Get the pivot element from the middle of the list
-		ResultScoreDoc pivot = array[low + (high - low) / 2];
+		int pivot = low + (high - low) / 2;
 
 		// Divide into two lists
 		while (i <= j) {
 			// If the current value from the left list is smaller then the pivot
 			// element then get the next element from the left list
-			while (sorter.compare(array[i], pivot) < 0) {
+			while (sorter.compare(i, pivot) < 0) {
 				i++;
 			}
 			// If the current value from the right list is larger then the pivot
 			// element then get the next element from the right list
-			while (sorter.compare(array[j], pivot) > 0) {
+			while (sorter.compare(j, pivot) > 0) {
 				j--;
 			}
 
@@ -67,28 +59,25 @@ public class QuickSort {
 			// values.
 			// As we are done we can increase i and j
 			if (i <= j) {
-				swap(array, i, j);
+				docIdInterface.swap(i, j);
 				i++;
 				j--;
 			}
 		}
 		// Recursion
 		if (low < j)
-			quicksort(array, low, j);
+			quicksort(docIdInterface, low, j);
 		if (i < high)
-			quicksort(array, i, high);
+			quicksort(docIdInterface, i, high);
 	}
 
-	public final void sort(ResultScoreDoc[] array) {
-		if (array.length == 0)
+	public final void sort(DocIdInterface docIdInterface) {
+		if (docIdInterface == null)
 			return;
-		swapCount = 0;
-		long t = System.currentTimeMillis();
-		quicksort(array, 0, array.length - 1);
-		if (Logging.isDebug)
-			Logging.debug("Time: " + (System.currentTimeMillis() - t)
-					+ " - swap: " + swapCount);
-
+		int size = docIdInterface.getNumFound();
+		if (size == 0)
+			return;
+		quicksort(docIdInterface, 0, size - 1);
 	}
 
 }

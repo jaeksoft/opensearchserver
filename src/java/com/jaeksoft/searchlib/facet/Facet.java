@@ -34,9 +34,8 @@ import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
 
-import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -127,44 +126,21 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	final static protected Facet facetMultivalued(ReaderLocal reader,
-			DocSetHits docSetHits, FacetField facetField, Timer timer)
+			DocIdInterface collector, FacetField facetField, Timer timer)
 			throws IOException {
 		String fieldName = facetField.getName();
 		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
 		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
-				docSetHits.getBitSet());
+				collector.getBitSet());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
 	final static protected Facet facetSingleValue(ReaderLocal reader,
-			DocSetHits docSetHits, FacetField facetField, Timer timer)
+			DocIdInterface collector, FacetField facetField, Timer timer)
 			throws IOException {
 		String fieldName = facetField.getName();
 		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
-		int[] countIndex = computeSinglevalued(stringIndex,
-				docSetHits.getDocs());
-		return new Facet(facetField, stringIndex.lookup, countIndex);
-	}
-
-	final static protected Facet facetMultivalued(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, FacetField facetField, Timer timer)
-			throws IOException {
-		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
-		OpenBitSet bitset = new OpenBitSet(reader.maxDoc());
-		for (ResultScoreDoc doc : allDocs)
-			bitset.fastSet(doc.doc);
-		int[] countIndex = Facet.computeMultivalued(reader, fieldName,
-				stringIndex, bitset);
-		return new Facet(facetField, stringIndex.lookup, countIndex);
-	}
-
-	final static protected Facet facetSingleValue(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, FacetField facetField, Timer timer)
-			throws IOException {
-		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
-		int[] countIndex = Facet.computeSinglevalued(stringIndex, allDocs);
+		int[] countIndex = computeSinglevalued(stringIndex, collector.getIds());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
@@ -201,12 +177,4 @@ public class Facet implements Iterable<FacetItem>,
 		return countArray;
 	}
 
-	final private static int[] computeSinglevalued(StringIndex stringIndex,
-			ResultScoreDoc[] docs) throws IOException {
-		int[] countArray = new int[stringIndex.lookup.length];
-		int[] order = stringIndex.order;
-		for (ResultScoreDoc doc : docs)
-			countArray[order[doc.doc]]++;
-		return countArray;
-	}
 }

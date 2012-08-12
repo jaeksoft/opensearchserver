@@ -30,12 +30,11 @@ import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.OpenBitSet;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
 import com.jaeksoft.searchlib.result.collector.DocIdCollector;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.MaxScoreCollector;
 import com.jaeksoft.searchlib.result.collector.NumFoundCollector;
-import com.jaeksoft.searchlib.result.collector.ResultScoreDocCollector;
-import com.jaeksoft.searchlib.result.collector.ResultScoreDocPriorityCollector;
+import com.jaeksoft.searchlib.result.collector.ScoreDocCollector;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
@@ -51,8 +50,7 @@ public class DocSetHits {
 	private NumFoundCollector numFoundCollector;
 	private MaxScoreCollector maxScoreCollector;
 	private DocIdCollector docIdCollector;
-	private ResultScoreDocCollector resultScoreDocCollector;
-	private ResultScoreDocPriorityCollector resultScoreDocPriorityCollector;
+	private ScoreDocCollector scoreDocCollector;
 
 	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
 			SorterAbstract sort, Timer timer) throws IOException {
@@ -64,8 +62,7 @@ public class DocSetHits {
 			this.sort = sort;
 			docIdCollector = null;
 			maxScoreCollector = null;
-			resultScoreDocCollector = null;
-			resultScoreDocPriorityCollector = null;
+			scoreDocCollector = null;
 			numFoundCollector = new NumFoundCollector();
 			if (reader.numDocs() == 0)
 				return;
@@ -78,76 +75,90 @@ public class DocSetHits {
 		}
 	}
 
-	public ResultScoreDoc[] getPriorityDocs(int rows, Timer timer)
+	// public ResultScoreDocPriorityCollector getPriorityDocs(int rows, Timer
+	// timer)
+	// throws IOException {
+	// rwl.r.lock();
+	// try {
+	// int numFound = numFoundCollector.getNumFound();
+	// if (rows > numFound)
+	// rows = numFound;
+	// if (rows == 0)
+	// return ScoreDocCollector.EMPTY;
+	// if (resultScoreDocPriorityCollector != null) {
+	// if (resultScoreDocPriorityCollector.match(rows, sort))
+	// return ScoreDocPriorityCollector.getDocs(timer);
+	// }
+	// } finally {
+	// rwl.r.unlock();
+	// }
+	// rwl.w.lock();
+	// try {
+	// Timer t = new Timer(timer, "Get priority docs: " + rows);
+	// ScoreDocCollector rsdc = getAllDocsNoLock(t);
+	// resultScoreDocPriorityCollector = new ResultScoreDocPriorityCollector(
+	// rows, sort, resultScoreDocPriorityCollector);
+	// resultScoreDocPriorityCollector.collect(rsdc);
+	// t.duration();
+	// return resultScoreDocPriorityCollector;
+	// } finally {
+	// rwl.w.unlock();
+	// }
+	// }
+
+	private ScoreDocCollector getScoreDocCollectorNoLock(Timer timer)
+			throws IOException {
+		if (scoreDocCollector != null)
+			return scoreDocCollector;
+		Timer tAllDocs = new Timer(timer, "Get Score Doc Collector ");
+		Timer t = new Timer(tAllDocs, "Collection ");
+		scoreDocCollector = new ScoreDocCollector(reader.maxDoc(),
+				numFoundCollector.getNumFound());
+		reader.search(query, filter, scoreDocCollector);
+		t.end(t.getInfo() + scoreDocCollector.getNumFound());
+		if (sort != null)
+			scoreDocCollector.sort(sort, tAllDocs);
+		tAllDocs.end(tAllDocs.getInfo() + scoreDocCollector.getNumFound());
+		docIdCollector = scoreDocCollector;
+		return scoreDocCollector;
+	}
+
+	public ScoreDocCollector getScoreDocCollector(Timer timer)
 			throws IOException {
 		rwl.r.lock();
 		try {
-			int numFound = numFoundCollector.getNumFound();
-			if (rows > numFound)
-				rows = numFound;
-			if (rows == 0)
-				return ResultScoreDoc.EMPTY_ARRAY;
-			if (resultScoreDocPriorityCollector != null) {
-				if (resultScoreDocPriorityCollector.match(rows, sort))
-					return resultScoreDocPriorityCollector.getDocs(timer);
-			}
+			if (scoreDocCollector != null)
+				return scoreDocCollector;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			Timer t = new Timer(timer, "Get priority docs: " + rows);
-			ResultScoreDoc[] docs = getAllDocsNoLock(t);
-			resultScoreDocPriorityCollector = new ResultScoreDocPriorityCollector(
-					rows, sort, resultScoreDocPriorityCollector);
-			resultScoreDocPriorityCollector.collect(docs);
-			ResultScoreDoc[] r = resultScoreDocPriorityCollector.getDocs(t);
-			t.duration();
-			return r;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	private ResultScoreDoc[] getAllDocsNoLock(Timer timer) throws IOException {
-		if (resultScoreDocCollector != null)
-			return resultScoreDocCollector.getDocs();
-		Timer tAllDocs = new Timer(timer, "Get all docs");
-		Timer t = new Timer(tAllDocs, "Collection");
-		resultScoreDocCollector = new ResultScoreDocCollector(
-				numFoundCollector.getNumFound());
-		reader.search(query, filter, resultScoreDocCollector);
-		t.end("Collection: " + resultScoreDocCollector.getDocs().length);
-		if (sort != null)
-			resultScoreDocCollector.sort(sort, tAllDocs);
-		tAllDocs.end("Get all docs:" + resultScoreDocCollector.getDocs().length);
-		return resultScoreDocCollector.getDocs();
-	}
-
-	public ResultScoreDoc[] getAllDocs(Timer timer) throws IOException {
-		rwl.r.lock();
-		try {
-			if (resultScoreDocCollector != null)
-				return resultScoreDocCollector.getDocs();
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			if (resultScoreDocCollector != null)
-				return resultScoreDocCollector.getDocs();
-			return getAllDocsNoLock(timer);
+			if (scoreDocCollector != null)
+				return scoreDocCollector;
+			return getScoreDocCollectorNoLock(timer);
 		} finally {
 			rwl.w.unlock();
 		}
 
 	}
 
-	public float getMaxScore() throws IOException {
+	private MaxScoreCollector getMaxScoreCollectorNoLock(Timer timer)
+			throws IOException {
+		if (maxScoreCollector != null)
+			return maxScoreCollector;
+		Timer t = new Timer(timer, "Get Max Score Collector ");
+		maxScoreCollector = new MaxScoreCollector();
+		reader.search(query, filter, maxScoreCollector);
+		t.end(t.getInfo() + maxScoreCollector.getMaxScore());
+		return maxScoreCollector;
+	}
+
+	public float getMaxScore(Timer timer) throws IOException {
 		rwl.r.lock();
 		try {
-			if (resultScoreDocCollector != null)
-				return resultScoreDocCollector.getMaxScore();
+			if (scoreDocCollector != null)
+				return scoreDocCollector.getMaxScore();
 			if (maxScoreCollector != null)
 				return maxScoreCollector.getMaxScore();
 		} finally {
@@ -155,11 +166,11 @@ public class DocSetHits {
 		}
 		rwl.w.lock();
 		try {
+			if (scoreDocCollector != null)
+				return scoreDocCollector.getMaxScore();
 			if (maxScoreCollector != null)
 				return maxScoreCollector.getMaxScore();
-			maxScoreCollector = new MaxScoreCollector();
-			reader.search(query, filter, maxScoreCollector);
-			return maxScoreCollector.getMaxScore();
+			return getMaxScoreCollectorNoLock(timer).getMaxScore();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -174,42 +185,55 @@ public class DocSetHits {
 		}
 	}
 
-	private DocIdCollector getDocIdCollector() throws IOException {
-		if (docIdCollector == null) {
-			docIdCollector = new DocIdCollector(reader.maxDoc(),
-					numFoundCollector.getNumFound());
-			reader.search(query, filter, docIdCollector);
-		}
+	private DocIdCollector getDocIdCollectorNoLock(Timer timer)
+			throws IOException {
+		if (docIdCollector != null)
+			return docIdCollector;
+		Timer t = new Timer(timer, "Get Doc Id Collector: ");
+		docIdCollector = new DocIdCollector(reader.maxDoc(),
+				numFoundCollector.getNumFound());
+		reader.search(query, filter, docIdCollector);
+		t.end(t.getInfo() + docIdCollector.getNumFound());
 		return docIdCollector;
 	}
 
-	public OpenBitSet getBitSet() throws IOException {
+	public DocIdInterface getDocIdInterface(Timer timer) throws IOException {
 		rwl.r.lock();
 		try {
 			if (docIdCollector != null)
-				return docIdCollector.getBitSet();
+				return docIdCollector;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			return getDocIdCollector().getBitSet();
+			if (docIdCollector != null)
+				return docIdCollector;
+			return getDocIdCollectorNoLock(timer);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public int[] getDocs() throws IOException {
+	public int[] getIds(Timer timer) throws IOException {
+		return getDocIdInterface(timer).getIds();
+	}
+
+	public OpenBitSet getBitSet(Timer timer) throws IOException {
 		rwl.r.lock();
 		try {
 			if (docIdCollector != null)
-				return docIdCollector.getDocs();
+				if (docIdCollector.isBitSet())
+					return docIdCollector.getBitSet();
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			return getDocIdCollector().getDocs();
+			if (docIdCollector != null)
+				if (docIdCollector.isBitSet())
+					return docIdCollector.getBitSet();
+			return getDocIdCollectorNoLock(timer).getBitSet();
 		} finally {
 			rwl.w.unlock();
 		}

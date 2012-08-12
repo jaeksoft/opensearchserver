@@ -40,9 +40,9 @@ import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultScoreDocJoin;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.JoinDocCollector;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -231,7 +231,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		this.returnFields = returnFields;
 	}
 
-	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs,
+	public DocIdInterface apply(ReaderLocal reader, DocIdInterface docs,
 			int joinResultSize, JoinResult joinResult, Timer timer)
 			throws SearchLibException {
 		try {
@@ -270,9 +270,10 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 						"No string index found for the foreign field: "
 								+ foreignField);
 			t = new Timer(timer, joinResultName + " join");
-			ResultScoreDoc[] joinDocs = ResultScoreDocJoin.join(docs,
+			DocIdInterface joinDocs = JoinDocCollector.join(docs,
 					localStringIndex, resultSearch.getDocs(),
-					foreignFieldIndex, joinResultSize, joinResult.pos, t);
+					foreignFieldIndex, joinResultSize, joinResult.joinPosition,
+					t);
 			t.duration();
 			return joinDocs;
 		} catch (NamingException e) {

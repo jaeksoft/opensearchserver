@@ -25,28 +25,28 @@
 package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
+import com.jaeksoft.searchlib.result.collector.CollapseDocIdCollector;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.jaeksoft.searchlib.result.collector.CollapseScoreDocCollector;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class CollapseAbstract {
 
-	private int collapsedDocCount;
 	private transient int collapseMax;
 	private transient String collapseField;
 	private transient CollapseParameters.Mode collapseMode;
 	private transient CollapseParameters.Type collapseType;
 	protected transient SearchRequest searchRequest;
-	private transient ResultScoreDoc[] collapsedDoc;
+	private transient CollapseDocInterface collapsedDocs;
 
 	protected CollapseAbstract(SearchRequest searchRequest) {
 		this.searchRequest = searchRequest;
@@ -54,54 +54,35 @@ public abstract class CollapseAbstract {
 		this.collapseMax = searchRequest.getCollapseMax();
 		this.collapseMode = searchRequest.getCollapseMode();
 		this.collapseType = searchRequest.getCollapseType();
-		this.collapsedDocCount = 0;
-		this.collapsedDoc = ResultScoreDocCollapse.EMPTY_ARRAY;
+		this.collapsedDocs = null;
 	}
 
-	protected abstract int collapse(ResultScoreDoc[] fetchedDocs,
+	protected abstract CollapseDocInterface collapse(DocIdInterface collector,
 			int fetchLength, StringIndex collapseStringIndex, Timer timer);
 
-	public int run(ResultScoreDoc[] fetchedDocs, int fetchLength,
+	public CollapseDocInterface run(DocIdInterface collector, int fetchLength,
 			StringIndex collapseStringIndex, Timer timer) throws IOException {
 
-		collapsedDoc = null;
+		collapsedDocs = null;
 
-		if (fetchedDocs == null)
-			return 0;
+		if (collector == null)
+			return null;
 
-		if (fetchLength > fetchedDocs.length)
-			fetchLength = fetchedDocs.length;
+		int numFound = collector.getNumFound();
+		if (fetchLength > numFound)
+			fetchLength = numFound;
 
-		return collapse(fetchedDocs, fetchLength, collapseStringIndex, timer);
-	}
-
-	public int getDocCount() {
-		return this.collapsedDocCount;
-	}
-
-	/**
-	 * @param collapsedDoc
-	 *            the collapsedDoc to set
-	 */
-	final protected void setCollapsedDoc(ResultScoreDoc[] collapsedDoc) {
-		this.collapsedDoc = collapsedDoc;
-	}
-
-	final protected void setCollapsedDoc(List<ResultScoreDoc> collapsedList) {
-		if (collapsedList == null) {
-			setCollapsedDoc((ResultScoreDoc[]) null);
-			return;
-		}
-		this.collapsedDoc = new ResultScoreDoc[collapsedList.size()];
-		collapsedList.toArray(this.collapsedDoc);
+		collapsedDocs = collapse(collector, fetchLength, collapseStringIndex,
+				timer);
+		return collapsedDocs;
 	}
 
 	protected String getCollapseField() {
 		return collapseField;
 	}
 
-	public ResultScoreDoc[] getCollapsedDoc() {
-		return collapsedDoc;
+	public DocIdInterface getCollapsedDoc() {
+		return collapsedDocs;
 	}
 
 	public CollapseParameters.Mode getCollapseMode() {
@@ -113,9 +94,9 @@ public abstract class CollapseAbstract {
 	}
 
 	protected int getCollapsedDocsLength() {
-		if (collapsedDoc == null)
+		if (collapsedDocs == null)
 			return 0;
-		return collapsedDoc.length;
+		return collapsedDocs.getNumFound();
 	}
 
 	/**
@@ -145,53 +126,30 @@ public abstract class CollapseAbstract {
 		return (int) rows;
 	}
 
-	private ResultScoreDoc[] collapseFromDocSetHit(DocSetHits docSetHits,
-			int searchRows, int end, StringIndex collapseFieldStringIndex,
-			Timer timer) throws IOException {
+	private CollapseDocInterface collapseFromCollector(
+			DocIdInterface collector, int searchRows, int end,
+			StringIndex collapseFieldStringIndex, Timer timer)
+			throws IOException {
 		int lastRows = 0;
 		int rows = end;
-		int i = 0;
-		Timer iterationTimer = new Timer(timer,
-				"Optimized collapse iteration from DocSetHit");
-		while (getCollapsedDocsLength() < end) {
-			i++;
-			ResultScoreDoc[] docs = docSetHits.getPriorityDocs(rows,
-					iterationTimer);
-			if (docs.length == lastRows)
-				break;
-			if (rows > docs.length)
-				rows = docs.length;
-			collapsedDocCount = run(docs, rows, collapseFieldStringIndex,
-					iterationTimer);
-			lastRows = rows;
-			rows = getNewFetchRows(rows, searchRows, collapsedDocCount);
-			System.out.println("Next rows: " + rows);
-		}
-		iterationTimer.end("Optimized collapse iteration from DocSetHit: " + i);
-		return getCollapsedDoc();
-	}
-
-	private ResultScoreDoc[] collapseFromAllDocs(ResultScoreDoc[] docs,
-			int searchRows, int end, StringIndex collapseFieldStringIndex,
-			Timer timer) throws IOException {
-		int lastRows = 0;
-		int rows = end;
+		int numFound = collector.getNumFound();
 		int i = 0;
 		Timer iterationTimer = new Timer(timer,
 				"Optimized collapse iteration from all docs");
 		while (getCollapsedDocsLength() < end) {
 			i++;
-			if (rows > docs.length)
-				rows = docs.length;
+			if (rows > numFound)
+				rows = numFound;
 			if (lastRows == rows)
 				break;
-			collapsedDocCount = run(docs, rows, collapseFieldStringIndex,
+			collapsedDocs = run(collector, rows, collapseFieldStringIndex,
 					iterationTimer);
 			lastRows = rows;
-			rows = getNewFetchRows(rows, searchRows, collapsedDocCount);
+			rows = getNewFetchRows(rows, searchRows,
+					collapsedDocs.getCollapsedCount());
 		}
 		iterationTimer.end("Optimized collapse iteration from all docs: " + i);
-		return getCollapsedDoc();
+		return collapsedDocs;
 	}
 
 	/**
@@ -201,51 +159,50 @@ public abstract class CollapseAbstract {
 	 * @throws SyntaxError
 	 * @throws ParseException
 	 */
-	private ResultScoreDoc[] collapseOptimized(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, DocSetHits docSetHits, Timer timer)
-			throws IOException, ParseException, SyntaxError {
+	private CollapseDocInterface collapseOptimized(ReaderLocal reader,
+			DocIdInterface collector, Timer timer) throws IOException,
+			ParseException, SyntaxError {
 
 		int searchRows = searchRequest.getRows();
 		int end = searchRequest.getEnd();
 		StringIndex collapseFieldStringIndex = reader.getStringIndex(
 				searchRequest.getCollapseField(), timer);
-
-		if (allDocs != null)
-			return collapseFromAllDocs(allDocs, searchRows, end,
-					collapseFieldStringIndex, timer);
-		else
-			return collapseFromDocSetHit(docSetHits, searchRows, end,
-					collapseFieldStringIndex, timer);
-
+		return collapseFromCollector(collector, searchRows, end,
+				collapseFieldStringIndex, timer);
 	}
 
-	private ResultScoreDoc[] collapseFull(ReaderLocal reader,
-			ResultScoreDoc[] allDocs, DocSetHits docSetHits, Timer timer)
-			throws IOException, ParseException, SyntaxError {
-
-		if (allDocs == null)
-			allDocs = docSetHits.getAllDocs(timer);
-
+	private CollapseDocInterface collapseFull(ReaderLocal reader,
+			DocIdInterface collector, Timer timer) throws IOException,
+			ParseException, SyntaxError {
 		StringIndex collapseFieldStringIndex = reader.getStringIndex(
 				searchRequest.getCollapseField(), timer);
-		run(allDocs, allDocs.length, collapseFieldStringIndex, timer);
-		return getCollapsedDoc();
+		collapsedDocs = run(collector, collector.getNumFound(),
+				collapseFieldStringIndex, timer);
+		return collapsedDocs;
 	}
 
-	final public ResultScoreDoc[] collapse(ReaderLocal reader,
-			ResultScoreDoc[] docs, DocSetHits docSetHits, Timer timer)
-			throws IOException, ParseException, SyntaxError {
+	final public CollapseDocInterface collapse(ReaderLocal reader,
+			DocIdInterface collector, Timer timer) throws IOException,
+			ParseException, SyntaxError {
 		Timer collapseTimer = new Timer(timer, "collapse "
 				+ collapseMode.getLabel() + " " + collapseType.getLabel());
 		try {
 			if (collapseType == CollapseParameters.Type.OPTIMIZED)
-				return collapseOptimized(reader, docs, docSetHits, timer);
+				return collapseOptimized(reader, collector, timer);
 			if (collapseType == CollapseParameters.Type.FULL)
-				return collapseFull(reader, docs, docSetHits, timer);
+				return collapseFull(reader, collector, timer);
 			return null;
 		} finally {
 			collapseTimer.duration();
 		}
+	}
+
+	protected static CollapseDocInterface getNewCollapseInterfaceInstance(
+			DocIdInterface collector, int capacity, int collapseMax) {
+		if (collector instanceof ScoreDocInterface)
+			return new CollapseScoreDocCollector((ScoreDocInterface) collector,
+					capacity, collapseMax);
+		return new CollapseDocIdCollector(collector, capacity, collapseMax);
 	}
 
 }

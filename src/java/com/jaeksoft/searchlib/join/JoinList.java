@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -98,18 +98,18 @@ public class JoinList implements Iterable<JoinItem> {
 		joinList.add(new JoinItem(xpp, node));
 	}
 
-	public ResultScoreDoc[] apply(ReaderLocal reader, ResultScoreDoc[] docs,
+	public DocIdInterface apply(ReaderLocal reader, DocIdInterface collector,
 			JoinResult[] joinResults, Timer timer) throws SearchLibException {
 		int joinItemSize = joinList.size();
 		int joinItemPos = 0;
 		for (JoinItem joinItem : joinList) {
 			JoinResult joinResult = new JoinResult(joinItemPos++,
 					joinItem.getParamPosition(), joinItem.isReturnFields());
-			joinResults[joinResult.pos] = joinResult;
-			docs = joinItem
-					.apply(reader, docs, joinItemSize, joinResult, timer);
+			joinResults[joinResult.joinPosition] = joinResult;
+			collector = joinItem.apply(reader, collector, joinItemSize,
+					joinResult, timer);
 		}
-		return docs;
+		return collector;
 	}
 
 	public void setFromServlet(ServletTransaction transaction) {

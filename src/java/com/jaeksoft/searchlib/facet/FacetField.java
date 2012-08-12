@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,9 +33,9 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -115,9 +115,9 @@ public class FacetField extends Field {
 				|| "1".equalsIgnoreCase(value);
 	}
 
-	final public Facet getFacet(ReaderLocal reader, DocSetHits docSetHits,
-			ResultScoreDoc[] notCollapsedDocs, ResultScoreDoc[] collapsedDocs,
-			Timer timer) throws IOException {
+	final public Facet getFacet(ReaderLocal reader,
+			DocIdInterface notCollapsedDocs,
+			CollapseDocInterface collapsedDocs, Timer timer) throws IOException {
 		// Two conditions for use postCollapsing
 		boolean useCollapsing = postCollapsing && collapsedDocs != null;
 		if (multivalued) {
@@ -125,24 +125,16 @@ public class FacetField extends Field {
 				return Facet.facetMultivalued(reader, collapsedDocs, this,
 						timer);
 			else {
-				if (notCollapsedDocs != null)
-					return Facet.facetMultivalued(reader, notCollapsedDocs,
-							this, timer);
-				else
-					return Facet.facetMultivalued(reader, docSetHits, this,
-							timer);
+				return Facet.facetMultivalued(reader, notCollapsedDocs, this,
+						timer);
 			}
 		} else {
 			if (useCollapsing)
 				return Facet.facetSingleValue(reader, collapsedDocs, this,
 						timer);
 			else {
-				if (notCollapsedDocs != null)
-					return Facet.facetSingleValue(reader, notCollapsedDocs,
-							this, timer);
-				else
-					return Facet.facetSingleValue(reader, docSetHits, this,
-							timer);
+				return Facet.facetSingleValue(reader, notCollapsedDocs, this,
+						timer);
 
 			}
 		}

@@ -22,41 +22,17 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result;
+package com.jaeksoft.searchlib.sort;
 
-final public class ResultScoreDocCollapseJoin extends ResultScoreDocCollapse
-		implements ResultScoreDocJoinInterface {
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
-	final private int[] foreignDocIds;
+public abstract class AbstractDocIdSorter extends SorterAbstract {
 
-	public ResultScoreDocCollapseJoin(ResultScoreDocJoin rsdj) {
-		super(rsdj);
-		this.foreignDocIds = rsdj.getForeignDocIds();
-	}
-
-	public ResultScoreDocCollapseJoin(ResultScoreDocCollapseJoin doc) {
-		super(doc);
-		this.foreignDocIds = doc.foreignDocIds;
-	}
+	protected int[] ids;
 
 	@Override
-	final public int[] getForeignDocIds() {
-		return foreignDocIds;
-	}
-
-	@Override
-	final public void setForeignDocId(int pos, int doc) {
-		foreignDocIds[pos] = doc;
-	}
-
-	@Override
-	final public ResultScoreDoc getForeignDoc(int pos) {
-		return new ResultScoreDoc(foreignDocIds[pos], score);
-	}
-
-	@Override
-	public ResultScoreDocCollapse newCollapseInstance() {
-		return new ResultScoreDocCollapseJoin(this);
+	public void init(DocIdInterface collector) {
+		ids = collector.getIds();
 	}
 
 }

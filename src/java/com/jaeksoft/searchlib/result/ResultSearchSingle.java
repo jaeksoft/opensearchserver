@@ -35,6 +35,8 @@ import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultSearchSingle extends AbstractResultSearch {
@@ -66,10 +68,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		this.reader = reader;
 		docSetHits = reader.searchDocSet(searchRequest, timer);
 		numFound = docSetHits.getDocNumFound();
-		maxScore = docSetHits.getMaxScore();
+		maxScore = docSetHits.getMaxScore(timer);
 
-		ResultScoreDoc[] notCollapsedDocs = null;
-		ResultScoreDoc[] collapsedDocs = null;
+		DocIdInterface notCollapsedDocs = docSetHits.getDocIdInterface(timer);
+		CollapseDocInterface collapsedDocs = null;
 
 		JoinResult[] joinResults = null;
 
@@ -79,22 +81,21 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			JoinList joinList = searchRequest.getJoinList();
 			joinResults = new JoinResult[joinList.size()];
 			Timer t = new Timer(joinTimer, "join - apply");
-			notCollapsedDocs = joinList.apply(reader,
-					docSetHits.getAllDocs(joinTimer), joinResults, t);
+			notCollapsedDocs = joinList.apply(reader, notCollapsedDocs,
+					joinResults, t);
 			t.duration();
 			t = new Timer(joinTimer, "join - sort");
 			searchRequest.getSortList().getSorter(reader, timer)
 					.quickSort(notCollapsedDocs, timer);
 			t.duration();
-			numFound = notCollapsedDocs.length;
+			numFound = notCollapsedDocs.getNumFound();
 			joinTimer.duration();
 		}
 
 		// Are we doing collapsing ?
 		if (collapse != null) {
-			collapsedDocs = collapse.collapse(reader, notCollapsedDocs,
-					docSetHits, timer);
-			collapsedDocCount = collapse.getDocCount();
+			collapsedDocs = collapse.collapse(reader, notCollapsedDocs, timer);
+			collapsedDocCount = collapsedDocs.getCollapsedCount();
 		}
 
 		// We compute facet
@@ -104,7 +105,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 				Timer t = new Timer(facetTimer, "facet - "
 						+ facetField.getName() + '(' + facetField.getMinCount()
 						+ ')');
-				this.facetList.add(facetField.getFacet(reader, docSetHits,
+				this.facetList.add(facetField.getFacet(reader,
 						notCollapsedDocs, collapsedDocs, timer));
 				t.duration();
 			}
@@ -116,7 +117,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			if (notCollapsedDocs != null)
 				setDocs(notCollapsedDocs);
 			else
-				setDocs(docSetHits.getPriorityDocs(request.getEnd(), timer));
+				setDocs(docSetHits.getDocIdInterface(timer));
 		} else
 			setDocs(collapsedDocs);
 
@@ -145,21 +146,21 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	@Override
 	public ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException {
-		if (docs == null || pos < 0 || pos > docs.length)
+		if (docs == null || pos < 0 || pos > docs.getNumFound())
 			return null;
 		try {
-			ResultScoreDoc rsc = docs[pos];
-			ResultDocument resultDocument = new ResultDocument(request,
-					rsc.doc, reader, timer);
-			if (!(rsc instanceof ResultScoreDocCollapse))
+			int docId = docs.getIds()[pos];
+			ResultDocument resultDocument = new ResultDocument(request, docId,
+					reader, timer);
+			if (!(docs instanceof CollapseDocInterface))
 				return resultDocument;
 			if (request.getCollapseMax() > 0)
 				return resultDocument;
-			ResultScoreDoc[] rsds = ((ResultScoreDocCollapse) rsc)
-					.getCollapsedDocs();
-			for (ResultScoreDoc rsd : rsds) {
-				ResultDocument rd = new ResultDocument(request, rsd.doc,
-						reader, timer);
+			int[] collapsedDocs = ((CollapseDocInterface) docs)
+					.getCollapsedDocs(pos);
+			for (int doc : collapsedDocs) {
+				ResultDocument rd = new ResultDocument(request, doc, reader,
+						timer);
 				resultDocument.appendIfStringDoesNotExist(rd);
 			}
 			return resultDocument;

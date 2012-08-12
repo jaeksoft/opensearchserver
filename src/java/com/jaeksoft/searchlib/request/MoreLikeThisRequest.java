@@ -142,7 +142,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 					.request(searchRequest);
 			if (result.getNumFound() == 0)
 				return mlt.like(new StringReader(""));
-			int docId = result.getDocs()[0].doc;
+			int docId = result.getDocs().getIds()[0];
 			mlt.setMinWordLen(minWordLen);
 			mlt.setMaxWordLen(maxWordLen);
 			mlt.setMinDocFreq(minDocFreq);

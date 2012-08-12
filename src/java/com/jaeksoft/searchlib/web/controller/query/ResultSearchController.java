@@ -127,7 +127,7 @@ public class ResultSearchController extends AbstractQueryController implements
 			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return 0;
-			return result.getDocs()[pos].doc;
+			return result.getDocs().getIds()[pos];
 		}
 
 		public ResultDocument getResultDocument() throws IOException,

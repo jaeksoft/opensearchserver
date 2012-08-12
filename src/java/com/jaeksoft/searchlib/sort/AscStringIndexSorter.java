@@ -26,9 +26,7 @@ package com.jaeksoft.searchlib.sort;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-
-public class AscStringIndexSorter extends SorterAbstract {
+public class AscStringIndexSorter extends AbstractDocIdSorter {
 
 	private StringIndex stringIndex;
 
@@ -37,8 +35,8 @@ public class AscStringIndexSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		return stringIndex.order[doc1.doc] - stringIndex.order[doc2.doc];
+	final public int compare(int pos1, int pos2) {
+		return stringIndex.order[ids[pos1]] - stringIndex.order[ids[pos2]];
 	}
 
 }

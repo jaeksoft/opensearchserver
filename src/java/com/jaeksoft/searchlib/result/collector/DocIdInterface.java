@@ -24,41 +24,19 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import java.io.IOException;
+import org.apache.lucene.util.OpenBitSet;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.sort.SorterAbstract;
-import com.jaeksoft.searchlib.util.Timer;
+public interface DocIdInterface {
 
-public class ResultScoreDocCollector extends AbstractCollector {
+	public void swap(int pos1, int pos2);
 
-	private float maxScore = 0;
-	private final ResultScoreDoc[] docs;
-	private int pos = 0;
+	public int[] getIds();
 
-	public ResultScoreDocCollector(int numFound) {
-		docs = new ResultScoreDoc[numFound];
-	}
+	public int getNumFound();
 
-	@Override
-	final public void collect(int docId) throws IOException {
-		float sc = scorer.score();
-		if (sc > maxScore)
-			maxScore = sc;
-		docs[pos++] = new ResultScoreDoc(docId, sc);
-	}
+	public OpenBitSet getBitSet();
 
-	final public ResultScoreDoc[] getDocs() {
-		return docs;
-	}
+	public int getMaxDoc();
 
-	final public float getMaxScore() {
-		return maxScore;
-	}
-
-	final public void sort(SorterAbstract sort, Timer timer) {
-		if (sort == null)
-			return;
-		sort.quickSort(docs, timer);
-	}
+	public DocIdInterface duplicate();
 }

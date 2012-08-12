@@ -35,6 +35,10 @@ import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
 import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdCollector;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class AbstractResultSearch extends
@@ -42,7 +46,7 @@ public abstract class AbstractResultSearch extends
 
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
-	protected ResultScoreDoc[] docs;
+	protected DocIdInterface docs;
 	protected int numFound;
 	protected float maxScore;
 	protected int collapsedDocCount;
@@ -53,7 +57,7 @@ public abstract class AbstractResultSearch extends
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
-		this.docs = ResultScoreDoc.EMPTY_ARRAY;
+		this.docs = DocIdCollector.EMPTY;
 		this.joinResults = JoinResult.EMPTY_ARRAY;
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
@@ -126,14 +130,14 @@ public abstract class AbstractResultSearch extends
 		return numFound;
 	}
 
-	protected void setDocs(ResultScoreDoc[] docs) {
-		this.docs = docs == null ? ResultScoreDoc.EMPTY_ARRAY : docs;
+	protected void setDocs(DocIdInterface docs) {
+		this.docs = docs == null ? DocIdCollector.EMPTY : docs;
 	}
 
 	public int getDocLength() {
 		if (docs == null)
 			return 0;
-		return docs.length;
+		return docs.getNumFound();
 	}
 
 	public int getDocumentCount() {
@@ -148,7 +152,7 @@ public abstract class AbstractResultSearch extends
 		return joinResults;
 	}
 
-	public ResultScoreDoc[] getDocs() {
+	public DocIdInterface getDocs() {
 		return docs;
 	}
 
@@ -163,16 +167,17 @@ public abstract class AbstractResultSearch extends
 	public float getScore(int pos) {
 		if (docs == null)
 			return 0;
-		return docs[pos].score;
+		if (!(docs instanceof ScoreDocInterface))
+			return 0;
+		return ((ScoreDocInterface) docs).getScores()[pos];
 	}
 
 	public int getCollapseCount(int pos) {
 		if (docs == null)
 			return 0;
-		ResultScoreDoc rsc = docs[pos];
-		if (!(rsc instanceof ResultScoreDocCollapse))
+		if (!(docs instanceof CollapseDocInterface))
 			return 0;
-		return ((ResultScoreDocCollapse) rsc).getCollapseCount();
+		return ((CollapseDocInterface) docs).getCollapseCounts()[pos];
 	}
 
 	@Override
@@ -182,7 +187,7 @@ public abstract class AbstractResultSearch extends
 		sb.append(" founds.");
 		if (docs != null) {
 			sb.append(' ');
-			sb.append(docs.length);
+			sb.append(docs.getNumFound());
 			sb.append(" docs.");
 		}
 		sb.append(" MaxScore: ");

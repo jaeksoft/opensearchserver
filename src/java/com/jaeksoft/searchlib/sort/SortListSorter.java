@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.sort;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -44,9 +44,9 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+	final public int compare(int pos1, int pos2) {
 		for (SorterAbstract sorter : sorterList) {
-			int c = sorter.compare(doc1, doc2);
+			int c = sorter.compare(pos1, pos2);
 			if (c != 0)
 				return c;
 		}
@@ -54,18 +54,15 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public void quickSort(ResultScoreDoc[] docs, Timer timer) {
+	final public void quickSort(DocIdInterface collector, Timer timer) {
 		if (sorterList.length == 1)
-			sorterList[0].quickSort(docs, timer);
+			sorterList[0].quickSort(collector, timer);
 		else
-			super.quickSort(docs, timer);
+			super.quickSort(collector, timer);
 	}
 
 	@Override
-	final public void arraySort(ResultScoreDoc[] docs, Timer timer) {
-		if (sorterList.length == 1)
-			sorterList[0].arraySort(docs, timer);
-		else
-			super.arraySort(docs, timer);
+	public void init(DocIdInterface collector) {
 	}
+
 }

@@ -24,15 +24,15 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-
-public class DescScoreSorter extends SorterAbstract {
+public class DescScoreSorter extends AbstractScoreSorter {
 
 	@Override
-	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		if (doc1.score > doc2.score)
+	final public int compare(int pos1, int pos2) {
+		float s1 = scores[pos1];
+		float s2 = scores[pos2];
+		if (s1 > s2)
 			return -1;
-		else if (doc1.score < doc2.score)
+		else if (s1 < s2)
 			return 1;
 		else
 			return 0;

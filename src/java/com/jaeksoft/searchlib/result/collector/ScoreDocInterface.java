@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,20 +22,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.result.collector;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
+public interface ScoreDocInterface extends DocIdInterface {
 
-public class DescStringIndexSorter extends AbstractDocIdSorter {
+	public float[] getScores();
 
-	private StringIndex stringIndex;
-
-	public DescStringIndexSorter(StringIndex stringIndex) {
-		this.stringIndex = stringIndex;
-	}
-
-	@Override
-	final public int compare(int pos1, int pos2) {
-		return stringIndex.order[ids[pos2]] - stringIndex.order[ids[pos1]];
-	}
+	public float getMaxScore();
 }

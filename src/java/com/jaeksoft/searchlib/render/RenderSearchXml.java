@@ -40,8 +40,8 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultScoreDocJoinInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
@@ -107,8 +107,8 @@ public class RenderSearchXml extends
 			renderSnippetValue(doc, field);
 	}
 
-	private void renderJoinResult(JoinResult joinResult, ResultScoreDoc rsd,
-			Timer timer) throws IOException, SearchLibException {
+	private void renderJoinResult(JoinResult joinResult, JoinDocInterface docs,
+			int pos, Timer timer) throws IOException, SearchLibException {
 		if (joinResult == null)
 			return;
 		if (!joinResult.isReturnFields())
@@ -117,18 +117,20 @@ public class RenderSearchXml extends
 		writer.print(joinResult.getParamPosition());
 		writer.println("\">");
 		renderDocument(joinResult.getForeignResult().getRequest(),
-				joinResult
-						.getDocument((ResultScoreDocJoinInterface) rsd, timer));
+				joinResult.getDocument(docs, pos, timer));
 		writer.println("\t\t</join>");
 
 	}
 
-	private void renderJoinResults(JoinResult[] joinResults, ResultScoreDoc rsd)
-			throws IOException, SearchLibException {
+	private void renderJoinResults(JoinResult[] joinResults,
+			DocIdInterface docs, int pos) throws IOException,
+			SearchLibException {
 		if (joinResults == null)
 			return;
+		if (!(docs instanceof JoinDocInterface))
+			return;
 		for (JoinResult joinResult : joinResults)
-			renderJoinResult(joinResult, rsd, timer);
+			renderJoinResult(joinResult, (JoinDocInterface) docs, pos, timer);
 	}
 
 	private void renderDocument(int pos) throws IOException, ParseException,
@@ -146,7 +148,7 @@ public class RenderSearchXml extends
 			writer.print(cc);
 			writer.println("</collapseCount>");
 		}
-		renderJoinResults(result.getJoinResult(), result.getDocs()[pos]);
+		renderJoinResults(result.getJoinResult(), result.getDocs(), pos);
 		writer.println("\t</doc>");
 	}
 

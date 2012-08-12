@@ -23,7 +23,7 @@
  **/
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public class MultiSort extends SorterAbstract {
 
@@ -34,10 +34,14 @@ public class MultiSort extends SorterAbstract {
 	}
 
 	@Override
-	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
+	public void init(DocIdInterface docIdInterface) {
+	}
+
+	@Override
+	final public int compare(int pos1, int pos2) {
 		int c;
 		for (SorterAbstract sorter : sorters) {
-			c = sorter.compare(doc1, doc2);
+			c = sorter.compare(pos1, pos2);
 			if (c != 0)
 				return c;
 		}

@@ -24,16 +24,14 @@
 
 package com.jaeksoft.searchlib.collapse;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class CollapseCluster extends CollapseAbstract {
@@ -43,44 +41,29 @@ public class CollapseCluster extends CollapseAbstract {
 	}
 
 	@Override
-	protected int collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
-			StringIndex collapseStringIndex, Timer timer) {
+	protected CollapseDocInterface collapse(DocIdInterface collector,
+			int fetchLength, StringIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "Build collapse map");
-		Map<String, ResultScoreDocCollapse> collapsedDocMap = new LinkedHashMap<String, ResultScoreDocCollapse>();
-		ResultScoreDocCollapse collapseDoc;
-		int collapseMax = getCollapseMax();
+		Map<String, Integer> collapsedDocMap = new TreeMap<String, Integer>();
+		int[] ids = collector.getIds();
+
+		CollapseDocInterface collapseInterface = getNewCollapseInterfaceInstance(
+				collector, fetchLength, getCollapseMax());
+		Integer collapsePos;
+
 		for (int i = 0; i < fetchLength; i++) {
-			ResultScoreDoc fetchedDoc = fetchedDocs[i];
-			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDoc.doc]];
+			String term = collapseStringIndex.lookup[collapseStringIndex.order[ids[i]]];
 			if (term != null
-					&& ((collapseDoc = collapsedDocMap.get(term)) != null)) {
-				collapseDoc.addCollapsed(fetchedDoc, collapseMax);
+					&& ((collapsePos = collapsedDocMap.get(term)) != null)) {
+				collapseInterface.collectCollapsedDoc(i, collapsePos);
 			} else {
-				collapsedDocMap.put(term, fetchedDoc.newCollapseInstance());
+				collapsePos = collapseInterface.collectDoc(i);
+				collapsedDocMap.put(term, i);
 			}
 		}
 		t.duration();
 
-		int collapsedDocCount = 0;
-		t = new Timer(timer, "Build collapse array");
-		int max = getCollapseMax();
-		if (max <= 1) {
-			ResultScoreDoc[] collapsedDocs = new ResultScoreDoc[collapsedDocMap
-					.size()];
-			collapsedDocMap.values().toArray(collapsedDocs);
-			collapsedDocCount = fetchLength - collapsedDocs.length;
-			setCollapsedDoc(collapsedDocs);
-		} else {
-			List<ResultScoreDoc> collapsedList = new ArrayList<ResultScoreDoc>(
-					0);
-			for (ResultScoreDocCollapse rsdc : collapsedDocMap.values())
-				rsdc.populateList(collapsedList, max);
-			collapsedDocCount = fetchLength - collapsedList.size();
-			setCollapsedDoc(collapsedList);
-		}
-		t.duration();
-		return collapsedDocCount;
+		return collapseInterface;
 	}
-
 }

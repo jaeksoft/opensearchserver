@@ -28,8 +28,8 @@ import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-import com.jaeksoft.searchlib.result.ResultScoreDocCollapse;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class CollapseAdjacent extends CollapseAbstract {
@@ -39,17 +39,18 @@ public class CollapseAdjacent extends CollapseAbstract {
 	}
 
 	@Override
-	protected int collapse(ResultScoreDoc[] fetchedDocs, int fetchLength,
-			StringIndex collapseStringIndex, Timer timer) {
+	protected CollapseDocInterface collapse(DocIdInterface collector,
+			int fetchLength, StringIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "adjacent collapse");
 
 		OpenBitSet collapsedSet = new OpenBitSet(fetchLength);
 
+		int[] ids = collector.getIds();
 		String lastTerm = null;
 		int adjacent = 0;
 		for (int i = 0; i < fetchLength; i++) {
-			String term = collapseStringIndex.lookup[collapseStringIndex.order[fetchedDocs[i].doc]];
+			String term = collapseStringIndex.lookup[collapseStringIndex.order[ids[i]]];
 			if (term != null && term.equals(lastTerm)) {
 				if (++adjacent >= getCollapseMax())
 					collapsedSet.set(i);
@@ -60,26 +61,20 @@ public class CollapseAdjacent extends CollapseAbstract {
 		}
 
 		int collapsedDocCount = (int) collapsedSet.cardinality();
-
-		ResultScoreDocCollapse[] collapsedDoc = new ResultScoreDocCollapse[fetchLength
-				- collapsedDocCount];
-		int collapseMax = getCollapseMax();
-		int currentPos = 0;
-		ResultScoreDocCollapse collapseDoc = null;
+		CollapseDocInterface collapseCollector = getNewCollapseInterfaceInstance(
+				collector, fetchLength - collapsedDocCount, getCollapseMax());
+		int collapsePos = -1;
 		for (int i = 0; i < fetchLength; i++) {
-			ResultScoreDoc fetchDoc = fetchedDocs[i];
-			if (!collapsedSet.get(i)) {
-				collapseDoc = fetchDoc.newCollapseInstance();
-				collapsedDoc[currentPos++] = collapseDoc;
-			} else {
-				collapseDoc.addCollapsed(fetchDoc, collapseMax);
-			}
+			if (!collapsedSet.get(i))
+				collapsePos = collapseCollector.collectDoc(i);
+			else
+				collapseCollector.collectCollapsedDoc(i, collapsePos);
+
 		}
 
 		t.duration();
 
-		setCollapsedDoc(collapsedDoc);
-		return collapsedDocCount;
+		return collapseCollector;
 
 	}
 

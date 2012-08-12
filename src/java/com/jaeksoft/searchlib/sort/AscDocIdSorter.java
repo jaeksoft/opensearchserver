@@ -24,12 +24,11 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.ResultScoreDoc;
-
-public class AscDocIdSorter extends SorterAbstract {
+public class AscDocIdSorter extends AbstractDocIdSorter {
 
 	@Override
-	final public int compare(ResultScoreDoc doc1, ResultScoreDoc doc2) {
-		return doc1.doc - doc2.doc;
+	final public int compare(int pos1, int pos2) {
+		return ids[pos1] - ids[pos2];
 	}
+
 }

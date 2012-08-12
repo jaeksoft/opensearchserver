@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,11 +22,19 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result;
+package com.jaeksoft.searchlib.sort;
 
-public interface ResultScoreDocJoinInterface {
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 
-	public int[] getForeignDocIds();
+public abstract class AbstractScoreSorter extends SorterAbstract {
 
-	public void setForeignDocId(int pos, int doc);
+	protected float[] scores;
+
+	@Override
+	public void init(DocIdInterface collector) {
+		if (collector instanceof ScoreDocInterface)
+			scores = ((ScoreDocInterface) collector).getScores();
+	}
+
 }
