@@ -34,8 +34,11 @@ public abstract class AbstractResult<T extends AbstractRequest> {
 
 	protected T request;
 
+	protected Timer timer;
+
 	protected AbstractResult(T request) {
 		this.request = request;
+		this.timer = new Timer(request.getNameType());
 	}
 
 	public T getRequest() {
@@ -43,7 +46,7 @@ public abstract class AbstractResult<T extends AbstractRequest> {
 	}
 
 	public Timer getTimer() {
-		return request.getTimer();
+		return timer;
 	}
 
 	protected abstract Render getRenderXml();

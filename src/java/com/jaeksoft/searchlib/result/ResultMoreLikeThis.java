@@ -51,7 +51,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest> {
 		for (FilterAbstract<?> filter : request.getFilterList())
 			searchRequest.getFilterList().add(filter);
 		searchRequest.setBoostedComplexQuery(request.getQuery());
-		DocSetHits dsh = reader.searchDocSet(searchRequest, request.getTimer());
+		DocSetHits dsh = reader.searchDocSet(searchRequest, getTimer());
 		if (dsh == null)
 			return;
 		docs = dsh.getIds(null);

@@ -63,6 +63,8 @@ public class SortListSorter extends SorterAbstract {
 
 	@Override
 	public void init(DocIdInterface collector) {
+		for (SorterAbstract sorter : sorterList)
+			sorter.init(collector);
 	}
 
 }

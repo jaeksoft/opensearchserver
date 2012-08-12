@@ -220,6 +220,8 @@ public class CrawlCacheManager implements Closeable {
 				crawlCache.init(configuration);
 			this.enabled = enabled;
 			save();
+		} catch (IOException e) {
+			this.enabled = false;
 		} finally {
 			rwl.w.unlock();
 		}

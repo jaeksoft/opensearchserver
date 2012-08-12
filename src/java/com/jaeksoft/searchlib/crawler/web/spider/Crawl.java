@@ -144,6 +144,10 @@ public class Crawl {
 		parser = parserSelector.parseStream(sourceDocument, fileName,
 				urlItem.getContentBaseType(), inputStream, null,
 				parserSelector.getWebCrawlerDefaultParser());
+		if (parser == null) {
+			urlItem.setParserStatus(ParserStatus.NOPARSER);
+			return;
+		}
 
 		urlItem.clearInLinks();
 		urlItem.addInLinks(parser

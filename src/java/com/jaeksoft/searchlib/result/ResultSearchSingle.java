@@ -64,7 +64,6 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			ClassNotFoundException {
 		super(searchRequest);
 
-		Timer timer = request.getTimer();
 		this.reader = reader;
 		docSetHits = reader.searchDocSet(searchRequest, timer);
 		numFound = docSetHits.getDocNumFound();
@@ -95,7 +94,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		// Are we doing collapsing ?
 		if (collapse != null) {
 			collapsedDocs = collapse.collapse(reader, notCollapsedDocs, timer);
-			collapsedDocCount = collapsedDocs.getCollapsedCount();
+			collapsedDocCount = collapsedDocs == null ? 0 : collapsedDocs
+					.getCollapsedCount();
 		}
 
 		// We compute facet
@@ -158,11 +158,12 @@ public class ResultSearchSingle extends AbstractResultSearch {
 				return resultDocument;
 			int[] collapsedDocs = ((CollapseDocInterface) docs)
 					.getCollapsedDocs(pos);
-			for (int doc : collapsedDocs) {
-				ResultDocument rd = new ResultDocument(request, doc, reader,
-						timer);
-				resultDocument.appendIfStringDoesNotExist(rd);
-			}
+			if (collapsedDocs != null)
+				for (int doc : collapsedDocs) {
+					ResultDocument rd = new ResultDocument(request, doc,
+							reader, timer);
+					resultDocument.appendIfStringDoesNotExist(rd);
+				}
 			return resultDocument;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

@@ -408,8 +408,10 @@ public class UrlItem implements Serializable {
 	}
 
 	public void setUrl(String url) {
-		this.url = url;
-		cachedUrl = null;
+		synchronized (this) {
+			this.url = url;
+			cachedUrl = null;
+		}
 	}
 
 	public String getParentUrl() {
@@ -505,17 +507,21 @@ public class UrlItem implements Serializable {
 	}
 
 	public void populate(IndexDocument indexDocument,
-			UrlItemFieldEnum urlItemFieldEnum) throws MalformedURLException {
+			UrlItemFieldEnum urlItemFieldEnum) {
 		SimpleDateFormat df = getWhenDateFormat();
 		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
 		indexDocument.setString(urlItemFieldEnum.when.getName(),
 				df.format(when));
-		URL url = getURL();
-		if (url != null) {
-			indexDocument.setString(urlItemFieldEnum.host.getName(),
-					url.getHost());
-			indexDocument.setStringList(urlItemFieldEnum.subhost.getName(),
-					buildSubHost(url.getHost()));
+		try {
+			URL url = getURL();
+			if (url != null) {
+				indexDocument.setString(urlItemFieldEnum.host.getName(),
+						url.getHost());
+				indexDocument.setStringList(urlItemFieldEnum.subhost.getName(),
+						buildSubHost(url.getHost()));
+			}
+		} catch (MalformedURLException e) {
+			Logging.warn(e);
 		}
 		if (inLinks != null)
 			indexDocument.setStringList(urlItemFieldEnum.inlink.getName(),

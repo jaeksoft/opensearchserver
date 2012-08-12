@@ -35,6 +35,8 @@ public class MultiSort extends SorterAbstract {
 
 	@Override
 	public void init(DocIdInterface docIdInterface) {
+		for (SorterAbstract sorter : sorters)
+			sorter.init(docIdInterface);
 	}
 
 	@Override

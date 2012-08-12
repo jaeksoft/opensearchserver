@@ -59,7 +59,8 @@ public class CollapseCluster extends CollapseAbstract {
 				collapseInterface.collectCollapsedDoc(i, collapsePos);
 			} else {
 				collapsePos = collapseInterface.collectDoc(i);
-				collapsedDocMap.put(term, i);
+				if (term != null)
+					collapsedDocMap.put(term, collapsePos);
 			}
 		}
 		t.duration();

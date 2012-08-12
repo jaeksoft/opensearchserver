@@ -90,7 +90,7 @@ public class RenderSearchXml extends
 		writer.print("\" maxScore=\"");
 		writeScore(writer, result.getMaxScore());
 		writer.print("\" time=\"");
-		writer.print(searchRequest.getTimer().tempDuration());
+		writer.print(result.getTimer().tempDuration());
 		writer.println("\">");
 		for (int i = start; i < end; i++)
 			this.renderDocument(i);
@@ -219,13 +219,13 @@ public class RenderSearchXml extends
 	}
 
 	private void renderTimers() {
-		request.getTimer().writeXml(writer, request.getTimerMinTime(),
+		result.getTimer().writeXml(writer, request.getTimerMinTime(),
 				request.getTimerMaxDepth());
 	}
 
 	@Override
 	public void render(PrintWriter writer) throws Exception {
-		timer = new Timer(request.getTimer(), "Rendering");
+		timer = new Timer(result.getTimer(), "Rendering");
 		this.writer = writer;
 		renderPrefix();
 		renderDocuments();
