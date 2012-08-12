@@ -45,4 +45,6 @@ public abstract class SorterAbstract {
 		t.duration();
 	}
 
+	public abstract boolean needScore();
+
 }

@@ -34,13 +34,21 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public class JoinDocCollector implements JoinDocInterface {
 
-	public final static JoinDocCollector EMPTY = new JoinDocCollector(null, 0);
+	public final static JoinDocCollector EMPTY = new JoinDocCollector();
 
-	private final int maxDoc;
-	private final int[] ids;
-	private final int[][] foreignDocIdsArray;
-	private OpenBitSet bitSet;
-	private final int joinResultSize;
+	protected final int maxDoc;
+	protected final int[] ids;
+	protected final int[][] foreignDocIdsArray;
+	protected OpenBitSet bitSet;
+	protected final int joinResultSize;
+
+	private JoinDocCollector() {
+		maxDoc = 0;
+		ids = new int[0];
+		foreignDocIdsArray = new int[0][0];
+		bitSet = null;
+		joinResultSize = 0;
+	}
 
 	public JoinDocCollector(DocIdInterface docs, int joinResultSize) {
 		this.bitSet = null;
@@ -143,7 +151,9 @@ public class JoinDocCollector implements JoinDocInterface {
 			return JoinDocCollector.EMPTY;
 
 		Timer t = new Timer(timer, "copy & sort local documents");
-		JoinDocInterface docs1 = new JoinDocCollector(docs, joinResultSize);
+		JoinDocInterface docs1 = docs instanceof ScoreDocInterface ? new JoinScoreDocCollector(
+				(ScoreDocInterface) docs, joinResultSize)
+				: new JoinDocCollector(docs, joinResultSize);
 		new AscStringIndexSorter(doc1StringIndex).quickSort(docs1, t);
 		t.duration();
 
@@ -159,7 +169,7 @@ public class JoinDocCollector implements JoinDocInterface {
 		int[] ids2 = docs2.getIds();
 		while (i1 != ids1.length) {
 			int id1 = ids1[i1];
-			int id2 = ids1[i2];
+			int id2 = ids2[i2];
 			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[id1]];
 			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[id2]];
 			int c = StringUtils.compareNullString(t1, t2);
@@ -181,5 +191,4 @@ public class JoinDocCollector implements JoinDocInterface {
 
 		return docs1.duplicate();
 	}
-
 }

@@ -844,65 +844,68 @@ public class SearchRequest extends AbstractRequest implements
 	 * @throws InstantiationException
 	 */
 	@Override
-	public void fromXmlConfig(Config config, XPathParser xpp, Node node)
+	public void fromXmlConfig(Config config, XPathParser xpp, Node requestNode)
 			throws XPathExpressionException, DOMException, ParseException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		rwl.w.lock();
 		try {
-			super.fromXmlConfig(config, xpp, node);
+			super.fromXmlConfig(config, xpp, requestNode);
 			allowLeadingWildcard = "yes".equalsIgnoreCase(XPathParser
-					.getAttributeString(node, "allowLeadingWildcard"));
-			setPhraseSlop(XPathParser.getAttributeValue(node, "phraseSlop"));
-			setDefaultOperator(XPathParser.getAttributeString(node,
+					.getAttributeString(requestNode, "allowLeadingWildcard"));
+			setPhraseSlop(XPathParser.getAttributeValue(requestNode,
+					"phraseSlop"));
+			setDefaultOperator(XPathParser.getAttributeString(requestNode,
 					"defaultOperator"));
-			setStart(XPathParser.getAttributeValue(node, "start"));
-			setRows(XPathParser.getAttributeValue(node, "rows"));
+			setStart(XPathParser.getAttributeValue(requestNode, "start"));
+			setRows(XPathParser.getAttributeValue(requestNode, "rows"));
 			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
-					node, "lang")));
-			setPatternQuery(xpp.getNodeString(node, "query"));
+					requestNode, "lang")));
+			setPatternQuery(xpp.getNodeString(requestNode, "query"));
 
-			AdvancedScore advancedScore = AdvancedScore
-					.fromXmlConfig(xpp, node);
+			AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp,
+					requestNode);
 			if (advancedScore != null)
 				setAdvancedScore(advancedScore);
 
 			setCollapseMode(CollapseParameters.Mode.valueOfLabel(XPathParser
-					.getAttributeString(node, "collapseMode")));
+					.getAttributeString(requestNode, "collapseMode")));
 			setCollapseType(CollapseParameters.Type.valueOfLabel(XPathParser
-					.getAttributeString(node, "collapseType")));
-			setCollapseField(XPathParser.getAttributeString(node,
+					.getAttributeString(requestNode, "collapseType")));
+			setCollapseField(XPathParser.getAttributeString(requestNode,
 					"collapseField"));
-			setCollapseMax(XPathParser.getAttributeValue(node, "collapseMax"));
+			setCollapseMax(XPathParser.getAttributeValue(requestNode,
+					"collapseMax"));
 
-			Node bqNode = xpp.getNode(node, "boostingQueries");
+			Node bqNode = xpp.getNode(requestNode, "boostingQueries");
 			if (bqNode != null)
 				BoostQuery.loadFromXml(xpp, bqNode, boostingQueries);
 
 			FieldList<SchemaField> fieldList = config.getSchema()
 					.getFieldList();
 			Field.filterCopy(fieldList,
-					xpp.getNodeString(node, "returnFields"), returnFieldList);
-			NodeList nodes = xpp.getNodeList(node, "returnFields/field");
+					xpp.getNodeString(requestNode, "returnFields"),
+					returnFieldList);
+			NodeList nodes = xpp.getNodeList(requestNode, "returnFields/field");
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Field field = Field.fromXmlConfig(nodes.item(i));
 				if (field != null)
 					returnFieldList.add(field);
 			}
 
-			nodes = xpp.getNodeList(node, "snippet/field");
+			nodes = xpp.getNodeList(requestNode, "snippet/field");
 			for (int i = 0; i < nodes.getLength(); i++)
 				SnippetField.copySnippetFields(nodes.item(i), fieldList,
 						snippetFieldList);
 
-			nodes = xpp.getNodeList(node, "facetFields/facetField");
+			nodes = xpp.getNodeList(requestNode, "facetFields/facetField");
 			for (int i = 0; i < nodes.getLength(); i++)
 				FacetField.copyFacetFields(nodes.item(i), fieldList,
 						facetFieldList);
 
-			nodes = xpp.getNodeList(node, "filters/*");
+			nodes = xpp.getNodeList(requestNode, "filters/*");
 			for (int i = 0; i < nodes.getLength(); i++) {
-				node = nodes.item(i);
+				Node node = nodes.item(i);
 				String nodeName = node.getNodeName();
 				if ("filter".equals(nodeName))
 					filterList.add(new QueryFilter(xpp, node));
@@ -910,13 +913,13 @@ public class SearchRequest extends AbstractRequest implements
 					filterList.add(new GeoFilter(xpp, node));
 			}
 
-			nodes = xpp.getNodeList(node, "joins/join");
+			nodes = xpp.getNodeList(requestNode, "joins/join");
 			for (int i = 0; i < nodes.getLength(); i++)
 				joinList.add(xpp, nodes.item(i));
 
-			nodes = xpp.getNodeList(node, "sort/field");
+			nodes = xpp.getNodeList(requestNode, "sort/field");
 			for (int i = 0; i < nodes.getLength(); i++) {
-				node = nodes.item(i);
+				Node node = nodes.item(i);
 				String textNode = xpp.getNodeString(node);
 				if (textNode != null && textNode.length() > 0)
 					sortList.add(textNode);

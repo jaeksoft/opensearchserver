@@ -110,7 +110,7 @@ a:active{
 			SearchRequest searchRequest = result.getRequest();
 			int start = searchRequest.getStart();
 			int end = searchRequest.getStart() + result.getDocumentCount();
-			float time=(float)(searchRequest.getTimer().duration());
+			float time=(float)(result.getTimer().duration());
 	%>
 	<div class="ossnumfound"><%=result.getNumFound()-result.getCollapsedDocCount() %> documents found (<%=time/1000 %> seconds)</div>
 	<ul style="margin: 0px; padding: 0px; list-style-type: none">

@@ -37,4 +37,9 @@ public abstract class AbstractScoreSorter extends SorterAbstract {
 			scores = ((ScoreDocInterface) collector).getScores();
 	}
 
+	@Override
+	public boolean needScore() {
+		return true;
+	}
+
 }

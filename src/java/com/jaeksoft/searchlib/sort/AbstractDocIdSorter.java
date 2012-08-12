@@ -35,4 +35,8 @@ public abstract class AbstractDocIdSorter extends SorterAbstract {
 		ids = collector.getIds();
 	}
 
+	@Override
+	public boolean needScore() {
+		return false;
+	}
 }

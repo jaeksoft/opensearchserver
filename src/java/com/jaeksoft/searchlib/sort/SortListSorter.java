@@ -67,4 +67,11 @@ public class SortListSorter extends SorterAbstract {
 			sorter.init(collector);
 	}
 
+	@Override
+	public boolean needScore() {
+		for (SorterAbstract sorter : sorterList)
+			if (sorter.needScore())
+				return true;
+		return false;
+	}
 }

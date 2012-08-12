@@ -50,4 +50,11 @@ public class MultiSort extends SorterAbstract {
 		return 0;
 	}
 
+	@Override
+	public boolean needScore() {
+		for (SorterAbstract sorter : sorters)
+			if (sorter.needScore())
+				return true;
+		return false;
+	}
 }

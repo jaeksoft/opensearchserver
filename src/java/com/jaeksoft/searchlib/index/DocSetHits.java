@@ -209,7 +209,7 @@ public class DocSetHits {
 		try {
 			if (docIdCollector != null)
 				return docIdCollector;
-			if (sort != null)
+			if (sort != null && sort.needScore())
 				return getScoreDocCollectorNoLock(timer);
 			return getDocIdCollectorNoLock(timer);
 		} finally {
