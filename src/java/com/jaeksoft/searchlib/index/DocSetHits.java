@@ -209,6 +209,8 @@ public class DocSetHits {
 		try {
 			if (docIdCollector != null)
 				return docIdCollector;
+			if (sort != null)
+				return getScoreDocCollectorNoLock(timer);
 			return getDocIdCollectorNoLock(timer);
 		} finally {
 			rwl.w.unlock();
