@@ -85,7 +85,7 @@ public class CollapseDocIdCollector implements CollapseDocInterface {
 	public void collectCollapsedDoc(int sourcePos, int collapsePos) {
 		totalCollapseCount++;
 		int collCount = collapseCounts[collapsePos]++;
-		if (collapseMax == 0 || collapseMax < collCount)
+		if (collapseMax != 0 || collapseMax < collCount)
 			return;
 		if (collapseDocsArray[collapsePos] == null)
 			collapseDocsArray[collapsePos] = new int[] { sourceIds[sourcePos] };
