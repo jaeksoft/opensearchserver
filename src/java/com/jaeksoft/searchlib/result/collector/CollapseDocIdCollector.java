@@ -27,8 +27,10 @@ package com.jaeksoft.searchlib.result.collector;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
-public class CollapseDocIdCollector implements CollapseDocInterface {
+public class CollapseDocIdCollector implements CollapseDocInterface,
+		JoinDocInterface {
 
+	protected final int[][] foreignDocIdsArray;
 	protected final int[] sourceIds;
 	protected final int collapseMax;
 	protected int totalCollapseCount = 0;
@@ -41,6 +43,11 @@ public class CollapseDocIdCollector implements CollapseDocInterface {
 
 	public CollapseDocIdCollector(DocIdInterface sourceCollector, int size,
 			int collapseMax) {
+		if (sourceCollector instanceof JoinDocInterface) {
+			foreignDocIdsArray = ((JoinDocInterface) sourceCollector)
+					.getForeignDocIdsArray();
+		} else
+			foreignDocIdsArray = null;
 		this.sourceIds = sourceCollector.getIds();
 		this.totalCollapseCount = 0;
 		this.collapseMax = collapseMax;
@@ -53,6 +60,11 @@ public class CollapseDocIdCollector implements CollapseDocInterface {
 	}
 
 	protected CollapseDocIdCollector(CollapseDocIdCollector src) {
+		if (src.foreignDocIdsArray != null)
+			foreignDocIdsArray = JoinDocCollector
+					.copyForeignDocIdsArray(src.foreignDocIdsArray);
+		else
+			foreignDocIdsArray = null;
 		this.sourceIds = src.sourceIds;
 		this.totalCollapseCount = src.totalCollapseCount;
 		this.collapseMax = src.collapseMax;
@@ -110,6 +122,8 @@ public class CollapseDocIdCollector implements CollapseDocInterface {
 		ids[pos2] = id;
 		collapseDocsArray[pos2] = colArray;
 		collapseCounts[pos2] = colCount;
+		if (foreignDocIdsArray != null)
+			JoinDocCollector.swap(foreignDocIdsArray, pos1, pos2);
 	}
 
 	@Override
@@ -145,6 +159,23 @@ public class CollapseDocIdCollector implements CollapseDocInterface {
 	@Override
 	public int[] getCollapsedDocs(int pos) {
 		return collapseDocsArray[pos];
+	}
+
+	@Override
+	public void setForeignDocId(int pos, int joinResultPos, int foreignDocId) {
+		throw new RuntimeException(
+				"New join is not allowed on already collapsed documents");
+	}
+
+	@Override
+	public int getForeignDocIds(int pos, int joinPosition) {
+		return JoinDocCollector.getForeignDocIds(foreignDocIdsArray, pos,
+				joinPosition);
+	}
+
+	@Override
+	public int[][] getForeignDocIdsArray() {
+		return foreignDocIdsArray;
 	}
 
 }

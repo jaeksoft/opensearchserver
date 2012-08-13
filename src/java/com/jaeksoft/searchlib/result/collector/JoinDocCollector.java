@@ -78,10 +78,26 @@ public class JoinDocCollector implements JoinDocInterface {
 		for (int id : src.ids) {
 			if (id != -1) {
 				ids[i1] = id;
-				foreignDocIdsArray[i1++] = src.foreignDocIdsArray[i2];
+				foreignDocIdsArray[i1++] = ArrayUtils
+						.clone(src.foreignDocIdsArray[i2]);
 			}
 			i2++;
 		}
+	}
+
+	final public static int[][] copyForeignDocIdsArray(
+			int[][] foreignDocIdsArray) {
+		int[][] neworeignDocIdsArray = new int[foreignDocIdsArray.length][];
+		int i = 0;
+		for (int[] foreignIds : foreignDocIdsArray)
+			neworeignDocIdsArray[i++] = ArrayUtils.clone(foreignIds);
+		return neworeignDocIdsArray;
+	}
+
+	final public static void swap(int[][] foreignDocIdsArray, int pos1, int pos2) {
+		int[] foreignDocIds = foreignDocIdsArray[pos1];
+		foreignDocIdsArray[pos1] = foreignDocIdsArray[pos2];
+		foreignDocIdsArray[pos2] = foreignDocIds;
 	}
 
 	@Override
@@ -94,9 +110,7 @@ public class JoinDocCollector implements JoinDocInterface {
 		int id = ids[pos1];
 		ids[pos1] = ids[pos2];
 		ids[pos2] = id;
-		int[] foreignDocIds = foreignDocIdsArray[pos1];
-		foreignDocIdsArray[pos1] = foreignDocIdsArray[pos2];
-		foreignDocIdsArray[pos2] = foreignDocIds;
+		swap(foreignDocIdsArray, pos1, pos2);
 	}
 
 	@Override
@@ -133,14 +147,19 @@ public class JoinDocCollector implements JoinDocInterface {
 		foreignDocIdsArray[pos] = foreignDocIds;
 	}
 
-	@Override
-	public int getForeignDocIds(int pos, int joinPosition) {
+	final public static int getForeignDocIds(int[][] foreignDocIdsArray,
+			int pos, int joinPosition) {
 		int[] foreignDocIds = foreignDocIdsArray[pos];
 		if (foreignDocIds == null)
 			return -1;
 		if (joinPosition >= foreignDocIds.length)
 			return -1;
 		return foreignDocIds[joinPosition];
+	}
+
+	@Override
+	public int getForeignDocIds(int pos, int joinPosition) {
+		return getForeignDocIds(foreignDocIdsArray, pos, joinPosition);
 	}
 
 	final public static DocIdInterface join(DocIdInterface docs,
@@ -190,5 +209,10 @@ public class JoinDocCollector implements JoinDocInterface {
 		t.duration();
 
 		return docs1.duplicate();
+	}
+
+	@Override
+	public int[][] getForeignDocIdsArray() {
+		return foreignDocIdsArray;
 	}
 }

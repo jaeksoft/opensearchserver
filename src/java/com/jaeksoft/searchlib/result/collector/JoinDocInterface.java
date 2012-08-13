@@ -30,4 +30,6 @@ public interface JoinDocInterface extends DocIdInterface {
 
 	int getForeignDocIds(int pos, int joinPosition);
 
+	int[][] getForeignDocIdsArray();
+
 }
