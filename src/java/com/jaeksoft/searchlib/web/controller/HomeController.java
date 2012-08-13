@@ -82,6 +82,8 @@ public class HomeController extends CommonController {
 
 	public void setClientName(ClientCatalogItem item)
 			throws SearchLibException, NamingException {
+		if (item == null)
+			return;
 		Client client = ClientCatalog.getClient(item.getIndexName());
 		if (client == null)
 			return;

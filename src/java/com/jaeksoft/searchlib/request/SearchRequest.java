@@ -494,6 +494,15 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
+	public boolean isScoreRequired() {
+		rwl.r.lock();
+		try {
+			return this.sortList.isScore();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public boolean isJoin() {
 		rwl.r.lock();
 		try {

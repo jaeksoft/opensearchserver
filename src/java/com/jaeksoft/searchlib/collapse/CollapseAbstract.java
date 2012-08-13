@@ -68,7 +68,7 @@ public abstract class CollapseAbstract {
 		if (collector == null)
 			return null;
 
-		int numFound = collector.getNumFound();
+		int numFound = collector.getSize();
 		if (fetchLength > numFound)
 			fetchLength = numFound;
 
@@ -96,7 +96,7 @@ public abstract class CollapseAbstract {
 	protected int getCollapsedDocsLength() {
 		if (collapsedDocs == null)
 			return 0;
-		return collapsedDocs.getNumFound();
+		return collapsedDocs.getSize();
 	}
 
 	/**
@@ -132,7 +132,7 @@ public abstract class CollapseAbstract {
 			throws IOException {
 		int lastRows = 0;
 		int rows = end;
-		int numFound = collector.getNumFound();
+		int numFound = collector.getSize();
 		int i = 0;
 		Timer iterationTimer = new Timer(timer,
 				"Optimized collapse iteration from all docs");
@@ -165,8 +165,8 @@ public abstract class CollapseAbstract {
 
 		int searchRows = searchRequest.getRows();
 		int end = searchRequest.getEnd();
-		StringIndex collapseFieldStringIndex = reader.getStringIndex(
-				searchRequest.getCollapseField(), timer);
+		StringIndex collapseFieldStringIndex = reader
+				.getStringIndex(searchRequest.getCollapseField());
 		return collapseFromCollector(collector, searchRows, end,
 				collapseFieldStringIndex, timer);
 	}
@@ -174,9 +174,9 @@ public abstract class CollapseAbstract {
 	private CollapseDocInterface collapseFull(ReaderLocal reader,
 			DocIdInterface collector, Timer timer) throws IOException,
 			ParseException, SyntaxError {
-		StringIndex collapseFieldStringIndex = reader.getStringIndex(
-				searchRequest.getCollapseField(), timer);
-		collapsedDocs = run(collector, collector.getNumFound(),
+		StringIndex collapseFieldStringIndex = reader
+				.getStringIndex(searchRequest.getCollapseField());
+		collapsedDocs = run(collector, collector.getSize(),
 				collapseFieldStringIndex, timer);
 		return collapsedDocs;
 	}

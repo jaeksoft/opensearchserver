@@ -31,7 +31,6 @@ import org.apache.lucene.util.OpenBitSet;
 
 public class DocIdCollector extends AbstractCollector implements DocIdInterface {
 
-	final protected int numFound;
 	final protected int maxDoc;
 	final protected int[] ids;
 	private OpenBitSet bitSet;
@@ -40,7 +39,6 @@ public class DocIdCollector extends AbstractCollector implements DocIdInterface 
 	final public static DocIdCollector EMPTY = new DocIdCollector(0, 0);
 
 	public DocIdCollector(int maxDoc, int numFound) {
-		this.numFound = numFound;
 		this.maxDoc = maxDoc;
 		currentPos = 0;
 		bitSet = null;
@@ -48,7 +46,6 @@ public class DocIdCollector extends AbstractCollector implements DocIdInterface 
 	}
 
 	protected DocIdCollector(DocIdCollector src) {
-		this.numFound = src.numFound;
 		this.maxDoc = src.maxDoc;
 		this.ids = ArrayUtils.clone(src.ids);
 		this.bitSet = src.bitSet;
@@ -61,8 +58,8 @@ public class DocIdCollector extends AbstractCollector implements DocIdInterface 
 	}
 
 	@Override
-	final public int getNumFound() {
-		return numFound;
+	final public int getSize() {
+		return ids.length;
 	}
 
 	@Override

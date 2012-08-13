@@ -24,8 +24,13 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public class AscScoreSorter extends AbstractScoreSorter {
+
+	public AscScoreSorter(DocIdInterface collector) {
+		super(collector);
+	}
 
 	@Override
 	final public int compare(int pos1, int pos2) {

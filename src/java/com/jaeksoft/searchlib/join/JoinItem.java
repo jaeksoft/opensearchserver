@@ -246,8 +246,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				throw new SearchLibException(
 						"The request template is not a Search request: "
 								+ queryTemplate);
-			StringIndex localStringIndex = reader.getStringIndex(localField,
-					timer);
+			StringIndex localStringIndex = reader.getStringIndex(localField);
 			if (localStringIndex == null)
 				throw new SearchLibException(
 						"No string index found for the local field: "
@@ -264,7 +263,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 			t.duration();
 			joinResult.setForeignResult(resultSearch);
 			StringIndex foreignFieldIndex = resultSearch.getReader()
-					.getStringIndex(foreignField, t);
+					.getStringIndex(foreignField);
 			if (foreignFieldIndex == null)
 				throw new SearchLibException(
 						"No string index found for the foreign field: "

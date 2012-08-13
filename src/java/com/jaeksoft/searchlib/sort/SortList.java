@@ -26,12 +26,10 @@ package com.jaeksoft.searchlib.sort;
 
 import java.io.IOException;
 
-import org.apache.lucene.search.Sort;
-
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.util.Timer;
 
 public class SortList implements CacheKeyInterface<SortList> {
 
@@ -61,22 +59,20 @@ public class SortList implements CacheKeyInterface<SortList> {
 		return sortFieldList;
 	}
 
-	public Sort getLuceneSort() {
+	public boolean isScore() {
 		if (sortFieldList.size() == 0)
-			return null;
-		org.apache.lucene.search.SortField[] sortFields = new org.apache.lucene.search.SortField[sortFieldList
-				.size()];
-		int i = 0;
+			return true;
 		for (SortField field : sortFieldList)
-			sortFields[i++] = field.getLuceneSortField();
-		return new Sort(sortFields);
+			if (field.isScore())
+				return true;
+		return false;
 	}
 
-	public SorterAbstract getSorter(ReaderLocal reader, Timer timer)
+	public SorterAbstract getSorter(DocIdInterface collector, ReaderLocal reader)
 			throws IOException {
 		if (sortFieldList.size() == 0)
-			return new DescScoreSorter();
-		return new SortListSorter(sortFieldList, reader, timer);
+			return new DescScoreSorter(collector);
+		return new SortListSorter(sortFieldList, collector, reader);
 	}
 
 	@Override

@@ -92,8 +92,7 @@ public class FieldCache extends
 		if (indexedField.size() > 0) {
 			for (Field field : indexedField) {
 				String fieldName = field.getName();
-				StringIndex stringIndex = reader.getStringIndex(fieldName,
-						timer);
+				StringIndex stringIndex = reader.getStringIndex(fieldName);
 				if (stringIndex != null) {
 					String term = stringIndex.lookup[stringIndex.order[docId]];
 					if (term != null) {

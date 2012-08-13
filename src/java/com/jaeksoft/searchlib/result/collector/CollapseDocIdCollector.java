@@ -118,7 +118,7 @@ public class CollapseDocIdCollector implements CollapseDocInterface {
 	}
 
 	@Override
-	public int getNumFound() {
+	public int getSize() {
 		return currentPos;
 	}
 

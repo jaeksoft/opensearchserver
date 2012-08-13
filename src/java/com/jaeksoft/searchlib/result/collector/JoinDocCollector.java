@@ -105,7 +105,7 @@ public class JoinDocCollector implements JoinDocInterface {
 	}
 
 	@Override
-	public int getNumFound() {
+	public int getSize() {
 		return ids.length;
 	}
 
@@ -147,19 +147,19 @@ public class JoinDocCollector implements JoinDocInterface {
 			StringIndex doc1StringIndex, DocIdInterface docs2,
 			StringIndex doc2StringIndex, int joinResultSize, int joinResultPos,
 			Timer timer) {
-		if (docs.getNumFound() == 0 || docs2.getNumFound() == 0)
+		if (docs.getSize() == 0 || docs2.getSize() == 0)
 			return JoinDocCollector.EMPTY;
 
 		Timer t = new Timer(timer, "copy & sort local documents");
 		JoinDocInterface docs1 = docs instanceof ScoreDocInterface ? new JoinScoreDocCollector(
 				(ScoreDocInterface) docs, joinResultSize)
 				: new JoinDocCollector(docs, joinResultSize);
-		new AscStringIndexSorter(doc1StringIndex).quickSort(docs1, t);
+		new AscStringIndexSorter(docs1, doc1StringIndex).quickSort(t);
 		t.duration();
 
 		t = new Timer(timer, "copy & sort foreign documents");
 		docs2 = docs2.duplicate();
-		new AscStringIndexSorter(doc2StringIndex).quickSort(docs2, t);
+		new AscStringIndexSorter(docs2, doc2StringIndex).quickSort(t);
 		t.duration();
 
 		t = new Timer(timer, "join operation");

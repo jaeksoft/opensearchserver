@@ -137,7 +137,7 @@ public abstract class AbstractResultSearch extends
 	public int getDocLength() {
 		if (docs == null)
 			return 0;
-		return docs.getNumFound();
+		return docs.getSize();
 	}
 
 	public int getDocumentCount() {
@@ -187,7 +187,7 @@ public abstract class AbstractResultSearch extends
 		sb.append(" founds.");
 		if (docs != null) {
 			sb.append(' ');
-			sb.append(docs.getNumFound());
+			sb.append(docs.getSize());
 			sb.append(" docs.");
 		}
 		sb.append(" MaxScore: ");

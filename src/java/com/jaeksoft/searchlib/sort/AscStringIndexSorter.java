@@ -26,17 +26,17 @@ package com.jaeksoft.searchlib.sort;
 
 import org.apache.lucene.search.FieldCache.StringIndex;
 
-public class AscStringIndexSorter extends AbstractDocIdSorter {
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
-	private StringIndex stringIndex;
+public class AscStringIndexSorter extends AbstractStringIndexSorter {
 
-	public AscStringIndexSorter(StringIndex stringIndex) {
-		this.stringIndex = stringIndex;
+	public AscStringIndexSorter(DocIdInterface collector,
+			StringIndex stringIndex) {
+		super(collector, stringIndex);
 	}
 
 	@Override
 	final public int compare(int pos1, int pos2) {
 		return stringIndex.order[ids[pos1]] - stringIndex.order[ids[pos2]];
 	}
-
 }

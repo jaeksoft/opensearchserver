@@ -24,15 +24,18 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
+import it.unimi.dsi.fastutil.Swapper;
+
 import org.apache.lucene.util.OpenBitSet;
 
-public interface DocIdInterface {
+public interface DocIdInterface extends Swapper {
 
+	@Override
 	public void swap(int pos1, int pos2);
 
 	public int[] getIds();
 
-	public int getNumFound();
+	public int getSize();
 
 	public OpenBitSet getBitSet();
 

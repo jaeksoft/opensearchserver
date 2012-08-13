@@ -28,9 +28,6 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.jaeksoft.searchlib.sort.SorterAbstract;
-import com.jaeksoft.searchlib.util.Timer;
-
 public class ScoreDocCollector extends DocIdCollector implements
 		ScoreDocInterface {
 
@@ -65,12 +62,6 @@ public class ScoreDocCollector extends DocIdCollector implements
 	@Override
 	final public float getMaxScore() {
 		return maxScore;
-	}
-
-	final public void sort(SorterAbstract sort, Timer timer) {
-		if (sort == null)
-			return;
-		sort.quickSort(this, timer);
 	}
 
 	@Override

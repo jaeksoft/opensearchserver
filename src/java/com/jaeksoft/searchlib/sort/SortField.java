@@ -31,9 +31,9 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.util.DomUtils;
-import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SortField extends Field implements CacheKeyInterface<Field> {
@@ -86,27 +86,24 @@ public class SortField extends Field implements CacheKeyInterface<Field> {
 		return new SortField(name, desc);
 	}
 
-	protected org.apache.lucene.search.SortField getLuceneSortField() {
-		if (name.equals("score"))
-			return new org.apache.lucene.search.SortField(name,
-					org.apache.lucene.search.SortField.SCORE, desc);
-		else
-			return new org.apache.lucene.search.SortField(name,
-					org.apache.lucene.search.SortField.STRING, desc);
+	final public boolean isScore() {
+		return name.equals("score");
 	}
 
-	public SorterAbstract getSorter(ReaderLocal reader, Timer timer)
+	public SorterAbstract getSorter(DocIdInterface collector, ReaderLocal reader)
 			throws IOException {
-		if (name.equals("score")) {
+		if (isScore()) {
 			if (desc)
-				return new DescScoreSorter();
+				return new DescScoreSorter(collector);
 			else
-				return new AscScoreSorter();
+				return new AscScoreSorter(collector);
 		}
 		if (desc)
-			return new DescStringIndexSorter(reader.getStringIndex(name, timer));
+			return new DescStringIndexSorter(collector,
+					reader.getStringIndex(name));
 		else
-			return new AscStringIndexSorter(reader.getStringIndex(name, timer));
+			return new AscStringIndexSorter(collector,
+					reader.getStringIndex(name));
 	}
 
 	@Override

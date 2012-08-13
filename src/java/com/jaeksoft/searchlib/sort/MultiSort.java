@@ -23,20 +23,15 @@
  **/
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 
 public class MultiSort extends SorterAbstract {
 
 	private SorterAbstract[] sorters;
 
-	public MultiSort(SorterAbstract... sorters) {
+	public MultiSort(DocIdCollector collector, SorterAbstract... sorters) {
+		super(collector);
 		this.sorters = sorters;
-	}
-
-	@Override
-	public void init(DocIdInterface docIdInterface) {
-		for (SorterAbstract sorter : sorters)
-			sorter.init(docIdInterface);
 	}
 
 	@Override
@@ -51,10 +46,21 @@ public class MultiSort extends SorterAbstract {
 	}
 
 	@Override
-	public boolean needScore() {
+	public boolean isScore() {
 		for (SorterAbstract sorter : sorters)
-			if (sorter.needScore())
+			if (sorter.isScore())
 				return true;
 		return false;
+	}
+
+	@Override
+	public String toString(int pos) {
+		StringBuffer sb = new StringBuffer('[');
+		for (SorterAbstract sorter : sorters) {
+			sb.append(sorter.toString(pos));
+			sb.append(' ');
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 }

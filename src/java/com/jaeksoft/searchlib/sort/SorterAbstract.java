@@ -24,27 +24,54 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import it.unimi.dsi.fastutil.Arrays;
+import it.unimi.dsi.fastutil.ints.IntComparator;
+
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
-public abstract class SorterAbstract {
+public abstract class SorterAbstract implements IntComparator {
 
-	public abstract void init(DocIdInterface docIdInterface);
+	private DocIdInterface collector;
 
-	public abstract int compare(int pos1, int pos2);
-
-	final public void quickSort(DocIdInterface docIdInterface) {
-		init(docIdInterface);
-		new QuickSort(this).sort(docIdInterface);
+	protected SorterAbstract(DocIdInterface collector) {
+		this.collector = collector;
 	}
 
-	public void quickSort(DocIdInterface docIdInterface, Timer timer) {
-		Timer t = new Timer(timer, "Sort (quicksort): "
-				+ docIdInterface.getNumFound());
-		quickSort(docIdInterface);
+	public abstract String toString(int pos);
+
+	@Override
+	final public int compare(Integer pos1, Integer pos2) {
+		return compare((int) pos1, (int) pos2);
+	}
+
+	public void quickSort(Timer timer) {
+		Timer t = new Timer(timer, "Sort (quicksort): " + collector.getSize());
+		Arrays.quickSort(0, collector.getSize(), this, collector);
+		t.duration();
+		// check(timer);
+	}
+
+	public void check(Timer timer) {
+		int l = collector.getSize();
+		if (l == 0)
+			return;
+		Timer t = new Timer(timer, "Check sort (quicksort) " + l);
+		int last = 0;
+		int err = 0;
+		for (int i = 1; i < l; i++) {
+			if (compare(last, i) > 0) {
+				System.out.println(last + ": " + toString(last) + " - " + i
+						+ ": " + toString(i));
+				err++;
+			}
+			last = i;
+		}
+		if (err > 0)
+			System.out.println("SORT ERROR: " + err + " / " + l);
 		t.duration();
 	}
 
-	public abstract boolean needScore();
+	public abstract boolean isScore();
 
 }

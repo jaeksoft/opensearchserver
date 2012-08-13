@@ -133,9 +133,15 @@ public class ParserController extends CommonController implements
 		Client client = getClient();
 		if (client == null)
 			return null;
+		ParserSelector parserSelector = client.getParserSelector();
+		if (parserSelector == null)
+			return null;
+		ParserFactory[] parserFactoryArray = parserSelector
+				.getParserFactoryArray();
+		if (parserFactoryArray == null)
+			return null;
 		Set<String> list = new TreeSet<String>();
-		for (ParserFactory parserFactory : client.getParserSelector()
-				.getParserFactoryArray()) {
+		for (ParserFactory parserFactory : parserFactoryArray) {
 			if (omit != null && omit.equals(parserFactory))
 				continue;
 			list.add(parserFactory.getParserName());

@@ -30,13 +30,20 @@ public abstract class AbstractDocIdSorter extends SorterAbstract {
 
 	protected int[] ids;
 
-	@Override
-	public void init(DocIdInterface collector) {
+	protected AbstractDocIdSorter(DocIdInterface collector) {
+		super(collector);
 		ids = collector.getIds();
 	}
 
 	@Override
-	public boolean needScore() {
+	final public boolean isScore() {
 		return false;
+	}
+
+	@Override
+	public String toString(int pos) {
+		StringBuffer sb = new StringBuffer("DocId: ");
+		sb.append(ids[pos]);
+		return sb.toString();
 	}
 }

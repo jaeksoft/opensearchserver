@@ -36,11 +36,12 @@ public class SortListSorter extends SorterAbstract {
 	private SorterAbstract[] sorterList;
 
 	protected SortListSorter(FieldList<SortField> sortFieldList,
-			ReaderLocal reader, Timer timer) throws IOException {
+			DocIdInterface collector, ReaderLocal reader) throws IOException {
+		super(collector);
 		sorterList = new SorterAbstract[sortFieldList.size()];
 		int i = 0;
 		for (SortField sortField : sortFieldList)
-			sorterList[i++] = sortField.getSorter(reader, timer);
+			sorterList[i++] = sortField.getSorter(collector, reader);
 	}
 
 	@Override
@@ -54,24 +55,29 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public void quickSort(DocIdInterface collector, Timer timer) {
+	final public void quickSort(Timer timer) {
 		if (sorterList.length == 1)
-			sorterList[0].quickSort(collector, timer);
+			sorterList[0].quickSort(timer);
 		else
-			super.quickSort(collector, timer);
+			super.quickSort(timer);
 	}
 
 	@Override
-	public void init(DocIdInterface collector) {
+	public boolean isScore() {
 		for (SorterAbstract sorter : sorterList)
-			sorter.init(collector);
-	}
-
-	@Override
-	public boolean needScore() {
-		for (SorterAbstract sorter : sorterList)
-			if (sorter.needScore())
+			if (sorter.isScore())
 				return true;
 		return false;
+	}
+
+	@Override
+	public String toString(int pos) {
+		StringBuffer sb = new StringBuffer('[');
+		for (SorterAbstract sorter : sorterList) {
+			sb.append(sorter.toString(pos));
+			sb.append(' ');
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 }

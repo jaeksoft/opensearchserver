@@ -31,15 +31,24 @@ public abstract class AbstractScoreSorter extends SorterAbstract {
 
 	protected float[] scores;
 
-	@Override
-	public void init(DocIdInterface collector) {
+	protected AbstractScoreSorter(DocIdInterface collector) {
+		super(collector);
 		if (collector instanceof ScoreDocInterface)
 			scores = ((ScoreDocInterface) collector).getScores();
+		else
+			throw new RuntimeException("Wrong collector " + collector);
 	}
 
 	@Override
-	public boolean needScore() {
+	public boolean isScore() {
 		return true;
+	}
+
+	@Override
+	final public String toString(int pos) {
+		StringBuffer sb = new StringBuffer("Score: ");
+		sb.append(scores[pos]);
+		return sb.toString();
 	}
 
 }

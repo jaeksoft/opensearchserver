@@ -129,7 +129,7 @@ public class Facet implements Iterable<FacetItem>,
 			DocIdInterface collector, FacetField facetField, Timer timer)
 			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
+		StringIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
 				collector.getBitSet());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
@@ -139,7 +139,7 @@ public class Facet implements Iterable<FacetItem>,
 			DocIdInterface collector, FacetField facetField, Timer timer)
 			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName, timer);
+		StringIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeSinglevalued(stringIndex, collector.getIds());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}

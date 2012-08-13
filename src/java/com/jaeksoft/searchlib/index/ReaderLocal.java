@@ -77,7 +77,6 @@ import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -388,16 +387,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public StringIndex getStringIndex(String fieldName, Timer timer)
-			throws IOException {
+	public StringIndex getStringIndex(String fieldName) throws IOException {
 		rwl.r.lock();
 		try {
-			if (timer != null)
-				timer = new Timer(timer, "getStringIndex " + fieldName);
 			StringIndex si = org.apache.lucene.search.FieldCache.DEFAULT
 					.getStringIndex(indexReader, fieldName);
-			if (timer != null)
-				timer.duration();
 			return si;
 		} finally {
 			rwl.r.unlock();
@@ -531,11 +525,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
 				this, defaultField, analyzer, timer);
-		SorterAbstract sort = searchRequest.getSortList()
-				.getSorter(this, timer);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
-				filterHits, sort, timer);
+				filterHits, searchRequest.getSortList(), timer);
 		return dsh;
 	}
 

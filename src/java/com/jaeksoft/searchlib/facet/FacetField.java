@@ -200,12 +200,11 @@ public class FacetField extends Field {
 		return postCollapsing == f.postCollapsing ? 0 : -1;
 	}
 
-	public StringIndex getStringIndex(ReaderLocal reader, Timer timer)
-			throws IOException {
+	public StringIndex getStringIndex(ReaderLocal reader) throws IOException {
 		if (name.equals("score"))
 			return null;
 		else
-			return reader.getStringIndex(name, timer);
+			return reader.getStringIndex(name);
 	}
 
 	public static StringIndex[] newStringIndexArrayForCollapsing(
@@ -216,7 +215,7 @@ public class FacetField extends Field {
 		List<StringIndex> facetFieldArray = new ArrayList<StringIndex>(0);
 		for (FacetField facetField : facetFieldList)
 			if (facetField.isPostCollapsing())
-				facetFieldArray.add(facetField.getStringIndex(reader, timer));
+				facetFieldArray.add(facetField.getStringIndex(reader));
 
 		StringIndex[] stringIndexArray = new StringIndex[facetFieldArray.size()];
 		return facetFieldArray.toArray(stringIndexArray);

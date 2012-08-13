@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.MaxScoreCollector;
 import com.jaeksoft.searchlib.result.collector.NumFoundCollector;
 import com.jaeksoft.searchlib.result.collector.ScoreDocCollector;
+import com.jaeksoft.searchlib.sort.SortList;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
@@ -46,20 +47,20 @@ public class DocSetHits {
 	private ReaderLocal reader;
 	private Query query;
 	private Filter filter;
-	private SorterAbstract sort;
+	private SortList sortList;
 	private NumFoundCollector numFoundCollector;
 	private MaxScoreCollector maxScoreCollector;
 	private DocIdCollector docIdCollector;
 	private ScoreDocCollector scoreDocCollector;
 
 	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
-			SorterAbstract sort, Timer timer) throws IOException {
+			SortList sortList, Timer timer) throws IOException {
 		rwl.w.lock();
 		try {
 			this.query = query;
 			this.filter = filter;
 			this.reader = reader;
-			this.sort = sort;
+			this.sortList = sortList;
 			docIdCollector = null;
 			maxScoreCollector = null;
 			scoreDocCollector = null;
@@ -106,6 +107,13 @@ public class DocSetHits {
 	// }
 	// }
 
+	private void sort(DocIdInterface collector, Timer timer) throws IOException {
+		if (sortList == null)
+			return;
+		SorterAbstract sorter = sortList.getSorter(collector, reader);
+		sorter.quickSort(timer);
+	}
+
 	private ScoreDocCollector getScoreDocCollectorNoLock(Timer timer)
 			throws IOException {
 		if (scoreDocCollector != null)
@@ -115,10 +123,9 @@ public class DocSetHits {
 		scoreDocCollector = new ScoreDocCollector(reader.maxDoc(),
 				numFoundCollector.getNumFound());
 		reader.search(query, filter, scoreDocCollector);
-		t.end(t.getInfo() + scoreDocCollector.getNumFound());
-		if (sort != null)
-			scoreDocCollector.sort(sort, tAllDocs);
-		tAllDocs.end(tAllDocs.getInfo() + scoreDocCollector.getNumFound());
+		t.end(t.getInfo() + scoreDocCollector.getSize());
+		sort(scoreDocCollector, tAllDocs);
+		tAllDocs.end(tAllDocs.getInfo() + scoreDocCollector.getSize());
 		docIdCollector = scoreDocCollector;
 		return scoreDocCollector;
 	}
@@ -189,11 +196,15 @@ public class DocSetHits {
 			throws IOException {
 		if (docIdCollector != null)
 			return docIdCollector;
-		Timer t = new Timer(timer, "Get Doc Id Collector: ");
+		Timer tAllDocs = new Timer(timer, "Get Doc Id Collector: ");
+		Timer t = new Timer(tAllDocs, "Collection ");
 		docIdCollector = new DocIdCollector(reader.maxDoc(),
 				numFoundCollector.getNumFound());
 		reader.search(query, filter, docIdCollector);
-		t.end(t.getInfo() + docIdCollector.getNumFound());
+		t.end(t.getInfo() + docIdCollector.getSize());
+		sort(docIdCollector, tAllDocs);
+		tAllDocs.end(tAllDocs.getInfo() + docIdCollector.getSize());
+
 		return docIdCollector;
 	}
 
@@ -209,7 +220,7 @@ public class DocSetHits {
 		try {
 			if (docIdCollector != null)
 				return docIdCollector;
-			if (sort != null && sort.needScore())
+			if (sortList != null && sortList.isScore())
 				return getScoreDocCollectorNoLock(timer);
 			return getDocIdCollectorNoLock(timer);
 		} finally {

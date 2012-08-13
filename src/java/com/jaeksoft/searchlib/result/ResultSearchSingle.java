@@ -67,7 +67,6 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		this.reader = reader;
 		docSetHits = reader.searchDocSet(searchRequest, timer);
 		numFound = docSetHits.getDocNumFound();
-		maxScore = docSetHits.getMaxScore(timer);
 
 		DocIdInterface notCollapsedDocs = docSetHits.getDocIdInterface(timer);
 		CollapseDocInterface collapsedDocs = null;
@@ -84,10 +83,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					joinResults, t);
 			t.duration();
 			t = new Timer(joinTimer, "join - sort");
-			searchRequest.getSortList().getSorter(reader, timer)
-					.quickSort(notCollapsedDocs, timer);
+			searchRequest.getSortList().getSorter(notCollapsedDocs, reader)
+					.quickSort(t);
 			t.duration();
-			numFound = notCollapsedDocs.getNumFound();
+			numFound = notCollapsedDocs.getSize();
 			joinTimer.duration();
 		}
 
@@ -124,6 +123,9 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		if (joinResults != null)
 			setJoinResults(joinResults);
 
+		maxScore = request.isScoreRequired() ? docSetHits.getMaxScore(timer)
+				: 0;
+
 	}
 
 	/**
@@ -146,7 +148,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	@Override
 	public ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException {
-		if (docs == null || pos < 0 || pos > docs.getNumFound())
+		if (docs == null || pos < 0 || pos > docs.getSize())
 			return null;
 		try {
 			int docId = docs.getIds()[pos];
