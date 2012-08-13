@@ -66,11 +66,15 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.scheduler.task.TaskUrlManagerAction;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class UrlManager {
 
 	protected Client urlDbClient;
+
+	private TaskLog currentTaskLog;
 
 	public enum SearchTemplate {
 		urlSearch, urlExport;
@@ -82,6 +86,48 @@ public class UrlManager {
 
 	public UrlManager() {
 		urlItemFieldEnum = getNewUrlItemFieldEnum();
+		currentTaskLog = null;
+	}
+
+	public void setCurrentTaskLog(TaskLog taskLog) throws SearchLibException {
+		synchronized (this) {
+			if (currentTaskLog != null)
+				throw new SearchLibException("A task is already running: "
+						+ currentTaskLog.getTask().getName());
+			currentTaskLog = taskLog;
+		}
+	}
+
+	public void resetCurrentTaskLog() {
+		synchronized (this) {
+			currentTaskLog = null;
+		}
+	}
+
+	public TaskLog getCurrentTaskLog() {
+		synchronized (this) {
+			return currentTaskLog;
+		}
+	}
+
+	public boolean isCurrentTaskLog() {
+		return getCurrentTaskLog() != null;
+	}
+
+	public boolean waitForTask(TaskUrlManagerAction taskUrlManagerAction,
+			int secTimeOut) throws InterruptedException {
+		long timeOut = System.currentTimeMillis() + 1000 * secTimeOut;
+		while (timeOut > System.currentTimeMillis()) {
+			TaskLog taskLog = getCurrentTaskLog();
+			if (taskLog != null)
+				if (taskLog.getTask() == taskUrlManagerAction) {
+					System.out.println("FOUND "
+							+ taskUrlManagerAction.getName());
+					return true;
+				}
+			Thread.sleep(1000);
+		}
+		return false;
 	}
 
 	public void init(Client client, File dataDir) throws SearchLibException,
@@ -521,12 +567,18 @@ public class UrlManager {
 		}
 	}
 
-	public void reload(boolean optimize) throws SearchLibException {
-		if (optimize) {
-			urlDbClient.reload();
-			urlDbClient.getIndex().optimize();
+	public void reload(boolean optimize, TaskLog taskLog)
+			throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			if (optimize) {
+				urlDbClient.reload();
+				urlDbClient.getIndex().optimize();
+			}
+			targetClient.reload();
+		} finally {
+			resetCurrentTaskLog();
 		}
-		targetClient.reload();
 	}
 
 	public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
@@ -725,36 +777,48 @@ public class UrlManager {
 		return tempFile;
 	}
 
-	public int deleteUrls(SearchRequest searchRequest)
+	public int deleteUrls(SearchRequest searchRequest, TaskLog taskLog)
 			throws SearchLibException {
-		int totalCount = 0;
-		long previousNumFound = 0;
-		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
-		for (;;) {
-			long numFound = getUrlList(searchRequest, 0, 1000, urlItemList);
-			if (urlItemList.size() == 0)
-				break;
-			List<String> urlList = new ArrayList<String>(urlItemList.size());
-			for (UrlItem urlItem : urlItemList)
-				urlList.add(urlItem.getUrl());
-			int count = urlDbClient.deleteDocuments(urlList);
-			if (count == 0 || previousNumFound == numFound) {
-				Logging.error("Bad count at URL deletion " + count + "/"
-						+ previousNumFound + "/" + numFound);
-				break;
+		setCurrentTaskLog(taskLog);
+		try {
+			int totalCount = 0;
+			long previousNumFound = 0;
+			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
+			for (;;) {
+				long numFound = getUrlList(searchRequest, 0, 1000, urlItemList);
+				if (urlItemList.size() == 0)
+					break;
+				List<String> urlList = new ArrayList<String>(urlItemList.size());
+				for (UrlItem urlItem : urlItemList)
+					urlList.add(urlItem.getUrl());
+				int count = urlDbClient.deleteDocuments(urlList);
+				if (count == 0 || previousNumFound == numFound) {
+					Logging.error("Bad count at URL deletion " + count + "/"
+							+ previousNumFound + "/" + numFound);
+					break;
+				}
+				previousNumFound = numFound;
+				totalCount += count;
+				taskLog.setInfo(totalCount + " URL(s) deleted");
 			}
-			previousNumFound = numFound;
-			totalCount += count;
+			return totalCount;
+		} finally {
+			resetCurrentTaskLog();
 		}
-		return totalCount;
 	}
 
-	public void deleteAll() throws SearchLibException {
-		urlDbClient.deleteAll();
+	public void deleteAll(TaskLog taskLog) throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			urlDbClient.deleteAll();
+		} finally {
+			resetCurrentTaskLog();
+		}
 	}
 
 	public int updateFetchStatus(SearchRequest searchRequest,
-			FetchStatus fetchStatus) throws SearchLibException {
+			FetchStatus fetchStatus, TaskLog taskLog) throws SearchLibException {
+		setCurrentTaskLog(taskLog);
 		try {
 			int totalCount = 0;
 			long previousNumFound = 0;
@@ -776,10 +840,13 @@ public class UrlManager {
 				}
 				previousNumFound = numFound;
 				totalCount += urlItemList.size();
+				taskLog.setInfo(totalCount + " URL(s) updated");
 			}
 			return totalCount;
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
+		} finally {
+			resetCurrentTaskLog();
 		}
 	}
 

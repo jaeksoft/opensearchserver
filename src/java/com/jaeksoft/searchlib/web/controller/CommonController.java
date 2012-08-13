@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.apache.http.HttpException;
 import org.zkoss.zk.ui.Component;
@@ -231,6 +232,30 @@ public abstract class CommonController extends Window implements AfterCompose,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
 		reloadPage();
+	}
+
+	protected void doRefresh() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
+
+	private void sendRefresh(List<?> children) throws SearchLibException {
+		if (children == null)
+			return;
+		for (Object child : children) {
+			if (!(child instanceof Component))
+				continue;
+			Component comp = (Component) child;
+			if (comp.isVisible())
+				if (comp instanceof CommonController)
+					if (comp != this)
+						((CommonController) comp).doRefresh();
+			sendRefresh(comp.getChildren());
+		}
+	}
+
+	final public void onRefresh() throws SearchLibException {
+		sendRefresh(getChildren());
 	}
 
 	public LanguageEnum[] getLanguageEnum() {

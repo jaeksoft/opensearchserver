@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -282,12 +282,8 @@ public class SchedulerEditController extends CommonController {
 	public void setSelectedJobTask(TaskItem selectedJobTask)
 			throws SearchLibException {
 		this.selectedJobTask = selectedJobTask;
-		if (selectedJobTask != null) {
-			Client client = getClient();
-			if (client == null)
-				return;
-			this.currentTask = new TaskItem(client, selectedJobTask);
-		}
+		if (selectedJobTask != null)
+			this.currentTask = new TaskItem(selectedJobTask);
 		reloadPage();
 	}
 

@@ -197,6 +197,12 @@ public class Client extends Config {
 		return getIndex().isOptimizing();
 	}
 
+	public String getOptimizationStatus() throws IOException {
+		if (isOptimizing())
+			return "Running";
+		return Boolean.toString(getIndex().getStatistics().isOptimized());
+	}
+
 	public void deleteAll() throws SearchLibException {
 		Timer timer = new Timer("DeleteAll");
 		try {

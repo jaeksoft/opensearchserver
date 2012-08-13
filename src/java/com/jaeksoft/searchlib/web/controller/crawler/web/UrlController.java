@@ -50,6 +50,9 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.scheduler.TaskItem;
+import com.jaeksoft.searchlib.scheduler.TaskManager;
+import com.jaeksoft.searchlib.scheduler.task.TaskUrlManagerAction;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
@@ -99,10 +102,10 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public long getRecordNumber() throws SearchLibException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
+			UrlManager urlManager = getUrlManager();
+			if (urlManager == null)
 				return 0;
-			return client.getUrlManager().getSize();
+			return urlManager.getSize();
 		}
 
 	}
@@ -399,12 +402,12 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	private SearchRequest getSearchRequest(SearchTemplate urlSearchTemplate)
 			throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
+		UrlManager urlManager = getUrlManager();
+		if (urlManager == null)
 			return null;
-		return client.getUrlManager().getSearchRequest(urlSearchTemplate,
-				getLike(), getHost(), isWithSubDomain(), getLang(),
-				getLangMethod(), getContentBaseType(), getContentTypeCharset(),
+		return urlManager.getSearchRequest(urlSearchTemplate, getLike(),
+				getHost(), isWithSubDomain(), getLang(), getLangMethod(),
+				getContentBaseType(), getContentTypeCharset(),
 				getContentEncoding(), getMinContentLength(),
 				getMaxContentLength(), getRobotsTxtStatus(), getFetchStatus(),
 				getResponseCode(), getParserStatus(), getIndexStatus(),
@@ -414,12 +417,12 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	private void computeUrlList() throws SearchLibException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
+			UrlManager urlManager = getUrlManager();
+			if (urlManager == null)
 				return;
 			urlList = new ArrayList<UrlItem>();
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
-			totalSize = (int) client.getUrlManager().getUrlList(searchRequest,
+			totalSize = (int) urlManager.getUrlList(searchRequest,
 					getPageSize() * getActivePage(), getPageSize(), urlList);
 		}
 	}
@@ -427,6 +430,15 @@ public class UrlController extends CommonController implements AfterCompose {
 	public List<UrlItem> getUrlList() throws SearchLibException {
 		synchronized (this) {
 			return urlList;
+		}
+	}
+
+	public UrlManager getUrlManager() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			return client.getUrlManager();
 		}
 	}
 
@@ -457,11 +469,11 @@ public class UrlController extends CommonController implements AfterCompose {
 	public void onExportSiteMap() throws IOException, SearchLibException,
 			TransformerConfigurationException, SAXException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
+			UrlManager urlManager = getUrlManager();
+			if (urlManager == null)
 				return;
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
-			File file = client.getUrlManager().exportSiteMap(searchRequest);
+			File file = urlManager.exportSiteMap(searchRequest);
 			Filedownload.save(new FileInputStream(file),
 					"text/xml; charset-UTF-8", "OSS_SiteMap.xml");
 		}
@@ -469,61 +481,60 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void onExportURLs() throws IOException, SearchLibException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
+			UrlManager urlManager = getUrlManager();
+			if (urlManager == null)
 				return;
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
-			File file = client.getUrlManager().exportURLs(searchRequest);
+			File file = urlManager.exportURLs(searchRequest);
 			Filedownload.save(new FileInputStream(file),
 					"text/plain; charset-UTF-8", "OSS_URLs_Export.txt");
 		}
 	}
 
-	public void onSetToUnfetched() throws SearchLibException {
+	private void onTask(TaskUrlManagerAction taskUrlManagerAction)
+			throws SearchLibException, InterruptedException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		TaskItem taskItem = new TaskItem(client, taskUrlManagerAction);
+		TaskManager.executeTask(client, taskItem);
+		client.getUrlManager().waitForTask(taskUrlManagerAction, 30);
+	}
+
+	public void onSetToUnfetched() throws SearchLibException,
+			InterruptedException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return;
-			UrlManager urlManager = client.getUrlManager();
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
-			urlManager.updateFetchStatus(searchRequest, FetchStatus.UN_FETCHED);
-			urlManager.reload(true);
-			onSearch();
+			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
+			taskUrlManagerAction.setSelection(searchRequest, false, true);
+			taskUrlManagerAction.setOptimize();
+			onTask(taskUrlManagerAction);
 		}
 	}
 
-	public void onDeleteURLs() throws SearchLibException {
+	public void onDeleteURLs() throws SearchLibException, InterruptedException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return;
-			UrlManager urlManager = client.getUrlManager();
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
-			urlManager.deleteUrls(searchRequest);
-			urlManager.reload(true);
-			onSearch();
+			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
+			taskUrlManagerAction.setSelection(searchRequest, true, false);
+			taskUrlManagerAction.setOptimize();
+			onTask(taskUrlManagerAction);
 		}
 	}
 
-	public void onOptimize() throws SearchLibException {
+	public void onOptimize() throws SearchLibException, InterruptedException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return;
-			client.getUrlManager().reload(true);
-			onSearch();
+			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
+			taskUrlManagerAction.setOptimize();
+			onTask(taskUrlManagerAction);
 		}
 	}
 
-	public void onDeleteAll() throws SearchLibException {
+	public void onDeleteAll() throws SearchLibException, InterruptedException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return;
-			UrlManager urlManager = client.getUrlManager();
-			urlManager.deleteAll();
-			urlManager.reload(true);
-			onSearch();
+			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
+			taskUrlManagerAction.setDeleteAll();
+			onTask(taskUrlManagerAction);
 		}
 	}
 
@@ -554,6 +565,18 @@ public class UrlController extends CommonController implements AfterCompose {
 			else if ("deleteAll".equalsIgnoreCase(action))
 				onDeleteAll();
 			actionListbox.setSelectedIndex(0);
+			reloadPage();
 		}
+	}
+
+	public void onTimer() {
+		reloadComponent("taskLogInfo");
+	}
+
+	public boolean isRefresh() throws SearchLibException {
+		UrlManager urlManager = getUrlManager();
+		if (urlManager == null)
+			return false;
+		return urlManager.isCurrentTaskLog();
 	}
 }

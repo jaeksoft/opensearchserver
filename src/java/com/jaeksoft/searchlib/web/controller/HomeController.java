@@ -130,7 +130,8 @@ public class HomeController extends CommonController {
 		setClient(ClientCatalog.getClient(indexName));
 	}
 
-	public void onListRefresh() {
+	@Override
+	public void doRefresh() {
 		catalogItems = null;
 		reloadPage();
 	}

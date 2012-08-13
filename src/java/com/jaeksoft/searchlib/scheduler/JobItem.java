@@ -202,34 +202,55 @@ public class JobItem extends UniqueNameItem<JobItem> {
 
 	}
 
+	protected List<TaskItem> getTaskListCopy() {
+		rwl.r.lock();
+		try {
+			List<TaskItem> list = new ArrayList<TaskItem>(0);
+			for (TaskItem task : tasks)
+				list.add(new TaskItem(task));
+			return list;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	protected void setLastExecutionNow() {
+		rwl.w.lock();
+		try {
+			lastExecution = new Date();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	public void run(Client client) {
 		if (!runningRequest()) {
-			Logging.warn(getName() + " is already running");
+			Logging.warn("The job " + getName() + "  is already running");
 			return;
 		}
 		TaskLog taskLog = null;
-		rwl.r.lock();
 		try {
-			lastExecution = new Date();
-			for (TaskItem task : tasks) {
+			setLastExecutionNow();
+			for (TaskItem task : getTaskListCopy()) {
 				taskLog = new TaskLog(task);
-				jobLog.addLog(taskLog);
+				addTaskLog(taskLog);
 				task.run(client, taskLog);
 				taskLog.end();
 			}
 		} catch (SearchLibException e) {
-			taskLog.setError(e);
+			if (taskLog != null)
+				taskLog.setError(e);
 			setLastError(e);
 			Logging.warn(e);
 		} catch (Exception e) {
 			SearchLibException se = new SearchLibException(e);
-			taskLog.setError(se);
+			if (taskLog != null)
+				taskLog.setError(se);
 			setLastError(se);
 			Logging.warn(e);
 		} finally {
 			if (taskLog != null)
 				taskLog.end();
-			rwl.r.unlock();
 			runningEnd();
 		}
 	}
@@ -325,7 +346,12 @@ public class JobItem extends UniqueNameItem<JobItem> {
 	 *            the lastError to set
 	 */
 	public void setLastError(SearchLibException lastError) {
-		this.lastError = lastError;
+		rwl.w.lock();
+		try {
+			this.lastError = lastError;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	/**
@@ -362,6 +388,15 @@ public class JobItem extends UniqueNameItem<JobItem> {
 			return jobLog;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public void addTaskLog(TaskLog taskLog) {
+		rwl.w.lock();
+		try {
+			jobLog.addLog(taskLog);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 

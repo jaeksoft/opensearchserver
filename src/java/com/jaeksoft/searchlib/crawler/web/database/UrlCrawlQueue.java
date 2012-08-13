@@ -169,7 +169,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 		if (insertCollection(workingInsertUrlList, sessionStats))
 			needReload = true;
 		if (needReload)
-			urlManager.reload(false);
+			urlManager.reload(false, null);
 	}
 
 	private boolean deleteCollection(List<String> workDeleteUrlList,

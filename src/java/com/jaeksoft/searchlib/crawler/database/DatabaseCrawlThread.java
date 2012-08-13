@@ -166,7 +166,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			if (updatedIndexDocumentCount > 0) {
 				if (databaseFieldMap.isUrl()) {
 					setStatus(CrawlStatus.OPTIMIZATION);
-					client.getUrlManager().reload(true);
+					client.getUrlManager().reload(true, null);
 				}
 				client.reload();
 			}

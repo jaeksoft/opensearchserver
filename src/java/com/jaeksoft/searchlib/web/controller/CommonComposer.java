@@ -65,6 +65,10 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 		return session.getAttribute(scopeAttribute.name());
 	}
 
+	protected void setAttribute(ScopeAttribute scopeAttribute, Object value) {
+		session.setAttribute(scopeAttribute.name(), value);
+	}
+
 	@Override
 	public Client getClient() throws SearchLibException {
 		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);

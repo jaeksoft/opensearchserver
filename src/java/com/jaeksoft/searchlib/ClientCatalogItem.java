@@ -80,10 +80,7 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		if (client.isOptimizing())
-			return "Running";
-		return Boolean
-				.toString(client.getIndex().getStatistics().isOptimized());
+		return client.getOptimizationStatus();
 	}
 
 	@Override

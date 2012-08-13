@@ -41,18 +41,21 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class TaskItem {
 
+	private Config config;
+
 	private TaskAbstract task;
 
 	private TaskProperties userProperties;
 
 	public TaskItem(Config config, TaskAbstract task) {
+		this.config = config;
 		this.task = task;
 		userProperties = new TaskProperties(config, task,
 				task.getPropertyList());
 	}
 
-	public TaskItem(Config config, TaskItem selectedJobTask) {
-		this(config, selectedJobTask.task);
+	public TaskItem(TaskItem selectedJobTask) {
+		this(selectedJobTask.config, selectedJobTask.task);
 		setProperties(selectedJobTask.getProperties());
 	}
 
@@ -60,7 +63,7 @@ public class TaskItem {
 		if (taskProps == null)
 			return;
 		for (TaskProperty taskProperty : taskProps)
-			userProperties.set(taskProperty);
+			userProperties.set(new TaskProperty(taskProperty));
 	}
 
 	/**

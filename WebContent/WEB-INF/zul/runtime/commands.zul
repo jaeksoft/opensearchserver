@@ -18,21 +18,21 @@
 	use="com.jaeksoft.searchlib.web.controller.runtime.CommandsController">
 	<grid>
 		<columns>
-			<column label="Command" align="right" width="50%" />
-			<column label="Last execution" width="50%" />
+			<column label="Command" align="right" hflex="min" />
+			<column label="Status" align="left" />
 		</columns>
 		<rows>
 			<row>
 				<button label="Reload" forward="onReload" />
-				<label value="@{commands.lastReload}" />
+				<label />
 			</row>
 			<row>
 				<button label="Optimize" forward="onOptimize" />
-				<label value="@{commands.lastOptimize}" />
+				<label value="@{commands.optimizeStatus}" />
 			</row>
 			<row>
 				<button label="Delete all" forward="onDeleteAll" />
-				<label value="@{commands.lastDeleteAll}" />
+				<label value="@{commands.documentNumber}" />
 			</row>
 		</rows>
 	</grid>

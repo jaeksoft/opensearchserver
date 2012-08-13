@@ -41,6 +41,9 @@
 			<tab id="tabPrivileges" visible="@{index.privilegeRights}"
 				label="Privileges" />
 		</tabs>
+		<toolbar>
+			<toolbarbutton label="Refresh" forward="onRefresh" />
+		</toolbar>
 		<tabpanels>
 			<tabpanel>
 				<include src="WEB-INF/zul/home.zul" />

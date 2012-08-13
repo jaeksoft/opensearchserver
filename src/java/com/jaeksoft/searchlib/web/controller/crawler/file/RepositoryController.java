@@ -105,11 +105,6 @@ public class RepositoryController extends CrawlerController {
 		filePathItemList = null;
 	}
 
-	public void onRefresh() {
-		reset();
-		reloadPage();
-	}
-
 	public FilePathItem getSelectedFilePathItem() {
 		return null;
 	}

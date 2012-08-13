@@ -137,7 +137,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			urlCrawlQueue.index(true);
 			if (currentStats.getUrlCount() > 0) {
 				setStatus(CrawlStatus.OPTIMIZATION);
-				config.getUrlManager().reload(true);
+				config.getUrlManager().reload(true, null);
 			}
 			sleepSec(5);
 		}

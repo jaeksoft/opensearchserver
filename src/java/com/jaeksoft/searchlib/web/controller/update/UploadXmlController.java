@@ -191,7 +191,7 @@ public class UploadXmlController extends CommonController {
 		return false;
 	}
 
-	public void onRefresh() {
+	public void onTimerRefresh() {
 		synchronized (this) {
 			reloadComponent("threadList");
 			reloadComponent("updateTimer");

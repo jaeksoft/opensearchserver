@@ -33,16 +33,44 @@ public class ImmediateTaskDetail extends JobDetail {
 	 */
 	private static final long serialVersionUID = -5470927687801196453L;
 
-	private String jobName;
+	private final String jobName;
+	private final TaskItem taskItem;
 
+	/**
+	 * Immediate job execution
+	 * 
+	 * @param indexName
+	 * @param jobName
+	 * @param taskClass
+	 */
 	public ImmediateTaskDetail(String indexName, String jobName,
 			Class<TaskManager> taskClass) {
-		super(jobName + System.currentTimeMillis(), indexName, taskClass);
+		super("job|" + jobName + System.currentTimeMillis(), indexName,
+				taskClass);
 		this.jobName = jobName;
+		this.taskItem = null;
+	}
+
+	/**
+	 * Immediate task execution
+	 * 
+	 * @param indexName
+	 * @param taskItem
+	 * @param taskClass
+	 */
+	public ImmediateTaskDetail(String indexName, TaskItem taskItem,
+			Class<TaskManager> taskClass) {
+		super("task|" + taskItem.getTask().getClass().getName(), indexName,
+				taskClass);
+		this.jobName = null;
+		this.taskItem = taskItem;
 	}
 
 	public String getJobName() {
 		return jobName;
 	}
 
+	public TaskItem getTaskItem() {
+		return taskItem;
+	}
 }

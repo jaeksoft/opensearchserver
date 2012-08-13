@@ -101,6 +101,9 @@ public class SchedulerListController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
+		if (job.isRunning())
+			throw new SearchLibException("The job " + job.getName()
+					+ " is already running.");
 		TaskManager.executeJob(client.getIndexName(), job.getName());
 		reloadPage();
 	}

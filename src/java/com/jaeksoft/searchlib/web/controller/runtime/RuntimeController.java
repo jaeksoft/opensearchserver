@@ -39,6 +39,11 @@ public class RuntimeController extends CommonController {
 	protected void reset() {
 	}
 
+	@Override
+	public void reloadPage() {
+
+	}
+
 	public boolean isCommandsRights() throws SearchLibException {
 		return isAdminOrNoUser() && isInstanceValid();
 	}

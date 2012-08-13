@@ -26,15 +26,17 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Date;
 
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.scheduler.TaskItem;
+import com.jaeksoft.searchlib.scheduler.TaskManager;
+import com.jaeksoft.searchlib.scheduler.task.TaskDeleteAll;
+import com.jaeksoft.searchlib.scheduler.task.TaskOptimizeIndex;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
-import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class CommandsController extends CommonController {
 
@@ -51,11 +53,8 @@ public class CommandsController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return;
-			Date t = new Date();
-			getClient().deleteAll();
-			lastDeleteAll = t;
-			reloadPage();
-			PushEvent.DOCUMENT_UPDATED.publish(client);
+			TaskItem taskItem = new TaskItem(client, new TaskDeleteAll());
+			TaskManager.executeTask(client, taskItem);
 		}
 	}
 
@@ -64,29 +63,18 @@ public class CommandsController extends CommonController {
 	 */
 	private static final long serialVersionUID = -7911006190658783502L;
 
-	private transient Date lastReload;
-
-	private transient Date lastOptimize;
-
-	private transient Date lastDeleteAll;
-
 	public CommandsController() throws SearchLibException {
 		super();
 	}
 
 	@Override
 	public void reset() {
-		lastReload = null;
-		lastOptimize = null;
-		lastDeleteAll = null;
 	}
 
 	@Override
 	public void onReload() throws SearchLibException {
 		synchronized (this) {
-			Date t = new Date();
 			getClient().reload();
-			lastReload = t;
 			reloadPage();
 		}
 	}
@@ -94,34 +82,43 @@ public class CommandsController extends CommonController {
 	public void onOptimize() throws SearchLibException, IOException,
 			URISyntaxException {
 		synchronized (this) {
-			Date t = new Date();
-			getClient().optimize();
-			lastOptimize = t;
+			Client client = getClient();
+			if (client == null)
+				return;
+			if (client.isOptimizing())
+				throw new SearchLibException(
+						"The optimization is already running");
+			TaskItem taskItem = new TaskItem(client, new TaskOptimizeIndex());
+			TaskManager.executeTask(client, taskItem);
 			reloadPage();
+		}
+	}
+
+	public String getOptimizeStatus() throws SearchLibException, IOException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			if (client.isOptimizing())
+				return "Running";
+			return client.getIndex().getStatistics().isOptimized() ? "Optimized"
+					: "Not optimized";
+		}
+	}
+
+	public String getDocumentNumber() throws SearchLibException, IOException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			return client.getIndex().getStatistics().getNumDocs()
+					+ " document(s).";
 		}
 	}
 
 	public void onDeleteAll() throws InterruptedException {
 		synchronized (this) {
 			new DeleteAlert();
-		}
-	}
-
-	public Date getLastReload() {
-		synchronized (this) {
-			return lastReload;
-		}
-	}
-
-	public Date getLastOptimize() {
-		synchronized (this) {
-			return lastOptimize;
-		}
-	}
-
-	public Date getLastDeleteAll() {
-		synchronized (this) {
-			return lastDeleteAll;
 		}
 	}
 

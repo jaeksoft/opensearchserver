@@ -59,9 +59,7 @@
 	<listbox id="indexlist" selectedItem="@{home.clientName}"
 		mold="paging" pageSize="20" model="@{home.clientCatalog}">
 		<auxhead>
-			<auxheader align="center" label="List of indices">
-				<button label="Refresh" forward="onListRefresh" />
-			</auxheader>
+			<auxheader align="center" label="List of indices" />
 			<auxheader align="center" label="Crawlers" colspan="3" />
 			<auxheader align="center" label="Scheduler" colspan="3" />
 			<auxheader align="center" label="Replication" colspan="2" />

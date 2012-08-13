@@ -15,7 +15,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="index" border="normal" title="Login"
-	use="com.jaeksoft.searchlib.web.controller.LoginController">
+	apply="com.jaeksoft.searchlib.web.controller.LoginComposer">
 	<vbox align="center" width="100%">
 		<grid width="500px" fixedLayout="true">
 			<columns>
@@ -25,20 +25,19 @@
 			<rows>
 				<row>
 					<label value="Login: " />
-					<textbox id="login" cols="40" constraint="no empty"
-						forward="onOK=onLogin" />
+					<textbox id="login" name="login" cols="40" />
 				</row>
 				<row>
 					<label value="
 						Password: " />
-					<textbox id="password" cols="16" type="password"
-						constraint="no empty" forward="onOK=onLogin" />
+					<textbox id="password" name="password" cols="16"
+						type="password" />
 				</row>
 			</rows>
 			<foot>
 				<footer span="2">
 					<vbox width="100%" align="center">
-						<button label="Login" forward="onLogin" />
+						<button id="submit" label="Login" />
 					</vbox>
 				</footer>
 			</foot>

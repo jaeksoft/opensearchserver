@@ -26,21 +26,27 @@ package com.jaeksoft.searchlib.web.controller;
 
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.WrongValueException;
-import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zul.Button;
 import org.zkoss.zul.Textbox;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
 
-public class LoginController extends CommonController {
+public class LoginComposer extends CommonComposer {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2918395323961861472L;
 
-	public LoginController() throws SearchLibException {
+	Textbox login;
+
+	Textbox password;
+
+	Button submit;
+
+	public LoginComposer() throws SearchLibException {
 		super();
 	}
 
@@ -48,17 +54,31 @@ public class LoginController extends CommonController {
 	protected void reset() throws SearchLibException {
 	}
 
-	public void onLogin(Event event) throws WrongValueException,
+	public void onClick$submit() throws WrongValueException,
 			SearchLibException, InterruptedException {
-		Textbox teLogin = (Textbox) getFellow("login");
-		Textbox tePassword = (Textbox) getFellow("password");
-		User user = ClientCatalog.authenticate(teLogin.getValue(),
-				tePassword.getValue());
+		login();
+	}
+
+	public void onOK$login() throws WrongValueException, SearchLibException,
+			InterruptedException {
+		login();
+	}
+
+	public void onOK$password() throws WrongValueException, SearchLibException,
+			InterruptedException {
+		login();
+	}
+
+	private void login() throws WrongValueException, SearchLibException,
+			InterruptedException {
+		User user = ClientCatalog.authenticate(login.getValue(),
+				password.getValue());
 		if (user == null) {
 			Thread.sleep(2000);
 			new AlertController("Authentication failed");
 			return;
 		}
+
 		setAttribute(ScopeAttribute.LOGGED_USER, user);
 		Executions.sendRedirect("/");
 	}

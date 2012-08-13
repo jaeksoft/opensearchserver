@@ -67,6 +67,6 @@
 	</listbox>
 
 	<timer id="updateTimer" delay="5000" repeats="true"
-		onTimer="upload.onRefresh()" running="@{upload.refresh}" />
+		onTimer="upload.onTimerRefresh()" running="@{upload.refresh}" />
 
 </window>

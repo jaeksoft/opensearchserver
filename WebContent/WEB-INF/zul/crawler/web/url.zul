@@ -146,30 +146,43 @@
 				<paging id="paging" detailed="true"
 					totalSize="@{searchUrl.totalSize}" pageSize="@{searchUrl.pageSize}"
 					activePage="@{searchUrl.activePage}" />
-				<label value="Line per page: " />
-				<intbox cols="3"
-					constraint="no negative, no zero, no negative"
-					value="@{searchUrl.pageSize}" forward="onChange=onSearch" />
-				<space width="50px" />
-				<label value="Total record number: " />
-				<longbox readonly="true"
-					value="@{searchUrl.recordNumber}" />
-				<space width="50px" />
-				<listbox mold="select" id="actionListbox">
-					<listitem label="Select an action" value="nothing"
-						selected="true" />
-					<listitem label="Export URLs" value="exportTxt" />
-					<listitem label="Export XML SiteMap"
-						value="xmlSitemap" />
-					<listitem label="Set selected URLs to Unfetched (re-crawl)"
-						value="setToUnfetched" />
-					<listitem label="Delete selected URLs"
-						value="deleteUrls" />
-					<listitem label="Delete all URLs" value="deleteAll" />
-					<listitem label="Optimize URL database"
-						value="optimize" />
-				</listbox>
-				<button label="Go" forward="onGo" />
+				<div id="taskLogInfo">
+					<label value="Line per page: " />
+					<intbox cols="3"
+						constraint="no negative, no zero, no negative"
+						value="@{searchUrl.pageSize}" forward="onChange=onSearch" />
+					<space width="50px" />
+					<label value="Total record number: " />
+					<longbox readonly="true"
+						value="@{searchUrl.recordNumber}" />
+					<space width="50px" />
+					<listbox mold="select" id="actionListbox"
+						disabled="@{searchUrl.urlManager.currentTaskLog}">
+						<listitem label="Select an action"
+							value="nothing" selected="true" />
+						<listitem label="Export URLs" value="exportTxt" />
+						<listitem label="Export XML SiteMap"
+							value="xmlSitemap" />
+						<listitem
+							label="Set selected URLs to Unfetched (re-crawl)"
+							value="setToUnfetched" />
+						<listitem label="Delete selected URLs"
+							value="deleteUrls" />
+						<listitem label="Delete all URLs"
+							value="deleteAll" />
+						<listitem label="Optimize URL database"
+							value="optimize" />
+					</listbox>
+					<space width="10px" />
+					<button label="Go" forward="onGo"
+						disabled="@{searchUrl.urlManager.currentTaskLog}" />
+					<label
+						visible="@{searchUrl.urlManager.currentTaskLog}"
+						value="@{searchUrl.urlManager.currentTaskLog.info}" />
+					<timer delay="5000" repeats="true"
+						onTimer="searchUrl.onTimer()"
+						running="@{searchUrl.refresh}" />
+				</div>
 			</listfooter>
 		</listfoot>
 	</listbox>
