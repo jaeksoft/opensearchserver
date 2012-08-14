@@ -50,7 +50,6 @@ public class FilePatternImpl extends CommonServicesImpl implements FilePattern {
 				FilePathItem currentFilePath = new FilePathItem(client);
 				filePathItem.setPath(filePath);
 				filePathItem.setWithSubDir(withSubDirectory);
-				filePathItem.setIgnoreHidden(ignoreHiddenFile);
 				filePathItem.setEnabled(enabled);
 				filePathItem.setDelay(delay);
 				if (username != null && username.trim().equals(""))

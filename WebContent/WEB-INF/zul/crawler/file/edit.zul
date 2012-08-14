@@ -86,6 +86,9 @@
 									<space width="30px" />
 									<button label="Refresh the list"
 										forward="onRefresh" />
+									<space width="30px" />
+									<checkbox label="Show hidden file"
+										checked="@{filepathedit.showHidden}" />
 								</listheader>
 							</listhead>
 							<listitem self="@{each='file'}">
@@ -109,11 +112,6 @@
 								</listfooter>
 							</listfoot>
 						</listbox>
-					</row>
-					<row>
-						<label value="Ignore hidden file: " />
-						<checkbox
-							checked="@{filepathedit.ignoreHidden}" />
 					</row>
 					<row>
 						<label value="With sub directory: " />

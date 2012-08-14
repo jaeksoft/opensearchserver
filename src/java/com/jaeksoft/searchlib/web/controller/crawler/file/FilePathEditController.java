@@ -66,6 +66,8 @@ public class FilePathEditController extends CommonController {
 
 	private transient List<File> currentFolderList;
 
+	private boolean showHidden;
+
 	private class DeleteAlert extends AlertController {
 
 		private FilePathItem deleteFilePath;
@@ -101,6 +103,7 @@ public class FilePathEditController extends CommonController {
 		currentFilePath = new FilePathItem(client);
 		currentFile = null;
 		currentFolder = null;
+		showHidden = false;
 	}
 
 	public List<FileInstanceType> getTypeList() throws SearchLibException {
@@ -199,7 +202,7 @@ public class FilePathEditController extends CommonController {
 			if (currentFolder == null) {
 				return File.listRoots();
 			}
-			if (isIgnoreHidden())
+			if (!isShowHidden())
 				return currentFolder
 						.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
 			else
@@ -294,12 +297,12 @@ public class FilePathEditController extends CommonController {
 		reloadPage();
 	}
 
-	public boolean isIgnoreHidden() {
-		return currentFilePath.isIgnoreHidden();
+	public boolean isShowHidden() {
+		return showHidden;
 	}
 
-	public void setIgnoreHidden(boolean b) {
-		currentFilePath.setIgnoreHidden(b);
+	public void setShowHidden(boolean b) {
+		showHidden = b;
 		reloadPage();
 	}
 

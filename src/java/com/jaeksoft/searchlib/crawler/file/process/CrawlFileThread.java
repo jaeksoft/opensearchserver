@@ -25,9 +25,11 @@
 package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
@@ -141,6 +143,24 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		return crawl;
 	}
 
+	final private void smartDelete(FileCrawlQueue crawlQueue, FileInfo fileInfo)
+			throws SearchLibException {
+		crawlQueue.delete(currentStats, fileInfo.getUri());
+		if (fileInfo.getFileType() != FileTypeEnum.directory)
+			return;
+		HashMap<String, FileInfo> indexFileMap = new HashMap<String, FileInfo>();
+		try {
+			fileManager.getFileInfoList(new URI(fileInfo.getUri()),
+					indexFileMap);
+			for (FileInfo fi : indexFileMap.values())
+				smartDelete(crawlQueue, fi);
+		} catch (UnsupportedEncodingException e) {
+			Logging.warn(e);
+		} catch (URISyntaxException e) {
+			Logging.warn(e);
+		}
+	}
+
 	private boolean checkDirectory(ItemDirectoryIterator itemDirectory,
 			FileCrawlQueue crawlQueue) throws UnsupportedEncodingException,
 			SearchLibException, URISyntaxException {
@@ -155,7 +175,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		if (!filePathItem.isWithSubDir())
 			for (FileInfo fileInfo : indexFileMap.values())
 				if (fileInfo.getFileType() == FileTypeEnum.directory)
-					crawlQueue.deleteParent(currentStats, fileInfo.getUri());
+					smartDelete(crawlQueue, fileInfo);
 
 		// Remove existing files from the map
 		for (FileInstanceAbstract file : itemDirectory.getFiles())
@@ -164,10 +184,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		// The file that remain in the map can be removed
 		if (indexFileMap.size() > 0)
 			for (FileInfo fileInfo : indexFileMap.values())
-				if (fileInfo.getFileType() == FileTypeEnum.directory)
-					crawlQueue.deleteParent(currentStats, fileInfo.getUri());
-				else if (fileInfo.getFileType() == FileTypeEnum.file)
-					crawlQueue.delete(currentStats, fileInfo.getUri());
+				smartDelete(crawlQueue, fileInfo);
 
 		return checkFile();
 	}
@@ -177,8 +194,9 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		FileInfo oldFileInfo = fileManager
 				.getFileInfo(currentFileItem.getUri());
 		// The file is a new file
-		if (oldFileInfo == null)
+		if (oldFileInfo == null) {
 			return true;
+		}
 		// The file has been modified
 		if (oldFileInfo.isNewCrawlNeeded(currentFileItem))
 			return true;

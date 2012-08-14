@@ -110,7 +110,6 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 		Integer delayBetweenAccess = transaction.getParameterInteger("delay");
 		if (enabled != null && ignoreHidden != null && withSubDirectory != null
 				&& delayBetweenAccess != null && path != null) {
-			filePathItem.setIgnoreHidden(ignoreHidden);
 			filePathItem.setWithSubDir(withSubDirectory);
 			filePathItem.setDelay(delayBetweenAccess);
 			filePathItem.setEnabled(enabled);

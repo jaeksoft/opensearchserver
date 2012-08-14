@@ -26,15 +26,13 @@
 			<listbox model="@{repository.filePathItemList}"
 				selectedItem="@{repository.selectedFilePathItem}">
 				<listhead>
-					<listheader label="Scheme" width="80px" />
-					<listheader label="Host" width="200px" />
-					<listheader label="User" width="120px" />
+					<listheader label="Scheme" hflex="min" />
+					<listheader label="Host" hflex="min" />
+					<listheader label="User" hflex="min" />
 					<listheader label="Path" />
-					<listheader label="Sub directories" width="100px"
+					<listheader label="Sub directories" hflex="min"
 						tooltiptext="Also crawl sub directories" />
-					<listheader label="Ignore hidden" width="100px"
-						tooltiptext="Ignore hidden files" />
-					<listheader label="Enabled" width="100px"
+					<listheader label="Enabled" hflex="min"
 						tooltiptext="Enabled for crawling" />
 				</listhead>
 				<listitem self="@{each='filepathitem'}">
@@ -43,11 +41,10 @@
 					<listcell label="@{filepathitem.username}" />
 					<listcell label="@{filepathitem.path}" />
 					<listcell label="@{filepathitem.withSubDir}" />
-					<listcell label="@{filepathitem.ignoreHidden}" />
 					<listcell label="@{filepathitem.enabled}" />
 				</listitem>
 				<listfoot>
-					<listfooter span="7">
+					<listfooter span="6">
 						<paging id="paging" detailed="true"
 							totalSize="@{repository.totalSize}"
 							pageSize="@{repository.pageSize}"
