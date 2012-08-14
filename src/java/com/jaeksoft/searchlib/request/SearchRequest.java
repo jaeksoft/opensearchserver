@@ -290,6 +290,7 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
+	@Override
 	public Query getQuery() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
 		rwl.r.lock();

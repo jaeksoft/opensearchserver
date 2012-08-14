@@ -34,6 +34,9 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -177,4 +180,21 @@ public class ResultDocument {
 						.getValueArray());
 		}
 	}
+
+	final public static float getScore(DocIdInterface docs, int pos) {
+		if (docs == null)
+			return 0;
+		if (!(docs instanceof ScoreDocInterface))
+			return 0;
+		return ((ScoreDocInterface) docs).getScores()[pos];
+	}
+
+	final public static int getCollapseCount(DocIdInterface docs, int pos) {
+		if (docs == null)
+			return 0;
+		if (!(docs instanceof CollapseDocInterface))
+			return 0;
+		return ((CollapseDocInterface) docs).getCollapseCounts()[pos];
+	}
+
 }

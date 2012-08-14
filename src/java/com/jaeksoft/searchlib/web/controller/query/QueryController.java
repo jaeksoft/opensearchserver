@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
@@ -101,6 +102,10 @@ public final class QueryController extends AbstractQueryController {
 		} else if (request instanceof SpellCheckRequest) {
 			String q = ((SpellCheckRequest) request).getQueryString();
 			sb.append("&q=");
+			sb.append(URLEncoder.encode(q, "UTF-8"));
+		} else if (request instanceof MoreLikeThisRequest) {
+			String q = ((MoreLikeThisRequest) request).getDocQuery();
+			sb.append("&mlt.docquery=");
 			sb.append(URLEncoder.encode(q, "UTF-8"));
 		}
 		return sb.toString();

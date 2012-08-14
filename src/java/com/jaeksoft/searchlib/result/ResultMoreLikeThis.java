@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
@@ -35,35 +36,39 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest> {
+public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
+		implements ResultDocumentsInterface<MoreLikeThisRequest> {
 
-	transient private ReaderLocal reader;
-	private int[] docs = null;
+	transient private ReaderLocal reader = null;
+	private DocIdInterface docs = null;
 
 	public ResultMoreLikeThis(ReaderLocal reader, MoreLikeThisRequest request)
 			throws SearchLibException, IOException, ParseException,
 			SyntaxError, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super(request);
+		this.reader = reader;
 		SearchRequest searchRequest = new SearchRequest(request.getConfig());
 		for (FilterAbstract<?> filter : request.getFilterList())
 			searchRequest.getFilterList().add(filter);
 		searchRequest.setBoostedComplexQuery(request.getQuery());
-		DocSetHits dsh = reader.searchDocSet(searchRequest, getTimer());
+		DocSetHits dsh = reader.searchDocSet(searchRequest, timer);
 		if (dsh == null)
 			return;
-		docs = dsh.getIds(null);
-		System.out.println(searchRequest.getQuery().toString());
+		docs = dsh.getDocIdInterface(timer);
 	}
 
+	@Override
 	public ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException {
-		if (docs == null || pos < 0 || pos > docs.length)
+		if (docs == null || pos < 0 || pos > docs.getSize())
 			return null;
 		try {
-			return new ResultDocument(request, docs[pos], reader, timer);
+			return new ResultDocument(request, docs.getIds()[pos], reader,
+					timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {
@@ -73,10 +78,20 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest> {
 		}
 	}
 
+	@Override
+	public float getScore(int pos) {
+		return ResultDocument.getScore(docs, pos);
+	}
+
+	@Override
+	public int getCollapseCount(int pos) {
+		return ResultDocument.getCollapseCount(docs, pos);
+	}
+
 	public int getNumFound() {
 		if (docs == null)
 			return 0;
-		return docs.length;
+		return docs.getSize();
 	}
 
 	@Override
@@ -94,6 +109,30 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest> {
 	protected Render getRenderJson(boolean indent) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Iterator<ResultDocument> iterator() {
+		return new ResultDocumentIterator(this, null);
+	}
+
+	@Override
+	public int getDocumentCount() {
+		int end = request.getEnd();
+		int len = getNumFound();
+		if (end > len)
+			end = len;
+		return end - request.getStart();
+	}
+
+	@Override
+	public int getPosStart() {
+		return request.getStart();
+	}
+
+	@Override
+	public DocIdInterface getDocs() {
+		return docs;
 	}
 
 }

@@ -330,12 +330,14 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public String explain(SearchRequest searchRequest, int docId, boolean bHtml)
+	public String explain(AbstractRequest request, int docId, boolean bHtml)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
-			Explanation explanation = indexSearcher.explain(
-					searchRequest.getQuery(), docId);
+			Query query = request.getQuery();
+			if (query == null)
+				return "No explanation available";
+			Explanation explanation = indexSearcher.explain(query, docId);
 			if (bHtml)
 				return explanation.toHtml();
 			else

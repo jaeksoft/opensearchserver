@@ -79,6 +79,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	private FilterList filterList;
 	private int start;
 	private int rows;
+	private Query mltQuery;
 
 	public MoreLikeThisRequest() {
 	}
@@ -103,6 +104,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		this.stopWords = null;
 		this.start = 0;
 		this.rows = 10;
+		this.mltQuery = null;
 	}
 
 	@Override
@@ -121,6 +123,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		this.maxQueryTerms = mltRequest.maxQueryTerms;
 		this.filterList = new FilterList(mltRequest.filterList);
 		this.returnFieldList = new FieldList<Field>(mltRequest.returnFieldList);
+		this.mltQuery = mltRequest.mltQuery;
 	}
 
 	private Analyzer checkAnalyzer() throws SearchLibException {
@@ -129,9 +132,19 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		return analyzer;
 	}
 
+	@Override
 	public Query getQuery() throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
+			if (mltQuery != null)
+				return mltQuery;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (mltQuery != null)
+				return mltQuery;
 			Config config = getConfig();
 			IndexAbstract index = config.getIndex();
 			MoreLikeThis mlt = index.getMoreLikeThis();
@@ -160,9 +173,10 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 						mlt.setStopWords(stopWords);
 				}
 			}
-			return mlt.like(docId);
+			mltQuery = mlt.like(docId);
+			return mltQuery;
 		} finally {
-			rwl.r.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -186,6 +200,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.docQuery = docQuery;
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -223,6 +238,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.minWordLen = minWordLen;
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -248,6 +264,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.maxWordLen = maxWordLen;
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -273,6 +290,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.minDocFreq = minDocFreq;
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -298,6 +316,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.minTermFreq = minTermFreq;
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -323,6 +342,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.stopWords = stopWords;
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -344,6 +364,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		try {
 			this.filterList.add(new QueryFilter(req, negative,
 					FilterAbstract.Source.REQUEST, null));
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -365,6 +386,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		try {
 			returnFieldList.add(new Field(config.getSchema().getFieldList()
 					.get(fieldName)));
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -512,6 +534,12 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 
 	@Override
 	public void reset() {
+		rwl.w.lock();
+		try {
+			mltQuery = null;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
@@ -553,6 +581,15 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.r.lock();
 		try {
 			return start;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public int getEnd() {
+		rwl.r.lock();
+		try {
+			return start + rows;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -616,6 +653,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.maxNumTokensParsed = maxNumTokensParsed;
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -641,8 +679,10 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.maxQueryTerms = maxQueryTerms;
+			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
+
 }

@@ -258,9 +258,9 @@ public class Client extends Config {
 		}
 	}
 
-	public String explain(SearchRequest searchRequest, int docId, boolean bHtml)
+	public String explain(AbstractRequest request, int docId, boolean bHtml)
 			throws SearchLibException {
-		return getIndex().explain(searchRequest, docId, bHtml);
+		return getIndex().explain(request, docId, bHtml);
 	}
 
 	protected final void checkMaxDocumentLimit(int additionalCount)

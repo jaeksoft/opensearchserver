@@ -35,14 +35,13 @@ import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
 import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class AbstractResultSearch extends
-		AbstractResult<SearchRequest> implements Iterable<ResultDocument> {
+		AbstractResult<SearchRequest> implements
+		ResultDocumentsInterface<SearchRequest> {
 
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
@@ -77,49 +76,17 @@ public abstract class AbstractResultSearch extends
 		return getDocument(pos, null);
 	}
 
+	@Override
 	public abstract ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException;
 
-	public class ResultDocumentIterator implements Iterator<ResultDocument> {
-
-		private int pos;
-		private int end;
-		private Timer timer;
-
-		private ResultDocumentIterator(Timer timer) {
-			pos = request.getStart();
-			if (pos < 0)
-				pos = 0;
-			end = getDocumentCount() + pos;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return pos < end;
-		}
-
-		@Override
-		public ResultDocument next() {
-			try {
-				return getDocument(pos++, timer);
-			} catch (SearchLibException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		@Override
-		public void remove() {
-			// TODO Auto-generated method stub
-		}
-	}
-
 	public Iterator<ResultDocument> iterator(Timer timer) {
-		return new ResultDocumentIterator(timer);
+		return new ResultDocumentIterator(this, timer);
 	}
 
 	@Override
 	public Iterator<ResultDocument> iterator() {
-		return new ResultDocumentIterator(null);
+		return new ResultDocumentIterator(this, null);
 	}
 
 	public float getMaxScore() {
@@ -128,6 +95,11 @@ public abstract class AbstractResultSearch extends
 
 	public int getNumFound() {
 		return numFound;
+	}
+
+	@Override
+	public int getPosStart() {
+		return request.getStart();
 	}
 
 	protected void setDocs(DocIdInterface docs) {
@@ -140,6 +112,7 @@ public abstract class AbstractResultSearch extends
 		return docs.getSize();
 	}
 
+	@Override
 	public int getDocumentCount() {
 		int end = request.getEnd();
 		int len = getDocLength();
@@ -152,6 +125,7 @@ public abstract class AbstractResultSearch extends
 		return joinResults;
 	}
 
+	@Override
 	public DocIdInterface getDocs() {
 		return docs;
 	}
@@ -164,20 +138,14 @@ public abstract class AbstractResultSearch extends
 		return collapsedDocCount;
 	}
 
+	@Override
 	public float getScore(int pos) {
-		if (docs == null)
-			return 0;
-		if (!(docs instanceof ScoreDocInterface))
-			return 0;
-		return ((ScoreDocInterface) docs).getScores()[pos];
+		return ResultDocument.getScore(docs, pos);
 	}
 
+	@Override
 	public int getCollapseCount(int pos) {
-		if (docs == null)
-			return 0;
-		if (!(docs instanceof CollapseDocInterface))
-			return 0;
-		return ((CollapseDocInterface) docs).getCollapseCounts()[pos];
+		return ResultDocument.getCollapseCount(docs, pos);
 	}
 
 	@Override

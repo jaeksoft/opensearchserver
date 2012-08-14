@@ -24,11 +24,13 @@
 
 package com.jaeksoft.searchlib.request;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.search.Query;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -125,6 +127,9 @@ public abstract class AbstractRequest {
 			rwl.r.unlock();
 		}
 	}
+
+	public abstract Query getQuery() throws ParseException, SyntaxError,
+			SearchLibException, IOException;
 
 	public void setRequestName(String name) {
 		rwl.w.lock();

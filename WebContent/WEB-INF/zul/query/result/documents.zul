@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,16 +14,18 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="result"
-	use="com.jaeksoft.searchlib.web.controller.query.ResultSearchController"
+<window id="resultDocs"
+	use="com.jaeksoft.searchlib.web.controller.query.ResultDocumentController"
 	border="none">
-	<listbox model="@{result.documents}" mold="paging" pageSize="10">
+	<listbox model="@{resultDocs.documents}" mold="paging"
+		pageSize="10">
 		<listitem self="@{each='document'}">
 			<listcell>
 				<separator />
 				<panel title="@{document.title}" collapsible="true">
 					<caption>
-						<button label="Score explanation…" onClick="result.explainScore(self)">
+						<button label="Score explanation…"
+							onClick="resultDocs.explainScore(self)">
 							<custom-attributes document="@{document}" />
 						</button>
 					</caption>
@@ -38,8 +40,8 @@
 							<rows>
 								<row valign="top">
 									<tree model="@{document.returnTree}"
-										treeitemRenderer="@{result}" visible="@{document.returnValid}"
-										width="99%">
+										treeitemRenderer="@{resultDocs}"
+										visible="@{document.returnValid}" width="99%">
 										<treecols>
 											<treecol width="30%"
 												label="Returned field(s)" />
@@ -48,7 +50,8 @@
 										</treecols>
 									</tree>
 									<tree
-										model="@{document.snippetTree}" treeitemRenderer="@{result}"
+										model="@{document.snippetTree}"
+										treeitemRenderer="@{resultDocs}"
 										visible="@{document.snippetValid}" width="100%">
 										<treecols>
 											<treecol width="30%"

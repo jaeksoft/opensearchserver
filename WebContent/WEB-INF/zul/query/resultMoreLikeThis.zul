@@ -17,6 +17,12 @@
 		If not, see <http://www.gnu.org/licenses/>.
 	-->
 	<grid visible="@{resultMlt.resultExists}">
+		<auxhead>
+			<auxheader colspan="4" label="Summary" align="right">
+				<button label="XML/HTTP API call" target="_blank"
+					href="@{query.requestApiCall}" />
+			</auxheader>
+		</auxhead>
 		<columns visible="false">
 			<column width=" 20%" align="right" />
 			<column width="30%" align="left" />

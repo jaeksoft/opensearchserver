@@ -32,6 +32,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -254,6 +255,12 @@ public class SpellCheckRequest extends AbstractRequest {
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	@Override
+	public Query getQuery() throws ParseException, SyntaxError,
+			SearchLibException, IOException {
+		return null;
 	}
 
 }

@@ -26,46 +26,23 @@ package com.jaeksoft.searchlib.web.controller.query;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Executions;
-import org.zkoss.zul.AbstractTreeModel;
 import org.zkoss.zul.Filedownload;
-import org.zkoss.zul.Html;
-import org.zkoss.zul.TreeModel;
-import org.zkoss.zul.Treecell;
-import org.zkoss.zul.Treeitem;
-import org.zkoss.zul.TreeitemRenderer;
-import org.zkoss.zul.Treerow;
-import org.zkoss.zul.api.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetList;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
-public class ResultSearchController extends AbstractQueryController implements
-		TreeitemRenderer {
+public class ResultSearchController extends AbstractQueryController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3462760563129892850L;
-
-	private transient List<Document> documents;
 
 	private transient Facet selectedFacet;
 
@@ -76,179 +53,6 @@ public class ResultSearchController extends AbstractQueryController implements
 	@Override
 	protected void reset() throws SearchLibException {
 		selectedFacet = null;
-		documents = null;
-	}
-
-	public class Document {
-		int pos;
-		StringBuffer title;
-
-		private Document(int pos) {
-			this.pos = pos;
-			title = null;
-		}
-
-		public String getTitle() throws SearchLibException {
-			synchronized (this) {
-				if (title != null)
-					return title.toString();
-				title = new StringBuffer();
-				title.append('#');
-				title.append(getPos());
-				title.append(" - Score: ");
-				title.append(getScore());
-				title.append(" - Collapsed: ");
-				title.append(getCollapseCount());
-				title.append(" - docId: ");
-				title.append(getDocId());
-				return title.toString();
-			}
-		}
-
-		public int getPos() {
-			return pos;
-		}
-
-		public float getScore() throws SearchLibException {
-			AbstractResultSearch result = (AbstractResultSearch) getResult();
-			if (result == null)
-				return 0;
-			return result.getScore(pos);
-		}
-
-		public int getCollapseCount() throws SearchLibException {
-			AbstractResultSearch result = (AbstractResultSearch) getResult();
-			if (result == null)
-				return 0;
-			return result.getCollapseCount(pos);
-		}
-
-		public int getDocId() throws SearchLibException {
-			AbstractResultSearch result = (AbstractResultSearch) getResult();
-			if (result == null)
-				return 0;
-			return result.getDocs().getIds()[pos];
-		}
-
-		public ResultDocument getResultDocument() throws IOException,
-				ParseException, SyntaxError, SearchLibException {
-			AbstractResultSearch result = (AbstractResultSearch) getResult();
-			if (result == null)
-				return null;
-			return result.getDocument(pos);
-		}
-
-		public boolean isReturnValid() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
-			ResultDocument resultDocument = getResultDocument();
-			if (resultDocument == null)
-				return false;
-			return resultDocument.getReturnFields().size() > 0;
-		}
-
-		public boolean isSnippetValid() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
-			ResultDocument resultDocument = getResultDocument();
-			if (resultDocument == null)
-				return false;
-			return resultDocument.getSnippetFields().size() > 0;
-		}
-
-		public String getReturnPercent() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
-			if (!isReturnValid())
-				return "0%";
-			if (!isSnippetValid())
-				return "100%";
-			return "50%";
-		}
-
-		public String getSnippetPercent() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
-			if (!isSnippetValid())
-				return "0%";
-			if (!isReturnValid())
-				return "100%";
-			return "50%";
-		}
-
-		public TreeModel getReturnTree() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
-			ResultDocument resultDocument = getResultDocument();
-			if (resultDocument == null)
-				return null;
-			return new FieldTreeModel<FieldValue>(
-					resultDocument.getReturnFields());
-		}
-
-		public TreeModel getSnippetTree() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
-			ResultDocument resultDocument = getResultDocument();
-			if (resultDocument == null)
-				return null;
-			return new FieldTreeModel<SnippetFieldValue>(
-					resultDocument.getSnippetFields());
-		}
-	}
-
-	public class FieldTreeModel<T extends FieldValue> extends AbstractTreeModel {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -1438357359217617272L;
-
-		public FieldTreeModel(FieldList<T> fieldList) {
-			super(fieldList);
-		}
-
-		@Override
-		public Object getChild(Object parent, int index) {
-			if (parent instanceof FieldList<?>) {
-				FieldList<?> fieldList = (FieldList<?>) parent;
-				return fieldList.get(index);
-			} else if (parent instanceof FieldValue) {
-				FieldValue fieldValue = (FieldValue) parent;
-				return fieldValue.getValueArray()[index];
-			}
-			return null;
-		}
-
-		@Override
-		public int getChildCount(Object parent) {
-			if (parent instanceof FieldList<?>) {
-				FieldList<?> fieldList = (FieldList<?>) parent;
-				return fieldList.size();
-			} else if (parent instanceof FieldValue) {
-				FieldValue fieldValue = (FieldValue) parent;
-				return fieldValue.getValuesCount();
-			}
-			return 0;
-		}
-
-		@Override
-		public boolean isLeaf(Object node) {
-			return node instanceof String;
-		}
-	}
-
-	public List<Document> getDocuments() throws SearchLibException {
-		synchronized (this) {
-			if (documents != null)
-				return documents;
-			AbstractResultSearch result = (AbstractResultSearch) getResult();
-			if (result == null)
-				return null;
-			int i = result.getDocumentCount();
-			if (i <= 0)
-				return null;
-			documents = new ArrayList<Document>(i);
-			int pos = result.getRequest().getStart();
-			int end = pos + result.getDocumentCount();
-			while (pos < end)
-				documents.add(new Document(pos++));
-			return documents;
-		}
 	}
 
 	public boolean getDocumentFound() throws SearchLibException {
@@ -279,26 +83,6 @@ public class ResultSearchController extends AbstractQueryController implements
 		synchronized (this) {
 			return getFacetList() != null;
 		}
-	}
-
-	public void explainScore(Component comp) throws SearchLibException,
-			InterruptedException, IOException, ParseException, SyntaxError {
-		Client client = getClient();
-		if (client == null)
-			return;
-		AbstractResultSearch result = (AbstractResultSearch) getResult();
-		if (result == null)
-			return;
-		Document document = (Document) comp.getAttribute("document");
-		if (document == null)
-			return;
-		int docId = document.getDocId();
-		String explanation = client.explain(result.getRequest(), docId, true);
-		Window win = (Window) Executions.createComponents(
-				"/WEB-INF/zul/query/result/explanation.zul", null, null);
-		Html html = (Html) win.getFellow("htmlExplain", true);
-		html.setContent(explanation);
-		win.doModal();
 	}
 
 	public void exportSearchResultToCsv() throws Exception {
@@ -337,41 +121,9 @@ public class ResultSearchController extends AbstractQueryController implements
 	@Override
 	public void reloadPage() {
 		synchronized (this) {
-			documents = null;
 			selectedFacet = null;
 			super.reloadPage();
 		}
 	}
 
-	private void renderValue(Treerow treerow, String value) {
-		Treecell treecell = new Treecell(value);
-		treecell.setSpan(2);
-		treecell.setParent(treerow);
-	}
-
-	private void renderValue(Treerow treerow, FieldValueItem value) {
-		renderValue(treerow, value.getValue());
-	}
-
-	private void renderField(Treerow treerow, FieldValue fieldValue) {
-		new Treecell(fieldValue.getLabel()).setParent(treerow);
-		Treecell treecell;
-		if (fieldValue.getValuesCount() > 0)
-			treecell = new Treecell(fieldValue.getValueArray()[0].getValue());
-		else
-			treecell = new Treecell();
-		treecell.setParent(treerow);
-	}
-
-	@Override
-	public void render(Treeitem item, Object data) throws Exception {
-		Treerow treerow = new Treerow();
-		if (data instanceof String)
-			renderValue(treerow, (String) data);
-		else if (data instanceof FieldValue)
-			renderField(treerow, (FieldValue) data);
-		else if (data instanceof FieldValueItem)
-			renderValue(treerow, (FieldValueItem) data);
-		treerow.setParent(item);
-	}
 }

@@ -38,7 +38,6 @@ import org.apache.lucene.search.similar.MoreLikeThis;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.OsseLibrary;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.sun.jna.Pointer;
 
@@ -120,7 +119,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public String explain(SearchRequest searchRequest, int docId, boolean bHtml) {
+	public String explain(AbstractRequest request, int docId, boolean bHtml) {
 		// TODO Auto-generated method stub
 		return null;
 	}
