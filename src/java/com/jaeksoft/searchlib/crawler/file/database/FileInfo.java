@@ -270,7 +270,7 @@ public class FileInfo {
 		if (fileType != newFileInfo.fileType)
 			return true;
 		if (fileSize != null && newFileInfo.fileSize != null)
-			if (fileSize != newFileInfo.fileSize)
+			if (!fileSize.equals(newFileInfo.fileSize))
 				return true;
 		return false;
 	}

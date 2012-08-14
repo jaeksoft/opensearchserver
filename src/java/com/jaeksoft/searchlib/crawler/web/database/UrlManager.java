@@ -45,10 +45,10 @@ import javax.xml.transform.TransformerConfigurationException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
+import com.jaeksoft.searchlib.crawler.common.database.AbstractManager;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -67,76 +67,29 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
-import com.jaeksoft.searchlib.scheduler.task.TaskUrlManagerAction;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class UrlManager {
+public class UrlManager extends AbstractManager {
 
 	protected Client urlDbClient;
-
-	private TaskLog currentTaskLog;
 
 	public enum SearchTemplate {
 		urlSearch, urlExport;
 	}
 
-	protected Client targetClient = null;
-
 	protected final UrlItemFieldEnum urlItemFieldEnum;
 
 	public UrlManager() {
 		urlItemFieldEnum = getNewUrlItemFieldEnum();
-		currentTaskLog = null;
-	}
-
-	public void setCurrentTaskLog(TaskLog taskLog) throws SearchLibException {
-		synchronized (this) {
-			if (currentTaskLog != null)
-				throw new SearchLibException("A task is already running: "
-						+ currentTaskLog.getTask().getName());
-			currentTaskLog = taskLog;
-		}
-	}
-
-	public void resetCurrentTaskLog() {
-		synchronized (this) {
-			currentTaskLog = null;
-		}
-	}
-
-	public TaskLog getCurrentTaskLog() {
-		synchronized (this) {
-			return currentTaskLog;
-		}
-	}
-
-	public boolean isCurrentTaskLog() {
-		return getCurrentTaskLog() != null;
-	}
-
-	public boolean waitForTask(TaskUrlManagerAction taskUrlManagerAction,
-			int secTimeOut) throws InterruptedException {
-		long timeOut = System.currentTimeMillis() + 1000 * secTimeOut;
-		while (timeOut > System.currentTimeMillis()) {
-			TaskLog taskLog = getCurrentTaskLog();
-			if (taskLog != null)
-				if (taskLog.getTask() == taskUrlManagerAction) {
-					System.out.println("FOUND "
-							+ taskUrlManagerAction.getName());
-					return true;
-				}
-			Thread.sleep(1000);
-		}
-		return false;
 	}
 
 	public void init(Client client, File dataDir) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
+		super.init(client);
 		dataDir = new File(dataDir, "web_crawler_url");
 		if (!dataDir.exists())
 			dataDir.mkdir();
 		this.urlDbClient = new Client(dataDir, "/url_config.xml", true);
-		targetClient = client;
 	}
 
 	public void free() {
@@ -553,6 +506,7 @@ public class UrlManager {
 
 	public long getUrlList(SearchRequest searchRequest, long start, long rows,
 			List<UrlItem> list) throws SearchLibException {
+		searchRequest.reset();
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
@@ -632,19 +586,6 @@ public class UrlManager {
 		}
 	}
 
-	// TODO : can be mutualised
-	public Date getPastDate(long fetchInterval, String intervalUnit) {
-		long l;
-		if ("hours".equalsIgnoreCase(intervalUnit))
-			l = fetchInterval * 1000 * 3600;
-		else if ("minutes".equalsIgnoreCase(intervalUnit))
-			l = fetchInterval * 1000 * 60;
-		else
-			// Default is days
-			l = fetchInterval * 1000 * 86400;
-		return new Date(System.currentTimeMillis() - l);
-	}
-
 	/**
 	 * Update the targeted index with crawl results
 	 * 
@@ -705,9 +646,8 @@ public class UrlManager {
 			int currentPos = 0;
 			List<UrlItem> uList = new ArrayList<UrlItem>();
 			for (;;) {
-				int totalSize;
-				totalSize = (int) getUrlList(searchRequest, currentPos, 1000,
-						uList);
+				int totalSize = (int) getUrlList(searchRequest, currentPos,
+						1000, uList);
 				for (UrlItem u : uList)
 					pw.println(u.getUrl());
 				if (uList.size() == 0)
@@ -781,27 +721,21 @@ public class UrlManager {
 			throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
-			int totalCount = 0;
-			long previousNumFound = 0;
+			int total = 0;
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 			for (;;) {
-				long numFound = getUrlList(searchRequest, 0, 1000, urlItemList);
+				urlItemList.clear();
+				getUrlList(searchRequest, 0, 1000, urlItemList);
 				if (urlItemList.size() == 0)
 					break;
 				List<String> urlList = new ArrayList<String>(urlItemList.size());
 				for (UrlItem urlItem : urlItemList)
 					urlList.add(urlItem.getUrl());
-				int count = urlDbClient.deleteDocuments(urlList);
-				if (count == 0 || previousNumFound == numFound) {
-					Logging.error("Bad count at URL deletion " + count + "/"
-							+ previousNumFound + "/" + numFound);
-					break;
-				}
-				previousNumFound = numFound;
-				totalCount += count;
-				taskLog.setInfo(totalCount + " URL(s) deleted");
+				urlDbClient.deleteDocuments(urlList);
+				total += urlItemList.size();
+				taskLog.setInfo(total + " URL(s) deleted");
 			}
-			return totalCount;
+			return total;
 		} finally {
 			resetCurrentTaskLog();
 		}
@@ -817,32 +751,26 @@ public class UrlManager {
 	}
 
 	public int updateFetchStatus(SearchRequest searchRequest,
-			FetchStatus fetchStatus, TaskLog taskLog) throws SearchLibException {
+			FetchStatus fetchStatus, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		try {
-			int totalCount = 0;
-			long previousNumFound = 0;
+			int total = 0;
 			urlItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
-					fetchStatus.name, false, true);
+					fetchStatus.value, false, true);
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 			for (;;) {
-				long numFound = (int) getUrlList(searchRequest, 0, 1000,
-						urlItemList);
+				urlItemList.clear();
+				getUrlList(searchRequest, 0, 1000, urlItemList);
 				if (urlItemList.size() == 0)
 					break;
 				for (UrlItem urlItem : urlItemList)
 					urlItem.setFetchStatus(fetchStatus);
 				updateUrlItems(urlItemList);
-				if (previousNumFound == numFound) {
-					Logging.error("Bad count at URL fetch status update "
-							+ previousNumFound + "/" + numFound);
-					break;
-				}
-				previousNumFound = numFound;
-				totalCount += urlItemList.size();
-				taskLog.setInfo(totalCount + " URL(s) updated");
+				total += urlItemList.size();
+				taskLog.setInfo(total + " URL(s) updated");
 			}
-			return totalCount;
+			return total;
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		} finally {

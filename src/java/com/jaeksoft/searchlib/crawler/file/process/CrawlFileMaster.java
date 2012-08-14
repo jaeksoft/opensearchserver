@@ -102,7 +102,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 			fileCrawlQueue.index(true);
 			if (fileCrawlQueue.hasContainedData()) {
 				setStatus(CrawlStatus.OPTIMIZATION);
-				config.getFileManager().reload(true);
+				config.getFileManager().reload(true, null);
 			}
 
 			sleepSec(5);

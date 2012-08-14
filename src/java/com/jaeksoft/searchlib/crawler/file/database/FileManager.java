@@ -39,9 +39,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
+import com.jaeksoft.searchlib.crawler.common.database.AbstractManager;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -53,18 +53,18 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
 
-public class FileManager {
+public class FileManager extends AbstractManager {
 
 	public enum SearchTemplate {
 		fileSearch, fileInfo, fileExport;
 	}
 
 	private final Client fileDbClient;
-	private final Client targetClient;
 
 	private final FileItemFieldEnum fileItemFieldEnum = new FileItemFieldEnum();
 
@@ -72,26 +72,30 @@ public class FileManager {
 
 	public FileManager(Client client, File dataDir) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
+		init(client);
 		dataDir = new File(dataDir, "file_crawler_url");
 		if (!dataDir.exists())
 			dataDir.mkdir();
 
 		this.fileDbClient = new Client(dataDir, "/file_config.xml", true);
-		targetClient = client;
 	}
 
 	public Client getFileDbClient() {
 		return fileDbClient;
 	}
 
-	public void reload(boolean optimize) throws SearchLibException {
-
-		if (optimize) {
-			fileDbClient.reload();
-			fileDbClient.getIndex().optimize();
+	public void reload(boolean optimize, TaskLog taskLog)
+			throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			if (optimize) {
+				fileDbClient.reload();
+				fileDbClient.getIndex().optimize();
+			}
+			targetClient.reload();
+		} finally {
+			resetCurrentTaskLog();
 		}
-		fileDbClient.reload();
-		targetClient.reload();
 	}
 
 	public SearchRequest fileQuery(SearchTemplate searchTemplate,
@@ -245,6 +249,7 @@ public class FileManager {
 
 	public long getFileList(SearchRequest searchRequest, long start, long rows,
 			List<FileItem> list) throws SearchLibException {
+		searchRequest.reset();
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
@@ -614,56 +619,63 @@ public class FileManager {
 		return fileItemFieldEnum;
 	}
 
-	public int delete(SearchRequest searchRequest) throws SearchLibException {
-		int totalCount = 0;
-		long previousNumFound = 0;
-		List<FileItem> itemList = new ArrayList<FileItem>();
-		for (;;) {
-			long numFound = getFileList(searchRequest, 0, 1000, itemList);
-			if (itemList.size() == 0)
-				break;
-			List<String> uriList = new ArrayList<String>(itemList.size());
-			for (FileItem fileItem : itemList)
-				uriList.add(fileItem.getUri());
-			int count = fileDbClient.deleteDocuments(uriList);
-			if (count == 0 || previousNumFound == numFound) {
-				Logging.error("Bad count at URI deletion " + count + "/"
-						+ previousNumFound + "/" + numFound);
-				break;
-			}
-			previousNumFound = numFound;
-			totalCount += count;
+	public void deleteAll(TaskLog taskLog) throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			fileDbClient.deleteAll();
+		} finally {
+			resetCurrentTaskLog();
 		}
-		return totalCount;
+	}
+
+	public int delete(SearchRequest searchRequest, TaskLog taskLog)
+			throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			int total = 0;
+			List<FileItem> itemList = new ArrayList<FileItem>();
+			for (;;) {
+				itemList.clear();
+				getFileList(searchRequest, 0, 1000, itemList);
+				if (itemList.size() == 0)
+					break;
+				List<String> uriList = new ArrayList<String>(itemList.size());
+				for (FileItem fileItem : itemList)
+					uriList.add(fileItem.getUri());
+				fileDbClient.deleteDocuments(uriList);
+				total += itemList.size();
+				taskLog.setInfo(total + " URI(s) deleted");
+			}
+			return total;
+		} finally {
+			resetCurrentTaskLog();
+		}
 	}
 
 	public int updateFetchStatus(SearchRequest searchRequest,
-			FetchStatus fetchStatus) throws SearchLibException {
+			FetchStatus fetchStatus, TaskLog taskLog) throws SearchLibException {
+		setCurrentTaskLog(taskLog);
 		try {
-			int totalCount = 0;
-			long previousNumFound = 0;
+			int total = 0;
 			fileItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
-					fetchStatus.name, false, true);
+					fetchStatus.value, false, true);
 			List<FileItem> fileItemList = new ArrayList<FileItem>();
 			for (;;) {
-				long numFound = (int) getFileList(searchRequest, 0, 1000,
-						fileItemList);
+				fileItemList.clear();
+				getFileList(searchRequest, 0, 1000, fileItemList);
 				if (fileItemList.size() == 0)
 					break;
 				for (FileItem fileItem : fileItemList)
 					fileItem.setFetchStatus(fetchStatus);
 				updateFileItems(fileItemList);
-				if (previousNumFound == numFound) {
-					Logging.error("Bad count at URL fetch status update "
-							+ previousNumFound + "/" + numFound);
-					break;
-				}
-				previousNumFound = numFound;
-				totalCount += fileItemList.size();
+				total += fileItemList.size();
+				taskLog.setInfo(total + " URI(s) updated");
 			}
-			return totalCount;
+			return total;
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
+		} finally {
+			resetCurrentTaskLog();
 		}
 	}
 }

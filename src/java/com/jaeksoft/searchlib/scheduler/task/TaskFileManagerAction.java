@@ -30,18 +30,18 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 
-public class TaskUrlManagerAction extends TaskAbstract {
+public class TaskFileManagerAction extends TaskAbstract {
 
 	@Override
 	public String getName() {
-		return "Web crawler - Action on selected URLs";
+		return "File crawler - Action on selected URLs";
 	}
 
 	@Override
@@ -87,26 +87,26 @@ public class TaskUrlManagerAction extends TaskAbstract {
 	@Override
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException, IOException {
-		UrlManager urlManager = client.getUrlManager();
-		taskLog.setInfo("URL manager Action started");
+		FileManager fileManager = client.getFileManager();
+		taskLog.setInfo("File manager Action started");
 		if (selectionRequest != null) {
 			if (setToUnfetched) {
-				taskLog.setInfo("URL manager: set selection to unfetched");
-				urlManager.updateFetchStatus(selectionRequest,
+				taskLog.setInfo("File manager: set selection to unfetched");
+				fileManager.updateFetchStatus(selectionRequest,
 						FetchStatus.UN_FETCHED, taskLog);
 			} else if (deleteSelection) {
-				taskLog.setInfo("URL manager: delete selection");
-				urlManager.deleteUrls(selectionRequest, taskLog);
+				taskLog.setInfo("File manager: delete selection");
+				fileManager.delete(selectionRequest, taskLog);
 			}
 		}
 		if (deleteAll) {
-			taskLog.setInfo("URL manager: Delete All");
-			urlManager.deleteAll(taskLog);
+			taskLog.setInfo("File manager: Delete All");
+			fileManager.deleteAll(taskLog);
 		}
 		if (optimize) {
-			taskLog.setInfo("URL manager: optimize");
-			urlManager.reload(true, taskLog);
+			taskLog.setInfo("File manager: optimize");
+			fileManager.reload(true, taskLog);
 		}
-		taskLog.setInfo("URL manager Action done");
+		taskLog.setInfo("File manager Action done");
 	}
 }

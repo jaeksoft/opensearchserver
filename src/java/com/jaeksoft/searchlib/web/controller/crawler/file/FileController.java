@@ -48,6 +48,9 @@ import com.jaeksoft.searchlib.crawler.file.database.FileManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.scheduler.TaskItem;
+import com.jaeksoft.searchlib.scheduler.TaskManager;
+import com.jaeksoft.searchlib.scheduler.task.TaskFileManagerAction;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
@@ -85,6 +88,15 @@ public class FileController extends CrawlerController implements AfterCompose {
 				onPaging((PagingEvent) event);
 			}
 		});
+	}
+
+	public FileManager getFileManager() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			return client.getFileManager();
+		}
 	}
 
 	public int getActivePage() {
@@ -339,14 +351,14 @@ public class FileController extends CrawlerController implements AfterCompose {
 
 	public List<FileItem> getFileList() throws SearchLibException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return null;
 			if (fileList != null)
 				return fileList;
 
+			FileManager fileManager = getFileManager();
+			if (fileManager == null)
+				return null;
+
 			fileList = new ArrayList<FileItem>();
-			FileManager fileManager = client.getFileManager();
 			SearchRequest searchRequest = getSearchRequest(fileManager,
 					SearchTemplate.fileSearch);
 
@@ -399,41 +411,50 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
-	public void onSetToUnfetched() throws SearchLibException {
+	private void onTask(TaskFileManagerAction taskFileManagerAction)
+			throws SearchLibException, InterruptedException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		TaskItem taskItem = new TaskItem(client, taskFileManagerAction);
+		TaskManager.executeTask(client, taskItem);
+		client.getFileManager().waitForTask(taskFileManagerAction, 30);
+	}
+
+	public void onSetToUnfetched() throws SearchLibException,
+			InterruptedException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
+			FileManager fileManager = getFileManager();
+			if (fileManager == null)
 				return;
-			FileManager fileManager = client.getFileManager();
 			SearchRequest searchRequest = getSearchRequest(fileManager,
-					SearchTemplate.fileExport);
-			fileManager
-					.updateFetchStatus(searchRequest, FetchStatus.UN_FETCHED);
-			fileManager.reload(true);
-			onSearch();
+					SearchTemplate.fileSearch);
+			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
+			taskFileManagerAction.setSelection(searchRequest, false, true);
+			taskFileManagerAction.setOptimize();
+			onTask(taskFileManagerAction);
 		}
 	}
 
-	public void onDelete() throws SearchLibException {
+	public void onDelete() throws SearchLibException, InterruptedException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
+			FileManager fileManager = getFileManager();
+			if (fileManager == null)
 				return;
-			FileManager fileManager = client.getFileManager();
 			SearchRequest searchRequest = getSearchRequest(fileManager,
 					SearchTemplate.fileExport);
-			fileManager.delete(searchRequest);
-			fileManager.reload(true);
-			onSearch();
+			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
+			taskFileManagerAction.setSelection(searchRequest, true, false);
+			taskFileManagerAction.setOptimize();
+			onTask(taskFileManagerAction);
 		}
 	}
 
-	public void onOptimize() throws SearchLibException {
+	public void onOptimize() throws SearchLibException, InterruptedException {
 		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return;
-			client.getFileManager().reload(true);
+			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
+			taskFileManagerAction.setOptimize();
+			onTask(taskFileManagerAction);
 		}
 	}
 
@@ -458,5 +479,16 @@ public class FileController extends CrawlerController implements AfterCompose {
 			else if ("optimize".equalsIgnoreCase(action))
 				onOptimize();
 		}
+	}
+
+	public void onTimer() {
+		reloadComponent("taskLogInfo");
+	}
+
+	public boolean isRefresh() throws SearchLibException {
+		FileManager fileManager = getFileManager();
+		if (fileManager == null)
+			return false;
+		return fileManager.isCurrentTaskLog();
 	}
 }

@@ -94,7 +94,9 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 
 			FileTypeEnum type = currentFileItem.getFileType();
 			if (type == FileTypeEnum.directory) {
-				checkDirectory((ItemDirectoryIterator) itemIterator, crawlQueue);
+				if (!checkDirectory((ItemDirectoryIterator) itemIterator,
+						crawlQueue))
+					continue;
 			} else if (type == FileTypeEnum.file) {
 				if (!checkFile())
 					continue;
@@ -139,7 +141,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		return crawl;
 	}
 
-	private void checkDirectory(ItemDirectoryIterator itemDirectory,
+	private boolean checkDirectory(ItemDirectoryIterator itemDirectory,
 			FileCrawlQueue crawlQueue) throws UnsupportedEncodingException,
 			SearchLibException, URISyntaxException {
 
@@ -166,6 +168,8 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 					crawlQueue.deleteParent(currentStats, fileInfo.getUri());
 				else if (fileInfo.getFileType() == FileTypeEnum.file)
 					crawlQueue.delete(currentStats, fileInfo.getUri());
+
+		return checkFile();
 	}
 
 	private boolean checkFile() throws UnsupportedEncodingException,

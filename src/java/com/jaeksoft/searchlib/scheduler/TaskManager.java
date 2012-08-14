@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.io.IOException;
 import java.text.ParseException;
 
 import javax.naming.NamingException;
@@ -222,6 +223,8 @@ public class TaskManager implements Job {
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		} catch (NamingException e) {
+			Logging.error(e);
+		} catch (IOException e) {
 			Logging.error(e);
 		}
 

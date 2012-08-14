@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -81,7 +82,8 @@ public class TaskItem {
 		return userProperties.getArray();
 	}
 
-	public void run(Client client, TaskLog taskLog) throws SearchLibException {
+	public void run(Client client, TaskLog taskLog) throws SearchLibException,
+			IOException {
 		task.execute(client, userProperties, taskLog);
 	}
 

@@ -504,7 +504,7 @@ public class UrlController extends CommonController implements AfterCompose {
 	public void onSetToUnfetched() throws SearchLibException,
 			InterruptedException {
 		synchronized (this) {
-			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(searchRequest, false, true);
 			taskUrlManagerAction.setOptimize();

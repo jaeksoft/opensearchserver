@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.common.database.AbstractManager;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
@@ -153,7 +154,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 		UrlManager urlManager = config.getUrlManager();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		fetchIntervalDate = urlManager.getPastDate(propertyManager
+		fetchIntervalDate = AbstractManager.getPastDate(propertyManager
 				.getFetchInterval().getValue(), propertyManager
 				.getFetchIntervalUnit().getValue());
 		urlManager.getOldHostToFetch(fetchIntervalDate, maxUrlPerSession,
