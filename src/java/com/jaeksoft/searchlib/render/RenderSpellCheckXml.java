@@ -24,15 +24,10 @@
 
 package com.jaeksoft.searchlib.render;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.result.ResultSpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
@@ -41,8 +36,6 @@ import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
 
 public class RenderSpellCheckXml extends
 		AbstractRenderXml<SpellCheckRequest, ResultSpellCheck> {
-
-	private PrintWriter writer;
 
 	public RenderSpellCheckXml(ResultSpellCheck result) {
 		super(result);
@@ -81,26 +74,9 @@ public class RenderSpellCheckXml extends
 		writer.println("</spellcheck>");
 	}
 
-	private void renderPrefix() throws ParseException, SyntaxError,
-			SearchLibException, IOException {
-		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		writer.println("<response>");
-		writer.println("<header>");
-		writer.println("\t<status>0</status>");
-		writer.print("\t<query>");
-		writer.print(StringEscapeUtils.escapeXml(request.getQueryString()));
-		writer.println("</query>");
-		writer.println("</header>");
-	}
-
-	private void renderSuffix() {
-		writer.println("</response>");
-	}
-
 	@Override
-	public void render(PrintWriter writer) throws Exception {
-		this.writer = writer;
-		renderPrefix();
+	public void render() throws Exception {
+		renderPrefix(0, request.getQueryString());
 		renderSpellChecks();
 		renderSuffix();
 	}

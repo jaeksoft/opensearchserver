@@ -34,17 +34,25 @@ public interface ResultDocumentsInterface<T extends AbstractRequest> extends
 
 	public T getRequest();
 
-	public int getPosStart();
+	public int getRequestStart();
+
+	public int getRequestRows();
 
 	public ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException;
 
 	public float getScore(int pos);
 
+	public float getMaxScore();
+
+	public int getCollapsedDocCount();
+
 	public int getCollapseCount(int pos);
 
 	public int getDocumentCount();
 
 	public DocIdInterface getDocs();
+
+	public int getNumFound();
 
 }

@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderMoreLikeThisXml;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -44,6 +45,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 	transient private ReaderLocal reader = null;
 	private DocIdInterface docs = null;
+	final private float maxScore;
 
 	public ResultMoreLikeThis(ReaderLocal reader, MoreLikeThisRequest request)
 			throws SearchLibException, IOException, ParseException,
@@ -56,8 +58,11 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 			searchRequest.getFilterList().add(filter);
 		searchRequest.setBoostedComplexQuery(request.getQuery());
 		DocSetHits dsh = reader.searchDocSet(searchRequest, timer);
-		if (dsh == null)
+		if (dsh == null) {
+			maxScore = 0;
 			return;
+		}
+		maxScore = dsh.getMaxScore(timer);
 		docs = dsh.getDocIdInterface(timer);
 	}
 
@@ -88,6 +93,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 		return ResultDocument.getCollapseCount(docs, pos);
 	}
 
+	@Override
 	public int getNumFound() {
 		if (docs == null)
 			return 0;
@@ -96,7 +102,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 	@Override
 	protected Render getRenderXml() {
-		return null;
+		return new RenderMoreLikeThisXml(this);
 	}
 
 	@Override
@@ -126,13 +132,28 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 	}
 
 	@Override
-	public int getPosStart() {
+	public int getRequestStart() {
 		return request.getStart();
+	}
+
+	@Override
+	public int getRequestRows() {
+		return request.getRows();
 	}
 
 	@Override
 	public DocIdInterface getDocs() {
 		return docs;
+	}
+
+	@Override
+	public float getMaxScore() {
+		return maxScore;
+	}
+
+	@Override
+	public int getCollapsedDocCount() {
+		return 0;
 	}
 
 }

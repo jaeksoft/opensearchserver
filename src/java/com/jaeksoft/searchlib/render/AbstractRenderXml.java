@@ -24,12 +24,16 @@
 
 package com.jaeksoft.searchlib.render;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -40,6 +44,8 @@ public abstract class AbstractRenderXml<T1 extends AbstractRequest, T2 extends A
 	final private Matcher controlMatcher;
 	final private Matcher spaceMatcher;
 
+	protected PrintWriter writer;
+
 	protected AbstractRenderXml(T2 result) {
 		super(result);
 		Pattern p = Pattern.compile("\\p{Cntrl}+");
@@ -48,7 +54,7 @@ public abstract class AbstractRenderXml<T1 extends AbstractRequest, T2 extends A
 		spaceMatcher = p.matcher("");
 	}
 
-	public abstract void render(PrintWriter writer) throws Exception;
+	public abstract void render() throws Exception;
 
 	protected String xmlTextRender(String text) {
 		synchronized (controlMatcher) {
@@ -62,9 +68,35 @@ public abstract class AbstractRenderXml<T1 extends AbstractRequest, T2 extends A
 		return StringEscapeUtils.escapeXml(text);
 	}
 
-	@Override
-	public void render(ServletTransaction servletTransaction) throws Exception {
-		servletTransaction.setResponseContentType("text/xml");
-		render(servletTransaction.getWriter("UTF-8"));
+	protected void renderPrefix(int status, String queryString)
+			throws ParseException, SyntaxError, SearchLibException, IOException {
+		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		writer.println("<response>");
+		writer.println("<header>");
+		writer.print("<status>");
+		writer.print(status);
+		writer.print("</status>");
+		writer.print("<query>");
+		writer.print(StringEscapeUtils.escapeXml(queryString));
+		writer.println("</query>");
+		writer.println("</header>");
 	}
+
+	protected void renderSuffix() {
+		writer.println("</response>");
+	}
+
+	@Override
+	final public void render(ServletTransaction servletTransaction)
+			throws Exception {
+		servletTransaction.setResponseContentType("text/xml");
+		writer = servletTransaction.getWriter("UTF-8");
+		render();
+	}
+
+	protected void renderTimers() {
+		result.getTimer().writeXml(writer, request.getTimerMinTime(),
+				request.getTimerMaxDepth());
+	}
+
 }

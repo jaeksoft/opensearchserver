@@ -253,7 +253,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 			int docCount = result.getDocumentCount();
 			if (docCount <= 0)
 				return null;
-			int pos = result.getPosStart();
+			int pos = result.getRequestStart();
 			documents = new ArrayList<Document>(docCount);
 			int end = pos + docCount;
 			while (pos < end)

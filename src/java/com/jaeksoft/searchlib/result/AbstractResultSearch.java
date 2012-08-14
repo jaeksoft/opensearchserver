@@ -89,17 +89,24 @@ public abstract class AbstractResultSearch extends
 		return new ResultDocumentIterator(this, null);
 	}
 
+	@Override
 	public float getMaxScore() {
 		return maxScore;
 	}
 
+	@Override
 	public int getNumFound() {
 		return numFound;
 	}
 
 	@Override
-	public int getPosStart() {
+	public int getRequestStart() {
 		return request.getStart();
+	}
+
+	@Override
+	public int getRequestRows() {
+		return request.getRows();
 	}
 
 	protected void setDocs(DocIdInterface docs) {
@@ -134,6 +141,7 @@ public abstract class AbstractResultSearch extends
 		return collapse;
 	}
 
+	@Override
 	public int getCollapsedDocCount() {
 		return collapsedDocCount;
 	}

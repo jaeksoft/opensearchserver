@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -39,76 +38,18 @@ import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.snippet.SnippetField;
-import com.jaeksoft.searchlib.util.Timer;
 
 public class RenderSearchXml extends
-		AbstractRenderXml<SearchRequest, AbstractResultSearch> {
-
-	private PrintWriter writer;
-
-	private Timer timer;
+		AbstractRenderDocumentsXml<SearchRequest, AbstractResultSearch> {
 
 	public RenderSearchXml(AbstractResultSearch result) {
 		super(result);
 	}
 
-	private void renderPrefix() throws ParseException, SyntaxError,
-			SearchLibException, IOException {
-		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		writer.println("<response>");
-		writer.println("<header>");
-		writer.println("\t<status>0</status>");
-		writer.print("\t<query>");
-		writer.print(StringEscapeUtils.escapeXml(request.getQueryParsed()));
-		writer.println("</query>");
-		writer.println("</header>");
-	}
-
-	private void renderSuffix() {
-		writer.println("</response>");
-	}
-
-	private void renderDocuments() throws IOException, ParseException,
-			SyntaxError, SearchLibException {
-		SearchRequest searchRequest = result.getRequest();
-		int start = searchRequest.getStart();
-		int end = result.getDocumentCount() + searchRequest.getStart();
-		writer.print("<result name=\"response\" numFound=\"");
-		writer.print(result.getNumFound());
-		writer.print("\" collapsedDocCount=\"");
-		writer.print(result.getCollapsedDocCount());
-		writer.print("\" start=\"");
-		writer.print(searchRequest.getStart());
-		writer.print("\" rows=\"");
-		writer.print(searchRequest.getRows());
-		writer.print("\" maxScore=\"");
-		writeScore(writer, result.getMaxScore());
-		writer.print("\" time=\"");
-		writer.print(result.getTimer().tempDuration());
-		writer.println("\">");
-		for (int i = start; i < end; i++)
-			this.renderDocument(i);
-		writer.println("</result>");
-	}
-
-	private void renderDocument(SearchRequest searchRequest, ResultDocument doc)
-			throws IOException {
-		if (doc == null)
-			return;
-		for (Field field : searchRequest.getReturnFieldList())
-			renderField(doc, field);
-		for (SnippetField field : searchRequest.getSnippetFieldList())
-			renderSnippetValue(doc, field);
-	}
-
 	private void renderJoinResult(JoinResult joinResult, JoinDocInterface docs,
-			int pos, Timer timer) throws IOException, SearchLibException {
+			int pos) throws IOException, SearchLibException {
 		if (joinResult == null)
 			return;
 		if (!joinResult.isReturnFields())
@@ -117,7 +58,7 @@ public class RenderSearchXml extends
 		writer.print(joinResult.getParamPosition());
 		writer.println("\">");
 		renderDocument(joinResult.getForeignResult().getRequest(),
-				joinResult.getDocument(docs, pos, timer));
+				joinResult.getDocument(docs, pos, renderingTimer));
 		writer.println("\t\t</join>");
 
 	}
@@ -130,67 +71,16 @@ public class RenderSearchXml extends
 		if (!(docs instanceof JoinDocInterface))
 			return;
 		for (JoinResult joinResult : joinResults)
-			renderJoinResult(joinResult, (JoinDocInterface) docs, pos, timer);
+			renderJoinResult(joinResult, (JoinDocInterface) docs, pos);
 	}
 
-	private void renderDocument(int pos) throws IOException, ParseException,
+	@Override
+	protected void renderDocument(int pos) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
-		writer.print("\t<doc score=\"");
-		writeScore(writer, result.getScore(pos));
-		writer.print("\" pos=\"");
-		writer.print(pos);
-		writer.println("\">");
-		ResultDocument doc = result.getDocument(pos, timer);
-		renderDocument(request, doc);
-		int cc = result.getCollapseCount(pos);
-		if (cc > 0) {
-			writer.print("\t\t<collapseCount>");
-			writer.print(cc);
-			writer.println("</collapseCount>");
-		}
+		renderDocumentPrefix(pos);
+		renderDocumentContent(pos);
 		renderJoinResults(result.getJoinResult(), result.getDocs(), pos);
-		writer.println("\t</doc>");
-	}
-
-	private void renderField(ResultDocument doc, Field field)
-			throws IOException {
-		String fieldName = field.getName();
-		FieldValueItem[] values = doc.getValueArray(field);
-		if (values == null)
-			return;
-		for (FieldValueItem v : values) {
-			writer.print("\t\t<field name=\"");
-			writer.print(fieldName);
-			writer.print('"');
-			Float b = v.getBoost();
-			if (b != null) {
-				writer.print(" boost=\"");
-				writer.print(b);
-				writer.print('"');
-			}
-			writer.print('>');
-			writer.print(xmlTextRender(v.getValue()));
-			writer.println("</field>");
-		}
-	}
-
-	private void renderSnippetValue(ResultDocument doc, SnippetField field)
-			throws IOException {
-		String fieldName = field.getName();
-		FieldValueItem[] snippets = doc.getSnippetArray(field);
-		if (snippets == null)
-			return;
-		boolean highlighted = doc.isHighlighted(field.getName());
-		for (FieldValueItem snippet : snippets) {
-			writer.print("\t\t<snippet name=\"");
-			writer.print(fieldName);
-			writer.print('"');
-			if (highlighted)
-				writer.print(" highlighted=\"yes\"");
-			writer.print('>');
-			writer.print(xmlTextRender(snippet.getValue()));
-			writer.println("\t\t</snippet>");
-		}
+		renderDocumentSuffix();
 	}
 
 	private void renderFacet(Facet facet) throws Exception {
@@ -218,16 +108,9 @@ public class RenderSearchXml extends
 		writer.println("</faceting>");
 	}
 
-	private void renderTimers() {
-		result.getTimer().writeXml(writer, request.getTimerMinTime(),
-				request.getTimerMaxDepth());
-	}
-
 	@Override
-	public void render(PrintWriter writer) throws Exception {
-		timer = new Timer(result.getTimer(), "Rendering");
-		this.writer = writer;
-		renderPrefix();
+	public void render() throws Exception {
+		renderPrefix(0, request.getQueryParsed());
 		renderDocuments();
 		renderFacets();
 		renderTimers();

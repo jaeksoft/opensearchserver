@@ -22,45 +22,25 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result;
+package com.jaeksoft.searchlib.render;
 
-import java.util.Iterator;
+import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
+import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.Timer;
+public class RenderMoreLikeThisXml extends
+		AbstractRenderDocumentsXml<MoreLikeThisRequest, ResultMoreLikeThis> {
 
-public class ResultDocumentIterator implements Iterator<ResultDocument> {
-
-	private ResultDocumentsInterface<?> result;
-	private int pos;
-	private int end;
-	private Timer timer;
-
-	public ResultDocumentIterator(ResultDocumentsInterface<?> result,
-			Timer timer) {
-		this.result = result;
-		pos = result.getRequestStart();
-		if (pos < 0)
-			pos = 0;
-		end = result.getDocumentCount() + pos;
+	public RenderMoreLikeThisXml(ResultMoreLikeThis result) {
+		super(result);
 	}
 
 	@Override
-	public boolean hasNext() {
-		return pos < end;
+	public void render() throws Exception {
+		renderPrefix(0, request.getDocQuery());
+		renderDocuments();
+		renderTimers();
+		renderSuffix();
+
 	}
 
-	@Override
-	public ResultDocument next() {
-		try {
-			return result.getDocument(pos++, timer);
-		} catch (SearchLibException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public void remove() {
-		// TODO Auto-generated method stub
-	}
 }
