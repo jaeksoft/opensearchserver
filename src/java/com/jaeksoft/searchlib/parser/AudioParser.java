@@ -98,6 +98,8 @@ public class AudioParser extends Parser {
 			throw new IOException(e);
 		}
 		Tag tag = f.getTag();
+		if (tag == null)
+			return;
 		addFields(tag, FieldKey.TITLE, ParserFieldEnum.title);
 		addFields(tag, FieldKey.ARTIST, ParserFieldEnum.artist);
 		addFields(tag, FieldKey.ALBUM, ParserFieldEnum.album);
