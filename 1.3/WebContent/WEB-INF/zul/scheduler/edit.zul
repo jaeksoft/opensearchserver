@@ -1,0 +1,230 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="scheduleredit"
+	use="com.jaeksoft.searchlib.web.controller.scheduler.SchedulerEditController">
+	<panel title="@{scheduleredit.currentEditMode}" border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" width="150px" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Job name: " />
+						<textbox
+							value="@{scheduleredit.currentJob.name}"
+							readonly="@{scheduleredit.jobItemSelected}" cols="50" />
+					</row>
+					<row>
+						<label value="Active: " />
+						<checkbox label="enabled"
+							checked="@{scheduleredit.currentJob.active}" />
+					</row>
+					<row>
+						<vbox>
+							<label value="Cron expression " />
+							<button target="_blank"
+								label="Documentation"
+								href="http://en.wikipedia.org/wiki/CRON_expression" />
+						</vbox>
+						<grid>
+							<columns>
+								<column label="Seconds" />
+								<column label="Minutes" />
+								<column label="Hours" />
+								<column label="Day of month" />
+								<column label="Month" />
+								<column label="Day of week" />
+								<column label="Year" />
+							</columns>
+							<rows>
+								<row>
+									<textbox
+										value="@{scheduleredit.currentJob.cron.seconds}" width="95%" />
+									<textbox
+										value="@{scheduleredit.currentJob.cron.minutes}" width="95%" />
+									<textbox
+										value="@{scheduleredit.currentJob.cron.hours}" width="95%" />
+									<textbox
+										value="@{scheduleredit.currentJob.cron.dayOfMonth}"
+										width="95%" />
+									<textbox
+										value="@{scheduleredit.currentJob.cron.month}" width="95%" />
+									<textbox
+										value="@{scheduleredit.currentJob.cron.dayOfWeek}"
+										width="95%" />
+									<textbox
+										value="@{scheduleredit.currentJob.cron.year}" width="95%" />
+								</row>
+							</rows>
+						</grid>
+					</row>
+					<row>
+						<label value="Tasks " />
+						<listbox
+							model="@{scheduleredit.currentJob.tasks}"
+							selectedItem="@{scheduleredit.selectedJobTask}">
+							<listhead>
+								<listheader label="Task" hflex="min"
+									valign="top">
+									<vbox>
+										<listbox
+											visible="@{scheduleredit.notSelectedJobTask}"
+											model="@{scheduleredit.taskEnum}" mold="select"
+											selectedItem="@{scheduleredit.selectedTask}" />
+										<label
+											visible="@{scheduleredit.selectedJobTask}"
+											value="@{scheduleredit.currentTask.task.name}" />
+									</vbox>
+								</listheader>
+								<listheader label="Properties"
+									valign="top">
+									<vbox width="100%">
+										<grid
+											visible="@{scheduleredit.currentTask.task.property}"
+											model="@{scheduleredit.currentTask.properties}">
+											<columns>
+												<column hflex="min"
+													align="right" />
+												<column />
+											</columns>
+											<rows>
+												<row
+													self="@{each='property'}">
+													<label
+														value="@{property.name}" />
+													<hbox>
+														<combobox
+															visible="@{property.type.ctrlComboBox}"
+															cols="@{property.def.cols}" model="@{property.valueList}"
+															value="@{property.value}"
+															selectedItem="@{property.value}" />
+														<textbox
+															cols="@{property.def.cols}"
+															visible="@{property.type.ctrlTextBox}"
+															value="@{property.value}" />
+														<textbox
+															cols="@{property.def.cols}" rows="@{property.def.rows}"
+															multiline="true"
+															visible="@{property.type.ctrlMultilineTextBox}"
+															value="@{property.value}" />
+														<textbox
+															type="password" cols="@{property.def.cols}"
+															visible="@{property.type.ctrlPassword}"
+															value="@{property.value}" />
+													</hbox>
+												</row>
+											</rows>
+										</grid>
+									</vbox>
+								</listheader>
+								<listheader align="center" hflex="min"
+									label="action" valign="top">
+									<vbox
+										visible="@{scheduleredit.notSelectedJobTask}">
+										<button tooltiptext="Add a task"
+											image="/images/action_add.png" forward="onTaskAdd" />
+									</vbox>
+									<vbox
+										visible="@{scheduleredit.selectedJobTask}">
+										<button label="Save"
+											forward="onTaskSave" />
+										<button label="Cancel"
+											forward="onTaskCancel" />
+									</vbox>
+								</listheader>
+							</listhead>
+							<listitem self="@{each='taskItem'}">
+								<listcell>
+									<label
+										value="@{taskItem.task.name}" />
+								</listcell>
+								<listcell>
+									<listbox
+										visible="@{taskItem.task.property}"
+										model="@{taskItem.properties}">
+										<listhead>
+											<listheader align="right"
+												width="150px" />
+											<listheader />
+										</listhead>
+										<listitem
+											self="@{each='property2'}">
+											<listcell>
+												<label
+													value="@{property2.name}" />
+												<label value=": " />
+											</listcell>
+											<listcell>
+												<label
+													multiline="@{property2.type.ctrlMultilineTextBox}"
+													visible="@{property2.type.ctrlNotPassword}"
+													value="@{property2.value}" />
+											</listcell>
+										</listitem>
+									</listbox>
+								</listcell>
+								<listcell>
+									<custom-attributes
+										taskitem="@{taskItem}" />
+									<button
+										tooltiptext="Move the task up" image="/images/arrow_top.png"
+										onClick="scheduleredit.onTaskUp(self)" />
+									<button
+										tooltiptext="Move the task down"
+										image="/images/arrow_down.png"
+										onClick="scheduleredit.onTaskDown(self)" />
+									<space />
+									<button
+										tooltiptext="Remove the task"
+										image="/images/action_delete.png"
+										onClick="scheduleredit.onTaskRemove(self)" />
+								</listcell>
+							</listitem>
+						</listbox>
+						<label value="Task list" />
+					</row>
+				</rows>
+				<foot>
+					<footer span="3">
+						<vbox width="100%" align="center">
+							<hbox
+								visible="@{scheduleredit.jobItemSelected}">
+								<button label="Cancel"
+									forward="onCancel" />
+								<space width="10px" />
+								<button label="Save" forward="onSave" />
+								<space width="30px" />
+								<button label="Delete"
+									forward="onDelete" />
+							</hbox>
+							<hbox
+								visible="@{scheduleredit.noJobItemSelected}">
+								<button label="Cancel"
+									forward="onCancel" />
+								<space width="10px" />
+								<button label="Create" forward="onSave" />
+							</hbox>
+						</vbox>
+					</footer>
+				</foot>
+			</grid>
+		</panelchildren>
+	</panel>
+
+</window>

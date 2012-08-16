@@ -1,0 +1,139 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="replication"
+	use="com.jaeksoft.searchlib.web.controller.ReplicationController">
+	<panel title="@{replication.currentEditMode}" border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" hflex="min" />
+					<column align="left" hflex="min" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Replication type" />
+						<listbox mold="select"
+							selectedItem="@{replication.item.replicationType}"
+							model="@{replication.typeValues}" />
+						<label
+							value="Select which index will be replicated" />
+					</row>
+					<row>
+						<label value="Instance URL: " />
+						<textbox value="@{replication.item.instanceUrl}"
+							width="95%" />
+						<label
+							value="Enter the URL of the targeted instance (or empty for this instance)" />
+					</row>
+					<row>
+						<label value="Index name: " />
+						<textbox value="@{replication.item.indexName}"
+							width="95%" />
+						<label
+							value="Enter the name of the targeted index" />
+					</row>
+					<row>
+						<label value="User name: " />
+						<textbox value="@{replication.item.login}"
+							width="95%" />
+						<label
+							value="User name login for authentication (or empty if no rights are required)" />
+					</row>
+					<row>
+						<label value="API Key: " />
+						<textbox value="@{replication.item.apiKey}"
+							width="95%" />
+						<label
+							value="API Key for authentication (or empty if no rights are required)" />
+					</row>
+				</rows>
+				<foot>
+					<footer span="3">
+						<vbox width="100%" align="center">
+							<hbox visible="@{replication.selected}">
+								<button label="Cancel"
+									forward="onCancel" />
+								<space width="10px" />
+								<button label="Save" forward="onSave" />
+								<space width="30px" />
+								<button label="Delete"
+									forward="onDelete" />
+							</hbox>
+							<hbox
+								visible="@{replication.notSelected}">
+								<button label="Create" forward="onSave" />
+							</hbox>
+						</vbox>
+					</footer>
+				</foot>
+			</grid>
+		</panelchildren>
+	</panel>
+	<separator height="10" />
+	<panel title="List of replications - click on the line to edit"
+		border="normal">
+		<toolbar>
+			<button label="Refresh" forward="onListRefresh" />
+		</toolbar>
+		<panelchildren>
+			<listbox selectedItem="@{replication.selectedItem}"
+				model="@{replication.replicationSet}">
+				<listhead>
+					<listheader label="Instance URL" />
+					<listheader label="Replication type" hflex="min" />
+					<listheader label="Index Name" hflex="min" />
+					<listheader label="Last execution time" hflex="min" />
+					<listheader label="Duration"
+						tooltiptext="last duration time" hflex="min" />
+					<listheader label="Progression" width="150px"
+						align="center" />
+					<listheader label="Info" hflex="min" />
+					<listheader label="Action" hflex="min"
+						align="center" />
+				</listhead>
+				<listitem self="@{each='item'}">
+					<listcell label="@{item.instanceUrl}" />
+					<listcell label="@{item.replicationType}" />
+					<listcell label="@{item.indexName}" />
+					<listcell
+						label="@{item.lastReplicationThread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+					<listcell
+						label="@{item.lastReplicationThread.duration,converter='com.jaeksoft.searchlib.web.converter.DurationConverter'}" />
+					<listcell>
+						<progressmeter width="95%"
+							visible="@{item.lastReplicationThread.running}"
+							value="@{item.lastReplicationThread.progress}" />
+					</listcell>
+					<listcell
+						label="@{item.lastReplicationThread.info}" />
+					<listcell>
+						<button tooltiptext="Start the replication"
+							disabled="@{item.replicationThread}"
+							image="/images/action_check.png"
+							onClick="replication.execute(self)">
+							<custom-attributes
+								replicationitem="@{item}" />
+						</button>
+					</listcell>
+				</listitem>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<timer delay="5000" repeats="true" onTimer="replication.onTimer()"
+		running="@{replication.refresh}" />
+</window>
