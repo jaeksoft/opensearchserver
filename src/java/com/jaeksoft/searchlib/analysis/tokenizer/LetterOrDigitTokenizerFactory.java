@@ -38,7 +38,7 @@ public class LetterOrDigitTokenizerFactory extends TokenizerFactory {
 		}
 
 		@Override
-		protected boolean isTokenChar(char c) {
+		final protected boolean isTokenChar(char c) {
 			return Character.isLetterOrDigit(c);
 		}
 	}

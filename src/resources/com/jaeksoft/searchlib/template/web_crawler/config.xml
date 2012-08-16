@@ -34,9 +34,8 @@
 			</analyzer>
 
 			<!-- Phonetic analyzer -->
-			<analyzer name="PhoneticAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+			<analyzer name="PhoneticAnalyzer" tokenizer="StandardTokenizer">
 				<filter class="LowerCaseFilter" />
-				<filter class="ISOLatin1AccentFilter" />
 				<filter class="PhoneticFilter" codec="Beider Morse" scope="QUERY_INDEX" />
 			</analyzer>
 
