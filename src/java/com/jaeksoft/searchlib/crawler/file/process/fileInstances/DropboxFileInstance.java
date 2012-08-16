@@ -28,21 +28,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.net.ssl.SSLContext;
-
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.RESTUtility;
 import com.dropbox.client2.exception.DropboxException;
+import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.Session;
 import com.dropbox.client2.session.WebAuthSession;
+import com.dropbox.client2.session.WebAuthSession.WebAuthInfo;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
@@ -50,8 +44,10 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 
 public class DropboxFileInstance extends FileInstanceAbstract {
 
-	private static final AppKeyPair appKeyPair = new AppKeyPair(
-			"av7bteaqrirafxs", "c6qem9u91tyuwvg");
+	private static final AppKeyPair APPKEYPAIR = new AppKeyPair(
+			"2q1itz9v9manpv9", "hjpihpchb0xwd3d");
+
+	private static final Session.AccessType ACCESS_TYPE = Session.AccessType.DROPBOX;
 
 	private DropboxAPI.Entry dpEntry;
 
@@ -66,30 +62,32 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 		this.dpEntry = dpEntry;
 	}
 
-	private DropboxAPI<WebAuthSession> connect() throws SearchLibException {
+	public static WebAuthInfo requestAuthorization() throws SearchLibException {
 		try {
-			Scheme http = new Scheme("http", 80,
-					PlainSocketFactory.getSocketFactory());
-
-			SSLSocketFactory sf = new SSLSocketFactory(
-					SSLContext.getInstance("TLS"),
-					SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-
-			Scheme https = new Scheme("https", 443, sf);
-			SchemeRegistry sr = new SchemeRegistry();
-			sr.register(http);
-			sr.register(https);
-
-			WebAuthSession session = new WebAuthSession(appKeyPair,
-					Session.AccessType.DROPBOX);
-
-			System.out.println("DROPBOX URL=" + session.getAuthInfo().url);
-			return new DropboxAPI<WebAuthSession>(session);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
+			WebAuthSession session = new WebAuthSession(APPKEYPAIR, ACCESS_TYPE);
+			return session.getAuthInfo();
 		} catch (DropboxException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public static AccessTokenPair retrieveAccessToken(WebAuthInfo webAuthInfo,
+			StringBuffer sbUid) throws SearchLibException {
+		try {
+			WebAuthSession session = new WebAuthSession(APPKEYPAIR, ACCESS_TYPE);
+			sbUid.append(session
+					.retrieveWebAccessToken(webAuthInfo.requestTokenPair));
+			return session.getAccessTokenPair();
+		} catch (DropboxException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	private DropboxAPI<WebAuthSession> connect() {
+		WebAuthSession session = new WebAuthSession(APPKEYPAIR, ACCESS_TYPE,
+				new AccessTokenPair(filePathItem.getUsername(),
+						filePathItem.getPassword()));
+		return new DropboxAPI<WebAuthSession>(session);
 	}
 
 	@Override
@@ -99,18 +97,18 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 
 	@Override
 	public FileTypeEnum getFileType() throws SearchLibException {
-		if (dpEntry == null)
+		if (dpEntry == null) // ROOT
 			return FileTypeEnum.directory;
 		if (dpEntry.isDir)
-			return FileTypeEnum.file;
-		return FileTypeEnum.directory;
+			return FileTypeEnum.directory;
+		return FileTypeEnum.file;
 	}
 
 	@Override
 	public FileInstanceAbstract[] listFilesAndDirectories()
 			throws URISyntaxException, SearchLibException {
 		try {
-			DropboxAPI<WebAuthSession> dbAPI = connect();
+			DropboxAPI<?> dbAPI = connect();
 			DropboxAPI.Entry entries = dbAPI.metadata(getPath(), 0, null, true,
 					null);
 			if (entries == null || entries.contents == null)
@@ -182,8 +180,6 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 		try {
 			DropboxAPI<WebAuthSession> dbAPI = connect();
 			return dbAPI.getFileStream(getPath(), null);
-		} catch (SearchLibException e) {
-			throw new IOException(e);
 		} catch (DropboxException e) {
 			throw new IOException(e);
 		}

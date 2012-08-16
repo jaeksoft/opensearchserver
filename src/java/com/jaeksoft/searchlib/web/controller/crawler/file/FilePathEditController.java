@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +36,18 @@ import javax.naming.NamingException;
 
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.Messagebox;
 
+import com.dropbox.client2.session.AccessTokenPair;
+import com.dropbox.client2.session.WebAuthSession.WebAuthInfo;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.DropboxFileInstance;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
@@ -62,6 +67,8 @@ public class FilePathEditController extends FileCrawlerController {
 	private transient List<File> currentFolderList;
 
 	private boolean showHidden;
+
+	private WebAuthInfo webAuthInfo;
 
 	private class DeleteAlert extends AlertController {
 
@@ -98,6 +105,7 @@ public class FilePathEditController extends FileCrawlerController {
 		currentFile = null;
 		currentFolder = null;
 		showHidden = false;
+		webAuthInfo = null;
 	}
 
 	public List<FileInstanceType> getTypeList() throws SearchLibException {
@@ -312,6 +320,48 @@ public class FilePathEditController extends FileCrawlerController {
 	public void onParentFolder() throws IOException {
 		if (currentFolder != null)
 			setCurrentFolder(currentFolder.getParentFile());
+	}
+
+	public boolean isDropbox() {
+		if (currentFilePath == null)
+			return false;
+		return currentFilePath.getType().is(DropboxFileInstance.class);
+	}
+
+	public void onDropboxAuthRequest() throws MalformedURLException,
+			SearchLibException {
+		webAuthInfo = DropboxFileInstance.requestAuthorization();
+		reloadPage();
+		Executions.getCurrent().sendRedirect(webAuthInfo.url, "_blank");
+	}
+
+	public void onDropboxConfirmAuth() throws SearchLibException,
+			InterruptedException {
+		StringBuffer uid = new StringBuffer();
+		AccessTokenPair atp = DropboxFileInstance.retrieveAccessToken(
+				webAuthInfo, uid);
+		if (uid.length() == 0) {
+			new AlertController("The Dropbox authentication process failed");
+			return;
+		}
+		currentFilePath.setHost(uid.toString() + ".dropbox.com");
+		currentFilePath.setUsername(atp.key);
+		currentFilePath.setPassword(atp.secret);
+		reloadPage();
+	}
+
+	public boolean isDropboxWebAuthInfo() {
+		return webAuthInfo != null;
+	}
+
+	public boolean isNotDropboxWebAuthInfo() {
+		return !isDropboxWebAuthInfo();
+	}
+
+	public String getDropboxAuthUrl() {
+		if (webAuthInfo == null)
+			return null;
+		return webAuthInfo.url;
 	}
 
 }

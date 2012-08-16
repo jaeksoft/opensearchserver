@@ -257,7 +257,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 	}
 
 	final public void onRefresh() throws SearchLibException {
-		sendRefresh(this);
+		sendRefresh(getRoot());
 	}
 
 	protected static void sendReload(Component component)

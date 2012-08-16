@@ -36,6 +36,23 @@
 							</listitem>
 						</listbox>
 					</row>
+					<row visible="@{filepathedit.dropbox}">
+						<label value="Authorization" />
+						<hbox>
+							<button
+								label="Request dropbox authentication"
+								visible="@{filepathedit.notDropboxWebAuthInfo}"
+								forward="onDropboxAuthRequest" />
+							<button
+								href="@{filepathedit.dropboxAuthUrl}"
+								label="Go to Dropbox authentication page"
+								visible="@{filepathedit.dropboxWebAuthInfo}" target="_blank" />
+							<space width="10px" />
+							<button label="Confirm authentication"
+								visible="@{filepathedit.dropboxWebAuthInfo}"
+								forward="onDropboxConfirmAuth" />
+						</hbox>
+					</row>
 					<row visible="@{filepathedit.notLocalFileType}">
 						<label value="User name: " />
 						<textbox

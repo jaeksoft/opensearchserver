@@ -45,6 +45,16 @@ public class StreamLimiterFileInstance extends StreamLimiter {
 
 	@Override
 	protected void loadOutputCache() throws LimitException, IOException {
+		try {
+			Long l = fileInstance.getFileSize();
+			if (l != null)
+				if (l > limit)
+					throw new LimitException("File instance "
+							+ fileInstance.getFileName() + " larger than "
+							+ limit + " bytes.");
+		} catch (SearchLibException e) {
+			throw new IOException(e);
+		}
 		loadOutputCache(fileInstance.getInputStream());
 	}
 

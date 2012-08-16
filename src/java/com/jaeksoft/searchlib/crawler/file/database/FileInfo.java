@@ -167,7 +167,7 @@ public class FileInfo {
 			this.fileSize = Long.parseLong(size);
 	}
 
-	private void setFileSize(long size) {
+	private void setFileSize(Long size) {
 		this.fileSize = size;
 	}
 
@@ -265,12 +265,13 @@ public class FileInfo {
 			return true;
 		if (fileType == null)
 			return true;
-		if (!fileSystemDate.equals(newFileInfo.fileSystemDate))
+		if (fileSystemDate.longValue() != newFileInfo.fileSystemDate
+				.longValue())
 			return true;
 		if (fileType != newFileInfo.fileType)
 			return true;
 		if (fileSize != null && newFileInfo.fileSize != null)
-			if (!fileSize.equals(newFileInfo.fileSize))
+			if (fileSize.longValue() != newFileInfo.fileSize.longValue())
 				return true;
 		return false;
 	}

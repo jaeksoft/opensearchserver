@@ -39,7 +39,8 @@ public class CachedFileStream implements CachedStreamInterface {
 		this.file = file;
 		if (limit != 0)
 			if (getSize() > limit)
-				throw new LimitException();
+				throw new LimitException("File " + file.getName()
+						+ " larger than " + limit + " bytes.");
 	}
 
 	@Override

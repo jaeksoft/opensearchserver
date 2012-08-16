@@ -28,6 +28,7 @@ import java.lang.Thread.State;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
@@ -241,7 +242,8 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 		} catch (Exception e) {
 			setException(e);
 			setInfo(e.getMessage());
-			Logging.error(e.getMessage(), e);
+			if (!(e instanceof LimitException))
+				Logging.error(e.getMessage(), e);
 		}
 		if (threadMaster != null) {
 			threadMaster.remove(this);

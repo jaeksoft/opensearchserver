@@ -42,7 +42,7 @@ import com.jaeksoft.searchlib.util.StringUtils;
 public abstract class StreamLimiter implements Closeable {
 
 	private final List<InputStream> inputStreamList;
-	private final long limit;
+	protected final long limit;
 	private CachedStreamInterface outputCache;
 	private final List<File> tempFiles;
 	protected final String originalFileName;

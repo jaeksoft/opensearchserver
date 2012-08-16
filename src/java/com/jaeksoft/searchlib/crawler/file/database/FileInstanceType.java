@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -70,6 +70,10 @@ public class FileInstanceType extends ExtensibleEnumItem<FileInstanceType> {
 	public FileInstanceAbstract getNewInstance() throws InstantiationException,
 			IllegalAccessException {
 		return classInstance.newInstance();
+	}
+
+	public boolean is(Class<? extends FileInstanceAbstract> fileInstanceClass) {
+		return classInstance == fileInstanceClass;
 	}
 
 }
