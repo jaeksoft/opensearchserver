@@ -20,7 +20,7 @@
 	<panel title="List of existing locations and their settings"
 		border="normal">
 		<toolbar>
-			<button label="Refresh" forward="onRefresh" />
+			<button label="Create new location" forward="onNewFilePathItem" />
 		</toolbar>
 		<panelchildren>
 			<listbox model="@{repository.filePathItemList}"

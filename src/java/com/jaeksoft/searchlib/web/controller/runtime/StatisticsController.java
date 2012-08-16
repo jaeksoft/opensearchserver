@@ -100,7 +100,8 @@ public class StatisticsController extends CommonController {
 		}
 	}
 
-	public void setSelectedType(StatisticTypeEnum selectedType) {
+	public void setSelectedType(StatisticTypeEnum selectedType)
+			throws SearchLibException {
 		synchronized (this) {
 			this.selectedType = selectedType;
 			reloadPage();
@@ -122,7 +123,8 @@ public class StatisticsController extends CommonController {
 		}
 	}
 
-	public void setShowLastError(boolean showLastError) {
+	public void setShowLastError(boolean showLastError)
+			throws SearchLibException {
 		synchronized (this) {
 			this.showLastError = showLastError;
 			reloadPage();
@@ -130,7 +132,7 @@ public class StatisticsController extends CommonController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		statList = null;
 		super.reloadPage();
 	}

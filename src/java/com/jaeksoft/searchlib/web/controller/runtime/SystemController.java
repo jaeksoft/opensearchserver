@@ -47,7 +47,7 @@ public class SystemController extends CommonController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		reset();
 		super.reloadPage();
 	}

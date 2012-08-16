@@ -106,7 +106,8 @@ public class HomeController extends CommonController {
 		return indexTemplate;
 	}
 
-	public void setNewIndexTemplate(TemplateList indexTemplate) {
+	public void setNewIndexTemplate(TemplateList indexTemplate)
+			throws SearchLibException {
 		this.indexTemplate = indexTemplate;
 		reloadPage();
 	}
@@ -131,7 +132,7 @@ public class HomeController extends CommonController {
 	}
 
 	@Override
-	public void doRefresh() {
+	public void doRefresh() throws SearchLibException {
 		catalogItems = null;
 		reloadPage();
 	}

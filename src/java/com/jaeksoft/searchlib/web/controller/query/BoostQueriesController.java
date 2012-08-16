@@ -70,8 +70,10 @@ public class BoostQueriesController extends AbstractQueryController {
 	/**
 	 * @param selectedBoostQuery
 	 *            the selectedBoostQuery to set
+	 * @throws SearchLibException
 	 */
-	public void setSelectedBoostQuery(BoostQuery selectedBoostQuery) {
+	public void setSelectedBoostQuery(BoostQuery selectedBoostQuery)
+			throws SearchLibException {
 		this.selectedBoostQuery = selectedBoostQuery;
 		currentBoostQuery.copyFrom(selectedBoostQuery);
 		reloadPage();

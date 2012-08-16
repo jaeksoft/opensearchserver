@@ -111,12 +111,14 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	@Override
-	public void eventQueryEditResult(AbstractResult<?> result) {
+	public void eventQueryEditResult(AbstractResult<?> result)
+			throws SearchLibException {
 		reloadPage();
 	}
 
 	@Override
-	public void eventQueryEditRequest(AbstractRequest request) {
+	public void eventQueryEditRequest(AbstractRequest request)
+			throws SearchLibException {
 		reloadPage();
 	}
 

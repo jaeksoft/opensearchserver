@@ -45,10 +45,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.AbstractServlet;
@@ -223,7 +221,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 		}
 	}
 
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		if (binder != null)
 			binder.loadAll();
 	}
@@ -239,7 +237,14 @@ public abstract class CommonController extends Window implements AfterCompose,
 		reloadPage();
 	}
 
-	private void sendRefresh(List<?> children) throws SearchLibException {
+	protected static void sendRefresh(Component component)
+			throws SearchLibException {
+		if (component == null)
+			return;
+		if (component instanceof CommonController)
+			((CommonController) component).doRefresh();
+		@SuppressWarnings("unchecked")
+		List<Object> children = component.getChildren();
 		if (children == null)
 			return;
 		for (Object child : children) {
@@ -247,15 +252,31 @@ public abstract class CommonController extends Window implements AfterCompose,
 				continue;
 			Component comp = (Component) child;
 			if (comp.isVisible())
-				if (comp instanceof CommonController)
-					if (comp != this)
-						((CommonController) comp).doRefresh();
-			sendRefresh(comp.getChildren());
+				sendRefresh(comp);
 		}
 	}
 
 	final public void onRefresh() throws SearchLibException {
-		sendRefresh(getChildren());
+		sendRefresh(this);
+	}
+
+	protected static void sendReload(Component component)
+			throws SearchLibException {
+		if (component == null)
+			return;
+		if (component instanceof CommonController)
+			((CommonController) component).reloadPage();
+		@SuppressWarnings("unchecked")
+		List<Object> children = component.getChildren();
+		if (children == null)
+			return;
+		for (Object child : children) {
+			if (!(child instanceof Component))
+				continue;
+			Component comp = (Component) child;
+			if (comp.isVisible())
+				sendReload(comp);
+		}
 	}
 
 	public LanguageEnum[] getLanguageEnum() {
@@ -319,26 +340,19 @@ public abstract class CommonController extends Window implements AfterCompose,
 	}
 
 	@Override
-	public void eventJobEdit(JobItem jobItem) throws SearchLibException {
-	}
-
-	@Override
-	public void eventFilePathEdit(FilePathItem filePathItem)
-			throws SearchLibException {
-	}
-
-	@Override
 	public void eventLogout() throws SearchLibException {
 		reset();
 		reloadPage();
 	}
 
 	@Override
-	public void eventQueryEditResult(AbstractResult<?> data) {
+	public void eventQueryEditResult(AbstractResult<?> data)
+			throws SearchLibException {
 	}
 
 	@Override
-	public void eventQueryEditRequest(AbstractRequest data) {
+	public void eventQueryEditRequest(AbstractRequest data)
+			throws SearchLibException {
 	}
 
 	protected String getIndexName() throws SearchLibException {

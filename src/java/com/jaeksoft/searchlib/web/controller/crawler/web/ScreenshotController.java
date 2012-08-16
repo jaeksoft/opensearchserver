@@ -136,7 +136,7 @@ public class ScreenshotController extends CrawlerController {
 		}
 	}
 
-	public void onTimer() {
+	public void onTimer() throws SearchLibException {
 		if (currentImage == null)
 			if (currentScreenshotThread != null)
 				setImage(currentScreenshotThread.getImage());

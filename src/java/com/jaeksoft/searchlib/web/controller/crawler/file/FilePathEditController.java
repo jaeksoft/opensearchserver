@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,6 @@ import javax.naming.NamingException;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
-import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -46,19 +45,15 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.AlertController;
-import com.jaeksoft.searchlib.web.controller.CommonController;
-import com.jaeksoft.searchlib.web.controller.PushEvent;
 
-public class FilePathEditController extends CommonController {
+public class FilePathEditController extends FileCrawlerController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -46755671370102218L;
 
-	private transient FilePathItem selectedFilePath;
-
-	private transient FilePathItem currentFilePath;
+	private FilePathItem currentFilePath;
 
 	private transient File currentFile;
 
@@ -99,8 +94,7 @@ public class FilePathEditController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		selectedFilePath = null;
-		currentFilePath = new FilePathItem(client);
+		currentFilePath = null;
 		currentFile = null;
 		currentFolder = null;
 		showHidden = false;
@@ -114,26 +108,28 @@ public class FilePathEditController extends CommonController {
 	}
 
 	@Override
-	public void eventFilePathEdit(FilePathItem filePathItem)
-			throws SearchLibException {
-		if (filePathItem == null)
+	public void reloadPage() throws SearchLibException {
+		FilePathItem filePathItem = getFilePathItemEdit();
+		if (filePathItem == currentFilePath || filePathItem == null) {
+			super.reloadPage();
 			return;
-		this.selectedFilePath = filePathItem;
+		}
 		try {
-			filePathItem.copyTo(currentFilePath);
+			currentFilePath = filePathItem;
 			if ("file".equals(filePathItem.getType().getScheme())) {
-				File f = new File(filePathItem.getPath());
-				if (f.exists()) {
-					setCurrentFolder(f.getParentFile());
-					setCurrentFile(new File(filePathItem.getPath()));
+				String path = filePathItem.getPath();
+				if (path != null) {
+					File f = new File(path);
+					if (f.exists()) {
+						setCurrentFolder(f.getParentFile());
+						setCurrentFile(new File(path));
+					}
 				}
 			}
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
-		reloadPage();
+		super.reloadPage();
 	}
 
 	/**
@@ -145,31 +141,21 @@ public class FilePathEditController extends CommonController {
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
-		return selectedFilePath == null ? "Add a new location"
+		return isNoFilePathSelected() ? "Add a new location"
 				: "Edit the selected location";
-	}
-
-	public boolean selected() {
-		return selectedFilePath != null;
-	}
-
-	public boolean notSelected() {
-		return !selected();
 	}
 
 	public void onCancel() throws SearchLibException {
 		reset();
-		reloadPage();
-		Tab tab = (Tab) getFellow("tabCrawlerRepository", true);
-		tab.setSelected(true);
-		PushEvent.FILEPATH_EDIT.publish();
+		setFilePathItemEdit(null);
+		reloadFileCrawlerPages();
 	}
 
 	public void onDelete() throws SearchLibException, InterruptedException {
-		if (selectedFilePath == null)
+		FilePathItem filePath = getFilePathItemSelected();
+		if (filePath == null)
 			return;
-		new DeleteAlert(selectedFilePath);
-		onCancel();
+		new DeleteAlert(filePath);
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException,
@@ -179,6 +165,7 @@ public class FilePathEditController extends CommonController {
 			return;
 		FilePathManager filePathManager = client.getFilePathManager();
 		FilePathItem checkFilePath = filePathManager.get(currentFilePath);
+		FilePathItem selectedFilePath = getFilePathItemSelected();
 		if (selectedFilePath == null) {
 			if (checkFilePath != null) {
 				new AlertController("The location already exists");
@@ -240,6 +227,8 @@ public class FilePathEditController extends CommonController {
 	}
 
 	public boolean isLocalFileType() {
+		if (currentFilePath == null)
+			return false;
 		return "file".equals(currentFilePath.getType().getScheme());
 	}
 
@@ -248,6 +237,8 @@ public class FilePathEditController extends CommonController {
 	}
 
 	public boolean isDomain() {
+		if (currentFilePath == null)
+			return false;
 		return "smb".equals(currentFilePath.getType().getScheme());
 	}
 
@@ -257,14 +248,6 @@ public class FilePathEditController extends CommonController {
 
 	public boolean isSelectedFile() {
 		return !isNotSelectedFile();
-	}
-
-	public boolean isNotSelectedFilePath() {
-		return !isSelectedFilePath();
-	}
-
-	public boolean isSelectedFilePath() {
-		return selectedFilePath != null;
 	}
 
 	public void setCurrentFolder(File file) throws IOException {
@@ -289,10 +272,13 @@ public class FilePathEditController extends CommonController {
 	}
 
 	public FileInstanceType getCurrentFileType() {
+		if (currentFilePath == null)
+			return null;
 		return currentFilePath.getType();
 	}
 
-	public void setCurrentFileType(FileInstanceType type) {
+	public void setCurrentFileType(FileInstanceType type)
+			throws SearchLibException {
 		currentFilePath.setType(type);
 		reloadPage();
 	}
@@ -301,7 +287,7 @@ public class FilePathEditController extends CommonController {
 		return showHidden;
 	}
 
-	public void setShowHidden(boolean b) {
+	public void setShowHidden(boolean b) throws SearchLibException {
 		showHidden = b;
 		reloadPage();
 	}
@@ -316,7 +302,7 @@ public class FilePathEditController extends CommonController {
 			setCurrentFolder(file);
 	}
 
-	public void onSelectFile() {
+	public void onSelectFile() throws SearchLibException {
 		if (currentFile != null) {
 			currentFilePath.setPath(currentFile.getAbsolutePath());
 			reloadPage();

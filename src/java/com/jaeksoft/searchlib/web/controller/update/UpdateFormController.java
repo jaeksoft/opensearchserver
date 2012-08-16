@@ -102,7 +102,7 @@ public class UpdateFormController extends CommonController implements
 		}
 	}
 
-	public void onAdd() {
+	public void onAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedField == null)
 				return;
@@ -245,7 +245,7 @@ public class UpdateFormController extends CommonController implements
 		listcell.setParent(item);
 	}
 
-	public void onValueRemove(Event event) {
+	public void onValueRemove(Event event) throws SearchLibException {
 		FieldValue fieldValue = (FieldValue) event.getData();
 		fieldValue.remove();
 		reloadPage();
@@ -267,7 +267,7 @@ public class UpdateFormController extends CommonController implements
 	 * @see com.jaeksoft.searchlib.web.controller.CommonController#reloadPage()
 	 */
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			fieldDocumentList = null;
 			super.reloadPage();

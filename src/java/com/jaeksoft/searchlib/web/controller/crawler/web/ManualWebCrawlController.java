@@ -132,7 +132,7 @@ public class ManualWebCrawlController extends CommonController {
 
 	}
 
-	public void onTimer() {
+	public void onTimer() throws SearchLibException {
 		reloadPage();
 	}
 

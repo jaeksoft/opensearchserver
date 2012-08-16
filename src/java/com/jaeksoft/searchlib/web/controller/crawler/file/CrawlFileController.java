@@ -100,7 +100,7 @@ public class CrawlFileController extends CrawlerController {
 			return "Not running - Click to start";
 	}
 
-	public void onTimer() {
+	public void onTimer() throws SearchLibException {
 		reloadPage();
 	}
 

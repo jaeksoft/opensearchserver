@@ -83,7 +83,7 @@ public class CacheController extends CommonController {
 
 	}
 
-	public void doFlush(Component comp) {
+	public void doFlush(Component comp) throws SearchLibException {
 		synchronized (this) {
 			LRUCache<?, ?> cache = (LRUCache<?, ?>) getRecursiveComponentAttribute(
 					comp, "cacheItem");
@@ -100,7 +100,7 @@ public class CacheController extends CommonController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			reset();
 			super.reloadPage();

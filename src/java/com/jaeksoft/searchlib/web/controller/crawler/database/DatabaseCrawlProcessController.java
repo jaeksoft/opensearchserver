@@ -64,7 +64,7 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 		return crawlMaster.getThreadsCount() > 0;
 	}
 
-	public void onTimer() {
+	public void onTimer() throws SearchLibException {
 		reloadPage();
 	}
 

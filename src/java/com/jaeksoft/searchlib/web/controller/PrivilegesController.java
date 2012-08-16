@@ -182,7 +182,7 @@ public class PrivilegesController extends CommonController {
 		onCancel();
 	}
 
-	public void onCancel() {
+	public void onCancel() throws SearchLibException {
 		user = new User("", "", false);
 		selectedUserName = null;
 		confirmPassword = null;
@@ -197,13 +197,13 @@ public class PrivilegesController extends CommonController {
 		onCancel();
 	}
 
-	public void onAddPrivilege() {
+	public void onAddPrivilege() throws SearchLibException {
 		if (selectedIndex != null)
 			user.addRole(selectedIndex.getIndexName(), selectedRole);
 		reloadPage();
 	}
 
-	public void onRoleRemove(Component comp) {
+	public void onRoleRemove(Component comp) throws SearchLibException {
 		IndexRole indexRole = (IndexRole) comp.getAttribute("indexrole");
 		user.removeRole(indexRole);
 		reloadPage();
@@ -215,7 +215,7 @@ public class PrivilegesController extends CommonController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		indexList = null;
 		super.reloadPage();
 	}

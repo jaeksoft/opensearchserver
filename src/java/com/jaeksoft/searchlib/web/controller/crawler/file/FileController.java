@@ -84,7 +84,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
 			@Override
-			public void onEvent(Event event) {
+			public void onEvent(Event event) throws SearchLibException {
 				onPaging((PagingEvent) event);
 			}
 		});
@@ -315,7 +315,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
-	public void onPaging(PagingEvent pagingEvent) {
+	public void onPaging(PagingEvent pagingEvent) throws SearchLibException {
 		synchronized (this) {
 			fileList = null;
 			activePage = pagingEvent.getActivePage();
@@ -323,7 +323,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
-	public void onSearch() {
+	public void onSearch() throws SearchLibException {
 		synchronized (this) {
 			fileList = null;
 			activePage = 0;
@@ -333,7 +333,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 	}
 
 	@Override
-	public void onReload() {
+	public void onReload() throws SearchLibException {
 		synchronized (this) {
 			reloadPage();
 		}

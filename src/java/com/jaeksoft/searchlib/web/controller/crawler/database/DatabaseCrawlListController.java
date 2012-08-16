@@ -230,7 +230,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		reloadPage();
 	}
 
-	public void onTimer() {
+	public void onTimer() throws SearchLibException {
 		super.reloadPage();
 	}
 
@@ -314,7 +314,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		dbCrawlList = null;
 		super.reloadPage();
 	}
@@ -351,9 +351,11 @@ public class DatabaseCrawlListController extends CrawlerController {
 	/**
 	 * @param selectedField
 	 *            the selectedField to set
+	 * @throws SearchLibException
 	 */
 	public void setSelectedField(
-			GenericLink<SourceField, DatabaseFieldTarget> selectedField) {
+			GenericLink<SourceField, DatabaseFieldTarget> selectedField)
+			throws SearchLibException {
 		this.selectedField = selectedField;
 		this.sqlColumn = selectedField.getSource().getUniqueName();
 		currentFieldTarget = new DatabaseFieldTarget(selectedField.getTarget());

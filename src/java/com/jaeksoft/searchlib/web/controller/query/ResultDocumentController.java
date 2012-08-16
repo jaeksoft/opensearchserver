@@ -226,7 +226,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			documents = null;
 			super.reloadPage();

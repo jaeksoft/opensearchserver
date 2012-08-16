@@ -135,7 +135,7 @@ public class RendererController extends CommonController {
 		return (Renderer) getRecursiveComponentAttribute(comp, "rendererItem");
 	}
 
-	public void doEdit(Component comp) {
+	public void doEdit(Component comp) throws SearchLibException {
 		Renderer renderer = getRenderer(comp);
 		if (renderer == null)
 			return;
@@ -152,13 +152,13 @@ public class RendererController extends CommonController {
 		new DeleteAlert(renderer);
 	}
 
-	public void onNew() {
+	public void onNew() throws SearchLibException {
 		currentRenderer = new Renderer();
 		currentRendererField = new RendererField();
 		reloadPage();
 	}
 
-	public void onRendererFieldSave() {
+	public void onRendererFieldSave() throws SearchLibException {
 		if (selectedRendererField == null)
 			currentRenderer.addField(currentRendererField);
 		else
@@ -172,28 +172,28 @@ public class RendererController extends CommonController {
 				"rendererFieldItem");
 	}
 
-	public void onRendererFieldRemove(Component comp) {
+	public void onRendererFieldRemove(Component comp) throws SearchLibException {
 		currentRenderer.removeField(getRendererField(comp));
 		reloadPage();
 	}
 
-	public void onRendererFieldUp(Component comp) {
+	public void onRendererFieldUp(Component comp) throws SearchLibException {
 		currentRenderer.fieldUp(getRendererField(comp));
 		reloadPage();
 	}
 
-	public void onRendererFieldDown(Component comp) {
+	public void onRendererFieldDown(Component comp) throws SearchLibException {
 		currentRenderer.fieldDown(getRendererField(comp));
 		reloadPage();
 	}
 
-	public void onRendererFieldCancel() {
+	public void onRendererFieldCancel() throws SearchLibException {
 		currentRendererField = new RendererField();
 		selectedRendererField = null;
 		reloadPage();
 	}
 
-	public void onCancel() {
+	public void onCancel() throws SearchLibException {
 		currentRenderer = null;
 		selectedRenderer = null;
 		isTestable = false;
@@ -214,7 +214,8 @@ public class RendererController extends CommonController {
 		onCancel();
 	}
 
-	public void onTest(Component comp) throws UnsupportedEncodingException {
+	public void onTest(Component comp) throws UnsupportedEncodingException,
+			SearchLibException {
 		isTestable = true;
 		Iframe iframe = (Iframe) comp.getFellow("iframetest", true);
 		iframe.setSrc(null);
@@ -247,7 +248,8 @@ public class RendererController extends CommonController {
 		return selectedRendererField;
 	}
 
-	public void setSelectedRendererField(RendererField field) {
+	public void setSelectedRendererField(RendererField field)
+			throws SearchLibException {
 		selectedRendererField = field;
 		currentRendererField = new RendererField(field);
 		reloadPage();

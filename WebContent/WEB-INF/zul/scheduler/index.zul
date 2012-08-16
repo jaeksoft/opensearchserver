@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,21 +14,23 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<tabbox>
-	<tabs>
-		<tab id="tabSchedulerList" label="Job list" selected="true" />
-		<tab id="tabSchedulerEdit" label="New/Edit job" />
-		<tab id="tabSchedulerLog" label="Log" />
-	</tabs>
-	<tabpanels>
-		<tabpanel>
-			<include src="WEB-INF/zul/scheduler/list.zul" />
-		</tabpanel>
-		<tabpanel>
-			<include src="WEB-INF/zul/scheduler/edit.zul" />
-		</tabpanel>
-		<tabpanel>
-			<include src="WEB-INF/zul/scheduler/log.zul" />
-		</tabpanel>
-	</tabpanels>
-</tabbox>
+<window id="scheduler" border="none"
+	use="com.jaeksoft.searchlib.web.controller.scheduler.SchedulerController">
+	<tabbox>
+		<tabs>
+			<tab id="tabSchedulerList" label="Job list" selected="true" />
+			<tab id="tabSchedulerLog" label="Log" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/scheduler/list.zul"
+					visible="@{scheduler.noJobItemEdit}" />
+				<include src="WEB-INF/zul/scheduler/edit.zul"
+					visible="@{scheduler.jobItemEdit}" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/scheduler/log.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

@@ -83,8 +83,10 @@ public class SiteMapController extends CrawlerController {
 	/**
 	 * @param selectedFilter
 	 *            the selectedFilter to set
+	 * @throws SearchLibException
 	 */
-	public void setSelectedSiteMap(SiteMapItem selectedSiteMap) {
+	public void setSelectedSiteMap(SiteMapItem selectedSiteMap)
+			throws SearchLibException {
 		this.selectedSiteMap = selectedSiteMap;
 		selectedSiteMap.copyTo(currentSiteMap);
 		reloadPage();

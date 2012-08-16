@@ -279,8 +279,9 @@ public class UploadXmlController extends CommonController {
 	/**
 	 * @param xslEnabled
 	 *            the xslEnabled to set
+	 * @throws SearchLibException
 	 */
-	public void setXslEnabled(boolean xslEnabled) {
+	public void setXslEnabled(boolean xslEnabled) throws SearchLibException {
 		this.xslEnabled = xslEnabled;
 		this.xslContent = null;
 		reloadPage();

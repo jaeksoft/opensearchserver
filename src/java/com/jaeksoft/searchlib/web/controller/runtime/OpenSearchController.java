@@ -109,7 +109,7 @@ public class OpenSearchController extends CommonController {
 		}
 	}
 
-	public void onDelete(Event event) {
+	public void onDelete(Event event) throws SearchLibException {
 		Event origin;
 		if (event instanceof ForwardEvent) {
 			origin = Events.getRealOrigin((ForwardEvent) event);

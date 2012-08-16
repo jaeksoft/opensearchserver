@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -28,7 +28,7 @@
 						<label value="Job name: " />
 						<textbox
 							value="@{scheduleredit.currentJob.name}"
-							readonly="@{scheduleredit.selected}" cols="50" />
+							readonly="@{scheduleredit.jobItemSelected}" cols="50" />
 					</row>
 					<row>
 						<label value="Active: " />
@@ -80,71 +80,75 @@
 							model="@{scheduleredit.currentJob.tasks}"
 							selectedItem="@{scheduleredit.selectedJobTask}">
 							<listhead>
-								<listheader width="200px" label="Task" />
-								<listheader label="Properties" />
-								<listheader align="center" width="120px"
-									label="action" />
-							</listhead>
-							<auxhead>
-								<auxheader>
-									<listbox
-										visible="@{scheduleredit.notSelectedJobTask}"
-										model="@{scheduleredit.taskEnum}" mold="select"
-										selectedItem="@{scheduleredit.selectedTask}" />
-								</auxheader>
-								<auxheader>
-									<grid
-										visible="@{scheduleredit.currentTask.task.property}"
-										model="@{scheduleredit.currentTask.properties}">
-										<columns>
-											<column width="150px"
-												align="right" />
-											<column />
-										</columns>
-										<rows>
-											<row
-												self="@{each='property'}">
-												<label
-													value="@{property.name}" />
-												<hbox>
-													<combobox
-														visible="@{property.type.ctrlComboBox}"
-														cols="@{property.def.cols}" model="@{property.valueList}"
-														value="@{property.value}"
-														selectedItem="@{property.value}" />
-													<textbox
-														cols="@{property.def.cols}"
-														visible="@{property.type.ctrlTextBox}"
-														value="@{property.value}" />
-													<textbox
-														cols="@{property.def.cols}" rows="@{property.def.rows}"
-														multiline="true"
-														visible="@{property.type.ctrlMultilineTextBox}"
-														value="@{property.value}" />
-													<textbox
-														type="password" cols="@{property.def.cols}"
-														visible="@{property.type.ctrlPassword}"
-														value="@{property.value}" />
-												</hbox>
-											</row>
-										</rows>
-									</grid>
-								</auxheader>
-								<auxheader align="center">
-									<hbox
+								<listheader label="Task" hflex="min"
+									valign="top">
+									<vbox>
+										<listbox
+											visible="@{scheduleredit.notSelectedJobTask}"
+											model="@{scheduleredit.taskEnum}" mold="select"
+											selectedItem="@{scheduleredit.selectedTask}" />
+										<label
+											visible="@{scheduleredit.selectedJobTask}"
+											value="@{scheduleredit.currentTask.task.name}" />
+									</vbox>
+								</listheader>
+								<listheader label="Properties"
+									valign="top">
+									<vbox width="100%">
+										<grid
+											visible="@{scheduleredit.currentTask.task.property}"
+											model="@{scheduleredit.currentTask.properties}">
+											<columns>
+												<column hflex="min"
+													align="right" />
+												<column />
+											</columns>
+											<rows>
+												<row
+													self="@{each='property'}">
+													<label
+														value="@{property.name}" />
+													<hbox>
+														<combobox
+															visible="@{property.type.ctrlComboBox}"
+															cols="@{property.def.cols}" model="@{property.valueList}"
+															value="@{property.value}"
+															selectedItem="@{property.value}" />
+														<textbox
+															cols="@{property.def.cols}"
+															visible="@{property.type.ctrlTextBox}"
+															value="@{property.value}" />
+														<textbox
+															cols="@{property.def.cols}" rows="@{property.def.rows}"
+															multiline="true"
+															visible="@{property.type.ctrlMultilineTextBox}"
+															value="@{property.value}" />
+														<textbox
+															type="password" cols="@{property.def.cols}"
+															visible="@{property.type.ctrlPassword}"
+															value="@{property.value}" />
+													</hbox>
+												</row>
+											</rows>
+										</grid>
+									</vbox>
+								</listheader>
+								<listheader align="center" hflex="min"
+									label="action" valign="top">
+									<vbox
 										visible="@{scheduleredit.notSelectedJobTask}">
 										<button tooltiptext="Add a task"
 											image="/images/action_add.png" forward="onTaskAdd" />
-									</hbox>
-									<hbox
+									</vbox>
+									<vbox
 										visible="@{scheduleredit.selectedJobTask}">
 										<button label="Save"
 											forward="onTaskSave" />
 										<button label="Cancel"
 											forward="onTaskCancel" />
-									</hbox>
-								</auxheader>
-							</auxhead>
+									</vbox>
+								</listheader>
+							</listhead>
 							<listitem self="@{each='taskItem'}">
 								<listcell>
 									<label
@@ -199,7 +203,8 @@
 				<foot>
 					<footer span="3">
 						<vbox width="100%" align="center">
-							<hbox visible="@{scheduleredit.selected}">
+							<hbox
+								visible="@{scheduleredit.jobItemSelected}">
 								<button label="Cancel"
 									forward="onCancel" />
 								<space width="10px" />
@@ -209,7 +214,10 @@
 									forward="onDelete" />
 							</hbox>
 							<hbox
-								visible="@{scheduleredit.notSelected}">
+								visible="@{scheduleredit.noJobItemSelected}">
+								<button label="Cancel"
+									forward="onCancel" />
+								<space width="10px" />
 								<button label="Create" forward="onSave" />
 							</hbox>
 						</vbox>

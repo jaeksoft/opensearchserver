@@ -67,7 +67,7 @@ public class ReplicationController extends CommonController {
 		return selectedItem;
 	}
 
-	public void setSelectedItem(ReplicationItem item) {
+	public void setSelectedItem(ReplicationItem item) throws SearchLibException {
 		selectedItem = item;
 		currentItem = new ReplicationItem(selectedItem);
 		reloadPage();
@@ -108,7 +108,7 @@ public class ReplicationController extends CommonController {
 		return replicationMaser.getThreadsCount() > 0;
 	}
 
-	public void onTimer() {
+	public void onTimer() throws SearchLibException {
 		super.reloadPage();
 	}
 

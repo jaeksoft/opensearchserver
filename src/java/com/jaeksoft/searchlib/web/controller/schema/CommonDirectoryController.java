@@ -107,7 +107,7 @@ public abstract class CommonDirectoryController extends CommonController {
 		reloadPage();
 	}
 
-	public void onCancel() {
+	public void onCancel() throws SearchLibException {
 		currentName = null;
 		content = null;
 		reloadPage();

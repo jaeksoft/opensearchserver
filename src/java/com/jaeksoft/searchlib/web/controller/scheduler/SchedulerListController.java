@@ -27,23 +27,18 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 import javax.naming.NamingException;
 
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
-import com.jaeksoft.searchlib.web.controller.CommonController;
-import com.jaeksoft.searchlib.web.controller.PushEvent;
 
-public class SchedulerListController extends CommonController {
+public class SchedulerListController extends SchedulerController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8069350016336622392L;
-
-	private JobItem selectedJob;
 
 	public SchedulerListController() throws SearchLibException, NamingException {
 		super();
@@ -51,12 +46,6 @@ public class SchedulerListController extends CommonController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		selectedJob = null;
-	}
-
-	@Override
-	public void eventJobEdit(JobItem job) throws SearchLibException {
-		reloadPage();
 	}
 
 	public JobItem[] getJobs() throws SearchLibException {
@@ -64,14 +53,6 @@ public class SchedulerListController extends CommonController {
 		if (client == null)
 			return null;
 		return client.getJobList().getJobs();
-	}
-
-	public JobItem getSelectedJob() {
-		return selectedJob;
-	}
-
-	public void setSelectedJob(JobItem job) {
-		selectedJob = job;
 	}
 
 	public boolean isRefresh() throws SearchLibException {
@@ -85,13 +66,15 @@ public class SchedulerListController extends CommonController {
 		return (JobItem) getRecursiveComponentAttribute(comp, "jobentry");
 	}
 
-	public void doEdit(Component comp) {
-		JobItem job = getCompJobItem(comp);
-		if (job == null)
+	public void doEdit(Component comp) throws SearchLibException {
+		JobItem selectedJob = getCompJobItem(comp);
+		if (selectedJob == null)
 			return;
-		PushEvent.JOB_EDIT.publish(job);
-		Tab tab = (Tab) getFellow("tabSchedulerEdit", true);
-		tab.setSelected(true);
+		setJobItemSelected(selectedJob);
+		JobItem currentJob = new JobItem(null);
+		currentJob.copyFrom(selectedJob);
+		setJobItemEdit(currentJob);
+		reloadSchedulerPages();
 	}
 
 	public void doExecute(Component comp) throws SearchLibException {
@@ -108,7 +91,13 @@ public class SchedulerListController extends CommonController {
 		reloadPage();
 	}
 
-	public void onTimer() {
+	public void onNewJob() throws SearchLibException {
+		setJobItemEdit(new JobItem("New job"));
+		setJobItemSelected(null);
+		reloadSchedulerPages();
+	}
+
+	public void onTimer() throws SearchLibException {
 		reloadPage();
 	}
 

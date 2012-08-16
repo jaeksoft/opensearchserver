@@ -83,7 +83,7 @@ public class FieldsController extends CommonController {
 		reloadComponent("editField");
 	}
 
-	public void onCancel() {
+	public void onCancel() throws SearchLibException {
 		field = new SchemaField();
 		selectedField = null;
 		reloadPage();
@@ -236,7 +236,7 @@ public class FieldsController extends CommonController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			reset();
 			super.reloadPage();

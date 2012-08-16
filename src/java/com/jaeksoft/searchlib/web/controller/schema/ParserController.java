@@ -312,7 +312,7 @@ public class ParserController extends CommonController implements
 		reloadPage();
 	}
 
-	public void onCancel() {
+	public void onCancel() throws SearchLibException {
 		currentParser = null;
 		selectedParser = null;
 		reloadPage();
@@ -418,7 +418,7 @@ public class ParserController extends CommonController implements
 		reloadPage();
 	}
 
-	public void onDeleteExtension(Component comp) {
+	public void onDeleteExtension(Component comp) throws SearchLibException {
 		currentParser.removeExtension((String) getRecursiveComponentAttribute(
 				comp, "extensionItem"));
 		reloadPage();
@@ -437,7 +437,7 @@ public class ParserController extends CommonController implements
 		reloadPage();
 	}
 
-	public void onDeleteMimeType(Component comp) {
+	public void onDeleteMimeType(Component comp) throws SearchLibException {
 		currentParser.removeMimeType((String) getRecursiveComponentAttribute(
 				comp, "mimeTypeItem"));
 		reloadPage();

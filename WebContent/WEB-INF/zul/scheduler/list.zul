@@ -19,27 +19,29 @@
 
 	<panel title="List of existing jobs and their settings"
 		border="normal">
+		<toolbar>
+			<button label="Create new scheduler job" forward="onNewJob" />
+		</toolbar>
 		<panelchildren>
-			<listbox id="joblist" model="@{schedulerlist.jobs}"
-				selectedItem="@{schedulerlist.selectedJob}">
+			<listbox id="joblist" model="@{schedulerlist.jobs}">
 				<listhead>
 					<listheader label="Name" hflex="min" />
 					<listheader tooltiptext="Active" label="A"
-						width="50px" hflex="min" />
+						hflex="min" />
 					<listheader tooltiptext="Seconds" label="S"
-						width="50px" hflex="min" />
+						hflex="min" />
 					<listheader tooltiptext="Minutes" label="M"
-						width="50px" hflex="min" />
+						hflex="min" />
 					<listheader tooltiptext="Hours" label="H"
-						width="50px" hflex="min" />
+						hflex="min" />
 					<listheader tooltiptext="Day of month" label="DM"
-						width="50px" hflex="min" />
+						hflex="min" />
 					<listheader tooltiptext="Month" label="M"
-						width="50px" hflex="min" />
+						hflex="min" />
 					<listheader tooltiptext="Day of week" label="DW"
-						width="50px" hflex="min" />
+						hflex="min" />
 					<listheader tooltiptext="Year" label="W"
-						width="50px" hflex="min" />
+						hflex="min" />
 					<listheader label="Last start" hflex="min" />
 					<listheader label="Last error" />
 					<listheader label="Action" hflex="min" />

@@ -206,7 +206,7 @@ public final class QueryController extends AbstractQueryController {
 		return true;
 	}
 
-	private void newEdit(AbstractRequest newRequest) {
+	private void newEdit(AbstractRequest newRequest) throws SearchLibException {
 		newRequest.setRequestName(requestName);
 		setRequest(newRequest);
 		reloadPage();

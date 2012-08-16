@@ -116,7 +116,7 @@ public class DeleteController extends CommonController {
 		new DeleteAlert(numFound);
 	}
 
-	public void onQueryChange() {
+	public void onQueryChange() throws SearchLibException {
 		isChecked = false;
 		reloadPage();
 	}

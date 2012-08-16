@@ -134,12 +134,12 @@ public class ClassifierController extends CommonController {
 		return !isSelected();
 	}
 
-	public void onNewClassifier() {
+	public void onNewClassifier() throws SearchLibException {
 		currentClassifier = new Classifier();
 		reloadPage();
 	}
 
-	public void onCancel() {
+	public void onCancel() throws SearchLibException {
 		currentClassifier = null;
 		selectedClassifier = null;
 		reloadPage();
@@ -176,7 +176,8 @@ public class ClassifierController extends CommonController {
 		return selectedClassifier;
 	}
 
-	public void setSelectedClassifier(Classifier classifier) {
+	public void setSelectedClassifier(Classifier classifier)
+			throws SearchLibException {
 		if (classifier == null)
 			return;
 		selectedClassifier = classifier;
@@ -200,7 +201,8 @@ public class ClassifierController extends CommonController {
 		return selectedClassifierItem;
 	}
 
-	public void setSelectedClassifierItem(ClassifierItem classifierItem) {
+	public void setSelectedClassifierItem(ClassifierItem classifierItem)
+			throws SearchLibException {
 		if (classifierItem == null)
 			return;
 		selectedClassifierItem = classifierItem;
@@ -217,7 +219,7 @@ public class ClassifierController extends CommonController {
 		onCancelClassifierItem();
 	}
 
-	public void onCancelClassifierItem() {
+	public void onCancelClassifierItem() throws SearchLibException {
 		currentClassifierItem = new ClassifierItem();
 		selectedClassifierItem = null;
 		reloadPage();
@@ -228,7 +230,8 @@ public class ClassifierController extends CommonController {
 				"classifierItem");
 	}
 
-	public void onRemoveClassifierItem(Component component) {
+	public void onRemoveClassifierItem(Component component)
+			throws SearchLibException {
 		ClassifierItem cf = getClassifierItem(component);
 		currentClassifier.remove(cf);
 		onCancelClassifierItem();

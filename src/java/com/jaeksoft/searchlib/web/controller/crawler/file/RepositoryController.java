@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,28 +23,24 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zul.Tab;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.web.controller.PushEvent;
-import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class RepositoryController extends CrawlerController {
+public class RepositoryController extends FileCrawlerController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1207354816338087824L;
-
-	private transient List<FilePathItem> filePathItemList = null;
 
 	private transient int pageSize;
 
@@ -64,16 +60,10 @@ public class RepositoryController extends CrawlerController {
 		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
 			@Override
-			public void onEvent(Event event) {
+			public void onEvent(Event event) throws SearchLibException {
 				onPaging((PagingEvent) event);
 			}
 		});
-	}
-
-	@Override
-	public void eventFilePathEdit(FilePathItem filePathItem)
-			throws SearchLibException {
-		onRefresh();
 	}
 
 	public void setPageSize(int v) {
@@ -92,9 +82,8 @@ public class RepositoryController extends CrawlerController {
 		return totalSize;
 	}
 
-	public void onPaging(PagingEvent pagingEvent) {
+	public void onPaging(PagingEvent pagingEvent) throws SearchLibException {
 		synchronized (this) {
-			filePathItemList = null;
 			activePage = pagingEvent.getActivePage();
 			reloadPage();
 		}
@@ -102,31 +91,36 @@ public class RepositoryController extends CrawlerController {
 
 	@Override
 	protected void reset() {
-		filePathItemList = null;
 	}
 
 	public FilePathItem getSelectedFilePathItem() {
 		return null;
 	}
 
-	public void setSelectedFilePathItem(FilePathItem selectedFilePathItem) {
+	public void setSelectedFilePathItem(FilePathItem selectedFilePathItem)
+			throws SearchLibException, URISyntaxException {
 		if (selectedFilePathItem == null)
 			return;
-		reloadPage();
-		PushEvent.FILEPATH_EDIT.publish(selectedFilePathItem);
-		Tab tab = (Tab) getFellow("tabCrawlerFileEdit", true);
-		tab.setSelected(true);
+		setFilePathItemSelected(selectedFilePathItem);
+		FilePathItem editFilePath = new FilePathItem(getClient());
+		selectedFilePathItem.copyTo(editFilePath);
+		setFilePathItemEdit(editFilePath);
+		reloadFileCrawlerPages();
+	}
+
+	public void onNewFilePathItem() throws SearchLibException {
+		setFilePathItemEdit(new FilePathItem(getClient()));
+		setFilePathItemSelected(null);
+		reloadFileCrawlerPages();
 	}
 
 	public List<FilePathItem> getFilePathItemList() throws SearchLibException {
 		synchronized (this) {
-			if (filePathItemList != null)
-				return filePathItemList;
 			Client client = getClient();
 			if (client == null)
 				return null;
 
-			filePathItemList = new ArrayList<FilePathItem>();
+			List<FilePathItem> filePathItemList = new ArrayList<FilePathItem>();
 
 			totalSize = client.getFilePathManager().getFilePaths(
 					getActivePage() * getPageSize(), getPageSize(),

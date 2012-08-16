@@ -134,7 +134,7 @@ public class SpellCheckController extends AbstractQueryController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			super.reloadPage();
 		}
@@ -163,8 +163,10 @@ public class SpellCheckController extends AbstractQueryController {
 	/**
 	 * @param selectedSpellCheckField
 	 *            the selectedSpellCheckField to set
+	 * @throws SearchLibException
 	 */
-	public void setSelected(SpellCheckField selectedSpellCheckField) {
+	public void setSelected(SpellCheckField selectedSpellCheckField)
+			throws SearchLibException {
 		this.selectedSpellCheckField = selectedSpellCheckField;
 		this.currentSpellCheckField = new SpellCheckField(
 				selectedSpellCheckField);

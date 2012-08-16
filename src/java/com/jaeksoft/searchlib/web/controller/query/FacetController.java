@@ -134,7 +134,7 @@ public class FacetController extends AbstractQueryController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			fieldLeft = null;
 			selectedFacet = null;

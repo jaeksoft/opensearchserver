@@ -311,19 +311,19 @@ public class AnalyzersController extends CommonController implements
 		reloadPage();
 	}
 
-	public void onFilterUp(Component component) {
+	public void onFilterUp(Component component) throws SearchLibException {
 		FilterFactory filter = getFilter(component);
 		currentAnalyzer.filterUp(filter);
 		reloadPage();
 	}
 
-	public void onFilterDown(Component component) {
+	public void onFilterDown(Component component) throws SearchLibException {
 		FilterFactory filter = getFilter(component);
 		currentAnalyzer.filterDown(filter);
 		reloadPage();
 	}
 
-	public void onFilterRemove(Component component) {
+	public void onFilterRemove(Component component) throws SearchLibException {
 		FilterFactory filter = getFilter(component);
 		currentAnalyzer.filterRemove(filter);
 		reloadPage();

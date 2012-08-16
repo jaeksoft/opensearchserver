@@ -74,7 +74,7 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		running = false;
 	}
 
-	public void copy(JobItem job) {
+	public void copyFrom(JobItem job) {
 		rwl.w.lock();
 		try {
 			job.rwl.r.lock();

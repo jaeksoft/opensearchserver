@@ -136,7 +136,7 @@ public class SnippetController extends AbstractQueryController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			snippetFieldLeft = null;
 			selectedSnippet = null;

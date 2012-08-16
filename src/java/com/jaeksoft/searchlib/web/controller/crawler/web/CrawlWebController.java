@@ -122,7 +122,7 @@ public class CrawlWebController extends CrawlerController {
 			return "Not running - Click to start";
 	}
 
-	public void onTimer() {
+	public void onTimer() throws SearchLibException {
 		reloadPage();
 	}
 

@@ -145,7 +145,7 @@ public class ReturnedController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			selectedReturn = null;
 			fieldLeft = null;

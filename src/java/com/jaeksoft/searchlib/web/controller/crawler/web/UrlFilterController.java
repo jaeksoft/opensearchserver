@@ -84,8 +84,10 @@ public class UrlFilterController extends CrawlerController {
 	/**
 	 * @param selectedFilter
 	 *            the selectedFilter to set
+	 * @throws SearchLibException
 	 */
-	public void setSelectedFilter(UrlFilterItem selectedFilter) {
+	public void setSelectedFilter(UrlFilterItem selectedFilter)
+			throws SearchLibException {
 		this.selectedFilter = selectedFilter;
 		selectedFilter.copyTo(currentFilter);
 		reloadPage();

@@ -135,7 +135,7 @@ public class SortedController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			selectedSort = null;
 			sortFieldLeft = null;

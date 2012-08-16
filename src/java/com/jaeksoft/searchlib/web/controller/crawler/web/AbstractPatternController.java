@@ -85,7 +85,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging", new EventListener() {
 			@Override
-			public void onEvent(Event event) {
+			public void onEvent(Event event) throws SearchLibException {
 				onPaging((PagingEvent) event);
 			}
 		});
@@ -146,7 +146,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		}
 	}
 
-	public void onPaging(PagingEvent pagingEvent) {
+	public void onPaging(PagingEvent pagingEvent) throws SearchLibException {
 		synchronized (this) {
 			patternList = null;
 			activePage = pagingEvent.getActivePage();
@@ -154,7 +154,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		}
 	}
 
-	public void onSearch() {
+	public void onSearch() throws SearchLibException {
 		synchronized (this) {
 			patternList = null;
 			activePage = 0;
@@ -202,7 +202,7 @@ public abstract class AbstractPatternController extends CrawlerController
 
 	}
 
-	public void onSelect(Event event) {
+	public void onSelect(Event event) throws SearchLibException {
 		PatternItem patternItem = (PatternItem) event.getData();
 		patternItem.setSelected(!patternItem.isSelected());
 		reloadPage();
@@ -282,7 +282,7 @@ public abstract class AbstractPatternController extends CrawlerController
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reloadPage() throws SearchLibException {
 		synchronized (this) {
 			patternList = null;
 			super.reloadPage();
