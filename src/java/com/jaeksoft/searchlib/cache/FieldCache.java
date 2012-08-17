@@ -25,6 +25,10 @@
 package com.jaeksoft.searchlib.cache;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
@@ -36,8 +40,6 @@ import com.jaeksoft.searchlib.index.FieldContentCacheKey;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
@@ -53,45 +55,44 @@ public class FieldCache extends
 		this.indexConfig = indexConfig;
 	}
 
-	public FieldList<FieldValue> get(ReaderLocal reader, int docId,
-			FieldList<Field> fieldList, Timer timer) throws IOException,
+	public Map<String, FieldValue> get(ReaderLocal reader, int docId,
+			Set<String> fieldNameSet, Timer timer) throws IOException,
 			ParseException, SyntaxError {
-		FieldList<FieldValue> documentFields = new FieldList<FieldValue>();
-		FieldList<Field> storeField = new FieldList<Field>();
-		FieldList<Field> indexedField = new FieldList<Field>();
-		FieldList<Field> vectorField = new FieldList<Field>();
-		FieldList<Field> missingField = new FieldList<Field>();
+		Map<String, FieldValue> documentFields = new TreeMap<String, FieldValue>();
+		Set<String> storeField = new TreeSet<String>();
+		Set<String> indexedField = new TreeSet<String>();
+		Set<String> vectorField = new TreeSet<String>();
+		Set<String> missingField = new TreeSet<String>();
 
 		// Getting available fields in the cache
-		for (Field field : fieldList) {
-			FieldContentCacheKey key = new FieldContentCacheKey(
-					field.getName(), docId);
+		for (String fieldName : fieldNameSet) {
+			FieldContentCacheKey key = new FieldContentCacheKey(fieldName,
+					docId);
 			FieldValueItem[] values = getAndPromote(key);
 			if (values != null)
-				documentFields.add(new FieldValue(field, values));
+				documentFields
+						.put(fieldName, new FieldValue(fieldName, values));
 			else
-				storeField.add(field);
+				storeField.add(fieldName);
 		}
 
 		// Check missing fields from store
 		if (storeField.size() > 0) {
 			Document document = reader.getDocFields(docId, storeField);
-			for (Field field : storeField) {
-				String fieldName = field.getName();
+			for (String fieldName : storeField) {
 				Fieldable[] fieldables = document.getFieldables(fieldName);
 				if (fieldables != null && fieldables.length > 0) {
 					FieldValueItem[] valueItems = FieldValueItem
 							.buildArray(fieldables);
-					put(documentFields, field, fieldName, docId, valueItems);
+					put(documentFields, fieldName, docId, valueItems);
 				} else
-					indexedField.add(field);
+					indexedField.add(fieldName);
 			}
 		}
 
 		// Check missing fields from StringIndex
 		if (indexedField.size() > 0) {
-			for (Field field : indexedField) {
-				String fieldName = field.getName();
+			for (String fieldName : indexedField) {
 				StringIndex stringIndex = reader.getStringIndex(fieldName);
 				if (stringIndex != null) {
 					String term = stringIndex.lookup[stringIndex.order[docId]];
@@ -99,38 +100,37 @@ public class FieldCache extends
 						FieldValueItem[] valueItems = FieldValueItem
 								.buildArray(FieldValueOriginEnum.STRING_INDEX,
 										term);
-						put(documentFields, field, fieldName, docId, valueItems);
+						put(documentFields, fieldName, docId, valueItems);
 						continue;
 					}
 				}
-				vectorField.add(field);
+				vectorField.add(fieldName);
 			}
 		}
 
 		// Check missing fields from vector
 		if (vectorField.size() > 0) {
-			for (Field field : vectorField) {
-				String fieldName = field.getName();
+			for (String fieldName : vectorField) {
 				TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
 				if (tfv != null) {
 					FieldValueItem[] valueItems = FieldValueItem.buildArray(
 							FieldValueOriginEnum.TERM_VECTOR, tfv.getTerms());
-					put(documentFields, field, fieldName, docId, valueItems);
+					put(documentFields, fieldName, docId, valueItems);
 				} else
-					missingField.add(field);
+					missingField.add(fieldName);
 			}
 		}
 
 		if (missingField.size() > 0)
-			for (Field field : missingField)
-				documentFields.add(new FieldValue(field));
+			for (String fieldName : missingField)
+				documentFields.put(fieldName, new FieldValue(fieldName));
 
 		return documentFields;
 	}
 
-	private void put(FieldList<FieldValue> documentFields, Field field,
-			String fieldName, int docId, FieldValueItem[] valueItems) {
-		documentFields.add(new FieldValue(field, valueItems));
+	private void put(Map<String, FieldValue> documentFields, String fieldName,
+			int docId, FieldValueItem[] valueItems) {
+		documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
 		FieldContentCacheKey key = new FieldContentCacheKey(fieldName, docId);
 		put(key, valueItems);
 	}

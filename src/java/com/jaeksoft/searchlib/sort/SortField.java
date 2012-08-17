@@ -32,11 +32,12 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SortField extends Field implements CacheKeyInterface<Field> {
+public class SortField extends AbstractField<SortField> implements
+		CacheKeyInterface<SortField> {
 
 	/**
 	 * 
@@ -45,11 +46,15 @@ public class SortField extends Field implements CacheKeyInterface<Field> {
 
 	private boolean desc;
 
-	public SortField() {
+	public SortField(String requestSort) {
+		super();
+		int c = requestSort.charAt(0);
+		desc = (c == '-');
+		name = (c == '+' || c == '-') ? requestSort.substring(1) : requestSort;
 	}
 
-	public SortField(String name, boolean desc) {
-		super(name);
+	public SortField(String fieldName, boolean desc) {
+		super(fieldName);
 		this.desc = desc;
 	}
 
@@ -74,15 +79,7 @@ public class SortField extends Field implements CacheKeyInterface<Field> {
 	}
 
 	@Override
-	public Field duplicate() {
-		return new SortField(name, desc);
-	}
-
-	protected static SortField newSortField(String requestSort) {
-		int c = requestSort.charAt(0);
-		boolean desc = (c == '-');
-		String name = (c == '+' || c == '-') ? requestSort.substring(1)
-				: requestSort;
+	public SortField duplicate() {
 		return new SortField(name, desc);
 	}
 
@@ -107,12 +104,11 @@ public class SortField extends Field implements CacheKeyInterface<Field> {
 	}
 
 	@Override
-	public int compareTo(Field o) {
+	public int compareTo(SortField o) {
 		int c = super.compareTo(o);
 		if (c != 0)
 			return c;
-		SortField f = (SortField) o;
-		if (desc == f.desc)
+		if (desc == o.desc)
 			return 0;
 		return desc ? -1 : 1;
 	}

@@ -1595,6 +1595,7 @@ public abstract class Config {
 	}
 
 	private void close(File trashDir) {
+		getThreadPool().shutdown();
 		try {
 			prepareClose(true);
 		} catch (SearchLibException e) {

@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
-public class SchemaField extends Field {
+public class SchemaField extends AbstractField<SchemaField> {
 
 	/**
 	 * 
@@ -63,12 +63,12 @@ public class SchemaField extends Field {
 
 	public SchemaField(SchemaField field) {
 		super();
-		copy(field);
+		copyFrom(field);
 	}
 
 	@Override
-	public void copy(Field sourceField) {
-		super.copy(sourceField);
+	public void copyFrom(SchemaField sourceField) {
+		super.copyFrom(sourceField);
 		SchemaField sc = (SchemaField) sourceField;
 		this.stored = sc.stored;
 		this.indexed = sc.indexed;
@@ -101,7 +101,7 @@ public class SchemaField extends Field {
 	}
 
 	@Override
-	public Field duplicate() {
+	public SchemaField duplicate() {
 		return new SchemaField(this);
 	}
 
@@ -185,7 +185,7 @@ public class SchemaField extends Field {
 			String indexed = XPathParser.getAttributeString(node, "indexed");
 			String termVector = XPathParser.getAttributeString(node,
 					"termVector");
-			fieldList.add(new SchemaField(name, stored, indexed, termVector,
+			fieldList.put(new SchemaField(name, stored, indexed, termVector,
 					indexAnalyzer));
 		}
 		fieldList.setDefaultField(XPathParser.getAttributeString(parentNode,

@@ -31,14 +31,14 @@ import org.apache.lucene.analysis.Analyzer;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class FilterListCacheKey implements
 		CacheKeyInterface<FilterListCacheKey> {
 
 	private TreeSet<FilterCacheKey> filterCacheKeySet;
 
-	public FilterListCacheKey(FilterList filterList, Field defaultField,
+	public FilterListCacheKey(FilterList filterList, SchemaField defaultField,
 			Analyzer analyzer) throws ParseException {
 		filterCacheKeySet = new TreeSet<FilterCacheKey>();
 		for (FilterAbstract<?> filter : filterList)

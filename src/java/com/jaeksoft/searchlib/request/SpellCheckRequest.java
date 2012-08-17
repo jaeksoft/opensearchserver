@@ -48,18 +48,18 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultSpellCheck;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckFieldList;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class SpellCheckRequest extends AbstractRequest {
 
-	private FieldList<SpellCheckField> spellCheckFieldList;
+	private SpellCheckFieldList spellCheckFieldList;
 
 	private String queryString;
 
@@ -75,7 +75,7 @@ public class SpellCheckRequest extends AbstractRequest {
 	@Override
 	public void setDefaultValues() {
 		super.setDefaultValues();
-		this.spellCheckFieldList = new FieldList<SpellCheckField>();
+		this.spellCheckFieldList = new SpellCheckFieldList();
 		this.queryString = null;
 		this.lang = null;
 	}
@@ -84,13 +84,13 @@ public class SpellCheckRequest extends AbstractRequest {
 	public void copyFrom(AbstractRequest request) {
 		super.copyFrom(request);
 		SpellCheckRequest spellCheckrequest = (SpellCheckRequest) request;
-		this.spellCheckFieldList = new FieldList<SpellCheckField>(
+		this.spellCheckFieldList = new SpellCheckFieldList(
 				spellCheckrequest.spellCheckFieldList);
 		this.queryString = spellCheckrequest.queryString;
 		this.lang = spellCheckrequest.lang;
 	}
 
-	public FieldList<SpellCheckField> getSpellCheckFieldList() {
+	public SpellCheckFieldList getSpellCheckFieldList() {
 		rwl.r.lock();
 		try {
 			return this.spellCheckFieldList;
@@ -107,14 +107,13 @@ public class SpellCheckRequest extends AbstractRequest {
 		rwl.w.lock();
 		try {
 			super.fromXmlConfig(config, xpp, node);
-			FieldList<SchemaField> fieldList = config.getSchema()
-					.getFieldList();
+			SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
 			NodeList nodes = xpp.getNodeList(node,
 					"spellCheckFields/spellCheckField");
 			int l = nodes.getLength();
 			for (int i = 0; i < l; i++)
-				SpellCheckField.copySpellCheckFields(nodes.item(i), fieldList,
-						spellCheckFieldList);
+				SpellCheckField.copySpellCheckFields(nodes.item(i),
+						schemaFieldList, spellCheckFieldList);
 			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
 					node, "lang")));
 			setQueryString(xpp.getNodeString(node, "query"));

@@ -29,8 +29,16 @@ import org.apache.commons.lang3.ArrayUtils;
 public class JoinScoreDocCollector extends JoinDocCollector implements
 		ScoreDocInterface {
 
+	public final static JoinScoreDocCollector EMPTY = new JoinScoreDocCollector();
+
 	private float maxScore;
 	protected final float[] scores;
+
+	public JoinScoreDocCollector() {
+		super();
+		maxScore = 0;
+		scores = ScoreDocInterface.EMPTY_SCORES;
+	}
 
 	public JoinScoreDocCollector(ScoreDocInterface docs, int joinResultSize) {
 		super(docs, joinResultSize);

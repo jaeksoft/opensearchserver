@@ -110,16 +110,4 @@ public abstract class AbstractQueryController extends CommonController {
 		return isResult(RequestTypeEnum.MoreLikeThisRequest);
 	}
 
-	@Override
-	public void eventQueryEditResult(AbstractResult<?> result)
-			throws SearchLibException {
-		reloadPage();
-	}
-
-	@Override
-	public void eventQueryEditRequest(AbstractRequest request)
-			throws SearchLibException {
-		reloadPage();
-	}
-
 }

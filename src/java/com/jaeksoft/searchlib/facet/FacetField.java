@@ -36,14 +36,13 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.AbstractField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class FacetField extends Field {
+public class FacetField extends AbstractField<FacetField> {
 
 	/**
 	 * 
@@ -75,7 +74,7 @@ public class FacetField extends Field {
 	}
 
 	@Override
-	public Field duplicate() {
+	public FacetField duplicate() {
 		return new FacetField(this);
 	}
 
@@ -140,8 +139,8 @@ public class FacetField extends Field {
 		}
 	}
 
-	public static void copyFacetFields(Node node,
-			FieldList<SchemaField> source, FieldList<FacetField> target) {
+	public static void copyFacetFields(Node node, SchemaFieldList source,
+			FacetFieldList target) {
 		String fieldName = XPathParser.getAttributeString(node, "name");
 		int minCount = XPathParser.getAttributeValue(node, "minCount");
 		boolean multivalued = "yes".equals(XPathParser.getAttributeString(node,
@@ -150,7 +149,7 @@ public class FacetField extends Field {
 				node, "postCollapsing"));
 		FacetField facetField = new FacetField(source.get(fieldName).getName(),
 				minCount, multivalued, postCollapsing);
-		target.add(facetField);
+		target.put(facetField);
 	}
 
 	/**
@@ -188,11 +187,10 @@ public class FacetField extends Field {
 	}
 
 	@Override
-	public int compareTo(Field o) {
-		int c = super.compareTo(o);
+	public int compareTo(FacetField f) {
+		int c = super.compareTo(f);
 		if (c != 0)
 			return c;
-		FacetField f = (FacetField) o;
 		if ((c = minCount - f.minCount) != 0)
 			return c;
 		if (multivalued != f.multivalued)
@@ -208,8 +206,8 @@ public class FacetField extends Field {
 	}
 
 	public static StringIndex[] newStringIndexArrayForCollapsing(
-			FieldList<FacetField> facetFieldList, ReaderLocal reader,
-			Timer timer) throws IOException {
+			FacetFieldList facetFieldList, ReaderLocal reader, Timer timer)
+			throws IOException {
 		if (facetFieldList.size() == 0)
 			return null;
 		List<StringIndex> facetFieldArray = new ArrayList<StringIndex>(0);

@@ -31,21 +31,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.lucene.document.FieldSelector;
-import org.apache.lucene.document.FieldSelectorResult;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class FieldList<T extends Field> implements
-		CacheKeyInterface<FieldList<T>>, FieldSelector, Iterable<T> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3706856755116432969L;
+public abstract class AbstractFieldList<T extends AbstractField<T>> implements
+		CacheKeyInterface<AbstractFieldList<T>>, Iterable<T> {
 
 	private List<T> fieldList;
 	private Map<String, T> fieldMap;
@@ -56,7 +49,7 @@ public class FieldList<T extends Field> implements
 	/**
 	 * Basic contructor.
 	 */
-	public FieldList() {
+	public AbstractFieldList() {
 		this.fieldMap = new TreeMap<String, T>();
 		buildCacheAndList();
 	}
@@ -67,16 +60,16 @@ public class FieldList<T extends Field> implements
 	 * 
 	 * @param fl
 	 */
-	public FieldList(FieldList<T> fl) {
+	public AbstractFieldList(AbstractFieldList<T> fl) {
 		this();
 		add(fl);
 	}
 
-	public void add(FieldList<T> fl) {
+	public void add(AbstractFieldList<T> fl) {
 		rwl.w.lock();
 		try {
-			for (T field : fl.getList())
-				addDuplicate(field);
+			for (T field : fl)
+				put(field.duplicate());
 			buildCacheAndList();
 		} finally {
 			rwl.w.unlock();
@@ -87,22 +80,17 @@ public class FieldList<T extends Field> implements
 		fieldList = new ArrayList<T>(fieldMap.size());
 		StringBuffer sb = new StringBuffer();
 		for (T f : fieldMap.values()) {
-			sb.append(f.name);
+			sb.append(f.toString());
 			sb.append('|');
 			fieldList.add(f);
 		}
 		cacheKey = sb.toString();
 	}
 
-	@SuppressWarnings("unchecked")
-	private final void addDuplicate(T field) {
-		fieldMap.put(field.name, (T) field.duplicate());
-	}
-
-	public void add(T field) {
+	public void put(T field) {
 		rwl.w.lock();
 		try {
-			addDuplicate(field);
+			fieldMap.put(field.name, field);
 			buildCacheAndList();
 		} finally {
 			rwl.w.unlock();
@@ -124,7 +112,7 @@ public class FieldList<T extends Field> implements
 		}
 	}
 
-	public T get(Field field) {
+	public T get(AbstractField<?> field) {
 		return get(field.name);
 	}
 
@@ -135,18 +123,6 @@ public class FieldList<T extends Field> implements
 		rwl.r.lock();
 		try {
 			return fieldList.size();
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public FieldSelectorResult accept(String fieldName) {
-		rwl.r.lock();
-		try {
-			if (this.fieldMap.containsKey(fieldName))
-				return FieldSelectorResult.LOAD;
-			return FieldSelectorResult.NO_LOAD;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -166,6 +142,7 @@ public class FieldList<T extends Field> implements
 	public List<T> getList() {
 		rwl.r.lock();
 		try {
+			System.out.println(size());
 			return fieldList;
 		} finally {
 			rwl.r.unlock();
@@ -177,9 +154,9 @@ public class FieldList<T extends Field> implements
 		rwl.r.lock();
 		try {
 			StringBuffer sb = new StringBuffer();
-			for (Field f : fieldList) {
+			for (T f : fieldList) {
 				sb.append('[');
-				sb.append(f);
+				sb.append(f.toString());
 				sb.append("] ");
 			}
 			return sb.toString();
@@ -189,7 +166,7 @@ public class FieldList<T extends Field> implements
 	}
 
 	@Override
-	public int compareTo(FieldList<T> o) {
+	public int compareTo(AbstractFieldList<T> o) {
 		rwl.r.lock();
 		try {
 			return cacheKey.compareTo(o.cacheKey);
@@ -198,10 +175,10 @@ public class FieldList<T extends Field> implements
 		}
 	}
 
-	public void remove(Field field) {
+	public void remove(String fieldName) {
 		rwl.w.lock();
 		try {
-			fieldMap.remove(field.name);
+			fieldMap.remove(fieldName);
 			buildCacheAndList();
 		} finally {
 			rwl.w.unlock();
@@ -211,7 +188,7 @@ public class FieldList<T extends Field> implements
 	public void toNameList(List<String> nameList) {
 		rwl.r.lock();
 		try {
-			for (Field field : fieldList)
+			for (T field : fieldList)
 				nameList.add(field.name);
 		} finally {
 			rwl.r.unlock();
@@ -221,7 +198,7 @@ public class FieldList<T extends Field> implements
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			for (Field field : fieldList)
+			for (T field : fieldList)
 				field.writeXmlConfig(xmlWriter);
 		} finally {
 			rwl.r.unlock();
@@ -254,6 +231,11 @@ public class FieldList<T extends Field> implements
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public final void populate(Set<String> fieldNameSet) {
+		for (T field : fieldList)
+			fieldNameSet.add(field.name);
 	}
 
 }

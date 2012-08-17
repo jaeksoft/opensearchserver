@@ -39,10 +39,9 @@ import org.zkoss.zul.api.Listitem;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
-import com.jaeksoft.searchlib.sort.SortList;
+import com.jaeksoft.searchlib.sort.SortFieldList;
 
 public class SortedController extends AbstractQueryController implements
 		RowRenderer {
@@ -82,7 +81,7 @@ public class SortedController extends AbstractQueryController implements
 		synchronized (this) {
 			if (selectedSort == null)
 				return;
-			((SearchRequest) getRequest()).getSortList().add(
+			((SearchRequest) getRequest()).getSortFieldList().put(
 					new SortField(selectedSort, true));
 			reloadPage();
 		}
@@ -91,7 +90,8 @@ public class SortedController extends AbstractQueryController implements
 	public void onSortRemove(Event event) throws SearchLibException {
 		synchronized (this) {
 			SortField sortField = (SortField) event.getData();
-			((SearchRequest) getRequest()).getSortList().remove(sortField);
+			((SearchRequest) getRequest()).getSortFieldList().remove(
+					sortField.getName());
 			reloadPage();
 		}
 	}
@@ -116,8 +116,7 @@ public class SortedController extends AbstractQueryController implements
 			if (request == null)
 				return null;
 			sortFieldLeft = new ArrayList<String>();
-			FieldList<SortField> sortFields = request.getSortList()
-					.getFieldList();
+			SortFieldList sortFields = request.getSortFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
 					if (sortFields.get(field.getName()) == null) {
@@ -161,11 +160,11 @@ public class SortedController extends AbstractQueryController implements
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();
 			if (listitem != null) {
-				SortList sortList = ((SearchRequest) getRequest())
-						.getSortList();
-				sortList.remove(sortField);
+				SortFieldList sortFieldList = ((SearchRequest) getRequest())
+						.getSortFieldList();
+				sortFieldList.remove(sortField.getName());
 				sortField.setDesc(listitem.getValue().toString());
-				sortList.add(sortField);
+				sortFieldList.put(sortField);
 			}
 		}
 	}

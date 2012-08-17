@@ -22,43 +22,18 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.snippet;
+package com.jaeksoft.searchlib.facet;
 
-import java.util.List;
+import com.jaeksoft.searchlib.schema.AbstractFieldList;
 
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
+public class FacetFieldList extends AbstractFieldList<FacetField> {
 
-public class SnippetFieldValue extends FieldValue {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 9069619321715897099L;
-
-	private boolean highlighted;
-
-	public SnippetFieldValue() {
+	public FacetFieldList(FacetFieldList facetFieldList) {
+		super(facetFieldList);
 	}
 
-	private SnippetFieldValue(SnippetFieldValue field) {
-		super(field);
-		this.highlighted = field.highlighted;
-	}
-
-	public SnippetFieldValue(String fieldName, List<FieldValueItem> values,
-			boolean highlighted) {
-		super(fieldName, values);
-		this.highlighted = highlighted;
-	}
-
-	public boolean isHighlighted() {
-		return highlighted;
-	}
-
-	@Override
-	public SnippetFieldValue duplicate() {
-		return new SnippetFieldValue(this);
+	public FacetFieldList() {
+		super();
 	}
 
 }

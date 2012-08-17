@@ -44,21 +44,21 @@ public class ReplicationThread extends ThreadAbstract implements
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private Client client;
+	private volatile Client client;
 
-	private ReplicationItem replicationItem;
+	private volatile ReplicationItem replicationItem;
 
-	private double totalSize;
+	private volatile double totalSize;
 
-	private double sendSize;
+	private volatile double sendSize;
 
-	private TaskLog taskLog;
+	private volatile TaskLog taskLog;
 
-	private List<File> filesNotPushed;
+	private volatile List<File> filesNotPushed;
 
-	private List<File> dirsNotPushed;
+	private volatile List<File> dirsNotPushed;
 
-	private File sourceDirectory;
+	private volatile File sourceDirectory;
 
 	protected ReplicationThread(Client client,
 			ReplicationMaster replicationMaster,

@@ -64,15 +64,15 @@ public class UploadXmlController extends CommonController {
 
 	public class UpdateThread extends ThreadAbstract {
 
-		private Source xmlSource;
+		private volatile Source xmlSource;
 
-		private String mediaName;
+		private volatile String mediaName;
 
-		private Client client;
+		private volatile Client client;
 
-		private String xsl;
+		private volatile String xsl;
 
-		private File xmlTempResult;
+		private volatile File xmlTempResult;
 
 		private UpdateThread(Client client, Source xmlSource, String xsl,
 				String mediaName) {

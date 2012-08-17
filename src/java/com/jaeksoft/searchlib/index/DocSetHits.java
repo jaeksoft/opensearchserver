@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.MaxScoreCollector;
 import com.jaeksoft.searchlib.result.collector.NumFoundCollector;
 import com.jaeksoft.searchlib.result.collector.ScoreDocCollector;
-import com.jaeksoft.searchlib.sort.SortList;
+import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
@@ -47,20 +47,20 @@ public class DocSetHits {
 	private ReaderLocal reader;
 	private Query query;
 	private Filter filter;
-	private SortList sortList;
+	private SortFieldList sortFieldList;
 	private NumFoundCollector numFoundCollector;
 	private MaxScoreCollector maxScoreCollector;
 	private DocIdCollector docIdCollector;
 	private ScoreDocCollector scoreDocCollector;
 
 	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
-			SortList sortList, Timer timer) throws IOException {
+			SortFieldList sortFieldList, Timer timer) throws IOException {
 		rwl.w.lock();
 		try {
 			this.query = query;
 			this.filter = filter;
 			this.reader = reader;
-			this.sortList = sortList;
+			this.sortFieldList = sortFieldList;
 			docIdCollector = null;
 			maxScoreCollector = null;
 			scoreDocCollector = null;
@@ -108,9 +108,9 @@ public class DocSetHits {
 	// }
 
 	private void sort(DocIdInterface collector, Timer timer) throws IOException {
-		if (sortList == null)
+		if (sortFieldList == null)
 			return;
-		SorterAbstract sorter = sortList.getSorter(collector, reader);
+		SorterAbstract sorter = sortFieldList.getSorter(collector, reader);
 		sorter.quickSort(timer);
 	}
 
@@ -220,7 +220,7 @@ public class DocSetHits {
 		try {
 			if (docIdCollector != null)
 				return docIdCollector;
-			if (sortList != null && sortList.isScore())
+			if (sortFieldList != null && sortFieldList.isScore())
 				return getScoreDocCollectorNoLock(timer);
 			return getDocIdCollectorNoLock(timer);
 		} finally {

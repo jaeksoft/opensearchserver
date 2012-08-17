@@ -30,15 +30,10 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SchemaFieldList extends FieldList<SchemaField> {
+public class SchemaFieldList extends AbstractFieldList<SchemaField> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6998668218635352037L;
-
-	private Field defaultField;
-	private Field uniqueField;
+	private SchemaField defaultField;
+	private SchemaField uniqueField;
 
 	public SchemaFieldList() {
 		defaultField = null;
@@ -59,11 +54,11 @@ public class SchemaFieldList extends FieldList<SchemaField> {
 			this.uniqueField = null;
 	}
 
-	public Field getDefaultField() {
+	public SchemaField getDefaultField() {
 		return this.defaultField;
 	}
 
-	public Field getUniqueField() {
+	public SchemaField getUniqueField() {
 		return this.uniqueField;
 	}
 

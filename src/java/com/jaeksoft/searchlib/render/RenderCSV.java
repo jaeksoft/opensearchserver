@@ -31,10 +31,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -68,7 +68,7 @@ public class RenderCSV implements Render {
 	private void renderDocument(int i) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
 		ResultDocument doc = result.getDocument(i, null);
-		for (Field field : searchRequest.getReturnFieldList()) {
+		for (ReturnField field : searchRequest.getReturnFieldList()) {
 			renderField(doc, field);
 			if (field.getName() != null && !field.getName().equals(""))
 				writer.print(',');
@@ -91,7 +91,7 @@ public class RenderCSV implements Render {
 			writer.print(StringEscapeUtils.escapeCsv(snippet.getValue()));
 	}
 
-	private void renderField(ResultDocument doc, Field field) {
+	private void renderField(ResultDocument doc, ReturnField field) {
 		FieldValueItem[] values = doc.getValueArray(field);
 		if (values == null)
 			return;

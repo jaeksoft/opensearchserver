@@ -45,8 +45,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.AbstractServlet;
@@ -343,16 +341,6 @@ public abstract class CommonController extends Window implements AfterCompose,
 	public void eventLogout() throws SearchLibException {
 		reset();
 		reloadPage();
-	}
-
-	@Override
-	public void eventQueryEditResult(AbstractResult<?> data)
-			throws SearchLibException {
-	}
-
-	@Override
-	public void eventQueryEditRequest(AbstractRequest data)
-			throws SearchLibException {
 	}
 
 	protected String getIndexName() throws SearchLibException {

@@ -37,7 +37,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -260,7 +260,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	}
 
 	@Override
-	public String getCacheKey(Field defaultField, Analyzer analyzer)
+	public String getCacheKey(SchemaField defaultField, Analyzer analyzer)
 			throws ParseException {
 		String key = "GeoFilter - "
 				+ getQuery(defaultField, analyzer).toString();
@@ -292,7 +292,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		return sb.toString();
 	}
 
-	private Query getQuery(Field defaultField, Analyzer analyzer)
+	private Query getQuery(SchemaField defaultField, Analyzer analyzer)
 			throws ParseException {
 		if (query != null)
 			return query;
@@ -308,8 +308,9 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	}
 
 	@Override
-	public FilterHits getFilterHits(ReaderLocal reader, Field defaultField,
-			Analyzer analyzer, Timer timer) throws ParseException, IOException {
+	public FilterHits getFilterHits(ReaderLocal reader,
+			SchemaField defaultField, Analyzer analyzer, Timer timer)
+			throws ParseException, IOException {
 		Query query = getQuery(defaultField, analyzer);
 		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
 				timer);

@@ -22,13 +22,35 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.request;
 
-public interface ScoreDocInterface extends DocIdInterface {
+import java.util.StringTokenizer;
 
-	public final static float[] EMPTY_SCORES = new float[0];
+import com.jaeksoft.searchlib.schema.AbstractFieldList;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 
-	public float[] getScores();
+public class ReturnFieldList extends AbstractFieldList<ReturnField> {
 
-	public float getMaxScore();
+	public ReturnFieldList(ReturnFieldList returnFieldList) {
+		super(returnFieldList);
+	}
+
+	public ReturnFieldList() {
+		super();
+	}
+
+	public void filterCopy(SchemaFieldList schemaFieldList, String nodeString) {
+		if (nodeString == null)
+			return;
+		StringTokenizer st = new StringTokenizer(nodeString, ", \t\r\n");
+		while (st.hasMoreTokens()) {
+			String fieldName = st.nextToken().trim();
+			SchemaField f = schemaFieldList.get(fieldName);
+			if (f != null)
+				put(new ReturnField(f.getName()));
+		}
+
+	}
+
 }

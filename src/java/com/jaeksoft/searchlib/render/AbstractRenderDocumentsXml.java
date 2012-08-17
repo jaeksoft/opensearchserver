@@ -31,14 +31,15 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
+import com.jaeksoft.searchlib.request.ReturnField;
+import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 
 public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 extends AbstractResult<T1>>
 		extends AbstractRenderXml<T1, T2> {
@@ -77,8 +78,8 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 			ResultDocument doc) throws IOException {
 		if (doc == null)
 			return;
-		FieldList<Field> returnFieldList = null;
-		FieldList<SnippetField> snippetFieldList = null;
+		ReturnFieldList returnFieldList = null;
+		SnippetFieldList snippetFieldList = null;
 		if (abstractRequest instanceof SearchRequest) {
 			returnFieldList = ((SearchRequest) abstractRequest)
 					.getReturnFieldList();
@@ -89,7 +90,7 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 					.getReturnFieldList();
 		}
 		if (returnFieldList != null)
-			for (Field field : returnFieldList)
+			for (ReturnField field : returnFieldList)
 				renderField(doc, field);
 		if (snippetFieldList != null)
 			for (SnippetField field : snippetFieldList)
@@ -127,7 +128,7 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		renderDocumentSuffix();
 	}
 
-	private void renderField(ResultDocument doc, Field field)
+	private void renderField(ResultDocument doc, ReturnField field)
 			throws IOException {
 		String fieldName = field.getName();
 		FieldValueItem[] values = doc.getValueArray(field);

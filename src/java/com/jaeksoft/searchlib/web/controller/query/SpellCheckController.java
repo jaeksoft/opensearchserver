@@ -33,10 +33,10 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckDistanceEnum;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckFieldList;
 
 public class SpellCheckController extends AbstractQueryController {
 
@@ -86,7 +86,7 @@ public class SpellCheckController extends AbstractQueryController {
 			SpellCheckRequest request = (SpellCheckRequest) getRequest();
 			if (request == null)
 				return null;
-			FieldList<SpellCheckField> spellCheckFieldList = request
+			SpellCheckFieldList spellCheckFieldList = request
 					.getSpellCheckFieldList();
 			fieldLeft = new ArrayList<String>();
 			for (SchemaField field : client.getSchema().getFieldList()) {
@@ -110,7 +110,7 @@ public class SpellCheckController extends AbstractQueryController {
 			SpellCheckField spellCheckField = (SpellCheckField) event
 					.getTarget().getAttribute("scFieldItem");
 			((SpellCheckRequest) getRequest()).getSpellCheckFieldList().remove(
-					spellCheckField);
+					spellCheckField.getName());
 			onCancel();
 		}
 	}
@@ -118,10 +118,10 @@ public class SpellCheckController extends AbstractQueryController {
 	public void onFieldAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedSpellCheckField != null)
-				selectedSpellCheckField.copy(currentSpellCheckField);
+				selectedSpellCheckField.copyFrom(currentSpellCheckField);
 			else
 				((SpellCheckRequest) getRequest()).getSpellCheckFieldList()
-						.add(currentSpellCheckField);
+						.put(currentSpellCheckField);
 			onCancel();
 		}
 	}

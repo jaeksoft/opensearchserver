@@ -46,10 +46,10 @@ import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -147,7 +147,7 @@ public class RenderOpenSearch implements Render {
 		for (SnippetField field : searchRequest.getSnippetFieldList())
 			renderSnippetValue(doc, field);
 
-		for (Field field : searchRequest.getReturnFieldList())
+		for (ReturnField field : searchRequest.getReturnFieldList())
 			renderField(doc, field);
 
 		int cc = result.getCollapseCount(pos);
@@ -159,7 +159,7 @@ public class RenderOpenSearch implements Render {
 		writer.println("\t</item>");
 	}
 
-	private void renderField(ResultDocument doc, Field field)
+	private void renderField(ResultDocument doc, ReturnField field)
 			throws IOException, XPathExpressionException,
 			ParserConfigurationException, SAXException {
 		String fieldName = field.getName();

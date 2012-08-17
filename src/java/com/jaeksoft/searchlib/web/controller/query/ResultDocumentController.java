@@ -47,7 +47,6 @@ import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
@@ -164,7 +163,8 @@ public class ResultDocumentController extends AbstractQueryController implements
 			if (resultDocument == null)
 				return null;
 			return new FieldTreeModel<FieldValue>(
-					resultDocument.getReturnFields());
+					ResultDocument.<FieldValue> toList(resultDocument
+							.getReturnFields()));
 		}
 
 		public TreeModel getSnippetTree() throws IOException, ParseException,
@@ -173,7 +173,8 @@ public class ResultDocumentController extends AbstractQueryController implements
 			if (resultDocument == null)
 				return null;
 			return new FieldTreeModel<SnippetFieldValue>(
-					resultDocument.getSnippetFields());
+					ResultDocument.<SnippetFieldValue> toList(resultDocument
+							.getSnippetFields()));
 		}
 	}
 
@@ -184,14 +185,14 @@ public class ResultDocumentController extends AbstractQueryController implements
 		 */
 		private static final long serialVersionUID = -1438357359217617272L;
 
-		public FieldTreeModel(FieldList<T> fieldList) {
-			super(fieldList);
+		public FieldTreeModel(List<T> list) {
+			super(list);
 		}
 
 		@Override
 		public Object getChild(Object parent, int index) {
-			if (parent instanceof FieldList<?>) {
-				FieldList<?> fieldList = (FieldList<?>) parent;
+			if (parent instanceof List<?>) {
+				List<?> fieldList = (List<?>) parent;
 				return fieldList.get(index);
 			} else if (parent instanceof FieldValue) {
 				FieldValue fieldValue = (FieldValue) parent;
@@ -202,8 +203,8 @@ public class ResultDocumentController extends AbstractQueryController implements
 
 		@Override
 		public int getChildCount(Object parent) {
-			if (parent instanceof FieldList<?>) {
-				FieldList<?> fieldList = (FieldList<?>) parent;
+			if (parent instanceof List<?>) {
+				List<?> fieldList = (List<?>) parent;
 				return fieldList.size();
 			} else if (parent instanceof FieldValue) {
 				FieldValue fieldValue = (FieldValue) parent;

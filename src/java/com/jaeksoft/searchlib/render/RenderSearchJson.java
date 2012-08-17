@@ -37,10 +37,10 @@ import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -97,7 +97,7 @@ public class RenderSearchJson implements Render {
 		jsonDoc.put("score", result.getScore(pos));
 		jsonDoc.put("pos", searchRequest.getStart());
 		ResultDocument doc = result.getDocument(pos, null);
-		for (Field field : searchRequest.getReturnFieldList()) {
+		for (ReturnField field : searchRequest.getReturnFieldList()) {
 			renderField(doc, field, jsonFieldList);
 			jsonDoc.put("field", jsonFieldList);
 		}
@@ -114,7 +114,7 @@ public class RenderSearchJson implements Render {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void renderField(ResultDocument doc, Field field,
+	private void renderField(ResultDocument doc, ReturnField field,
 			ArrayList<JSONObject> jsonFieldList) throws IOException {
 		String fieldName = field.getName();
 		FieldValueItem[] values = doc.getValueArray(field);

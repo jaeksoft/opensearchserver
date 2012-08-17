@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,17 +24,14 @@
 
 package com.jaeksoft.searchlib.schema;
 
-import java.util.StringTokenizer;
-
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class Field implements FieldSelector, Comparable<Field> {
+public abstract class AbstractField<T extends AbstractField<?>> implements
+		FieldSelector, Comparable<T> {
 
 	/**
 	 * 
@@ -43,31 +40,23 @@ public class Field implements FieldSelector, Comparable<Field> {
 
 	protected String name;
 
-	public Field() {
+	public AbstractField() {
+		name = null;
 	}
 
-	public void copy(Field sourceField) {
-		this.name = sourceField.name;
-	}
-
-	public static Field fromXmlConfig(Node node) {
-		String name = DomUtils.getAttributeText(node, "name");
-		if (name == null)
-			return null;
-		return new Field(name);
-	}
-
-	public Field(String name) {
+	public AbstractField(String name) {
 		this.name = name;
 	}
 
-	public Field(Field field) {
+	public AbstractField(T field) {
 		this.name = field.name;
 	}
 
-	public Field duplicate() {
-		return new Field(this);
+	public void copyFrom(T sourceField) {
+		this.name = sourceField.name;
 	}
+
+	public abstract T duplicate();
 
 	@Override
 	public FieldSelectorResult accept(String fieldName) {
@@ -90,32 +79,13 @@ public class Field implements FieldSelector, Comparable<Field> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof Field))
+		if (!(o instanceof AbstractField))
 			return false;
-		return equals((Field) o);
+		return name.equals(((AbstractField<?>) o).name);
 	}
 
-	public boolean equals(Field field) {
-		return field.name == this.name;
-	}
-
-	/**
-	 * Alimente la liste "target" avec les champs nommé dans le champ fl.
-	 * 
-	 * @param fl
-	 *            "Champ1,Champ2,Champ3"
-	 * @param target
-	 *            Liste de champs destinataire des champs trouvés
-	 */
-	public static <T extends Field> void filterCopy(FieldList<T> source,
-			String filter, FieldList<Field> target) {
-		if (filter == null)
-			return;
-		StringTokenizer st = new StringTokenizer(filter, ", \t\r\n");
-		while (st.hasMoreTokens()) {
-			String fieldName = st.nextToken().trim();
-			target.add(new Field(source.get(fieldName)));
-		}
+	public boolean equals(T field) {
+		return field.name.equals(this.name);
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
@@ -124,7 +94,7 @@ public class Field implements FieldSelector, Comparable<Field> {
 	}
 
 	@Override
-	public int compareTo(Field o) {
+	public int compareTo(T o) {
 		return name.compareTo(o.name);
 	}
 

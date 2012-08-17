@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -46,6 +45,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.GeoFilter;
@@ -57,15 +57,14 @@ import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
-import com.jaeksoft.searchlib.sort.SortList;
+import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -87,12 +86,11 @@ public class SearchRequest extends AbstractRequest implements
 	private boolean allowLeadingWildcard;
 	private int phraseSlop;
 	private QueryParser.Operator defaultOperator;
-	private FieldList<SnippetField> snippetFieldList;
-	private FieldList<Field> returnFieldList;
-	private FieldList<Field> documentFieldList;
-	private FieldList<FacetField> facetFieldList;
+	private SnippetFieldList snippetFieldList;
+	private ReturnFieldList returnFieldList;
+	private FacetFieldList facetFieldList;
 	private List<BoostQuery> boostingQueries;
-	private SortList sortList;
+	private SortFieldList sortFieldList;
 	private String collapseField;
 	private int collapseMax;
 	private CollapseParameters.Mode collapseMode;
@@ -122,11 +120,10 @@ public class SearchRequest extends AbstractRequest implements
 		this.allowLeadingWildcard = false;
 		this.phraseSlop = 10;
 		this.defaultOperator = Operator.OR;
-		this.snippetFieldList = new FieldList<SnippetField>();
-		this.returnFieldList = new FieldList<Field>();
-		this.sortList = new SortList();
-		this.documentFieldList = null;
-		this.facetFieldList = new FieldList<FacetField>();
+		this.snippetFieldList = new SnippetFieldList();
+		this.returnFieldList = new ReturnFieldList();
+		this.sortFieldList = new SortFieldList();
+		this.facetFieldList = new FacetFieldList();
 		this.boostingQueries = new ArrayList<BoostQuery>(0);
 
 		this.collapseField = null;
@@ -158,17 +155,12 @@ public class SearchRequest extends AbstractRequest implements
 		this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
 		this.phraseSlop = searchRequest.phraseSlop;
 		this.defaultOperator = searchRequest.defaultOperator;
-		this.snippetFieldList = new FieldList<SnippetField>(
+		this.snippetFieldList = new SnippetFieldList(
 				searchRequest.snippetFieldList);
-		this.returnFieldList = new FieldList<Field>(
+		this.returnFieldList = new ReturnFieldList(
 				searchRequest.returnFieldList);
-		this.sortList = new SortList(searchRequest.sortList);
-		this.documentFieldList = null;
-		if (searchRequest.documentFieldList != null)
-			this.documentFieldList = new FieldList<Field>(
-					searchRequest.documentFieldList);
-		this.facetFieldList = new FieldList<FacetField>(
-				searchRequest.facetFieldList);
+		this.sortFieldList = new SortFieldList(searchRequest.sortFieldList);
+		this.facetFieldList = new FacetFieldList(searchRequest.facetFieldList);
 		this.boostingQueries = new ArrayList<BoostQuery>(
 				searchRequest.boostingQueries.size());
 		for (BoostQuery boostQuery : searchRequest.boostingQueries)
@@ -342,7 +334,7 @@ public class SearchRequest extends AbstractRequest implements
 		if (queryParser != null)
 			return queryParser;
 		Schema schema = getConfig().getSchema();
-		Field field = schema.getFieldList().getDefaultField();
+		SchemaField field = schema.getFieldList().getDefaultField();
 		if (field == null)
 			throw new SearchLibException(
 					"Please select a default field in the schema");
@@ -456,7 +448,7 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public FieldList<SnippetField> getSnippetFieldList() {
+	public SnippetFieldList getSnippetFieldList() {
 		rwl.r.lock();
 		try {
 			return this.snippetFieldList;
@@ -466,7 +458,7 @@ public class SearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public FieldList<Field> getReturnFieldList() {
+	public ReturnFieldList getReturnFieldList() {
 		rwl.r.lock();
 		try {
 			return this.returnFieldList;
@@ -479,17 +471,17 @@ public class SearchRequest extends AbstractRequest implements
 	public void addReturnField(String fieldName) {
 		rwl.w.lock();
 		try {
-			returnFieldList.add(new Field(config.getSchema().getFieldList()
-					.get(fieldName)));
+			returnFieldList.put(new ReturnField(config.getSchema()
+					.getFieldList().get(fieldName).getName()));
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public SortList getSortList() {
+	public SortFieldList getSortFieldList() {
 		rwl.r.lock();
 		try {
-			return this.sortList;
+			return this.sortFieldList;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -498,7 +490,7 @@ public class SearchRequest extends AbstractRequest implements
 	public boolean isScoreRequired() {
 		rwl.r.lock();
 		try {
-			return this.sortList.isScore();
+			return this.sortFieldList.isScore();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -518,13 +510,13 @@ public class SearchRequest extends AbstractRequest implements
 	public void addSort(String fieldName, boolean desc) {
 		rwl.w.lock();
 		try {
-			sortList.add(fieldName, desc);
+			sortFieldList.put(new SortField(fieldName, desc));
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public FieldList<FacetField> getFacetFieldList() {
+	public FacetFieldList getFacetFieldList() {
 		rwl.r.lock();
 		try {
 			return this.facetFieldList;
@@ -674,28 +666,6 @@ public class SearchRequest extends AbstractRequest implements
 				return;
 			this.lang = lang;
 			analyzer = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public FieldList<Field> getDocumentFieldList() {
-		rwl.r.lock();
-		try {
-			if (documentFieldList != null)
-				return documentFieldList;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			if (documentFieldList != null)
-				return documentFieldList;
-			documentFieldList = new FieldList<Field>(returnFieldList);
-			Iterator<SnippetField> it = snippetFieldList.iterator();
-			while (it.hasNext())
-				documentFieldList.add(new Field(it.next()));
-			return documentFieldList;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -891,16 +861,14 @@ public class SearchRequest extends AbstractRequest implements
 			if (bqNode != null)
 				BoostQuery.loadFromXml(xpp, bqNode, boostingQueries);
 
-			FieldList<SchemaField> fieldList = config.getSchema()
-					.getFieldList();
-			Field.filterCopy(fieldList,
-					xpp.getNodeString(requestNode, "returnFields"),
-					returnFieldList);
+			SchemaFieldList fieldList = config.getSchema().getFieldList();
+			returnFieldList.filterCopy(fieldList,
+					xpp.getNodeString(requestNode, "returnFields"));
 			NodeList nodes = xpp.getNodeList(requestNode, "returnFields/field");
 			for (int i = 0; i < nodes.getLength(); i++) {
-				Field field = Field.fromXmlConfig(nodes.item(i));
+				ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
 				if (field != null)
-					returnFieldList.add(field);
+					returnFieldList.put(field);
 			}
 
 			nodes = xpp.getNodeList(requestNode, "snippet/field");
@@ -932,9 +900,9 @@ public class SearchRequest extends AbstractRequest implements
 				Node node = nodes.item(i);
 				String textNode = xpp.getNodeString(node);
 				if (textNode != null && textNode.length() > 0)
-					sortList.add(textNode);
+					sortFieldList.put(new SortField(textNode, false));
 				else
-					sortList.add(new SortField(node));
+					sortFieldList.put(new SortField(node));
 			}
 		} finally {
 			rwl.w.unlock();
@@ -986,9 +954,9 @@ public class SearchRequest extends AbstractRequest implements
 				xmlWriter.endElement();
 			}
 
-			if (sortList.getFieldList().size() > 0) {
+			if (sortFieldList.size() > 0) {
 				xmlWriter.startElement("sort");
-				sortList.getFieldList().writeXmlConfig(xmlWriter);
+				sortFieldList.writeXmlConfig(xmlWriter);
 				xmlWriter.endElement();
 			}
 
@@ -1103,45 +1071,46 @@ public class SearchRequest extends AbstractRequest implements
 				for (String value : values)
 					if (value != null)
 						if (value.trim().length() > 0)
-							returnFieldList.add(new Field(shemaFieldList
-									.get(value)));
+							returnFieldList.put(new ReturnField(shemaFieldList
+									.get(value).getName()));
 			}
 
 			if ((values = transaction.getParameterValues("hl")) != null) {
 				for (String value : values)
-					snippetFieldList.add(new SnippetField(shemaFieldList.get(
+					snippetFieldList.put(new SnippetField(shemaFieldList.get(
 							value).getName()));
 			}
 
 			if ((values = transaction.getParameterValues("fl")) != null) {
 				for (String value : values)
-					returnFieldList.add(shemaFieldList.get(value));
+					returnFieldList.put(new ReturnField(shemaFieldList.get(
+							value).getName()));
 			}
 
 			if ((values = transaction.getParameterValues("sort")) != null) {
 				for (String value : values)
-					sortList.add(value);
+					sortFieldList.put(new SortField(value));
 			}
 
 			if ((values = transaction.getParameterValues("facet")) != null) {
 				for (String value : values)
-					facetFieldList.add(FacetField.buildFacetField(value, false,
+					facetFieldList.put(FacetField.buildFacetField(value, false,
 							false));
 			}
 			if ((values = transaction.getParameterValues("facet.collapse")) != null) {
 				for (String value : values)
-					facetFieldList.add(FacetField.buildFacetField(value, false,
+					facetFieldList.put(FacetField.buildFacetField(value, false,
 							true));
 			}
 			if ((values = transaction.getParameterValues("facet.multi")) != null) {
 				for (String value : values)
-					facetFieldList.add(FacetField.buildFacetField(value, true,
+					facetFieldList.put(FacetField.buildFacetField(value, true,
 							false));
 			}
 			if ((values = transaction
 					.getParameterValues("facet.multi.collapse")) != null) {
 				for (String value : values)
-					facetFieldList.add(FacetField.buildFacetField(value, true,
+					facetFieldList.put(FacetField.buildFacetField(value, true,
 							true));
 			}
 

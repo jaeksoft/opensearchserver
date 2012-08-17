@@ -37,7 +37,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -66,7 +66,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 				.getAttributeString(node, "negative")), Source.CONFIGXML, null);
 	}
 
-	public Query getQuery(Field defaultField, Analyzer analyzer)
+	public Query getQuery(SchemaField defaultField, Analyzer analyzer)
 			throws ParseException {
 		if (query != null)
 			return query;
@@ -98,7 +98,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 	}
 
 	@Override
-	public String getCacheKey(Field defaultField, Analyzer analyzer)
+	public String getCacheKey(SchemaField defaultField, Analyzer analyzer)
 			throws ParseException {
 		return "QueryFilter - " + getQuery(defaultField, analyzer).toString();
 	}
@@ -112,8 +112,9 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 	}
 
 	@Override
-	public FilterHits getFilterHits(ReaderLocal reader, Field defaultField,
-			Analyzer analyzer, Timer timer) throws ParseException, IOException {
+	public FilterHits getFilterHits(ReaderLocal reader,
+			SchemaField defaultField, Analyzer analyzer, Timer timer)
+			throws ParseException, IOException {
 		Query query = getQuery(defaultField, analyzer);
 		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
 				timer);

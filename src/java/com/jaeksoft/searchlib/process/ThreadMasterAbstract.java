@@ -38,7 +38,7 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 
 	private final LinkedHashSet<ThreadAbstract> threads;
 
-	private ThreadAbstract[] threadArray;
+	private volatile ThreadAbstract[] threadArray;
 
 	protected ThreadMasterAbstract(Config config) {
 		super(config, null);

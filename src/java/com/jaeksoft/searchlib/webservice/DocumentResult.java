@@ -63,11 +63,11 @@ public class DocumentResult {
 	public DocumentResult(ResultDocument resultDocument, int collapseDocCount,
 			int position, float docScore) {
 		fields = new ArrayList<FieldValueList>();
-		for (FieldValue fiedValue : resultDocument.getReturnFields())
+		for (FieldValue fiedValue : resultDocument.getReturnFields().values())
 			fields.add(new FieldValueList(fiedValue));
 		snippets = new ArrayList<SnippetValueList>();
 		for (SnippetFieldValue snippetFiedValue : resultDocument
-				.getSnippetFields()) {
+				.getSnippetFields().values()) {
 			boolean highlighted = resultDocument.isHighlighted(snippetFiedValue
 					.getName());
 			snippets.add(new SnippetValueList(highlighted, snippetFiedValue));

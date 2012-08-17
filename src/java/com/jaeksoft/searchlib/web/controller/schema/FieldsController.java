@@ -31,7 +31,6 @@ import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -94,7 +93,7 @@ public class FieldsController extends CommonController {
 			throw new SearchLibException("Not allowed");
 		Client client = getClient();
 		Schema schema = client.getSchema();
-		schema.getFieldList().remove(selectedField);
+		schema.getFieldList().remove(selectedField.getName());
 		field = new SchemaField();
 		selectedField = null;
 		SchemaServlet.saveSchema(client, schema);
@@ -112,9 +111,9 @@ public class FieldsController extends CommonController {
 		Client client = getClient();
 		Schema schema = client.getSchema();
 		if (selectedField != null)
-			selectedField.copy(field);
+			selectedField.copyFrom(field);
 		else
-			schema.getFieldList().add(field);
+			schema.getFieldList().put(field);
 		field = new SchemaField();
 		selectedField = null;
 		SchemaServlet.saveSchema(client, schema);
@@ -122,7 +121,7 @@ public class FieldsController extends CommonController {
 
 	public void setSelectedField(SchemaField selectedField) {
 		this.selectedField = selectedField;
-		field.copy(selectedField);
+		field.copyFrom(selectedField);
 		reloadEditField();
 	}
 
@@ -195,7 +194,7 @@ public class FieldsController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		Field field = client.getSchema().getFieldList().getUniqueField();
+		SchemaField field = client.getSchema().getFieldList().getUniqueField();
 		if (field == null)
 			return null;
 		return field.getName();
@@ -213,7 +212,7 @@ public class FieldsController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		Field field = client.getSchema().getFieldList().getDefaultField();
+		SchemaField field = client.getSchema().getFieldList().getDefaultField();
 		if (field == null)
 			return null;
 		return field.getName();

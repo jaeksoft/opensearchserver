@@ -46,14 +46,14 @@ import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class ScreenshotThread extends ThreadAbstract {
 
-	private URL url;
-	private byte[] data;
-	private Dimension capture;
-	private Dimension resize;
-	private FirefoxDriver driver;
-	private ScreenshotManager screenshotManager;
-	private BufferedImage finalImage;
-	private CredentialItem credentialItem;
+	private volatile URL url;
+	private volatile byte[] data;
+	private volatile Dimension capture;
+	private volatile Dimension resize;
+	private volatile FirefoxDriver driver;
+	private volatile ScreenshotManager screenshotManager;
+	private volatile BufferedImage finalImage;
+	private volatile CredentialItem credentialItem;
 
 	private final SimpleLock lock = new SimpleLock();
 

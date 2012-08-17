@@ -37,17 +37,20 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.ReturnField;
+import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.snippet.SnippetField;
-import com.jaeksoft.searchlib.sort.SortList;
+import com.jaeksoft.searchlib.snippet.SnippetFieldList;
+import com.jaeksoft.searchlib.sort.SortField;
+import com.jaeksoft.searchlib.sort.SortFieldList;
 
 public class SelectImpl extends CommonServicesImpl implements Select {
 
@@ -157,54 +160,54 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 								FilterAbstract.Source.REQUEST, null));
 		}
 		if (sort != null && sort.size() > 0) {
-			SortList sortList = searchRequest.getSortList();
+			SortFieldList sortFieldList = searchRequest.getSortFieldList();
 			for (String value : sort)
 				if (value != null && !value.equals(""))
-					sortList.add(value);
+					sortFieldList.put(new SortField(value));
 		}
 		if (returnField != null && returnField.size() > 0) {
-			FieldList<Field> rf = searchRequest.getReturnFieldList();
+			ReturnFieldList rf = searchRequest.getReturnFieldList();
 			for (String value : returnField)
 				if (value != null)
 					if (value.trim().length() > 0)
-						rf.add(new Field(client.getSchema().getFieldList()
-								.get(value)));
+						rf.put(new ReturnField(client.getSchema()
+								.getFieldList().get(value).getName()));
 		}
 		if (highlight != null && highlight.size() > 0) {
-			FieldList<SnippetField> snippetFields = searchRequest
+			SnippetFieldList snippetFields = searchRequest
 					.getSnippetFieldList();
 			for (String value : highlight)
 				if (value != null && !value.equals(""))
-					snippetFields.add(new SnippetField(client.getSchema()
+					snippetFields.put(new SnippetField(client.getSchema()
 							.getFieldList().get(value).getName()));
 		}
 		if (facet != null && facet.size() > 0) {
-			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
+			FacetFieldList facetList = searchRequest.getFacetFieldList();
 			for (String value : facet)
 				if (value != null && !value.equals(""))
-					facetList.add(FacetField.buildFacetField(value, false,
+					facetList.put(FacetField.buildFacetField(value, false,
 							false));
 		}
 		if (facetCollapse != null && facetCollapse.size() > 0) {
-			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
+			FacetFieldList facetList = searchRequest.getFacetFieldList();
 			for (String value : facetCollapse)
 				if (value != null && !value.equals(""))
-					facetList.add(FacetField
+					facetList.put(FacetField
 							.buildFacetField(value, false, true));
 		}
 		if (facetMulti != null && facetMulti.size() > 0) {
-			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
+			FacetFieldList facetList = searchRequest.getFacetFieldList();
 			for (String value : facetMulti)
 				if (value != null && !value.equals(""))
-					facetList.add(FacetField
+					facetList.put(FacetField
 							.buildFacetField(value, true, false));
 		}
 		if (facetMultiCollapse != null && facetMultiCollapse.size() > 0) {
-			FieldList<FacetField> facetList = searchRequest.getFacetFieldList();
+			FacetFieldList facetList = searchRequest.getFacetFieldList();
 			for (String value : facetMultiCollapse)
 				if (value != null && !value.equals(""))
 					facetList
-							.add(FacetField.buildFacetField(value, true, true));
+							.put(FacetField.buildFacetField(value, true, true));
 		}
 
 		// TODO MoreLikeThis request

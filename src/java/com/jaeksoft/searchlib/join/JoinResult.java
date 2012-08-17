@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.join;
 
 import java.io.IOException;
+import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -47,11 +48,14 @@ public class JoinResult {
 
 	private transient ResultSearchSingle foreignResult;
 
+	private TreeSet<String> fieldNameSet;
+
 	public JoinResult(int joinPosition, String paramPosition,
 			boolean returnFields) {
 		this.joinPosition = joinPosition;
 		this.paramPosition = paramPosition;
 		this.returnFields = returnFields;
+		this.fieldNameSet = null;
 	}
 
 	public String getParamPosition() {
@@ -60,6 +64,8 @@ public class JoinResult {
 
 	public void setForeignResult(ResultSearchSingle foreignResult) {
 		this.foreignResult = foreignResult;
+		fieldNameSet = new TreeSet<String>();
+		foreignResult.getRequest().getReturnFieldList().populate(fieldNameSet);
 	}
 
 	public AbstractResultSearch getForeignResult() {
@@ -73,7 +79,7 @@ public class JoinResult {
 	final public ResultDocument getDocument(JoinDocInterface joinDocInterface,
 			int pos, Timer timer) throws SearchLibException {
 		try {
-			return new ResultDocument(foreignResult.getRequest(),
+			return new ResultDocument(foreignResult.getRequest(), fieldNameSet,
 					joinDocInterface.getForeignDocIds(pos, joinPosition),
 					foreignResult.getReader(), timer);
 		} catch (IOException e) {

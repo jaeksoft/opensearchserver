@@ -53,9 +53,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -67,7 +65,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	private LanguageEnum lang;
 	private Analyzer analyzer;
 	private String docQuery;
-	private FieldList<Field> fieldList;
+	private ReturnFieldList fieldList;
 	private int minWordLen;
 	private int maxWordLen;
 	private int minDocFreq;
@@ -75,7 +73,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	private int maxNumTokensParsed;
 	private int maxQueryTerms;
 	private String stopWords;
-	private FieldList<Field> returnFieldList;
+	private ReturnFieldList returnFieldList;
 	private FilterList filterList;
 	private int start;
 	private int rows;
@@ -92,9 +90,9 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	protected void setDefaultValues() {
 		super.setDefaultValues();
 		this.filterList = new FilterList(this.config);
-		this.returnFieldList = new FieldList<Field>();
+		this.returnFieldList = new ReturnFieldList();
 		this.lang = null;
-		this.fieldList = new FieldList<Field>();
+		this.fieldList = new ReturnFieldList();
 		this.minWordLen = MoreLikeThis.DEFAULT_MIN_WORD_LENGTH;
 		this.maxWordLen = MoreLikeThis.DEFAULT_MAX_WORD_LENGTH;
 		this.minDocFreq = MoreLikeThis.DEFAULT_MIN_DOC_FREQ;
@@ -112,7 +110,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		super.copyFrom(request);
 		MoreLikeThisRequest mltRequest = (MoreLikeThisRequest) request;
 		this.lang = mltRequest.lang;
-		this.fieldList = new FieldList<Field>(mltRequest.fieldList);
+		this.fieldList = new ReturnFieldList(mltRequest.fieldList);
 		this.minWordLen = mltRequest.minWordLen;
 		this.maxWordLen = mltRequest.maxWordLen;
 		this.minDocFreq = mltRequest.minDocFreq;
@@ -122,7 +120,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		this.maxNumTokensParsed = mltRequest.maxNumTokensParsed;
 		this.maxQueryTerms = mltRequest.maxQueryTerms;
 		this.filterList = new FilterList(mltRequest.filterList);
-		this.returnFieldList = new FieldList<Field>(mltRequest.returnFieldList);
+		this.returnFieldList = new ReturnFieldList(mltRequest.returnFieldList);
 		this.mltQuery = mltRequest.mltQuery;
 	}
 
@@ -209,7 +207,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	/**
 	 * @return the fieldList
 	 */
-	public FieldList<Field> getFieldList() {
+	public ReturnFieldList getFieldList() {
 		rwl.r.lock();
 		try {
 			return fieldList;
@@ -371,7 +369,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public FieldList<Field> getReturnFieldList() {
+	public ReturnFieldList getReturnFieldList() {
 		rwl.r.lock();
 		try {
 			return this.returnFieldList;
@@ -384,8 +382,8 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	public void addReturnField(String fieldName) {
 		rwl.w.lock();
 		try {
-			returnFieldList.add(new Field(config.getSchema().getFieldList()
-					.get(fieldName)));
+			returnFieldList.put(new ReturnField(config.getSchema()
+					.getFieldList().get(fieldName).getName()));
 			mltQuery = null;
 		} finally {
 			rwl.w.unlock();
@@ -414,11 +412,12 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 
 			NodeList mltFieldsNodes = xpp.getNodeList(node, "fields/field");
 			if (mltFieldsNodes != null) {
-				FieldList<Field> moreLikeThisFields = getFieldList();
+				ReturnFieldList moreLikeThisFields = getFieldList();
 				for (int i = 0; i < mltFieldsNodes.getLength(); i++) {
-					Field field = Field.fromXmlConfig(mltFieldsNodes.item(i));
+					ReturnField field = ReturnField
+							.fromXmlConfig(mltFieldsNodes.item(i));
 					if (field != null)
-						moreLikeThisFields.add(field);
+						moreLikeThisFields.put(field);
 				}
 			}
 
@@ -434,15 +433,14 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 						FilterAbstract.Source.CONFIGXML, null));
 			}
 
-			FieldList<SchemaField> fieldList = config.getSchema()
-					.getFieldList();
-			Field.filterCopy(fieldList,
-					xpp.getNodeString(node, "returnFields"), returnFieldList);
+			SchemaFieldList fieldList = config.getSchema().getFieldList();
+			returnFieldList.filterCopy(fieldList,
+					xpp.getNodeString(node, "returnFields"));
 			nodes = xpp.getNodeList(node, "returnFields/field");
 			for (int i = 0; i < nodes.getLength(); i++) {
-				Field field = Field.fromXmlConfig(nodes.item(i));
+				ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
 				if (field != null)
-					returnFieldList.add(field);
+					returnFieldList.put(field);
 			}
 
 		} finally {

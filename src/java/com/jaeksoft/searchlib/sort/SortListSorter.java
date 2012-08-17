@@ -28,14 +28,13 @@ import java.io.IOException;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class SortListSorter extends SorterAbstract {
 
 	private SorterAbstract[] sorterList;
 
-	protected SortListSorter(FieldList<SortField> sortFieldList,
+	protected SortListSorter(SortFieldList sortFieldList,
 			DocIdInterface collector, ReaderLocal reader) throws IOException {
 		super(collector);
 		sorterList = new SorterAbstract[sortFieldList.size()];

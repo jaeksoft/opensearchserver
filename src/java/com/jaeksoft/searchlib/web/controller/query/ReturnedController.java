@@ -38,8 +38,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.request.ReturnField;
+import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class ReturnedController extends AbstractQueryController implements
@@ -89,16 +89,17 @@ public class ReturnedController extends AbstractQueryController implements
 		synchronized (this) {
 			if (selectedReturn == null)
 				return;
-			getReturnedFieldInterface().getReturnFieldList().add(
-					new Field(selectedReturn));
+			getReturnedFieldInterface().getReturnFieldList().put(
+					new ReturnField(selectedReturn));
 			reloadPage();
 		}
 	}
 
 	public void onReturnRemove(Event event) throws SearchLibException {
 		synchronized (this) {
-			Field field = (Field) event.getData();
-			getReturnedFieldInterface().getReturnFieldList().remove(field);
+			ReturnField field = (ReturnField) event.getData();
+			getReturnedFieldInterface().getReturnFieldList().remove(
+					field.getName());
 			reloadPage();
 		}
 	}
@@ -123,7 +124,7 @@ public class ReturnedController extends AbstractQueryController implements
 			if (fieldLeft != null)
 				return fieldLeft;
 			fieldLeft = new ArrayList<String>();
-			FieldList<Field> fields = rfi.getReturnFieldList();
+			ReturnFieldList fields = rfi.getReturnFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isStored() || field.isIndexed())
 					if (fields.get(field.getName()) == null) {
@@ -137,7 +138,7 @@ public class ReturnedController extends AbstractQueryController implements
 
 	@Override
 	public void render(Row row, Object data) throws Exception {
-		Field field = (Field) data;
+		ReturnField field = (ReturnField) data;
 		new Label(field.getName()).setParent(row);
 		Button button = new Button("Remove");
 		button.addForward(null, "query", "onReturnRemove", field);

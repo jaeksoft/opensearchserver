@@ -29,13 +29,13 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
-import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.AbstractField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
+public class SpellCheckField extends AbstractField<SpellCheckField> implements
+		CacheKeyInterface<SpellCheckField> {
 
 	/**
 	 * 
@@ -70,16 +70,15 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 	}
 
 	@Override
-	public void copy(Field source) {
-		super.copy(source);
-		SpellCheckField scSource = (SpellCheckField) source;
-		this.minScore = scSource.minScore;
-		this.suggestionNumber = scSource.suggestionNumber;
-		this.stringDistance = scSource.stringDistance;
+	public void copyFrom(SpellCheckField source) {
+		super.copyFrom(source);
+		this.minScore = source.minScore;
+		this.suggestionNumber = source.suggestionNumber;
+		this.stringDistance = source.stringDistance;
 	}
 
 	@Override
-	public Field duplicate() {
+	public SpellCheckField duplicate() {
 		return new SpellCheckField(this);
 	}
 
@@ -99,8 +98,8 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 		suggestionNumber = n;
 	}
 
-	public static void copySpellCheckFields(Node node,
-			FieldList<SchemaField> source, FieldList<SpellCheckField> target) {
+	public static void copySpellCheckFields(Node node, SchemaFieldList source,
+			SpellCheckFieldList target) {
 		String fieldName = XPathParser.getAttributeString(node, "name");
 		String p = XPathParser.getAttributeString(node, "minScore");
 		float minScore = 0.5F;
@@ -113,7 +112,7 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 				.find(XPathParser.getAttributeString(node, "stringDistance"));
 		SpellCheckField spellCheckField = new SpellCheckField(source.get(
 				fieldName).getName(), minScore, suggestionNumber, distance);
-		target.add(spellCheckField);
+		target.put(spellCheckField);
 	}
 
 	public static SpellCheckField buildSpellCheckField(String value,
@@ -150,15 +149,14 @@ public class SpellCheckField extends Field implements CacheKeyInterface<Field> {
 	}
 
 	@Override
-	public int compareTo(Field o) {
+	public int compareTo(SpellCheckField o) {
 		int i = super.compareTo(o);
 		if (i != 0)
 			return i;
-		SpellCheckField f = (SpellCheckField) o;
-		i = Float.compare(minScore, f.minScore);
+		i = Float.compare(minScore, o.minScore);
 		if (i != 0)
 			return i;
-		return suggestionNumber - f.suggestionNumber;
+		return suggestionNumber - o.suggestionNumber;
 	}
 
 	/**

@@ -149,7 +149,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 		schemaField.setName(schemaFieldRecord.name);
 		schemaField.setStored(schemaFieldRecord.stored);
 		schemaField.setTermVector(schemaFieldRecord.termVector);
-		schema.getFieldList().add(schemaField);
+		schema.getFieldList().put(schemaField);
 		SchemaServlet.saveSchema(client, schema);
 	}
 
@@ -181,7 +181,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 		SchemaField field = sfl.get(deleteField.trim());
 		if (field == null)
 			return "Nothing to delete";
-		sfl.remove(field);
+		sfl.remove(field.getName());
 		SchemaServlet.saveSchema(client, schema);
 		return "Deleted " + deleteField;
 	}

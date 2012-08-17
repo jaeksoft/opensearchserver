@@ -34,7 +34,6 @@ import org.zkoss.zul.Listitem;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.User;
 
 public abstract class CommonComposer extends GenericForwardComposer implements
@@ -155,14 +154,6 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 	public void eventLogout() throws SearchLibException {
 		reset();
 		reloadPage();
-	}
-
-	@Override
-	public void eventQueryEditResult(AbstractResult<?> data) {
-	}
-
-	@Override
-	public void eventQueryEditRequest(AbstractRequest data) {
 	}
 
 	@Override

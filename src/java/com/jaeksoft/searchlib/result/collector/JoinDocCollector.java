@@ -42,7 +42,7 @@ public class JoinDocCollector implements JoinDocInterface {
 	protected OpenBitSet bitSet;
 	protected final int joinResultSize;
 
-	private JoinDocCollector() {
+	protected JoinDocCollector() {
 		maxDoc = 0;
 		ids = new int[0];
 		foreignDocIdsArray = new int[0][0];
@@ -167,7 +167,8 @@ public class JoinDocCollector implements JoinDocInterface {
 			StringIndex doc2StringIndex, int joinResultSize, int joinResultPos,
 			Timer timer) {
 		if (docs.getSize() == 0 || docs2.getSize() == 0)
-			return JoinDocCollector.EMPTY;
+			return docs instanceof ScoreDocInterface ? JoinScoreDocCollector.EMPTY
+					: JoinDocCollector.EMPTY;
 
 		Timer t = new Timer(timer, "copy & sort local documents");
 		JoinDocInterface docs1 = docs instanceof ScoreDocInterface ? new JoinScoreDocCollector(

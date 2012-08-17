@@ -29,9 +29,9 @@ import com.jaeksoft.searchlib.process.ThreadAbstract;
 
 public abstract class CrawlThreadAbstract extends ThreadAbstract {
 
-	private CrawlStatus status;
+	private volatile CrawlStatus status;
 
-	protected CrawlStatistics currentStats;
+	protected volatile CrawlStatistics currentStats;
 
 	protected CrawlThreadAbstract(Config config, CrawlMasterAbstract crawlMaster) {
 		super(config, crawlMaster);

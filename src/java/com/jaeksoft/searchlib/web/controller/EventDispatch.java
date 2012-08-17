@@ -30,8 +30,6 @@ import org.zkoss.zk.ui.event.Event;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.User;
 
 public class EventDispatch {
@@ -80,12 +78,6 @@ public class EventDispatch {
 					receiver.eventSchemaChange();
 			} else if (pushEvent == PushEvent.LOG_OUT)
 				receiver.eventLogout();
-			else if (pushEvent == PushEvent.QUERY_EDIT_REQUEST)
-				receiver.eventQueryEditRequest((AbstractRequest) event
-						.getData());
-			else if (pushEvent == PushEvent.QUERY_EDIT_RESULT)
-				receiver.eventQueryEditResult((AbstractResult<?>) event
-						.getData());
 		} catch (SearchLibException e) {
 			throw new UiException(e);
 		}

@@ -210,7 +210,6 @@ public final class QueryController extends AbstractQueryController {
 		newRequest.setRequestName(requestName);
 		setRequest(newRequest);
 		reloadPage();
-		PushEvent.QUERY_EDIT_REQUEST.publish(newRequest);
 	}
 
 	public void onNew() throws SearchLibException, InterruptedException,
@@ -241,7 +240,7 @@ public final class QueryController extends AbstractQueryController {
 		if (entry == null)
 			return;
 		setRequest(getClient().getNewRequest(entry.getKey()));
-		PushEvent.QUERY_EDIT_REQUEST.publish(getAbstractRequest());
+		reloadPage();
 	}
 
 	public void doDeleteQuery(Component comp) throws SearchLibException,
@@ -318,7 +317,7 @@ public final class QueryController extends AbstractQueryController {
 
 		request.reset();
 		setResult(getClient().request(request));
-		PushEvent.QUERY_EDIT_RESULT.publish(getAbstractResult());
+		sendReload(getParent());
 	}
 
 	/**

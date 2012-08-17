@@ -117,7 +117,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 			SearchRequest request = (SearchRequest) client.getRequestMap().get(
 					searchTemplate);
 			if (snippetField != null) {
-				request.getSnippetFieldList().add(
+				request.getSnippetFieldList().put(
 						new SnippetField(snippetField));
 				SnippetField snippetFieldParameter = request
 						.getSnippetFieldList().get(snippetField);

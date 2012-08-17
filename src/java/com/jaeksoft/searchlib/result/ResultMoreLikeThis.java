@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
@@ -44,8 +45,12 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 		implements ResultDocumentsInterface<MoreLikeThisRequest> {
 
 	transient private ReaderLocal reader = null;
+
 	private DocIdInterface docs = null;
+
 	final private float maxScore;
+
+	final private TreeSet<String> fieldNameSet;
 
 	public ResultMoreLikeThis(ReaderLocal reader, MoreLikeThisRequest request)
 			throws SearchLibException, IOException, ParseException,
@@ -60,10 +65,13 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 		DocSetHits dsh = reader.searchDocSet(searchRequest, timer);
 		if (dsh == null) {
 			maxScore = 0;
+			fieldNameSet = null;
 			return;
 		}
 		maxScore = dsh.getMaxScore(timer);
 		docs = dsh.getDocIdInterface(timer);
+		fieldNameSet = new TreeSet<String>();
+		request.getReturnFieldList().populate(fieldNameSet);
 	}
 
 	@Override
@@ -72,8 +80,8 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 		if (docs == null || pos < 0 || pos > docs.getSize())
 			return null;
 		try {
-			return new ResultDocument(request, docs.getIds()[pos], reader,
-					timer);
+			return new ResultDocument(request, fieldNameSet,
+					docs.getIds()[pos], reader, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

@@ -22,13 +22,18 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.spellcheck;
 
-public interface ScoreDocInterface extends DocIdInterface {
+import com.jaeksoft.searchlib.schema.AbstractFieldList;
 
-	public final static float[] EMPTY_SCORES = new float[0];
+public class SpellCheckFieldList extends AbstractFieldList<SpellCheckField> {
 
-	public float[] getScores();
+	public SpellCheckFieldList() {
+		super();
+	}
 
-	public float getMaxScore();
+	public SpellCheckFieldList(SpellCheckFieldList spellCheckFieldList) {
+		super(spellCheckFieldList);
+	}
+
 }

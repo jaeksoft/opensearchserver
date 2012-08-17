@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,43 +22,30 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.snippet;
+package com.jaeksoft.searchlib.index;
 
-import java.util.List;
+import java.util.Set;
 
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
+import org.apache.lucene.document.FieldSelector;
+import org.apache.lucene.document.FieldSelectorResult;
 
-public class SnippetFieldValue extends FieldValue {
+public class SetFieldSelector implements FieldSelector {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 9069619321715897099L;
+	private static final long serialVersionUID = -4722731991166993080L;
 
-	private boolean highlighted;
+	private final Set<String> fieldSet;
 
-	public SnippetFieldValue() {
-	}
-
-	private SnippetFieldValue(SnippetFieldValue field) {
-		super(field);
-		this.highlighted = field.highlighted;
-	}
-
-	public SnippetFieldValue(String fieldName, List<FieldValueItem> values,
-			boolean highlighted) {
-		super(fieldName, values);
-		this.highlighted = highlighted;
-	}
-
-	public boolean isHighlighted() {
-		return highlighted;
+	public SetFieldSelector(Set<String> fieldSet) {
+		this.fieldSet = fieldSet;
 	}
 
 	@Override
-	public SnippetFieldValue duplicate() {
-		return new SnippetFieldValue(this);
+	public FieldSelectorResult accept(String fieldName) {
+		return fieldSet.contains(fieldName) ? FieldSelectorResult.LOAD
+				: FieldSelectorResult.NO_LOAD;
 	}
 
 }

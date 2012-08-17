@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
+import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -43,6 +44,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 	transient private ReaderLocal reader;
 	transient private DocSetHits docSetHits;
+	transient private final TreeSet<String> fieldNameSet;
 
 	/**
 	 * The constructor executes the request using the searcher provided and
@@ -83,8 +85,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					joinResults, t);
 			t.duration();
 			t = new Timer(joinTimer, "join - sort");
-			searchRequest.getSortList().getSorter(notCollapsedDocs, reader)
-					.quickSort(t);
+			searchRequest.getSortFieldList()
+					.getSorter(notCollapsedDocs, reader).quickSort(t);
 			t.duration();
 			numFound = notCollapsedDocs.getSize();
 			joinTimer.duration();
@@ -126,6 +128,9 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		maxScore = request.isScoreRequired() ? docSetHits.getMaxScore(timer)
 				: 0;
 
+		fieldNameSet = new TreeSet<String>();
+		searchRequest.getReturnFieldList().populate(fieldNameSet);
+		searchRequest.getSnippetFieldList().populate(fieldNameSet);
 	}
 
 	/**
@@ -152,8 +157,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			return null;
 		try {
 			int docId = docs.getIds()[pos];
-			ResultDocument resultDocument = new ResultDocument(request, docId,
-					reader, timer);
+			ResultDocument resultDocument = new ResultDocument(request,
+					fieldNameSet, docId, reader, timer);
 			if (!(docs instanceof CollapseDocInterface))
 				return resultDocument;
 			if (request.getCollapseMax() > 0)
@@ -162,8 +167,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					.getCollapsedDocs(pos);
 			if (collapsedDocs != null)
 				for (int doc : collapsedDocs) {
-					ResultDocument rd = new ResultDocument(request, doc,
-							reader, timer);
+					ResultDocument rd = new ResultDocument(request,
+							fieldNameSet, doc, reader, timer);
 					resultDocument.appendIfStringDoesNotExist(rd);
 				}
 			return resultDocument;

@@ -49,7 +49,6 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.schema.Field;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -188,7 +187,7 @@ public class WriterLocal extends WriterAbstract {
 		PerFieldAnalyzerWrapper pfa = schema.getIndexPerFieldAnalyzer(document
 				.getLang());
 
-		Field uniqueField = schema.getFieldList().getUniqueField();
+		SchemaField uniqueField = schema.getFieldList().getUniqueField();
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
 			String uniqueFieldValue = doc.get(uniqueFieldName);
@@ -357,7 +356,7 @@ public class WriterLocal extends WriterAbstract {
 	@Override
 	public boolean deleteDocument(Schema schema, String uniqueField)
 			throws SearchLibException {
-		Field uniqueSchemaField = schema.getFieldList().getUniqueField();
+		SchemaField uniqueSchemaField = schema.getFieldList().getUniqueField();
 		if (uniqueSchemaField == null)
 			return false;
 		lock.rl.lock();
@@ -394,7 +393,7 @@ public class WriterLocal extends WriterAbstract {
 	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws SearchLibException {
-		Field uniqueSchemaField = schema.getFieldList().getUniqueField();
+		SchemaField uniqueSchemaField = schema.getFieldList().getUniqueField();
 		if (uniqueSchemaField == null)
 			return 0;
 		String uniqueField = uniqueSchemaField.getName();

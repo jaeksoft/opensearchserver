@@ -46,11 +46,11 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 
 public class AutoCompletionBuildThread extends ThreadAbstract {
 
-	private Client sourceClient;
-	private Client autoCompClient;
-	private String fieldName;
-	private TermEnum termEnum;
-	private InfoCallback infoCallBack;
+	private volatile Client sourceClient;
+	private volatile Client autoCompClient;
+	private volatile String fieldName;
+	private volatile TermEnum termEnum;
+	private volatile InfoCallback infoCallBack;
 
 	protected AutoCompletionBuildThread(Client sourceClient,
 			Client autoCompClient) {

@@ -26,14 +26,12 @@ package com.jaeksoft.searchlib.request;
 
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
 
 public class RequestInterfaces {
 
 	public interface ReturnedFieldInterface {
 
-		public FieldList<Field> getReturnFieldList();
+		public ReturnFieldList getReturnFieldList();
 
 		public void addReturnField(String fieldName);
 	}

@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.web.controller;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.User;
 
 public interface EventInterface {
@@ -49,9 +47,5 @@ public interface EventInterface {
 	void eventSchemaChange() throws SearchLibException;
 
 	void eventLogout() throws SearchLibException;
-
-	void eventQueryEditResult(AbstractResult<?> data) throws SearchLibException;
-
-	void eventQueryEditRequest(AbstractRequest data) throws SearchLibException;
 
 }

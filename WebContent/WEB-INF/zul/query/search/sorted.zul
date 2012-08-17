@@ -16,7 +16,7 @@
 -->
 <window id="sorted"
 	use="com.jaeksoft.searchlib.web.controller.query.SortedController">
-	<grid model="@{sorted.request.sortList.fieldList.list}"
+	<grid model="@{sorted.request.sortFieldList.list}"
 		rowRenderer="@{sorted}">
 		<columns>
 			<column label="Field" />

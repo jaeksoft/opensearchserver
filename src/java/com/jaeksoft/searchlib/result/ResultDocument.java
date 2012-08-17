@@ -27,18 +27,21 @@ package com.jaeksoft.searchlib.result;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
+import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
@@ -47,69 +50,76 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultDocument {
 
-	final private FieldList<FieldValue> returnFields;
-	final private FieldList<SnippetFieldValue> snippetFields;
+	final private Map<String, FieldValue> returnFields;
+	final private Map<String, SnippetFieldValue> snippetFields;
 
-	public ResultDocument(SearchRequest searchRequest, int docId,
-			ReaderLocal reader, Timer timer) throws IOException,
-			ParseException, SyntaxError, SearchLibException {
+	public ResultDocument(SearchRequest searchRequest,
+			TreeSet<String> fieldSet, int docId, ReaderLocal reader, Timer timer)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 
-		returnFields = new FieldList<FieldValue>();
-		snippetFields = new FieldList<SnippetFieldValue>();
+		returnFields = new TreeMap<String, FieldValue>();
+		snippetFields = new TreeMap<String, SnippetFieldValue>();
 
-		FieldList<FieldValue> documentFields = reader.getDocumentFields(docId,
-				searchRequest.getDocumentFieldList(), timer);
+		Map<String, FieldValue> documentFields = reader.getDocumentFields(
+				docId, fieldSet, timer);
 
-		for (Field field : searchRequest.getReturnFieldList()) {
-			FieldValue fieldValue = documentFields.get(field);
+		for (ReturnField field : searchRequest.getReturnFieldList()) {
+			String fieldName = field.getName();
+			FieldValue fieldValue = documentFields.get(fieldName);
 			if (fieldValue != null)
-				returnFields.add(fieldValue);
+				returnFields.put(fieldName, fieldValue);
 		}
 
 		for (SnippetField field : searchRequest.getSnippetFieldList()) {
+			String fieldName = field.getName();
 			field.initSearchTerms(searchRequest);
 			List<FieldValueItem> snippets = new ArrayList<FieldValueItem>();
 			boolean isSnippet = field.getSnippets(docId, reader, documentFields
-					.get(field).getValueArray(), snippets);
-			SnippetFieldValue fieldValue = new SnippetFieldValue(field,
+					.get(fieldName).getValueArray(), snippets);
+			SnippetFieldValue fieldValue = new SnippetFieldValue(fieldName,
 					snippets, isSnippet);
-			snippetFields.add(fieldValue);
+			snippetFields.put(fieldName, fieldValue);
 		}
 	}
 
-	public ResultDocument(MoreLikeThisRequest mltRequest, int docId,
-			ReaderLocal reader, Timer timer) throws IOException,
-			ParseException, SyntaxError {
-		returnFields = reader.getDocumentFields(docId,
-				mltRequest.getReturnFieldList(), timer);
-		snippetFields = new FieldList<SnippetFieldValue>();
+	public ResultDocument(MoreLikeThisRequest mltRequest,
+			TreeSet<String> fieldSet, int docId, ReaderLocal reader, Timer timer)
+			throws IOException, ParseException, SyntaxError {
+		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
+		snippetFields = new TreeMap<String, SnippetFieldValue>();
 	}
 
-	public FieldList<FieldValue> getReturnFields() {
+	public static <T> List<T> toList(Map<String, T> map) {
+		List<T> list = new ArrayList<T>(0);
+		for (T fv : map.values())
+			list.add(fv);
+		return list;
+	}
+
+	public Map<String, FieldValue> getReturnFields() {
 		return returnFields;
 	}
 
-	public FieldList<SnippetFieldValue> getSnippetFields() {
+	public Map<String, SnippetFieldValue> getSnippetFields() {
 		return snippetFields;
 	}
 
-	public FieldValueItem[] getValueArray(Field field) {
+	public FieldValueItem[] getValueArray(AbstractField<?> field) {
 		if (field == null)
 			return null;
-		FieldValue fieldValue = returnFields.get(field);
-		if (fieldValue == null)
-			return null;
-		return fieldValue.getValueArray();
+		return getValueArray(field.getName());
 	}
 
 	public FieldValueItem[] getValueArray(String fieldName) {
+		if (fieldName == null)
+			return null;
 		FieldValue fieldValue = returnFields.get(fieldName);
 		if (fieldValue == null)
 			return null;
 		return fieldValue.getValueArray();
 	}
 
-	public String getValueContent(Field field, int pos) {
+	public String getValueContent(AbstractField<?> field, int pos) {
 		FieldValueItem[] values = getValueArray(field);
 		if (values == null)
 			return null;
@@ -126,11 +136,15 @@ public class ResultDocument {
 	}
 
 	public FieldValueItem[] getSnippetArray(SnippetField field) {
-		return snippetFields.get(field).getValueArray();
+		if (field == null)
+			return null;
+		return snippetFields.get(field.getName()).getValueArray();
 	}
 
 	public FieldValueItem[] getSnippetValue(SnippetField field) {
-		return snippetFields.get(field).getValueArray();
+		if (field == null)
+			return null;
+		return snippetFields.get(field.getName()).getValueArray();
 	}
 
 	public FieldValueItem[] getSnippetArray(String fieldName) {
@@ -144,7 +158,9 @@ public class ResultDocument {
 		return snippetFieldValue.getValueArray();
 	}
 
-	public FieldValueItem[] getSnippetList(Field field) {
+	public FieldValueItem[] getSnippetList(AbstractField<?> field) {
+		if (field == null)
+			return null;
 		return getSnippetList(field.getName());
 	}
 
@@ -162,19 +178,20 @@ public class ResultDocument {
 	}
 
 	public void appendIfStringDoesNotExist(ResultDocument rd) {
-		for (FieldValue newFieldValue : rd.returnFields) {
-			FieldValue fieldValue = returnFields.get(newFieldValue.getName());
+		for (FieldValue newFieldValue : rd.returnFields.values()) {
+			String fieldName = newFieldValue.getName();
+			FieldValue fieldValue = returnFields.get(fieldName);
 			if (fieldValue == null)
-				returnFields.add(fieldValue);
+				returnFields.put(fieldName, fieldValue);
 			else
 				fieldValue.addIfStringDoesNotExist(newFieldValue
 						.getValueArray());
 		}
-		for (SnippetFieldValue newFieldValue : rd.snippetFields) {
-			SnippetFieldValue fieldValue = snippetFields.get(newFieldValue
-					.getName());
+		for (SnippetFieldValue newFieldValue : rd.snippetFields.values()) {
+			String fieldName = newFieldValue.getName();
+			SnippetFieldValue fieldValue = snippetFields.get(fieldName);
 			if (fieldValue == null)
-				snippetFields.add(fieldValue);
+				snippetFields.put(fieldName, fieldValue);
 			else
 				fieldValue.addIfStringDoesNotExist(newFieldValue
 						.getValueArray());

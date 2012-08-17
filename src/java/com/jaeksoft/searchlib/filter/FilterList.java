@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -88,8 +88,9 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		return filterList.iterator();
 	}
 
-	public FilterHits getFilterHits(ReaderLocal reader, Field defaultField,
-			Analyzer analyzer, Timer timer) throws IOException, ParseException {
+	public FilterHits getFilterHits(ReaderLocal reader,
+			SchemaField defaultField, Analyzer analyzer, Timer timer)
+			throws IOException, ParseException {
 
 		if (size() == 0)
 			return null;

@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.Field;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -83,14 +83,14 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	public abstract String getDescription();
 
-	public abstract String getCacheKey(Field defaultField, Analyzer analyzer)
-			throws ParseException;
+	public abstract String getCacheKey(SchemaField defaultField,
+			Analyzer analyzer) throws ParseException;
 
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)
 			throws SAXException;
 
 	public abstract FilterHits getFilterHits(ReaderLocal reader,
-			Field defaultField, Analyzer analyzer, Timer timer)
+			SchemaField defaultField, Analyzer analyzer, Timer timer)
 			throws ParseException, IOException;
 
 	public abstract T duplicate();

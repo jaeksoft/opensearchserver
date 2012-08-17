@@ -33,10 +33,10 @@ import org.zkoss.zul.RowRenderer;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.snippet.SnippetField;
+import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 
 public class SnippetController extends AbstractQueryController {
 
@@ -91,8 +91,7 @@ public class SnippetController extends AbstractQueryController {
 			if (snippetFieldLeft != null)
 				return snippetFieldLeft;
 			snippetFieldLeft = new ArrayList<String>();
-			FieldList<SnippetField> snippetFields = request
-					.getSnippetFieldList();
+			SnippetFieldList snippetFields = request.getSnippetFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isStored())
 					if (field.getTermVector() == TermVector.POSITIONS_OFFSETS)
@@ -108,7 +107,8 @@ public class SnippetController extends AbstractQueryController {
 	public void onSnippetRemove(Event event) throws SearchLibException {
 		synchronized (this) {
 			SnippetField field = (SnippetField) event.getData();
-			((SearchRequest) getRequest()).getSnippetFieldList().remove(field);
+			((SearchRequest) getRequest()).getSnippetFieldList().remove(
+					field.getName());
 			reloadPage();
 		}
 	}
@@ -129,7 +129,7 @@ public class SnippetController extends AbstractQueryController {
 		synchronized (this) {
 			if (selectedSnippet == null)
 				return;
-			((SearchRequest) getRequest()).getSnippetFieldList().add(
+			((SearchRequest) getRequest()).getSnippetFieldList().put(
 					new SnippetField(selectedSnippet));
 			reloadPage();
 		}

@@ -46,15 +46,14 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
-import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class SnippetField extends Field {
+public class SnippetField extends AbstractField<SnippetField> {
 
 	/**
 	 * 
@@ -71,9 +70,6 @@ public class SnippetField extends Field {
 	private String[] searchTerms;
 	private Query query;
 	private Analyzer analyzer;
-
-	public SnippetField() {
-	}
 
 	private SnippetField(String fieldName, String tag, int maxDocChar,
 			String separator, int maxSnippetSize,
@@ -93,7 +89,7 @@ public class SnippetField extends Field {
 	}
 
 	@Override
-	public Field duplicate() {
+	public SnippetField duplicate() {
 		return new SnippetField(name, tag, maxDocChar, separator,
 				maxSnippetSize, fragmenterTemplate);
 	}
@@ -186,10 +182,9 @@ public class SnippetField extends Field {
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public static void copySnippetFields(Node node,
-			FieldList<SchemaField> source, FieldList<SnippetField> target)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	public static void copySnippetFields(Node node, SchemaFieldList source,
+			SnippetFieldList target) throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		String fieldName = XPathParser.getAttributeString(node, "name");
 		String tag = XPathParser.getAttributeString(node, "tag");
 		if (tag == null)
@@ -216,7 +211,7 @@ public class SnippetField extends Field {
 			separator = "...";
 		SnippetField field = new SnippetField(source.get(fieldName).getName(),
 				tag, maxDocChar, separator, maxSnippetSize, fragmenter);
-		target.add(field);
+		target.put(field);
 	}
 
 	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(int docId,
@@ -409,11 +404,10 @@ public class SnippetField extends Field {
 	}
 
 	@Override
-	public int compareTo(Field o) {
-		int c = super.compareTo(o);
+	public int compareTo(SnippetField f) {
+		int c = super.compareTo(f);
 		if (c != 0)
 			return c;
-		SnippetField f = (SnippetField) o;
 		if ((c = fragmenterTemplate.getClass().getName()
 				.compareTo(f.fragmenterTemplate.getClass().getName())) != 0)
 			return c;

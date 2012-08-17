@@ -31,7 +31,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -71,12 +74,11 @@ import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.schema.Field;
-import com.jaeksoft.searchlib.schema.FieldList;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -366,9 +368,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public FilterHits getFilterHits(Field defaultField, Analyzer analyzer,
-			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException {
+	public FilterHits getFilterHits(SchemaField defaultField,
+			Analyzer analyzer, FilterAbstract<?> filter, Timer timer)
+			throws ParseException, IOException {
 		rwl.r.lock();
 		try {
 			return filterCache.get(this, filter, defaultField, analyzer, timer);
@@ -377,10 +379,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public Document getDocFields(int docId, FieldSelector selector)
+	public Document getDocFields(int docId, Set<String> fieldNameSet)
 			throws IOException {
 		rwl.r.lock();
 		try {
+			FieldSelector selector = new SetFieldSelector(fieldNameSet);
 			return indexReader.document(docId, selector);
 		} catch (IllegalArgumentException e) {
 			throw e;
@@ -509,7 +512,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		try {
 
 			Schema schema = searchRequest.getConfig().getSchema();
-			Field defaultField = schema.getFieldList().getDefaultField();
+			SchemaField defaultField = schema.getFieldList().getDefaultField();
 
 			return searchCache.get(this, searchRequest, schema, defaultField,
 					timer);
@@ -520,7 +523,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public DocSetHits newDocSetHits(SearchRequest searchRequest, Schema schema,
-			Field defaultField, Analyzer analyzer, Timer timer)
+			SchemaField defaultField, Analyzer analyzer, Timer timer)
 			throws IOException, ParseException, SyntaxError,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
@@ -529,29 +532,29 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				this, defaultField, analyzer, timer);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
-				filterHits, searchRequest.getSortList(), timer);
+				filterHits, searchRequest.getSortFieldList(), timer);
 		return dsh;
 	}
 
-	public FieldList<FieldValue> getDocumentFields(int docId,
-			FieldList<Field> fieldList, Timer timer) throws IOException,
+	public Map<String, FieldValue> getDocumentFields(int docId,
+			Set<String> fieldNameSet, Timer timer) throws IOException,
 			ParseException, SyntaxError {
 		rwl.r.lock();
 		try {
-			return fieldCache.get(this, docId, fieldList, timer);
+			return fieldCache.get(this, docId, fieldNameSet, timer);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public FieldList<FieldValue> getTermsVectorFields(int docId,
-			FieldList<Field> fieldList) throws IOException {
+	public Set<FieldValue> getTermsVectorFields(int docId,
+			Set<String> fieldNameSet) throws IOException {
 		rwl.r.lock();
 		try {
-			FieldList<FieldValue> fieldValueList = new FieldList<FieldValue>();
-			for (Field field : fieldList) {
+			Set<FieldValue> fieldValueList = new HashSet<FieldValue>();
+			for (String fieldName : fieldNameSet) {
 				TermFreqVector termFreqVector = indexReader.getTermFreqVector(
-						docId, field.getName());
+						docId, fieldName);
 				if (termFreqVector == null)
 					continue;
 				String[] terms = termFreqVector.getTerms();
@@ -562,7 +565,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				for (String term : terms)
 					fieldValueItem[i++] = new FieldValueItem(
 							FieldValueOriginEnum.TERM_VECTOR, term);
-				fieldValueList.add(new FieldValue(field, fieldValueItem));
+				fieldValueList.add(new FieldValue(fieldName, fieldValueItem));
 			}
 			return fieldValueList;
 		} finally {
@@ -570,14 +573,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public FieldList<FieldValue> getTerms(int docId, FieldList<Field> fieldList)
+	public Set<FieldValue> getTerms(int docId, Set<String> fieldNameSet)
 			throws IOException {
 		rwl.r.lock();
 		try {
 			TermPositions termPosition = indexReader.termPositions();
-			FieldList<FieldValue> fieldValueList = new FieldList<FieldValue>();
-			for (Field field : fieldList) {
-				String fieldName = field.getName();
+			Set<FieldValue> fieldValueSet = new HashSet<FieldValue>();
+			for (String fieldName : fieldNameSet) {
 				List<FieldValueItem> fieldValueItemList = new ArrayList<FieldValueItem>();
 				TermEnum termEnum = indexReader.terms(new Term(fieldName, ""));
 				Term term = termEnum.term();
@@ -596,10 +598,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 				} while (termEnum.next());
 				termEnum.close();
 				if (fieldValueItemList.size() > 0)
-					fieldValueList
-							.add(new FieldValue(field, fieldValueItemList));
+					fieldValueSet.add(new FieldValue(fieldName,
+							fieldValueItemList));
 			}
-			return fieldValueList;
+			return fieldValueSet;
 		} finally {
 			rwl.r.unlock();
 		}

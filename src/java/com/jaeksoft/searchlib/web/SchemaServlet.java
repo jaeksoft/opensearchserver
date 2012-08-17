@@ -93,7 +93,7 @@ public class SchemaServlet extends AbstractServlet {
 		SchemaField schemaField = SchemaField.fromHttpRequest(transaction);
 		transaction.addXmlResponse("Info", "field '" + schemaField.getName()
 				+ "' added/updated");
-		schema.getFieldList().add(schemaField);
+		schema.getFieldList().put(schemaField);
 		if (defaultField != null) {
 			if (defaultField.equalsIgnoreCase("yes")) {
 				schema.getFieldList().setDefaultField(
@@ -124,7 +124,7 @@ public class SchemaServlet extends AbstractServlet {
 		SchemaField field = sfl.get(name);
 		if (field == null)
 			return false;
-		sfl.remove(field);
+		sfl.remove(field.getName());
 		saveSchema(client, schema);
 		transaction.addXmlResponse("Info", "field '" + name + "' removed");
 		return true;

@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class FieldValue extends Field {
+public class FieldValue extends AbstractField<FieldValue> {
 
 	private static final long serialVersionUID = -6131981428734961071L;
 
@@ -37,18 +37,13 @@ public class FieldValue extends Field {
 	public FieldValue() {
 	}
 
-	protected FieldValue(String name) {
+	public FieldValue(String name) {
 		super(name);
 		valueArray = FieldValueItem.emptyArray;
 	}
 
-	public FieldValue(Field field) {
-		this(field.name);
-
-	}
-
 	@Override
-	public Field duplicate() {
+	public FieldValue duplicate() {
 		return new FieldValue(this);
 	}
 
@@ -57,13 +52,13 @@ public class FieldValue extends Field {
 		this.valueArray = field.valueArray;
 	}
 
-	public FieldValue(Field field, FieldValueItem[] values) {
-		super(field.name);
+	public FieldValue(String fieldName, FieldValueItem[] values) {
+		super(fieldName);
 		setValues(values);
 	}
 
-	public FieldValue(Field field, List<FieldValueItem> values) {
-		super(field.name);
+	public FieldValue(String fieldName, List<FieldValueItem> values) {
+		super(fieldName);
 		setValues(values);
 	}
 

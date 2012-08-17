@@ -227,7 +227,7 @@ public class UrlManager extends AbstractManager {
 		SearchRequest searchRequest = new SearchRequest(urlDbClient);
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
-		searchRequest.getFacetFieldList().add(
+		searchRequest.getFacetFieldList().put(
 				new FacetField("host", 1, false, false));
 		return searchRequest;
 	}

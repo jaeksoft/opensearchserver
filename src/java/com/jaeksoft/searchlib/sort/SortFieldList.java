@@ -26,43 +26,24 @@ package com.jaeksoft.searchlib.sort;
 
 import java.io.IOException;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.FieldList;
+import com.jaeksoft.searchlib.schema.AbstractFieldList;
 
-public class SortList implements CacheKeyInterface<SortList> {
+public class SortFieldList extends AbstractFieldList<SortField> {
 
-	private FieldList<SortField> sortFieldList;
-
-	public SortList() {
-		sortFieldList = new FieldList<SortField>();
+	public SortFieldList() {
+		super();
 	}
 
-	public SortList(SortList sortList) {
-		sortFieldList = new FieldList<SortField>(sortList.sortFieldList);
-	}
-
-	public void add(SortField sortField) {
-		sortFieldList.add(sortField);
-	}
-
-	public void add(String sortString) {
-		sortFieldList.add(SortField.newSortField(sortString));
-	}
-
-	public void add(String fieldName, boolean desc) {
-		sortFieldList.add(new SortField(fieldName, desc));
-	}
-
-	public FieldList<SortField> getFieldList() {
-		return sortFieldList;
+	public SortFieldList(SortFieldList sortFieldList) {
+		super(sortFieldList);
 	}
 
 	public boolean isScore() {
-		if (sortFieldList.size() == 0)
+		if (size() == 0)
 			return true;
-		for (SortField field : sortFieldList)
+		for (SortField field : this)
 			if (field.isScore())
 				return true;
 		return false;
@@ -70,18 +51,9 @@ public class SortList implements CacheKeyInterface<SortList> {
 
 	public SorterAbstract getSorter(DocIdInterface collector, ReaderLocal reader)
 			throws IOException {
-		if (sortFieldList.size() == 0)
+		if (size() == 0)
 			return new DescScoreSorter(collector);
-		return new SortListSorter(sortFieldList, collector, reader);
-	}
-
-	@Override
-	public int compareTo(SortList o) {
-		return sortFieldList.compareTo(o.sortFieldList);
-	}
-
-	public void remove(SortField sortField) {
-		sortFieldList.remove(sortField);
+		return new SortListSorter(this, collector, reader);
 	}
 
 }
