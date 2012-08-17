@@ -142,7 +142,6 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	public List<T> getList() {
 		rwl.r.lock();
 		try {
-			System.out.println(size());
 			return fieldList;
 		} finally {
 			rwl.r.unlock();
