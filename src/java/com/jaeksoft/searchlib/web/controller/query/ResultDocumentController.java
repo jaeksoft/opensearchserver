@@ -65,12 +65,14 @@ public class ResultDocumentController extends AbstractQueryController implements
 	}
 
 	public class Document {
-		int pos;
+		final int pos;
 		StringBuffer title;
+		ResultDocument resultDocument;
 
 		private Document(int pos) {
 			this.pos = pos;
 			title = null;
+			resultDocument = null;
 		}
 
 		public String getTitle() throws SearchLibException {
@@ -117,10 +119,13 @@ public class ResultDocumentController extends AbstractQueryController implements
 
 		public ResultDocument getResultDocument() throws IOException,
 				ParseException, SyntaxError, SearchLibException {
+			if (resultDocument != null)
+				return resultDocument;
 			ResultDocumentsInterface<?> result = getResultDocuments();
 			if (result == null)
 				return null;
-			return result.getDocument(pos, null);
+			resultDocument = result.getDocument(pos, null);
+			return resultDocument;
 		}
 
 		public boolean isReturnValid() throws IOException, ParseException,

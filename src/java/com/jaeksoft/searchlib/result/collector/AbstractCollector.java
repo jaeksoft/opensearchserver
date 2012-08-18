@@ -32,6 +32,7 @@ import org.apache.lucene.search.Scorer;
 
 public abstract class AbstractCollector extends Collector {
 
+	protected IndexReader reader = null;
 	protected Scorer scorer = null;
 
 	@Override
@@ -42,6 +43,7 @@ public abstract class AbstractCollector extends Collector {
 	@Override
 	final public void setNextReader(IndexReader reader, int docId)
 			throws IOException {
+		this.reader = reader;
 	}
 
 	@Override

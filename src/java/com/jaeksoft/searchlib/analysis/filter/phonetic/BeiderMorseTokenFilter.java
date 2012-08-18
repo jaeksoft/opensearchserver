@@ -26,7 +26,9 @@ package com.jaeksoft.searchlib.analysis.filter.phonetic;
 import java.io.IOException;
 
 import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.language.bm.BeiderMorseEncoder;
+import org.apache.commons.codec.language.bm.NameType;
+import org.apache.commons.codec.language.bm.PhoneticEngine;
+import org.apache.commons.codec.language.bm.RuleType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 
@@ -36,11 +38,12 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 
 	private String[] wordQueue = null;
 	private int currentPos = 0;
-	private BeiderMorseEncoder encoder;
+	private PhoneticEngine encoder;
 
 	public BeiderMorseTokenFilter(TokenStream input) {
 		super(input);
-		encoder = new BeiderMorseEncoder();
+		encoder = new PhoneticEngine(NameType.GENERIC, RuleType.APPROX, true,
+				10);
 	}
 
 	private final boolean popToken() {
@@ -72,5 +75,12 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 				throw new IOException(e);
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		PhoneticEngine encoder = new PhoneticEngine(NameType.GENERIC,
+				RuleType.APPROX, true, 10);
+		for (int i = 0; i < 10; i++)
+			System.out.println(encoder.encode("test"));
 	}
 }

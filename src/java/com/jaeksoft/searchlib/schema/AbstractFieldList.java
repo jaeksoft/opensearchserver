@@ -51,7 +51,8 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	 */
 	public AbstractFieldList() {
 		this.fieldMap = new TreeMap<String, T>();
-		buildCacheAndList();
+		this.fieldList = new ArrayList<T>(0);
+		buildCacheKey();
 	}
 
 	/**
@@ -69,29 +70,32 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		rwl.w.lock();
 		try {
 			for (T field : fl)
-				put(field.duplicate());
-			buildCacheAndList();
+				addNoLockNoCache(field.duplicate());
+			buildCacheKey();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	private final void buildCacheAndList() {
-		fieldList = new ArrayList<T>(fieldMap.size());
+	private final void buildCacheKey() {
 		StringBuffer sb = new StringBuffer();
 		for (T f : fieldMap.values()) {
 			sb.append(f.toString());
 			sb.append('|');
-			fieldList.add(f);
 		}
 		cacheKey = sb.toString();
+	}
+
+	private void addNoLockNoCache(T field) {
+		fieldMap.put(field.name, field);
+		fieldList.add(field);
 	}
 
 	public void put(T field) {
 		rwl.w.lock();
 		try {
-			fieldMap.put(field.name, field);
-			buildCacheAndList();
+			addNoLockNoCache(field);
+			buildCacheKey();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -177,8 +181,9 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	public void remove(String fieldName) {
 		rwl.w.lock();
 		try {
-			fieldMap.remove(fieldName);
-			buildCacheAndList();
+			T field = fieldMap.remove(fieldName);
+			fieldList.remove(field);
+			buildCacheKey();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -187,8 +192,8 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	public void toNameList(List<String> nameList) {
 		rwl.r.lock();
 		try {
-			for (T field : fieldList)
-				nameList.add(field.name);
+			for (String fieldName : fieldMap.keySet())
+				nameList.add(fieldName);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -233,8 +238,8 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	}
 
 	public final void populate(Set<String> fieldNameSet) {
-		for (T field : fieldList)
-			fieldNameSet.add(field.name);
+		for (String fieldName : fieldMap.keySet())
+			fieldNameSet.add(fieldName);
 	}
 
 }
