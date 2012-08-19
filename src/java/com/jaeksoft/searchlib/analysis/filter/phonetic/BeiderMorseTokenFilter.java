@@ -43,7 +43,7 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 	public BeiderMorseTokenFilter(TokenStream input) {
 		super(input);
 		encoder = new PhoneticEngine(NameType.GENERIC, RuleType.APPROX, true,
-				10);
+				20);
 	}
 
 	private final boolean popToken() {
@@ -79,8 +79,10 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 
 	public static void main(String[] args) {
 		PhoneticEngine encoder = new PhoneticEngine(NameType.GENERIC,
-				RuleType.APPROX, true, 10);
-		for (int i = 0; i < 10; i++)
+				RuleType.APPROX, true, 20);
+		for (int i = 0; i < 10; i++) {
 			System.out.println(encoder.encode("test"));
+			System.out.println(encoder.encode("sample"));
+		}
 	}
 }
