@@ -240,7 +240,7 @@ public final class QueryController extends AbstractQueryController {
 		if (entry == null)
 			return;
 		setRequest(getClient().getNewRequest(entry.getKey()));
-		reloadPage();
+		sendReload(getParent());
 	}
 
 	public void doDeleteQuery(Component comp) throws SearchLibException,
