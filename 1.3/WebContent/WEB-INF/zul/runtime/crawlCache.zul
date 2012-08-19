@@ -1,0 +1,93 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="window"
+	apply="com.jaeksoft.searchlib.web.controller.runtime.CrawlCacheComposer">
+	<panel title="Crawl cache" border="normal">
+		<panelchildren>
+			<grid>
+				<columns>
+					<column align="right" hflex="min" />
+					<column align="left" hflex="min" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Enabled" />
+						<checkbox
+							checked="@{window$composer.crawlCacheManager.enabled}" />
+						<space />
+					</row>
+					<row>
+						<label value="Cache provider" />
+						<cell>
+							<listbox id="cacheProvider"
+								visible="@{window$composer.crawlCacheManager.disabled}"
+								model="@{window$composer.crawlCacheProviderList}" mold="select"
+								selectedItem="@{window$composer.crawlCacheManager.crawlCacheProvider}" />
+							<label
+								visible="@{window$composer.crawlCacheManager.enabled}"
+								value="@{window$composer.crawlCacheManager.crawlCacheProvider}" />
+						</cell>
+						<space />
+					</row>
+					<row>
+						<label value="Configuration" />
+						<cell>
+							<label
+								visible="@{window$composer.crawlCacheManager.enabled}"
+								value="@{window$composer.crawlCacheManager.configuration}" />
+							<textbox cols="80"
+								visible="@{window$composer.crawlCacheManager.disabled}"
+								value="@{window$composer.crawlCacheManager.configuration}" />
+						</cell>
+						<label
+							value="@{window$composer.crawlCacheManager.configurationInformation}" />
+					</row>
+					<row>
+						<label value="Information" />
+						<label
+							value="@{window$composer.crawlCacheManager.infos}" />
+					</row>
+					<row>
+						<label value="Cache validity" />
+						<hbox align="center">
+							<intbox id="cacheValidity"
+								constraint="no empty, no negative"
+								value="@{window$composer.crawlCacheManager.expirationValue}" />
+							<listbox
+								model="@{window$composer.crawlCacheManager.expirationUnitValues}"
+								mold="select"
+								selectedItem="@{window$composer.crawlCacheManager.expirationUnit}" />
+						</hbox>
+						<space />
+					</row>
+					<row>
+						<label value="Flush cache" />
+						<cell>
+							<button label="Flush all"
+								forward="onFlushAll" />
+							<button label="Flush expired content"
+								visible="@{window$composer.crawlCacheManager.expiration}"
+								forward="onFlushExpire" />
+						</cell>
+						<space />
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
+	</panel>
+</window>

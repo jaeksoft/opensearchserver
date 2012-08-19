@@ -1,0 +1,74 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="stats"
+	use="com.jaeksoft.searchlib.web.controller.runtime.StatisticsController">
+	<grid>
+		<columns>
+			<column align="left" />
+			<column align="right" />
+		</columns>
+		<rows>
+			<row>
+				<hbox align="center">
+					<label value="Select a statistic:" />
+					<listbox mold="select" model="@{stats.typeList}"
+						selectedItem="@{stats.selectedType}">
+						<listitem self="@{each='type'}" label="@{type}" />
+					</listbox>
+					<space />
+					<label value="Select a period:" />
+					<listbox mold="select" model="@{stats.statList}"
+						selectedItem="@{stats.selectedStat}">
+						<listitem self="@{each='stat'}"
+							label="@{stat.period.name}" />
+					</listbox>
+					<space />
+					<checkbox label="Show last error"
+						checked="@{stats.showLastError}" />
+				</hbox>
+				<button label="Refresh" forward="onReload" />
+			</row>
+		</rows>
+	</grid>
+	<listbox model="@{stats.selectedStat.array}">
+		<listhead>
+			<listheader width="150px" label="Period start time" />
+			<listheader width="50px" label="count" />
+			<listheader width="50px" label="average" />
+			<listheader width="50px" label="min" />
+			<listheader width="50px" label="max" />
+			<listheader width="50px" label="error" />
+			<listheader label="max info" />
+			<listheader visible="@{stats.showLastError}"
+				label="last error" />
+		</listhead>
+		<listitem self="@{each='item'}">
+			<listcell label="@{item.startTime}" />
+			<listcell label="@{item.count}" />
+			<listcell label="@{item.average}" />
+			<listcell label="@{item.min}" />
+			<listcell label="@{item.max}" />
+			<listcell label="@{item.error}" />
+			<listcell>
+				<label multiline="true" value="@{item.maxInfo}" />
+			</listcell>
+			<listcell visible="@{stats.showLastError}">
+				<label multiline="true" value="@{item.lastError}" />
+			</listcell>
+		</listitem>
+	</listbox>
+</window>
