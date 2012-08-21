@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderMoreLikeThisJson;
 import com.jaeksoft.searchlib.render.RenderMoreLikeThisXml;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -121,8 +122,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 	@Override
 	protected Render getRenderJson(boolean indent) {
-		// TODO Auto-generated method stub
-		return null;
+		return new RenderMoreLikeThisJson(this, indent);
 	}
 
 	@Override
