@@ -34,6 +34,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -48,6 +49,7 @@ public class UpdateImpl extends CommonServicesImpl implements Update {
 	public CommonResult update(String use, String login, String key,
 			List<Document> updateDocuments) {
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (isLogged(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				updateDocCount = updateDocument(client, updateDocuments);
@@ -70,6 +72,8 @@ public class UpdateImpl extends CommonServicesImpl implements Update {
 		} catch (IllegalAccessException e) {
 			throw new WebServiceException(e);
 		} catch (ClassNotFoundException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		}
 	}

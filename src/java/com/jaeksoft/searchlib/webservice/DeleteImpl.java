@@ -35,6 +35,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -47,6 +48,7 @@ public class DeleteImpl extends CommonServicesImpl implements Delete {
 	public int delete(String q, String use, String login, String key,
 			List<String> uniqueDocs) {
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				if (q != null && !q.equals(""))

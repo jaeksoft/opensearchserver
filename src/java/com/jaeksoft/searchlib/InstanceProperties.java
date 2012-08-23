@@ -40,15 +40,25 @@ import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class InstanceProperties {
 
-	private long maxDocumentLimit = 0;
+	private final long maxDocumentLimit;
 
-	private long maxStorage = 0;
+	private final long maxStorage;
 
-	private int maxIndexNumber = 0;
+	private final int maxIndexNumber;
 
-	private int minCrawlerDelay = 0;
+	private final int minCrawlerDelay;
 
-	private boolean chroot = false;
+	private final int maxApiRate;
+
+	private final int minApiDelay;
+
+	private long nextApiTime;
+
+	private int countApiCall;
+
+	private int countApiWait;
+
+	private final boolean chroot;
 
 	private final static String LIMIT_NODEPATH = "/instanceProperties/limit";
 
@@ -62,25 +72,41 @@ public class InstanceProperties {
 
 	private final static String LIMIT_MINCRAWLERDELAY_ATTR = "minCrawlerDelay";
 
+	private final static String LIMIT_MAX_API_RATE = "maxApiRate";
+
 	public InstanceProperties(File xmlFile)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException {
-		if (!xmlFile.exists())
-			return;
-		XPathParser xpp = new XPathParser(xmlFile);
-		Node node = xpp.getNode(LIMIT_NODEPATH);
-		if (node == null)
-			return;
-		maxDocumentLimit = XPathParser.getAttributeLong(node,
-				LIMIT_MAXDOCUMENTLIMIT_ATTR);
-		chroot = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node,
-				LIMIT_CHROOT_ATTR));
-		minCrawlerDelay = XPathParser.getAttributeValue(node,
-				LIMIT_MINCRAWLERDELAY_ATTR);
-		maxIndexNumber = XPathParser.getAttributeValue(node,
-				LIMIT_MAX_INDEX_NUMBER_ATTR);
-		maxStorage = XPathParser
-				.getAttributeValue(node, LIMIT_MAX_STORAGE_ATTR);
+		nextApiTime = System.currentTimeMillis();
+		countApiCall = 0;
+		countApiWait = 0;
+		if (xmlFile.exists()) {
+			XPathParser xpp = new XPathParser(xmlFile);
+			Node node = xpp.getNode(LIMIT_NODEPATH);
+			if (node != null) {
+				maxDocumentLimit = XPathParser.getAttributeLong(node,
+						LIMIT_MAXDOCUMENTLIMIT_ATTR);
+				chroot = "yes".equalsIgnoreCase(XPathParser.getAttributeString(
+						node, LIMIT_CHROOT_ATTR));
+				minCrawlerDelay = XPathParser.getAttributeValue(node,
+						LIMIT_MINCRAWLERDELAY_ATTR);
+				maxIndexNumber = XPathParser.getAttributeValue(node,
+						LIMIT_MAX_INDEX_NUMBER_ATTR);
+				maxStorage = XPathParser.getAttributeValue(node,
+						LIMIT_MAX_STORAGE_ATTR);
+				maxApiRate = XPathParser.getAttributeValue(node,
+						LIMIT_MAX_API_RATE);
+				minApiDelay = maxApiRate != 0 ? 1000 / maxApiRate : 0;
+				return;
+			}
+		}
+		maxDocumentLimit = 0;
+		chroot = false;
+		minCrawlerDelay = 0;
+		maxIndexNumber = 0;
+		maxStorage = 0;
+		maxApiRate = 0;
+		minApiDelay = 0;
 	}
 
 	/**
@@ -156,4 +182,42 @@ public class InstanceProperties {
 						+ StringUtils.humanBytes(maxStorage) + ")");
 	}
 
+	public final void checkApiRate() throws InterruptedException {
+		if (minApiDelay == 0)
+			return;
+		countApiCall++;
+		if (countApiCall == 1000) {
+			countApiCall = 1;
+			countApiWait = 0;
+		}
+		long newTime = System.currentTimeMillis();
+		long sleep = nextApiTime - newTime;
+		nextApiTime = newTime + minApiDelay;
+		if (sleep > 0) {
+			Thread.sleep(sleep);
+			countApiWait++;
+		}
+	}
+
+	public final float getApiWaitRate() {
+		return (float) (((float) countApiWait / (float) countApiCall) * 100);
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer(super.toString());
+		sb.append(" - maxDocumentLimit: ");
+		sb.append(maxDocumentLimit);
+		sb.append(" - maxStorage: ");
+		sb.append(StringUtils.humanBytes(maxStorage));
+		sb.append(" - maxIndexNumber: ");
+		sb.append(maxIndexNumber);
+		sb.append(" - minCrawlerDelay: ");
+		sb.append(minCrawlerDelay);
+		sb.append(" - maxApiRate: ");
+		sb.append(maxApiRate);
+		sb.append(" - chroot: ");
+		sb.append(chroot);
+		return sb.toString();
+	}
 }

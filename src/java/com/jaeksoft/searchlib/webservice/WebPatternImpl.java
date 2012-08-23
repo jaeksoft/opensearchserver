@@ -31,6 +31,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
@@ -43,6 +44,7 @@ public class WebPatternImpl extends CommonServicesImpl implements WebPattern {
 			Boolean deleteAll, List<String> injectList) {
 		int count = 0;
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			List<PatternItem> patternList = new ArrayList<PatternItem>();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
@@ -57,6 +59,8 @@ public class WebPatternImpl extends CommonServicesImpl implements WebPattern {
 		} catch (SearchLibException e) {
 			new WebServiceException(e);
 		} catch (NamingException e) {
+			new WebServiceException(e);
+		} catch (InterruptedException e) {
 			new WebServiceException(e);
 		}
 

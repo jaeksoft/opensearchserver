@@ -28,6 +28,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
@@ -39,6 +40,7 @@ public class DatabaseImpl extends CommonServicesImpl implements Database {
 	public Long database(String use, String login, String key,
 			String databaseName) {
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			Client client = ClientCatalog.getClient(use);
 			Long databaseIndexedCount = null;
 			if (isLogged(use, login, key)) {

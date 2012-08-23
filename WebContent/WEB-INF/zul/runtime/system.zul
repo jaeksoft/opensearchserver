@@ -110,6 +110,12 @@
 							<label value="@{system.monitor.indexCount}" />
 							<label value="The total number of indices" />
 						</row>
+						<row>
+							<label value="API call wait rate" />
+							<label
+								value="@{system.monitor.apiWaitRate,converter='com.jaeksoft.searchlib.web.converter.PercentConverter'}" />
+							<label value="The rate of waiting API call" />
+						</row>
 					</rows>
 				</grid>
 			</tabpanel>

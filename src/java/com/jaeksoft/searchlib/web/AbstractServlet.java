@@ -45,6 +45,7 @@ import org.apache.http.HttpException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.UriRead;
@@ -82,6 +83,7 @@ public abstract class AbstractServlet extends HttpServlet {
 				method, response);
 
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			serverURL = getCurrentServerURL(request);
 			doRequest(transaction);
 		} catch (Exception e) {

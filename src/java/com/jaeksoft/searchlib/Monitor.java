@@ -107,6 +107,10 @@ public class Monitor {
 		return ((double) free / (double) total) * 100;
 	}
 
+	public double getApiWaitRate() {
+		return ClientFactory.INSTANCE.properties.getApiWaitRate();
+	}
+
 	public String getDataDirectoryPath() {
 		return StartStopListener.OPENSEARCHSERVER_DATA_FILE.getAbsolutePath();
 	}
@@ -164,6 +168,10 @@ public class Monitor {
 				getDataDirectoryPath());
 		xmlWriter.endElement();
 
+		xmlWriter.startElement("apiWaitRate", "rate",
+				Double.toString(getApiWaitRate()));
+		xmlWriter.endElement();
+
 		xmlWriter.endElement();
 
 		xmlWriter.startElement("properties");
@@ -213,6 +221,9 @@ public class Monitor {
 			for (Entry<Object, Object> prop : getProperties())
 				addIfNotNull(reqEntity, "property_" + prop.getKey().toString(),
 						prop.getValue().toString());
+
+			addIfNotNull(reqEntity, "apiWaitRate",
+					Double.toString(getApiWaitRate()));
 
 		} catch (SecurityException e) {
 			throw new SearchLibException(e);

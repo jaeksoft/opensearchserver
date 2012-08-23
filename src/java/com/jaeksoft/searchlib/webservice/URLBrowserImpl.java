@@ -29,11 +29,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.naming.NamingException;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
@@ -57,6 +59,7 @@ public class URLBrowserImpl extends CommonServicesImpl implements URLBrowser {
 		File file;
 		byte[] byteArray = null;
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				file = client.getUrlManager().exportURLs(
@@ -64,15 +67,17 @@ public class URLBrowserImpl extends CommonServicesImpl implements URLBrowser {
 				byteArray = IOUtils.toByteArray(new FileInputStream(file));
 			}
 		} catch (SearchLibException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (NamingException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
 		}
 		return byteArray;
 	}
@@ -83,6 +88,7 @@ public class URLBrowserImpl extends CommonServicesImpl implements URLBrowser {
 		File file;
 		byte[] byteArray = null;
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				file = client.getUrlManager().exportSiteMap(
@@ -90,15 +96,17 @@ public class URLBrowserImpl extends CommonServicesImpl implements URLBrowser {
 				byteArray = IOUtils.toByteArray(new FileInputStream(file));
 			}
 		} catch (SearchLibException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (NamingException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
 		}
 		return byteArray;
 	}

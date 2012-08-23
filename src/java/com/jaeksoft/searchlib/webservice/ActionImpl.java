@@ -33,6 +33,7 @@ import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 
 public class ActionImpl extends CommonServicesImpl implements Action {
@@ -41,6 +42,7 @@ public class ActionImpl extends CommonServicesImpl implements Action {
 	public CommonResult action(String use, String login, String key,
 			Boolean optimize, Boolean reload, Boolean online, Boolean offline) {
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (isLogged(use, login, key)) {
 
 				Client client = ClientCatalog.getClient(use);
@@ -76,6 +78,8 @@ public class ActionImpl extends CommonServicesImpl implements Action {
 		} catch (ClassNotFoundException e) {
 			throw new WebServiceException(e);
 		} catch (HttpException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		}
 		return new CommonResult(false, "Something went Wrong");

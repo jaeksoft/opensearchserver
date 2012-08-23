@@ -31,6 +31,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
@@ -44,6 +45,7 @@ public class ScreenshotImpl extends CommonServicesImpl implements Screenshot {
 	public String screenshot(String use, String login, String key,
 			ScreenshotActionEnum action, URL url) {
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (isLogged(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				ScreenshotManager screenshotManager = client
@@ -63,11 +65,13 @@ public class ScreenshotImpl extends CommonServicesImpl implements Screenshot {
 			} else
 				throw new WebServiceException("Bad Credential");
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (SearchLibException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
 		} catch (NamingException e) {
-			e.printStackTrace();
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
 		}
 		return message;
 	}

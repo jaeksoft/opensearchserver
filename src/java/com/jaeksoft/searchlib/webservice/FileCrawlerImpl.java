@@ -28,6 +28,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 
 /**
@@ -39,6 +40,7 @@ public class FileCrawlerImpl extends WebCrawlerImpl implements FileCrawler {
 	public CommonResult fileCrawler(String use, String login, String key,
 			WebCrawlerActionEnum action, int timeOut) {
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (timeOut == 0)
 				timeOut = 1200;
 			if (isLoggedWebStartStop(use, login, key)) {
@@ -49,6 +51,8 @@ public class FileCrawlerImpl extends WebCrawlerImpl implements FileCrawler {
 		} catch (SearchLibException e) {
 			new WebServiceException(e);
 		} catch (NamingException e) {
+			new WebServiceException(e);
+		} catch (InterruptedException e) {
 			new WebServiceException(e);
 		}
 		return new CommonResult(false, "Something went Wrong");

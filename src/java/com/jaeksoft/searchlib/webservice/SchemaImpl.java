@@ -33,6 +33,7 @@ import javax.xml.ws.WebServiceException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
@@ -47,6 +48,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 	public CommonResult deleteIndex(String login, String key, String indexName) {
 
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (getAuthentication(login, key)) {
 				User user = getUser(login, key);
 				ClientCatalog.eraseIndex(user, indexName);
@@ -58,6 +60,8 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 		} catch (IOException e) {
 			new WebServiceException(e);
 		} catch (NamingException e) {
+			new WebServiceException(e);
+		} catch (InterruptedException e) {
 			new WebServiceException(e);
 		}
 		return new CommonResult(false, "Something went wrong");
@@ -106,7 +110,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 	public List<String> indexList(String login, String key) {
 		List<String> indexList = new ArrayList<String>();
 		try {
-
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (getAuthentication(login, key)) {
 				User user = getUser(login, key);
 				for (ClientCatalogItem catalogItem : ClientCatalog
@@ -117,6 +121,8 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 				throw new WebServiceException("Bad Credential");
 		} catch (SearchLibException e) {
 			new WebServiceException(e);
+		} catch (InterruptedException e) {
+			new WebServiceException(e);
 		}
 		return indexList;
 	}
@@ -125,6 +131,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 	public CommonResult setField(String use, String login, String key,
 			SchemaFieldRecord schemaFieldRecord) {
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (isLoggedSchema(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				setField(client, schemaFieldRecord);
@@ -135,6 +142,8 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 		} catch (SearchLibException e) {
 			new WebServiceException(e);
 		} catch (NamingException e) {
+			new WebServiceException(e);
+		} catch (InterruptedException e) {
 			new WebServiceException(e);
 		}
 		return new CommonResult(false, "Something went wrong");
@@ -158,6 +167,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 			String deleteField) {
 		String message = null;
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			Client client = ClientCatalog.getClient(use);
 			if (isLoggedSchema(use, login, key))
 				message = delete(client, use, deleteField);
@@ -166,6 +176,8 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 		} catch (SearchLibException e) {
 			new WebServiceException(e);
 		} catch (NamingException e) {
+			new WebServiceException(e);
+		} catch (InterruptedException e) {
 			new WebServiceException(e);
 		}
 		if (message != null)
@@ -196,6 +208,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 			String defaultField) {
 		String message = null;
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			Client client = getClient(use);
 			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
 			if (isLoggedSchema(use, login, key)) {
@@ -210,6 +223,8 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 			new WebServiceException(e);
 		} catch (NamingException e) {
 			new WebServiceException(e);
+		} catch (InterruptedException e) {
+			new WebServiceException(e);
 		}
 		if (message != null)
 			return new CommonResult(true, message);
@@ -222,6 +237,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 			String uniqueField) {
 		String message = null;
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			Client client = getClient(use);
 			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
 			if (isLoggedSchema(use, login, key)) {
@@ -236,6 +252,8 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 			new WebServiceException(e);
 		} catch (NamingException e) {
 			new WebServiceException(e);
+		} catch (InterruptedException e) {
+			new WebServiceException(e);
 		}
 		if (message != null)
 			return new CommonResult(true, message);
@@ -248,7 +266,7 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 			String key) {
 		List<SchemaFieldRecord> fieldList = new ArrayList<SchemaFieldRecord>();
 		try {
-
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (isLoggedSchema(use, login, key)) {
 				Client client = getClient(use);
 				com.jaeksoft.searchlib.schema.Schema schema = client
@@ -267,6 +285,8 @@ public class SchemaImpl extends CommonServicesImpl implements Schema {
 		} catch (SearchLibException e) {
 			new WebServiceException(e);
 		} catch (NamingException e) {
+			new WebServiceException(e);
+		} catch (InterruptedException e) {
 			new WebServiceException(e);
 		}
 		return fieldList;

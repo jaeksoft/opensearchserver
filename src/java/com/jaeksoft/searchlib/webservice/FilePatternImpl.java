@@ -28,6 +28,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
@@ -44,6 +45,7 @@ public class FilePatternImpl extends CommonServicesImpl implements FilePattern {
 			String username, String password, String domain, String host) {
 		String message = null;
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (isLogged(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				FilePathItem filePathItem = new FilePathItem(client);
@@ -65,6 +67,8 @@ public class FilePatternImpl extends CommonServicesImpl implements FilePattern {
 		} catch (SearchLibException e) {
 			new WebServiceException(e);
 		} catch (NamingException e) {
+			new WebServiceException(e);
+		} catch (InterruptedException e) {
 			new WebServiceException(e);
 		}
 		if (message.trim() != null)

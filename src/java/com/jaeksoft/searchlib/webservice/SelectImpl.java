@@ -33,6 +33,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
@@ -69,6 +70,7 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 			String mltStopWords, List<String> customLogs, boolean log,
 			boolean delete) {
 		try {
+			ClientFactory.INSTANCE.properties.checkApiRate();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				SearchRequest searchRequest = getSearchRequest(client, q, qt,
