@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
+import com.jaeksoft.searchlib.render.RenderSpellCheckJson;
 import com.jaeksoft.searchlib.render.RenderSpellCheckXml;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
@@ -68,7 +69,7 @@ public class ResultSpellCheck extends AbstractResult<SpellCheckRequest> {
 
 	@Override
 	protected Render getRenderJson(boolean indent) {
-		return null;
+		return new RenderSpellCheckJson(this, indent);
 	}
 
 }
