@@ -24,46 +24,82 @@
 
 package com.jaeksoft.searchlib.util;
 
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.TransformerException;
+
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.jaeksoft.searchlib.Logging;
 
-public class ParserErrorHandler implements ErrorHandler {
+public class ParserErrorHandler implements ErrorHandler, ErrorListener {
 
 	private boolean silent;
 
+	private boolean logOnly;
+
 	public static final ParserErrorHandler SILENT_ERROR_HANDLER = new ParserErrorHandler(
-			true);
+			true, true);
+
+	public static final ParserErrorHandler LOGONLY_ERROR_HANDLER = new ParserErrorHandler(
+			false, true);
 
 	public static final ParserErrorHandler STANDARD_ERROR_HANDLER = new ParserErrorHandler(
-			false);
+			false, false);
 
-	private ParserErrorHandler(boolean silent) {
+	private ParserErrorHandler(boolean silent, boolean logOnly) {
 		this.silent = silent;
+		this.logOnly = logOnly;
+	}
+
+	private final void handleError(SAXParseException e) throws SAXException {
+		if (silent)
+			return;
+		if (logOnly)
+			Logging.error(e.getMessage());
+		else
+			throw e;
+	}
+
+	private final void handleError(TransformerException e)
+			throws TransformerException {
+		if (silent)
+			return;
+		if (logOnly)
+			Logging.error(e.getMessage());
+		else
+			throw e;
 	}
 
 	@Override
 	public void error(SAXParseException e) throws SAXException {
-		if (silent)
-			return;
-		Logging.error(e.getMessage());
+		handleError(e);
 	}
 
 	@Override
 	public void fatalError(SAXParseException e) throws SAXException {
-		if (silent)
-			return;
-		Logging.error(e.getMessage());
-
+		handleError(e);
 	}
 
 	@Override
 	public void warning(SAXParseException e) throws SAXException {
-		if (silent)
-			return;
-		Logging.warn(e.getMessage());
+		handleError(e);
+	}
+
+	@Override
+	public void error(TransformerException e) throws TransformerException {
+		handleError(e);
+	}
+
+	@Override
+	public void fatalError(TransformerException e) throws TransformerException {
+		handleError(e);
+	}
+
+	@Override
+	public void warning(TransformerException e) throws TransformerException {
+		handleError(e);
 	}
 
 }

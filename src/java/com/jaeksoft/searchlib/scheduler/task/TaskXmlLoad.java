@@ -24,12 +24,16 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.InputSource;
@@ -47,6 +51,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.util.DomUtils;
 
 public class TaskXmlLoad extends TaskAbstract {
 
@@ -62,8 +67,11 @@ public class TaskXmlLoad extends TaskAbstract {
 	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Buffer size", 10);
 
+	final private TaskPropertyDef propXsl = new TaskPropertyDef(
+			TaskPropertyType.multilineTextBox, "XSL", 50, 20);
+
 	final private TaskPropertyDef[] taskPropertyDefs = { propUri, propLogin,
-			propPassword, propBuffersize };
+			propPassword, propBuffersize, propXsl };
 
 	@Override
 	public String getName() {
@@ -93,6 +101,8 @@ public class TaskXmlLoad extends TaskAbstract {
 		String login = properties.getValue(propLogin);
 		String password = properties.getValue(propPassword);
 		String p = properties.getValue(propBuffersize);
+		String xsl = properties.getValue(propXsl);
+		File xmlTempResult = null;
 		int bufferSize = 50;
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);
@@ -106,9 +116,19 @@ public class TaskXmlLoad extends TaskAbstract {
 				credentialItem = new CredentialItem(null, login, password);
 			DownloadItem downloadItem = httpDownloader.get(new URI(uri),
 					credentialItem);
-			client.updateXmlDocuments(
-					new InputSource(downloadItem.getContentInputStream()),
-					bufferSize, credentialItem, proxyHandler, taskLog);
+			InputSource inputSource;
+			if (xsl != null && xsl.length() > 0) {
+				xmlTempResult = File.createTempFile("ossupload", ".xml");
+				DomUtils.xslt(downloadItem.getContentInputStream(), xsl,
+						xmlTempResult);
+				inputSource = SAXSource.sourceToInputSource(new StreamSource(
+						xmlTempResult));
+			} else
+				inputSource = new InputSource(
+						downloadItem.getContentInputStream());
+
+			client.updateXmlDocuments(inputSource, bufferSize, credentialItem,
+					proxyHandler, taskLog);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {
@@ -127,7 +147,11 @@ public class TaskXmlLoad extends TaskAbstract {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
+		} catch (TransformerException e) {
+			throw new SearchLibException(e);
 		} finally {
+			if (xmlTempResult != null)
+				xmlTempResult.delete();
 			httpDownloader.release();
 		}
 	}

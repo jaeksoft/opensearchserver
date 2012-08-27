@@ -38,7 +38,6 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -92,8 +91,7 @@ public class UploadXmlController extends CommonController {
 					.getProxyHandler();
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");
-				DomUtils.xslt(xmlSource, new StreamSource(xsl),
-						new StreamResult(xmlTempResult));
+				DomUtils.xslt(xmlSource, xsl, xmlTempResult);
 				xmlSource = new StreamSource(xmlTempResult);
 			}
 			int updatedCount = client.updateXmlDocuments(

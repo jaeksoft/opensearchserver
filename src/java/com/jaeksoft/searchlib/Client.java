@@ -148,7 +148,7 @@ public class Client extends Config {
 			NoSuchAlgorithmException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Document doc = DomUtils.getNewDocumentBuilder(false, true).parse(
+		Document doc = DomUtils.getNewDocumentBuilder(false, false).parse(
 				inputSource);
 		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential,
 				proxyHandler, infoCallBack);

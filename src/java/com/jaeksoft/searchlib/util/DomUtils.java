@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -177,13 +182,30 @@ public class DomUtils {
 	private final static TransformerFactory TRANSFORMERFACTORY = javax.xml.transform.TransformerFactory
 			.newInstance();
 
-	public final static void xslt(Source xmlSource, Source xslSource,
-			Result xmlResult) throws TransformerException {
+	public final static void xslt(Source xmlSource, String xsl, Result xmlResult)
+			throws TransformerException {
 
+		StreamSource xslSource = new StreamSource(new StringReader(xsl));
 		Transformer trans;
 		synchronized (TRANSFORMERFACTORY) {
 			trans = TRANSFORMERFACTORY.newTransformer(xslSource);
+			trans.setErrorListener(ParserErrorHandler.STANDARD_ERROR_HANDLER);
 		}
 		trans.transform(xmlSource, xmlResult);
+	}
+
+	public final static Result xslt(Source xmlSource, String xsl,
+			File destination) throws TransformerException {
+		StreamResult xmlResult = new StreamResult(destination);
+		xslt(xmlSource, xsl, xmlResult);
+		return xmlResult;
+	}
+
+	public final static Result xslt(InputStream inputStream, String xsl,
+			File destination) throws TransformerException {
+		StreamSource xmlSource = new StreamSource(inputStream);
+		StreamResult xmlResult = new StreamResult(destination);
+		xslt(xmlSource, xsl, xmlResult);
+		return xmlResult;
 	}
 }
