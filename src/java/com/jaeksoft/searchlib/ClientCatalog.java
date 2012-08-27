@@ -260,6 +260,7 @@ public class ClientCatalog {
 			TemplateAbstract template) throws SearchLibException, IOException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
+		ClientFactory.INSTANCE.properties.checkMaxIndexNumber();
 		if (!isValidIndexName(indexName))
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");

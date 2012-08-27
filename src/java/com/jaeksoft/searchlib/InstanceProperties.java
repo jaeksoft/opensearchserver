@@ -171,6 +171,18 @@ public class InstanceProperties {
 						+ maxDocumentLimit + ")");
 	}
 
+	public final void checkMaxIndexNumber() throws SearchLibException,
+			IOException {
+		if (maxIndexNumber == 0)
+			return;
+		long count = ClientCatalog.getClientCatalog(null).size();
+		if (count < maxIndexNumber)
+			return;
+		throw new SearchLibException(
+				"The maximum number of allowable index has been reached ("
+						+ maxIndexNumber + ")");
+	}
+
 	public final void checkMaxStorageLimit() throws SearchLibException {
 		if (maxStorage == 0)
 			return;
