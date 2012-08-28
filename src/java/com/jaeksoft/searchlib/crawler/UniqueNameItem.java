@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 public abstract class UniqueNameItem<T extends UniqueNameItem<?>> implements
 		Comparable<T> {
 
-	private String name;
+	protected String name;
 
 	protected UniqueNameItem(String name) {
 		setName(name);
