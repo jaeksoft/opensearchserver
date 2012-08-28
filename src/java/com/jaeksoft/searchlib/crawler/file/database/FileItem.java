@@ -73,7 +73,7 @@ public class FileItem extends FileInfo implements Serializable {
 	}
 
 	final static SimpleDateFormat getDateFormat() {
-		return new SimpleDateFormat("yyyyMMddHHmmss");
+		return new SimpleDateFormat("yyyyMMddHHmmssSSS");
 	}
 
 	private String repository;
