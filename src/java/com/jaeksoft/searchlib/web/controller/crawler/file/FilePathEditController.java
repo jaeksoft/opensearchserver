@@ -37,6 +37,7 @@ import javax.naming.NamingException;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.Messagebox;
 
 import com.dropbox.client2.session.AccessTokenPair;
@@ -60,11 +61,11 @@ public class FilePathEditController extends FileCrawlerController {
 
 	private FilePathItem currentFilePath;
 
-	private transient File currentFile;
+	private transient FileSelectorItem currentFile;
 
-	private transient File currentFolder;
+	private transient FileSelectorItem currentFolder;
 
-	private transient List<File> currentFolderList;
+	private transient List<FileSelectorItem> currentFolderList;
 
 	private boolean showHidden;
 
@@ -89,6 +90,28 @@ public class FilePathEditController extends FileCrawlerController {
 					deleteFilePath.toString());
 			client.getFilePathManager().remove(deleteFilePath);
 			onCancel();
+		}
+	}
+
+	public class FileSelectorItem {
+
+		final protected File file;
+
+		protected FileSelectorItem(File file) {
+			this.file = file;
+		}
+
+		public String getName() {
+			if (file == null)
+				return null;
+			String n = file.getName();
+			if (n != null && n.length() > 0)
+				return n;
+			return file.getPath();
+		}
+
+		public File getFile() {
+			return file;
 		}
 	}
 
@@ -130,7 +153,7 @@ public class FilePathEditController extends FileCrawlerController {
 					File f = new File(path);
 					if (f.exists()) {
 						setCurrentFolder(f.getParentFile());
-						setCurrentFile(new File(path));
+						setCurrentFile(new FileSelectorItem(new File(path)));
 					}
 				}
 			}
@@ -191,30 +214,43 @@ public class FilePathEditController extends FileCrawlerController {
 		onCancel();
 	}
 
-	public File[] getCurrentFileList() throws SearchLibException, IOException {
+	private FileSelectorItem[] getList(File[] files) {
+		if (files == null)
+			return null;
+		FileSelectorItem[] items = new FileSelectorItem[files.length];
+		int i = 0;
+		for (File file : files)
+			items[i++] = new FileSelectorItem(file);
+		return items;
+
+	}
+
+	public FileSelectorItem[] getCurrentFileList() throws SearchLibException,
+			IOException {
 		synchronized (this) {
 			getCurrentFolder();
 			if (currentFolder == null) {
-				return File.listRoots();
+				return getList(File.listRoots());
 			}
 			if (!isShowHidden())
-				return currentFolder
-						.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
+				return getList(currentFolder.file
+						.listFiles((FileFilter) HiddenFileFilter.VISIBLE));
 			else
-				return currentFolder.listFiles();
+				return getList(currentFolder.file.listFiles());
 		}
 	}
 
-	public void setCurrentFile(File file) {
-		currentFile = file;
+	public void setCurrentFile(FileSelectorItem item) {
+		currentFile = item;
 		reloadBrowser();
 	}
 
-	public File getCurrentFile() {
+	public FileSelectorItem getCurrentFile() {
 		return currentFile;
 	}
 
-	public File getCurrentFolder() throws SearchLibException, IOException {
+	public FileSelectorItem getCurrentFolder() throws SearchLibException,
+			IOException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
@@ -226,7 +262,7 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 	}
 
-	public List<File> getFolderTree() {
+	public List<FileSelectorItem> getFolderTree() {
 		return currentFolderList;
 	}
 
@@ -258,25 +294,37 @@ public class FilePathEditController extends FileCrawlerController {
 		return !isNotSelectedFile();
 	}
 
-	public void setCurrentFolder(File file) throws IOException {
-		if (!ClientFactory.INSTANCE.properties.checkChrootQuietly(file))
-			return;
-		currentFolder = file;
+	public void setCurrentFolder(FileSelectorItem fileSelectorItem)
+			throws IOException {
+		if (fileSelectorItem != null)
+			if (!ClientFactory.INSTANCE.properties
+					.checkChrootQuietly(fileSelectorItem.file))
+				return;
+		currentFolder = fileSelectorItem;
 		currentFolderList = null;
 		if (currentFolder != null) {
-			currentFolderList = new ArrayList<File>();
-			File f = currentFolder;
+			currentFolderList = new ArrayList<FileSelectorItem>();
+			FileSelectorItem f = currentFolder;
 			for (;;) {
-				currentFolderList.add(0, f);
-				f = f.getParentFile();
-				if (f == null)
+				currentFolderList.add(0, new FileSelectorItem(f.file));
+				File p = f.file.getParentFile();
+				if (p == null)
 					break;
-				if (!ClientFactory.INSTANCE.properties.checkChrootQuietly(f))
+				f = new FileSelectorItem(p);
+				if (!ClientFactory.INSTANCE.properties
+						.checkChrootQuietly(f.file))
 					break;
 			}
 		}
 		currentFile = null;
 		reloadBrowser();
+	}
+
+	private void setCurrentFolder(File file) throws IOException {
+		if (file == null)
+			setCurrentFolder((FileSelectorItem) null);
+		else
+			setCurrentFolder(new FileSelectorItem(file));
 	}
 
 	public FileInstanceType getCurrentFileType() {
@@ -304,22 +352,23 @@ public class FilePathEditController extends FileCrawlerController {
 		reloadComponent("filebrowser");
 	}
 
-	public void onOpenFile(Component component) throws IOException {
-		File file = (File) component.getAttribute("file");
-		if (file.isDirectory())
-			setCurrentFolder(file);
+	public void onDoubleClicked(Event event) throws IOException {
+		System.out.println(currentFile.file);
+		
+		//if (item.file.isDirectory())
+			//setCurrentFolder(item);
 	}
 
 	public void onSelectFile() throws SearchLibException {
 		if (currentFile != null) {
-			currentFilePath.setPath(currentFile.getAbsolutePath());
+			currentFilePath.setPath(currentFile.file.getAbsolutePath());
 			reloadPage();
 		}
 	}
 
 	public void onParentFolder() throws IOException {
 		if (currentFolder != null)
-			setCurrentFolder(currentFolder.getParentFile());
+			setCurrentFolder(currentFolder.file.getParentFile());
 	}
 
 	public boolean isDropbox() {

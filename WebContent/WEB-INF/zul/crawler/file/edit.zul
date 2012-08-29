@@ -108,14 +108,12 @@
 										checked="@{filepathedit.showHidden}" />
 								</listheader>
 							</listhead>
-							<listitem self="@{each='file'}">
-								<listcell
-									onDoubleClick="filepathedit.onOpenFile(self)">
-									<custom-attributes file="@{file}" />
+							<listitem self="@{each='file'}" forward="onDoubleClick=onDoubleClicked">
+								<listcell>
 									<image src="/images/file.png"
-										visible="@{file.file}" />
+										visible="@{file.file.file}" />
 									<image src="/images/directory.png"
-										visible="@{file.directory}" />
+										visible="@{file.file.directory}" />
 									<label value="@{file.name}" />
 								</listcell>
 							</listitem>
@@ -125,7 +123,7 @@
 										disabled="@{filepathedit.selectedFile}" label="Select"
 										forward="onSelectFile" />
 									<label
-										value="@{filepathedit.currentFile.absolutePath}" />
+										value="@{filepathedit.currentFile.file.absolutePath}" />
 								</listfooter>
 							</listfoot>
 						</listbox>
