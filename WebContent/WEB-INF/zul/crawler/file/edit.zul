@@ -108,8 +108,8 @@
 										checked="@{filepathedit.showHidden}" />
 								</listheader>
 							</listhead>
-							<listitem self="@{each='file'}" forward="onDoubleClick=onDoubleClicked">
-								<listcell>
+							<listitem self="@{each='file'}">
+								<listcell onDoubleClick="filepathedit.onOpenFile(self)">
 									<image src="/images/file.png"
 										visible="@{file.file.file}" />
 									<image src="/images/directory.png"

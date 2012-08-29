@@ -35,9 +35,8 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.commons.io.filefilter.HiddenFileFilter;
-import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
-import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Messagebox;
 
 import com.dropbox.client2.session.AccessTokenPair;
@@ -66,6 +65,8 @@ public class FilePathEditController extends FileCrawlerController {
 	private transient FileSelectorItem currentFolder;
 
 	private transient List<FileSelectorItem> currentFolderList;
+
+	private transient FileSelectorItem[] currentFileList;
 
 	private boolean showHidden;
 
@@ -113,6 +114,7 @@ public class FilePathEditController extends FileCrawlerController {
 		public File getFile() {
 			return file;
 		}
+
 	}
 
 	public FilePathEditController() throws SearchLibException, NamingException {
@@ -125,6 +127,7 @@ public class FilePathEditController extends FileCrawlerController {
 		if (client == null)
 			return;
 		currentFilePath = null;
+		currentFileList = null;
 		currentFile = null;
 		currentFolder = null;
 		showHidden = false;
@@ -228,15 +231,21 @@ public class FilePathEditController extends FileCrawlerController {
 	public FileSelectorItem[] getCurrentFileList() throws SearchLibException,
 			IOException {
 		synchronized (this) {
+			if (currentFileList != null)
+				return currentFileList;
+			File[] files = null;
 			getCurrentFolder();
 			if (currentFolder == null) {
-				return getList(File.listRoots());
+				files = File.listRoots();
+			} else {
+				if (!isShowHidden())
+					files = currentFolder.file
+							.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
+				else
+					files = currentFolder.file.listFiles();
 			}
-			if (!isShowHidden())
-				return getList(currentFolder.file
-						.listFiles((FileFilter) HiddenFileFilter.VISIBLE));
-			else
-				return getList(currentFolder.file.listFiles());
+			currentFileList = getList(files);
+			return currentFileList;
 		}
 	}
 
@@ -316,6 +325,7 @@ public class FilePathEditController extends FileCrawlerController {
 					break;
 			}
 		}
+		currentFileList = null;
 		currentFile = null;
 		reloadBrowser();
 	}
@@ -352,11 +362,10 @@ public class FilePathEditController extends FileCrawlerController {
 		reloadComponent("filebrowser");
 	}
 
-	public void onDoubleClicked(Event event) throws IOException {
-		System.out.println(currentFile.file);
-		
-		//if (item.file.isDirectory())
-			//setCurrentFolder(item);
+	public void onOpenFile(Listcell cell) throws IOException {
+		if (currentFile != null)
+			if (currentFile.file.isDirectory())
+				setCurrentFolder(currentFile);
 	}
 
 	public void onSelectFile() throws SearchLibException {
