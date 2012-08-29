@@ -44,7 +44,7 @@ public class DeleteXmlRpc extends AbstractXmlRpc {
 			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
 		Client client = ClientCatalog.getClient(index);
-		if (client.deleteDocument(uniqueKey))
+		if (client.deleteDocument(uniqueKey) > 0)
 			return newInfoMap("Document deleted");
 		return newInfoMap("Nothing to delete");
 	}

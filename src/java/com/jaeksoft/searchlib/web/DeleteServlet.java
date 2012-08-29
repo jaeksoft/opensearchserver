@@ -56,7 +56,7 @@ public class DeleteServlet extends AbstractServlet {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		return client.deleteDocument(uniq) ? 1 : 0;
+		return client.deleteDocument(uniq);
 
 	}
 

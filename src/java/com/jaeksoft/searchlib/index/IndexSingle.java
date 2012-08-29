@@ -117,7 +117,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public boolean deleteDocument(Schema schema, String uniqueField)
+	public int deleteDocument(Schema schema, String uniqueField)
 			throws SearchLibException {
 		if (!online)
 			throw new SearchLibException("Index is offline");
@@ -128,7 +128,7 @@ public class IndexSingle extends IndexAbstract {
 			if (writer != null)
 				return writer.deleteDocument(schema, uniqueField);
 			else
-				return false;
+				return 0;
 		} finally {
 			rwl.r.unlock();
 		}

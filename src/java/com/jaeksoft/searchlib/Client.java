@@ -154,7 +154,7 @@ public class Client extends Config {
 				proxyHandler, infoCallBack);
 	}
 
-	public boolean deleteDocument(String uniqueField) throws SearchLibException {
+	public int deleteDocument(String uniqueField) throws SearchLibException {
 		Timer timer = new Timer("Delete document " + uniqueField);
 		try {
 			return getIndex().deleteDocument(getSchema(), uniqueField);

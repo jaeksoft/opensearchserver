@@ -34,7 +34,7 @@ public interface WriterInterface {
 
 	public void deleteAll() throws SearchLibException;
 
-	public boolean deleteDocument(Schema schema, String uniqueField)
+	public int deleteDocument(Schema schema, String uniqueField)
 			throws SearchLibException;
 
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)

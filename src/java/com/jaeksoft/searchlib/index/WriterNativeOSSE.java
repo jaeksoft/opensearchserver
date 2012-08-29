@@ -46,9 +46,9 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	@Override
-	public boolean deleteDocument(Schema schema, String uniqueField) {
+	public int deleteDocument(Schema schema, String uniqueField) {
 		// TODO Auto-generated method stub
-		return false;
+		return 0;
 	}
 
 	@Override
