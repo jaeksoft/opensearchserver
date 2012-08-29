@@ -59,6 +59,7 @@ import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -528,11 +529,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
 
-		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
+		OpenBitSet openBitSet = searchRequest.getFilterList().getOpenBitSet(
 				this, defaultField, analyzer, timer);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
-				filterHits, searchRequest.getSortFieldList(), timer);
+				openBitSet, searchRequest.getSortFieldList(), timer);
 		return dsh;
 	}
 

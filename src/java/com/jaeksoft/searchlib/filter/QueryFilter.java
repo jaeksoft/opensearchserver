@@ -135,6 +135,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 		super.copyTo(selectedItem);
 		QueryFilter copyTo = (QueryFilter) selectedItem;
 		copyTo.queryString = queryString;
+		copyTo.query = null;
 	}
 
 	@Override

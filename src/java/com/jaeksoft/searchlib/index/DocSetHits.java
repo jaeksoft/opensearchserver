@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.OpenBitSet;
@@ -53,12 +55,34 @@ public class DocSetHits {
 	private DocIdCollector docIdCollector;
 	private ScoreDocCollector scoreDocCollector;
 
-	protected DocSetHits(ReaderLocal reader, Query query, Filter filter,
-			SortFieldList sortFieldList, Timer timer) throws IOException {
+	private class FilterBitSet extends Filter {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1626629515659451528L;
+
+		private OpenBitSet filterBitSet;
+
+		public FilterBitSet(OpenBitSet filterBitSet) {
+			this.filterBitSet = filterBitSet;
+		}
+
+		@Override
+		public DocIdSet getDocIdSet(IndexReader reader) throws IOException {
+			return filterBitSet;
+		}
+
+	}
+
+	protected DocSetHits(ReaderLocal reader, Query query,
+			OpenBitSet filterBitSet, SortFieldList sortFieldList, Timer timer)
+			throws IOException {
 		rwl.w.lock();
 		try {
 			this.query = query;
-			this.filter = filter;
+			this.filter = filterBitSet != null ? new FilterBitSet(filterBitSet)
+					: null;
 			this.reader = reader;
 			this.sortFieldList = sortFieldList;
 			docIdCollector = null;

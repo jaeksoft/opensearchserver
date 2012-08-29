@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.util.OpenBitSet;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
@@ -88,19 +89,23 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		return filterList.iterator();
 	}
 
-	public FilterHits getFilterHits(ReaderLocal reader,
+	public OpenBitSet getOpenBitSet(ReaderLocal reader,
 			SchemaField defaultField, Analyzer analyzer, Timer timer)
 			throws IOException, ParseException {
 
 		if (size() == 0)
 			return null;
 
-		FilterHits filterHits = new FilterHits();
-		for (FilterAbstract<?> filter : filterList)
-			filterHits.and(reader.getFilterHits(defaultField, analyzer, filter,
-					timer));
-
-		return filterHits;
+		OpenBitSet docSet = null;
+		for (FilterAbstract<?> filter : filterList) {
+			FilterHits filterHits = reader.getFilterHits(defaultField,
+					analyzer, filter, timer);
+			if (docSet == null)
+				docSet = (OpenBitSet) filterHits.docSet.clone();
+			else
+				filterHits.and(docSet);
+		}
+		return docSet;
 	}
 
 	public Object[] toArray() {

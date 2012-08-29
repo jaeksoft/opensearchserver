@@ -37,6 +37,10 @@
 					<webResources>
 						<resource>
 							<directory>WebContent</directory>
+							<filtering>true</filtering>
+							<excludes>
+								<exclude>WEB-INF/lib/*.jar</exclude>
+							</excludes>
 						</resource>
 						<resource>
 							<directory>src/java</directory>

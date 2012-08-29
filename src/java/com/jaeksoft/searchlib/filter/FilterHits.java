@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,7 +28,6 @@ import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Scorer;
 import org.apache.lucene.util.OpenBitSet;
@@ -37,32 +36,29 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class FilterHits extends org.apache.lucene.search.Filter {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 966120808560552509L;
+public class FilterHits {
 
 	protected OpenBitSet docSet;
 
+	protected int count;
+
 	protected FilterHits() {
 		docSet = null;
+		count = 0;
 	}
 
-	protected void and(FilterHits filterHits) {
+	protected void and(OpenBitSet targetDocSet) {
 		if (docSet == null)
-			docSet = (OpenBitSet) filterHits.docSet.clone();
-		else
-			docSet.and(filterHits.docSet);
+			return;
+		targetDocSet.and(docSet);
 	}
 
 	public FilterHits(Query query, boolean negative, ReaderLocal reader,
 			Timer timer) throws IOException, ParseException {
 		Timer t = new Timer(timer, "Filter hit: " + query.toString());
-		FilterCollector collector = new FilterCollector(reader.maxDoc());
+		docSet = new OpenBitSet(reader.maxDoc());
+		FilterCollector collector = new FilterCollector();
 		reader.search(query, null, collector);
-		docSet = collector.bitSet;
 		if (negative)
 			docSet.flip(0, docSet.size());
 		t.duration();
@@ -70,15 +66,13 @@ public class FilterHits extends org.apache.lucene.search.Filter {
 
 	private class FilterCollector extends Collector {
 
-		private OpenBitSet bitSet;
-
-		private FilterCollector(int size) {
-			this.bitSet = new OpenBitSet(size);
+		private FilterCollector() {
 		}
 
 		@Override
 		public void collect(int docId) {
-			bitSet.set(docId);
+			docSet.set(docId);
+			count++;
 		}
 
 		@Override
@@ -94,11 +88,6 @@ public class FilterHits extends org.apache.lucene.search.Filter {
 		@Override
 		public void setScorer(Scorer arg0) throws IOException {
 		}
-	}
-
-	@Override
-	public DocIdSet getDocIdSet(IndexReader reader) throws IOException {
-		return this.docSet;
 	}
 
 }
