@@ -355,7 +355,8 @@ public class FilePathEditController extends FileCrawlerController {
 
 	public void setShowHidden(boolean b) throws SearchLibException {
 		showHidden = b;
-		reloadPage();
+		currentFileList = null;
+		reloadBrowser();
 	}
 
 	public void reloadBrowser() {
@@ -375,6 +376,11 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 	}
 
+	public void onRefreshList() {
+		currentFileList = null;
+		reloadBrowser();
+	}
+	
 	public void onParentFolder() throws IOException {
 		if (currentFolder != null)
 			setCurrentFolder(currentFolder.file.getParentFile());

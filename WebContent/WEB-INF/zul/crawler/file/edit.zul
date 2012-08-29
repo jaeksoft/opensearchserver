@@ -102,7 +102,7 @@
 										label="go to parent folder" forward="onParentFolder" />
 									<space width="30px" />
 									<button label="Refresh the list"
-										forward="onRefresh" />
+										forward="onRefreshList" />
 									<space width="30px" />
 									<checkbox label="Show hidden file"
 										checked="@{filepathedit.showHidden}" />
