@@ -68,7 +68,7 @@ public class TaskXmlLoad extends TaskAbstract {
 			TaskPropertyType.textBox, "Buffer size", 10);
 
 	final private TaskPropertyDef propXsl = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "XSL", 50, 20);
+			TaskPropertyType.multilineTextBox, "XSL", 100, 30);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propUri, propLogin,
 			propPassword, propBuffersize, propXsl };

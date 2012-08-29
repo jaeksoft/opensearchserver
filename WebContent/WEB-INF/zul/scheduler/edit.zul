@@ -174,7 +174,7 @@
 												<label
 													multiline="@{property2.type.ctrlMultilineTextBox}"
 													visible="@{property2.type.ctrlNotPassword}"
-													value="@{property2.value}" />
+													value="@{property2.previewValue}" />
 											</listcell>
 										</listitem>
 									</listbox>
