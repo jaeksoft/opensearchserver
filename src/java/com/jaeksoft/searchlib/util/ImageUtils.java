@@ -83,7 +83,9 @@ public class ImageUtils {
 					AffineTransformOp.TYPE_BICUBIC);
 			break;
 		}
-		return Scalr.rotate(image, rot, xform);
+		if (rot != null)
+			return Scalr.rotate(image, rot, xform);
+		return Scalr.apply(image, xform);
 	}
 
 	public static boolean hasAlpha(Image image) throws InterruptedException {

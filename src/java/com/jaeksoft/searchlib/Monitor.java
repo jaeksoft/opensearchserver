@@ -73,8 +73,16 @@ public class Monitor {
 		return ((double) getFreeMemory() / (double) getTotalMemory()) * 100;
 	}
 
-	public Long getFreeDiskSpace() throws SecurityException, IOException {
+	public Long getFreeDiskSpace() throws SecurityException, IOException,
+			SearchLibException {
 		try {
+			long l = ClientFactory.INSTANCE.properties.getMaxStorage();
+			if (l > 0) {
+				l -= ClientCatalog.getInstanceSize();
+				if (l < 0)
+					l = 0;
+				return l;
+			}
 			if (StartStopListener.OPENSEARCHSERVER_DATA_FILE.getClass()
 					.getDeclaredMethod("getFreeSpace") != null)
 				return StartStopListener.OPENSEARCHSERVER_DATA_FILE
@@ -88,6 +96,9 @@ public class Monitor {
 
 	public Long getTotalDiskSpace() throws SecurityException, IOException {
 		try {
+			long l = ClientFactory.INSTANCE.properties.getMaxStorage();
+			if (l > 0)
+				return l;
 			if (StartStopListener.OPENSEARCHSERVER_DATA_FILE.getClass()
 					.getDeclaredMethod("getTotalSpace") != null)
 				return StartStopListener.OPENSEARCHSERVER_DATA_FILE
@@ -99,7 +110,8 @@ public class Monitor {
 						.getAbsolutePath()) * 1000;
 	}
 
-	public Double getDiskRate() throws SecurityException, IOException {
+	public Double getDiskRate() throws SecurityException, IOException,
+			SearchLibException {
 		Long free = getFreeDiskSpace();
 		Long total = getTotalDiskSpace();
 		if (free == null || total == null)

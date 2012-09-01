@@ -146,17 +146,26 @@ public class ClientCatalog {
 		}
 	}
 
+	private static volatile long lastInstanceSize = 0;
+
 	public static final long calculateInstanceSize() throws SearchLibException {
 		r.lock();
 		try {
 			if (StartStopListener.OPENSEARCHSERVER_DATA_FILE == null)
 				return 0;
-			return new LastModifiedAndSize(
+			lastInstanceSize = new LastModifiedAndSize(
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE, false)
 					.getSize();
+			return lastInstanceSize;
 		} finally {
 			r.unlock();
 		}
+	}
+
+	public static long getInstanceSize() throws SearchLibException {
+		if (lastInstanceSize != 0)
+			return lastInstanceSize;
+		return calculateInstanceSize();
 	}
 
 	public static final LastModifiedAndSize getLastModifiedAndSize(

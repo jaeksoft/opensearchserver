@@ -38,12 +38,22 @@ public class PercentConverter implements TypeConverter {
 
 	@Override
 	public Object coerceToUi(Object value, Component component) {
+		String result = null;
 		DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
 		format.setMaximumFractionDigits(1);
-		if (value instanceof Double)
-			return format.format((Double) value) + " %";
-		else if (value instanceof Float)
-			return format.format((Float) value) + " %";
-		return null;
+		if (value instanceof Double) {
+			Double d = (Double) value;
+			if (d == null || d.equals(Double.NaN))
+				result = "NaN";
+			else
+				result = format.format(d) + " %";
+		} else if (value instanceof Float) {
+			Float f = (Float) value;
+			if (f == null || f.equals(Float.NaN))
+				result = "NaN";
+			else
+				result = format.format(f) + " %";
+		}
+		return result;
 	}
 }
