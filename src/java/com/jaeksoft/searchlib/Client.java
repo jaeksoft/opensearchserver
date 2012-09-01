@@ -75,7 +75,7 @@ public class Client extends Config {
 		Timer timer = new Timer("Update document " + document.toString());
 		try {
 			checkMaxStorageLimit();
-			checkMaxDocumentLimit(1);
+			checkMaxDocumentLimit();
 			return getIndex().updateDocument(getSchema(), document);
 		} finally {
 			getStatisticsList().addUpdate(timer);
@@ -89,7 +89,7 @@ public class Client extends Config {
 		Timer timer = new Timer("Update " + documents.size() + " documents");
 		try {
 			checkMaxStorageLimit();
-			checkMaxDocumentLimit(documents.size());
+			checkMaxDocumentLimit();
 			return getIndex().updateDocuments(getSchema(), documents);
 		} finally {
 			getStatisticsList().addUpdate(timer);
@@ -102,7 +102,7 @@ public class Client extends Config {
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		checkMaxStorageLimit();
-		checkMaxDocumentLimit(docList.size());
+		checkMaxDocumentLimit();
 		docCount += updateDocuments(docList);
 		StringBuffer sb = new StringBuffer();
 		sb.append(docCount);
@@ -263,10 +263,9 @@ public class Client extends Config {
 		return getIndex().explain(request, docId, bHtml);
 	}
 
-	protected final void checkMaxDocumentLimit(int additionalCount)
-			throws SearchLibException, IOException {
-		ClientFactory.INSTANCE.properties
-				.checkMaxDocumentLimit(additionalCount);
+	protected final void checkMaxDocumentLimit() throws SearchLibException,
+			IOException {
+		ClientFactory.INSTANCE.properties.checkMaxDocumentLimit();
 	}
 
 	protected void checkMaxStorageLimit() throws SearchLibException {

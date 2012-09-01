@@ -34,8 +34,6 @@ import javax.servlet.ServletContext;
 
 public class Version {
 
-	private String edition = null;
-
 	private String version = null;
 
 	private String stage = null;
@@ -44,11 +42,9 @@ public class Version {
 
 	private String build = null;
 
-	public Version(ServletContext servletContext, String edition)
-			throws IOException {
+	public Version(ServletContext servletContext) throws IOException {
 		InputStream is = null;
 		try {
-			this.edition = edition;
 			is = servletContext.getResourceAsStream("/version");
 			if (is == null)
 				return;
@@ -67,10 +63,6 @@ public class Version {
 	public String getUpdateUrl() throws UnsupportedEncodingException {
 		StringBuffer sb = new StringBuffer(
 				"http://www.open-search-server.com/updatecheck?check");
-		if (edition != null) {
-			sb.append("&e=");
-			sb.append(URLEncoder.encode(edition, "UTF-8"));
-		}
 		if (version != null) {
 			sb.append("&v=");
 			sb.append(URLEncoder.encode(version, "UTF-8"));
@@ -94,11 +86,6 @@ public class Version {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("OpenSearchServer");
-		if (edition != null) {
-			sb.append(" (");
-			sb.append(edition);
-			sb.append(')');
-		}
 		if (version != null) {
 			sb.append(" v");
 			sb.append(version);

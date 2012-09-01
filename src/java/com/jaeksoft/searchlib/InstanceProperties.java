@@ -159,12 +159,12 @@ public class InstanceProperties {
 							+ file.getAbsolutePath());
 	}
 
-	public final void checkMaxDocumentLimit(long additionnalCount)
-			throws SearchLibException, IOException {
+	public final void checkMaxDocumentLimit() throws SearchLibException,
+			IOException {
 		if (maxDocumentLimit == 0)
 			return;
-		long count = ClientCatalog.countAllDocuments() + additionnalCount;
-		if (count <= maxDocumentLimit)
+		long count = ClientCatalog.countAllDocuments();
+		if (count < maxDocumentLimit)
 			return;
 		throw new SearchLibException(
 				"The maximum number of allowable documents has been reached ("

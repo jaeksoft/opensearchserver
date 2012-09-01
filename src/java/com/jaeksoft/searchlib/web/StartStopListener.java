@@ -80,10 +80,6 @@ public class StartStopListener implements ServletContextListener {
 		return version;
 	}
 
-	protected String getEdition() {
-		return "community edition";
-	}
-
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 
@@ -96,7 +92,7 @@ public class StartStopListener implements ServletContextListener {
 		ErrorParserLogger.init();
 
 		try {
-			version = new Version(servletContext, getEdition());
+			version = new Version(servletContext);
 		} catch (IOException e) {
 			Logging.error(e);
 		}
