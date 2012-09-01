@@ -92,7 +92,7 @@ public class InstanceProperties {
 						LIMIT_MINCRAWLERDELAY_ATTR);
 				maxIndexNumber = XPathParser.getAttributeValue(node,
 						LIMIT_MAX_INDEX_NUMBER_ATTR);
-				maxStorage = XPathParser.getAttributeValue(node,
+				maxStorage = XPathParser.getAttributeLong(node,
 						LIMIT_MAX_STORAGE_ATTR);
 				maxApiRate = XPathParser.getAttributeValue(node,
 						LIMIT_MAX_API_RATE);
