@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.InvalidPropertiesFormatException;
@@ -170,8 +171,6 @@ public abstract class Config {
 
 	protected final SimpleLock longTermLock = new SimpleLock();
 
-	private Mailer mailer = null;
-
 	private ReplicationList replicationList = null;
 
 	private ReplicationMaster replicationMaster = null;
@@ -227,7 +226,7 @@ public abstract class Config {
 			getFileCrawlMaster();
 			getWebCrawlMaster();
 			getJobList();
-			getIndex().addBeforeUpdate(getClassifierManager());
+			getIndexAbstract().addBeforeUpdate(getClassifierManager());
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -267,7 +266,7 @@ public abstract class Config {
 			XmlWriter xmlWriter = new XmlWriter(
 					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 			xmlWriter.startElement("configuration");
-			getIndex().writeXmlConfig(xmlWriter);
+			getIndexAbstract().writeXmlConfig(xmlWriter);
 			getSchema().writeXmlConfig(xmlWriter);
 			if (urlManagerClass != null) {
 				xmlWriter.startElement("urlManager", "class", urlManagerClass);
@@ -277,9 +276,6 @@ public abstract class Config {
 			IndexPluginTemplateList iptl = getIndexPluginTemplateList();
 			if (iptl != null)
 				iptl.writeXmlConfig(xmlWriter);
-			getMailer();
-			if (mailer != null)
-				mailer.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
 			cfr.rotate();
@@ -765,25 +761,6 @@ public abstract class Config {
 		}
 	}
 
-	public Mailer getMailer() throws XPathExpressionException {
-		rwl.r.lock();
-		try {
-			if (mailer != null)
-				return mailer;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			if (mailer != null)
-				return mailer;
-			return mailer = Mailer.fromXmlConfig(xppConfig
-					.getNode("/configuration/mailer"));
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
 	public ReplicationList getReplicationList() throws SearchLibException {
 		rwl.r.lock();
 		try {
@@ -949,8 +926,12 @@ public abstract class Config {
 		return getDirectory().getName();
 	}
 
+	public IndexAbstract getIndexAbstract() {
+		return index;
+	}
+
 	public IndexAbstract getIndex() {
-		return this.index;
+		return index;
 	}
 
 	public IndexPluginTemplateList getIndexPluginTemplateList()
@@ -1356,6 +1337,10 @@ public abstract class Config {
 			rwl.r.lock();
 			try {
 				replicationThread.push();
+			} catch (MalformedURLException e) {
+				throw new SearchLibException(e);
+			} catch (URISyntaxException e) {
+				throw new SearchLibException(e);
 			} finally {
 				rwl.r.unlock();
 			}
@@ -1576,7 +1561,7 @@ public abstract class Config {
 
 	private void closeQuiet() {
 		try {
-			getIndex().close();
+			getIndexAbstract().close();
 		} catch (Exception e) {
 			Logging.warn(e.getMessage(), e);
 		}
@@ -1627,4 +1612,5 @@ public abstract class Config {
 	public void delete() throws IOException {
 		FileUtils.deleteDirectory(getDirectory());
 	}
+
 }

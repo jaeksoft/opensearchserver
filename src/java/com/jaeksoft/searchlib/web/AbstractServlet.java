@@ -149,8 +149,8 @@ public abstract class AbstractServlet extends HttpServlet {
 	}
 
 	protected static URI buildUri(URI uri, String additionalPath,
-			String indexName, String additionnalQuery)
-			throws URISyntaxException {
+			String indexName, String login, String apiKey,
+			String additionnalQuery) throws URISyntaxException {
 		StringBuffer path = new StringBuffer(uri.getPath());
 		if (additionalPath != null)
 			path.append(additionalPath);
@@ -158,6 +158,14 @@ public abstract class AbstractServlet extends HttpServlet {
 		if (indexName != null) {
 			query.append("index=");
 			query.append(indexName);
+		}
+		if (login != null) {
+			query.append("&login=");
+			query.append(login);
+		}
+		if (apiKey != null) {
+			query.append("&key=");
+			query.append(apiKey);
 		}
 		if (additionnalQuery != null) {
 			if (query.length() > 0)

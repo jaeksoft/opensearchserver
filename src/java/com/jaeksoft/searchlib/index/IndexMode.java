@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,11 +24,34 @@
 
 package com.jaeksoft.searchlib.index;
 
-public abstract class ReaderAbstract implements ReaderInterface {
+public enum IndexMode {
 
-	final protected IndexConfig indexConfig;
+	READ_ONLY("Read only"), READ_WRITE("Read/write");
 
-	public ReaderAbstract(IndexConfig indexConfig) {
-		this.indexConfig = indexConfig;
+	final protected String label;
+
+	private IndexMode(String label) {
+		this.label = label;
+	}
+
+	final public String getLabel() {
+		return label;
+	}
+
+	@Override
+	public final String toString() {
+		return label;
+	}
+
+	final public static IndexMode find(String label) {
+		if (label == null)
+			return READ_WRITE;
+		for (IndexMode mode : values()) {
+			if (label.equalsIgnoreCase(mode.label))
+				return mode;
+			if (label.equalsIgnoreCase(mode.name()))
+				return mode;
+		}
+		return READ_WRITE;
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import org.apache.commons.mail.HtmlEmail;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.statistics.Aggregate;
 import com.jaeksoft.searchlib.statistics.StatisticPeriodEnum;
@@ -87,7 +88,8 @@ public class ReportServlet extends AbstractServlet {
 			String emails = transaction.getParameterString("emails");
 			if (emails == null)
 				return;
-			HtmlEmail htmlEmail = client.getMailer().getHtmlEmail(emails, null);
+			HtmlEmail htmlEmail = ClientFactory.INSTANCE.properties.getMailer()
+					.getHtmlEmail(emails, null);
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			if ("statistics".equals(report)) {

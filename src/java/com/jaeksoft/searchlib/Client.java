@@ -35,7 +35,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.http.HttpException;
+import org.apache.lucene.index.TermEnum;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -45,6 +45,8 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.index.IndexMode;
+import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
@@ -76,7 +78,7 @@ public class Client extends Config {
 		try {
 			checkMaxStorageLimit();
 			checkMaxDocumentLimit();
-			return getIndex().updateDocument(getSchema(), document);
+			return getIndexAbstract().updateDocument(getSchema(), document);
 		} finally {
 			getStatisticsList().addUpdate(timer);
 		}
@@ -90,7 +92,7 @@ public class Client extends Config {
 		try {
 			checkMaxStorageLimit();
 			checkMaxDocumentLimit();
-			return getIndex().updateDocuments(getSchema(), documents);
+			return getIndexAbstract().updateDocuments(getSchema(), documents);
 		} finally {
 			getStatisticsList().addUpdate(timer);
 		}
@@ -157,7 +159,7 @@ public class Client extends Config {
 	public int deleteDocument(String uniqueField) throws SearchLibException {
 		Timer timer = new Timer("Delete document " + uniqueField);
 		try {
-			return getIndex().deleteDocument(getSchema(), uniqueField);
+			return getIndexAbstract().deleteDocument(getSchema(), uniqueField);
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}
@@ -167,7 +169,8 @@ public class Client extends Config {
 			throws SearchLibException {
 		Timer timer = new Timer("Delete " + uniqueFields.size() + " documents");
 		try {
-			return getIndex().deleteDocuments(getSchema(), uniqueFields);
+			return getIndexAbstract()
+					.deleteDocuments(getSchema(), uniqueFields);
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}
@@ -177,36 +180,39 @@ public class Client extends Config {
 			throws SearchLibException {
 		Timer timer = new Timer("Delete by query documents");
 		try {
-			return getIndex().deleteDocuments(searchRequest);
+			return getIndexAbstract().deleteDocuments(searchRequest);
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}
 	}
 
-	public void optimize() throws IOException, URISyntaxException,
-			SearchLibException {
+	public void optimize() throws SearchLibException {
 		Timer timer = new Timer("Optimize");
 		try {
-			getIndex().optimize();
+			getIndexAbstract().optimize();
 		} finally {
 			getStatisticsList().addOptimize(timer);
 		}
 	}
 
 	public boolean isOptimizing() {
-		return getIndex().isOptimizing();
+		return getIndexAbstract().isOptimizing();
 	}
 
-	public String getOptimizationStatus() throws IOException {
+	public String getOptimizationStatus() throws IOException,
+			SearchLibException {
+		if (!isOnline())
+			return "Unknown";
 		if (isOptimizing())
 			return "Running";
-		return Boolean.toString(getIndex().getStatistics().isOptimized());
+		return Boolean.toString(getIndexAbstract().getStatistics()
+				.isOptimized());
 	}
 
 	public void deleteAll() throws SearchLibException {
 		Timer timer = new Timer("DeleteAll");
 		try {
-			getIndex().deleteAll();
+			getIndexAbstract().deleteAll();
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}
@@ -215,20 +221,33 @@ public class Client extends Config {
 	public void reload() throws SearchLibException {
 		Timer timer = new Timer("Reload");
 		try {
-			getIndex().reload();
+			getIndexAbstract().reload();
 		} finally {
 			getStatisticsList().addReload(timer);
 		}
 	}
 
-	/*
-	 * Older version compatibility
-	 */
-	@Deprecated
-	public void reload(boolean deleteOld) throws IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
-		reload();
+	public void setReadWriteMode(IndexMode mode) throws SearchLibException {
+		if (mode == getIndexAbstract().getReadWriteMode())
+			return;
+		getIndexAbstract().setReadWriteMode(mode);
+		saveConfig();
+		if (mode == IndexMode.READ_WRITE)
+			removeReplCheck();
+	}
+
+	public IndexMode getReadWriteMode() {
+		return getIndexAbstract().getReadWriteMode();
+	}
+
+	public void setOnline(boolean online) {
+		if (online == getIndexAbstract().isOnline())
+			return;
+		getIndexAbstract().setOnline(online);
+	}
+
+	public boolean isOnline() {
+		return getIndexAbstract().isOnline();
 	}
 
 	public AbstractResult<?> request(AbstractRequest request)
@@ -239,7 +258,7 @@ public class Client extends Config {
 		try {
 			request.init(this);
 			timer = new Timer(request.getNameType());
-			result = getIndex().request(request);
+			result = getIndexAbstract().request(request);
 			return result;
 		} catch (SearchLibException e) {
 			exception = e;
@@ -260,7 +279,7 @@ public class Client extends Config {
 
 	public String explain(AbstractRequest request, int docId, boolean bHtml)
 			throws SearchLibException {
-		return getIndex().explain(request, docId, bHtml);
+		return getIndexAbstract().explain(request, docId, bHtml);
 	}
 
 	protected final void checkMaxDocumentLimit() throws SearchLibException,
@@ -270,5 +289,29 @@ public class Client extends Config {
 
 	protected void checkMaxStorageLimit() throws SearchLibException {
 		ClientFactory.INSTANCE.properties.checkMaxStorageLimit();
+	}
+
+	public IndexStatistics getStatistics() throws IOException,
+			SearchLibException {
+		return getIndexAbstract().getStatistics();
+	}
+
+	public TermEnum getTermEnum(String field, String term)
+			throws SearchLibException {
+		return getIndexAbstract().getTermEnum(field, term);
+	}
+
+	private final static String REPL_CHECK_FILENAME = "repl.check";
+
+	public boolean isTrueReplicate() {
+		return new File(this.getDirectory(), REPL_CHECK_FILENAME).exists();
+	}
+
+	public void writeReplCheck() throws IOException {
+		new File(this.getDirectory(), REPL_CHECK_FILENAME).createNewFile();
+	}
+
+	public void removeReplCheck() {
+		new File(this.getDirectory(), REPL_CHECK_FILENAME).delete();
 	}
 }

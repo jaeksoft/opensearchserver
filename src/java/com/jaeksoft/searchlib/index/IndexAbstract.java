@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.index;
 
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class IndexAbstract implements ReaderInterface, WriterInterface {
@@ -46,9 +47,10 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 
 	public abstract void setOnline(boolean v);
 
-	public abstract boolean isReadOnly();
+	public abstract IndexMode getReadWriteMode();
 
-	public abstract void setReadOnly(boolean v);
+	public abstract void setReadWriteMode(IndexMode mode)
+			throws SearchLibException;
 
 	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter)
 			throws SAXException;

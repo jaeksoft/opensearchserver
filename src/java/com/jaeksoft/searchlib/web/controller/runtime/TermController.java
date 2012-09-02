@@ -119,7 +119,7 @@ public class TermController extends CommonController {
 			String currentField = getCurrentField();
 			if (currentField == null)
 				return null;
-			return client.getIndex().getTermEnum(currentField, getSearchTerm());
+			return client.getTermEnum(currentField, getSearchTerm());
 		}
 	}
 
@@ -158,7 +158,7 @@ public class TermController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return;
-			fieldList = StringUtils.toStringArray(client.getIndex()
+			fieldList = StringUtils.toStringArray(client.getIndexAbstract()
 					.getFieldNames(), true);
 		}
 	}

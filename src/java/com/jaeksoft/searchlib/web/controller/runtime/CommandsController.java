@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.scheduler.task.TaskDeleteAll;
@@ -79,6 +80,34 @@ public class CommandsController extends CommonController {
 		}
 	}
 
+	public void onReadOnly() throws SearchLibException {
+		synchronized (this) {
+			getClient().setReadWriteMode(IndexMode.READ_ONLY);
+			reloadPage();
+		}
+	}
+
+	public void onReadWrite() throws SearchLibException {
+		synchronized (this) {
+			getClient().setReadWriteMode(IndexMode.READ_WRITE);
+			reloadPage();
+		}
+	}
+
+	public void onOnline() throws SearchLibException {
+		synchronized (this) {
+			getClient().setOnline(true);
+			reloadPage();
+		}
+	}
+
+	public void onOffline() throws SearchLibException {
+		synchronized (this) {
+			getClient().setOnline(false);
+			reloadPage();
+		}
+	}
+
 	public void onOptimize() throws SearchLibException, IOException,
 			URISyntaxException {
 		synchronized (this) {
@@ -94,16 +123,64 @@ public class CommandsController extends CommonController {
 		}
 	}
 
+	public String getReadOnlyStatus() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			if (!client.isOnline())
+				return "Unknown";
+			return client.getReadWriteMode().getLabel();
+		}
+	}
+
+	public String getOnlineStatus() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			return client.isOnline() ? "Online" : "Offline";
+		}
+	}
+
 	public String getOptimizeStatus() throws SearchLibException, IOException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
+			if (!client.isOnline())
+				return "Unknown";
 			if (client.isOptimizing())
 				return "Running";
-			return client.getIndex().getStatistics().isOptimized() ? "Optimized"
+			return client.getStatistics().isOptimized() ? "Optimized"
 					: "Not optimized";
 		}
+	}
+
+	public boolean isOnline() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return false;
+			return client.isOnline();
+		}
+	}
+
+	public boolean isOffline() throws SearchLibException {
+		return !isOnline();
+	}
+
+	public boolean isReadOnly() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return false;
+			return client.getReadWriteMode() == IndexMode.READ_ONLY;
+		}
+	}
+
+	public boolean isReadWrite() throws SearchLibException {
+		return !isReadOnly();
 	}
 
 	public String getDocumentNumber() throws SearchLibException, IOException {
@@ -111,8 +188,9 @@ public class CommandsController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			return client.getIndex().getStatistics().getNumDocs()
-					+ " document(s).";
+			if (!client.isOnline())
+				return "Unknown";
+			return client.getStatistics().getNumDocs() + " document(s).";
 		}
 	}
 

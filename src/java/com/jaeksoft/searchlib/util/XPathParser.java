@@ -161,6 +161,13 @@ public class XPathParser {
 		return unescapeXml ? StringEscapeUtils.unescapeXml(t) : t;
 	}
 
+	public final static boolean getAttributeStringMatch(Node node,
+			String attributeName, String value) {
+		if (value == null)
+			return false;
+		return value.equals(getAttributeString(node, attributeName, true));
+	}
+
 	public final static String getAttributeString(Node node,
 			String attributeName) {
 		return getAttributeString(node, attributeName, true);

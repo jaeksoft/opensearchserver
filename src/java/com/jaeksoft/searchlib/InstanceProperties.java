@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -33,6 +34,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.config.Mailer;
 import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -74,9 +76,17 @@ public class InstanceProperties {
 
 	private final static String LIMIT_MAX_API_RATE = "maxApiRate";
 
+	private final static String MAILER_URL = "mailerUrl";
+
+	private final static String MAILER_FROM_EMAIL = "mailerFromEmail";
+
+	private final static String MAILER_FROM_NAME = "mailerFromName";
+
+	private final Mailer mailer;
+
 	public InstanceProperties(File xmlFile)
 			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException {
+			XPathExpressionException, URISyntaxException {
 		nextApiTime = System.currentTimeMillis();
 		countApiCall = 0;
 		countApiWait = 0;
@@ -97,6 +107,10 @@ public class InstanceProperties {
 				maxApiRate = XPathParser.getAttributeValue(node,
 						LIMIT_MAX_API_RATE);
 				minApiDelay = maxApiRate != 0 ? 1000 / maxApiRate : 0;
+				mailer = new Mailer(XPathParser.getAttributeString(node,
+						MAILER_URL), XPathParser.getAttributeString(node,
+						MAILER_FROM_EMAIL), XPathParser.getAttributeString(
+						node, MAILER_FROM_NAME));
 				return;
 			}
 		}
@@ -107,6 +121,7 @@ public class InstanceProperties {
 		maxStorage = 0;
 		maxApiRate = 0;
 		minApiDelay = 0;
+		mailer = null;
 	}
 
 	/**
@@ -231,5 +246,12 @@ public class InstanceProperties {
 		sb.append(" - chroot: ");
 		sb.append(chroot);
 		return sb.toString();
+	}
+
+	/**
+	 * @return the mailer
+	 */
+	public Mailer getMailer() {
+		return mailer;
 	}
 }

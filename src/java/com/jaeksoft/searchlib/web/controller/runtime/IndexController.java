@@ -51,7 +51,7 @@ public class IndexController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return list;
-		IndexAbstract index = client.getIndex();
+		IndexAbstract index = client.getIndexAbstract();
 		list.add(index);
 		return list;
 	}

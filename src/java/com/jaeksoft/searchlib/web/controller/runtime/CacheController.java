@@ -60,7 +60,7 @@ public class CacheController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			IndexAbstract indexAbstract = client.getIndex();
+			IndexAbstract indexAbstract = client.getIndexAbstract();
 			if (indexAbstract == null)
 				return null;
 			return (IndexSingle) indexAbstract;

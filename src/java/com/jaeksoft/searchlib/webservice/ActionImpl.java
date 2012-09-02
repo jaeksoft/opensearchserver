@@ -35,12 +35,14 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexMode;
 
 public class ActionImpl extends CommonServicesImpl implements Action {
 
 	@Override
 	public CommonResult action(String use, String login, String key,
-			Boolean optimize, Boolean reload, Boolean online, Boolean offline) {
+			Boolean optimize, Boolean reload, Boolean online, Boolean offline,
+			Boolean readonly, Boolean readwrite) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApiRate();
 			if (isLogged(use, login, key)) {
@@ -61,6 +63,14 @@ public class ActionImpl extends CommonServicesImpl implements Action {
 				if (offline != null && offline == true) {
 					offline(client);
 					return new CommonResult(true, "offline ");
+				}
+				if (readonly != null && readonly == true) {
+					readOnly(client);
+					return new CommonResult(true, "readonly");
+				}
+				if (readwrite != null && readwrite == true) {
+					readWrite(client);
+					return new CommonResult(true, "readwrite");
 				}
 			}
 		} catch (SearchLibException e) {
@@ -98,11 +108,22 @@ public class ActionImpl extends CommonServicesImpl implements Action {
 
 	public static void online(Client client) throws SearchLibException,
 			URISyntaxException {
-		client.getIndex().setOnline(true);
+		client.setOnline(true);
 	}
 
 	public static void offline(Client client) throws SearchLibException,
 			URISyntaxException {
-		client.getIndex().setOnline(false);
+		client.setOnline(false);
 	}
+
+	public static void readOnly(Client client) throws SearchLibException,
+			URISyntaxException {
+		client.setReadWriteMode(IndexMode.READ_ONLY);
+	}
+
+	public static void readWrite(Client client) throws SearchLibException,
+			URISyntaxException {
+		client.setReadWriteMode(IndexMode.READ_WRITE);
+	}
+
 }

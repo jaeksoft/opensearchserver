@@ -54,7 +54,7 @@ public class ConfigurationController extends CommonController {
 		if (client == null)
 			return null;
 		List<IndexAbstract> list = new ArrayList<IndexAbstract>();
-		IndexAbstract index = client.getIndex();
+		IndexAbstract index = client.getIndexAbstract();
 		list.add(index);
 		return list;
 	}

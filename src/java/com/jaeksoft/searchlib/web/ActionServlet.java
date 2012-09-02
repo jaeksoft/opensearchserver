@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -55,42 +56,50 @@ public class ActionServlet extends AbstractServlet {
 			else if ("reload".equalsIgnoreCase(action)) {
 				client.reload();
 			} else if ("online".equalsIgnoreCase(action))
-				client.getIndex().setOnline(true);
+				client.setOnline(true);
 			else if ("offline".equalsIgnoreCase(action))
-				client.getIndex().setOnline(false);
+				client.setOnline(false);
+			else if ("readonly".equalsIgnoreCase(action))
+				client.setReadWriteMode(IndexMode.READ_ONLY);
+			else if ("readwrite".equalsIgnoreCase(action))
+				client.setReadWriteMode(IndexMode.READ_WRITE);
 			transaction.addXmlResponse("Status", "OK");
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
-	public static void optimize(URI uri, String indexName)
-			throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, "action=optimize"));
+	public static void optimize(URI uri, String indexName, String login,
+			String apikey) throws SearchLibException, URISyntaxException {
+		call(buildUri(uri, "/action", indexName, login, apikey,
+				"action=optimize"));
 	}
 
-	public static void reload(URI uri) throws SearchLibException,
-			URISyntaxException {
-		call(buildUri(uri, "/action", null, "action=reload"));
+	public static void reload(URI uri, String indexName, String login,
+			String apikey) throws SearchLibException, URISyntaxException {
+		call(buildUri(uri, "/action", indexName, login, apikey, "action=reload"));
 	}
 
-	public static void swap(URI uri, String indexName, long version,
-			boolean deleteOld) throws SearchLibException, URISyntaxException {
-		StringBuffer query = new StringBuffer("action=swap");
-		query.append("&version=");
-		query.append(version);
-		if (deleteOld)
-			query.append("&deleteOld");
-		call(buildUri(uri, "/action", indexName, query.toString()));
+	public static void online(URI uri, String indexName, String login,
+			String apikey) throws SearchLibException, URISyntaxException {
+		call(buildUri(uri, "/action", indexName, login, apikey, "action=online"));
 	}
 
-	public static void online(URI uri, String indexName)
-			throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, "action=online"));
+	public static void offline(URI uri, String indexName, String login,
+			String apikey) throws SearchLibException, URISyntaxException {
+		call(buildUri(uri, "/action", indexName, login, apikey,
+				"action=offline"));
 	}
 
-	public static void offline(URI uri, String indexName)
-			throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, "action=offline"));
+	public static void readOnly(URI uri, String indexName, String login,
+			String apikey) throws SearchLibException, URISyntaxException {
+		call(buildUri(uri, "/action", indexName, login, apikey,
+				"action=readonly"));
+	}
+
+	public static void readWrite(URI uri, String indexName, String login,
+			String apikey) throws SearchLibException, URISyntaxException {
+		call(buildUri(uri, "/action", indexName, login, apikey,
+				"action=readwrite"));
 	}
 }

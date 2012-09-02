@@ -57,15 +57,12 @@ public class IndexSingle extends IndexAbstract {
 
 	private volatile boolean online;
 
-	private volatile boolean readonly;
-
 	public IndexSingle(File configDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super(indexConfig);
 		online = true;
-		readonly = false;
 		if (indexConfig.getNativeOSSE()) {
 			reader = new ReaderNativeOSSE(configDir, indexConfig);
 			writer = new WriterNativeOSSE(configDir, indexConfig,
@@ -88,20 +85,28 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	private void checkOnline(boolean online) throws SearchLibException {
+		if (this.online != online)
+			throw new SearchLibException("Index is offline");
+	}
+
+	private void checkReadOnly(boolean readOnly) throws SearchLibException {
+		if (indexConfig.getReadWriteMode() == IndexMode.READ_ONLY)
+			throw new SearchLibException("Index is read only");
+	}
+
 	@Override
 	public void optimize() throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
+			checkReadOnly(false);
 			if (writer != null)
 				writer.optimize();
+			reloadNoLock();
 		} finally {
 			rwl.r.unlock();
 		}
-		reload();
 	}
 
 	@Override
@@ -119,12 +124,10 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public int deleteDocument(Schema schema, String uniqueField)
 			throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
+			checkReadOnly(false);
 			if (writer != null)
 				return writer.deleteDocument(schema, uniqueField);
 			else
@@ -137,12 +140,10 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
 			throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
+			checkReadOnly(false);
 			if (writer != null)
 				return writer.deleteDocuments(schema, uniqueFields);
 			else
@@ -154,14 +155,10 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public void deleteAll() throws SearchLibException {
-		if (!online) {
-			throw new SearchLibException("Index is offline");
-		}
-		if (readonly) {
-			throw new SearchLibException("Index is read only");
-		}
 		rwl.r.lock();
 		try {
+			checkOnline(true);
+			checkReadOnly(false);
 			if (writer != null)
 				writer.deleteAll();
 		} finally {
@@ -171,12 +168,10 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public int deleteDocuments(SearchRequest query) throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
+			checkReadOnly(false);
 			return writer.deleteDocuments(query);
 		} finally {
 			rwl.r.unlock();
@@ -186,10 +181,6 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate)
 			throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
 		rwl.r.lock();
 		try {
 			if (writer != null)
@@ -202,12 +193,10 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
+			checkReadOnly(false);
 			if (writer != null)
 				return writer.updateDocument(schema, document);
 			else
@@ -220,12 +209,10 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents) throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
+			checkReadOnly(false);
 			if (writer != null)
 				return writer.updateDocuments(schema, documents);
 			else
@@ -235,28 +222,28 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	private void reloadNoLock() throws SearchLibException {
+		if (reader != null)
+			reader.reload();
+	}
+
 	@Override
 	public void reload() throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
-		if (readonly)
-			throw new SearchLibException("Index is read only");
-		rwl.w.lock();
+		rwl.r.lock();
 		try {
-			if (reader != null)
-				reader.reload();
+			checkOnline(true);
+			reloadNoLock();
 		} finally {
-			rwl.w.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public AbstractResult<?> request(AbstractRequest request)
 			throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.request(request);
 			return null;
@@ -268,10 +255,9 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public String explain(AbstractRequest request, int docId, boolean bHtml)
 			throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.explain(request, docId, bHtml);
 			return null;
@@ -295,11 +281,11 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public IndexStatistics getStatistics() throws IOException {
-		if (!online)
-			throw new IOException("Index is offline");
+	public IndexStatistics getStatistics() throws IOException,
+			SearchLibException {
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.getStatistics();
 			return null;
@@ -315,10 +301,9 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public int getDocFreq(Term term) throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.getDocFreq(term);
 			return 0;
@@ -329,10 +314,9 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public TermEnum getTermEnum() throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.getTermEnum();
 			return null;
@@ -344,10 +328,9 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public TermEnum getTermEnum(String field, String term)
 			throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.getTermEnum(field, term);
 			return null;
@@ -358,11 +341,10 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException {
-		if (!online)
-			throw new IOException("Index is offline");
+			throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.getTermFreqVector(docId, field);
 			return null;
@@ -375,53 +357,78 @@ public class IndexSingle extends IndexAbstract {
 	public void push(URI dest) throws SearchLibException {
 		if (reader == null)
 			return;
-		boolean oldReadOnly;
-		rwl.w.lock();
-		try {
-			oldReadOnly = readonly;
-			readonly = true;
-		} finally {
-			rwl.w.unlock();
-		}
+		IndexMode oldMode = indexConfig.getReadWriteMode();
+		setReadWriteMode(IndexMode.READ_ONLY);
 		rwl.r.lock();
 		try {
 			reader.push(dest);
 		} finally {
 			rwl.r.unlock();
 		}
-		readonly = oldReadOnly;
+		setReadWriteMode(oldMode);
 	}
 
 	@Override
 	public boolean isOnline() {
-		return online;
+		rwl.r.lock();
+		try {
+			return online;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
-	public boolean isReadOnly() {
-		return readonly;
+	public IndexMode getReadWriteMode() {
+		rwl.r.lock();
+		try {
+			return indexConfig.getReadWriteMode();
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public void setOnline(boolean v) {
-		online = v;
+		rwl.w.lock();
+		try {
+			online = v;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
-	public void setReadOnly(boolean v) {
-		readonly = v;
+	public void setReadWriteMode(IndexMode mode) throws SearchLibException {
+		rwl.w.lock();
+		try {
+			checkOnline(true);
+			if (mode == indexConfig.getReadWriteMode())
+				return;
+			indexConfig.setReadWriteMode(mode);
+			reloadNoLock();
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
-	public long getVersion() {
-		if (reader == null)
-			return 0;
-		return reader.getVersion();
-	}
-
-	public SearchCache getSearchCache() {
+	public long getVersion() throws SearchLibException {
 		rwl.r.lock();
 		try {
+			checkOnline(true);
+			if (reader == null)
+				return 0;
+			return reader.getVersion();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public SearchCache getSearchCache() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
 			if (reader != null)
 				if (reader instanceof ReaderLocal)
 					return ((ReaderLocal) reader).getSearchCache();
@@ -431,9 +438,10 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public FilterCache getFilterCache() {
+	public FilterCache getFilterCache() throws SearchLibException {
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				if (reader instanceof ReaderLocal)
 					return ((ReaderLocal) reader).getFilterCache();
@@ -443,9 +451,10 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	public FieldCache getFieldCache() {
+	public FieldCache getFieldCache() throws SearchLibException {
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				if (reader instanceof ReaderLocal)
 					return ((ReaderLocal) reader).getFieldCache();
@@ -462,10 +471,9 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public Collection<?> getFieldNames() throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.getFieldNames();
 			return null;
@@ -476,10 +484,9 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public Query rewrite(Query query) throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.rewrite(query);
 			return null;
@@ -490,10 +497,9 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public MoreLikeThis getMoreLikeThis() throws SearchLibException {
-		if (!online)
-			throw new SearchLibException("Index is offline");
 		rwl.r.lock();
 		try {
+			checkOnline(true);
 			if (reader != null)
 				return reader.getMoreLikeThis();
 			return null;

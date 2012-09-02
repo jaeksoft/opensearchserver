@@ -54,7 +54,7 @@ public interface ReaderInterface {
 			throws SearchLibException;
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException;
+			throws IOException, SearchLibException;
 
 	public abstract Query rewrite(Query query) throws SearchLibException;
 
@@ -66,12 +66,13 @@ public interface ReaderInterface {
 	public String explain(AbstractRequest request, int docId, boolean bHtml)
 			throws SearchLibException;
 
-	public IndexStatistics getStatistics() throws IOException;
+	public IndexStatistics getStatistics() throws IOException,
+			SearchLibException;
 
 	public void reload() throws SearchLibException;
 
 	public void push(URI dest) throws SearchLibException;
 
-	public long getVersion();
+	public long getVersion() throws SearchLibException;
 
 }

@@ -88,7 +88,7 @@ public class TaskPullTerms extends TaskPullAbstract {
 		try {
 			ExecutionData executionData = new ExecutionData(properties, client);
 
-			termEnum = executionData.sourceClient.getIndex().getTermEnum(
+			termEnum = executionData.sourceClient.getTermEnum(
 					executionData.sourceField, "");
 			Term term = null;
 

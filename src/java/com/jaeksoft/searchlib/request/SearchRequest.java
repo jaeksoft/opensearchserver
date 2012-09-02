@@ -275,7 +275,8 @@ public class SearchRequest extends AbstractRequest implements
 			if (primitiveQuery != null)
 				return primitiveQuery;
 			getQuery();
-			primitiveQuery = config.getIndex().rewrite(snippetComplexQuery);
+			primitiveQuery = config.getIndexAbstract().rewrite(
+					snippetComplexQuery);
 			return primitiveQuery;
 		} finally {
 			rwl.w.unlock();

@@ -125,11 +125,11 @@ public class DeleteServlet extends AbstractServlet {
 		}
 	}
 
-	public static boolean delete(URI uri, String indexName, String uniqueField)
-			throws SearchLibException {
+	public static boolean delete(URI uri, String indexName, String login,
+			String apikey, String uniqueField) throws SearchLibException {
 		try {
-			XPathParser xpp = call(buildUri(uri, "/delete", indexName, "uniq="
-					+ uniqueField));
+			XPathParser xpp = call(buildUri(uri, "/delete", indexName, login,
+					apikey, "uniq=" + uniqueField));
 			return "OK".equals(xpp
 					.getNodeString("/response/entry[@key='Status'"));
 		} catch (IllegalStateException e) {
@@ -141,19 +141,20 @@ public class DeleteServlet extends AbstractServlet {
 		}
 	}
 
-	public static int delete(URI uri, String indexName,
-			Collection<String> uniqueFields) throws IOException,
+	public static int delete(URI uri, String indexName, String login,
+			String apikey, Collection<String> uniqueFields) throws IOException,
 			URISyntaxException {
-		String msg = sendObject(buildUri(uri, "/delete", indexName, null),
+		String msg = sendObject(
+				buildUri(uri, "/delete", indexName, login, apikey, null),
 				new DeleteRequest<String>(uniqueFields));
 		return Integer.parseInt(msg.trim());
 	}
 
-	public static boolean deleteDocument(URI uri, String indexName, int docId)
-			throws SearchLibException {
+	public static boolean deleteDocument(URI uri, String indexName,
+			String login, String apikey, int docId) throws SearchLibException {
 		try {
-			XPathParser xpp = call(buildUri(uri, "/delete", indexName, "id="
-					+ docId));
+			XPathParser xpp = call(buildUri(uri, "/delete", indexName, login,
+					apikey, "id=" + docId));
 			return "OK".equals(xpp
 					.getNodeString("/response/entry[@key='Status'"));
 		} catch (SearchLibException e) {
@@ -165,10 +166,11 @@ public class DeleteServlet extends AbstractServlet {
 		}
 	}
 
-	public static int deleteDocuments(URI uri, String indexName,
-			Collection<Integer> docIds) throws IOException, URISyntaxException {
+	public static int deleteDocuments(URI uri, String indexName, String login,
+			String apikey, Collection<Integer> docIds) throws IOException,
+			URISyntaxException {
 		String msg = sendObject(
-				buildUri(uri, "/delete", indexName, "byId=yes"),
+				buildUri(uri, "/delete", indexName, login, apikey, "byId=yes"),
 				new DeleteRequest<Integer>(docIds));
 		return Integer.parseInt(msg.trim());
 	}

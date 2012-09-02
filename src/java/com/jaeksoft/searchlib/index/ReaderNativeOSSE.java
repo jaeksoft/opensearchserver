@@ -46,6 +46,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	private Pointer index;
 
 	protected ReaderNativeOSSE(File configDir, IndexConfig indexConfig) {
+		super(indexConfig);
 		index = OsseLibrary.INSTANCE.index_new();
 	}
 

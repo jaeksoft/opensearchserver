@@ -134,12 +134,16 @@ public class ClientCatalog {
 		}
 	}
 
-	public static final long countAllDocuments() throws IOException {
+	public static final long countAllDocuments() throws IOException,
+			SearchLibException {
 		r.lock();
 		try {
 			long count = 0;
-			for (Client client : CLIENTS.values())
-				count += client.getIndex().getStatistics().getNumDocs();
+			for (Client client : CLIENTS.values()) {
+				if (client.isTrueReplicate())
+					continue;
+				count += client.getStatistics().getNumDocs();
+			}
 			return count;
 		} finally {
 			r.unlock();
@@ -413,7 +417,9 @@ public class ClientCatalog {
 		return new File(clientDir.getParentFile(), "._" + clientDir.getName());
 	}
 
-	public static void receive_init(Client client) throws IOException {
+	public static void receive_init(Client client) throws IOException,
+			SearchLibException {
+		ClientFactory.INSTANCE.properties.checkMaxStorageLimit();
 		File rootDir = getTempReceiveDir(client);
 		FileUtils.deleteDirectory(rootDir);
 		rootDir.mkdir();
@@ -430,8 +436,10 @@ public class ClientCatalog {
 			client.trash(trashDir);
 			getTempReceiveDir(client).renameTo(clientDir);
 			CLIENTS.remove(clientDir);
-			CLIENTS.put(clientDir,
-					ClientFactory.INSTANCE.newClient(clientDir, true, true));
+			Client newClient = ClientFactory.INSTANCE.newClient(clientDir,
+					true, true);
+			newClient.writeReplCheck();
+			CLIENTS.put(clientDir, newClient);
 			PushEvent.CLIENT_SWITCH.publish(webapp, client);
 		} finally {
 			w.unlock();

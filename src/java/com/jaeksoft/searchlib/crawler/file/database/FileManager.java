@@ -90,7 +90,7 @@ public class FileManager extends AbstractManager {
 		try {
 			if (optimize) {
 				fileDbClient.reload();
-				fileDbClient.getIndex().optimize();
+				fileDbClient.optimize();
 			}
 			targetClient.reload();
 		} finally {

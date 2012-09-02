@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.UniqueNameItem;
+import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -62,6 +63,8 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	private ReplicationType replicationType;
 
+	private IndexMode readWriteMode;
+
 	public final static String[] NOT_PUSHED_PATH = { "replication.xml",
 			"replication_old.xml", "jobs.xml", "jobs_old.xml", "report",
 			"statstore" };
@@ -74,6 +77,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		this.replicationMaster = replicationMaster;
 		replicationType = ReplicationType.MAIN_INDEX;
 		lastReplicationThread = null;
+		readWriteMode = IndexMode.READ_WRITE;
 	}
 
 	public ReplicationItem(ReplicationMaster replicationMaster) {
@@ -103,6 +107,8 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 			setApiKey(StringUtils.base64decode(encodedApiKey));
 		setReplicationType(ReplicationType.find(XPathParser.getAttributeString(
 				node, "replicationType")));
+		readWriteMode = IndexMode.find(XPathParser.getAttributeString(node,
+				"readWriteMode"));
 		updateName();
 	}
 
@@ -124,7 +130,8 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
 					"login", login, "apiKey", encodedApiKey, "replicationType",
-					replicationType.name());
+					replicationType.name(), "readWriteMode",
+					readWriteMode.name());
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -262,6 +269,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 			this.replicationType = item.replicationType;
 			setName(item.getName());
 			this.cachedUrl = null;
+			this.readWriteMode = item.readWriteMode;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -356,6 +364,17 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	/**
+	 * @return the setReadOnly
+	 */
+	public IndexMode getReadWriteMode() {
+		return readWriteMode;
+	}
+
+	public void setReadWriteMode(IndexMode mode) {
+		readWriteMode = mode;
 	}
 
 }

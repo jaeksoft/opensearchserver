@@ -33,17 +33,20 @@ import com.jaeksoft.searchlib.util.Md5Spliter;
 
 public abstract class WriterAbstract implements WriterInterface {
 
-	private Md5Spliter md5spliter = null;
+	final protected IndexConfig indexConfig;
+	final private Md5Spliter md5spliter;
 	private String keyField = null;
 	protected List<BeforeUpdateInterface> beforeUpdateList = null;
 	protected boolean optimizing;
 
 	protected WriterAbstract(IndexConfig indexConfig) {
+		this.indexConfig = indexConfig;
 		optimizing = false;
-		this.md5spliter = null;
 		this.keyField = indexConfig.getKeyField();
 		if (indexConfig.getKeyMd5RegExp() != null)
 			md5spliter = new Md5Spliter(indexConfig.getKeyMd5RegExp());
+		else
+			md5spliter = null;
 	}
 
 	protected boolean acceptDocument(IndexDocument document)

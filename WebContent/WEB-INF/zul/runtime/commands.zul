@@ -18,20 +18,47 @@
 	use="com.jaeksoft.searchlib.web.controller.runtime.CommandsController">
 	<grid>
 		<columns>
-			<column label="Command" align="right" hflex="min" />
+			<column label="Label" align="right" hflex="min" />
+			<column label="Command" align="center" hflex="min" />
 			<column label="Status" align="left" />
 		</columns>
 		<rows>
 			<row>
-				<button label="Reload" forward="onReload" />
+				<label value="Reload the index: " />
+				<button label="Reload" forward="onReload"
+					disabled="@{commands.offline}" />
 				<label />
 			</row>
 			<row>
-				<button label="Optimize" forward="onOptimize" />
+				<label value="Optimization: " />
+				<button label="Optimize" forward="onOptimize"
+					disabled="@{commands.offline}" />
 				<label value="@{commands.optimizeStatus}" />
 			</row>
 			<row>
-				<button label="Delete all" forward="onDeleteAll" />
+				<label value="Read/Write mode: " />
+				<cell>
+					<button label="Read only" forward="onReadOnly"
+						visible="@{commands.readWrite}" disabled="@{commands.offline}" />
+					<button label="Read/write" forward="onReadWrite"
+						visible="@{commands.readOnly}" disabled="@{commands.offline}" />
+				</cell>
+				<label value="@{commands.readOnlyStatus}" />
+			</row>
+			<row>
+				<label value="Offline/Online: " />
+				<cell>
+					<button label="Offline" forward="onOffline"
+						visible="@{commands.online}" />
+					<button label="Online" forward="onOnline"
+						visible="@{commands.offline}" />
+				</cell>
+				<label value="@{commands.onlineStatus}" />
+			</row>
+			<row>
+				<label value="Truncate: " />
+				<button label="Delete all" forward="onDeleteAll"
+					disabled="@{commands.offline}" />
 				<label value="@{commands.documentNumber}" />
 			</row>
 		</rows>

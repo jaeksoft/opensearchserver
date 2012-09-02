@@ -65,6 +65,8 @@
 			<auxheader align="center" label="Replication" colspan="2" />
 			<auxheader align="center" label="Opt."
 				tooltiptext="Optimization status" />
+			<auxheader align="center" label="Read"
+				tooltiptext="Read write mode" />
 			<auxheader align="center" label="Information" colspan="3" />
 			<auxheader align="center" label="Action" />
 		</auxhead>
@@ -85,6 +87,8 @@
 				tooltiptext="Number of running replication items" align="center" />
 			<listheader label="status" hflex="min"
 				tooltiptext="Optimization status" align="center" />
+			<listheader label="Mode" hflex="min"
+				tooltiptext="Read write mode" align="center" />
 			<listheader label="Doc(s)" align="right" hflex="min" />
 			<listheader label="Last modified" align="right" hflex="min" />
 			<listheader label="Size" align="right" hflex="min" />
@@ -110,6 +114,7 @@
 			<listcell
 				label="@{catalogitem.client.replicationList.set.size}" />
 			<listcell label="@{catalogitem.optimizationStatus}" />
+			<listcell label="@{catalogitem.client.readWriteMode}" />
 			<listcell tooltiptext="@{catalogitem.numDocs}"
 				label="@{catalogitem.numDocs,converter='com.jaeksoft.searchlib.web.converter.IntegerConverter'}" />
 			<listcell tooltiptext="@{catalogitem.lastModifiedFile}"

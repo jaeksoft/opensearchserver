@@ -37,5 +37,7 @@ public interface Action extends CommonServices {
 			@WebParam(name = "optimize") Boolean optimize,
 			@WebParam(name = "reload") Boolean reload,
 			@WebParam(name = "online") Boolean online,
-			@WebParam(name = "offline") Boolean offline);
+			@WebParam(name = "offline") Boolean offline,
+			@WebParam(name = "offline") Boolean readonly,
+			@WebParam(name = "offline") Boolean readwrite);
 }

@@ -58,14 +58,17 @@ public class TaskReplicationRun extends TaskAbstract {
 	@Override
 	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
 			throws SearchLibException {
-		ReplicationList replicationList = config.getReplicationList();
-		List<String> nameList = replicationList.getNameList();
-		if (nameList == null)
-			return null;
-		String[] values = new String[nameList.size()];
-		for (int i = 0; i < values.length; i++)
-			values[i] = nameList.get(i);
-		return values;
+		if (propertyDef == propReplicationName) {
+			ReplicationList replicationList = config.getReplicationList();
+			List<String> nameList = replicationList.getNameList();
+			if (nameList == null)
+				return null;
+			String[] values = new String[nameList.size()];
+			for (int i = 0; i < values.length; i++)
+				values[i] = nameList.get(i);
+			return values;
+		}
+		return null;
 	}
 
 	@Override

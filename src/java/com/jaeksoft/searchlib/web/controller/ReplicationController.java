@@ -35,6 +35,7 @@ import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.replication.ReplicationType;
@@ -162,5 +163,9 @@ public class ReplicationController extends CommonController {
 
 	public ReplicationType[] getTypeValues() {
 		return ReplicationType.values();
+	}
+
+	public IndexMode[] getReadWriteModeList() {
+		return IndexMode.values();
 	}
 }

@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -70,6 +71,8 @@ public class ClientFactory implements PropertyItemListener {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		}
 	}

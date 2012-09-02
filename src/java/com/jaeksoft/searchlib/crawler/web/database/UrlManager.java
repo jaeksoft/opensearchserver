@@ -328,7 +328,7 @@ public class UrlManager extends AbstractManager {
 
 	public long getSize() throws SearchLibException {
 		try {
-			return urlDbClient.getIndex().getStatistics().getNumDocs();
+			return urlDbClient.getStatistics().getNumDocs();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
@@ -527,7 +527,7 @@ public class UrlManager extends AbstractManager {
 		try {
 			if (optimize) {
 				urlDbClient.reload();
-				urlDbClient.getIndex().optimize();
+				urlDbClient.optimize();
 			}
 			targetClient.reload();
 		} finally {

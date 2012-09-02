@@ -68,8 +68,8 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 		return state.toString();
 	}
 
-	public int getIndexNumDocs() throws IOException {
-		return autoCompClient.getIndex().getStatistics().getNumDocs();
+	public int getIndexNumDocs() throws IOException, SearchLibException {
+		return autoCompClient.getStatistics().getNumDocs();
 	}
 
 	final private int indexBuffer(int docCount, List<IndexDocument> buffer)
@@ -100,7 +100,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 		if (fieldName == null)
 			return;
 
-		termEnum = sourceClient.getIndex().getTermEnum(fieldName, "");
+		termEnum = sourceClient.getTermEnum(fieldName, "");
 		Term term = null;
 		List<IndexDocument> buffer = new ArrayList<IndexDocument>();
 		int docCount = 0;

@@ -144,7 +144,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			if (mltQuery != null)
 				return mltQuery;
 			Config config = getConfig();
-			IndexAbstract index = config.getIndex();
+			IndexAbstract index = config.getIndexAbstract();
 			MoreLikeThis mlt = index.getMoreLikeThis();
 			SearchRequest searchRequest = new SearchRequest(config);
 			searchRequest.setRows(1);
