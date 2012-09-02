@@ -1,0 +1,100 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="spellcheck"
+	use="com.jaeksoft.searchlib.web.controller.query.SpellCheckController">
+	<grid>
+		<columns>
+			<column hflex="min" />
+			<column />
+		</columns>
+		<rows>
+			<row>
+				<label value="Query" />
+				<textbox value="@{spellcheck.request.queryString}" cols="50" />
+			</row>
+			<row>
+				<label>Language:</label>
+				<listbox mold="select"
+					selectedItem="@{spellcheck.request.lang}"
+					model="@{spellcheck.languageEnum}">
+					<listitem self="@{each=langEnum}"
+						label="@{langEnum.name}" value="@{langEnum}" />
+				</listbox>
+			</row>
+			<row>
+				<label value="Fields" />
+				<listbox
+					model="@{spellcheck.request.spellCheckFieldList.list}"
+					selectedItem="@{spellcheck.selected}">
+					<listhead>
+						<listheader label="Field" />
+						<listheader label="Minimal score" />
+						<listheader label="Number of suggestions" />
+						<listheader label="Algorithm" />
+						<listheader />
+					</listhead>
+					<auxhead visible="@{spellcheck.fieldLeft}">
+						<auxheader>
+							<listbox mold="select"
+								selectedItem="@{spellcheck.current.name}"
+								model="@{spellcheck.spellCheckFieldLeft}">
+								<listitem self="@{each=spellCheckField}"
+									label="@{spellCheckField}" />
+							</listbox>
+						</auxheader>
+						<auxheader>
+							<doublebox format="0.00"
+								value="@{spellcheck.current.minScore}" />
+						</auxheader>
+						<auxheader>
+							<doublebox
+								value="@{spellcheck.current.suggestionNumber}" />
+						</auxheader>
+						<auxheader>
+							<listbox mold="select"
+								selectedItem="@{spellcheck.current.stringDistance}"
+								model="@{spellcheck.stringDistanceList}" />
+						</auxheader>
+						<auxheader>
+							<button visible="@{spellcheck.noSelection}"
+								label="add" forward="onFieldAdd" />
+							<hbox visible="@{spellcheck.selection}">
+								<button label="Save"
+									forward="onFieldAdd" />
+								<button label="Cancel"
+									forward="onCancel" />
+							</hbox>
+						</auxheader>
+					</auxhead>
+					<listitem self="@{each='item'}">
+						<listcell label="@{item.name}" />
+						<listcell label="@{item.minScore}" />
+						<listcell label="@{item.suggestionNumber}" />
+						<listcell label="@{item.stringDistance}" />
+						<listcell>
+							<button image="images/action_delete.png"
+								forward="onFieldRemove">
+								<custom-attributes
+									scFieldItem="@{item}" />
+							</button>
+						</listcell>
+					</listitem>
+				</listbox>
+			</row>
+		</rows>
+	</grid>
+</window>

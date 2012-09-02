@@ -1,0 +1,144 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="searchPath"
+	use="com.jaeksoft.searchlib.web.controller.crawler.file.FileController">
+
+	<listbox model="@{searchPath.fileList}" multiple="false"
+		checkmark="false" sizedByContent="true">
+		<listhead sizable="true">
+			<listheader label="File" />
+			<listheader label="Index Date" />
+			<listheader label="Modified date" />
+			<listheader label="Type" />
+			<listheader label="Extension" />
+			<listheader label="Size" />
+			<listheader label="Lang" />
+			<listheader label="Fetch" />
+			<listheader label="Parsing" />
+			<listheader label="Index" />
+			<listheader label="Repository" />
+			<listheader hflex="true" />
+		</listhead>
+		<auxhead>
+			<auxheader>
+				<textbox width="90%" value="@{searchPath.fileName}" />
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<datebox compact="true"
+						value="@{searchPath.crawlDateStart}" />
+					<datebox compact="true"
+						value="@{searchPath.crawlDateEnd}" />
+				</vbox>
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<datebox compact="true"
+						value="@{searchPath.dateModifiedStart}" />
+					<datebox compact="true"
+						value="@{searchPath.dateModifiedEnd}" />
+				</vbox>
+			</auxheader>
+			<auxheader>
+				<listbox mold="select" width="100%"
+					model="@{searchPath.fileTypeList}"
+					selectedItem="@{searchPath.fileType}" />
+			</auxheader>
+			<auxheader />
+			<auxheader />
+			<auxheader>
+				<textbox cols="4" value="@{searchPath.lang}" />
+			</auxheader>
+
+			<auxheader>
+				<listbox mold="select" width="100%"
+					model="@{searchPath.fetchStatusList}"
+					selectedItem="@{searchPath.fetchStatus}" />
+			</auxheader>
+
+			<auxheader>
+				<listbox mold="select" width="100%"
+					model="@{searchPath.parserStatusList}"
+					selectedItem="@{searchPath.parserStatus}" />
+			</auxheader>
+			<auxheader>
+				<listbox mold="select" width="100%"
+					model="@{searchPath.indexStatusList}"
+					selectedItem="@{searchPath.indexStatus}" />
+			</auxheader>
+			<auxheader>
+				<listbox mold="select" width="100%"
+					model="@{searchPath.repositoryList}"
+					selectedItem="@{searchPath.repository}" />
+			</auxheader>
+			<auxheader />
+		</auxhead>
+		<auxhead>
+			<auxheader colspan="12" align="left">
+				<button label="Search" forward="onSearch" />
+			</auxheader>
+		</auxhead>
+		<listitem self="@{each='file'}">
+			<listcell label="@{file.fileName}"
+				tooltiptext="@{file.uri}" />
+			<listcell
+				label="@{file.crawlDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+			<listcell
+				label="@{file.fileSystemDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
+			<listcell label="@{file.fileType}" />
+			<listcell label="@{file.fileExtension}" />
+			<listcell label="@{file.humanSize}" />
+			<listcell label="@{file.lang}" />
+			<listcell label="@{file.fetchStatus}" />
+			<listcell label="@{file.ParserStatus}" />
+			<listcell label="@{file.IndexStatus}" />
+			<listcell label="@{file.repository}" />
+			<listcell />
+		</listitem>
+		<listfoot>
+			<listfooter span="12">
+				<paging id="paging" detailed="true"
+					totalSize="@{searchPath.totalSize}"
+					pageSize="@{searchPath.pageSize}"
+					activePage="@{searchPath.activePage}" />
+				<div id="taskLogInfo">
+					<label value="Line per page: " />
+					<intbox cols="3"
+						constraint="no negative, no zero, no negative"
+						value="@{searchPath.pageSize}" forward="onChange=onSearch" />
+					<space width="50px" />
+					<listbox mold="select" id="actionListbox">
+						<listitem label="Select an action"
+							value="nothing" selected="true" />
+						<listitem label="Update to Unfetched (re-crawl)"
+							value="setToUnfetched" />
+						<listitem label="Delete" value="delete" />
+						<listitem label="Optimize database"
+							value="optimize" />
+					</listbox>
+					<button label="Go" forward="onGo"
+						disabled="@{searchPath.fileManager.currentTaskLog}" />
+					<label
+						visible="@{searchPath.fileManager.currentTaskLog}"
+						value="@{searchUrl.fileManager.currentTaskLog.info}" />
+					<timer delay="5000" repeats="true"
+						onTimer="searchPath.onTimer()" running="@{searchPath.refresh}" />
+				</div>
+			</listfooter>
+		</listfoot>
+	</listbox>
+</window>

@@ -1,0 +1,56 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="boost"
+	use="com.jaeksoft.searchlib.web.controller.query.BoostQueriesController"
+	border="normal">
+	<listbox model="@{boost.request.boostingQueries}" width="100%"
+		selectedItem="@{boost.selectedBoostQuery}" mold="paging"
+		pageSize="10">
+		<listhead>
+			<listheader label="Query" hflex="true" />
+			<listheader label="Boost" />
+			<listheader label="Action" />
+		</listhead>
+		<auxhead>
+			<auxheader>
+				<textbox value="@{boost.currentBoostQuery.query}"
+					width="90%" />
+			</auxheader>
+			<auxheader>
+				<doublebox value="@{boost.currentBoostQuery.boost}"
+					constraint="no empty" />
+			</auxheader>
+			<auxheader>
+				<button visible="@{boost.notSelected}" label="add"
+					forward="onSave" />
+				<hbox visible="@{boost.selected}">
+					<button label="save" forward="onSave" />
+					<button label="cancel" forward="onCancel" />
+				</hbox>
+			</auxheader>
+		</auxhead>
+		<listitem self="@{each='boostQuery'}">
+			<listcell label="@{boostQuery.query}" />
+			<listcell label="@{boostQuery.boost}" />
+			<listcell>
+				<button label="Remove" forward="onRemove">
+					<custom-attributes boostQuery="@{boostQuery}" />
+				</button>
+			</listcell>
+		</listitem>
+	</listbox>
+</window>
