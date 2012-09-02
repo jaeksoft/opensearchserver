@@ -27,6 +27,8 @@
 	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url">
 		<cssStyle>font-size:medium;</cssStyle>
 	</field>
+	<facetStyle>float:left;width: 180px;</facetStyle>
+	<resultStyle>padding-left:130px;</resultStyle>
 	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" />
 	<field fieldName="url" fieldType="FIELD" urlFieldName="">
 		<cssStyle>color: #0E774A;</cssStyle>

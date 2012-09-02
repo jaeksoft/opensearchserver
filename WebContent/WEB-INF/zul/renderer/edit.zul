@@ -31,8 +31,9 @@
 					</row>
 					<row>
 						<label value="Request name: " />
-						<combobox model="@{renderer.requestList}" onChange="renderer.reloadPage()"
-							width="200px" value="@{renderer.currentRenderer.requestName}" />
+						<combobox model="@{renderer.requestList}"
+							onChange="renderer.reloadPage()" width="200px"
+							value="@{renderer.currentRenderer.requestName}" />
 					</row>
 					<row>
 						<label value="Search button label: " />
@@ -70,15 +71,13 @@
 							multiline="true" rows="5" />
 					</row>
 					<row>
-						<label
-							value="Autocomplete List CSS style: " />
+						<label value="Autocomplete List CSS style: " />
 						<textbox
 							value="@{renderer.currentRenderer.autocompleteListStyle}"
 							cols="100" multiline="true" rows="5" />
 					</row>
 					<row>
-						<label
-							value="Autocomplete Link CSS style: " />
+						<label value="Autocomplete Link CSS style: " />
 						<textbox
 							value="@{renderer.currentRenderer.autocompleteLinkStyle}"
 							cols="100" multiline="true" rows="5" />
@@ -90,36 +89,44 @@
 							value="@{renderer.currentRenderer.autocompleteLinkHoverStyle}"
 							cols="100" multiline="true" rows="5" />
 					</row>
-						<row>
-						<label
-							value="AnchorLink: " />
+					<row>
+						<label value="AnchorLink: " />
 						<textbox
-							value="@{renderer.currentRenderer.alink}"
-							cols="100" multiline="true" rows="5" />
+							value="@{renderer.currentRenderer.alink}" cols="100"
+							multiline="true" rows="5" />
 					</row>
-					 
-						<row>
-						<label
-							value="AnchorLink Visited: " />
+
+					<row>
+						<label value="AnchorLink Visited: " />
 						<textbox
-							value="@{renderer.currentRenderer.avisited}"
-							cols="100" multiline="true" rows="5" />
-					 
+							value="@{renderer.currentRenderer.avisited}" cols="100"
+							multiline="true" rows="5" />
+
 					</row>
-						<row>
-						<label
-							value="AnchorLink Active: " />
+					<row>
+						<label value="AnchorLink Active: " />
 						<textbox
-							value="@{renderer.currentRenderer.aactive}"
-							cols="100" multiline="true" rows="5" />
-				 
+							value="@{renderer.currentRenderer.aactive}" cols="100"
+							multiline="true" rows="5" />
+
 					</row>
-						<row>
-						<label
-							value="AnchorLink Hover: " />
+					<row>
+						<label value="AnchorLink Hover: " />
 						<textbox
-							value="@{renderer.currentRenderer.ahover}"
-							cols="100" multiline="true" rows="5" />
+							value="@{renderer.currentRenderer.ahover}" cols="100"
+							multiline="true" rows="5" />
+					</row>
+					<row>
+						<label value="Facet Field Div Style: " />
+						<textbox
+							value="@{renderer.currentRenderer.facetStyle}" cols="100"
+							multiline="true" rows="5" />
+					</row>
+					<row>
+						<label value="Result Div Style: " />
+						<textbox
+							value="@{renderer.currentRenderer.resultStyle}" cols="100"
+							multiline="true" rows="5" />
 					</row>
 					<row>
 						<label value="Fields: " />

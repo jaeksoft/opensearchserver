@@ -64,6 +64,7 @@ public class RendererServlet extends AbstractServlet {
 					.getNewRequest(renderer.getRequestName());
 			if (request == null)
 				throw new SearchLibException("No request has been found");
+			request.setFromServlet(transaction);
 			if (query != null && query.length() > 0) {
 				request.setQueryString(query);
 				Integer page = transaction.getParameterInteger("page");

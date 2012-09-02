@@ -61,6 +61,8 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_AVISITED = "avisited";
 	private final static String RENDERER_ITEM_NODE_AACTIVE = "aactive";
 	private final static String RENDERER_ITEM_NODE_AHOVER = "ahover";
+	private final static String RENDERER_ITEM_NODE_FACET_STYLE = "facetStyle";
+	private final static String RENDERER_ITEM_NODE_RESULT_STYLE = "resultStyle";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -93,6 +95,10 @@ public class Renderer implements Comparable<Renderer> {
 	private String aactive;
 
 	private String ahover;
+
+	private String facetStyle;
+
+	private String resultStyle;
 
 	private List<RendererField> fields;
 
@@ -148,6 +154,10 @@ public class Renderer implements Comparable<Renderer> {
 		setAlink(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_ALINK));
 		setAvisited(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_AVISITED));
+		setFacetStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_FACET_STYLE));
+		setResultStyle(xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_RESULT_STYLE));
 		NodeList nodeList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeList.getLength(); i++)
@@ -179,6 +189,8 @@ public class Renderer implements Comparable<Renderer> {
 				target.ahover = ahover;
 				target.alink = alink;
 				target.avisited = avisited;
+				target.facetStyle = facetStyle;
+				target.resultStyle = resultStyle;
 				target.fields.clear();
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
@@ -450,6 +462,22 @@ public class Renderer implements Comparable<Renderer> {
 		return searchButtonLabel;
 	}
 
+	public String getFacetStyle() {
+		return facetStyle;
+	}
+
+	public String getResultStyle() {
+		return resultStyle;
+	}
+
+	public void setResultStyle(String resultStyle) {
+		this.resultStyle = resultStyle;
+	}
+
+	public void setFacetStyle(String facetStyle) {
+		this.facetStyle = facetStyle;
+	}
+
 	@Override
 	public final int compareTo(Renderer o) {
 		return name.compareTo(o.name);
@@ -482,6 +510,10 @@ public class Renderer implements Comparable<Renderer> {
 			xmlWriter.writeSubTextNodeIfAny(
 					RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE,
 					autocompleteLinkHoverStyle);
+			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FACET_STYLE,
+					facetStyle);
+			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_RESULT_STYLE,
+					resultStyle);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
 			xmlWriter.endElement();
