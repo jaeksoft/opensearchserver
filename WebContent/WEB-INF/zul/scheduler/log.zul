@@ -55,7 +55,7 @@
 								<listcell>
 									<label value="@{taskLogProp.name}" />
 									:
-									<label value="@{taskLogProp.value}" />
+									<label value="@{taskLogProp.previewValue}" />
 								</listcell>
 							</listitem>
 						</listbox>
