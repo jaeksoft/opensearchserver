@@ -22,7 +22,11 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.kenai.jffi.PageManager;
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.pages.PageManager;
+import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.spaces.Space;
+import com.atlassian.confluence.spaces.SpaceManager;
 
 public class OpenSearchServerConfluencePluginManager {
 
@@ -106,7 +110,7 @@ public class OpenSearchServerConfluencePluginManager {
 			HttpPut put = new HttpPut(url);
 			put.setEntity(new FileEntity(tempFile.getAbsoluteFile(), "text/xml"));
 			httpClient.execute(put);
-			tempFile.deleteOnExit();
+			// tempFile.deleteOnExit();
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

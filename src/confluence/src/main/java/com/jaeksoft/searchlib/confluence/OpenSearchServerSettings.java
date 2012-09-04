@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.confluence.setup.settings.SettingsManager;
+
 public class OpenSearchServerSettings implements Serializable {
 
 	/**
@@ -31,12 +33,11 @@ public class OpenSearchServerSettings implements Serializable {
 	private final static String OPENSEARCHSERVER_CONFLUENCE_SETTINGS_KEY = "com.jaeksoft.opensearchserver.confluence";
 
 	public void saveSettings(SettingsManager settingsManager) {
-		settingsManager.updateGlobalSettings(
+		settingsManager.updatePluginSettings(
 				OPENSEARCHSERVER_CONFLUENCE_SETTINGS_KEY, this);
 	}
 
-	public static OpenSearchServerSettings getSettings(
-			SettingsManager settingsManager) {
+	public OpenSearchServerSettings getSettings(SettingsManager settingsManager) {
 		return (OpenSearchServerSettings) settingsManager
 				.getPluginSettings(OPENSEARCHSERVER_CONFLUENCE_SETTINGS_KEY);
 	}
