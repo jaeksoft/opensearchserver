@@ -22,11 +22,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.atlassian.confluence.pages.Page;
-import com.atlassian.confluence.pages.PageManager;
-import com.atlassian.confluence.setup.settings.SettingsManager;
-import com.atlassian.confluence.spaces.Space;
-import com.atlassian.confluence.spaces.SpaceManager;
+import com.kenai.jffi.PageManager;
 
 public class OpenSearchServerConfluencePluginManager {
 
@@ -101,11 +97,11 @@ public class OpenSearchServerConfluencePluginManager {
 		}
 	}
 
-	public void update(String serverurl, String indexname, String username,
-			String key) {
+	public void update(OpenSearchServerSettings settings) {
 		try {
-			String url = serverurl + "/update?use=" + indexname + "&login="
-					+ username + "&key=" + key;
+			String url = settings.getServerurl() + "/update?use="
+					+ settings.getIndexname() + "&login="
+					+ settings.getUsername() + "&key=" + settings.getKey();
 			DefaultHttpClient httpClient = new DefaultHttpClient();
 			HttpPut put = new HttpPut(url);
 			put.setEntity(new FileEntity(tempFile.getAbsoluteFile(), "text/xml"));
