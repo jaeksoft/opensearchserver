@@ -28,6 +28,19 @@ public class OpenSearchServerSettings implements Serializable {
 		key = request.getParameter("key");
 	}
 
+	private final static String OPENSEARCHSERVER_CONFLUENCE_SETTINGS_KEY = "com.jaeksoft.opensearchserver.confluence";
+
+	public void saveSettings(SettingsManager settingsManager) {
+		settingsManager.updateGlobalSettings(
+				OPENSEARCHSERVER_CONFLUENCE_SETTINGS_KEY, this);
+	}
+
+	public static OpenSearchServerSettings getSettings(
+			SettingsManager settingsManager) {
+		return (OpenSearchServerSettings) settingsManager
+				.getPluginSettings(OPENSEARCHSERVER_CONFLUENCE_SETTINGS_KEY);
+	}
+
 	/**
 	 * @return the action
 	 */

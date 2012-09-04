@@ -25,8 +25,7 @@ public class OpenSearchServerAction extends ConfluenceActionSupport {
 					.getComponent("pageManager");
 			SettingsManager settingsManager = (SettingsManager) ContainerManager
 					.getComponent("settingsManager");
-			settingsManager.updateGlobalSettings(
-					"com.jaeksoft.opensearchserver.confluence", settings);
+			settings.saveSettings(settingsManager);
 			settingsManager.OpenSearchServerConfluencePluginManager manager = new OpenSearchServerConfluencePluginManager(
 					spaceManager, pageManager, settingsManager);
 			manager.createIndexFile();
