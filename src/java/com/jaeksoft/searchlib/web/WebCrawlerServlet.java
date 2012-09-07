@@ -50,6 +50,9 @@ public class WebCrawlerServlet extends AbstractServlet {
 
 		String action = transaction.getParameterString("action");
 
+		if (action == null) {
+			action = transaction.getParameterString("cmd");
+		}
 		int timeOut = transaction.getParameterInteger("timeout", 1200);
 
 		if (Action.STOP.name().equalsIgnoreCase(action)) {
