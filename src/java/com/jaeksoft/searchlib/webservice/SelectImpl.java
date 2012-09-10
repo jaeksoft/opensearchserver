@@ -70,7 +70,7 @@ public class SelectImpl extends CommonServicesImpl implements Select {
 			String mltStopWords, List<String> customLogs, boolean log,
 			boolean delete) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				SearchRequest searchRequest = getSearchRequest(client, q, qt,

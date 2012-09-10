@@ -48,7 +48,7 @@ public class DeleteImpl extends CommonServicesImpl implements Delete {
 	public int delete(String q, String use, String login, String key,
 			List<String> uniqueDocs) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				if (q != null && !q.equals(""))

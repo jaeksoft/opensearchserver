@@ -23,6 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -45,7 +46,7 @@ public class ScreenshotImpl extends CommonServicesImpl implements Screenshot {
 	public String screenshot(String use, String login, String key,
 			ScreenshotActionEnum action, URL url) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			if (isLogged(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				ScreenshotManager screenshotManager = client
@@ -71,6 +72,8 @@ public class ScreenshotImpl extends CommonServicesImpl implements Screenshot {
 		} catch (NamingException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
 		return message;

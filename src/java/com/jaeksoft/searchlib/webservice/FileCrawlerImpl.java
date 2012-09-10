@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
+import java.io.IOException;
+
 import javax.naming.NamingException;
 import javax.xml.ws.WebServiceException;
 
@@ -40,7 +42,7 @@ public class FileCrawlerImpl extends WebCrawlerImpl implements FileCrawler {
 	public CommonResult fileCrawler(String use, String login, String key,
 			WebCrawlerActionEnum action, int timeOut) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			if (timeOut == 0)
 				timeOut = 1200;
 			if (isLoggedWebStartStop(use, login, key)) {
@@ -53,6 +55,8 @@ public class FileCrawlerImpl extends WebCrawlerImpl implements FileCrawler {
 		} catch (NamingException e) {
 			new WebServiceException(e);
 		} catch (InterruptedException e) {
+			new WebServiceException(e);
+		} catch (IOException e) {
 			new WebServiceException(e);
 		}
 		return new CommonResult(false, "Something went Wrong");

@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
+import java.io.IOException;
+
 import javax.naming.NamingException;
 import javax.xml.ws.WebServiceException;
 
@@ -45,7 +47,7 @@ public class FilePatternImpl extends CommonServicesImpl implements FilePattern {
 			String username, String password, String domain, String host) {
 		String message = null;
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			if (isLogged(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				FilePathItem filePathItem = new FilePathItem(client);
@@ -69,6 +71,8 @@ public class FilePatternImpl extends CommonServicesImpl implements FilePattern {
 		} catch (NamingException e) {
 			new WebServiceException(e);
 		} catch (InterruptedException e) {
+			new WebServiceException(e);
+		} catch (IOException e) {
 			new WebServiceException(e);
 		}
 		if (message.trim() != null)

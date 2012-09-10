@@ -44,7 +44,7 @@ public class ActionImpl extends CommonServicesImpl implements Action {
 			Boolean optimize, Boolean reload, Boolean online, Boolean offline,
 			Boolean readonly, Boolean readwrite) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			if (isLogged(use, login, key)) {
 
 				Client client = ClientCatalog.getClient(use);

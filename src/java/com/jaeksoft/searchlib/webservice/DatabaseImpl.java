@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
+import java.io.IOException;
+
 import javax.naming.NamingException;
 import javax.xml.ws.WebServiceException;
 
@@ -40,7 +42,7 @@ public class DatabaseImpl extends CommonServicesImpl implements Database {
 	public Long database(String use, String login, String key,
 			String databaseName) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = ClientCatalog.getClient(use);
 			Long databaseIndexedCount = null;
 			if (isLogged(use, login, key)) {
@@ -67,6 +69,8 @@ public class DatabaseImpl extends CommonServicesImpl implements Database {
 		} catch (NamingException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
 

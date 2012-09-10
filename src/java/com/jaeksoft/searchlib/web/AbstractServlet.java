@@ -83,7 +83,7 @@ public abstract class AbstractServlet extends HttpServlet {
 				method, response);
 
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			serverURL = getCurrentServerURL(request);
 			doRequest(transaction);
 		} catch (Exception e) {

@@ -49,7 +49,7 @@ public class UpdateImpl extends CommonServicesImpl implements Update {
 	public CommonResult update(String use, String login, String key,
 			List<Document> updateDocuments) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			if (isLogged(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				updateDocCount = updateDocument(client, updateDocuments);

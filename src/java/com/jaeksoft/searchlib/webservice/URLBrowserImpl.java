@@ -59,7 +59,7 @@ public class URLBrowserImpl extends CommonServicesImpl implements URLBrowser {
 		File file;
 		byte[] byteArray = null;
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				file = client.getUrlManager().exportURLs(
@@ -88,7 +88,7 @@ public class URLBrowserImpl extends CommonServicesImpl implements URLBrowser {
 		File file;
 		byte[] byteArray = null;
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = ClientCatalog.getClient(use);
 			if (isLogged(use, login, key)) {
 				file = client.getUrlManager().exportSiteMap(

@@ -31,11 +31,13 @@ import java.net.URISyntaxException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Mailer;
 import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.StartStopListener;
@@ -53,6 +55,14 @@ public class InstanceProperties {
 	private final int maxApiRate;
 
 	private final int minApiDelay;
+
+	private final int requestPerMonth;
+
+	private int requestPerMonthCount;
+
+	private long lastTimeRequestPerMonthStore;
+
+	private final File requestperMonthFile;
 
 	private long nextApiTime;
 
@@ -76,6 +86,8 @@ public class InstanceProperties {
 
 	private final static String LIMIT_MAX_API_RATE = "maxApiRate";
 
+	private final static String LIMIT_REQUEST_PER_MONTH = "requestPerMonth";
+
 	private final static String MAILER_URL = "mailerUrl";
 
 	private final static String MAILER_FROM_EMAIL = "mailerFromEmail";
@@ -90,7 +102,16 @@ public class InstanceProperties {
 		nextApiTime = System.currentTimeMillis();
 		countApiCall = 0;
 		countApiWait = 0;
+		lastTimeRequestPerMonthStore = 0;
+		requestPerMonthCount = 0;
 		if (xmlFile.exists()) {
+			requestperMonthFile = new File(xmlFile.getParent(),
+					"requestPerMonth.txt");
+			if (requestperMonthFile.exists()) {
+				String s = FileUtils.readFileToString(requestperMonthFile);
+				if (s != null)
+					requestPerMonthCount = Integer.parseInt(s);
+			}
 			XPathParser xpp = new XPathParser(xmlFile);
 			Node node = xpp.getNode(LIMIT_NODEPATH);
 			if (node != null) {
@@ -106,6 +127,8 @@ public class InstanceProperties {
 						LIMIT_MAX_STORAGE_ATTR);
 				maxApiRate = XPathParser.getAttributeValue(node,
 						LIMIT_MAX_API_RATE);
+				requestPerMonth = XPathParser.getAttributeValue(node,
+						LIMIT_REQUEST_PER_MONTH);
 				minApiDelay = maxApiRate != 0 ? 1000 / maxApiRate : 0;
 				mailer = new Mailer(XPathParser.getAttributeString(node,
 						MAILER_URL), XPathParser.getAttributeString(node,
@@ -113,7 +136,8 @@ public class InstanceProperties {
 						node, MAILER_FROM_NAME));
 				return;
 			}
-		}
+		} else
+			requestperMonthFile = null;
 		maxDocumentLimit = 0;
 		chroot = false;
 		minCrawlerDelay = 0;
@@ -121,6 +145,7 @@ public class InstanceProperties {
 		maxStorage = 0;
 		maxApiRate = 0;
 		minApiDelay = 0;
+		requestPerMonth = 0;
 		mailer = null;
 	}
 
@@ -209,7 +234,7 @@ public class InstanceProperties {
 						+ StringUtils.humanBytes(maxStorage) + ")");
 	}
 
-	public final void checkApiRate() throws InterruptedException {
+	protected final void checkApiRate() throws InterruptedException {
 		if (minApiDelay == 0)
 			return;
 		countApiCall++;
@@ -224,6 +249,56 @@ public class InstanceProperties {
 			Thread.sleep(sleep);
 			countApiWait++;
 		}
+	}
+
+	private final void storeRequestPerMonthCount(long t) throws IOException {
+		synchronized (requestperMonthFile) {
+			FileUtils.write(requestperMonthFile,
+					Integer.toString(getRequestPerMonthCount()));
+			lastTimeRequestPerMonthStore = t + 10000;
+		}
+	}
+
+	private ReadWriteLock requestPerMonthLock = new ReadWriteLock();
+
+	private final void incRequestPerMonth() {
+		requestPerMonthLock.w.lock();
+		try {
+			requestPerMonthCount++;
+		} finally {
+			requestPerMonthLock.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the requestPerMonthCount
+	 */
+	public int getRequestPerMonthCount() {
+		requestPerMonthLock.r.lock();
+		try {
+			return requestPerMonthCount;
+		} finally {
+			requestPerMonthLock.r.unlock();
+		}
+	}
+
+	public int getRequestPerMonth() {
+		return requestPerMonth;
+	}
+
+	protected final void checkApiRequestPerMonth() throws IOException {
+		if (requestPerMonth == 0)
+			return;
+		long t = System.currentTimeMillis();
+		incRequestPerMonth();
+		if (t < lastTimeRequestPerMonthStore)
+			return;
+		storeRequestPerMonthCount(t);
+	}
+
+	public final void checkApi() throws InterruptedException, IOException {
+		checkApiRate();
+		checkApiRequestPerMonth();
 	}
 
 	public final float getApiWaitRate() {
@@ -254,4 +329,5 @@ public class InstanceProperties {
 	public Mailer getMailer() {
 		return mailer;
 	}
+
 }

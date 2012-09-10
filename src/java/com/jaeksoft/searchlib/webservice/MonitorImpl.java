@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
+import java.io.IOException;
+
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -39,7 +41,7 @@ public class MonitorImpl extends CommonServicesImpl implements Monitor {
 	@Override
 	public MonitorResult monitor(String login, String key) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApiRate();
+			ClientFactory.INSTANCE.properties.checkApi();
 			User user = ClientCatalog.authenticateKey(login, key);
 			if (user == null && ClientCatalog.getUserList().isEmpty())
 				return new MonitorResult();
@@ -52,6 +54,8 @@ public class MonitorImpl extends CommonServicesImpl implements Monitor {
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
 	}
