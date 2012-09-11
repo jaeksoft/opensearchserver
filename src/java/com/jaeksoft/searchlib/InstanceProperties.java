@@ -107,11 +107,7 @@ public class InstanceProperties {
 		if (xmlFile.exists()) {
 			requestperMonthFile = new File(xmlFile.getParent(),
 					"requestPerMonth.txt");
-			if (requestperMonthFile.exists()) {
-				String s = FileUtils.readFileToString(requestperMonthFile);
-				if (s != null)
-					requestPerMonthCount = Integer.parseInt(s);
-			}
+			loadRequestPerMonth();
 			XPathParser xpp = new XPathParser(xmlFile);
 			Node node = xpp.getNode(LIMIT_NODEPATH);
 			if (node != null) {
@@ -251,8 +247,18 @@ public class InstanceProperties {
 		}
 	}
 
+	private final void loadRequestPerMonth() throws IOException {
+		if (!requestperMonthFile.exists())
+			return;
+		String s = FileUtils.readFileToString(requestperMonthFile);
+		if (s != null)
+			requestPerMonthCount = Integer.parseInt(s);
+	}
+
 	private final void storeRequestPerMonthCount(long t) throws IOException {
 		synchronized (requestperMonthFile) {
+			if (!requestperMonthFile.exists())
+				resetRequestPerMonthCount();
 			FileUtils.write(requestperMonthFile,
 					Integer.toString(getRequestPerMonthCount()));
 			lastTimeRequestPerMonthStore = t + 10000;
@@ -261,10 +267,19 @@ public class InstanceProperties {
 
 	private ReadWriteLock requestPerMonthLock = new ReadWriteLock();
 
-	private final void incRequestPerMonth() {
+	private final void incRequestPerMonthCount() {
 		requestPerMonthLock.w.lock();
 		try {
 			requestPerMonthCount++;
+		} finally {
+			requestPerMonthLock.w.unlock();
+		}
+	}
+
+	private final void resetRequestPerMonthCount() {
+		requestPerMonthLock.w.lock();
+		try {
+			requestPerMonthCount = 0;
 		} finally {
 			requestPerMonthLock.w.unlock();
 		}
@@ -294,7 +309,7 @@ public class InstanceProperties {
 		if (requestPerMonth == 0)
 			return;
 		long t = System.currentTimeMillis();
-		incRequestPerMonth();
+		incRequestPerMonthCount();
 		if (t < lastTimeRequestPerMonthStore)
 			return;
 		storeRequestPerMonthCount(t);
