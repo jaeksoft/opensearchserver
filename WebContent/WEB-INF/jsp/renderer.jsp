@@ -40,8 +40,8 @@
 .ossbuttonrdr { <%=renderer .getButtonStyle()==null?"": renderer.getButtonStyle()%>
 }
 
-<%int j  = 0; for  (RendererField rendererField : renderer.getFields ()) {j
-	++;%> .ossfieldrdr <%=j%>{ <%=rendererField.getStyle()==null?"":rendererField.getStyle
+<%int j  = 0; for  (RendererField rendererField : renderer.getFields ()) {
+	j++;%> .ossfieldrdr <%=j%>{ <%=rendererField.getStyle()==null?"":rendererField.getStyle
 	()%>
 	
 }
@@ -128,10 +128,12 @@ a:active { <%=renderer .getAactive()==null?"": renderer.getAactive()%>
 		documents found (<%=time/1000%>
 		seconds)
 	</div>
+	<%
+	FacetList facetList = result.getFacetList();
+		if(facetList!=null && facetList.getList().size() > 0) {
+	%>
 	<div class="oss-facet">
 		<%
-			FacetList facetList = result.getFacetList();
-		if(facetList!=null && facetList.getList().size() > 0)
 				for (Facet facet : facetList){
 		%>
 		<ul style="margin: 0px; padding: 0px; list-style-type: none">
@@ -150,6 +152,7 @@ a:active { <%=renderer .getAactive()==null?"": renderer.getAactive()%>
 			}
 		%>
 	</div>
+	<% } %>
 	<div class="oss-result">
 		<%
 			for (int i = start; i < end; i++) {
@@ -206,10 +209,8 @@ a:active { <%=renderer .getAactive()==null?"": renderer.getAactive()%>
 	<%
 		} // (if result != null)
 	%>
-	<hr />
 	<div align="right">
-		<a href="http://www.open-search-server.com/" target="_blank"> <label
-			class="osscmnrdr">Enterprise Search Made Yours.</label></a> <img
+		<a href="http://www.open-search-server.com/" target="_blank"></a> <img
 			alt="OPENSEARCHSERVER" src=" images/oss_logo_32.png"
 			style="vertical-align: bottom" />
 	</div>
