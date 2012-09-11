@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -63,7 +63,7 @@ public class PrivilegesController extends CommonController {
 
 	@Override
 	protected void reset() {
-		user = new User("", "", false);
+		user = new User("", "", false, false);
 		confirmPassword = null;
 		selectedUserName = null;
 		selectedIndexRole = null;
@@ -87,8 +87,12 @@ public class PrivilegesController extends CommonController {
 		}
 	}
 
-	public boolean isIndexListNotEmpty() throws SearchLibException {
+	public boolean isShowAddPrivilege() throws SearchLibException {
 		synchronized (this) {
+			if (user == null)
+				return false;
+			if (user.isReadOnly())
+				return false;
 			getIndexList();
 			return indexList != null && indexList.size() > 0;
 		}
@@ -183,7 +187,7 @@ public class PrivilegesController extends CommonController {
 	}
 
 	public void onCancel() throws SearchLibException {
-		user = new User("", "", false);
+		user = new User("", "", false, false);
 		selectedUserName = null;
 		confirmPassword = null;
 		selectedIndex = null;

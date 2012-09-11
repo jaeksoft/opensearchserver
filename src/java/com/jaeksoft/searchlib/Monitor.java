@@ -123,6 +123,27 @@ public class Monitor {
 		return ClientFactory.INSTANCE.properties.getApiWaitRate();
 	}
 
+	public long getRequestPerMonthCount() {
+		return ClientFactory.INSTANCE.properties.getRequestPerMonthCount();
+	}
+
+	public final boolean isRequestPerMonthOver() {
+		return getRequestPerMonthCount() > ClientFactory.INSTANCE.properties
+				.getRequestPerMonth();
+	}
+
+	public final boolean isRequestPerMonthUnder() {
+		return !isRequestPerMonthOver();
+	}
+
+	public final String getRequestPerMonthLabel() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(getRequestPerMonthCount());
+		sb.append(" / ");
+		sb.append(ClientFactory.INSTANCE.properties.getRequestPerMonth());
+		return sb.toString();
+	}
+
 	public String getDataDirectoryPath() {
 		return StartStopListener.OPENSEARCHSERVER_DATA_FILE.getAbsolutePath();
 	}
@@ -182,6 +203,10 @@ public class Monitor {
 
 		xmlWriter.startElement("apiWaitRate", "rate",
 				Double.toString(getApiWaitRate()));
+		xmlWriter.endElement();
+
+		xmlWriter.startElement("requestPerMonthCount", "value",
+				Long.toString(getRequestPerMonthCount()));
 		xmlWriter.endElement();
 
 		xmlWriter.endElement();

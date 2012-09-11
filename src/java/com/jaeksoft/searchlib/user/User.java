@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -52,17 +53,19 @@ public class User implements Comparable<User> {
 	private Set<IndexRole> indexRoles;
 	private boolean isAdmin;
 	private boolean isMonitoring;
+	private boolean readOnly;
 
 	public User() {
 		indexRoles = new TreeSet<IndexRole>();
 	}
 
-	public User(String name, String password, boolean isAdmin) {
+	public User(String name, String password, boolean isAdmin, boolean readOnly) {
 		this();
 		this.name = name;
 		this.password = password;
 		this.apiKey = null;
 		this.isAdmin = isAdmin;
+		this.readOnly = readOnly;
 	}
 
 	public User(User user) {
@@ -73,12 +76,18 @@ public class User implements Comparable<User> {
 	public void copyTo(User user) {
 		rwl.r.lock();
 		try {
-			user.setName(name);
-			user.setPassword(password);
-			user.setAdmin(isAdmin);
-			user.removeRoles();
-			for (IndexRole indexRole : indexRoles)
-				user.addRole(indexRole);
+			user.rwl.w.lock();
+			try {
+				user.name = name;
+				user.password = password;
+				user.isAdmin = isAdmin;
+				user.readOnly = readOnly;
+				user.indexRoles.clear();
+				for (IndexRole indexRole : indexRoles)
+					user.addRoleNoLock(indexRole);
+			} finally {
+				user.rwl.w.unlock();
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -137,13 +146,8 @@ public class User implements Comparable<User> {
 		return true;
 	}
 
-	public void addRole(IndexRole indexRole) {
-		rwl.w.lock();
-		try {
-			indexRoles.add(indexRole);
-		} finally {
-			rwl.w.unlock();
-		}
+	private void addRoleNoLock(IndexRole indexRole) {
+		indexRoles.add(indexRole);
 	}
 
 	public void removeRole(IndexRole indexRole) {
@@ -155,17 +159,15 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	protected void removeRoles() {
+	public void addRole(String indexName, String roleName)
+			throws SearchLibException {
 		rwl.w.lock();
 		try {
-			indexRoles.clear();
+			checkWritable();
+			addRoleNoLock(new IndexRole(indexName, roleName));
 		} finally {
 			rwl.w.unlock();
 		}
-	}
-
-	public void addRole(String indexName, String roleName) {
-		addRole(new IndexRole(indexName, roleName));
 	}
 
 	public Set<IndexRole> getRoles() {
@@ -189,14 +191,16 @@ public class User implements Comparable<User> {
 			return null;
 		boolean isAdmin = "yes".equalsIgnoreCase(XPathParser
 				.getAttributeString(node, "isAdmin"));
-		User user = new User(name, password, isAdmin);
+		boolean readOnly = "yes".equalsIgnoreCase(XPathParser
+				.getAttributeString(node, "readOnly"));
+		User user = new User(name, password, isAdmin, readOnly);
 		NodeList nodes = xpp.getNodeList(node, "role");
 		if (nodes != null) {
 			int l = nodes.getLength();
 			for (int i = 0; i < l; i++) {
 				IndexRole indexRole = IndexRole.fromXml(xpp, nodes.item(i));
 				if (indexRole != null)
-					user.addRole(indexRole);
+					user.addRoleNoLock(indexRole);
 			}
 		}
 		return user;
@@ -208,7 +212,8 @@ public class User implements Comparable<User> {
 		try {
 			String encodedPassword = StringUtils.base64encode(password);
 			xmlWriter.startElement(userElement, "name", name, "password",
-					encodedPassword, "isAdmin", isAdmin ? "yes" : "no");
+					encodedPassword, "isAdmin", isAdmin ? "yes" : "no",
+					"readOnly", readOnly ? "yes" : "no");
 			for (IndexRole indexRole : indexRoles)
 				indexRole.writeXml(xmlWriter);
 			xmlWriter.endElement();
@@ -241,9 +246,10 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public void setName(String name) {
+	public void setName(String name) throws SearchLibException {
 		rwl.w.lock();
 		try {
+			checkWritable();
 			this.name = name;
 			this.apiKey = null;
 		} finally {
@@ -276,9 +282,10 @@ public class User implements Comparable<User> {
 
 	}
 
-	public void setPassword(String password) {
+	public void setPassword(String password) throws SearchLibException {
 		rwl.w.lock();
 		try {
+			checkWritable();
 			this.password = password;
 			this.apiKey = null;
 		} finally {
@@ -304,18 +311,20 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public void setAdmin(boolean isAdmin) {
+	public void setAdmin(boolean isAdmin) throws SearchLibException {
 		rwl.w.lock();
 		try {
+			checkWritable();
 			this.isAdmin = isAdmin;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public void setMonitoring(boolean isMonitoring) {
+	public void setMonitoring(boolean isMonitoring) throws SearchLibException {
 		rwl.w.lock();
 		try {
+			checkWritable();
 			this.isMonitoring = isMonitoring;
 		} finally {
 			rwl.w.unlock();
@@ -346,5 +355,42 @@ public class User implements Comparable<User> {
 		sb.append(URLEncoder.encode(name, "UTF-8"));
 		sb.append("&key=");
 		sb.append(getApiKey());
+	}
+
+	/**
+	 * @return the readOnly
+	 */
+	public boolean isReadOnly() {
+		rwl.r.lock();
+		try {
+			return readOnly;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public boolean isEditable() {
+		return !isReadOnly();
+	}
+
+	/**
+	 * @param readOnly
+	 *            the readOnly to set
+	 * @throws SearchLibException
+	 */
+	public void setReadOnly(boolean readOnly) throws SearchLibException {
+		rwl.w.lock();
+		try {
+			checkWritable();
+			this.readOnly = readOnly;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private void checkWritable() throws SearchLibException {
+		if (!readOnly)
+			return;
+		throw new SearchLibException("User is not editable");
 	}
 }

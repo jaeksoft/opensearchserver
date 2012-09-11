@@ -34,9 +34,9 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexRole implements Comparable<IndexRole> {
 
-	private String indexName;
+	private final String indexName;
 
-	private Role role;
+	private final Role role;
 
 	protected IndexRole(String indexName, Role role) {
 		this.indexName = indexName;
@@ -69,8 +69,8 @@ public class IndexRole implements Comparable<IndexRole> {
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("role", "indexName", indexName, "role", role
-				.name());
+		xmlWriter.startElement("role", "indexName", indexName, "role",
+				role.name());
 		xmlWriter.endElement();
 	}
 

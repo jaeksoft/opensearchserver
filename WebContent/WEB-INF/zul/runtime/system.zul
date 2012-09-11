@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -110,11 +110,24 @@
 							<label value="@{system.monitor.indexCount}" />
 							<label value="The total number of indices" />
 						</row>
-						<row>
+						<row visible="@{system.apiRateLimit}">
 							<label value="API call wait rate" />
 							<label
 								value="@{system.monitor.apiWaitRate,converter='com.jaeksoft.searchlib.web.converter.PercentConverter'}" />
 							<label value="The rate of waiting API call" />
+						</row>
+						<row visible="@{system.requestPerMonthLimit}">
+							<label value="Request per month" />
+							<cell>
+								<label style="color:red;"
+									visible="@{system.monitor.requestPerMonthOver}"
+									value="@{system.monitor.requestPerMonthLabel}" />
+								<label
+									visible="@{system.monitor.requestPerMonthUnder}"
+									value="@{system.monitor.requestPerMonthLabel}" />
+							</cell>
+							<label
+								value="The number of request during the current month" />
 						</row>
 					</rows>
 				</grid>

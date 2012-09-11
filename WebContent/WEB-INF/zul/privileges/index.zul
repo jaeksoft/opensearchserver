@@ -25,6 +25,12 @@
 					<column align="left" />
 				</columns>
 				<rows>
+					<row visible="@{privileges.user.readOnly}">
+						<cell colspan="3" align="center">
+							<label style="color:red;"
+								value="This user is not editable" />
+						</cell>
+					</row>
 					<row>
 						<label value="User name: " />
 						<textbox value="@{privileges.user.name}"
@@ -35,6 +41,7 @@
 					<row>
 						<label value="Password: " />
 						<textbox type="password"
+							readonly="@{privileges.user.readOnly}"
 							value="@{privileges.user.password}" width="95%" />
 						<label
 							value="Choose a password for the user that will be created" />
@@ -42,18 +49,20 @@
 					<row>
 						<label value="Confirm password: " />
 						<textbox type="password"
+							readonly="@{privileges.user.readOnly}"
 							value="@{privileges.confirmPassword}" width="95%" />
 						<label value="Retype the password" />
 					</row>
 					<row>
 						<label value="Admin user: " />
-						<checkbox checked="@{privileges.user.admin}" />
+						<checkbox checked="@{privileges.user.admin}"
+							disabled="@{privileges.user.readOnly}" />
 						<label
 							value="Check the box if the user is admin" />
 					</row>
 					<row>
 						<label value="Can monitor: " />
-						<checkbox
+						<checkbox disabled="@{privileges.user.readOnly}"
 							checked="@{privileges.user.monitoring}" />
 						<label
 							value="Check the box if the user is able to monitor" />
@@ -64,7 +73,7 @@
 							value="@{privileges.user.apiKey}" width="95%" />
 						<label value="Key to be used with API" />
 					</row>
-					<row visible="@{privileges.IndexListNotEmpty}">
+					<row visible="@{privileges.showAddPrivilege}">
 						<label
 							value="Add privileges on following index: " />
 						<vbox width="100%">
@@ -111,9 +120,11 @@
 				<hbox visible="@{privileges.selected}">
 					<button label="Cancel" forward="onCancel" />
 					<space width="10px" />
-					<button label="Save" forward="onSave" />
+					<button label="Save" forward="onSave"
+						visible="@{privileges.user.editable}" />
 					<space width="30px" />
-					<button label="Delete" forward="onDelete" />
+					<button label="Delete" forward="onDelete"
+						visible="@{privileges.user.editable}" />
 				</hbox>
 				<hbox visible="@{privileges.notSelected}">
 					<button label="Create" forward="onSave" />

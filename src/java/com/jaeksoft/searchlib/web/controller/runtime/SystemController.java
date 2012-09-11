@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.runtime;
 
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Monitor;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -54,6 +55,14 @@ public class SystemController extends CommonController {
 
 	public Monitor getMonitor() {
 		return monitor;
+	}
+
+	public boolean isApiRateLimit() {
+		return ClientFactory.INSTANCE.properties.isMaxApiRate();
+	}
+
+	public boolean isRequestPerMonthLimit() {
+		return ClientFactory.INSTANCE.properties.isRequestPerMonth();
 	}
 
 }

@@ -282,8 +282,12 @@ public class InstanceProperties {
 		}
 	}
 
-	public int getRequestPerMonth() {
+	public final int getRequestPerMonth() {
 		return requestPerMonth;
+	}
+
+	public final boolean isRequestPerMonth() {
+		return requestPerMonth > 0;
 	}
 
 	protected final void checkApiRequestPerMonth() throws IOException {
@@ -303,6 +307,10 @@ public class InstanceProperties {
 
 	public final float getApiWaitRate() {
 		return (float) (((float) countApiWait / (float) countApiCall) * 100);
+	}
+
+	public final boolean isMaxApiRate() {
+		return maxApiRate > 0;
 	}
 
 	@Override
