@@ -1,0 +1,60 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="window"
+	apply="com.jaeksoft.searchlib.web.controller.query.ScoringComposer">
+	<listbox model="@{window$composer.advancedScore.array}"
+		selectedItem="@{window$composer.selectedScoreItem}">
+		<listhead>
+			<listheader label="Field" />
+			<listheader label="Direction" />
+			<listheader label="Weight" />
+			<listheader label="Action" />
+		</listhead>
+		<auxhead>
+			<auxheader>
+				<listbox mold="select"
+					model="@{window$composer.fieldList}"
+					selectedItem="@{window$composer.scoreItem.fieldName}" />
+			</auxheader>
+			<auxheader>
+				<listbox mold="select"
+					model="@{window$composer.directionList}"
+					selectedItem="@{window$composer.scoreItem.direction}" />
+			</auxheader>
+			<auxheader>
+				<intbox value="@{window$composer.scoreItem.weight}" />
+			</auxheader>
+			<auxheader>
+				<button label="add" forward="onSave"
+					visible="@{window$composer.isNotSelected}" />
+				<button label="save" forward="onSave"
+					visible="@{window$composer.isSelected}" />
+				<button label="cancel" forward="onCancel"
+					visible="@{window$composer.isSelected}" />
+			</auxheader>
+		</auxhead>
+		<listitem self="@{each='item'}" value="@{item}">
+			<listcell label="@{item.fieldName}" />
+			<listcell label="@{item.direction}" />
+			<listcell label="@{item.weight}" />
+			<listcell>
+				<button tooltiptext="Erase index" forward="onRemove"
+					image="/images/action_delete.png" />
+			</listcell>
+		</listitem>
+	</listbox>
+</window>

@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>PHP Contributions</title>
+		<link type="text/css" rel="stylesheet" href="common.css" />
+		<style type="text/css">
+			div { margin-left: 20px; }
+			div h3 { margin-left: -10px; }
+		</style>
+	</head>
+	<body>
+		<h1>PHP Contributions</h1>
+		<div><pre>Every contribution have his own tab at the top of the page to let you specify your
+OpenSearchServer location, the index to use and the default timeout (in sec).
+
+Click on the blue bar at the top to make it appear. All values are stored in
+cookies and shared between the contributions (except the name of the index).</pre></div>
+		<div>
+			<h3>Search a typical WebCrawler index</h3>
+			<a href="webSearch.php">Search for webCrawler</a>
+			<pre>A simple search engine showing you the basic usage of the select API connector
+to query an Open Search Server having a WebCrawler index.
+
+If you don't have one refer to the <a href="http://sourceforge.net/apps/mediawiki/opensearchserve/index.php?title=Quick_start_guide_to_crawl_the_web">OSS WiKi here</a> to help you.</pre>
+		</div>
+		<div>
+			<h3>Searching a FileCrawler type index</h3>
+			<a href="fileSearch.php">Search for fileCrawler</a>
+			<pre>A simple search engine showing you the basic usage of the select API connector
+to query an Open Search Server having a FileCrawler index.
+		</div>
+		<div>
+			<h3>Adding documents in OSS</h3>
+			<a href="newsFeedIndexing.php">newsFeedIndexing</a>
+			<pre>OpenSearchServer is not limited to crawling web pages, pdf, doc or text only.
+You can feed him with your own data. With this contribution you'll see how to
+create your document index to be send to OSS for indexation.
+
+This contribution come without a search page. You'll have to use the OSS interface
+or create your own search page.
+
+To use this contribution you'll need to create an emtpy index in OSS.
+Name it <em>newsFeed</em> and add these fields:
+
+<strong>Name</strong>                <strong>Indexation</strong>      <strong>Store</strong>           <strong>TermVector</strong>          <strong>Analyzer</strong>
+author              no              yes             no
+channel_home        yes             yes             no
+channel title       no              yes             no
+channel_subtitle    no              yes             no
+id                  yes             yes             no
+link                no              yes             no
+title               yes             yes             position_offsets    TextAnalyzer
+published           yes             yes             no
+summary             yes             compress        position_offsets    TextAnalyzer
+content             yes             compress        position_offsets    TextAnalyzer
+
+Default field will be <em>summary</em> and the uniq field is <em>id</em>.
+
+To submit a feed (RSS or Atom), enter the url to the feed, set the feed language
+and submit. Some feed are provided for testing purpose.
+</pre>
+		</div>
+	</body>
+</html>
