@@ -256,7 +256,22 @@ public class DocumentsRequest extends AbstractRequest implements
 	public String getInfo() {
 		rwl.r.lock();
 		try {
-			return returnFieldList.toString();
+			StringBuffer sb = new StringBuffer();
+			sb.append("Fields:");
+			sb.append(returnFieldList.toString());
+			sb.append(" - Document id(s):");
+			for (Integer id : docList) {
+				sb.append(" [");
+				sb.append(id);
+				sb.append(']');
+			}
+			sb.append(" - Unique key(s):");
+			for (String uniq : uniqueKeyList) {
+				sb.append(" [");
+				sb.append(uniq);
+				sb.append(']');
+			}
+			return sb.toString();
 		} finally {
 			rwl.r.unlock();
 		}
