@@ -161,6 +161,14 @@ public final class QueryController extends AbstractQueryController {
 		return !isEditingMoreLikeThis();
 	}
 
+	public boolean isEditingDocuments() throws SearchLibException {
+		return isEditing(RequestTypeEnum.DocumentsRequest);
+	}
+
+	public boolean isNotEditingDocuments() throws SearchLibException {
+		return !isEditingDocuments();
+	}
+
 	public boolean isNotSelectedRequest() {
 		return !isSelectedRequest();
 	}

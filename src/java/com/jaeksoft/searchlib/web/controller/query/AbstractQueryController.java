@@ -110,4 +110,7 @@ public abstract class AbstractQueryController extends CommonController {
 		return isResult(RequestTypeEnum.MoreLikeThisRequest);
 	}
 
+	public boolean isResultDocuments() {
+		return isResult(RequestTypeEnum.DocumentsRequest);
+	}
 }

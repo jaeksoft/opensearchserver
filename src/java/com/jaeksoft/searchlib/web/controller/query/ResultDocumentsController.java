@@ -22,48 +22,24 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.spellcheck;
+package com.jaeksoft.searchlib.web.controller.query;
 
-import java.io.IOException;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
-
-import com.jaeksoft.searchlib.index.ReaderLocal;
-
-public class SuggestionItem {
-
-	private String term;
-
-	private int freq;
-
-	public SuggestionItem(String term) {
-		this.term = term;
-		this.freq = 0;
-	}
+public class ResultDocumentsController extends AbstractQueryController {
 
 	/**
-	 * @return the term
+	 * 
 	 */
-	public String getTerm() {
-		return term;
+	private static final long serialVersionUID = -8879293595598057014L;
+
+	public ResultDocumentsController() throws SearchLibException {
+		super(RequestTypeEnum.DocumentsRequest);
 	}
 
-	/**
-	 * @return the freq
-	 */
-	public int getFreq() {
-		return freq;
-	}
-
-	public void computeFrequency(ReaderLocal reader, String field)
-			throws IOException {
-		TermDocs termDocs = reader.getTermDocs(new Term(field, term));
-		if (termDocs == null)
-			return;
-		while (termDocs.next())
-			freq += termDocs.freq();
-		termDocs.close();
+	@Override
+	protected void reset() throws SearchLibException {
 	}
 
 }

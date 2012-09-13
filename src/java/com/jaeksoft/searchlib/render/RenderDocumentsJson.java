@@ -22,48 +22,35 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.spellcheck;
+package com.jaeksoft.searchlib.render;
 
-import java.io.IOException;
+import org.json.simple.JSONObject;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 
-import com.jaeksoft.searchlib.index.ReaderLocal;
+public class RenderDocumentsJson extends
+		AbstractRenderDocumentsJson<DocumentsRequest, ResultDocuments> {
+	Boolean indent = null;
 
-public class SuggestionItem {
-
-	private String term;
-
-	private int freq;
-
-	public SuggestionItem(String term) {
-		this.term = term;
-		this.freq = 0;
+	public RenderDocumentsJson(ResultDocuments result, Boolean indent) {
+		super(result);
+		this.indent = indent;
 	}
 
-	/**
-	 * @return the term
-	 */
-	public String getTerm() {
-		return term;
-	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public void render() throws Exception {
+		JSONObject jsonResponse = new JSONObject();
+		renderPrefix(jsonResponse, request.getInfo());
+		renderDocuments(jsonResponse);
+		JSONObject json = new JSONObject();
+		json.put("response", jsonResponse);
+		if (indent)
+			writer.println(new org.json.JSONObject(json.toJSONString())
+					.toString(4));
+		else
+			writer.println(json);
 
-	/**
-	 * @return the freq
-	 */
-	public int getFreq() {
-		return freq;
 	}
-
-	public void computeFrequency(ReaderLocal reader, String field)
-			throws IOException {
-		TermDocs termDocs = reader.getTermDocs(new Term(field, term));
-		if (termDocs == null)
-			return;
-		while (termDocs.next())
-			freq += termDocs.freq();
-		termDocs.close();
-	}
-
 }

@@ -99,6 +99,8 @@
 			visible="@{query.isEditingSpellCheck}" />
 		<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
 			visible="@{query.isEditingMoreLikeThis}" />
+		<include src="WEB-INF/zul/query/requestDocuments.zul"
+			visible="@{query.isEditingDocuments}" />
 		<vbox width="100%" align="center">
 			<button label="Search" onClick="query.onSearch()" />
 		</vbox>
@@ -109,5 +111,7 @@
 			visible="@{query.resultSpellCheck}" />
 		<include src="WEB-INF/zul/query/resultMoreLikeThis.zul"
 			visible="@{query.resultMoreLikeThis}" />
+		<include src="WEB-INF/zul/query/resultDocuments.zul"
+			visible="@{query.resultDocuments}" />
 	</window>
 </window>

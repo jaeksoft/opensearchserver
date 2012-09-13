@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
+import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -91,18 +91,20 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 					.getReturnFieldList();
 			snippetFieldList = ((SearchRequest) abstractRequest)
 					.getSnippetFieldList();
-		} else if (abstractRequest instanceof MoreLikeThisRequest) {
-			returnFieldList = ((MoreLikeThisRequest) abstractRequest)
+		} else if (abstractRequest instanceof RequestInterfaces.ReturnedFieldInterface) {
+			returnFieldList = ((RequestInterfaces.ReturnedFieldInterface) abstractRequest)
 					.getReturnFieldList();
 		}
-		for (ReturnField field : returnFieldList) {
-			renderField(doc, field, jsonFieldList);
-			jsonDoc.put("field", jsonFieldList);
-		}
-		for (SnippetField field : snippetFieldList) {
-			renderSnippetValue(doc, field, jsonSnippetList);
-			jsonDoc.put("snippet", jsonSnippetList);
-		}
+		if (returnFieldList != null)
+			for (ReturnField field : returnFieldList) {
+				renderField(doc, field, jsonFieldList);
+				jsonDoc.put("field", jsonFieldList);
+			}
+		if (snippetFieldList != null)
+			for (SnippetField field : snippetFieldList) {
+				renderSnippetValue(doc, field, jsonSnippetList);
+				jsonDoc.put("snippet", jsonSnippetList);
+			}
 
 		int cc = resultDocs.getCollapseCount(pos);
 		if (cc > 0)

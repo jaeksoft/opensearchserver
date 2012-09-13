@@ -162,6 +162,7 @@ public class Facet implements Iterable<FacetItem>,
 					if (termDocs.freq() > 0)
 						if (bitset.fastGet(termDocs.doc()))
 							countIndex[i]++;
+				termDocs.close();
 			}
 			i++;
 		}

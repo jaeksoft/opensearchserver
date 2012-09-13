@@ -52,4 +52,9 @@ public class ReturnField extends AbstractField<ReturnField> {
 		return new ReturnField(name);
 	}
 
+	@Override
+	public String toString() {
+		return this.name;
+	}
+
 }

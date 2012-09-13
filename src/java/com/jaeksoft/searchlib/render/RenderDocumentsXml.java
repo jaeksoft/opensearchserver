@@ -22,48 +22,24 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.spellcheck;
+package com.jaeksoft.searchlib.render;
 
-import java.io.IOException;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
+public class RenderDocumentsXml extends
+		AbstractRenderDocumentsXml<DocumentsRequest, ResultDocuments> {
 
-import com.jaeksoft.searchlib.index.ReaderLocal;
-
-public class SuggestionItem {
-
-	private String term;
-
-	private int freq;
-
-	public SuggestionItem(String term) {
-		this.term = term;
-		this.freq = 0;
+	public RenderDocumentsXml(ResultDocuments result) {
+		super(result);
 	}
 
-	/**
-	 * @return the term
-	 */
-	public String getTerm() {
-		return term;
-	}
-
-	/**
-	 * @return the freq
-	 */
-	public int getFreq() {
-		return freq;
-	}
-
-	public void computeFrequency(ReaderLocal reader, String field)
-			throws IOException {
-		TermDocs termDocs = reader.getTermDocs(new Term(field, term));
-		if (termDocs == null)
-			return;
-		while (termDocs.next())
-			freq += termDocs.freq();
-		termDocs.close();
+	@Override
+	public void render() throws Exception {
+		renderPrefix(0, request.getInfo());
+		renderDocuments();
+		renderTimers();
+		renderSuffix();
 	}
 
 }

@@ -39,7 +39,9 @@ public enum RequestTypeEnum {
 
 	SpellCheckRequest(SpellCheckRequest.class, "Spell check"),
 
-	MoreLikeThisRequest(MoreLikeThisRequest.class, "More like this");
+	MoreLikeThisRequest(MoreLikeThisRequest.class, "More like this"),
+
+	DocumentsRequest(DocumentsRequest.class, "Document(s)");
 
 	private Class<? extends AbstractRequest> requestClass;
 

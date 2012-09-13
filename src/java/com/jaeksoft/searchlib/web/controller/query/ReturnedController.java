@@ -56,7 +56,8 @@ public class ReturnedController extends AbstractQueryController implements
 
 	public ReturnedController() throws SearchLibException {
 		super(RequestTypeEnum.SearchRequest,
-				RequestTypeEnum.MoreLikeThisRequest);
+				RequestTypeEnum.MoreLikeThisRequest,
+				RequestTypeEnum.DocumentsRequest);
 	}
 
 	@Override

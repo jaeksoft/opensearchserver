@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 
@@ -75,10 +76,10 @@ public class RenderSearchXml extends
 	}
 
 	@Override
-	protected void renderDocument(int pos) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
-		renderDocumentPrefix(pos);
-		renderDocumentContent(pos);
+	protected void renderDocument(int pos, ResultDocument doc)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
+		renderDocumentPrefix(pos, doc);
+		renderDocumentContent(pos, doc);
 		renderJoinResults(result.getJoinResult(), result.getDocs(), pos);
 		renderDocumentSuffix();
 	}

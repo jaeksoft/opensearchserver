@@ -30,7 +30,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
+import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -69,8 +69,10 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		writer.print("\" time=\"");
 		writer.print(result.getTimer().tempDuration());
 		writer.println("\">");
-		for (int i = start; i < end; i++)
-			this.renderDocument(i);
+		for (int i = start; i < end; i++) {
+			ResultDocument doc = resultDocs.getDocument(i, renderingTimer);
+			this.renderDocument(i, doc);
+		}
 		writer.println("</result>");
 	}
 
@@ -85,8 +87,8 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 					.getReturnFieldList();
 			snippetFieldList = ((SearchRequest) abstractRequest)
 					.getSnippetFieldList();
-		} else if (abstractRequest instanceof MoreLikeThisRequest) {
-			returnFieldList = ((MoreLikeThisRequest) abstractRequest)
+		} else if (abstractRequest instanceof RequestInterfaces.ReturnedFieldInterface) {
+			returnFieldList = ((RequestInterfaces.ReturnedFieldInterface) abstractRequest)
 					.getReturnFieldList();
 		}
 		if (returnFieldList != null)
@@ -97,11 +99,13 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 				renderSnippetValue(doc, field);
 	}
 
-	final protected void renderDocumentPrefix(int pos) {
+	final protected void renderDocumentPrefix(int pos, ResultDocument doc) {
 		writer.print("\t<doc score=\"");
 		writeScore(writer, resultDocs.getScore(pos));
 		writer.print("\" pos=\"");
 		writer.print(pos);
+		writer.print("\" docId=\"");
+		writer.print(doc.getDocId());
 		writer.println("\">");
 	}
 
@@ -109,9 +113,8 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		writer.println("\t</doc>");
 	}
 
-	final protected void renderDocumentContent(int pos)
+	final protected void renderDocumentContent(int pos, ResultDocument doc)
 			throws SearchLibException, IOException {
-		ResultDocument doc = resultDocs.getDocument(pos, renderingTimer);
 		renderDocument(request, doc);
 		int cc = resultDocs.getCollapseCount(pos);
 		if (cc > 0) {
@@ -121,10 +124,10 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		}
 	}
 
-	protected void renderDocument(int pos) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
-		renderDocumentPrefix(pos);
-		renderDocumentContent(pos);
+	protected void renderDocument(int pos, ResultDocument doc)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
+		renderDocumentPrefix(pos, doc);
+		renderDocumentContent(pos, doc);
 		renderDocumentSuffix();
 	}
 
