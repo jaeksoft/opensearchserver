@@ -2,7 +2,7 @@
 /*
  *  This file is part of OpenSearchServer.
  *
- *  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ *  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  *
  *  http://www.open-search-server.com
  *
@@ -55,6 +55,8 @@ class OssSearch {
   protected $moreLikeThis;
   protected $log;
   protected $customLogs;
+  protected $uniqueKeys;
+  protected $docIds;
 
   protected $login;
   protected $apiKey;
@@ -87,6 +89,8 @@ class OssSearch {
       'maxwordlen' => NULL, 'mindocfreq' => NULL, 'mintermfreq' => NULL, 'stopwords' => NULL);
     $this->log = FALSE;
     $this->customLogs = array();
+    $this->uniqueKey = array();
+    $this->docIds = array();
   }
 
   /**
@@ -223,7 +227,23 @@ class OssSearch {
     $this->collapse['max'] = $max;
     return $this;
   }
-
+  
+  /**
+   * @return OssSearch
+   */
+  public function uniqueKey($uniqueKey = NULL) {
+  	$this->uniqueKeys[] = $uniqueKey;
+  	return $this;
+  }
+  
+  /**
+   * @return OssSearch
+   */
+  public function docId($docId = NULL) {
+  	$this->docIds[] = $docId;
+  	return $this;
+  }
+  
   /**
    * @return OssSearch
    */
@@ -397,8 +417,23 @@ class OssSearch {
     foreach ($this->customLogs as $pos => $customLog) {
       $queryChunks[] = 'log' . $pos . '=' . urlencode($customLog);
     }
+    
+    // DocID
+    foreach ((array) $this->docIds as $docId) {
+    	if (empty($docId)) {
+    		continue;
+    	}
+    	$queryChunks[] = 'id=' . urlencode($docId);
+    }
+    
+    // UniqueKey
+    foreach ((array) $this->uniqueKeys as $uniqueKey) {
+    	if (empty($uniqueKey)) {
+    		continue;
+    	}
+    	$queryChunks[] = 'uk=' . urlencode($uniqueKey);
+    }
     return $this->enginePath . '/' . OssApi::API_SELECT . '?' . implode('&', $queryChunks);
-
   }
 }
 ?>
