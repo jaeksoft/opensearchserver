@@ -124,7 +124,7 @@ a:active { <%=renderer .getAactive()==null?"": renderer.getAactive()%>
 		int end = searchRequest.getStart() + result.getDocumentCount();
 		float time=(float)(result.getTimer().duration());
 	%>
-	<div class="ossnumfound"><%=result.getNumFound()-result.getCollapsedDocCount()%>
+	<div class="osscmnrdr ossnumfound"><%=result.getNumFound()-result.getCollapsedDocCount()%>
 		documents found (<%=time/1000%>
 		seconds)
 	</div>
@@ -132,7 +132,7 @@ a:active { <%=renderer .getAactive()==null?"": renderer.getAactive()%>
 	FacetList facetList = result.getFacetList();
 		if(facetList!=null && facetList.getList().size() > 0) {
 	%>
-	<div class="oss-facet">
+	<div class="osscmnrdr oss-facet">
 		<%
 				for (Facet facet : facetList){
 		%>
@@ -153,7 +153,7 @@ a:active { <%=renderer .getAactive()==null?"": renderer.getAactive()%>
 		%>
 	</div>
 	<% } %>
-	<div class="oss-result">
+	<div class="osscmnrdr oss-result">
 		<%
 			for (int i = start; i < end; i++) {
 					ResultDocument resultDocument = result.getDocument(i);
