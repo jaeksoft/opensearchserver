@@ -102,9 +102,9 @@ class OssPaging {
     $this->resultRows    = (int) $this->oss_result->result['rows'];
     $this->resultStart   = (int) $this->oss_result->result['start'];
 
-    $this->resultCurrentPage = floor($this->resultStart / $this->resultRows);
-    $this->resultTotal  = ceil($this->resultFound / $this->resultRows);
-
+    $this->resultCurrentPage = ($this->resultRows > 0) ? floor($this->resultStart / $this->resultRows) : 0;
+    $this->resultTotal = ($this->resultRows > 0) ? ceil($this->resultFound / $this->resultRows) : 0;
+    
     if ($this->resultTotal > 1) {
       $low  = $this->resultCurrentPage - (OssPaging::MAX_PAGE_TO_LINK / 2);
       $high = $this->resultCurrentPage + (OssPaging::MAX_PAGE_TO_LINK / 2 - 1);

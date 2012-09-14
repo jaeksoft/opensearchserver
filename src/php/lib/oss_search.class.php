@@ -1,24 +1,24 @@
 <?php
 /*
  *  This file is part of OpenSearchServer.
- *
- *  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
- *
- *  http://www.open-search-server.com
- *
- *  OpenSearchServer is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  OpenSearchServer is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
- */
+*
+*  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+*
+*  http://www.open-search-server.com
+*
+*  OpenSearchServer is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  OpenSearchServer is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 
 /**
@@ -30,16 +30,17 @@ if (!class_exists('OssApi')) {
   trigger_error("OssSearch won't work whitout OssApi", E_USER_ERROR); die();
 }
 
+require_once('oss_abstract.class.php');
+
+
 /**
  * @author pmercier <pmercier@open-search-server.com>
  * @package OpenSearchServer
  * FIXME Complete this documentations
  * FIXME Clean this class and use facilities provided by OssApi
  */
-class OssSearch {
+class OssSearch extends OssAbstract {
 
-  protected $enginePath;
-  protected $index;
   protected $query;
   protected $template;
   protected $start;
@@ -58,9 +59,6 @@ class OssSearch {
   protected $uniqueKeys;
   protected $docIds;
 
-  protected $login;
-  protected $apiKey;
-
   protected $lastQueryString;
 
   /**
@@ -70,12 +68,7 @@ class OssSearch {
    */
   public function __construct($enginePath, $index = NULL, $rows = NULL, $start = NULL, $login = NULL, $apiKey = NULL) {
 
-    $ossAPI = new OssApi($enginePath, $index);
-
-    $this->enginePath  = $ossAPI->getEnginePath();
-    $this->index    = $ossAPI->getIndex();
-
-    $this->credential($login, $apiKey);
+    $this->init($enginePath, $index, $login, $apiKey);
 
     $this->rows($rows);
     $this->start($start);
@@ -86,21 +79,11 @@ class OssSearch {
     $this->facets  = array();
     $this->collapse  = array('field' => NULL, 'max' => NULL, 'mode' => NULL);
     $this->moreLikeThis = array('active' => NULL, 'docquery' => NULL, 'minwordlen' => NULL,
-      'maxwordlen' => NULL, 'mindocfreq' => NULL, 'mintermfreq' => NULL, 'stopwords' => NULL);
+        'maxwordlen' => NULL, 'mindocfreq' => NULL, 'mintermfreq' => NULL, 'stopwords' => NULL);
     $this->log = FALSE;
     $this->customLogs = array();
     $this->uniqueKey = array();
     $this->docIds = array();
-  }
-
-  /**
-   * Specify the index name to query
-   * @param $index string
-   * @return OssSearch
-   */
-  public function index($index = NULL) {
-    $this->index = $index;
-    return $this;
   }
 
   /**
@@ -146,32 +129,6 @@ class OssSearch {
   }
 
   /**
-   * @param $login string
-   * @param $apiKey string
-   * If $login is empty, credential is removed
-   */
-  public function credential($login, $apiKey) {
-    // Remove credentials
-    if (empty($login)) {
-      $this->login  = NULL;
-      $this->apiKey  = NULL;
-      return;
-    }
-
-    // Else parse and affect new credentials
-    if (empty($login) || empty($apiKey)) {
-      if (class_exists('OssException')) {
-        throw new UnexpectedValueException('You must provide a login and an api key to use credential.');
-      }
-      trigger_error(__CLASS__ . '::' . __METHOD__ . ': You must provide a login and an api key to use credential.', E_USER_ERROR);
-      return FALSE;
-    }
-
-    $this->login  = $login;
-    $this->apiKey  = $apiKey;
-  }
-
-  /**
    * @return OssSearch
    */
   public function lang($lang = NULL) {
@@ -200,7 +157,7 @@ class OssSearch {
    */
   public function sort($fields) {
     foreach ((array)$fields as $field)
-    $this->sort[] = $field;
+      $this->sort[] = $field;
     return $this;
   }
 
@@ -227,23 +184,23 @@ class OssSearch {
     $this->collapse['max'] = $max;
     return $this;
   }
-  
+
   /**
    * @return OssSearch
    */
   public function uniqueKey($uniqueKey = NULL) {
-  	$this->uniqueKeys[] = $uniqueKey;
-  	return $this;
+    $this->uniqueKeys[] = $uniqueKey;
+    return $this;
   }
-  
+
   /**
    * @return OssSearch
    */
   public function docId($docId = NULL) {
-  	$this->docIds[] = $docId;
-  	return $this;
+    $this->docIds[] = $docId;
+    return $this;
   }
-  
+
   /**
    * @return OssSearch
    */
@@ -257,7 +214,7 @@ class OssSearch {
   }
 
   public function moreLikeThisDocQuery($docQuery) {
-    $this->moreLikeThis['docquery'] = $active;
+    $this->moreLikeThis['docquery'] = $docQuery;
   }
 
   public function moreLikeThisMinWordLen($minwordlen) {
@@ -315,20 +272,12 @@ class OssSearch {
 
     $queryChunks = array();
 
-    // If credential provided, include them in the query url
-    if (!empty($this->login)) {
-      $queryChunks[] = "login=" . $this->login;
-      $queryChunks[] = "key="   . $this->apiKey;
-    }
-
     $queryChunks[] = 'q=' . urlencode((empty($this->query) ? "*:*" : $this->query));
 
-    if (!empty($this->index)) {
-      $queryChunks[] = 'use='  . $this->index;
-    }
     if (!empty($this->template)) {
       $queryChunks[] = 'qt='   . $this->template;
     }
+
     if (!empty($this->lang)) {
       $queryChunks[] = 'lang=' . $this->lang;
     }
@@ -336,6 +285,7 @@ class OssSearch {
     if ($this->rows   !== NULL) {
       $queryChunks[] = 'rows='  . (int) $this->rows;
     }
+
     if ($this->start !== NULL) {
       $queryChunks[] = 'start=' . (int) $this->start;
     }
@@ -417,23 +367,23 @@ class OssSearch {
     foreach ($this->customLogs as $pos => $customLog) {
       $queryChunks[] = 'log' . $pos . '=' . urlencode($customLog);
     }
-    
+
     // DocID
     foreach ((array) $this->docIds as $docId) {
-    	if (empty($docId)) {
-    		continue;
-    	}
-    	$queryChunks[] = 'id=' . urlencode($docId);
+      if (empty($docId)) {
+        continue;
+      }
+      $queryChunks[] = 'id=' . urlencode($docId);
     }
-    
+
     // UniqueKey
     foreach ((array) $this->uniqueKeys as $uniqueKey) {
-    	if (empty($uniqueKey)) {
-    		continue;
-    	}
-    	$queryChunks[] = 'uk=' . urlencode($uniqueKey);
+      if (empty($uniqueKey)) {
+        continue;
+      }
+      $queryChunks[] = 'uk=' . urlencode($uniqueKey);
     }
-    return $this->enginePath . '/' . OssApi::API_SELECT . '?' . implode('&', $queryChunks);
+    return  $this->getQueryURL(OssApi::API_SELECT) . '&' . implode('&', $queryChunks);
   }
 }
 ?>

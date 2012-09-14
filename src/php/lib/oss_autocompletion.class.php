@@ -2,7 +2,7 @@
 /*
  *  This file is part of OpenSearchServer.
 *
-*  Copyright (C)2011 Emmanuel Keller / Jaeksoft
+*  Copyright (C)2012 Emmanuel Keller / Jaeksoft
 *
 *  http://www.open-search-server.com
 *
@@ -31,21 +31,11 @@ if (!class_exists('OssApi')) {
 
 require_once('oss_abstract.class.php');
 
-class OssDelete extends OssAbstract {
+class OssAutocompletion extends OssAbstract {
 
   public function __construct($enginePath, $index = NULL, $login = NULL, $apiKey = NULL) {
     $this->init($enginePath, $index, $login, $apiKey);
   }
-
-  public function delete($query) {
-    $params = array('q' => $query);
-    $return = OssApi::queryServerXML($this->getQueryURL(OssApi::API_DELETE, $params));
-    if ($return === FALSE) {
-      return FALSE;
-    }
-    return TRUE;
-  }
-
 
 }
 ?>

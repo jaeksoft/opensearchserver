@@ -1,6 +1,6 @@
 <?php
 /*
-*  This file is part of OpenSearchServer.
+ *  This file is part of OpenSearchServer.
 *
 *  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 *
@@ -46,8 +46,9 @@ if (!class_exists('OutOfRangeException')) {
  * @package OpenSearchServer
  */
 
+require_once('oss_abstract.class.php');
 
-class OssApi {
+class OssApi extends OssAbstract {
 
   const API_SELECT   = 'select';
   const API_UPDATE   = 'update';
@@ -60,9 +61,9 @@ class OssApi {
   const API_SCHEMA   = 'schema';
   const API_SEARCH_TEMPLATE='searchtemplate';
 
-  const API_SEARCH_TEMPLATE_CREATE='create';
-  const API_SEARCH_TEMPLATE_SETRETURNFIELD='setreturnfield';
-  const API_SEARCH_TEMPLATE_SETSNIPPETFIELD='setsnippetfield';
+  const API_SEARCH_TEMPLATE_CREATE='cmd=create';
+  const API_SEARCH_TEMPLATE_SETRETURNFIELD='cmd=setreturnfield';
+  const API_SEARCH_TEMPLATE_SETSNIPPETFIELD='cmd=setsnippetfield';
 
   const API_SCHEMA_INDEX_LIST    = 'indexList';
   const API_SCHEMA_CREATE_INDEX  = 'createIndex';
@@ -85,36 +86,24 @@ class OssApi {
    * @var array
    */
   protected static $supportedLanguages = array(
-    ""   => "Undefined",
-    "zh" => "Chinese",
-    "da" => "Danish",
-    "nl" => "Dutch",
-    "en" => "English",
-    "fi" => "Finnish",
-    "fr" => "French",
-    "de" => "German",
-    "hu" => "Hungarian",
-    "it" => "Italian",
-    "no" => "Norwegian",
-    "pt" => "Portuguese",
-    "ro" => "Romanian",
-    "ru" => "Russian",
-    "es" => "Spanish",
-    "sv" => "Swedish",
-    "tr" => "Turkish"
+      ""   => "Undefined",
+      "zh" => "Chinese",
+      "da" => "Danish",
+      "nl" => "Dutch",
+      "en" => "English",
+      "fi" => "Finnish",
+      "fr" => "French",
+      "de" => "German",
+      "hu" => "Hungarian",
+      "it" => "Italian",
+      "no" => "Norwegian",
+      "pt" => "Portuguese",
+      "ro" => "Romanian",
+      "ru" => "Russian",
+      "es" => "Spanish",
+      "sv" => "Swedish",
+      "tr" => "Turkish"
   );
-
-  /* @var string */
-  protected $enginePath;
-
-  /* @var string */
-  protected $index;
-
-  /* @var string */
-  protected $login;
-
-  /* @var string */
-  protected $apiKey;
 
   /**
    * @param $enginePath The URL to access the OSS Engine
@@ -123,11 +112,7 @@ class OssApi {
    */
   public function __construct($enginePath, $index = NULL, $login = NULL, $apiKey = NULL) {
 
-    $parsedPath = OssApi::parseEnginePath($enginePath, $index);
-    $this->enginePath  = $parsedPath['enginePath'];
-    $this->index    = $parsedPath['index'];
-
-    $this->credential($login, $apiKey);
+    $this->init($enginePath, $index, $login, $apiKey);
 
     if (!function_exists('OssApi_Dummy_Function')) {
       function OssApi_Dummy_Function() {
@@ -147,33 +132,6 @@ class OssApi {
    */
   public function getIndex() {
     return $this->index;
-  }
-
-  /**
-   * Assign credential information for the next queries
-   * @param $login string
-   * @param $apiKey string
-   * If $login is empty, credential is removed
-   */
-  public function credential($login, $apiKey) {
-    // Remove credentials
-    if (empty($login)) {
-      $this->login  = NULL;
-      $this->apiKey  = NULL;
-      return;
-    }
-
-    // Else parse and affect new credentials
-    if (empty($login) || empty($apiKey)) {
-      if (class_exists('OssException')) {
-        throw new UnexpectedValueException('You must provide a login and an api key to use credential.');
-      }
-      trigger_error(__CLASS__ . '::' . __METHOD__ . ': You must provide a login and an api key to use credential.', E_USER_ERROR);
-      return FALSE;
-    }
-
-    $this->login  = $login;
-    $this->apiKey  = $apiKey;
   }
 
   /**
@@ -204,14 +162,12 @@ class OssApi {
 
   /**
    * Optimize the index
-   * param string $index If provided, this index name is used in place of the one defined in the API instance
    * return boolean True on success
    * see OSS Wiki [Web API optimize] documentation before using this method
    * FIXME Provide a link to the OSS WiKi
    */
-  public function optimize($index = NULL) {
-    $index = $index ? $index : $this->index;
-    $return = $this->queryServer($this->getQueryURL(OssApi::API_OPTIMIZE, $index));
+  public function optimize() {
+    $return = $this->queryServer($this->getQueryURL(OssApi::API_OPTIMIZE));
     return ($return !== FALSE);
   }
 
@@ -222,82 +178,23 @@ class OssApi {
    * see OSS Wiki [Web API reload] documentation before using this method
    * FIXME See why API have been removed
    */
-  public function reload($index = NULL) {
-    $index = $index ? $index : $this->index;
-    $return = $this->queryServer($this->getQueryURL(OssApi::API_RELOAD, $index));
+  public function reload() {
+    $return = $this->queryServer($this->getQueryURL(OssApi::API_RELOAD));
     return ($return !== FALSE);
-  }
-
-  /**
-   * todo Next release
-   * ignore
-   * param string $file
-   * return NULL
-   * FIXME See with ekeller if this's api won't be deprecated soon
-   */
-  public function push($file) {
-    // http://localhost:8080/oss/push?use=fileNiet&fileName=test.pdf&version=1
   }
 
   /**
    * Add one or many pattern to crawl
    * param string|string[] $patterns
    * param boolean $deleteAll The provided patterns will replace the patterns already in the search engine
-   * param string $index If provided, this index name is used in place of the one defined in the API instance
    * return boolean True on success
    */
-  public function pattern($patterns, $deleteAll = FALSE, $index = NULL) {
-    $index = $index ? $index : $this->index;
+  public function pattern($patterns, $deleteAll = FALSE) {
     if (is_array($patterns)) {
       $patterns = implode("\n", $patterns);
     }
-    $return = $this->queryServer($this->getQueryURL(OssApi::API_PATTERN, $index) . ($deleteAll?'&deleteAll=yes':'&deleteAll=no'), $patterns);
+    $return = $this->queryServer($this->getQueryURL(OssApi::API_PATTERN) . ($deleteAll?'&deleteAll=yes':'&deleteAll=no'), $patterns);
     return ($return !== FALSE);
-  }
-
-  /**
-   * Return the url to use with curl
-   * param string $apiCall The Web API to call. Refer to the OSS Wiki documentation of [Web API]
-   * param string $index The index to query. If none given, index of the current object will be used
-   * param string $command The optional command to send to the API call
-   * param string[] $options Additional query parameters
-   * return string
-   * Use OssApi::API_* constants for $apiCall.
-   * Optionals query parameters are provided as a named list:
-   * array(
-   *   "arg1" => "value1",
-   *   "arg2" => "value2"
-   * )
-   */
-  protected function getQueryURL($apiCall, $index = NULL, $cmd = NULL, $options = NULL) {
-
-    $path = $this->enginePath . '/' . $apiCall;
-    $chunks = array();
-
-    if (!empty($index)) {
-      $chunks[] = 'use=' . urlencode($index);
-    }
-
-    if (!empty($cmd)) {
-      $chunks[] = 'cmd=' . urlencode($cmd);
-    }
-
-    // If credential provided, include them in the query url
-    if (!empty($this->login)) {
-      $chunks[] = "login=" . urlencode($this->login);
-      $chunks[] = "key="  . urlencode($this->apiKey);
-    }
-
-    // Prepare additionnal parameters
-    if (is_array($options)) {
-      foreach ($options as $argName => $argValue) {
-        $chunks[] = $argName . "=" . urlencode($argValue);
-      }
-    }
-
-    $path .= (strpos($path, '?') !== FALSE ? '&' : '?') . implode("&", $chunks);
-
-    return $path;
   }
 
   /**
@@ -305,12 +202,9 @@ class OssApi {
    * @param mixed $xml Can be an xml string, a OssIndexDocument, a SimpleXMLElement,
    *                   a DOMDocument or any object that implement the __toString
    *                   magic method
-   * @param string $index If provided, this index name is used in place of the one defined in the API instance
    * @return boolean True on success
    */
-  public function update($xml, $index = NULL) {
-
-    $index = $index ? $index : $this->index;
+  public function update($xml) {
 
     // Cast $xml to a string
     if (!is_string($xml)) {
@@ -335,7 +229,7 @@ class OssApi {
       return FALSE;
     }
 
-    $return = $this->queryServer($this->getQueryURL(OssApi::API_UPDATE, $index), $xml);
+    $return = $this->queryServer($this->getQueryURL(OssApi::API_UPDATE), $xml);
     return ($return !== FALSE);
 
   }
@@ -348,10 +242,10 @@ class OssApi {
    */
   public function getEngineInformations() {
     $infos = array(
-      'engine_url'    => $this->enginePath,
-      'engine_version'  => 'unknown',
-      'login'        => $this->login,
-      'apiKey'      => $this->apiKey
+        'engine_url'    => $this->enginePath,
+        'engine_version'  => 'unknown',
+        'login'        => $this->login,
+        'apiKey'      => $this->apiKey
     );
     return $infos;
     //return OssApi::queryServerXML($this->enginePath.'/'.OssApi::API_ENGINE);
@@ -363,17 +257,16 @@ class OssApi {
    * @param string $index If provided, this index name is used in place of the one defined in the API instance
    * @return string[]
    */
-  public function getIndexInformations($index = NULL) {
-    $index = $index ? $index : $this->index;
+  public function getIndexInformations() {
 
     $infos  = array(
-      'name'  => $index,
-      'size'  => NULL
+        'name'  => $index,
+        'size'  => NULL
     );
 
     set_error_handler('OssApi_Dummy_Function', E_ALL);
     try {
-      $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT, $index) . '&q=*:*&rows=0');
+      $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT) . '&q=*:*&rows=0');
     }
     catch (Exception $e) {
       $result = FALSE;
@@ -394,7 +287,7 @@ class OssApi {
   public function isEngineRunning() {
 
     // Check if the select api is answering
-    $rcurl = curl_init($this->getQueryURL(OssApi::API_SELECT, $index) . '&q=!*:*&rows=0');
+    $rcurl = curl_init($this->getQueryURL(OssApi::API_SELECT) . '&q=!*:*&rows=0');
     curl_setopt($rcurl, CURLOPT_HTTP_VERSION, '1.0');
     curl_setopt($rcurl, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($rcurl, CURLOPT_CONNECTTIMEOUT, 5);
@@ -425,10 +318,10 @@ class OssApi {
     set_error_handler('OssApi_Dummy_Function', E_ALL);
     try {
       if($queryTemplate != NULL) {
-        $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT, $index) . '&q=!*:*&rows=0&qt=' . $queryTemplate);
+        $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT) . '&q=!*:*&rows=0&qt=' . $queryTemplate);
       }
       else {
-        $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT, $index) . '&q=!*:*&rows=0');
+        $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT) . '&q=!*:*&rows=0');
       }
     }
     catch (Exception $e) {
@@ -443,7 +336,8 @@ class OssApi {
    * @return string[]
    */
   public function indexList() {
-    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, NULL, OssApi::API_SCHEMA_INDEX_LIST));
+    $params = array('cmd' => OssApi::API_SCHEMA_INDEX_LIST);
+    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
     $indexes = array();
     foreach ($return->index as $index) {
       $indexes[] = (string)$index['name'];
@@ -459,11 +353,12 @@ class OssApi {
    */
   public function createIndex($index, $template = FALSE) {
 
-    $params = array("index.name" => $index);
+    $params = array('index.name' => $index);
     if ($template) {
-      $params["index.template"] = $template;
+      $params['index.template'] = $template;
     }
-    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, NULL, OssApi::API_SCHEMA_CREATE_INDEX, $params));
+    $params['cmd'] = OssApi::API_SCHEMA_CREATE_INDEX;
+    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
     if ($return === FALSE) {
       return FALSE;
     }
@@ -472,14 +367,13 @@ class OssApi {
 
   /**
    * Retreive the complete schema of the index
-   * @param string $index If provided, this index name is used in place of the one defined in the API instance
    * @return SimpleXMLElement|OSS_Schema
    * The schema is provided by the OSS engine as an xml. This xml is actualy the complete configuration of the schema.
    * If you want to manipulate the schema, pass it to OSS_Schema::factoryFromXML(...) for easier access.
    */
-  public function getSchema($index = NULL) {
-    $index = $index ? $index : $this->index;
-    return $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $index, OssApi::API_SCHEMA_GET_SCHEMA));
+  public function getSchema() {
+    $params = array('cmd' => OssApi::API_SCHEMA_GET_SCHEMA);
+    return $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
   }
 
   /**
@@ -489,11 +383,9 @@ class OssApi {
    * @param string $stored
    * @param string $indexed
    * @param string $termVector
-   * @param string $index If provided, this index name is used in place of the one defined in the API instance
    * @return boolean
    */
-  public function setField($name, $analyzer = NULL, $stored = NULL, $indexed = NULL, $termVector = NULL, $index = NULL, $default = NULL, $unique = NULL) {
-    $index = $index ? $index : $this->index;
+  public function setField($name, $analyzer = NULL, $stored = NULL, $indexed = NULL, $termVector = NULL, $default = NULL, $unique = NULL) {
     $params = array("field.name" => $name);
     if ($analyzer) {
       $params["field.analyzer"]   = $analyzer;
@@ -514,7 +406,8 @@ class OssApi {
       $params["field.unique"] = $unique;
     }
 
-    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $index, OssApi::API_SCHEMA_SET_FIELD, $params));
+    $params['cmd'] = OssApi::API_SCHEMA_SET_FIELD;
+    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
 
     if ($return === FALSE) {
       return FALSE;
@@ -709,8 +602,8 @@ class OssApi {
    */
   public static function escape($string) {
     static $escaping = array(
-    array("+",   "-",   "&&",   "||",  "!",  "(",  ")",  "{",  "}",  "[",  "]",  "^", "\"",  "~",  "*",  "?",  ":", '\\'),
-    array('\+', '\-', '\&\&', '\|\|', '\!', '\(', '\)', '\{', '\}', '\[', '\]', '\^', '\"', '\~', '\*', '\?', '\:', '\\\\')
+        array("+",   "-",   "&&",   "||",  "!",  "(",  ")",  "{",  "}",  "[",  "]",  "^", "\"",  "~",  "*",  "?",  ":", '\\'),
+        array('\+', '\-', '\&\&', '\|\|', '\!', '\(', '\)', '\{', '\}', '\[', '\]', '\^', '\"', '\~', '\*', '\?', '\:', '\\\\')
     );
     return str_replace($escaping[0], $escaping[1], $string);
   }
@@ -723,10 +616,10 @@ class OssApi {
   public static function cleanUTF8($string, $replacement = '') {
 
     static $remove = array(
-      "\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
-      "\x08",                 "\x0B", "\x0C",         "0x0E", "\x0F",
-      "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17",
-      "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D", "\x1E", "\x1F"
+        "\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
+        "\x08",                 "\x0B", "\x0C",         "0x0E", "\x0F",
+        "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17",
+        "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D", "\x1E", "\x1F"
     );
     return str_replace($remove, $replacement, $string);
 

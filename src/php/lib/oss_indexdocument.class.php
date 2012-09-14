@@ -2,7 +2,7 @@
 /*
 *  This file is part of OpenSearchServer.
 *
-*  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+*  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 *
 *  http://www.open-search-server.com
 *
