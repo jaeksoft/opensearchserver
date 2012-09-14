@@ -73,6 +73,7 @@ class OssApi extends OssAbstract {
 
   const INDEX_TEMPLATE_EMPTY  = 'empty_index';
 
+  const API_AUTOCOMPLETION = 'autocompletion';
 
   /** @var int Default timeout (specified in seconds) for CURLOPT_TIMEOUT option. See curl documentation */
   const DEFAULT_QUERY_TIMEOUT = 0;
