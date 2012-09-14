@@ -61,9 +61,9 @@ class OssApi extends OssAbstract {
   const API_SCHEMA   = 'schema';
   const API_SEARCH_TEMPLATE='searchtemplate';
 
-  const API_SEARCH_TEMPLATE_CREATE='cmd=create';
-  const API_SEARCH_TEMPLATE_SETRETURNFIELD='cmd=setreturnfield';
-  const API_SEARCH_TEMPLATE_SETSNIPPETFIELD='cmd=setsnippetfield';
+  const API_SEARCH_TEMPLATE_CREATE='create';
+  const API_SEARCH_TEMPLATE_SETRETURNFIELD='setreturnfield';
+  const API_SEARCH_TEMPLATE_SETSNIPPETFIELD='setsnippetfield';
 
   const API_SCHEMA_INDEX_LIST    = 'indexList';
   const API_SCHEMA_CREATE_INDEX  = 'createIndex';
@@ -368,7 +368,7 @@ class OssApi extends OssAbstract {
     $params = array('cmd' => OssApi::API_SCHEMA_GET_SCHEMA);
     return $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
   }
-
+  
   /**
    * Create or alter a field
    * @param string $name
@@ -392,10 +392,10 @@ class OssApi extends OssAbstract {
     if ($termVector) {
       $params["field.termVector"] = $termVector;
     }
-    if ($termVector) {
+    if ($default) {
       $params["field.default"] = $default;
     }
-    if ($termVector) {
+    if ($unique) {
       $params["field.unique"] = $unique;
     }
 
