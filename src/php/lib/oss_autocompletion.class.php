@@ -37,5 +37,13 @@ class OssAutocompletion extends OssAbstract {
     $this->init($enginePath, $index, $login, $apiKey);
   }
 
+  public function autocomplete($query, $rows = 10) {
+    $params = array('query' => $query, 'rows' => $rows);
+    $return = OssApi::queryServer($this->getQueryURL(OssApi::API_DELETE, $params));
+    if ($return === FALSE) {
+      return FALSE;
+    }
+    return $return;
+  }
 }
 ?>
