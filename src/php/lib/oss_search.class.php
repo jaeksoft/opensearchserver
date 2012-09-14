@@ -79,7 +79,7 @@ class OssSearch extends OssAbstract {
     $this->facets  = array();
     $this->collapse  = array('field' => NULL, 'max' => NULL, 'mode' => NULL);
     $this->moreLikeThis = array('active' => NULL, 'docquery' => NULL, 'minwordlen' => NULL,
-        'maxwordlen' => NULL, 'mindocfreq' => NULL, 'mintermfreq' => NULL, 'stopwords' => NULL);
+            'maxwordlen' => NULL, 'mindocfreq' => NULL, 'mintermfreq' => NULL, 'stopwords' => NULL);
     $this->log = FALSE;
     $this->customLogs = array();
     $this->uniqueKey = array();

@@ -29,6 +29,11 @@ abstract class OssAbstract {
 
   public function init($enginePath, $index = NULL, $login = NULL, $apiKey = NULL) {
 
+    if (!function_exists('OssApi_Dummy_Function')) {
+      function OssApi_Dummy_Function() {
+      }
+    }
+    	
     $parsedPath = OssApi::parseEnginePath($enginePath, $index);
     $this->enginePath  = $parsedPath['enginePath'];
     $this->index    = $parsedPath['index'];
