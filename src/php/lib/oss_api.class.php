@@ -141,23 +141,20 @@ class OssApi extends OssAbstract {
    * This method require the file OssSearch.class.php. It'll be included if the OssSearch class don't exist.
    * It's expected to be in the same directory as OssApi.class.php.
    */
-  public function select($index = NULL) {
-    $index = $index ? $index : $this->index;
+  public function select() {
     if (!class_exists('OssSearch')) {
       require(dirname(__FILE__) . '/OssSearch.class.php');
     }
-    return new OssSearch($this->enginePath, $index, NULL, NULL, $this->login, $this->apiKey);
+    return new OssSearch($this->enginePath, NULL, NULL, $this->login, $this->apiKey);
   }
 
   /**
    * Return an OssSearch using the current engine path and index
-   * @param string $index If provided, this index name is used in place of the one defined in the API instance
    * @return OssSearch
    * @deprecated Use OssApi::select
    */
-  public function search($index = NULL) {
-    $index = $index ? $index : $this->index;
-    return $this->select($index);
+  public function search() {
+    return $this->select();
   }
 
   /**
