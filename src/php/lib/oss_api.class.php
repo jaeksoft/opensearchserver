@@ -67,6 +67,7 @@ class OssApi extends OssAbstract {
 
   const API_SCHEMA_INDEX_LIST    = 'indexList';
   const API_SCHEMA_CREATE_INDEX  = 'createIndex';
+  const API_SCHEMA_DELETE_INDEX  = 'deleteIndex';
   const API_SCHEMA_GET_SCHEMA    = 'getSchema';
   const API_SCHEMA_SET_FIELD    = "setField";
   const API_SCHEMA_DELETE_FIELD  = "deleteField";
@@ -87,23 +88,23 @@ class OssApi extends OssAbstract {
    * @var array
    */
   protected static $supportedLanguages = array(
-          ""   => "Undefined",
-          "zh" => "Chinese",
-          "da" => "Danish",
-          "nl" => "Dutch",
-          "en" => "English",
-          "fi" => "Finnish",
-          "fr" => "French",
-          "de" => "German",
-          "hu" => "Hungarian",
-          "it" => "Italian",
-          "no" => "Norwegian",
-          "pt" => "Portuguese",
-          "ro" => "Romanian",
-          "ru" => "Russian",
-          "es" => "Spanish",
-          "sv" => "Swedish",
-          "tr" => "Turkish"
+    ""   => "Undefined",
+    "zh" => "Chinese",
+    "da" => "Danish",
+    "nl" => "Dutch",
+    "en" => "English",
+    "fi" => "Finnish",
+    "fr" => "French",
+    "de" => "German",
+    "hu" => "Hungarian",
+    "it" => "Italian",
+    "no" => "Norwegian",
+    "pt" => "Portuguese",
+    "ro" => "Romanian",
+    "ru" => "Russian",
+    "es" => "Spanish",
+    "sv" => "Swedish",
+    "tr" => "Turkish"
   );
 
   /**
@@ -236,10 +237,10 @@ class OssApi extends OssAbstract {
    */
   public function getEngineInformations() {
     $infos = array(
-            'engine_url'    => $this->enginePath,
-            'engine_version'  => 'unknown',
-            'login'        => $this->login,
-            'apiKey'      => $this->apiKey
+      'engine_url'    => $this->enginePath,
+      'engine_version'  => 'unknown',
+      'login'        => $this->login,
+      'apiKey'      => $this->apiKey
     );
     return $infos;
     //return OssApi::queryServerXML($this->enginePath.'/'.OssApi::API_ENGINE);
@@ -254,8 +255,8 @@ class OssApi extends OssAbstract {
   public function getIndexInformations() {
 
     $infos  = array(
-            'name'  => $index,
-            'size'  => NULL
+      'name'  => $index,
+      'size'  => NULL
     );
 
     set_error_handler('OssApi_Dummy_Function', E_ALL);
@@ -360,6 +361,21 @@ class OssApi extends OssAbstract {
   }
 
   /**
+   * Delete an index
+   * @param string $index The name of the index to delete
+   */
+  public function deleteIndex($index) {
+    $params = array('cmd' => OssApi::API_SCHEMA_DELETE_INDEX);
+    $params['index.delete.name'] = $index;
+    $params['index.name'] = $index;
+    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
+    if ($return === FALSE) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
+  /**
    * Retreive the complete schema of the index
    * @return SimpleXMLElement|OSS_Schema
    * The schema is provided by the OSS engine as an xml. This xml is actualy the complete configuration of the schema.
@@ -369,7 +385,7 @@ class OssApi extends OssAbstract {
     $params = array('cmd' => OssApi::API_SCHEMA_GET_SCHEMA);
     return $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
   }
-  
+
   /**
    * Create or alter a field
    * @param string $name
@@ -596,8 +612,8 @@ class OssApi extends OssAbstract {
    */
   public static function escape($string) {
     static $escaping = array(
-            array("+",   "-",   "&&",   "||",  "!",  "(",  ")",  "{",  "}",  "[",  "]",  "^", "\"",  "~",  "*",  "?",  ":", '\\'),
-            array('\+', '\-', '\&\&', '\|\|', '\!', '\(', '\)', '\{', '\}', '\[', '\]', '\^', '\"', '\~', '\*', '\?', '\:', '\\\\')
+      array("+",   "-",   "&&",   "||",  "!",  "(",  ")",  "{",  "}",  "[",  "]",  "^", "\"",  "~",  "*",  "?",  ":", '\\'),
+      array('\+', '\-', '\&\&', '\|\|', '\!', '\(', '\)', '\{', '\}', '\[', '\]', '\^', '\"', '\~', '\*', '\?', '\:', '\\\\')
     );
     return str_replace($escaping[0], $escaping[1], $string);
   }
@@ -610,10 +626,10 @@ class OssApi extends OssAbstract {
   public static function cleanUTF8($string, $replacement = '') {
 
     static $remove = array(
-            "\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
-            "\x08",                 "\x0B", "\x0C",         "0x0E", "\x0F",
-            "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17",
-            "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D", "\x1E", "\x1F"
+      "\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
+      "\x08",                 "\x0B", "\x0C",         "0x0E", "\x0F",
+      "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17",
+      "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D", "\x1E", "\x1F"
     );
     return str_replace($remove, $replacement, $string);
 
