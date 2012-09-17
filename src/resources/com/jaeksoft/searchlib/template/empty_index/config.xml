@@ -44,8 +44,7 @@
 			</analyzer>
 
 			<!-- Arabic -->
-			<analyzer name="TextAnalyzer" lang="ar"
-				tokenizer="ArabicLetterTokenizer">
+			<analyzer name="TextAnalyzer" lang="ar" tokenizer="ArabicLetterTokenizer">
 				<filter class="ArabicNormalizerFilter" />
 				<filter class="ArabicStemFilter" />
 			</analyzer>
@@ -192,6 +191,28 @@
 				<filter class="ISOLatin1AccentFilter" scope="QUERY_INDEX" />
 				<filter class="EdgeNGramFilter" max_gram="100" min_gram="1"
 					scope="QUERY_INDEX" side="front" />
+			</analyzer>
+
+			<!-- Numeric -->
+			<analyzer name="IntegerAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<filter class="NumberFormatFilter"
+					numberFormat="&apos;&gt;&apos;0000000000;&apos;&lt;&apos;0000000000"
+					scope="QUERY_INDEX" />
+			</analyzer>
+
+			<analyzer name="LongAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<filter class="NumberFormatFilter"
+					numberFormat="&apos;&gt;&apos;00000000000000000000;&apos;&lt;&apos;00000000000000000000"
+					scope="QUERY_INDEX" />
+			</analyzer>
+
+			<analyzer name="DecimalAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<filter class="NumberFormatFilter"
+					numberFormat="&apos;&gt;&apos;0000000000.##########;&apos;&lt;&apos;0000000000.##########"
+					scope="QUERY_INDEX" />
 			</analyzer>
 
 		</analyzers>
