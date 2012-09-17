@@ -46,11 +46,13 @@ if (!class_exists('OutOfRangeException')) {
  * @package OpenSearchServer
  */
 
-require_once('oss_abstract.class.php');
+require_once(dirname(__FILE__).'/oss_abstract.class.php');
+require_once(dirname(__FILE__).'/oss_schema.class.php');
+require_once(dirname(__FILE__) . '/oss_search.class.php');
+
 
 class OssApi extends OssAbstract {
 
-  const API_SELECT   = 'select';
   const API_UPDATE   = 'update';
   const API_DELETE   = 'delete';
   const API_OPTIMIZE = 'optimize';
@@ -58,20 +60,6 @@ class OssApi extends OssAbstract {
   const API_INDEX    = 'index';
   const API_ENGINE   = 'engine';
   const API_PATTERN  = 'pattern';
-  const API_SCHEMA   = 'schema';
-  const API_SEARCH_TEMPLATE='searchtemplate';
-
-  const API_SEARCH_TEMPLATE_CREATE='create';
-  const API_SEARCH_TEMPLATE_SETRETURNFIELD='setreturnfield';
-  const API_SEARCH_TEMPLATE_SETSNIPPETFIELD='setsnippetfield';
-
-  const API_SCHEMA_INDEX_LIST    = 'indexList';
-  const API_SCHEMA_CREATE_INDEX  = 'createIndex';
-  const API_SCHEMA_DELETE_INDEX  = 'deleteIndex';
-  const API_SCHEMA_GET_SCHEMA    = 'getSchema';
-  const API_SCHEMA_SET_FIELD    = "setField";
-  const API_SCHEMA_DELETE_FIELD  = "deleteField";
-
   const INDEX_TEMPLATE_EMPTY  = 'empty_index';
 
   const API_AUTOCOMPLETION = 'autocompletion';
@@ -113,23 +101,7 @@ class OssApi extends OssAbstract {
    * @return OssApi
    */
   public function __construct($enginePath, $index = NULL, $login = NULL, $apiKey = NULL) {
-
     $this->init($enginePath, $index, $login, $apiKey);
-
-  }
-
-  /**
-   * @return string The parsed engine path
-   */
-  public function getEnginePath() {
-    return $this->enginePath;
-  }
-
-  /**
-   * @return string The parsed index (NULL if not specified)
-   */
-  public function getIndex() {
-    return $this->index;
   }
 
   /**
@@ -140,9 +112,6 @@ class OssApi extends OssAbstract {
    * It's expected to be in the same directory as OssApi.class.php.
    */
   public function select() {
-    if (!class_exists('OssSearch')) {
-      require(dirname(__FILE__) . '/OssSearch.class.php');
-    }
     return new OssSearch($this->enginePath, NULL, NULL, $this->login, $this->apiKey);
   }
 
@@ -229,115 +198,13 @@ class OssApi extends OssAbstract {
 
   }
 
-
-  /**
-   * Return informations about the OSS Engine
-   * @todo Finish implementation once API is availabe
-   * @return string[]
-   */
-  public function getEngineInformations() {
-    $infos = array(
-      'engine_url'    => $this->enginePath,
-      'engine_version'  => 'unknown',
-      'login'        => $this->login,
-      'apiKey'      => $this->apiKey
-    );
-    return $infos;
-    //return OssApi::queryServerXML($this->enginePath.'/'.OssApi::API_ENGINE);
-  }
-
-  /**
-   * Return informations about the index
-   * @todo Finish implementation once API is availabe
-   * @param string $index If provided, this index name is used in place of the one defined in the API instance
-   * @return string[]
-   */
-  public function getIndexInformations() {
-
-    $infos  = array(
-      'name'  => $index,
-      'size'  => NULL
-    );
-
-    set_error_handler('OssApi_Dummy_Function', E_ALL);
-    try {
-      $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT) . '&q=*:*&rows=0');
-    }
-    catch (Exception $e) {
-      $result = FALSE;
-    }
-    restore_error_handler();
-    if ($result instanceof SimpleXMLElement) {
-      $infos['count'] = $result->result['numFound'];
-    }
-
-    return $infos;
-  }
-
-  /**
-   * Check if the engine is running. Don't check the existance of the index.
-   * @return boolean Return NULL if can't connect to tomcat. Return FALSE if engine fail to answer. Return TRUE if the engine is running.
-   * @todo Recode this method once API is provided
-   */
-  public function isEngineRunning() {
-
-    // Check if the select api is answering
-    $rcurl = curl_init($this->getQueryURL(OssApi::API_SELECT) . '&q=!*:*&rows=0');
-    curl_setopt($rcurl, CURLOPT_HTTP_VERSION, '1.0');
-    curl_setopt($rcurl, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($rcurl, CURLOPT_CONNECTTIMEOUT, 5);
-    set_error_handler('OssApi_Dummy_Function', E_ALL);
-    curl_exec($rcurl);
-    restore_error_handler();
-    $infos = curl_getinfo($rcurl);
-    if ($infos['http_code'] >= 200 && $infos['http_code'] < 300) {
-      return TRUE;
-    }
-    if ($infos['http_code'] == 0) {
-      return NULL;
-    }
-    return FALSE;
-
-  }
-
-  /**
-   * Check if the index is available
-   * @param string $index If provided, this index name is used in place of the one defined in the API instance
-   * @return boolean True if exist.
-   * FIXME Recode to use the new API Schema
-   * @todo Recode this method once API is provided
-   */
-  public function isIndexAvailable($index = NULL,$queryTemplate = NULL) {
-    $index = $index ? $index : $this->index;
-    // Check if the select api is answering
-    set_error_handler('OssApi_Dummy_Function', E_ALL);
-    try {
-      if($queryTemplate != NULL) {
-        $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT) . '&q=!*:*&rows=0&qt=' . $queryTemplate);
-      }
-      else {
-        $result = $this->queryServerXML($this->getQueryURL(OssApi::API_SELECT) . '&q=!*:*&rows=0');
-      }
-    }
-    catch (Exception $e) {
-      $result = FALSE;
-    }
-    restore_error_handler();
-    return (bool)$result;
-  }
-
   /**
    * Return the list of indexes usable by the current credential
    * @return string[]
    */
   public function indexList() {
-    $params = array('cmd' => OssApi::API_SCHEMA_INDEX_LIST);
-    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
-    $indexes = array();
-    foreach ($return->index as $index) {
-      $indexes[] = (string)$index['name'];
-    }
-    return $indexes;
+    $ossSchema = new OssSchema($this->enginePath, $this->index, $this->login, $this->apiKey);
+    return $ossSchema->indexList();
   }
 
   /**
@@ -347,17 +214,8 @@ class OssApi extends OssAbstract {
    * @return boolean
    */
   public function createIndex($index, $template = FALSE) {
-
-    $params = array('index.name' => $index);
-    if ($template) {
-      $params['index.template'] = $template;
-    }
-    $params['cmd'] = OssApi::API_SCHEMA_CREATE_INDEX;
-    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
-    if ($return === FALSE) {
-      return FALSE;
-    }
-    return TRUE;
+    $ossSchema = new OssSchema($this->enginePath, $this->index, $this->login, $this->apiKey);
+    return $ossSchema->createIndex($index, $template);
   }
 
   /**
@@ -365,14 +223,8 @@ class OssApi extends OssAbstract {
    * @param string $index The name of the index to delete
    */
   public function deleteIndex($index) {
-    $params = array('cmd' => OssApi::API_SCHEMA_DELETE_INDEX);
-    $params['index.delete.name'] = $index;
-    $params['index.name'] = $index;
-    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
-    if ($return === FALSE) {
-      return FALSE;
-    }
-    return TRUE;
+    $ossSchema = new OssSchema($this->enginePath, $this->index, $this->login, $this->apiKey);
+    return $ossSchema->deleteIndex($index);
   }
 
   /**
@@ -382,8 +234,8 @@ class OssApi extends OssAbstract {
    * If you want to manipulate the schema, pass it to OSS_Schema::factoryFromXML(...) for easier access.
    */
   public function getSchema() {
-    $params = array('cmd' => OssApi::API_SCHEMA_GET_SCHEMA);
-    return $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
+    $ossSchema = new OssSchema($this->enginePath, $this->index, $this->login, $this->apiKey);
+    return $ossSchema->getSchema();
   }
 
   /**
@@ -393,207 +245,13 @@ class OssApi extends OssAbstract {
    * @param string $stored
    * @param string $indexed
    * @param string $termVector
+   * @param string $default
+   * @param string $unique
    * @return boolean
    */
   public function setField($name, $analyzer = NULL, $stored = NULL, $indexed = NULL, $termVector = NULL, $default = NULL, $unique = NULL) {
-    $params = array("field.name" => $name);
-    if ($analyzer) {
-      $params["field.analyzer"]   = $analyzer;
-    }
-    if ($stored)  {
-      $params["field.stored"]     = $stored;
-    }
-    if ($indexed) {
-      $params["field.indexed"]    = $indexed;
-    }
-    if ($termVector) {
-      $params["field.termVector"] = $termVector;
-    }
-    if ($default) {
-      $params["field.default"] = $default;
-    }
-    if ($unique) {
-      $params["field.unique"] = $unique;
-    }
-
-    $params['cmd'] = OssApi::API_SCHEMA_SET_FIELD;
-    $return = $this->queryServerXML($this->getQueryURL(OssApi::API_SCHEMA, $params));
-
-    if ($return === FALSE) {
-      return FALSE;
-    }
-    return TRUE;
-  }
-
-  /**
-   * Post data to an URL
-   * @param string $url
-   * @param string $data Optional. If provided will use a POST method. Only accept
-   *                     data as POST encoded string or raw XML string.
-   * @param int $timeout Optional. Number of seconds before the query fail
-   * @return FALSE|string
-   *
-   * Will fail if more than 16 HTTP redirection
-   */
-  public static function queryServer($url, $data = NULL, $connexionTimeout = OssApi::DEFAULT_CONNEXION_TIMEOUT, $timeout = OssApi::DEFAULT_QUERY_TIMEOUT) {
-
-    // Use CURL to post the data
-
-    $rcurl = curl_init($url);
-    curl_setopt($rcurl, CURLOPT_HTTP_VERSION, '1.0');
-    curl_setopt($rcurl, CURLOPT_BINARYTRANSFER, TRUE);
-    curl_setopt($rcurl, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($rcurl, CURLOPT_FOLLOWLOCATION, TRUE);
-    curl_setopt($rcurl, CURLOPT_MAXREDIRS, 16);
-    curl_setopt($rcurl, CURLOPT_VERBOSE, TRUE);
-
-    if (is_integer($connexionTimeout) && $connexionTimeout >= 0) {
-      curl_setopt($rcurl, CURLOPT_CONNECTTIMEOUT, $connexionTimeout);
-    }
-
-    if (is_integer($timeout) && $timeout >= 0) {
-      curl_setopt($rcurl, CURLOPT_TIMEOUT, $timeout);
-    }
-
-    // Send provided string as POST data. Must be encoded to meet POST specification
-    if ($data !== NULL) {
-      curl_setopt($rcurl, CURLOPT_POST, TRUE);
-      curl_setopt($rcurl, CURLOPT_POSTFIELDS, (string)$data);
-      curl_setopt($rcurl, CURLOPT_HTTPHEADER, array("Content-type: text/xml; charset=utf-8"));
-    }
-
-    set_error_handler('OssApi_Dummy_Function', E_ALL);
-    $content = curl_exec($rcurl);
-    restore_error_handler();
-
-    if ($content === FALSE) {
-      if (class_exists('OssException')) {
-        throw new RuntimeException('CURL failed to execute on URL "' . $url . '"');
-      }
-      trigger_error('CURL failed to execute on URL "' . $url . '"', E_USER_WARNING);
-      return FALSE;
-    }
-
-    $aResponse   = curl_getinfo($rcurl);
-
-    // Must check return code
-    if ($aResponse['http_code'] >= 400) {
-      if (class_exists('OssException')) {
-        throw new TomcatException($aResponse['http_code'], $content);
-      }
-      trigger_error('HTTP ERROR ' . $aResponse['http_code'] . ': "' . trim(strip_tags($content)) . '"', E_USER_WARNING);
-      return FALSE;
-    }
-
-    // FIXME Possible problem to identify Locked Index message. Must set a lock on an index to check this
-    if (OssApi::isOSSError($content)) {
-      if (class_exists('OssException')) {
-        throw new OssException($content);
-      }
-      trigger_error('OSS Returned an error: "' . trim(strip_tags($content)) . '"', E_USER_WARNING);
-      return FALSE;
-    }
-
-    return $content;
-  }
-
-  /**
-   * Post data to an URL and retrieve an XML
-   * @param string $url
-   * @param string $data Optional. If provided will use a POST method. Only accept
-   *                     data as POST encoded string or raw XML string.
-   * @param int $timeout Optional. Number of seconds before the query fail
-   * @return SimpleXMLElement
-   * Use OssApi::queryServerto retrieve an XML and check its validity
-   */
-  public static function queryServerXML($url, $data = NULL, $connexionTimeout = OssApi::DEFAULT_CONNEXION_TIMEOUT, $timeout = OssApi::DEFAULT_QUERY_TIMEOUT) {
-    $result = OssApi::queryServer($url, $data, $connexionTimeout, $timeout);
-    if ($result === FALSE) {
-      return FALSE;
-    }
-
-    // Check if we have a valid XML string from the engine
-    $lastErrorLevel = error_reporting(0);
-    $xmlResult = simplexml_load_string(OssApi::cleanUTF8($result));
-    error_reporting($lastErrorLevel);
-    if (!$xmlResult instanceof SimpleXMLElement) {
-      if (class_exists('OssException')) {
-        throw new RuntimeException("The search engine didn't return a valid XML");
-      }
-      trigger_error("The search engine didn't return a valid XML", E_USER_WARNING);
-      return FALSE;
-    }
-
-    return $xmlResult;
-  }
-
-  /**
-   * Check if the answer is an error returned by OSS
-   * @param $xml string, DOMDocument or SimpleXMLElement
-   * @return boolean True if error success
-   */
-  public static function isOSSError($xml) {
-
-    // Cast $xml param to be a SimpleXMLElement
-    // If we don't find the word 'Error' in the xml string, exit immediatly
-    if ($xml instanceof SimpleXMLElement) {
-      if (strpos((string)$xml, 'Error') === FALSE) {
-        return FALSE;
-      }
-      $xmlDoc = $xml;
-    }
-    elseif ($xml instanceof DOMDocument) {
-      $xmlDoc = simplexml_import_dom($xml);
-      if (strpos((string)$xmlDoc, 'Error') === FALSE) {
-        return FALSE;
-      }
-    }
-    else {
-      if (strpos((string)$xml, 'Error') === FALSE) {
-        return FALSE;
-      }
-      $previous_error_level = error_reporting(0);
-      $xmlDoc = simplexml_load_string($xml);
-      error_reporting($previous_error_level);
-    }
-
-    if (!$xmlDoc instanceof SimpleXMLElement) {
-      return FALSE;
-    }
-
-    // Make sure the Error we found was a Status Error
-    foreach ($xmlDoc->entry as $entry) {
-      if ($entry['key'] == 'Status' && $entry == 'Error') {
-        return TRUE;
-      }
-    }
-
-    return FALSE;
-  }
-
-  /**
-   * Parse the enginePath parameter to extract the index name.
-   * @param $enginePath The URL to access the OSS Engine
-   * @param $index The index name
-   */
-  public static function parseEnginePath($enginePath, $index = NULL) {
-
-    $urlParams = array();
-    // Extract the use param in the query part if any
-    if (strpos($enginePath, '?') !== FALSE) {
-      $parsedURL = parse_url($enginePath);
-      parse_str($parsedURL['query'], $urlParams);
-      if (isset($urlParams['use'])) {
-        $index = $urlParams['use'];
-        $enginePath = str_replace('&&', '&', str_replace("use=" . $urlParams['use'], '', $enginePath));
-        if (substr($enginePath, -1) == '?') {
-          $enginePath = substr($enginePath, 0, -1);
-        }
-      }
-    }
-
-    return array('enginePath' => $enginePath, 'index' => $index);
-
+    $ossSchema = new OssSchema($this->enginePath, $this->index, $this->login, $this->apiKey);
+    return $ossSchema->setField($name, $analyzer, $stored, $indexed, $termVector, $default, $unique);
   }
 
   /**

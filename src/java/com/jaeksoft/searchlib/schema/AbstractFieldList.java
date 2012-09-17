@@ -87,7 +87,9 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	}
 
 	private void addNoLockNoCache(T field) {
-		fieldMap.put(field.name, field);
+		T previousField = fieldMap.put(field.name, field);
+		if (previousField != null)
+			fieldList.remove(previousField);
 		fieldList.add(field);
 	}
 

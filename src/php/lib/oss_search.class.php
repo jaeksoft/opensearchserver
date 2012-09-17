@@ -26,11 +26,7 @@
  * Class to access OpenSearchServer API
  */
 
-if (!class_exists('OssApi')) {
-  trigger_error("OssSearch won't work whitout OssApi", E_USER_ERROR); die();
-}
-
-require_once('oss_abstract.class.php');
+require_once(dirname(__FILE__).'/oss_abstract.class.php');
 
 
 /**
@@ -40,6 +36,8 @@ require_once('oss_abstract.class.php');
  * FIXME Clean this class and use facilities provided by OssApi
  */
 class OssSearch extends OssAbstract {
+
+  const API_SELECT   = 'select';
 
   protected $query;
   protected $template;
@@ -59,8 +57,6 @@ class OssSearch extends OssAbstract {
   protected $uniqueKeys;
   protected $docIds;
 
-  protected $lastQueryString;
-
   /**
    * @param $enginePath The URL to access the OSS Engine
    * @param $index The index name
@@ -79,7 +75,7 @@ class OssSearch extends OssAbstract {
     $this->facets  = array();
     $this->collapse  = array('field' => NULL, 'max' => NULL, 'mode' => NULL);
     $this->moreLikeThis = array('active' => NULL, 'docquery' => NULL, 'minwordlen' => NULL,
-            'maxwordlen' => NULL, 'mindocfreq' => NULL, 'mintermfreq' => NULL, 'stopwords' => NULL);
+      'maxwordlen' => NULL, 'mindocfreq' => NULL, 'mintermfreq' => NULL, 'stopwords' => NULL);
     $this->log = FALSE;
     $this->customLogs = array();
     $this->uniqueKey = array();
@@ -251,24 +247,14 @@ class OssSearch extends OssAbstract {
    * FIXME Must think about OssApi inteegration inside OssSearch
    */
   public function execute($connectTimeOut = NULL, $timeOut = NULL) {
-    // Do the query
-    $this->lastQueryString = $this->prepareQueryString();
-    $result = OssApi::queryServerXML($this->lastQueryString, NULL, $connectTimeOut, $timeOut);
+    $result = $this->queryServerXML(OssSearch::API_SELECT, $this->getParamsString(), $connectTimeOut, $timeOut);
     if ($result === FALSE) {
       return FALSE;
     }
     return $result;
   }
 
-  /**
-   * Return the last query string
-   * @return string
-   */
-  public function getLastQueryString() {
-    return $this->lastQueryString;
-  }
-
-  protected function prepareQueryString() {
+  protected function getParamsString() {
 
     $queryChunks = array();
 
@@ -383,7 +369,7 @@ class OssSearch extends OssAbstract {
       }
       $queryChunks[] = 'uk=' . urlencode($uniqueKey);
     }
-    return  $this->getQueryURL(OssApi::API_SELECT) . '&' . implode('&', $queryChunks);
+    return implode('&', $queryChunks);
   }
 }
 ?>

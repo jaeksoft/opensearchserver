@@ -25,11 +25,7 @@
  * Class to access OpenSearchServer API
  */
 
-if (!class_exists('OssApi')) {
-  trigger_error("OssSearch won't work whitout OssApi", E_USER_ERROR); die();
-}
-
-require_once('oss_abstract.class.php');
+require_once(dirname(__FILE__).'/oss_abstract.class.php');
 
 class OssAutocompletion extends OssAbstract {
 

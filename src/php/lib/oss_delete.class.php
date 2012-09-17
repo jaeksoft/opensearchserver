@@ -25,11 +25,7 @@
  * Class to access OpenSearchServer API
  */
 
-if (!class_exists('OssApi')) {
-  trigger_error("OssSearch won't work whitout OssApi", E_USER_ERROR); die();
-}
-
-require_once('oss_abstract.class.php');
+require_once(dirname(__FILE__).'/oss_abstract.class.php');
 
 class OssDelete extends OssAbstract {
 
@@ -39,7 +35,7 @@ class OssDelete extends OssAbstract {
 
   public function delete($query) {
     $params = array('q' => $query);
-    $return = OssApi::queryServerXML($this->getQueryURL(OssApi::API_DELETE, $params));
+    $return = $this->queryServerXML(OssApi::API_DELETE, $params);
     if ($return === FALSE) {
       return FALSE;
     }

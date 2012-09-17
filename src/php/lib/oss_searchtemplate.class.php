@@ -2,7 +2,7 @@
 /*
  *  This file is part of OpenSearchServer.
 *
-*  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+*  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 *
 *  http://www.open-search-server.com
 *
@@ -26,14 +26,14 @@
  * Class to access OpenSearchServer API
  */
 
-if (!class_exists('OssApi')) {
-  trigger_error("OssSearch won't work whitout OssApi", E_USER_ERROR); die();
-}
-
-require_once('oss_abstract.class.php');
-
+require_once(dirname(__FILE__).'/oss_abstract.class.php');
 
 class OssSearchTemplate extends OssAbstract {
+
+  const API_SEARCH_TEMPLATE='searchtemplate';
+  const API_SEARCH_TEMPLATE_CREATE='create';
+  const API_SEARCH_TEMPLATE_SETRETURNFIELD='setreturnfield';
+  const API_SEARCH_TEMPLATE_SETSNIPPETFIELD='setsnippetfield';
 
   protected $query;
   protected $template;
@@ -59,16 +59,16 @@ class OssSearchTemplate extends OssAbstract {
     if ($qtlang) {
       $params['qt.lang'] = $qtlang;
     }
-    $params['cmd'] = OssApi::API_SEARCH_TEMPLATE_CREATE;
-    $return = OssApi::queryServerXML($this->getQueryURL(OssApi::API_SEARCH_TEMPLATE, $params));
+    $params['cmd'] = OssSearchTemplate::API_SEARCH_TEMPLATE_CREATE;
+    $return = $this->queryServerXML(OssSearchTemplate::API_SEARCH_TEMPLATE, $params);
     return $return === FALSE ? FALSE : TRUE;
   }
 
   public function setReturnField($qtname, $returnField) {
     $params = array("qt.name" => $qtname);
     $params['returnfield']=$returnField;
-    $params['cmd'] = OssApi::API_SEARCH_TEMPLATE_SETRETURNFIELD;
-    $return = OssApi::queryServerXML($this->getQueryURL(OssApi::API_SEARCH_TEMPLATE, $params));
+    $params['cmd'] = OssSearchTemplate::API_SEARCH_TEMPLATE_SETRETURNFIELD;
+    $return = $this->queryServerXML(OssSearchTemplate::API_SEARCH_TEMPLATE, $params);
     return $return === FALSE ? FALSE : TRUE;
   }
 
@@ -87,8 +87,8 @@ class OssSearchTemplate extends OssAbstract {
       $params['qt.fragmenter'] = $fragmenter;
     }
     $params['snippetfield'] = $snippetField;
-    $params['cmd'] = OssApi::API_SEARCH_TEMPLATE_SETSNIPPETFIELD;
-    $return = OssApi::queryServerXML($this->getQueryURL(OssApi::API_SEARCH_TEMPLATE, $params));
+    $params['cmd'] = OssSearchTemplate::API_SEARCH_TEMPLATE_SETSNIPPETFIELD;
+    $return = OssApi::queryServerXML(OssSearchTemplate::API_SEARCH_TEMPLATE, $params);
     return $return === FALSE ? FALSE : TRUE;
   }
 

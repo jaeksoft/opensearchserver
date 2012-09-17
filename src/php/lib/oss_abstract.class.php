@@ -28,16 +28,12 @@ abstract class OssAbstract {
   protected $apiKey;
 
   public function init($enginePath, $index = NULL, $login = NULL, $apiKey = NULL) {
-
     if (!function_exists('OssApi_Dummy_Function')) {
       function OssApi_Dummy_Function() {
       }
     }
-    	
-    $parsedPath = OssApi::parseEnginePath($enginePath, $index);
-    $this->enginePath  = $parsedPath['enginePath'];
-    $this->index    = $parsedPath['index'];
-
+    $this->enginePath = $enginePath;
+    $this->index = $index;
     $this->credential($login, $apiKey);
   }
 
@@ -100,10 +96,172 @@ abstract class OssAbstract {
       foreach ($options as $argName => $argValue) {
         $chunks[] = $argName . "=" . urlencode($argValue);
       }
+    } else if ($options != null) {
+      $chunks[] = $options;
     }
 
-    $path .= (strpos($path, '?') !== FALSE ? '&' : '?') . implode("&", $chunks);
+    $path .= (strpos($path, '?') !== FALSE ? '&' : '?') . implode('&', $chunks);
 
     return $path;
   }
+
+  /**
+   * @return string The parsed engine path
+   */
+  public function getEnginePath() {
+    return $this->enginePath;
+  }
+
+  /**
+   * @return string The parsed index (NULL if not specified)
+   */
+  public function getIndex() {
+    return $this->index;
+  }
+
+  /**
+   * Post data to an URL
+   * @param string $url
+   * @param string $data Optional. If provided will use a POST method. Only accept
+   *                     data as POST encoded string or raw XML string.
+   * @param int $timeout Optional. Number of seconds before the query fail
+   * @return FALSE|string
+   *
+   * Will fail if more than 16 HTTP redirection
+   */
+  protected function queryServer($url, $data = NULL, $connexionTimeout = OssApi::DEFAULT_CONNEXION_TIMEOUT, $timeout = OssApi::DEFAULT_QUERY_TIMEOUT) {
+
+    // Use CURL to post the data
+
+    $rcurl = curl_init($url);
+    curl_setopt($rcurl, CURLOPT_HTTP_VERSION, '1.0');
+    curl_setopt($rcurl, CURLOPT_BINARYTRANSFER, TRUE);
+    curl_setopt($rcurl, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($rcurl, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($rcurl, CURLOPT_MAXREDIRS, 16);
+    curl_setopt($rcurl, CURLOPT_VERBOSE, TRUE);
+
+    if (is_integer($connexionTimeout) && $connexionTimeout >= 0) {
+      curl_setopt($rcurl, CURLOPT_CONNECTTIMEOUT, $connexionTimeout);
+    }
+
+    if (is_integer($timeout) && $timeout >= 0) {
+      curl_setopt($rcurl, CURLOPT_TIMEOUT, $timeout);
+    }
+
+    // Send provided string as POST data. Must be encoded to meet POST specification
+    if ($data !== NULL) {
+      curl_setopt($rcurl, CURLOPT_POST, TRUE);
+      curl_setopt($rcurl, CURLOPT_POSTFIELDS, (string)$data);
+      curl_setopt($rcurl, CURLOPT_HTTPHEADER, array("Content-type: text/xml; charset=utf-8"));
+    }
+
+    set_error_handler('OssApi_Dummy_Function', E_ALL);
+    $content = curl_exec($rcurl);
+    restore_error_handler();
+
+    if ($content === FALSE) {
+      if (class_exists('OssException')) {
+        throw new RuntimeException('CURL failed to execute on URL "' . $url . '"');
+      }
+      trigger_error('CURL failed to execute on URL "' . $url . '"', E_USER_WARNING);
+      return FALSE;
+    }
+
+    $aResponse   = curl_getinfo($rcurl);
+
+    // Must check return code
+    if ($aResponse['http_code'] >= 400) {
+      if (class_exists('OssException')) {
+        throw new TomcatException($aResponse['http_code'], $content);
+      }
+      trigger_error('HTTP ERROR ' . $aResponse['http_code'] . ': "' . trim(strip_tags($content)) . '"', E_USER_WARNING);
+      return FALSE;
+    }
+
+    // FIXME Possible problem to identify Locked Index message. Must set a lock on an index to check this
+    if ($this->isOSSError($content)) {
+      if (class_exists('OssException')) {
+        throw new OssException($content);
+      }
+      trigger_error('OSS Returned an error: "' . trim(strip_tags($content)) . '"', E_USER_WARNING);
+      return FALSE;
+    }
+
+    return $content;
+  }
+
+  /**
+   * Post data to an URL and retrieve an XML
+   * @param string $url
+   * @param string $data Optional. If provided will use a POST method. Only accept
+   *                     data as POST encoded string or raw XML string.
+   * @param int $timeout Optional. Number of seconds before the query fail
+   * @return SimpleXMLElement
+   * Use OssApi::queryServerto retrieve an XML and check its validity
+   */
+  protected function queryServerXML($path, $params, $data = NULL, $connexionTimeout = OssApi::DEFAULT_CONNEXION_TIMEOUT, $timeout = OssApi::DEFAULT_QUERY_TIMEOUT) {
+    $result = $this->queryServer($this->getQueryURL($path, $params), $data, $connexionTimeout, $timeout);
+    if ($result === FALSE) {
+      return FALSE;
+    }
+
+    // Check if we have a valid XML string from the engine
+    $lastErrorLevel = error_reporting(0);
+    $xmlResult = simplexml_load_string(OssApi::cleanUTF8($result));
+    error_reporting($lastErrorLevel);
+    if (!$xmlResult instanceof SimpleXMLElement) {
+      if (class_exists('OssException')) {
+        throw new RuntimeException("The search engine didn't return a valid XML");
+      }
+      trigger_error("The search engine didn't return a valid XML", E_USER_WARNING);
+      return FALSE;
+    }
+    return $xmlResult;
+  }
+
+  /**
+   * Check if the answer is an error returned by OSS
+   * @param $xml string, DOMDocument or SimpleXMLElement
+   * @return boolean True if error success
+   */
+  protected  function isOSSError($xml) {
+    // Cast $xml param to be a SimpleXMLElement
+    // If we don't find the word 'Error' in the xml string, exit immediatly
+    if ($xml instanceof SimpleXMLElement) {
+      if (strpos((string)$xml, 'Error') === FALSE) {
+        return FALSE;
+      }
+      $xmlDoc = $xml;
+    }
+    elseif ($xml instanceof DOMDocument) {
+      $xmlDoc = simplexml_import_dom($xml);
+      if (strpos((string)$xmlDoc, 'Error') === FALSE) {
+        return FALSE;
+      }
+    }
+    else {
+      if (strpos((string)$xml, 'Error') === FALSE) {
+        return FALSE;
+      }
+      $previous_error_level = error_reporting(0);
+      $xmlDoc = simplexml_load_string($xml);
+      error_reporting($previous_error_level);
+    }
+
+    if (!$xmlDoc instanceof SimpleXMLElement) {
+      return FALSE;
+    }
+
+    // Make sure the Error we found was a Status Error
+    foreach ($xmlDoc->entry as $entry) {
+      if ($entry['key'] == 'Status' && $entry == 'Error') {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
 }
+?>
