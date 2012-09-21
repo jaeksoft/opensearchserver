@@ -1,0 +1,110 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="filters"
+	use="com.jaeksoft.searchlib.web.controller.query.FiltersController">
+	<listbox id="filterListbox"
+		model="@{filters.request.filterList.toArray}"
+		selectedItem="@{filters.selected}">
+		<listhead>
+			<listheader label="#" hflex="min" />
+			<listheader label="Description" />
+			<listheader label="Negative" hflex="min" />
+			<listheader label="Action" hflex="min" />
+		</listhead>
+		<auxhead>
+			<auxheader />
+			<auxheader>
+				<hbox align="center">
+					<listbox mold="select"
+						model="@{filters.filterTypeList}"
+						selectedItem="@{filters.filterType}" />
+					<grid visible="@{filters.current.queryFilter}">
+						<columns>
+							<column label="Query" hflex="min" />
+						</columns>
+						<rows>
+							<row>
+								<textbox
+									value="@{filters.current.queryString}" cols="50"
+									multiline="true" rows="2" />
+							</row>
+						</rows>
+					</grid>
+					<grid visible="@{filters.current.geoFilter}">
+						<columns>
+							<column label="Type" hflex="min" />
+							<column label="Distance unit" hflex="min" />
+							<column label="Distance" hflex="min" />
+							<column label="Latitude field" hflex="min" />
+							<column label="Longtude field" hflex="min" />
+							<column label="Latitude (lat)" hflex="min" />
+							<column label="Longitude (lon)" hflex="min" />
+							<column label="Location unit" hflex="min" />
+						</columns>
+						<rows>
+							<row>
+								<listbox mold="select"
+									model="@{filters.geoTypes}"
+									selectedItem="@{filters.current.type}" />
+								<listbox mold="select"
+									model="@{filters.geoUnits}"
+									selectedItem="@{filters.current.unit}" />
+								<textbox constraint="/[0-9,.]*/"
+									value="@{filters.current.distance}" />
+								<listbox mold="select"
+									model="@{filters.indexedFieldList}"
+									selectedItem="@{filters.current.latitudeField}" />
+								<listbox mold="select"
+									model="@{filters.indexedFieldList}"
+									selectedItem="@{filters.current.longitudeField}" />
+								<textbox constraint="/[0-9,.]*/"
+									value="@{filters.current.latitude}" />
+								<textbox constraint="/[0-9,.]*/"
+									value="@{filters.current.longitude}" />
+								<listbox mold="select"
+									model="@{filters.geoCoordUnits}"
+									selectedItem="@{filters.current.coordUnit}" />
+							</row>
+						</rows>
+					</grid>
+				</hbox>
+			</auxheader>
+			<auxheader>
+				<checkbox checked="@{filters.current.negative}" />
+			</auxheader>
+			<auxheader>
+				<vbox>
+					<button label="Add" forward="onSave"
+						visible="@{filters.notSelected}" />
+					<button label="Save" forward="onSave"
+						visible="@{filters.selected}" />
+					<button label="Cancel" forward="onCancel"
+						visible="@{filters.selected}" />
+				</vbox>
+			</auxheader>
+		</auxhead>
+		<listitem self="@{each=filter}">
+			<custom-attributes filterItem="@{filter}" />
+			<listcell label="@{filter.paramPosition}" />
+			<listcell label="@{filter.description}" />
+			<listcell label="@{filter.negative}" />
+			<listcell>
+				<button label="Remove" onClick="filters.onRemove(self)" />
+			</listcell>
+		</listitem>
+	</listbox>
+</window>

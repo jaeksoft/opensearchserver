@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.opensearchserver.plugin.confluence</groupId>
+	<artifactId>opensearchserver-plugin</artifactId>
+	<version>1.0-SNAPSHOT</version>
+
+	<organization>
+		<name>OpenSearchServer</name>
+		<url>http://www.open-searchserver.com/</url>
+	</organization>
+
+	<name>opensearchserver-plugin</name>
+	<description>This is the com.opensearchserver.plugin.confluence:opensearchserver-plugin plugin for Atlassian Confluence.</description>
+	<packaging>atlassian-plugin</packaging>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.6</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.atlassian.confluence</groupId>
+			<artifactId>confluence</artifactId>
+			<version>${confluence.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.atlassian.confluence.plugin</groupId>
+			<artifactId>func-test</artifactId>
+			<version>2.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.jwebunit</groupId>
+			<artifactId>jwebunit-htmlunit-plugin</artifactId>
+			<version>2.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.nekohtml</groupId>
+			<artifactId>nekohtml</artifactId>
+			<version>1.9.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.2.1</version>
+				<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.1.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.atlassian.maven.plugins</groupId>
+				<artifactId>maven-confluence-plugin</artifactId>
+				<version>${amps.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<productVersion>${confluence.version}</productVersion>
+					<productDataVersion>${confluence.data.version}</productDataVersion>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<properties>
+		<confluence.version>4.3</confluence.version>
+		<confluence.data.version>3.5</confluence.data.version>
+		<amps.version>3.11</amps.version>
+	</properties>
+
+</project>
