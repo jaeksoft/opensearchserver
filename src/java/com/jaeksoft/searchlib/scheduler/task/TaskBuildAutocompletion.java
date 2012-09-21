@@ -60,6 +60,6 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException {
 		AutoCompletionManager manager = client.getAutoCompletionManager();
-		manager.build(new Long(0), taskLog);
+		manager.build(1440, taskLog);
 	}
 }
