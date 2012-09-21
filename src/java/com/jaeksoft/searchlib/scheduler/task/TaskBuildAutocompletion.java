@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskBuildAutocompletion extends TaskAbstract {
 
 	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", 1000);
+			TaskPropertyType.textBox, "Buffer size", 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propBuffersize };
 
@@ -59,6 +59,8 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propBuffersize)
+			return "1000";
 		return null;
 	}
 
