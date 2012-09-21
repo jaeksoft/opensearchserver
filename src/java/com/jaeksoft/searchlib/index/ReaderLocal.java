@@ -106,7 +106,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			ClassNotFoundException {
 		super(indexConfig);
 		indexSearcher = null;
-		indexSearcher = null;
+		indexReader = null;
 		this.similarityClass = indexConfig.getSimilarityClass();
 		this.rootDir = rootDir;
 		this.dataDir = dataDir;

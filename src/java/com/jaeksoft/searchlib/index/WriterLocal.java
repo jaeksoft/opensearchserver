@@ -335,12 +335,12 @@ public class WriterLocal extends WriterAbstract {
 	private int deleteDocumentNoLock(String field, String value)
 			throws SearchLibException {
 		try {
+			int l = readerLocal.getStatistics().getNumDeletedDocs();
 			open();
-			int l = indexWriter.getReader().numDeletedDocs();
 			indexWriter.deleteDocuments(new Term(field, value));
-			l = indexWriter.getReader().numDeletedDocs() - l;
 			close();
 			readerLocal.reload();
+			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -373,13 +373,13 @@ public class WriterLocal extends WriterAbstract {
 	private int deleteDocumentsNoLock(Schema schema, Term[] terms)
 			throws SearchLibException {
 		try {
+			int l = readerLocal.getStatistics().getNumDeletedDocs();
 			open();
-			int l = indexWriter.getReader().numDeletedDocs();
 			indexWriter.deleteDocuments(terms);
-			l = indexWriter.getReader().numDeletedDocs() - l;
 			close();
 			if (terms.length > 0)
 				readerLocal.reload();
+			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -416,12 +416,12 @@ public class WriterLocal extends WriterAbstract {
 	private int deleteDocumentsNoLock(SearchRequest query)
 			throws SearchLibException {
 		try {
+			int l = readerLocal.getStatistics().getNumDeletedDocs();
 			open();
-			int l = indexWriter.getReader().numDeletedDocs();
 			indexWriter.deleteDocuments(query.getQuery());
-			l = indexWriter.getReader().numDeletedDocs() - l;
 			close();
 			readerLocal.reload();
+			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

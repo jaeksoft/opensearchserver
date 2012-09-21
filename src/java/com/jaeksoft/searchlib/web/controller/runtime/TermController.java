@@ -258,6 +258,7 @@ public class TermController extends CommonController {
 				}
 				pw.close();
 				termEnum.close();
+				termEnum = null;
 				pw = null;
 				Filedownload.save(new FileInputStream(tempFile),
 						"text/csv; charset-UTF-8", "OSS_term_freq_"
