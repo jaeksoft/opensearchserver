@@ -169,18 +169,19 @@ public class AutoCompletionManager {
 			throw new SearchLibException("The build is already running");
 	}
 
-	private void builder(Integer endTimeOut, InfoCallback infoCallBack)
-			throws SearchLibException {
+	private int builder(Integer endTimeOut, int bufferSize,
+			InfoCallback infoCallBack) throws SearchLibException, IOException {
 		checkIfRunning();
-		buildThread.init(propField, infoCallBack);
+		buildThread.init(propField, bufferSize, infoCallBack);
 		buildThread.execute();
 		buildThread.waitForStart(300);
 		if (endTimeOut != null)
 			buildThread.waitForEnd(endTimeOut);
+		return buildThread.getIndexNumDocs();
 	}
 
-	public void build(Integer waitForEndTimeOut, InfoCallback infoCallBack)
-			throws SearchLibException {
+	public int build(Integer waitForEndTimeOut, int bufferSize,
+			InfoCallback infoCallBack) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkIfRunning();
@@ -189,7 +190,9 @@ public class AutoCompletionManager {
 		}
 		rwl.w.lock();
 		try {
-			builder(waitForEndTimeOut, infoCallBack);
+			return builder(waitForEndTimeOut, bufferSize, infoCallBack);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}

@@ -105,7 +105,7 @@ public class AutoCompletionComposer extends CommonComposer {
 		if (manager == null)
 			return;
 		onSave$window(event);
-		manager.build(null, null);
+		manager.build(null, 1000, null);
 		reloadPage();
 	}
 

@@ -37,11 +37,8 @@ import org.apache.lucene.index.TermEnum;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
-import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.InfoCallback;
 
 public class AutoCompletionBuildThread extends ThreadAbstract {
@@ -51,6 +48,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 	private volatile String fieldName;
 	private volatile TermEnum termEnum;
 	private volatile InfoCallback infoCallBack;
+	private volatile int bufferSize;
 
 	protected AutoCompletionBuildThread(Client sourceClient,
 			Client autoCompClient) {
@@ -59,6 +57,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 		this.autoCompClient = autoCompClient;
 		this.fieldName = null;
 		this.termEnum = null;
+		this.bufferSize = 50;
 	}
 
 	public String getStatus() {
@@ -85,21 +84,11 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 		return docCount;
 	}
 
-	final private void truncateIndex() throws SearchLibException, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, ParseException, SyntaxError,
-			URISyntaxException, InterruptedException {
-		SearchRequest searchRequest = new SearchRequest(autoCompClient);
-		searchRequest.setQueryString("*:*");
-		autoCompClient.deleteDocuments(searchRequest);
-	}
-
 	@Override
 	public void runner() throws Exception {
-		truncateIndex();
+		autoCompClient.deleteAll();
 		if (fieldName == null)
 			return;
-
 		termEnum = sourceClient.getTermEnum(fieldName, "");
 		Term term = null;
 		List<IndexDocument> buffer = new ArrayList<IndexDocument>();
@@ -112,7 +101,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 			indexDocument.addString("freq",
 					Integer.toString(termEnum.docFreq()));
 			buffer.add(indexDocument);
-			if (buffer.size() == 50)
+			if (buffer.size() == bufferSize)
 				docCount = indexBuffer(docCount, buffer);
 			if (!termEnum.next())
 				break;
@@ -133,9 +122,10 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 		}
 	}
 
-	public void init(String fieldName, InfoCallback infoCallBack) {
+	public void init(String fieldName, int bufferSize, InfoCallback infoCallBack) {
 		this.fieldName = fieldName;
 		this.infoCallBack = infoCallBack;
+		this.bufferSize = bufferSize;
 	}
 
 }

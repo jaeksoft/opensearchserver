@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import com.jaeksoft.searchlib.Client;
@@ -41,34 +42,51 @@ public class AutoCompletionServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 1432959171606102988L;
 
+	private void query(ServletTransaction transaction, Client client, User user)
+			throws SearchLibException, IOException {
+		if (user != null
+				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
+			throw new SearchLibException("Not permitted");
+		Integer rows = transaction.getParameterInteger("rows", 10);
+		String query = transaction.getParameterString("query");
+		AutoCompletionManager manager = client.getAutoCompletionManager();
+		transaction.setResponseContentType("text/plain");
+		PrintWriter pw = transaction.getWriter("UTF-8");
+		AbstractResultSearch result = manager.search(query, rows);
+		if (result == null)
+			return;
+		if (result.getDocumentCount() <= 0)
+			return;
+		for (ResultDocument document : result)
+			pw.println(document.getValueContent(
+					AutoCompletionManager.autoCompletionSchemaFieldTerm, 0));
+	}
+
+	private void build(ServletTransaction transaction, Client client, User user)
+			throws SearchLibException, IOException {
+		if (user != null
+				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_UPDATE))
+			throw new SearchLibException("Not permitted");
+		int bufferSize = transaction.getParameterInteger("bufferSize", 1000);
+		int result = client.getAutoCompletionManager().build(14400, bufferSize,
+				null);
+		transaction.addXmlResponse("Status", "OK");
+		transaction.addXmlResponse("Count", Integer.toString(result));
+
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
-
 		try {
 			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.INDEX_QUERY))
-				throw new SearchLibException("Not permitted");
-
 			Client client = transaction.getClient();
-			Integer rows = transaction.getParameterInteger("rows", 10);
-			String query = transaction.getParameterString("query");
-			AutoCompletionManager manager = client.getAutoCompletionManager();
-			transaction.setResponseContentType("text/plain");
-			PrintWriter pw = transaction.getWriter("UTF-8");
-			AbstractResultSearch result = manager.search(query, rows);
-			if (result == null)
-				return;
-			if (result.getDocumentCount() <= 0)
-				return;
-			for (ResultDocument document : result)
-				pw.println(document.getValueContent(
-						AutoCompletionManager.autoCompletionSchemaFieldTerm, 0));
+			if ("build".equalsIgnoreCase(transaction.getParameterString("cmd")))
+				build(transaction, client, user);
+			else
+				query(transaction, client, user);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
-
 	}
 }
