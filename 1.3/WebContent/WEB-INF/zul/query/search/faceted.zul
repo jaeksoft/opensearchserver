@@ -1,0 +1,40 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="facet"
+	use="com.jaeksoft.searchlib.web.controller.query.FacetController">
+	<grid model="@{facet.request.facetFieldList.list}"
+		rowRenderer="@{facet.facetFieldRenderer}">
+		<columns>
+			<column label="Field" />
+			<column label="Multivalued" />
+			<column label="Post collapsing" />
+			<column label="Minimal count" />
+			<column label="Action" />
+		</columns>
+		<foot visible="@{facet.fieldLeft}">
+			<footer span="4">
+				<listbox mold="select"
+					selectedItem="@{facet.selectedFacet}"
+					model="@{facet.facetFieldLeft}">
+					<listitem self="@{each=facetField}"
+						label="@{facetField}" />
+				</listbox>
+				<button label="add facet" forward="onFacetAdd" />
+			</footer>
+		</foot>
+	</grid>
+</window>

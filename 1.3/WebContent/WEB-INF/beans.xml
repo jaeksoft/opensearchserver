@@ -1,0 +1,64 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+	<jaxws:endpoint id="Select"
+		implementor="com.jaeksoft.searchlib.webservice.SelectImpl"
+		address="/Select" />
+		
+	<jaxws:endpoint id="Delete"
+		implementor="com.jaeksoft.searchlib.webservice.DeleteImpl"
+		address="/Delete" />
+		
+	<jaxws:endpoint id="Action"
+		implementor="com.jaeksoft.searchlib.webservice.ActionImpl"
+		address="/Action" />
+		 
+	<jaxws:endpoint id="Database"
+		implementor="com.jaeksoft.searchlib.webservice.DatabaseImpl"
+		address="/Database" />
+				 
+	<jaxws:endpoint id="Monitor"
+		implementor="com.jaeksoft.searchlib.webservice.MonitorImpl"
+		address="/Monitor" />
+		
+	<jaxws:endpoint id="WebPattern"
+		implementor="com.jaeksoft.searchlib.webservice.WebPatternImpl"
+		address="/WebPattern" />
+		
+	<jaxws:endpoint id="FilePattern"
+		implementor="com.jaeksoft.searchlib.webservice.FilePatternImpl"
+		address="/FilePattern" />
+		
+	<jaxws:endpoint id="Schema"
+		implementor="com.jaeksoft.searchlib.webservice.SchemaImpl"
+		address="/Schema" />
+		
+	<jaxws:endpoint id="Screenshot"
+		implementor="com.jaeksoft.searchlib.webservice.ScreenshotImpl"
+		address="/Screenshot" />
+		
+	<jaxws:endpoint id="CommonServices"
+		implementor="com.jaeksoft.searchlib.webservice.CommonServicesImpl"
+		address="/CommonServices" />
+		
+	<jaxws:endpoint id="WebCrawler"
+		implementor="com.jaeksoft.searchlib.webservice.WebCrawlerImpl"
+		address="/WebCrawler" />
+		
+	<jaxws:endpoint id="FileCrawler"
+		implementor="com.jaeksoft.searchlib.webservice.FileCrawlerImpl"
+		address="/FileCrawler" />
+		
+	<jaxws:endpoint id="Update"
+		implementor="com.jaeksoft.searchlib.webservice.UpdateImpl"
+		address="/Update" />
+			<jaxws:endpoint id="URLBrowser"
+		implementor="com.jaeksoft.searchlib.webservice.URLBrowserImpl"
+		address="/URLBrowser" />
+</beans>
