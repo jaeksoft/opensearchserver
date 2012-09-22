@@ -131,7 +131,7 @@ class OssApi extends OssAbstract {
    * FIXME Provide a link to the OSS WiKi
    */
   public function optimize() {
-    $return = $this->queryServer($this->getQueryURL(OssApi::API_OPTIMIZE));
+    $return = $this->queryServerTXT(OssApi::API_OPTIMIZE);
     return ($return !== FALSE);
   }
 
@@ -143,7 +143,7 @@ class OssApi extends OssAbstract {
    * FIXME See why API have been removed
    */
   public function reload() {
-    $return = $this->queryServer($this->getQueryURL(OssApi::API_RELOAD));
+    $return = $this->queryServerTXT(OssApi::API_RELOAD);
     return ($return !== FALSE);
   }
 

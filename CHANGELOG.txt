@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 231: Autocompletion API
 - 3558600: Dropbox indexation
 - 3553610: Group all token filter
 - 3553517: Squared Geographical Filter

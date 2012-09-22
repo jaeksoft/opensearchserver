@@ -62,6 +62,19 @@ public class AutoCompletionServlet extends AbstractServlet {
 					AutoCompletionManager.autoCompletionSchemaFieldTerm, 0));
 	}
 
+	private void set(ServletTransaction transaction, Client client, User user)
+			throws SearchLibException {
+		if (user != null
+				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
+			throw new SearchLibException("Not permitted");
+		String field = transaction.getParameterString("field");
+		AutoCompletionManager autoComp = client.getAutoCompletionManager();
+		autoComp.setField(field);
+		autoComp.save();
+		transaction.addXmlResponse("Status", "OK");
+		transaction.addXmlResponse("Field", field);
+	}
+
 	private void build(ServletTransaction transaction, Client client, User user)
 			throws SearchLibException, IOException {
 		if (user != null
@@ -81,8 +94,11 @@ public class AutoCompletionServlet extends AbstractServlet {
 		try {
 			User user = transaction.getLoggedUser();
 			Client client = transaction.getClient();
-			if ("build".equalsIgnoreCase(transaction.getParameterString("cmd")))
+			String cmd = transaction.getParameterString("cmd");
+			if ("build".equalsIgnoreCase(cmd))
 				build(transaction, client, user);
+			else if ("set".equalsIgnoreCase(cmd))
+				set(transaction, client, user);
 			else
 				query(transaction, client, user);
 		} catch (Exception e) {

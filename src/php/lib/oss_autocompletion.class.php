@@ -33,13 +33,38 @@ class OssAutocompletion extends OssAbstract {
     $this->init($enginePath, $index, $login, $apiKey);
   }
 
-  public function autocomplete($query, $rows = 10) {
+  /**
+   *
+   * @param string $query the characters to pass to the autocompletion query
+   * @param int $rows The number of row to return
+   */
+  public function autocompleteQuery($query, $rows = 10) {
     $params = array('query' => $query, 'rows' => $rows);
-    $return = OssApi::queryServer($this->getQueryURL(OssApi::API_AUTOCOMPLETION, $params));
+    $return = $this->queryServerTXT(OssApi::API_AUTOCOMPLETION, $params);
     if ($return === FALSE) {
       return FALSE;
     }
     return $return;
+  }
+
+  /*
+   * @deprecated  Use autocompleteQuery
+  */
+  public function autocomplete($query, $rows = 10) {
+    return autocompleteQuery($query, $rows);
+  }
+
+  /**
+   * Build the autocompletion index
+   * @param int $bufferSize the size of the buffer
+   */
+  public function autocompletionBuild($bufferSize = 1000) {
+    $params = array('cmd' => 'build', 'bufferSize' => $bufferSize);
+    $return = $this->queryServerXML(OssApi::API_AUTOCOMPLETION, $params);
+    if ($return === FALSE) {
+      return FALSE;
+    }
+    return TRUE;
   }
 }
 ?>
