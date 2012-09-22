@@ -1,6 +1,6 @@
 <?php
 /*
-*  This file is part of OpenSearchServer.
+ *  This file is part of OpenSearchServer.
 *
 *  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
 *
@@ -69,7 +69,7 @@ class OssException extends RuntimeException {
 
     $data = array();
     foreach ($xmlDoc->entry as $entry)
-    $data[(string)$entry['key']] = (string)$entry;
+      $data[(string)$entry['key']] = (string)$entry;
 
     $this->status  = $data['Status'];
 

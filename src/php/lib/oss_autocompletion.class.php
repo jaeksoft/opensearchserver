@@ -38,7 +38,7 @@ class OssAutocompletion extends OssAbstract {
    * @param string $query the characters to pass to the autocompletion query
    * @param int $rows The number of row to return
    */
-  public function autocompleteQuery($query, $rows = 10) {
+  public function autocompletionQuery($query, $rows = 10) {
     $params = array('query' => $query, 'rows' => $rows);
     $return = $this->queryServerTXT(OssApi::API_AUTOCOMPLETION, $params);
     if ($return === FALSE) {
@@ -51,7 +51,7 @@ class OssAutocompletion extends OssAbstract {
    * @deprecated  Use autocompleteQuery
   */
   public function autocomplete($query, $rows = 10) {
-    return autocompleteQuery($query, $rows);
+    return $this->autocompletionQuery($query, $rows);
   }
 
   /**
@@ -60,6 +60,19 @@ class OssAutocompletion extends OssAbstract {
    */
   public function autocompletionBuild($bufferSize = 1000) {
     $params = array('cmd' => 'build', 'bufferSize' => $bufferSize);
+    $return = $this->queryServerXML(OssApi::API_AUTOCOMPLETION, $params);
+    if ($return === FALSE) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
+  /**
+   * Set the field used by the autocompletion index
+   * @param string $field the field name
+   */
+  public function autocompletionSet($field) {
+    $params = array('cmd' => 'set', 'field' => $field);
     $return = $this->queryServerXML(OssApi::API_AUTOCOMPLETION, $params);
     if ($return === FALSE) {
       return FALSE;

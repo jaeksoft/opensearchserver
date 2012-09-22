@@ -190,7 +190,7 @@ abstract class OssAbstract {
     return $content;
   }
 
-  protected function queryServerTXT($path, $params, $data, $connexionTimeout = OssApi::DEFAULT_CONNEXION_TIMEOUT, $timeout = OssApi::DEFAULT_QUERY_TIMEOUT) {
+  protected function queryServerTXT($path, $params = null, $data = null, $connexionTimeout = OssApi::DEFAULT_CONNEXION_TIMEOUT, $timeout = OssApi::DEFAULT_QUERY_TIMEOUT) {
     return $this->queryServer($this->getQueryURL($path, $params), $data, $connexionTimeout, $timeout);
   }
 

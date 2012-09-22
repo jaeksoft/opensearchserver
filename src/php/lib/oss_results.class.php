@@ -1,6 +1,6 @@
 <?php
 /*
-*  This file is part of OpenSearchServer.
+ *  This file is part of OpenSearchServer.
 *
 *  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 *
@@ -84,14 +84,18 @@ class OssResults {
   /**
    *  GETTER
    */
-  public function getField($position, $fieldName, $modeSnippet = FALSE) {
+  public function getField($position, $fieldName, $modeSnippet = FALSE, $highlightedOnly = FALSE) {
     $field = NULL;
     $doc = $this->result->xpath('result/doc[@pos="' . $position . '"]');
 
     if (isset($doc[0]) && is_array($doc)) {
       $value = NULL;
       if ($modeSnippet) {
-        $value = $doc[0]->xpath('snippet[@name="' . $fieldName . '"]');
+        if ($highlightedOnly) {
+          $value = $doc[0]->xpath('snippet[@name="' . $fieldName . '" and @highlighted="yes"]');
+        } else {
+          $value = $doc[0]->xpath('snippet[@name="' . $fieldName . '"]');
+        }
       }
       if (!isset($value) || count($value) == 0) {
         $value =  $doc[0]->xpath('field[@name="' . $fieldName . '"]');
@@ -155,9 +159,9 @@ class OssResults {
   }
 
   /**
-  *
-  * @return Return the spellsuggest array.
-  */
+   *
+   * @return Return the spellsuggest array.
+   */
   public function getSpellSuggestions($fieldName) {
     $currentSpellCheck = isset($fieldName)? $this->result->xpath('spellcheck/field[@name="' . $fieldName . '"]/word/suggest'):NULL;
     if (!isset($currentSpellCheck) || ( isset($currentSpellCheck) && $currentSpellCheck === FALSE)) {
