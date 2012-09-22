@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.spellcheck;
 
 import org.apache.lucene.search.spell.JaroWinklerDistance;
 import org.apache.lucene.search.spell.NGramDistance;
+import org.apache.lucene.search.spell.LevensteinDistance;
 import org.apache.lucene.search.spell.StringDistance;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -34,7 +35,7 @@ public enum SpellCheckDistanceEnum {
 
 	JaroWinklerDistance(JaroWinklerDistance.class),
 
-	LevensteinDistance(JaroWinklerDistance.class),
+	LevensteinDistance(LevensteinDistance.class),
 
 	NGramDistance(NGramDistance.class);
 
