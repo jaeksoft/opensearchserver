@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.request;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.query.ParseException;
 
@@ -33,7 +34,7 @@ public class RequestInterfaces {
 
 		public ReturnFieldList getReturnFieldList();
 
-		public void addReturnField(String fieldName);
+		public void addReturnField(String fieldName) throws SearchLibException;
 	}
 
 	public interface FilterListInterface {

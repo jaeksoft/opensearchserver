@@ -468,12 +468,26 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
+	private SchemaField getCheckSchemaField(SchemaFieldList schemaFieldList,
+			String fieldName) throws SearchLibException {
+		SchemaField schemaField = schemaFieldList.get(fieldName);
+		if (schemaField == null)
+			throw new SearchLibException("Returned field: The field: "
+					+ fieldName + " does not exist");
+		return schemaField;
+	}
+
+	private void addReturnFieldNoLock(SchemaFieldList schemaFieldList,
+			String fieldName) throws SearchLibException {
+		returnFieldList.put(new ReturnField(getCheckSchemaField(
+				schemaFieldList, fieldName).getName()));
+	}
+
 	@Override
-	public void addReturnField(String fieldName) {
+	public void addReturnField(String fieldName) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			returnFieldList.put(new ReturnField(config.getSchema()
-					.getFieldList().get(fieldName).getName()));
+			addReturnFieldNoLock(config.getSchema().getFieldList(), fieldName);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -811,8 +825,8 @@ public class SearchRequest extends AbstractRequest implements
 	}
 
 	/**
-	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
-	 * config XML.
+	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le
+	 * fichier de config XML.
 	 * 
 	 * @param config
 	 * @param xpp
@@ -995,7 +1009,7 @@ public class SearchRequest extends AbstractRequest implements
 			String p;
 			Integer i;
 
-			SchemaFieldList shemaFieldList = config.getSchema().getFieldList();
+			SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
 
 			if ((p = transaction.getParameterString("query")) != null)
 				setQueryString(p);
@@ -1018,7 +1032,7 @@ public class SearchRequest extends AbstractRequest implements
 				setCollapseType(CollapseParameters.Type.valueOfLabel(p));
 
 			if ((p = transaction.getParameterString("collapse.field")) != null)
-				setCollapseField(shemaFieldList.get(p).getName());
+				setCollapseField(schemaFieldList.get(p).getName());
 
 			if ((i = transaction.getParameterInteger("collapse.max")) != null)
 				setCollapseMax(i);
@@ -1070,22 +1084,23 @@ public class SearchRequest extends AbstractRequest implements
 
 			if ((values = transaction.getParameterValues("rf")) != null) {
 				for (String value : values)
-					if (value != null)
-						if (value.trim().length() > 0)
-							returnFieldList.put(new ReturnField(shemaFieldList
-									.get(value).getName()));
+					if (value != null) {
+						value = value.trim();
+						if (value.length() > 0)
+							addReturnFieldNoLock(schemaFieldList, value.trim());
+					}
 			}
 
 			if ((values = transaction.getParameterValues("hl")) != null) {
 				for (String value : values)
-					snippetFieldList.put(new SnippetField(shemaFieldList.get(
-							value).getName()));
+					snippetFieldList.put(new SnippetField(getCheckSchemaField(
+							schemaFieldList, value).getName()));
 			}
 
 			if ((values = transaction.getParameterValues("fl")) != null) {
 				for (String value : values)
-					returnFieldList.put(new ReturnField(shemaFieldList.get(
-							value).getName()));
+					returnFieldList.put(new ReturnField(getCheckSchemaField(
+							schemaFieldList, value).getName()));
 			}
 
 			if ((values = transaction.getParameterValues("sort")) != null) {
@@ -1114,7 +1129,8 @@ public class SearchRequest extends AbstractRequest implements
 					facetFieldList.put(FacetField.buildFacetField(value, true,
 							true));
 			}
-
+		} catch (SearchLibException e) {
+			throw new SyntaxError(e.getMessage());
 		} finally {
 			rwl.w.unlock();
 		}
