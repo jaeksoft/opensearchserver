@@ -42,6 +42,15 @@ class OssSearchTemplate extends OssAbstract {
     $this->init($enginePath, $index, $login, $apiKey);
   }
 
+  /**
+   * Create a query template
+   * @param string $qtname Name of the template
+   * @param string $qtquery Query
+   * @param string $qtoperator Default operator
+   * @param int $qtrows Number of rows
+   * @param int $qtslop Phrase slop
+   * @param string $qtlang Default language
+   */
   public function createSearchTemplate($qtname, $qtquery = NULL, $qtoperator = NULL, $qtrows = NULL, $qtslop = NULL, $qtlang = NULL) {
     $params = array("qt.name" => $qtname);
     if ($qtquery) {
@@ -57,6 +66,9 @@ class OssSearchTemplate extends OssAbstract {
       $params['qt.slop'] = $qtslop;
     }
     if ($qtlang) {
+      if (strlen($qtlang) == 2) {
+        $qtlang = mb_strtoupper(OssAPI::getLanguage($qtlang));
+      }
       $params['qt.lang'] = $qtlang;
     }
     $params['cmd'] = OssSearchTemplate::API_SEARCH_TEMPLATE_CREATE;

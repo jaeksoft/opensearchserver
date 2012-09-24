@@ -76,23 +76,24 @@ class OssApi extends OssAbstract {
    * @var array
    */
   protected static $supportedLanguages = array(
-    ""   => "Undefined",
-    "zh" => "Chinese",
-    "da" => "Danish",
-    "nl" => "Dutch",
-    "en" => "English",
-    "fi" => "Finnish",
-    "fr" => "French",
-    "de" => "German",
-    "hu" => "Hungarian",
-    "it" => "Italian",
-    "no" => "Norwegian",
-    "pt" => "Portuguese",
-    "ro" => "Romanian",
-    "ru" => "Russian",
-    "es" => "Spanish",
-    "sv" => "Swedish",
-    "tr" => "Turkish"
+    ''   => 'Undefined',
+    'ar' => 'Arabic',
+    'zh' => 'Chinese',
+    'da' => 'Danish',
+    'nl' => 'Dutch',
+    'en' => 'English',
+    'fi' => 'Finnish',
+    'fr' => 'French',
+    'de' => 'German',
+    'hu' => 'Hungarian',
+    'it' => 'Italian',
+    'no' => 'Norwegian',
+    'pt' => 'Portuguese',
+    'ro' => 'Romanian',
+    'ru' => 'Russian',
+    'es' => 'Spanish',
+    'sv' => 'Swedish',
+    'tr' => 'Turkish'
   );
 
   /**
@@ -261,6 +262,18 @@ class OssApi extends OssAbstract {
    */
   public static function supportedLanguages() {
     return OssApi::$supportedLanguages;
+  }
+
+  /**
+   * Return the language constant from a 2 characters language code
+   * @param string $twoCharsLang Two characters language
+   */
+  public static function getLanguage($twoCharsLang) {
+    $lang = OssApi::$supportedLanguages[mb_strtolower($twoCharsLang)];
+    if ($lang == NULL) {
+      return OssApi::$supportedLanguages[''];
+    }
+    return $lang;
   }
 
   /**

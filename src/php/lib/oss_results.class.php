@@ -108,6 +108,14 @@ class OssResults {
     return $field;
   }
 
+  public function getScore($position) {
+    $doc = $this->result->xpath('result/doc[@pos="' . $position . '"]');
+    if (isset($doc[0]) && is_array($doc)) {
+      return $doc[0]['score'];
+    }
+    return null;
+  }
+
 
   /**
    *
