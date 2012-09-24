@@ -34,16 +34,13 @@
 	<property name="lib-apache-cxf" location="${lib}/apache-cxf" />
 	<property name="wlib" location="${web}/WEB-INF/lib" />
 	<property name="build" location="ant-build" />
-	<property name="build-release" location="${build}/release" />
-	<property name="build-debug" location="${build}/debug" />
 	<property name="build-doc" location="${build}/doc" />
 	<property name="dist" location="dist" />
 	<property name="temp" location="temp" />
 	<property name="temp-version" location="${temp}/version" />
 	<property name="licenses" location="licenses" />
 	<property name="product" value="open-search-server" />
-	<property name="name-release" value="${product}" />
-	<property name="name-debug" value="${product}-debug" />
+	<property name="name" value="${product}" />
 	<property name="tomcat-name" value="apache-tomcat-6.0.35" />
 	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
 	<property name="tomcat-config" location="pkg/tomcat_config" />
@@ -71,8 +68,6 @@
 
 	<target name="init">
 		<mkdir dir="${build}" />
-		<mkdir dir="${build-release}" />
-		<mkdir dir="${build-debug}" />
 		<mkdir dir="${temp}" />
 		<echo file="${temp-version}" append="false" message="VERSION = ${VERSION}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="STAGE = ${STAGE}${line.separator}" />
@@ -80,49 +75,28 @@
 		<echo file="${temp-version}" append="true" message="BUILD = ${env.BUILD_NUMBER}${line.separator}" />
 	</target>
 
-	<target name="compile-release" depends="init" description="compile the source ">
-		<javac debug="false" compiler="modern" optimize="true" target="1.5" srcdir="${src}" destdir="${build-release}" classpathref="project.class.path" includeantruntime="false" />
+	<target name="compile" depends="init" description="compile the source ">
+		<javac debug="true" debuglevel="lines, vars, and source" compiler="modern" optimize="true" target="1.5" srcdir="${src}" destdir="${build}" classpathref="project.class.path" includeantruntime="false" />
 	</target>
 
-	<target name="compile-debug" depends="init" description="compile the source ">
-		<javac debug="true" debuglevel="lines, vars, and source" compiler="modern" optimize="false" target="1.5" srcdir="${src}" destdir="${build-debug}" classpathref="project.class.path" includeantruntime="false" />
-	</target>
-
-	<target name="dist-jar-release" depends="compile-release">
+	<target name="dist-jar" depends="compile">
 		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/${name-release}.jar">
-			<fileset dir="${build-release}" />
+		<jar jarfile="${dist}/${name}.jar">
+			<fileset dir="${build}" />
 			<fileset dir="${resources}" />
 		</jar>
 	</target>
 
-	<target name="dist-war-release" depends="dist-jar-release">
+	<target name="dist-war" depends="dist-jar">
 		<mkdir dir="${dist}" />
-		<war destfile="${dist}/${name-release}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
-			<lib file="${dist}/${name-release}.jar" />
+		<war destfile="${dist}/${name}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
+			<lib file="${dist}/${name}.jar" />
 			<lib dir="${lib-apache-cxf}" />
 			<fileset file="${temp-version}" />
 		</war>
 	</target>
 
-	<target name="dist-jar-debug" depends="compile-debug">
-		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/${name-debug}.jar">
-			<fileset dir="${build-debug}" />
-			<fileset dir="${resources}" />
-		</jar>
-	</target>
-
-	<target name="dist-war-debug" depends="dist-jar-debug">
-		<mkdir dir="${dist}" />
-		<war destfile="${dist}/${name-debug}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
-			<lib file="${dist}/${name-debug}.jar" />
-			<lib dir="${lib-apache-cxf}" />
-			<fileset file="${temp-version}" />
-		</war>
-	</target>
-
-	<target name="dist" depends="dist-war-release,dist-war-debug,php-client,aspnet-client">
+	<target name="dist" depends="dist-war,php-client,aspnet-client">
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
@@ -224,14 +198,14 @@
 	<!-- The PHP library archive -->
 	<target name="php-client">
 		<mkdir dir="${dist}" />
-		<tar compression="gzip" destfile="${dist}/${name-release}_php-client.tar.gz" basedir="${src.php}" />
-		<zip encoding="windows-1250" destfile="${dist}/${name-release}_php-client.zip" basedir="${src.php}" />
+		<tar compression="gzip" destfile="${dist}/${name}_php-client.tar.gz" basedir="${src.php}" />
+		<zip encoding="windows-1250" destfile="${dist}/${name}_php-client.zip" basedir="${src.php}" />
 	</target>
 
 	<!-- The ASP.NET library archive -->
 	<target name="aspnet-client">
 		<mkdir dir="${dist}" />
-		<zip encoding="windows-1250" destfile="${dist}/${name-release}_aspnet-client.zip" basedir="${src.asp}" />
+		<zip encoding="windows-1250" destfile="${dist}/${name}_aspnet-client.zip" basedir="${src.asp}" />
 	</target>
 
 	<target name="javadoc">
