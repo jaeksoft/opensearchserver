@@ -48,6 +48,7 @@ class OssSearch extends OssAbstract {
   protected $delete;
   protected $field;
   protected $sort;
+  protected $operator;
   protected $collapse;
   protected $facet;
   protected $sortBy;
@@ -73,6 +74,7 @@ class OssSearch extends OssAbstract {
     $this->filter  = array();
     $this->sort    = array();
     $this->facets  = array();
+    $this->operator = NULL;
     $this->collapse  = array('field' => NULL, 'max' => NULL, 'mode' => NULL);
     $this->moreLikeThis = array('active' => NULL, 'docquery' => NULL, 'minwordlen' => NULL,
       'maxwordlen' => NULL, 'mindocfreq' => NULL, 'mintermfreq' => NULL, 'stopwords' => NULL);
@@ -113,6 +115,16 @@ class OssSearch extends OssAbstract {
    */
   public function rows($rows = NULL) {
     $this->rows = $rows;
+    return $this;
+  }
+
+  /**
+   * Set the default operation OR or AND
+   * @param unknown_type $start
+   * @return OssSearch
+   */
+  public function operator($operator = NULL) {
+    $this->operator = $operator;
     return $this;
   }
 
@@ -276,6 +288,10 @@ class OssSearch extends OssAbstract {
       $queryChunks[] = 'start=' . (int) $this->start;
     }
 
+    if ($this->operator !== NULL) {
+      $queryChunks[] = 'operator=' . $this->operator;
+    }
+
     if ($this->delete) {
       $queryChunks[] = 'delete';
     }
@@ -285,7 +301,7 @@ class OssSearch extends OssAbstract {
       if (empty($sort)) {
         continue;
       }
-      $queryChunks[] = 'sort=' . $sort;
+      $queryChunks[] = 'sort=' . urlencode($sort);
     }
 
     // Filters
