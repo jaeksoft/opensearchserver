@@ -29,6 +29,7 @@ import java.net.URLEncoder;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -76,6 +77,15 @@ public class RendererServlet extends AbstractServlet {
 				AbstractResultSearch result = (AbstractResultSearch) client
 						.request(request);
 				transaction.setRequestAttribute("result", result);
+				if (request.isFacet()) {
+					SearchRequest facetRequest = new SearchRequest();
+					facetRequest.copyFrom(request);
+					facetRequest
+							.removeFilterSource(FilterAbstract.Source.REQUEST);
+					AbstractResultSearch facetResult = (AbstractResultSearch) client
+							.request(facetRequest);
+					transaction.setRequestAttribute("facetResult", facetResult);
+				}
 			}
 			transaction.setRequestAttribute("renderer", renderer);
 			transaction.forward("/WEB-INF/jsp/renderer.jsp");

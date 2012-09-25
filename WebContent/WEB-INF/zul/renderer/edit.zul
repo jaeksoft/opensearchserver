@@ -15,242 +15,42 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <zk>
-	<panel title="@{renderer.currentEditMode}" border="normal">
-		<panelchildren>
-			<grid>
-				<columns sizable="false">
-					<column align="right" width="150px" />
-					<column align="left" />
-				</columns>
-				<rows>
-					<row>
-						<label value="Renderer name: " />
-						<textbox
-							value="@{renderer.currentRenderer.name}"
-							readonly="@{renderer.selected}" cols="50" />
-					</row>
-					<row>
-						<label value="Request name: " />
-						<combobox model="@{renderer.requestList}"
-							onChange="renderer.reloadPage()" width="200px"
-							value="@{renderer.currentRenderer.requestName}" />
-					</row>
-					<row>
-						<label value="Search button label: " />
-						<textbox
-							value="@{renderer.currentRenderer.searchButtonLabel}" cols="50" />
-					</row>
-					<row>
-						<label value="Common CSS style: " />
-						<textbox
-							value="@{renderer.currentRenderer.commonStyle}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Input CSS style: " />
-						<textbox
-							value="@{renderer.currentRenderer.inputStyle}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Button CSS style: " />
-						<textbox
-							value="@{renderer.currentRenderer.buttonStyle}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Documents Found CSS style: " />
-						<textbox
-							value="@{renderer.currentRenderer.documentFoundStyle}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Autocomplete CSS style: " />
-						<textbox
-							value="@{renderer.currentRenderer.autocompleteStyle}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Autocomplete List CSS style: " />
-						<textbox
-							value="@{renderer.currentRenderer.autocompleteListStyle}"
-							cols="100" multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Autocomplete Link CSS style: " />
-						<textbox
-							value="@{renderer.currentRenderer.autocompleteLinkStyle}"
-							cols="100" multiline="true" rows="5" />
-					</row>
-					<row>
-						<label
-							value="Autocomplete Link Hover CSS style: " />
-						<textbox
-							value="@{renderer.currentRenderer.autocompleteLinkHoverStyle}"
-							cols="100" multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="AnchorLink: " />
-						<textbox
-							value="@{renderer.currentRenderer.alink}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-
-					<row>
-						<label value="AnchorLink Visited: " />
-						<textbox
-							value="@{renderer.currentRenderer.avisited}" cols="100"
-							multiline="true" rows="5" />
-
-					</row>
-					<row>
-						<label value="AnchorLink Active: " />
-						<textbox
-							value="@{renderer.currentRenderer.aactive}" cols="100"
-							multiline="true" rows="5" />
-
-					</row>
-					<row>
-						<label value="AnchorLink Hover: " />
-						<textbox
-							value="@{renderer.currentRenderer.ahover}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Facet Field Div Style: " />
-						<textbox
-							value="@{renderer.currentRenderer.facetStyle}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Result Div Style: " />
-						<textbox
-							value="@{renderer.currentRenderer.resultStyle}" cols="100"
-							multiline="true" rows="5" />
-					</row>
-					<row>
-						<label value="Fields: " />
-						<listbox
-							model="@{renderer.currentRenderer.fields}"
-							selectedItem="@{renderer.selectedRendererField}">
-							<listhead>
-								<listheader label="Field / Snippet" />
-								<listheader label="CSS Style" />
-								<listheader label="URL Field" />
-								<listheader label="Action"
-									align="center" width="150px" />
-							</listhead>
-							<auxhead>
-								<auxheader>
-									<listbox
-										model="@{renderer.fieldTypeList}"
-										selectedItem="@{renderer.currentRendererField.fieldType}"
-										onSelect="renderer.onReload()" mold="select" />
-									<listbox
-										model="@{renderer.fieldOrSnippetList}"
-										selectedItem="@{renderer.currentRendererField.fieldName}"
-										mold="select" />
-								</auxheader>
-								<auxheader>
-									<textbox
-										value="@{renderer.currentRendererField.style}" width="95%"
-										multiline="true" rows="3" />
-								</auxheader>
-								<auxheader>
-									<listbox
-										model="@{renderer.fieldList}"
-										selectedItem="@{renderer.currentRendererField.urlFieldName}"
-										mold="select" />
-								</auxheader>
-								<auxheader align="center">
-									<button tooltiptext="Add a field"
-										visible="@{renderer.notFieldSelected}"
-										image="/images/action_add.png"
-										onClick="renderer.onRendererFieldSave()" />
-									<hbox
-										visible="@{renderer.fieldSelected}">
-										<button
-											tooltiptext="Save a field" label="Save"
-											onClick="renderer.onRendererFieldSave()" />
-										<button
-											tooltiptext="Save a field" label="Cancel"
-											onClick="renderer.onRendererFieldCancel()" />
-									</hbox>
-								</auxheader>
-							</auxhead>
-							<listitem
-								self="@{each=rendererFieldItem}">
-								<custom-attributes
-									rendererFieldItem="@{rendererFieldItem}" />
-								<listcell>
-									<label
-										value="@{rendererFieldItem.fieldType}" />
-									<label value=": " />
-									<label
-										value="@{rendererFieldItem.fieldName}" />
-								</listcell>
-								<listcell
-									label="@{rendererFieldItem.style}" />
-								<listcell
-									label="@{rendererFieldItem.urlFieldName}" />
-								<listcell>
-									<button
-										tooltiptext="Move the field up" image="/images/arrow_top.png"
-										onClick="renderer.onRendererFieldUp(self)" />
-									<button
-										tooltiptext="Move the field down"
-										image="/images/arrow_down.png"
-										onClick="renderer.onRendererFieldDown(self)" />
-									<space />
-									<button tooltiptext="Remove a field"
-										image="/images/action_delete.png"
-										onClick="renderer.onRendererFieldRemove(self)" />
-								</listcell>
-							</listitem>
-						</listbox>
-					</row>
-				</rows>
-				<foot>
-					<footer span="2">
-						<vbox width="100%" align="center">
-							<hbox visible="@{renderer.selected}">
-								<button label="Cancel"
-									onClick="renderer.onCancel()" />
-								<space width="10px" />
-								<button label="Save"
-									onClick="renderer.onSave()" />
-							</hbox>
-							<hbox visible="@{renderer.notSelected}">
-								<button label="Cancel"
-									onClick="renderer.onCancel()" />
-								<space width="10px" />
-								<button label="Create"
-									onClick="renderer.onSave()" />
-							</hbox>
-						</vbox>
-					</footer>
-				</foot>
-			</grid>
-		</panelchildren>
-	</panel>
-	<panel title="Testing the iframe" border="normal">
-		<caption>
-			<hbox align="center">
-				<label value="IFrame pixel size (width x height): " />
-				<intbox value="@{renderer.iframeWidth}" />
-				<label value=" x " />
-				<intbox value="@{renderer.iframeHeight}" />
-				<space />
-				<button label="Test" onClick="renderer.onTest(self)" />
-				<textbox cols="100" rows="3" readonly="true"
-					value="@{renderer.iFrameHtmlCode}" />
-			</hbox>
-		</caption>
-		<panelchildren>
-			<iframe visible="@{renderer.testable}"
-				style="border: 1px solid gray" scrolling="auto" id="iframetest"
-				width="@{renderer.iframeWidthPx}"
-				height="@{renderer.iframeHeightPx}" />
-		</panelchildren>
-	</panel>
+	<tabbox>
+		<tabs>
+			<tab id="tabRedendererGeneral"
+				label="@{renderer.currentEditMode}" selected="true" />
+			<tab id="tabRedendererFields" label="Fields" />
+			<tab id="tabRedendererCss" label="CSS Style" />
+			<tab id="tabRedendererTest" label="Testing" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/renderer/edit_general.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/renderer/edit_fields.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/renderer/edit_css.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/renderer/edit_test.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+	<vbox width="100%" align="center">
+		<hbox visible="@{renderer.selected}">
+			<button label="Cancel" onClick="renderer.onCancel()" />
+			<space width="10px" />
+			<button label="Save" onClick="renderer.onSave()" />
+			<space width="10px" />
+			<button label="Save &amp; close"
+				onClick="renderer.onSaveAndClose()" />
+		</hbox>
+		<hbox visible="@{renderer.notSelected}">
+			<button label="Cancel" onClick="renderer.onCancel()" />
+			<space width="10px" />
+			<button label="Create" onClick="renderer.onSave()" />
+		</hbox>
+	</vbox>
 </zk>

@@ -170,14 +170,14 @@ public class ParserFactory extends ClassFactory implements
 		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
 		for (int j = 0; j < mimeNodes.getLength(); j++) {
 			Node mimeNode = mimeNodes.item(j);
-			String contentType = xpp.getNodeString(mimeNode);
+			String contentType = xpp.getNodeString(mimeNode, false);
 			parserFactory.addMimeType(contentType);
 		}
 
 		NodeList extensionNodes = xpp.getNodeList(parserNode, "extension");
 		for (int j = 0; j < extensionNodes.getLength(); j++) {
 			Node extensionNode = extensionNodes.item(j);
-			String extension = xpp.getNodeString(extensionNode);
+			String extension = xpp.getNodeString(extensionNode, false);
 			parserFactory.addExtension(extension);
 		}
 		return parserFactory;

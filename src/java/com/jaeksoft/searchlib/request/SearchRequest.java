@@ -449,6 +449,21 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
+	final public void removeFilterSource(FilterAbstract.Source source) {
+		rwl.w.lock();
+		try {
+			List<FilterAbstract<?>> toRemoveList = new ArrayList<FilterAbstract<?>>(
+					0);
+			for (FilterAbstract<?> filterAbstract : filterList)
+				if (filterAbstract.getSource() == source)
+					toRemoveList.add(filterAbstract);
+			for (FilterAbstract<?> filterAbstract : toRemoveList)
+				filterList.remove(filterAbstract);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	public SnippetFieldList getSnippetFieldList() {
 		rwl.r.lock();
 		try {
@@ -913,7 +928,7 @@ public class SearchRequest extends AbstractRequest implements
 			nodes = xpp.getNodeList(requestNode, "sort/field");
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Node node = nodes.item(i);
-				String textNode = xpp.getNodeString(node);
+				String textNode = xpp.getNodeString(node, false);
 				if (textNode != null && textNode.length() > 0)
 					sortFieldList.put(new SortField(textNode, false));
 				else

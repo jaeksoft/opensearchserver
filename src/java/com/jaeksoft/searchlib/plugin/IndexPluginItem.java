@@ -49,7 +49,7 @@ public class IndexPluginItem {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
 			String name = XPathParser.getAttributeString(node, "name");
-			String value = xpp.getNodeString(node);
+			String value = xpp.getNodeString(node, false);
 			properties.put(name, value);
 		}
 	}

@@ -423,14 +423,15 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 
 			Node mltDocQueryNode = xpp.getNode(node, "docQuery");
 			if (mltDocQueryNode != null)
-				setDocQuery(xpp.getNodeString(mltDocQueryNode));
+				setDocQuery(xpp.getNodeString(mltDocQueryNode, false));
 
 			NodeList nodes = xpp.getNodeList(node, "filters/filter");
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Node n = nodes.item(i);
-				filterList.add(new QueryFilter(xpp.getNodeString(n), "yes"
-						.equals(XPathParser.getAttributeString(n, "negative")),
-						FilterAbstract.Source.CONFIGXML, null));
+				filterList.add(new QueryFilter(xpp.getNodeString(n, false),
+						"yes".equals(XPathParser.getAttributeString(n,
+								"negative")), FilterAbstract.Source.CONFIGXML,
+						null));
 			}
 
 			SchemaFieldList fieldList = config.getSchema().getFieldList();

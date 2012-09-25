@@ -91,7 +91,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		indexName = XPathParser.getAttributeString(node, ATTR_NAME_INDEXNAME);
 		queryTemplate = XPathParser.getAttributeString(node,
 				ATTR_NAME_QUERYTEMPLATE);
-		queryString = xpp.getNodeString(node);
+		queryString = xpp.getNodeString(node, false);
 		localField = XPathParser.getAttributeString(node, ATTR_NAME_LOCALFIELD);
 		foreignField = XPathParser.getAttributeString(node,
 				ATTR_NAME_FOREIGNFIELD);

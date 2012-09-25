@@ -115,9 +115,12 @@ public class XPathParser {
 		return getNodeString(rootNode, query);
 	}
 
-	public final String getNodeString(Node node)
+	public final String getNodeString(Node node, boolean trim)
 			throws XPathExpressionException {
-		return xPath.evaluate("text()", node);
+		String txt = xPath.evaluate("text()", node);
+		if (txt == null)
+			return null;
+		return trim ? txt.trim() : txt;
 	}
 
 	public final NodeList getNodeList(Node parentNode, String query)
@@ -202,12 +205,15 @@ public class XPathParser {
 		return Double.parseDouble(value);
 	}
 
-	final public String getSubNodeTextIfAny(Node parentNode, String nodeName)
-			throws XPathExpressionException {
+	final public String getSubNodeTextIfAny(Node parentNode, String nodeName,
+			boolean trim) throws XPathExpressionException {
 		Node node = getNode(parentNode, nodeName);
 		if (node == null)
 			return null;
-		return node.getTextContent();
+		String txt = node.getTextContent();
+		if (txt == null)
+			return null;
+		return trim ? txt.trim() : txt;
 	}
 
 }

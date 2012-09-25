@@ -62,7 +62,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 
 	public QueryFilter(XPathParser xpp, Node node)
 			throws XPathExpressionException {
-		this(xpp.getNodeString(node), "yes".equals(XPathParser
+		this(xpp.getNodeString(node, false), "yes".equals(XPathParser
 				.getAttributeString(node, "negative")), Source.CONFIGXML, null);
 	}
 

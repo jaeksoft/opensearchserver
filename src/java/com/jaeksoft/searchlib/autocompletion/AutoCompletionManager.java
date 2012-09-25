@@ -32,12 +32,10 @@ import java.util.Properties;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
-import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -206,14 +204,11 @@ public class AutoCompletionManager {
 				return null;
 			if (rows == null)
 				rows = propRows;
-			SearchRequest searchRequest = new SearchRequest(autoCompClient);
+			SearchRequest searchRequest = (SearchRequest) autoCompClient
+					.getNewRequest("search");
+			query = SearchRequest.replaceControlChars(query.replace("\"", ""));
 			searchRequest.setQueryString(query);
-			searchRequest.setDefaultOperator("AND");
 			searchRequest.setRows(rows);
-			searchRequest.getSortFieldList().put(
-					new SortField(autoCompletionSchemaFieldFreq, true));
-			searchRequest.getReturnFieldList().put(
-					new ReturnField(termField.getName()));
 			return (AbstractResultSearch) autoCompClient.request(searchRequest);
 		} finally {
 			rwl.r.unlock();

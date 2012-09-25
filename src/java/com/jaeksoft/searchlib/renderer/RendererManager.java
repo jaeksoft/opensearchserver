@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.XPathParser;
 
 public class RendererManager {
 
@@ -61,7 +62,10 @@ public class RendererManager {
 					continue;
 				if (fname.endsWith("_tmp.xml"))
 					continue;
-				add(new Renderer(f));
+				if (f.exists())
+					add(new Renderer(new XPathParser(f)));
+				else
+					add(new Renderer());
 			}
 		}
 	}

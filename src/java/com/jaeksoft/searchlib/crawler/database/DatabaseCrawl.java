@@ -266,7 +266,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 				DBCRAWL_ATTR_BUFFER_SIZE));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL);
 		if (sqlNode != null)
-			crawl.setSql(xpp.getNodeString(sqlNode));
+			crawl.setSql(xpp.getNodeString(sqlNode, true));
 		Node mapNode = xpp.getNode(item, DBCRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
 			crawl.fieldMap.load(xpp, mapNode);

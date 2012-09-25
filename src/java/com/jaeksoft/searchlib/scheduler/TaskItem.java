@@ -109,7 +109,7 @@ public class TaskItem {
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node propNode = nodeList.item(i);
 			String name = XPathParser.getAttributeString(propNode, "name");
-			String value = xpp.getNodeString(propNode);
+			String value = xpp.getNodeString(propNode, false);
 			TaskPropertyDef propDef = taskAbstract.findProperty(name);
 			if (propDef != null) {
 				if (propDef.type == TaskPropertyType.password)

@@ -65,7 +65,8 @@ public class RendererField {
 				RENDERER_FIELD_ATTR_FIELDNAME);
 		setFieldType(RendererFieldType.find(XPathParser.getAttributeString(
 				node, RENDERER_FIELD_ATTR_FIELD_TYPE)));
-		style = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE);
+		style = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE,
+				true);
 		urlFieldName = XPathParser.getAttributeString(node,
 				RENDERER_FIELD_ATTR_URL_FIELDNAME);
 	}

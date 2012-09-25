@@ -2,7 +2,7 @@
 
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -24,7 +24,9 @@
 	<request name="search" phraseSlop="2" defaultOperator="AND"
 		start="0" rows="10" lang="en">
 
-		<query>uri:($$)^5 OR uri:("$$")^5 OR
+		<query>
+<![CDATA[
+uri:($$)^5 OR uri:("$$")^5 OR
 fileName:($$)^10 OR fileName:("$$")^10 OR
 fileNameExact:($$)^10 OR fileNameExact:("$$")^10 OR
 fileNamePhonetic:($$)^10 OR fileNamePhonetic:("$$")^10 OR
@@ -34,6 +36,7 @@ contentPhonetic:($$) OR contentPhonetic:("$$") OR
 title:($$)^10 OR title:("$$")^10 OR
 titleExact:($$)^10 OR titleExact:("$$")^10 OR
 titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10
+]]>
 		</query>
 
 		<returnFields>
@@ -42,8 +45,8 @@ titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10
 		</returnFields>
 
 		<snippet>
-			<field name="fileName" tag="b" maxDocChar="2147483647" separator="..."
-				maxSnippetSize="200" fragmenterClass="NoFragmenter" />
+			<field name="fileName" tag="b" maxDocChar="2147483647"
+				separator="..." maxSnippetSize="200" fragmenterClass="NoFragmenter" />
 			<field name="content" tag="b" maxDocChar="2147483647"
 				separator="..." maxSnippetSize="200" fragmenterClass="SentenceFragmenter" />
 		</snippet>

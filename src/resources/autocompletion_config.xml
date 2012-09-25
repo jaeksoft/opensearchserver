@@ -26,6 +26,11 @@
 				<filter class="EdgeNGramFilter" max_gram="200" min_gram="1"
 					scope="QUERY_INDEX" side="front" />
 			</analyzer>
+			<analyzer name="ClusterAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+			</analyzer>
 			<analyzer name="FreqFilterAnalyzer" lang="">
 				<tokenizer class="KeywordTokenizer" />
 				<filter class="NumberFormatFilter" numberFormat="0000000000"
@@ -35,17 +40,18 @@
 		<fields default="term">
 			<field name="term" indexed="yes" stored="yes" termVector="no"
 				analyzer="AutocompletionAnalyzer" />
+			<field name="cluster" indexed="yes" stored="no" termVector="no"
+				analyzer="ClusterAnalyzer" />
 			<field name="freq" indexed="yes" stored="no" termvector="no"
 				analyzer="FreqFilterAnalyzer" />
 		</fields>
 	</schema>
 	<requests>
 		<request name="search" defaultOperator="and" start="0" rows="0"
-			allowLeadingWildcard="yes">
-			<query>$$</query>
-			<returnFields>
-				term
-			</returnFields>
+			allowLeadingWildcard="yes" collapseMode="optimized" collapseField="cluster"
+			collapseMax="1">
+			<query>term:("$$")</query>
+			<returnFields>term</returnFields>
 			<sort>
 				<field name="freq" direction="desc" />
 			</sort>

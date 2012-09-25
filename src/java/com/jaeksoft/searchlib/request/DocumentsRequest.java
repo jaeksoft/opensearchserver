@@ -131,7 +131,7 @@ public class DocumentsRequest extends AbstractRequest implements
 				for (int i = 0; i < nodes.getLength(); i++) {
 					Node n = nodes.item(i);
 					if (n != null)
-						uniqueKeyList.add(xpp.getNodeString(n));
+						uniqueKeyList.add(xpp.getNodeString(n, false));
 				}
 			}
 

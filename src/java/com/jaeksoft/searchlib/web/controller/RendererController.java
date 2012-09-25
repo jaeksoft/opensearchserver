@@ -200,6 +200,11 @@ public class RendererController extends CommonController {
 		reloadPage();
 	}
 
+	public void onCssDefault() throws SearchLibException {
+		currentRenderer.setDefaultCss();
+		reloadPage();
+	}
+
 	public void onSave() throws SearchLibException,
 			UnsupportedEncodingException {
 		Client client = getClient();
@@ -211,6 +216,11 @@ public class RendererController extends CommonController {
 		} else
 			manager.add(currentRenderer);
 		client.save(currentRenderer);
+	}
+
+	public void onSaveAndClose() throws UnsupportedEncodingException,
+			SearchLibException {
+		onSave();
 		onCancel();
 	}
 
