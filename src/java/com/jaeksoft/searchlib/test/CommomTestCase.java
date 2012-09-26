@@ -58,6 +58,7 @@ public class CommomTestCase {
 	public static String WEBCRAWLER_API = "webcrawler";
 	public static String INDEX_API = "update";
 	public static String OPTIMIZE_API = "optimize";
+	public static String SEARCH_API = "select";
 
 	public HttpPost queryInstance(List<NameValuePair> namedValuePairs,
 			String apiPath, boolean use) throws IllegalStateException,
