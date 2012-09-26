@@ -55,6 +55,7 @@ public class CommomTestCase {
 
 	public static String SCHEMA_API = "schema";
 	public static String PATTERN_API = "pattern";
+	public static String WEBCRAWLER_API = "webcrawler";
 
 	public HttpPost queryInstance(List<NameValuePair> namedValuePairs,
 			String apiPath, boolean use) throws IllegalStateException,

@@ -21,6 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+
 package com.jaeksoft.searchlib.test;
 
 import java.io.IOException;
@@ -49,120 +50,37 @@ public class WebCrawlerTestCase extends TestCase {
 		commomTestCase = new CommomTestCase();
 	}
 
-	public void createIndex() {
-		try {
-			List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-			namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
-					"createindex"));
-			namedValuePairs.add(commomTestCase.getNameValuePair("index.name",
-					CommomTestCase.INDEX_NAME));
-			namedValuePairs.add(commomTestCase.getNameValuePair(
-					"index.template", "WEB_CRAWLER"));
-			HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-					CommomTestCase.SCHEMA_API, false);
-			String response = commomTestCase.getHttpResponse(httpPost,
-					"response/entry[@key='Info']");
-			assertEquals("Index created: oss_1.3", response);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public void createSchemaField() throws IllegalStateException, IOException,
-			SAXException, ParserConfigurationException,
-			XPathExpressionException {
+	public String startStopCrawler(String action) throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
+			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		namedValuePairs.add(commomTestCase.getNameValuePair("cmd", "setField"));
-		namedValuePairs.add(commomTestCase.getNameValuePair("field.name",
-				"titleNew"));
-		namedValuePairs.add(commomTestCase.getNameValuePair("field.analyzer",
-				"StandardAnalyzer"));
-		namedValuePairs.add(commomTestCase.getNameValuePair("field.stored",
-				"yes"));
-		namedValuePairs.add(commomTestCase.getNameValuePair("field.indexed",
-				"yes"));
-		namedValuePairs.add(commomTestCase.getNameValuePair("term.termvector",
-				"no"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("action", action));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, true);
-		String response = commomTestCase.getHttpResponse(httpPost,
+				CommomTestCase.WEBCRAWLER_API, true);
+		System.out.println(httpPost.getURI());
+		return commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
-		assertEquals("field 'titleNew' added/updated", response);
-	}
-
-	public void deleteSchemaField() throws IllegalStateException, IOException,
-			SAXException, ParserConfigurationException,
-			XPathExpressionException {
-		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
-				"deletefield"));
-		namedValuePairs.add(commomTestCase.getNameValuePair("field.name",
-				"titleNew"));
-		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, true);
-		String response = commomTestCase.getHttpResponse(httpPost,
-				"response/entry[@key='Info']");
-		assertEquals("field 'titleNew' removed", response);
-	}
-
-	public void getSchema() throws IllegalStateException, IOException,
-			SAXException, ParserConfigurationException,
-			XPathExpressionException {
-		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		namedValuePairs
-				.add(commomTestCase.getNameValuePair("cmd", "getschema"));
-		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, true);
-		String response = commomTestCase.getHttpResponse(httpPost,
-				"response/schema/fields/field[3]/@name");
-		String responseContent = commomTestCase.getHttpResponse(httpPost,
-				"response/schema/fields/field[5]/@name");
-		assertEquals("content", responseContent);
-		assertEquals("titleExact", response);
-	}
-
-	public void getIndexLists() throws IllegalStateException, IOException,
-			SAXException, ParserConfigurationException,
-			XPathExpressionException {
-		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		namedValuePairs
-				.add(commomTestCase.getNameValuePair("cmd", "indexlist"));
-		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, true);
-		String response = commomTestCase.getHttpResponse(httpPost,
-				"response/index/@name");
-		assertEquals(CommomTestCase.INDEX_NAME, response);
-	}
-
-	public void deleteIndex() throws IllegalStateException, IOException,
-			SAXException, ParserConfigurationException,
-			XPathExpressionException {
-		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
-				"deleteindex"));
-		namedValuePairs.add(commomTestCase.getNameValuePair("index.name",
-				CommomTestCase.INDEX_NAME));
-		namedValuePairs.add(commomTestCase.getNameValuePair(
-				"index.delete.name", CommomTestCase.INDEX_NAME));
-		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, false);
-		String response = commomTestCase.getHttpResponse(httpPost,
-				"response/entry[@key='Info']");
-		assertEquals("Index deleted: oss_1.3", response);
 
 	}
 
-	public static TestSuite suite() {
-		TestSuite webCrawlerTestSuite = new TestSuite();
-		webCrawlerTestSuite.addTest(new WebCrawlerTestCase("createIndex"));
-		webCrawlerTestSuite
-				.addTest(new WebCrawlerTestCase("createSchemaField"));
-		webCrawlerTestSuite
-				.addTest(new WebCrawlerTestCase("deleteSchemaField"));
-		webCrawlerTestSuite.addTest(new WebCrawlerTestCase("getSchema"));
-		webCrawlerTestSuite.addTest(new WebCrawlerTestCase("getIndexLists"));
-		// webCrawlerTestSuite.addTest(new WebCrawlerTestCase("deleteIndex"));
-		return webCrawlerTestSuite;
+	public void startCrawler() throws IllegalStateException,
+			XPathExpressionException, IOException, SAXException,
+			ParserConfigurationException {
+		String response = startStopCrawler("start");
+		assertEquals("STARTED", response);
+	}
+
+	public void stopCrawler() throws IllegalStateException,
+			XPathExpressionException, IOException, SAXException,
+			ParserConfigurationException {
+		String response = startStopCrawler("stop");
+		assertEquals("STOPPED", response);
+	}
+
+	public static TestSuite suite() throws InterruptedException {
+		TestSuite webCrawlerTestCase = new TestSuite();
+		webCrawlerTestCase.addTest(new WebCrawlerTestCase("startCrawler"));
+		webCrawlerTestCase.addTest(new WebCrawlerTestCase("stopCrawler"));
+		return webCrawlerTestCase;
 	}
 }

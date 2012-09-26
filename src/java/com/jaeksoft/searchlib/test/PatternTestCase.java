@@ -46,9 +46,9 @@ public class PatternTestCase extends TestCase {
 	}
 
 	public void insertPattern() throws ClientProtocolException, IOException {
-		File xml = FileUtils
-				.toFile(this.getClass().getResource("patterns.txt"));
-		int status = commomTestCase.postFile(xml, "text/plain");
+		File patterns = FileUtils.toFile(this.getClass().getResource(
+				"patterns.txt"));
+		int status = commomTestCase.postFile(patterns, "text/plain");
 		assertEquals(200, status);
 	}
 

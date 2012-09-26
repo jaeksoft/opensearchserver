@@ -58,24 +58,24 @@ public class WebCrawlerServlet extends AbstractServlet {
 		if (Action.STOP.name().equalsIgnoreCase(action)) {
 			crawlMaster.abort();
 			if (crawlMaster.waitForEnd(timeOut))
-				transaction.addXmlResponse("info", InfoStatus.STOPPED.name());
+				transaction.addXmlResponse("Info", InfoStatus.STOPPED.name());
 			else
-				transaction.addXmlResponse("info", InfoStatus.STOPPING.name());
+				transaction.addXmlResponse("Info", InfoStatus.STOPPING.name());
 		} else if (Action.START.name().equalsIgnoreCase(action)) {
 			crawlMaster.start();
 			if (crawlMaster.waitForStart(timeOut))
-				transaction.addXmlResponse("info", InfoStatus.STARTED.name());
+				transaction.addXmlResponse("Info", InfoStatus.STARTED.name());
 			else
-				transaction.addXmlResponse("info", InfoStatus.STARTING.name());
+				transaction.addXmlResponse("Info", InfoStatus.STARTING.name());
 		} else if (Action.STATUS.name().equalsIgnoreCase(action)) {
 			if (crawlMaster.isAborting())
-				transaction.addXmlResponse("info", InfoStatus.STOPPING.name());
+				transaction.addXmlResponse("Info", InfoStatus.STOPPING.name());
 			else if (crawlMaster.isRunning())
-				transaction.addXmlResponse("info", InfoStatus.STARTED.name());
+				transaction.addXmlResponse("Info", InfoStatus.STARTED.name());
 			else
-				transaction.addXmlResponse("info", InfoStatus.STOPPED.name());
+				transaction.addXmlResponse("Info", InfoStatus.STOPPED.name());
 		} else
-			transaction.addXmlResponse("info", Action.EMTPY.name());
+			transaction.addXmlResponse("Info", Action.EMTPY.name());
 		transaction.addXmlResponse("status", "OK");
 	}
 

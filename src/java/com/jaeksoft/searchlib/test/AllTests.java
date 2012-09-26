@@ -7,13 +7,16 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ WebCrawlerTestCase.class, PatternTestCase.class })
+@SuiteClasses({ WebTemplateTestCase.class, PatternTestCase.class,
+		WebCrawlerTestCase.class })
 public class AllTests {
 
-	public static TestSuite openSearchServerTestSuits() {
+	public static TestSuite openSearchServerTestSuits()
+			throws InterruptedException {
 		TestSuite allTests = new TestSuite();
-		allTests.addTest(WebCrawlerTestCase.suite());
+		allTests.addTest(WebTemplateTestCase.suite());
 		allTests.addTest(PatternTestCase.suite());
+		allTests.addTest(WebCrawlerTestCase.suite());
 		return allTests;
 	}
 
