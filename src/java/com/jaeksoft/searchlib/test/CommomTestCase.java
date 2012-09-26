@@ -56,6 +56,8 @@ public class CommomTestCase {
 	public static String SCHEMA_API = "schema";
 	public static String PATTERN_API = "pattern";
 	public static String WEBCRAWLER_API = "webcrawler";
+	public static String INDEX_API = "update";
+	public static String OPTIMIZE_API = "optimize";
 
 	public HttpPost queryInstance(List<NameValuePair> namedValuePairs,
 			String apiPath, boolean use) throws IllegalStateException,
@@ -71,10 +73,10 @@ public class CommomTestCase {
 	}
 
 	@SuppressWarnings("deprecation")
-	public int postFile(File file, String contentType)
+	public int postFile(File file, String contentType, String api)
 			throws IllegalStateException, IOException {
-		String url = SERVER_URL + "/" + PATTERN_API + "?use=" + INDEX_NAME
-				+ "&login=" + USER_NAME + "&key=" + API_KEY;
+		String url = SERVER_URL + "/" + api + "?use=" + INDEX_NAME + "&login="
+				+ USER_NAME + "&key=" + API_KEY;
 		HttpPut put = new HttpPut(url);
 		put.setEntity(new FileEntity(file, contentType));
 		DefaultHttpClient httpClient = new DefaultHttpClient();

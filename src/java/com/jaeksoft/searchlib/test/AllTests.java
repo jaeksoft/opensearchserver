@@ -8,7 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ WebTemplateTestCase.class, PatternTestCase.class,
-		WebCrawlerTestCase.class })
+		WebCrawlerTestCase.class, IndexTestCase.class, OptimizeTestCase.class })
 public class AllTests {
 
 	public static TestSuite openSearchServerTestSuits()
@@ -17,6 +17,8 @@ public class AllTests {
 		allTests.addTest(WebTemplateTestCase.suite());
 		allTests.addTest(PatternTestCase.suite());
 		allTests.addTest(WebCrawlerTestCase.suite());
+		allTests.addTest(IndexTestCase.suite());
+		allTests.addTest(OptimizeTestCase.suite());
 		return allTests;
 	}
 

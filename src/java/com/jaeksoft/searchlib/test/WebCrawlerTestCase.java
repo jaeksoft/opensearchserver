@@ -57,7 +57,6 @@ public class WebCrawlerTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("action", action));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
 				CommomTestCase.WEBCRAWLER_API, true);
-		System.out.println(httpPost.getURI());
 		return commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 

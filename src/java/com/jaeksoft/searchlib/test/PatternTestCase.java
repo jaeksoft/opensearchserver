@@ -48,7 +48,8 @@ public class PatternTestCase extends TestCase {
 	public void insertPattern() throws ClientProtocolException, IOException {
 		File patterns = FileUtils.toFile(this.getClass().getResource(
 				"patterns.txt"));
-		int status = commomTestCase.postFile(patterns, "text/plain");
+		int status = commomTestCase.postFile(patterns, "text/plain",
+				CommomTestCase.PATTERN_API);
 		assertEquals(200, status);
 	}
 
