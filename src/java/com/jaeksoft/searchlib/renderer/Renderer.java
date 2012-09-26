@@ -293,9 +293,10 @@ public class Renderer implements Comparable<Renderer> {
 				writeCss(pw, ".oss-result", resultStyle);
 
 				int i = 0;
-				for (RendererField rendererField : fields)
-					writeCss(pw, ".ossfieldrdr" + (i++),
-							rendererField.getStyle());
+				for (RendererField rendererField : fields) {
+					i++;
+					writeCss(pw, ".ossfieldrdr" + i, rendererField.getStyle());
+				}
 				cssCache = sw.toString();
 				return cssCache;
 			} finally {

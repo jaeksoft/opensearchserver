@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -152,6 +153,19 @@ public class Client extends Config {
 			ClassNotFoundException {
 		Document doc = DomUtils.getNewDocumentBuilder(false, false).parse(
 				inputSource);
+		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential,
+				proxyHandler, infoCallBack);
+	}
+
+	public int updateXmlDocuments(InputStream inputStream, int bufferSize,
+			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler,
+			InfoCallback infoCallBack) throws ParserConfigurationException,
+			SAXException, IOException, XPathExpressionException,
+			NoSuchAlgorithmException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		Document doc = DomUtils.getNewDocumentBuilder(false, false).parse(
+				inputStream);
 		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential,
 				proxyHandler, infoCallBack);
 	}

@@ -116,7 +116,7 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		return fileInstances;
 	}
 
-	private class FileOnlyDirectoryFilter implements FTPFileFilter {
+	public static class FileOnlyDirectoryFilter implements FTPFileFilter {
 
 		@Override
 		public boolean accept(FTPFile ff) {
