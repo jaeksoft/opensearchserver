@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.scheduler.task;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -41,6 +40,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -112,7 +112,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		if (propertyDef == propBuffersize)
 			return "50";
 		if (propertyDef == propDeleteAfterLoad)
-			return Boolean.TRUE.toString();
+			return Boolean.FALSE.toString();
 		return null;
 	}
 
@@ -166,14 +166,18 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 					}
 				taskLog.setInfo("Working on: " + filePathName);
 				inputStream = ftp.retrieveFileStream(filePathName);
+				Node xmlDoc = null;
 				if (xsl != null && xsl.length() > 0) {
 					xmlTempResult = File.createTempFile("ossftpfeed", ".xml");
 					DomUtils.xslt(inputStream, xsl, xmlTempResult);
-					inputStream.close();
-					inputStream = new FileInputStream(xmlTempResult);
-				}
-				client.updateXmlDocuments(inputStream, bufferSize, null,
+					xmlDoc = DomUtils.getNewDocumentBuilder(false, false)
+							.parse(xmlTempResult);
+				} else
+					xmlDoc = DomUtils.getNewDocumentBuilder(false, false)
+							.parse(inputStream);
+				client.updateXmlDocuments(xmlDoc, bufferSize, null,
 						proxyHandler, taskLog);
+				client.deleteXmlDocuments(xmlDoc, bufferSize, taskLog);
 				inputStream.close();
 				inputStream = null;
 				if (!ftp.completePendingCommand())

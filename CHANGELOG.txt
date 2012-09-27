@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 233 Add deletion support in XML indexation
 - 232: FTP feed XML task
 - 231: Autocompletion API
 - 3558600: Dropbox indexation

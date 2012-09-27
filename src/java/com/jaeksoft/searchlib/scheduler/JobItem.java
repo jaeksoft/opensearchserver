@@ -230,12 +230,17 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 		TaskLog taskLog = null;
 		try {
+			boolean indexHasChanged = false;
+			long originalVersion = client.getIndex().getVersion();
 			setLastExecutionNow();
 			for (TaskItem task : getTaskListCopy()) {
-				taskLog = new TaskLog(task);
+				taskLog = new TaskLog(task, indexHasChanged);
 				addTaskLog(taskLog);
 				task.run(client, taskLog);
 				taskLog.end();
+				if (!indexHasChanged)
+					if (client.getIndex().getVersion() != originalVersion)
+						indexHasChanged = true;
 			}
 		} catch (SearchLibException e) {
 			if (taskLog != null)

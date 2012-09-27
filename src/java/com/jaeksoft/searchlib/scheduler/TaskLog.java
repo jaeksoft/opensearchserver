@@ -44,6 +44,8 @@ public class TaskLog implements InfoCallback {
 
 	private long duration;
 
+	final private boolean indexHasChanged;
+
 	private TaskAbstract taskAbstract;
 
 	private TaskProperty[] taskProperties;
@@ -52,9 +54,10 @@ public class TaskLog implements InfoCallback {
 
 	private String info;
 
-	protected TaskLog(TaskItem taskItem) {
+	protected TaskLog(TaskItem taskItem, boolean indexHasChanged) {
 		taskAbstract = taskItem.getTask();
 		taskProperties = null;
+		this.indexHasChanged = indexHasChanged;
 		error = null;
 		info = null;
 		TaskProperty[] tp = taskItem.getProperties();
@@ -178,6 +181,15 @@ public class TaskLog implements InfoCallback {
 	@Override
 	public String toString() {
 		return getStartDate() + getTask().getName();
+	}
+
+	public boolean isIndexHasChanged() {
+		rwl.r.lock();
+		try {
+			return indexHasChanged;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 }

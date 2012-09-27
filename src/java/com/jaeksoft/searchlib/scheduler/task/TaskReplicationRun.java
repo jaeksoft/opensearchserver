@@ -28,6 +28,7 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
 import com.jaeksoft.searchlib.replication.ReplicationList;
@@ -43,7 +44,11 @@ public class TaskReplicationRun extends TaskAbstract {
 	final private TaskPropertyDef propReplicationName = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "replication name", 50);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propReplicationName };
+	final private TaskPropertyDef propReplicationIfUpdated = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Only if the index has been updated", 50);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propReplicationName,
+			propReplicationIfUpdated };
 
 	@Override
 	public String getName() {
@@ -67,12 +72,16 @@ public class TaskReplicationRun extends TaskAbstract {
 			for (int i = 0; i < values.length; i++)
 				values[i] = nameList.get(i);
 			return values;
+		} else if (propertyDef == propReplicationIfUpdated) {
+			return ClassPropertyEnum.BOOLEAN_LIST;
 		}
 		return null;
 	}
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propReplicationIfUpdated)
+			return Boolean.FALSE.toString();
 		return null;
 	}
 
@@ -82,6 +91,8 @@ public class TaskReplicationRun extends TaskAbstract {
 		ReplicationMaster replicationMaster = client.getReplicationMaster();
 		ReplicationList replicationList = client.getReplicationList();
 		String replicationName = properties.getValue(propReplicationName);
+		String replicationIfUpdated = properties
+				.getValue(propReplicationIfUpdated);
 		if (replicationName == null) {
 			taskLog.setInfo("No replication name");
 			return;
@@ -90,6 +101,12 @@ public class TaskReplicationRun extends TaskAbstract {
 		if (replicationItem == null) {
 			taskLog.setInfo("Replication name not found: " + replicationName);
 			return;
+		}
+		if (Boolean.parseBoolean(replicationIfUpdated)) {
+			if (!taskLog.isIndexHasChanged()) {
+				taskLog.setInfo("Index has not been updated. No replication.");
+				return;
+			}
 		}
 		try {
 			replicationMaster.execute(client, replicationItem, true, taskLog);

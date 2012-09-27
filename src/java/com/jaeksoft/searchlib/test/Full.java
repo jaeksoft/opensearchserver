@@ -3,7 +3,6 @@ package com.jaeksoft.searchlib.test;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -16,7 +15,7 @@ import org.apache.http.HttpException;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.xml.sax.InputSource;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -24,6 +23,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.util.DomUtils;
 
 public class Full {
 
@@ -48,9 +48,9 @@ public class Full {
 			IllegalAccessException, ClassNotFoundException, HttpException {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
-		FileInputStream fis = new FileInputStream(contentFile);
-		client.updateXmlDocuments(new InputSource(fis), 10, null, null, null);
-		fis.close();
+		Node xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
+				contentFile);
+		client.updateXmlDocuments(xmlDoc, 10, null, null, null);
 		client.reload();
 	}
 

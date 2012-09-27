@@ -36,11 +36,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.zkoss.util.media.Media;
 import org.zkoss.zk.ui.event.Event;
@@ -63,7 +62,7 @@ public class UploadXmlController extends CommonController {
 
 	public class UpdateThread extends ThreadAbstract {
 
-		private volatile Source xmlSource;
+		private volatile StreamSource streamSource;
 
 		private volatile String mediaName;
 
@@ -73,11 +72,11 @@ public class UploadXmlController extends CommonController {
 
 		private volatile File xmlTempResult;
 
-		private UpdateThread(Client client, Source xmlSource, String xsl,
-				String mediaName) {
+		private UpdateThread(Client client, StreamSource streamSource,
+				String xsl, String mediaName) {
 			super(client, null);
 			this.client = client;
-			this.xmlSource = xmlSource;
+			this.streamSource = streamSource;
 			this.xsl = xsl;
 			this.mediaName = mediaName;
 			xmlTempResult = null;
@@ -89,13 +88,16 @@ public class UploadXmlController extends CommonController {
 			setInfo("Running...");
 			ProxyHandler proxyHandler = client.getWebPropertyManager()
 					.getProxyHandler();
+			Node xmlDoc;
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");
-				DomUtils.xslt(xmlSource, xsl, xmlTempResult);
-				xmlSource = new StreamSource(xmlTempResult);
-			}
-			int updatedCount = client.updateXmlDocuments(
-					SAXSource.sourceToInputSource(xmlSource), 50, null,
+				DomUtils.xslt(streamSource, xsl, xmlTempResult);
+				xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
+						xmlTempResult);
+			} else
+				xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
+						streamSource.getInputStream());
+			int updatedCount = client.updateXmlDocuments(xmlDoc, 50, null,
 					proxyHandler, this);
 			setInfo("Done: " + updatedCount + " document(s)");
 		}

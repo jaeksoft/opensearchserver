@@ -217,7 +217,7 @@ public class TaskManager implements Job {
 					throw new SearchLibException("Job not found: " + jobName);
 				jobItem.run(client);
 			} else if (taskItem != null) {
-				TaskLog taskLog = new TaskLog(taskItem);
+				TaskLog taskLog = new TaskLog(taskItem, false);
 				taskItem.run(client, taskLog);
 			}
 		} catch (SearchLibException e) {

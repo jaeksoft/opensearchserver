@@ -32,13 +32,14 @@ import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.xml.sax.InputSource;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.DomUtils;
 
 public class IndexServlet extends AbstractServlet {
 
@@ -61,16 +62,21 @@ public class IndexServlet extends AbstractServlet {
 			Client client = transaction.getClient();
 			String ct = transaction.getRequestContentType();
 			int bufferSize = transaction.getParameterInteger("bufferSize", 50);
-			int result = 0;
+			int updatedCount = 0;
+			int deletedCount = 0;
 			if (ct != null && ct.toLowerCase().contains("xml")) {
-				InputSource inputSource = new InputSource(
-						transaction.getReader());
-				result = client.updateXmlDocuments(inputSource, bufferSize,
+				Node xmlDoc = DomUtils.getNewDocumentBuilder(false, false)
+						.parse(transaction.getInputStream());
+				updatedCount = client.updateXmlDocuments(xmlDoc, bufferSize,
 						null, client.getWebPropertyManager().getProxyHandler(),
+						null);
+				deletedCount = client.deleteXmlDocuments(xmlDoc, bufferSize,
 						null);
 			}
 			transaction.addXmlResponse("Status", "OK");
-			transaction.addXmlResponse("Count", Integer.toString(result));
+			transaction.addXmlResponse("Count", Integer.toString(updatedCount));
+			transaction.addXmlResponse("Deleted",
+					Integer.toString(deletedCount));
 		} catch (IOException e) {
 			throw new ServletException(e);
 		} catch (XPathExpressionException e) {

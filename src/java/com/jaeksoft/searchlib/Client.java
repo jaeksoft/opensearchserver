@@ -26,21 +26,16 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.index.TermEnum;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
@@ -111,7 +106,7 @@ public class Client extends Config {
 		sb.append(docCount);
 		sb.append(" / ");
 		sb.append(totalCount);
-		sb.append(" XML document(s) indexed.");
+		sb.append(" XML document(s) updated.");
 		if (infoCallBack != null)
 			infoCallBack.setInfo(sb.toString());
 		else
@@ -120,7 +115,7 @@ public class Client extends Config {
 		return docCount;
 	}
 
-	private int updateXmlDocuments(Node document, int bufferSize,
+	public int updateXmlDocuments(Node document, int bufferSize,
 			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler,
 			InfoCallback infoCallBack) throws XPathExpressionException,
 			NoSuchAlgorithmException, IOException, URISyntaxException,
@@ -144,30 +139,47 @@ public class Client extends Config {
 		return docCount;
 	}
 
-	public int updateXmlDocuments(InputSource inputSource, int bufferSize,
-			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler,
-			InfoCallback infoCallBack) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException,
-			NoSuchAlgorithmException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		Document doc = DomUtils.getNewDocumentBuilder(false, false).parse(
-				inputSource);
-		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential,
-				proxyHandler, infoCallBack);
+	private final int deleteUniqueKeyList(int totalCount, int docCount,
+			Collection<String> deleteList, InfoCallback infoCallBack)
+			throws SearchLibException {
+		docCount += deleteDocuments(deleteList);
+		StringBuffer sb = new StringBuffer();
+		sb.append(docCount);
+		sb.append(" / ");
+		sb.append(totalCount);
+		sb.append(" XML document(s) deleted.");
+		if (infoCallBack != null)
+			infoCallBack.setInfo(sb.toString());
+		else
+			Logging.info(sb.toString());
+		deleteList.clear();
+		return docCount;
 	}
 
-	public int updateXmlDocuments(InputStream inputStream, int bufferSize,
-			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler,
-			InfoCallback infoCallBack) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException,
-			NoSuchAlgorithmException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
+	public int deleteXmlDocuments(Node xmlDoc, int bufferSize,
+			InfoCallback infoCallBack) throws XPathExpressionException,
+			NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		Document doc = DomUtils.getNewDocumentBuilder(false, false).parse(
-				inputStream);
-		return updateXmlDocuments(doc, bufferSize, urlDefaultCredential,
-				proxyHandler, infoCallBack);
+		List<Node> deleteNodeList = DomUtils
+				.getNodes(xmlDoc, "index", "delete");
+		Collection<String> deleteList = new ArrayList<String>(bufferSize);
+		int deleteCount = 0;
+		final int totalCount = deleteNodeList.size();
+		for (Node deleteNode : deleteNodeList) {
+			List<Node> uniqueKeyNodeList = DomUtils.getNodes(deleteNode,
+					"uniquekey");
+			for (Node uniqueKeyNode : uniqueKeyNodeList) {
+				deleteList.add(uniqueKeyNode.getTextContent());
+				if (deleteList.size() == bufferSize)
+					deleteCount = deleteUniqueKeyList(totalCount, deleteCount,
+							deleteList, infoCallBack);
+			}
+		}
+		if (deleteList.size() > 0)
+			deleteCount = deleteUniqueKeyList(totalCount, deleteCount,
+					deleteList, infoCallBack);
+		return deleteCount;
 	}
 
 	public int deleteDocument(String uniqueField) throws SearchLibException {

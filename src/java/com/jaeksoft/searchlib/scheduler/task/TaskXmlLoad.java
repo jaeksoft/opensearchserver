@@ -32,11 +32,9 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.xml.sax.InputSource;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -116,19 +114,20 @@ public class TaskXmlLoad extends TaskAbstract {
 				credentialItem = new CredentialItem(null, login, password);
 			DownloadItem downloadItem = httpDownloader.get(new URI(uri),
 					credentialItem);
-			InputSource inputSource;
+			Node xmlDoc = null;
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");
 				DomUtils.xslt(downloadItem.getContentInputStream(), xsl,
 						xmlTempResult);
-				inputSource = SAXSource.sourceToInputSource(new StreamSource(
-						xmlTempResult));
+				xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
+						xmlTempResult);
 			} else
-				inputSource = new InputSource(
+				xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
 						downloadItem.getContentInputStream());
 
-			client.updateXmlDocuments(inputSource, bufferSize, credentialItem,
+			client.updateXmlDocuments(xmlDoc, bufferSize, credentialItem,
 					proxyHandler, taskLog);
+			client.deleteXmlDocuments(xmlDoc, bufferSize, taskLog);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {
