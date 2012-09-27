@@ -80,6 +80,10 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 	final private TaskPropertyDef propDeleteAfterLoad = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "Delete after load", 10);
 
+	final private TaskPropertyDef proprTruncateIndexWhenFilesFound = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Truncate index when files are found",
+			10);
+
 	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Buffer size", 10);
 
@@ -113,6 +117,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 			return "50";
 		if (propertyDef == propDeleteAfterLoad)
 			return Boolean.FALSE.toString();
+		if (propertyDef == proprTruncateIndexWhenFilesFound)
+			return Boolean.FALSE.toString();
 		return null;
 	}
 
@@ -126,6 +132,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		String fileNamePattern = properties.getValue(propFileNamePattern);
 		boolean deleteAfterLoad = Boolean.TRUE.toString().equals(
 				properties.getValue(propDeleteAfterLoad));
+		boolean truncateWhenFilesFound = Boolean.TRUE.toString().equals(
+				properties.getValue(proprTruncateIndexWhenFilesFound));
 		Pattern pattern = null;
 		if (fileNamePattern != null && fileNamePattern.length() > 0)
 			pattern = Pattern.compile(fileNamePattern);
@@ -157,6 +165,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 			Arrays.sort(fileNames);
 			int ignored = 0;
 			int loaded = 0;
+			boolean bAlreadyTruncated = false;
 			for (String fileName : fileNames) {
 				String filePathName = FilenameUtils.concat(path, fileName);
 				if (pattern != null)
@@ -164,6 +173,10 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 						ignored++;
 						continue;
 					}
+				if (truncateWhenFilesFound && !bAlreadyTruncated) {
+					client.deleteAll();
+					bAlreadyTruncated = true;
+				}
 				taskLog.setInfo("Working on: " + filePathName);
 				inputStream = ftp.retrieveFileStream(filePathName);
 				Node xmlDoc = null;
