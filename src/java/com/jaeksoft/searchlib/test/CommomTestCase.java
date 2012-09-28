@@ -59,6 +59,8 @@ public class CommomTestCase {
 	public static String INDEX_API = "update";
 	public static String OPTIMIZE_API = "optimize";
 	public static String SEARCH_API = "select";
+	public static String DELETE_API = "delete";
+	public static String SEARCH_TEMPLATE_API = "searchtemplate";
 
 	public HttpPost queryInstance(List<NameValuePair> namedValuePairs,
 			String apiPath, boolean use) throws IllegalStateException,

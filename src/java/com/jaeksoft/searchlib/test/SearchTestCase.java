@@ -70,10 +70,26 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("facet", "lang"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("facet.multi",
+				"true"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/faceting/field[@name='lang']/facet[@name='en']");
+		assertEquals("137", response);
+	}
+
+	public void getFilterSearch() throws IllegalStateException, IOException,
+			XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
+		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("fq", "lang:en"));
+		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
+				CommomTestCase.SEARCH_API, true);
+		String response = commomTestCase.getHttpResponse(httpPost,
+				"response/result/@numFound");
 		assertEquals("137", response);
 	}
 
@@ -96,11 +112,28 @@ public class SearchTestCase extends TestCase {
 		assertEquals("173", response);
 	}
 
+	public void checkSpellCheck() throws IllegalStateException, IOException,
+			XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
+		namedValuePairs.add(commomTestCase.getNameValuePair("query",
+				"opensearch"));
+		namedValuePairs
+				.add(commomTestCase.getNameValuePair("qt", "spellcheck"));
+		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
+				CommomTestCase.SEARCH_API, true);
+		String response = commomTestCase.getHttpResponse(httpPost,
+				"response/spellcheck/field/word/suggest");
+		assertEquals("opensearchserver", response);
+	}
+
 	public static TestSuite suite() throws InterruptedException {
 		TestSuite searchTestCase = new TestSuite();
 		searchTestCase.addTest(new SearchTestCase("getDocumentsFound"));
 		searchTestCase.addTest(new SearchTestCase("getCollapsedDocumentCount"));
+		searchTestCase.addTest(new SearchTestCase("getFilterSearch"));
 		searchTestCase.addTest(new SearchTestCase("checkFacetField"));
+		searchTestCase.addTest(new SearchTestCase("checkSpellCheck"));
 		return searchTestCase;
 	}
 }

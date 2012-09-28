@@ -49,23 +49,21 @@ public class WebTemplateTestCase extends TestCase {
 		commomTestCase = new CommomTestCase();
 	}
 
-	public void createIndex() {
-		try {
-			List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-			namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
-					"createindex"));
-			namedValuePairs.add(commomTestCase.getNameValuePair("index.name",
-					CommomTestCase.INDEX_NAME));
-			namedValuePairs.add(commomTestCase.getNameValuePair(
-					"index.template", "WEB_CRAWLER"));
-			HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-					CommomTestCase.SCHEMA_API, false);
-			String response = commomTestCase.getHttpResponse(httpPost,
-					"response/entry[@key='Info']");
-			assertEquals("Index created: oss_1.3", response);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void createIndex() throws IllegalStateException, IOException,
+			XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
+		namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
+				"createindex"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("index.name",
+				CommomTestCase.INDEX_NAME));
+		namedValuePairs.add(commomTestCase.getNameValuePair("index.template",
+				"WEB_CRAWLER"));
+		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
+				CommomTestCase.SCHEMA_API, false);
+		String response = commomTestCase.getHttpResponse(httpPost,
+				"response/entry[@key='Info']");
+		assertEquals("Index created: oss_1.3", response);
 
 	}
 
