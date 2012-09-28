@@ -30,7 +30,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ WebTemplateTestCase.class, PatternTestCase.class,
 		WebCrawlerTestCase.class, IndexTestCase.class, OptimizeTestCase.class,
-		SearchTemplateTestCase.class, SearchTestCase.class, })
+		SearchTemplateTestCase.class, SearchTestCase.class, AutocompletionTestCase.class})
 public class AllTests {
 
 }

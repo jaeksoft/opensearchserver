@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -61,6 +62,7 @@ public class CommomTestCase {
 	public static String SEARCH_API = "select";
 	public static String DELETE_API = "delete";
 	public static String SEARCH_TEMPLATE_API = "searchtemplate";
+	public static String AUTOCOMPLETE_API = "autocompletion";
 
 	public HttpPost queryInstance(List<NameValuePair> namedValuePairs,
 			String apiPath, boolean use) throws IllegalStateException,
@@ -94,6 +96,15 @@ public class CommomTestCase {
 		XPathParser parser = new XPathParser(httpResponse.getEntity()
 				.getContent());
 		return parser.getNodeString(xpath);
+
+	}
+
+	public InputStream getResponse(HttpPost httpPost)
+			throws IllegalStateException, SAXException, IOException,
+			ParserConfigurationException, XPathExpressionException {
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpResponse httpResponse = httpClient.execute(httpPost);
+		return httpResponse.getEntity().getContent();
 
 	}
 
