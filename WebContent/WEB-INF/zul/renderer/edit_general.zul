@@ -26,8 +26,6 @@
 					<label value="Renderer name: " />
 					<textbox value="@{renderer.currentRenderer.name}"
 						readonly="@{renderer.selected}" cols="50" />
-				</row>
-				<row>
 					<label value="Request name: " />
 					<combobox model="@{renderer.requestList}"
 						onChange="renderer.reloadPage()" width="200px"
@@ -37,8 +35,6 @@
 					<label value="Search button label: " />
 					<textbox
 						value="@{renderer.currentRenderer.searchButtonLabel}" cols="50" />
-				</row>
-				<row>
 					<label value="No result text: " />
 					<textbox
 						value="@{renderer.currentRenderer.noResultFoundText}" cols="50" />
@@ -47,11 +43,17 @@
 					<label value="One result text: " />
 					<textbox
 						value="@{renderer.currentRenderer.oneResultFoundText}" cols="50" />
-				</row>
-				<row>
 					<label value="Many results text: " />
 					<textbox
 						value="@{renderer.currentRenderer.resultsFoundText}" cols="50" />
+				</row>
+				<row>
+					<label value="Header (HTML)" />
+					<textbox value="@{renderer.currentRenderer.header}"
+						cols="80" rows="5" multiline="true" />
+					<label value="Footer (HTML)" />
+					<textbox value="@{renderer.currentRenderer.footer}"
+						cols="80" rows="5" multiline="true" />
 				</row>
 			</rows>
 		</grid>

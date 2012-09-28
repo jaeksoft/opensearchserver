@@ -72,6 +72,8 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_AHOVER = "ahover";
 	private final static String RENDERER_ITEM_NODE_FACET_STYLE = "facetStyle";
 	private final static String RENDERER_ITEM_NODE_RESULT_STYLE = "resultStyle";
+	private final static String RENDERER_ITEM_NODE_HEADER = "header";
+	private final static String RENDERER_ITEM_NODE_FOOTER = "footer";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -123,6 +125,10 @@ public class Renderer implements Comparable<Renderer> {
 
 	private volatile String cssCache;
 
+	private String footer;
+
+	private String header;
+
 	public Renderer() {
 		name = null;
 		requestName = null;
@@ -142,6 +148,8 @@ public class Renderer implements Comparable<Renderer> {
 		noResultFoundText = "No results found";
 		cssCache = null;
 		fields = new ArrayList<RendererField>();
+		footer = null;
+		header = null;
 	}
 
 	public Renderer(XPathParser xpp) throws ParserConfigurationException,
@@ -196,6 +204,10 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_FACET_STYLE, true));
 		setResultStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_RESULT_STYLE, true));
+		setHeader(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_HEADER,
+				true));
+		setFooter(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_FOOTER,
+				true));
 		NodeList nodeList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeList.getLength(); i++)
@@ -338,6 +350,8 @@ public class Renderer implements Comparable<Renderer> {
 				target.facetStyle = facetStyle;
 				target.resultStyle = resultStyle;
 				target.fields.clear();
+				target.header = header;
+				target.footer = footer;
 				target.cssCache = null;
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
@@ -880,6 +894,8 @@ public class Renderer implements Comparable<Renderer> {
 					facetStyle);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_RESULT_STYLE,
 					resultStyle);
+			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
+			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
 			xmlWriter.endElement();
@@ -991,6 +1007,56 @@ public class Renderer implements Comparable<Renderer> {
 			}
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the footer
+	 */
+	public String getFooter() {
+		rwl.r.lock();
+		try {
+			return footer == null ? "" : footer;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param footer
+	 *            the footer to set
+	 */
+	public void setFooter(String footer) {
+		rwl.w.lock();
+		try {
+			this.footer = footer;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the header
+	 */
+	public String getHeader() {
+		rwl.r.lock();
+		try {
+			return header == null ? "" : header;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param header
+	 *            the header to set
+	 */
+	public void setHeader(String header) {
+		rwl.w.lock();
+		try {
+			this.header = header;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 }
