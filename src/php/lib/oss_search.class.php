@@ -57,7 +57,7 @@ class OssSearch extends OssAbstract {
   protected $customLogs;
   protected $uniqueKeys;
   protected $docIds;
-
+  
   /**
    * @param $enginePath The URL to access the OSS Engine
    * @param $index The index name

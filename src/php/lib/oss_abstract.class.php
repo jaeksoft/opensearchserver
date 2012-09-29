@@ -26,12 +26,14 @@ abstract class OssAbstract {
   protected $index;
   protected $login;
   protected $apiKey;
+  protected $lastQueryString;
 
   public function init($enginePath, $index = NULL, $login = NULL, $apiKey = NULL) {
     if (!function_exists('OssApi_Dummy_Function')) {
       function OssApi_Dummy_Function() {
       }
     }
+    $this->lastQueryString = null;
     $this->enginePath = $enginePath;
     $this->index = $index;
     $this->credential($login, $apiKey);
@@ -130,6 +132,7 @@ abstract class OssAbstract {
    */
   protected function queryServer($url, $data = NULL, $connexionTimeout = OssApi::DEFAULT_CONNEXION_TIMEOUT, $timeout = OssApi::DEFAULT_QUERY_TIMEOUT) {
 
+    $this->lastQueryString = $url;
     // Use CURL to post the data
 
     $rcurl = curl_init($url);
@@ -138,7 +141,7 @@ abstract class OssAbstract {
     curl_setopt($rcurl, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($rcurl, CURLOPT_FOLLOWLOCATION, TRUE);
     curl_setopt($rcurl, CURLOPT_MAXREDIRS, 16);
-    curl_setopt($rcurl, CURLOPT_VERBOSE, TRUE);
+    curl_setopt($rcurl, CURLOPT_VERBOSE, FALSE);
 
     if (is_integer($connexionTimeout) && $connexionTimeout >= 0) {
       curl_setopt($rcurl, CURLOPT_CONNECTTIMEOUT, $connexionTimeout);
@@ -188,6 +191,10 @@ abstract class OssAbstract {
     }
 
     return $content;
+  }
+
+  public function getLastQueryString() {
+    return $this->lastQueryString;
   }
 
   protected function queryServerTXT($path, $params = null, $data = null, $connexionTimeout = OssApi::DEFAULT_CONNEXION_TIMEOUT, $timeout = OssApi::DEFAULT_QUERY_TIMEOUT) {
