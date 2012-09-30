@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpException;
@@ -279,6 +280,17 @@ public abstract class CommonController extends Window implements AfterCompose,
 
 	public LanguageEnum[] getLanguageEnum() {
 		return LanguageEnum.values();
+	}
+
+	public List<String> getAnalyzerNameList() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		List<String> analyzerNameList = new ArrayList<String>(0);
+		analyzerNameList.add("");
+		for (String n : client.getSchema().getAnalyzerList().getNameSet())
+			analyzerNameList.add(n);
+		return analyzerNameList;
 	}
 
 	protected void flushPrivileges(User user) {

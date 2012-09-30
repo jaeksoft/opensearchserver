@@ -17,12 +17,16 @@
 <tabbox>
 	<tabs>
 		<tab id="tabMoreLikeThis" label="General" selected="true" />
+		<tab id="tabMetrics" label="Metrics" />
 		<tab id="tabReturn" label="Returned fields" />
 		<tab id="tabFilter" label="Filters" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
 			<include src="WEB-INF/zul/query/search/moreLikeThis.zul" />
+		</tabpanel>
+		<tabpanel>
+			<include src="WEB-INF/zul/query/search/mltMetrics.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tabReturn.onSelect">
 			<include src="WEB-INF/zul/query/search/returned.zul" />

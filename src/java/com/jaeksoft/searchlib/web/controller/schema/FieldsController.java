@@ -51,12 +51,6 @@ public class FieldsController extends CommonController {
 
 	private transient SchemaField selectedField;
 
-	private transient List<String> indexedFields;
-
-	private transient List<SchemaField> schemaFieldList;
-
-	private transient List<String> analyzerNameList;
-
 	public FieldsController() throws SearchLibException {
 		super();
 	}
@@ -65,9 +59,6 @@ public class FieldsController extends CommonController {
 	protected void reset() {
 		field = new SchemaField();
 		selectedField = null;
-		schemaFieldList = null;
-		indexedFields = null;
-		analyzerNameList = null;
 	}
 
 	public SchemaField getField() {
@@ -145,27 +136,12 @@ public class FieldsController extends CommonController {
 		return TermVector.values();
 	}
 
-	public List<String> getAnalyzerNameList() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		if (analyzerNameList != null)
-			return analyzerNameList;
-		analyzerNameList = new ArrayList<String>();
-		analyzerNameList.add("");
-		for (String n : client.getSchema().getAnalyzerList().getNameSet())
-			analyzerNameList.add(n);
-		return analyzerNameList;
-	}
-
 	public List<SchemaField> getList() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			if (schemaFieldList == null)
-				schemaFieldList = client.getSchema().getFieldList().getList();
-			return schemaFieldList;
+			return client.getSchema().getFieldList().getList();
 		}
 	}
 
@@ -179,9 +155,7 @@ public class FieldsController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			if (indexedFields != null)
-				return indexedFields;
-			indexedFields = new ArrayList<String>();
+			List<String> indexedFields = new ArrayList<String>(0);
 			indexedFields.add(null);
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.isIndexed())
@@ -228,9 +202,6 @@ public class FieldsController extends CommonController {
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		schemaFieldList = null;
-		indexedFields = null;
-		analyzerNameList = null;
 		super.reloadPage();
 	}
 

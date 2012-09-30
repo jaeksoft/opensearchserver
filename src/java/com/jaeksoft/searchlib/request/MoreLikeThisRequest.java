@@ -30,7 +30,6 @@ import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.w3c.dom.DOMException;
@@ -39,6 +38,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.filter.stop.WordArray;
 import com.jaeksoft.searchlib.config.Config;
@@ -62,9 +62,10 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		RequestInterfaces.FilterListInterface,
 		RequestInterfaces.ReturnedFieldInterface {
 
-	private LanguageEnum lang;
-	private Analyzer analyzer;
 	private String docQuery;
+	private String likeText;
+	private LanguageEnum lang;
+	private String analyzerName;
 	private ReturnFieldList fieldList;
 	private int minWordLen;
 	private int maxWordLen;
@@ -91,7 +92,10 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		super.setDefaultValues();
 		this.filterList = new FilterList(this.config);
 		this.returnFieldList = new ReturnFieldList();
-		this.lang = null;
+		this.docQuery = null;
+		this.likeText = null;
+		this.lang = LanguageEnum.UNDEFINED;
+		this.analyzerName = null;
 		this.fieldList = new ReturnFieldList();
 		this.minWordLen = MoreLikeThis.DEFAULT_MIN_WORD_LENGTH;
 		this.maxWordLen = MoreLikeThis.DEFAULT_MAX_WORD_LENGTH;
@@ -109,6 +113,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	public void copyFrom(AbstractRequest request) {
 		super.copyFrom(request);
 		MoreLikeThisRequest mltRequest = (MoreLikeThisRequest) request;
+		this.analyzerName = mltRequest.analyzerName;
 		this.lang = mltRequest.lang;
 		this.fieldList = new ReturnFieldList(mltRequest.fieldList);
 		this.minWordLen = mltRequest.minWordLen;
@@ -117,17 +122,12 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		this.minTermFreq = mltRequest.minTermFreq;
 		this.stopWords = mltRequest.stopWords;
 		this.docQuery = mltRequest.docQuery;
+		this.likeText = mltRequest.likeText;
 		this.maxNumTokensParsed = mltRequest.maxNumTokensParsed;
 		this.maxQueryTerms = mltRequest.maxQueryTerms;
 		this.filterList = new FilterList(mltRequest.filterList);
 		this.returnFieldList = new ReturnFieldList(mltRequest.returnFieldList);
 		this.mltQuery = mltRequest.mltQuery;
-	}
-
-	private Analyzer checkAnalyzer() throws SearchLibException {
-		if (analyzer == null)
-			analyzer = config.getSchema().getQueryPerFieldAnalyzer(lang);
-		return analyzer;
 	}
 
 	@Override
@@ -145,15 +145,8 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 				return mltQuery;
 			Config config = getConfig();
 			IndexAbstract index = config.getIndexAbstract();
+
 			MoreLikeThis mlt = index.getMoreLikeThis();
-			SearchRequest searchRequest = new SearchRequest(config);
-			searchRequest.setRows(1);
-			searchRequest.setQueryString(docQuery);
-			AbstractResultSearch result = (AbstractResultSearch) index
-					.request(searchRequest);
-			if (result.getNumFound() == 0)
-				return mlt.like(new StringReader(""));
-			int docId = result.getDocs().getIds()[0];
 			mlt.setMinWordLen(minWordLen);
 			mlt.setMaxWordLen(maxWordLen);
 			mlt.setMinDocFreq(minDocFreq);
@@ -161,7 +154,13 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			mlt.setMaxNumTokensParsed(maxNumTokensParsed);
 			mlt.setMaxQueryTerms(maxQueryTerms);
 			mlt.setFieldNames(fieldList.toArrayName());
-			mlt.setAnalyzer(checkAnalyzer());
+
+			if (analyzerName != null) {
+				Analyzer analyzer = config.getSchema().getAnalyzerList()
+						.get(analyzerName, lang);
+				if (analyzer != null)
+					mlt.setAnalyzer(analyzer.getQueryAnalyzer());
+			}
 			if (stopWords != null && stopWords.length() > 0) {
 				WordArray wordArray = getConfig().getStopWordsManager()
 						.getWordArray(stopWords, false);
@@ -171,7 +170,20 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 						mlt.setStopWords(stopWords);
 				}
 			}
-			mltQuery = mlt.like(docId);
+
+			if (docQuery != null && docQuery.length() > 0) {
+				SearchRequest searchRequest = new SearchRequest(config);
+				searchRequest.setRows(1);
+				searchRequest.setQueryString(docQuery);
+				AbstractResultSearch result = (AbstractResultSearch) index
+						.request(searchRequest);
+				if (result.getNumFound() == 0)
+					return mlt.like(new StringReader(""));
+				int docId = result.getDocs().getIds()[0];
+				mltQuery = mlt.like(docId);
+			} else if (likeText != null & likeText.length() > 0) {
+				mltQuery = mlt.like(new StringReader(likeText));
+			}
 			return mltQuery;
 		} finally {
 			rwl.w.unlock();
@@ -199,6 +211,86 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		try {
 			this.docQuery = docQuery;
 			mltQuery = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the likeText
+	 */
+	public String getLikeText() {
+		rwl.r.lock();
+		try {
+			return likeText;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param likeText
+	 *            the likeText to set
+	 */
+	public void setLikeText(String likeText) {
+		rwl.w.lock();
+		try {
+			this.likeText = likeText;
+			mltQuery = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * 
+	 * @return the LanguageEnum
+	 */
+	public LanguageEnum getLang() {
+		rwl.r.lock();
+		try {
+			return this.lang;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * 
+	 * @param lang
+	 *            The language to set
+	 */
+	public void setLang(LanguageEnum lang) {
+		rwl.w.lock();
+		try {
+			this.lang = lang;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * 
+	 * @return the AnalyzerName
+	 */
+	public String getAnalyzerName() {
+		rwl.r.lock();
+		try {
+			return this.analyzerName;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * 
+	 * @param lang
+	 *            The language to set
+	 */
+	public void setAnalyzerName(String analyzerName) {
+		rwl.w.lock();
+		try {
+			this.analyzerName = analyzerName;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -398,6 +490,9 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			super.fromXmlConfig(config, xpp, node);
+			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
+					node, "lang")));
+			setAnalyzerName(XPathParser.getAttributeString(node, "analyzer"));
 			setMinWordLen(XPathParser.getAttributeValue(node, "minWordLen"));
 			setMaxWordLen(XPathParser.getAttributeValue(node, "maxWordLen"));
 			setMinTermFreq(XPathParser.getAttributeValue(node, "minTermFreq"));
@@ -424,6 +519,10 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			Node mltDocQueryNode = xpp.getNode(node, "docQuery");
 			if (mltDocQueryNode != null)
 				setDocQuery(xpp.getNodeString(mltDocQueryNode, false));
+
+			Node mltDocLikeText = xpp.getNode(node, "likeText");
+			if (mltDocLikeText != null)
+				setLikeText(xpp.getNodeString(mltDocLikeText, false));
 
 			NodeList nodes = xpp.getNodeList(node, "filters/filter");
 			for (int i = 0; i < nodes.getLength(); i++) {
@@ -462,7 +561,9 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 					Integer.toString(maxNumTokensParsed), "maxQueryTerms",
 					Integer.toString(maxQueryTerms), "stopWords", stopWords,
 					"start", Integer.toString(start), "rows",
-					Integer.toString(rows));
+					Integer.toString(rows), "lang",
+					lang != null ? lang.getCode() : null, "analyzer",
+					analyzerName);
 
 			if (fieldList.size() > 0) {
 				xmlWriter.startElement("fields");
@@ -472,6 +573,11 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			if (docQuery != null && docQuery.length() > 0) {
 				xmlWriter.startElement("docQuery");
 				xmlWriter.textNode(docQuery);
+				xmlWriter.endElement();
+			}
+			if (likeText != null && likeText.length() > 0) {
+				xmlWriter.startElement("likeText");
+				xmlWriter.textNode(likeText);
 				xmlWriter.endElement();
 			}
 			if (returnFieldList.size() > 0) {
@@ -505,6 +611,9 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			if ((p = transaction.getParameterString("mlt.docquery")) != null)
 				setDocQuery(p);
 
+			if ((p = transaction.getParameterString("mlt.liketext")) != null)
+				setLikeText(p);
+
 			if ((i = transaction.getParameterInteger("mlt.minwordlen")) != null)
 				setMinWordLen(i);
 
@@ -519,6 +628,12 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 
 			if ((p = transaction.getParameterString("mlt.stopwords")) != null)
 				setStopWords(p);
+
+			if ((p = transaction.getParameterString("mlt.lang")) != null)
+				setLang(LanguageEnum.findByCode(p));
+
+			if ((p = transaction.getParameterString("mlt.analyzer")) != null)
+				setAnalyzerName(p);
 
 			if ((i = transaction.getParameterInteger("start")) != null)
 				setStart(i);
@@ -566,7 +681,16 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		rwl.r.lock();
 		try {
 			StringBuffer sb = new StringBuffer();
-			sb.append(docQuery);
+			if (docQuery != null) {
+				sb.append(docQuery);
+				sb.append(' ');
+			}
+			if (likeText != null) {
+				sb.append(likeText);
+				sb.append(' ');
+			}
+			if (fieldList != null)
+				sb.append(fieldList.toString());
 			return sb.toString();
 		} finally {
 			rwl.r.unlock();

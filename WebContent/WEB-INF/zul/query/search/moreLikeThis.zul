@@ -18,13 +18,33 @@
 	use="com.jaeksoft.searchlib.web.controller.query.MoreLikeThisController">
 	<grid>
 		<columns>
-			<column align="right" width="30%" />
+			<column align="right" hflex="min" />
 			<column align="left" />
 		</columns>
 		<rows>
 			<row>
 				<label value="Document query: " />
-				<textbox width="95%" value="@{mlt.request.docQuery}" />
+				<textbox width="95%" value="@{mlt.request.docQuery}"
+					multiline="true" height="3" />
+			</row>
+			<row>
+				<label value="Like text: " />
+				<textbox width="95%" value="@{mlt.request.likeText}"
+					multiline="true" height="3" />
+			</row>
+			<row>
+				<label>Language:</label>
+				<listbox mold="select"
+					selectedItem="@{mlt.request.lang}" model="@{mlt.languageEnum}">
+					<listitem self="@{each=langEnum}"
+						label="@{langEnum.name}" value="@{langEnum}" />
+				</listbox>
+			</row>
+			<row>
+				<label>Analyzer:</label>
+				<listbox mold="select"
+					selectedItem="@{mlt.request.analyzerName}"
+					model="@{mlt.analyzerNameList}" />
 			</row>
 			<row>
 				<label value="Fields: " />
@@ -49,30 +69,6 @@
 						</listcell>
 					</listitem>
 				</listbox>
-			</row>
-			<row>
-				<label value="Minimum word length: " />
-				<intbox value="@{mlt.request.minWordLen}" />
-			</row>
-			<row>
-				<label value="Maximum word length: " />
-				<intbox value="@{mlt.request.maxWordLen}" />
-			</row>
-			<row>
-				<label value="Minimum document frequency: " />
-				<intbox value="@{mlt.request.minDocFreq}" />
-			</row>
-			<row>
-				<label value="Minimum term frequency: " />
-				<intbox value="@{mlt.request.minTermFreq}" />
-			</row>
-			<row>
-				<label value="Maximum query terms: " />
-				<intbox value="@{mlt.request.maxQueryTerms}" />
-			</row>
-			<row>
-				<label value="Maximum number of tokens parsed: " />
-				<intbox value="@{mlt.request.maxNumTokensParsed}" />
 			</row>
 			<row>
 				<label value="Stop words: " />

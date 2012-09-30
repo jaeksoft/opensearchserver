@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -16,25 +16,35 @@
 -->
 <window id="index"
 	use="com.jaeksoft.searchlib.web.controller.runtime.IndexController">
-	<grid model="@{index.indices}" sizedByContent="true">
+	<grid model="@{index.indices}">
 		<auxhead>
-			<auxheader colspan="11" align="center">
-				<button label="Refresh" forward="onReload" />
-			</auxheader>
+			<auxheader colspan="3" label="Cache" align="center" />
+			<auxheader colspan="3" />
+			<auxheader colspan="6" label="Statistics &amp; status"
+				align="center" />
+			<auxheader />
 		</auxhead>
 		<columns>
-			<column label="search" tooltiptext="searchCache" />
-			<column label="filter" tooltiptext="filterCache" />
-			<column label="field" tooltiptext="fieldCache" />
-			<column label="remoteUrl" />
-			<column label="keyField" />
-			<column label="keyMd5RegExp" />
-			<column label="numDocs" />
-			<column label="maxDoc" />
-			<column label="deletions?" />
-			<column label="numDeletedDocs" />
-			<column label="optimized?" />
-			<column label="readOnly?" />
+			<column label="search" tooltiptext="searchCache"
+				hflex="min" />
+			<column label="filter" tooltiptext="filterCache"
+				hflex="min" />
+			<column label="field" tooltiptext="fieldCache" hflex="min" />
+			<column label="remoteUrl" hflex="min" />
+			<column label="keyField" hflex="min" />
+			<column label="keyMd5RegExp" hflex="min" />
+			<column label="numDocs" hflex="min"
+				tooltiptext="Total number of documents" />
+			<column label="maxDoc" hflex="min"
+				tooltiptext="Total number of documents including deleted one" />
+			<column label="deletions?" hflex="min"
+				tooltiptext="Contains delete document" />
+			<column label="numDeletedDocs" hflex="min"
+				tooltiptext="Number of deleted documents" />
+			<column label="optimized?" hflex="min"
+				tooltiptext="Is the index optimized" />
+			<column label="read/write" hflex="min" />
+			<column />
 		</columns>
 		<rows>
 			<row self="@{each=index}">
@@ -49,7 +59,8 @@
 				<label value="@{index.statistics.deletions}" />
 				<label value="@{index.statistics.numDeletedDocs}" />
 				<label value="@{index.statistics.optimized}" />
-				<label value="@{index.indexConfig.readOnly}" />
+				<label value="@{index.indexConfig.readWriteMode}" />
+				<label value="" />
 			</row>
 		</rows>
 	</grid>

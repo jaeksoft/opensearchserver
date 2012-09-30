@@ -106,9 +106,15 @@ public final class QueryController extends AbstractQueryController {
 				sb.append(URLEncoder.encode(q, "UTF-8"));
 		} else if (request instanceof MoreLikeThisRequest) {
 			String q = ((MoreLikeThisRequest) request).getDocQuery();
-			sb.append("&mlt.docquery=");
-			if (q != null)
+			if (q != null && q.length() > 0) {
+				sb.append("&mlt.docquery=");
 				sb.append(URLEncoder.encode(q, "UTF-8"));
+			}
+			q = ((MoreLikeThisRequest) request).getLikeText();
+			if (q != null && q.length() > 0) {
+				sb.append("&mlt.liketext=");
+				sb.append(URLEncoder.encode(q, "UTF-8"));
+			}
 		}
 		return sb.toString();
 	}
