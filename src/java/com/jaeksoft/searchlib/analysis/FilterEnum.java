@@ -46,6 +46,9 @@ public enum FilterEnum {
 	EdgeNGramFilter(
 			"This filter create n-grams from the beginning edge or ending edge of a input token"),
 
+	ExpressionLookupFilter(
+			"This filter extracts the expressions found in an expression list"),
+
 	FrenchStemFilter("A filter that stems French words"),
 
 	GroupAllTokensFilter("This filter group all tokens to one"),
