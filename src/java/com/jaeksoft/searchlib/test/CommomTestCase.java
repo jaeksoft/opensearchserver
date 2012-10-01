@@ -63,6 +63,7 @@ public class CommomTestCase {
 	public static String DELETE_API = "delete";
 	public static String SEARCH_TEMPLATE_API = "searchtemplate";
 	public static String AUTOCOMPLETE_API = "autocompletion";
+	public static String FILE_CRAWLER_API = "filecrawler";
 
 	public HttpPost queryInstance(List<NameValuePair> namedValuePairs,
 			String apiPath, boolean use) throws IllegalStateException,

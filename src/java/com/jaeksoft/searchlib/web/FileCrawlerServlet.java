@@ -57,14 +57,14 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 					filePathManager.add(filePathItem);
 				} else {
 					transaction
-							.addXmlResponse("info",
+							.addXmlResponse("Info",
 									"The location already exists or it is not a valied instance type");
 				}
 			} else {
-				transaction.addXmlResponse("info", "Missing default values.");
+				transaction.addXmlResponse("Info", "Missing default values.");
 			}
 		} else
-			transaction.addXmlResponse("info",
+			transaction.addXmlResponse("Info",
 					"FileCrawler type is needed to create an instance.");
 	}
 
@@ -78,7 +78,7 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 			filePathItem.setType(fileInstanceType);
 			createFileCrawlInstance(fileInstanceType, client, filePathItem,
 					transaction);
-			transaction.addXmlResponse("info",
+			transaction.addXmlResponse("Info",
 					"A new file crawler instance is created.");
 			return true;
 		} else
