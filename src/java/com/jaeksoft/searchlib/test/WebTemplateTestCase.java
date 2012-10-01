@@ -133,24 +133,6 @@ public class WebTemplateTestCase extends TestCase {
 		assertEquals(CommomTestCase.INDEX_NAME, response);
 	}
 
-	public void deleteIndex() throws IllegalStateException, IOException,
-			SAXException, ParserConfigurationException,
-			XPathExpressionException {
-		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
-				"deleteindex"));
-		namedValuePairs.add(commomTestCase.getNameValuePair("index.name",
-				CommomTestCase.INDEX_NAME));
-		namedValuePairs.add(commomTestCase.getNameValuePair(
-				"index.delete.name", CommomTestCase.INDEX_NAME));
-		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, false);
-		String response = commomTestCase.getHttpResponse(httpPost,
-				"response/entry[@key='Info']");
-		assertEquals("Index deleted: oss_1.3", response);
-
-	}
-
 	public static TestSuite suite() {
 		TestSuite webTemplateTestSuite = new TestSuite();
 		webTemplateTestSuite.addTest(new WebTemplateTestCase("createIndex"));
@@ -160,7 +142,6 @@ public class WebTemplateTestCase extends TestCase {
 				"deleteSchemaField"));
 		webTemplateTestSuite.addTest(new WebTemplateTestCase("getSchema"));
 		webTemplateTestSuite.addTest(new WebTemplateTestCase("getIndexLists"));
-		// webCrawlerTestSuite.addTest(new WebTemplateTestCase("deleteIndex"));
 		return webTemplateTestSuite;
 	}
 }

@@ -47,10 +47,48 @@ public class SearchTemplateTestCase extends TestCase {
 		assertEquals("OK", response);
 	}
 
+	public void createMoreLikeThisTemplate() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
+		namedValuePairs.add(commomTestCase.getNameValuePair("cmd", "create"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.type",
+				"MoreLikeThisRequest"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.name",
+				"morelikethis"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.query", "*:*"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.minwordlen",
+				"0"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.maxwordlen",
+				"5"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.mindocfreq",
+				"5"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.mintermfreq",
+				"3"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.maxqueryTerms",
+				"25"));
+		namedValuePairs.add(commomTestCase.getNameValuePair(
+				"qt.maxnumtokensparsed", "5000"));
+
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.rows", "10"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.start", "0"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.fields",
+				"title"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.returnfields",
+				"title"));
+		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
+				CommomTestCase.SEARCH_TEMPLATE_API, true);
+		String response = commomTestCase.getHttpResponse(httpPost,
+				"response/entry[@key='Status']");
+		assertEquals("OK", response);
+	}
+
 	public static TestSuite suite() {
 		TestSuite searchTemplateTestCase = new TestSuite();
 		searchTemplateTestCase.addTest(new SearchTemplateTestCase(
 				"creatSpellCheckQuery"));
+		searchTemplateTestCase.addTest(new SearchTemplateTestCase(
+				"createMoreLikeThisTemplate"));
 		return searchTemplateTestCase;
 	}
 }

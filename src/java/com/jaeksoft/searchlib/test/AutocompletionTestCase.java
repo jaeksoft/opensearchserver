@@ -47,7 +47,7 @@ public class AutocompletionTestCase extends TestCase {
 				CommomTestCase.AUTOCOMPLETE_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Count']");
-		assertEquals("300", response);
+		assertEquals("293", response);
 	}
 
 	public void getAutocompletion() throws IllegalStateException, IOException,
