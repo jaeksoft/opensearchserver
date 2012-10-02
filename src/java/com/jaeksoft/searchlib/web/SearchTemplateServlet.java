@@ -183,77 +183,78 @@ public class SearchTemplateServlet extends AbstractServlet {
 
 	private void createMoreLikeThisTemplate(
 			MoreLikeThisRequest moreLikeThisRequest,
-			ServletTransaction transaction) {
-		if (transaction.getParameterString("qt.name") != null) {
-			String name = transaction.getParameterString("qt.name");
-			moreLikeThisRequest.setRequestName(name);
-		}
-		if (transaction.getParameterString("qt.query") != null) {
-			String docQuery = transaction.getParameterString("qt.query");
-			moreLikeThisRequest.setDocQuery(docQuery);
-		}
+			ServletTransaction transaction) throws ParseException {
 
-		if (transaction.getParameterString("qt.minwordlen") != null) {
-			int minWordLen = Integer.parseInt(transaction
-					.getParameterString("qt.minwordlen"));
-			moreLikeThisRequest.setMinWordLen(minWordLen);
-		}
-		if (transaction.getParameterString("qt.maxwordlen") != null) {
-			int maxWordLen = Integer.parseInt(transaction
-					.getParameterString("qt.maxwordlen"));
-			moreLikeThisRequest.setMaxWordLen(maxWordLen);
-		}
-		if (transaction.getParameterString("qt.mindocfreq") != null) {
-			int minDocFreq = Integer.parseInt(transaction
-					.getParameterString("qt.mindocfreq"));
-			moreLikeThisRequest.setMinDocFreq(minDocFreq);
-		}
-		if (transaction.getParameterString("qt.mintermfreq") != null) {
-			int minTermFreq = Integer.parseInt(transaction
-					.getParameterString("qt.mintermfreq"));
-			moreLikeThisRequest.setMinTermFreq(minTermFreq);
-		}
-		if (transaction.getParameterString("qt.maxqueryTerms") != null) {
-			int maxQueryTerms = Integer.parseInt(transaction
-					.getParameterString("qt.maxqueryTerms"));
-			moreLikeThisRequest.setMaxQueryTerms(maxQueryTerms);
-		}
-		if (transaction.getParameterString("qt.maxnumtokensparsed") != null) {
-			int maxNumTokensParsed = Integer.parseInt(transaction
-					.getParameterString("qt.maxnumtokensparsed"));
-			moreLikeThisRequest.setMaxNumTokensParsed(maxNumTokensParsed);
-		}
-		if (transaction.getParameterString("qt.stopwords") != null) {
-			String stopWords = transaction.getParameterString("qt.stopwords");
-			moreLikeThisRequest.setStopWords(stopWords);
-		}
-		if (transaction.getParameterString("qt.rows") != null) {
-			int rows = Integer.parseInt(transaction
-					.getParameterString("qt.rows"));
-			moreLikeThisRequest.setRows(rows);
-		}
-		if (transaction.getParameterString("qt.start") != null) {
-			int start = Integer.parseInt(transaction
-					.getParameterString("qt.start"));
-			moreLikeThisRequest.setStart(start);
-		}
+		String p;
+		if ((p = transaction.getParameterString("qt.name")) != null)
+			moreLikeThisRequest.setRequestName(p);
 
-		if (transaction.getParameterString("qt.fields") != null) {
-			String field = transaction.getParameterString("qt.fields");
-			String fields[] = field.split("\\,");
+		if ((p = transaction.getParameterString("qt.query")) != null)
+			moreLikeThisRequest.setDocQuery(p);
+
+		if ((p = transaction.getParameterString("qt.like")) != null)
+			moreLikeThisRequest.setLikeText(p);
+
+		if ((p = transaction.getParameterString("qt.analyzer")) != null)
+			moreLikeThisRequest.setAnalyzerName(p);
+
+		Integer i;
+		if ((i = transaction.getParameterInteger("qt.minwordlen")) != null)
+			moreLikeThisRequest.setMinWordLen(i);
+
+		if ((i = transaction.getParameterInteger("qt.maxwordlen")) != null)
+			moreLikeThisRequest.setMaxWordLen(i);
+
+		if ((i = transaction.getParameterInteger("qt.mindocfreq")) != null)
+			moreLikeThisRequest.setMinDocFreq(i);
+
+		if ((i = transaction.getParameterInteger("qt.mintermfreq")) != null)
+			moreLikeThisRequest.setMinTermFreq(i);
+
+		if ((i = transaction.getParameterInteger("qt.maxqueryTerms")) != null)
+			moreLikeThisRequest.setMaxQueryTerms(i);
+
+		if ((i = transaction.getParameterInteger("qt.maxnumtokensparsed")) != null)
+			moreLikeThisRequest.setMaxNumTokensParsed(i);
+
+		if ((p = transaction.getParameterString("qt.stopwords")) != null)
+			moreLikeThisRequest.setStopWords(p);
+
+		if ((i = transaction.getParameterInteger("qt.rows")) != null)
+			moreLikeThisRequest.setRows(i);
+
+		if ((i = transaction.getParameterInteger("qt.start")) != null)
+			moreLikeThisRequest.setStart(i);
+
+		if ((p = transaction.getParameterString("qt.fields")) != null) {
+			String fields[] = p.split("\\,");
 			for (String mltField : fields) {
 				moreLikeThisRequest.getFieldList().put(
 						new ReturnField(mltField));
 			}
 		}
-		if (transaction.getParameterString("qt.returnfields") != null) {
-			String returnField = transaction
-					.getParameterString("qt.returnfields");
-			String returnFields[] = returnField.split("\\,");
+
+		if ((p = transaction.getParameterString("qt.returnfields")) != null) {
+			String returnFields[] = p.split("\\,");
 			for (String mltReturnField : returnFields) {
 				moreLikeThisRequest.getReturnFieldList().put(
 						new ReturnField(mltReturnField));
 			}
+		}
+
+		String[] values;
+		if ((values = transaction.getParameterValues("qt.fq")) != null) {
+			for (String value : values)
+				if (value != null)
+					if (value.trim().length() > 0)
+						moreLikeThisRequest.addFilter(value, false);
+		}
+
+		if ((values = transaction.getParameterValues("qt.fqn")) != null) {
+			for (String value : values)
+				if (value != null)
+					if (value.trim().length() > 0)
+						moreLikeThisRequest.addFilter(value, true);
 		}
 
 	}
