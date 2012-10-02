@@ -142,9 +142,9 @@ class OssSearchTemplate extends OssAbstract {
   }
 
   public function createMoreLikeThisTemplate(
-    $qtname, $qtquery = NULL, $qtLike = NULL, $qtAnalyzer = NULL, $qtMinwordlen = NULL, $qtMaxwordlen = NULL,
-    $qtMindocfreq = NULL, $qtMintermfreq = NULL, $qtMaxqueryTerms = NULL, $qtMaxnumtokensparsed = NULL,
-    $qtStopwords = NULL, $qtRows = NULL, $qtStart = NULL, $qtFields = NULL) {
+    $qtname, $qtquery = NULL, $qtLike = NULL, $qtAnalyzer = NULL, $qtLang = NULL, $qtMinwordlen = NULL,
+    $qtMaxwordlen = NULL, $qtMindocfreq = NULL, $qtMintermfreq = NULL, $qtMaxqueryTerms = NULL,
+    $qtMaxnumtokensparsed = NULL, $qtStopwords = NULL, $qtRows = NULL, $qtStart = NULL, $qtFields = NULL) {
 
     $params = array("qt.name" => $qtname);
     $params['qt.type'] = 'MoreLikeThisRequest';
@@ -156,6 +156,9 @@ class OssSearchTemplate extends OssAbstract {
     }
     if ($qtAnalyzer) {
       $params['qt.analyzer'] = $qtAnalyzer;
+    }
+    if ($qtLang) {
+      $params['qt.lang'] = $qtLang;
     }
     if ($qtMinwordlen) {
       $params['qt.minwordlen'] = $qtMinwordlen;

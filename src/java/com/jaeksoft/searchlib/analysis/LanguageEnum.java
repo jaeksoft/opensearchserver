@@ -101,6 +101,15 @@ public enum LanguageEnum {
 		return UNDEFINED;
 	}
 
+	public static LanguageEnum findByNameOrCode(String nameOrCode) {
+		if (nameOrCode == null)
+			return UNDEFINED;
+		LanguageEnum lang = findByName(nameOrCode);
+		if (lang != UNDEFINED)
+			return lang;
+		return findByCode(nameOrCode);
+	}
+
 	public static String[] stringArray() {
 		String[] array = new String[values().length];
 		int i = 0;

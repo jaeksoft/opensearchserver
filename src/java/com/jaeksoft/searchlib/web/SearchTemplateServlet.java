@@ -192,6 +192,9 @@ public class SearchTemplateServlet extends AbstractServlet {
 		if ((p = transaction.getParameterString("qt.query")) != null)
 			moreLikeThisRequest.setDocQuery(p);
 
+		if ((p = transaction.getParameterString("qt.lang")) != null)
+			moreLikeThisRequest.setLang(LanguageEnum.findByNameOrCode(p));
+
 		if ((p = transaction.getParameterString("qt.like")) != null)
 			moreLikeThisRequest.setLikeText(p);
 
@@ -261,33 +264,25 @@ public class SearchTemplateServlet extends AbstractServlet {
 
 	private void createSearchTemplate(SearchRequest request,
 			ServletTransaction transaction) {
-		if (transaction.getParameterString("qt.name") != null) {
-			String name = transaction.getParameterString("qt.name");
-			request.setRequestName(name);
-		}
-		if (transaction.getParameterString("qt.query") != null) {
-			String queryPattern = transaction.getParameterString("qt.query");
-			request.setPatternQuery(queryPattern);
-		}
-		if (transaction.getParameterString("qt.operator") != null) {
-			String defaultOperator = transaction
-					.getParameterString("qt.operator");
-			request.setDefaultOperator(defaultOperator);
-		}
-		if (transaction.getParameterString("qt.rows") != null) {
-			int rows = Integer.parseInt(transaction
-					.getParameterString("qt.rows"));
-			request.setRows(rows);
-		}
-		if (transaction.getParameterString("qt.slop") != null) {
-			int phraseSlop = Integer.parseInt(transaction
-					.getParameterString("qt.slop"));
-			request.setPhraseSlop(phraseSlop);
-		}
-		if (transaction.getParameterString("qt.lang") != null) {
-			request.setLang(LanguageEnum.valueOf(transaction
-					.getParameterString("qt.lang")));
-		}
+		String p;
+		if ((p = transaction.getParameterString("qt.name")) != null)
+			request.setRequestName(p);
+
+		if ((p = transaction.getParameterString("qt.query")) != null)
+			request.setPatternQuery(p);
+
+		if ((p = transaction.getParameterString("qt.operator")) != null)
+			request.setDefaultOperator(p);
+
+		Integer i;
+		if ((i = transaction.getParameterInteger("qt.rows")) != null)
+			request.setRows(i);
+
+		if ((i = transaction.getParameterInteger("qt.slop")) != null)
+			request.setPhraseSlop(i);
+
+		if ((p = transaction.getParameterString("qt.lang")) != null)
+			request.setLang(LanguageEnum.findByNameOrCode(p));
 
 	}
 
@@ -295,34 +290,26 @@ public class SearchTemplateServlet extends AbstractServlet {
 			ServletTransaction transaction) {
 		SpellCheckField spellCheckField = new SpellCheckField();
 
-		if (transaction.getParameterString("qt.name") != null) {
-			String name = transaction.getParameterString("qt.name");
-			spellCheckRequest.setRequestName(name);
-		}
-		if (transaction.getParameterString("qt.query") != null) {
-			String queryString = transaction.getParameterString("qt.query");
-			spellCheckRequest.setQueryString(queryString);
-		}
+		String p;
+		if ((p = transaction.getParameterString("qt.name")) != null)
+			spellCheckRequest.setRequestName(p);
 
-		if (transaction.getParameterString("qt.suggestions") != null) {
-			int num = Integer.parseInt(transaction
-					.getParameterString("qt.suggestions"));
-			spellCheckField.setSuggestionNumber(num);
-		}
-		if (transaction.getParameterString("qt.field") != null) {
-			String fieldName = transaction.getParameterString("qt.field");
-			spellCheckField.setName(fieldName);
-		}
-		if (transaction.getParameterString("qt.lang") != null) {
-			spellCheckRequest.setLang(LanguageEnum.valueOf(transaction
-					.getParameterString("qt.lang")));
-		}
-		if (transaction.getParameterString("qt.algorithm") != null) {
-			String algorithmName = transaction
-					.getParameterString("qt.algorithm");
-			spellCheckField.setStringDistance(SpellCheckDistanceEnum
-					.find(algorithmName));
-		}
+		if ((p = transaction.getParameterString("qt.query")) != null)
+			spellCheckRequest.setQueryString(p);
+
+		Integer i;
+		if ((i = transaction.getParameterInteger("qt.suggestions")) != null)
+			spellCheckField.setSuggestionNumber(i);
+
+		if ((p = transaction.getParameterString("qt.field")) != null)
+			spellCheckField.setName(p);
+
+		if ((p = transaction.getParameterString("qt.lang")) != null)
+			spellCheckRequest.setLang(LanguageEnum.findByNameOrCode(p));
+
+		if ((p = transaction.getParameterString("qt.algorithm")) != null)
+			spellCheckField.setStringDistance(SpellCheckDistanceEnum.find(p));
+
 		spellCheckRequest.getSpellCheckFieldList().put(spellCheckField);
 	}
 
