@@ -53,6 +53,12 @@
 						checked="@{classifier.currentClassifier.active}" />
 				</row>
 				<row>
+					<label value="Default value: " />
+					<textbox
+						value="@{classifier.currentClassifier.defaultValue}"
+						multiline="true" rows="2" cols="50" />
+				</row>
+				<row>
 					<label value="Item list: " />
 					<listbox mold="paging" pageSize="20"
 						selectedItem="@{classifier.selectedClassifierItem}"

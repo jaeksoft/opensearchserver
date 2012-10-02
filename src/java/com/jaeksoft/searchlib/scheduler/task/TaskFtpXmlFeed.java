@@ -80,7 +80,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 	final private TaskPropertyDef propDeleteAfterLoad = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "Delete after load", 10);
 
-	final private TaskPropertyDef proprTruncateIndexWhenFilesFound = new TaskPropertyDef(
+	final private TaskPropertyDef propTruncateIndexWhenFilesFound = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "Truncate index when files are found",
 			10);
 
@@ -89,7 +89,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propServer, propPath,
 			propLogin, propPassword, propFileNamePattern, propXsl,
-			propDeleteAfterLoad, propBuffersize };
+			propDeleteAfterLoad, propTruncateIndexWhenFilesFound,
+			propBuffersize };
 
 	@Override
 	public String getName() {
@@ -106,6 +107,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 			throws SearchLibException {
 		if (propertyDef == propDeleteAfterLoad)
 			return ClassPropertyEnum.BOOLEAN_LIST;
+		if (propertyDef == propTruncateIndexWhenFilesFound)
+			return ClassPropertyEnum.BOOLEAN_LIST;
 		return null;
 	}
 
@@ -117,7 +120,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 			return "50";
 		if (propertyDef == propDeleteAfterLoad)
 			return Boolean.FALSE.toString();
-		if (propertyDef == proprTruncateIndexWhenFilesFound)
+		if (propertyDef == propTruncateIndexWhenFilesFound)
 			return Boolean.FALSE.toString();
 		return null;
 	}
@@ -133,7 +136,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		boolean deleteAfterLoad = Boolean.TRUE.toString().equals(
 				properties.getValue(propDeleteAfterLoad));
 		boolean truncateWhenFilesFound = Boolean.TRUE.toString().equals(
-				properties.getValue(proprTruncateIndexWhenFilesFound));
+				properties.getValue(propTruncateIndexWhenFilesFound));
 		Pattern pattern = null;
 		if (fileNamePattern != null && fileNamePattern.length() > 0)
 			pattern = Pattern.compile(fileNamePattern);

@@ -58,6 +58,7 @@ public class Classifier implements Comparable<Classifier> {
 	private final static String CLASSIFIER_ITEM_ROOT_ATTR_SCOREFIELD = "scoreField";
 	private final static String CLASSIFIER_ITEM_ROOT_ATTR_ACTIVE = "active";
 	private final static String CLASSIFIER_ITEM_ROOT_ATTR_METHOD = "method";
+	private final static String CLASSIFIER_ITEM_DEFAULT_VALUE_NODE = "defaultValue";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -68,6 +69,8 @@ public class Classifier implements Comparable<Classifier> {
 	private String scoreFieldName;
 
 	private boolean active;
+
+	private String defaultValue;
 
 	private TreeSet<ClassifierItem> valueSet;
 
@@ -82,6 +85,7 @@ public class Classifier implements Comparable<Classifier> {
 		fieldName = null;
 		scoreFieldName = null;
 		active = false;
+		defaultValue = null;
 		method = ClassificationMethodEnum.BESTSCORE;
 	}
 
@@ -101,6 +105,7 @@ public class Classifier implements Comparable<Classifier> {
 				target.active = active;
 				target.method = method;
 				target.valueSetArray = null;
+				target.defaultValue = defaultValue;
 				target.valueSet.clear();
 				for (ClassifierItem item : valueSet)
 					target.valueSet.add(new ClassifierItem(item));
@@ -133,6 +138,10 @@ public class Classifier implements Comparable<Classifier> {
 				rootNode, CLASSIFIER_ITEM_ROOT_ATTR_ACTIVE)));
 		setMethod(ClassificationMethodEnum.find(XPathParser.getAttributeString(
 				rootNode, CLASSIFIER_ITEM_ROOT_ATTR_METHOD)));
+		Node defaultValueNode = xpp.getNode(rootNode,
+				CLASSIFIER_ITEM_DEFAULT_VALUE_NODE);
+		if (defaultValueNode != null)
+			setDefaultValue(defaultValueNode.getTextContent());
 		NodeList nodes = xpp.getNodeList(rootNode, CLASSIFIER_ITEM_NODE_NAME);
 		if (nodes == null)
 			return;
@@ -293,6 +302,11 @@ public class Classifier implements Comparable<Classifier> {
 					CLASSIFIER_ITEM_ROOT_ATTR_SCOREFIELD, scoreFieldName,
 					CLASSIFIER_ITEM_ROOT_ATTR_ACTIVE, active ? "yes" : "no",
 					CLASSIFIER_ITEM_ROOT_ATTR_METHOD, method.name());
+			if (defaultValue != null && defaultValue.length() > 0) {
+				xmlWriter.startElement(CLASSIFIER_ITEM_DEFAULT_VALUE_NODE);
+				xmlWriter.textNode(defaultValue);
+				xmlWriter.endElement();
+			}
 			for (ClassifierItem item : valueSet)
 				item.writeXml(xmlWriter, CLASSIFIER_ITEM_NODE_NAME);
 			xmlWriter.endElement();
@@ -304,14 +318,19 @@ public class Classifier implements Comparable<Classifier> {
 	private void multivaluedClassification(Client client,
 			IndexDocument document, LanguageEnum lang, MemoryIndex index)
 			throws ParseException, SearchLibException, SyntaxError, IOException {
+		boolean setDefaultValue = defaultValue != null
+				&& defaultValue.length() > 0;
 		for (ClassifierItem item : valueSet) {
 			float score = item.score(client, lang, index);
 			if (score > 0.0f) {
 				document.add(fieldName, item.getValue(), item.getBoost());
 				if (scoreFieldName != null && scoreFieldName.length() > 0)
 					document.addString(scoreFieldName, Float.toString(score));
+				setDefaultValue = false;
 			}
 		}
+		if (setDefaultValue)
+			document.add(fieldName, defaultValue, 1.0F);
 	}
 
 	private void bestScoreClassification(Client client, IndexDocument document,
@@ -333,6 +352,10 @@ public class Classifier implements Comparable<Classifier> {
 			if (scoreFieldName != null && scoreFieldName.length() > 0) {
 				document.addString(scoreFieldName, df.format(maxScore));
 			}
+		} else {
+			if (defaultValue != null && defaultValue.length() > 0)
+				document.add(fieldName, defaultValue, 1.0F);
+
 		}
 	}
 
@@ -356,6 +379,31 @@ public class Classifier implements Comparable<Classifier> {
 
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the defaultValue
+	 */
+	public String getDefaultValue() {
+		rwl.r.lock();
+		try {
+			return defaultValue;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param defaultValue
+	 *            the defaultValue to set
+	 */
+	public void setDefaultValue(String defaultValue) {
+		rwl.w.lock();
+		try {
+			this.defaultValue = defaultValue;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 }
