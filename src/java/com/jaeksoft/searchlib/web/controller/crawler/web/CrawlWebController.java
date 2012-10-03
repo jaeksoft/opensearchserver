@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
@@ -94,8 +95,9 @@ public class CrawlWebController extends CrawlerController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		List<String> list = client.getReplicationList().getNameList();
-		list.add(0, "");
+		List<String> list = new ArrayList<String>(0);
+		list.add("");
+		client.getReplicationList().populateNameList(list);
 		return list;
 	}
 

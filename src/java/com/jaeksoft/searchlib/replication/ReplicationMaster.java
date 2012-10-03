@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.replication;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.Client;
@@ -35,7 +36,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 
 public class ReplicationMaster extends ThreadMasterAbstract {
 
-	private TreeMap<ReplicationItem, ReplicationThread> threadMap;
+	private Map<ReplicationItem, ReplicationThread> threadMap;
 
 	public ReplicationMaster(Config config) {
 		super(config);

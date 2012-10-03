@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,11 +30,12 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
+public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
+
+	private String name;
 
 	private DatabaseCrawlMaster databaseCrawlMaster;
 
@@ -59,7 +60,7 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 	private int bufferSize;
 
 	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster, String name) {
-		super(name);
+		this.name = name;
 		this.databaseCrawlMaster = databaseCrawlMaster;
 		url = null;
 		driverClass = null;
@@ -273,7 +274,6 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		return crawl;
 	}
 
-	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(),
 				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(), DBCRAWL_ATTR_USER,
@@ -288,6 +288,26 @@ public class DatabaseCrawl extends UniqueNameItem<DatabaseCrawl> {
 		xmlWriter.textNode(getSql());
 		xmlWriter.endElement();
 		xmlWriter.endElement();
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public int compareTo(DatabaseCrawl o) {
+		return getName().compareTo(o.getName());
 	}
 
 }

@@ -100,7 +100,7 @@
 		</toolbar>
 		<panelchildren>
 			<listbox selectedItem="@{replication.selectedItem}"
-				model="@{replication.replicationSet}">
+				model="@{replication.replicationList.array}">
 				<listhead>
 					<listheader label="Instance URL" />
 					<listheader label="Replication type" hflex="min" />

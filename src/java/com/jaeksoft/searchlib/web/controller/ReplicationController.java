@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
-import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -37,6 +36,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
+import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.replication.ReplicationType;
 
@@ -129,11 +129,11 @@ public class ReplicationController extends CommonController {
 		onCancel();
 	}
 
-	public Set<ReplicationItem> getReplicationSet() throws SearchLibException {
+	public ReplicationList getReplicationList() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getReplicationList().getSet();
+		return client.getReplicationList();
 	}
 
 	private ReplicationItem getReplicationItem(Component comp) {

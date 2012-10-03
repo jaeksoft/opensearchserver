@@ -34,7 +34,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -43,9 +42,11 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.PushServlet;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
+public class ReplicationItem implements Comparable<ReplicationItem> {
 
-	private ReadWriteLock rwl = new ReadWriteLock();
+	private final ReadWriteLock rwl = new ReadWriteLock();
+
+	private String name = null;
 
 	private URL instanceUrl = null;
 
@@ -73,7 +74,6 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 			"file_crawler_url" };
 
 	public ReplicationItem(ReplicationMaster replicationMaster, String name) {
-		super(name);
 		this.replicationMaster = replicationMaster;
 		replicationType = ReplicationType.MAIN_INDEX;
 		lastReplicationThread = null;
@@ -89,13 +89,12 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 	}
 
 	public ReplicationItem(ReplicationItem item) {
-		super(item.getName());
 		this.copy(item);
 	}
 
 	public ReplicationItem(ReplicationMaster replicationMaster,
 			XPathParser xpp, Node node) throws MalformedURLException {
-		super(null);
+		this.name = null;
 		this.replicationMaster = replicationMaster;
 		String url = XPathParser.getAttributeString(node, "instanceUrl");
 		if (url != null && url.length() > 0)
@@ -117,10 +116,18 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 		if (!u.endsWith("/"))
 			u += '/';
 		u += getIndexName();
-		setName(u);
+		name = u;
 	}
 
-	@Override
+	public String getName() {
+		rwl.r.lock();
+		try {
+			return name;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void writeXml(XmlWriter xmlWriter) throws SAXException,
 			UnsupportedEncodingException {
 		rwl.r.lock();
@@ -260,6 +267,7 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 	public void copy(ReplicationItem item) {
 		rwl.w.lock();
 		try {
+			this.name = item.name;
 			this.indexName = item.indexName;
 			this.instanceUrl = item.instanceUrl;
 			this.login = item.login;
@@ -267,7 +275,6 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 			this.lastReplicationThread = item.lastReplicationThread;
 			this.replicationMaster = item.replicationMaster;
 			this.replicationType = item.replicationType;
-			setName(item.getName());
 			this.cachedUrl = null;
 			this.readWriteMode = item.readWriteMode;
 		} finally {
@@ -375,6 +382,11 @@ public class ReplicationItem extends UniqueNameItem<ReplicationItem> {
 
 	public void setReadWriteMode(IndexMode mode) {
 		readWriteMode = mode;
+	}
+
+	@Override
+	public int compareTo(ReplicationItem item) {
+		return getName().compareTo(item.getName());
 	}
 
 }

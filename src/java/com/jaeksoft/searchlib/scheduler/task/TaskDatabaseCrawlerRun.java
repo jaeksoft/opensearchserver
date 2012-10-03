@@ -61,8 +61,9 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 		if (crawls == null)
 			return null;
 		String[] values = new String[crawls.length];
-		for (int i = 0; i < values.length; i++)
-			values[i] = crawls[i].getName();
+		int i = 0;
+		for (DatabaseCrawl crawl : crawls)
+			values[i++] = crawl.getName();
 		return values;
 	}
 

@@ -82,9 +82,9 @@
 			<listheader label="- N -" hflex="min"
 				tooltiptext="Number of jobs" align="center" />
 			<listheader label="- R -" hflex="min"
-				tooltiptext="Number of replication items" align="center" />
-			<listheader label="- N -" hflex="min"
 				tooltiptext="Number of running replication items" align="center" />
+			<listheader label="- N -" hflex="min"
+				tooltiptext="Number of replication items" align="center" />
 			<listheader label="status" hflex="min"
 				tooltiptext="Optimization status" align="center" />
 			<listheader label="Mode" hflex="min"
@@ -112,7 +112,7 @@
 			<listcell
 				label="@{catalogitem.client.replicationMaster.threadsCount}" />
 			<listcell
-				label="@{catalogitem.client.replicationList.set.size}" />
+				label="@{catalogitem.client.replicationList.size}" />
 			<listcell label="@{catalogitem.optimizationStatus}" />
 			<listcell label="@{catalogitem.client.readWriteMode}" />
 			<listcell tooltiptext="@{catalogitem.numDocs}"

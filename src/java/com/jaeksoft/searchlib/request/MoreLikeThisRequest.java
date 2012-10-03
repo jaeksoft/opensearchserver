@@ -629,7 +629,9 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			if ((p = transaction.getParameterString("mlt.stopwords")) != null)
 				setStopWords(p);
 
-			if ((p = transaction.getParameterString("mlt.lang")) != null)
+			if ((p = transaction.getParameterString("lang")) != null)
+				setLang(LanguageEnum.findByCode(p));
+			else if ((p = transaction.getParameterString("mlt.lang")) != null)
 				setLang(LanguageEnum.findByCode(p));
 
 			if ((p = transaction.getParameterString("mlt.analyzer")) != null)

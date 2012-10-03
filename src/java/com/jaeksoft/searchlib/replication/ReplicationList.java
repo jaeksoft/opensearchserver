@@ -27,10 +27,8 @@ package com.jaeksoft.searchlib.replication;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -39,17 +37,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class ReplicationList {
 
-	private TreeSet<ReplicationItem> replicationSet;
+	private final ReadWriteLock rwl = new ReadWriteLock();
+	private TreeMap<String, ReplicationItem> replicationMap;
+	private ReplicationItem[] replicationArray;
 
 	public ReplicationList(ReplicationMaster replicationMaster, File file)
 			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException {
-		replicationSet = new TreeSet<ReplicationItem>();
+			XPathExpressionException, SearchLibException {
+		replicationMap = new TreeMap<String, ReplicationItem>();
+		replicationArray = null;
 		if (!file.exists())
 			return;
 		XPathParser xpp = new XPathParser(file);
@@ -66,53 +69,85 @@ public class ReplicationList {
 		}
 	}
 
-	public Set<ReplicationItem> getSet() {
-		synchronized (replicationSet) {
-			return replicationSet;
+	public ReplicationItem[] getArray() {
+		rwl.r.lock();
+		try {
+			return replicationArray;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
-	public List<String> getNameList() {
-		synchronized (replicationSet) {
-			List<String> list = new ArrayList<String>();
-			for (ReplicationItem item : replicationSet)
-				list.add(item.getName());
-			return list;
+	public void populateNameList(List<String> list) {
+		rwl.r.lock();
+		try {
+			for (String name : replicationMap.keySet())
+				list.add(name);
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
 	public ReplicationItem get(String replicationItemName) {
-		synchronized (replicationSet) {
+		rwl.r.lock();
+		try {
 			if (replicationItemName == null)
 				return null;
-			ReplicationItem item = new ReplicationItem();
-			item.setName(replicationItemName);
-			ReplicationItem found = replicationSet.ceiling(item);
-			if (found.compareTo(item) != 0)
-				return null;
-			return found;
+			return replicationMap.get(replicationItemName);
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
-	public void put(ReplicationItem item) {
-		synchronized (replicationSet) {
-			replicationSet.add(item);
+	private void buildArray() {
+		replicationArray = new ReplicationItem[replicationMap.size()];
+		replicationMap.values().toArray(replicationArray);
+	}
+
+	public int getSize() {
+		rwl.r.lock();
+		try {
+			if (replicationArray == null)
+				return 0;
+			return replicationArray.length;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void put(ReplicationItem item) throws SearchLibException {
+		rwl.w.lock();
+		try {
+			if (replicationMap.containsKey(item.getName()))
+				throw new SearchLibException(
+						"Replication item already exists: " + item.getName());
+			replicationMap.put(item.getName(), item);
+			buildArray();
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public void remove(ReplicationItem selectedItem) {
-		synchronized (replicationSet) {
-			replicationSet.remove(selectedItem);
+		rwl.w.lock();
+		try {
+			replicationMap.remove(selectedItem.getName());
+			buildArray();
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException,
 			UnsupportedEncodingException {
-		synchronized (replicationSet) {
+		rwl.r.lock();
+		try {
 			xmlWriter.startElement("replicationList");
-			for (ReplicationItem item : replicationSet)
+			for (ReplicationItem item : replicationMap.values())
 				item.writeXml(xmlWriter);
 			xmlWriter.endElement();
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

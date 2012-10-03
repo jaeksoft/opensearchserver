@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.scheduler;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -39,39 +38,32 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.UniqueNameItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class JobItem extends UniqueNameItem<JobItem> {
+public class JobItem extends ExecutionAbstract {
+
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	protected final static String JOB_NODE_NAME = "job";
 
-	private ReadWriteLock rwl = new ReadWriteLock();
+	private String name;
 
 	private TaskCronExpression cron;
 
 	private List<TaskItem> tasks;
 
-	private boolean active;
-
-	private boolean running;
-
 	private SearchLibException lastError;
 
 	private JobLog jobLog;
 
-	private Date lastExecution;
-
 	public JobItem(String name) {
-		super(name);
+		this.name = name;
 		tasks = new ArrayList<TaskItem>();
 		cron = new TaskCronExpression();
 		jobLog = new JobLog(200);
 		setLastError(null);
-		lastExecution = null;
-		running = false;
 	}
 
 	public void copyFrom(JobItem job) {
@@ -79,8 +71,8 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		try {
 			job.rwl.r.lock();
 			try {
-				setName(job.getName());
-				active = job.active;
+				this.name = job.name;
+				setActive(job.isActive());
 				tasks.clear();
 				for (TaskItem task : job.tasks)
 					tasks.add(task);
@@ -178,30 +170,6 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 	}
 
-	private void runningEnd() {
-		rwl.w.lock();
-		try {
-			running = false;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	private boolean runningRequest() {
-		rwl.w.lock();
-		try {
-			if (running) {
-				Logging.warn(getName() + " is already running");
-				return false;
-			}
-			running = true;
-			return true;
-		} finally {
-			rwl.w.unlock();
-		}
-
-	}
-
 	protected List<TaskItem> getTaskListCopy() {
 		rwl.r.lock();
 		try {
@@ -214,10 +182,15 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 	}
 
-	protected void setLastExecutionNow() {
+	protected boolean runningRequest() {
 		rwl.w.lock();
 		try {
-			lastExecution = new Date();
+			if (isRunning()) {
+				Logging.warn(name + " is already running");
+				return false;
+			}
+			setRunningNow();
+			return true;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -225,14 +198,13 @@ public class JobItem extends UniqueNameItem<JobItem> {
 
 	public void run(Client client) {
 		if (!runningRequest()) {
-			Logging.warn("The job " + getName() + "  is already running");
+			Logging.warn("The job " + name + "  is already running");
 			return;
 		}
 		TaskLog taskLog = null;
 		try {
 			boolean indexHasChanged = false;
 			long originalVersion = client.getIndex().getVersion();
-			setLastExecutionNow();
 			for (TaskItem task : getTaskListCopy()) {
 				taskLog = new TaskLog(task, indexHasChanged);
 				addTaskLog(taskLog);
@@ -260,13 +232,12 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 	}
 
-	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException,
 			UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement("job", "name", this.getName(), "active",
-					active ? "yes" : "no");
+			xmlWriter.startElement("job", "name", name, "active",
+					isActive() ? "yes" : "no");
 			cron.writeXml(xmlWriter);
 			for (TaskItem task : tasks)
 				task.writeXml(xmlWriter);
@@ -297,47 +268,13 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		return jobItem;
 	}
 
-	/**
-	 * @param active
-	 *            the active to set
-	 */
-	public void setActive(boolean active) {
-		rwl.w.lock();
-		try {
-			this.active = active;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the active
-	 */
-	public boolean isActive() {
-		rwl.r.lock();
-		try {
-			return active;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public boolean isRunning() {
-		rwl.r.lock();
-		try {
-			return running;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
 	public void checkTaskExecution(Config config) {
 		rwl.r.lock();
 		try {
-			if (active)
-				TaskManager.cronJob(config.getIndexName(), getName(), cron);
+			if (isActive())
+				TaskManager.cronJob(config.getIndexName(), name, cron);
 			else
-				TaskManager.removeJob(config.getIndexName(), getName());
+				TaskManager.removeJob(config.getIndexName(), name);
 		} catch (SearchLibException e) {
 			Logging.error(e);
 			setLastError(e);
@@ -372,18 +309,6 @@ public class JobItem extends UniqueNameItem<JobItem> {
 	}
 
 	/**
-	 * @return the last execution date
-	 */
-	public Date getLastExecution() {
-		rwl.r.lock();
-		try {
-			return lastExecution;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
 	 * 
 	 * @return the job log
 	 */
@@ -405,4 +330,28 @@ public class JobItem extends UniqueNameItem<JobItem> {
 		}
 	}
 
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		rwl.r.lock();
+		try {
+			return name;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		rwl.w.lock();
+		try {
+			this.name = name;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 }

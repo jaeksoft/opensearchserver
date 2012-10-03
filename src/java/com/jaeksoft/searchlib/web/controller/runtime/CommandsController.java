@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.zkoss.zul.Messagebox;
 
@@ -55,7 +57,9 @@ public class CommandsController extends CommonController {
 			if (client == null)
 				return;
 			TaskItem taskItem = new TaskItem(client, new TaskDeleteAll());
+			addTask(taskItem);
 			TaskManager.executeTask(client, taskItem);
+			reloadPage();
 		}
 	}
 
@@ -64,12 +68,42 @@ public class CommandsController extends CommonController {
 	 */
 	private static final long serialVersionUID = -7911006190658783502L;
 
+	private List<TaskItem> taskList = null;
+
+	protected void addTask(TaskItem taskItem) {
+		synchronized (this) {
+			if (taskItem == null)
+				return;
+			if (taskList == null)
+				taskList = new ArrayList<TaskItem>(0);
+			taskList.add(taskItem);
+		}
+	}
+
+	public boolean isTaskRunning() {
+		synchronized (this) {
+			if (taskList == null)
+				return false;
+			boolean canBeCleared = true;
+			for (TaskItem taskItem : taskList) {
+				if (taskItem.isRunning())
+					return true;
+				if (taskItem.getLastExecution() == null)
+					canBeCleared = false;
+			}
+			if (canBeCleared)
+				taskList.clear();
+			return false;
+		}
+	}
+
 	public CommandsController() throws SearchLibException {
 		super();
 	}
 
 	@Override
 	public void reset() {
+		isTaskRunning();
 	}
 
 	@Override
@@ -78,6 +112,10 @@ public class CommandsController extends CommonController {
 			getClient().reload();
 			reloadPage();
 		}
+	}
+
+	public void onTimer() throws SearchLibException {
+		reloadPage();
 	}
 
 	public void onReadOnly() throws SearchLibException {
@@ -118,6 +156,7 @@ public class CommandsController extends CommonController {
 				throw new SearchLibException(
 						"The optimization is already running");
 			TaskItem taskItem = new TaskItem(client, new TaskOptimizeIndex());
+			addTask(taskItem);
 			TaskManager.executeTask(client, taskItem);
 			reloadPage();
 		}

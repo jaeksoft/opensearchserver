@@ -63,4 +63,6 @@
 			</row>
 		</rows>
 	</grid>
+	<timer delay="5000" repeats="true" onTimer="commands.onTimer()"
+		running="@{replication.taskRunning}" />
 </window>

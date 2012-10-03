@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
@@ -65,12 +66,12 @@ public class TaskReplicationRun extends TaskAbstract {
 			throws SearchLibException {
 		if (propertyDef == propReplicationName) {
 			ReplicationList replicationList = config.getReplicationList();
-			List<String> nameList = replicationList.getNameList();
-			if (nameList == null)
+			List<String> nameList = new ArrayList<String>(0);
+			replicationList.populateNameList(nameList);
+			if (nameList.size() == 0)
 				return null;
 			String[] values = new String[nameList.size()];
-			for (int i = 0; i < values.length; i++)
-				values[i] = nameList.get(i);
+			nameList.toArray(values);
 			return values;
 		} else if (propertyDef == propReplicationIfUpdated) {
 			return ClassPropertyEnum.BOOLEAN_LIST;

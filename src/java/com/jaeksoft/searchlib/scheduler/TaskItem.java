@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class TaskItem {
+public class TaskItem extends ExecutionAbstract {
 
 	private Config config;
 
@@ -84,7 +84,12 @@ public class TaskItem {
 
 	public void run(Client client, TaskLog taskLog) throws SearchLibException,
 			IOException {
-		task.execute(client, userProperties, taskLog);
+		setRunningNow();
+		try {
+			task.execute(client, userProperties, taskLog);
+		} finally {
+			runningEnd();
+		}
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException,
