@@ -45,6 +45,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	private String driverClass;
 
+	private IsolationLevelEnum isolationLevel;
+
 	private String user;
 
 	private String password;
@@ -64,6 +66,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		this.databaseCrawlMaster = databaseCrawlMaster;
 		url = null;
 		driverClass = null;
+		isolationLevel = IsolationLevelEnum.TRANSACTION_NONE;
 		user = null;
 		password = null;
 		sql = null;
@@ -88,6 +91,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.setName(this.getName());
 		crawl.url = this.url;
 		crawl.driverClass = this.driverClass;
+		crawl.isolationLevel = this.isolationLevel;
 		crawl.user = this.user;
 		crawl.password = this.password;
 		crawl.sql = this.sql;
@@ -241,6 +245,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	protected final static String DBCRAWL_ATTR_NAME = "name";
 	protected final static String DBCRAWL_ATTR_DRIVER_CLASS = "driverClass";
 	protected final static String DBCRAWL_ATTR_USER = "user";
+	protected final static String DBCRAWL_ATTR_ISOLATION_LEVEL = "isolationLevel";
 	protected final static String DBCRAWL_ATTR_PASSWORD = "password";
 	protected final static String DBCRAWL_ATTR_URL = "url";
 	protected final static String DBCRAWL_ATTR_LANG = "lang";
@@ -255,6 +260,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.setName(XPathParser.getAttributeString(item, DBCRAWL_ATTR_NAME));
 		crawl.setDriverClass(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_DRIVER_CLASS));
+		crawl.setIsolationLevel(IsolationLevelEnum.find(XPathParser
+				.getAttributeString(item, DBCRAWL_ATTR_ISOLATION_LEVEL)));
 		crawl.setUser(XPathParser.getAttributeString(item, DBCRAWL_ATTR_USER));
 		crawl.setPassword(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_PASSWORD));
@@ -276,10 +283,12 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(),
-				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(), DBCRAWL_ATTR_USER,
-				getUser(), DBCRAWL_ATTR_PASSWORD, getPassword(),
-				DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG, getLang()
-						.getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey,
+				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(),
+				DBCRAWL_ATTR_ISOLATION_LEVEL,
+				isolationLevel != null ? isolationLevel.name() : null,
+				DBCRAWL_ATTR_USER, getUser(), DBCRAWL_ATTR_PASSWORD,
+				getPassword(), DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG,
+				getLang().getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey,
 				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(bufferSize));
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		fieldMap.store(xmlWriter);
@@ -308,6 +317,21 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	@Override
 	public int compareTo(DatabaseCrawl o) {
 		return getName().compareTo(o.getName());
+	}
+
+	/**
+	 * @return the isolationLevel
+	 */
+	public IsolationLevelEnum getIsolationLevel() {
+		return isolationLevel;
+	}
+
+	/**
+	 * @param isolationLevel
+	 *            the isolationLevel to set
+	 */
+	public void setIsolationLevel(IsolationLevelEnum isolationLevel) {
+		this.isolationLevel = isolationLevel;
 	}
 
 }

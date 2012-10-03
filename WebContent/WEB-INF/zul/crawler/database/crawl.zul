@@ -126,6 +126,14 @@
 										value="Enter the URL used to connect to the database" />
 								</row>
 								<row>
+									<label value="Isolation level: " />
+									<listbox mold="select"
+										selectedItem="@{dbCrawlList.currentCrawl.isolationLevel}"
+										model="@{dbCrawlList.isolationLevels}" />
+									<label
+										value="Select the isolation level" />
+								</row>
+								<row>
 									<label value="User: " />
 									<textbox
 										value="@{dbCrawlList.currentCrawl.user}" width="50%" />

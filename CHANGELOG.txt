@@ -9,6 +9,7 @@ http://sourceforge.net/tracker/?group_id=260863
 OpenSearchServer 1.3
 
 New features:
+- 237: Transaction isolation level should editable
 - 236: Default value in the Classifier
 - 235 Named entity recognition
 - 234: Free text submission to MoreLikeThis query

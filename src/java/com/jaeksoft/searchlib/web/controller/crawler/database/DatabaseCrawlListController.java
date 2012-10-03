@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
 import com.jaeksoft.searchlib.crawler.database.DatabaseFieldTarget;
+import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.web.controller.AlertController;
@@ -368,6 +369,10 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	public boolean isNoFieldSelected() {
 		return !isFieldSelected();
+	}
+
+	public IsolationLevelEnum[] getIsolationLevels() {
+		return IsolationLevelEnum.values();
 	}
 
 }

@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.zkoss.zul.Messagebox;
 
@@ -43,6 +41,14 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CommandsController extends CommonController {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7911006190658783502L;
+
+	private TaskItem taskOptimize = null;
+	private TaskItem taskTruncate = null;
+
 	private class DeleteAlert extends AlertController {
 
 		protected DeleteAlert() throws InterruptedException {
@@ -56,45 +62,41 @@ public class CommandsController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return;
-			TaskItem taskItem = new TaskItem(client, new TaskDeleteAll());
-			addTask(taskItem);
-			TaskManager.executeTask(client, taskItem);
+			if (isRunningTruncate())
+				throw new SearchLibException("Truncation is already running.");
+			taskTruncate = new TaskItem(client, new TaskDeleteAll());
+			TaskManager.executeTask(client, taskTruncate);
 			reloadPage();
 		}
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7911006190658783502L;
-
-	private List<TaskItem> taskList = null;
-
-	protected void addTask(TaskItem taskItem) {
-		synchronized (this) {
-			if (taskItem == null)
-				return;
-			if (taskList == null)
-				taskList = new ArrayList<TaskItem>(0);
-			taskList.add(taskItem);
+	public boolean isRunningOptimize() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return false;
+		if (taskOptimize != null) {
+			if (taskOptimize.isRunning())
+				return true;
+			if (taskOptimize.getLastExecution() == null)
+				return true;
+			taskOptimize = null;
 		}
+		return client.isOptimizing();
 	}
 
-	public boolean isTaskRunning() {
-		synchronized (this) {
-			if (taskList == null)
-				return false;
-			boolean canBeCleared = true;
-			for (TaskItem taskItem : taskList) {
-				if (taskItem.isRunning())
-					return true;
-				if (taskItem.getLastExecution() == null)
-					canBeCleared = false;
-			}
-			if (canBeCleared)
-				taskList.clear();
+	public boolean isRunningTruncate() {
+		if (taskTruncate == null)
 			return false;
-		}
+		if (taskTruncate.isRunning())
+			return true;
+		if (taskTruncate.getLastExecution() == null)
+			return true;
+		taskTruncate = null;
+		return false;
+	}
+
+	public boolean isTaskRunning() throws SearchLibException {
+		return isRunningOptimize() || isRunningTruncate();
 	}
 
 	public CommandsController() throws SearchLibException {
@@ -102,7 +104,7 @@ public class CommandsController extends CommonController {
 	}
 
 	@Override
-	public void reset() {
+	public void reset() throws SearchLibException {
 		isTaskRunning();
 	}
 
@@ -152,12 +154,11 @@ public class CommandsController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return;
-			if (client.isOptimizing())
+			if (isRunningOptimize())
 				throw new SearchLibException(
 						"The optimization is already running");
-			TaskItem taskItem = new TaskItem(client, new TaskOptimizeIndex());
-			addTask(taskItem);
-			TaskManager.executeTask(client, taskItem);
+			taskOptimize = new TaskItem(client, new TaskOptimizeIndex());
+			TaskManager.executeTask(client, taskOptimize);
 			reloadPage();
 		}
 	}

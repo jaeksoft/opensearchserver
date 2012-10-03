@@ -33,7 +33,12 @@
 				<label value="Optimization: " />
 				<button label="Optimize" forward="onOptimize"
 					disabled="@{commands.offline}" />
-				<label value="@{commands.optimizeStatus}" />
+				<cell>
+					<label value="@{commands.optimizeStatus}" />
+					<space />
+					<image visible="@{commands.runningOptimize}"
+						src="/images/ajax-loader.gif" />
+				</cell>
 			</row>
 			<row>
 				<label value="Read/Write mode: " />
@@ -59,10 +64,16 @@
 				<label value="Truncate: " />
 				<button label="Delete all" forward="onDeleteAll"
 					disabled="@{commands.offline}" />
-				<label value="@{commands.documentNumber}" />
+				<cell>
+					<label value="@{commands.documentNumber}" />
+					<space />
+					<image visible="@{commands.runningTruncate}"
+						src="/images/ajax-loader.gif" />
+
+				</cell>
 			</row>
 		</rows>
 	</grid>
 	<timer delay="5000" repeats="true" onTimer="commands.onTimer()"
-		running="@{replication.taskRunning}" />
+		running="@{commands.taskRunning}" />
 </window>
