@@ -22,7 +22,9 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.parser;
+package com.jaeksoft.searchlib.enterprise.parser;
+
+import com.jaeksoft.searchlib.parser.HtmlParser;
 
 /**
  * Transition from 1.2 Enterprise to 1.3
