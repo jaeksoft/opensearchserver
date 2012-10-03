@@ -29,7 +29,8 @@
 								url = null;
 						FieldValueItem[] fieldValueItems = rendererField
 								.getFieldValue(resultDocument);
-						for (FieldValueItem fieldValueItem : fieldValueItems) {
+						if (fieldValueItems != null) {
+							for (FieldValueItem fieldValueItem : fieldValueItems) {
 	%>
 	<div class="osscmnrdr ossfieldrdr<%=j%>">
 		<%
@@ -44,7 +45,7 @@
 		%>
 	</div>
 	<%
-		}
+		} }
 	%>
 	<%
 		}

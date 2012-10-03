@@ -139,20 +139,23 @@ public class ResultDocument {
 		return getValueContent(field, pos);
 	}
 
-	public FieldValueItem[] getSnippetArray(SnippetField field) {
+	final public FieldValueItem[] getSnippetArray(SnippetField field) {
 		if (field == null)
 			return null;
-		return snippetFields.get(field.getName()).getValueArray();
+		return getSnippetArray(field.getName());
 	}
 
-	public FieldValueItem[] getSnippetValue(SnippetField field) {
+	final public FieldValueItem[] getSnippetValue(SnippetField field) {
 		if (field == null)
 			return null;
-		return snippetFields.get(field.getName()).getValueArray();
+		return getSnippetArray(field.getName());
 	}
 
-	public FieldValueItem[] getSnippetArray(String fieldName) {
-		return snippetFields.get(fieldName).getValueArray();
+	final public FieldValueItem[] getSnippetArray(String fieldName) {
+		SnippetFieldValue fieldValue = snippetFields.get(fieldName);
+		if (fieldValue == null)
+			return null;
+		return fieldValue.getValueArray();
 	}
 
 	public FieldValueItem[] getSnippetList(String fieldName) {

@@ -68,7 +68,4 @@ padding: 2px 6px 2px 6px;
 	<field fieldName="url" fieldType="FIELD" urlFieldName="">
 		<cssStyle>color: #0E774A;</cssStyle>
 	</field>
-	<field fieldName="lang" fieldType="FIELD" urlFieldName="">
-		<cssStyle />
-	</field>
 </renderer>
