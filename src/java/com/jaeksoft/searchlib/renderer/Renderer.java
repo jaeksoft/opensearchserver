@@ -221,7 +221,6 @@ public class Renderer implements Comparable<Renderer> {
 
 	public void setDefaultCss() throws SearchLibException {
 		InputStream is = getClass()
-				.getClassLoader()
 				.getResourceAsStream(
 						"/com/jaeksoft/searchlib/template/common/renderers/default.xml");
 		try {

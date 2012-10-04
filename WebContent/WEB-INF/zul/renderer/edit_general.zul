@@ -20,6 +20,8 @@
 			<columns sizable="false">
 				<column align="right" hflex="min" />
 				<column align="left" />
+				<column align="right" hflex="min" />
+				<column align="left" />
 			</columns>
 			<rows>
 				<row>
