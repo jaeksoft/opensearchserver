@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -60,22 +61,20 @@ public class XPathParser {
 
 	public XPathParser(File file) throws ParserConfigurationException,
 			SAXException, IOException {
-		this(file, DomUtils.getNewDocumentBuilder(false, true).parse(
-				file.getAbsoluteFile()));
+		this(file, DomUtils.readXml(new StreamSource(file.getAbsoluteFile()),
+				true));
 	}
 
 	public XPathParser(InputSource inputSource) throws SAXException,
 			IOException, ParserConfigurationException {
-		this(null, DomUtils.getNewDocumentBuilder(false, true).parse(
-				inputSource));
+		this(null, DomUtils.readXml(inputSource, true));
 		Document document = (Document) rootNode;
 		document.normalize();
 	}
 
 	public XPathParser(InputStream inputStream) throws SAXException,
 			IOException, ParserConfigurationException {
-		this(null, DomUtils.getNewDocumentBuilder(false, true).parse(
-				inputStream));
+		this(null, DomUtils.readXml(new InputSource(inputStream), true));
 	}
 
 	public XPathParser(Node rootNode) {

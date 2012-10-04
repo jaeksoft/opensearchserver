@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FilenameUtils;
@@ -198,12 +199,13 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 				Node xmlDoc = null;
 				if (xsl != null && xsl.length() > 0) {
 					xmlTempResult = File.createTempFile("ossftpfeed", ".xml");
-					DomUtils.xslt(inputStream, xsl, xmlTempResult);
-					xmlDoc = DomUtils.getNewDocumentBuilder(false, false)
-							.parse(xmlTempResult);
+					DomUtils.xslt(new StreamSource(inputStream), xsl,
+							xmlTempResult);
+					xmlDoc = DomUtils.readXml(new StreamSource(xmlTempResult),
+							false);
 				} else
-					xmlDoc = DomUtils.getNewDocumentBuilder(false, false)
-							.parse(inputStream);
+					xmlDoc = DomUtils.readXml(new StreamSource(inputStream),
+							false);
 				client.updateXmlDocuments(xmlDoc, bufferSize, null,
 						proxyHandler, taskLog);
 				client.deleteXmlDocuments(xmlDoc, bufferSize, taskLog);

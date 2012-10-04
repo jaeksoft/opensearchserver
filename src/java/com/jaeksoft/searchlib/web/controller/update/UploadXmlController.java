@@ -62,8 +62,6 @@ public class UploadXmlController extends CommonController {
 
 	public class UpdateThread extends ThreadAbstract {
 
-		private volatile StreamSource streamSource;
-
 		private volatile String mediaName;
 
 		private volatile Client client;
@@ -72,14 +70,16 @@ public class UploadXmlController extends CommonController {
 
 		private volatile File xmlTempResult;
 
+		private volatile StreamSource streamSource;
+
 		private UpdateThread(Client client, StreamSource streamSource,
 				String xsl, String mediaName) {
 			super(client, null);
 			this.client = client;
-			this.streamSource = streamSource;
 			this.xsl = xsl;
 			this.mediaName = mediaName;
 			xmlTempResult = null;
+			this.streamSource = streamSource;
 			setInfo("Starting...");
 		}
 
@@ -92,11 +92,11 @@ public class UploadXmlController extends CommonController {
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");
 				DomUtils.xslt(streamSource, xsl, xmlTempResult);
-				xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
-						xmlTempResult);
-			} else
-				xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
-						streamSource.getInputStream());
+				xmlDoc = DomUtils.readXml(new StreamSource(xmlTempResult),
+						false);
+			} else {
+				xmlDoc = DomUtils.readXml(streamSource, false);
+			}
 			int updatedCount = client.updateXmlDocuments(xmlDoc, 50, null,
 					proxyHandler, this);
 			setInfo("Done: " + updatedCount + " document(s)");
@@ -220,24 +220,24 @@ public class UploadXmlController extends CommonController {
 			ClassNotFoundException {
 		synchronized (this) {
 			Client client = getClient();
-			StreamSource xmlSource;
+			StreamSource streamSource;
 			if (media.inMemory()) {
 				if (media.isBinary()) {
 					// Memory + Binary
-					xmlSource = new StreamSource(new ByteArrayInputStream(
+					streamSource = new StreamSource(new ByteArrayInputStream(
 							media.getByteData()));
 				} else {
 					// Memory + Texte
-					xmlSource = new StreamSource(media.getReaderData());
+					streamSource = new StreamSource(media.getReaderData());
 				}
 			} else {
 				if (media.isBinary()) // File + Binary
-					xmlSource = new StreamSource(media.getStreamData());
+					streamSource = new StreamSource(media.getStreamData());
 				else
 					// File + Text
-					xmlSource = new StreamSource(media.getReaderData());
+					streamSource = new StreamSource(media.getReaderData());
 			}
-			UpdateThread thread = new UpdateThread(client, xmlSource,
+			UpdateThread thread = new UpdateThread(client, streamSource,
 					xslContent, media.getName());
 			List<UpdateThread> list = getUpdateList(client);
 			synchronized (list) {

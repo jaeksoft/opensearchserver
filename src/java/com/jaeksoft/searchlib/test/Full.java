@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.http.HttpException;
@@ -48,8 +49,7 @@ public class Full {
 			IllegalAccessException, ClassNotFoundException, HttpException {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
-		Node xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
-				contentFile);
+		Node xmlDoc = DomUtils.readXml(new StreamSource(contentFile), false);
 		client.updateXmlDocuments(xmlDoc, 10, null, null, null);
 		client.reload();
 	}

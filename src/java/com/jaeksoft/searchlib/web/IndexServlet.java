@@ -30,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
@@ -65,8 +66,8 @@ public class IndexServlet extends AbstractServlet {
 			int updatedCount = 0;
 			int deletedCount = 0;
 			if (ct != null && ct.toLowerCase().contains("xml")) {
-				Node xmlDoc = DomUtils.getNewDocumentBuilder(false, false)
-						.parse(transaction.getInputStream());
+				Node xmlDoc = DomUtils.readXml(
+						new StreamSource(transaction.getInputStream()), false);
 				updatedCount = client.updateXmlDocuments(xmlDoc, bufferSize,
 						null, client.getWebPropertyManager().getProxyHandler(),
 						null);

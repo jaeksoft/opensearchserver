@@ -33,10 +33,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import javax.xml.parsers.DocumentBuilder;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -189,11 +188,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 	private List<String> getListOfUrls(String uri) {
 		List<String> urls = new ArrayList<String>();
 		try {
-			// Using factory get an instance of document builder
-			DocumentBuilder db = DomUtils.getNewDocumentBuilder(false, true);
-
 			// parse using builder to get DOM representation of the XML file
-			Document doc = db.parse(uri);
+			Document doc = DomUtils.readXml(new InputSource(uri), true);
 			if (doc != null) {
 				List<Node> nodes = DomUtils.getAllNodes(doc, "loc");
 				if (nodes != null) {

@@ -32,9 +32,11 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -117,13 +119,15 @@ public class TaskXmlLoad extends TaskAbstract {
 			Node xmlDoc = null;
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");
-				DomUtils.xslt(downloadItem.getContentInputStream(), xsl,
-						xmlTempResult);
-				xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
-						xmlTempResult);
+				DomUtils.xslt(
+						new StreamSource(downloadItem.getContentInputStream()),
+						xsl, xmlTempResult);
+				xmlDoc = DomUtils.readXml(new StreamSource(xmlTempResult),
+						false);
 			} else
-				xmlDoc = DomUtils.getNewDocumentBuilder(false, false).parse(
-						downloadItem.getContentInputStream());
+				xmlDoc = DomUtils.readXml(
+						new InputSource(downloadItem.getContentInputStream()),
+						false);
 
 			client.updateXmlDocuments(xmlDoc, bufferSize, credentialItem,
 					proxyHandler, taskLog);
