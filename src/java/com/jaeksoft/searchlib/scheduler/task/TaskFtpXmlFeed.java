@@ -39,6 +39,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -125,6 +126,19 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		return null;
 	}
 
+	private void checkConnect(FTPClient ftp, String server, String login,
+			String password) throws IOException {
+		try {
+			if (ftp.isConnected())
+				if (ftp.sendNoOp())
+					return;
+		} catch (FTPConnectionClosedException e) {
+			Logging.warn(e);
+		}
+		ftp.connect(server);
+		ftp.login(login, password);
+	}
+
 	@Override
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException {
@@ -154,8 +168,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		try {
 			// FTP Connection
 			ftp = new FTPClient();
-			ftp.connect(server);
-			ftp.login(login, password);
+			checkConnect(ftp, server, login, password);
 			FTPFile[] files = ftp.listFiles(path,
 					new FtpFileInstance.FileOnlyDirectoryFilter());
 			if (files == null)
@@ -202,6 +215,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 					xmlTempResult.delete();
 					xmlTempResult = null;
 				}
+				checkConnect(ftp, server, login, password);
 				if (deleteAfterLoad)
 					ftp.deleteFile(filePathName);
 				loaded++;

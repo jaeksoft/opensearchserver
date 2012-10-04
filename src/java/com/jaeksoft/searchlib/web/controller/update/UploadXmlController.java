@@ -223,18 +223,18 @@ public class UploadXmlController extends CommonController {
 			StreamSource xmlSource;
 			if (media.inMemory()) {
 				if (media.isBinary()) {
-					byte[] bytes = media.getByteData();
-					xmlSource = new StreamSource(
-							new ByteArrayInputStream(bytes));
+					// Memory + Binary
+					xmlSource = new StreamSource(new ByteArrayInputStream(
+							media.getByteData()));
 				} else {
-					byte[] bytes = media.getStringData().getBytes("UTF-8");
-					xmlSource = new StreamSource(
-							new ByteArrayInputStream(bytes));
+					// Memory + Texte
+					xmlSource = new StreamSource(media.getReaderData());
 				}
 			} else {
-				if (media.isBinary())
+				if (media.isBinary()) // File + Binary
 					xmlSource = new StreamSource(media.getStreamData());
 				else
+					// File + Text
 					xmlSource = new StreamSource(media.getReaderData());
 			}
 			UpdateThread thread = new UpdateThread(client, xmlSource,

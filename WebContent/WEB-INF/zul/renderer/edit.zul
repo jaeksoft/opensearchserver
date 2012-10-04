@@ -50,7 +50,7 @@
 		<hbox visible="@{renderer.notSelected}">
 			<button label="Cancel" onClick="renderer.onCancel()" />
 			<space width="10px" />
-			<button label="Create" onClick="renderer.onSave()" />
+			<button label="Create" onClick="renderer.onSaveAndClose()" />
 		</hbox>
 	</vbox>
 </zk>
