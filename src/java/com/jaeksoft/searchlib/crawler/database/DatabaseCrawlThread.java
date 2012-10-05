@@ -128,10 +128,11 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		}
 	}
 
-	private boolean index(List<IndexDocument> indexDocumentList, int limit)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	private boolean index(Transaction transaction,
+			List<IndexDocument> indexDocumentList, int limit,
+			List<String> pkList) throws NoSuchAlgorithmException, IOException,
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -144,6 +145,9 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		} finally {
 			rwl.w.unlock();
 		}
+
+		update(transaction, pkList);
+		pkList.clear();
 		indexDocumentList.clear();
 		if (taskLog != null)
 			taskLog.setInfo(updatedIndexDocumentCount + " document(s) indexed");
@@ -169,6 +173,34 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 
 	private final static String PRIMARY_KEY_VARIABLE_NAME = "$PK";
 
+	private void update(Transaction transaction, List<String> pkList)
+			throws SearchLibException {
+		SqlUpdateMode sqlUpdateMode = databaseCrawl.getSqlUpdateMode();
+		if (sqlUpdateMode == SqlUpdateMode.NO_CALL)
+			return;
+		String sqlUpdate = databaseCrawl.getSqlUpdate();
+		String lastSql = null;
+		try {
+			if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY) {
+				for (String uk : pkList) {
+					lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, uk);
+					transaction.update(lastSql);
+				}
+				transaction.commit();
+			} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_LIST) {
+				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
+						toIdList(pkList, false));
+				transaction.update(lastSql);
+			} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST) {
+				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
+						toIdList(pkList, true));
+				transaction.update(lastSql);
+			}
+		} catch (SQLException e) {
+			throw new SearchLibException("SQL Failed: " + lastSql);
+		}
+	}
+
 	private boolean delete(Transaction transaction,
 			List<String> deleteDocumentList, int limit)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
@@ -187,28 +219,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			rwl.w.unlock();
 		}
 
-		SqlUpdateMode sqlUpdateMode = databaseCrawl.getSqlUpdateMode();
-		String sqlUpdate = databaseCrawl.getSqlUpdate();
-		String lastSql = null;
-		try {
-			if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY) {
-				for (String uk : deleteDocumentList) {
-					lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, uk);
-					transaction.update(lastSql);
-				}
-				transaction.commit();
-			} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_LIST) {
-				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
-						toIdList(deleteDocumentList, false));
-				transaction.update(lastSql);
-			} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST) {
-				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
-						toIdList(deleteDocumentList, true));
-				transaction.update(lastSql);
-			}
-		} catch (SQLException e) {
-			throw new SearchLibException("SQL Failed: " + lastSql);
-		}
+		update(transaction, deleteDocumentList);
 
 		deleteDocumentList.clear();
 		if (taskLog != null)
@@ -220,12 +231,12 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		return databaseCrawl;
 	}
 
-	final private void runner_update(ResultSet resultSet,
-			TreeSet<String> columns) throws NoSuchAlgorithmException,
-			SQLException, IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, ParseException, SyntaxError,
-			InterruptedException {
+	final private void runner_update(Transaction transaction,
+			ResultSet resultSet, TreeSet<String> columns)
+			throws NoSuchAlgorithmException, SQLException, IOException,
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, ParseException,
+			SyntaxError, InterruptedException {
 		String dbPrimaryKey = databaseCrawl.getPrimaryKey();
 		DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
 		int bf = databaseCrawl.getBufferSize();
@@ -236,6 +247,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		String lastPrimaryKey = null;
 
 		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
+		List<String> pkList = new ArrayList<String>(0);
 
 		while (resultSet.next()) {
 
@@ -251,11 +263,12 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				lastPrimaryKey = pKey;
 			}
 			if (!merge) {
-				if (index(indexDocumentList, bf))
+				if (index(transaction, indexDocumentList, bf, pkList))
 					setStatus(CrawlStatus.CRAWL);
 				indexDocument = new IndexDocument(databaseCrawl.getLang());
 				indexDocumentList.add(indexDocument);
 				pendingIndexDocumentCount++;
+				pkList.add(lastPrimaryKey);
 			}
 			LanguageEnum lang = databaseCrawl.getLang();
 			IndexDocument newFieldContents = new IndexDocument(lang);
@@ -268,7 +281,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				indexDocument.add(newFieldContents);
 			lastFieldContent = newFieldContents;
 		}
-		index(indexDocumentList, 0);
+		index(transaction, indexDocumentList, 0, pkList);
 		if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0) {
 			if (databaseFieldMap.isUrl()) {
 				setStatus(CrawlStatus.OPTIMIZATION);
@@ -329,7 +342,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			if (databaseCrawl.getUniqueKeyDeleteField() != null)
 				runner_delete(transaction, resultSet, columns, sqlUpdate);
 			else
-				runner_update(resultSet, columns);
+				runner_update(transaction, resultSet, columns);
 
 			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
 				client.reload();
