@@ -191,8 +191,11 @@
 								</row>
 								<row>
 									<label value="SQL Update: " />
-									<textbox rows="10"
-										value="@{dbCrawlList.currentCrawl.sqlUpdate}" width="95%" />
+									<cell>
+										<textbox rows="10"
+											value="@{dbCrawlList.currentCrawl.sqlUpdate}" width="95%" />
+										
+									</cell>
 									<label
 										value="Enter any SQL query which be called for each indexed item ($PK) " />
 								</row>

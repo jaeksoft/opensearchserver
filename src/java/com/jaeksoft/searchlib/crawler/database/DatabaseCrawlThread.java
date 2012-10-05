@@ -169,9 +169,10 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 
 		if (sqlUpdate != null) {
 			for (String uk : deleteDocumentList) {
-				String sql = sqlUpdate.replace("$PK", uk);
+				String sql = sqlUpdate.replace("$PK$", uk);
 				transaction.update(sql);
 			}
+			transaction.commit();
 		}
 
 		deleteDocumentList.clear();

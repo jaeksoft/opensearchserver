@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.database;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.cxf.helpers.DOMUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -34,6 +35,17 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
+
+	public static enum SqlUpdateMode {
+		NO_CALL, ONE_CALL_PER_PRIMARY_KEY, PRIMARY_KEY_LIST, PRIMARY_KEY_CHAR_LIST;
+
+		public static SqlUpdateMode find(String label) {
+			for (SqlUpdateMode v : values())
+				if (v.equals(label))
+					return v;
+			return NO_CALL;
+		}
+	}
 
 	private String name;
 
@@ -55,6 +67,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	private String sqlUpdate;
 
+	private SqlUpdateMode sqlUpdateMode;
+
 	private LanguageEnum lang;
 
 	private DatabaseFieldMap fieldMap;
@@ -75,6 +89,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		password = null;
 		sqlSelect = null;
 		sqlUpdate = null;
+		sqlUpdateMode = SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY;
 		lang = LanguageEnum.UNDEFINED;
 		fieldMap = new DatabaseFieldMap();
 		lastCrawlThread = null;
@@ -102,6 +117,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.password = this.password;
 		crawl.sqlSelect = this.sqlSelect;
 		crawl.sqlUpdate = this.sqlUpdate;
+		crawl.sqlUpdateMode = this.sqlUpdateMode;
 		crawl.lang = this.lang;
 		crawl.lastCrawlThread = this.lastCrawlThread;
 		crawl.primaryKey = this.primaryKey;
@@ -201,6 +217,21 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	}
 
 	/**
+	 * @return the sqlUpdateMode
+	 */
+	public SqlUpdateMode getSqlUpdateMode() {
+		return sqlUpdateMode;
+	}
+
+	/**
+	 * @param sqlUpdateMode
+	 *            the sqlUpdateMode to set
+	 */
+	public void setSqlUpdateMode(SqlUpdateMode sqlUpdateMode) {
+		this.sqlUpdateMode = sqlUpdateMode;
+	}
+
+	/**
 	 * @param lang
 	 *            the lang to set
 	 */
@@ -277,6 +308,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	protected final static String DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD = "uniqueKeyDeleteField";
 	protected final static String DBCRAWL_NODE_NAME_SQL_SELECT = "sql";
 	protected final static String DBCRAWL_NODE_NAME_SQL_UPDATE = "sqlUpdate";
+	protected final static String DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE = "mode";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
 	public static DatabaseCrawl fromXml(DatabaseCrawlMaster dcm,
@@ -303,8 +335,11 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		if (sqlNode != null)
 			crawl.setSqlSelect(xpp.getNodeString(sqlNode, true));
 		sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_UPDATE);
-		if (sqlNode != null)
+		if (sqlNode != null) {
 			crawl.setSqlUpdate(xpp.getNodeString(sqlNode, true));
+			crawl.setSqlUpdateMode(SqlUpdateMode.find(DOMUtils.getAttribute(
+					sqlNode, DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE)));
+		}
 		Node mapNode = xpp.getNode(item, DBCRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
 			crawl.fieldMap.load(xpp, mapNode);
@@ -329,7 +364,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		xmlWriter.textNode(getSqlSelect());
 		xmlWriter.endElement();
 		// SQL Update Node
-		xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_UPDATE);
+		xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_UPDATE,
+				DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE, getSqlUpdateMode().name());
 		xmlWriter.textNode(getSqlUpdate());
 		xmlWriter.endElement();
 		xmlWriter.endElement();
