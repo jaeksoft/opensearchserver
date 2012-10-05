@@ -59,6 +59,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	private String primaryKey;
 
+	private String uniqueKeyDeleteField;
+
 	private int bufferSize;
 
 	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster, String name) {
@@ -74,6 +76,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		fieldMap = new DatabaseFieldMap();
 		lastCrawlThread = null;
 		primaryKey = null;
+		uniqueKeyDeleteField = null;
 		bufferSize = 100;
 	}
 
@@ -98,6 +101,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.lang = this.lang;
 		crawl.lastCrawlThread = this.lastCrawlThread;
 		crawl.primaryKey = this.primaryKey;
+		crawl.uniqueKeyDeleteField = this.uniqueKeyDeleteField;
 		crawl.bufferSize = this.bufferSize;
 		this.fieldMap.copyTo(crawl.fieldMap);
 	}
@@ -251,6 +255,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	protected final static String DBCRAWL_ATTR_LANG = "lang";
 	protected final static String DBCRAWL_ATTR_BUFFER_SIZE = "bufferSize";
 	protected final static String DBCRAWL_ATTR_PRIMARY_KEY = "primaryKey";
+	protected final static String DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD = "uniqueKeyDeleteField";
 	protected final static String DBCRAWL_NODE_NAME_SQL = "sql";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
@@ -270,6 +275,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 				item, DBCRAWL_ATTR_LANG)));
 		crawl.setPrimaryKey(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_PRIMARY_KEY));
+		crawl.setUniqueKeyDeleteField(XPathParser.getAttributeString(item,
+				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD));
 		crawl.setBufferSize(XPathParser.getAttributeValue(item,
 				DBCRAWL_ATTR_BUFFER_SIZE));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL);
@@ -289,6 +296,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 				DBCRAWL_ATTR_USER, getUser(), DBCRAWL_ATTR_PASSWORD,
 				getPassword(), DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG,
 				getLang().getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey,
+				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD, uniqueKeyDeleteField,
 				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(bufferSize));
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		fieldMap.store(xmlWriter);
@@ -332,6 +340,21 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	 */
 	public void setIsolationLevel(IsolationLevelEnum isolationLevel) {
 		this.isolationLevel = isolationLevel;
+	}
+
+	/**
+	 * @return the uniqueKeyDeleteField
+	 */
+	public String getUniqueKeyDeleteField() {
+		return uniqueKeyDeleteField;
+	}
+
+	/**
+	 * @param uniqueKeyDeleteField
+	 *            the uniqueKeyDeleteField to set
+	 */
+	public void setUniqueKeyDeleteField(String uniqueKeyDeleteField) {
+		this.uniqueKeyDeleteField = uniqueKeyDeleteField;
 	}
 
 }

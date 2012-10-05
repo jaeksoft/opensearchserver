@@ -43,8 +43,11 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class DatabaseCrawlThread extends CrawlThreadAbstract {
+
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	private DatabaseCrawl databaseCrawl;
 
@@ -53,6 +56,10 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 	private long pendingIndexDocumentCount;
 
 	private long updatedIndexDocumentCount;
+
+	private long pendingDeleteDocumentCount;
+
+	private long updatedDeleteDocumentCount;
 
 	private TaskLog taskLog;
 
@@ -63,20 +70,58 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		this.client = client;
 		pendingIndexDocumentCount = 0;
 		updatedIndexDocumentCount = 0;
+		pendingDeleteDocumentCount = 0;
+		pendingDeleteDocumentCount = 0;
 		this.taskLog = taskLog;
 	}
 
 	public String getCountInfo() {
-		return getUpdatedIndexDocumentCount() + " ("
-				+ getPendingIndexDocumentCount() + ")";
+		StringBuffer sb = new StringBuffer();
+		sb.append(getUpdatedIndexDocumentCount());
+		sb.append(" (");
+		sb.append(getPendingIndexDocumentCount());
+		sb.append(") / ");
+		sb.append(getUpdatedDeleteDocumentCount());
+		sb.append(" (");
+		sb.append(getPendingDeleteDocumentCount());
+		sb.append(')');
+		return sb.toString();
 	}
 
-	public long getPendingIndexDocumentCount() {
-		return pendingIndexDocumentCount;
+	final public long getPendingIndexDocumentCount() {
+		rwl.r.lock();
+		try {
+			return pendingIndexDocumentCount;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
-	public long getUpdatedIndexDocumentCount() {
-		return updatedIndexDocumentCount;
+	final public long getUpdatedIndexDocumentCount() {
+		rwl.r.lock();
+		try {
+			return updatedIndexDocumentCount;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	final public long getPendingDeleteDocumentCount() {
+		rwl.r.lock();
+		try {
+			return pendingDeleteDocumentCount;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	final public long getUpdatedDeleteDocumentCount() {
+		rwl.r.lock();
+		try {
+			return updatedDeleteDocumentCount;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private boolean index(List<IndexDocument> indexDocumentList, int limit)
@@ -88,11 +133,38 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			return false;
 		setStatus(CrawlStatus.INDEXATION);
 		client.updateDocuments(indexDocumentList);
-		pendingIndexDocumentCount -= i;
-		updatedIndexDocumentCount += i;
+		rwl.w.lock();
+		try {
+			pendingIndexDocumentCount -= i;
+			updatedIndexDocumentCount += i;
+		} finally {
+			rwl.w.unlock();
+		}
 		indexDocumentList.clear();
 		if (taskLog != null)
 			taskLog.setInfo(updatedIndexDocumentCount + " document(s) indexed");
+		return true;
+	}
+
+	private boolean delete(List<String> deleteDocumentList, int limit)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		int i = deleteDocumentList.size();
+		if (i == 0 || i < limit)
+			return false;
+		setStatus(CrawlStatus.DELETION);
+		client.deleteDocuments(deleteDocumentList);
+		rwl.w.lock();
+		try {
+			pendingDeleteDocumentCount -= i;
+			updatedDeleteDocumentCount += i;
+		} finally {
+			rwl.w.unlock();
+		}
+		deleteDocumentList.clear();
+		if (taskLog != null)
+			taskLog.setInfo(updatedDeleteDocumentCount + " document(s) deleted");
 		return true;
 	}
 
@@ -115,11 +187,15 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 					databaseCrawl.getIsolationLevel().value);
 			Query query = transaction.prepare(databaseCrawl.getSql());
 			ResultSet resultSet = query.getResultSet();
-			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>();
+			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(
+					0);
+			List<String> deleteKeyList = new ArrayList<String>(0);
 			IndexDocument indexDocument = null;
 			IndexDocument lastFieldContent = null;
 			String lastPrimaryKey = null;
 			String dbPrimaryKey = databaseCrawl.getPrimaryKey();
+			String uniqueKeyDeleteField = databaseCrawl
+					.getUniqueKeyDeleteField();
 			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
 				dbPrimaryKey = null;
 			boolean merge = false;
@@ -152,6 +228,15 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 					indexDocumentList.add(indexDocument);
 					pendingIndexDocumentCount++;
 				}
+				if (uniqueKeyDeleteField != null) {
+					if (delete(deleteKeyList, bf))
+						setStatus(CrawlStatus.CRAWL);
+					String uKey = resultSet.getString(uniqueKeyDeleteField);
+					if (uKey != null) {
+						deleteKeyList.add(uKey);
+						pendingDeleteDocumentCount++;
+					}
+				}
 				LanguageEnum lang = databaseCrawl.getLang();
 				IndexDocument newFieldContents = new IndexDocument(lang);
 				databaseFieldMap.mapResultSet(client.getWebCrawlMaster(),
@@ -164,7 +249,8 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				lastFieldContent = newFieldContents;
 			}
 			index(indexDocumentList, 0);
-			if (updatedIndexDocumentCount > 0) {
+			delete(deleteKeyList, 0);
+			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0) {
 				if (databaseFieldMap.isUrl()) {
 					setStatus(CrawlStatus.OPTIMIZATION);
 					client.getUrlManager().reload(true, null);

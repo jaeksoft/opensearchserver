@@ -97,7 +97,7 @@
 					<tabpanel>
 						<grid>
 							<columns sizable="false">
-								<column align="right" width="100px" />
+								<column align="right" hflex="min" />
 								<column align="left" />
 								<column align="left" width="300px" />
 							</columns>
@@ -172,6 +172,15 @@
 										value="@{dbCrawlList.currentCrawl.primaryKey}" width="50%" />
 									<label
 										value="Enter the primary key to identify unique document" />
+								</row>
+								<row>
+									<label
+										value="Unique key (for deletion): " />
+									<textbox
+										value="@{dbCrawlList.currentCrawl.uniqueKeyDeleteField}"
+										width="50%" />
+									<label
+										value="Enter the name of the column containing the unique key for documents to delete" />
 								</row>
 								<row>
 									<label value="SQL: " />

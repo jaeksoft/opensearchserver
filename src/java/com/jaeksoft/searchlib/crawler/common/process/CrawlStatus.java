@@ -52,7 +52,9 @@ public enum CrawlStatus {
 
 	COMPLETE("Complete"),
 
-	DELETE_REMOVED("Delete removed files");
+	DELETE_REMOVED("Delete removed files"),
+
+	DELETION("Deletion");
 
 	public String name;
 
