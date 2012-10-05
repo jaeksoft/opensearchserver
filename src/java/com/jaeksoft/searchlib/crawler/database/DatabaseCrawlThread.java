@@ -150,6 +150,25 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		return true;
 	}
 
+	final private String toIdList(List<String> pkList, boolean quote) {
+		StringBuffer sb = new StringBuffer();
+		boolean b = false;
+		for (String uk : pkList) {
+			if (b)
+				sb.append(',');
+			else
+				b = true;
+			if (quote)
+				sb.append('\'');
+			sb.append(uk);
+			if (quote)
+				sb.append('\'');
+		}
+		return sb.toString();
+	}
+
+	private final static String PRIMARY_KEY_VARIABLE_NAME = "$PK";
+
 	private boolean delete(Transaction transaction,
 			List<String> deleteDocumentList, int limit)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
@@ -174,10 +193,18 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		try {
 			if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY) {
 				for (String uk : deleteDocumentList) {
-					lastSql = sqlUpdate.replace("$PK", uk);
+					lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, uk);
 					transaction.update(lastSql);
 				}
 				transaction.commit();
+			} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_LIST) {
+				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
+						toIdList(deleteDocumentList, false));
+				transaction.update(lastSql);
+			} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST) {
+				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
+						toIdList(deleteDocumentList, true));
+				transaction.update(lastSql);
 			}
 		} catch (SQLException e) {
 			throw new SearchLibException("SQL Failed: " + lastSql);
