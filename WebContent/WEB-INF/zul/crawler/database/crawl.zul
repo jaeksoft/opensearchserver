@@ -191,11 +191,14 @@
 								</row>
 								<row>
 									<label value="SQL Update: " />
-									<cell>
-										<textbox rows="10"
+									<vbox width="100%">
+										<textbox rows="5"
 											value="@{dbCrawlList.currentCrawl.sqlUpdate}" width="95%" />
-										
-									</cell>
+
+										<listbox mold="select"
+											selectedItem="@{dbCrawlList.currentCrawl.sqlUpdateMode}"
+											model="@{dbCrawlList.sqlUpdateModes}" />
+									</vbox>
 									<label
 										value="Enter any SQL query which be called for each indexed item ($PK) " />
 								</row>

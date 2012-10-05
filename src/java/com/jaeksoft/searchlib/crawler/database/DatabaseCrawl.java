@@ -41,7 +41,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 		public static SqlUpdateMode find(String label) {
 			for (SqlUpdateMode v : values())
-				if (v.equals(label))
+				if (v.name().equals(label))
 					return v;
 			return NO_CALL;
 		}

@@ -40,6 +40,7 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
@@ -373,6 +374,10 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	public IsolationLevelEnum[] getIsolationLevels() {
 		return IsolationLevelEnum.values();
+	}
+
+	public SqlUpdateMode[] getSqlUpdateModes() {
+		return DatabaseCrawl.SqlUpdateMode.values();
 	}
 
 }

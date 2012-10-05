@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl.SqlUpdateMode;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -150,10 +151,10 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 	}
 
 	private boolean delete(Transaction transaction,
-			List<String> deleteDocumentList, int limit, String sqlUpdate)
+			List<String> deleteDocumentList, int limit)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SQLException {
+			ClassNotFoundException {
 		int i = deleteDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -167,12 +168,19 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			rwl.w.unlock();
 		}
 
-		if (sqlUpdate != null) {
-			for (String uk : deleteDocumentList) {
-				String sql = sqlUpdate.replace("$PK$", uk);
-				transaction.update(sql);
+		SqlUpdateMode sqlUpdateMode = databaseCrawl.getSqlUpdateMode();
+		String sqlUpdate = databaseCrawl.getSqlUpdate();
+		String lastSql = null;
+		try {
+			if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY) {
+				for (String uk : deleteDocumentList) {
+					lastSql = sqlUpdate.replace("$PK", uk);
+					transaction.update(lastSql);
+				}
+				transaction.commit();
 			}
-			transaction.commit();
+		} catch (SQLException e) {
+			throw new SearchLibException("SQL Failed: " + lastSql);
 		}
 
 		deleteDocumentList.clear();
@@ -252,7 +260,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		int bf = databaseCrawl.getBufferSize();
 
 		while (resultSet.next()) {
-			if (delete(transaction, deleteKeyList, bf, sqlUpdate))
+			if (delete(transaction, deleteKeyList, bf))
 				setStatus(CrawlStatus.CRAWL);
 			String uKey = resultSet.getString(uniqueKeyDeleteField);
 			if (uKey != null) {
@@ -260,7 +268,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				pendingDeleteDocumentCount++;
 			}
 		}
-		delete(transaction, deleteKeyList, 0, sqlUpdate);
+		delete(transaction, deleteKeyList, 0);
 	}
 
 	@Override
