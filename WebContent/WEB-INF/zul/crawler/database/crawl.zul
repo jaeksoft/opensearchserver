@@ -183,11 +183,18 @@
 										value="Enter the name of the column containing the unique key for documents to delete" />
 								</row>
 								<row>
-									<label value="SQL: " />
+									<label value="SQL Select: " />
 									<textbox rows="10"
-										value="@{dbCrawlList.currentCrawl.sql}" width="95%" />
+										value="@{dbCrawlList.currentCrawl.sqlSelect}" width="95%" />
 									<label
 										value="Enter the SQL query to retrieve data" />
+								</row>
+								<row>
+									<label value="SQL Update: " />
+									<textbox rows="10"
+										value="@{dbCrawlList.currentCrawl.sqlUpdate}" width="95%" />
+									<label
+										value="Enter any SQL query which be called for each indexed item ($PK) " />
 								</row>
 							</rows>
 						</grid>

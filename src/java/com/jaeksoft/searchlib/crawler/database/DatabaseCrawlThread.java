@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -41,7 +42,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
@@ -146,10 +149,11 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		return true;
 	}
 
-	private boolean delete(List<String> deleteDocumentList, int limit)
+	private boolean delete(Transaction transaction,
+			List<String> deleteDocumentList, int limit, String sqlUpdate)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SQLException {
 		int i = deleteDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -162,6 +166,14 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		} finally {
 			rwl.w.unlock();
 		}
+
+		if (sqlUpdate != null) {
+			for (String uk : deleteDocumentList) {
+				String sql = sqlUpdate.replace("$PK", uk);
+				transaction.update(sql);
+			}
+		}
+
 		deleteDocumentList.clear();
 		if (taskLog != null)
 			taskLog.setInfo(updatedDeleteDocumentCount + " document(s) deleted");
@@ -172,6 +184,84 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		return databaseCrawl;
 	}
 
+	final private void runner_update(ResultSet resultSet,
+			TreeSet<String> columns) throws NoSuchAlgorithmException,
+			SQLException, IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, ParseException, SyntaxError,
+			InterruptedException {
+		String dbPrimaryKey = databaseCrawl.getPrimaryKey();
+		DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
+		int bf = databaseCrawl.getBufferSize();
+
+		IndexDocument indexDocument = null;
+		IndexDocument lastFieldContent = null;
+		boolean merge = false;
+		String lastPrimaryKey = null;
+
+		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
+
+		while (resultSet.next()) {
+
+			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
+				dbPrimaryKey = null;
+
+			if (dbPrimaryKey != null) {
+				merge = false;
+				String pKey = resultSet.getString(dbPrimaryKey);
+				if (pKey != null && lastPrimaryKey != null)
+					if (pKey.equals(lastPrimaryKey))
+						merge = true;
+				lastPrimaryKey = pKey;
+			}
+			if (!merge) {
+				if (index(indexDocumentList, bf))
+					setStatus(CrawlStatus.CRAWL);
+				indexDocument = new IndexDocument(databaseCrawl.getLang());
+				indexDocumentList.add(indexDocument);
+				pendingIndexDocumentCount++;
+			}
+			LanguageEnum lang = databaseCrawl.getLang();
+			IndexDocument newFieldContents = new IndexDocument(lang);
+			databaseFieldMap.mapResultSet(client.getWebCrawlMaster(),
+					client.getParserSelector(), lang, resultSet, columns,
+					newFieldContents);
+			if (merge && lastFieldContent != null) {
+				indexDocument.addIfNotAlreadyHere(newFieldContents);
+			} else
+				indexDocument.add(newFieldContents);
+			lastFieldContent = newFieldContents;
+		}
+		index(indexDocumentList, 0);
+		if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0) {
+			if (databaseFieldMap.isUrl()) {
+				setStatus(CrawlStatus.OPTIMIZATION);
+				client.getUrlManager().reload(true, null);
+			}
+		}
+	}
+
+	final private void runner_delete(Transaction transaction,
+			ResultSet resultSet, TreeSet<String> columns, String sqlUpdate)
+			throws NoSuchAlgorithmException, SQLException, IOException,
+			URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		List<String> deleteKeyList = new ArrayList<String>(0);
+		String uniqueKeyDeleteField = databaseCrawl.getUniqueKeyDeleteField();
+		int bf = databaseCrawl.getBufferSize();
+
+		while (resultSet.next()) {
+			if (delete(transaction, deleteKeyList, bf, sqlUpdate))
+				setStatus(CrawlStatus.CRAWL);
+			String uKey = resultSet.getString(uniqueKeyDeleteField);
+			if (uKey != null) {
+				deleteKeyList.add(uKey);
+				pendingDeleteDocumentCount++;
+			}
+		}
+		delete(transaction, deleteKeyList, 0, sqlUpdate);
+	}
+
 	@Override
 	public void runner() throws Exception {
 		setStatus(CrawlStatus.STARTING);
@@ -180,28 +270,18 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 		connectionManager.setUrl(databaseCrawl.getUrl());
 		connectionManager.setUsername(databaseCrawl.getUser());
 		connectionManager.setPassword(databaseCrawl.getPassword());
+		String sqlUpdate = databaseCrawl.getSqlUpdate();
+		if (sqlUpdate != null && sqlUpdate.length() == 0)
+			sqlUpdate = null;
 
 		Transaction transaction = null;
 		try {
 			transaction = connectionManager.getNewTransaction(false,
 					databaseCrawl.getIsolationLevel().value);
-			Query query = transaction.prepare(databaseCrawl.getSql());
+			Query query = transaction.prepare(databaseCrawl.getSqlSelect());
 			ResultSet resultSet = query.getResultSet();
-			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(
-					0);
-			List<String> deleteKeyList = new ArrayList<String>(0);
-			IndexDocument indexDocument = null;
-			IndexDocument lastFieldContent = null;
-			String lastPrimaryKey = null;
-			String dbPrimaryKey = databaseCrawl.getPrimaryKey();
-			String uniqueKeyDeleteField = databaseCrawl
-					.getUniqueKeyDeleteField();
-			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
-				dbPrimaryKey = null;
-			boolean merge = false;
-			setStatus(CrawlStatus.CRAWL);
 
-			DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
+			setStatus(CrawlStatus.CRAWL);
 
 			// Store the list of columns in a treeset
 			ResultSetMetaData metaData = resultSet.getMetaData();
@@ -210,55 +290,13 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			for (int i = 1; i <= columnCount; i++)
 				columns.add(metaData.getColumnLabel(i));
 
-			int bf = databaseCrawl.getBufferSize();
+			if (databaseCrawl.getUniqueKeyDeleteField() != null)
+				runner_delete(transaction, resultSet, columns, sqlUpdate);
+			else
+				runner_update(resultSet, columns);
 
-			while (resultSet.next()) {
-				if (uniqueKeyDeleteField != null) {
-					if (delete(deleteKeyList, bf))
-						setStatus(CrawlStatus.CRAWL);
-					String uKey = resultSet.getString(uniqueKeyDeleteField);
-					if (uKey != null) {
-						deleteKeyList.add(uKey);
-						pendingDeleteDocumentCount++;
-					}
-				} else {
-					if (dbPrimaryKey != null) {
-						merge = false;
-						String pKey = resultSet.getString(dbPrimaryKey);
-						if (pKey != null && lastPrimaryKey != null)
-							if (pKey.equals(lastPrimaryKey))
-								merge = true;
-						lastPrimaryKey = pKey;
-					}
-					if (!merge) {
-						if (index(indexDocumentList, bf))
-							setStatus(CrawlStatus.CRAWL);
-						indexDocument = new IndexDocument(
-								databaseCrawl.getLang());
-						indexDocumentList.add(indexDocument);
-						pendingIndexDocumentCount++;
-					}
-					LanguageEnum lang = databaseCrawl.getLang();
-					IndexDocument newFieldContents = new IndexDocument(lang);
-					databaseFieldMap.mapResultSet(client.getWebCrawlMaster(),
-							client.getParserSelector(), lang, resultSet,
-							columns, newFieldContents);
-					if (merge && lastFieldContent != null) {
-						indexDocument.addIfNotAlreadyHere(newFieldContents);
-					} else
-						indexDocument.add(newFieldContents);
-					lastFieldContent = newFieldContents;
-				}
-			}
-			index(indexDocumentList, 0);
-			delete(deleteKeyList, 0);
-			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0) {
-				if (databaseFieldMap.isUrl()) {
-					setStatus(CrawlStatus.OPTIMIZATION);
-					client.getUrlManager().reload(true, null);
-				}
+			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
 				client.reload();
-			}
 		} finally {
 			if (transaction != null)
 				transaction.close();

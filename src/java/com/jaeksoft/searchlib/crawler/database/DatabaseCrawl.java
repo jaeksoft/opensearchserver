@@ -51,7 +51,9 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	private String password;
 
-	private String sql;
+	private String sqlSelect;
+
+	private String sqlUpdate;
 
 	private LanguageEnum lang;
 
@@ -71,7 +73,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		isolationLevel = IsolationLevelEnum.TRANSACTION_NONE;
 		user = null;
 		password = null;
-		sql = null;
+		sqlSelect = null;
+		sqlUpdate = null;
 		lang = LanguageEnum.UNDEFINED;
 		fieldMap = new DatabaseFieldMap();
 		lastCrawlThread = null;
@@ -97,7 +100,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.isolationLevel = this.isolationLevel;
 		crawl.user = this.user;
 		crawl.password = this.password;
-		crawl.sql = this.sql;
+		crawl.sqlSelect = this.sqlSelect;
+		crawl.sqlUpdate = this.sqlUpdate;
 		crawl.lang = this.lang;
 		crawl.lastCrawlThread = this.lastCrawlThread;
 		crawl.primaryKey = this.primaryKey;
@@ -168,17 +172,32 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	/**
 	 * @param sql
-	 *            the sql to set
+	 *            the sqlSelect to set
 	 */
-	public void setSql(String sql) {
-		this.sql = sql;
+	public void setSqlSelect(String sql) {
+		this.sqlSelect = sql;
 	}
 
 	/**
-	 * @return the sql
+	 * @return the sqlUpdate
 	 */
-	public String getSql() {
-		return sql;
+	public String getSqlSelect() {
+		return sqlSelect;
+	}
+
+	/**
+	 * @param sql
+	 *            the sqlSelect to set
+	 */
+	public void setSqlUpdate(String sql) {
+		this.sqlUpdate = sql;
+	}
+
+	/**
+	 * @return the sqlUpdate
+	 */
+	public String getSqlUpdate() {
+		return sqlUpdate;
 	}
 
 	/**
@@ -256,7 +275,8 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	protected final static String DBCRAWL_ATTR_BUFFER_SIZE = "bufferSize";
 	protected final static String DBCRAWL_ATTR_PRIMARY_KEY = "primaryKey";
 	protected final static String DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD = "uniqueKeyDeleteField";
-	protected final static String DBCRAWL_NODE_NAME_SQL = "sql";
+	protected final static String DBCRAWL_NODE_NAME_SQL_SELECT = "sql";
+	protected final static String DBCRAWL_NODE_NAME_SQL_UPDATE = "sqlUpdate";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
 	public static DatabaseCrawl fromXml(DatabaseCrawlMaster dcm,
@@ -279,9 +299,12 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD));
 		crawl.setBufferSize(XPathParser.getAttributeValue(item,
 				DBCRAWL_ATTR_BUFFER_SIZE));
-		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL);
+		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_SELECT);
 		if (sqlNode != null)
-			crawl.setSql(xpp.getNodeString(sqlNode, true));
+			crawl.setSqlSelect(xpp.getNodeString(sqlNode, true));
+		sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_UPDATE);
+		if (sqlNode != null)
+			crawl.setSqlUpdate(xpp.getNodeString(sqlNode, true));
 		Node mapNode = xpp.getNode(item, DBCRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
 			crawl.fieldMap.load(xpp, mapNode);
@@ -301,8 +324,13 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		fieldMap.store(xmlWriter);
 		xmlWriter.endElement();
-		xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL);
-		xmlWriter.textNode(getSql());
+		// SQL Select Node
+		xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_SELECT);
+		xmlWriter.textNode(getSqlSelect());
+		xmlWriter.endElement();
+		// SQL Update Node
+		xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_UPDATE);
+		xmlWriter.textNode(getSqlUpdate());
 		xmlWriter.endElement();
 		xmlWriter.endElement();
 	}
