@@ -162,11 +162,12 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				sb.append(',');
 			else
 				b = true;
-			if (quote)
+			if (quote) {
 				sb.append('\'');
-			sb.append(uk);
-			if (quote)
+				sb.append(uk.replace("'", "''"));
 				sb.append('\'');
+			} else
+				sb.append(uk);
 		}
 		return sb.toString();
 	}
