@@ -213,21 +213,6 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			int bf = databaseCrawl.getBufferSize();
 
 			while (resultSet.next()) {
-				if (dbPrimaryKey != null) {
-					merge = false;
-					String pKey = resultSet.getString(dbPrimaryKey);
-					if (pKey != null && lastPrimaryKey != null)
-						if (pKey.equals(lastPrimaryKey))
-							merge = true;
-					lastPrimaryKey = pKey;
-				}
-				if (!merge) {
-					if (index(indexDocumentList, bf))
-						setStatus(CrawlStatus.CRAWL);
-					indexDocument = new IndexDocument(databaseCrawl.getLang());
-					indexDocumentList.add(indexDocument);
-					pendingIndexDocumentCount++;
-				}
 				if (uniqueKeyDeleteField != null) {
 					if (delete(deleteKeyList, bf))
 						setStatus(CrawlStatus.CRAWL);
@@ -236,17 +221,34 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 						deleteKeyList.add(uKey);
 						pendingDeleteDocumentCount++;
 					}
+				} else {
+					if (dbPrimaryKey != null) {
+						merge = false;
+						String pKey = resultSet.getString(dbPrimaryKey);
+						if (pKey != null && lastPrimaryKey != null)
+							if (pKey.equals(lastPrimaryKey))
+								merge = true;
+						lastPrimaryKey = pKey;
+					}
+					if (!merge) {
+						if (index(indexDocumentList, bf))
+							setStatus(CrawlStatus.CRAWL);
+						indexDocument = new IndexDocument(
+								databaseCrawl.getLang());
+						indexDocumentList.add(indexDocument);
+						pendingIndexDocumentCount++;
+					}
+					LanguageEnum lang = databaseCrawl.getLang();
+					IndexDocument newFieldContents = new IndexDocument(lang);
+					databaseFieldMap.mapResultSet(client.getWebCrawlMaster(),
+							client.getParserSelector(), lang, resultSet,
+							columns, newFieldContents);
+					if (merge && lastFieldContent != null) {
+						indexDocument.addIfNotAlreadyHere(newFieldContents);
+					} else
+						indexDocument.add(newFieldContents);
+					lastFieldContent = newFieldContents;
 				}
-				LanguageEnum lang = databaseCrawl.getLang();
-				IndexDocument newFieldContents = new IndexDocument(lang);
-				databaseFieldMap.mapResultSet(client.getWebCrawlMaster(),
-						client.getParserSelector(), lang, resultSet, columns,
-						newFieldContents);
-				if (merge && lastFieldContent != null) {
-					indexDocument.addIfNotAlreadyHere(newFieldContents);
-				} else
-					indexDocument.add(newFieldContents);
-				lastFieldContent = newFieldContents;
 			}
 			index(indexDocumentList, 0);
 			delete(deleteKeyList, 0);
