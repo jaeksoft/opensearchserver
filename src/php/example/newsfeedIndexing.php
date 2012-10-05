@@ -2,7 +2,7 @@
 /*
  *  This file is part of OpenSearchServer.
  *
- *  Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ *  Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  *
  *  http://www.open-search-server.com
  *
@@ -28,14 +28,15 @@
  */
 header('Content-type: text/html; charset=UTF-8');
 
+// The required classes
 define('BASE_DIR', dirname(__FILE__));
 require BASE_DIR.'/../lib/oss_misc.lib.php';
 require BASE_DIR.'/../lib/oss_api.class.php';
 require BASE_DIR.'/../lib/oss_indexdocument.class.php';
 
-$ossEnginePath  = config_request_value('ossEnginePath', 'http://localhost:8080', 'engineURL');
+$ossEnginePath  = config_request_value('ossEnginePath', 'http://localhost:8080/', 'engineURL');
 $ossEngineConnectTimeOut = config_request_value('ossEngineConnectTimeOut', 5, 'engineConnectTimeOut');
-$ossEngineIndex = config_request_value('ossEngineIndex_contrib_feedIndexing', 'newsFeed', 'engineIndex');
+$ossEngineIndex = config_request_value('ossEngineIndex_contrib_feedIndexing', 'newsfeeds', 'engineIndex');
 
 $sampleFeed = array(
 	'BlogEEE [fr, RSS2.0]' => array('http://feeds.feedburner.com/blogeee/articles', 'fr'),
@@ -50,7 +51,7 @@ $errors = array();
 if (isset($_REQUEST['feed'])) {
 
 	$curlInfos = array();
-	$xml = retrieveXML($_REQUEST['feed'], $curlInfos);
+	$xml = retrieve_xml($_REQUEST['feed'], $curlInfos);
 
 	if (!$xml instanceof SimpleXMLElement) {
 		$errors[] = 'feedNotFoundOrInvalid';
@@ -59,7 +60,7 @@ if (isset($_REQUEST['feed'])) {
 		$newsFeedParser = NewsFeedParser::factory($xml);
 
 		// Create the index document with the helper
-		$index = new OSSIndexDocument();
+		$index = new OssIndexDocument();
 		// Simple isn't it ?
 		foreach ($newsFeedParser as $newsEntry) {
 			$document = $index->newDocument($_REQUEST['lang']);
@@ -78,7 +79,7 @@ if (isset($_REQUEST['feed'])) {
 		}
 
 		// Send the IndexDocument to the search server
-		$server = new OSSAPI($ossEnginePath, $ossEngineIndex);
+		$server = new OssAPi($ossEnginePath, $ossEngineIndex);
 		if ($server->update($index) === false) {
 			$errors[] = 'failedToUpdate';
 		}
@@ -198,7 +199,7 @@ if (isset($_REQUEST['feed'])) {
 						<label for="feed">URL</label>
 						<input id="feed" name="feed" value="<?php if(isset($_REQUEST['feed'])) echo $_REQUEST['feed']; ?>" />
 						<select id="lang" name="lang">
-							<?php foreach (OSS_API::supportedLanguages() as $langISO => $langLabel): ?>
+							<?php foreach (OssApi::supportedLanguages() as $langISO => $langLabel): ?>
 							<option value="<?php echo $langISO; ?>"<?php if (isset($_REQUEST['lang']) && (string)$_REQUEST['lang'] == $langISO): ?> selected="true"<?php endif; ?>><?php echo $langLabel; ?></option>
 							<?php endforeach; ?>
 						</select>

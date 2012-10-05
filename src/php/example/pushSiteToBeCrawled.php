@@ -23,11 +23,10 @@
 header('Content-type: text/html; charset=UTF-8');
 
 define('BASE_DIR', dirname(__FILE__));
-require BASE_DIR.'/../lib/oss_misc.lib.php';
 require BASE_DIR.'/../lib/oss_api.class.php';
-require BASE_DIR.'/../lib/oss_search.class.php';
 
-$oss = new OSSAPI('http://localhost:8080/oss', 'emptyWebCrawler');
+
+$oss = new OssApi('http://localhost:8080/oss', 'emptyWebCrawler');
 
 $oss->pattern(array(
 	'http://www.google.com/*',

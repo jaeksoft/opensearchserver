@@ -29,10 +29,12 @@
  */
 header('Content-type: text/html; charset=UTF-8');
 
+// The required classes
 define('BASE_DIR', dirname(__FILE__));
 require BASE_DIR.'/../lib/oss_misc.lib.php';
 require BASE_DIR.'/../lib/oss_api.class.php';
-require BASE_DIR.'/../lib/oss_search.class.php';
+require BASE_DIR.'/../lib/oss_results.class.php';
+require BASE_DIR.'/../lib/oss_paging.class.php';
 
 define('MAX_PAGE_TO_LINK', 10);
 
@@ -44,7 +46,7 @@ $ossEngineApiKey = config_request_value('ossEngineApiKey_contrib_filesearch', ''
 
 if (isset($_REQUEST['query'])) {
 
-	$search = new OSSSearch($ossEnginePath, $ossEngineIndex);
+	$search = new OssSearch($ossEnginePath, $ossEngineIndex);
 	if (!empty($ossEngineLogin) && !empty($ossEngineApiKey)) {
 		$search->credential($ossEngineLogin, $ossEngineApiKey);
 	}
