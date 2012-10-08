@@ -46,10 +46,10 @@ function getselectedautocompletediv(n) {
 }
 
 function autosuggest(event) {
-	var keynum  = null;
-	if(window.event) { // IE
+	var keynum = null;
+	if (window.event) { // IE
 		keynum = event.keyCode;
-	} else if(event.which) { // Netscape/Firefox/Opera
+	} else if (event.which) { // Netscape/Firefox/Opera
 		keynum = event.which;
 	}
 	if (keynum == 38 || keynum == 40) {
@@ -59,20 +59,20 @@ function autosuggest(event) {
 		if (keynum == 38) {
 			if (selectedAutocomplete > 0) {
 				selectedAutocomplete--;
-			}	
+			}
 		} else if (keynum == 40) {
 			if (selectedAutocomplete < autocompleteSize) {
 				selectedAutocomplete++;
 			}
 		}
 		if (selectedAutocomplete > 0) {
-			var dv= getselectedautocompletediv(selectedAutocomplete);
+			var dv = getselectedautocompletediv(selectedAutocomplete);
 			autocompleteLinkOver(selectedAutocomplete);
 			setKeywords(dv.innerHTML);
 		}
 		return false;
 	}
-	
+
 	if (xmlHttp.readyState != 4 && xmlHttp.readyState != 0)
 		return;
 	var str = escape(document.getElementById('query').value);
@@ -82,22 +82,25 @@ function autosuggest(event) {
 	}
 	var request_url = build_url(str);
 	xmlHttp.open("GET", request_url, true);
-	xmlHttp.onreadystatechange = handleAutocomplete; 
+	xmlHttp.onreadystatechange = handleAutocomplete;
 	xmlHttp.send(null);
 	return true;
 }
+
 function build_url(query) {
-	var login=getParameter("login");
-	var key=getParameter("key");
-	var build_url='autocompletion?use='+getParameter("use")+'&query=' + query;
-	if(login!=null && typeof (login) != 'undefined') {
-		 build_url +='&login='+login;
+	var login = getParameter("login");
+	var key = getParameter("key");
+	var build_url = 'autocompletion?use=' + getParameter("use") + '&query='
+			+ encodeURI(query);
+	if (login != null && typeof (login) != 'undefined') {
+		build_url += '&login=' + login;
 	}
-	if(login!=null && typeof (key) != 'undefined') {
-		 build_url +='&key='+key;
+	if (login != null && typeof (key) != 'undefined') {
+		build_url += '&key=' + key;
 	}
 	return build_url;
 }
+
 function handleAutocomplete() {
 	if (xmlHttp.readyState != 4)
 		return;
@@ -112,7 +115,7 @@ function handleAutocomplete() {
 	var str = resp.split("\n");
 	var content = '<div id="ossautocompletelist">';
 	var i = 0;
-	var end=(str.length)-1;
+	var end = (str.length) - 1;
 	for (i = 0; i < end; i++) {
 		var j = i + 1;
 		content += '<div id="autocompleteitem' + j + '" ';
@@ -124,9 +127,9 @@ function handleAutocomplete() {
 	content += '</div>';
 	ac.innerHTML = content;
 	selectedAutocomplete = 0;
-	autocompleteSize = str.length-1;
+	autocompleteSize = str.length - 1;
 }
-	
+
 function autocompleteLinkOver(n) {
 	if (selectedAutocomplete > 0) {
 		autocompleteLinkOut(selectedAutocomplete);
@@ -138,13 +141,13 @@ function autocompleteLinkOver(n) {
 
 function autocompleteLinkOut(n) {
 	var dv = getselectedautocompletediv(n);
-	if(dv!=null) {
-	dv.className = 'ossautocomplete_link';
+	if (dv != null) {
+		dv.className = 'ossautocomplete_link';
 	}
 }
 function setsetKeywords_onClick(value) {
 	var dv = document.getElementById('query');
-	if(dv !=null) {
+	if (dv != null) {
 		dv.value = value;
 		dv.focus();
 		setAutocomplete('');
@@ -152,12 +155,12 @@ function setsetKeywords_onClick(value) {
 }
 function setKeywords(value) {
 	var dv = document.getElementById('query');
-	if(dv !=null) {
-	dv.value = value;
-	dv.focus();
+	if (dv != null) {
+		dv.value = value;
+		dv.focus();
 	}
 }
-function getParameter(name){
+function getParameter(name) {
 	name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
 	var regexS = "[\\?&]" + name + "=([^&#]*)";
 	var regex = new RegExp(regexS);

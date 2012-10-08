@@ -6,7 +6,7 @@
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="java.net.URLDecoder"%>
 <% Renderer renderer = (Renderer) request.getAttribute("renderer"); %>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <style type="text/css">
 body,html {
