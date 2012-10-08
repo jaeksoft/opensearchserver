@@ -75,7 +75,7 @@ function autosuggest(event) {
 
 	if (xmlHttp.readyState != 4 && xmlHttp.readyState != 0)
 		return;
-	var str = escape(document.getElementById('query').value);
+	var str = document.getElementById('query').value;
 	if (str.length == 0) {
 		setAutocomplete('');
 		return;

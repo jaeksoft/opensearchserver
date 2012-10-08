@@ -8,7 +8,7 @@
 <% Renderer renderer = (Renderer) request.getAttribute("renderer"); %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
 <style type="text/css">
 body,html {
 	margin: 0;
@@ -36,7 +36,7 @@ body,html {
 <%=renderer.getFullCSS()%>
 </style>
 <title>OpenSearchServer</title>
-<script type="text/javascript" src="js/opensearchserver.js"></script>
+<script type="text/javascript" src="js/opensearchserver.js" charset="UTF-8"></script>
 </head>
 <body>
 	<div id="oss-wrap">
