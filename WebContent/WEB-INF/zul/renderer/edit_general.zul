@@ -50,6 +50,12 @@
 						value="@{renderer.currentRenderer.resultsFoundText}" cols="50" />
 				</row>
 				<row>
+					<label value="Facet width  " />
+					<textbox
+						value="@{renderer.currentRenderer.facetWidth}" />
+					<cell colspan="2" />
+				</row>
+				<row>
 					<label value="Header (HTML)" />
 					<textbox value="@{renderer.currentRenderer.header}"
 						cols="80" rows="5" multiline="true" />

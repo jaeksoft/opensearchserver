@@ -55,6 +55,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_NORESULTFOUNDTEXT = "noResultFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT = "oneResultFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT = "resultsFoundText";
+	private final static String RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH = "facetWidth";
 	private final static String RENDERER_ITEM_NODE_NAME_FIELD = "field";
 	private final static String RENDERER_ITEM_NODE_COMMON_STYLE = "style";
 	private final static String RENDERER_ITEM_NODE_INPUT_STYLE = "inputStyle";
@@ -109,6 +110,8 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String noResultFoundText;
 
+	private String facetWidth;
+
 	private String alink;
 
 	private String avisited;
@@ -146,6 +149,7 @@ public class Renderer implements Comparable<Renderer> {
 		oneResultFoundText = "1 result found";
 		resultsFoundText = "results found";
 		noResultFoundText = "No results found";
+		facetWidth = "200px";
 		cssCache = null;
 		fields = new ArrayList<RendererField>();
 		footer = null;
@@ -170,6 +174,11 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT));
 		setResultsFoundText(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT));
+		String p = XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH);
+		if (p == null || p.length() == 0)
+			p = "200px";
+		setFacetWidth(p);
 		setCommonStyle(xpp.getSubNodeTextIfAny(rootNode,
 				RENDERER_ITEM_NODE_COMMON_STYLE, true));
 		setInputStyle(xpp.getSubNodeTextIfAny(rootNode,
@@ -342,6 +351,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.noResultFoundText = noResultFoundText;
 				target.oneResultFoundText = oneResultFoundText;
 				target.resultsFoundText = resultsFoundText;
+				target.facetWidth = facetWidth;
 				target.aactive = aactive;
 				target.ahover = ahover;
 				target.alink = alink;
@@ -865,7 +875,8 @@ public class Renderer implements Comparable<Renderer> {
 					noResultFoundText,
 					RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT,
 					oneResultFoundText,
-					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText);
+					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText,
+					RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH, facetWidth);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_COMMON_STYLE,
 					commonStyle);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_INPUT_STYLE,
@@ -1054,6 +1065,31 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.w.lock();
 		try {
 			this.header = header;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the facetWidth
+	 */
+	public String getFacetWidth() {
+		rwl.r.lock();
+		try {
+			return facetWidth;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param facetWidth
+	 *            the facetWidth to set
+	 */
+	public void setFacetWidth(String facetWidth) {
+		rwl.w.lock();
+		try {
+			this.facetWidth = facetWidth;
 		} finally {
 			rwl.w.unlock();
 		}

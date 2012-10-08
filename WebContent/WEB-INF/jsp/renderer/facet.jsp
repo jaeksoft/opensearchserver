@@ -3,6 +3,7 @@
 <%@ page import="com.jaeksoft.searchlib.facet.FacetList"%>
 <%@ page import="com.jaeksoft.searchlib.facet.Facet"%>
 <%@ page import="com.jaeksoft.searchlib.facet.FacetItem"%>
+<%@ page import="java.net.URLEncoder"%>
 <%
 	AbstractResultSearch facetResult = (AbstractResultSearch) request
 			.getAttribute("facetResult");
@@ -16,20 +17,22 @@
 	<%
 		for (Facet facet : facetList) {
 	%>
-	<ul style="margin: 0px; padding: 0px; list-style-type: none">
+	<ul style="list-style-type: none">
 		<li style="text-transform: capitalize;"><%=facet.getFacetField().getName()%></li>
 		<%
 			for (FacetItem facetItem : facet) {
+						String filterUrl = getUrl
+								+ "&fq="
+								+ URLEncoder.encode(
+										facet.getFacetField().getName() + ":\""
+												+ facetItem.getTerm() + '"',
+										"UTF-8");
 		%>
-		<li><a
-			href="<%=getUrl%>&fq=<%=facet.getFacetField().getName()%>:<%=facetItem.getTerm()%>">
-				<%=facetItem.getTerm()%> (<%=facetItem.getCount()%>)
-		</a>
-		<li>
-			<%
-				}
-			%>
-		
+		<li><a href="<%=filterUrl%>"> <%=facetItem.getTerm()%> (<%=facetItem.getCount()%>)
+		</a></li>
+		<%
+			}
+		%>
 	</ul>
 	<%
 		}

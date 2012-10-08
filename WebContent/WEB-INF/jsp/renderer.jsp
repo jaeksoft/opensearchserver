@@ -14,16 +14,17 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
+<![CDATA[
 body,html {
 	margin: 0;
 	padding: 0;
 }
 #oss-main {
-	margin-left: 200px;
+	margin-left: <%=renderer.getFacetWidth()%>;;
 }
 #oss-facet {
 	float: left;
-	width: 200px;
+	width: <%=renderer.getFacetWidth()%>;
 }
 #oss-header {
 	width: 100%;
@@ -38,6 +39,7 @@ body,html {
 	min-width: 700px;
 }
 <%=renderer.getFullCSS()%>
+]]>
 </style>
 <script type="text/javascript" src="js/opensearchserver.js"></script>
 </head>
