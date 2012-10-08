@@ -101,7 +101,7 @@ public class RendererServlet extends AbstractServlet {
 			for (String p : hiddenParameterList) {
 				String v = transaction.getParameterString(p);
 				if (v != null) {
-					getUrl.append('&');
+					getUrl.append("&amp;");
 					getUrl.append(p);
 					getUrl.append('=');
 					getUrl.append(URLEncoder.encode(v, "UTF-8"));

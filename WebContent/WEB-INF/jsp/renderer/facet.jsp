@@ -22,7 +22,7 @@
 		<%
 			for (FacetItem facetItem : facet) {
 						String filterUrl = getUrl
-								+ "&fq="
+								+ "&amp;fq="
 								+ URLEncoder.encode(
 										facet.getFacetField().getName() + ":\""
 												+ facetItem.getTerm() + '"',

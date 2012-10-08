@@ -91,7 +91,7 @@ function build_url(query) {
 	var login = getParameter("login");
 	var key = getParameter("key");
 	var build_url = 'autocompletion?use=' + getParameter("use") + '&query='
-			+ query;
+			+ encodeURI(query);
 	if (login != null && typeof (login) != 'undefined') {
 		build_url += '&login=' + login;
 	}
