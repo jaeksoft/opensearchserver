@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/oss_search_abstract.class.php');
 
 /**
  * @package OpenSearchServer
- */
+*/
 class OssSearch extends OssSearchAbstract {
 
   protected $query;
@@ -60,7 +60,7 @@ class OssSearch extends OssSearchAbstract {
     $this->field  = array();
     $this->filter  = array();
     $this->sort    = array();
-    $this->facets  = array();
+    $this->facet  = array();
     $this->query = NULL;
     $this->lang = NULL;
     $this->operator = NULL;
@@ -151,15 +151,15 @@ class OssSearch extends OssSearchAbstract {
     $this->collapse['mode'] = $mode;
     return $this;
   }
-  
+
   /**
    * @return OssSearch
    */
   public function collapseType($type) {
-  	$this->collapse['type'] = $type;
-  	return $this;
+    $this->collapse['type'] = $type;
+    return $this;
   }
-  
+
 
   /**
    * @return OssSearch
@@ -224,19 +224,18 @@ class OssSearch extends OssSearchAbstract {
 
     // Facets
     foreach ((array)$this->facet as $field => $options) {
-    	if($options['multi']) {
-    		$facet = 'facet.multi=';
-    	}
-    	else if($options['multi_collapse']) {
-    		$facet = 'facet.multi.collapse=';
-    	}else {
-    		$facet = 'facet=';
-    	}
-    	$facet .= $field;
-    	if ($options['min'] !== NULL) {
-    		$facet .= '(' . $options['min'] . ')';
-    	}
-    	$queryChunks[] = $facet;
+      if ($options['multi']) {
+        $facet = 'facet.multi=';
+      } else if ($options['multi_collapse']) {
+        $facet = 'facet.multi.collapse=';
+      } else {
+        $facet = 'facet=';
+      }
+      $facet .= $field;
+      if ($options['min'] !== NULL) {
+        $facet .= '(' . $options['min'] . ')';
+      }
+      $queryChunks[] = $facet;
     }
 
     // Collapsing
@@ -244,7 +243,7 @@ class OssSearch extends OssSearchAbstract {
       $queryChunks[] = 'collapse.field=' . $this->collapse['field'];
     }
     if ($this->collapse['type']) {
-    	$queryChunks[] = 'collapse.type=' . $this->collapse['type'];
+      $queryChunks[] = 'collapse.type=' . $this->collapse['type'];
     }
     if ($this->collapse['mode'] !== NULL) {
       $queryChunks[] = 'collapse.mode=' . $this->collapse['mode'];

@@ -184,8 +184,10 @@ class OssResults {
   public function getSpellSuggest($fieldName) {
     $spellCheckWord = isset($fieldName)? $this->result->xpath('spellcheck/field[@name="' . $fieldName . '"]/word'):NULL;
     $queryExact = '';
-    foreach ($spellCheckWord as $each) {
-      $queryExact .= $each[0]->suggest.' ';
+    if (isset($spellCheckWord) && $spellCheckWord != null) {
+      foreach ($spellCheckWord as $each) {
+        $queryExact .= $each[0]->suggest.' ';
+      }
     }
     return $queryExact;
   }

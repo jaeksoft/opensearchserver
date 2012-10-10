@@ -139,7 +139,7 @@ abstract class OssAbstract {
     curl_setopt($rcurl, CURLOPT_HTTP_VERSION, '1.0');
     curl_setopt($rcurl, CURLOPT_BINARYTRANSFER, TRUE);
     curl_setopt($rcurl, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($rcurl, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($rcurl, CURLOPT_FOLLOWLOCATION, FALSE);
     curl_setopt($rcurl, CURLOPT_MAXREDIRS, 16);
     curl_setopt($rcurl, CURLOPT_VERBOSE, FALSE);
 
