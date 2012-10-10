@@ -163,8 +163,8 @@ class OssSearch extends OssSearchAbstract {
   /**
    * @return OssSearch
    */
-  public function facet($field, $min = NULL, $multi = FALSE) {
-    $this->facet[$field] = array('min' => $min, 'multi' => $multi);
+  public function facet($field, $min = NULL, $multi = FALSE, $multi_collapse = FALSE) {
+    $this->facet[$field] = array('min' => $min, 'multi' => $multi, 'multi_collapse' => $multi_collapse);
     return $this;
   }
 
@@ -215,12 +215,19 @@ class OssSearch extends OssSearchAbstract {
 
     // Facets
     foreach ((array)$this->facet as $field => $options) {
-      $facet  = $options['multi'] ? 'facet.multi=' : 'facet=';
-      $facet .= $field;
-      if ($options['min'] !== NULL) {
-        $facet .= '(' . $options['min'] . ')';
-      }
-      $queryChunks[] = $facet;
+    	if($options['multi']) {
+    		$facet = 'facet.multi=';
+    	}
+    	else if($options['multi_collapse']) {
+    		$facet = 'facet.multi.collapse=';
+    	}else {
+    		$facet = 'facet=';
+    	}
+    	$facet .= $field;
+    	if ($options['min'] !== NULL) {
+    		$facet .= '(' . $options['min'] . ')';
+    	}
+    	$queryChunks[] = $facet;
     }
 
     // Collapsing
