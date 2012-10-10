@@ -45,6 +45,7 @@ class OssPaging {
   protected $pageBaseURI;
   protected $rowsParameter;
   protected $pageParameter;
+  protected $paramSeparator;
   const MAX_PAGE_TO_LINK = 10;
 
   /**
@@ -52,10 +53,11 @@ class OssPaging {
    * @param $model The list of fields
    * @return OssApi
    */
-  public function __construct(SimpleXMLElement $result, $rowsParam = 'rows', $pageParam = 'p') {
+  public function __construct(SimpleXMLElement $result, $rowsParam = 'rows', $pageParam = 'p', $paramSeparator = '&amp;') {
     $this->oss_result  = $result;
     $this->rowsParameter = $rowsParam;
     $this->pageParameter = $pageParam;
+    $this->paramSeparator = $paramSeparator;
     self::compute();
 
     if (!function_exists('OssApi_Dummy_Function')) {
@@ -121,7 +123,8 @@ class OssPaging {
       if($this->resultCurrentPage + 1 < $this->resultHigh) {
         $this->resultNext = min($this->resultCurrentPage + 1, $this->resultTotal);
       }
-      $this->pageBaseURI = preg_replace('/&(?:' . $this->pageParameter . '|' . $this->rowsParameter . ')=[\d]+/', '', $_SERVER['REQUEST_URI']) . '&' . $this->rowsParameter . '=' . $this->resultRows . '&' . $this->pageParameter . '=';
+      $this->pageBaseURI = preg_replace('/&(?:' . $this->pageParameter . '|' . $this->rowsParameter . ')=[\d]+/', '', $_SERVER['REQUEST_URI'])
+      . $this->paramSeparator . $this->rowsParameter . '=' . $this->resultRows . $this->paramSeparator . $this->pageParameter . '=';
     }
   }
 

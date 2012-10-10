@@ -292,7 +292,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 	}
 
 	final private void runner_delete(Transaction transaction,
-			ResultSet resultSet, TreeSet<String> columns, String sqlUpdate)
+			ResultSet resultSet, TreeSet<String> columns)
 			throws NoSuchAlgorithmException, SQLException, IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
@@ -341,7 +341,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 				columns.add(metaData.getColumnLabel(i));
 
 			if (databaseCrawl.getUniqueKeyDeleteField() != null)
-				runner_delete(transaction, resultSet, columns, sqlUpdate);
+				runner_delete(transaction, resultSet, columns);
 			else
 				runner_update(transaction, resultSet, columns);
 
