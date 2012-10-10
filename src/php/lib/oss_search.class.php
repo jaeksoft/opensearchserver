@@ -64,7 +64,7 @@ class OssSearch extends OssSearchAbstract {
     $this->query = NULL;
     $this->lang = NULL;
     $this->operator = NULL;
-    $this->collapse  = array('field' => NULL, 'max' => NULL, 'mode' => NULL);
+    $this->collapse  = array('field' => NULL, 'max' => NULL, 'mode' => NULL, 'type' => NULL);
   }
 
   /**
@@ -151,6 +151,15 @@ class OssSearch extends OssSearchAbstract {
     $this->collapse['mode'] = $mode;
     return $this;
   }
+  
+  /**
+   * @return OssSearch
+   */
+  public function collapseType($type) {
+  	$this->collapse['type'] = $type;
+  	return $this;
+  }
+  
 
   /**
    * @return OssSearch
@@ -233,6 +242,9 @@ class OssSearch extends OssSearchAbstract {
     // Collapsing
     if ($this->collapse['field']) {
       $queryChunks[] = 'collapse.field=' . $this->collapse['field'];
+    }
+    if ($this->collapse['type']) {
+    	$queryChunks[] = 'collapse.type=' . $this->collapse['type'];
     }
     if ($this->collapse['mode'] !== NULL) {
       $queryChunks[] = 'collapse.mode=' . $this->collapse['mode'];
