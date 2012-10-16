@@ -34,7 +34,7 @@ require_once(dirname(__FILE__).'/oss_search_abstract.class.php');
  * @package OpenSearchServer
  * FIXME Complete this documentations
  * FIXME Clean this class and use facilities provided by OssApi
- */
+*/
 class OssSearchSpellCheck extends OssSearchAbstract {
 
   protected $query;
@@ -63,7 +63,7 @@ class OssSearchSpellCheck extends OssSearchAbstract {
    * @param array $queryChunks
    * @return array
    */
-  protected function addParams($queryChunks) {
+  protected function addParams($queryChunks = NULL) {
     $queryChunks = parent::addParams($queryChunks);
     $queryChunks[] = 'q=' . urlencode($this->query);
     return $queryChunks;

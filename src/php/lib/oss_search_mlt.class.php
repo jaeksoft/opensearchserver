@@ -140,7 +140,7 @@ class OssSearchMlt extends OssSearchAbstract {
    * @return OssSearchMlt
    */
   public function field($fields = NULL) {
-    if ($field != NULL) {
+    if ($fields != NULL) {
       $this->field = array_unique(array_merge($this->field, (array)$fields));
     }
     return $this;
@@ -206,7 +206,7 @@ class OssSearchMlt extends OssSearchAbstract {
    *
    * @param array $queryChunks
    */
-  protected function addParams($queryChunks) {
+  protected function addParams($queryChunks = NULL) {
 
     $queryChunks = parent::addParams($queryChunks);
 

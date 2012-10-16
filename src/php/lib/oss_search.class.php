@@ -178,7 +178,7 @@ class OssSearch extends OssSearchAbstract {
   }
 
 
-  protected function addParams($queryChunks) {
+  protected function addParams($queryChunks = NULL) {
 
     $queryChunks = parent::addParams($queryChunks);
      
