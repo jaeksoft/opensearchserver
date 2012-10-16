@@ -1,1 +1,1 @@
-set CLASSPATH=%CATALINA_HOME%\lib\jcifs-1.3.16.jar
+set CLASSPATH=%CATALINA_HOME%\lib\jcifs-1.3.17.jar
