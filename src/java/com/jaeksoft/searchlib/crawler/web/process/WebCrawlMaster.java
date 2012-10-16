@@ -150,8 +150,10 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			InterruptedException, SearchLibException, InstantiationException,
 			IllegalAccessException {
 		Config config = getConfig();
-		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 		UrlManager urlManager = config.getUrlManager();
+		setStatus(CrawlStatus.OPTIMIZATION);
+		urlManager.reload(true, null);
+		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		fetchIntervalDate = AbstractManager.getPastDate(propertyManager
 				.getFetchInterval().getValue(), propertyManager
