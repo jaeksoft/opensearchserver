@@ -36,11 +36,11 @@ public class WebCrawler extends TemplateAbstract {
 
 	public final static String[] resources = {
 
-	"config.xml", "parsers.xml",
+	"config.xml", "parsers.xml", "jobs.xml",
 
 	"requests.xml", "webcrawler-mapping.xml",
 
-	"webcrawler-urlfilter.xml",
+	"webcrawler-urlfilter.xml", "webcrawler-properties.xml",
 
 	"renderers" + '/' + "default.xml",
 

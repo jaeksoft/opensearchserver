@@ -36,7 +36,7 @@ public class FileCrawler extends TemplateAbstract {
 
 	public final static String[] resources = {
 
-	"config.xml", "parsers.xml",
+	"config.xml", "parsers.xml", "jobs.xml",
 
 	"requests.xml", "filecrawler-mapping.xml",
 
