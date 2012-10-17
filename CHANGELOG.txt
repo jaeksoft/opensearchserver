@@ -4,7 +4,8 @@ http://www.open-search-server.com
 CHANGE LOG
 
 All new features and bugs are described here:
-http://sourceforge.net/tracker/?group_id=260863
+http://sourceforge.net/p/opensearchserve/feature-request/
+http://sourceforge.net/p/opensearchserve/bug-report/
 
 OpenSearchServer 1.3
 
@@ -17,37 +18,37 @@ New features:
 - 233 Add deletion support in XML indexation
 - 232: FTP feed XML task
 - 231: Autocompletion API
-- 3558600: Dropbox indexation
-- 3553610: Group all token filter
-- 3553517: Squared Geographical Filter
-- 3553052: Json Path filter
-- 3549350: Degrees to radians converter
-- 3549257: A delete all feature
-- 3548884: A flush crawl cache scheduler task
-- 3548287: Disable Meta NoIndex on HTML parser
-- 3546276: Dailymotion and Vimeo API support
-- 3545447: Youtube API support
-- 3539147: URL and FILE database scheduler task
-- 3539146: Tag boost in HTML parser	
-- 3539144: A number format filter	
-- 3537132: JBIG2 format support for PDF text extraction
-- 3535780: Classifier feature
-- 3535777: SOAP WebService
-- 3523453: Image Parser with OCR
-- 3519206: XSL support on XML upload
+- 230: Dropbox indexation
+- 228: Group all token filter
+- 227: Squared Geographical Filter
+- 226: Json Path filter
+- 225: Degrees to radians converter
+- 224: A delete all feature
+- 223: A flush crawl cache scheduler task
+- 222: Disable Meta NoIndex on HTML parser
+- 221: Dailymotion and Vimeo API support
+- 220: Youtube API support
+- 218: URL and FILE database scheduler task
+- 217: Tag boost in HTML parser	
+- 216: A number format filter	
+- 214: JBIG2 format support for PDF text extraction
+- 210: Classifier feature
+- 209: SOAP WebService
+- 206: Image Parser with OCR
+- 204: XSL support on XML upload
 - 3510432: Support of Arabic language
-- 3512267: OCR Integration
-- 3509336: Adding regular expression capture in parser	
-- 3485668: Jsoup HTML parser
-- 3471808: Consecutive duplicate characters filter
-- 3467459: Phonetic filters
-- 3467437: A filter to extract the domain information
-- 3466448: Multiple OpenSearchServer instances on one Tomcat server
-- 3466447: Adding NumDeletedDocs in Runtime/Index
-- 3422180: Upgrade to ZK 5.0.10
-- 3417863: Upgrade Tomcat to version 6.0.35
+- 202: OCR Integration
+- 197: Adding regular expression capture in parser	
+- 187: Jsoup HTML parser
+- 179: Consecutive duplicate characters filter
+- 177: Phonetic filters
+- 176: A filter to extract the domain information
+- 175: Multiple OpenSearchServer instances on one Tomcat server
+- 174: Adding NumDeletedDocs in Runtime/Index
+- 166: Upgrade to ZK 5.0.10
+- 162: Upgrade Tomcat to version 6.0.35
 - 3421240: JSON response for OpenSearchServer
-- 3386107: OpenSearch Standards
+- 151: OpenSearch Standards
 
 OpenSearchServer 1.2.4
 
