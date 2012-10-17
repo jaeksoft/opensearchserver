@@ -91,13 +91,13 @@ public class CrawlWebController extends CrawlerController {
 		return client.getWebCrawlMaster();
 	}
 
-	public List<String> getReplicationNameList() throws SearchLibException {
+	public List<String> getSchedulerTaskList() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
 		List<String> list = new ArrayList<String>(0);
 		list.add("");
-		client.getReplicationList().populateNameList(list);
+		client.getJobList().populateNameList(list);
 		return list;
 	}
 

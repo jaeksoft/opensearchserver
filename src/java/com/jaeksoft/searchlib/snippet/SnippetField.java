@@ -63,7 +63,6 @@ public class SnippetField extends AbstractField<SnippetField> {
 	private FragmenterAbstract fragmenterTemplate;
 	private String tag;
 	private String[] tags;
-	private int maxDocChar;
 	private String separator;
 	private String unescapedSeparator;
 	private int maxSnippetSize;
@@ -71,27 +70,24 @@ public class SnippetField extends AbstractField<SnippetField> {
 	private Query query;
 	private Analyzer analyzer;
 
-	private SnippetField(String fieldName, String tag, int maxDocChar,
-			String separator, int maxSnippetSize,
-			FragmenterAbstract fragmenterTemplate) {
+	private SnippetField(String fieldName, String tag, String separator,
+			int maxSnippetSize, FragmenterAbstract fragmenterTemplate) {
 		super(fieldName);
 		this.searchTerms = null;
 		setTag(tag);
-		this.maxDocChar = maxDocChar;
 		setSeparator(separator);
 		this.maxSnippetSize = maxSnippetSize;
 		this.fragmenterTemplate = fragmenterTemplate;
 	}
 
 	public SnippetField(String fieldName) {
-		this(fieldName, "em", Integer.MAX_VALUE, "...", 200,
-				FragmenterAbstract.NOFRAGMENTER);
+		this(fieldName, "em", "...", 200, FragmenterAbstract.NOFRAGMENTER);
 	}
 
 	@Override
 	public SnippetField duplicate() {
-		return new SnippetField(name, tag, maxDocChar, separator,
-				maxSnippetSize, fragmenterTemplate);
+		return new SnippetField(name, tag, separator, maxSnippetSize,
+				fragmenterTemplate);
 	}
 
 	public String getFragmenter() {
@@ -99,8 +95,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	public void setFragmenter(String fragmenterName)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws InstantiationException, IllegalAccessException {
 		fragmenterTemplate = FragmenterAbstract.newInstance(fragmenterName);
 	}
 
@@ -123,21 +118,6 @@ public class SnippetField extends AbstractField<SnippetField> {
 			tags[1] = "</" + tag + '>';
 		} else
 			tags = null;
-	}
-
-	/**
-	 * @return the maxDocChar
-	 */
-	public int getMaxDocChar() {
-		return maxDocChar;
-	}
-
-	/**
-	 * @param maxDocChar
-	 *            the maxDocChar to set
-	 */
-	public void setMaxDocChar(int maxDocChar) {
-		this.maxDocChar = maxDocChar;
 	}
 
 	/**
@@ -178,22 +158,16 @@ public class SnippetField extends AbstractField<SnippetField> {
 	 * @param xPath
 	 * @param node
 	 * @param target
-	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
 	public static void copySnippetFields(Node node, SchemaFieldList source,
 			SnippetFieldList target) throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException {
 		String fieldName = XPathParser.getAttributeString(node, "name");
 		String tag = XPathParser.getAttributeString(node, "tag");
 		if (tag == null)
 			tag = "em";
-		int maxDocChar = XPathParser.getAttributeValue(node, "maxDocBytes");
-		if (maxDocChar == 0)
-			XPathParser.getAttributeValue(node, "maxDocChar");
-		if (maxDocChar == 0)
-			maxDocChar = Integer.MAX_VALUE;
 		int maxSnippetNumber = XPathParser.getAttributeValue(node,
 				"maxSnippetNumber");
 		if (maxSnippetNumber == 0)
@@ -210,7 +184,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 		if (separator == null)
 			separator = "...";
 		SnippetField field = new SnippetField(source.get(fieldName).getName(),
-				tag, maxDocChar, separator, maxSnippetSize, fragmenter);
+				tag, separator, maxSnippetSize, fragmenter);
 		target.put(field);
 	}
 
@@ -349,8 +323,6 @@ public class SnippetField extends AbstractField<SnippetField> {
 				// VectorOffset++ depends of EndOffset bug #patch Lucene 579 and
 				// 1458
 				fragmenter.getFragments(value, fragments, vectorOffset++);
-				if (fragments.getTotalSize() > maxDocChar)
-					break;
 			}
 		}
 		if (fragments.size() == 0)
@@ -394,9 +366,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("field", "name", name, "tag", tag, "maxDocChar",
-				Integer.toString(maxDocChar), "separator", separator,
-				"maxSnippetSize", Integer.toString(maxSnippetSize),
+		xmlWriter.startElement("field", "name", name, "tag", tag, "separator",
+				separator, "maxSnippetSize", Integer.toString(maxSnippetSize),
 				"fragmenterClass",
 				fragmenterTemplate != null ? fragmenterTemplate.getClass()
 						.getSimpleName() : null);
@@ -412,8 +383,6 @@ public class SnippetField extends AbstractField<SnippetField> {
 				.compareTo(f.fragmenterTemplate.getClass().getName())) != 0)
 			return c;
 		if ((c = tag.compareTo(f.tag)) != 0)
-			return c;
-		if ((c = maxDocChar - f.maxDocChar) != 0)
 			return c;
 		if ((c = separator.compareTo(f.separator)) != 0)
 			return c;

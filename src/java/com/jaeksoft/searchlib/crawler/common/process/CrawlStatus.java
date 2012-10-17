@@ -54,7 +54,9 @@ public enum CrawlStatus {
 
 	DELETE_REMOVED("Delete removed files"),
 
-	DELETION("Deletion");
+	DELETION("Deletion"),
+
+	EXECUTE_SCHEDULER_JOB("Execute scheduler job");
 
 	public String name;
 

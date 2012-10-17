@@ -56,23 +56,8 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT = "oneResultFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT = "resultsFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH = "facetWidth";
+	private final static String RENDERER_ITEM_NODE_CSS = "css";
 	private final static String RENDERER_ITEM_NODE_NAME_FIELD = "field";
-	private final static String RENDERER_ITEM_NODE_COMMON_STYLE = "style";
-	private final static String RENDERER_ITEM_NODE_INPUT_STYLE = "inputStyle";
-	private final static String RENDERER_ITEM_NODE_BUTTON_STYLE = "buttonStyle";
-	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE = "autocompleteStyle";
-	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE = "autocompleteListStyle";
-	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE = "autocompleteLinkStyle";
-	private final static String RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE = "autocompleteLinkHoverStyle";
-	private final static String RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE = "documentFoundStyle";
-	private final static String RENDERER_ITEM_NODE_PAGING_STYLE = "ossPagingStyle";
-	private final static String RENDERER_ITEM_NODE_CURRENTPAGE_STYLE = "ossCurrentPageStyle";
-	private final static String RENDERER_ITEM_NODE_ALINK = "alink";
-	private final static String RENDERER_ITEM_NODE_AVISITED = "avisited";
-	private final static String RENDERER_ITEM_NODE_AACTIVE = "aactive";
-	private final static String RENDERER_ITEM_NODE_AHOVER = "ahover";
-	private final static String RENDERER_ITEM_NODE_FACET_STYLE = "facetStyle";
-	private final static String RENDERER_ITEM_NODE_RESULT_STYLE = "resultStyle";
 	private final static String RENDERER_ITEM_NODE_HEADER = "header";
 	private final static String RENDERER_ITEM_NODE_FOOTER = "footer";
 
@@ -81,26 +66,6 @@ public class Renderer implements Comparable<Renderer> {
 	private String name;
 
 	private String requestName;
-
-	private String commonStyle;
-
-	private String inputStyle;
-
-	private String buttonStyle;
-
-	private String documentFoundStyle;
-
-	private String pagingStyle;
-
-	private String currentPageStyle;
-
-	private String autocompleteStyle;
-
-	private String autocompleteListStyle;
-
-	private String autocompleteLinkStyle;
-
-	private String autocompleteLinkHoverStyle;
 
 	private String searchButtonLabel;
 
@@ -112,48 +77,26 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String facetWidth;
 
-	private String alink;
-
-	private String avisited;
-
-	private String aactive;
-
-	private String ahover;
-
-	private String facetStyle;
-
-	private String resultStyle;
-
 	private List<RendererField> fields;
-
-	private volatile String cssCache;
 
 	private String footer;
 
 	private String header;
 
+	private String css;
+
 	public Renderer() {
 		name = null;
 		requestName = null;
-		commonStyle = null;
-		inputStyle = null;
-		buttonStyle = null;
-		documentFoundStyle = null;
-		currentPageStyle = null;
-		pagingStyle = null;
-		autocompleteStyle = null;
-		autocompleteListStyle = null;
-		autocompleteLinkStyle = null;
-		autocompleteLinkHoverStyle = null;
 		searchButtonLabel = "Search";
 		oneResultFoundText = "1 result found";
 		resultsFoundText = "results found";
 		noResultFoundText = "No results found";
 		facetWidth = "200px";
-		cssCache = null;
 		fields = new ArrayList<RendererField>();
 		footer = null;
 		header = null;
+		css = null;
 	}
 
 	public Renderer(XPathParser xpp) throws ParserConfigurationException,
@@ -179,48 +122,17 @@ public class Renderer implements Comparable<Renderer> {
 		if (p == null || p.length() == 0)
 			p = "200px";
 		setFacetWidth(p);
-		setCommonStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_COMMON_STYLE, true));
-		setInputStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_INPUT_STYLE, true));
-		setButtonStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_BUTTON_STYLE, true));
-		setDocumentFoundStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE, true));
-		setCurrentPageStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_CURRENTPAGE_STYLE, true));
-		setPagingStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_PAGING_STYLE, true));
-		setDocumentFoundStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE, true));
-		setAutocompleteStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, true));
-		setAutocompleteListStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE, true));
-		setAutocompleteLinkStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE, true));
-		setAutocompleteLinkHoverStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE, true));
-		setAactive(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AACTIVE, true));
-		setAhover(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AHOVER,
-				true));
-		setAlink(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_ALINK,
-				true));
-		setAvisited(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AVISITED, true));
-		setFacetStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_FACET_STYLE, true));
-		setResultStyle(xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_RESULT_STYLE, true));
 		setHeader(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_HEADER,
 				true));
 		setFooter(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_FOOTER,
 				true));
+		setCss(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_CSS, true));
 		NodeList nodeList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeList.getLength(); i++)
 			addField(new RendererField(xpp, nodeList.item(i)));
+		if (css == null || css.length() == 0)
+			css = getOldCss(xpp, rootNode);
 	}
 
 	public Renderer(Renderer source) {
@@ -234,28 +146,7 @@ public class Renderer implements Comparable<Renderer> {
 						"/com/jaeksoft/searchlib/template/common/renderers/default.xml");
 		try {
 			Renderer r = new Renderer(new XPathParser(is));
-			rwl.w.lock();
-			try {
-				commonStyle = r.commonStyle;
-				inputStyle = r.inputStyle;
-				buttonStyle = r.buttonStyle;
-				documentFoundStyle = r.documentFoundStyle;
-				currentPageStyle = r.currentPageStyle;
-				pagingStyle = r.pagingStyle;
-				autocompleteStyle = r.autocompleteStyle;
-				autocompleteListStyle = r.autocompleteListStyle;
-				autocompleteLinkStyle = r.autocompleteLinkStyle;
-				autocompleteLinkHoverStyle = r.autocompleteLinkHoverStyle;
-				aactive = r.aactive;
-				ahover = r.ahover;
-				alink = r.alink;
-				avisited = r.avisited;
-				facetStyle = r.facetStyle;
-				resultStyle = r.resultStyle;
-				this.cssCache = null;
-			} finally {
-				rwl.w.unlock();
-			}
+			setCss(r.css);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -270,27 +161,92 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	private void writeCss(PrintWriter pw, String name, String content) {
+		if (content == null || content.length() == 0)
+			return;
 		pw.print(name);
 		pw.print(" { ");
-		if (content != null)
-			pw.println(content);
+		pw.println(content);
 		pw.println(" }");
 	}
 
-	public String getFullCSS() {
-		rwl.r.lock();
-		try {
-			if (cssCache != null)
-				return cssCache;
-		} finally {
-			rwl.r.unlock();
-		}
+	/**
+	 * Return the old CSS stylesheet
+	 * 
+	 * @return
+	 * @throws XPathExpressionException
+	 */
+	private String getOldCss(XPathParser xpp, Node rootNode)
+			throws XPathExpressionException {
+
+		final String RENDERER_ITEM_NODE_COMMON_STYLE = "style";
+		final String RENDERER_ITEM_NODE_INPUT_STYLE = "inputStyle";
+		final String RENDERER_ITEM_NODE_BUTTON_STYLE = "buttonStyle";
+		final String RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE = "autocompleteStyle";
+		final String RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE = "autocompleteListStyle";
+		final String RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE = "autocompleteLinkStyle";
+		final String RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE = "autocompleteLinkHoverStyle";
+		final String RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE = "documentFoundStyle";
+		final String RENDERER_ITEM_NODE_PAGING_STYLE = "ossPagingStyle";
+		final String RENDERER_ITEM_NODE_CURRENTPAGE_STYLE = "ossCurrentPageStyle";
+		final String RENDERER_ITEM_NODE_ALINK = "alink";
+		final String RENDERER_ITEM_NODE_AVISITED = "avisited";
+		final String RENDERER_ITEM_NODE_AACTIVE = "aactive";
+		final String RENDERER_ITEM_NODE_AHOVER = "ahover";
+		final String RENDERER_ITEM_NODE_FACET_STYLE = "facetStyle";
+		final String RENDERER_ITEM_NODE_RESULT_STYLE = "resultStyle";
+
+		String commonStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_COMMON_STYLE, true);
+
+		String inputStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_INPUT_STYLE, true);
+
+		String buttonStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_BUTTON_STYLE, true);
+
+		String documentFoundStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE, true);
+
+		String pagingStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_PAGING_STYLE, true);
+
+		String currentPageStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_CURRENTPAGE_STYLE, true);
+
+		String autocompleteStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, true);
+
+		String autocompleteListStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE, true);
+
+		String autocompleteLinkStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE, true);
+
+		String autocompleteLinkHoverStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE, true);
+
+		String aactive = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AACTIVE, true);
+
+		String ahover = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AHOVER, true);
+
+		String alink = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_ALINK, true);
+
+		String avisited = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AVISITED, true);
+
+		String facetStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_FACET_STYLE, true);
+
+		String resultStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_RESULT_STYLE, true);
+
 		rwl.w.lock();
 		try {
 			StringWriter sw = null;
 			PrintWriter pw = null;
-			if (cssCache != null)
-				return cssCache;
 			try {
 				sw = new StringWriter();
 				pw = new PrintWriter(sw);
@@ -315,10 +271,10 @@ public class Renderer implements Comparable<Renderer> {
 				int i = 0;
 				for (RendererField rendererField : fields) {
 					i++;
-					writeCss(pw, ".ossfieldrdr" + i, rendererField.getStyle());
+					writeCss(pw, ".ossfieldrdr" + i,
+							rendererField.getOldStyle());
 				}
-				cssCache = sw.toString();
-				return cssCache;
+				return sw.toString();
 			} finally {
 				if (pw != null)
 					IOUtils.closeQuietly(pw);
@@ -337,31 +293,15 @@ public class Renderer implements Comparable<Renderer> {
 			try {
 				target.name = name;
 				target.requestName = requestName;
-				target.commonStyle = commonStyle;
-				target.inputStyle = inputStyle;
-				target.buttonStyle = buttonStyle;
-				target.documentFoundStyle = documentFoundStyle;
-				target.currentPageStyle = currentPageStyle;
-				target.pagingStyle = pagingStyle;
-				target.autocompleteStyle = autocompleteStyle;
-				target.autocompleteListStyle = autocompleteListStyle;
-				target.autocompleteLinkStyle = autocompleteLinkStyle;
-				target.autocompleteLinkHoverStyle = autocompleteLinkHoverStyle;
 				target.searchButtonLabel = searchButtonLabel;
 				target.noResultFoundText = noResultFoundText;
 				target.oneResultFoundText = oneResultFoundText;
 				target.resultsFoundText = resultsFoundText;
 				target.facetWidth = facetWidth;
-				target.aactive = aactive;
-				target.ahover = ahover;
-				target.alink = alink;
-				target.avisited = avisited;
-				target.facetStyle = facetStyle;
-				target.resultStyle = resultStyle;
 				target.fields.clear();
 				target.header = header;
 				target.footer = footer;
-				target.cssCache = null;
+				target.css = css;
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
 			} finally {
@@ -376,7 +316,6 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.w.lock();
 		try {
 			fields.add(field);
-			this.cssCache = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -386,7 +325,6 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.w.lock();
 		try {
 			fields.remove(field);
-			this.cssCache = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -406,7 +344,6 @@ public class Renderer implements Comparable<Renderer> {
 				return;
 			fields.remove(i);
 			fields.add(i - 1, field);
-			this.cssCache = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -425,7 +362,6 @@ public class Renderer implements Comparable<Renderer> {
 				return;
 			fields.remove(i);
 			fields.add(i + 1, field);
-			this.cssCache = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -448,279 +384,6 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.w.lock();
 		try {
 			this.name = name;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @param commonStyle
-	 *            the commonStyle to set
-	 */
-	public void setCommonStyle(String commonStyle) {
-		rwl.w.lock();
-		try {
-			this.commonStyle = commonStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the commonStyle
-	 */
-	public String getCommonStyle() {
-		rwl.r.lock();
-		try {
-			return commonStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @return the buttonStyle
-	 */
-	public String getButtonStyle() {
-		rwl.r.lock();
-		try {
-			return buttonStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public final String getAlink() {
-		rwl.r.lock();
-		try {
-			return alink;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public final void setAlink(String alink) {
-		rwl.w.lock();
-		try {
-			this.alink = alink;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public final String getAvisited() {
-		rwl.r.lock();
-		try {
-			return avisited;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public final void setAvisited(String avisited) {
-		rwl.w.lock();
-		try {
-			this.avisited = avisited;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public final String getAactive() {
-		rwl.r.lock();
-		try {
-			return aactive;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public final void setAactive(String aactive) {
-		rwl.w.lock();
-		try {
-			this.aactive = aactive;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public final String getAhover() {
-		rwl.r.lock();
-		try {
-			return ahover;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public final void setAhover(String ahover) {
-		rwl.w.lock();
-		try {
-			this.ahover = ahover;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @param buttonStyle
-	 *            the buttonStyle to set
-	 */
-	public void setButtonStyle(String buttonStyle) {
-		rwl.w.lock();
-		try {
-			this.buttonStyle = buttonStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public String getDocumentFoundStyle() {
-		rwl.r.lock();
-		try {
-			return documentFoundStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setDocumentFoundStyle(String documentFoundStyle) {
-		rwl.w.lock();
-		try {
-			this.documentFoundStyle = documentFoundStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public String getPagingStyle() {
-		rwl.r.lock();
-		try {
-			return pagingStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setPagingStyle(String pagingStyle) {
-		rwl.w.lock();
-		try {
-			this.pagingStyle = pagingStyle;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public String getCurrentPageStyle() {
-		rwl.r.lock();
-		try {
-			return currentPageStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setCurrentPageStyle(String currentPageStyle) {
-		rwl.w.lock();
-		try {
-			this.currentPageStyle = currentPageStyle;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the autocompleteStyle
-	 */
-	public String getAutocompleteStyle() {
-		rwl.r.lock();
-		try {
-			return autocompleteStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param autocompleteStyle
-	 *            the autocompleteStyle to set
-	 */
-	public void setAutocompleteStyle(String autocompleteStyle) {
-		rwl.w.lock();
-		try {
-			this.autocompleteStyle = autocompleteStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the autocompleteListStyle
-	 */
-	public String getAutocompleteListStyle() {
-		rwl.r.lock();
-		try {
-			return autocompleteListStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param autocompleteListStyle
-	 *            the autocompleteListStyle to set
-	 */
-	public void setAutocompleteListStyle(String autocompleteListStyle) {
-		rwl.w.lock();
-		try {
-			this.autocompleteListStyle = autocompleteListStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public String getAutocompleteLinkStyle() {
-		rwl.r.lock();
-		try {
-			return autocompleteLinkStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setAutocompleteLinkStyle(String autocompleteLinkStyle) {
-		rwl.w.lock();
-		try {
-			this.autocompleteLinkStyle = autocompleteLinkStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public String getAutocompleteLinkHoverStyle() {
-		rwl.r.lock();
-		try {
-			return autocompleteLinkHoverStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setAutocompleteLinkHoverStyle(String autocompleteLinkHoverStyle) {
-		rwl.w.lock();
-		try {
-			this.autocompleteLinkHoverStyle = autocompleteLinkHoverStyle;
-			this.cssCache = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -764,32 +427,6 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param inputStyle
-	 *            the inputStyle to set
-	 */
-	public void setInputStyle(String inputStyle) {
-		rwl.w.lock();
-		try {
-			this.inputStyle = inputStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the inputStyle
-	 */
-	public String getInputStyle() {
-		rwl.r.lock();
-		try {
-			return inputStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
 	 * @param searchButtonLabel
 	 *            the searchButtonLabel to set
 	 */
@@ -797,7 +434,6 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.w.lock();
 		try {
 			this.searchButtonLabel = searchButtonLabel;
-			this.cssCache = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -812,44 +448,6 @@ public class Renderer implements Comparable<Renderer> {
 			return searchButtonLabel;
 		} finally {
 			rwl.r.unlock();
-		}
-	}
-
-	public String getFacetStyle() {
-		rwl.r.lock();
-		try {
-			return facetStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public String getResultStyle() {
-		rwl.r.lock();
-		try {
-			return resultStyle;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setResultStyle(String resultStyle) {
-		rwl.w.lock();
-		try {
-			this.resultStyle = resultStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public void setFacetStyle(String facetStyle) {
-		rwl.w.lock();
-		try {
-			this.facetStyle = facetStyle;
-			this.cssCache = null;
-		} finally {
-			rwl.w.unlock();
 		}
 	}
 
@@ -877,39 +475,13 @@ public class Renderer implements Comparable<Renderer> {
 					oneResultFoundText,
 					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText,
 					RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH, facetWidth);
-			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_COMMON_STYLE,
-					commonStyle);
-			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_INPUT_STYLE,
-					inputStyle);
-			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_BUTTON_STYLE,
-					buttonStyle);
-			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE, documentFoundStyle);
-			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_CURRENTPAGE_STYLE, currentPageStyle);
-			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_PAGING_STYLE,
-					pagingStyle);
-			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, autocompleteStyle);
-			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE,
-					autocompleteListStyle);
-			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE,
-					autocompleteLinkStyle);
-			xmlWriter.writeSubTextNodeIfAny(
-					RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE,
-					autocompleteLinkHoverStyle);
-			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FACET_STYLE,
-					facetStyle);
-			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_RESULT_STYLE,
-					resultStyle);
+
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
+			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_CSS, css);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
 			xmlWriter.endElement();
-			this.cssCache = null;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -1090,6 +662,31 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.w.lock();
 		try {
 			this.facetWidth = facetWidth;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the css
+	 */
+	public String getCss() {
+		rwl.r.lock();
+		try {
+			return css;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param css
+	 *            the css to set
+	 */
+	public void setCss(String css) {
+		rwl.w.lock();
+		try {
+			this.css = css;
 		} finally {
 			rwl.w.unlock();
 		}

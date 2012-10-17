@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -98,20 +98,6 @@ public class SnippetFieldRenderer implements RowRenderer {
 		}
 	}
 
-	public class DocCharListener extends FragmenterListener {
-
-		protected DocCharListener(SnippetField snippetField) {
-			super(snippetField);
-		}
-
-		@Override
-		public void onEvent(Event event) throws Exception {
-			Intbox intbox = (Intbox) event.getTarget();
-			if (intbox != null)
-				snippetField.setMaxDocChar(intbox.getValue());
-		}
-	}
-
 	@Override
 	public void render(Row row, Object data) throws Exception {
 		SnippetField field = (SnippetField) data;
@@ -121,8 +107,7 @@ public class SnippetFieldRenderer implements RowRenderer {
 		Listbox listbox = new Listbox();
 		listbox.setMold("select");
 		int selectedIndex = -1;
-		String[] fragmenters = { "NoFragmenter", "SentenceFragmenter",
-				"SizeFragmenter" };
+		String[] fragmenters = { "NoFragmenter", "SentenceFragmenter" };
 		int i = 0;
 		for (String fragmenter : fragmenters) {
 			listbox.appendItem(fragmenter, fragmenter);
@@ -149,12 +134,6 @@ public class SnippetFieldRenderer implements RowRenderer {
 		intbox.setConstraint("no empty, no negative");
 		intbox.setCols(5);
 		intbox.addEventListener("onChange", new SnippetSizeListener(field));
-		intbox.setParent(row);
-
-		intbox = new Intbox(field.getMaxDocChar());
-		intbox.setConstraint("no empty, no negative");
-		intbox.setCols(10);
-		intbox.addEventListener("onChange", new DocCharListener(field));
 		intbox.setParent(row);
 
 		Button button = new Button("Remove");

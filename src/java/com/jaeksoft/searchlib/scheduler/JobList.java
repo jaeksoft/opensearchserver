@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.scheduler;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -128,6 +129,21 @@ public class JobList {
 			return jobsCache;
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * Create a list of job name
+	 * 
+	 * @param list
+	 */
+	public void populateNameList(List<String> list) {
+		rwl.r.lock();
+		try {
+			for (JobItem job : jobs.values())
+				list.add(job.getName());
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

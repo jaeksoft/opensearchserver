@@ -43,8 +43,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	private PropertyItem<Integer> maxUrlPerHost;
 	private PropertyItem<Integer> maxUrlPerSession;
 	private PropertyItem<String> userAgent;
-	private PropertyItem<Boolean> replicationAfterSession;
-	private PropertyItem<String> replicationTarget;
+	private PropertyItem<String> schedulerAfterSession;
 	private PropertyItem<Boolean> exclusionEnabled;
 	private PropertyItem<Boolean> inclusionEnabled;
 	private PropertyItem<Boolean> robotsTxtEnabled;
@@ -70,9 +69,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000, 1,
 				null);
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
-		replicationAfterSession = newBooleanProperty("replicationAfterSession",
-				false);
-		replicationTarget = newStringProperty("replicationTarget", "");
+		schedulerAfterSession = newStringProperty("schedulerAfterSession", "");
 		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
@@ -130,12 +127,8 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		return fetchIntervalUnit;
 	}
 
-	public PropertyItem<Boolean> getReplicationAfterSession() {
-		return replicationAfterSession;
-	}
-
-	public PropertyItem<String> getReplicationTarget() {
-		return replicationTarget;
+	public PropertyItem<String> getSchedulerAfterSession() {
+		return schedulerAfterSession;
 	}
 
 	public PropertyItem<Boolean> getInclusionEnabled() {

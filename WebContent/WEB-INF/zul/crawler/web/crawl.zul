@@ -36,7 +36,6 @@
 				<intbox constraint="no empty, no negative"
 					readonly="@{crawlProcess.refresh}"
 					value="@{crawlProcess.properties.maxUrlPerSession.value}" />
-
 			</row>
 			<row>
 				<label value="Fetch interval between re-fetches: " />
@@ -54,7 +53,6 @@
 				<intbox constraint="no empty, no negative"
 					readonly="@{crawlProcess.refresh}"
 					value="@{crawlProcess.properties.maxUrlPerHost.value}" />
-
 			</row>
 			<row>
 				<label value="Number of simultaneous threads: " />
@@ -66,7 +64,17 @@
 				<intbox constraint="no empty, no negative"
 					readonly="@{crawlProcess.refresh}"
 					value="@{crawlProcess.properties.delayBetweenAccesses.value}" />
-
+			</row>
+			<row>
+				<label value="Job run when each session ends: " />
+				<hbox>
+					<label visible="@{crawlProcess.refresh}"
+						value="@{crawlProcess.properties.schedulerAfterSession.value}" />
+					<listbox visible="@{crawlProcess.notRefresh}"
+						model="@{crawlProcess.schedulerTaskList}" mold="select"
+						selectedItem="@{crawlProcess.properties.schedulerAfterSession.value}" />
+				</hbox>
+				<cell colspan="2" />
 			</row>
 		</rows>
 	</grid>

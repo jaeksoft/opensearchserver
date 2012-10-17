@@ -18,7 +18,6 @@
 	selectedItem="@{renderer.selectedRendererField}">
 	<listhead>
 		<listheader label="Field / Snippet" />
-		<listheader label="CSS Style" />
 		<listheader label="URL Field" />
 		<listheader label="Action" align="center" width="150px" />
 	</listhead>
@@ -30,10 +29,6 @@
 			<listbox model="@{renderer.fieldOrSnippetList}"
 				selectedItem="@{renderer.currentRendererField.fieldName}"
 				mold="select" />
-		</auxheader>
-		<auxheader>
-			<textbox value="@{renderer.currentRendererField.style}"
-				width="95%" multiline="true" rows="3" />
 		</auxheader>
 		<auxheader>
 			<listbox model="@{renderer.fieldList}"
@@ -60,7 +55,6 @@
 			<label value=": " />
 			<label value="@{rendererFieldItem.fieldName}" />
 		</listcell>
-		<listcell label="@{rendererFieldItem.style}" />
 		<listcell label="@{rendererFieldItem.urlFieldName}" />
 		<listcell>
 			<button tooltiptext="Move the field up"

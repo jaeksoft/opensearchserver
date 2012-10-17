@@ -33,6 +33,8 @@ import java.util.TreeSet;
 
 import org.w3c.dom.NamedNodeMap;
 
+import com.jaeksoft.searchlib.Logging;
+
 public abstract class FragmenterAbstract implements Externalizable {
 
 	/**
@@ -88,13 +90,18 @@ public abstract class FragmenterAbstract implements Externalizable {
 	final protected static NoFragmenter NOFRAGMENTER = new NoFragmenter();
 
 	final static protected FragmenterAbstract newInstance(String className)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws InstantiationException, IllegalAccessException {
 		if (className == null || className.length() == 0)
 			return NOFRAGMENTER;
-		FragmenterAbstract fragmenter = (FragmenterAbstract) Class.forName(
-				"com.jaeksoft.searchlib.snippet." + className).newInstance();
-		return fragmenter;
+		try {
+			FragmenterAbstract fragmenter = (FragmenterAbstract) Class.forName(
+					"com.jaeksoft.searchlib.snippet." + className)
+					.newInstance();
+			return fragmenter;
+		} catch (ClassNotFoundException e) {
+			Logging.warn(e);
+			return NOFRAGMENTER;
+		}
 	}
 
 	protected abstract void check(String originalText);

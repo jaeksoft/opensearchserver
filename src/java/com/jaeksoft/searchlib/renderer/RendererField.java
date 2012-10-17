@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,7 +40,10 @@ public class RendererField {
 
 	private RendererFieldType fieldType;
 
-	private String style;
+	/**
+	 * @deprecated
+	 */
+	private String oldStyle;
 
 	private String urlFieldName;
 
@@ -55,7 +58,7 @@ public class RendererField {
 	public RendererField() {
 		fieldName = "";
 		fieldType = RendererFieldType.FIELD;
-		style = "";
+		oldStyle = "";
 		urlFieldName = "";
 	}
 
@@ -65,7 +68,7 @@ public class RendererField {
 				RENDERER_FIELD_ATTR_FIELDNAME);
 		setFieldType(RendererFieldType.find(XPathParser.getAttributeString(
 				node, RENDERER_FIELD_ATTR_FIELD_TYPE)));
-		style = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE,
+		oldStyle = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE,
 				true);
 		urlFieldName = XPathParser.getAttributeString(node,
 				RENDERER_FIELD_ATTR_URL_FIELDNAME);
@@ -78,7 +81,7 @@ public class RendererField {
 	public void copyTo(RendererField target) {
 		target.fieldName = fieldName;
 		target.fieldType = fieldType;
-		target.style = style;
+		target.oldStyle = oldStyle;
 		target.urlFieldName = urlFieldName;
 	}
 
@@ -101,17 +104,8 @@ public class RendererField {
 	 * @return the style
 	 */
 
-	public String getStyle() {
-		return style;
-	}
-
-	/**
-	 * @param style
-	 *            the style to set
-	 */
-
-	public void setStyle(String style) {
-		this.style = style;
+	public String getOldStyle() {
+		return oldStyle;
 	}
 
 	/**
@@ -163,7 +157,6 @@ public class RendererField {
 		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME,
 				fieldName, RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
 				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName);
-		xmlWriter.writeSubTextNodeIfAny(RENDERER_FIELD_NODE_CSS_STYLE, style);
 		xmlWriter.endElement();
 	}
 }

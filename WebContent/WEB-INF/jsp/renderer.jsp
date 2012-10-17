@@ -33,7 +33,7 @@ body,html {
 	margin:0 auto;
 	min-width: 700px;
 }
-<%=renderer.getFullCSS()%>
+<%=renderer.getCss()%>
 </style>
 <title>OpenSearchServer</title>
 <script type="text/javascript" src="js/opensearchserver.js" charset="UTF-8"></script>

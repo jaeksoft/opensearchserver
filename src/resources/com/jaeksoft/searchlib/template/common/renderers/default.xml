@@ -20,52 +20,45 @@
 <renderer name="default" request="search" searchButtonLabel="Search"
 	noResultFoundText="No result found" oneResultFoundText="1 result found"
 	resultsFoundText="results found">
-	<style>
-<![CDATA[
-font-family: arial,sans-serif;
+<css>.osscmnrdr { font-family: arial,sans-serif;
 font-size: 14px;
-]]></style>
-	<inputStyle>font-size:inherit;</inputStyle>
-	<buttonStyle>font-size:inherit;</buttonStyle>
-	<documentFoundStyle>
-<![CDATA[
-padding-bottom:10px;
-padding-top:10px;
-]]></documentFoundStyle>
-	<ossPagingStyle>text-align: center;</ossPagingStyle>
-	<autocompleteStyle>
-<![CDATA[
-margin: 0;
+ }
+.ossinputrdr { font-size:inherit;
+ }
+.ossbuttonrdr { font-size:inherit;
+ }
+#ossautocomplete { margin: 0;
 cursor: pointer;
 padding-left:3px;
 padding-right:3px;
-]]></autocompleteStyle>
-	<autocompleteListStyle>
-<![CDATA[
-background-color: #FFFFFF;
+ }
+#ossautocompletelist { background-color: #FFFFFF;
 text-align: left;
 border-left: 1px solid #D3D3D3;
 border-bottom: 1px solid #D3D3D3;
 border-right: 1px solid #D3D3D3;
-]]></autocompleteListStyle>
-	<autocompleteLinkStyle>
-<![CDATA[
-color:#222222;
+ }
+.ossautocomplete_link { color:#222222;
 background-color: #FFFFFF;
 padding: 2px 6px 2px 6px;
-]]></autocompleteLinkStyle>
-	<autocompleteLinkHoverStyle>
-<![CDATA[
-color:#222222;
+ }
+.ossautocomplete_link_over { color:#222222;
 background-color: #F5F5F5;
 padding: 2px 6px 2px 6px;
-]]></autocompleteLinkHoverStyle>
-	<facetStyle>padding: 1em;</facetStyle>
-	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url">
-		<cssStyle>font-size:120%;</cssStyle>
-	</field>
+ }
+.ossnumfound { padding-bottom:10px;
+padding-top:10px;
+ }
+.oss-paging { text-align: center;
+ }
+.oss-facet { padding: 1em;
+ }
+.ossfieldrdr1 { font-size:120%;
+ }
+.ossfieldrdr3 { color: #0E774A;
+ }
+</css>
+	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url"/>
 	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" />
-	<field fieldName="url" fieldType="FIELD" urlFieldName="">
-		<cssStyle>color: #0E774A;</cssStyle>
-	</field>
+	<field fieldName="url" fieldType="FIELD" urlFieldName=""/>
 </renderer>
