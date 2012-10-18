@@ -57,6 +57,8 @@ public class SearchTemplateTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt.name",
 				"morelikethis"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt.query", "*:*"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.like",
+				"opensearchserver"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt.minwordlen",
 				"0"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt.maxwordlen",
@@ -69,7 +71,9 @@ public class SearchTemplateTestCase extends TestCase {
 				"25"));
 		namedValuePairs.add(commomTestCase.getNameValuePair(
 				"qt.maxnumtokensparsed", "5000"));
-
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.lang", "en"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt.analyzer",
+				"StandardAnalyzer"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt.rows", "10"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt.start", "0"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt.fields",

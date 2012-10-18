@@ -60,7 +60,7 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@numFound");
-		assertEquals("174", response);
+		assertEquals("175", response);
 	}
 
 	public void checkFacetField() throws IllegalStateException, IOException,
@@ -76,7 +76,7 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/faceting/field[@name='lang']/facet[@name='en']");
-		assertEquals("137", response);
+		assertEquals("138", response);
 	}
 
 	public void getFilterSearch() throws IllegalStateException, IOException,
@@ -90,7 +90,49 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@numFound");
-		assertEquals("137", response);
+		assertEquals("138", response);
+	}
+
+	public void getReturnField() throws IllegalStateException, IOException,
+			XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
+		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("rf", "lang"));
+		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
+				CommomTestCase.SEARCH_API, true);
+		String response = commomTestCase.getHttpResponse(httpPost,
+				"response/result/doc/field[@name='lang']");
+		assertEquals("en", response);
+	}
+
+	public void getRows() throws IllegalStateException, IOException,
+			XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
+		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("rows", "50"));
+		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
+				CommomTestCase.SEARCH_API, true);
+		String response = commomTestCase.getHttpResponse(httpPost,
+				"count(response/result/doc)");
+		assertEquals("50", response);
+	}
+
+	public void getStart() throws IllegalStateException, IOException,
+			XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
+		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("start", "20"));
+		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
+				CommomTestCase.SEARCH_API, true);
+		String response = commomTestCase.getHttpResponse(httpPost,
+				"response/result/doc/@pos");
+		assertEquals("20", response);
 	}
 
 	public void getCollapsedDocumentCount() throws IllegalStateException,
@@ -109,7 +151,7 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@collapsedDocCount");
-		assertEquals("173", response);
+		assertEquals("174", response);
 	}
 
 	public void checkSpellCheck() throws IllegalStateException, IOException,
@@ -132,6 +174,9 @@ public class SearchTestCase extends TestCase {
 		searchTestCase.addTest(new SearchTestCase("getDocumentsFound"));
 		searchTestCase.addTest(new SearchTestCase("getCollapsedDocumentCount"));
 		searchTestCase.addTest(new SearchTestCase("getFilterSearch"));
+		searchTestCase.addTest(new SearchTestCase("getReturnField"));
+		searchTestCase.addTest(new SearchTestCase("getRows"));
+		searchTestCase.addTest(new SearchTestCase("getStart"));
 		searchTestCase.addTest(new SearchTestCase("checkFacetField"));
 		searchTestCase.addTest(new SearchTestCase("checkSpellCheck"));
 		return searchTestCase;

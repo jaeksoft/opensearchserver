@@ -31,8 +31,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ WebTemplateTestCase.class, PatternTestCase.class,
 		WebCrawlerTestCase.class, IndexTestCase.class, OptimizeTestCase.class,
 		SearchTemplateTestCase.class, SearchTestCase.class,
-		AutocompletionTestCase.class, FileCrawlerTestCase.class,
-		DeleteTestCase.class, DeleteIndexTestCase.class })
+		AutocompletionTestCase.class, FileCrawlerTestCase.class, })
 public class AllTests {
 
 }
