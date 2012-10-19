@@ -56,7 +56,9 @@ public enum CrawlStatus {
 
 	DELETION("Deletion"),
 
-	EXECUTE_SCHEDULER_JOB("Execute scheduler job");
+	EXECUTE_SCHEDULER_JOB("Execute scheduler job"),
+
+	BREAK("Relaxing break");
 
 	public String name;
 

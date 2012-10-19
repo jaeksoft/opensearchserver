@@ -120,16 +120,19 @@ public class TaskManager implements Job {
 		}
 	}
 
-	public static void executeJob(String indexName, String jobName)
-			throws SearchLibException {
+	public static ImmediateTaskDetail executeJob(String indexName,
+			String jobName) throws SearchLibException {
 		lock.rl.lock();
 		try {
 			checkSchedulerAvailable();
-			JobDetail jobDetail = new ImmediateTaskDetail(indexName, jobName,
-					TaskManager.class);
-			Trigger trigger = new SimpleTrigger(jobDetail.getName(),
+			ImmediateTaskDetail jobDetail = new ImmediateTaskDetail(indexName,
+					jobName, TaskManager.class);
+			SimpleTrigger trigger = new SimpleTrigger(jobDetail.getName(),
 					jobDetail.getGroup());
+			scheduler.addJobListener(jobDetail);
+			jobDetail.addJobListener(jobDetail.getName());
 			scheduler.scheduleJob(jobDetail, trigger);
+			return jobDetail;
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -137,18 +140,32 @@ public class TaskManager implements Job {
 		}
 	}
 
-	public static void executeTask(Client client, TaskItem taskItem)
-			throws SearchLibException {
+	public static ImmediateTaskDetail executeTask(Client client,
+			TaskItem taskItem) throws SearchLibException {
 		lock.rl.lock();
 		try {
 			checkSchedulerAvailable();
-			JobDetail jobDetail = new ImmediateTaskDetail(
+			ImmediateTaskDetail jobDetail = new ImmediateTaskDetail(
 					client.getIndexName(), taskItem, TaskManager.class);
-			Trigger trigger = new SimpleTrigger(jobDetail.getName(),
+			SimpleTrigger trigger = new SimpleTrigger(jobDetail.getName(),
 					jobDetail.getGroup());
+			scheduler.addJobListener(jobDetail);
+			jobDetail.addJobListener(jobDetail.getName());
 			scheduler.scheduleJob(jobDetail, trigger);
+			return jobDetail;
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
+		} finally {
+			lock.rl.unlock();
+		}
+	}
+
+	public static void removeJobListener(ImmediateTaskDetail jobDetail) {
+		lock.rl.lock();
+		try {
+			scheduler.removeJobListener(jobDetail.getName());
+		} catch (SchedulerException e) {
+			Logging.warn(e);
 		} finally {
 			lock.rl.unlock();
 		}
@@ -200,8 +217,9 @@ public class TaskManager implements Job {
 		String jobName = null;
 		TaskItem taskItem = null;
 		if (jobDetail instanceof ImmediateTaskDetail) {
-			jobName = ((ImmediateTaskDetail) jobDetail).getJobName();
-			taskItem = ((ImmediateTaskDetail) jobDetail).getTaskItem();
+			ImmediateTaskDetail immediateJobDetail = (ImmediateTaskDetail) jobDetail;
+			jobName = immediateJobDetail.getJobName();
+			taskItem = immediateJobDetail.getTaskItem();
 		} else
 			jobName = jobDetail.getName();
 		try {
@@ -227,6 +245,6 @@ public class TaskManager implements Job {
 		} catch (IOException e) {
 			Logging.error(e);
 		}
-
 	}
+
 }

@@ -101,8 +101,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			int threadNumber = propertyManager.getMaxThreadNumber().getValue();
 			maxUrlPerSession = propertyManager.getMaxUrlPerSession().getValue();
 			maxUrlPerHost = propertyManager.getMaxUrlPerHost().getValue();
-			String schedulerJob = propertyManager.getSchedulerAfterSession()
-					.getValue();
+			String schedulerJobName = propertyManager
+					.getSchedulerAfterSession().getValue();
 
 			synchronized (newHostList) {
 				newHostList.clear();
@@ -142,10 +142,12 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				setStatus(CrawlStatus.OPTIMIZATION);
 				config.getUrlManager().reload(true, null);
 			}
-			if (schedulerJob != null && schedulerJob.length() > 0) {
+			if (schedulerJobName != null && schedulerJobName.length() > 0) {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);
-				TaskManager.executeJob(config.getIndexName(), schedulerJob);
+				TaskManager.executeJob(config.getIndexName(), schedulerJobName)
+						.waitForCompletion(0);
 			}
+			setStatus(CrawlStatus.BREAK);
 			sleepSec(5);
 		}
 		urlCrawlQueue.index(true);

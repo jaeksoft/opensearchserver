@@ -25,8 +25,13 @@
 package com.jaeksoft.searchlib.scheduler;
 
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobListener;
 
-public class ImmediateTaskDetail extends JobDetail {
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+
+public class ImmediateTaskDetail extends JobDetail implements JobListener {
 
 	/**
 	 * 
@@ -35,6 +40,9 @@ public class ImmediateTaskDetail extends JobDetail {
 
 	private final String jobName;
 	private final TaskItem taskItem;
+	private boolean executed;
+
+	private final static ReadWriteLock rwl = new ReadWriteLock();
 
 	/**
 	 * Immediate job execution
@@ -49,6 +57,7 @@ public class ImmediateTaskDetail extends JobDetail {
 				taskClass);
 		this.jobName = jobName;
 		this.taskItem = null;
+		this.executed = false;
 	}
 
 	/**
@@ -64,13 +73,74 @@ public class ImmediateTaskDetail extends JobDetail {
 				taskClass);
 		this.jobName = null;
 		this.taskItem = taskItem;
+		this.executed = false;
 	}
 
 	public String getJobName() {
-		return jobName;
+		rwl.r.lock();
+		try {
+			return jobName;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public String getName() {
+		return getJobName();
 	}
 
 	public TaskItem getTaskItem() {
-		return taskItem;
+		rwl.r.lock();
+		try {
+			return taskItem;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
+
+	protected void setExecuted() {
+		rwl.w.lock();
+		try {
+			executed = true;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public boolean isExecuted() {
+		rwl.r.lock();
+		try {
+			return executed;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public void jobExecutionVetoed(JobExecutionContext arg0) {
+		setExecuted();
+		TaskManager.removeJobListener(this);
+	}
+
+	@Override
+	public void jobToBeExecuted(JobExecutionContext arg0) {
+	}
+
+	@Override
+	public void jobWasExecuted(JobExecutionContext arg0,
+			JobExecutionException arg1) {
+		setExecuted();
+		TaskManager.removeJobListener(this);
+	}
+
+	public void waitForCompletion(int secTimeOut) throws InterruptedException {
+		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
+		while (isExecuted()) {
+			if (secTimeOut != 0)
+				if (System.currentTimeMillis() > finalTime)
+					return;
+			Thread.sleep(100);
+		}
+	}
+
 }
