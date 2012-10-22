@@ -214,15 +214,15 @@
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="yes" termVector="positions_offsets" />
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
+				stored="no" termVector="yes" />
 			<field name="titlePhonetic" analyzer="PhoneticAnalyzer"
 				indexed="yes" stored="no" termVector="no" />
 			<field name="content" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
+				stored="no" termVector="yes" />
 			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="no" />
+				indexed="yes" stored="no" termVector="yes" />
 			<field name="contentBaseType" indexed="yes" stored="no"
 				termVector="no" />
 			<field name="url" indexed="yes" stored="no" termVector="no" />
