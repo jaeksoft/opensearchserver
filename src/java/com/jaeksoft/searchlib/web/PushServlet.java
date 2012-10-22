@@ -124,12 +124,13 @@ public class PushServlet extends AbstractServlet {
 		String dataPath = replicationItem.getDirectory(client)
 				.getAbsolutePath();
 		String filePath = sourceFile.getAbsolutePath();
-		filePath = FilesUtils.systemPathToUnix(filePath);
 		if (!filePath.startsWith(dataPath))
 			throw new SearchLibException("Bad file path " + filePath);
 		filePath = filePath.substring(dataPath.length());
-		return replicationItem.getCachedUrl() + "&filePath="
-				+ URLEncoder.encode(filePath, "UTF-8")
+		return replicationItem.getCachedUrl()
+				+ "&filePath="
+				+ URLEncoder.encode(FilesUtils.systemPathToUnix(filePath),
+						"UTF-8")
 				+ (sourceFile.isDirectory() ? "&type=dir" : "");
 	}
 
