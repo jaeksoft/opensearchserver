@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.apache.commons.io.FilenameUtils;
+
 public class FilesUtils {
 
 	public final static class LastModifiedAscComparator implements
@@ -57,6 +59,18 @@ public class FilesUtils {
 		else
 			Arrays.sort(files, new LastModifiedAscComparator());
 		return files;
+	}
+
+	public static String systemPathToUnix(String filePath) {
+		if ("\\".equals(File.separator))
+			filePath = FilenameUtils.separatorsToUnix(filePath);
+		return filePath;
+	}
+
+	public static String unixToSystemPath(String filePath) {
+		if ("\\".equals(File.separator))
+			filePath = FilenameUtils.separatorsToWindows(filePath);
+		return filePath;
 	}
 
 	public final static boolean isSubDirectory(File base, File child)

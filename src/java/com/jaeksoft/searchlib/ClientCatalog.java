@@ -57,6 +57,7 @@ import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
+import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -450,6 +451,7 @@ public class ClientCatalog {
 
 	public static void receive_dir(Client client, String filePath)
 			throws IOException {
+		filePath = FilesUtils.unixToSystemPath(filePath);
 		File rootDir = getTempReceiveDir(client);
 		File targetFile = new File(rootDir, filePath);
 		targetFile.mkdir();
@@ -457,6 +459,7 @@ public class ClientCatalog {
 
 	public static void receive_file(Client client, String filePath,
 			InputStream is) throws IOException {
+		filePath = FilesUtils.unixToSystemPath(filePath);
 		File rootDir = getTempReceiveDir(client);
 		File targetFile = new File(rootDir, filePath);
 		targetFile.createNewFile();

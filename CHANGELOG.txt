@@ -7,15 +7,20 @@ All new features and bugs are described here:
 http://sourceforge.net/p/opensearchserve/feature-request/
 http://sourceforge.net/p/opensearchserve/bug-report/
 
+OpenSearchServer 1.3.1
+
+Bug fixes:
+- 153: Failed replication from Windows to Linux because of file separator
+
 OpenSearchServer 1.3
 
 New features:
 - 238: Job called when crawl session ends
 - 237: Transaction isolation level should editable
 - 236: Default value in the Classifier
-- 235 Named entity recognition
+- 235: Named entity recognition
 - 234: Free text submission to MoreLikeThis query
-- 233 Add deletion support in XML indexation
+- 233: Add deletion support in XML indexation
 - 232: FTP feed XML task
 - 231: Autocompletion API
 - 230: Dropbox indexation

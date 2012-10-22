@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class PushServlet extends AbstractServlet {
@@ -123,6 +124,7 @@ public class PushServlet extends AbstractServlet {
 		String dataPath = replicationItem.getDirectory(client)
 				.getAbsolutePath();
 		String filePath = sourceFile.getAbsolutePath();
+		filePath = FilesUtils.systemPathToUnix(filePath);
 		if (!filePath.startsWith(dataPath))
 			throw new SearchLibException("Bad file path " + filePath);
 		filePath = filePath.substring(dataPath.length());
