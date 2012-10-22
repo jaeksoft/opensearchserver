@@ -90,7 +90,7 @@ public class PushServlet extends AbstractServlet {
 						XML_CALL_KEY_STATUS_OK);
 				return;
 			}
-
+			filePath = FilesUtils.unixToSystemPath(filePath);
 			if (transaction.getParameterBoolean("type", "dir", false))
 				ClientCatalog.receive_dir(client, filePath);
 			else
