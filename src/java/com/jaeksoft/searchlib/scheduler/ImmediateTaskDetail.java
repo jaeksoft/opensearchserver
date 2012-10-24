@@ -85,10 +85,6 @@ public class ImmediateTaskDetail extends JobDetail implements JobListener {
 		}
 	}
 
-	public String getName() {
-		return getJobName();
-	}
-
 	public TaskItem getTaskItem() {
 		rwl.r.lock();
 		try {
