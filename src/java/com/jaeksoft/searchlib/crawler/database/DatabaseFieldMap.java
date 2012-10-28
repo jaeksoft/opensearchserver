@@ -105,7 +105,7 @@ public class DatabaseFieldMap extends
 				File file = new File(dfTarget.getFilePath(content));
 				if (file.exists()) {
 					Parser parser = parserSelector.parseFile(null,
-							file.getName(), null, file, lang);
+							file.getName(), null, null, file, lang);
 					if (parser != null)
 						parser.populate(target);
 				} else {

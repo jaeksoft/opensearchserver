@@ -112,4 +112,14 @@ public class ExecutionAbstract {
 		}
 	}
 
+	public boolean waitForStart(int secTimeOut) throws InterruptedException {
+		long timeOut = System.currentTimeMillis() + secTimeOut * 1000;
+		while (System.currentTimeMillis() < timeOut) {
+			if (getLastExecution() != null)
+				return true;
+			Thread.sleep(500);
+		}
+		return false;
+	}
+
 }

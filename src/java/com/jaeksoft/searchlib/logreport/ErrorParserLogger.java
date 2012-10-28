@@ -46,6 +46,13 @@ public class ErrorParserLogger {
 			logger.close();
 	}
 
+	public final static String getLocation(StackTraceElement[] stackTrace) {
+		for (StackTraceElement element : stackTrace)
+			if (element.getClassName().startsWith("com.jaeksoft"))
+				return element.toString();
+		return null;
+	}
+
 	public final static void log(String url, String filename, String filePath,
 			Throwable t) throws SearchLibException {
 		StringBuffer sb = new StringBuffer('\t');
@@ -61,12 +68,9 @@ public class ErrorParserLogger {
 		String causeMessage = null;
 		while (t != null) {
 			causeMessage = t.getMessage();
-			for (StackTraceElement element : t.getStackTrace()) {
-				if (element.getClassName().startsWith("com.jaeksoft")) {
-					codeLocation = element.toString();
-					break;
-				}
-			}
+			String cl = getLocation(t.getStackTrace());
+			if (cl != null)
+				codeLocation = cl;
 			t = t.getCause();
 		}
 		if (causeMessage != null) {

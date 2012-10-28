@@ -77,7 +77,8 @@ public class SchedulerListController extends SchedulerController {
 		reloadSchedulerPages();
 	}
 
-	public void doExecute(Component comp) throws SearchLibException {
+	public void doExecute(Component comp) throws SearchLibException,
+			NamingException {
 		JobItem job = getCompJobItem(comp);
 		if (job == null)
 			return;

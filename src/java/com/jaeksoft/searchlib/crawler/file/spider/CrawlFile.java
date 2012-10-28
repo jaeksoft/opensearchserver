@@ -91,7 +91,7 @@ public class CrawlFile {
 						.getIndexDocument(fileItemFieldEnum);
 
 				parser = config.getParserSelector().parseFileInstance(
-						sourceDocument, fileItem.getFileName(), null,
+						sourceDocument, fileItem.getFileName(), null, null,
 						fileInstance, null,
 						parserSelector.getFileCrawlerDefaultParser());
 

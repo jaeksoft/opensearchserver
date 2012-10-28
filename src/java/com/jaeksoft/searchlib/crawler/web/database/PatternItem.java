@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import com.jaeksoft.searchlib.crawler.common.database.Selector;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PatternItem {
 
@@ -99,15 +100,8 @@ public class PatternItem {
 	}
 
 	public void setPattern(String s) {
-		sPattern = s;
-		s = s.trim();
-		CharSequence[] esc = { "\\", ".", "(", ")", "[", "]", "+", "?", "*" };
-		CharSequence[] replace = { "/", "\\.", "\\(", "\\)", "\\[", "\\]",
-				"\\+", "\\?", ".*" };
-		int i = 0;
-		for (CharSequence ch : esc)
-			s = s.replace(ch, replace[i++]);
-		pattern = Pattern.compile(s);
+		sPattern = s.trim();
+		pattern = StringUtils.wildcardPattern(s);
 	}
 
 	public URL extractUrl(boolean removeWildcard) throws MalformedURLException {

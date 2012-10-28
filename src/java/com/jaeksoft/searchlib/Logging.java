@@ -163,6 +163,13 @@ public class Logging {
 		logger.warn(msg);
 	}
 
+	public final static void warn(String msg, StackTraceElement[] stackTrace) {
+		logger.warn(msg);
+		for (StackTraceElement element : stackTrace)
+			if (element.getClassName().startsWith("com.jaeksoft"))
+				logger.warn(element.toString());
+	}
+
 	public final static void warn(Exception e) {
 		if (noLogger(System.err, e.getMessage(), e))
 			return;

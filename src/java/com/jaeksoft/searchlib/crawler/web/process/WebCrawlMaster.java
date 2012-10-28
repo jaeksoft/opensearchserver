@@ -144,8 +144,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			}
 			if (schedulerJobName != null && schedulerJobName.length() > 0) {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);
-				TaskManager.executeJob(config.getIndexName(), schedulerJobName)
-						.waitForCompletion(0);
+				TaskManager.executeJob(config.getIndexName(), schedulerJobName);
 			}
 			setStatus(CrawlStatus.BREAK);
 			sleepSec(5);

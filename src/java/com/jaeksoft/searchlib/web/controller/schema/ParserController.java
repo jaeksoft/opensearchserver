@@ -79,6 +79,8 @@ public class ParserController extends CommonController implements
 
 	private transient String currentMimeType;
 
+	private transient String currentUrlPattern;
+
 	private transient String captureRegexp;
 
 	private transient boolean removeTag;
@@ -217,6 +219,15 @@ public class ParserController extends CommonController implements
 		if (mimeTypeSet == null)
 			return false;
 		return mimeTypeSet.size() > 0;
+	}
+
+	public boolean isParserUrlPattern() {
+		if (currentParser == null)
+			return false;
+		Set<String> urlPatternSet = currentParser.getUrlPatternSet();
+		if (urlPatternSet == null)
+			return false;
+		return urlPatternSet.size() > 0;
 	}
 
 	public List<SchemaField> getIndexFieldList() throws SearchLibException {
@@ -405,6 +416,21 @@ public class ParserController extends CommonController implements
 		this.currentMimeType = currentMimeType;
 	}
 
+	/**
+	 * @return the currentUrlPattern
+	 */
+	public String getCurrentUrlPattern() {
+		return currentUrlPattern;
+	}
+
+	/**
+	 * @param currentUrlPattern
+	 *            the currentUrlPattern to set
+	 */
+	public void setCurrentUrlPattern(String currentUrlPattern) {
+		this.currentUrlPattern = currentUrlPattern;
+	}
+
 	public void onAddExtension() throws MalformedURLException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
@@ -429,10 +455,6 @@ public class ParserController extends CommonController implements
 			ClassNotFoundException, SearchLibException {
 		if (currentMimeType == null || currentMimeType.trim().length() == 0)
 			return;
-		ParserFactory p = getClient().getParserSelector()
-				.checkParserFromMimeType(currentMimeType);
-		if (p != null && p != selectedParser)
-			throw new SearchLibException("This MIME type is already affected");
 		currentParser.addMimeType(currentMimeType.trim());
 		reloadPage();
 	}
@@ -440,6 +462,21 @@ public class ParserController extends CommonController implements
 	public void onDeleteMimeType(Component comp) throws SearchLibException {
 		currentParser.removeMimeType((String) getRecursiveComponentAttribute(
 				comp, "mimeTypeItem"));
+		reloadPage();
+	}
+
+	public void onAddUrlPattern() throws MalformedURLException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException {
+		if (currentUrlPattern == null || currentUrlPattern.trim().length() == 0)
+			return;
+		currentParser.addUrlPattern(currentUrlPattern.trim());
+		reloadPage();
+	}
+
+	public void onDeleteUrlPattern(Component comp) throws SearchLibException {
+		currentParser.removeUrlPattern((String) getRecursiveComponentAttribute(
+				comp, "urlPatternItem"));
 		reloadPage();
 	}
 

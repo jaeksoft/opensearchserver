@@ -1,7 +1,7 @@
 Source: opensearchserver
 Maintainer: Emmanuel Keller <ekeller@open-search-server.com>
 Priority: optional
-Build-Depends: java6-runtime-headless, ant, debhelper (>= 7.0.50~)
+Build-Depends: java6-runtime-headless, ant, debhelper (>= 8)
 Standards-Version: 3.9.1
 Homepage: http://www.open-search-server.com/community
 

@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
-import java.io.IOException;
 import java.text.ParseException;
 
 import javax.naming.NamingException;
@@ -36,7 +35,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -45,6 +43,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.SimpleLock;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class TaskManager implements Job {
 
@@ -120,55 +119,44 @@ public class TaskManager implements Job {
 		}
 	}
 
-	public static ImmediateTaskDetail executeJob(String indexName,
-			String jobName) throws SearchLibException {
-		lock.rl.lock();
-		try {
-			checkSchedulerAvailable();
-			ImmediateTaskDetail jobDetail = new ImmediateTaskDetail(indexName,
-					jobName, TaskManager.class);
-			SimpleTrigger trigger = new SimpleTrigger(jobDetail.getName(),
-					jobDetail.getGroup());
-			scheduler.addJobListener(jobDetail);
-			jobDetail.addJobListener(jobDetail.getName());
-			scheduler.scheduleJob(jobDetail, trigger);
-			return jobDetail;
-		} catch (SchedulerException e) {
-			throw new SearchLibException(e);
-		} finally {
-			lock.rl.unlock();
-		}
+	/**
+	 * Synchronous execution of a full Job
+	 * 
+	 * @param indexName
+	 * @param jobName
+	 * @throws SearchLibException
+	 * @throws NamingException
+	 */
+	public static void executeJob(String indexName, String jobName)
+			throws SearchLibException, NamingException {
+		Client client = ClientCatalog.getClient(indexName);
+		if (client == null)
+			throw new SearchLibException("Client not found: " + indexName);
+		JobList jobList = client.getJobList();
+		JobItem jobItem = jobList.get(jobName);
+		if (jobItem == null)
+			throw new SearchLibException("Job not found: " + jobName);
+		jobItem.run(client);
 	}
 
-	public static ImmediateTaskDetail executeTask(Client client,
-			TaskItem taskItem) throws SearchLibException {
-		lock.rl.lock();
-		try {
-			checkSchedulerAvailable();
-			ImmediateTaskDetail jobDetail = new ImmediateTaskDetail(
-					client.getIndexName(), taskItem, TaskManager.class);
-			SimpleTrigger trigger = new SimpleTrigger(jobDetail.getName(),
-					jobDetail.getGroup());
-			scheduler.addJobListener(jobDetail);
-			jobDetail.addJobListener(jobDetail.getName());
-			scheduler.scheduleJob(jobDetail, trigger);
-			return jobDetail;
-		} catch (SchedulerException e) {
-			throw new SearchLibException(e);
-		} finally {
-			lock.rl.unlock();
-		}
-	}
-
-	public static void removeJobListener(ImmediateTaskDetail jobDetail) {
-		lock.rl.lock();
-		try {
-			scheduler.removeJobListener(jobDetail.getName());
-		} catch (SchedulerException e) {
-			Logging.warn(e);
-		} finally {
-			lock.rl.unlock();
-		}
+	/**
+	 * Asynchronous execution of a Task
+	 * 
+	 * @param client
+	 * @param taskItem
+	 * @param taskLog
+	 * @return
+	 * @throws InterruptedException
+	 */
+	public static ImmediateExecution executeTask(Client client,
+			TaskItem taskItem, TaskLog taskLog) throws InterruptedException {
+		if (taskLog == null)
+			taskLog = new TaskLog(taskItem, false);
+		ImmediateExecution execution = new ImmediateExecution(client, taskItem,
+				taskLog);
+		client.getThreadPool().execute(execution);
+		taskItem.waitForStart(600);
+		return execution;
 	}
 
 	public static String[] getActiveJobs(String indexName)
@@ -206,45 +194,22 @@ public class TaskManager implements Job {
 		} finally {
 			lock.rl.unlock();
 		}
-
 	}
 
 	@Override
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
+		if (StartStopListener.isShutdown())
+			throw new JobExecutionException("Aborted (application stopped)");
 		JobDetail jobDetail = context.getJobDetail();
 		String indexName = jobDetail.getGroup();
-		String jobName = null;
-		TaskItem taskItem = null;
-		if (jobDetail instanceof ImmediateTaskDetail) {
-			ImmediateTaskDetail immediateJobDetail = (ImmediateTaskDetail) jobDetail;
-			jobName = immediateJobDetail.getJobName();
-			taskItem = immediateJobDetail.getTaskItem();
-		} else
-			jobName = jobDetail.getName();
+		String jobName = jobDetail.getName();
 		try {
-			Client client = ClientCatalog.getClient(indexName);
-			if (client == null) {
-				removeJobs(indexName);
-				return;
-			}
-			if (jobName != null) {
-				JobList jobList = client.getJobList();
-				JobItem jobItem = jobList.get(jobName);
-				if (jobItem == null)
-					throw new SearchLibException("Job not found: " + jobName);
-				jobItem.run(client);
-			} else if (taskItem != null) {
-				TaskLog taskLog = new TaskLog(taskItem, false);
-				taskItem.run(client, taskLog);
-			}
+			executeJob(indexName, jobName);
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		} catch (NamingException e) {
 			Logging.error(e);
-		} catch (IOException e) {
-			Logging.error(e);
 		}
 	}
-
 }

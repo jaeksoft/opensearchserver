@@ -58,14 +58,14 @@ public class CommandsController extends CommonController {
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, InterruptedException {
 			Client client = getClient();
 			if (client == null)
 				return;
 			if (isRunningTruncate())
 				throw new SearchLibException("Truncation is already running.");
 			taskTruncate = new TaskItem(client, new TaskDeleteAll());
-			TaskManager.executeTask(client, taskTruncate);
+			TaskManager.executeTask(client, taskTruncate, null);
 			reloadPage();
 		}
 	}
@@ -149,7 +149,7 @@ public class CommandsController extends CommonController {
 	}
 
 	public void onOptimize() throws SearchLibException, IOException,
-			URISyntaxException {
+			URISyntaxException, InterruptedException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
@@ -158,7 +158,7 @@ public class CommandsController extends CommonController {
 				throw new SearchLibException(
 						"The optimization is already running");
 			taskOptimize = new TaskItem(client, new TaskOptimizeIndex());
-			TaskManager.executeTask(client, taskOptimize);
+			TaskManager.executeTask(client, taskOptimize, null);
 			reloadPage();
 		}
 	}

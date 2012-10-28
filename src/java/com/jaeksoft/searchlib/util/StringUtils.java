@@ -142,17 +142,6 @@ public class StringUtils extends org.apache.commons.lang.StringUtils {
 	}
 
 	public static void main(String[] args) throws IOException {
-		// String text =
-		// "<p style=\"text-align: right;\"><em>Travailler   dans la tolérance et en cohérence    apportera respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
-		// System.out.println(removeTag(text));
-		// text =
-		// "<p style=\"text-align: right;\"><em>Travailler     dans la tolérance    et en cohérence apportera   respect à tous</em><br />Florence, directrice</p><p>Accueil des enfants du lundi au vendredi de 7h30 à 18h30. La crèche ferme une semaine à Noël et quatre semaines en été.</p>";
-		// System.out.println(removeTag(text));
-		// text =
-		// "test<script>script content</SCRIPT>test<object>object    content</object>test";
-		// System.out.println(removeScriptObjectStylePattern.matcher(text)
-		// .replaceAll(""));
-
 		List<String> lines = FileUtils.readLines(new File(args[0]));
 		FileWriter fw = new FileWriter(new File(args[1]));
 		PrintWriter pw = new PrintWriter(fw);
@@ -160,6 +149,18 @@ public class StringUtils extends org.apache.commons.lang.StringUtils {
 			pw.println(StringEscapeUtils.unescapeHtml(line));
 		pw.close();
 		fw.close();
+	}
+
+	public static Pattern wildcardPattern(String s) {
+		final CharSequence[] esc = { "\\", ".", "(", ")", "[", "]", "+", "?",
+				"*" };
+		final CharSequence[] replace = { "/", "\\.", "\\(", "\\)", "\\[",
+				"\\]", "\\+", "\\?", ".*" };
+		s = s.trim();
+		int i = 0;
+		for (CharSequence ch : esc)
+			s = s.replace(ch, replace[i++]);
+		return Pattern.compile(s);
 	}
 
 	public static final String removeTag(String text, String[] allowedTags) {

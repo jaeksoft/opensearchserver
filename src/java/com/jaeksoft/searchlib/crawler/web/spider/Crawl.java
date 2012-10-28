@@ -142,8 +142,8 @@ public class Crawl {
 		Date parserStartDate = new Date();
 		// TODO Which language for OCR ?
 		parser = parserSelector.parseStream(sourceDocument, fileName,
-				urlItem.getContentBaseType(), inputStream, null,
-				parserSelector.getWebCrawlerDefaultParser());
+				urlItem.getContentBaseType(), urlItem.getUrl(), inputStream,
+				null, parserSelector.getWebCrawlerDefaultParser());
 		if (parser == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;

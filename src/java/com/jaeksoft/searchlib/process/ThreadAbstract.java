@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public abstract class ThreadAbstract implements Runnable, InfoCallback {
 
@@ -99,6 +100,8 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 	}
 
 	public boolean isAborted() {
+		if (StartStopListener.isShutdown())
+			abort();
 		rwl.r.lock();
 		try {
 			return abort;
@@ -153,6 +156,8 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 	public boolean waitForEnd(int secTimeOut) {
 		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
 		while (isRunning()) {
+			if (isAborted())
+				return false;
 			if (secTimeOut != 0)
 				if (System.currentTimeMillis() > finalTime)
 					return false;

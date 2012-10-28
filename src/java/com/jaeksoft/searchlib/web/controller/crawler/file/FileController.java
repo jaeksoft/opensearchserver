@@ -417,7 +417,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 		if (client == null)
 			return;
 		TaskItem taskItem = new TaskItem(client, taskFileManagerAction);
-		TaskManager.executeTask(client, taskItem);
+		TaskManager.executeTask(client, taskItem, null);
 		client.getFileManager().waitForTask(taskFileManagerAction, 30);
 	}
 

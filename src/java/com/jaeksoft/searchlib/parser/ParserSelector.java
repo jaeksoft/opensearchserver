@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.parser;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -58,7 +59,7 @@ public class ParserSelector {
 	private ParserFactory webCrawlerDefaultParserFactory;
 	private Map<String, ParserFactory> parserFactoryMap;
 	private ParserFactory[] parserFactoryArray;
-	private Map<String, ParserFactory> mimeTypeParserMap;
+	private Map<String, Set<ParserFactory>> mimeTypeParserMap;
 	private Map<String, ParserFactory> extensionParserMap;
 	private ParserTypeEnum parserTypeEnum;
 
@@ -68,7 +69,7 @@ public class ParserSelector {
 		fileCrawlerDefaultParserFactory = null;
 		webCrawlerDefaultParserFactory = null;
 		parserTypeEnum = null;
-		mimeTypeParserMap = new TreeMap<String, ParserFactory>();
+		mimeTypeParserMap = new TreeMap<String, Set<ParserFactory>>();
 		extensionParserMap = new TreeMap<String, ParserFactory>();
 		parserFactoryMap = new TreeMap<String, ParserFactory>();
 		parserFactoryArray = null;
@@ -169,9 +170,17 @@ public class ParserSelector {
 				for (String extension : extensionSet)
 					extensionParserMap.put(extension, parserFactory);
 			Set<String> mimeTypeSet = parserFactory.getMimeTypeSet();
-			if (mimeTypeSet != null)
-				for (String mimeType : mimeTypeSet)
-					mimeTypeParserMap.put(mimeType, parserFactory);
+			if (mimeTypeSet != null) {
+				for (String mimeType : mimeTypeSet) {
+					Set<ParserFactory> parserSet = mimeTypeParserMap
+							.get(mimeType);
+					if (parserSet == null) {
+						parserSet = new HashSet<ParserFactory>();
+						mimeTypeParserMap.put(mimeType, parserSet);
+					}
+					parserSet.add(parserFactory);
+				}
+			}
 		}
 		parserFactoryArray = new ParserFactory[parserFactoryMap.size()];
 		int i = 0;
@@ -243,37 +252,50 @@ public class ParserSelector {
 		}
 	}
 
-	private Parser getParserFromMimeType(String contentBaseType)
+	private ParserFactory getParserFactoryFromMimeTypeNoLock(
+			String contentBaseType, String url) {
+		if (mimeTypeParserMap == null)
+			return null;
+		Set<ParserFactory> parserSet = mimeTypeParserMap.get(contentBaseType);
+		if (parserSet == null)
+			return null;
+		for (ParserFactory parser : parserSet)
+			if (parser.matchUrlPattern(url))
+				return parser;
+		if (url == null)
+			return null;
+		return getParserFactoryFromMimeTypeNoLock(contentBaseType, null);
+	}
+
+	private Parser getParserFromMimeType(String contentBaseType, String url)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
-			ParserFactory parserFactory = null;
-			if (mimeTypeParserMap != null)
-				parserFactory = mimeTypeParserMap.get(contentBaseType);
+			ParserFactory parserFactory = getParserFactoryFromMimeTypeNoLock(
+					contentBaseType, url);
 			return getParser(parserFactory);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public ParserFactory checkParserFromMimeType(String mimeType) {
+	public ParserFactory checkParserFromMimeType(String contentBaseType,
+			String url) {
 		rwl.r.lock();
 		try {
-			if (mimeTypeParserMap != null && mimeType != null)
-				return mimeTypeParserMap.get(mimeType);
-			return null;
+			return getParserFactoryFromMimeTypeNoLock(contentBaseType, url);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	final private Parser getParser(String filename, String contentBaseType)
-			throws SearchLibException {
+	final private Parser getParser(String filename, String contentBaseType,
+			String url) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			Parser parser = null;
 			if (contentBaseType != null)
-				parser = getParserFromMimeType(contentBaseType);
+				parser = getParserFromMimeType(contentBaseType, url);
 			if (parser == null && filename != null)
 				parser = getParserFromExtension(FilenameUtils
 						.getExtension(filename));
@@ -361,10 +383,10 @@ public class ParserSelector {
 	}
 
 	public final Parser parseStream(IndexDocument sourceDocument,
-			String filename, String contentBaseType, InputStream inputStream,
-			LanguageEnum lang, Parser defaultParser) throws SearchLibException,
-			IOException {
-		Parser parser = getParser(filename, contentBaseType);
+			String filename, String contentBaseType, String url,
+			InputStream inputStream, LanguageEnum lang, Parser defaultParser)
+			throws SearchLibException, IOException {
+		Parser parser = getParser(filename, contentBaseType, url);
 		for (;;) {
 			if (parser == null) {
 				parser = defaultParser;
@@ -382,9 +404,9 @@ public class ParserSelector {
 	}
 
 	public final Parser parseFile(IndexDocument sourceDocument,
-			String filename, String contentBaseType, File file,
+			String filename, String contentBaseType, String url, File file,
 			LanguageEnum lang) throws SearchLibException, IOException {
-		Parser parser = getParser(filename, contentBaseType);
+		Parser parser = getParser(filename, contentBaseType, url);
 		while (parser != null) {
 			try {
 				parser.parseFile(sourceDocument, file, lang);
@@ -397,9 +419,10 @@ public class ParserSelector {
 	}
 
 	public final Parser parseBase64(IndexDocument sourceDocument,
-			String filename, String contentBaseType, String base64text,
-			LanguageEnum lang) throws SearchLibException, IOException {
-		Parser parser = getParser(filename, contentBaseType);
+			String filename, String contentBaseType, String url,
+			String base64text, LanguageEnum lang) throws SearchLibException,
+			IOException {
+		Parser parser = getParser(filename, contentBaseType, url);
 		while (parser != null) {
 			try {
 				parser.parseBase64(sourceDocument, base64text, filename, lang);
@@ -412,10 +435,10 @@ public class ParserSelector {
 	}
 
 	public final Parser parseFileInstance(IndexDocument sourceDocument,
-			String filename, String contentBaseType,
+			String filename, String contentBaseType, String url,
 			FileInstanceAbstract fileInstance, LanguageEnum lang,
 			Parser defaultParser) throws SearchLibException, IOException {
-		Parser parser = getParser(filename, contentBaseType);
+		Parser parser = getParser(filename, contentBaseType, url);
 		for (;;) {
 			if (parser == null) {
 				parser = defaultParser;

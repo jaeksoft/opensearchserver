@@ -30,6 +30,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
@@ -37,6 +39,7 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Similarity;
+import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -58,8 +61,6 @@ public class WriterLocal extends WriterAbstract {
 
 	private final SimpleLock lock = new SimpleLock();
 
-	private IndexWriter indexWriter;
-
 	private ReaderLocal readerLocal;
 
 	private String similarityClass;
@@ -70,12 +71,12 @@ public class WriterLocal extends WriterAbstract {
 			throws IOException {
 		super(indexConfig);
 		this.readerLocal = readerLocal;
-		this.indexWriter = null;
 		this.similarityClass = indexConfig.getSimilarityClass();
 		this.maxNumSegments = indexConfig.getMaxNumSegments();
 	}
 
-	private void unlock() {
+	public void unlock() {
+		lock.rl.lock();
 		try {
 			Directory dir = readerLocal.getDirectory();
 			if (!IndexWriter.isLocked(dir))
@@ -83,43 +84,75 @@ public class WriterLocal extends WriterAbstract {
 			IndexWriter.unlock(dir);
 		} catch (IOException e) {
 			Logging.error(e.getMessage(), e);
-		}
-	}
-
-	private void close() {
-		lock.rl.lock();
-		try {
-			if (indexWriter != null) {
-				try {
-					indexWriter.close();
-				} catch (IOException e) {
-					Logging.error(e.getMessage(), e);
-				} finally {
-					unlock();
-				}
-				indexWriter = null;
-			}
 		} finally {
 			lock.rl.unlock();
 		}
 	}
 
-	private void open() throws IOException, InstantiationException,
+	private IndexWriter close(IndexWriter indexWriter) {
+		if (indexWriter == null)
+			return null;
+		synchronized (indexWriterList) {
+			if (indexWriterList.size() > 1)
+				logIndexWriterList();
+		}
+		try {
+			indexWriter.waitForMerges();
+			indexWriter.close();
+			synchronized (indexWriterList) {
+				indexWriterList.remove(indexWriter);
+			}
+			return null;
+		} catch (AlreadyClosedException e) {
+			Logging.warn(e.getMessage(), e);
+			return null;
+		} catch (IOException e) {
+			Logging.warn(e.getMessage(), e);
+			return indexWriter;
+		} finally {
+			unlock();
+		}
+	}
+
+	public static class ThreadInfo {
+		public String info;
+		public StackTraceElement[] stackTrace;
+
+		public ThreadInfo() {
+			Thread thread = Thread.currentThread();
+			info = thread.getId() + " - " + thread.getName();
+			stackTrace = thread.getStackTrace();
+		}
+	}
+
+	private final Map<IndexWriter, ThreadInfo> indexWriterList = new HashMap<IndexWriter, ThreadInfo>();
+
+	private final void logIndexWriterList() {
+		synchronized (indexWriterList) {
+			Logging.warn("IndexWriterList size " + indexWriterList.size());
+			if (indexWriterList.size() > 1)
+				for (ThreadInfo threadInfo : indexWriterList.values())
+					Logging.warn("IndexWriter " + threadInfo.info,
+							threadInfo.stackTrace);
+		}
+	}
+
+	private IndexWriter open() throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		lock.rl.lock();
-		try {
-			if (indexWriter != null)
-				return;
-			indexWriter = openIndexWriter(readerLocal.getDirectory(), false);
-			indexWriter.setMaxMergeDocs(1000000);
-			if (similarityClass != null) {
-				Similarity similarity = (Similarity) Class.forName(
-						similarityClass).newInstance();
-				indexWriter.setSimilarity(similarity);
-			}
-		} finally {
-			lock.rl.unlock();
+		IndexWriter indexWriter = openIndexWriter(readerLocal.getDirectory(),
+				false);
+		synchronized (indexWriterList) {
+			if (indexWriterList.size() > 0)
+				logIndexWriterList();
+			indexWriterList.put(indexWriter, new ThreadInfo());
 		}
+		indexWriter.setMaxMergeDocs(1000000);
+		if (similarityClass != null) {
+			Similarity similarity = (Similarity) Class.forName(similarityClass)
+					.newInstance();
+			indexWriter.setSimilarity(similarity);
+		}
+		return indexWriter;
 	}
 
 	private static IndexWriter openIndexWriter(Directory directory,
@@ -164,18 +197,21 @@ public class WriterLocal extends WriterAbstract {
 	public void addDocument(Document document) throws IOException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
+		IndexWriter indexWriter = null;
 		lock.rl.lock();
 		try {
-			open();
+			indexWriter = open();
 			indexWriter.addDocument(document);
-			close();
+			indexWriter = close(indexWriter);
 		} finally {
+			close(indexWriter);
 			lock.rl.unlock();
 		}
 	}
 
-	private boolean updateDoc(Schema schema, IndexDocument document)
-			throws IOException, NoSuchAlgorithmException, SearchLibException {
+	private boolean updateDocNoLock(IndexWriter indexWriter, Schema schema,
+			IndexDocument document) throws IOException,
+			NoSuchAlgorithmException, SearchLibException {
 		if (!acceptDocument(document))
 			return false;
 
@@ -203,10 +239,11 @@ public class WriterLocal extends WriterAbstract {
 
 	private boolean updateDocumentNoLock(Schema schema, IndexDocument document)
 			throws SearchLibException {
+		IndexWriter indexWriter = null;
 		try {
-			open();
-			boolean updated = updateDoc(schema, document);
-			close();
+			indexWriter = open();
+			boolean updated = updateDocNoLock(indexWriter, schema, document);
+			indexWriter = close(indexWriter);
 			if (updated)
 				readerLocal.reload();
 			return updated;
@@ -221,7 +258,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} finally {
-			close();
+			close(indexWriter);
 		}
 	}
 
@@ -238,13 +275,14 @@ public class WriterLocal extends WriterAbstract {
 
 	private int updateDocumentsNoLock(Schema schema,
 			Collection<IndexDocument> documents) throws SearchLibException {
+		IndexWriter indexWriter = null;
 		try {
 			int count = 0;
-			open();
+			indexWriter = open();
 			for (IndexDocument document : documents)
-				if (updateDoc(schema, document))
+				if (updateDocNoLock(indexWriter, schema, document))
 					count++;
-			close();
+			indexWriter = close(indexWriter);
 			if (count > 0)
 				readerLocal.reload();
 			return count;
@@ -259,7 +297,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} finally {
-			close();
+			close(indexWriter);
 		}
 	}
 
@@ -303,11 +341,12 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private void optimizeNoLock() throws SearchLibException {
+		IndexWriter indexWriter = null;
 		try {
-			open();
+			indexWriter = open();
 			optimizing = true;
 			indexWriter.optimize(maxNumSegments, true);
-			close();
+			indexWriter = close(indexWriter);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
@@ -318,7 +357,7 @@ public class WriterLocal extends WriterAbstract {
 			throw new SearchLibException(e);
 		} finally {
 			optimizing = false;
-			close();
+			close(indexWriter);
 		}
 	}
 
@@ -334,11 +373,12 @@ public class WriterLocal extends WriterAbstract {
 
 	private int deleteDocumentNoLock(String field, String value)
 			throws SearchLibException {
+		IndexWriter indexWriter = null;
 		try {
 			int l = readerLocal.getStatistics().getNumDeletedDocs();
-			open();
+			indexWriter = open();
 			indexWriter.deleteDocuments(new Term(field, value));
-			close();
+			indexWriter = close(indexWriter);
 			readerLocal.reload();
 			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
 			return l;
@@ -351,7 +391,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
-			close();
+			close(indexWriter);
 		}
 	}
 
@@ -372,11 +412,12 @@ public class WriterLocal extends WriterAbstract {
 
 	private int deleteDocumentsNoLock(Schema schema, Term[] terms)
 			throws SearchLibException {
+		IndexWriter indexWriter = null;
 		try {
 			int l = readerLocal.getStatistics().getNumDeletedDocs();
-			open();
+			indexWriter = open();
 			indexWriter.deleteDocuments(terms);
-			close();
+			indexWriter = close(indexWriter);
 			if (terms.length > 0)
 				readerLocal.reload();
 			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
@@ -390,7 +431,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
-			close();
+			close(indexWriter);
 		}
 	}
 
@@ -415,11 +456,12 @@ public class WriterLocal extends WriterAbstract {
 
 	private int deleteDocumentsNoLock(SearchRequest query)
 			throws SearchLibException {
+		IndexWriter indexWriter = null;
 		try {
 			int l = readerLocal.getStatistics().getNumDeletedDocs();
-			open();
+			indexWriter = open();
 			indexWriter.deleteDocuments(query.getQuery());
-			close();
+			indexWriter = close(indexWriter);
 			readerLocal.reload();
 			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
 			return l;
@@ -436,7 +478,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
 		} finally {
-			close();
+			close(indexWriter);
 		}
 	}
 
@@ -451,10 +493,11 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private void deleteAllNoLock() throws SearchLibException {
+		IndexWriter indexWriter = null;
 		try {
-			open();
+			indexWriter = open();
 			indexWriter.deleteAll();
-			close();
+			indexWriter = close(indexWriter);
 			readerLocal.reload();
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
@@ -469,7 +512,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
-			close();
+			close(indexWriter);
 		}
 	}
 

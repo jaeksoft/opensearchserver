@@ -87,7 +87,7 @@ public class AlertController implements EventListener {
 	protected void onIgnore() throws SearchLibException {
 	}
 
-	protected void onYes() throws SearchLibException {
+	protected void onYes() throws SearchLibException, InterruptedException {
 	}
 
 	protected void onNo() throws SearchLibException {

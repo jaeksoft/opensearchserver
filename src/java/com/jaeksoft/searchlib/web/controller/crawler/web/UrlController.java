@@ -497,7 +497,7 @@ public class UrlController extends CommonController implements AfterCompose {
 		if (client == null)
 			return;
 		TaskItem taskItem = new TaskItem(client, taskUrlManagerAction);
-		TaskManager.executeTask(client, taskItem);
+		TaskManager.executeTask(client, taskItem, null);
 		client.getUrlManager().waitForTask(taskUrlManagerAction, 30);
 	}
 

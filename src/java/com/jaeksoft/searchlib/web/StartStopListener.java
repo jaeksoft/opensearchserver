@@ -37,10 +37,15 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class StartStopListener implements ServletContextListener {
 
 	public static File OPENSEARCHSERVER_DATA_FILE = null;
+
+	private final static ReadWriteLock rwl = new ReadWriteLock();
+
+	private static boolean active = false;
 
 	private static void initDataDir(ServletContext servletContext) {
 		String single_data = System.getenv("OPENSEARCHSERVER_DATA");
@@ -58,16 +63,36 @@ public class StartStopListener implements ServletContextListener {
 				+ OPENSEARCHSERVER_DATA_FILE);
 	}
 
+	public static void setActive(boolean active) {
+		rwl.w.lock();
+		try {
+			StartStopListener.active = active;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public static boolean isShutdown() {
+		rwl.r.lock();
+		try {
+			return StartStopListener.active == false;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
+		setActive(false);
+
 		Logging.info("OSS SHUTDOWN");
-		ErrorParserLogger.close();
 		try {
 			TaskManager.stop();
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		}
 		ClientCatalog.closeAll();
+		ErrorParserLogger.close();
 	}
 
 	protected ClientFactory getClientFactory() throws SearchLibException {
@@ -82,6 +107,8 @@ public class StartStopListener implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
+
+		setActive(true);
 
 		ServletContext servletContext = contextEvent.getServletContext();
 		initDataDir(servletContext);
