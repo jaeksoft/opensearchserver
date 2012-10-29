@@ -9,8 +9,12 @@ http://sourceforge.net/p/opensearchserve/bug-report/
 
 OpenSearchServer 1.3.1
 
+New features:
+- 240 Several HTML parser configuration per index
+
 Bug fixes:
-- 155:Trigger name cannot be null error when clicking optimize
+- 156: Cannot forcefully unlock a NativeFSLock error
+- 155: Trigger name cannot be null error when clicking optimize
 - 153: Failed replication from Windows to Linux because of file separator
 
 OpenSearchServer 1.3
