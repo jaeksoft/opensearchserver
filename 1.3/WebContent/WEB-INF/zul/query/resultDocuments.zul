@@ -1,0 +1,46 @@
+<window id="resultDocs"
+	use="com.jaeksoft.searchlib.web.controller.query.ResultDocumentsController">
+	<!--
+		License Agreement for OpenSearchServer
+		Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+		http://www.open-search-server.com
+		This file is part of OpenSearchServer.
+		OpenSearchServer is free software: you can
+		redistribute it and/or modify it under the terms of the GNU General
+		Public License as published by the Free Software Foundation, either
+		version 3 of the License, or (at your option) any later version.
+		OpenSearchServer is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		General Public License for more details. You should have received a
+		copy of the GNU General Public License along with OpenSearchServer.
+		If not, see <http://www.gnu.org/licenses/>.
+	-->
+	<grid visible="@{resultDocs.resultExists}">
+		<auxhead>
+			<auxheader colspan="4" label="Summary" align="right">
+				<button label="XML/HTTP API call" target="_blank"
+					href="@{query.requestApiCall}" />
+			</auxheader>
+		</auxhead>
+		<columns visible="false">
+			<column width=" 20%" align="right" />
+			<column width="30%" align="left" />
+			<column width="20%" align="right" />
+			<column width="30%" align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label value="Document(s) found:" />
+				<label value="@{resultMlt.result.numFound}" />
+				<label value="Time elapsed (ms):" />
+				<label value="@{resultMlt.result.timer.duration}" />
+			</row>
+		</rows>
+	</grid>
+
+	<separator />
+
+	<include src="WEB-INF/zul/query/result/documents.zul" />
+
+</window>
