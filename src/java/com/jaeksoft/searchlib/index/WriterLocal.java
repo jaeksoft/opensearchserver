@@ -441,11 +441,18 @@ public class WriterLocal extends WriterAbstract {
 		SchemaField uniqueSchemaField = schema.getFieldList().getUniqueField();
 		if (uniqueSchemaField == null)
 			return 0;
+		int countNonNullValues = 0;
+		for (String value : uniqueFields)
+			if (value != null)
+				countNonNullValues++;
+		if (countNonNullValues == 0)
+			return 0;
 		String uniqueField = uniqueSchemaField.getName();
-		Term[] terms = new Term[uniqueFields.size()];
+		Term[] terms = new Term[countNonNullValues];
 		int i = 0;
 		for (String value : uniqueFields)
-			terms[i++] = new Term(uniqueField, value);
+			if (value != null)
+				terms[i++] = new Term(uniqueField, value);
 		lock.rl.lock();
 		try {
 			return deleteDocumentsNoLock(schema, terms);
