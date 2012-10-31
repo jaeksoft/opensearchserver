@@ -116,13 +116,26 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		return fileInstances;
 	}
 
-	public static class FileOnlyDirectoryFilter implements FTPFileFilter {
+	public static class IgnoreHiddenFilter implements FTPFileFilter {
+		@Override
+		public boolean accept(FTPFile ff) {
+			String name = ff.getName();
+			if (name == null)
+				return false;
+			if (name.startsWith("."))
+				return false;
+			return true;
+		}
+	}
+
+	public static class FileOnlyDirectoryFilter extends IgnoreHiddenFilter {
 
 		@Override
 		public boolean accept(FTPFile ff) {
+			if (!super.accept(ff))
+				return false;
 			return ff.getType() == FTPFile.FILE_TYPE;
 		}
-
 	}
 
 	@Override
@@ -152,7 +165,7 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
-			FTPFile[] files = f.listFiles(getPath());
+			FTPFile[] files = f.listFiles(getPath(), new IgnoreHiddenFilter());
 			return buildFileInstanceArray(files);
 		} catch (SocketException e) {
 			throw new SearchLibException(e);

@@ -13,6 +13,7 @@ New features:
 - 240 Several HTML parser configuration per index
 
 Bug fixes:
+- 158: File crawler infinite loop while crawling FTP directory
 - 157: NullPointerException while deleting documents from web crawler
 - 156: Cannot forcefully unlock a NativeFSLock error
 - 155: Trigger name cannot be null error when clicking optimize
